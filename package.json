@@ -1,0 +1,51 @@
+{
+  "name": "simple-data-analysis",
+  "version": "0.0.1",
+  "description": "Easy to use library for most common data analysis tasks.",
+  "homepage": "https://github.com/nshiab/simple-data-analysis#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nshiab/simple-data-analysis.git"
+  },
+  "keywords": [
+    "data",
+    "analysis",
+    "visualization"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Nael Shiab",
+    "email": "nael.shiab@gmail.com",
+    "url": "http://naelshiab.com"
+  },
+  "type": "module",
+  "files": [
+    "dist/**/*.js",
+    "src/**/*.js"
+  ],
+  "module": "src/index.js",
+  "main": "src/index.js",
+  "jsdelivr": "dist/simple-data-analysis.min.js",
+  "unpkg": "dist/simple-data-analysis.min.js",
+  "exports": {
+    "umd": "./dist/simple-data-analysis.min.js",
+    "default": "./src/index.js"
+  },
+  "scripts": {
+    "test": "mocha",
+    "build": "rm -rf dist && npm run test && rollup --config"
+  },
+  "engines": {
+    "node": ">=14.16"
+  },
+  "bugs": {
+    "url": "https://github.com/nshiab/simple-data-analysis/issues"
+  },
+  "devDependencies": {
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.2.1",
+    "mocha": "^9.2.2",
+    "rollup": "^2.70.2",
+    "rollup-plugin-terser": "^7.0.2"
+  }
+}
