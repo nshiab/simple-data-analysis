@@ -1,8 +1,8 @@
 import assert from "assert";
-import * as sda from "../src/index.js"
+import * as sda from "../dist/index.js"
 
 describe('sda.describe()', function () {
     it('should return a string', function () {
-    assert.equal(typeof sda.describe("Nael"), "string");
+        assert.equal(typeof sda.describe("Nael"), "string");
     });
 });

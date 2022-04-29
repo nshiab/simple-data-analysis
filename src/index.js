@@ -1,1 +1,0 @@
-export {default as describe} from "./methods/describe.js"
