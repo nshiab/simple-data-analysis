@@ -17,14 +17,14 @@ export default {
 	output: [
 		{
 			file: `dist/${meta.name}.js`,
-			name: meta.name,
+			name: "sda",
 			format: "umd",
 			banner: banner
 		},
 		{
 			file: `dist/${meta.name}.min.js`,
 			format: 'iife',
-			name: 'version',
+			name: "sda",
 			banner: banner,
 			plugins: [terser()]
 		}

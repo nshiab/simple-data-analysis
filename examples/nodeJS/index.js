@@ -1,3 +1,3 @@
 import { describe } from "simple-data-analysis"
 
-console.log(describe)
+console.log(describe("nael"))
