@@ -1,3 +1,5 @@
 import { loadCSV } from "../dist/index.js"
 
-console.log(loadCSV("coucou", { logs: true }))
+const simpleData = await loadCSV("./examples/data/employees.csv", { logs: true })
+
+simpleData.describe({ logs: true })

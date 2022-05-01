@@ -32,10 +32,9 @@
         "default": "./dist/index.js"
     },
     "scripts": {
-        "transpile": "npx tsc",
-        "test": "npm run transpile && mocha",
-        "manualTest": "npm run transpile && node test/manualTest.js",
-        "build": "rm -rf dist && npm run transpile && mocha && node test/manualTest.js && rollup --config"
+        "test": "npx tsc && mocha",
+        "manualTest": "npx tsc && node test/manualTest.js",
+        "build": "rm -rf dist && npx tsc && mocha && node test/manualTest.js && rollup --config"
     },
     "engines": {
         "node": ">=14.16"
@@ -52,6 +51,7 @@
         "typescript": "^4.6.4"
     },
     "dependencies": {
+        "d3-dsv": "^3.0.1",
         "d3-fetch": "^3.0.1",
         "simple-data-analysis": "^0.1.4"
     }
