@@ -1,17 +1,21 @@
 // @ts-ignore
-import { csvParse, autoType } from "d3-dsv"
+import { autoType } from "d3-dsv"
 import SimpleData from "../class/SimpleData.js";
-import { Options } from "../types"
+import { Options, defaultOptions } from "../types.js"
 
-const defaultOptions: Options = {
-    logs: false,
+interface loadCsvOptions extends Options {
+    encoding: BufferEncoding
+}
+
+const loadCsvOptionsDefault: loadCsvOptions = {
+    ...defaultOptions,
     encoding: "utf-8"
 }
 
-export default async function loadCSV(path: string, opts: Options) {
+export default async function loadCSV(path: string, opts: loadCsvOptions) {
 
-    const options: Options = {
-        ...defaultOptions,
+    const options: loadCsvOptions = {
+        ...loadCsvOptionsDefault,
         ...opts
     }
 
@@ -24,17 +28,19 @@ export default async function loadCSV(path: string, opts: Options) {
         // TODO: replace with streams https://www.npmjs.com/package/stream-csv-as-json
 
         const fs = await import("fs")
+
         // @ts-ignore
         const { csvParse } = await import("d3-dsv")
 
         const dataRaw = fs.readFileSync(path, { encoding: options.encoding })
-        // @ts-ignore
+
         const jsonData = csvParse(dataRaw, autoType)
-        const columns = jsonData.columns
+
         // @ts-ignore
-        delete jsonData.columns
+        delete jsonData["columns"]
+
         // @ts-ignore
-        const simpleData = new SimpleData(jsonData, columns)
+        const simpleData = new SimpleData(jsonData)
 
         options.logs && console.log("=>", simpleData)
 

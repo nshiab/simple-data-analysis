@@ -1,5 +1,5 @@
 import { loadCSV } from "../dist/index.js"
 
-const simpleData = await loadCSV("./examples/data/employees.csv", { logs: true })
+const simpleData = await loadCSV("./examples/data/employees.csv")
 
-simpleData.describe({ logs: true })
+simpleData.renameKey("Hire date", "HireDate", { logs: true }).describe({ logs: true })
