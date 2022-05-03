@@ -1,5 +1,8 @@
 import renameKey_ from "../methods/renameKey.js"
 import describe_ from "../methods/describe.js"
+import formatAllKeys_ from "../methods/formatAllKeys.js"
+import getArray_ from "../methods/getArray.js"
+import showTable_ from "../methods/showTable.js"
 import { SimpleDataItem, Options } from "../types.js"
 
 export default class SimpleData {
@@ -10,6 +13,10 @@ export default class SimpleData {
         this.data = incomingData
     }
 
+    getArray(key: string, options: Options) {
+        getArray_(this.data, key, options)
+    }
+
     describe(options: Options) {
         describe_(this.data, options)
     }
@@ -18,6 +25,16 @@ export default class SimpleData {
         const data = renameKey_(this.data, oldKey, newKey, options)
         this.data = data
         return this
+    }
+
+    formatAllKeys(options: Options) {
+        const data = formatAllKeys_(this.data, options)
+        this.data = data
+        return this
+    }
+
+    showTable(options: Options) {
+        showTable_(this.data, options)
     }
 
 }

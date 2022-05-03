@@ -1,14 +1,14 @@
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
-import SimpleData from "../class/SimpleData.js"
+import showTable from "./showTable.js"
 
-export default function renameKey(data: SimpleDataItem[], oldKey: string, newKey: string, opts: Options): SimpleDataItem[] {
+export default function renameKey(data: SimpleDataItem[], oldKey: string, newKey: string, options: Options): SimpleDataItem[] {
 
-    const options: Options = {
+    options = {
         ...defaultOptions,
-        ...opts
+        ...options
     }
 
-    options.logs && console.log("\nrename()", oldKey, newKey, options)
+    options.logs && console.log("\nrenameKey()", oldKey, newKey, options)
 
     for (let i = 0; i < data.length; i++) {
         const d = data[i]
@@ -16,7 +16,7 @@ export default function renameKey(data: SimpleDataItem[], oldKey: string, newKey
         delete d[oldKey]
     }
 
-    options.logs && console.log(data)
+    options.logs && showTable(data, options)
 
     return data
 }

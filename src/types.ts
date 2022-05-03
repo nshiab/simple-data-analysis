@@ -3,9 +3,11 @@ export interface SimpleDataItem {
 }
 
 export interface Options {
-    logs: boolean
+    logs: boolean,
+    nbItemInTable: number
 }
 
 export const defaultOptions: Options = {
-    logs: false
+    logs: false,
+    nbItemInTable: 5
 }

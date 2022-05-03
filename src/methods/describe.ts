@@ -1,10 +1,10 @@
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 
-export default function describe(data: SimpleDataItem[], opts: Options): number {
+export default function describe(data: SimpleDataItem[], options: Options): number {
 
-    const options: Options = {
+    options = {
         ...defaultOptions,
-        ...opts
+        ...options
     }
 
     options.logs && console.log("\ndescribe()", options)
