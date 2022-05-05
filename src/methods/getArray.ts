@@ -1,6 +1,6 @@
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 
-export default function getArray(data: SimpleDataItem[], key: string, options: Options): any[] {
+export default function getArray(data: SimpleDataItem[], key: string, options?: Options): any[] {
 
     options = {
         ...defaultOptions,

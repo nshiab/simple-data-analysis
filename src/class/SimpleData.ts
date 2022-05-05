@@ -3,6 +3,7 @@ import describe_ from "../methods/describe.js"
 import formatAllKeys_ from "../methods/formatAllKeys.js"
 import getArray_ from "../methods/getArray.js"
 import showTable_ from "../methods/showTable.js"
+import checkValues_ from "../methods/checkValues.js"
 import { SimpleDataItem, Options } from "../types.js"
 
 export default class SimpleData {
@@ -14,7 +15,11 @@ export default class SimpleData {
     }
 
     getArray(key: string, options: Options) {
-        getArray_(this.data, key, options)
+        return getArray_(this.data, key, options)
+    }
+
+    checkValues(options: Options) {
+        checkValues_(this.data, options)
     }
 
     describe(options: Options) {

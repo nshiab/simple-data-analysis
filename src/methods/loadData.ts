@@ -44,6 +44,20 @@ export default async function loadData(path: string, options: loadCsvOptions) {
 
             const parsedCsv = csvParse(dataRaw, autoType)
 
+            // For some reason, csvParse don't always parse null, undefined and NaN and keep them as strings
+            const valuesToReplace = ["undefined", "NaN", "null"]
+            const correctValues = [undefined, NaN, null]
+            for (let i = 0; i < parsedCsv.length; i++) {
+                for (let col of parsedCsv["columns"]) {
+                    const val = parsedCsv[i][col]
+                    const index = valuesToReplace.indexOf(val)
+                    if (index > -1) {
+                        //@ts-ignore
+                        parsedCsv[i][col] = correctValues[index]
+                    }
+                }
+            }
+
             // @ts-ignore
             delete parsedCsv["columns"]
 

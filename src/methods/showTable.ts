@@ -10,5 +10,5 @@ export default function showTable(data: SimpleDataItem[], options: Options) {
     options.logs && console.log("showTable()", options)
 
     console.table(data.slice(0, options.nbItemInTable))
-    console.log(`... and ${data.length - options.nbItemInTable} more items`)
+    data.length - options.nbItemInTable > 0 && console.log(`... and ${data.length - options.nbItemInTable} more items`)
 }

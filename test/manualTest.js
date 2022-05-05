@@ -5,8 +5,9 @@ const simpleData = await loadData("./examples/data/employees.csv", { logs: true 
 simpleData
     .formatAllKeys({ logs: true })
     .renameKey("departementOrUnit", "unit", { logs: true })
+    .checkValues({ logs: true })
 
-console.log("\n***\nHere's the final data:")
-simpleData.showTable({ logs: true })
+// console.log("\n***\nHere's the final data:")
+// simpleData.showTable({ logs: true })
 
 
