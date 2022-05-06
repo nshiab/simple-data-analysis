@@ -1,6 +1,8 @@
 // @ts-ignore
 import { autoType } from "d3-dsv"
 import SimpleData from "../class/SimpleData.js";
+import { checkEnvironment } from "../helpers/checkEnvironment.js";
+import log from "../helpers/log.js";
 import { Options, defaultOptions } from "../types.js"
 import showTable from "./showTable.js";
 
@@ -22,13 +24,16 @@ export default async function loadData(path: string, options: loadCsvOptions) {
         ...options
     }
 
-    options.logs && console.log('\nloadData()', path, options)
+    options.logs && log('\nloadData(),' + path)
+    options.logOptions && log(options, "blue")
 
     // TODO: add other formats than csv
 
     let arrayOfObjects: any[] = []
 
-    if ((typeof process !== 'undefined') && (process.release.name.search(/node|io.js/) !== -1)) {
+    const environment = checkEnvironment()
+
+    if (environment === "nodejs") {
 
         options.logs && console.log('=> Running in NodeJS')
 
@@ -74,7 +79,7 @@ export default async function loadData(path: string, options: loadCsvOptions) {
 
         return simpleData
 
-    } else {
+    } else if (environment === "webBrowser") {
 
         options.logs && console.log('=> Running in the browser')
 

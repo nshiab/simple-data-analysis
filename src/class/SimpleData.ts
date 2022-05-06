@@ -4,6 +4,7 @@ import formatAllKeys_ from "../methods/formatAllKeys.js"
 import getArray_ from "../methods/getArray.js"
 import showTable_ from "../methods/showTable.js"
 import checkValues_ from "../methods/checkValues.js"
+import excludeMissingValues_ from "../methods/excludeMissingValues.js"
 import { SimpleDataItem, Options } from "../types.js"
 
 export default class SimpleData {
@@ -20,6 +21,13 @@ export default class SimpleData {
 
     checkValues(options: Options) {
         checkValues_(this.data, options)
+        return this
+    }
+
+    excludeMissingValues(key: "onAllItems" | string, options: Options) {
+        const data = excludeMissingValues_(this.data, key, options)
+        this.data = data
+        return this
     }
 
     describe(options: Options) {
@@ -40,6 +48,7 @@ export default class SimpleData {
 
     showTable(options: Options) {
         showTable_(this.data, options)
+        return this
     }
 
 }

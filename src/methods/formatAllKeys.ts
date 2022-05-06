@@ -2,6 +2,7 @@ import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 // @ts-ignore
 import camelCase from "lodash.camelcase"
 import showTable from "./showTable.js"
+import log from "../helpers/log.js"
 
 export default function formatAllKeys(data: SimpleDataItem[], options: Options): SimpleDataItem[] {
 
@@ -26,7 +27,7 @@ export default function formatAllKeys(data: SimpleDataItem[], options: Options):
 
             for (let j = 0; j < keys.length; j++) {
                 if (keys[j] !== camelCasedKeys[j]) {
-                    options.logs && console.log(`${keys[j]} will be changed to ${camelCasedKeys[j]}`)
+                    options.logs && log(`=> ${keys[j]} changed to ${camelCasedKeys[j]}`)
                     keysToChange.push({ oldKey: keys[j], newKey: camelCasedKeys[j] })
                 }
             }

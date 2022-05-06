@@ -1,6 +1,7 @@
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import showTable from "./showTable.js"
 import getArray from "./getArray.js"
+import percentage from "../helpers/percentage.js"
 
 export default function checkValues(data: SimpleDataItem[], options: Options): SimpleDataItem[] {
 
@@ -22,7 +23,7 @@ export default function checkValues(data: SimpleDataItem[], options: Options): S
 
 
     for (let key of keys) {
-        const checks: { [key: string]: number | string } = {}
+        const checks: { [key: string]: any } = {}
         checks["key"] = key
 
         const array = getArray(data, key)
@@ -35,6 +36,10 @@ export default function checkValues(data: SimpleDataItem[], options: Options): S
             uniques.push("NaN")
         }
         checks["uniques"] = uniques.length
+
+        // We declare them first so they are positionned before the others types.
+        checks["string"] = 0
+        checks["number"] = 0
 
         for (let i = 0; i < array.length; i++) {
 
@@ -56,6 +61,12 @@ export default function checkValues(data: SimpleDataItem[], options: Options): S
             } else {
                 //@ts-ignore
                 checks[typeOf] += 1
+            }
+        }
+
+        for (let key of Object.keys(checks)) {
+            if (key !== "key" && key != "count" && checks[key] !== 0) {
+                checks[key] = [checks[key], percentage(checks[key], checks.count, options)]
             }
         }
 
