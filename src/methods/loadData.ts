@@ -6,26 +6,17 @@ import log from "../helpers/log.js";
 import { Options, defaultOptions } from "../types.js"
 import showTable from "./showTable.js";
 
-interface loadCsvOptions extends Options {
-    encoding: BufferEncoding,
-    format: string
-}
 
-const loadCsvOptionsDefault: loadCsvOptions = {
-    ...defaultOptions,
-    format: "csv",
-    encoding: "utf-8"
-}
-
-export default async function loadData(path: string, options: loadCsvOptions) {
+export default async function loadData(path: string, options: Options) {
 
     options = {
-        ...loadCsvOptionsDefault,
+        ...defaultOptions,
         ...options
     }
 
-    options.logs && log('\nloadData(),' + path)
-    options.logOptions && log(options, "blue")
+    options.logs && log("\nloadData() " + path)
+    options.logOptions && log("options:")
+    options.logOptions && log(options)
 
     // TODO: add other formats than csv
 
@@ -33,15 +24,20 @@ export default async function loadData(path: string, options: loadCsvOptions) {
 
     const environment = checkEnvironment()
 
+    const pathSplit = path.split(".")
+    const fileExtension = pathSplit[pathSplit.length - 1]
+
+    options.logs && log("Detected " + fileExtension + " file extension", "blue")
+
     if (environment === "nodejs") {
 
-        options.logs && console.log('=> Running in NodeJS')
+        options.logs && log('Running in NodeJS', "blue")
 
         // TODO: replace with streams https://www.npmjs.com/package/stream-csv-as-json
 
         const fs = await import("fs")
 
-        if (options.format === "csv") {
+        if (fileExtension === "csv") {
             // @ts-ignore
             const { csvParse } = await import("d3-dsv")
 
@@ -67,6 +63,8 @@ export default async function loadData(path: string, options: loadCsvOptions) {
             delete parsedCsv["columns"]
 
             arrayOfObjects = parsedCsv
+        } else {
+            throw new Error("Unknown file extension " + fileExtension);
         }
 
 
@@ -83,11 +81,13 @@ export default async function loadData(path: string, options: loadCsvOptions) {
 
         options.logs && console.log('=> Running in the browser')
 
-        if (options.format === "csv") {
+        if (fileExtension === "csv") {
 
             // @ts-ignore
             const { csv } = await import("d3-fetch");
 
+        } else {
+            throw new Error("Unknown file extension " + fileExtension);
         }
 
     }

@@ -8,9 +8,9 @@ export default function log(valuesToLog: any, color?: "bgRed" | "blue") {
 
     if (environment === "nodejs") {
         if (color === "bgRed") {
-            console.log("\x1b[41m" + JSON.stringify(valuesToLog) + "\x1b[0m")
+            console.log("\x1b[41m", valuesToLog, "\x1b[0m")
         } else if (color === "blue") {
-            console.log("\x1b[34m" + JSON.stringify(valuesToLog) + "\x1b[0m")
+            console.log("\x1b[34m", valuesToLog, "\x1b[0m")
         } else {
             console.log(valuesToLog)
         }

@@ -2,6 +2,7 @@ import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import showTable from "./showTable.js"
 import getArray from "./getArray.js"
 import percentage from "../helpers/percentage.js"
+import log from "../helpers/log.js"
 
 export default function checkValues(data: SimpleDataItem[], options: Options): SimpleDataItem[] {
 
@@ -10,23 +11,20 @@ export default function checkValues(data: SimpleDataItem[], options: Options): S
         ...options
     }
 
-    options.logs && console.log("\ncheckValues()", options)
+    options.logs && console.log("\ncheckValues()")
+    options.logOptions && log("options:")
+    options.logOptions && log(options)
 
     // all items must have the same keys
     const keys = Object.keys(data[0])
 
-    if (options.nbItemInTable !== keys.length) {
-        options.logs && console.log(`overwriting nbItemInTable=${options.nbItemInTable} by the number of keys (${keys.length})`)
-    }
-
     const allChecks: any[] = []
-
 
     for (let key of keys) {
         const checks: { [key: string]: any } = {}
         checks["key"] = key
 
-        const array = getArray(data, key)
+        const array = getArray(data, key, { ...options, logs: false, logOptions: false })
 
         checks["count"] = array.length
 

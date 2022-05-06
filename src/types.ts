@@ -5,6 +5,7 @@ export interface SimpleDataItem {
 }
 
 export interface Options {
+    encoding: BufferEncoding,
     logs: boolean,
     logOptions: boolean,
     nbItemInTable: number,
@@ -13,6 +14,7 @@ export interface Options {
 }
 
 export const defaultOptions: Options = {
+    encoding: "utf-8",
     logs: checkEnvironment() === "nodejs",
     logOptions: false,
     nbItemInTable: 5,

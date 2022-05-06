@@ -11,7 +11,9 @@ export default function formatAllKeys(data: SimpleDataItem[], options: Options):
         ...options
     }
 
-    options.logs && console.log("\nformatAllKeys()", options)
+    options.logs && log("\nformatAllKeys()")
+    options.logOptions && log("options:")
+    options.logOptions && log(options)
 
     const keysToChange = []
 
@@ -27,7 +29,7 @@ export default function formatAllKeys(data: SimpleDataItem[], options: Options):
 
             for (let j = 0; j < keys.length; j++) {
                 if (keys[j] !== camelCasedKeys[j]) {
-                    options.logs && log(`=> ${keys[j]} changed to ${camelCasedKeys[j]}`)
+                    options.logs && log(`=> ${keys[j]} changed to ${camelCasedKeys[j]}`, "blue")
                     keysToChange.push({ oldKey: keys[j], newKey: camelCasedKeys[j] })
                 }
             }

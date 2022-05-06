@@ -11,7 +11,9 @@ export default function excludeMissingValues(data: SimpleDataItem[], key: "onAll
         ...options
     }
 
-    options.logs && console.log("\nexcludeMissingValues()", key, options)
+    options.logs && log("\nexcludeMissingValues() " + key)
+    options.logOptions && log("options:")
+    options.logOptions && log(options)
 
     let filteredData: SimpleDataItem[] = []
 
@@ -28,6 +30,10 @@ export default function excludeMissingValues(data: SimpleDataItem[], key: "onAll
             }
             return check
         })
+    } else if (data[0].hasOwnProperty(key)) {
+        filteredData = data.filter(d => !isMissingValue(d[key], options))
+    } else {
+        throw new Error("No key " + key)
     }
 
     const nbRemoved = data.length - filteredData.length
