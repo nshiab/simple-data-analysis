@@ -4,20 +4,20 @@ import percentage from "../helpers/percentage.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import showTable from "./showTable.js"
 
-export default function excludeMissingValues(data: SimpleDataItem[], key: "onAllKeys" | string, options: Options): SimpleDataItem[] {
+export default function excludeMissingValues(data: SimpleDataItem[], key: string | undefined, options: Options): SimpleDataItem[] {
 
     options = {
         ...defaultOptions,
         ...options
     }
 
-    options.logs && log("\nexcludeMissingValues() " + key)
+    options.logs && log(key === undefined ? "\nexcludeMissingValues() key === undefined Excluding missing values for all keys" : "\nexcludeMissingValues() " + key)
     options.logOptions && log("options:")
     options.logOptions && log(options)
 
     let filteredData: SimpleDataItem[] = []
 
-    if (key === "onAllKeys") {
+    if (key === undefined || key === "onAllKeys") {
         filteredData = data.filter(d => {
             let check = true
             //@ts-ignore
