@@ -5,6 +5,7 @@ import percentage from "../helpers/percentage.js"
 import log from "../helpers/log.js"
 
 export default function checkValues(data: SimpleDataItem[], options: Options): SimpleDataItem[] {
+    const start = Date.now()
 
     options = {
         ...defaultOptions,
@@ -72,6 +73,9 @@ export default function checkValues(data: SimpleDataItem[], options: Options): S
     }
 
     options.logs && showTable(allChecks, options)
+
+    const end = Date.now()
+    options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
 
     return data
 }

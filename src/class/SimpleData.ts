@@ -6,8 +6,16 @@ import showTable_ from "../methods/showTable.js"
 import checkValues_ from "../methods/checkValues.js"
 import excludeMissingValues_ from "../methods/excludeMissingValues.js"
 import removeKey_ from "../methods/removeKey.js"
-import toString_ from "../methods/toString.js"
+import valuesToString_ from "../methods/valuesToString.js"
+import valuesToInteger_ from "../methods/valuesToInteger.js"
+import valuesToFloat_ from "../methods/valuesToFloat.js"
+import valuesToDate_ from "../methods/valuesToDate.js"
+import filterValues_ from "../methods/filterValues.js"
+import filterItems_ from "../methods/filterItems.js"
+import roundValues_ from "../methods/roundValues.js"
+import replaceValues_ from "../methods/replaceValues.js"
 import addKey_ from "../methods/addKey.js"
+import modifyValues_ from "../methods/modifyValues.js"
 import { SimpleDataItem, Options } from "../types.js"
 
 export default class SimpleData {
@@ -51,13 +59,53 @@ export default class SimpleData {
         return this
     }
 
+    modifyValues(key: string, func: Function, options: Options) {
+        this.data = modifyValues_(this.data, key, func, options)
+        return this
+    }
+
     formatAllKeys(options: Options) {
         this.data = formatAllKeys_(this.data, options)
         return this
     }
 
-    toString(key: string, options: Options) {
-        this.data = toString_(this.data, key, options)
+    valuesToString(key: string, options: Options) {
+        this.data = valuesToString_(this.data, key, options)
+        return this
+    }
+
+    valuesToInteger(key: string, options: Options) {
+        this.data = valuesToInteger_(this.data, key, options)
+        return this
+    }
+
+    valuesToFloat(key: string, options: Options) {
+        this.data = valuesToFloat_(this.data, key, options)
+        return this
+    }
+
+    valuesToDate(key: string, format: string, options: Options) {
+        this.data = valuesToDate_(this.data, key, format, options)
+        return this
+    }
+
+    filterValues(key: string, func: Function, options: Options) {
+        this.data = filterValues_(this.data, key, func, options)
+        return this
+    }
+
+    filterItems(func: Function, options: Options) {
+        this.data = filterItems_(this.data, func, options)
+        return this
+    }
+
+    roundValues(key: string, options: Options) {
+        this.data = roundValues_(this.data, key, options)
+        return this
+    }
+
+    replaceValues(key: string, oldValue: string, newValue: string, options: Options) {
+        this.data = replaceValues_(this.data, key, oldValue, newValue, options)
         return this
     }
 

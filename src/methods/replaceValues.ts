@@ -2,7 +2,7 @@ import log from "../helpers/log.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import showTable from "./showTable.js"
 
-export default function addKey(data: SimpleDataItem[], key: string, func: Function, options: Options): SimpleDataItem[] {
+export default function replaceValues(data: SimpleDataItem[], key: string, oldValue: string, newValue: string, options: Options): SimpleDataItem[] {
 
     const start = Date.now()
 
@@ -11,18 +11,20 @@ export default function addKey(data: SimpleDataItem[], key: string, func: Functi
         ...options
     }
 
-    options.logs && log("\naddKey() " + key)
-    options.logs && log(String(func))
+    options.logs && log("\nreplaceValues() " + key + " " + oldValue + " " + newValue)
     options.logOptions && log("options:")
     options.logOptions && log(options)
 
     // All items needs to have the same keys
-    if (data[0].hasOwnProperty(key)) {
-        throw new Error("Already a key named " + key)
+    if (!data[0].hasOwnProperty(key)) {
+        throw new Error("No key " + key)
     }
 
+    const regex = new RegExp(oldValue, "g")
+
     for (let i = 0; i < data.length; i++) {
-        data[i][key] = func(data[i])
+        //@ts-ignore
+        data[i][key] = data[i][key].replace(regex, newValue)
     }
 
     options.logs && showTable(data, options)

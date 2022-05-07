@@ -8,6 +8,7 @@ import showTable from "./showTable.js";
 
 
 export default async function loadData(path: string, options: Options) {
+    const start = Date.now()
 
     options = {
         ...defaultOptions,
@@ -74,6 +75,8 @@ export default async function loadData(path: string, options: Options) {
         // @ts-ignore
         const simpleData = new SimpleData(arrayOfObjects)
 
+        const end = Date.now()
+        options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
 
         return simpleData
 
@@ -85,6 +88,9 @@ export default async function loadData(path: string, options: Options) {
 
             // @ts-ignore
             const { csv } = await import("d3-fetch");
+
+            const end = Date.now()
+            options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
 
         } else {
             throw new Error("Unknown file extension " + fileExtension);

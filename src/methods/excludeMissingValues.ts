@@ -6,6 +6,8 @@ import showTable from "./showTable.js"
 
 export default function excludeMissingValues(data: SimpleDataItem[], key: string | undefined, options: Options): SimpleDataItem[] {
 
+    const start = Date.now()
+
     options = {
         ...defaultOptions,
         ...options
@@ -37,8 +39,11 @@ export default function excludeMissingValues(data: SimpleDataItem[], key: string
     }
 
     const nbRemoved = data.length - filteredData.length
-    options.logs && log(`/!\\ ${nbRemoved} items removed, representing ${percentage(nbRemoved, data.length, options)} of all items.`, "bgRed")
+    options.logs && log(`/!\\ ${nbRemoved} items removed, representing ${percentage(nbRemoved, data.length, options)} of received items.`, "bgRed")
     options.logs && showTable(filteredData, options)
+
+    const end = Date.now()
+    options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
 
     return filteredData
 }

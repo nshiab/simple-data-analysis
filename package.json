@@ -53,6 +53,7 @@
     "dependencies": {
         "d3-dsv": "^3.0.1",
         "d3-fetch": "^3.0.1",
+        "d3-time-format": "^4.1.0",
         "lodash.camelcase": "^4.3.0",
         "simple-data-analysis": "^0.1.4"
     }

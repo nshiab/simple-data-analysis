@@ -4,12 +4,14 @@ import showTable from "./showTable.js"
 
 export default function removeKey(data: SimpleDataItem[], key: string, options: Options): SimpleDataItem[] {
 
+    const start = Date.now()
+
     options = {
         ...defaultOptions,
         ...options
     }
 
-    options.logs && log("\rremoveKey() " + key)
+    options.logs && log("\nremoveKey() " + key)
     options.logOptions && log("options:")
     options.logOptions && log(options)
 
@@ -23,6 +25,9 @@ export default function removeKey(data: SimpleDataItem[], key: string, options: 
     }
 
     options.logs && showTable(data, options)
+
+    const end = Date.now()
+    options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
 
     return data
 }

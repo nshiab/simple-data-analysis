@@ -4,6 +4,8 @@ import showTable from "./showTable.js"
 
 export default function renameKey(data: SimpleDataItem[], oldKey: string, newKey: string, options: Options): SimpleDataItem[] {
 
+    const start = Date.now()
+
     options = {
         ...defaultOptions,
         ...options
@@ -25,6 +27,9 @@ export default function renameKey(data: SimpleDataItem[], oldKey: string, newKey
     }
 
     options.logs && showTable(data, options)
+
+    const end = Date.now()
+    options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
 
     return data
 }

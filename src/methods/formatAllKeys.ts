@@ -6,6 +6,8 @@ import log from "../helpers/log.js"
 
 export default function formatAllKeys(data: SimpleDataItem[], options: Options): SimpleDataItem[] {
 
+    const start = Date.now()
+
     options = {
         ...defaultOptions,
         ...options
@@ -44,6 +46,9 @@ export default function formatAllKeys(data: SimpleDataItem[], options: Options):
     }
 
     options.logs && showTable(data, options)
+
+    const end = Date.now()
+    options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
 
     return data
 }

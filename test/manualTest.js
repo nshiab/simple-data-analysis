@@ -5,17 +5,25 @@ const simpleData = await loadData("./examples/data/employees.csv", { logOptions:
 simpleData
     .formatAllKeys()
     .renameKey("departementOrUnit", "unit")
+    .renameKey("endOfYearBonus", "bonus")
     .checkValues()
     .excludeMissingValues("name")
     .excludeMissingValues()
     .addKey("firstName", item => item.name.split(",")[1].trim())
-    .toString("unit")
     .removeKey("name")
+    .replaceValues("bonus", "%", "")
+    .valuesToInteger("bonus")
+    .modifyValues("bonus", item => {
+        return item.bonus / 100
+    })
+    .valuesToFloat("unit")
+    .valuesToString("unit")
+    .valuesToDate("hireDate", "%d-%b-%y")
+    .filterValues("salary", val => val >= 5000)
+    .filterItems(item => parseInt(item.unit) * 100 > item.salary)
+    .roundValues("salary", { fractionDigits: 2 })
 
-// modifyKey
-// toInteger
-// toFloat
-// toDate
+
 // round
 // sum
 // substract
@@ -27,8 +35,6 @@ simpleData
 
 // mergeItems
 // addItems
-
-
 
 // console.log("\n***\nHere's the final data:")
 // simpleData.showTable({ logs: true })
