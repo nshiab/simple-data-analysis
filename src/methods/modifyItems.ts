@@ -2,7 +2,7 @@ import log from "../helpers/log.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import showTable from "./showTable.js"
 
-export default function modifyValues(data: SimpleDataItem[], key: string, func: Function, options: Options): SimpleDataItem[] {
+export default function modifyItems(data: SimpleDataItem[], key: string, func: Function, options: Options): SimpleDataItem[] {
 
     const start = Date.now()
 
@@ -11,7 +11,7 @@ export default function modifyValues(data: SimpleDataItem[], key: string, func: 
         ...options
     }
 
-    options.logs && log("\nmodifyValues() " + key)
+    options.logs && log("\nmodifyItems() " + key)
     options.logs && log(String(func))
     options.logOptions && log("options:")
     options.logOptions && log(options)
@@ -22,7 +22,7 @@ export default function modifyValues(data: SimpleDataItem[], key: string, func: 
     }
 
     for (let i = 0; i < data.length; i++) {
-        data[i][key] = func(data[i][key])
+        data[i][key] = func(data[i])
     }
 
     options.logs && showTable(data, options)

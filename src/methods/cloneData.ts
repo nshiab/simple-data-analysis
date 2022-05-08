@@ -1,8 +1,11 @@
 import log from "../helpers/log.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import showTable from "./showTable.js"
+//@ts-ignore
+import cloneDeep from "lodash.clonedeep"
+import SimpleData from "../class/SimpleData.js"
 
-export default function modifyValues(data: SimpleDataItem[], key: string, func: Function, options: Options): SimpleDataItem[] {
+export default function cloneData(data: SimpleDataItem[], options: Options): object {
 
     const start = Date.now()
 
@@ -11,24 +14,17 @@ export default function modifyValues(data: SimpleDataItem[], key: string, func: 
         ...options
     }
 
-    options.logs && log("\nmodifyValues() " + key)
-    options.logs && log(String(func))
+    options.logs && log("\ncloneData()")
     options.logOptions && log("options:")
     options.logOptions && log(options)
 
-    // All items needs to have the same keys
-    if (!data[0].hasOwnProperty(key)) {
-        throw new Error("No key named " + key)
-    }
-
-    for (let i = 0; i < data.length; i++) {
-        data[i][key] = func(data[i][key])
-    }
-
     options.logs && showTable(data, options)
+
+    const clonedData = cloneDeep(data)
+    const newSimpleData = new SimpleData(clonedData)
 
     const end = Date.now()
     options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
 
-    return data
+    return newSimpleData
 }

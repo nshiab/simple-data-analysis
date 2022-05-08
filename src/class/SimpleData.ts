@@ -1,3 +1,4 @@
+import cloneData_ from "../methods/cloneData.js"
 import renameKey_ from "../methods/renameKey.js"
 import describe_ from "../methods/describe.js"
 import formatAllKeys_ from "../methods/formatAllKeys.js"
@@ -10,13 +11,18 @@ import valuesToString_ from "../methods/valuesToString.js"
 import valuesToInteger_ from "../methods/valuesToInteger.js"
 import valuesToFloat_ from "../methods/valuesToFloat.js"
 import valuesToDate_ from "../methods/valuesToDate.js"
+import datesToString_ from "../methods/datesToString.js"
 import filterValues_ from "../methods/filterValues.js"
 import filterItems_ from "../methods/filterItems.js"
 import roundValues_ from "../methods/roundValues.js"
 import replaceValues_ from "../methods/replaceValues.js"
 import addKey_ from "../methods/addKey.js"
 import modifyValues_ from "../methods/modifyValues.js"
+import modifyItems_ from "../methods/modifyItems.js"
+import sortValues_ from "../methods/sortValues.js"
+import addQuantiles_ from "../methods/addQuantiles.js"
 import { SimpleDataItem, Options } from "../types.js"
+
 
 export default class SimpleData {
 
@@ -24,6 +30,10 @@ export default class SimpleData {
 
     constructor(incomingData: SimpleDataItem[]) {
         this.data = incomingData
+    }
+
+    cloneData(options: Options) {
+        return cloneData_(this.data, options)
     }
 
     getArray(key: string, options: Options) {
@@ -64,6 +74,11 @@ export default class SimpleData {
         return this
     }
 
+    modifyItems(key: string, func: Function, options: Options) {
+        this.data = modifyItems_(this.data, key, func, options)
+        return this
+    }
+
     formatAllKeys(options: Options) {
         this.data = formatAllKeys_(this.data, options)
         return this
@@ -89,6 +104,11 @@ export default class SimpleData {
         return this
     }
 
+    datesToString(key: string, format: string, options: Options) {
+        this.data = datesToString_(this.data, key, format, options)
+        return this
+    }
+
     filterValues(key: string, func: Function, options: Options) {
         this.data = filterValues_(this.data, key, func, options)
         return this
@@ -106,6 +126,16 @@ export default class SimpleData {
 
     replaceValues(key: string, oldValue: string, newValue: string, options: Options) {
         this.data = replaceValues_(this.data, key, oldValue, newValue, options)
+        return this
+    }
+
+    sortValues(key: string, order: "ascending" | "descending", options: Options) {
+        this.data = sortValues_(this.data, key, order, options)
+        return this
+    }
+
+    addQuantiles(key: "string", newKey: "string", nbIntervals: number, options: Options) {
+        this.data = addQuantiles_(this.data, key, newKey, nbIntervals, options)
         return this
     }
 
