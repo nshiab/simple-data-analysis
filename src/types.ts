@@ -8,7 +8,7 @@ export interface Options {
     encoding: BufferEncoding,
     logs: boolean,
     logOptions: boolean,
-    nbItemInTable: number,
+    nbItemInTable: "all" | number,
     fractionDigits: number,
     missingValues: any[]
 }

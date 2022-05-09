@@ -2,9 +2,9 @@ import log from "../helpers/log.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import showTable from "./showTable.js"
 //@ts-ignore
-import { quantile } from "d3-array"
+import { extent } from "d3-array"
 
-export default function addQuantiles(data: SimpleDataItem[], key: string, newKey: string, nbQuantiles: number, options: Options): SimpleDataItem[] {
+export default function addBins(data: SimpleDataItem[], key: string, newKey: string, nbBins: number, options: Options): SimpleDataItem[] {
 
     const start = Date.now()
 
@@ -13,7 +13,7 @@ export default function addQuantiles(data: SimpleDataItem[], key: string, newKey
         ...options
     }
 
-    options.logs && log("\naddQuantiles() " + key + " " + newKey + " " + nbQuantiles)
+    options.logs && log("\naddKey() " + key + " " + newKey + " " + nbBins)
     options.logOptions && log("options:")
     options.logOptions && log(options)
 
@@ -25,29 +25,31 @@ export default function addQuantiles(data: SimpleDataItem[], key: string, newKey
         throw new Error("Already a key named " + key)
     }
 
-    const interval = 1 / nbQuantiles
     const values = data.map(d => d[key])
-    const quantiles = []
-    for (let i = 0; i < 1; i += interval) {
+    //@ts-ignore
+    const [min, max] = extent(values)
+    //@ts-ignore
+    const difference = max - min
+    const interval = difference / nbBins
+
+    const bins = []
+    for (let i = 1; i <= nbBins; i++) {
         //@ts-ignore
-        quantiles.push(quantile(values, i))
+        bins.push(min + i * interval)
     }
 
-    options.logs && log("The quantiles values are => " + String(quantiles), "blue")
+    options.logs && log("The bins values are => " + min + "," + String(bins), "blue")
+    options.logs && log("/!\\The first bin is labelled 1 (not 0).", "bgRed")
 
     for (let i = 0; i < data.length; i++) {
         const value = data[i][key]
-        let quantile = 1
-        for (let q = 1; q <= quantiles.length; q++) {
-            //@ts-ignore
-            if (value < quantiles[q - 1]) {
-                quantile = q
+        for (let b = 1; b <= bins.length; b++) {
+            if (value <= bins[b - 1]) {
+                data[i][newKey] = b
                 break
             }
         }
-        data[i][newKey] = quantile
     }
-
 
     options.logs && showTable(data, options)
 

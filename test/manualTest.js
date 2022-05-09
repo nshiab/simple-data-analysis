@@ -2,18 +2,13 @@ import { loadData } from "../dist/index.js"
 
 const simpleData = await loadData("./examples/data/employees.csv", { logOptions: true })
 
-const cleanData = simpleData
+simpleData
     .formatAllKeys()
     .renameKey("departementOrUnit", "unit")
     .renameKey("endOfYearBonus", "bonus")
     .checkValues()
     .excludeMissingValues("name")
     .excludeMissingValues()
-    .cloneData()
-
-console.log("\n*** DATA CLONED ***")
-
-const trainingData = simpleData
     .addKey("firstName", item => item.name.split(",")[1].trim())
     .removeKey("name")
     .replaceValues("bonus", "%", "")
@@ -27,15 +22,22 @@ const trainingData = simpleData
     .valuesToDate("hireDate", "%d-%b-%y")
     .datesToString("hireDate", "%Y-%m-%d")
     .filterValues("bonus", val => val >= 100)
-    .filterItems(item => item.salary > 3000 && item.unit !== "20")
+    .filterItems(item => item.hireDate > "2002-01-01" && item.unit !== "20")
     .sortValues("salary", "descending")
     .sortValues("bonus", "ascending")
-    .addQuantiles("salary", "salaryQuintile", 5)
-    .sortValues("salaryQuintile", "ascending", { nbItemInTable: 16 })
+    .addQuantiles("bonus", "salaryQuintile", 5)
+    .addBins("bonus", "salaryBins", 5)
+    .addOutliers("bonus", "bonusOutlier", "boxplot", { nbItemInTable: "all" })
+    .excludeOutliers("bonus", "boxplot", { nbItemInTable: "all" })
+
+// CLONE
 
 // TODO:
 // quantile
-// correlation
+// bins
+// anomalies
+// exclude anomalies
+// correlation https://simplestatistics.org/docs/#linearregression
 
 // percentage
 // variationPercentage

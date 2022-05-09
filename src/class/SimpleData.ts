@@ -21,6 +21,9 @@ import modifyValues_ from "../methods/modifyValues.js"
 import modifyItems_ from "../methods/modifyItems.js"
 import sortValues_ from "../methods/sortValues.js"
 import addQuantiles_ from "../methods/addQuantiles.js"
+import addBins_ from "../methods/addBins.js"
+import addOutliers_ from "../methods/addOutliers.js"
+import excludeOutliers_ from "../methods/excludeOutliers.js"
 import { SimpleDataItem, Options } from "../types.js"
 
 
@@ -136,6 +139,21 @@ export default class SimpleData {
 
     addQuantiles(key: "string", newKey: "string", nbIntervals: number, options: Options) {
         this.data = addQuantiles_(this.data, key, newKey, nbIntervals, options)
+        return this
+    }
+
+    addBins(key: "string", newKey: "string", nbBins: number, options: Options) {
+        this.data = addBins_(this.data, key, newKey, nbBins, options)
+        return this
+    }
+
+    addOutliers(key: "string", newKey: "string", method: "boxplot", options: Options) {
+        this.data = addOutliers_(this.data, key, newKey, method, options)
+        return this
+    }
+
+    excludeOutliers(key: "string", method: "boxplot", options: Options) {
+        this.data = excludeOutliers_(this.data, key, method, options)
         return this
     }
 
