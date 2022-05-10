@@ -72,7 +72,7 @@ export default function checkValues(data: SimpleDataItem[], options: Options): S
         allChecks.push(checks)
     }
 
-    options.logs && showTable(allChecks, options)
+    options.logs && showTable(allChecks, { ...options, nbItemInTable: keys.length })
 
     const end = Date.now()
     options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
