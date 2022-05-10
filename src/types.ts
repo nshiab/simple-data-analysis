@@ -15,7 +15,7 @@ export interface Options {
 
 export const defaultOptions: Options = {
     encoding: "utf-8",
-    logs: checkEnvironment() === "nodejs",
+    logs: false,
     logOptions: false,
     nbItemInTable: 5,
     fractionDigits: 0,

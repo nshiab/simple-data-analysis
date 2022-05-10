@@ -57,6 +57,7 @@
         "d3-time-format": "^4.1.0",
         "lodash.camelcase": "^4.3.0",
         "lodash.clonedeep": "^4.5.0",
-        "simple-data-analysis": "^0.1.4"
+        "simple-data-analysis": "^0.1.4",
+        "simple-statistics": "^7.7.5"
     }
 }

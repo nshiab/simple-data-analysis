@@ -24,141 +24,154 @@ import addQuantiles_ from "../methods/addQuantiles.js"
 import addBins_ from "../methods/addBins.js"
 import addOutliers_ from "../methods/addOutliers.js"
 import excludeOutliers_ from "../methods/excludeOutliers.js"
-import { SimpleDataItem, Options } from "../types.js"
+import correlation_ from "../methods/correlation.js"
+import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 
 
 export default class SimpleData {
 
     data: SimpleDataItem[]
+    defaultOptions: Object
 
     constructor(incomingData: SimpleDataItem[]) {
         this.data = incomingData
+        this.defaultOptions = {}
+    }
+
+    setDefaultOptions(options: Options) {
+        this.defaultOptions = options
+        return this
     }
 
     cloneData(options: Options) {
-        return cloneData_(this.data, options)
+        return cloneData_(this.data, { ...this.defaultOptions, ...options })
     }
 
     getArray(key: string, options: Options) {
-        return getArray_(this.data, key, options)
+        return getArray_(this.data, key, { ...this.defaultOptions, ...options })
     }
 
     checkValues(options: Options) {
-        checkValues_(this.data, options)
+        checkValues_(this.data, { ...this.defaultOptions, ...options })
         return this
     }
 
     excludeMissingValues(key: "onAllItems" | string, options: Options) {
-        this.data = excludeMissingValues_(this.data, key, options)
+        this.data = excludeMissingValues_(this.data, key, { ...this.defaultOptions, ...options })
         return this
     }
 
     describe(options: Options) {
-        describe_(this.data, options)
+        describe_(this.data, { ...this.defaultOptions, ...options })
     }
 
     renameKey(oldKey: string, newKey: string, options: Options) {
-        this.data = renameKey_(this.data, oldKey, newKey, options)
+        this.data = renameKey_(this.data, oldKey, newKey, { ...this.defaultOptions, ...options })
         return this
     }
 
     removeKey(key: string, options: Options) {
-        this.data = removeKey_(this.data, key, options)
+        this.data = removeKey_(this.data, key, { ...this.defaultOptions, ...options })
         return this
     }
 
     addKey(key: string, func: Function, options: Options) {
-        this.data = addKey_(this.data, key, func, options)
+        this.data = addKey_(this.data, key, func, { ...this.defaultOptions, ...options })
         return this
     }
 
     modifyValues(key: string, func: Function, options: Options) {
-        this.data = modifyValues_(this.data, key, func, options)
+        this.data = modifyValues_(this.data, key, func, { ...this.defaultOptions, ...options })
         return this
     }
 
     modifyItems(key: string, func: Function, options: Options) {
-        this.data = modifyItems_(this.data, key, func, options)
+        this.data = modifyItems_(this.data, key, func, { ...this.defaultOptions, ...options })
         return this
     }
 
     formatAllKeys(options: Options) {
-        this.data = formatAllKeys_(this.data, options)
+        this.data = formatAllKeys_(this.data, { ...this.defaultOptions, ...options })
         return this
     }
 
     valuesToString(key: string, options: Options) {
-        this.data = valuesToString_(this.data, key, options)
+        this.data = valuesToString_(this.data, key, { ...this.defaultOptions, ...options })
         return this
     }
 
     valuesToInteger(key: string, options: Options) {
-        this.data = valuesToInteger_(this.data, key, options)
+        this.data = valuesToInteger_(this.data, key, { ...this.defaultOptions, ...options })
         return this
     }
 
     valuesToFloat(key: string, options: Options) {
-        this.data = valuesToFloat_(this.data, key, options)
+        this.data = valuesToFloat_(this.data, key, { ...this.defaultOptions, ...options })
         return this
     }
 
     valuesToDate(key: string, format: string, options: Options) {
-        this.data = valuesToDate_(this.data, key, format, options)
+        this.data = valuesToDate_(this.data, key, format, { ...this.defaultOptions, ...options })
         return this
     }
 
     datesToString(key: string, format: string, options: Options) {
-        this.data = datesToString_(this.data, key, format, options)
+        this.data = datesToString_(this.data, key, format, { ...this.defaultOptions, ...options })
         return this
     }
 
     filterValues(key: string, func: Function, options: Options) {
-        this.data = filterValues_(this.data, key, func, options)
+        this.data = filterValues_(this.data, key, func, { ...this.defaultOptions, ...options })
         return this
     }
 
     filterItems(func: Function, options: Options) {
-        this.data = filterItems_(this.data, func, options)
+        this.data = filterItems_(this.data, func, { ...this.defaultOptions, ...options })
         return this
     }
 
     roundValues(key: string, options: Options) {
-        this.data = roundValues_(this.data, key, options)
+        this.data = roundValues_(this.data, key, { ...this.defaultOptions, ...options })
         return this
     }
 
     replaceValues(key: string, oldValue: string, newValue: string, options: Options) {
-        this.data = replaceValues_(this.data, key, oldValue, newValue, options)
+        this.data = replaceValues_(this.data, key, oldValue, newValue, { ...this.defaultOptions, ...options })
         return this
     }
 
     sortValues(key: string, order: "ascending" | "descending", options: Options) {
-        this.data = sortValues_(this.data, key, order, options)
+        this.data = sortValues_(this.data, key, order, { ...this.defaultOptions, ...options })
         return this
     }
 
     addQuantiles(key: "string", newKey: "string", nbIntervals: number, options: Options) {
-        this.data = addQuantiles_(this.data, key, newKey, nbIntervals, options)
+        this.data = addQuantiles_(this.data, key, newKey, nbIntervals, { ...this.defaultOptions, ...options })
         return this
     }
 
     addBins(key: "string", newKey: "string", nbBins: number, options: Options) {
-        this.data = addBins_(this.data, key, newKey, nbBins, options)
+        this.data = addBins_(this.data, key, newKey, nbBins, { ...this.defaultOptions, ...options })
         return this
     }
 
     addOutliers(key: "string", newKey: "string", method: "boxplot", options: Options) {
-        this.data = addOutliers_(this.data, key, newKey, method, options)
+        this.data = addOutliers_(this.data, key, newKey, method, { ...this.defaultOptions, ...options })
         return this
     }
 
     excludeOutliers(key: "string", method: "boxplot", options: Options) {
-        this.data = excludeOutliers_(this.data, key, method, options)
+        this.data = excludeOutliers_(this.data, key, method, { ...this.defaultOptions, ...options })
+        return this
+    }
+
+    correlation(key1: string, key2: string, options: Options) {
+        this.data = correlation_(this.data, key1, key2, { ...this.defaultOptions, ...options })
         return this
     }
 
     showTable(options: Options) {
-        showTable_(this.data, options)
+        showTable_(this.data, { ...this.defaultOptions, ...options })
         return this
     }
 

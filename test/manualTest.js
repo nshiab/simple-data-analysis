@@ -1,8 +1,9 @@
 import { loadData } from "../dist/index.js"
 
-const simpleData = await loadData("./examples/data/employees.csv", { logOptions: true })
+const simpleData = await loadData("./examples/data/employees.csv", { logs: true, logOptions: true })
 
 simpleData
+    .setDefaultOptions({ logs: true })
     .formatAllKeys()
     .renameKey("departementOrUnit", "unit")
     .renameKey("endOfYearBonus", "bonus")
@@ -29,14 +30,13 @@ simpleData
     .addBins("bonus", "salaryBins", 5)
     .addOutliers("bonus", "bonusOutlier", "boxplot", { nbItemInTable: "all" })
     .excludeOutliers("bonus", "boxplot", { nbItemInTable: "all" })
+    // .correlation("salary", "bonus")
+    .correlation()
+
 
 // CLONE
 
 // TODO:
-// quantile
-// bins
-// anomalies
-// exclude anomalies
 // correlation https://simplestatistics.org/docs/#linearregression
 
 // percentage
