@@ -25,7 +25,7 @@ export default function replaceValues(data: SimpleDataItem[], key: string, oldVa
         for (let i = 0; i < data.length; i++) {
             if (data[i][key] === oldValue) {
                 //@ts-ignore
-                data[i][key] = data[i][key].replace(oldValue, newValue)
+                data[i][key] = newValue
             }
         }
 
