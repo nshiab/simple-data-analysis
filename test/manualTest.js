@@ -5,6 +5,7 @@ const simpleData = await loadData("./examples/data/employees.csv", { logs: true,
 console.log(simpleData.getData())
 console.log(simpleData.getKeys())
 console.log(simpleData.getArray("Name"))
+console.log(simpleData.getUniqueValues("Job"))
 
 
 simpleData

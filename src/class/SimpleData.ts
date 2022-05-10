@@ -26,6 +26,7 @@ import addOutliers_ from "../methods/addOutliers.js"
 import excludeOutliers_ from "../methods/excludeOutliers.js"
 import correlation_ from "../methods/correlation.js"
 import addItems_ from "../methods/addItems.js"
+import getUniqueValues_ from "../methods/getUniqueValues.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import checkKeys from "../helpers/checkKeys.js"
 
@@ -62,6 +63,10 @@ export default class SimpleData {
 
     getKeys() {
         return this.keys
+    }
+
+    getUniqueValues(key: string, options: Options) {
+        return getUniqueValues_(this.data, key, { ...this.defaultOptions, ...options })
     }
 
     checkValues(options: Options) {
