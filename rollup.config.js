@@ -2,6 +2,7 @@ import { readFileSync } from "fs";
 import resolve from '@rollup/plugin-node-resolve';
 import json from '@rollup/plugin-json';
 import { terser } from 'rollup-plugin-terser';
+import commonjs from '@rollup/plugin-commonjs';
 import * as meta from "./package.json";
 
 const copyright = readFileSync("./LICENSE", "utf-8")
@@ -19,18 +20,21 @@ export default {
 			file: `dist/${meta.name}.js`,
 			name: "sda",
 			format: "umd",
-			banner: banner
+			banner: banner,
+			inlineDynamicImports: true
 		},
 		{
 			file: `dist/${meta.name}.min.js`,
 			format: 'iife',
 			name: "sda",
 			banner: banner,
+			inlineDynamicImports: true,
 			plugins: [terser()]
 		}
 	],
 	plugins: [
-		resolve(),
-		json()
+		json(),
+		commonjs(),
+		resolve()
 	]
 };

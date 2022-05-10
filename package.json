@@ -43,6 +43,7 @@
         "url": "https://github.com/nshiab/simple-data-analysis/issues"
     },
     "devDependencies": {
+        "@rollup/plugin-commonjs": "^22.0.0",
         "@rollup/plugin-json": "^4.1.0",
         "@rollup/plugin-node-resolve": "^13.2.1",
         "mocha": "^9.2.2",
