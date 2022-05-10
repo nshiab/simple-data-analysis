@@ -23,8 +23,10 @@ export default function replaceValues(data: SimpleDataItem[], key: string, oldVa
     const regex = new RegExp(oldValue, "g")
 
     for (let i = 0; i < data.length; i++) {
-        //@ts-ignore
-        data[i][key] = data[i][key].replace(regex, newValue)
+        if (typeof data[i][key] === "string") {
+            //@ts-ignore
+            data[i][key] = data[i][key].replace(regex, newValue)
+        }
     }
 
     options.logs && showTable(data, options)
