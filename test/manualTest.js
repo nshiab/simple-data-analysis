@@ -1,4 +1,4 @@
-import { loadData } from "../dist/index.js"
+import { loadData, SimpleData } from "../dist/index.js"
 
 const simpleData = await loadData("./examples/data/employees.csv", { logs: true, logOptions: true })
 
@@ -26,30 +26,58 @@ simpleData
     .filterItems(item => item.hireDate > "2002-01-01" && item.unit !== "20")
     .sortValues("salary", "descending")
     .sortValues("bonus", "ascending")
-    .addQuantiles("bonus", "salaryQuintile", 5)
-    .addBins("bonus", "salaryBins", 5)
-    .addOutliers("bonus", "bonusOutlier", "boxplot", { nbItemInTable: "all" })
-    .excludeOutliers("bonus", "boxplot", { nbItemInTable: "all" })
-    // .correlation("salary", "bonus")
-    .correlation()
 
 
-// CLONE
+const moreEmployees = [
+    {
+        hireDate: "2022-05-12",
+        job: "Clerk",
+        salary: 2345,
+        unit: "30",
+        bonus: 10,
+        firstName: "Marc"
+    },
+    {
+        hireDate: "2022-02-03",
+        job: "Manager",
+        salary: 8500,
+        unit: "50",
+        bonus: 550,
+        firstName: "Emily"
+    }
+]
 
-// TODO:
-// correlation https://simplestatistics.org/docs/#linearregression
+simpleData.addItems(moreEmployees)
 
-// percentage
-// variationPercentage
-// percentageOfAllItems
+// simpleData
+//     .addQuantiles("bonus", "salaryQuintile", 5)
+//     .addBins("bonus", "salaryBins", 5)
+//     .addOutliers("bonus", "bonusOutlier", "boxplot", { nbItemInTable: "all" })
+//     .excludeOutliers("bonus", "boxplot", { nbItemInTable: "all" })
 
-// mergeItems
-// addItems
 
-// saveToCsv
-// saveToJson
 
-// getArray
+// simpleData.cloneData({ logs: false }).correlation("salary", "bonus")
+
+// simpleData.cloneData({ logs: false }).correlation()
+
+
+// // CLONE
+
+// // TODO:
+// // correlation https://simplestatistics.org/docs/#linearregression
+
+// // percentage
+// // variationPercentage
+// // percentageOfAllItems
+
+// // mergeItems
+// // addItems
+
+// // saveToCsv
+// // saveToJson
+
+// // getArray
 
 
 

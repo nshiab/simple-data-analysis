@@ -25,17 +25,18 @@ import addBins_ from "../methods/addBins.js"
 import addOutliers_ from "../methods/addOutliers.js"
 import excludeOutliers_ from "../methods/excludeOutliers.js"
 import correlation_ from "../methods/correlation.js"
+import addItems_ from "../methods/addItems.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 
 
 export default class SimpleData {
 
     data: SimpleDataItem[]
-    defaultOptions: Object
+    defaultOptions: Options
 
-    constructor(incomingData: SimpleDataItem[]) {
+    constructor(incomingData: SimpleDataItem[], options?: Options) {
         this.data = incomingData
-        this.defaultOptions = {}
+        this.defaultOptions = options === undefined ? defaultOptions : options
     }
 
     setDefaultOptions(options: Options) {
@@ -44,7 +45,7 @@ export default class SimpleData {
     }
 
     cloneData(options: Options) {
-        return cloneData_(this.data, { ...this.defaultOptions, ...options })
+        return cloneData_(this.data, this.defaultOptions, { ...this.defaultOptions, ...options })
     }
 
     getArray(key: string, options: Options) {
@@ -167,6 +168,11 @@ export default class SimpleData {
 
     correlation(key1: string, key2: string, options: Options) {
         this.data = correlation_(this.data, key1, key2, { ...this.defaultOptions, ...options })
+        return this
+    }
+
+    addItems(dataToBeAdded: SimpleDataItem[], options: Options) {
+        this.data = addItems_(this.data, dataToBeAdded, { ...this.defaultOptions, ...options })
         return this
     }
 
