@@ -1,4 +1,4 @@
-import cloneData_ from "../methods/cloneData.js"
+import clone_ from "../methods/clone.js"
 import renameKey_ from "../methods/renameKey.js"
 import describe_ from "../methods/describe.js"
 import formatAllKeys_ from "../methods/formatAllKeys.js"
@@ -27,6 +27,7 @@ import excludeOutliers_ from "../methods/excludeOutliers.js"
 import correlation_ from "../methods/correlation.js"
 import addItems_ from "../methods/addItems.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
+import checkKeys from "../helpers/checkKeys.js"
 
 
 export default class SimpleData {
@@ -35,6 +36,7 @@ export default class SimpleData {
     defaultOptions: Options
 
     constructor(incomingData: SimpleDataItem[], options?: Options) {
+        checkKeys(incomingData)
         this.data = incomingData
         this.defaultOptions = options === undefined ? defaultOptions : options
     }
@@ -44,12 +46,16 @@ export default class SimpleData {
         return this
     }
 
-    cloneData(options: Options) {
-        return cloneData_(this.data, this.defaultOptions, { ...this.defaultOptions, ...options })
+    clone(options: Options) {
+        return clone_(this.data, this.defaultOptions, { ...this.defaultOptions, ...options })
     }
 
     getArray(key: string, options: Options) {
         return getArray_(this.data, key, { ...this.defaultOptions, ...options })
+    }
+
+    getData() {
+        return this.data
     }
 
     checkValues(options: Options) {

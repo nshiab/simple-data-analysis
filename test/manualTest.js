@@ -49,6 +49,28 @@ const moreEmployees = [
 
 simpleData.addItems(moreEmployees)
 
+const moreEmployeesSimpleData = new SimpleData([
+    {
+        hireDate: "2021-11-23",
+        job: "Accountant",
+        salary: 7845,
+        unit: "30",
+        bonus: 1150,
+        firstName: "Roberto"
+    },
+    {
+        hireDate: "2022-02-03",
+        job: "Accountant",
+        salary: 8000,
+        unit: "50",
+        bonus: 130,
+        firstName: "Maxime"
+    }
+])
+
+simpleData.addItems(moreEmployeesSimpleData)
+
+
 // simpleData
 //     .addQuantiles("bonus", "salaryQuintile", 5)
 //     .addBins("bonus", "salaryBins", 5)
@@ -57,12 +79,10 @@ simpleData.addItems(moreEmployees)
 
 
 
-// simpleData.cloneData({ logs: false }).correlation("salary", "bonus")
+// simpleData.clone({ logs: false }).correlation("salary", "bonus")
 
-// simpleData.cloneData({ logs: false }).correlation()
+// simpleData.clone({ logs: false }).correlation()
 
-
-// // CLONE
 
 // // TODO:
 // // correlation https://simplestatistics.org/docs/#linearregression
