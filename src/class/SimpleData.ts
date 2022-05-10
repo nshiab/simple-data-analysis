@@ -33,11 +33,13 @@ import checkKeys from "../helpers/checkKeys.js"
 export default class SimpleData {
 
     data: SimpleDataItem[]
+    keys: string[]
     defaultOptions: Options
 
     constructor(incomingData: SimpleDataItem[], options?: Options) {
         checkKeys(incomingData)
         this.data = incomingData
+        this.keys = Object.keys(incomingData[0])
         this.defaultOptions = options === undefined ? defaultOptions : options
     }
 
@@ -56,6 +58,10 @@ export default class SimpleData {
 
     getData() {
         return this.data
+    }
+
+    getKeys() {
+        return this.keys
     }
 
     checkValues(options: Options) {

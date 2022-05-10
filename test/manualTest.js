@@ -2,6 +2,11 @@ import { loadData, SimpleData } from "../dist/index.js"
 
 const simpleData = await loadData("./examples/data/employees.csv", { logs: true, logOptions: true })
 
+console.log(simpleData.getData())
+console.log(simpleData.getKeys())
+console.log(simpleData.getArray("Name"))
+
+
 simpleData
     .setDefaultOptions({ logs: true })
     .formatAllKeys()
@@ -76,8 +81,6 @@ simpleData.addItems(moreEmployeesSimpleData)
 //     .addBins("bonus", "salaryBins", 5)
 //     .addOutliers("bonus", "bonusOutlier", "boxplot", { nbItemInTable: "all" })
 //     .excludeOutliers("bonus", "boxplot", { nbItemInTable: "all" })
-
-
 
 // simpleData.clone({ logs: false }).correlation("salary", "bonus")
 
