@@ -78,15 +78,21 @@ const moreEmployeesSimpleData = new SimpleData([
 simpleData.addItems(moreEmployeesSimpleData)
 
 
-// simpleData
-//     .addQuantiles("bonus", "salaryQuintile", 5)
-//     .addBins("bonus", "salaryBins", 5)
-//     .addOutliers("bonus", "bonusOutlier", "boxplot", { nbItemInTable: "all" })
-//     .excludeOutliers("bonus", "boxplot", { nbItemInTable: "all" })
+simpleData
+    .addQuantiles("bonus", "salaryQuintile", 5)
+    .addBins("bonus", "salaryBins", 5)
+    .addOutliers("bonus", "bonusOutlier", "boxplot", { nbItemInTable: "all" })
+    .excludeOutliers("bonus", "boxplot", { nbItemInTable: "all" })
 
-// simpleData.clone({ logs: false }).correlation("salary", "bonus")
+simpleData.clone({ logs: false }).correlation("salary", "bonus")
 
-// simpleData.clone({ logs: false }).correlation()
+simpleData.clone({ logs: false }).correlation()
+
+simpleData.clone({ logs: false }).summarize("job", "count", undefined, { nbItemInTable: "all" })
+simpleData.clone({ logs: false }).summarize("job", "mean", "salary", { nbItemInTable: "all" })
+simpleData.clone({ logs: false }).summarize(["job", "unit"], "count", undefined, { nbItemInTable: "all" })
+simpleData.clone({ logs: false }).summarize(["job", "unit"], ["count", "mean"], "salary", { nbItemInTable: "all" })
+simpleData.clone({ logs: false }).summarize("job", ["count", "mean"], "salary", { nbItemInTable: "all" })
 
 
 // // TODO:

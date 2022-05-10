@@ -27,6 +27,7 @@ import excludeOutliers_ from "../methods/excludeOutliers.js"
 import correlation_ from "../methods/correlation.js"
 import addItems_ from "../methods/addItems.js"
 import getUniqueValues_ from "../methods/getUniqueValues.js"
+import summarize_ from "../methods/summarize.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import checkKeys from "../helpers/checkKeys.js"
 
@@ -214,6 +215,12 @@ export default class SimpleData {
 
     addItems(dataToBeAdded: SimpleDataItem[], options: Options) {
         this.data = addItems_(this.data, dataToBeAdded, { ...this.defaultOptions, ...options })
+        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        return this
+    }
+
+    summarize(key: string, summary: "count", value: string, options: Options) {
+        this.data = summarize_(this.data, key, summary, value, { ...this.defaultOptions, ...options })
         this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
         return this
     }
