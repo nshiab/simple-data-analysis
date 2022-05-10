@@ -2,7 +2,7 @@ import log from "../helpers/log.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import showTable from "./showTable.js"
 
-export default function replaceValues(data: SimpleDataItem[], key: string, oldValue: string, newValue: string, options: Options): SimpleDataItem[] {
+export default function replaceValues(data: SimpleDataItem[], key: string, oldValue: string, newValue: string, method: "entireString" | "partialString", options: Options): SimpleDataItem[] {
 
     const start = Date.now()
 
@@ -11,7 +11,7 @@ export default function replaceValues(data: SimpleDataItem[], key: string, oldVa
         ...options
     }
 
-    options.logs && log("\nreplaceValues() " + key + " " + oldValue + " " + newValue)
+    options.logs && log("\nreplaceValues() " + key + " " + oldValue + " " + newValue + " " + method)
     options.logOptions && log("options:")
     options.logOptions && log(options)
 
@@ -20,12 +20,23 @@ export default function replaceValues(data: SimpleDataItem[], key: string, oldVa
         throw new Error("No key " + key)
     }
 
-    const regex = new RegExp(oldValue, "g")
+    if (method === "entireString") {
 
-    for (let i = 0; i < data.length; i++) {
-        if (typeof data[i][key] === "string") {
-            //@ts-ignore
-            data[i][key] = data[i][key].replace(regex, newValue)
+        for (let i = 0; i < data.length; i++) {
+            if (data[i][key] === oldValue) {
+                //@ts-ignore
+                data[i][key] = data[i][key].replace(oldValue, newValue)
+            }
+        }
+
+    } else {
+        const regex = new RegExp(oldValue, "g")
+
+        for (let i = 0; i < data.length; i++) {
+            if (typeof data[i][key] === "string") {
+                //@ts-ignore
+                data[i][key] = data[i][key].replace(regex, newValue)
+            }
         }
     }
 

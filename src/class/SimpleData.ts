@@ -163,8 +163,8 @@ export default class SimpleData {
         return this
     }
 
-    replaceValues(key: string, oldValue: string, newValue: string, options: Options) {
-        this.data = replaceValues_(this.data, key, oldValue, newValue, { ...this.defaultOptions, ...options })
+    replaceValues(key: string, oldValue: string, newValue: string, method: "entireString" | "partialString", options: Options) {
+        this.data = replaceValues_(this.data, key, oldValue, newValue, method, { ...this.defaultOptions, ...options })
         this.keys = Object.keys(this.data[0])
         return this
     }
