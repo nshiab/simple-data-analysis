@@ -10,6 +10,7 @@ console.log(simpleData.getUniqueValues("Job"))
 
 simpleData
     .setDefaultOptions({ logs: true })
+    .describe()
     .formatAllKeys()
     .renameKey("departementOrUnit", "unit")
     .renameKey("endOfYearBonus", "bonus")

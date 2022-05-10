@@ -81,7 +81,9 @@ export default class SimpleData {
     }
 
     describe(options: Options) {
-        describe_(this.data, { ...this.defaultOptions, ...options })
+        this.data = describe_(this.data, { ...this.defaultOptions, ...options })
+        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        return this
     }
 
     renameKey(oldKey: string, newKey: string, options: Options) {
