@@ -36,7 +36,11 @@ export default function correlation(data: SimpleDataItem[], key1?: string, key2?
             y
         )
 
-        correlationData.push({ key1: key1, key2: key2, correlation: corr })
+        correlationData.push({
+            key1: key1,
+            key2: key2,
+            correlation: parseFloat(corr.toFixed(options.fractionDigits))
+        })
 
         if (Number.isNaN(corr)) {
             throw new Error("Correlation is NaN. Are " + key1 + " and " + key2 + " containing numbers?")
@@ -58,7 +62,11 @@ export default function correlation(data: SimpleDataItem[], key1?: string, key2?
             )
 
             if (!Number.isNaN(corr)) {
-                correlationData.push({ key1: c[0], key2: c[1], correlation: corr })
+                correlationData.push({
+                    key1: c[0],
+                    key2: c[1],
+                    correlation: parseFloat(corr.toFixed(options.fractionDigits))
+                })
             }
         }
 

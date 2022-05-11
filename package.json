@@ -20,8 +20,8 @@
     },
     "type": "module",
     "files": [
-        "dist/**/*.js",
-        "src/**/*.js"
+        "dist/",
+        "src/"
     ],
     "module": "dist/index.js",
     "main": "dist/index.js",

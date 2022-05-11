@@ -46,7 +46,7 @@ export default class SimpleData {
     }
 
     setDefaultOptions(options: Options) {
-        this.defaultOptions = options
+        this.defaultOptions = { ...this.defaultOptions, ...options }
         return this
     }
 
@@ -219,8 +219,17 @@ export default class SimpleData {
         return this
     }
 
-    summarize(key: string, summary: "count", value: string, options: Options) {
-        this.data = summarize_(this.data, key, summary, value, { ...this.defaultOptions, ...options })
+    summarize(value?: string, key?: string, summary?: any, weight?: string, options?: Options) {
+        // Note that the parameters are in different order below
+        this.data = summarize_(
+            this.data,
+            key === undefined ? "no key" : key,
+            // Everything except weightedMean
+            summary === undefined ? ["count", "min", "max", "sum", "mean", "median", "deviation"] : summary,
+            value === undefined ? this.keys : value,
+            weight === undefined ? "no weight" : weight,
+            { ...this.defaultOptions, ...options }
+        )
         this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
         return this
     }

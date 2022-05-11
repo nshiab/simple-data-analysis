@@ -84,31 +84,61 @@ simpleData
     .addOutliers("bonus", "bonusOutlier", "boxplot", { nbItemInTable: "all" })
     .excludeOutliers("bonus", "boxplot", { nbItemInTable: "all" })
 
-simpleData.clone({ logs: false }).correlation("salary", "bonus")
+simpleData.setDefaultOptions({ logs: false, nbItemInTable: "all" })
 
-simpleData.clone({ logs: false }).correlation()
+simpleData
+    .clone()
+    .correlation("salary", "bonus")
+    .showTable()
 
-simpleData.clone({ logs: false }).summarize("job", "count", undefined, { nbItemInTable: "all" })
-simpleData.clone({ logs: false }).summarize("job", "mean", "salary", { nbItemInTable: "all" })
-simpleData.clone({ logs: false }).summarize(["job", "unit"], "count", undefined, { nbItemInTable: "all" })
-simpleData.clone({ logs: false }).summarize(["job", "unit"], ["count", "mean"], "salary", { nbItemInTable: "all" })
-simpleData.clone({ logs: false }).summarize("job", ["count", "mean"], "salary", { nbItemInTable: "all" })
+simpleData
+    .clone()
+    .correlation()
+    .showTable()
 
+simpleData
+    .clone()
+    .summarize()
+    .showTable()
+
+simpleData
+    .clone()
+    .summarize(simpleData.getKeys(), "job")
+    .showTable()
+
+simpleData
+    .clone()
+    .summarize("salary", ["job", "unit"])
+    .showTable()
+
+simpleData
+    .clone()
+    .summarize("salary", "job", "mean")
+    .showTable()
+
+simpleData
+    .clone()
+    .summarize("salary", undefined, "mean")
+    .showTable()
+
+
+simpleData
+    .clone()
+    .summarize("salary", "job", ["mean", "median"])
+    .showTable()
+
+simpleData
+    .clone()
+    .summarize("salary", "job", "weightedMean", "bonus")
+    .showTable()
 
 // // TODO:
-// // correlation https://simplestatistics.org/docs/#linearregression
 
 // // percentage
 // // variationPercentage
 // // percentageOfAllItems
 
 // // mergeItems
-// // addItems
 
 // // saveToCsv
 // // saveToJson
-
-// // getArray
-
-
-

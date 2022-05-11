@@ -10,7 +10,8 @@ export interface Options {
     logOptions: boolean,
     nbItemInTable: "all" | number,
     fractionDigits: number,
-    missingValues: any[]
+    missingValues: any[],
+    nbValuesTestedForTypeOf: 100
 }
 
 export const defaultOptions: Options = {
@@ -18,6 +19,7 @@ export const defaultOptions: Options = {
     logs: false,
     logOptions: false,
     nbItemInTable: 5,
-    fractionDigits: 0,
-    missingValues: [null, NaN, undefined, ""]
+    fractionDigits: 1,
+    missingValues: [null, NaN, undefined, ""],
+    nbValuesTestedForTypeOf: 100
 }
