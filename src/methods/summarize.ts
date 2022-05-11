@@ -37,7 +37,7 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
             }
         }
 
-        keys = key.filter(k => checkTypeOfKey(data, k, "string", options))
+        keys = key.filter(k => checkTypeOfKey(data, k, "string", 0.5, options))
 
     } else if (typeof key === "string") {
 
@@ -45,7 +45,7 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
         if (!data[0].hasOwnProperty(key)) {
             throw new Error("No key " + key)
         }
-        if (!checkTypeOfKey(data, key, "string", options)) {
+        if (!checkTypeOfKey(data, key, "string", 0.5, options)) {
             throw new Error("The key values should be of type string")
         }
 
@@ -68,13 +68,13 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
                 throw new Error("No value " + v)
             }
         }
-        values = value.filter(v => checkTypeOfKey(data, v, "number", options))
+        values = value.filter(v => checkTypeOfKey(data, v, "number", 0.5, options))
     } else if (typeof value === "string") {
         // All items needs to have the same keys
         if (!data[0].hasOwnProperty(value)) {
             throw new Error("No value " + value)
         }
-        if (!checkTypeOfKey(data, value, "number", options)) {
+        if (!checkTypeOfKey(data, value, "number", 0.5, options)) {
             throw new Error("The value should be of type number")
         }
         values = [value]
@@ -131,7 +131,7 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
                 if (!data[0].hasOwnProperty(weight)) {
                     throw new Error("No weight " + weight)
                 }
-                if (!checkTypeOfKey(data, weight, "number", options)) {
+                if (!checkTypeOfKey(data, weight, "number", 0.5, options)) {
                     throw new Error("The weight should be of type number")
                 }
 
