@@ -32,9 +32,9 @@
         "default": "./dist/index.js"
     },
     "scripts": {
-        "test": "npx tsc && mocha",
-        "manualTest": "npx tsc && node test/manualTest.js",
-        "build": "rm -rf dist && npx tsc && mocha && node test/manualTest.js && rollup --config"
+        "test": "npx tsc && mocha test/unit",
+        "integrationTest": "npx tsc && node test/integration/test.js",
+        "build": "rm -rf dist && npx tsc && mocha test/unit && node test/integration/test.js && rollup --config"
     },
     "engines": {
         "node": ">=14.16"
