@@ -10,7 +10,8 @@ export interface Options {
     logOptions: boolean,
     nbItemInTable: "all" | number,
     fractionDigits: number,
-    missingValues: any[],
+    missingValues: object[],
+    missingValuesArray: any[],
     nbValuesTestedForTypeOf: 100,
     environment: string
 }
@@ -21,7 +22,9 @@ export const defaultOptions: Options = {
     logOptions: false,
     nbItemInTable: 5,
     fractionDigits: 1,
-    missingValues: [null, NaN, undefined, ""],
+    //@ts-ignore
+    missingValues: { "null": null, "NaN": NaN, "undefined": undefined },
+    missingValuesArray: [null, NaN, undefined, ""],
     nbValuesTestedForTypeOf: 100,
     environment: checkEnvironment()
 }
