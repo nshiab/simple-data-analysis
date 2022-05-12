@@ -13,7 +13,7 @@ export default function addBins(data: SimpleDataItem[], key: string, newKey: str
         ...options
     }
 
-    options.logs && log("\naddKey() " + key + " " + newKey + " " + nbBins)
+    options.logs && log("\naddBins() " + key + " " + newKey + " " + nbBins)
     options.logOptions && log("options:")
     options.logOptions && log(options)
 

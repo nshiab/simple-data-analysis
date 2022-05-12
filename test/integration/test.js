@@ -77,68 +77,59 @@ const moreEmployeesSimpleData = new SimpleData([
 
 simpleData.addItems(moreEmployeesSimpleData)
 
+simpleData.setDefaultOptions({ nbItemInTable: "all" })
 
 simpleData
     .addQuantiles("bonus", "salaryQuintile", 5)
     .addBins("bonus", "salaryBins", 5)
-    .addOutliers("bonus", "bonusOutlier", "boxplot", { nbItemInTable: "all" })
-    .excludeOutliers("bonus", "boxplot", { nbItemInTable: "all" })
-
-simpleData.setDefaultOptions({ logs: false, nbItemInTable: "all" })
+    .addOutliers("bonus", "bonusOutlier", "boxplot")
+    .excludeOutliers("bonus", "boxplot")
 
 simpleData
-    .clone()
-    .correlation("salary", "bonus")
-    .showTable()
-
-simpleData
-    .clone()
+    .clone({ logs: false })
     .correlation()
-    .showTable()
 
 simpleData
-    .clone()
+    .clone({ logs: false })
+    .correlation("salary", "bonus")
+
+simpleData
+    .clone({ logs: false })
     .summarize()
-    .showTable()
 
 simpleData
-    .clone()
+    .clone({ logs: false })
     .summarize(simpleData.getKeys(), "job")
-    .showTable()
 
 simpleData
-    .clone()
+    .clone({ logs: false })
     .summarize("salary", ["job", "unit"])
-    .showTable()
 
 simpleData
-    .clone()
+    .clone({ logs: false })
     .summarize("salary", "job", "mean")
-    .showTable()
 
 simpleData
-    .clone()
+    .clone({ logs: false })
     .summarize("salary", undefined, "mean")
-    .showTable()
-
 
 simpleData
-    .clone()
+    .clone({ logs: false })
     .summarize("salary", "job", ["mean", "median"])
-    .showTable()
 
 simpleData
-    .clone()
+    .clone({ logs: false })
     .summarize("salary", "job", "weightedMean", "bonus")
-    .showTable()
 
-// // TODO:
+// // // TODO:
 
-// // percentage
-// // variationPercentage
-// // percentageOfAllItems
+// // // percentage
+// // // variationPercentage
+// // // percentageOfAllItems
 
-// // mergeItems
+// // // mergeItems
 
-// // saveToCsv
-// // saveToJson
+// // // noOverwrite?
+
+// // // saveToCsv
+// // // saveToJson
