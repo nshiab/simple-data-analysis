@@ -28,6 +28,7 @@ import correlation_ from "../methods/correlation.js"
 import addItems_ from "../methods/addItems.js"
 import getUniqueValues_ from "../methods/getUniqueValues.js"
 import summarize_ from "../methods/summarize.js"
+import saveData_ from "../methods/saveData.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import checkKeys from "../helpers/checkKeys.js"
 
@@ -248,6 +249,13 @@ export default class SimpleData {
             { ...this._defaultOptions, ...options }
         )
         this.#updateSimpleData(data)
+        return this
+    }
+
+    saveData(path: string, options: Options) {
+
+        saveData_(this.data, path, { ...this._defaultOptions, ...options })
+
         return this
     }
 

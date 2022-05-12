@@ -1,4 +1,4 @@
-import { checkEnvironment } from "./helpers/checkEnvironment.js"
+import checkEnvironment from "./helpers/checkEnvironment.js"
 
 export interface SimpleDataItem {
     [key: string]: string | number | boolean | Date
@@ -10,8 +10,10 @@ export interface Options {
     logOptions: boolean,
     nbItemInTable: "all" | number,
     fractionDigits: number,
-    missingValues: any[],
-    nbValuesTestedForTypeOf: 100
+    missingValues: object[],
+    missingValuesArray: any[],
+    nbValuesTestedForTypeOf: 100,
+    environment: string
 }
 
 export const defaultOptions: Options = {
@@ -20,6 +22,9 @@ export const defaultOptions: Options = {
     logOptions: false,
     nbItemInTable: 5,
     fractionDigits: 1,
-    missingValues: [null, NaN, undefined, ""],
-    nbValuesTestedForTypeOf: 100
+    //@ts-ignore
+    missingValues: { "null": null, "NaN": NaN, "undefined": undefined },
+    missingValuesArray: [null, NaN, undefined, ""],
+    nbValuesTestedForTypeOf: 100,
+    environment: checkEnvironment()
 }

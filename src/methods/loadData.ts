@@ -1,7 +1,5 @@
-// @ts-ignore
-import { autoType } from "d3-dsv"
 import SimpleData from "../class/SimpleData.js";
-import { checkEnvironment } from "../helpers/checkEnvironment.js";
+import checkEnvironment from "../helpers/checkEnvironment.js";
 import log from "../helpers/log.js";
 import { Options, defaultOptions } from "../types.js"
 import showTable from "./showTable.js";
@@ -21,53 +19,52 @@ export default async function loadData(path: string, options: Options) {
 
     // TODO: add other formats than csv
 
-    let arrayOfObjects: any[] = []
+    let arrayOfObjects: any = []
 
     const environment = checkEnvironment()
 
     const pathSplit = path.split(".")
-    const fileExtension = pathSplit[pathSplit.length - 1]
+    const fileExtension = pathSplit[pathSplit.length - 1].toLocaleLowerCase()
 
     options.logs && log("Detected " + fileExtension + " file extension", "blue")
 
     if (environment === "nodejs") {
 
-        options.logs && log('Running in NodeJS', "blue")
-
-        // TODO: replace with streams https://www.npmjs.com/package/stream-csv-as-json
-
         const fs = await import("fs")
 
+        options.logs && log('=> Running in NodeJS', "blue")
+
         if (fileExtension === "csv") {
-            // @ts-ignore
-            const { csvParse } = await import("d3-dsv")
 
-            const dataRaw = fs.readFileSync(path, { encoding: options.encoding })
+            options.logs && log('=> Csv file extension detected', "blue")
 
-            const parsedCsv = csvParse(dataRaw, autoType)
+            //@ts-ignore
+            const Papa = (await import("papaparse")).default
 
-            // For some reason, csvParse don't always parse null, undefined and NaN and keep them as strings
-            const valuesToReplace = ["undefined", "NaN", "null"]
-            const correctValues = [undefined, NaN, null]
-            for (let i = 0; i < parsedCsv.length; i++) {
-                for (let col of parsedCsv["columns"]) {
-                    const val = parsedCsv[i][col]
-                    const index = valuesToReplace.indexOf(val)
-                    if (index > -1) {
-                        //@ts-ignore
-                        parsedCsv[i][col] = correctValues[index]
+            const csvString = fs.readFileSync(path, { encoding: options.encoding })
+
+            arrayOfObjects = Papa.parse(csvString, { header: true, dynamicTyping: true }).data
+
+            const keys = Object.keys(arrayOfObjects[0])
+            const missingValues = Object.keys(options.missingValues)
+
+            for (let i = 0; i < arrayOfObjects.length; i++) {
+                for (let j = 0; j < keys.length; j++) {
+                    if (missingValues.includes(arrayOfObjects[i][keys[j]])) {
+                        arrayOfObjects[i][keys[j]] = options.missingValues[arrayOfObjects[i][keys[j]]]
                     }
                 }
             }
 
-            // @ts-ignore
-            delete parsedCsv["columns"]
+        } else if (fileExtension === "json") {
 
-            arrayOfObjects = parsedCsv
+            options.logs && log('=> ' + fileExtension + ' file extension detected', "blue")
+
+            arrayOfObjects = JSON.parse(fs.readFileSync(path, { encoding: options.encoding }))
+
         } else {
             throw new Error("Unknown file extension " + fileExtension);
         }
-
 
         // @ts-ignore
         options.logs && showTable(arrayOfObjects, options.nbItemInTable)
@@ -84,17 +81,7 @@ export default async function loadData(path: string, options: Options) {
 
         options.logs && console.log('=> Running in the browser')
 
-        if (fileExtension === "csv") {
-
-            // @ts-ignore
-            const { csv } = await import("d3-fetch");
-
-            const end = Date.now()
-            options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
-
-        } else {
-            throw new Error("Unknown file extension " + fileExtension);
-        }
-
+        throw new Error("Not implemented yet")
     }
+
 }
