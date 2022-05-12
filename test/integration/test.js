@@ -1,6 +1,6 @@
-import { loadData, SimpleData } from "../dist/index.js"
+import { loadData, SimpleData } from "../../dist/index.js"
 
-const simpleData = await loadData("./examples/data/employees.csv", { logs: true, logOptions: true })
+const simpleData = await loadData("data/employees.csv", { logs: true, logOptions: true })
 
 console.log(simpleData.getData())
 console.log(simpleData.getKeys())
