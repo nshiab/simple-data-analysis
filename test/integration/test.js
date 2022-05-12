@@ -1,4 +1,5 @@
 import { loadData, SimpleData } from "../../dist/index.js"
+import { temporaryDirectory } from 'tempy'
 
 const simpleData = await loadData("data/employees.csv", { logs: true, logOptions: true })
 
@@ -154,6 +155,23 @@ simpleData
     .clone({ logs: false })
     .summarize("salary", "job", "weightedMean", "bonus")
 
+const tempDir = temporaryDirectory()
 simpleData
-    .saveData("data/outputTest/integrationTest.csv")
-    .saveData("data/outputTest/integrationTest.json")
+    .saveData(`${tempDir}/integrationTest.csv`)
+    .saveData(`${tempDir}/integrationTest.json`)
+
+// // // TODO:
+
+// getter
+// setter
+
+// // // percentage
+// // // variationPercentage
+// // // percentageOfAllItems
+
+// // // mergeItems
+
+// // // noOverwrite?
+
+// // // saveToCsv
+// // // saveToJson
