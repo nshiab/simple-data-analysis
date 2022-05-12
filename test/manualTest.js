@@ -2,8 +2,9 @@ import { loadData, SimpleData } from "../dist/index.js"
 
 const simpleData = await loadData("./examples/data/employees.csv", { logs: true, logOptions: true })
 
-console.log(simpleData.getData())
-console.log(simpleData.getKeys())
+console.log(simpleData.data)
+console.log(simpleData.keys)
+console.log(simpleData.options)
 console.log(simpleData.getArray("Name"))
 console.log(simpleData.getUniqueValues("Job"))
 
@@ -99,7 +100,7 @@ simpleData
 
 simpleData
     .clone({ logs: false })
-    .summarize(simpleData.getKeys(), "job")
+    .summarize(simpleData.keys, "job")
 
 simpleData
     .clone({ logs: false })
@@ -122,6 +123,9 @@ simpleData
     .summarize("salary", "job", "weightedMean", "bonus")
 
 // // // TODO:
+
+// getter
+// setter
 
 // // // percentage
 // // // variationPercentage

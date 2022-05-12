@@ -34,208 +34,225 @@ import checkKeys from "../helpers/checkKeys.js"
 
 export default class SimpleData {
 
-    data: SimpleDataItem[]
-    keys: string[]
-    defaultOptions: Options
+    _data: SimpleDataItem[]
+    _keys: string[]
+    _defaultOptions: Options
 
     constructor(incomingData: SimpleDataItem[], options?: Options) {
         checkKeys(incomingData)
-        this.data = incomingData
-        this.keys = Object.keys(incomingData[0])
-        this.defaultOptions = options === undefined ? defaultOptions : options
+        this._data = incomingData
+        this._keys = Object.keys(incomingData[0])
+        this._defaultOptions = options === undefined ? defaultOptions : options
+    }
+
+    get data() {
+        return this._data
+    }
+
+    get keys() {
+        return this._keys
+    }
+
+    get options() {
+        return this._defaultOptions
+    }
+
+    set data(data) {
+        this._data = data
+    }
+
+    set keys(data) {
+        this._keys = data[0] === undefined ? [] : Object.keys(data[0])
+    }
+
+    #updateSimpleData(data: SimpleDataItem[]) {
+        this._data = data
+        this._keys = data[0] === undefined ? [] : Object.keys(data[0])
     }
 
     setDefaultOptions(options: Options) {
-        this.defaultOptions = { ...this.defaultOptions, ...options }
+        this._defaultOptions = { ...this._defaultOptions, ...options }
         return this
     }
 
     clone(options: Options) {
-        return clone_(this.data, this.defaultOptions, { ...this.defaultOptions, ...options })
+        return clone_(this._data, this._defaultOptions, { ...this._defaultOptions, ...options })
     }
 
     getArray(key: string, options: Options) {
-        return getArray_(this.data, key, { ...this.defaultOptions, ...options })
-    }
-
-    getData() {
-        return this.data
-    }
-
-    getKeys() {
-        return this.keys
+        return getArray_(this._data, key, { ...this._defaultOptions, ...options })
     }
 
     getUniqueValues(key: string, options: Options) {
-        return getUniqueValues_(this.data, key, { ...this.defaultOptions, ...options })
+        return getUniqueValues_(this._data, key, { ...this._defaultOptions, ...options })
     }
 
     checkValues(options: Options) {
-        checkValues_(this.data, { ...this.defaultOptions, ...options })
+        checkValues_(this._data, { ...this._defaultOptions, ...options })
         return this
     }
 
     excludeMissingValues(key: "onAllItems" | string, options: Options) {
-        this.data = excludeMissingValues_(this.data, key, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = excludeMissingValues_(this._data, key, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     describe(options: Options) {
-        this.data = describe_(this.data, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = describe_(this._data, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     renameKey(oldKey: string, newKey: string, options: Options) {
-        this.data = renameKey_(this.data, oldKey, newKey, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = renameKey_(this._data, oldKey, newKey, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     removeKey(key: string, options: Options) {
-        this.data = removeKey_(this.data, key, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = removeKey_(this._data, key, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     addKey(key: string, func: Function, options: Options) {
-        this.data = addKey_(this.data, key, func, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = addKey_(this._data, key, func, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     modifyValues(key: string, func: Function, options: Options) {
-        this.data = modifyValues_(this.data, key, func, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = modifyValues_(this._data, key, func, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     modifyItems(key: string, func: Function, options: Options) {
-        this.data = modifyItems_(this.data, key, func, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = modifyItems_(this._data, key, func, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     formatAllKeys(options: Options) {
-        this.data = formatAllKeys_(this.data, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = formatAllKeys_(this._data, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     valuesToString(key: string, options: Options) {
-        this.data = valuesToString_(this.data, key, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = valuesToString_(this._data, key, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     valuesToInteger(key: string, options: Options) {
-        this.data = valuesToInteger_(this.data, key, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = valuesToInteger_(this._data, key, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     valuesToFloat(key: string, options: Options) {
-        this.data = valuesToFloat_(this.data, key, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = valuesToFloat_(this._data, key, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     valuesToDate(key: string, format: string, options: Options) {
-        this.data = valuesToDate_(this.data, key, format, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = valuesToDate_(this._data, key, format, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     datesToString(key: string, format: string, options: Options) {
-        this.data = datesToString_(this.data, key, format, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = datesToString_(this._data, key, format, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     filterValues(key: string, func: Function, options: Options) {
-        this.data = filterValues_(this.data, key, func, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = filterValues_(this._data, key, func, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     filterItems(func: Function, options: Options) {
-        this.data = filterItems_(this.data, func, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = filterItems_(this._data, func, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     roundValues(key: string, options: Options) {
-        this.data = roundValues_(this.data, key, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = roundValues_(this._data, key, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     replaceValues(key: string, oldValue: string, newValue: string, method: "entireString" | "partialString", options: Options) {
-        this.data = replaceValues_(this.data, key, oldValue, newValue, method, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = replaceValues_(this._data, key, oldValue, newValue, method, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     sortValues(key: string, order: "ascending" | "descending", options: Options) {
-        this.data = sortValues_(this.data, key, order, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = sortValues_(this._data, key, order, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     addQuantiles(key: "string", newKey: "string", nbIntervals: number, options: Options) {
-        this.data = addQuantiles_(this.data, key, newKey, nbIntervals, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = addQuantiles_(this._data, key, newKey, nbIntervals, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     addBins(key: "string", newKey: "string", nbBins: number, options: Options) {
-        this.data = addBins_(this.data, key, newKey, nbBins, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = addBins_(this._data, key, newKey, nbBins, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     addOutliers(key: "string", newKey: "string", method: "boxplot", options: Options) {
-        this.data = addOutliers_(this.data, key, newKey, method, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = addOutliers_(this._data, key, newKey, method, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     excludeOutliers(key: "string", method: "boxplot", options: Options) {
-        this.data = excludeOutliers_(this.data, key, method, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = excludeOutliers_(this._data, key, method, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     correlation(key1: string, key2: string, options: Options) {
-        this.data = correlation_(this.data, key1, key2, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = correlation_(this._data, key1, key2, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     addItems(dataToBeAdded: SimpleDataItem[], options: Options) {
-        this.data = addItems_(this.data, dataToBeAdded, { ...this.defaultOptions, ...options })
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        const data = addItems_(this._data, dataToBeAdded, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
         return this
     }
 
     summarize(value?: string, key?: string, summary?: any, weight?: string, options?: Options) {
         // Note that the parameters are in different order below
-        this.data = summarize_(
-            this.data,
+        const data = summarize_(
+            this._data,
             key === undefined ? "no key" : key,
             // Everything except weightedMean
             summary === undefined ? ["count", "min", "max", "sum", "mean", "median", "deviation"] : summary,
-            value === undefined ? this.keys : value,
+            value === undefined ? this._keys : value,
             weight === undefined ? "no weight" : weight,
-            { ...this.defaultOptions, ...options }
+            { ...this._defaultOptions, ...options }
         )
-        this.keys = this.data[0] === undefined ? [] : Object.keys(this.data[0])
+        this.#updateSimpleData(data)
         return this
     }
 
     showTable(options: Options) {
-        showTable_(this.data, { ...this.defaultOptions, ...options })
+        showTable_(this._data, { ...this._defaultOptions, ...options })
         return this
     }
 

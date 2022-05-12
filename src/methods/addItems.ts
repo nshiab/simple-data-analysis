@@ -33,7 +33,7 @@ export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDa
     } else if (dataToBeAdded.constructor.name === "SimpleData") {
 
         //@ts-ignore
-        const dataTBA = dataToBeAdded.getData()
+        const dataTBA = dataToBeAdded.data
 
         const keys1 = Object.keys(data[0]).sort()
         const keys2 = Object.keys(dataTBA[0]).sort()
