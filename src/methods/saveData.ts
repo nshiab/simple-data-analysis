@@ -33,7 +33,7 @@ export default async function saveData(data: SimpleDataItem[], path: string, opt
 
             fs.writeFileSync(path, csvString, { encoding: options.encoding })
 
-        } else if (extension === "json" || extension === "geojson") {
+        } else if (extension === "json") {
 
             options.logs && log("=> " + extension + " file extension detected", "blue")
             fs.writeFileSync(path, JSON.stringify(data), { encoding: options.encoding })

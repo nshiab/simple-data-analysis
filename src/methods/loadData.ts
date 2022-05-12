@@ -62,12 +62,6 @@ export default async function loadData(path: string, options: Options) {
 
             arrayOfObjects = JSON.parse(fs.readFileSync(path, { encoding: options.encoding }))
 
-        } else if (fileExtension === "geojson") {
-
-            options.logs && log('=> ' + fileExtension + ' file extension detected', "blue")
-
-            arrayOfObjects = JSON.parse(fs.readFileSync(path, { encoding: options.encoding }))
-
         } else {
             throw new Error("Unknown file extension " + fileExtension);
         }
