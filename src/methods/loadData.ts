@@ -24,7 +24,7 @@ export default async function loadData(path: string, options: Options) {
     const environment = checkEnvironment()
 
     const pathSplit = path.split(".")
-    const fileExtension = pathSplit[pathSplit.length - 1]
+    const fileExtension = pathSplit[pathSplit.length - 1].toLocaleLowerCase()
 
     options.logs && log("Detected " + fileExtension + " file extension", "blue")
 

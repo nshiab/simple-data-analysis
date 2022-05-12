@@ -122,8 +122,9 @@ simpleData
     .clone({ logs: false })
     .summarize("salary", "job", "weightedMean", "bonus")
 
-simpleData.saveData("data/output/integrationTest.csv")
-    .saveData("data/output/integrationTest.json")
+simpleData
+    .saveData("data/outputTest/integrationTest.csv")
+    .saveData("data/outputTest/integrationTest.json")
 
 // // // TODO:
 
