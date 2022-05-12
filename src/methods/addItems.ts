@@ -3,6 +3,7 @@ import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import showTable from "./showTable.js"
 //@ts-ignore
 import isEqual from "lodash.isequal"
+import SimpleData from "../class/SimpleData.js"
 
 export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDataItem[], options: Options): SimpleDataItem[] {
 
@@ -30,7 +31,7 @@ export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDa
 
         newData = data.concat(dataToBeAdded)
 
-    } else if (dataToBeAdded.constructor.name === "SimpleData") {
+    } else if (dataToBeAdded instanceof SimpleData) {
 
         //@ts-ignore
         const dataTBA = dataToBeAdded.data

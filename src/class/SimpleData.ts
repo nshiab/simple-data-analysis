@@ -31,6 +31,7 @@ import summarize_ from "../methods/summarize.js"
 import saveData_ from "../methods/saveData.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import checkKeys from "../helpers/checkKeys.js"
+import mergeItems_ from "../methods/mergeItems.js"
 
 
 export default class SimpleData {
@@ -237,6 +238,12 @@ export default class SimpleData {
         return this
     }
 
+    mergeItems(dataToBeMerged: SimpleDataItem[], commonKey: string, options: Options) {
+        const data = mergeItems_(this.data, dataToBeMerged, commonKey, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
+        return this
+    }
+
     summarize(value?: string, key?: string, summary?: any, weight?: string, options?: Options) {
         // Note that the parameters are in different order below
         const data = summarize_(
@@ -253,9 +260,7 @@ export default class SimpleData {
     }
 
     saveData(path: string, options: Options) {
-
         saveData_(this.data, path, { ...this._defaultOptions, ...options })
-
         return this
     }
 
