@@ -32,7 +32,7 @@
         "default": "./dist/index.js"
     },
     "scripts": {
-        "test": "npx tsc && mocha test/unit && node test/integration/test.js",
+        "test": "npx tsc && node test/integration/test.js && mocha test/unit",
         "integrationTest": "npx tsc && node test/integration/test.js",
         "build": "rm -rf dist && npx tsc && mocha test/unit && node test/integration/test.js && rollup --config"
     },
@@ -54,12 +54,11 @@
     },
     "dependencies": {
         "d3-array": "^3.1.6",
-        "d3-dsv": "^3.0.1",
-        "d3-fetch": "^3.0.1",
         "d3-time-format": "^4.1.0",
         "lodash.camelcase": "^4.3.0",
         "lodash.clonedeep": "^4.5.0",
         "lodash.isequal": "^4.5.0",
+        "papaparse": "^5.3.2",
         "simple-statistics": "^7.7.5"
     }
 }

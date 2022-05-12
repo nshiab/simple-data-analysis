@@ -1,4 +1,4 @@
-import { checkEnvironment } from "./checkEnvironment.js"
+import checkEnvironment from "./checkEnvironment.js"
 
 export default function log(valuesToLog: any, color?: "bgRed" | "blue") {
 
@@ -14,5 +14,7 @@ export default function log(valuesToLog: any, color?: "bgRed" | "blue") {
         } else {
             console.log(valuesToLog)
         }
+    } else {
+        console.log(valuesToLog)
     }
 }
