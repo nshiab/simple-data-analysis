@@ -32,7 +32,7 @@
         "default": "./dist/index.js"
     },
     "scripts": {
-        "test": "npx tsc && mocha test/unit",
+        "test": "npx tsc && mocha test/unit && node test/integration/test.js",
         "integrationTest": "npx tsc && node test/integration/test.js",
         "build": "rm -rf dist && npx tsc && mocha test/unit && node test/integration/test.js && rollup --config"
     },
