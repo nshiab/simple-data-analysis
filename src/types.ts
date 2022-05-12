@@ -13,7 +13,8 @@ export interface Options {
     missingValues: object[],
     missingValuesArray: any[],
     nbValuesTestedForTypeOf: 100,
-    environment: string
+    environment: string,
+    showDataNoOverwrite: boolean
 }
 
 export const defaultOptions: Options = {
@@ -26,5 +27,6 @@ export const defaultOptions: Options = {
     missingValues: { "null": null, "NaN": NaN, "undefined": undefined },
     missingValuesArray: [null, NaN, undefined, ""],
     nbValuesTestedForTypeOf: 100,
-    environment: checkEnvironment()
+    environment: checkEnvironment(),
+    showDataNoOverwrite: false
 }
