@@ -1,7 +1,7 @@
 // @ts-ignore
 import { autoType } from "d3-dsv"
 import SimpleData from "../class/SimpleData.js";
-import { checkEnvironment } from "../helpers/checkEnvironment.js";
+import checkEnvironment from "../helpers/checkEnvironment.js";
 import log from "../helpers/log.js";
 import { Options, defaultOptions } from "../types.js"
 import showTable from "./showTable.js";

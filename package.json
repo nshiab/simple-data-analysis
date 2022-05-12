@@ -60,6 +60,7 @@
         "lodash.camelcase": "^4.3.0",
         "lodash.clonedeep": "^4.5.0",
         "lodash.isequal": "^4.5.0",
+        "papaparse": "^5.3.2",
         "simple-statistics": "^7.7.5"
     }
 }
