@@ -32,12 +32,12 @@
         "default": "./dist/index.js"
     },
     "scripts": {
-        "test": "npx tsc && node test/integration/test.js && mocha test/unit",
+        "test": "npx tsc && mocha test/unit",
         "integrationTest": "npx tsc && node test/integration/test.js",
         "build": "rm -rf dist && npx tsc && mocha test/unit && node test/integration/test.js && rollup --config"
     },
     "engines": {
-        "node": ">=14.16"
+        "node": ">=16.0"
     },
     "bugs": {
         "url": "https://github.com/nshiab/simple-data-analysis/issues"
