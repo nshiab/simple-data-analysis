@@ -31,7 +31,7 @@ import summarize_ from "../methods/summarize.js"
 import saveData_ from "../methods/saveData.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import checkKeys from "../helpers/checkKeys.js"
-
+import logDecorator from "../helpers/logDecorator.js"
 
 export default class SimpleData {
 
@@ -73,23 +73,49 @@ export default class SimpleData {
 
     setDefaultOptions(options: Options) {
         this._defaultOptions = { ...this._defaultOptions, ...options }
+        options.logs && console.log(this._defaultOptions)
         return this
     }
 
     clone(options: Options) {
-        return clone_(this._data, this._defaultOptions, { ...this._defaultOptions, ...options })
+        // very specific case with two options passed as arguments. Can't use ...args directly.
+        const data = logDecorator(
+            this,
+            clone_,
+            this._defaultOptions,
+            options === undefined ? {} : options
+        )
+        this.#updateSimpleData(data)
+        return this
     }
 
-    getArray(key: string, options: Options) {
-        return getArray_(this._data, key, { ...this._defaultOptions, ...options })
+    getArray(...args: any[]) {
+        // We don't update data and we don't return this
+        const data = logDecorator(
+            this,
+            getArray_,
+            ...args
+        )
+        return data
     }
 
-    getUniqueValues(key: string, options: Options) {
-        return getUniqueValues_(this._data, key, { ...this._defaultOptions, ...options })
+    getUniqueValues(...args: any[]) {
+        // We don't update data and we don't return this
+        const data = logDecorator(
+            this,
+            getUniqueValues_,
+            ...args
+        )
+        return data
     }
 
-    checkValues(options: Options) {
-        checkValues_(this._data, { ...this._defaultOptions, ...options })
+    checkValues(...args: any[]) {
+        const data = logDecorator(
+            this,
+            checkValues_,
+            ...args
+        )
+        this.#updateSimpleData(data)
         return this
     }
 
@@ -99,8 +125,12 @@ export default class SimpleData {
         return this
     }
 
-    describe(options: Options) {
-        const data = describe_(this._data, { ...this._defaultOptions, ...options })
+    describe(...args: any[]) {
+        const data = logDecorator(
+            this,
+            describe_,
+            ...args
+        )
         this.#updateSimpleData(data)
         return this
     }

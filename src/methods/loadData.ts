@@ -70,7 +70,7 @@ export default async function loadData(path: string, options: Options) {
         options.logs && showTable(arrayOfObjects, options.nbItemInTable)
 
         // @ts-ignore
-        const simpleData = new SimpleData(arrayOfObjects)
+        const simpleData = new SimpleData(arrayOfObjects, options)
 
         const end = Date.now()
         options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)

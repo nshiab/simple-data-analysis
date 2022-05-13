@@ -7,8 +7,6 @@ export default function showTable(data: SimpleDataItem[], options: Options) {
         ...options
     }
 
-    // options.logs && console.log("showTable()", options)
-
     console.table(
         options.nbItemInTable === "all" ?
             data :

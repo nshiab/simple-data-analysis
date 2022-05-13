@@ -8,6 +8,7 @@ export interface Options {
     encoding: BufferEncoding,
     logs: boolean,
     logOptions: boolean,
+    logParameters: boolean,
     nbItemInTable: "all" | number,
     fractionDigits: number,
     missingValues: object[],
@@ -21,6 +22,7 @@ export const defaultOptions: Options = {
     encoding: "utf-8",
     logs: false,
     logOptions: false,
+    logParameters: false,
     nbItemInTable: 5,
     fractionDigits: 1,
     //@ts-ignore
