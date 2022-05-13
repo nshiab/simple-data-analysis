@@ -1,6 +1,4 @@
-import log from "../helpers/log.js"
-import { SimpleDataItem, Options, defaultOptions } from "../types.js"
-import showTable from "./showTable.js"
+import { SimpleDataItem, Options } from "../types.js"
 
 export default function selectKeys(data: SimpleDataItem[], keys: string[], options: Options): SimpleDataItem[] {
 
