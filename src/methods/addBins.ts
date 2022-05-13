@@ -27,7 +27,7 @@ export default function addBins(data: SimpleDataItem[], key: string, newKey: str
     }
 
     options.logs && log("The bins values are => " + min + "," + String(bins), "blue")
-    options.logs && log("/!\\The first bin is labelled 1 (not 0).", "bgRed")
+    options.logs && log("/!\\ The first bin is labelled 1 (not 0).", "bgRed")
 
     for (let i = 0; i < data.length; i++) {
         const value = data[i][key]

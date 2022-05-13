@@ -66,6 +66,10 @@ export default class SimpleData {
         this._keys = data[0] === undefined ? [] : Object.keys(data[0])
     }
 
+    set options(options) {
+        this._defaultOptions = options
+    }
+
     #updateSimpleData(data: SimpleDataItem[]) {
         this._data = data
         this._keys = data[0] === undefined ? [] : Object.keys(data[0])
@@ -73,7 +77,8 @@ export default class SimpleData {
 
     setDefaultOptions(options: Options) {
         this._defaultOptions = { ...this._defaultOptions, ...options }
-        options.logs && console.log(this._defaultOptions)
+        this._defaultOptions.logs && console.log("\nsetDefaultOptions()")
+        this._defaultOptions.logs && console.log(this._defaultOptions)
         return this
     }
 
@@ -83,7 +88,7 @@ export default class SimpleData {
             this,
             clone_,
             this._defaultOptions,
-            options === undefined ? {} : options
+            options === undefined ? this._defaultOptions : options
         )
         return newSimpleData
     }
@@ -123,7 +128,8 @@ export default class SimpleData {
         const data = logDecorator(
             this,
             excludeMissingValues_,
-            [key, options]
+            key,
+            options === undefined ? this._defaultOptions : options
         )
         this.#updateSimpleData(data)
         return this
@@ -340,11 +346,14 @@ export default class SimpleData {
         return this
     }
 
-    correlation(...args: any[]) {
+    correlation(key1: string, key2: string, options: Options) {
+        // We deal with the parameters manually to deal with optional arguments
         const data = logDecorator(
             this,
             correlation_,
-            ...args
+            key1,
+            key2,
+            options === undefined ? this._defaultOptions : options
         )
         this.#updateSimpleData(data)
         return this
@@ -361,19 +370,17 @@ export default class SimpleData {
     }
 
     summarize(value?: string, key?: string, summary?: any, weight?: string, options?: Options) {
-        // More complex function. We deal with the parameters manually.
+        // We deal with the parameters manually to deal with optional arguments
         // Note that the parameters are in different order in the parameters array
         const data = logDecorator(
             this,
             summarize_,
-            [
-                key === undefined ? "no key" : key,
-                // Everything except weightedMean
-                summary === undefined ? ["count", "min", "max", "sum", "mean", "median", "deviation"] : summary,
-                value === undefined ? this._keys : value,
-                weight === undefined ? "no weight" : weight,
-                options
-            ]
+            key === undefined ? "no key" : key,
+            // Everything except weightedMean
+            summary === undefined ? ["count", "min", "max", "sum", "mean", "median", "deviation"] : summary,
+            value === undefined ? this._keys : value,
+            weight === undefined ? "no weight" : weight,
+            options === undefined ? this._defaultOptions : options
         )
         this.#updateSimpleData(data)
         return this
@@ -391,7 +398,7 @@ export default class SimpleData {
 
     showTable(...args: any[]) {
         // we don't update data
-        const data = logDecorator(
+        logDecorator(
             this,
             showTable_,
             ...args

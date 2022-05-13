@@ -1,11 +1,13 @@
 import { loadData, SimpleData } from "../../dist/index.js"
 import { temporaryDirectory } from 'tempy'
 
-const simpleData = await loadData("data/employees.csv", { logs: true, logOptions: true, logParameters: true })
+const simpleData = await loadData("data/employees.csv")
 
-console.log(simpleData.data)
-console.log(simpleData.keys)
-console.log(simpleData.options)
+simpleData.setDefaultOptions({ logs: true, logOptions: true, logParameters: true })
+
+// console.log(simpleData.data)
+// console.log(simpleData.keys)
+// console.log(simpleData.options)
 simpleData.getArray("Name")
 simpleData.getUniqueValues("Job")
 
@@ -15,7 +17,7 @@ simpleData
     .formatAllKeys()
     .renameKey("departementOrUnit", "unit")
     .renameKey("endOfYearBonus", "bonus")
-    .checkValues()
+    .checkValues({ showDataNoOverwrite: true })
     .excludeMissingValues("name")
     .excludeMissingValues()
     .addKey("firstName", item => item.name.split(",")[1].trim())
@@ -76,69 +78,27 @@ const moreEmployeesSimpleData = new SimpleData([
     }
 ])
 
-simpleData.addItems(moreEmployeesSimpleData)
-
-simpleData.setDefaultOptions({ nbItemInTable: "all" })
+simpleData
+    .addItems(moreEmployeesSimpleData)
 
 simpleData
+    .setDefaultOptions({ nbItemInTable: "all" })
     .addQuantiles("bonus", "salaryQuintile", 5)
     .addBins("bonus", "salaryBins", 5)
     .addOutliers("bonus", "bonusOutlier", "boxplot")
     .excludeOutliers("bonus", "boxplot")
-
-simpleData
-    .clone({ logs: false })
+    .setDefaultOptions({ showDataNoOverwrite: true })
     .correlation()
-
-simpleData
-    .clone({ logs: false })
     .correlation("salary", "bonus")
-
-simpleData
-    .clone({ logs: false })
     .summarize()
-
-simpleData
-    .clone({ logs: false })
     .summarize(simpleData.keys, "job")
-
-simpleData
-    .clone({ logs: false })
     .summarize("salary", ["job", "unit"])
-
-simpleData
-    .clone({ logs: false })
     .summarize("salary", "job", "mean")
-
-simpleData
-    .clone({ logs: false })
     .summarize("salary", undefined, "mean")
-
-simpleData
-    .clone({ logs: false })
     .summarize("salary", "job", ["mean", "median"])
-
-simpleData
-    .clone({ logs: false })
     .summarize("salary", "job", "weightedMean", "bonus")
 
 const tempDir = temporaryDirectory()
 simpleData
     .saveData(`${tempDir}/integrationTest.csv`)
     .saveData(`${tempDir}/integrationTest.json`)
-
-// // // TODO:
-
-// getter
-// setter
-
-// // // percentage
-// // // variationPercentage
-// // // percentageOfAllItems
-
-// // // mergeItems
-
-// // // noOverwrite?
-
-// // // saveToCsv
-// // // saveToJson

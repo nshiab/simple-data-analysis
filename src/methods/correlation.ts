@@ -1,15 +1,8 @@
-import log from "../helpers/log.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import { sampleCorrelation, combinations } from "simple-statistics"
-import showTable from "./showTable.js"
 import checkTypeOfKey from "../helpers/checkTypeOfKey.js"
 
-export default function correlation(data: SimpleDataItem[], key1?: string, key2?: string, options?: Options): any[] {
-
-    options = {
-        ...defaultOptions,
-        ...options
-    }
+export default function correlation(data: SimpleDataItem[], key1: string, key2: string, options: Options): any[] {
 
     const correlations = []
 

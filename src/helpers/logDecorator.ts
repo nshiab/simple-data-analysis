@@ -11,8 +11,8 @@ export default function logDecorator(simpleData: any, func: Function, ...args: a
 
     if (
         args.length > 0 &&
-        typeof args[args.length - 1] === "object"
-        && Object.keys(defaultOptions).includes(Object.keys(args[args.length - 1])[0])
+        typeof args[args.length - 1] === "object" &&
+        Object.keys(defaultOptions).includes(Object.keys(args[args.length - 1])[0])
     ) {
         options = { ...simpleData.options, ...args[args.length - 1] }
         parameters[args.length - 1] = options

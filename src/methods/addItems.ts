@@ -1,6 +1,7 @@
 import { SimpleDataItem, Options } from "../types.js"
 //@ts-ignore
 import isEqual from "lodash.isequal"
+import log from "../helpers/log.js"
 
 export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDataItem[], options: Options): SimpleDataItem[] {
 
@@ -34,6 +35,8 @@ export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDa
     } else {
         throw Error("dataToBeAdded needs to be an array of objects or a SimpleData prototype")
     }
+
+    options.logs && log(`/!\\ ${newData.length - data.length} items added. Number of items increased by ${((newData.length - data.length) / data.length * 100).toFixed(options.fractionDigits)}%`, "bgRed")
 
     return newData
 }

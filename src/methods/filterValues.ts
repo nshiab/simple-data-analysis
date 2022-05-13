@@ -1,6 +1,5 @@
 import log from "../helpers/log.js"
 import { SimpleDataItem, Options } from "../types.js"
-import showTable from "./showTable.js"
 import percentage from "../helpers/percentage.js"
 
 export default function filterValues(data: SimpleDataItem[], key: string, func: Function, options: Options): SimpleDataItem[] {
@@ -13,7 +12,6 @@ export default function filterValues(data: SimpleDataItem[], key: string, func: 
 
     const nbRemoved = data.length - filteredData.length
     options.logs && log(`/!\\ ${nbRemoved} items removed, representing ${percentage(nbRemoved, data.length, options)} of received items.`, "bgRed")
-    options.logs && showTable(filteredData, options)
 
     return filteredData
 }

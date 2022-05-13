@@ -1,9 +1,17 @@
 import SimpleData from "../class/SimpleData.js";
 import checkEnvironment from "../helpers/checkEnvironment.js";
 import log from "../helpers/log.js";
-import { Options } from "../types.js"
+import { Options, defaultOptions } from "../types.js"
+import showTable from "../methods/showTable.js";
+
 
 export default async function loadData(path: string, options: Options) {
+
+    // On doit garder les options
+    options = {
+        ...defaultOptions,
+        ...options
+    }
 
     let arrayOfObjects: any = []
 
@@ -51,6 +59,9 @@ export default async function loadData(path: string, options: Options) {
         } else {
             throw new Error("Unknown file extension " + fileExtension);
         }
+
+        // @ts-ignore
+        options.logs && showTable(arrayOfObjects, options.nbItemInTable)
 
         // @ts-ignore
         const simpleData = new SimpleData(arrayOfObjects, options)
