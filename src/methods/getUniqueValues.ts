@@ -1,5 +1,4 @@
-import log from "../helpers/log.js"
-import { SimpleDataItem, Options, defaultOptions } from "../types.js"
+import { SimpleDataItem, Options } from "../types.js"
 
 export default function getUniqueValues(data: SimpleDataItem[], key: string, options?: Options): any[] {
 

@@ -1,21 +1,8 @@
-import log from "../helpers/log.js"
-import { SimpleDataItem, Options, defaultOptions } from "../types.js"
-import showTable from "./showTable.js"
+import { SimpleDataItem, Options } from "../types.js"
 //@ts-ignore
 import isEqual from "lodash.isequal"
 
 export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDataItem[], options: Options): SimpleDataItem[] {
-
-    const start = Date.now()
-
-    options = {
-        ...defaultOptions,
-        ...options
-    }
-
-    options.logs && log("\naddItems()")
-    options.logOptions && log("options:")
-    options.logOptions && log(options)
 
     let newData
 
@@ -47,15 +34,6 @@ export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDa
     } else {
         throw Error("dataToBeAdded needs to be an array of objects or a SimpleData prototype")
     }
-
-
-
-
-
-    options.logs && showTable(newData, options)
-
-    const end = Date.now()
-    options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
 
     return newData
 }

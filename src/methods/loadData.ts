@@ -1,23 +1,9 @@
 import SimpleData from "../class/SimpleData.js";
 import checkEnvironment from "../helpers/checkEnvironment.js";
 import log from "../helpers/log.js";
-import { Options, defaultOptions } from "../types.js"
-import showTable from "./showTable.js";
-
+import { Options } from "../types.js"
 
 export default async function loadData(path: string, options: Options) {
-    const start = Date.now()
-
-    options = {
-        ...defaultOptions,
-        ...options
-    }
-
-    options.logs && log("\nloadData() " + path)
-    options.logOptions && log("options:")
-    options.logOptions && log(options)
-
-    // TODO: add other formats than csv
 
     let arrayOfObjects: any = []
 
@@ -67,13 +53,7 @@ export default async function loadData(path: string, options: Options) {
         }
 
         // @ts-ignore
-        options.logs && showTable(arrayOfObjects, options.nbItemInTable)
-
-        // @ts-ignore
         const simpleData = new SimpleData(arrayOfObjects, options)
-
-        const end = Date.now()
-        options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
 
         return simpleData
 
