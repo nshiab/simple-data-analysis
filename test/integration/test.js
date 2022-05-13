@@ -36,6 +36,9 @@ simpleData
     .sortValues("salary", "descending")
     .sortValues("bonus", "ascending")
 
+simpleData
+    .clone()
+    .selectKeys(["firstName", "job", "bonus"])
 
 const moreEmployees = [
     {
@@ -159,19 +162,3 @@ const tempDir = temporaryDirectory()
 simpleData
     .saveData(`${tempDir}/integrationTest.csv`)
     .saveData(`${tempDir}/integrationTest.json`)
-
-// // // TODO:
-
-// getter
-// setter
-
-// // // percentage
-// // // variationPercentage
-// // // percentageOfAllItems
-
-// // // mergeItems
-
-// // // noOverwrite?
-
-// // // saveToCsv
-// // // saveToJson

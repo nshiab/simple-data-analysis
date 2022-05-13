@@ -17,6 +17,7 @@ import filterItems_ from "../methods/filterItems.js"
 import roundValues_ from "../methods/roundValues.js"
 import replaceValues_ from "../methods/replaceValues.js"
 import addKey_ from "../methods/addKey.js"
+import selectKeys_ from "../methods/selectKeys.js"
 import modifyValues_ from "../methods/modifyValues.js"
 import modifyItems_ from "../methods/modifyItems.js"
 import sortValues_ from "../methods/sortValues.js"
@@ -120,6 +121,12 @@ export default class SimpleData {
 
     addKey(key: string, func: Function, options: Options) {
         const data = addKey_(this._data, key, func, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    selectKeys(keys: string[], options: Options) {
+        const data = selectKeys_(this.data, keys, { ...this._defaultOptions, ...options })
         this.#updateSimpleData(data)
         return this
     }
