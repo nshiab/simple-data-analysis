@@ -12,7 +12,7 @@ export interface Options {
     fractionDigits: number,
     missingValues: object[],
     missingValuesArray: any[],
-    nbValuesTestedForTypeOf: 100,
+    nbValuesTestedForTypeOf: number,
     environment: string
 }
 
@@ -25,6 +25,6 @@ export const defaultOptions: Options = {
     //@ts-ignore
     missingValues: { "null": null, "NaN": NaN, "undefined": undefined },
     missingValuesArray: [null, NaN, undefined, ""],
-    nbValuesTestedForTypeOf: 100,
+    nbValuesTestedForTypeOf: 1000,
     environment: checkEnvironment()
 }

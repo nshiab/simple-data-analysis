@@ -45,10 +45,10 @@ export default function mergeItems(data: SimpleDataItem[], dataToBeMerged: Simpl
         }
     }
 
-    if (!checkTypeOfKey(data, commonKey, "string", 0.5, options)) {
-        throw new Error("In more than 50% of the case, the values of " + commonKey + " in data are not string. To avoid problems, ids should always be string. Convert them with valuesToString()")
-    } else if (!checkTypeOfKey(newData, commonKey, "string", 0.5, options)) {
-        throw new Error("In more than 50% of the case, the values of " + commonKey + " in dataToBeMerged are not string. To avoid problems, ids should always be string. Convert them with valuesToString()")
+    if (!checkTypeOfKey(data, commonKey, "string", 1, options)) {
+        throw new Error("At least one value of " + commonKey + " in data is not string. To avoid problems, ids should always be string. Convert them with valuesToString()")
+    } else if (!checkTypeOfKey(newData, commonKey, "string", 1, options)) {
+        throw new Error("At least one value of " + commonKey + " in dataToBeMerged is not string. To avoid problems, ids should always be string. Convert them with valuesToString()")
     }
 
     // Using code from here : http://learnjsdata.com/combine_data.html
