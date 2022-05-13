@@ -17,6 +17,7 @@ import filterItems_ from "../methods/filterItems.js"
 import roundValues_ from "../methods/roundValues.js"
 import replaceValues_ from "../methods/replaceValues.js"
 import addKey_ from "../methods/addKey.js"
+import selectKeys_ from "../methods/selectKeys.js"
 import modifyValues_ from "../methods/modifyValues.js"
 import modifyItems_ from "../methods/modifyItems.js"
 import sortValues_ from "../methods/sortValues.js"
@@ -169,6 +170,16 @@ export default class SimpleData {
         const data = logDecorator(
             this,
             addKey_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    selectKeys(...args: any[]) {
+        const data = logDecorator(
+            this,
+            selectKeys_,
             ...args
         )
         this.#updateSimpleData(data)

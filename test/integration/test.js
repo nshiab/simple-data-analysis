@@ -36,7 +36,7 @@ simpleData
     .filterItems(item => item.hireDate > "2002-01-01" && item.unit !== "20")
     .sortValues("salary", "descending")
     .sortValues("bonus", "ascending")
-
+    .selectKeys(["firstName", "job", "bonus"], { showDataNoOverwrite: true })
 
 const moreEmployees = [
     {
