@@ -1,4 +1,4 @@
-import { SimpleDataItem, Options } from "../types"
+import { SimpleDataItem, Options } from "../types.js"
 
 export default function describe(data: SimpleDataItem[], options: Options): SimpleDataItem[] {
 

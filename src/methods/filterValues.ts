@@ -3,12 +3,7 @@ import { SimpleDataItem, Options } from "../types.js"
 import percentage from "../helpers/percentage.js"
 import hasKey from "../helpers/hasKey.js"
 
-export default function filterValues(
-    data: SimpleDataItem[], 
-    key: string, 
-    func: (val: any) => any, 
-    options: Options
-): SimpleDataItem[] {
+export default function filterValues(data: SimpleDataItem[], key: string, func: (val: any) => any, options: Options): SimpleDataItem[] {
 
     if (!hasKey(data[0], key)) {
         throw new Error("No key named " + key)
