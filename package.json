@@ -33,8 +33,9 @@
     "scripts": {
         "test": "mocha --require ts-node/register test/unit/**/*.ts",
         "integrationTest": "npx tsc && node test/integration/test.js",
-        "build": "rm -rf dist && npx tsc && mocha test/unit && node test/integration/test.js && rollup --config",
-        "lint": "eslint . --ext .ts"
+        "build": "rm -rf dist && npx tsc && mocha test/unit && node test/integration/test.js && eslint . --ext .ts && rollup --config",
+        "lint": "eslint . --ext .ts",
+        "allTests": "npx tsc && node test/integration/test.js && mocha test/unit && eslint . --ext .ts"
     },
     "engines": {
         "node": ">=16.0"
