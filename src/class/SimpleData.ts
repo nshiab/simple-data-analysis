@@ -33,6 +33,9 @@ import saveData_ from "../methods/saveData.js"
 import mergeItems_ from "../methods/mergeItems.js"
 import checkKeys from "../helpers/checkKeys.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
+import log from "../helpers/log.js"
+import showTable from "../methods/showTable.js"
+import getParametersAndOptions from "../helpers/getParametersAndOptions.js"
 import logInfos from "../helpers/logInfos.js"
 
 
@@ -75,6 +78,19 @@ export default class SimpleData {
         this._keys = data[0] === undefined ? [] : Object.keys(data[0])
     }
 
+    #apply(func: (data: SimpleDataItem[], ...args: any[]) => any, ...args: any[]) {
+
+        const { parameters, options } = getParametersAndOptions(this._defaultOptions, ...args)
+
+        const start = logInfos("start", parameters, options, func)
+
+        const data = func(this._data, ...parameters)
+
+        logInfos("end", parameters, options, func, start, data)
+
+        return options.showDataNoOverwrite ? this._data : data
+    }
+
     setDefaultOptions(options: Options) {
         this._defaultOptions = { ...this._defaultOptions, ...options }
         this._defaultOptions.logs && console.log("\nsetDefaultOptions()")
@@ -84,8 +100,7 @@ export default class SimpleData {
 
     clone(options: Options) {
         // very specific case with two options passed as arguments. Can't use ...args directly. And we don't return data, but a new SimpleData.
-        const newSimpleData = logInfos(
-            this,
+        const newSimpleData = this.#apply(
             clone_,
             this._defaultOptions,
             options === undefined ? this._defaultOptions : options
@@ -95,8 +110,7 @@ export default class SimpleData {
 
     getArray(...args: any[]) {
         // We don't update data and we don't return this
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             getArray_,
             ...args
         )
@@ -105,8 +119,7 @@ export default class SimpleData {
 
     getUniqueValues(...args: any[]) {
         // We don't update data and we don't return this
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             getUniqueValues_,
             ...args
         )
@@ -114,8 +127,7 @@ export default class SimpleData {
     }
 
     checkValues(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             checkValues_,
             ...args
         )
@@ -125,8 +137,7 @@ export default class SimpleData {
 
     excludeMissingValues(key: "onAllKeys" | string, options: Options) {
         // We need to deal with arguments manually. In case of undefined key, we run on all keys.
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             excludeMissingValues_,
             key,
             options === undefined ? this._defaultOptions : options
@@ -136,8 +147,7 @@ export default class SimpleData {
     }
 
     describe(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             describe_,
             ...args
         )
@@ -146,8 +156,7 @@ export default class SimpleData {
     }
 
     renameKey(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             renameKey_,
             ...args
         )
@@ -156,8 +165,7 @@ export default class SimpleData {
     }
 
     removeKey(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             removeKey_,
             ...args
         )
@@ -166,8 +174,7 @@ export default class SimpleData {
     }
 
     addKey(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             addKey_,
             ...args
         )
@@ -176,8 +183,7 @@ export default class SimpleData {
     }
 
     selectKeys(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             selectKeys_,
             ...args
         )
@@ -186,8 +192,7 @@ export default class SimpleData {
     }
 
     modifyValues(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             modifyValues_,
             ...args
         )
@@ -196,8 +201,7 @@ export default class SimpleData {
     }
 
     modifyItems(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             modifyItems_,
             ...args
         )
@@ -206,8 +210,7 @@ export default class SimpleData {
     }
 
     formatAllKeys(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             formatAllKeys_,
             ...args
         )
@@ -217,8 +220,7 @@ export default class SimpleData {
 
 
     valuesToString(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             valuesToString_,
             ...args
         )
@@ -227,8 +229,7 @@ export default class SimpleData {
     }
 
     valuesToInteger(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             valuesToInteger_,
             ...args
         )
@@ -237,8 +238,7 @@ export default class SimpleData {
     }
 
     valuesToFloat(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             valuesToFloat_,
             ...args
         )
@@ -247,8 +247,7 @@ export default class SimpleData {
     }
 
     valuesToDate(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             valuesToDate_,
             ...args
         )
@@ -257,8 +256,7 @@ export default class SimpleData {
     }
 
     datesToString(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             datesToString_,
             ...args
         )
@@ -267,8 +265,7 @@ export default class SimpleData {
     }
 
     filterValues(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             filterValues_,
             ...args
         )
@@ -277,8 +274,7 @@ export default class SimpleData {
     }
 
     filterItems(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             filterItems_,
             ...args
         )
@@ -287,8 +283,7 @@ export default class SimpleData {
     }
 
     roundValues(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             roundValues_,
             ...args
         )
@@ -297,8 +292,7 @@ export default class SimpleData {
     }
 
     replaceValues(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             replaceValues_,
             ...args
         )
@@ -307,8 +301,7 @@ export default class SimpleData {
     }
 
     sortValues(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             sortValues_,
             ...args
         )
@@ -317,8 +310,7 @@ export default class SimpleData {
     }
 
     addQuantiles(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             addQuantiles_,
             ...args
         )
@@ -327,8 +319,7 @@ export default class SimpleData {
     }
 
     addBins(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             addBins_,
             ...args
         )
@@ -337,8 +328,7 @@ export default class SimpleData {
     }
 
     addOutliers(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             addOutliers_,
             ...args
         )
@@ -347,8 +337,7 @@ export default class SimpleData {
     }
 
     excludeOutliers(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             excludeOutliers_,
             ...args
         )
@@ -358,8 +347,7 @@ export default class SimpleData {
 
     correlation(key1: string, key2: string, options: Options) {
         // We deal with the parameters manually to deal with optional arguments
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             correlation_,
             key1,
             key2,
@@ -370,8 +358,7 @@ export default class SimpleData {
     }
 
     addItems(...args: any[]) {
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             addItems_,
             ...args
         )
@@ -380,7 +367,13 @@ export default class SimpleData {
     }
 
     mergeItems(dataToBeMerged: SimpleDataItem[], commonKey: string, options: Options) {
-        const data = mergeItems_(this.data, dataToBeMerged, commonKey, { ...this._defaultOptions, ...options })
+        // const data = mergeItems_(this.data, dataToBeMerged, commonKey, { ...this._defaultOptions, ...options })
+        const data = this.#apply(
+            mergeItems_,
+            dataToBeMerged,
+            commonKey,
+            options
+        )
         this.#updateSimpleData(data)
         return this
     }
@@ -388,8 +381,7 @@ export default class SimpleData {
     summarize(value?: string, key?: string, summary?: any, weight?: string, options?: Options) {
         // We deal with the parameters manually to deal with optional arguments
         // Note that the parameters are in different order in the parameters array
-        const data = logInfos(
-            this,
+        const data = this.#apply(
             summarize_,
             key === undefined ? "no key" : key,
             // Everything except weightedMean
@@ -404,8 +396,7 @@ export default class SimpleData {
 
     saveData(...args: any[]) {
         // We don't update data
-        logInfos(
-            this,
+        this.#apply(
             saveData_,
             ...args
         )
@@ -414,8 +405,7 @@ export default class SimpleData {
 
     showTable(...args: any[]) {
         // we don't update data
-        logInfos(
-            this,
+        this.#apply(
             showTable_,
             ...args
         )
