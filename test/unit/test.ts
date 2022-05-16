@@ -1,5 +1,5 @@
 import assert from "assert"
-import { SimpleData } from "../../src/index"
+import { SimpleData } from "../../src/index.js"
 
 describe('SimpleData', function () {
     it('should instantiate properly', function () {
@@ -21,7 +21,7 @@ describe('SimpleData', function () {
             }
         )
 
-        assert(data === simpleData.data)
+        assert(data === simpleData._data)
     
     })
 })

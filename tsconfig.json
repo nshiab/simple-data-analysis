@@ -3,6 +3,7 @@
     "outDir": "./dist",
     "rootDir": "./", 
     "target": "ES2016",
+    "module": "ES2020",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "typeRoots": [
@@ -15,7 +16,7 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "test/unit/**/*"],
   "exclude": ["node_modules"], 
   "strict": true,
 }

@@ -1,7 +1,7 @@
-import { SimpleDataItem, Options, defaultOptions } from "../types"
+import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import { sampleCorrelation, combinations } from "simple-statistics"
-import checkTypeOfKey from "../helpers/checkTypeOfKey"
-import hasKey from "../helpers/hasKey"
+import checkTypeOfKey from "../helpers/checkTypeOfKey.js"
+import hasKey from "../helpers/hasKey.js"
 
 export default function correlation(data: SimpleDataItem[], key1: string, key2: string, options: Options): any[] {
 

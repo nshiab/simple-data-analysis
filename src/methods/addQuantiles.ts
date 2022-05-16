@@ -1,7 +1,7 @@
-import log from "../helpers/log"
-import { SimpleDataItem, Options } from "../types"
+import log from "../helpers/log.js"
+import { SimpleDataItem, Options } from "../types.js"
 import { quantile } from "d3-array"
-import hasKey from "../helpers/hasKey"
+import hasKey from "../helpers/hasKey.js"
 
 export default function addQuantiles(data: SimpleDataItem[], key: string, newKey: string, nbQuantiles: number, options: Options): SimpleDataItem[] {
 
@@ -13,7 +13,7 @@ export default function addQuantiles(data: SimpleDataItem[], key: string, newKey
     }
 
     const interval = 1 / nbQuantiles
-    const values = data.map(d => d[key])
+    const values = data.map(d => d[key]) as Iterable<number>
     const quantiles = []
     for (let i = 0; i < 1; i += interval) {
         quantiles.push(quantile(values, i))
@@ -25,7 +25,7 @@ export default function addQuantiles(data: SimpleDataItem[], key: string, newKey
         const value = data[i][key]
         let quantile = 1
         for (let q = 1; q <= quantiles.length; q++) {
-            if (value < quantiles[q - 1]) {
+            if (value < (quantiles[q - 1] as number)) {
                 quantile = q
                 break
             }

@@ -1,7 +1,7 @@
-import { SimpleDataItem, Options } from "../types"
-import getArray from "./getArray"
-import percentage from "../helpers/percentage"
-import hasKey from "../helpers/hasKey"
+import { SimpleDataItem, Options } from "../types.js"
+import getArray from "./getArray.js"
+import percentage from "../helpers/percentage.js"
+import hasKey from "../helpers/hasKey.js"
 
 export default function checkValues(data: SimpleDataItem[], options: Options): SimpleDataItem[] {
 

@@ -1,5 +1,5 @@
-import { SimpleDataItem, Options } from "../types"
-import hasKey from "../helpers/hasKey"
+import { SimpleDataItem, Options } from "../types.js"
+import hasKey from "../helpers/hasKey.js"
 
 export default function modifyItems(data: SimpleDataItem[], key: string, func: (item: any) => any, options: Options): SimpleDataItem[] {
 

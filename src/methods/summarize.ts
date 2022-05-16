@@ -1,15 +1,15 @@
-import log from "../helpers/log"
-import { SimpleDataItem, Options } from "../types"
+import log from "../helpers/log.js"
+import { SimpleDataItem, Options } from "../types.js"
 import { flatRollup, mean, sum, median, max, min, deviation } from "d3-array"
-import checkTypeOfKey from "../helpers/checkTypeOfKey"
+import checkTypeOfKey from "../helpers/checkTypeOfKey.js"
 import isEqual from "lodash.isequal"
-import hasKey from "../helpers/hasKey"
+import hasKey from "../helpers/hasKey.js"
 
 export default function summarize(data: SimpleDataItem[], key: any, summary: any, value: any, weight: any, options: Options): any[] {
 
     // Let's deal with the keys first
 
-    let keys: any[] = []
+    let keys: string[] = []
 
     if (key === "no key") {
 
@@ -39,8 +39,6 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
     } else {
         throw new Error("key must be either a string or an array of string")
     }
-
-    const keysFunc = keys.map(key => (d: any) => d[key])
 
     // Now the values
 
@@ -116,7 +114,9 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
                 throw new Error(`Unknown summary name/function ${summary}`)
             }
 
-            const funcResults = flatRollup(data, func, ...keysFunc)
+            const keysFunc = keys.map(key => (d: SimpleDataItem) => d[key])
+            // @ts-ignore
+            const funcResults = flatRollup(data, func, keysFunc)
             const results = key === "no key" || keys.length === 0 ? [[funcResults]] : funcResults
 
             // We structure the results to have an array of objects with the value

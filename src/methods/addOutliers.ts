@@ -1,8 +1,8 @@
-import log from "../helpers/log"
-import { SimpleDataItem, Options } from "../types"
+import log from "../helpers/log.js"
+import { SimpleDataItem, Options } from "../types.js"
 import { quantile, extent } from "d3-array"
-import percentage from "../helpers/percentage"
-import hasKey from "../helpers/hasKey"
+import percentage from "../helpers/percentage.js"
+import hasKey from "../helpers/hasKey.js"
 
 export default function addOutliers(data: SimpleDataItem[], key: string, newKey: string, method: "boxplot", options: Options): SimpleDataItem[] {
 
@@ -13,9 +13,9 @@ export default function addOutliers(data: SimpleDataItem[], key: string, newKey:
         throw new Error("Already a key named " + key)
     }
 
-    const values = data.map(d => d[key])
-    const q1 = quantile(values, 0.25)
-    const q3 = quantile(values, 0.75)
+    const values = data.map(d => d[key]) as Iterable<number>
+    const q1 = quantile(values, 0.25) as number
+    const q3 = quantile(values, 0.75) as number
     const interQuartileRange = q3 - q1
 
     const upper = q3 + interQuartileRange * 1.5

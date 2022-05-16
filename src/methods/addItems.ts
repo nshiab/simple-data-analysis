@@ -1,7 +1,7 @@
-import { SimpleDataItem, Options } from "../types"
+import { SimpleDataItem, Options } from "../types.js"
 import isEqual from "lodash.isequal"
-import log from "../helpers/log"
-import SimpleData from "../class/SimpleData"
+import log from "../helpers/log.js"
+import SimpleData from "../class/SimpleData.js"
 
 export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDataItem[], options: Options): SimpleDataItem[] {
 

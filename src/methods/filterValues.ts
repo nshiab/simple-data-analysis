@@ -1,7 +1,7 @@
-import log from "../helpers/log"
-import { SimpleDataItem, Options } from "../types"
-import percentage from "../helpers/percentage"
-import hasKey from "../helpers/hasKey"
+import log from "../helpers/log.js"
+import { SimpleDataItem, Options } from "../types.js"
+import percentage from "../helpers/percentage.js"
+import hasKey from "../helpers/hasKey.js"
 
 export default function filterValues(
     data: SimpleDataItem[], 

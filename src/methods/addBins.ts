@@ -1,7 +1,7 @@
-import log from "../helpers/log"
-import { SimpleDataItem, Options } from "../types"
+import log from "../helpers/log.js"
+import { SimpleDataItem, Options } from "../types.js"
 import { extent } from "d3-array"
-import hasKey from "../helpers/hasKey"
+import hasKey from "../helpers/hasKey.js"
 
 export default function addBins(data: SimpleDataItem[], key: string, newKey: string, nbBins: number, options: Options): SimpleDataItem[] {
 
@@ -12,8 +12,8 @@ export default function addBins(data: SimpleDataItem[], key: string, newKey: str
         throw new Error("Already a key named " + key)
     }
 
-    const values = data.map(d => d[key])
-    const [min, max] = extent(values)
+    const values = data.map(d => d[key]) as Iterable<number>
+    const [min, max] = extent(values) as number[]
     const difference = max - min
     const interval = difference / nbBins
 

@@ -1,5 +1,5 @@
-import hasKey from "../helpers/hasKey"
-import { SimpleDataItem, Options } from "../types"
+import hasKey from "../helpers/hasKey.js"
+import { SimpleDataItem, Options } from "../types.js"
 
 export default function renameKey(data: SimpleDataItem[], oldKey: string, newKey: string, options: Options): SimpleDataItem[] {
 
