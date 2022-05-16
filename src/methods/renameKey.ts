@@ -1,10 +1,11 @@
+import hasKey from "../helpers/hasKey.js"
 import log from "../helpers/log.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import showTable from "./showTable.js"
 
 export default function renameKey(data: SimpleDataItem[], oldKey: string, newKey: string, options: Options): SimpleDataItem[] {
 
-    if (!data[0].hasOwnProperty(oldKey)) {
+    if (!hasKey(data[0], oldKey)) {
         throw new Error("No key " + oldKey)
     }
 

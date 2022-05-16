@@ -35,7 +35,7 @@
         "test": "npx tsc && mocha test/unit",
         "integrationTest": "npx tsc && node test/integration/test.js",
         "build": "rm -rf dist && npx tsc && mocha test/unit && node test/integration/test.js && rollup --config",
-        "lint": "npx eslint . --ext .ts"
+        "lint": "npx tsc && eslint . --ext .ts"
     },
     "engines": {
         "node": ">=16.0"

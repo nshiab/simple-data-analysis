@@ -1,12 +1,10 @@
-import log from "../helpers/log.js"
-import { SimpleDataItem, Options, defaultOptions } from "../types.js"
-import showTable from "./showTable.js"
-//@ts-ignore
+import { SimpleDataItem, Options } from "../types.js"
 import { utcParse } from "d3-time-format"
+import hasKey from "../helpers/hasKey.js"
 
 export default function valuesToDate(data: SimpleDataItem[], key: string, format: string, options: Options): SimpleDataItem[] {
 
-    if (!data[0].hasOwnProperty(key)) {
+    if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
 

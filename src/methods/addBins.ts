@@ -1,28 +1,24 @@
 import log from "../helpers/log.js"
 import { SimpleDataItem, Options } from "../types.js"
-//@ts-ignore
 import { extent } from "d3-array"
+import hasKey from "../helpers/hasKey.js"
 
 export default function addBins(data: SimpleDataItem[], key: string, newKey: string, nbBins: number, options: Options): SimpleDataItem[] {
 
-    // All items needs to have the same keys
-    if (!data[0].hasOwnProperty(key)) {
+    if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
-    if (data[0].hasOwnProperty(newKey)) {
+    if (hasKey(data[0], newKey)) {
         throw new Error("Already a key named " + key)
     }
 
     const values = data.map(d => d[key])
-    //@ts-ignore
     const [min, max] = extent(values)
-    //@ts-ignore
     const difference = max - min
     const interval = difference / nbBins
 
     const bins = []
     for (let i = 1; i <= nbBins; i++) {
-        //@ts-ignore
         bins.push(min + i * interval)
     }
 

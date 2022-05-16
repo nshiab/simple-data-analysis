@@ -1,8 +1,9 @@
 import { SimpleDataItem, Options } from "../types.js"
+import hasKey from "../helpers/hasKey.js"
 
 export default function replaceValues(data: SimpleDataItem[], key: string, oldValue: string, newValue: string, method: "entireString" | "partialString", options: Options): SimpleDataItem[] {
 
-    if (!data[0].hasOwnProperty(key)) {
+    if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
 
@@ -10,7 +11,6 @@ export default function replaceValues(data: SimpleDataItem[], key: string, oldVa
 
         for (let i = 0; i < data.length; i++) {
             if (data[i][key] === oldValue) {
-                //@ts-ignore
                 data[i][key] = newValue
             }
         }
@@ -20,8 +20,8 @@ export default function replaceValues(data: SimpleDataItem[], key: string, oldVa
 
         for (let i = 0; i < data.length; i++) {
             if (typeof data[i][key] === "string") {
-                //@ts-ignore
-                data[i][key] = data[i][key].replace(regex, newValue)
+                const val = data[i][key] as string
+                data[i][key] = val.replace(regex, newValue)
             }
         }
     }

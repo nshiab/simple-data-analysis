@@ -1,11 +1,10 @@
 import { SimpleDataItem, Options } from "../types.js"
+import hasKey from "../helpers/hasKey.js"
 
 export default function selectKeys(data: SimpleDataItem[], keys: string[], options: Options): SimpleDataItem[] {
 
-    const start = Date.now()
-
-    for (let key of keys) {
-        if (!data[0].hasOwnProperty(key)) {
+    for (const key of keys) {
+        if (!hasKey(data[0], key)) {
             throw new Error("No key " + key)
         }
     }
@@ -13,8 +12,8 @@ export default function selectKeys(data: SimpleDataItem[], keys: string[], optio
     const selectedData = []
 
     for (let i = 0; i < data.length; i++) {
-        let obj: SimpleDataItem = {}
-        for (let key of keys) {
+        const obj: SimpleDataItem = {}
+        for (const key of keys) {
             obj[key] = data[i][key]
         }
         selectedData.push(obj)

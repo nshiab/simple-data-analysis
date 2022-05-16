@@ -2,7 +2,7 @@ import log from "../helpers/log.js"
 import { SimpleDataItem, Options } from "../types.js"
 import percentage from "../helpers/percentage.js"
 
-export default function filterItems(data: SimpleDataItem[], func: Function, options: Options): SimpleDataItem[] {
+export default function filterItems(data: SimpleDataItem[], func: (item: any) => any, options: Options): SimpleDataItem[] {
 
     const filteredData = data.filter(d => func(d))
 
