@@ -1,6 +1,5 @@
 import log from "../helpers/log.js"
-import { SimpleDataItem, Options, defaultOptions } from "../types.js"
-import showTable from "./showTable.js"
+import { SimpleDataItem, Options } from "../types.js"
 //@ts-ignore
 import { flatRollup, mean, sum, median, max, min, deviation } from "d3-array"
 import checkTypeOfKey from "../helpers/checkTypeOfKey.js"
@@ -8,17 +7,6 @@ import checkTypeOfKey from "../helpers/checkTypeOfKey.js"
 import isEqual from "lodash.isequal"
 
 export default function summarize(data: SimpleDataItem[], key: any, summary: any, value: any, weight: any, options: Options): any[] {
-
-    const start = Date.now()
-
-    options = {
-        ...defaultOptions,
-        ...options
-    }
-
-    options.logs && log("\nsummarize " + key + " " + summary + " " + value + " " + weight)
-    options.logOptions && log("options:")
-    options.logOptions && log(options)
 
     // Let's deal with the keys first
 
@@ -31,7 +19,6 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
     } else if (Array.isArray(key)) {
 
         for (let k of key) {
-            // All items needs to have the same keys
             if (!data[0].hasOwnProperty(k)) {
                 throw new Error("No key " + k)
             }
@@ -41,7 +28,6 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
 
     } else if (typeof key === "string") {
 
-        // All items needs to have the same keys
         if (!data[0].hasOwnProperty(key)) {
             throw new Error("No key " + key)
         }
@@ -50,6 +36,7 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
         }
 
         keys = [key]
+
     } else {
         throw new Error("key must be either a string or an array of string")
     }
@@ -63,14 +50,12 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
 
     if (Array.isArray(value)) {
         for (let v of value) {
-            // All items needs to have the same keys
             if (!data[0].hasOwnProperty(v)) {
                 throw new Error("No value " + v)
             }
         }
         values = value.filter(v => checkTypeOfKey(data, v, "number", 0.5, options))
     } else if (typeof value === "string") {
-        // All items needs to have the same keys
         if (!data[0].hasOwnProperty(value)) {
             throw new Error("No value " + value)
         }
@@ -177,10 +162,6 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
     }
 
     const summarizedData = summariesResults.map(d => d.itemsSummarized)
-    options.logs && showTable(summarizedData, options)
-
-    const end = Date.now()
-    options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
 
     return summarizedData
 }

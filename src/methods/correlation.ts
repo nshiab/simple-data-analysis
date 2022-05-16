@@ -1,21 +1,8 @@
-import log from "../helpers/log.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import { sampleCorrelation, combinations } from "simple-statistics"
-import showTable from "./showTable.js"
 import checkTypeOfKey from "../helpers/checkTypeOfKey.js"
 
-export default function correlation(data: SimpleDataItem[], key1?: string, key2?: string, options?: Options): any[] {
-
-    const start = Date.now()
-
-    options = {
-        ...defaultOptions,
-        ...options
-    }
-
-    options.logs && console.log("\ncorrelation() " + key1 + " " + key2)
-    options.logOptions && log("options:")
-    options.logOptions && log(options)
+export default function correlation(data: SimpleDataItem[], key1: string, key2: string, options: Options): any[] {
 
     const correlations = []
 
@@ -95,12 +82,6 @@ export default function correlation(data: SimpleDataItem[], key1?: string, key2?
             correlation: Number.isNaN(result) ? NaN : parseFloat(result.toFixed(options.fractionDigits))
         })
     }
-
-    //@ts-ignore
-    options.logs && showTable(correlationData, options)
-
-    const end = Date.now()
-    options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
 
     //@ts-ignore
     return correlationData

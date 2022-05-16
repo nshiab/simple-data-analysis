@@ -1,24 +1,11 @@
 import log from "../helpers/log.js"
-import { SimpleDataItem, Options, defaultOptions } from "../types.js"
-import showTable from "./showTable.js"
+import { SimpleDataItem, Options } from "../types.js"
 //@ts-ignore
 import { quantile, extent } from "d3-array"
 import percentage from "../helpers/percentage.js"
 
 export default function excludeOutliers(data: SimpleDataItem[], key: string, method: "boxplot", options: Options): SimpleDataItem[] {
 
-    const start = Date.now()
-
-    options = {
-        ...defaultOptions,
-        ...options
-    }
-
-    options.logs && log("\nexcludeOutliers() " + key + " " + method)
-    options.logOptions && log("options:")
-    options.logOptions && log(options)
-
-    // All items needs to have the same keys
     if (!data[0].hasOwnProperty(key)) {
         throw new Error("No key " + key)
     }
@@ -45,11 +32,6 @@ export default function excludeOutliers(data: SimpleDataItem[], key: string, met
 
     const outliers = data.length - filteredData.length
     options.logs && log(`/!\\ ${outliers} outliers found and excluded, representing ${percentage(outliers, data.length, options)} of the incoming data.`, "bgRed")
-
-    options.logs && showTable(filteredData, options)
-
-    const end = Date.now()
-    options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
 
     return filteredData
 }
