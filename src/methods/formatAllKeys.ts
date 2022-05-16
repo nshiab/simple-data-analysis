@@ -1,7 +1,5 @@
-import { SimpleDataItem, Options, defaultOptions } from "../types"
-// @ts-ignore
+import { SimpleDataItem, Options } from "../types"
 import camelCase from "lodash.camelcase"
-import showTable from "./showTable"
 import log from "../helpers/log"
 
 export default function formatAllKeys(data: SimpleDataItem[], options: Options): SimpleDataItem[] {

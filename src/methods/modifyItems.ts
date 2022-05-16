@@ -1,8 +1,9 @@
 import { SimpleDataItem, Options } from "../types"
+import hasKey from "../helpers/hasKey"
 
-export default function modifyItems(data: SimpleDataItem[], key: string, func: Function, options: Options): SimpleDataItem[] {
+export default function modifyItems(data: SimpleDataItem[], key: string, func: (item: any) => any, options: Options): SimpleDataItem[] {
 
-    if (!data[0].hasOwnProperty(key)) {
+    if (!hasKey(data[0], key)) {
         throw new Error("No key named " + key)
     }
 

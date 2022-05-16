@@ -4,6 +4,10 @@
     "rootDir": "./", 
     "baseUrl": "./src", 
     "target": "ES2015",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./types"
+    ],
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"], 

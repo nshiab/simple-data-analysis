@@ -1,14 +1,15 @@
 import { SimpleDataItem, Options } from "../types"
+import hasKey from "../helpers/hasKey"
 
 export default function valuesToInteger(data: SimpleDataItem[], key: string, options: Options): SimpleDataItem[] {
 
-    if (!data[0].hasOwnProperty(key)) {
+    if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
 
     for (let i = 0; i < data.length; i++) {
-        //@ts-ignore
-        data[i][key] = parseInt(data[i][key])
+        const val = data[i][key] as string
+        data[i][key] = parseInt(val)
     }
 
     return data

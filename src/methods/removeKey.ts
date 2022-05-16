@@ -1,10 +1,9 @@
-import log from "../helpers/log"
-import { SimpleDataItem, Options, defaultOptions } from "../types"
-import showTable from "./showTable"
+import { SimpleDataItem, Options } from "../types"
+import hasKey from "../helpers/hasKey"
 
 export default function removeKey(data: SimpleDataItem[], key: string, options: Options): SimpleDataItem[] {
 
-    if (!data[0].hasOwnProperty(key)) {
+    if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
 

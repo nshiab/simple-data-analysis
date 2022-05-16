@@ -12,7 +12,6 @@ export default async function saveData(data: SimpleDataItem[], path: string, opt
 
         if (extension === "csv") {
 
-            //@ts-ignore
             const Papa = (await import("papaparse")).default
 
             options.logs && log("=> Csv file extension detected", "blue")

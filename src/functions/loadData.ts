@@ -7,7 +7,6 @@ import showTable from "../methods/showTable";
 
 export default async function loadData(path: string, options: Options) {
 
-    // On doit garder les options
     options = {
         ...defaultOptions,
         ...options
@@ -32,7 +31,6 @@ export default async function loadData(path: string, options: Options) {
 
             options.logs && log('=> Csv file extension detected', "blue")
 
-            //@ts-ignore
             const Papa = (await import("papaparse")).default
 
             const csvString = fs.readFileSync(path, { encoding: options.encoding })
@@ -45,7 +43,8 @@ export default async function loadData(path: string, options: Options) {
             for (let i = 0; i < arrayOfObjects.length; i++) {
                 for (let j = 0; j < keys.length; j++) {
                     if (missingValues.includes(arrayOfObjects[i][keys[j]])) {
-                        arrayOfObjects[i][keys[j]] = options.missingValues[arrayOfObjects[i][keys[j]]]
+                        const val = arrayOfObjects[i][keys[j]]
+                        arrayOfObjects[i][keys[j]] = options.missingValues[val]
                     }
                 }
             }
@@ -60,10 +59,8 @@ export default async function loadData(path: string, options: Options) {
             throw new Error("Unknown file extension " + fileExtension);
         }
 
-        // @ts-ignore
-        options.logs && showTable(arrayOfObjects, options.nbItemInTable)
+        options.logs && showTable(arrayOfObjects, options)
 
-        // @ts-ignore
         const simpleData = new SimpleData(arrayOfObjects, options)
 
         return simpleData

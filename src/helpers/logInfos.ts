@@ -1,8 +1,8 @@
 import showTable from "../methods/showTable"
-import { defaultOptions } from "../types"
+import { defaultOptions, SimpleDataItem } from "../types"
 import log from "./log"
 
-export default function logInfos(simpleData: any, func: Function, ...args: any[]) {
+export default function logInfos(simpleData: any, func: (data: SimpleDataItem[], ...args: any[]) => any, ...args: any[]) {
 
     const start = Date.now()
 

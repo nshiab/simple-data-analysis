@@ -33,7 +33,8 @@
     "scripts": {
         "test": "mocha --require ts-node/register test_ts/unit/**/*.ts",
         "integrationTest": "npx tsc && node test/integration/test.js",
-        "build": "rm -rf dist && npx tsc && mocha test/unit && node test/integration/test.js && rollup --config"
+        "build": "rm -rf dist && npx tsc && mocha test/unit && node test/integration/test.js && rollup --config",
+        "lint": "eslint . --ext .ts"
     },
     "engines": {
         "node": ">=16.0"
@@ -46,6 +47,9 @@
         "@rollup/plugin-json": "^4.1.0",
         "@rollup/plugin-node-resolve": "^13.2.1",
         "@types/mocha": "^9.1.1",
+        "@typescript-eslint/eslint-plugin": "^5.23.0",
+        "@typescript-eslint/parser": "^5.23.0",
+        "eslint": "^8.15.0",
         "mocha": "^9.2.2",
         "rollup": "^2.70.2",
         "rollup-plugin-terser": "^7.0.2",

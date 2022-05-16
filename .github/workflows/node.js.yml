@@ -29,3 +29,4 @@ jobs:
     - run: npm install
     - run: npm run test
     - run: npm run integrationTest
+    - run: npm run lint

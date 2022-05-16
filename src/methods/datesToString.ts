@@ -1,19 +1,16 @@
-import log from "../helpers/log"
-import { SimpleDataItem, Options, defaultOptions } from "../types"
-import showTable from "./showTable"
-//@ts-ignore
+import { SimpleDataItem, Options } from "../types"
 import { utcFormat } from "d3-time-format"
+import hasKey from "../helpers/hasKey"
 
 export default function datesToString(data: SimpleDataItem[], key: string, format: string, options: Options): SimpleDataItem[] {
 
-    if (!data[0].hasOwnProperty(key)) {
+    if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
 
     const formatF = utcFormat(format)
 
     for (let i = 0; i < data.length; i++) {
-        //@ts-ignore
         data[i][key] = formatF(data[i][key])
     }
 

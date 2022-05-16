@@ -4,6 +4,7 @@ import showTable from "./showTable"
 import SimpleData from "../class/SimpleData"
 import checkTypeOfKey from "../helpers/checkTypeOfKey"
 import percentage from "../helpers/percentage"
+import hasKey from "../helpers/hasKey"
 
 export default function mergeItems(data: SimpleDataItem[], dataToBeMerged: SimpleDataItem[], commonKey: string, options: Options): SimpleDataItem[] {
 
@@ -26,19 +27,18 @@ export default function mergeItems(data: SimpleDataItem[], dataToBeMerged: Simpl
         newData = dataToBeMerged
     }
 
-    // All items needs to have the same keys
-    if (!newData[0].hasOwnProperty(commonKey)) {
+    if (!hasKey(data[0], commonKey)) {
         throw new Error("No key named " + commonKey + " in data")
     }
-    if (!newData[0].hasOwnProperty(commonKey)) {
+    if (!hasKey(newData[0], commonKey)) {
         throw new Error("No key named " + commonKey + " in dataToBeMerged")
     }
 
-    const dataKeys = Object.keys(data[0]).filter(d => d !== commonKey)
-    const newDataKeys = Object.keys(newData[0]).filter(d => d !== commonKey)
+    const dataKeys: string[] = Object.keys(data[0]).filter(d => d !== commonKey)
+    const newDataKeys: string[] = Object.keys(newData[0]).filter(d => d !== commonKey)
 
-    for (let key of dataKeys) {
-        for (let newKey of newDataKeys) {
+    for (const key of dataKeys) {
+        for (const newKey of newDataKeys) {
             if (newKey === key) {
                 throw new Error("Key " + key + " is present in data and in dataToBeMerged. Rename it in data or dataToBeMerged")
             }
@@ -61,25 +61,22 @@ export default function mergeItems(data: SimpleDataItem[], dataToBeMerged: Simpl
         throw new Error("Data has less items than dataToBeMerged.")
     }
 
-    const emptyItem = {}
+    const emptyItem: { [key: string]: any } = {}
     for (let i = 0; i < newDataKeys.length; i++) {
-        //@ts-ignore
         emptyItem[newDataKeys[i]] = undefined
     }
-    const lookupIndex: any[] = []
+    const lookupIndex: SimpleDataItem[] = []
     const mergedData = []
 
     for (let i = 0; i < l; i++) {
         const row = newData[i]
-        //@ts-ignore
-        lookupIndex[row[commonKey]] = row
+        lookupIndex[row[commonKey] as any] = row
     }
 
     let nbUndefined = 0
     for (let j = 0; j < m; j++) {
-        let y = data[j]
-        //@ts-ignore
-        let x = lookupIndex[y[commonKey]]
+        const y = data[j]
+        const x = lookupIndex[y[commonKey] as any]
         if (x === undefined) {
             mergedData.push({ ...y, ...emptyItem })
             nbUndefined += 1

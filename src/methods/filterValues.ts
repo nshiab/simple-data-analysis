@@ -1,10 +1,11 @@
 import log from "../helpers/log"
 import { SimpleDataItem, Options } from "../types"
 import percentage from "../helpers/percentage"
+import hasKey from "../helpers/hasKey"
 
-export default function filterValues(data: SimpleDataItem[], key: string, func: Function, options: Options): SimpleDataItem[] {
+export default function filterValues(data: SimpleDataItem[], key: string, func: (val: any) => any, options: Options): SimpleDataItem[] {
 
-    if (!data[0].hasOwnProperty(key)) {
+    if (!hasKey(data[0], key)) {
         throw new Error("No key named " + key)
     }
 

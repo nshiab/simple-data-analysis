@@ -2,6 +2,7 @@ import isMissingValue from "../helpers/isMissingValue"
 import log from "../helpers/log"
 import percentage from "../helpers/percentage"
 import { SimpleDataItem, Options } from "../types"
+import hasKey from "../helpers/hasKey"
 
 export default function excludeMissingValues(data: SimpleDataItem[], key: string | undefined, options: Options): SimpleDataItem[] {
 
@@ -10,9 +11,8 @@ export default function excludeMissingValues(data: SimpleDataItem[], key: string
     if (key === undefined || key === "onAllKeys") {
         filteredData = data.filter(d => {
             let check = true
-            //@ts-ignore
             const values = Object.values(d)
-            for (let val of values) {
+            for (const val of values) {
                 if (isMissingValue(val, options)) {
                     check = false
                     break
@@ -20,7 +20,7 @@ export default function excludeMissingValues(data: SimpleDataItem[], key: string
             }
             return check
         })
-    } else if (data[0].hasOwnProperty(key)) {
+    } else if (hasKey(data[0], key)) {
         filteredData = data.filter(d => !isMissingValue(d[key], options))
     } else {
         throw new Error("No key " + key)

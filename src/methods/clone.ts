@@ -1,5 +1,4 @@
 import { SimpleDataItem, Options } from "../types"
-//@ts-ignore
 import cloneDeep from "lodash.clonedeep"
 import SimpleData from "../class/SimpleData"
 

@@ -1,10 +1,9 @@
-import log from "../helpers/log"
-import { SimpleDataItem, Options, defaultOptions } from "../types"
-import showTable from "./showTable"
+import hasKey from "../helpers/hasKey"
+import { SimpleDataItem, Options } from "../types"
 
 export default function renameKey(data: SimpleDataItem[], oldKey: string, newKey: string, options: Options): SimpleDataItem[] {
 
-    if (!data[0].hasOwnProperty(oldKey)) {
+    if (!hasKey(data[0], oldKey)) {
         throw new Error("No key " + oldKey)
     }
 
