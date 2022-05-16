@@ -11,7 +11,7 @@ export interface Options {
     logParameters: boolean,
     nbItemInTable: "all" | number,
     fractionDigits: number,
-    missingValues: object[],
+    missingValues: { [key: string]: any },
     missingValuesArray: any[],
     nbValuesTestedForTypeOf: number,
     environment: string,
@@ -25,7 +25,6 @@ export const defaultOptions: Options = {
     logParameters: false,
     nbItemInTable: 5,
     fractionDigits: 1,
-    //@ts-ignore
     missingValues: { "null": null, "NaN": NaN, "undefined": undefined },
     missingValuesArray: [null, NaN, undefined, ""],
     nbValuesTestedForTypeOf: 1000,

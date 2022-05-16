@@ -1,6 +1,7 @@
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import { sampleCorrelation, combinations } from "simple-statistics"
 import checkTypeOfKey from "../helpers/checkTypeOfKey.js"
+import hasKey from "../helpers/hasKey.js"
 
 export default function correlation(data: SimpleDataItem[], key1: string, key2: string, options: Options): any[] {
 
@@ -8,12 +9,10 @@ export default function correlation(data: SimpleDataItem[], key1: string, key2: 
 
     if (key1 === undefined && key2 === undefined) {
 
-        // All items must have the same keys
-        //@ts-ignore
         const keys = Object.keys(data[0]).filter(d => checkTypeOfKey(data, d, "number", 1, options))
         const combi = combinations(keys, 2)
 
-        for (let c of combi) {
+        for (const c of combi) {
             correlations.push({
                 key1: c[0],
                 key2: c[1]
@@ -22,16 +21,15 @@ export default function correlation(data: SimpleDataItem[], key1: string, key2: 
 
     } else if (typeof key1 === "string" && Array.isArray(key2)) {
 
-        //@ts-ignore
-        if (!data[0].hasOwnProperty(key1)) {
+        if (!hasKey(data[0], key1)) {
             throw new Error(`No key ${key1} in data`)
         }
         if (!checkTypeOfKey(data, key1, "number", 1, options)) {
             throw new Error(`${key1} should be of type number`)
         }
 
-        for (let key of key2) {
-            if (!data[0].hasOwnProperty(key)) {
+        for (const key of key2) {
+            if (!hasKey(data[0], key)) {
                 throw new Error(`No key ${key} in data`)
             }
             if (!checkTypeOfKey(data, key, "number", 1, options)) {
@@ -43,14 +41,13 @@ export default function correlation(data: SimpleDataItem[], key1: string, key2: 
             })
         }
     } else if (typeof key1 === "string" && typeof key2 === "string") {
-        //@ts-ignore
-        if (!data[0].hasOwnProperty(key1)) {
+        if (!hasKey(data[0], key1)) {
             throw new Error(`No key ${key1} in data`)
         }
         if (!checkTypeOfKey(data, key1, "number", 1, options)) {
             throw new Error(`${key1} should be of type number`)
         }
-        if (!data[0].hasOwnProperty(key2)) {
+        if (!hasKey(data[0], key2)) {
             throw new Error(`No key ${key2} in data`)
         }
         if (!checkTypeOfKey(data, key2, "number", 1, options)) {
@@ -66,15 +63,14 @@ export default function correlation(data: SimpleDataItem[], key1: string, key2: 
 
     const correlationData = []
 
-    for (let corr of correlations) {
+    for (const corr of correlations) {
 
         const x = data.map(d => d[corr.key1])
         const y = data.map(d => d[corr.key2])
 
         const result = sampleCorrelation(
-            //@ts-ignore
-            x,
-            y
+            x as number[],
+            y as number[]
         )
 
         correlationData.push({
@@ -83,6 +79,5 @@ export default function correlation(data: SimpleDataItem[], key1: string, key2: 
         })
     }
 
-    //@ts-ignore
     return correlationData
 }

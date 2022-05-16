@@ -1,4 +1,4 @@
-import { Options, SimpleDataItem, defaultOptions } from "../types.js"
+import { Options, SimpleDataItem } from "../types.js"
 
 export default function showTable(data: SimpleDataItem[], options: Options) {
 
@@ -11,5 +11,7 @@ export default function showTable(data: SimpleDataItem[], options: Options) {
     typeof options.nbItemInTable === "number" && data.length - options.nbItemInTable > 0 ?
         console.log(`... and ${data.length - options.nbItemInTable} more items (total of ${data.length})`) :
         console.log(`Total of ${data.length} items`)
+
+    return data
 
 }

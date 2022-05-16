@@ -33,7 +33,7 @@ import saveData_ from "../methods/saveData.js"
 import mergeItems_ from "../methods/mergeItems.js"
 import checkKeys from "../helpers/checkKeys.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
-import logDecorator from "../helpers/logInfos.js"
+import logInfos from "../helpers/logInfos.js"
 
 
 export default class SimpleData {
@@ -52,23 +52,20 @@ export default class SimpleData {
     get data() {
         return this._data
     }
+    set data(data) {
+        this._data = data
+    }
 
     get keys() {
         return this._keys
+    }
+    set keys(data) {
+        this._keys = data[0] === undefined ? [] : Object.keys(data[0])
     }
 
     get options() {
         return this._defaultOptions
     }
-
-    set data(data) {
-        this._data = data
-    }
-
-    set keys(data) {
-        this._keys = data[0] === undefined ? [] : Object.keys(data[0])
-    }
-
     set options(options) {
         this._defaultOptions = options
     }
@@ -87,7 +84,7 @@ export default class SimpleData {
 
     clone(options: Options) {
         // very specific case with two options passed as arguments. Can't use ...args directly. And we don't return data, but a new SimpleData.
-        const newSimpleData = logDecorator(
+        const newSimpleData = logInfos(
             this,
             clone_,
             this._defaultOptions,
@@ -98,7 +95,7 @@ export default class SimpleData {
 
     getArray(...args: any[]) {
         // We don't update data and we don't return this
-        const data = logDecorator(
+        const data = logInfos(
             this,
             getArray_,
             ...args
@@ -108,7 +105,7 @@ export default class SimpleData {
 
     getUniqueValues(...args: any[]) {
         // We don't update data and we don't return this
-        const data = logDecorator(
+        const data = logInfos(
             this,
             getUniqueValues_,
             ...args
@@ -117,7 +114,7 @@ export default class SimpleData {
     }
 
     checkValues(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             checkValues_,
             ...args
@@ -128,7 +125,7 @@ export default class SimpleData {
 
     excludeMissingValues(key: "onAllKeys" | string, options: Options) {
         // We need to deal with arguments manually. In case of undefined key, we run on all keys.
-        const data = logDecorator(
+        const data = logInfos(
             this,
             excludeMissingValues_,
             key,
@@ -139,7 +136,7 @@ export default class SimpleData {
     }
 
     describe(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             describe_,
             ...args
@@ -149,7 +146,7 @@ export default class SimpleData {
     }
 
     renameKey(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             renameKey_,
             ...args
@@ -159,7 +156,7 @@ export default class SimpleData {
     }
 
     removeKey(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             removeKey_,
             ...args
@@ -169,7 +166,7 @@ export default class SimpleData {
     }
 
     addKey(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             addKey_,
             ...args
@@ -179,7 +176,7 @@ export default class SimpleData {
     }
 
     selectKeys(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             selectKeys_,
             ...args
@@ -189,7 +186,7 @@ export default class SimpleData {
     }
 
     modifyValues(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             modifyValues_,
             ...args
@@ -199,7 +196,7 @@ export default class SimpleData {
     }
 
     modifyItems(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             modifyItems_,
             ...args
@@ -209,7 +206,7 @@ export default class SimpleData {
     }
 
     formatAllKeys(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             formatAllKeys_,
             ...args
@@ -220,7 +217,7 @@ export default class SimpleData {
 
 
     valuesToString(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             valuesToString_,
             ...args
@@ -230,7 +227,7 @@ export default class SimpleData {
     }
 
     valuesToInteger(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             valuesToInteger_,
             ...args
@@ -240,7 +237,7 @@ export default class SimpleData {
     }
 
     valuesToFloat(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             valuesToFloat_,
             ...args
@@ -250,7 +247,7 @@ export default class SimpleData {
     }
 
     valuesToDate(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             valuesToDate_,
             ...args
@@ -260,7 +257,7 @@ export default class SimpleData {
     }
 
     datesToString(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             datesToString_,
             ...args
@@ -270,7 +267,7 @@ export default class SimpleData {
     }
 
     filterValues(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             filterValues_,
             ...args
@@ -280,7 +277,7 @@ export default class SimpleData {
     }
 
     filterItems(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             filterItems_,
             ...args
@@ -290,7 +287,7 @@ export default class SimpleData {
     }
 
     roundValues(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             roundValues_,
             ...args
@@ -300,7 +297,7 @@ export default class SimpleData {
     }
 
     replaceValues(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             replaceValues_,
             ...args
@@ -310,7 +307,7 @@ export default class SimpleData {
     }
 
     sortValues(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             sortValues_,
             ...args
@@ -320,7 +317,7 @@ export default class SimpleData {
     }
 
     addQuantiles(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             addQuantiles_,
             ...args
@@ -330,7 +327,7 @@ export default class SimpleData {
     }
 
     addBins(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             addBins_,
             ...args
@@ -340,7 +337,7 @@ export default class SimpleData {
     }
 
     addOutliers(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             addOutliers_,
             ...args
@@ -350,7 +347,7 @@ export default class SimpleData {
     }
 
     excludeOutliers(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             excludeOutliers_,
             ...args
@@ -361,7 +358,7 @@ export default class SimpleData {
 
     correlation(key1: string, key2: string, options: Options) {
         // We deal with the parameters manually to deal with optional arguments
-        const data = logDecorator(
+        const data = logInfos(
             this,
             correlation_,
             key1,
@@ -373,7 +370,7 @@ export default class SimpleData {
     }
 
     addItems(...args: any[]) {
-        const data = logDecorator(
+        const data = logInfos(
             this,
             addItems_,
             ...args
@@ -391,7 +388,7 @@ export default class SimpleData {
     summarize(value?: string, key?: string, summary?: any, weight?: string, options?: Options) {
         // We deal with the parameters manually to deal with optional arguments
         // Note that the parameters are in different order in the parameters array
-        const data = logDecorator(
+        const data = logInfos(
             this,
             summarize_,
             key === undefined ? "no key" : key,
@@ -407,7 +404,7 @@ export default class SimpleData {
 
     saveData(...args: any[]) {
         // We don't update data
-        logDecorator(
+        logInfos(
             this,
             saveData_,
             ...args
@@ -417,7 +414,7 @@ export default class SimpleData {
 
     showTable(...args: any[]) {
         // we don't update data
-        logDecorator(
+        logInfos(
             this,
             showTable_,
             ...args

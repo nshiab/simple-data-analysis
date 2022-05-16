@@ -1,5 +1,4 @@
 import { SimpleDataItem, Options } from "../types.js"
-//@ts-ignore
 import isEqual from "lodash.isequal"
 import log from "../helpers/log.js"
 import SimpleData from "../class/SimpleData.js"
@@ -9,7 +8,6 @@ export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDa
     let newData
 
     if (Array.isArray(dataToBeAdded) && typeof dataToBeAdded[0]) {
-        // All items needs to have the same keys in all SimpleData elements
         const keys1 = Object.keys(data[0]).sort()
         const keys2 = Object.keys(dataToBeAdded[0]).sort()
 
@@ -21,7 +19,6 @@ export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDa
 
     } else if (dataToBeAdded instanceof SimpleData) {
 
-        //@ts-ignore
         const dataTBA = dataToBeAdded.data
 
         const keys1 = Object.keys(data[0]).sort()
