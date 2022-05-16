@@ -33,6 +33,8 @@ export default function saveChart(data: SimpleDataItem[], path: string, type: "d
         mark = Plot.barY(data, markOption)
     } else if (type === "box") {
         mark = Plot.boxY(data, markOption)
+    } else {
+        throw new Error("Unknown chart type.")
     }
 
     const plotOptions: { [key: string]: any } = {
