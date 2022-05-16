@@ -11,7 +11,6 @@ export default function valuesToDate(data: SimpleDataItem[], key: string, format
     const parse = utcParse(format)
 
     for (let i = 0; i < data.length; i++) {
-        //@ts-ignore
         data[i][key] = parse(data[i][key])
     }
 

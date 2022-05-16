@@ -8,8 +8,8 @@ export default function valuesToInteger(data: SimpleDataItem[], key: string, opt
     }
 
     for (let i = 0; i < data.length; i++) {
-        //@ts-ignore
-        data[i][key] = parseInt(data[i][key])
+        const val = data[i][key] as string
+        data[i][key] = parseInt(val)
     }
 
     return data

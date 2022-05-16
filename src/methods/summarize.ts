@@ -40,15 +40,14 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
         throw new Error("key must be either a string or an array of string")
     }
 
-    //@ts-ignore
-    const keysFunc = keys.map(key => d => d[key])
+    const keysFunc = keys.map(key => (d: any) => d[key])
 
     // Now the values
 
     let values: any[] = []
 
     if (Array.isArray(value)) {
-        for (let v of value) {
+        for (const v of value) {
             if (!hasKey(data[0], v)) {
                 throw new Error("No value " + v)
             }
@@ -82,26 +81,26 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
 
     const summariesResults: any[] = []
 
-    for (let value of values) {
+    for (const value of values) {
 
-        for (let summary of summaries) {
+        for (const summary of summaries) {
 
-            let func
+            let func: (v: any) => any
 
             if (summary === "count") {
                 func = v => v.length
             } else if (summary === "min") {
-                func = v => min(v, d => d[value])
+                func = v => min(v, (d: any) => d[value])
             } else if (summary === "max") {
-                func = v => max(v, d => d[value])
+                func = v => max(v, (d: any) => d[value])
             } else if (summary === "sum") {
-                func = v => sum(v, d => d[value])
+                func = v => sum(v, (d: any) => d[value])
             } else if (summary === "mean") {
-                func = v => mean(v, d => d[value])
+                func = v => mean(v, (d: any) => d[value])
             } else if (summary === "median") {
-                func = v => median(v, d => d[value])
+                func = v => median(v, (d: any) => d[value])
             } else if (summary === "deviation") {
-                func = v => deviation(v, d => d[value])
+                func = v => deviation(v, (d: any) => d[value])
             } else if (summary === "weightedMean") {
 
                 if (!hasKey(data[0], weight)) {
@@ -111,7 +110,7 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
                     throw new Error("The weight should be of type number")
                 }
 
-                func = v => sum(v, d => d[value] * d[weight]) / sum(v, d => d[weight])
+                func = v => sum(v, (d: any) => d[value] * d[weight]) / sum(v, (d: any) => d[weight])
 
             } else {
                 throw new Error(`Unknown summary name/function ${summary}`)
@@ -122,7 +121,7 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
 
             // We structure the results to have an array of objects with the value
 
-            for (let result of results) {
+            for (const result of results) {
 
                 const arrayToCompare = [value].concat(result.slice(0, keys.length))
                 const filteredResults = summariesResults.find(d => isEqual(d.arrayToCompare, arrayToCompare))
@@ -131,7 +130,7 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
                 const finalValue = fValue === undefined ? NaN : parseFloat(fValue.toFixed(options.fractionDigits))
 
                 if (filteredResults === undefined) {
-                    const itemsSummarized = { value: value }
+                    const itemsSummarized: any = { value: value }
                     for (let i = 0; i < keys.length; i++) {
                         itemsSummarized[keys[i]] = result[i]
                     }

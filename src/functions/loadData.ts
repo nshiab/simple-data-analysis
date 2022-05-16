@@ -43,7 +43,8 @@ export default async function loadData(path: string, options: Options) {
             for (let i = 0; i < arrayOfObjects.length; i++) {
                 for (let j = 0; j < keys.length; j++) {
                     if (missingValues.includes(arrayOfObjects[i][keys[j]])) {
-                        arrayOfObjects[i][keys[j]] = options.missingValues[arrayOfObjects[i][keys[j]]]
+                        const val = arrayOfObjects[i][keys[j]]
+                        arrayOfObjects[i][keys[j]] = options.missingValues[val]
                     }
                 }
             }
