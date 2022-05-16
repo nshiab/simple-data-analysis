@@ -2,7 +2,7 @@ import showTable from "../methods/showTable.js"
 import { defaultOptions } from "../types.js"
 import log from "./log.js"
 
-export default function logDecorator(simpleData: any, func: Function, ...args: any[]) {
+export default function logInfos(simpleData: any, func: Function, ...args: any[]) {
 
     const start = Date.now()
 

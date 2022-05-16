@@ -33,7 +33,7 @@ import saveData_ from "../methods/saveData.js"
 import mergeItems_ from "../methods/mergeItems.js"
 import checkKeys from "../helpers/checkKeys.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
-import logDecorator from "../helpers/logDecorator.js"
+import logDecorator from "../helpers/logInfos.js"
 
 
 export default class SimpleData {
