@@ -31,7 +31,7 @@
         "default": "./dist/index.js"
     },
     "scripts": {
-        "test": "mocha --require ts-node/register test_ts/unit/**/*.ts",
+        "test": "mocha --require ts-node/register test/unit/**/*.ts",
         "integrationTest": "npx tsc && node test/integration/test.js",
         "build": "rm -rf dist && npx tsc && mocha test/unit && node test/integration/test.js && rollup --config",
         "lint": "eslint . --ext .ts"
@@ -46,6 +46,9 @@
         "@rollup/plugin-commonjs": "^22.0.0",
         "@rollup/plugin-json": "^4.1.0",
         "@rollup/plugin-node-resolve": "^13.2.1",
+        "@types/d3-array": "^3.0.2",
+        "@types/d3-time-format": "^4.0.0",
+        "@types/lodash.isequal": "^4.5.6",
         "@types/mocha": "^9.1.1",
         "@typescript-eslint/eslint-plugin": "^5.23.0",
         "@typescript-eslint/parser": "^5.23.0",

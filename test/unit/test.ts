@@ -1,9 +1,11 @@
+import assert from "assert"
 import { SimpleData } from "../../src/index"
 
-describe('patate', function () {
-    it('should poil', function (done) {
-        new SimpleData(
-            [{patate: 0, poil: 1}], 
+describe('SimpleData', function () {
+    it('should instantiate properly', function () {
+        const data =  [{patate: 0, poil: 1}]
+        const simpleData = new SimpleData(
+           data, 
             {
                 encoding: "utf8",
                 logs: false,
@@ -18,6 +20,8 @@ describe('patate', function () {
                 showDataNoOverwrite: false
             }
         )
-        done()
+
+        assert(data === simpleData.data)
+    
     })
 })

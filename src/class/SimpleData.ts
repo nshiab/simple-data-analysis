@@ -10,10 +10,10 @@ import removeKey_ from "../methods/removeKey"
 import valuesToString_ from "../methods/valuesToString"
 import valuesToInteger_ from "../methods/valuesToInteger"
 import valuesToFloat_ from "../methods/valuesToFloat"
-// import valuesToDate_ from "../methods/valuesToDate"
-// import datesToString_ from "../methods/datesToString"
+import valuesToDate_ from "../methods/valuesToDate"
+import datesToString_ from "../methods/datesToString"
+import filterItems_ from "../methods/filterItems"
 import filterValues_ from "../methods/filterValues"
-// import filterItems_ from " ../methods/filterItems"
 import roundValues_ from "../methods/roundValues"
 import replaceValues_ from "../methods/replaceValues"
 import addKey_ from "../methods/addKey"
@@ -21,14 +21,14 @@ import selectKeys_ from "../methods/selectKeys"
 import modifyValues_ from "../methods/modifyValues"
 import modifyItems_ from "../methods/modifyItems"
 import sortValues_ from "../methods/sortValues"
-// import addQuantiles_ from "../methods/addQuantiles"
-// import addBins_ from "../methods/addBins"
-// import addOutliers_ from "../methods/addOutliers"
-// import excludeOutliers_ from "../methods/excludeOutliers"
+import addQuantiles_ from "../methods/addQuantiles"
+import addBins_ from "../methods/addBins"
+import addOutliers_ from "../methods/addOutliers"
+import excludeOutliers_ from "../methods/excludeOutliers"
 import correlation_ from "../methods/correlation"
 import addItems_ from "../methods/addItems"
 import getUniqueValues_ from "../methods/getUniqueValues"
-// import summarize_ from "../methods/summarize"
+import summarize_ from "../methods/summarize"
 import saveData_ from "../methods/saveData"
 import mergeItems_ from "../methods/mergeItems"
 import checkKeys from "../helpers/checkKeys"
@@ -246,25 +246,25 @@ export default class SimpleData {
         return this
     }
 
-    // valuesToDate(...args: any[]) {
-    //     const data = logInfos(
-    //         this,
-    //         valuesToDate_,
-    //         ...args
-    //     )
-    //     this.#updateSimpleData(data)
-    //     return this
-    // }
+    valuesToDate(...args: any[]) {
+        const data = logInfos(
+            this,
+            valuesToDate_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
 
-    // datesToString(...args: any[]) {
-    //     const data = logInfos(
-    //         this,
-    //         datesToString_,
-    //         ...args
-    //     )
-    //     this.#updateSimpleData(data)
-    //     return this
-    // }
+    datesToString(...args: any[]) {
+        const data = logInfos(
+            this,
+            datesToString_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
 
     filterValues(...args: any[]) {
         const data = logInfos(
@@ -276,15 +276,15 @@ export default class SimpleData {
         return this
     }
 
-    // filterItems(...args: any[]) {
-    //     const data = logInfos(
-    //         this,
-    //         filterItems_,
-    //         ...args
-    //     )
-    //     this.#updateSimpleData(data)
-    //     return this
-    // }
+    filterItems(...args: any[]) {
+        const data = logInfos(
+            this,
+            filterItems_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
 
     roundValues(...args: any[]) {
         const data = logInfos(
@@ -316,45 +316,45 @@ export default class SimpleData {
         return this
     }
 
-    // addQuantiles(...args: any[]) {
-    //     const data = logInfos(
-    //         this,
-    //         addQuantiles_,
-    //         ...args
-    //     )
-    //     this.#updateSimpleData(data)
-    //     return this
-    // }
+    addQuantiles(...args: any[]) {
+        const data = logInfos(
+            this,
+            addQuantiles_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
 
-    // addBins(...args: any[]) {
-    //     const data = logInfos(
-    //         this,
-    //         addBins_,
-    //         ...args
-    //     )
-    //     this.#updateSimpleData(data)
-    //     return this
-    // }
+    addBins(...args: any[]) {
+        const data = logInfos(
+            this,
+            addBins_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
 
-    // addOutliers(...args: any[]) {
-    //     const data = logInfos(
-    //         this,
-    //         addOutliers_,
-    //         ...args
-    //     )
-    //     this.#updateSimpleData(data)
-    //     return this
-    // }
+    addOutliers(...args: any[]) {
+        const data = logInfos(
+            this,
+            addOutliers_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
 
-    // excludeOutliers(...args: any[]) {
-    //     const data = logInfos(
-    //         this,
-    //         excludeOutliers_,
-    //         ...args
-    //     )
-    //     this.#updateSimpleData(data)
-    //     return this
-    // }
+    excludeOutliers(...args: any[]) {
+        const data = logInfos(
+            this,
+            excludeOutliers_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
 
     correlation(key1: string, key2: string, options: Options) {
         // We deal with the parameters manually to deal with optional arguments
@@ -385,22 +385,22 @@ export default class SimpleData {
         return this
     }
 
-    // summarize(value?: string, key?: string, summary?: any, weight?: string, options?: Options) {
-    //     // We deal with the parameters manually to deal with optional arguments
-    //     // Note that the parameters are in different order in the parameters array
-    //     const data = logInfos(
-    //         this,
-    //         summarize_,
-    //         key === undefined ? "no key" : key,
-    //         // Everything except weightedMean
-    //         summary === undefined ? ["count", "min", "max", "sum", "mean", "median", "deviation"] : summary,
-    //         value === undefined ? this._keys : value,
-    //         weight === undefined ? "no weight" : weight,
-    //         options === undefined ? this._defaultOptions : options
-    //     )
-    //     this.#updateSimpleData(data)
-    //     return this
-    // }
+    summarize(value?: string, key?: string, summary?: any, weight?: string, options?: Options) {
+        // We deal with the parameters manually to deal with optional arguments
+        // Note that the parameters are in different order in the parameters array
+        const data = logInfos(
+            this,
+            summarize_,
+            key === undefined ? "no key" : key,
+            // Everything except weightedMean
+            summary === undefined ? ["count", "min", "max", "sum", "mean", "median", "deviation"] : summary,
+            value === undefined ? this._keys : value,
+            weight === undefined ? "no weight" : weight,
+            options === undefined ? this._defaultOptions : options
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
 
     saveData(...args: any[]) {
         // We don't update data

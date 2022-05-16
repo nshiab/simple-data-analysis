@@ -4,6 +4,7 @@
     "rootDir": "./", 
     "baseUrl": "./src", 
     "target": "ES2015",
+    "esModuleInterop": true,
     "typeRoots": [
       "./node_modules/@types",
       "./types"
