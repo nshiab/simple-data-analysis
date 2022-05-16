@@ -1,3 +1,4 @@
+import checkKeys from "../helpers/checkKeys.js"
 import clone_ from "../methods/clone.js"
 import renameKey_ from "../methods/renameKey.js"
 import describe_ from "../methods/describe.js"
@@ -29,9 +30,9 @@ import correlation_ from "../methods/correlation.js"
 import addItems_ from "../methods/addItems.js"
 import getUniqueValues_ from "../methods/getUniqueValues.js"
 import summarize_ from "../methods/summarize.js"
-import saveData_ from "../methods/saveData.js"
 import mergeItems_ from "../methods/mergeItems.js"
-import checkKeys from "../helpers/checkKeys.js"
+import saveData_ from "../methods/saveData.js"
+import saveChart_ from "../methods/saveChart.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import getParametersAndOptions from "../helpers/getParametersAndOptions.js"
 import logInfos from "../helpers/logInfos.js"
@@ -397,6 +398,21 @@ export default class SimpleData {
         this.#apply(
             saveData_,
             ...args
+        )
+        return this
+    }
+
+    saveChart(path: string, type: "points", x: any[], y: any[], color?: string, options?: Options) {
+        // We deal with the parameters manually to deal with optional arguments
+        // We don't update data
+        this.#apply(
+            saveChart_,
+            path,
+            type,
+            x,
+            y,
+            color,
+            options === undefined ? this._defaultOptions : options
         )
         return this
     }
