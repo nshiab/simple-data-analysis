@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./", 
+    "rootDir": "./src", 
     "target": "ES2016",
     "module": "ES2020",
     "moduleResolution": "node",
@@ -14,9 +14,9 @@
     "declarationMap": true,
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
+    "skipLibCheck": true, 
+    "strict": true,
   },
-  "include": ["src/**/*", "test/unit/**/*"],
-  "exclude": ["node_modules"], 
-  "strict": true,
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }

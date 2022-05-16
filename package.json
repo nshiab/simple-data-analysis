@@ -54,6 +54,7 @@
         "@types/lodash.clonedeep": "^4.5.7",
         "@types/lodash.isequal": "^4.5.6",
         "@types/mocha": "^9.1.1",
+        "@types/papaparse": "^5.3.2",
         "@typescript-eslint/eslint-plugin": "^5.23.0",
         "@typescript-eslint/parser": "^5.23.0",
         "eslint": "^8.15.0",

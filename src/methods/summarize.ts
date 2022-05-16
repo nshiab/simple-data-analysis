@@ -115,8 +115,9 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
             }
 
             const keysFunc = keys.map(key => (d: SimpleDataItem) => d[key])
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            const funcResults = flatRollup(data, func, keysFunc)
+            const funcResults = flatRollup(data, func, ...keysFunc)
             const results = key === "no key" || keys.length === 0 ? [[funcResults]] : funcResults
 
             // We structure the results to have an array of objects with the value
