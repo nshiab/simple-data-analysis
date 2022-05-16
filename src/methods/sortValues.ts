@@ -1,4 +1,4 @@
-import { SimpleDataItem, Options } from "../types.js"
+import { SimpleDataItem, Options } from "../types"
 
 export default function sortValues(data: SimpleDataItem[], key: string, order: "ascending" | "descending", options: Options): SimpleDataItem[] {
 

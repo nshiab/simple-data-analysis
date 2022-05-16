@@ -1,6 +1,6 @@
-import showTable from "../methods/showTable.js"
-import { defaultOptions } from "../types.js"
-import log from "./log.js"
+import showTable from "../methods/showTable"
+import { defaultOptions } from "../types"
+import log from "./log"
 
 export default function logInfos(simpleData: any, func: Function, ...args: any[]) {
 

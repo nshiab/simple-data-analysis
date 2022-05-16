@@ -1,7 +1,7 @@
-import isMissingValue from "../helpers/isMissingValue.js"
-import log from "../helpers/log.js"
-import percentage from "../helpers/percentage.js"
-import { SimpleDataItem, Options } from "../types.js"
+import isMissingValue from "../helpers/isMissingValue"
+import log from "../helpers/log"
+import percentage from "../helpers/percentage"
+import { SimpleDataItem, Options } from "../types"
 
 export default function excludeMissingValues(data: SimpleDataItem[], key: string | undefined, options: Options): SimpleDataItem[] {
 

@@ -1,4 +1,4 @@
-import checkEnvironment from "./helpers/checkEnvironment.js"
+import checkEnvironment from "./helpers/checkEnvironment"
 
 export interface SimpleDataItem {
     [key: string]: string | number | boolean | Date

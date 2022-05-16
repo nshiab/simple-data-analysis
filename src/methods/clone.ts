@@ -1,7 +1,7 @@
-import { SimpleDataItem, Options } from "../types.js"
+import { SimpleDataItem, Options } from "../types"
 //@ts-ignore
 import cloneDeep from "lodash.clonedeep"
-import SimpleData from "../class/SimpleData.js"
+import SimpleData from "../class/SimpleData"
 
 export default function clone(data: SimpleDataItem[], defaultOptions: Options, options: Options): object {
 

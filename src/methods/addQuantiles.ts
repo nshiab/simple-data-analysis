@@ -1,5 +1,5 @@
-import log from "../helpers/log.js"
-import { SimpleDataItem, Options } from "../types.js"
+import log from "../helpers/log"
+import { SimpleDataItem, Options } from "../types"
 //@ts-ignore
 import { quantile } from "d3-array"
 

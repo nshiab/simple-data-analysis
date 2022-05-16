@@ -1,8 +1,8 @@
-import log from "../helpers/log.js"
-import { SimpleDataItem, Options } from "../types.js"
+import log from "../helpers/log"
+import { SimpleDataItem, Options } from "../types"
 //@ts-ignore
 import { quantile, extent } from "d3-array"
-import percentage from "../helpers/percentage.js"
+import percentage from "../helpers/percentage"
 
 export default function addOutliers(data: SimpleDataItem[], key: string, newKey: string, method: "boxplot", options: Options): SimpleDataItem[] {
 

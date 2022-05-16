@@ -1,6 +1,6 @@
-import log from "../helpers/log.js"
-import { SimpleDataItem, Options, defaultOptions } from "../types.js"
-import showTable from "./showTable.js"
+import log from "../helpers/log"
+import { SimpleDataItem, Options, defaultOptions } from "../types"
+import showTable from "./showTable"
 
 export default function renameKey(data: SimpleDataItem[], oldKey: string, newKey: string, options: Options): SimpleDataItem[] {
 

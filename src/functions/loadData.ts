@@ -1,8 +1,8 @@
-import SimpleData from "../class/SimpleData.js";
-import checkEnvironment from "../helpers/checkEnvironment.js";
-import log from "../helpers/log.js";
-import { Options, defaultOptions } from "../types.js"
-import showTable from "../methods/showTable.js";
+import SimpleData from "../class/SimpleData";
+import checkEnvironment from "../helpers/checkEnvironment";
+import log from "../helpers/log";
+import { Options, defaultOptions } from "../types"
+import showTable from "../methods/showTable";
 
 
 export default async function loadData(path: string, options: Options) {

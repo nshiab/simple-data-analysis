@@ -1,6 +1,6 @@
-import log from "../helpers/log.js"
-import { SimpleDataItem, Options, defaultOptions } from "../types.js"
-import showTable from "./showTable.js"
+import log from "../helpers/log"
+import { SimpleDataItem, Options, defaultOptions } from "../types"
+import showTable from "./showTable"
 //@ts-ignore
 import { utcParse } from "d3-time-format"
 

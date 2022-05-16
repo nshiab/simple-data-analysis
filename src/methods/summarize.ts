@@ -1,8 +1,8 @@
-import log from "../helpers/log.js"
-import { SimpleDataItem, Options } from "../types.js"
+import log from "../helpers/log"
+import { SimpleDataItem, Options } from "../types"
 //@ts-ignore
 import { flatRollup, mean, sum, median, max, min, deviation } from "d3-array"
-import checkTypeOfKey from "../helpers/checkTypeOfKey.js"
+import checkTypeOfKey from "../helpers/checkTypeOfKey"
 //@ts-ignore
 import isEqual from "lodash.isequal"
 

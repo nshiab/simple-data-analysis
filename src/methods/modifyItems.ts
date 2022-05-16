@@ -1,4 +1,4 @@
-import { SimpleDataItem, Options } from "../types.js"
+import { SimpleDataItem, Options } from "../types"
 
 export default function modifyItems(data: SimpleDataItem[], key: string, func: Function, options: Options): SimpleDataItem[] {
 

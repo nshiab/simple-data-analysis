@@ -1,9 +1,9 @@
-import log from "../helpers/log.js"
-import { SimpleDataItem, Options, defaultOptions } from "../types.js"
-import showTable from "./showTable.js"
-import SimpleData from "../class/SimpleData.js"
-import checkTypeOfKey from "../helpers/checkTypeOfKey.js"
-import percentage from "../helpers/percentage.js"
+import log from "../helpers/log"
+import { SimpleDataItem, Options, defaultOptions } from "../types"
+import showTable from "./showTable"
+import SimpleData from "../class/SimpleData"
+import checkTypeOfKey from "../helpers/checkTypeOfKey"
+import percentage from "../helpers/percentage"
 
 export default function mergeItems(data: SimpleDataItem[], dataToBeMerged: SimpleDataItem[], commonKey: string, options: Options): SimpleDataItem[] {
 

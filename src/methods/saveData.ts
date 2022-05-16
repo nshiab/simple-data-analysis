@@ -1,5 +1,5 @@
-import log from "../helpers/log.js"
-import { SimpleDataItem, Options } from "../types.js"
+import log from "../helpers/log"
+import { SimpleDataItem, Options } from "../types"
 
 export default async function saveData(data: SimpleDataItem[], path: string, options: Options) {
 

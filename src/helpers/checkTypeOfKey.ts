@@ -1,6 +1,6 @@
 import { Options, SimpleDataItem } from "../types";
-import log from "./log.js";
-import percentage from "./percentage.js";
+import log from "./log";
+import percentage from "./percentage";
 
 
 export default function checkTypeOfKey(data: SimpleDataItem[], key: string, type: string, threshold: number, options: Options): boolean {
