@@ -30,9 +30,11 @@ import addItems_ from "../methods/addItems.js"
 import getUniqueValues_ from "../methods/getUniqueValues.js"
 import summarize_ from "../methods/summarize.js"
 import saveData_ from "../methods/saveData.js"
-import { SimpleDataItem, Options, defaultOptions } from "../types.js"
+import mergeItems_ from "../methods/mergeItems.js"
 import checkKeys from "../helpers/checkKeys.js"
+import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import logDecorator from "../helpers/logDecorator.js"
+
 
 export default class SimpleData {
 
@@ -376,6 +378,12 @@ export default class SimpleData {
             addItems_,
             ...args
         )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    mergeItems(dataToBeMerged: SimpleDataItem[], commonKey: string, options: Options) {
+        const data = mergeItems_(this.data, dataToBeMerged, commonKey, { ...this._defaultOptions, ...options })
         this.#updateSimpleData(data)
         return this
     }
