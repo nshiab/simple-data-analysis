@@ -1,22 +1,9 @@
-import { SimpleDataItem, Options, defaultOptions } from "../types.js"
-import showTable from "./showTable.js"
+import { SimpleDataItem, Options } from "../types.js"
 import getArray from "./getArray.js"
 import percentage from "../helpers/percentage.js"
-import log from "../helpers/log.js"
 
 export default function checkValues(data: SimpleDataItem[], options: Options): SimpleDataItem[] {
-    const start = Date.now()
 
-    options = {
-        ...defaultOptions,
-        ...options
-    }
-
-    options.logs && console.log("\ncheckValues()")
-    options.logOptions && log("options:")
-    options.logOptions && log(options)
-
-    // all items must have the same keys
     const keys = Object.keys(data[0])
 
     const allChecks: any[] = []
@@ -54,7 +41,6 @@ export default function checkValues(data: SimpleDataItem[], options: Options): S
                 typeOf = typeof array[i]
             }
 
-
             if (!checks.hasOwnProperty(typeOf)) {
                 checks[typeOf] = 1
             } else {
@@ -72,10 +58,5 @@ export default function checkValues(data: SimpleDataItem[], options: Options): S
         allChecks.push(checks)
     }
 
-    options.logs && showTable(allChecks, { ...options, nbItemInTable: keys.length })
-
-    const end = Date.now()
-    options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
-
-    return data
+    return allChecks
 }

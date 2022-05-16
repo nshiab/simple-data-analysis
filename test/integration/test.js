@@ -1,22 +1,23 @@
 import { loadData, SimpleData } from "../../dist/index.js"
-import {temporaryDirectory} from 'tempy'
+import { temporaryDirectory } from 'tempy'
 
-const simpleData = await loadData("data/employees.csv", { logs: true, logOptions: true })
+const simpleData = await loadData("data/employees.csv")
 
-console.log(simpleData.data)
-console.log(simpleData.keys)
-console.log(simpleData.options)
-console.log(simpleData.getArray("Name"))
-console.log(simpleData.getUniqueValues("Job"))
+simpleData.setDefaultOptions({ logs: true, logOptions: true, logParameters: true })
+
+// console.log(simpleData.data)
+// console.log(simpleData.keys)
+// console.log(simpleData.options)
+simpleData.getArray("Name")
+simpleData.getUniqueValues("Job")
 
 
 simpleData
-    .setDefaultOptions({ logs: true })
-    .describe()
+    .describe({ showDataNoOverwrite: true })
     .formatAllKeys()
     .renameKey("departementOrUnit", "unit")
     .renameKey("endOfYearBonus", "bonus")
-    .checkValues()
+    .checkValues({ showDataNoOverwrite: true })
     .excludeMissingValues("name")
     .excludeMissingValues()
     .addKey("firstName", item => item.name.split(",")[1].trim())
@@ -35,7 +36,7 @@ simpleData
     .filterItems(item => item.hireDate > "2002-01-01" && item.unit !== "20")
     .sortValues("salary", "descending")
     .sortValues("bonus", "ascending")
-
+    .selectKeys(["firstName", "job", "bonus"], { showDataNoOverwrite: true })
 
 const moreEmployees = [
     {
@@ -77,69 +78,58 @@ const moreEmployeesSimpleData = new SimpleData([
     }
 ])
 
-simpleData.addItems(moreEmployeesSimpleData)
+simpleData
+    .addItems(moreEmployeesSimpleData)
 
-simpleData.setDefaultOptions({ nbItemInTable: "all" })
+const unitsNames = [
+    {
+        unit: "30",
+        unitName: "Marketing"
+    },
+    {
+        unit: "100",
+        unitName: "Finance"
+    }
+]
+
+simpleData.mergeItems(unitsNames, "unit")
+    .removeKey("unitName", { logs: false })
+
+const unitsNamesSimpleData = new SimpleData([
+    {
+        unit: "30",
+        unitName: "Marketing"
+    },
+    {
+        unit: "100",
+        unitName: "Finance"
+    },
+    {
+        unit: "60",
+        unitName: "Engineering"
+    }
+])
+
+simpleData.mergeItems(unitsNamesSimpleData, "unit")
 
 simpleData
+    .setDefaultOptions({ nbItemInTable: "all" })
     .addQuantiles("bonus", "salaryQuintile", 5)
     .addBins("bonus", "salaryBins", 5)
     .addOutliers("bonus", "bonusOutlier", "boxplot")
     .excludeOutliers("bonus", "boxplot")
-
-simpleData
-    .clone({ logs: false })
+    .setDefaultOptions({ showDataNoOverwrite: true })
     .correlation()
-
-simpleData
-    .clone({ logs: false })
     .correlation("salary", "bonus")
-
-simpleData
-    .clone({ logs: false })
     .summarize()
-
-simpleData
-    .clone({ logs: false })
     .summarize(simpleData.keys, "job")
-
-simpleData
-    .clone({ logs: false })
     .summarize("salary", ["job", "unit"])
-
-simpleData
-    .clone({ logs: false })
     .summarize("salary", "job", "mean")
-
-simpleData
-    .clone({ logs: false })
     .summarize("salary", undefined, "mean")
-
-simpleData
-    .clone({ logs: false })
     .summarize("salary", "job", ["mean", "median"])
-
-simpleData
-    .clone({ logs: false })
     .summarize("salary", "job", "weightedMean", "bonus")
 
 const tempDir = temporaryDirectory()
 simpleData
     .saveData(`${tempDir}/integrationTest.csv`)
     .saveData(`${tempDir}/integrationTest.json`)
-
-// // // TODO:
-
-// getter
-// setter
-
-// // // percentage
-// // // variationPercentage
-// // // percentageOfAllItems
-
-// // // mergeItems
-
-// // // noOverwrite?
-
-// // // saveToCsv
-// // // saveToJson

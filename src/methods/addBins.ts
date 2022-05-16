@@ -1,21 +1,9 @@
 import log from "../helpers/log.js"
-import { SimpleDataItem, Options, defaultOptions } from "../types.js"
-import showTable from "./showTable.js"
+import { SimpleDataItem, Options } from "../types.js"
 //@ts-ignore
 import { extent } from "d3-array"
 
 export default function addBins(data: SimpleDataItem[], key: string, newKey: string, nbBins: number, options: Options): SimpleDataItem[] {
-
-    const start = Date.now()
-
-    options = {
-        ...defaultOptions,
-        ...options
-    }
-
-    options.logs && log("\naddBins() " + key + " " + newKey + " " + nbBins)
-    options.logOptions && log("options:")
-    options.logOptions && log(options)
 
     // All items needs to have the same keys
     if (!data[0].hasOwnProperty(key)) {
@@ -39,7 +27,7 @@ export default function addBins(data: SimpleDataItem[], key: string, newKey: str
     }
 
     options.logs && log("The bins values are => " + min + "," + String(bins), "blue")
-    options.logs && log("/!\\The first bin is labelled 1 (not 0).", "bgRed")
+    options.logs && log("/!\\ The first bin is labelled 1 (not 0).", "bgRed")
 
     for (let i = 0; i < data.length; i++) {
         const value = data[i][key]
@@ -50,11 +38,6 @@ export default function addBins(data: SimpleDataItem[], key: string, newKey: str
             }
         }
     }
-
-    options.logs && showTable(data, options)
-
-    const end = Date.now()
-    options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
 
     return data
 }

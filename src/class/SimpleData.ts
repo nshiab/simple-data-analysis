@@ -17,6 +17,7 @@ import filterItems_ from "../methods/filterItems.js"
 import roundValues_ from "../methods/roundValues.js"
 import replaceValues_ from "../methods/replaceValues.js"
 import addKey_ from "../methods/addKey.js"
+import selectKeys_ from "../methods/selectKeys.js"
 import modifyValues_ from "../methods/modifyValues.js"
 import modifyItems_ from "../methods/modifyItems.js"
 import sortValues_ from "../methods/sortValues.js"
@@ -29,8 +30,10 @@ import addItems_ from "../methods/addItems.js"
 import getUniqueValues_ from "../methods/getUniqueValues.js"
 import summarize_ from "../methods/summarize.js"
 import saveData_ from "../methods/saveData.js"
-import { SimpleDataItem, Options, defaultOptions } from "../types.js"
+import mergeItems_ from "../methods/mergeItems.js"
 import checkKeys from "../helpers/checkKeys.js"
+import { SimpleDataItem, Options, defaultOptions } from "../types.js"
+import logDecorator from "../helpers/logInfos.js"
 
 
 export default class SimpleData {
@@ -66,6 +69,10 @@ export default class SimpleData {
         this._keys = data[0] === undefined ? [] : Object.keys(data[0])
     }
 
+    set options(options) {
+        this._defaultOptions = options
+    }
+
     #updateSimpleData(data: SimpleDataItem[]) {
         this._data = data
         this._keys = data[0] === undefined ? [] : Object.keys(data[0])
@@ -73,194 +80,348 @@ export default class SimpleData {
 
     setDefaultOptions(options: Options) {
         this._defaultOptions = { ...this._defaultOptions, ...options }
+        this._defaultOptions.logs && console.log("\nsetDefaultOptions()")
+        this._defaultOptions.logs && console.log(this._defaultOptions)
         return this
     }
 
     clone(options: Options) {
-        return clone_(this._data, this._defaultOptions, { ...this._defaultOptions, ...options })
+        // very specific case with two options passed as arguments. Can't use ...args directly. And we don't return data, but a new SimpleData.
+        const newSimpleData = logDecorator(
+            this,
+            clone_,
+            this._defaultOptions,
+            options === undefined ? this._defaultOptions : options
+        )
+        return newSimpleData
     }
 
-    getArray(key: string, options: Options) {
-        return getArray_(this._data, key, { ...this._defaultOptions, ...options })
+    getArray(...args: any[]) {
+        // We don't update data and we don't return this
+        const data = logDecorator(
+            this,
+            getArray_,
+            ...args
+        )
+        return data
     }
 
-    getUniqueValues(key: string, options: Options) {
-        return getUniqueValues_(this._data, key, { ...this._defaultOptions, ...options })
+    getUniqueValues(...args: any[]) {
+        // We don't update data and we don't return this
+        const data = logDecorator(
+            this,
+            getUniqueValues_,
+            ...args
+        )
+        return data
     }
 
-    checkValues(options: Options) {
-        checkValues_(this._data, { ...this._defaultOptions, ...options })
-        return this
-    }
-
-    excludeMissingValues(key: "onAllItems" | string, options: Options) {
-        const data = excludeMissingValues_(this._data, key, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    describe(options: Options) {
-        const data = describe_(this._data, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    renameKey(oldKey: string, newKey: string, options: Options) {
-        const data = renameKey_(this._data, oldKey, newKey, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    removeKey(key: string, options: Options) {
-        const data = removeKey_(this._data, key, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    addKey(key: string, func: Function, options: Options) {
-        const data = addKey_(this._data, key, func, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    modifyValues(key: string, func: Function, options: Options) {
-        const data = modifyValues_(this._data, key, func, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    modifyItems(key: string, func: Function, options: Options) {
-        const data = modifyItems_(this._data, key, func, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    formatAllKeys(options: Options) {
-        const data = formatAllKeys_(this._data, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    valuesToString(key: string, options: Options) {
-        const data = valuesToString_(this._data, key, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    valuesToInteger(key: string, options: Options) {
-        const data = valuesToInteger_(this._data, key, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    valuesToFloat(key: string, options: Options) {
-        const data = valuesToFloat_(this._data, key, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    valuesToDate(key: string, format: string, options: Options) {
-        const data = valuesToDate_(this._data, key, format, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    datesToString(key: string, format: string, options: Options) {
-        const data = datesToString_(this._data, key, format, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    filterValues(key: string, func: Function, options: Options) {
-        const data = filterValues_(this._data, key, func, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    filterItems(func: Function, options: Options) {
-        const data = filterItems_(this._data, func, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    roundValues(key: string, options: Options) {
-        const data = roundValues_(this._data, key, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    replaceValues(key: string, oldValue: string, newValue: string, method: "entireString" | "partialString", options: Options) {
-        const data = replaceValues_(this._data, key, oldValue, newValue, method, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    sortValues(key: string, order: "ascending" | "descending", options: Options) {
-        const data = sortValues_(this._data, key, order, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    addQuantiles(key: "string", newKey: "string", nbIntervals: number, options: Options) {
-        const data = addQuantiles_(this._data, key, newKey, nbIntervals, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    addBins(key: "string", newKey: "string", nbBins: number, options: Options) {
-        const data = addBins_(this._data, key, newKey, nbBins, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    addOutliers(key: "string", newKey: "string", method: "boxplot", options: Options) {
-        const data = addOutliers_(this._data, key, newKey, method, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    excludeOutliers(key: "string", method: "boxplot", options: Options) {
-        const data = excludeOutliers_(this._data, key, method, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    correlation(key1: string, key2: string, options: Options) {
-        const data = correlation_(this._data, key1, key2, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    addItems(dataToBeAdded: SimpleDataItem[], options: Options) {
-        const data = addItems_(this._data, dataToBeAdded, { ...this._defaultOptions, ...options })
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    summarize(value?: string, key?: string, summary?: any, weight?: string, options?: Options) {
-        // Note that the parameters are in different order below
-        const data = summarize_(
-            this._data,
-            key === undefined ? "no key" : key,
-            // Everything except weightedMean
-            summary === undefined ? ["count", "min", "max", "sum", "mean", "median", "deviation"] : summary,
-            value === undefined ? this._keys : value,
-            weight === undefined ? "no weight" : weight,
-            { ...this._defaultOptions, ...options }
+    checkValues(...args: any[]) {
+        const data = logDecorator(
+            this,
+            checkValues_,
+            ...args
         )
         this.#updateSimpleData(data)
         return this
     }
 
-    saveData(path: string, options: Options) {
-
-        saveData_(this.data, path, { ...this._defaultOptions, ...options })
-
+    excludeMissingValues(key: "onAllKeys" | string, options: Options) {
+        // We need to deal with arguments manually. In case of undefined key, we run on all keys.
+        const data = logDecorator(
+            this,
+            excludeMissingValues_,
+            key,
+            options === undefined ? this._defaultOptions : options
+        )
+        this.#updateSimpleData(data)
         return this
     }
 
-    showTable(options: Options) {
-        showTable_(this._data, { ...this._defaultOptions, ...options })
+    describe(...args: any[]) {
+        const data = logDecorator(
+            this,
+            describe_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    renameKey(...args: any[]) {
+        const data = logDecorator(
+            this,
+            renameKey_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    removeKey(...args: any[]) {
+        const data = logDecorator(
+            this,
+            removeKey_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    addKey(...args: any[]) {
+        const data = logDecorator(
+            this,
+            addKey_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    selectKeys(...args: any[]) {
+        const data = logDecorator(
+            this,
+            selectKeys_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    modifyValues(...args: any[]) {
+        const data = logDecorator(
+            this,
+            modifyValues_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    modifyItems(...args: any[]) {
+        const data = logDecorator(
+            this,
+            modifyItems_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    formatAllKeys(...args: any[]) {
+        const data = logDecorator(
+            this,
+            formatAllKeys_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+
+    valuesToString(...args: any[]) {
+        const data = logDecorator(
+            this,
+            valuesToString_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    valuesToInteger(...args: any[]) {
+        const data = logDecorator(
+            this,
+            valuesToInteger_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    valuesToFloat(...args: any[]) {
+        const data = logDecorator(
+            this,
+            valuesToFloat_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    valuesToDate(...args: any[]) {
+        const data = logDecorator(
+            this,
+            valuesToDate_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    datesToString(...args: any[]) {
+        const data = logDecorator(
+            this,
+            datesToString_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    filterValues(...args: any[]) {
+        const data = logDecorator(
+            this,
+            filterValues_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    filterItems(...args: any[]) {
+        const data = logDecorator(
+            this,
+            filterItems_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    roundValues(...args: any[]) {
+        const data = logDecorator(
+            this,
+            roundValues_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    replaceValues(...args: any[]) {
+        const data = logDecorator(
+            this,
+            replaceValues_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    sortValues(...args: any[]) {
+        const data = logDecorator(
+            this,
+            sortValues_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    addQuantiles(...args: any[]) {
+        const data = logDecorator(
+            this,
+            addQuantiles_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    addBins(...args: any[]) {
+        const data = logDecorator(
+            this,
+            addBins_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    addOutliers(...args: any[]) {
+        const data = logDecorator(
+            this,
+            addOutliers_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    excludeOutliers(...args: any[]) {
+        const data = logDecorator(
+            this,
+            excludeOutliers_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    correlation(key1: string, key2: string, options: Options) {
+        // We deal with the parameters manually to deal with optional arguments
+        const data = logDecorator(
+            this,
+            correlation_,
+            key1,
+            key2,
+            options === undefined ? this._defaultOptions : options
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    addItems(...args: any[]) {
+        const data = logDecorator(
+            this,
+            addItems_,
+            ...args
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    mergeItems(dataToBeMerged: SimpleDataItem[], commonKey: string, options: Options) {
+        const data = mergeItems_(this.data, dataToBeMerged, commonKey, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    summarize(value?: string, key?: string, summary?: any, weight?: string, options?: Options) {
+        // We deal with the parameters manually to deal with optional arguments
+        // Note that the parameters are in different order in the parameters array
+        const data = logDecorator(
+            this,
+            summarize_,
+            key === undefined ? "no key" : key,
+            // Everything except weightedMean
+            summary === undefined ? ["count", "min", "max", "sum", "mean", "median", "deviation"] : summary,
+            value === undefined ? this._keys : value,
+            weight === undefined ? "no weight" : weight,
+            options === undefined ? this._defaultOptions : options
+        )
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    saveData(...args: any[]) {
+        // We don't update data
+        logDecorator(
+            this,
+            saveData_,
+            ...args
+        )
+        return this
+    }
+
+    showTable(...args: any[]) {
+        // we don't update data
+        logDecorator(
+            this,
+            showTable_,
+            ...args
+        )
         return this
     }
 

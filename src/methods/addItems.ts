@@ -1,21 +1,10 @@
-import log from "../helpers/log.js"
-import { SimpleDataItem, Options, defaultOptions } from "../types.js"
-import showTable from "./showTable.js"
+import { SimpleDataItem, Options } from "../types.js"
 //@ts-ignore
 import isEqual from "lodash.isequal"
+import log from "../helpers/log.js"
+import SimpleData from "../class/SimpleData.js"
 
 export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDataItem[], options: Options): SimpleDataItem[] {
-
-    const start = Date.now()
-
-    options = {
-        ...defaultOptions,
-        ...options
-    }
-
-    options.logs && log("\naddItems()")
-    options.logOptions && log("options:")
-    options.logOptions && log(options)
 
     let newData
 
@@ -30,7 +19,7 @@ export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDa
 
         newData = data.concat(dataToBeAdded)
 
-    } else if (dataToBeAdded.constructor.name === "SimpleData") {
+    } else if (dataToBeAdded instanceof SimpleData) {
 
         //@ts-ignore
         const dataTBA = dataToBeAdded.data
@@ -48,14 +37,7 @@ export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDa
         throw Error("dataToBeAdded needs to be an array of objects or a SimpleData prototype")
     }
 
-
-
-
-
-    options.logs && showTable(newData, options)
-
-    const end = Date.now()
-    options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
+    options.logs && log(`/!\\ ${newData.length - data.length} items added. Number of items increased by ${((newData.length - data.length) / data.length * 100).toFixed(options.fractionDigits)}%`, "bgRed")
 
     return newData
 }

@@ -1,20 +1,7 @@
 import log from "../helpers/log.js"
-import { SimpleDataItem, Options, defaultOptions } from "../types.js"
-import showTable from "./showTable.js"
-//@ts-ignore
+import { SimpleDataItem, Options } from "../types.js"
 
 export default async function saveData(data: SimpleDataItem[], path: string, options: Options) {
-
-    const start = Date.now()
-
-    options = {
-        ...defaultOptions,
-        ...options
-    }
-
-    options.logs && log("\saveData() " + path)
-    options.logOptions && log("options:")
-    options.logOptions && log(options)
 
     if (options.environment === "nodejs") {
 
@@ -49,9 +36,7 @@ export default async function saveData(data: SimpleDataItem[], path: string, opt
     }
 
     options.logs && log("=> Data written to " + path, "blue")
-    options.logs && showTable(data, options)
 
-    const end = Date.now()
-    options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
+    return data
 
 }

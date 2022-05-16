@@ -1,21 +1,9 @@
 import log from "../helpers/log.js"
-import { SimpleDataItem, Options, defaultOptions } from "../types.js"
-import showTable from "./showTable.js"
+import { SimpleDataItem, Options } from "../types.js"
 //@ts-ignore
 import { quantile } from "d3-array"
 
 export default function addQuantiles(data: SimpleDataItem[], key: string, newKey: string, nbQuantiles: number, options: Options): SimpleDataItem[] {
-
-    const start = Date.now()
-
-    options = {
-        ...defaultOptions,
-        ...options
-    }
-
-    options.logs && log("\naddQuantiles() " + key + " " + newKey + " " + nbQuantiles)
-    options.logOptions && log("options:")
-    options.logOptions && log(options)
 
     // All items needs to have the same keys
     if (!data[0].hasOwnProperty(key)) {
@@ -47,12 +35,6 @@ export default function addQuantiles(data: SimpleDataItem[], key: string, newKey
         }
         data[i][newKey] = quantile
     }
-
-
-    options.logs && showTable(data, options)
-
-    const end = Date.now()
-    options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
 
     return data
 }
