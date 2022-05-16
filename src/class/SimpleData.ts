@@ -32,6 +32,7 @@ import summarize_ from "../methods/summarize.js"
 import saveData_ from "../methods/saveData.js"
 import { SimpleDataItem, Options, defaultOptions } from "../types.js"
 import checkKeys from "../helpers/checkKeys.js"
+import mergeItems_ from "../methods/mergeItems.js"
 
 
 export default class SimpleData {
@@ -240,6 +241,12 @@ export default class SimpleData {
 
     addItems(dataToBeAdded: SimpleDataItem[], options: Options) {
         const data = addItems_(this._data, dataToBeAdded, { ...this._defaultOptions, ...options })
+        this.#updateSimpleData(data)
+        return this
+    }
+
+    mergeItems(dataToBeMerged: SimpleDataItem[], commonKey: string, options: Options) {
+        const data = mergeItems_(this.data, dataToBeMerged, commonKey, { ...this._defaultOptions, ...options })
         this.#updateSimpleData(data)
         return this
     }

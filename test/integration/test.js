@@ -82,7 +82,39 @@ const moreEmployeesSimpleData = new SimpleData([
 
 simpleData.addItems(moreEmployeesSimpleData)
 
+const unitsNames = [
+    {
+        unit: "30",
+        unitName: "Marketing"
+    },
+    {
+        unit: "100",
+        unitName: "Finance"
+    }
+]
+
+
 simpleData.setDefaultOptions({ nbItemInTable: "all" })
+
+simpleData.mergeItems(unitsNames, "unit")
+    .removeKey("unitName", { logs: false })
+
+const unitsNamesSimpleData = new SimpleData([
+    {
+        unit: "30",
+        unitName: "Marketing"
+    },
+    {
+        unit: "100",
+        unitName: "Finance"
+    },
+    {
+        unit: "60",
+        unitName: "Engineering"
+    }
+])
+
+simpleData.mergeItems(unitsNamesSimpleData, "unit")
 
 simpleData
     .addQuantiles("bonus", "salaryQuintile", 5)

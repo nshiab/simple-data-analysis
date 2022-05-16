@@ -6,6 +6,7 @@ import percentage from "./percentage.js";
 export default function checkTypeOfKey(data: SimpleDataItem[], key: string, type: string, threshold: number, options: Options): boolean {
 
     const nbTestedValues = data.length < options.nbValuesTestedForTypeOf ? data.length : options.nbValuesTestedForTypeOf
+    options.logs && nbTestedValues < data.length && log(`The key ${key} has ${data.length} values, but the type of only ${nbTestedValues} is tested. You can increase it with .setDefaultOptions({nbValuesTestedForTypeOf : numberOfYourchoice})`)
     const percentTested = percentage(nbTestedValues, data.length, options)
 
     let foundType = 0
