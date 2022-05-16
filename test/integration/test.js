@@ -81,6 +81,17 @@ const moreEmployeesSimpleData = new SimpleData([
 simpleData
     .addItems(moreEmployeesSimpleData)
 
+const unitsNames = [
+    {
+        unit: "30",
+        unitName: "Marketing"
+    },
+    {
+        unit: "100",
+        unitName: "Finance"
+    }
+]
+
 simpleData.mergeItems(unitsNames, "unit")
     .removeKey("unitName", { logs: false })
 
