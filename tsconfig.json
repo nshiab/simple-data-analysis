@@ -1,22 +1,26 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src", 
+    "rootDir": "./src",
     "target": "ES2016",
     "module": "ES2020",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "typeRoots": [
       "./node_modules/@types",
-      "./types"
+      "src/types/thirdParties"
     ],
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true, 
+    "skipLibCheck": true,
     "strict": true,
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

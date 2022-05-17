@@ -1,4 +1,4 @@
-import { SimpleDataItem, Options } from "../types.js"
+import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
 import isEqual from "lodash.isequal"
 import log from "../helpers/log.js"
 import SimpleData from "../class/SimpleData.js"

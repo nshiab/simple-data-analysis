@@ -1,4 +1,4 @@
-import { defaultOptions, Options } from "../types.js"
+import { defaultOptions, Options } from "../types/SimpleData.types.js"
 
 export default function getParametersAndOptions(simpleDataOptions: Options, ...args: any[]) {
 

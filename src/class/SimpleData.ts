@@ -33,7 +33,7 @@ import summarize_ from "../methods/summarize.js"
 import mergeItems_ from "../methods/mergeItems.js"
 import saveData_ from "../methods/saveData.js"
 import saveChart_ from "../methods/saveChart.js"
-import { SimpleDataItem, Options, defaultOptions } from "../types.js"
+import { SimpleDataItem, Options, defaultOptions } from "../types/SimpleData.types.js"
 import getParametersAndOptions from "../helpers/getParametersAndOptions.js"
 import logInfos from "../helpers/logInfos.js"
 

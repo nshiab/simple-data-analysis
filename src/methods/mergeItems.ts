@@ -1,5 +1,5 @@
 import log from "../helpers/log.js"
-import { SimpleDataItem, Options, defaultOptions } from "../types.js"
+import { SimpleDataItem, Options, defaultOptions } from "../types/SimpleData.types.js"
 import showTable from "./showTable.js"
 import SimpleData from "../class/SimpleData.js"
 import checkTypeOfKey from "../helpers/checkTypeOfKey.js"

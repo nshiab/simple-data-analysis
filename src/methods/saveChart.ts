@@ -1,4 +1,4 @@
-import { Options, SimpleDataItem } from "../types";
+import { Options, SimpleDataItem } from "../types/SimpleData.types.js"
 import * as Plot from "@observablehq/plot"
 import { JSDOM } from "jsdom"
 import fs from "fs"

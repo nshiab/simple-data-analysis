@@ -1,5 +1,5 @@
 import showTable from "../methods/showTable.js"
-import { Options, SimpleDataItem } from "../types.js"
+import { Options, SimpleDataItem } from "../types/SimpleData.types.js"
 import log from "./log.js"
 
 export default function logInfos(startOrEnd: "start" | "end", parameters: any[], options: Options, func: (data: SimpleDataItem[], ...args: any[]) => any, start?: number, data?: SimpleDataItem[]) {
