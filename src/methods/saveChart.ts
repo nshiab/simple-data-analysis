@@ -1,5 +1,5 @@
 import { Options, SimpleDataItem } from "../types/SimpleData.types.js"
-import { dot, line, barY, boxY, plot } from "@observablehq/plot"
+import { dot, line, barY, boxY } from "@observablehq/plot"
 import getExtension from "../helpers/getExtension.js";
 import getPlotHtmlAndWrite from "../helpers/getPlotHtmlAndWrite.js";
 

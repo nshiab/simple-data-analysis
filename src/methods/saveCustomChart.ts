@@ -1,7 +1,6 @@
 import { Options, SimpleDataItem } from "../types/SimpleData.types.js"
 import getExtension from "../helpers/getExtension.js"
 import getPlotHtmlAndWrite from "../helpers/getPlotHtmlAndWrite.js"
-import log from "../helpers/log.js"
 
 
 export default function saveCustomChart(data: SimpleDataItem[], path: string, plotOptions: any, options: Options): SimpleDataItem[] {
