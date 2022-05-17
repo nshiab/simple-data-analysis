@@ -11,7 +11,7 @@ export default function datesToString(data: SimpleDataItem[], key: string, forma
     const formatF = utcFormat(format)
 
     for (let i = 0; i < data.length; i++) {
-        data[i][key] = formatF(data[i][key])
+        data[i][key] = formatF(data[i][key] as Date)
     }
 
     return data
