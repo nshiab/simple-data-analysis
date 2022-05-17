@@ -21,6 +21,15 @@ function renderFullPage(html: string) {
     `;
 }
 
+function renderReactComponent(html: string) {
+
+  return `import React from "react"
+
+  export default function Analysis() {
+    return <div>${html}</div>
+  }`
+}
+
 
 export default async function saveDocument(components: any[], path: string) {
 
@@ -38,10 +47,8 @@ export default async function saveDocument(components: any[], path: string) {
   if (extension === "html") {
     fs.writeFileSync(path, renderFullPage(html))
   } else if (extension === "js") {
-    fs.writeFileSync(path, html)
+    fs.writeFileSync(path, renderReactComponent(html))
   }
-
-
 
   log(`=> Document saved to ${path}`, "blue")
 }

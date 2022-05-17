@@ -1,7 +1,7 @@
 import { SimpleData, SimpleDocument } from "../../src/index.js"
 import React from "react"
 import { Typography } from "@mui/material"
-
+import { temporaryDirectory } from 'tempy'
 
 const simpleData = new SimpleData([
     { name: "Nael", job: "Producer" },
@@ -28,8 +28,8 @@ const simpleDocument = new SimpleDocument()
     .add(<Typography>Une composante mui!</Typography>)
     .add(simpleData)
 
-console.log(simpleDocument.components)
+const tempDir = temporaryDirectory()
 
 simpleDocument
-    .saveDocument("../analysis.html")
-    .saveDocument("../analysis.js")
+    .saveDocument(`${tempDir}/analysis.html`)
+    .saveDocument(`${tempDir}/analysis.js`)
