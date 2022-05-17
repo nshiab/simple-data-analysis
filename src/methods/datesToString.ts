@@ -1,4 +1,4 @@
-import { SimpleDataItem, Options } from "../types.js"
+import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
 import { utcFormat } from "d3-time-format"
 import hasKey from "../helpers/hasKey.js"
 

@@ -130,6 +130,36 @@ simpleData
     .summarize("salary", "job", "weightedMean", "bonus")
 
 const tempDir = temporaryDirectory()
+
 simpleData
     .saveData(`${tempDir}/integrationTest.csv`)
     .saveData(`${tempDir}/integrationTest.json`)
+
+simpleData
+    .saveChart(`${tempDir}/dot1.html`, "dot", "salary", "bonus")
+    .saveChart(`${tempDir}/dot2.html`, "dot", "salary", "bonus", "job")
+    .valuesToDate("hireDate", "%Y-%m-%d")
+    .saveChart(`${tempDir}/line1.html`, "line", "hireDate", "salary")
+    .saveChart(`${tempDir}/line2.html`, "line", "hireDate", "salary", "unit")
+    .saveChart(`${tempDir}/bar1.html`, "bar", "unit", "salary")
+    .saveChart(`${tempDir}/bar2.html`, "bar", "unit", "salary", "unit")
+    .saveChart(`${tempDir}/box1.html`, "box", "unit", "salary")
+    .saveChart(`${tempDir}/box2.html`, "box", "unit", "salary", "unit")
+
+
+import * as Plot from "@observablehq/plot"
+
+simpleData
+    .saveCustomChart(
+        `${tempDir}/customChart.html`,
+        {
+            grid: true,
+            facet: {
+                data: simpleData.data,
+                y: "unit"
+            },
+            marks: [
+                Plot.dotX(simpleData.data, { x: "salary", fill: "unit" })
+            ]
+        }
+    )

@@ -1,4 +1,4 @@
-import { SimpleDataItem, Options } from "../types.js"
+import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
 import camelCase from "lodash.camelcase"
 import log from "../helpers/log.js"
 

@@ -1,5 +1,6 @@
+import getExtension from "../helpers/getExtension.js"
 import log from "../helpers/log.js"
-import { SimpleDataItem, Options } from "../types.js"
+import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
 
 export default async function saveData(data: SimpleDataItem[], path: string, options: Options) {
 
@@ -7,8 +8,7 @@ export default async function saveData(data: SimpleDataItem[], path: string, opt
 
         const fs = await import("fs")
 
-        const pathSplit = path.split(".")
-        const extension = pathSplit[pathSplit.length - 1].toLowerCase()
+        const extension = getExtension(path)
 
         if (extension === "csv") {
 

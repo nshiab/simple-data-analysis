@@ -1,4 +1,4 @@
-import { SimpleDataItem } from "../types.js";
+import { SimpleDataItem } from "../types/SimpleData.types.js";
 import isEqual from "lodash.isequal"
 
 export default function checkKeys(data: SimpleDataItem[]) {

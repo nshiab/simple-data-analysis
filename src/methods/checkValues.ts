@@ -1,4 +1,4 @@
-import { SimpleDataItem, Options } from "../types.js"
+import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
 import getArray from "./getArray.js"
 import percentage from "../helpers/percentage.js"
 import hasKey from "../helpers/hasKey.js"

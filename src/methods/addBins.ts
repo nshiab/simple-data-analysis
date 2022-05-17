@@ -1,5 +1,5 @@
 import log from "../helpers/log.js"
-import { SimpleDataItem, Options } from "../types.js"
+import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
 import { extent } from "d3-array"
 import hasKey from "../helpers/hasKey.js"
 

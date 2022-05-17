@@ -1,4 +1,4 @@
-import { SimpleDataItem, Options } from "../types.js"
+import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
 import hasKey from "../helpers/hasKey.js"
 
 export default function getArray(data: SimpleDataItem[], key: string, options?: Options): any[] {

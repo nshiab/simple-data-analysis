@@ -1,5 +1,5 @@
 import log from "../helpers/log.js"
-import { SimpleDataItem, Options } from "../types.js"
+import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
 import percentage from "../helpers/percentage.js"
 
 export default function filterItems(data: SimpleDataItem[], func: (item: any) => any, options: Options): SimpleDataItem[] {

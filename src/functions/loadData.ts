@@ -1,8 +1,9 @@
 import SimpleData from "../class/SimpleData.js";
 import checkEnvironment from "../helpers/checkEnvironment.js";
 import log from "../helpers/log.js";
-import { Options, defaultOptions } from "../types.js"
+import { Options, defaultOptions } from "../types/SimpleData.types.js"
 import showTable from "../methods/showTable.js";
+import getExtension from "../helpers/getExtension.js";
 
 
 export default async function loadData(path: string, options: Options) {
@@ -16,8 +17,7 @@ export default async function loadData(path: string, options: Options) {
 
     const environment = checkEnvironment()
 
-    const pathSplit = path.split(".")
-    const fileExtension = pathSplit[pathSplit.length - 1].toLocaleLowerCase()
+    const fileExtension = getExtension(path)
 
     options.logs && log("Detected " + fileExtension + " file extension", "blue")
 
