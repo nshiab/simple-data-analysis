@@ -9,7 +9,7 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
 
     // Let's deal with the keys first
 
-    let keys: any[] = []
+    let keys: string[] = []
 
     if (key === "no key") {
 
@@ -39,8 +39,6 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
     } else {
         throw new Error("key must be either a string or an array of string")
     }
-
-    const keysFunc = keys.map(key => (d: any) => d[key])
 
     // Now the values
 
@@ -116,6 +114,9 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
                 throw new Error(`Unknown summary name/function ${summary}`)
             }
 
+            const keysFunc = keys.map(key => (d: SimpleDataItem) => d[key])
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             const funcResults = flatRollup(data, func, ...keysFunc)
             const results = key === "no key" || keys.length === 0 ? [[funcResults]] : funcResults
 

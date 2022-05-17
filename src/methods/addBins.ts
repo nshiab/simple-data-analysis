@@ -12,8 +12,8 @@ export default function addBins(data: SimpleDataItem[], key: string, newKey: str
         throw new Error("Already a key named " + key)
     }
 
-    const values = data.map(d => d[key])
-    const [min, max] = extent(values)
+    const values = data.map(d => d[key]) as Iterable<number>
+    const [min, max] = extent(values) as number[]
     const difference = max - min
     const interval = difference / nbBins
 

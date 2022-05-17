@@ -1,4 +1,4 @@
-import { Options, SimpleDataItem } from "../types";
+import { Options, SimpleDataItem } from "../types.js";
 import log from "./log.js";
 import percentage from "./percentage.js";
 

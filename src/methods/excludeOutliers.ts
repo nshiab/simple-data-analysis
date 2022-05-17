@@ -10,9 +10,9 @@ export default function excludeOutliers(data: SimpleDataItem[], key: string, met
         throw new Error("No key " + key)
     }
 
-    const values = data.map(d => d[key])
-    const q1 = quantile(values, 0.25)
-    const q3 = quantile(values, 0.75)
+    const values = data.map(d => d[key]) as Iterable<number>
+    const q1 = quantile(values, 0.25) as number
+    const q3 = quantile(values, 0.75) as number
     const interQuartileRange = q3 - q1
 
     const upper = q3 + interQuartileRange * 1.5
