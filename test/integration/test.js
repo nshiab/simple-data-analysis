@@ -1,11 +1,12 @@
+import React from "react"
 import { loadData, SimpleData, SimpleDocument } from "../../dist/index.js"
 import { temporaryDirectory } from 'tempy'
 
 const simpleDocument = new SimpleDocument()
 
 simpleDocument
-    .add("<h1>Coucou</h1>")
-    .add("<p>Hey hey</p>")
+    .add(<h1>Coucou</h1>)
+    .add(<p>Hey hey</p>)
 
 
 console.log(simpleDocument.components)

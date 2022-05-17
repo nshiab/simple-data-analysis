@@ -1,3 +1,4 @@
+import React from "react"
 import saveDocument_ from "../methods/saveDocument.js"
 
 export default class SimpleDocument {

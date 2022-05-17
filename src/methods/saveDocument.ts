@@ -1,6 +1,6 @@
+import ReactDOMServer from 'react-dom/server';
 import getExtension from "../helpers/getExtension.js"
 import fs from "fs"
-import { Options } from "../types/SimpleData.types"
 import log from "../helpers/log.js"
 
 export default function saveDocument(components: any[], path: string) {
@@ -10,7 +10,15 @@ export default function saveDocument(components: any[], path: string) {
         throw new Error("Your analysis must be saved into an html or js file.")
     }
 
-    const string = components.join("")
+    let string = ""
+
+    if (extension === "html") {
+
+        for (const component of components) {
+            string += ReactDOMServer.renderToString(component)
+        }
+
+    }
 
     fs.writeFileSync(path, string)
 
