@@ -50,6 +50,7 @@
         "@rollup/plugin-node-resolve": "^13.2.1",
         "@types/d3-array": "^3.0.2",
         "@types/d3-time-format": "^4.0.0",
+        "@types/jsdom": "^16.2.14",
         "@types/lodash.camelcase": "^4.3.7",
         "@types/lodash.clonedeep": "^4.5.7",
         "@types/lodash.isequal": "^4.5.6",
