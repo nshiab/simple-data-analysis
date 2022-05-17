@@ -11,13 +11,17 @@ export default function saveDocument(components: any[], path: string) {
     }
 
     let string = ""
+    for (const component of components) {
+        string += ReactDOMServer.renderToString(component)
+    }
 
-    if (extension === "html") {
+    if (extension === "js") {
+        string = `import React from "react";
 
-        for (const component of components) {
-            string += ReactDOMServer.renderToString(component)
+        export default function SimpleDocument() {
+            return <div>${string}</div>
         }
-
+        `
     }
 
     fs.writeFileSync(path, string)

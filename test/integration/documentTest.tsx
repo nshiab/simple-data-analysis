@@ -7,6 +7,7 @@ const simpleDocument = new SimpleDocument()
     .add(<p>Du contenu extraordinaire</p>)
     .add(<Typography>Une composante mui!</Typography>)
     .saveDocument("../analysis.html")
+    .saveDocument("../analysis.js")
 
 
 // const simpleData = new SimpleData([
