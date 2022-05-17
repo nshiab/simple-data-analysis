@@ -145,3 +145,21 @@ simpleData
     .saveChart(`${tempDir}/bar2.html`, "bar", "unit", "salary", "unit")
     .saveChart(`${tempDir}/box1.html`, "box", "unit", "salary")
     .saveChart(`${tempDir}/box2.html`, "box", "unit", "salary", "unit")
+
+
+import * as Plot from "@observablehq/plot"
+
+simpleData
+    .saveCustomChart(
+        `${tempDir}/customChart.html`,
+        Plot.plot({
+            grid: true,
+            facet: {
+                data: simpleData.data,
+                y: "unit"
+            },
+            marks: [
+                Plot.dotX(simpleData.data, { x: "salary", fill: "unit" })
+            ]
+        })
+    )
