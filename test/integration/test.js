@@ -152,7 +152,7 @@ import * as Plot from "@observablehq/plot"
 simpleData
     .saveCustomChart(
         `${tempDir}/customChart.html`,
-        Plot.plot({
+        {
             grid: true,
             facet: {
                 data: simpleData.data,
@@ -161,5 +161,5 @@ simpleData
             marks: [
                 Plot.dotX(simpleData.data, { x: "salary", fill: "unit" })
             ]
-        })
+        }
     )
