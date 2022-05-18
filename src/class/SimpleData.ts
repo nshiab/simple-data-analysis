@@ -502,7 +502,7 @@ export default class SimpleData {
     }
 
     @logCall()
-    showTable({ nbItemInTable = 5 }: { nbItemInTable: "all" | number }): SimpleData {
+    showTable({ nbItemInTable = 5 }: { nbItemInTable?: "all" | number } = {}): SimpleData {
         // TODO: test this!
         showTable_(this._data, nbItemInTable)
 
