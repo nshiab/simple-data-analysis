@@ -1,19 +1,24 @@
 import isMissingValue from "../helpers/isMissingValue.js"
 import log from "../helpers/log.js"
 import percentage from "../helpers/percentage.js"
-import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
+import { SimpleDataItem } from "../types/SimpleData.types.js"
 import hasKey from "../helpers/hasKey.js"
 
-export default function excludeMissingValues(data: SimpleDataItem[], key: string | undefined, options: Options): SimpleDataItem[] {
+export default function excludeMissingValues(
+    data: SimpleDataItem[], 
+    key: string | undefined, 
+    missingValues: any[], 
+    verbose: boolean
+): SimpleDataItem[] {
 
     let filteredData: SimpleDataItem[] = []
 
-    if (key === undefined || key === "onAllKeys") {
+    if (key === undefined) {
         filteredData = data.filter(d => {
             let check = true
             const values = Object.values(d)
             for (const val of values) {
-                if (isMissingValue(val, options)) {
+                if (isMissingValue(val, missingValues)) {
                     check = false
                     break
                 }
@@ -21,13 +26,13 @@ export default function excludeMissingValues(data: SimpleDataItem[], key: string
             return check
         })
     } else if (hasKey(data[0], key)) {
-        filteredData = data.filter(d => !isMissingValue(d[key], options))
+        filteredData = data.filter(d => !isMissingValue(d[key], missingValues))
     } else {
         throw new Error("No key " + key)
     }
 
     const nbRemoved = data.length - filteredData.length
-    options.logs && log(`/!\\ ${nbRemoved} items removed, representing ${percentage(nbRemoved, data.length, options)} of received items.`, "bgRed")
+    verbose && log(`/!\\ ${nbRemoved} items removed, representing ${percentage(nbRemoved, data.length)} of received items.`, "bgRed")
 
     return filteredData
 }

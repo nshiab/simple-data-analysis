@@ -1,7 +1,7 @@
-import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
+import { SimpleDataItem } from "../types/SimpleData.types.js"
 import hasKey from "../helpers/hasKey.js"
 
-export default function modifyItems(data: SimpleDataItem[], key: string, func: (item: any) => any, options: Options): SimpleDataItem[] {
+export default function modifyItems(data: SimpleDataItem[], key: string, func: (item: any) => any): SimpleDataItem[] {
 
     if (!hasKey(data[0], key)) {
         throw new Error("No key named " + key)

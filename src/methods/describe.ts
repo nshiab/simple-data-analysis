@@ -1,6 +1,6 @@
-import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
+import { SimpleDataItem } from "../types/SimpleData.types.js"
 
-export default function describe(data: SimpleDataItem[], options: Options): SimpleDataItem[] {
+export default function describe(data: SimpleDataItem[]): SimpleDataItem[] {
 
     const nbItems = data.length
     const nbKeys = Object.keys(data[0]).length
@@ -12,5 +12,5 @@ export default function describe(data: SimpleDataItem[], options: Options): Simp
         nbDataPoints
     }
 
-    return [dataDescription]
+    return [ dataDescription ]
 }

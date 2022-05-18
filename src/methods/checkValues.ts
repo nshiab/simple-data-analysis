@@ -1,9 +1,9 @@
-import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
+import { SimpleDataItem } from "../types/SimpleData.types.js"
 import getArray from "./getArray.js"
 import percentage from "../helpers/percentage.js"
 import hasKey from "../helpers/hasKey.js"
 
-export default function checkValues(data: SimpleDataItem[], options: Options): SimpleDataItem[] {
+export default function checkValues(data: SimpleDataItem[]): SimpleDataItem[] {
 
     const keys = Object.keys(data[0])
 
@@ -13,7 +13,7 @@ export default function checkValues(data: SimpleDataItem[], options: Options): S
         const checks: { [key: string]: any } = {}
         checks["key"] = key
 
-        const array = getArray(data, key, { ...options, logs: false, logOptions: false })
+        const array = getArray(data, key)
 
         checks["count"] = array.length
 
@@ -51,7 +51,7 @@ export default function checkValues(data: SimpleDataItem[], options: Options): S
 
         for (const key of Object.keys(checks)) {
             if (key !== "key" && key != "count" && checks[key] !== 0) {
-                checks[key] = [checks[key], percentage(checks[key], checks.count, options)]
+                checks[key] = [checks[key], percentage(checks[key], checks.count)]
             }
         }
 

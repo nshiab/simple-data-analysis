@@ -3,27 +3,26 @@ import log from "./log.js";
 import percentage from "./percentage.js";
 
 
-export default function checkTypeOfKey(data: SimpleDataItem[], key: string, type: string, threshold: number, options: Options): boolean {
-
-    const nbTestedValues = data.length < options.nbValuesTestedForTypeOf ? data.length : options.nbValuesTestedForTypeOf
-    options.logs && nbTestedValues < data.length && log(`The key ${key} has ${data.length} values, but the type of only ${nbTestedValues} is tested. You can increase it with .setDefaultOptions({nbValuesTestedForTypeOf : numberOfYourchoice})`)
-    const percentTested = percentage(nbTestedValues, data.length, options)
+export default function checkTypeOfKey(data: SimpleDataItem[], key: string, type: string, threshold: number, verbose: boolean, nbTestedValues: number): boolean {
+    const nbTested = data.length < nbTestedValues ? data.length : nbTestedValues
+    verbose && nbTested < data.length && log(`The key ${key} has ${data.length} values, but the type of only ${nbTested} is tested. You can increase it with .setDefaultOptions({nbValuesTestedForTypeOf : numberOfYourchoice})`)
+    const percentTested = percentage(nbTested, data.length)
 
     let foundType = 0
-    for (let i = 0; i < nbTestedValues; i++) {
+    for (let i = 0; i < nbTested; i++) {
         if (typeof data[i][key] === type) {
             foundType += 1
         } else if (typeof data[i][key] !== type && threshold === 1) {
             break
         }
     }
-    const percentTest = foundType / nbTestedValues
+    const percentTest = foundType / nbTested
     const test = percentTest >= threshold
     if (!test) {
         if (threshold === 1) {
-            options.logs && log(`=> ${key} : at least one of the tested values (n=${nbTestedValues} / ${percentTested} of data) is not a ${type} (threshold: ${threshold})`, "blue")
+            verbose && log(`=> ${key} : at least one of the tested values (n=${nbTested} / ${percentTested} of data) is not a ${type} (threshold: ${threshold})`, "blue")
         } else {
-            options.logs && log(`=> ${key} : ${(1 - percentTest) * 100}% of tested values (n=${nbTestedValues} / ${percentTested} of data) are not a ${type} (threshold: ${threshold})`, "blue")
+            verbose && log(`=> ${key} : ${(1 - percentTest) * 100}% of tested values (n=${nbTested} / ${percentTested} of data) are not a ${type} (threshold: ${threshold})`, "blue")
         }
 
     }

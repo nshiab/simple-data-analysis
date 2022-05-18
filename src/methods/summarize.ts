@@ -1,19 +1,28 @@
 import log from "../helpers/log.js"
-import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
+import { SimpleDataItem } from "../types/SimpleData.types.js"
 import { flatRollup, mean, sum, median, max, min, deviation } from "d3-array"
 import checkTypeOfKey from "../helpers/checkTypeOfKey.js"
 import isEqual from "lodash.isequal"
 import hasKey from "../helpers/hasKey.js"
 
-export default function summarize(data: SimpleDataItem[], key: any, summary: any, value: any, weight: any, options: Options): any[] {
+export default function summarize(
+    data: SimpleDataItem[], 
+    value: any, 
+    key: any, 
+    summary: any, 
+    weight: any, 
+    verbose: boolean, 
+    nbValuesTested: number, 
+    nbDigits: number
+): any[] {
 
     // Let's deal with the keys first
 
     let keys: string[] = []
 
-    if (key === "no key") {
+    if (key === undefined) {
 
-        options.logs && log("No key provided. Data won't be grouped.")
+        verbose && log("No key provided. Data won't be grouped.")
 
     } else if (Array.isArray(key)) {
 
@@ -23,14 +32,14 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
             }
         }
 
-        keys = key.filter(k => checkTypeOfKey(data, k, "string", 0.5, options))
+        keys = key.filter(k => checkTypeOfKey(data, k, "string", 0.5, verbose, nbValuesTested))
 
     } else if (typeof key === "string") {
 
         if (!hasKey(data[0], key)) {
             throw new Error("No key " + key)
         }
-        if (!checkTypeOfKey(data, key, "string", 0.5, options)) {
+        if (!checkTypeOfKey(data, key, "string", 0.5, verbose, nbValuesTested)) {
             throw new Error("The key values should be of type string")
         }
 
@@ -50,12 +59,12 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
                 throw new Error("No value " + v)
             }
         }
-        values = value.filter(v => checkTypeOfKey(data, v, "number", 0.5, options))
+        values = value.filter(v => checkTypeOfKey(data, v, "number", 0.5, verbose, nbValuesTested))
     } else if (typeof value === "string") {
         if (!hasKey(data[0], value)) {
             throw new Error("No value " + value)
         }
-        if (!checkTypeOfKey(data, value, "number", 0.5, options)) {
+        if (!checkTypeOfKey(data, value, "number", 0.5, verbose, nbValuesTested)) {
             throw new Error("The value should be of type number")
         }
         values = [value]
@@ -71,6 +80,8 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
         summaries = summary
     } else if (typeof summary === "string") {
         summaries = [summary]
+    } else if (summary === undefined){
+        summaries = ["count", "min", "max", "sum", "mean", "median", "deviation"]
     } else {
         throw new Error("summary must be either a string or an array of string")
     }
@@ -104,7 +115,7 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
                 if (!hasKey(data[0], weight)) {
                     throw new Error("No weight " + weight)
                 }
-                if (!checkTypeOfKey(data, weight, "number", 0.5, options)) {
+                if (!checkTypeOfKey(data, weight, "number", 0.5, verbose, nbValuesTested)) {
                     throw new Error("The weight should be of type number")
                 }
 
@@ -128,7 +139,7 @@ export default function summarize(data: SimpleDataItem[], key: any, summary: any
                 const filteredResults = summariesResults.find(d => isEqual(d.arrayToCompare, arrayToCompare))
 
                 const fValue = result[result.length - 1]
-                const finalValue = fValue === undefined ? NaN : parseFloat(fValue.toFixed(options.fractionDigits))
+                const finalValue = fValue === undefined ? NaN : parseFloat(fValue.toFixed(nbDigits))
 
                 if (filteredResults === undefined) {
                     const itemsSummarized: any = { value: value }

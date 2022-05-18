@@ -1,23 +1,15 @@
 import log from "../helpers/log.js"
-import { SimpleDataItem, Options, defaultOptions } from "../types/SimpleData.types.js"
+import { SimpleDataItem } from "../types/SimpleData.types.js"
 import showTable from "./showTable.js"
 import SimpleData from "../class/SimpleData.js"
 import checkTypeOfKey from "../helpers/checkTypeOfKey.js"
 import percentage from "../helpers/percentage.js"
 import hasKey from "../helpers/hasKey.js"
 
-export default function mergeItems(data: SimpleDataItem[], dataToBeMerged: SimpleDataItem[], commonKey: string, options: Options): SimpleDataItem[] {
+export default function mergeItems(data: SimpleDataItem[], dataToBeMerged: SimpleDataItem[], commonKey: string, verbose: boolean, nbValuesTested: number): SimpleDataItem[] {
 
-    const start = Date.now()
 
-    options = {
-        ...defaultOptions,
-        ...options
-    }
-
-    options.logs && log("\nmergeItems() " + commonKey)
-    options.logOptions && log("options:")
-    options.logOptions && log(options)
+    verbose && log("\nmergeItems() " + commonKey)
 
     let newData
 
@@ -45,9 +37,9 @@ export default function mergeItems(data: SimpleDataItem[], dataToBeMerged: Simpl
         }
     }
 
-    if (!checkTypeOfKey(data, commonKey, "string", 1, options)) {
+    if (!checkTypeOfKey(data, commonKey, "string", 1, verbose, nbValuesTested)) {
         throw new Error("At least one value of " + commonKey + " in data is not string. To avoid problems, ids should always be string. Convert them with valuesToString()")
-    } else if (!checkTypeOfKey(newData, commonKey, "string", 1, options)) {
+    } else if (!checkTypeOfKey(newData, commonKey, "string", 1, verbose, nbValuesTested)) {
         throw new Error("At least one value of " + commonKey + " in dataToBeMerged is not string. To avoid problems, ids should always be string. Convert them with valuesToString()")
     }
 
@@ -85,11 +77,8 @@ export default function mergeItems(data: SimpleDataItem[], dataToBeMerged: Simpl
         }
     }
 
-    options.logs && nbUndefined > 0 && log(`/!\\ Not match for ${nbUndefined} items, representing ${percentage(nbUndefined, data.length, options)} of items. New keys have undefined values for these items.`, "bgRed")
-    options.logs && showTable(mergedData, options)
+    verbose && nbUndefined > 0 && log(`/!\\ Not match for ${nbUndefined} items, representing ${percentage(nbUndefined, data.length)} of items. New keys have undefined values for these items.`, "bgRed")
 
-    const end = Date.now()
-    options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
 
     return mergedData
 }

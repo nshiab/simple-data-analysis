@@ -1,7 +1,7 @@
 import hasKey from "../helpers/hasKey.js"
-import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
+import { SimpleDataItem } from "../types/SimpleData.types.js"
 
-export default function renameKey(data: SimpleDataItem[], oldKey: string, newKey: string, options: Options): SimpleDataItem[] {
+export default function renameKey(data: SimpleDataItem[], oldKey: string, newKey: string): SimpleDataItem[] {
 
     if (!hasKey(data[0], oldKey)) {
         throw new Error("No key " + oldKey)

@@ -164,3 +164,10 @@ simpleData
             ]
         }
     )
+temporaryDirectoryTask((tempDir) => {
+    simpleData
+        .saveData(`${tempDir}/integrationTest.csv`)
+        .saveData(`${tempDir}/integrationTest.json`)
+
+})
+

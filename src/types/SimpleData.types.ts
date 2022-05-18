@@ -1,7 +1,7 @@
 import checkEnvironment from "../helpers/checkEnvironment.js"
 
 export interface SimpleDataItem {
-    [key: string]: string | number | boolean | Date
+    [key: string]: string | number | boolean | Date | null | undefined
 }
 
 export interface Options {
@@ -16,6 +16,20 @@ export interface Options {
     nbValuesTestedForTypeOf: number,
     environment: string,
     showDataNoOverwrite: boolean
+}
+
+export interface partialOptions {
+    encoding?: BufferEncoding,
+    logs?: boolean,
+    logOptions?: boolean,
+    logParameters?: boolean,
+    nbItemInTable?: "all" | number,
+    fractionDigits?: number,
+    missingValues?: { [key: string]: any },
+    missingValuesArray?: any[],
+    nbValuesTestedForTypeOf?: number,
+    environment?: string,
+    showDataNoOverwrite?: boolean
 }
 
 export const defaultOptions: Options = {

@@ -1,24 +1,25 @@
 import showTable from "../methods/showTable.js"
-import { Options, SimpleDataItem } from "../types/SimpleData.types.js"
-import log from "./log.js"
+import log from "../helpers/log.js"
 
-export default function logInfos(startOrEnd: "start" | "end", parameters: any[], options: Options, func: (data: SimpleDataItem[], ...args: any[]) => any, start?: number, data?: SimpleDataItem[]) {
+export default function logInfos(){
+    return function(_: Object, key: string, descriptor: any){
+        let wrappedFunc = descriptor.value
+        descriptor.value = function(...args: any[]){
+            this.options.logs && log("\n" + key + "()")
+            this.options.logOptions && log("options:")
+            this.options.logOptions && log(this.options)
+            this.options.logParameters && log("parameters:")
+            this.options.logParameters && log(args)
 
-    if (startOrEnd === "start") {
+            const start = Date.now()
+            const result: any = wrappedFunc.apply(this, args)
+            const end = Date.now()
 
-        options.logs && log("\n" + func.name + "()")
-        options.logOptions && log("options:")
-        options.logOptions && log(options)
-        options.logParameters && log("parameters:")
-        options.logParameters && log(parameters.slice(0, parameters.length - 1))
-
-    } else if (startOrEnd === "end") {
-
-        (options.logs || options.showDataNoOverwrite) && data && showTable(data, options)
-        const end = Date.now()
-        options.logs && start && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
-
+            this.options.logs && showTable(result, this.options)
+            this.options.logs && log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
+            
+            return result
+        }
+        return descriptor
     }
-
-    return startOrEnd === "start" ? Date.now() : undefined
 }

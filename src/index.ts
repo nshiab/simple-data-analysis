@@ -1,4 +1,4 @@
-export { default as loadData } from "./functions/loadData.js"
+// export { default as loadData } from "./functions/loadData.js"
 
 export { default as createSimpleData } from "./functions/createSimpleData.js"
 

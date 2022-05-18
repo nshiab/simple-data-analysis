@@ -1,15 +1,22 @@
-import { SimpleDataItem, Options, defaultOptions } from "../types/SimpleData.types.js"
+import { SimpleDataItem } from "../types/SimpleData.types.js"
 import { sampleCorrelation, combinations } from "simple-statistics"
 import checkTypeOfKey from "../helpers/checkTypeOfKey.js"
 import hasKey from "../helpers/hasKey.js"
 
-export default function correlation(data: SimpleDataItem[], key1: string, key2: string, options: Options): any[] {
+export default function correlation(
+    data: SimpleDataItem[], 
+    verbose: boolean, 
+    numDigits: number, 
+    nbTestedValues: number,
+    key1?: string, 
+    key2?: string
+): any[] {
 
     const correlations = []
 
     if (key1 === undefined && key2 === undefined) {
 
-        const keys = Object.keys(data[0]).filter(d => checkTypeOfKey(data, d, "number", 1, options))
+        const keys = Object.keys(data[0]).filter(d => typeof d === "number")
         const combi = combinations(keys, 2)
 
         for (const c of combi) {
@@ -24,7 +31,7 @@ export default function correlation(data: SimpleDataItem[], key1: string, key2: 
         if (!hasKey(data[0], key1)) {
             throw new Error(`No key ${key1} in data`)
         }
-        if (!checkTypeOfKey(data, key1, "number", 1, options)) {
+        if (!checkTypeOfKey(data, key1, "number", 1, verbose, nbTestedValues)) {
             throw new Error(`${key1} should be of type number`)
         }
 
@@ -32,7 +39,7 @@ export default function correlation(data: SimpleDataItem[], key1: string, key2: 
             if (!hasKey(data[0], key)) {
                 throw new Error(`No key ${key} in data`)
             }
-            if (!checkTypeOfKey(data, key, "number", 1, options)) {
+            if (!checkTypeOfKey(data, key, "number", 1, verbose, nbTestedValues)) {
                 throw new Error(`${key} should be of type number`)
             }
             correlations.push({
@@ -44,13 +51,13 @@ export default function correlation(data: SimpleDataItem[], key1: string, key2: 
         if (!hasKey(data[0], key1)) {
             throw new Error(`No key ${key1} in data`)
         }
-        if (!checkTypeOfKey(data, key1, "number", 1, options)) {
+        if (!checkTypeOfKey(data, key1, "number", 1, verbose, nbTestedValues)) {
             throw new Error(`${key1} should be of type number`)
         }
         if (!hasKey(data[0], key2)) {
             throw new Error(`No key ${key2} in data`)
         }
-        if (!checkTypeOfKey(data, key2, "number", 1, options)) {
+        if (!checkTypeOfKey(data, key2, "number", 1, verbose, nbTestedValues)) {
             throw new Error(`${key2} should be of type number`)
         }
         correlations.push({
@@ -75,7 +82,7 @@ export default function correlation(data: SimpleDataItem[], key1: string, key2: 
 
         correlationData.push({
             ...corr,
-            correlation: Number.isNaN(result) ? NaN : parseFloat(result.toFixed(options.fractionDigits))
+            correlation: Number.isNaN(result) ? NaN : parseFloat(result.toFixed(numDigits))
         })
     }
 
