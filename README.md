@@ -8,6 +8,15 @@ These project's goals are:
 
 We are always trying to improve it. Feel free to start a conversation or open an issue. Pull requests are welcome as well!
 
+# Table of contents
+
+1. [Core principles](#core-principles)
+2. [Easiest way to use](#the-easiest-way-to-use-the-library)
+3. [Importing from HTML](#importing-from-the-html)
+4. [NodeJS and JavaScript bundlers](#working-with-nodejs--javascript-bundlers)
+5. [SimpleDocument (experimental)](#simpledocument-experimental-for-nodejs-only)
+6. [All functions and methods](#all-functions-and-methods-available)
+
 ## Core principles
 
 The library expects **tabular data** stored in CSV files or **arrays of objects** stored in JSON files. It works best when the data is tidy:
