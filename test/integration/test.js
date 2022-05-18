@@ -1,5 +1,4 @@
-import React from "react"
-import { loadData, SimpleData, SimpleDocument } from "../../dist/index.js"
+import { loadData, SimpleData } from "../../dist/index.js"
 import { temporaryDirectory } from 'tempy'
 
 const simpleData = await loadData("data/employees.csv")
