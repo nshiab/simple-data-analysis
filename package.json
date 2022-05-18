@@ -33,25 +33,11 @@
     },
     "scripts": {
         "test": "mocha --require ts-node/register test/unit/**/*.ts",
-<<<<<<< HEAD
         "integrationDocumentTest": "node --loader ts-node/esm test/integration/documentTest.tsx",
         "integrationTest": "npx tsc && node test/integration/test.js",
-        "build": "rm -rf dist && npx tsc && mocha --require ts-node/register test/unit/**/*.ts && node test/integration/test.js && eslint . --ext .ts && rollup --config",
-||||||| parent of 36bf36e (Refactor SimpleData class.)
-        "integrationTest": "npx tsc && node test/integration/test.js",
-        "build": "rm -rf dist && npx tsc && mocha test/unit && node test/integration/test.js && eslint . --ext .ts && rollup --config",
-=======
-        "integrationTest": "mocha --require ts-node/register test/integration/test.ts",
         "build": "npm run allTests && rm -rf dist && npx tsc && rollup --config",
->>>>>>> 36bf36e (Refactor SimpleData class.)
         "lint": "eslint . --ext .ts",
-<<<<<<< HEAD
-        "allTests": "npx tsc && node test/integration/test.js && mocha --require ts-node/register test/unit/**/*.ts && eslint . --ext .ts"
-||||||| parent of 36bf36e (Refactor SimpleData class.)
-        "allTests": "npx tsc && node test/integration/test.js && mocha test/unit && eslint . --ext .ts"
-=======
-        "allTests": "npm run test && npm run integrationTest && npm run lint"
->>>>>>> 36bf36e (Refactor SimpleData class.)
+        "allTests": "npm run test && npm run integrationTest && npm rnu integrationDocumentTest && npm run lint"
     },
     "engines": {
         "node": ">=16.0"

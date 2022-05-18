@@ -1,11 +1,11 @@
-import { Options, SimpleDataItem } from "../types/SimpleData.types.js";
+import { SimpleDataItem } from "../types/SimpleData.types.js";
 import log from "./log.js";
 import percentage from "./percentage.js";
 
 
 export default function checkTypeOfKey(data: SimpleDataItem[], key: string, type: string, threshold: number, verbose: boolean, nbTestedValues: number): boolean {
     const nbTested = data.length < nbTestedValues ? data.length : nbTestedValues
-    verbose && nbTested < data.length && log(`The key ${key} has ${data.length} values, but the type of only ${nbTested} is tested. You can increase it with .setDefaultOptions({nbValuesTestedForTypeOf : numberOfYourchoice})`)
+    verbose && nbTested < data.length && log(`The key ${key} has ${data.length} values, but the type of only ${nbTested} is tested.`)
     const percentTested = percentage(nbTested, data.length)
 
     let foundType = 0

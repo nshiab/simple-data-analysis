@@ -35,29 +35,41 @@ import saveChart_ from "../methods/saveChart.js"
 import saveCustomChart_ from "../methods/saveCustomChart.js"
 import checkKeys from "../helpers/checkKeys.js"
 import { SimpleDataItem, Options, partialOptions, defaultOptions } from "../types/SimpleData.types"
-import getParametersAndOptions from "../helpers/getParametersAndOptions.js"
-import logInfos from "../helpers/logInfos.js"
-import { floor } from "lodash"
-
-
+import logCall from "../helpers/logCall.js"
+import checkEnvironment from "../helpers/checkEnvironment.js"
 
 
 export default class SimpleData {
 
     _data: SimpleDataItem[]
     _keys: string[]
-    _options: Options
+    _environment: "nodejs" | "webBrowser"
+    // Logging 
+    _verbose: boolean
+    _logParameters: boolean
+    _nbTableItemsToLog: number
 
-    constructor(incomingData: SimpleDataItem[], options?: partialOptions) {
-        checkKeys(incomingData)
-        this._data = incomingData
-        this._keys = Object.keys(incomingData[0])
+    constructor(
+        data: SimpleDataItem[], 
+    {
+        verbose = false,
+        logParameters = false,
+        nbTableItemsToLog = 5
+    }: {
+        verbose?: boolean,
+        logParameters?: boolean,
+        nbTableItemsToLog?: number
+    } = {}) {
+        checkKeys(data)
 
-        if (options === undefined){
-            this._options = defaultOptions
-        } else {
-            this._options = { ...defaultOptions, ...options }
-        }
+        this._data = data
+        this._keys = Object.keys(data[0])
+
+        this._verbose = verbose
+        this._logParameters = logParameters
+        this._nbTableItemsToLog = nbTableItemsToLog
+
+        this._environment = checkEnvironment()
     }
 
     get data() {
@@ -75,286 +87,403 @@ export default class SimpleData {
         this._keys = data[0] === undefined ? [] : Object.keys(data[0])
     }
 
-    get options() {
-        return this._options
-    }
-    set options(options: partialOptions) {
-        this._options = { ...this._options, ...options }
-    }
 
     #updateSimpleData(data: SimpleDataItem[]) {
         this._data = data
         this._keys = data[0] === undefined ? [] : Object.keys(data[0])
     }
 
-    // #apply(func: (data: SimpleDataItem[], ...args: any[]) => any, ...args: any[]) {
-
-    //     const { parameters, options } = getParametersAndOptions(this._options, ...args)
-
-    //     const data = func(this._data, ...parameters)
-
-    //     return options.showDataNoOverwrite ? this._data : data
-    // }
-
-    @logInfos()
-    clone() {
+    @logCall()
+    clone(): SimpleData {
         const newSimpleData = cloneDeep(this)
 
         return newSimpleData
     }
 
-    @logInfos()
-    getArray(key: string) {
-        const data = getArray_(this.data, key)
+    @logCall()
+    getArray({ key }: { key: string }): SimpleDataItem[] {
+        const array = getArray_(this.data, key)
 
-        return data
+        return array
     }
 
-    @logInfos()
-    getUniqueValues(key: string) {
-        const data = getUniqueValues_(this.data, key)
-        return data
+    @logCall()
+    getUniqueValues({ key }: { key: string }): SimpleDataItem[] {
+        const uniqueValues = getUniqueValues_(this.data, key)
+
+        return uniqueValues
     }
 
-    @logInfos()
-    checkValues() {
-        // TODO: can we overwrite data?
-        // TODO: test this function.
-        checkValues_(this.data)
+    @logCall()
+    checkValues({ overwrite = false }: { overwrite?: boolean } = {}): SimpleData {
+        const data = checkValues_(this.data)
+        overwrite && this.#updateSimpleData(data)
+
         return this
     }
 
-    @logInfos()
-    excludeMissingValues(key?: string) {
-        const data = excludeMissingValues_(
-            this.data, 
-            key,
-            this._options.missingValuesArray,
-            this._options.logs
-        )
-        this.#updateSimpleData(data)
+    @logCall()
+    describe({ overwrite = false } : { overwrite?: boolean } = {}): SimpleData {
+        const data = describe_(this.data)
+        overwrite && this.#updateSimpleData(data)
+
         return this
     }
 
-    @logInfos()
-    describe() {
-        // TODO: can we overwrite data?
-        // TODO: test this function.
-        describe_(this.data)
-        return this
-    }
-
-    @logInfos()
-    renameKey(oldKey: string, newKey: string) {
-        const data = renameKey_(this._data, oldKey, newKey)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    removeKey(key: string) {
-        const data = removeKey_(this._data, key)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    addKey(key: string, func: (item: any) => any) {
-        const data = addKey_(this._data, key, func)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    selectKeys(keys: string[]) {
-        const data = selectKeys_(this._data, keys)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    modifyValues(key: string, func: (val: any) => any) {
-        const data = modifyValues_(this._data, key, func)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    modifyItems(key: string, func: (item: any) => any) {
-        const data = modifyItems_(this._data, key, func)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    formatAllKeys() {
-        const data = formatAllKeys_(this._data, this._options.logs)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    valuesToString(key: string) {
-        const data = valuesToString_(this._data, key)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    valuesToInteger(key: string) {
-        const data = valuesToInteger_(this._data, key)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    valuesToFloat(key: string) {
-        const data = valuesToFloat_(this._data, key)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    valuesToDate(key: string, format: string) {
-        const data = valuesToDate_(this._data, key, format)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    datesToString(key: string, format: string) {
-        const data = datesToString_(this._data, key, format)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    filterValues(key: string, func: (val: any) => any) {
-        const data = filterValues_(this._data, key, func, this._options.logs)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    filterItems(func: (val: any) => any) {
-        const data = filterItems_(this._data, func, this._options.logs)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    roundValues(key: string) {
-        const data = roundValues_(this._data, key, this._options.fractionDigits)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    replaceValues(key: string, oldValue: string, newValue: string, method: "entireString" | "partialString") {
-        const data = replaceValues_(this._data, key, oldValue, newValue, method)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    sortValues(key: string, order: "ascending" | "descending") {
-        const data = sortValues_(this._data, key, order)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    addQuantiles(key: string, newKey: string, nbQuantiles: number) {
-        const data = addQuantiles_(this._data, key, newKey, nbQuantiles, this._options.logs)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    addBins(key: string, newKey: string, nbBins: number) {
-        const data =  addBins_(this._data, key, newKey, nbBins, this._options.logs)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    addOutliers(key: string, newKey: string) {
-        const data = addOutliers_(this._data, key, newKey, this._options.logs)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    excludeOutliers(key: string) {
-        const data = excludeOutliers_(this._data, key, this._options.logs)
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    correlation(key1?: string, key2?: string) {
-        const data = correlation_(
-            this._data,
-            this._options.logs,
-            this._options.fractionDigits,
-            this._options.nbValuesTestedForTypeOf, 
-            key1,
-            key2,
-        )
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    addItems(dataToBeAdded: SimpleDataItem[]) {
-        const data = addItems_(
-            this._data, 
-            dataToBeAdded, 
-            this._options.logs,
-            this._options.fractionDigits
-        )
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    mergeItems(dataToBeMerged: SimpleDataItem[], commonKey: string) {
-        const data = mergeItems_(
-            this._data,
-            dataToBeMerged,
-            commonKey,
-            this._options.logs,
-            this._options.nbValuesTestedForTypeOf
-        )
-        this.#updateSimpleData(data)
-        return this
-    }
-
-    @logInfos()
-    summarize(value?: string, key?: string, summary?: any, weight?: string) {
+    @logCall()
+    summarize({
+        value,
+        key,
+        summary,
+        weight,
+        overwrite = false,
+        nbDigits = 1,
+        nbValuesTestedForTypeOf = 1000
+    }: {
+        value?: string,
+        key?: string,
+        summary?: any,
+        weight?: string,
+        overwrite?: boolean,
+        nbDigits?: number,
+        nbValuesTestedForTypeOf?: number
+    } = {}): SimpleData {
         const data = summarize_(
             this._data,
             value === undefined ? this._keys : value,
             key,
             summary,
             weight,
-            this._options.logs, 
-            this._options.nbValuesTestedForTypeOf, 
-            this._options.fractionDigits
+            this._verbose,
+            nbValuesTestedForTypeOf,
+            nbDigits
         )
-        this.#updateSimpleData(data)
+        overwrite && this.#updateSimpleData(data)
         return this
     }
 
-    @logInfos()
-    saveData(path: string) {
-        saveData_(
-            this._data, 
-            path, 
-            this._options.logs, 
-            this._options.encoding,  
-            this._options.environment
+    @logCall()
+    correlation({ 
+        key1, 
+        key2, 
+        overwrite = false, 
+        nbDigits = 1, 
+        nbValuesTestedForTypeOf = 1000 
+    }: { 
+        key1?: string, 
+        key2?: string,  
+        overwrite?: boolean, 
+        nbDigits?: number, 
+        nbValuesTestedForTypeOf?: number
+    } = {}): SimpleData {
+        const data = correlation_(
+            this._data,
+            this._verbose,
+            nbDigits,
+            nbValuesTestedForTypeOf,
+            key1,
+            key2,
         )
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    excludeMissingValues({ 
+        key, 
+        missingValues, 
+        overwrite = true 
+    }: { 
+        key?: string, 
+        missingValues?: any[], 
+        overwrite?: boolean 
+    } = {}): SimpleData {
+        if (missingValues === undefined) {
+            missingValues = [null, NaN, undefined, ""]
+        }
+        const data = excludeMissingValues_(
+            this.data,
+            key,
+            missingValues,
+            this._verbose
+        )
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    renameKey({ oldKey, newKey, overwrite = true }: { oldKey: string, newKey: string, overwrite?: boolean }): SimpleData {
+        const data = renameKey_(this._data, oldKey, newKey)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    removeKey({ key, overwrite = true }: { key: string, overwrite?: boolean }): SimpleData {
+        const data = removeKey_(this._data, key)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    addKey({ key, func, overwrite = true }: { key: string, func: (item: any) => any, overwrite?: boolean }): SimpleData {
+        const data = addKey_(this._data, key, func)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    selectKeys({ keys, overwrite = true }: { keys: string[], overwrite?: boolean }): SimpleData {
+        const data = selectKeys_(this._data, keys)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    modifyValues({ key, func, overwrite = true }: { key: string, func: (val: any) => any, overwrite?: boolean }): SimpleData {
+        const data = modifyValues_(this._data, key, func)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    modifyItems({ key, func, overwrite = true }: { key: string, func: (item: any) => any, overwrite?: boolean }): SimpleData {
+        const data = modifyItems_(this._data, key, func)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    formatAllKeys({ overwrite = true } : { overwrite?: boolean } = {}): SimpleData {
+        const data = formatAllKeys_(this._data, this._verbose)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    valuesToString({ key, overwrite = true }: { key: string, overwrite?: boolean }): SimpleData {
+        const data = valuesToString_(this._data, key)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    valuesToInteger({ key, overwrite = true }: { key: string, overwrite?: boolean }): SimpleData {
+        const data = valuesToInteger_(this._data, key)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    valuesToFloat({ key, overwrite = true }: { key: string, overwrite?: boolean }): SimpleData {
+        const data = valuesToFloat_(this._data, key)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    valuesToDate({ key, format, overwrite = true }: { key: string, format: string, overwrite?: boolean }): SimpleData {
+        const data = valuesToDate_(this._data, key, format)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    datesToString({ key, format, overwrite = true }: { key: string, format: string, overwrite?: boolean }): SimpleData {
+        const data = datesToString_(this._data, key, format)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    filterValues({ key, func, overwrite = true }: { key: string, func: (val: any) => any, overwrite?: boolean }): SimpleData {
+        const data = filterValues_(this._data, key, func, this._verbose)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    filterItems({ func, overwrite = true }: { func: (val: any) => any, overwrite?: boolean }): SimpleData {
+        const data = filterItems_(this._data, func, this._verbose)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    roundValues({ key, nbDigits = 1, overwrite = true }: { key: string, nbDigits?: number, overwrite?: boolean }): SimpleData {
+        const data = roundValues_(this._data, key, nbDigits)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    replaceValues({ 
+        key, 
+        oldValue, 
+        newValue, 
+        method = "entireString", 
+        overwrite = true
+    }: { 
+        key: string, 
+        oldValue: string, 
+        newValue: string, 
+        method: "entireString" | "partialString", 
+        overwrite?: boolean 
+    }): SimpleData {
+        const data = replaceValues_(this._data, key, oldValue, newValue, method)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    sortValues({ 
+        key, 
+        order, 
+        overwrite = true 
+    }: { 
+        key: string, 
+        order: "ascending" | "descending", 
+        overwrite?: boolean
+     }): SimpleData {
+        const data = sortValues_(this._data, key, order)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    addQuantiles({ 
+        key, 
+        newKey, 
+        nbQuantiles, 
+        overwrite = true 
+    }: { 
+        key: string, 
+        newKey: string, 
+        nbQuantiles: number, 
+        overwrite?: boolean 
+    }): SimpleData {
+        const data = addQuantiles_(this._data, key, newKey, nbQuantiles, this._verbose)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    addBins({ 
+        key, 
+        newKey, 
+        nbBins, 
+        overwrite = true 
+    }: { 
+        key: string, 
+        newKey: string, 
+        nbBins: number, 
+        overwrite?: boolean 
+    }): SimpleData {
+        const data = addBins_(this._data, key, newKey, nbBins, this._verbose)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    addOutliers({ 
+        key, 
+        newKey, 
+        overwrite = true 
+    }: { 
+        key: string, 
+        newKey: string, 
+        overwrite?: boolean 
+    }): SimpleData {
+        const data = addOutliers_(this._data, key, newKey, this._verbose)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    excludeOutliers({ key, overwrite = true }: { key: string, overwrite?: boolean }): SimpleData {
+        const data = excludeOutliers_(this._data, key, this._verbose)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    addItems({ 
+        dataToBeAdded, 
+        nbDigits = 1, 
+        overwrite = true 
+    }: { 
+        dataToBeAdded: SimpleDataItem[], 
+        nbDigits?: number, 
+        overwrite?: boolean 
+    }): SimpleData {
+        const data = addItems_(
+            this._data,
+            dataToBeAdded,
+            this._verbose,
+            nbDigits
+        )
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    mergeItems({ 
+        dataToBeMerged, 
+        commonKey, 
+        nbValuesTestedForTypeOf = 1000, 
+        overwrite = true 
+    }: { 
+        dataToBeMerged: SimpleDataItem[], 
+        commonKey: string, 
+        nbValuesTestedForTypeOf?: 
+        number, overwrite?: boolean 
+    }): SimpleData {
+        const data = mergeItems_(
+            this._data,
+            dataToBeMerged,
+            commonKey,
+            this._verbose,
+            nbValuesTestedForTypeOf
+        )
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    saveData({ path, encoding = "utf8" }: { path: string, encoding?: BufferEncoding }): SimpleData {
+        saveData_(
+            this._data,
+            path,
+            this._verbose,
+            encoding,
+            this._environment
+        )
+
         return this
     }
 
@@ -387,10 +516,12 @@ export default class SimpleData {
     //     return chart
     // }
 
-    @logInfos()
-    showTable() {
+
+    @logCall()
+    showTable({ nbItemInTable = 5 }: { nbItemInTable: "all" | number }): SimpleData {
         // TODO: test this!
-        showTable_(this._data, this._options.nbItemInTable)
+        showTable_(this._data, nbItemInTable)
+
         return this
     }
 
