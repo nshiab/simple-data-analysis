@@ -1,11 +1,11 @@
-import { SimpleData, SimpleDocument } from "../../src/index.js"
+import { SimpleData, SimpleDocument, Table } from "../../src/index.js"
 import React from "react"
 import { Typography } from "@mui/material"
 import { temporaryDirectory } from 'tempy'
 
 const simpleData = new SimpleData([
-    { name: "Nael", job: "Producer" },
-    { name: "Isabelle", job: "Data scientist" }],
+    { name: "Nael", job: "Producer", variable1: 345, variable2: 56 },
+    { name: "Isabelle", job: "Data scientist", variable1: 123, variable2: 432 }],
     {
         encoding: "utf8",
         logs: false,
@@ -22,14 +22,13 @@ const simpleData = new SimpleData([
 
 simpleData.showTable()
 
-const simpleDocument = new SimpleDocument()
-    .add(<h1>Titre super cool</h1>)
-    .add(<p>Du contenu extraordinaire</p>)
-    .add(<Typography>Une composante mui!</Typography>)
-    .add(simpleData)
-
 const tempDir = temporaryDirectory()
 
-simpleDocument
+const simpleDocument = new SimpleDocument()
+    .add(<h1>Basic HTML element</h1>)
+    .add(<p style={{ color: "Red" }}>Much <span style={{ backgroundColor: "blue", fontWeight: "bold" }}>fancier</span> html element</p>)
+    .add(<Typography>A MUI component!</Typography>)
+    .add(<Table columns={simpleData.keys} rows={simpleData.data} />)
+    .add(simpleData.saveChart("../DocumentChart1.html", "dot", "variable1", "variable2", "job"))
     .saveDocument(`${tempDir}/analysis.html`)
     .saveDocument(`${tempDir}/analysis.js`)

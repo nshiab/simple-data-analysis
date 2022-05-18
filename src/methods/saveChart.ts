@@ -42,7 +42,7 @@ export default function saveChart(data: SimpleDataItem[], path: string, type: "d
         }
     }
 
-    getPlotHtmlAndWrite(plotOptions, path, options)
+    const chart = getPlotHtmlAndWrite(plotOptions, path, options)
 
-    return data
+    return chart
 }

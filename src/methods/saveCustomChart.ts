@@ -10,7 +10,7 @@ export default function saveCustomChart(data: SimpleDataItem[], path: string, pl
         throw new Error("For the moment, you can only export charts with file extension .html")
     }
 
-    getPlotHtmlAndWrite(plotOptions, path, options)
+    const chart = getPlotHtmlAndWrite(plotOptions, path, options)
 
-    return data
+    return chart
 }

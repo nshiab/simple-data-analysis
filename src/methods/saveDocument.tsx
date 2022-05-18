@@ -38,11 +38,18 @@ export default async function saveDocument(components: any[], path: string) {
     throw new Error("Your analysis must be saved into an html or js file.")
   }
 
-  const html = ReactDOMServer.renderToString(
-    <div>
-      {...components}
-    </div>
-  )
+  let html = "<div id='simpleDataAnalysisDocument' style='width:100%;max-width:600px;margin-left:auto;margin-right:auto;'>"
+
+  for (const component of components) {
+    if (typeof component === "string") {
+      html += component
+    } else {
+      html += ReactDOMServer.renderToString(component)
+    }
+  }
+
+
+  html += "</div>"
 
   if (extension === "html") {
     fs.writeFileSync(path, renderFullPage(html))

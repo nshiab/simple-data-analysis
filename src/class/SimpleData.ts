@@ -403,10 +403,11 @@ export default class SimpleData {
         return this
     }
 
-    saveChart(path: string, type: "points", x: any[], y: any[], color?: string, options?: Options) {
+    saveChart(path: string, type: "dot" | "line" | "bar" | "box", x: string, y: string, color?: string, options?: Options) {
         // We deal with the parameters manually to deal with optional arguments
         // We don't update data
-        this.#apply(
+        // This function return svg or html
+        const chart = this.#apply(
             saveChart_,
             path,
             type,
@@ -415,19 +416,20 @@ export default class SimpleData {
             color,
             options === undefined ? this._defaultOptions : options
         )
-        return this
+        return chart
     }
 
     saveCustomChart(path: string, observablePlot: any, options?: Options) {
         // We deal with the parameters manually to deal with optional arguments
         // We don't update data
-        this.#apply(
+        // This function return svg or html
+        const chart = this.#apply(
             saveCustomChart_,
             path,
             observablePlot,
             options === undefined ? this._defaultOptions : options
         )
-        return this
+        return chart
     }
 
     showTable(...args: any[]) {
