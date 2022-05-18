@@ -1,5 +1,6 @@
 import { loadData, SimpleData } from "../../dist/index.js"
-import { temporaryDirectory } from 'tempy'
+import { temporaryDirectoryTask } from 'tempy'
+import * as Plot from "@observablehq/plot"
 
 const simpleData = await loadData({
     path: "data/employees.csv", 
@@ -127,31 +128,28 @@ simpleData
     .summarize({value: "salary", key: "job", summary: ["mean", "median"]})
     .summarize({value: "salary", key: "job", summary: "weightedMean", weight: "bonus"})
 
-const tempDir = temporaryDirectory()
 
-simpleData
-    .saveData(`${tempDir}/integrationTest.csv`)
-    .saveData(`${tempDir}/integrationTest.json`)
+temporaryDirectoryTask((tempDir) => {
+    simpleData
+        .saveData({path: `${tempDir}/integrationTest.csv`})
+        .saveData({path: `${tempDir}/integrationTest.json`})
 
-simpleData.saveChart(`${tempDir}/dot1.html`, "dot", "salary", "bonus")
-simpleData.saveChart(`${tempDir}/dot2.html`, "dot", "salary", "bonus", "job")
+    simpleData.saveChart({path: `${tempDir}/dot1.html`, type: "dot", x: "salary", y: "bonus"})
+    simpleData.saveChart({path: `${tempDir}/dot2.html`, type: "dot", x: "salary", y: "bonus", color: "job"})
 
-simpleData.valuesToDate("hireDate", "%Y-%m-%d")
+    simpleData.valuesToDate({key: "hireDate", format: "%Y-%m-%d"})
 
-simpleData.saveChart(`${tempDir}/line1.html`, "line", "hireDate", "salary")
-simpleData.saveChart(`${tempDir}/line2.html`, "line", "hireDate", "salary", "unit")
-simpleData.saveChart(`${tempDir}/bar1.html`, "bar", "unit", "salary")
-simpleData.saveChart(`${tempDir}/bar2.html`, "bar", "unit", "salary", "unit")
-simpleData.saveChart(`${tempDir}/box1.html`, "box", "unit", "salary")
-simpleData.saveChart(`${tempDir}/box2.html`, "box", "unit", "salary", "unit")
+    simpleData.saveChart({path: `${tempDir}/line1.html`, type: "line", x: "hireDate", y: "salary"})
+    simpleData.saveChart({path: `${tempDir}/line2.html`, type: "line", x: "hireDate", y: "salary", color: "unit"})
+    simpleData.saveChart({path: `${tempDir}/bar1.html`, type: "bar", x: "unit", y: "salary"})
+    simpleData.saveChart({path: `${tempDir}/bar2.html`, type: "bar", x: "unit", y: "salary", color: "unit"})
+    simpleData.saveChart({path: `${tempDir}/box1.html`, type: "box", x: "unit", y: "salary"})
+    simpleData.saveChart({path: `${tempDir}/box2.html`, type: "box", x: "unit", y: "salary", color: "unit"})
 
-
-import * as Plot from "@observablehq/plot"
-
-simpleData
-    .saveCustomChart(
-        `${tempDir}/customChart.html`,
-        {
+    simpleData
+    .saveCustomChart({
+        path: `${tempDir}/customChart.html`,
+        plotOptions: {
             grid: true,
             facet: {
                 data: simpleData.data,
@@ -161,16 +159,5 @@ simpleData
                 Plot.dotX(simpleData.data, { x: "salary", fill: "unit" })
             ]
         }
-    )
-temporaryDirectoryTask((tempDir) => {
-    simpleData
-        .saveData(`${tempDir}/integrationTest.csv`)
-        .saveData(`${tempDir}/integrationTest.json`)
-
-
-temporaryDirectoryTask((tempDir) => {
-    simpleData
-        .saveData({path: `${tempDir}/integrationTest.csv`})
-        .saveData({path: `${tempDir}/integrationTest.json`})
+    })
 })
-

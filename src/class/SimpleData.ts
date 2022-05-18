@@ -34,9 +34,9 @@ import saveData_ from "../methods/saveData.js"
 import saveChart_ from "../methods/saveChart.js"
 import saveCustomChart_ from "../methods/saveCustomChart.js"
 import checkKeys from "../helpers/checkKeys.js"
-import { SimpleDataItem, Options, partialOptions, defaultOptions } from "../types/SimpleData.types"
 import logCall from "../helpers/logCall.js"
 import checkEnvironment from "../helpers/checkEnvironment.js"
+import { SimpleDataItem } from "../types/SimpleData.types"
 
 
 export default class SimpleData {
@@ -487,35 +487,19 @@ export default class SimpleData {
         return this
     }
 
-    // saveChart(path: string, type: "dot" | "line" | "bar" | "box", x: string, y: string, color?: string, options?: Options) {
-    //     // We deal with the parameters manually to deal with optional arguments
-    //     // We don't update data
-    //     // This function return svg or html
-    //     const chart = this.#apply(
-    //         saveChart_,
-    //         path,
-    //         type,
-    //         x,
-    //         y,
-    //         color,
-    //         options === undefined ? this._defaultOptions : options
-    //     )
-    //     return chart
-    // }
+    @logCall()
+    saveChart({path, type, x, y, color}: {path: string, type: "dot" | "line" | "bar" | "box", x: string, y: string, color?: string}) {
+        const chart = saveChart_(this._data, path, type, x, y, color, this._verbose)
 
-    // saveCustomChart(path: string, observablePlot: any, options?: Options) {
-    //     // We deal with the parameters manually to deal with optional arguments
-    //     // We don't update data
-    //     // This function return svg or html
-    //     const chart = this.#apply(
-    //         saveCustomChart_,
-    //         path,
-    //         observablePlot,
-    //         options === undefined ? this._defaultOptions : options
-    //     )
-    //     return chart
-    // }
+        return chart
+    }
 
+    @logCall()
+    saveCustomChart({path, plotOptions}: {path: string, plotOptions: any}) {
+        const chart = saveCustomChart_(this._data, path, plotOptions, this._verbose)
+
+        return chart
+    }
 
     @logCall()
     showTable({ nbItemInTable = 5 }: { nbItemInTable: "all" | number }): SimpleData {
