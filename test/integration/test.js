@@ -1,4 +1,5 @@
-import { loadData, SimpleData } from "../../dist/index.js"
+import React from "react"
+import { loadData, SimpleData, SimpleDocument } from "../../dist/index.js"
 import { temporaryDirectory } from 'tempy'
 
 const simpleData = await loadData("data/employees.csv")
@@ -135,16 +136,17 @@ simpleData
     .saveData(`${tempDir}/integrationTest.csv`)
     .saveData(`${tempDir}/integrationTest.json`)
 
-simpleData
-    .saveChart(`${tempDir}/dot1.html`, "dot", "salary", "bonus")
-    .saveChart(`${tempDir}/dot2.html`, "dot", "salary", "bonus", "job")
-    .valuesToDate("hireDate", "%Y-%m-%d")
-    .saveChart(`${tempDir}/line1.html`, "line", "hireDate", "salary")
-    .saveChart(`${tempDir}/line2.html`, "line", "hireDate", "salary", "unit")
-    .saveChart(`${tempDir}/bar1.html`, "bar", "unit", "salary")
-    .saveChart(`${tempDir}/bar2.html`, "bar", "unit", "salary", "unit")
-    .saveChart(`${tempDir}/box1.html`, "box", "unit", "salary")
-    .saveChart(`${tempDir}/box2.html`, "box", "unit", "salary", "unit")
+simpleData.saveChart(`${tempDir}/dot1.html`, "dot", "salary", "bonus")
+simpleData.saveChart(`${tempDir}/dot2.html`, "dot", "salary", "bonus", "job")
+
+simpleData.valuesToDate("hireDate", "%Y-%m-%d")
+
+simpleData.saveChart(`${tempDir}/line1.html`, "line", "hireDate", "salary")
+simpleData.saveChart(`${tempDir}/line2.html`, "line", "hireDate", "salary", "unit")
+simpleData.saveChart(`${tempDir}/bar1.html`, "bar", "unit", "salary")
+simpleData.saveChart(`${tempDir}/bar2.html`, "bar", "unit", "salary", "unit")
+simpleData.saveChart(`${tempDir}/box1.html`, "box", "unit", "salary")
+simpleData.saveChart(`${tempDir}/box2.html`, "box", "unit", "salary", "unit")
 
 
 import * as Plot from "@observablehq/plot"
