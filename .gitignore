@@ -1,5 +1,5 @@
 node_modules
 dist/
 .DS_Store
-statsBrowser.html
-statsNodeJS.html
+bundleSizeBrowser.html
+bundleSizeNodeJS.html

@@ -33,7 +33,7 @@ export default [
 		plugins: [
 			...commonPlugins,
 			visualizer((opts) => {
-				return { gzipSize: true, filename: "statsNodeJS.html" }
+				return { gzipSize: true, filename: "bundleSizeNodeJS.html" }
 			})
 		]
 	},
@@ -50,7 +50,7 @@ export default [
 			...commonPlugins,
 			terser(),
 			visualizer((opts) => {
-				return { gzipSize: true, filename: "statsBrowser.html" }
+				return { gzipSize: true, filename: "bundleSizeBrowser.html" }
 			})
 		]
 	}
