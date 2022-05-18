@@ -8,14 +8,17 @@ These project's goals are:
 
 We are always trying to improve it. Feel free to start a conversation or open an issue. Pull requests are welcome as well!
 
+If you don't want to read everything below, go check the /examples.
+
 # Table of contents
 
 1. [Core principles](#core-principles)
 2. [Easiest way to use](#the-easiest-way-to-use-the-library)
 3. [Importing from HTML](#importing-from-the-html)
 4. [NodeJS and JavaScript bundlers](#working-with-nodejs--javascript-bundlers)
-5. [SimpleDocument (experimental)](#simpledocument-experimental-for-nodejs-only)
-6. [All functions and methods](#all-functions-and-methods-available)
+5. [SimpleData](#simpledata)
+6. [SimpleDocument (experimental)](#simpledocument-experimental-for-nodejs-only)
+7. [All functions and methods](#all-functions-and-methods-available)
 
 ## Core principles
 
@@ -26,6 +29,8 @@ The library expects **tabular data** stored in CSV files or **arrays of objects*
 2. Every row (or item) is an observation
 
 3. Every cell (or value) is a single value
+
+For more about tidy data, you can read [this great article](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html).
 
 ## The easiest way to use the library
 
@@ -81,11 +86,45 @@ import * as sda from "simple-data-analysis"
 const simpleData = sda.createSimpleData(someData)
 ```
 
+## SimpleData
+
+The SimpleData class is at the core of the library. It allows you to store and manipulate your data easily by chaining commands.
+
+```js
+import {createSimpleData} from "simple-data-analysis"
+
+const simpleData = createSimpleData(someData)
+
+simpleData.renameKey()
+.valuesToFloat()
+.addQuantiles()
+.filterValues()
+// TOFINSH when pull request merged. Show chaining.
+```
+
+The SimpleData class can also generate charts based on the [Observable Plot](https://observablehq.com/@observablehq/plot) library.
+
+In the browser, you can insert the chart where needed.
+```js
+document.querySelector("#someDiv").innerHTML =  simpleData.makeChart() // TODO when pull request merged.
+```
+
+With NodeJS, you can save the chart in a file.
+```js
+simpleData.saveChart() // TODO when pull request merged.
+```
+
+With NodeJS, you can also save your data easily.
+
+```js
+simpleData.saveData() // TODO when pull request merged.
+```
+
 ## SimpleDocument (experimental, for NodeJS only)
 
 While working on your analysis, it's sometimes helpful to build a document that you'll be able to share with your results.
 
-The SimpleDocument allows you to do that. You can pass JSX expressions, React components and SVG to it and it will render everything as an HTML file or React component.
+The SimpleDocument allows you to do that. You can pass JSX expressions, React components and SVG to it, and it will render everything as an HTML file or React component.
 
 Note that this class is still under heavy development.
 
