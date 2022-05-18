@@ -2,22 +2,22 @@ import React from "react"
 import { Table, TableContainer, Paper, TableHead, TableCell, TableRow, TableBody } from "@mui/material"
 
 interface Props {
-    columns: any[],
-    rows: any[]
+    keys: string[],
+    data: { [key: string]: any }[]
 }
 
-export default function T({ rows, columns }: Props) {
+export default function T({ keys, data }: Props) {
 
     return <TableContainer component={Paper}>
         <Table>
             <TableHead>
                 <TableRow>
-                    {columns.map(d => <TableCell key={d}>{d}</TableCell>)}
+                    {keys.map(d => <TableCell key={d}>{d}</TableCell>)}
                 </TableRow>
             </TableHead>
             <TableBody>
-                {rows.map((d, i) => <TableRow key={"tb-" + i}>
-                    {columns.map((key, j) => <TableCell key={"tc-" + i + "-" + j}>{d[key]}</TableCell>)}
+                {data.map((d, i) => <TableRow key={"tb-" + i}>
+                    {keys.map((key, j) => <TableCell key={"tc-" + i + "-" + j}>{d[key]}</TableCell>)}
                 </TableRow>)}
             </TableBody>
         </Table>
