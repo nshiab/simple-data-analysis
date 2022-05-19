@@ -18,7 +18,7 @@ temporaryDirectoryTask((tempDir) => {
         .add({ component: <p style={{ color: "Red" }}>Much <span style={{ backgroundColor: "blue", fontWeight: "bold" }}>fancier</span> html element</p> })
         .add({ component: <Typography>A MUI component!</Typography> })
         .add({ component: <Table keys={simpleData.keys} data={simpleData.data} /> })
-        .add({ component: simpleData.saveChart({ path: "../DocumentChart1.html", type: "dot", x: "variable1", y: "variable2", color: "job" }) })
+        .add({ component: simpleData.saveChart({ path: `${tempDir}/DocumentChart1.html`, type: "dot", x: "variable1", y: "variable2", color: "job" }) })
         .saveDocument({ path: `${tempDir}/analysis.html` })
         .saveDocument({ path: `${tempDir}/analysis.js` })
 })
