@@ -504,14 +504,14 @@ export default class SimpleData {
     }
 
     @logCall()
-    saveChart({ path, type, x, y, color }: { path: string, type: "dot" | "line" | "bar" | "box", x: string, y: string, color?: string }) {
+    saveChart({ path, type, x, y, color }: { path: string, type: "dot" | "line" | "bar" | "box", x: string, y: string, color?: string }): string {
         const chart = saveChart_(this._data, path, type, x, y, color, this.verbose)
 
         return chart
     }
 
     @logCall()
-    saveCustomChart({ path, plotOptions }: { path: string, plotOptions: any }) {
+    saveCustomChart({ path, plotOptions }: { path: string, plotOptions: any }): string {
         const chart = saveCustomChart_(this._data, path, plotOptions, this.verbose)
 
         return chart

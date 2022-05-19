@@ -3,7 +3,7 @@ import fs from "fs"
 import log from "./log.js"
 import { plot } from "@observablehq/plot"
 
-export default function getPlotHtmlAndWrite(plotOptions: any, path: string, verbose?: boolean) {
+export default function getPlotHtmlAndWrite(plotOptions: { [key: string]: any }, path: string, verbose?: boolean): string {
 
     verbose && log(plotOptions)
 

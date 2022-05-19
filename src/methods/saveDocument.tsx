@@ -31,7 +31,7 @@ function renderReactComponent(html: string) {
 }
 
 
-export default async function saveDocument(components: any[], path: string) {
+export default async function saveDocument(components: (JSX.Element | string)[], path: string) {
 
   const extension = getExtension(path)
   if (!["html", "js"].includes(extension)) {
