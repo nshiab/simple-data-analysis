@@ -8,9 +8,9 @@ import hasKey from "../helpers/hasKey.js"
 export default function summarize(
     data: SimpleDataItem[],
     keyValue: string | string[],
-    keyCategories: string | string[] | undefined,
-    summary: string | string[] | undefined,
-    weight: string | undefined,
+    keyCategories?: string | string[],
+    summary?: string | string[],
+    weight?: string,
     verbose: boolean,
     nbValuesTested: number,
     nbDigits: number
