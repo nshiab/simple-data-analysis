@@ -37,7 +37,7 @@
         "integrationTest": "npx tsc && node test/integration/test.js",
         "lint": "eslint . --ext .ts",
         "allTests": "npm run test && npm run integrationTest && npm run integrationDocumentTest && npm run lint",
-        "build": "npm run allTests && rm -rf dist && npx tsc && rollup --config"
+        "build": "npm run allTests && rm -rf dist && rollup --config"
     },
     "engines": {
         "node": ">=16.0"

@@ -16,7 +16,7 @@ export default function correlation(
 
     if (key1 === undefined && key2 === undefined) {
 
-        const keys = Object.keys(data[0]).filter(d => typeof d === "number")
+        const keys = Object.keys(data[0]).filter(d => checkTypeOfKey(data, d, "number", 1, verbose, nbTestedValues))
         const combi = combinations(keys, 2)
 
         for (const c of combi) {

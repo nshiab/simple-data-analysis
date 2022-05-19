@@ -12,6 +12,17 @@ describe('SimpleData', function () {
         assert.equal(data, simpleData.data)
     })
 
+    it("should modify public class attributes", function () {
+        const data = [{ patate: 1, poil: 2 }]
+        const simpleData = new SimpleData(data)
+        simpleData.verbose = true
+        simpleData.logParameters = true
+        simpleData.nbTableItemsToLog = 11
+        assert.equal(simpleData.verbose, true)
+        assert.equal(simpleData.logParameters, true)
+        assert.equal(simpleData.nbTableItemsToLog, 11)
+    })
+
     it("should clone", function () {
         const data = [{ patate: 1, poil: 2 }]
         const simpleData = new SimpleData(data)
@@ -142,7 +153,7 @@ describe('SimpleData', function () {
             { patate: 11 },
         ]
         const simpleData = new SimpleData(data)
-        simpleData.addKey({ key: "poil", func: item => item.patate * 2 })
+        simpleData.addKey({ key: "poil", valueGenerator: item => item.patate as number * 2 })
         assert.deepEqual(simpleData.data, [
             { patate: 1, poil: 2 },
             { patate: 11, poil: 22 }
@@ -168,7 +179,7 @@ describe('SimpleData', function () {
             { patate: 11 },
         ]
         const simpleData = new SimpleData(data)
-        simpleData.modifyValues({ key: "patate", func: item => item * 2 })
+        simpleData.modifyValues({ key: "patate", valueGenerator: item => item as number * 2 })
         assert.deepEqual(simpleData.data, [
             { patate: 2 },
             { patate: 22 },
@@ -181,7 +192,10 @@ describe('SimpleData', function () {
             { patate: 11, poil: 22 },
         ]
         const simpleData = new SimpleData(data)
-        simpleData.modifyItems({ key: "patate", func: item => item.patate + item.poil })
+        simpleData.modifyItems({ 
+            key: "patate", 
+            itemGenerator: item => (item.patate as number) + (item.poil as number)
+        })
         assert.deepEqual(simpleData.data, [
             { poil: 2, patate: 3 },
             { poil: 22, patate: 33 },
@@ -262,7 +276,7 @@ describe('SimpleData', function () {
             { patate: 11, poil: 22 },
         ]
         const simpleData = new SimpleData(data)
-        simpleData.filterValues({ key: "patate", func: val => val >= 10 })
+        simpleData.filterValues({ key: "patate", valueComparator: val => val as number >= 10 })
         assert.deepEqual(simpleData.data, [
             { patate: 11, poil: 22 },
         ])
@@ -275,7 +289,9 @@ describe('SimpleData', function () {
             { patate: 111, poil: 222 },
         ]
         const simpleData = new SimpleData(data)
-        simpleData.filterItems({ func: val => val.patate >= 10 && val.poil >= 200 })
+        simpleData.filterItems({ 
+            itemComparator: val => val.patate as number >= 10 && val.poil as number >= 200 
+        })
         assert.deepEqual(simpleData.data, [
             { patate: 111, poil: 222 },
         ])
@@ -401,7 +417,7 @@ describe('SimpleData', function () {
         simpleData.correlation({ key1: "patate", key2: "poil", overwrite: true })
         // TODO: is this the expected behaviour?    
         assert.deepEqual(simpleData.data, [{
-            correlation: -0.4,
+            correlation: -0.427,
             key1: "patate",
             key2: "poil"
         }])

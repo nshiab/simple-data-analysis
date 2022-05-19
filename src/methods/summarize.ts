@@ -8,7 +8,7 @@ import hasKey from "../helpers/hasKey.js"
 export default function summarize(
     data: SimpleDataItem[], 
     value: any, 
-    key: any, 
+    keyCategories: any, 
     summary: any, 
     weight: any, 
     verbose: boolean, 
@@ -20,30 +20,30 @@ export default function summarize(
 
     let keys: string[] = []
 
-    if (key === undefined) {
+    if (keyCategories === undefined) {
 
         verbose && log("No key provided. Data won't be grouped.")
 
-    } else if (Array.isArray(key)) {
+    } else if (Array.isArray(keyCategories)) {
 
-        for (const k of key) {
+        for (const k of keyCategories) {
             if (!hasKey(data[0], k)) {
                 throw new Error("No key " + k)
             }
         }
 
-        keys = key.filter(k => checkTypeOfKey(data, k, "string", 0.5, verbose, nbValuesTested))
+        keys = keyCategories.filter(k => checkTypeOfKey(data, k, "string", 0.5, verbose, nbValuesTested))
 
-    } else if (typeof key === "string") {
+    } else if (typeof keyCategories === "string") {
 
-        if (!hasKey(data[0], key)) {
-            throw new Error("No key " + key)
+        if (!hasKey(data[0], keyCategories)) {
+            throw new Error("No key " + keyCategories)
         }
-        if (!checkTypeOfKey(data, key, "string", 0.5, verbose, nbValuesTested)) {
+        if (!checkTypeOfKey(data, keyCategories, "string", 0.5, verbose, nbValuesTested)) {
             throw new Error("The key values should be of type string")
         }
 
-        keys = [key]
+        keys = [keyCategories]
 
     } else {
         throw new Error("key must be either a string or an array of string")
@@ -129,7 +129,7 @@ export default function summarize(
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             const funcResults = flatRollup(data, func, ...keysFunc)
-            const results = key === "no key" || keys.length === 0 ? [[funcResults]] : funcResults
+            const results = keyCategories === "no key" || keys.length === 0 ? [[funcResults]] : funcResults
 
             // We structure the results to have an array of objects with the value
 

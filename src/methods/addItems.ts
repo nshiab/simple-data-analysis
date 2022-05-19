@@ -3,7 +3,7 @@ import isEqual from "lodash.isequal"
 import log from "../helpers/log.js"
 import SimpleData from "../class/SimpleData.js"
 
-export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDataItem[], verbose: boolean, numDigits: number): SimpleDataItem[] {
+export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDataItem[], verbose: boolean): SimpleDataItem[] {
 
     let newData
 
@@ -34,7 +34,7 @@ export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDa
         throw Error("dataToBeAdded needs to be an array of objects or a SimpleData prototype")
     }
 
-    verbose && log(`/!\\ ${newData.length - data.length} items added. Number of items increased by ${((newData.length - data.length) / data.length * 100).toFixed(numDigits)}%`, "bgRed")
+    verbose && log(`/!\\ ${newData.length - data.length} items added. Number of items increased by ${((newData.length - data.length) / data.length * 100).toFixed(1)}%`, "bgRed")
 
     return newData
 }
