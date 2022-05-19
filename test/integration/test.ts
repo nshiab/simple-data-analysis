@@ -4,8 +4,8 @@ import * as Plot from "@observablehq/plot"
 
 const simpleData = new SimpleData({ path: "./data/employees.csv", verbose: true, logParameters: true })
 
-console.log(simpleData.data)
-console.log(simpleData.keys)
+simpleData.getData()
+simpleData.getKeys()
 
 simpleData.getArray({ key: "Name" })
 simpleData.getUniqueValues({ key: "Job" })
@@ -135,7 +135,7 @@ simpleData
     .correlation()
     .correlation({ key1: "salary", key2: "bonus" })
     .summarize()
-    .summarize({ keyValue: simpleData.keys, keyCategory: "job" })
+    .summarize({ keyValue: simpleData.getKeys(), keyCategory: "job" })
     .summarize({ keyValue: "salary", keyCategory: ["job", "unit"] })
     .summarize({ keyValue: "salary", keyCategory: "job", summary: "mean" })
     .summarize({ keyValue: "salary", summary: "mean" })
@@ -166,11 +166,11 @@ temporaryDirectoryTask((tempDir) => {
             plotOptions: {
                 grid: true,
                 facet: {
-                    data: simpleData.data,
+                    data: simpleData.getData(),
                     y: "unit"
                 },
                 marks: [
-                    Plot.dotX(simpleData.data, { x: "salary", fill: "unit" })
+                    Plot.dotX(simpleData.getData(), { x: "salary", fill: "unit" })
                 ]
             }
         })

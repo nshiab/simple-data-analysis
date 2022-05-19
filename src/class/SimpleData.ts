@@ -36,8 +36,8 @@ import saveCustomChart_ from "../methods/saveCustomChart.js"
 import checkKeys from "../helpers/checkKeys.js"
 import logCall from "../helpers/logCall.js"
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
-import loadLocalFile from "../functions/loadLocalFile.js"
-import loadUrl from "../functions/loadUrl.js"
+import loadDataFromLocalFile from "../functions/loadDataFromLocalFile.js"
+import loadDataFromUrl from "../functions/loadDataFromUrl.js"
 
 export default class SimpleData {
 
@@ -84,12 +84,8 @@ export default class SimpleData {
             throw new Error("SimpleData can be created with either data, url or path, but not a combination of them. Provide only one of them.")
         }
 
-        let incomingData: SimpleDataItem[] = []
-        if (data) {
-            incomingData = data
-        }
         if (path) {
-            incomingData = loadLocalFile({
+            data = loadDataFromLocalFile({
                 path: path,
                 verbose: verbose,
                 missingKeyValues: missingKeyValues,
@@ -97,43 +93,62 @@ export default class SimpleData {
             })
         }
         if (url) {
-            incomingData = loadUrl()
+            // data = loadDataFromUrl({
+            //     url: url,
+            //     verbose: verbose,
+            //     missingKeyValues: missingKeyValues,
+            //     encoding: encoding
+            // })
+            data = []
         }
 
-        if (incomingData.length > 0) {
-
-            checkKeys(incomingData)
-
-            this._data = incomingData
-            this._keys = incomingData[0] && Object.keys(incomingData[0])
-
-            this.verbose = verbose
-            this.logParameters = logParameters
-            this.nbTableItemsToLog = nbTableItemsToLog
-        } else {
+        if (!data) {
+            throw new Error("data is undefined")
+        }
+        if (data.length === 0) {
             throw new Error("Incoming data is empty.")
         }
 
-    }
+        checkKeys(data)
 
-    get data() {
-        return this._data
-    }
-
-    set data(data) {
         this._data = data
+        this._keys = Object.keys(data[0])
+
+        this.verbose = verbose
+        this.logParameters = logParameters
+        this.nbTableItemsToLog = nbTableItemsToLog
+
     }
 
-    get keys() {
-        return this._keys
-    }
-    set keys(keys) {
-        this._keys = keys === undefined ? [] : keys
-    }
+    // get data() {
+    //     return this._data
+    // }
+
+    // set data(data) {
+    //     console.log("what's up")
+    //     this._data = data
+    // }
+
+    // get keys() {
+    //     return this._keys
+    // }
+    // set keys(keys) {
+    //     this._keys = keys === undefined ? [] : keys
+    // }
 
     #updateSimpleData(data: SimpleDataItem[]) {
         this._data = data
         this._keys = data[0] === undefined ? [] : Object.keys(data[0])
+    }
+
+    @logCall()
+    getData(): SimpleDataItem[] {
+        return this._data
+    }
+
+    @logCall()
+    getKeys(): string[] {
+        return this._keys
     }
 
     @logCall()
@@ -145,21 +160,21 @@ export default class SimpleData {
 
     @logCall()
     getArray({ key }: { key: string }): SimpleDataValue[] {
-        const array = getArray_(this.data, key)
+        const array = getArray_(this._data, key)
 
         return array
     }
 
     @logCall()
     getUniqueValues({ key }: { key: string }): SimpleDataValue[] {
-        const uniqueValues = getUniqueValues_(this.data, key)
+        const uniqueValues = getUniqueValues_(this._data, key)
 
         return uniqueValues
     }
 
     @logCall()
     checkValues({ overwrite = false }: { overwrite?: boolean } = {}): SimpleData {
-        const data = checkValues_(this.data)
+        const data = checkValues_(this._data)
         overwrite && this.#updateSimpleData(data)
 
         return this
@@ -167,7 +182,7 @@ export default class SimpleData {
 
     @logCall()
     describe({ overwrite = false }: { overwrite?: boolean } = {}): SimpleData {
-        const data = describe_(this.data)
+        const data = describe_(this._data)
         overwrite && this.#updateSimpleData(data)
 
         return this
@@ -246,7 +261,7 @@ export default class SimpleData {
             missingValues = [null, NaN, undefined, ""]
         }
         const data = excludeMissingValues_(
-            this.data,
+            this._data,
             key,
             missingValues,
             this.verbose

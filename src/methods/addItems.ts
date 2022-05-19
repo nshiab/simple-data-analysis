@@ -19,7 +19,7 @@ export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDa
 
     } else if (dataToBeAdded instanceof SimpleData) {
 
-        const dataTBA = dataToBeAdded.data
+        const dataTBA = dataToBeAdded.getData()
 
         const keys1 = Object.keys(data[0]).sort()
         const keys2 = Object.keys(dataTBA[0]).sort()

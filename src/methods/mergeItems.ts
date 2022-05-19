@@ -13,7 +13,7 @@ export default function mergeItems(data: SimpleDataItem[], dataToBeMerged: Simpl
     let newData
 
     if (dataToBeMerged instanceof SimpleData) {
-        newData = dataToBeMerged.data
+        newData = dataToBeMerged.getData()
     } else {
         newData = dataToBeMerged
     }
