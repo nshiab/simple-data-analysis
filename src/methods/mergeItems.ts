@@ -1,12 +1,11 @@
 import log from "../helpers/log.js"
 import { SimpleDataItem } from "../types/SimpleData.types.js"
-import showTable from "./showTable.js"
 import SimpleData from "../class/SimpleData.js"
 import checkTypeOfKey from "../helpers/checkTypeOfKey.js"
 import percentage from "../helpers/percentage.js"
 import hasKey from "../helpers/hasKey.js"
 
-export default function mergeItems(data: SimpleDataItem[], dataToBeMerged: SimpleDataItem[], commonKey: string, verbose: boolean, nbValuesTested: number): SimpleDataItem[] {
+export default function mergeItems(data: SimpleDataItem[], dataToBeMerged: SimpleDataItem[] | SimpleData, commonKey: string, verbose: boolean, nbValuesTested: number): SimpleDataItem[] {
 
 
     verbose && log("\nmergeItems() " + commonKey)
@@ -14,7 +13,7 @@ export default function mergeItems(data: SimpleDataItem[], dataToBeMerged: Simpl
     let newData
 
     if (dataToBeMerged instanceof SimpleData) {
-        newData = dataToBeMerged.data
+        newData = dataToBeMerged.getData()
     } else {
         newData = dataToBeMerged
     }
@@ -53,7 +52,7 @@ export default function mergeItems(data: SimpleDataItem[], dataToBeMerged: Simpl
         throw new Error("Data has less items than dataToBeMerged.")
     }
 
-    const emptyItem: { [key: string]: any } = {}
+    const emptyItem: { [key: string]: undefined } = {}
     for (let i = 0; i < newDataKeys.length; i++) {
         emptyItem[newDataKeys[i]] = undefined
     }

@@ -2,11 +2,11 @@ import showTable from "../methods/showTable.js"
 import SimpleData from "../class/SimpleData.js"
 import log from "./log.js"
 
-export default function logCall(){
-    return function(_: unknown, key: string, descriptor: any){
+export default function logCall() {
+    return function (_: unknown, key: string, descriptor: any) {
         const wrappedFunc = descriptor.value
-        descriptor.value = function(...args: any[]){
-            if (this.verbose){
+        descriptor.value = function (...args: any[]) {
+            if (this.verbose) {
                 log("\n" + key + "()")
                 this.logParameters && log("parameters:")
                 this.logParameters && log(args)
@@ -17,11 +17,11 @@ export default function logCall(){
             const end = Date.now()
 
             if (this.verbose) {
-                const data = result instanceof SimpleData? result.data : result
+                const data = result instanceof SimpleData ? result.getData() : result
                 showTable(data, this.nbTableItemsToLog)
                 log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
             }
-            
+
             return result
         }
         return descriptor

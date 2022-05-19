@@ -1,31 +1,23 @@
-import SimpleData from "../class/SimpleData.js";
 import checkEnvironment from "../helpers/checkEnvironment.js";
 import log from "../helpers/log.js";
-import showTable from "../methods/showTable.js";
 import getExtension from "../helpers/getExtension.js";
+import fs from "fs"
+import Papa from "papaparse"
+import { SimpleDataItem } from "../types/SimpleData.types.js";
 
-
-export default async function loadData({
-    path, 
-    verbose = false, 
-    logParameters = false, 
-    nbTableItemsToLog = 5, 
-    missingValues,
+export default function loadLocalFile({
+    path,
+    verbose = false,
+    missingKeyValues,
     encoding = "utf8"
 }: {
-    path: string, 
-    verbose: boolean, 
-    logParameters: boolean, 
-    nbTableItemsToLog: number, 
-    missingValues? : {[key: string]: any},
+    path: string,
+    verbose: boolean,
+    missingKeyValues: SimpleDataItem,
     encoding: BufferEncoding
-}){
+}): SimpleDataItem[] {
 
-    if (missingValues === undefined){
-        missingValues = { "null": null, "NaN": NaN, "undefined": undefined }
-    }
-
-    let arrayOfObjects: any = []
+    let arrayOfObjects: any[] = []
 
     const environment = checkEnvironment()
 
@@ -35,28 +27,24 @@ export default async function loadData({
 
     if (environment === "nodejs") {
 
-        const fs = await import("fs")
-
         verbose && log('=> Running in NodeJS', "blue")
 
         if (fileExtension === "csv") {
 
             verbose && log('=> Csv file extension detected', "blue")
 
-            const Papa = (await import("papaparse")).default
-
             const csvString = fs.readFileSync(path, { encoding: encoding })
 
-            arrayOfObjects = Papa.parse(csvString, { header: true, dynamicTyping: true }).data
+            arrayOfObjects = Papa.parse(csvString, { header: true, dynamicTyping: true }).data as SimpleDataItem[]
 
             const keys = Object.keys(arrayOfObjects[0])
-            const missingValueKeys = Object.keys(missingValues)
+            const missingValueKeys = Object.keys(missingKeyValues)
 
             for (let i = 0; i < arrayOfObjects.length; i++) {
                 for (let j = 0; j < keys.length; j++) {
                     if (missingValueKeys.includes(arrayOfObjects[i][keys[j]])) {
                         const val = arrayOfObjects[i][keys[j]]
-                        arrayOfObjects[i][keys[j]] = missingValues[val]
+                        arrayOfObjects[i][keys[j]] = missingKeyValues[val]
                     }
                 }
             }
@@ -71,15 +59,7 @@ export default async function loadData({
             throw new Error("Unknown file extension " + fileExtension);
         }
 
-        verbose && showTable(arrayOfObjects, nbTableItemsToLog)
-
-        const simpleData = new SimpleData(arrayOfObjects, {
-            verbose, 
-            logParameters, 
-            nbTableItemsToLog
-    })
-
-        return simpleData
+        return arrayOfObjects
 
     } else if (environment === "webBrowser") {
 
@@ -87,5 +67,7 @@ export default async function loadData({
 
         throw new Error("Not implemented yet")
     }
+
+    return []
 
 }
