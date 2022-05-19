@@ -1,42 +1,43 @@
 import { loadData, SimpleData } from "../../dist/index.js"
-import { temporaryDirectory } from 'tempy'
+import { temporaryDirectoryTask } from 'tempy'
+import * as Plot from "@observablehq/plot"
 
-const simpleData = await loadData("data/employees.csv")
+const simpleData = await loadData({
+    path: "data/employees.csv", 
+    verbose: true, 
+    logParameters: true
+})
 
-simpleData.setDefaultOptions({ logs: true, logOptions: true, logParameters: true })
 
-// console.log(simpleData.data)
-// console.log(simpleData.keys)
-// console.log(simpleData.options)
-simpleData.getArray("Name")
-simpleData.getUniqueValues("Job")
+simpleData.getArray({key: "Name"})
+simpleData.getUniqueValues({key: "Job"})
 
 
 simpleData
-    .describe({ showDataNoOverwrite: true })
+    .describe()
     .formatAllKeys()
-    .renameKey("departementOrUnit", "unit")
-    .renameKey("endOfYearBonus", "bonus")
-    .checkValues({ showDataNoOverwrite: true })
-    .excludeMissingValues("name")
+    .renameKey({oldKey: "departementOrUnit", newKey: "unit"})
+    .renameKey({oldKey: "endOfYearBonus", newKey: "bonus"})
+    .checkValues()
+    .excludeMissingValues({key: "name"})
     .excludeMissingValues()
-    .addKey("firstName", item => item.name.split(",")[1].trim())
-    .removeKey("name")
-    .replaceValues("bonus", "%", "", "partialString")
-    .replaceValues("bonus", ",", ".", "partialString")
-    .valuesToFloat("bonus")
-    .modifyValues("bonus", val => val / 100)
-    .modifyItems("bonus", item => item.salary * item.bonus)
-    .roundValues("bonus", { fractionDigits: 2 })
-    .valuesToInteger("unit")
-    .valuesToString("unit")
-    .valuesToDate("hireDate", "%d-%b-%y")
-    .datesToString("hireDate", "%Y-%m-%d")
-    .filterValues("bonus", val => val >= 100)
-    .filterItems(item => item.hireDate > "2002-01-01" && item.unit !== "20")
-    .sortValues("salary", "descending")
-    .sortValues("bonus", "ascending")
-    .selectKeys(["firstName", "job", "bonus"], { showDataNoOverwrite: true })
+    .addKey({key: "firstName", valueGenerator: item => item.name.split(",")[1].trim()})
+    .removeKey({key: "name"})
+    .replaceValues({key: "bonus", oldValue: "%", newValue: "", method: "partialString"})
+    .replaceValues({key: "bonus", oldValue: ",", newValue: ".", method: "partialString"})
+    .valuesToFloat({key: "bonus"})
+    .modifyValues({key: "bonus", valueGenerator: val => val / 100})
+    .modifyItems({key: "bonus", itemGenerator: item => item.salary * item.bonus})
+    .roundValues({key: "bonus", nbDigits: 2 })
+    .valuesToInteger({key: "unit"})
+    .valuesToString({key: "unit"})
+    .valuesToDate({key: "hireDate", format: "%d-%b-%y"})
+    .datesToString({key: "hireDate", format: "%Y-%m-%d"})
+    .filterValues({key: "bonus", valueComparator: val => val >= 100})
+    .filterItems({itemComparator: item => item.hireDate > "2002-01-01" && item.unit !== "20"})
+    .sortValues({key: "salary", order: "descending"})
+    .sortValues({key: "bonus", order: "ascending"})
+    .selectKeys({keys: ["firstName", "job", "bonus"], overwrite: false})
 
 const moreEmployees = [
     {
@@ -57,7 +58,7 @@ const moreEmployees = [
     }
 ]
 
-simpleData.addItems(moreEmployees)
+simpleData.addItems({dataToBeAdded: moreEmployees})
 
 const moreEmployeesSimpleData = new SimpleData([
     {
@@ -79,7 +80,7 @@ const moreEmployeesSimpleData = new SimpleData([
 ])
 
 simpleData
-    .addItems(moreEmployeesSimpleData)
+    .addItems({dataToBeAdded: moreEmployeesSimpleData})
 
 const unitsNames = [
     {
@@ -92,8 +93,8 @@ const unitsNames = [
     }
 ]
 
-simpleData.mergeItems(unitsNames, "unit")
-    .removeKey("unitName", { logs: false })
+simpleData.mergeItems({dataToBeMerged: unitsNames, commonKey: "unit"})
+    .removeKey({key: "unitName" })
 
 const unitsNamesSimpleData = new SimpleData([
     {
@@ -110,50 +111,45 @@ const unitsNamesSimpleData = new SimpleData([
     }
 ])
 
-simpleData.mergeItems(unitsNamesSimpleData, "unit")
+simpleData.mergeItems({dataToBeMerged: unitsNamesSimpleData, commonKey: "unit"})
 
 simpleData
-    .setDefaultOptions({ nbItemInTable: "all" })
-    .addQuantiles("bonus", "salaryQuintile", 5)
-    .addBins("bonus", "salaryBins", 5)
-    .addOutliers("bonus", "bonusOutlier", "boxplot")
-    .excludeOutliers("bonus", "boxplot")
-    .setDefaultOptions({ showDataNoOverwrite: true })
-    .correlation()
-    .correlation("salary", "bonus")
+    .addQuantiles({key: "bonus", newKey: "salaryQuintile", nbQuantiles:5})
+    .addBins({key: "bonus", newKey: "salaryBins", nbBins: 5})
+    .addOutliers({key: "bonus", newKey: "bonusOutlier"})
+    .excludeOutliers({key: "bonus"})
+    .correlation() 
+    .correlation({key1: "salary", key2: "bonus"})
     .summarize()
-    .summarize(simpleData.keys, "job")
-    .summarize("salary", ["job", "unit"])
-    .summarize("salary", "job", "mean")
-    .summarize("salary", undefined, "mean")
-    .summarize("salary", "job", ["mean", "median"])
-    .summarize("salary", "job", "weightedMean", "bonus")
-
-const tempDir = temporaryDirectory()
-
-simpleData
-    .saveData(`${tempDir}/integrationTest.csv`)
-    .saveData(`${tempDir}/integrationTest.json`)
-
-simpleData.saveChart(`${tempDir}/dot1.html`, "dot", "salary", "bonus")
-simpleData.saveChart(`${tempDir}/dot2.html`, "dot", "salary", "bonus", "job")
-
-simpleData.valuesToDate("hireDate", "%Y-%m-%d")
-
-simpleData.saveChart(`${tempDir}/line1.html`, "line", "hireDate", "salary")
-simpleData.saveChart(`${tempDir}/line2.html`, "line", "hireDate", "salary", "unit")
-simpleData.saveChart(`${tempDir}/bar1.html`, "bar", "unit", "salary")
-simpleData.saveChart(`${tempDir}/bar2.html`, "bar", "unit", "salary", "unit")
-simpleData.saveChart(`${tempDir}/box1.html`, "box", "unit", "salary")
-simpleData.saveChart(`${tempDir}/box2.html`, "box", "unit", "salary", "unit")
+    .summarize({value: simpleData.keys, key: "job"})
+    .summarize({value: "salary", key: ["job", "unit"]})
+    .summarize({value: "salary", key: "job", summary: "mean"})
+    .summarize({value: "salary", summary: "mean"})
+    .summarize({value: "salary", key: "job", summary: ["mean", "median"]})
+    .summarize({value: "salary", key: "job", summary: "weightedMean", weight: "bonus"})
 
 
-import * as Plot from "@observablehq/plot"
+temporaryDirectoryTask((tempDir) => {
+    simpleData
+        .saveData({path: `${tempDir}/integrationTest.csv`})
+        .saveData({path: `${tempDir}/integrationTest.json`})
 
-simpleData
-    .saveCustomChart(
-        `${tempDir}/customChart.html`,
-        {
+    simpleData.saveChart({path: `${tempDir}/dot1.html`, type: "dot", x: "salary", y: "bonus"})
+    simpleData.saveChart({path: `${tempDir}/dot2.html`, type: "dot", x: "salary", y: "bonus", color: "job"})
+
+    simpleData.valuesToDate({key: "hireDate", format: "%Y-%m-%d"})
+
+    simpleData.saveChart({path: `${tempDir}/line1.html`, type: "line", x: "hireDate", y: "salary"})
+    simpleData.saveChart({path: `${tempDir}/line2.html`, type: "line", x: "hireDate", y: "salary", color: "unit"})
+    simpleData.saveChart({path: `${tempDir}/bar1.html`, type: "bar", x: "unit", y: "salary"})
+    simpleData.saveChart({path: `${tempDir}/bar2.html`, type: "bar", x: "unit", y: "salary", color: "unit"})
+    simpleData.saveChart({path: `${tempDir}/box1.html`, type: "box", x: "unit", y: "salary"})
+    simpleData.saveChart({path: `${tempDir}/box2.html`, type: "box", x: "unit", y: "salary", color: "unit"})
+
+    simpleData
+    .saveCustomChart({
+        path: `${tempDir}/customChart.html`,
+        plotOptions: {
             grid: true,
             facet: {
                 data: simpleData.data,
@@ -163,4 +159,5 @@ simpleData
                 Plot.dotX(simpleData.data, { x: "salary", fill: "unit" })
             ]
         }
-    )
+    })
+})

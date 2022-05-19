@@ -1,9 +1,9 @@
 import log from "../helpers/log.js"
-import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
+import { SimpleDataItem } from "../types/SimpleData.types.js"
 import { extent } from "d3-array"
 import hasKey from "../helpers/hasKey.js"
 
-export default function addBins(data: SimpleDataItem[], key: string, newKey: string, nbBins: number, options: Options): SimpleDataItem[] {
+export default function addBins(data: SimpleDataItem[], key: string, newKey: string, nbBins: number, verbose: boolean): SimpleDataItem[] {
 
     if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
@@ -22,11 +22,11 @@ export default function addBins(data: SimpleDataItem[], key: string, newKey: str
         bins.push(min + i * interval)
     }
 
-    options.logs && log("The bins values are => " + min + "," + String(bins), "blue")
-    options.logs && log("/!\\ The first bin is labelled 1 (not 0).", "bgRed")
+    verbose && log("The bins values are => " + min + "," + String(bins), "blue")
+    verbose && log("/!\\ The first bin is labelled 1 (not 0).", "bgRed")
 
     for (let i = 0; i < data.length; i++) {
-        const value = data[i][key]
+        const value = data[i][key] as number
         for (let b = 1; b <= bins.length; b++) {
             if (value <= bins[b - 1]) {
                 data[i][newKey] = b

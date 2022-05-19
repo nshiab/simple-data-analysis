@@ -1,10 +1,15 @@
 import getExtension from "../helpers/getExtension.js"
 import log from "../helpers/log.js"
-import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
+import { SimpleDataItem } from "../types/SimpleData.types.js"
 
-export default async function saveData(data: SimpleDataItem[], path: string, options: Options) {
-
-    if (options.environment === "nodejs") {
+export default async function saveData(
+    data: SimpleDataItem[], 
+    path: string, 
+    verbose: boolean, 
+    encoding: BufferEncoding, 
+    environment: string
+) {
+    if (environment === "nodejs") {
 
         const fs = await import("fs")
 
@@ -14,15 +19,15 @@ export default async function saveData(data: SimpleDataItem[], path: string, opt
 
             const Papa = (await import("papaparse")).default
 
-            options.logs && log("=> Csv file extension detected", "blue")
+            verbose && log("=> Csv file extension detected", "blue")
             const csvString = Papa.unparse(data)
 
-            fs.writeFileSync(path, csvString, { encoding: options.encoding })
+            fs.writeFileSync(path, csvString, { encoding: encoding })
 
         } else if (extension === "json") {
 
-            options.logs && log("=> " + extension + " file extension detected", "blue")
-            fs.writeFileSync(path, JSON.stringify(data), { encoding: options.encoding })
+            verbose && log("=> " + extension + " file extension detected", "blue")
+            fs.writeFileSync(path, JSON.stringify(data), { encoding: encoding })
 
         } else {
 
@@ -34,7 +39,7 @@ export default async function saveData(data: SimpleDataItem[], path: string, opt
         throw new Error("Can't create a file locally from the browser")
     }
 
-    options.logs && log("=> Data written to " + path, "blue")
+    verbose && log("=> Data written to " + path, "blue")
 
     return data
 
