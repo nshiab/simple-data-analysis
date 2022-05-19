@@ -3,7 +3,7 @@ import checkEnvironment from "../helpers/checkEnvironment.js"
 
 export default class SimpleDocument {
 
-    _components: any[]
+    _components: (JSX.Element | string)[]
 
     constructor() {
         if (checkEnvironment() !== "nodejs") {
@@ -15,16 +15,16 @@ export default class SimpleDocument {
     get components() {
         return this._components
     }
-    set components(components) {
+    set components(components: (JSX.Element | string)[]) {
         this._components = components
     }
 
-    add(component: any) {
+    add({ component }: {component: JSX.Element | string}) {
         this._components.push(component)
         return this
     }
 
-    saveDocument(path: string) {
+    saveDocument({ path }: {path: string}) {
         saveDocument_(this.components, path)
 
         return this

@@ -3,7 +3,7 @@ import getExtension from "../helpers/getExtension.js"
 import getPlotHtmlAndWrite from "../helpers/getPlotHtmlAndWrite.js"
 
 
-export default function saveCustomChart(data: SimpleDataItem[], path: string, plotOptions: any, verbose?: boolean): SimpleDataItem[] {
+export default function saveCustomChart(data: SimpleDataItem[], path: string, plotOptions: {[key: string]: any}, verbose?: boolean): string {
 
     const extension = getExtension(path)
     if (extension !== "html") {
