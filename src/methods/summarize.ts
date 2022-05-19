@@ -8,12 +8,12 @@ import hasKey from "../helpers/hasKey.js"
 export default function summarize(
     data: SimpleDataItem[],
     keyValue: string | string[],
-    keyCategories?: string | string[],
-    summary?: string | string[],
-    weight?: string,
     verbose: boolean,
     nbValuesTested: number,
-    nbDigits: number
+    nbDigits: number,
+    keyCategories?: string | string[],
+    summary?: string | string[],
+    weight?: string
 ): any[] {
 
     // Let's deal with the keys first

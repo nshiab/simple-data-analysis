@@ -1,4 +1,3 @@
-import loadLocalFile_ from "../methods/loadLocalFile.js"
 import cloneDeep from "lodash.clonedeep"
 import renameKey_ from "../methods/renameKey.js"
 import describe_ from "../methods/describe.js"
@@ -37,7 +36,8 @@ import saveCustomChart_ from "../methods/saveCustomChart.js"
 import checkKeys from "../helpers/checkKeys.js"
 import logCall from "../helpers/logCall.js"
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
-
+import loadLocalFile from "../functions/loadLocalFile.js"
+import loadUrl from "../functions/loadUrl.js"
 
 export default class SimpleData {
 
@@ -50,24 +50,69 @@ export default class SimpleData {
 
     constructor(
         {
-            data = [],
+            url,
+            path,
+            data,
             verbose = false,
             logParameters = false,
-            nbTableItemsToLog = 5
+            nbTableItemsToLog = 5,
+            missingKeyValues = { "null": null, "NaN": NaN, "undefined": undefined },
+            encoding = "utf8"
         }: {
-            data?: SimpleDataItem[]
+            url?: string,
+            path?: string,
+            data?: SimpleDataItem[],
+            encoding?: BufferEncoding,
+            missingKeyValues?: SimpleDataItem,
             verbose?: boolean,
             logParameters?: boolean,
-            nbTableItemsToLog?: number
+            nbTableItemsToLog?: number,
+
         } = {}) {
-        data.length > 0 && checkKeys(data)
 
-        this._data = data
-        this._keys = data[0] && Object.keys(data[0])
+        const allDataArguments = [url, path, data]
+        let nbDataArguments = 0
+        for (const dataArg of allDataArguments) {
+            if (dataArg !== undefined) {
+                nbDataArguments += 1
+            }
+        }
+        if (nbDataArguments === 0) {
+            throw new Error("You must provide either data, url or path.")
+        }
+        if (nbDataArguments > 1) {
+            throw new Error("SimpleData can be created with either data, url or path, but not a combination of them. Provide only one of them.")
+        }
 
-        this.verbose = verbose
-        this.logParameters = logParameters
-        this.nbTableItemsToLog = nbTableItemsToLog
+        let incomingData: SimpleDataItem[] = []
+        if (data) {
+            incomingData = data
+        }
+        if (path) {
+            incomingData = loadLocalFile({
+                path: path,
+                verbose: verbose,
+                missingKeyValues: missingKeyValues,
+                encoding: encoding
+            })
+        }
+        if (url) {
+            incomingData = loadUrl()
+        }
+
+        if (incomingData.length > 0) {
+            incomingData.length > 0 && checkKeys(incomingData)
+
+            this._data = incomingData
+            this._keys = incomingData[0] && Object.keys(incomingData[0])
+
+            this.verbose = verbose
+            this.logParameters = logParameters
+            this.nbTableItemsToLog = nbTableItemsToLog
+        } else {
+            throw new Error("Incoming data is empty.")
+        }
+
     }
 
     get data() {
@@ -88,27 +133,6 @@ export default class SimpleData {
     #updateSimpleData(data: SimpleDataItem[]) {
         this._data = data
         this._keys = data[0] === undefined ? [] : Object.keys(data[0])
-    }
-
-    @logCall()
-    loadLocalFile({
-        path,
-        missingKeyValues = { "null": null, "NaN": NaN, "undefined": undefined },
-        encoding = "utf8"
-    }: {
-        path: string,
-        missingKeyValues?: SimpleDataItem,
-        encoding?: BufferEncoding
-    }) {
-
-        const data = loadLocalFile_({
-            path,
-            verbose: this.verbose,
-            missingKeyValues,
-            encoding
-        })
-        this.#updateSimpleData(data)
-        return this
     }
 
     @logCall()
@@ -159,9 +183,9 @@ export default class SimpleData {
         nbValuesTestedForTypeOf = 1000
     }: {
         keyValue?: string | string[],
-        keyCategory?: string | string[] | undefined,
+        keyCategory?: string | string[],
         summary?: string | string[],
-        weight?: string | undefined,
+        weight?: string,
         overwrite?: boolean,
         nbDigits?: number,
         nbValuesTestedForTypeOf?: number
@@ -169,12 +193,12 @@ export default class SimpleData {
         const data = summarize_(
             this._data,
             keyValue === undefined ? this._keys : keyValue,
-            keyCategory,
-            summary,
-            weight,
             this.verbose,
             nbValuesTestedForTypeOf,
-            nbDigits
+            nbDigits,
+            keyCategory,
+            summary,
+            weight
         )
         overwrite && this.#updateSimpleData(data)
         return this
