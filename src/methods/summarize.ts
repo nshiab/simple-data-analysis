@@ -6,13 +6,13 @@ import isEqual from "lodash.isequal"
 import hasKey from "../helpers/hasKey.js"
 
 export default function summarize(
-    data: SimpleDataItem[], 
-    value: any, 
-    keyCategories: any, 
-    summary: any, 
-    weight: any, 
-    verbose: boolean, 
-    nbValuesTested: number, 
+    data: SimpleDataItem[],
+    keyValue: string | string[],
+    keyCategories: string | string[] | undefined,
+    summary: string | string[] | undefined,
+    weight: string | undefined,
+    verbose: boolean,
+    nbValuesTested: number,
     nbDigits: number
 ): any[] {
 
@@ -53,21 +53,21 @@ export default function summarize(
 
     let values: any[] = []
 
-    if (Array.isArray(value)) {
-        for (const v of value) {
+    if (Array.isArray(keyValue)) {
+        for (const v of keyValue) {
             if (!hasKey(data[0], v)) {
                 throw new Error("No value " + v)
             }
         }
-        values = value.filter(v => checkTypeOfKey(data, v, "number", 0.5, verbose, nbValuesTested))
-    } else if (typeof value === "string") {
-        if (!hasKey(data[0], value)) {
-            throw new Error("No value " + value)
+        values = keyValue.filter(v => checkTypeOfKey(data, v, "number", 0.5, verbose, nbValuesTested))
+    } else if (typeof keyValue === "string") {
+        if (!hasKey(data[0], keyValue)) {
+            throw new Error("No value " + keyValue)
         }
-        if (!checkTypeOfKey(data, value, "number", 0.5, verbose, nbValuesTested)) {
+        if (!checkTypeOfKey(data, keyValue, "number", 0.5, verbose, nbValuesTested)) {
             throw new Error("The value should be of type number")
         }
-        values = [value]
+        values = [keyValue]
     } else {
         throw new Error("value must be either a string or an array of string")
     }
@@ -80,7 +80,7 @@ export default function summarize(
         summaries = summary
     } else if (typeof summary === "string") {
         summaries = [summary]
-    } else if (summary === undefined){
+    } else if (summary === undefined) {
         summaries = ["count", "min", "max", "sum", "mean", "median", "deviation"]
     } else {
         throw new Error("summary must be either a string or an array of string")
@@ -112,6 +112,9 @@ export default function summarize(
                 func = v => deviation(v, (d: any) => d[value])
             } else if (summary === "weightedMean") {
 
+                if (weight === undefined) {
+                    throw new Error("Missing argument weight")
+                }
                 if (!hasKey(data[0], weight)) {
                     throw new Error("No weight " + weight)
                 }

@@ -34,7 +34,7 @@
     "scripts": {
         "test": "mocha --require ts-node/register test/unit/**/*.ts",
         "integrationDocumentTest": "node --loader ts-node/esm test/integration/documentTest.tsx",
-        "integrationTest": "npx tsc && node test/integration/test.js",
+        "integrationTest": "node --loader ts-node/esm test/integration/test.ts",
         "lint": "eslint . --ext .ts",
         "allTests": "npm run test && npm run integrationTest && npm run integrationDocumentTest && npm run lint",
         "build": "npm run allTests && rm -rf dist && rollup --config"

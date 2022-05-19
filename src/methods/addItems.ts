@@ -3,7 +3,7 @@ import isEqual from "lodash.isequal"
 import log from "../helpers/log.js"
 import SimpleData from "../class/SimpleData.js"
 
-export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDataItem[], verbose: boolean): SimpleDataItem[] {
+export default function addItems(data: SimpleDataItem[], dataToBeAdded: SimpleDataItem[] | SimpleData, verbose: boolean): SimpleDataItem[] {
 
     let newData
 

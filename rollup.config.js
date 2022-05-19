@@ -22,7 +22,7 @@ const commonPlugins = [
 
 export default [
 	{
-		input: 'dist/index.js',
+		input: 'dist/indexWeb.js',
 		output: {
 			file: `dist/${meta.name}.js`,
 			name: "sda",
@@ -33,12 +33,12 @@ export default [
 		plugins: [
 			...commonPlugins,
 			visualizer((opts) => {
-				return { gzipSize: true, filename: "bundleSizeNodeJS.html" }
+				return { gzipSize: true, filename: "bundleSizeUMD.html" }
 			})
 		]
 	},
 	{
-		input: 'dist/indexBrowser.js',
+		input: 'dist/indexWeb.js',
 		output: {
 			file: `dist/${meta.name}.min.js`,
 			format: 'iife',
@@ -50,7 +50,7 @@ export default [
 			...commonPlugins,
 			terser(),
 			visualizer((opts) => {
-				return { gzipSize: true, filename: "bundleSizeBrowser.html" }
+				return { gzipSize: true, filename: "bundleSizeMin.html" }
 			})
 		]
 	}

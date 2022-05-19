@@ -1,22 +1,17 @@
-import SimpleData from "../class/SimpleData.js";
 import checkEnvironment from "../helpers/checkEnvironment.js";
 import log from "../helpers/log.js";
-import showTable from "../methods/showTable.js";
 import getExtension from "../helpers/getExtension.js";
+import fs from "fs"
+import Papa from "papaparse"
 
-
-export default async function loadData({
+export default function loadLocalFile({
     path,
     verbose = false,
-    logParameters = false,
-    nbTableItemsToLog = 5,
     missingValues,
     encoding = "utf8"
 }: {
     path: string,
     verbose?: boolean,
-    logParameters?: boolean,
-    nbTableItemsToLog?: number,
     missingValues?: { [key: string]: any },
     encoding?: BufferEncoding
 }) {
@@ -35,15 +30,11 @@ export default async function loadData({
 
     if (environment === "nodejs") {
 
-        const fs = await import("fs")
-
         verbose && log('=> Running in NodeJS', "blue")
 
         if (fileExtension === "csv") {
 
             verbose && log('=> Csv file extension detected', "blue")
-
-            const Papa = (await import("papaparse")).default
 
             const csvString = fs.readFileSync(path, { encoding: encoding })
 
@@ -71,15 +62,7 @@ export default async function loadData({
             throw new Error("Unknown file extension " + fileExtension);
         }
 
-        verbose && showTable(arrayOfObjects, nbTableItemsToLog)
-
-        const simpleData = new SimpleData(arrayOfObjects, {
-            verbose,
-            logParameters,
-            nbTableItemsToLog
-        })
-
-        return simpleData
+        return arrayOfObjects
 
     } else if (environment === "webBrowser") {
 

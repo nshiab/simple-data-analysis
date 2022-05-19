@@ -1,12 +1,11 @@
 import log from "../helpers/log.js"
 import { SimpleDataItem } from "../types/SimpleData.types.js"
-import showTable from "./showTable.js"
 import SimpleData from "../class/SimpleData.js"
 import checkTypeOfKey from "../helpers/checkTypeOfKey.js"
 import percentage from "../helpers/percentage.js"
 import hasKey from "../helpers/hasKey.js"
 
-export default function mergeItems(data: SimpleDataItem[], dataToBeMerged: SimpleDataItem[], commonKey: string, verbose: boolean, nbValuesTested: number): SimpleDataItem[] {
+export default function mergeItems(data: SimpleDataItem[], dataToBeMerged: SimpleDataItem[] | SimpleData, commonKey: string, verbose: boolean, nbValuesTested: number): SimpleDataItem[] {
 
 
     verbose && log("\nmergeItems() " + commonKey)
