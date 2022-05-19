@@ -1,40 +1,39 @@
 import getExtension from "../helpers/getExtension.js"
 import log from "../helpers/log.js"
-import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
+import { SimpleDataItem } from "../types/SimpleData.types.js"
+import fs from "fs"
 
-export default async function saveData(data: SimpleDataItem[], path: string, options: Options) {
+export default async function saveData(
+    data: SimpleDataItem[],
+    path: string,
+    verbose: boolean,
+    encoding: BufferEncoding,
+) {
 
-    if (options.environment === "nodejs") {
+    const extension = getExtension(path)
 
-        const fs = await import("fs")
+    if (extension === "csv") {
 
-        const extension = getExtension(path)
+        const Papa = (await import("papaparse")).default
 
-        if (extension === "csv") {
+        verbose && log("=> Csv file extension detected", "blue")
+        const csvString = Papa.unparse(data)
 
-            const Papa = (await import("papaparse")).default
+        fs.writeFileSync(path, csvString, { encoding: encoding })
 
-            options.logs && log("=> Csv file extension detected", "blue")
-            const csvString = Papa.unparse(data)
+    } else if (extension === "json") {
 
-            fs.writeFileSync(path, csvString, { encoding: options.encoding })
-
-        } else if (extension === "json") {
-
-            options.logs && log("=> " + extension + " file extension detected", "blue")
-            fs.writeFileSync(path, JSON.stringify(data), { encoding: options.encoding })
-
-        } else {
-
-            throw new Error("Unknow file extension")
-
-        }
+        verbose && log("=> " + extension + " file extension detected", "blue")
+        fs.writeFileSync(path, JSON.stringify(data), { encoding: encoding })
 
     } else {
-        throw new Error("Can't create a file locally from the browser")
+
+        throw new Error("Unknow file extension")
+
     }
 
-    options.logs && log("=> Data written to " + path, "blue")
+
+    verbose && log("=> Data written to " + path, "blue")
 
     return data
 

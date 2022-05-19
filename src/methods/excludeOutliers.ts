@@ -1,10 +1,10 @@
 import log from "../helpers/log.js"
-import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
+import { SimpleDataItem } from "../types/SimpleData.types.js"
 import { quantile, extent } from "d3-array"
 import percentage from "../helpers/percentage.js"
 import hasKey from "../helpers/hasKey.js"
 
-export default function excludeOutliers(data: SimpleDataItem[], key: string, method: "boxplot", options: Options): SimpleDataItem[] {
+export default function excludeOutliers(data: SimpleDataItem[], key: string, verbose: boolean): SimpleDataItem[] {
 
     if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
@@ -20,12 +20,12 @@ export default function excludeOutliers(data: SimpleDataItem[], key: string, met
 
     const [min, max] = extent(values)
 
-    options.logs && log(`Min: ${min}, Lower threshold: ${lower}, Q1: ${q1}, Q3: ${q3}, Upper threshold: ${upper}, Max: ${max}`, "blue")
+    verbose && log(`Min: ${min}, Lower threshold: ${lower}, Q1: ${q1}, Q3: ${q3}, Upper threshold: ${upper}, Max: ${max}`, "blue")
 
-    const filteredData = data.filter(d => d[key] >= lower && d[key] <= upper)
+    const filteredData = data.filter(d => d[key] as number >= lower && d[key] as number <= upper)
 
     const outliers = data.length - filteredData.length
-    options.logs && log(`/!\\ ${outliers} outliers found and excluded, representing ${percentage(outliers, data.length, options)} of the incoming data.`, "bgRed")
+    verbose && log(`/!\\ ${outliers} outliers found and excluded, representing ${percentage(outliers, data.length)} of the incoming data.`, "bgRed")
 
     return filteredData
 }

@@ -1,12 +1,11 @@
 import { JSDOM } from "jsdom"
 import fs from "fs"
-import { Options } from "../types/SimpleData.types.js"
 import log from "./log.js"
 import { plot } from "@observablehq/plot"
 
-export default function getPlotHtmlAndWrite(plotOptions: any, path: string, options: Options) {
+export default function getPlotHtmlAndWrite(plotOptions: { [key: string]: any }, path: string, verbose?: boolean): string {
 
-    options.logs && log(plotOptions)
+    verbose && log(plotOptions)
 
     if (global.document === undefined) {
         const jsdom = new JSDOM("")
@@ -22,7 +21,7 @@ export default function getPlotHtmlAndWrite(plotOptions: any, path: string, opti
         chart
     )
 
-    options.logs && log(`=> chart save to ${path}`, "blue")
+    verbose && log(`=> chart save to ${path}`, "blue")
 
     return chart
 

@@ -1,9 +1,9 @@
 import log from "../helpers/log.js"
-import { SimpleDataItem, Options } from "../types/SimpleData.types.js"
+import { SimpleDataItem } from "../types/SimpleData.types.js"
 import { quantile } from "d3-array"
 import hasKey from "../helpers/hasKey.js"
 
-export default function addQuantiles(data: SimpleDataItem[], key: string, newKey: string, nbQuantiles: number, options: Options): SimpleDataItem[] {
+export default function addQuantiles(data: SimpleDataItem[], key: string, newKey: string, nbQuantiles: number, verbose: boolean): SimpleDataItem[] {
 
     if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
@@ -19,10 +19,10 @@ export default function addQuantiles(data: SimpleDataItem[], key: string, newKey
         quantiles.push(quantile(values, i))
     }
 
-    options.logs && log("The quantiles values are => " + String(quantiles), "blue")
+    verbose && log("The quantiles values are => " + String(quantiles), "blue")
 
     for (let i = 0; i < data.length; i++) {
-        const value = data[i][key]
+        const value = data[i][key] as number
         let quantile = 1
         for (let q = 1; q <= quantiles.length; q++) {
             if (value < (quantiles[q - 1] as number)) {

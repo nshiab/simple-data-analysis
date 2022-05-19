@@ -1,16 +1,16 @@
-import { Options, SimpleDataItem } from "../types/SimpleData.types.js"
+import { SimpleDataItem } from "../types/SimpleData.types.js"
 import { dot, line, barY, boxY } from "@observablehq/plot"
 import getExtension from "../helpers/getExtension.js";
 import getPlotHtmlAndWrite from "../helpers/getPlotHtmlAndWrite.js";
 
-export default function saveChart(data: SimpleDataItem[], path: string, type: "dot" | "line" | "bar" | "box", x: any[], y: any[], color: string, options: Options): SimpleDataItem[] {
+export default function saveChart(data: SimpleDataItem[], path: string, type: "dot" | "line" | "bar" | "box", x: string, y: string, color?: string, verbose?: boolean): string {
 
     const extension = getExtension(path)
     if (extension !== "html") {
         throw new Error("For the moment, you can only export charts with file extension .html")
     }
 
-    const markOption: { [key: string]: any } = { x, y }
+    const markOption: { [key: string]: string } = { x, y }
 
     if (color && ["dot", "bar", "box"].includes(type)) {
         markOption.fill = color
@@ -42,7 +42,7 @@ export default function saveChart(data: SimpleDataItem[], path: string, type: "d
         }
     }
 
-    const chart = getPlotHtmlAndWrite(plotOptions, path, options)
+    const chart = getPlotHtmlAndWrite(plotOptions, path, verbose)
 
     return chart
 }
