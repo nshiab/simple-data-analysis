@@ -1,7 +1,7 @@
 import axios from "axios"
 import Papa from "papaparse"
-import getExtension from "../helpers/getExtension"
-import log from "../helpers/log"
+import getExtension from "../helpers/getExtension.js"
+import log from "../helpers/log.js"
 import { SimpleDataItem } from "../types/SimpleData.types"
 
 export default async function loadUrl({
@@ -14,7 +14,7 @@ export default async function loadUrl({
     verbose: boolean,
     missingKeyValues: SimpleDataItem,
     encoding: BufferEncoding
-}): SimpleDataItem[] {
+}): Promise<SimpleDataItem[]> {
 
     const request = await axios.get(url)
     const data = request.data
@@ -27,7 +27,7 @@ export default async function loadUrl({
 
         verbose && log('=> Csv file extension detected', "blue")
 
-        arrayOfObjects = Papa.parse(data, { header: true, dynamicTyping: true }).data as SimpleDataItem[]
+        arrayOfObjects = Papa.parse(data, { header: true, dynamicTyping: true }).data
 
         const keys = Object.keys(arrayOfObjects[0])
         const missingValueKeys = Object.keys(missingKeyValues)

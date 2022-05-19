@@ -2,6 +2,8 @@ import { SimpleDataItem } from "../types/SimpleData.types.js"
 
 export default function showTable(data: SimpleDataItem[], nbItemInTable: number | "all") {
 
+    console.log(data)
+
     console.table(
         nbItemInTable === "all" ?
             data :

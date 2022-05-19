@@ -49,26 +49,43 @@ export default class SimpleData {
     nbTableItemsToLog: number
 
     constructor(
-        {
-            url,
-            path,
-            data,
-            verbose = false,
-            logParameters = false,
-            nbTableItemsToLog = 5,
-            missingKeyValues = { "null": null, "NaN": NaN, "undefined": undefined },
-            encoding = "utf8"
-        }: {
-            url?: string,
-            path?: string,
-            data?: SimpleDataItem[],
-            encoding?: BufferEncoding,
-            missingKeyValues?: SimpleDataItem,
-            verbose?: boolean,
-            logParameters?: boolean,
-            nbTableItemsToLog?: number,
+    ) {
 
-        } = {}) {
+        this._data = []
+        this._keys = []
+
+        this.verbose = false
+        this.logParameters = false
+        this.nbTableItemsToLog = 5
+
+    }
+
+    #updateSimpleData(data: SimpleDataItem[]) {
+        this._data = data
+        this._keys = data[0] === undefined ? [] : Object.keys(data[0])
+    }
+
+    @logCall()
+    async init({
+        url,
+        path,
+        data,
+        verbose = false,
+        logParameters = false,
+        nbTableItemsToLog = 5,
+        missingKeyValues = { "null": null, "NaN": NaN, "undefined": undefined },
+        encoding = "utf8"
+    }: {
+        url?: string,
+        path?: string,
+        data?: SimpleDataItem[],
+        encoding?: BufferEncoding,
+        missingKeyValues?: SimpleDataItem,
+        verbose?: boolean,
+        logParameters?: boolean,
+        nbTableItemsToLog?: number,
+
+    } = {}): Promise<SimpleData> {
 
         const allDataArguments = [url, path, data]
         let nbDataArguments = 0
@@ -93,12 +110,12 @@ export default class SimpleData {
             })
         }
         if (url) {
-            // data = loadDataFromUrl({
-            //     url: url,
-            //     verbose: verbose,
-            //     missingKeyValues: missingKeyValues,
-            //     encoding: encoding
-            // })
+            data = await loadDataFromUrl({
+                url: url,
+                verbose: verbose,
+                missingKeyValues: missingKeyValues,
+                encoding: encoding
+            })
             data = []
         }
 
@@ -109,6 +126,8 @@ export default class SimpleData {
             throw new Error("Incoming data is empty.")
         }
 
+        console.log(data)
+
         checkKeys(data)
 
         this._data = data
@@ -118,11 +137,8 @@ export default class SimpleData {
         this.logParameters = logParameters
         this.nbTableItemsToLog = nbTableItemsToLog
 
-    }
+        return this
 
-    #updateSimpleData(data: SimpleDataItem[]) {
-        this._data = data
-        this._keys = data[0] === undefined ? [] : Object.keys(data[0])
     }
 
     @logCall()
