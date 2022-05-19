@@ -120,22 +120,6 @@ export default class SimpleData {
 
     }
 
-    // get data() {
-    //     return this._data
-    // }
-
-    // set data(data) {
-    //     console.log("what's up")
-    //     this._data = data
-    // }
-
-    // get keys() {
-    //     return this._keys
-    // }
-    // set keys(keys) {
-    //     this._keys = keys === undefined ? [] : keys
-    // }
-
     #updateSimpleData(data: SimpleDataItem[]) {
         this._data = data
         this._keys = data[0] === undefined ? [] : Object.keys(data[0])
