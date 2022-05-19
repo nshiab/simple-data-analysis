@@ -101,7 +101,8 @@ export default class SimpleData {
         }
 
         if (incomingData.length > 0) {
-            incomingData.length > 0 && checkKeys(incomingData)
+
+            checkKeys(incomingData)
 
             this._data = incomingData
             this._keys = incomingData[0] && Object.keys(incomingData[0])
