@@ -3,14 +3,14 @@ import { dot, line, barY, boxY } from "@observablehq/plot"
 import getExtension from "../helpers/getExtension.js";
 import getPlotHtmlAndWrite from "../helpers/getPlotHtmlAndWrite.js";
 
-export default function saveChart(data: SimpleDataItem[], path: string, type: "dot" | "line" | "bar" | "box", x: string, y: string, color?: string, verbose?: boolean): SimpleDataItem[] {
+export default function saveChart(data: SimpleDataItem[], path: string, type: "dot" | "line" | "bar" | "box", x: string, y: string, color?: string, verbose?: boolean): string {
 
     const extension = getExtension(path)
     if (extension !== "html") {
         throw new Error("For the moment, you can only export charts with file extension .html")
     }
 
-    const markOption: { [key: string]: any } = { x, y }
+    const markOption: { [key: string]: string } = { x, y }
 
     if (color && ["dot", "bar", "box"].includes(type)) {
         markOption.fill = color
