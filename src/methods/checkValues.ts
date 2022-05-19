@@ -5,12 +5,12 @@ import hasKey from "../helpers/hasKey.js"
 
 export default function checkValues(data: SimpleDataItem[]): SimpleDataItem[] {
 
-    const keys = Object.keys(data[0])
+    const keys: string[] = Object.keys(data[0])
 
-    const allChecks: any[] = []
+    const allChecks: SimpleDataItem[] = []
 
     for (const key of keys) {
-        const checks: { [key: string]: any } = {}
+        const checks: any = {}
         checks["key"] = key
 
         const array = getArray(data, key)

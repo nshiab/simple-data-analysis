@@ -52,7 +52,7 @@ export default function mergeItems(data: SimpleDataItem[], dataToBeMerged: Simpl
         throw new Error("Data has less items than dataToBeMerged.")
     }
 
-    const emptyItem: { [key: string]: any } = {}
+    const emptyItem: { [key: string]: undefined } = {}
     for (let i = 0; i < newDataKeys.length; i++) {
         emptyItem[newDataKeys[i]] = undefined
     }

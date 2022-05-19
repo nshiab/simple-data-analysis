@@ -3,24 +3,21 @@ import log from "../helpers/log.js";
 import getExtension from "../helpers/getExtension.js";
 import fs from "fs"
 import Papa from "papaparse"
+import { SimpleDataItem } from "../types/SimpleData.types.js";
 
 export default function loadLocalFile({
     path,
     verbose = false,
-    missingValues,
+    missingKeyValues,
     encoding = "utf8"
 }: {
     path: string,
-    verbose?: boolean,
-    missingValues?: { [key: string]: any },
-    encoding?: BufferEncoding
-}) {
+    verbose: boolean,
+    missingKeyValues: SimpleDataItem,
+    encoding: BufferEncoding
+}): SimpleDataItem[] {
 
-    if (missingValues === undefined) {
-        missingValues = { "null": null, "NaN": NaN, "undefined": undefined }
-    }
-
-    let arrayOfObjects: any = []
+    let arrayOfObjects: any[] = []
 
     const environment = checkEnvironment()
 
@@ -38,16 +35,16 @@ export default function loadLocalFile({
 
             const csvString = fs.readFileSync(path, { encoding: encoding })
 
-            arrayOfObjects = Papa.parse(csvString, { header: true, dynamicTyping: true }).data
+            arrayOfObjects = Papa.parse(csvString, { header: true, dynamicTyping: true }).data as SimpleDataItem[]
 
             const keys = Object.keys(arrayOfObjects[0])
-            const missingValueKeys = Object.keys(missingValues)
+            const missingValueKeys = Object.keys(missingKeyValues)
 
             for (let i = 0; i < arrayOfObjects.length; i++) {
                 for (let j = 0; j < keys.length; j++) {
                     if (missingValueKeys.includes(arrayOfObjects[i][keys[j]])) {
                         const val = arrayOfObjects[i][keys[j]]
-                        arrayOfObjects[i][keys[j]] = missingValues[val]
+                        arrayOfObjects[i][keys[j]] = missingKeyValues[val]
                     }
                 }
             }
@@ -70,5 +67,7 @@ export default function loadLocalFile({
 
         throw new Error("Not implemented yet")
     }
+
+    return []
 
 }

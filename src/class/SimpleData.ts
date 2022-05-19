@@ -36,7 +36,6 @@ import saveChart_ from "../methods/saveChart.js"
 import saveCustomChart_ from "../methods/saveCustomChart.js"
 import checkKeys from "../helpers/checkKeys.js"
 import logCall from "../helpers/logCall.js"
-import checkEnvironment from "../helpers/checkEnvironment.js"
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
 
 
@@ -94,18 +93,18 @@ export default class SimpleData {
     @logCall()
     loadLocalFile({
         path,
-        missingValues = [null, NaN, undefined, ""],
+        missingKeyValues = { "null": null, "NaN": NaN, "undefined": undefined },
         encoding = "utf8"
     }: {
         path: string,
-        missingValues?: SimpleDataValue[],
+        missingKeyValues?: SimpleDataItem,
         encoding?: BufferEncoding
     }) {
 
         const data = loadLocalFile_({
             path,
             verbose: this.verbose,
-            missingValues,
+            missingKeyValues,
             encoding
         })
         this.#updateSimpleData(data)
@@ -120,14 +119,14 @@ export default class SimpleData {
     }
 
     @logCall()
-    getArray({ key }: { key: string }): SimpleDataItem[] {
+    getArray({ key }: { key: string }): SimpleDataValue[] {
         const array = getArray_(this.data, key)
 
         return array
     }
 
     @logCall()
-    getUniqueValues({ key }: { key: string }): SimpleDataItem[] {
+    getUniqueValues({ key }: { key: string }): SimpleDataValue[] {
         const uniqueValues = getUniqueValues_(this.data, key)
 
         return uniqueValues
@@ -337,7 +336,7 @@ export default class SimpleData {
     }
 
     @logCall()
-    filterItems({ itemComparator, overwrite = true }: { itemComparator: (val: SimpleDataItem) => SimpleDataValue, overwrite?: boolean }): SimpleData {
+    filterItems({ itemComparator, overwrite = true }: { itemComparator: (val: SimpleDataItem) => boolean, overwrite?: boolean }): SimpleData {
         const data = filterItems_(this._data, itemComparator, this.verbose)
         overwrite && this.#updateSimpleData(data)
 
@@ -511,7 +510,7 @@ export default class SimpleData {
     }
 
     @logCall()
-    saveCustomChart({ path, plotOptions }: { path: string, plotOptions: any }): string {
+    saveCustomChart({ path, plotOptions }: { path: string, plotOptions: object }): string {
         const chart = saveCustomChart_(this._data, path, plotOptions, this.verbose)
 
         return chart

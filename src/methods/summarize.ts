@@ -1,5 +1,5 @@
 import log from "../helpers/log.js"
-import { SimpleDataItem } from "../types/SimpleData.types.js"
+import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types.js"
 import { flatRollup, mean, sum, median, max, min, deviation } from "d3-array"
 import checkTypeOfKey from "../helpers/checkTypeOfKey.js"
 import isEqual from "lodash.isequal"
@@ -51,7 +51,7 @@ export default function summarize(
 
     // Now the values
 
-    let values: any[] = []
+    let values: string[] = []
 
     if (Array.isArray(keyValue)) {
         for (const v of keyValue) {
@@ -74,7 +74,7 @@ export default function summarize(
 
     // And now the function to aggregate the data
 
-    let summaries: any[] = []
+    let summaries: string[] = []
 
     if (Array.isArray(summary)) {
         summaries = summary

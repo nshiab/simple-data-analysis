@@ -4,13 +4,13 @@ import checkTypeOfKey from "../helpers/checkTypeOfKey.js"
 import hasKey from "../helpers/hasKey.js"
 
 export default function correlation(
-    data: SimpleDataItem[], 
-    verbose: boolean, 
-    numDigits: number, 
+    data: SimpleDataItem[],
+    verbose: boolean,
+    numDigits: number,
     nbTestedValues: number,
-    key1?: string, 
+    key1?: string,
     key2?: string
-): any[] {
+): SimpleDataItem[] {
 
     const correlations = []
 
