@@ -51,18 +51,18 @@ export default class SimpleData {
         data = [],
         verbose = false,
         logParameters = false,
-        nbTableItemsToLog = 5
+        nbTableItemsToLog = 5,
+        fillMissingKeys = false
     }: {
         data?: SimpleDataItem[],
         verbose?: boolean,
         logParameters?: boolean,
-        nbTableItemsToLog?: number
+        nbTableItemsToLog?: number,
+        fillMissingKeys?: boolean
     } = {}) {
 
-
-
         if (data.length > 0) {
-            checkKeys(data)
+            checkKeys(data, fillMissingKeys, verbose)
         } else if (data.length === 0) {
             verbose && log("\nnew SimpleDAta\nStarting an empty SimpleData")
         }
@@ -87,11 +87,13 @@ export default class SimpleData {
     async loadDataFromUrl({
         url,
         missingKeyValues = { "null": null, "NaN": NaN, "undefined": undefined },
-        encoding = "utf8"
+        encoding = "utf8",
+        fillMissingKeys = false
     }: {
         url: string,
         encoding?: BufferEncoding,
-        missingKeyValues?: SimpleDataItem
+        missingKeyValues?: SimpleDataItem,
+        fillMissingKeys?: boolean
     }): Promise<this> {
 
         const data = await loadDataFromUrl_({
@@ -105,7 +107,7 @@ export default class SimpleData {
             throw new Error("Incoming data is empty.")
         }
 
-        checkKeys(data)
+        checkKeys(data, fillMissingKeys, this.verbose)
 
         this.#updateSimpleData(data)
 
@@ -180,14 +182,14 @@ export default class SimpleData {
     }
 
     @logCall()
-    addKey({ 
-        key, 
-        valueGenerator, 
-        overwrite = true 
-    } : { 
-        key: string, 
-        valueGenerator: (item: SimpleDataItem) => SimpleDataValue, 
-        overwrite?: boolean 
+    addKey({
+        key,
+        valueGenerator,
+        overwrite = true
+    }: {
+        key: string,
+        valueGenerator: (item: SimpleDataItem) => SimpleDataValue,
+        overwrite?: boolean
     }): this {
         const data = addKey_(this._data, key, valueGenerator)
         overwrite && this.#updateSimpleData(data)
@@ -264,14 +266,14 @@ export default class SimpleData {
     }
 
     @logCall()
-    modifyValues({ 
-        key, 
-        valueGenerator, 
-        overwrite = true 
-    } : { 
-        key: string, 
-        valueGenerator: (val: SimpleDataValue) => SimpleDataValue, 
-        overwrite?: boolean 
+    modifyValues({
+        key,
+        valueGenerator,
+        overwrite = true
+    }: {
+        key: string,
+        valueGenerator: (val: SimpleDataValue) => SimpleDataValue,
+        overwrite?: boolean
     }): this {
         const data = modifyValues_(this._data, key, valueGenerator)
         overwrite && this.#updateSimpleData(data)
@@ -280,14 +282,14 @@ export default class SimpleData {
     }
 
     @logCall()
-    modifyItems({ 
-        key, 
-        itemGenerator, 
-        overwrite = true 
-    } : { 
-        key: string, 
-        itemGenerator: (item: SimpleDataItem) => SimpleDataValue, 
-        overwrite?: boolean 
+    modifyItems({
+        key,
+        itemGenerator,
+        overwrite = true
+    }: {
+        key: string,
+        itemGenerator: (item: SimpleDataItem) => SimpleDataValue,
+        overwrite?: boolean
     }): this {
         const data = modifyItems_(this._data, key, itemGenerator)
         overwrite && this.#updateSimpleData(data)
@@ -357,14 +359,14 @@ export default class SimpleData {
     }
 
     @logCall()
-    filterValues({ 
-        key, 
-        valueComparator, 
-        overwrite = true 
-    } : { 
-        key: string, 
-        valueComparator: (val: SimpleDataValue) => SimpleDataValue, 
-        overwrite?: boolean 
+    filterValues({
+        key,
+        valueComparator,
+        overwrite = true
+    }: {
+        key: string,
+        valueComparator: (val: SimpleDataValue) => SimpleDataValue,
+        overwrite?: boolean
     }): this {
         const data = filterValues_(this._data, key, valueComparator, this.verbose)
         overwrite && this.#updateSimpleData(data)
