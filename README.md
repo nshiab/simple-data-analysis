@@ -8,7 +8,7 @@ These project's goals are:
 
 We are always trying to improve it. Feel free to start a conversation or open an issue. Pull requests are welcome as well!
 
-If you don't want to read everything below, go check the /examples.
+A demo is available here: https://observablehq.com/@nshiab/simple-data-analysis
 
 # Table of contents
 
@@ -36,7 +36,7 @@ For more about tidy data, you can read [this great article](https://cran.r-proje
 
 If you don't want to install anything, a great platform is Observable. Here's how to use the library inside an [Observable's notebook](https://observablehq.com/@nshiab/simple-data-analysis).
 
-![An Observable notebook using simple-data-analysis](./assets/observable.png)
+<img src="./assets/observable.png" alt="An Observable notebook using simple-data-analysis" style="display:block;width: 100%; max-width:400px;margin-left:auto;margin-right: auto;"/>
 
 ## Importing from the HTML
 
@@ -61,7 +61,8 @@ const simpleData = sda.createSimpleData(someData)
 First, make sure that your NodeJS version is 16 or higher. To check, write ```node``` in your terminal and press Enter.
 
 You should see something like this.
-![A terminal showing the NodeJS version](/assets/nodeJSVersion.png)
+<img src="./assets/nodeJSVersion.png" alt="A terminal showing the NodeJS version" style="display:block;width: 100%; max-width:400px;margin-left:auto;margin-right: auto;"/>
+
 
 If the version is less than 16, update [NodeJS](https://nodejs.org/en/) with the latest LTS (long-term support) version.
 
