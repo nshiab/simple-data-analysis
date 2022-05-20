@@ -1,9 +1,14 @@
-import log from "../helpers/log.js"
 import { SimpleDataItem } from "../types/SimpleData.types.js"
-import { quantile } from "d3-array"
+import { extent, range } from "d3-array"
+import { scaleQuantile } from "d3-scale"
 import hasKey from "../helpers/hasKey.js"
 
-export default function addQuantiles(data: SimpleDataItem[], key: string, newKey: string, nbQuantiles: number, verbose: boolean): SimpleDataItem[] {
+export default function addQuantiles(
+    data: SimpleDataItem[], 
+    key: string, 
+    newKey: string, 
+    nbQuantiles: number
+): SimpleDataItem[] {
 
     if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
@@ -11,25 +16,18 @@ export default function addQuantiles(data: SimpleDataItem[], key: string, newKey
     if (hasKey(data[0], newKey)) {
         throw new Error("Already a key named " + key)
     }
-
-    const interval = 1 / nbQuantiles
-    const values = data.map(d => d[key]) as Iterable<number>
-    const quantiles = []
-    for (let i = 0; i < 1; i += interval) {
-        quantiles.push(quantile(values, i))
+    if (nbQuantiles < 1){
+        throw new Error("nbQuantiles should always be > 0.")
     }
 
-    verbose && log("The quantiles values are => " + String(quantiles), "blue")
+    const [min, max] = extent(data.map(d => (d[key] as number)))
+    const quantileGenerator = scaleQuantile()
+        .domain([min, max])
+        .range(range(1, nbQuantiles + 1))
 
     for (let i = 0; i < data.length; i++) {
         const value = data[i][key] as number
-        let quantile = 1
-        for (let q = 1; q <= quantiles.length; q++) {
-            if (value < (quantiles[q - 1] as number)) {
-                quantile = q
-                break
-            }
-        }
+        const quantile = quantileGenerator(value)
         data[i][newKey] = quantile
     }
 
