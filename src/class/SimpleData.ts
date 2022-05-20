@@ -51,14 +51,16 @@ export default class SimpleData {
         verbose = false,
         logParameters = false,
         nbTableItemsToLog = 5,
+        fillMissingKeys = false,
     }: {
         data?: SimpleDataItem[]
         verbose?: boolean
         logParameters?: boolean
         nbTableItemsToLog?: number
+        fillMissingKeys?: boolean
     } = {}) {
         if (data.length > 0) {
-            checkKeys(data)
+            checkKeys(data, fillMissingKeys, verbose)
         } else if (data.length === 0) {
             verbose && log("\nnew SimpleDAta\nStarting an empty SimpleData")
         }
@@ -83,10 +85,12 @@ export default class SimpleData {
         url,
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         encoding = "utf8",
+        fillMissingKeys = false,
     }: {
         url: string
         encoding?: BufferEncoding
         missingKeyValues?: SimpleDataItem
+        fillMissingKeys?: boolean
     }): Promise<this> {
         const data = await loadDataFromUrl_({
             url: url,
@@ -99,7 +103,7 @@ export default class SimpleData {
             throw new Error("Incoming data is empty.")
         }
 
-        checkKeys(data)
+        checkKeys(data, fillMissingKeys, this.verbose)
 
         this.#updateSimpleData(data)
 

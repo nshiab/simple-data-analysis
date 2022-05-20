@@ -12,6 +12,23 @@ async function main() {
         logParameters: true,
     })
 
+    new SimpleDataNode({
+        data: [
+            { first: "Nael", last: "Shiab" },
+            { first: "Isabelle", last: "Bouchard" },
+        ],
+        verbose: true,
+        logParameters: true,
+    })
+
+    new SimpleDataNode({
+        verbose: true,
+        logParameters: true,
+    }).loadDataFromLocalFile({
+        path: "./data/employees.json",
+        fillMissingKeys: true,
+    })
+
     const simpleDataNode = await new SimpleDataNode({
         verbose: true,
         logParameters: true,

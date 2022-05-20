@@ -21,10 +21,12 @@ export default class SimpleDataNode extends SimpleData {
         path,
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         encoding = "utf8",
+        fillMissingKeys = false,
     }: {
         path: string
         encoding?: BufferEncoding
         missingKeyValues?: SimpleDataItem
+        fillMissingKeys?: boolean
     }): SimpleDataNode {
         if (this._data.length > 0) {
             throw new Error(
@@ -43,7 +45,7 @@ export default class SimpleDataNode extends SimpleData {
             throw new Error("Incoming data is empty.")
         }
 
-        checkKeys(data)
+        checkKeys(data, fillMissingKeys, this.verbose)
 
         this.#updateSimpleData(data)
 
@@ -76,7 +78,7 @@ export default class SimpleDataNode extends SimpleData {
         x: string
         y: string
         color?: string
-    }): string {
+    }): SimpleDataNode {
         if (global.document === undefined) {
             const jsdom = new JSDOM("")
             global.document = jsdom.window.document
@@ -87,7 +89,7 @@ export default class SimpleDataNode extends SimpleData {
         fs.writeFileSync(path, chart)
         this.verbose && log(`=> chart save to ${path}`, "blue")
 
-        return chart
+        return this
     }
 
     @logCall()
@@ -97,7 +99,7 @@ export default class SimpleDataNode extends SimpleData {
     }: {
         path: string
         plotOptions: object
-    }): string {
+    }): SimpleDataNode {
         if (global.document === undefined) {
             const jsdom = new JSDOM("")
             global.document = jsdom.window.document
@@ -107,6 +109,6 @@ export default class SimpleDataNode extends SimpleData {
         fs.writeFileSync(path, chart)
         this.verbose && log(`=> chart save to ${path}`, "blue")
 
-        return chart
+        return this
     }
 }

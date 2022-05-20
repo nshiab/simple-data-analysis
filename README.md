@@ -8,17 +8,18 @@ These project's goals are:
 
 We are always trying to improve it. Feel free to start a conversation or open an issue. Pull requests are welcome as well!
 
-If you don't want to read everything below, go check the /examples.
+A demo is available here: https://observablehq.com/@nshiab/simple-data-analysis
 
 # Table of contents
 
 1. [Core principles](#core-principles)
 2. [Easiest way to use](#the-easiest-way-to-use-the-library)
 3. [Importing from HTML](#importing-from-the-html)
-4. [NodeJS and JavaScript bundlers](#working-with-nodejs--javascript-bundlers)
+4. [NodeJS and JavaScript bundlers](#working-with-nodejs-and-javascript-bundlers)
 5. [SimpleData](#simpledata)
-6. [SimpleDocument (experimental)](#simpledocument-experimental-for-nodejs-only)
-7. [All functions and methods](#all-functions-and-methods-available)
+6. [SimpleDataNode](#simpledatanode)
+7. [SimpleDocument (experimental)](#simpledocument-experimental-for-nodejs-only)
+8. [All functions and methods](#all-functions-and-methods)
 
 ## Core principles
 
@@ -32,92 +33,151 @@ The library expects **tabular data** stored in CSV files or **arrays of objects*
 
 For more about tidy data, you can read [this great article](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html).
 
+
 ## The easiest way to use the library
 
-If you don't want to install anything, a great platform is Observable. Here's how to use the library inside an [Observable's notebook](https://observablehq.com/@nshiab/simple-data-analysis).
+If you don't want to install anything, a great platform is Observable. Check this demo of the library in an [Observable's notebook](https://observablehq.com/@nshiab/simple-data-analysis).
 
-![An Observable notebook using simple-data-analysis](./assets/observable.png)
+<img src="./assets/observable.png" alt="An Observable notebook using simple-data-analysis" style="display:block;width: 100%; max-width:400px;margin-left:auto;margin-right: auto;margin-bottom: 20px;border-radius: 5px;"/>
 
 ## Importing from the HTML
 
-If you want to add the library directly to your webpage, you can use the UMD minified bundle. Call **sda** to have access to the functions.
+If you want to add the library directly to your webpage, you can use the UMD minified bundle and call **sda**.
 
 ```js
 <script src="https://cdn.jsdelivr.net/npm/simple-data-analysis@latest"></script>
 
 <script>
 
-const someData = [
-    {firstName: "Nael", lastName: "Shiab", job: "Computational journalist"},
-    {firstName: "Isabelle", lastName: "Bouchard", job: "Data scientist"}
-]
+async function main() {
 
-const simpleData = sda.createSimpleData(someData)
+    const simpleData = await new sda.SimpleData.loadDataFromUrl({ url: "https://.../some-file.csv" }) // You can also load json files.
+
+    simpleData
+        .checkValues()
+        .excludeMissingValues()
+        // chain methods to clean, analyze and visualize your data
+}
+
+main()
 
 </script>
 ```
-## Working with NodeJS / JavaScript Bundlers
+## Working with NodeJS and JavaScript Bundlers
 
-First, make sure that your NodeJS version is 16 or higher. To check, write ```node``` in your terminal and press Enter.
+First, make sure that your NodeJS version is 16 or higher. To check it, write ```node``` in your terminal and press Enter.
 
 You should see something like this.
-![A terminal showing the NodeJS version](/assets/nodeJSVersion.png)
+<img src="./assets/nodeJSVersion.png" alt="A terminal showing the NodeJS version" style="display:block;width: 100%; max-width:400px;margin-left:auto;margin-right: auto;"/>
 
-If the version is less than 16, update [NodeJS](https://nodejs.org/en/) with the latest LTS (long-term support) version.
 
-To install the library with npm, type this command in your terminal:
+If the version is less than 16, update [NodeJS with the latest LTS (long-term support) version](https://nodejs.org/en/) .
+
+With NodeJS installed, you have access to [npm](https://www.npmjs.com/package/simple-data-analysis). To install the library with npm, type this command in your terminal:
 ```
 npm i simple-data-analysis
 ```
 
-Once installed, you can import the functions as needed. If you use a bundler (Webpack, Rollup, Parcel or others), importing only the required functions will make your final project lighter.
+Once installed, you can import what you need. If you use a bundler (Webpack, Rollup, Parcel or others), importing only the required code will make your final project lighter.
 
 **/!\ This is how you should import the functions if you plan to publish your project on the web. /!\\**
 ```js
-import {createSimpleData} from "simple-data-analysis"
+import { SimpleData } from "simple-data-analysis"
 
-const simpleData = createSimpleData(someData)
+const someData = [...]
+
+const simpleData = new SimpleData({ data: someData })
 ```
 
-But you can also import everything if you wish.
+But you can also import everything if you wish. Just keep in mind that your final build will be bigger.
 ```js
 import * as sda from "simple-data-analysis"
 
-const simpleData = sda.createSimpleData(someData)
+const someData = [...]
+
+const simpleData = new sda.SimpleData({ data: someData })
 ```
 
 ## SimpleData
 
-The SimpleData class is at the core of the library. It allows you to store and manipulate your data easily by chaining commands.
+The SimpleData class is the core of the library. It allows you clean, analyze and visualize your data easily by chaining methods.
+
+When you chain methods, the data is updated at each step and sent to the next one.
 
 ```js
-import {createSimpleData} from "simple-data-analysis"
+import { SimpleData } from "simple-data-analysis"
 
-const simpleData = createSimpleData(someData)
+const someData = [...] // An array of objects. Let's say each object is an employee, with keys and values for salary and job. In a tabular data format (CSV for example), the keys would be the columns name and the values would be the content of the cells.
 
-simpleData.renameKey()
-.valuesToFloat()
-.addQuantiles()
-.filterValues()
-// TOFINSH when pull request merged. Show chaining.
+const simpleData = new SimpleData({ data: someData })
+    // A bit of cleaning
+    .renameKey({ oldKey: "annualSalary", newKey: "salary" })
+    .replaceValues({ key: "salary", oldValue: "$", newValue: "" })
+    .valuesToInteger({ key: "salary" })
+    .excludeMissingValues({ key: "salary" })
+    // Let's add a new information
+    .addKey({ key: "union", valueGenerator: employee => employee.job === "Manager" ? "No union" : "Unionized"})
+    // Looking for the mean salary for each job.
+    .summarize({ keyValue: "salary", keyCategory: "job", summary: "mean" })
+
+// Now let's visualize the result.
+const chart = simpleData
+    .getChart({ type: "bar", x: "job", y: "mean", color: "union"})
+    // getChart returns SVG or HTML so we store the result in a seperate variable
 ```
 
-The SimpleData class can also generate charts based on the [Observable Plot](https://observablehq.com/@observablehq/plot) library.
+The charts are based on the [Observable Plot](https://observablehq.com/@observablehq/plot) library. If you want to create a fancy dataviz, you can pass Observable Plot options directly to getCustomChart.
 
-In the browser, you can insert the chart where needed.
 ```js
-document.querySelector("#someDiv").innerHTML =  simpleData.makeChart() // TODO when pull request merged.
+import * as Plot from "@observablehq/plot"
+
+const chart = simpleData
+    .getCustomChart({
+        plotOptions: {
+            grid: true,
+            facet: {
+                data: simpleData.getData(),
+                y: "job"
+            },
+            marks: [
+                Plot.dotX(simpleData.getData(), { x: "salary", fill: "union" })
+            ]
+        }
+    })
 ```
 
-With NodeJS, you can save the chart in a file.
+When working on a web project, you can insert the chart where needed easily.
 ```js
-simpleData.saveChart() // TODO when pull request merged.
+document.querySelector("#someDiv").innerHTML = chart
 ```
 
-With NodeJS, you can also save your data easily.
+If you want to use another library to create your chart, extract the data you want. It's an array of objects, which works very well with D3 for example.
 
 ```js
-simpleData.saveData() // TODO when pull request merged.
+const myData = simpleData
+    .selectKeys({ keys: ["job", "mean"] })
+    // We selected "job" and "mean". But you could use getData() directly and retrieve everything.
+    .getData()
+
+// Do some D3 magic with myData now!
+```
+
+## SimpleDataNode
+
+If you use the library with NodeJS, you can import SimpleDataNode instead of SimpleData. It will give you extra methods to load local files, save files and save charts.
+
+```js
+import { SimpleDataNode } from "simple-data-analysis"
+
+const simpleData = new SimpleDataNode()
+    .loadDataFromLocalFile({path: "./employees.csv"})
+    // You can load json files as well.
+    .saveChart({ path: "./salaries.html", type: "dot", x: "job", y: "salary", color: "union"})
+    // GetChart() returns SVG and HTML and you can't chain after it. But saveChart() returns simpleData so you can keep on chaining. Same for saveCustomChart().
+    .filterValues({ key: "job", valueComparator: job => job === "Manager" })
+    // All methods from SimpleData to manipulate your data are still available
+    .saveData({path: "./managers.csv"})
+    // You can also save json files.
 ```
 
 ## SimpleDocument (experimental, for NodeJS only)
@@ -133,7 +193,9 @@ import React from "react"
 import {SimpleData, SimpleDocument, Table} from "simple-data-analysis"
 import { Typography } from "@mui/material"
 
-const simpleData = new SimpleData(someData)
+const someData = [...] // Let's say it's some employees information again.
+
+const simpleData = new SimpleData({data: someData}) // or SimpleDataNode
 
 const simpleDocument = new SimpleDocument()
 
@@ -141,12 +203,12 @@ simpleDocument
     .add(<h1>Some JSX!</h1>)
     .add(<Typography>An MUI component!</Typography>)
     .add(<Table keys={simpleData.keys} data={simpleData.data} />)
-    .add(simpleData.createChart("dot", "variableX", "variableY", "variableColor"))
+    .add(simpleData.getChart({ type: "dot", x: "job", y: "salary", color: "union"}))
     .saveDocument('somePath/analysis.html')
-    .saveDocument('somePath/AnalysisComponent.js')
+    .saveDocument('somePath/AnalysisComponent.js') // an HTML string exported as a React component
 
 ```
 
-## All functions and methods available
+## All functions and methods
 
-TODO
+For a description of all methods and how to use them, check this Observable notebook: https://observablehq.com/@nshiab/simple-data-analysis
