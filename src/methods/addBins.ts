@@ -1,9 +1,9 @@
-import log from "../helpers/log.js"
 import { SimpleDataItem } from "../types/SimpleData.types.js"
-import { extent } from "d3-array"
+import { range, extent } from "d3-array"
 import hasKey from "../helpers/hasKey.js"
+import { scaleQuantize } from "d3-scale"
 
-export default function addBins(data: SimpleDataItem[], key: string, newKey: string, nbBins: number, verbose: boolean): SimpleDataItem[] {
+export default function addBins(data: SimpleDataItem[], key: string, newKey: string, nbBins: number): SimpleDataItem[] {
 
     if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
@@ -11,29 +11,20 @@ export default function addBins(data: SimpleDataItem[], key: string, newKey: str
     if (hasKey(data[0], newKey)) {
         throw new Error("Already a key named " + key)
     }
-
-    const values = data.map(d => d[key]) as Iterable<number>
-    const [min, max] = extent(values) as number[]
-    const difference = max - min
-    const interval = difference / nbBins
-
-    const bins = []
-    for (let i = 1; i <= nbBins; i++) {
-        bins.push(min + i * interval)
+    if (nbBins < 1){
+        throw new Error("nbBins should always be > 0.")
     }
 
-    verbose && log("The bins values are => " + min + "," + String(bins), "blue")
-    verbose && log("/!\\ The first bin is labelled 1 (not 0).", "bgRed")
+    const [min, max] = extent(data.map(d => (d[key] as number)))
+    const binGenerator = scaleQuantize()
+        .domain([min as number, max as number])
+        .range(range(1, nbBins + 1))
 
     for (let i = 0; i < data.length; i++) {
         const value = data[i][key] as number
-        for (let b = 1; b <= bins.length; b++) {
-            if (value <= bins[b - 1]) {
-                data[i][newKey] = b
-                break
-            }
-        }
-    }
+        const bin = binGenerator(value)
+        data[i][newKey] = bin
+}
 
     return data
 }

@@ -453,7 +453,7 @@ export default class SimpleData {
         nbBins: number,
         overwrite?: boolean
     }): SimpleData {
-        const data = addBins_(this._data, key, newKey, nbBins, this.verbose)
+        const data = addBins_(this._data, key, newKey, nbBins)
         overwrite && this.#updateSimpleData(data)
 
         return this

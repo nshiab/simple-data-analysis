@@ -1,5 +1,5 @@
 import { SimpleDataItem } from "../types/SimpleData.types.js"
-import { extent, range } from "d3-array"
+import { range } from "d3-array"
 import { scaleQuantile } from "d3-scale"
 import hasKey from "../helpers/hasKey.js"
 
@@ -20,9 +20,8 @@ export default function addQuantiles(
         throw new Error("nbQuantiles should always be > 0.")
     }
 
-    const [min, max] = extent(data.map(d => (d[key] as number)))
     const quantileGenerator = scaleQuantile()
-        .domain([min, max])
+        .domain(data.map(d => (d[key] as number)))
         .range(range(1, nbQuantiles + 1))
 
     for (let i = 0; i < data.length; i++) {

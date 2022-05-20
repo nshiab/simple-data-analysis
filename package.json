@@ -32,7 +32,7 @@
         "default": "./dist/index.js"
     },
     "scripts": {
-        "test": "mocha --require ts-node/register test/unit/**/*.ts",
+        "test": "mocha --require ts-node/register test/unit/**/*.test.ts",
         "test-doc": "node --loader ts-node/esm test/integration/SimpleDocument.test.tsx",
         "test-data": "node --loader ts-node/esm test/integration/SimpleData.test.ts",
         "test-data-node": "node --loader ts-node/esm test/integration/SimpleDataNode.test.ts",

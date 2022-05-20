@@ -350,7 +350,7 @@ describe('SimpleData', function () {
         assert.deepEqual(simpleData.getData(), [
             { patate: 1, poil: 2, quantile: 1 },
             { patate: 11, poil: 22, quantile: 1 },
-            { patate: 111, poil: 222, quantile: 1 },
+            { patate: 111, poil: 222, quantile: 2 },
             { patate: 1111, poil: 2222, quantile: 2 },
         ])
     })
@@ -364,7 +364,6 @@ describe('SimpleData', function () {
         ]
         const simpleData = new SimpleData({ data: data })
         simpleData.addBins({ key: "patate", newKey: "bin", nbBins: 2 })
-        // TODO: Fix this! This should not be the expected behaviour!
         assert.deepEqual(simpleData.getData(), [
             { patate: 1, poil: 2, bin: 1 },
             { patate: 11, poil: 22, bin: 1 },
@@ -410,13 +409,12 @@ describe('SimpleData', function () {
         const data = [
             { patate: 1, poil: 2 },
             { patate: 11, poil: 22 },
-            { patate: 1, poil: 222 }
+            { patate: 111, poil: 222 }
         ]
         const simpleData = new SimpleData({ data: data })
         simpleData.correlation({ key1: "patate", key2: "poil", overwrite: true })
-        // TODO: is this the expected behaviour?    
         assert.deepEqual(simpleData.getData(), [{
-            correlation: -0.4271,
+            correlation: 1,
             key1: "patate",
             key2: "poil"
         }])
