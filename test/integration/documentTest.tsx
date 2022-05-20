@@ -3,12 +3,14 @@ import React from "react"
 import { Typography } from "@mui/material"
 import { temporaryDirectoryTask } from 'tempy'
 
-const simpleData = new SimpleData({
-    data: [
-        { name: "Nael", job: "Producer", variable1: 345, variable2: 56 },
-        { name: "Isabelle", job: "Data scientist", variable1: 123, variable2: 432 }
-    ]
-})
+const simpleData = new SimpleData().loadDataFromArray(
+    {
+        data: [
+            { name: "Nael", job: "Producer", variable1: 345, variable2: 56 },
+            { name: "Isabelle", job: "Data scientist", variable1: 123, variable2: 432 }
+        ]
+    }
+)
 
 simpleData.showTable()
 

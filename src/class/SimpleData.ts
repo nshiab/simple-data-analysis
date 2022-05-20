@@ -35,9 +35,10 @@ import saveChart_ from "../methods/saveChart.js"
 import saveCustomChart_ from "../methods/saveCustomChart.js"
 import checkKeys from "../helpers/checkKeys.js"
 import logCall from "../helpers/logCall.js"
+import asyncLogCall from "../helpers/asyncLogCall.js"
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
-import loadDataFromLocalFile from "../functions/loadDataFromLocalFile.js"
-import loadDataFromUrl from "../functions/loadDataFromUrl.js"
+import loadDataFromLocalFile_ from "../methods/loadDataFromLocalFile.js"
+import loadDataFromUrl_ from "../methods/loadDataFromUrl.js"
 
 export default class SimpleData {
 
@@ -48,15 +49,22 @@ export default class SimpleData {
     logParameters: boolean
     nbTableItemsToLog: number
 
-    constructor(
-    ) {
+    constructor({
+        verbose = false,
+        logParameters = false,
+        nbTableItemsToLog = 5
+    }: {
+        verbose?: boolean,
+        logParameters?: boolean,
+        nbTableItemsToLog?: number
+    } = {}) {
 
         this._data = []
         this._keys = []
 
-        this.verbose = false
-        this.logParameters = false
-        this.nbTableItemsToLog = 5
+        this.verbose = verbose
+        this.logParameters = logParameters
+        this.nbTableItemsToLog = nbTableItemsToLog
 
     }
 
@@ -66,87 +74,96 @@ export default class SimpleData {
     }
 
     @logCall()
-    async init({
-        url,
-        path,
-        data,
-        verbose = false,
-        logParameters = false,
-        nbTableItemsToLog = 5,
-        missingKeyValues = { "null": null, "NaN": NaN, "undefined": undefined },
-        encoding = "utf8"
+    loadDataFromArray({
+        data
     }: {
-        url?: string,
-        path?: string,
-        data?: SimpleDataItem[],
-        encoding?: BufferEncoding,
-        missingKeyValues?: SimpleDataItem,
-        verbose?: boolean,
-        logParameters?: boolean,
-        nbTableItemsToLog?: number,
+        data: SimpleDataItem[]
+    }): SimpleData {
 
-    } = {}): Promise<SimpleData> {
-
-        const allDataArguments = [url, path, data]
-        let nbDataArguments = 0
-        for (const dataArg of allDataArguments) {
-            if (dataArg !== undefined) {
-                nbDataArguments += 1
-            }
-        }
-        if (nbDataArguments === 0) {
-            throw new Error("You must provide either data, url or path.")
-        }
-        if (nbDataArguments > 1) {
-            throw new Error("SimpleData can be created with either data, url or path, but not a combination of them. Provide only one of them.")
+        if (this._data.length > 0) {
+            throw new Error("This SimpleData already has data. Create another one.")
         }
 
-        if (path) {
-            data = loadDataFromLocalFile({
-                path: path,
-                verbose: verbose,
-                missingKeyValues: missingKeyValues,
-                encoding: encoding
-            })
-        }
-        if (url) {
-            data = await loadDataFromUrl({
-                url: url,
-                verbose: verbose,
-                missingKeyValues: missingKeyValues,
-                encoding: encoding
-            })
-            data = []
-        }
-
-        if (!data) {
-            throw new Error("data is undefined")
-        }
         if (data.length === 0) {
             throw new Error("Incoming data is empty.")
         }
 
-        console.log(data)
+        checkKeys(data)
+
+        this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    loadDataFromLocalFile({
+        path,
+        missingKeyValues = { "null": null, "NaN": NaN, "undefined": undefined },
+        encoding = "utf8"
+    }: {
+        path: string,
+        encoding?: BufferEncoding,
+        missingKeyValues?: SimpleDataItem
+    }): SimpleData {
+
+        if (this._data.length > 0) {
+            throw new Error("This SimpleData already has data. Create another one.")
+        }
+
+        const data = loadDataFromLocalFile_({
+            path: path,
+            verbose: this.verbose,
+            missingKeyValues: missingKeyValues,
+            encoding: encoding
+        })
+
+        if (data.length === 0) {
+            throw new Error("Incoming data is empty.")
+        }
 
         checkKeys(data)
 
-        this._data = data
-        this._keys = Object.keys(data[0])
+        this.#updateSimpleData(data)
 
-        this.verbose = verbose
-        this.logParameters = logParameters
-        this.nbTableItemsToLog = nbTableItemsToLog
+        return this
+    }
+
+    @asyncLogCall()
+    async loadDataFromUrl({
+        url,
+        missingKeyValues = { "null": null, "NaN": NaN, "undefined": undefined },
+        encoding = "utf8"
+    }: {
+        url: string,
+        encoding?: BufferEncoding,
+        missingKeyValues?: SimpleDataItem
+    }): Promise<SimpleData> {
+
+        const data = await loadDataFromUrl_({
+            url: url,
+            verbose: this.verbose,
+            missingKeyValues: missingKeyValues,
+            encoding: encoding
+        })
+
+        if (data.length === 0) {
+            throw new Error("Incoming data is empty.")
+        }
+
+        checkKeys(data)
+
+        this.#updateSimpleData(data)
 
         return this
 
     }
 
-    @logCall()
+    // No @logCall otherwise it's triggered everywhere, including in methods
     getData(): SimpleDataItem[] {
         return this._data
     }
 
-    @logCall()
+    //No @logCall otherwise it's triggered everywhere, including in methods
     getKeys(): string[] {
         return this._keys
     }

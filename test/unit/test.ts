@@ -8,13 +8,13 @@ import { SimpleData } from "../../src/index.js"
 describe('SimpleData', function () {
     it('should instantiate', function () {
         const data = [{ patate: 1, poil: 2 }]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         assert.equal(data, simpleData.getData())
     })
 
     it("should modify public class attributes", function () {
         const data = [{ patate: 1, poil: 2 }]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.verbose = true
         simpleData.logParameters = true
         simpleData.nbTableItemsToLog = 11
@@ -25,7 +25,7 @@ describe('SimpleData', function () {
 
     it("should clone", function () {
         const data = [{ patate: 1, poil: 2 }]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         const newSimpleData = simpleData.clone()
         assert.deepEqual(data, newSimpleData.getData())
     })
@@ -36,7 +36,7 @@ describe('SimpleData', function () {
             { patate: 11, poil: 22 },
             { patate: 111, poil: 222 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         const array = simpleData.getArray({ key: "patate" })
         assert.deepEqual(array, [1, 11, 111])
     })
@@ -47,7 +47,7 @@ describe('SimpleData', function () {
             { patate: 111, poil: 22 },
             { patate: 111, poil: 222 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         const uniqueValues = simpleData.getUniqueValues({ key: "patate" })
         assert.deepEqual(uniqueValues, [1, 111])
     })
@@ -57,7 +57,7 @@ describe('SimpleData', function () {
             { patate: "1", poil: 2 },
             { patate: "11", poil: 22 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.checkValues({ overwrite: true })
         assert.deepEqual(simpleData.getData(), [
             {
@@ -82,7 +82,7 @@ describe('SimpleData', function () {
             { patate: "1", poil: 2 },
             { patate: "11", poil: 22 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.describe({ overwrite: true })
         assert.deepEqual(simpleData.getData(), [{
             nbDataPoints: 4,
@@ -96,7 +96,7 @@ describe('SimpleData', function () {
             { patate: "1", poil: 2 },
             { patate: "11", poil: 22 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.summarize({ overwrite: true })
         assert.deepEqual(simpleData.getData(), [{
             value: 'poil',
@@ -116,7 +116,7 @@ describe('SimpleData', function () {
             { patate: null, poil: 2 },
             { patate: 11, poil: 22 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.excludeMissingValues()
         assert.deepEqual(simpleData.getData(), [{ patate: 11, poil: 22 }])
     })
@@ -126,7 +126,7 @@ describe('SimpleData', function () {
             { patate: 1, poil: 2 },
             { patate: 11, poil: 22 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.renameKey({ oldKey: "patate", newKey: "navet" })
         assert.deepEqual(simpleData.getData(), [
             { navet: 1, poil: 2 },
@@ -139,7 +139,7 @@ describe('SimpleData', function () {
             { patate: 1, poil: 2 },
             { patate: 11, poil: 22 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.removeKey({ key: "patate" })
         assert.deepEqual(simpleData.getData(), [
             { poil: 2 },
@@ -152,7 +152,7 @@ describe('SimpleData', function () {
             { patate: 1 },
             { patate: 11 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.addKey({ key: "poil", valueGenerator: item => item.patate as number * 2 })
         assert.deepEqual(simpleData.getData(), [
             { patate: 1, poil: 2 },
@@ -165,7 +165,7 @@ describe('SimpleData', function () {
             { patate: 1, poil: 2, peanut: 3 },
             { patate: 11, poil: 22, peanut: 33 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.selectKeys({ keys: ["poil", "peanut"] })
         assert.deepEqual(simpleData.getData(), [
             { poil: 2, peanut: 3 },
@@ -178,7 +178,7 @@ describe('SimpleData', function () {
             { patate: 1 },
             { patate: 11 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.modifyValues({ key: "patate", valueGenerator: item => item as number * 2 })
         assert.deepEqual(simpleData.getData(), [
             { patate: 2 },
@@ -191,7 +191,7 @@ describe('SimpleData', function () {
             { patate: 1, poil: 2 },
             { patate: 11, poil: 22 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.modifyItems({
             key: "patate",
             itemGenerator: item => (item.patate as number) + (item.poil as number)
@@ -206,7 +206,7 @@ describe('SimpleData', function () {
         const data = [
             { patate_poil: 1 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.formatAllKeys()
         assert.deepEqual(simpleData.getData(), [
             { patatePoil: 1 },
@@ -217,7 +217,7 @@ describe('SimpleData', function () {
         const data = [
             { patate: 1, poil: 2 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.valuesToString({ key: "patate" })
         assert.deepEqual(simpleData.getData(), [
             { patate: "1", poil: 2 },
@@ -228,7 +228,7 @@ describe('SimpleData', function () {
         const data = [
             { patate: "1", poil: 2 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.valuesToInteger({ key: "patate" })
         assert.deepEqual(simpleData.getData(), [
             { patate: 1, poil: 2 },
@@ -239,7 +239,7 @@ describe('SimpleData', function () {
         const data = [
             { patate: "1", poil: 2 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.valuesToFloat({ key: "patate" })
         assert.deepEqual(simpleData.getData(), [
             { patate: 1.0, poil: 2 },
@@ -251,7 +251,7 @@ describe('SimpleData', function () {
         const data = [
             { patate: "2022-02-03", poil: 2 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.valuesToDate({ key: "patate", format })
         assert.deepEqual(simpleData.getData(), [
             { patate: utcParse(format)("2022-02-03"), poil: 2 },
@@ -263,7 +263,7 @@ describe('SimpleData', function () {
         const data = [
             { patate: utcParse(format)("2022-02-03"), poil: 2 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.datesToString({ key: "patate", format })
         assert.deepEqual(simpleData.getData(), [
             { patate: "2022-02-03", poil: 2 },
@@ -275,7 +275,7 @@ describe('SimpleData', function () {
             { patate: 1, poil: 2 },
             { patate: 11, poil: 22 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.filterValues({ key: "patate", valueComparator: val => val as number >= 10 })
         assert.deepEqual(simpleData.getData(), [
             { patate: 11, poil: 22 },
@@ -288,7 +288,7 @@ describe('SimpleData', function () {
             { patate: 11, poil: 22 },
             { patate: 111, poil: 222 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.filterItems({
             itemComparator: val => val.patate as number >= 10 && val.poil as number >= 200
         })
@@ -302,7 +302,7 @@ describe('SimpleData', function () {
             { patate: 1.1111, poil: 2 },
             { patate: 11.1111, poil: 22 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.roundValues({ key: "patate", nbDigits: 2 })
         assert.deepEqual(simpleData.getData(), [
             { patate: 1.11, poil: 2 },
@@ -315,7 +315,7 @@ describe('SimpleData', function () {
         const data = [
             { patate: "I am potato", poil: "I am poil" }
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.replaceValues({ key: "patate", oldValue: "I am", newValue: "You are", method: "partialString" })
         assert.deepEqual(simpleData.getData(), [
             { patate: "You are potato", poil: "I am poil" }
@@ -329,7 +329,7 @@ describe('SimpleData', function () {
             { patate: 111, poil: 222 },
             { patate: 1, poil: 2 }
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.sortValues({ key: "patate", order: "descending" })
         assert.deepEqual(simpleData.getData(), [
             { patate: 111, poil: 222 },
@@ -345,7 +345,7 @@ describe('SimpleData', function () {
             { patate: 111, poil: 222 },
             { patate: 1111, poil: 2222 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.addQuantiles({ key: "patate", newKey: "quantile", nbQuantiles: 2 })
         // TODO: Fix this! This should not be the expected behaviour!
         assert.deepEqual(simpleData.getData(), [
@@ -363,7 +363,7 @@ describe('SimpleData', function () {
             { patate: 111, poil: 222 },
             { patate: 1111, poil: 2222 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.addBins({ key: "patate", newKey: "bin", nbBins: 2 })
         // TODO: Fix this! This should not be the expected behaviour!
         assert.deepEqual(simpleData.getData(), [
@@ -381,7 +381,7 @@ describe('SimpleData', function () {
             { patate: 1, poil: 222 },
             { patate: 11111, poil: 2222 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.addOutliers({ key: "patate", newKey: "outliers" })
         assert.deepEqual(simpleData.getData(), [
             { patate: 1, poil: 2, outliers: false },
@@ -398,7 +398,7 @@ describe('SimpleData', function () {
             { patate: 1, poil: 222 },
             { patate: 11111, poil: 2222 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.excludeOutliers({ key: "patate" })
         assert.deepEqual(simpleData.getData(), [
             { patate: 1, poil: 2 },
@@ -413,7 +413,7 @@ describe('SimpleData', function () {
             { patate: 11, poil: 22 },
             { patate: 1, poil: 222 }
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.correlation({ key1: "patate", key2: "poil", overwrite: true })
         // TODO: is this the expected behaviour?    
         assert.deepEqual(simpleData.getData(), [{
@@ -431,7 +431,7 @@ describe('SimpleData', function () {
         const dataToBeAdded = [
             { patate: 1, poil: 222 }
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.addItems({ dataToBeAdded })
         assert.deepEqual(simpleData.getData(), [
             { patate: 1, poil: 2 },
@@ -449,7 +449,7 @@ describe('SimpleData', function () {
         const dataToBeAdded = [
             { patate: 1, poil: 222 }
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.addItems({ dataToBeAdded })
         assert.deepEqual(simpleData.getData(), [
             { patate: 1, poil: 2 },
@@ -467,7 +467,7 @@ describe('SimpleData', function () {
             { patate: "1", peanut: 3 },
             { patate: "11", peanut: 33 },
         ]
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.mergeItems({ dataToBeMerged, commonKey: "patate" })
         // TODO: is this the expected behaviour with strings?
         assert.deepEqual(simpleData.getData(), [
@@ -482,7 +482,7 @@ describe('SimpleData', function () {
             { patate: "11", poil: 22 },
         ]
         const encoding = "utf8"
-        const simpleData = new SimpleData({ data: data })
+        const simpleData = new SimpleData().loadDataFromArray({ data: data })
         temporaryDirectoryTask((tempPath: string) => {
             const filePath = `${tempPath}/test.csv`
             simpleData.saveData({ path: filePath, encoding })

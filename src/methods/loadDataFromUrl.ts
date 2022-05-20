@@ -43,7 +43,7 @@ export default async function loadUrl({
 
     } else if (fileExtension === "json") {
 
-        arrayOfObjects = JSON.parse(data) as SimpleDataItem[]
+        arrayOfObjects = JSON.parse(data)
 
     } else {
 
@@ -51,5 +51,5 @@ export default async function loadUrl({
 
     }
 
-    return arrayOfObjects as SimpleDataItem[]
+    return arrayOfObjects
 }
