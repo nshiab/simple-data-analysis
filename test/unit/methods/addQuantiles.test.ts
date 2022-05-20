@@ -38,6 +38,24 @@ describe("addQuantiles", function() {
         ])
     })
 
+    it("should add quantiles with skewed distribution", function () {
+        const data = [
+            { patate: 1 },
+            { patate: 2 },
+            { patate: 3 },
+            { patate: 4 },
+            { patate: 50 },
+        ]
+        const quantilesData = addQuantiles(data, "patate", "quantile", 2)
+        assert.deepEqual(quantilesData, [
+            { patate: 1, quantile: 1 },
+            { patate: 2, quantile: 1 },
+            { patate: 3, quantile: 2 },
+            { patate: 4, quantile: 2 },
+            { patate: 50, quantile: 2 },
+        ])
+    })
+
     it("should throw error if nbQuantiles < 1", function () {
         const data = [
             { patate: 1 },
