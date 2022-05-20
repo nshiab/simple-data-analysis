@@ -33,11 +33,11 @@
     },
     "scripts": {
         "test": "mocha --require ts-node/register test/unit/**/*.ts",
-        "integrationDocumentTest": "node --loader ts-node/esm test/integration/documentTest.tsx",
-        "integrationTest": "node --loader ts-node/esm test/integration/test.ts",
+        "test-doc": "node --loader ts-node/esm test/integration/SimpleDocument.test.tsx",
+        "test-data": "node --loader ts-node/esm test/integration/SimpleData.test.ts",
         "lint": "eslint . --ext .ts",
-        "allTests": "npm run test && npm run integrationTest && npm run integrationDocumentTest && npm run lint",
-        "build": "npm run allTests && rm -rf dist && npx tsc && rollup --config"
+        "all": "npm run test && npm run test-data && npm run test-doc && npm run lint",
+        "build": "npm run all && rm -rf dist && npx tsc && rollup --config"
     },
     "engines": {
         "node": ">=16.0"
@@ -76,10 +76,12 @@
         "@mui/icons-material": "^5.8.0",
         "@mui/material": "^5.8.0",
         "@observablehq/plot": "^0.4.3",
+        "@types/d3-scale": "^4.0.2",
         "@types/react": "^18.0.9",
         "@types/react-dom": "^18.0.4",
         "axios": "^0.27.2",
         "d3-array": "^3.1.6",
+        "d3-scale": "^4.0.2",
         "d3-time-format": "^4.1.0",
         "jsdom": "^19.0.0",
         "lodash.camelcase": "^4.3.0",

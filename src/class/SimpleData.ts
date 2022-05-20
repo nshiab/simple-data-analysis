@@ -456,7 +456,7 @@ export default class SimpleData {
         nbQuantiles: number,
         overwrite?: boolean
     }): SimpleData {
-        const data = addQuantiles_(this._data, key, newKey, nbQuantiles, this.verbose)
+        const data = addQuantiles_(this._data, key, newKey, nbQuantiles)
         overwrite && this.#updateSimpleData(data)
 
         return this

@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import papaparse from "papaparse"
 import { temporaryDirectoryTask } from 'tempy'
 import { utcParse } from "d3-time-format"
-import { SimpleData } from "../../src/index.js"
+import { SimpleData } from "../../../src/index.js"
 
 describe('SimpleData', function () {
     it('should instantiate', function () {
@@ -347,12 +347,11 @@ describe('SimpleData', function () {
         ]
         const simpleData = new SimpleData().loadDataFromArray({ data: data })
         simpleData.addQuantiles({ key: "patate", newKey: "quantile", nbQuantiles: 2 })
-        // TODO: Fix this! This should not be the expected behaviour!
         assert.deepEqual(simpleData.getData(), [
-            { patate: 1, poil: 2, quantile: 2 },
-            { patate: 11, poil: 22, quantile: 2 },
+            { patate: 1, poil: 2, quantile: 1 },
+            { patate: 11, poil: 22, quantile: 1 },
             { patate: 111, poil: 222, quantile: 1 },
-            { patate: 1111, poil: 2222, quantile: 1 },
+            { patate: 1111, poil: 2222, quantile: 2 },
         ])
     })
 
