@@ -2,7 +2,7 @@ import { SimpleDataItem } from "../types/SimpleData.types.js"
 import { dot, line, barY, boxY } from "@observablehq/plot"
 import plotChart from "../helpers/plotChart.js"
 
-export default function createChart(data: SimpleDataItem[], type: "dot" | "line" | "bar" | "box", x: string, y: string, color?: string, verbose?: boolean): string {
+export default function getChart(data: SimpleDataItem[], type: "dot" | "line" | "bar" | "box", x: string, y: string, color?: string, verbose?: boolean): string {
 
     const markOption: { [key: string]: string } = { x, y }
 

@@ -37,8 +37,8 @@
         "test-data": "node --loader ts-node/esm test/integration/SimpleData.test.ts",
         "test-data-node": "node --loader ts-node/esm test/integration/SimpleDataNode.test.ts",
         "lint": "eslint . --ext .ts",
-        "all": "npm run test && npm run test-data && npm run test-data-node && npm run test-doc && npm run lint",
-        "build": "npm run all && rm -rf dist && npx tsc && rollup --config"
+        "allTests": "npm run test && npm run test-data && npm run test-data-node && npm run test-doc && npm run lint",
+        "build": "npm run allTests && rm -rf dist && npx tsc && rollup --config"
     },
     "engines": {
         "node": ">=16.0"
@@ -84,7 +84,6 @@
         "d3-array": "^3.1.6",
         "d3-scale": "^4.0.2",
         "d3-time-format": "^4.1.0",
-        "i": "^0.3.7",
         "jsdom": "^19.0.0",
         "lodash.camelcase": "^4.3.0",
         "lodash.clonedeep": "^4.5.0",

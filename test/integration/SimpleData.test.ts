@@ -7,10 +7,9 @@ import * as Plot from "@observablehq/plot"
 
 async function main() {
 
-    new SimpleData({ verbose: true, logParameters: true })
-        .loadDataFromArray({
-            data: [{ first: "Nael", last: "Shiab" }, { first: "Isabelle", last: "Bouchard" }]
-        })
+    new SimpleData({
+        data: [{ first: "Nael", last: "Shiab" }, { first: "Isabelle", last: "Bouchard" }], verbose: true, logParameters: true
+    })
 
     const simpleData = await new SimpleData({ verbose: true, logParameters: true })
         .loadDataFromUrl({ url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv" })
@@ -82,7 +81,7 @@ async function main() {
 
     simpleData.addItems({ dataToBeAdded: moreEmployees })
 
-    const moreEmployeesSimpleData = new SimpleData().loadDataFromArray({
+    const moreEmployeesSimpleData = new SimpleData({
         data: [
             {
                 hireDate: "2021-11-23",
@@ -120,7 +119,7 @@ async function main() {
     simpleData.mergeItems({ dataToBeMerged: unitsNames, commonKey: "unit" })
         .removeKey({ key: "unitName" })
 
-    const unitsNamesSimpleData = new SimpleData().loadDataFromArray({
+    const unitsNamesSimpleData = new SimpleData({
         data: [
             {
                 unit: "30",
@@ -157,14 +156,14 @@ async function main() {
 
     simpleData.valuesToDate({ key: "hireDate", format: "%Y-%m-%d" })
 
-    simpleData.createChart({ type: "line", x: "hireDate", y: "salary" })
-    simpleData.createChart({ type: "line", x: "hireDate", y: "salary", color: "unit" })
-    simpleData.createChart({ type: "bar", x: "unit", y: "salary" })
-    simpleData.createChart({ type: "bar", x: "unit", y: "salary", color: "unit" })
-    simpleData.createChart({ type: "box", x: "unit", y: "salary" })
-    simpleData.createChart({ type: "box", x: "unit", y: "salary", color: "unit" })
+    simpleData.getChart({ type: "line", x: "hireDate", y: "salary" })
+    simpleData.getChart({ type: "line", x: "hireDate", y: "salary", color: "unit" })
+    simpleData.getChart({ type: "bar", x: "unit", y: "salary" })
+    simpleData.getChart({ type: "bar", x: "unit", y: "salary", color: "unit" })
+    simpleData.getChart({ type: "box", x: "unit", y: "salary" })
+    simpleData.getChart({ type: "box", x: "unit", y: "salary", color: "unit" })
 
-    simpleData.createCustomChart({
+    simpleData.getCustomChart({
         plotOptions: {
             grid: true,
             facet: {

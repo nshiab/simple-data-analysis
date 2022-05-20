@@ -4,10 +4,7 @@ import * as Plot from "@observablehq/plot"
 
 async function main() {
 
-    new SimpleDataNode({ verbose: true, logParameters: true })
-        .loadDataFromArray({
-            data: [{ first: "Nael", last: "Shiab" }, { first: "Isabelle", last: "Bouchard" }]
-        })
+    new SimpleDataNode({ data: [{ first: "Nael", last: "Shiab" }, { first: "Isabelle", last: "Bouchard" }], verbose: true, logParameters: true })
 
     const simpleDataNode = await new SimpleDataNode({ verbose: true, logParameters: true })
         .loadDataFromUrl({ url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv" })
@@ -79,7 +76,7 @@ async function main() {
 
     simpleDataNode.addItems({ dataToBeAdded: moreEmployees })
 
-    const moreEmployeesSimpleDataNode = new SimpleDataNode().loadDataFromArray({
+    const moreEmployeesSimpleDataNode = new SimpleDataNode({
         data: [
             {
                 hireDate: "2021-11-23",
@@ -117,7 +114,7 @@ async function main() {
     simpleDataNode.mergeItems({ dataToBeMerged: unitsNames, commonKey: "unit" })
         .removeKey({ key: "unitName" })
 
-    const unitsNamesSimpleData = new SimpleDataNode().loadDataFromArray({
+    const unitsNamesSimpleData = new SimpleDataNode({
         data: [
             {
                 unit: "30",

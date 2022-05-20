@@ -31,12 +31,12 @@ import getUniqueValues_ from "../methods/getUniqueValues.js"
 import summarize_ from "../methods/summarize.js"
 import mergeItems_ from "../methods/mergeItems.js"
 import checkKeys from "../helpers/checkKeys.js"
-import logCall from "../helpers/logCall.js"
-import asyncLogCall from "../helpers/asyncLogCall.js"
+import { logCall, asyncLogCall } from "../helpers/logCall.js"
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
 import loadDataFromUrl_ from "../methods/loadDataFromUrl.js"
-import createChart_ from "../methods/createChart.js"
-import createCustomChart_ from "../methods/createCustomChart.js"
+import getChart_ from "../methods/getChart.js"
+import getCustomChart_ from "../methods/getCustomChart.js"
+import log from "../helpers/log.js"
 
 export default class SimpleData {
 
@@ -48,17 +48,27 @@ export default class SimpleData {
     nbTableItemsToLog: number
 
     constructor({
+        data = [],
         verbose = false,
         logParameters = false,
         nbTableItemsToLog = 5
     }: {
+        data?: SimpleDataItem[],
         verbose?: boolean,
         logParameters?: boolean,
         nbTableItemsToLog?: number
     } = {}) {
 
-        this._data = []
-        this._keys = []
+
+
+        if (data.length > 0) {
+            checkKeys(data)
+        } else if (data.length === 0) {
+            verbose && log("\nnew SimpleDAta\nStarting an empty SimpleData")
+        }
+
+        this._data = data
+        this._keys = data[0] ? Object.keys(data[0]) : []
 
         this.verbose = verbose
         this.logParameters = logParameters
@@ -72,28 +82,6 @@ export default class SimpleData {
     }
 
     // *** IMPORTING METHOD *** //
-
-    @logCall()
-    loadDataFromArray({
-        data
-    }: {
-        data: SimpleDataItem[]
-    }): SimpleData {
-
-        if (this._data.length > 0) {
-            throw new Error("This SimpleData already has data. Create another one.")
-        }
-
-        if (data.length === 0) {
-            throw new Error("Incoming data is empty.")
-        }
-
-        checkKeys(data)
-
-        this.#updateSimpleData(data)
-
-        return this
-    }
 
     @asyncLogCall()
     async loadDataFromUrl({
@@ -490,14 +478,14 @@ export default class SimpleData {
     // *** VISUALIZATION METHODS *** //
 
     @logCall()
-    createChart({ type, x, y, color }: { type: "dot" | "line" | "bar" | "box", x: string, y: string, color?: string }): string {
-        const chart = createChart_(this._data, type, x, y, color)
+    getChart({ type, x, y, color }: { type: "dot" | "line" | "bar" | "box", x: string, y: string, color?: string }): string {
+        const chart = getChart_(this._data, type, x, y, color)
         return chart
     }
 
     @logCall()
-    createCustomChart({ plotOptions }: { plotOptions: object }): string {
-        const chart = createCustomChart_(plotOptions)
+    getCustomChart({ plotOptions }: { plotOptions: object }): string {
+        const chart = getCustomChart_(plotOptions)
         return chart
     }
 

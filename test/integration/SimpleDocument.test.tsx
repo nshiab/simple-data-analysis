@@ -7,14 +7,12 @@ import React from "react"
 import { Typography } from "@mui/material"
 import { temporaryDirectoryTask } from 'tempy'
 
-const simpleData = new SimpleData().loadDataFromArray(
-    {
-        data: [
-            { name: "Nael", job: "Producer", variable1: 345, variable2: 56 },
-            { name: "Isabelle", job: "Data scientist", variable1: 123, variable2: 432 }
-        ]
-    }
-)
+const simpleData = new SimpleData({
+    data: [
+        { name: "Nael", job: "Producer", variable1: 345, variable2: 56 },
+        { name: "Isabelle", job: "Data scientist", variable1: 123, variable2: 432 }
+    ]
+})
 
 simpleData.showTable()
 
@@ -24,7 +22,7 @@ temporaryDirectoryTask((tempDir) => {
         .add({ component: <p style={{ color: "Red" }}>Much <span style={{ backgroundColor: "blue", fontWeight: "bold" }}>fancier</span> html element</p> })
         .add({ component: <Typography>A MUI component!</Typography> })
         .add({ component: <Table keys={simpleData.getKeys()} data={simpleData.getData()} /> })
-        .add({ component: simpleData.createChart({ type: "dot", x: "variable1", y: "variable2", color: "job" }) })
+        .add({ component: simpleData.getChart({ type: "dot", x: "variable1", y: "variable2", color: "job" }) })
         .saveDocument({ path: `${tempDir}/analysis.html` })
         .saveDocument({ path: `${tempDir}/analysis.js` })
 })

@@ -1,11 +1,13 @@
+import fs from "fs"
+import { JSDOM } from "jsdom"
 import SimpleData from "./SimpleData.js"
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
 import loadDataFromLocalFile_ from "../methods/loadDataFromLocalFile.js"
 import saveData_ from "../methods/saveData.js"
-import logCall from "../helpers/logCall.js"
+import { logCall } from "../helpers/logCall.js"
 import checkKeys from "../helpers/checkKeys.js"
-import writeChart from "../helpers/writeChart.js"
-import { JSDOM } from "jsdom"
+import log from "../helpers/log.js"
+
 
 export default class SimpleDataNode extends SimpleData {
 
@@ -63,33 +65,38 @@ export default class SimpleDataNode extends SimpleData {
 
     @logCall()
     saveChart({ path, type, x, y, color }: { path: string, type: "dot" | "line" | "bar" | "box", x: string, y: string, color?: string }): string {
+
         if (global.document === undefined) {
             const jsdom = new JSDOM("")
             global.document = jsdom.window.document
         }
-        const chart = super.createChart({ x, y, type, color })
-        writeChart(path, chart, this.verbose)
+
+        const chart = super.getChart({ x, y, type, color })
+
+        fs.writeFileSync(path, chart)
+        this.verbose && log(`=> chart save to ${path}`, "blue")
+
         return chart
     }
 
     @logCall()
     saveCustomChart({ path, plotOptions }: { path: string, plotOptions: object }): string {
+
         if (global.document === undefined) {
             const jsdom = new JSDOM("")
             global.document = jsdom.window.document
         }
-        const chart = super.createCustomChart({ plotOptions })
-        writeChart(path, chart, this.verbose)
+        const chart = super.getCustomChart({ plotOptions })
+
+        fs.writeFileSync(path, chart)
+        this.verbose && log(`=> chart save to ${path}`, "blue")
+
         return chart
     }
 
     // INHERITED METHODS //
 
     // *** IMPORTING METHOD *** //
-
-    loadDataFromArray({ data }: { data: SimpleDataItem[] }): SimpleDataNode {
-        return super.loadDataFromArray({ data }) as SimpleDataNode
-    }
 
     async loadDataFromUrl({
         url,
