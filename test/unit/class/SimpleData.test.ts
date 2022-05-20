@@ -409,13 +409,12 @@ describe('SimpleData', function () {
         const data = [
             { patate: 1, poil: 2 },
             { patate: 11, poil: 22 },
-            { patate: 1, poil: 222 }
+            { patate: 111, poil: 222 }
         ]
         const simpleData = new SimpleData({ data: data })
-        simpleData.correlation({ key1: "patate", key2: "poil", overwrite: true })
-        // TODO: is this the expected behaviour?    
+        simpleData.correlation({ key1: "patate", key2: "poil", overwrite: true }) 
         assert.deepEqual(simpleData.getData(), [{
-            correlation: -0.427,
+            correlation: 1,
             key1: "patate",
             key2: "poil"
         }])
