@@ -1,3 +1,7 @@
+import { JSDOM } from "jsdom"
+const jsdom = new JSDOM("")
+global.document = jsdom.window.document
+
 import { SimpleData, SimpleDocument, Table } from "../../src/index.js"
 import React from "react"
 import { Typography } from "@mui/material"
@@ -18,7 +22,7 @@ temporaryDirectoryTask((tempDir) => {
         .add({ component: <p style={{ color: "Red" }}>Much <span style={{ backgroundColor: "blue", fontWeight: "bold" }}>fancier</span> html element</p> })
         .add({ component: <Typography>A MUI component!</Typography> })
         .add({ component: <Table keys={simpleData.getKeys()} data={simpleData.getData()} /> })
-        .add({ component: simpleData.saveChart({ path: `${tempDir}/DocumentChart1.html`, type: "dot", x: "variable1", y: "variable2", color: "job" }) })
+        .add({ component: simpleData.getChart({ type: "dot", x: "variable1", y: "variable2", color: "job" }) })
         .saveDocument({ path: `${tempDir}/analysis.html` })
         .saveDocument({ path: `${tempDir}/analysis.js` })
 })

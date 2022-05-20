@@ -35,9 +35,10 @@
         "test": "mocha --require ts-node/register test/unit/**/*.test.ts",
         "test-doc": "node --loader ts-node/esm test/integration/SimpleDocument.test.tsx",
         "test-data": "node --loader ts-node/esm test/integration/SimpleData.test.ts",
+        "test-data-node": "node --loader ts-node/esm test/integration/SimpleDataNode.test.ts",
         "lint": "eslint . --ext .ts",
-        "all": "npm run test && npm run test-data && npm run test-doc && npm run lint",
-        "build": "npm run all && rm -rf dist && npx tsc && rollup --config"
+        "allTests": "npm run test && npm run test-data && npm run test-data-node && npm run test-doc && npm run lint",
+        "build": "npm run allTests && rm -rf dist && npx tsc && rollup --config"
     },
     "engines": {
         "node": ">=16.0"
@@ -50,6 +51,7 @@
         "@rollup/plugin-json": "^4.1.0",
         "@rollup/plugin-node-resolve": "^13.2.1",
         "@types/d3-array": "^3.0.2",
+        "@types/d3-scale": "^4.0.2",
         "@types/d3-time-format": "^4.0.0",
         "@types/jsdom": "^16.2.14",
         "@types/lodash.camelcase": "^4.3.7",
@@ -76,7 +78,6 @@
         "@mui/icons-material": "^5.8.0",
         "@mui/material": "^5.8.0",
         "@observablehq/plot": "^0.4.3",
-        "@types/d3-scale": "^4.0.2",
         "@types/react": "^18.0.9",
         "@types/react-dom": "^18.0.4",
         "axios": "^0.27.2",

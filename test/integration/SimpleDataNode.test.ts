@@ -1,27 +1,22 @@
-import { JSDOM } from "jsdom"
-const jsdom = new JSDOM("")
-global.document = jsdom.window.document
-
-import { SimpleData } from "../../src/index.js"
+import { SimpleDataNode } from "../../src/index.js"
+import { temporaryDirectoryTask } from 'tempy'
 import * as Plot from "@observablehq/plot"
 
 async function main() {
 
-    new SimpleData({
-        data: [{ first: "Nael", last: "Shiab" }, { first: "Isabelle", last: "Bouchard" }], verbose: true, logParameters: true
-    })
+    new SimpleDataNode({ data: [{ first: "Nael", last: "Shiab" }, { first: "Isabelle", last: "Bouchard" }], verbose: true, logParameters: true })
 
-    const simpleData = await new SimpleData({ verbose: true, logParameters: true })
+    const simpleDataNode = await new SimpleDataNode({ verbose: true, logParameters: true })
         .loadDataFromUrl({ url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv" })
 
 
-    simpleData.getData()
-    simpleData.getKeys()
+    simpleDataNode.getData()
+    simpleDataNode.getKeys()
 
-    simpleData.getArray({ key: "Name" })
-    simpleData.getUniqueValues({ key: "Job" })
+    simpleDataNode.getArray({ key: "Name" })
+    simpleDataNode.getUniqueValues({ key: "Job" })
 
-    simpleData
+    simpleDataNode
         .describe()
         .formatAllKeys()
         .renameKey({ oldKey: "departementOrUnit", newKey: "unit" })
@@ -79,9 +74,9 @@ async function main() {
         }
     ]
 
-    simpleData.addItems({ dataToBeAdded: moreEmployees })
+    simpleDataNode.addItems({ dataToBeAdded: moreEmployees })
 
-    const moreEmployeesSimpleData = new SimpleData({
+    const moreEmployeesSimpleDataNode = new SimpleDataNode({
         data: [
             {
                 hireDate: "2021-11-23",
@@ -102,8 +97,8 @@ async function main() {
         ]
     })
 
-    simpleData
-        .addItems({ dataToBeAdded: moreEmployeesSimpleData })
+    simpleDataNode
+        .addItems({ dataToBeAdded: moreEmployeesSimpleDataNode })
 
     const unitsNames = [
         {
@@ -116,10 +111,10 @@ async function main() {
         }
     ]
 
-    simpleData.mergeItems({ dataToBeMerged: unitsNames, commonKey: "unit" })
+    simpleDataNode.mergeItems({ dataToBeMerged: unitsNames, commonKey: "unit" })
         .removeKey({ key: "unitName" })
 
-    const unitsNamesSimpleData = new SimpleData({
+    const unitsNamesSimpleData = new SimpleDataNode({
         data: [
             {
                 unit: "30",
@@ -136,9 +131,9 @@ async function main() {
         ]
     })
 
-    simpleData.mergeItems({ dataToBeMerged: unitsNamesSimpleData, commonKey: "unit" })
+    simpleDataNode.mergeItems({ dataToBeMerged: unitsNamesSimpleData, commonKey: "unit" })
 
-    simpleData
+    simpleDataNode
         .addQuantiles({ key: "bonus", newKey: "salaryQuintile", nbQuantiles: 5 })
         .addBins({ key: "bonus", newKey: "salaryBins", nbBins: 5 })
         .addOutliers({ key: "bonus", newKey: "bonusOutlier" })
@@ -146,7 +141,7 @@ async function main() {
         .correlation()
         .correlation({ key1: "salary", key2: "bonus" })
         .summarize()
-        .summarize({ keyValue: simpleData.getKeys(), keyCategory: "job" })
+        .summarize({ keyValue: simpleDataNode.getKeys(), keyCategory: "job" })
         .summarize({ keyValue: "salary", keyCategory: ["job", "unit"] })
         .summarize({ keyValue: "salary", keyCategory: "job", summary: "mean" })
         .summarize({ keyValue: "salary", summary: "mean" })
@@ -154,27 +149,39 @@ async function main() {
         .summarize({ keyValue: "salary", keyCategory: "job", summary: "weightedMean", weight: "bonus" })
 
 
-    simpleData.valuesToDate({ key: "hireDate", format: "%Y-%m-%d" })
+    simpleDataNode.valuesToDate({ key: "hireDate", format: "%Y-%m-%d" })
 
-    simpleData.getChart({ type: "line", x: "hireDate", y: "salary" })
-    simpleData.getChart({ type: "line", x: "hireDate", y: "salary", color: "unit" })
-    simpleData.getChart({ type: "bar", x: "unit", y: "salary" })
-    simpleData.getChart({ type: "bar", x: "unit", y: "salary", color: "unit" })
-    simpleData.getChart({ type: "box", x: "unit", y: "salary" })
-    simpleData.getChart({ type: "box", x: "unit", y: "salary", color: "unit" })
+    temporaryDirectoryTask((tempDir) => {
 
-    simpleData.getCustomChart({
-        plotOptions: {
-            grid: true,
-            facet: {
-                data: simpleData.getData(),
-                y: "unit"
-            },
-            marks: [
-                Plot.dotX(simpleData.getData(), { x: "salary", fill: "unit" })
-            ]
-        }
+        simpleDataNode
+            .saveData({ path: `${tempDir}/integrationTest.csv` })
+            .saveData({ path: `${tempDir}/integrationTest.json` })
+
+        simpleDataNode.saveChart({ path: `${tempDir}/dot1.html`, type: "dot", x: "salary", y: "bonus" })
+        simpleDataNode.saveChart({ path: `${tempDir}/dot2.html`, type: "dot", x: "salary", y: "bonus", color: "job" })
+        simpleDataNode.saveChart({ path: `${tempDir}/line1.html`, type: "line", x: "hireDate", y: "salary" })
+        simpleDataNode.saveChart({ path: `${tempDir}/line2.html`, type: "line", x: "hireDate", y: "salary", color: "unit" })
+        simpleDataNode.saveChart({ path: `${tempDir}/bar1.html`, type: "bar", x: "unit", y: "salary" })
+        simpleDataNode.saveChart({ path: `${tempDir}/bar2.html`, type: "bar", x: "unit", y: "salary", color: "unit" })
+        simpleDataNode.saveChart({ path: `${tempDir}/box1.html`, type: "box", x: "unit", y: "salary" })
+        simpleDataNode.saveChart({ path: `${tempDir}/box2.html`, type: "box", x: "unit", y: "salary", color: "unit" })
+
+        simpleDataNode
+            .saveCustomChart({
+                path: `${tempDir}/customChart.html`,
+                plotOptions: {
+                    grid: true,
+                    facet: {
+                        data: simpleDataNode.getData(),
+                        y: "unit"
+                    },
+                    marks: [
+                        Plot.dotX(simpleDataNode.getData(), { x: "salary", fill: "unit" })
+                    ]
+                }
+            })
     })
+
 
 }
 
