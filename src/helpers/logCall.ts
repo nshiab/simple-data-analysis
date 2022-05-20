@@ -18,7 +18,8 @@ export function logCall() {
             const end = Date.now()
 
             if (this.verbose) {
-                const data = result instanceof SimpleData ? result.getData() : result
+                const data =
+                    result instanceof SimpleData ? result.getData() : result
                 showTable(data, this.nbTableItemsToLog)
                 log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
             }
@@ -46,7 +47,8 @@ export function asyncLogCall() {
             const end = Date.now()
 
             if (this.verbose) {
-                const data = result instanceof SimpleData ? result.getData() : result
+                const data =
+                    result instanceof SimpleData ? result.getData() : result
                 showTable(data, this.nbTableItemsToLog)
                 log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
             }

@@ -39,10 +39,9 @@ import getCustomChart_ from "../methods/getCustomChart.js"
 import log from "../helpers/log.js"
 
 export default class SimpleData {
-
     _data: SimpleDataItem[]
     _keys: string[]
-    // Logging 
+    // Logging
     verbose: boolean
     logParameters: boolean
     nbTableItemsToLog: number
@@ -51,16 +50,13 @@ export default class SimpleData {
         data = [],
         verbose = false,
         logParameters = false,
-        nbTableItemsToLog = 5
+        nbTableItemsToLog = 5,
     }: {
-        data?: SimpleDataItem[],
-        verbose?: boolean,
-        logParameters?: boolean,
+        data?: SimpleDataItem[]
+        verbose?: boolean
+        logParameters?: boolean
         nbTableItemsToLog?: number
     } = {}) {
-
-
-
         if (data.length > 0) {
             checkKeys(data)
         } else if (data.length === 0) {
@@ -73,7 +69,6 @@ export default class SimpleData {
         this.verbose = verbose
         this.logParameters = logParameters
         this.nbTableItemsToLog = nbTableItemsToLog
-
     }
 
     #updateSimpleData(data: SimpleDataItem[]) {
@@ -86,19 +81,18 @@ export default class SimpleData {
     @asyncLogCall()
     async loadDataFromUrl({
         url,
-        missingKeyValues = { "null": null, "NaN": NaN, "undefined": undefined },
-        encoding = "utf8"
+        missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
+        encoding = "utf8",
     }: {
-        url: string,
-        encoding?: BufferEncoding,
+        url: string
+        encoding?: BufferEncoding
         missingKeyValues?: SimpleDataItem
     }): Promise<this> {
-
         const data = await loadDataFromUrl_({
             url: url,
             verbose: this.verbose,
             missingKeyValues: missingKeyValues,
-            encoding: encoding
+            encoding: encoding,
         })
 
         if (data.length === 0) {
@@ -110,7 +104,6 @@ export default class SimpleData {
         this.#updateSimpleData(data)
 
         return this
-
     }
 
     // CLEANING METHODS AND RESTRUCTURING METHODS //
@@ -135,10 +128,10 @@ export default class SimpleData {
     excludeMissingValues({
         key,
         missingValues,
-        overwrite = true
+        overwrite = true,
     }: {
-        key?: string,
-        missingValues?: SimpleDataValue[],
+        key?: string
+        missingValues?: SimpleDataValue[]
         overwrite?: boolean
     } = {}): this {
         if (missingValues === undefined) {
@@ -164,7 +157,15 @@ export default class SimpleData {
     }
 
     @logCall()
-    renameKey({ oldKey, newKey, overwrite = true }: { oldKey: string, newKey: string, overwrite?: boolean }): this {
+    renameKey({
+        oldKey,
+        newKey,
+        overwrite = true,
+    }: {
+        oldKey: string
+        newKey: string
+        overwrite?: boolean
+    }): this {
         const data = renameKey_(this._data, oldKey, newKey)
         overwrite && this.#updateSimpleData(data)
 
@@ -172,7 +173,13 @@ export default class SimpleData {
     }
 
     @logCall()
-    removeKey({ key, overwrite = true }: { key: string, overwrite?: boolean }): this {
+    removeKey({
+        key,
+        overwrite = true,
+    }: {
+        key: string
+        overwrite?: boolean
+    }): this {
         const data = removeKey_(this._data, key)
         overwrite && this.#updateSimpleData(data)
 
@@ -180,14 +187,14 @@ export default class SimpleData {
     }
 
     @logCall()
-    addKey({ 
-        key, 
-        valueGenerator, 
-        overwrite = true 
-    } : { 
-        key: string, 
-        valueGenerator: (item: SimpleDataItem) => SimpleDataValue, 
-        overwrite?: boolean 
+    addKey({
+        key,
+        valueGenerator,
+        overwrite = true,
+    }: {
+        key: string
+        valueGenerator: (item: SimpleDataItem) => SimpleDataValue
+        overwrite?: boolean
     }): this {
         const data = addKey_(this._data, key, valueGenerator)
         overwrite && this.#updateSimpleData(data)
@@ -196,7 +203,13 @@ export default class SimpleData {
     }
 
     @logCall()
-    valuesToString({ key, overwrite = true }: { key: string, overwrite?: boolean }): this {
+    valuesToString({
+        key,
+        overwrite = true,
+    }: {
+        key: string
+        overwrite?: boolean
+    }): this {
         const data = valuesToString_(this._data, key)
         overwrite && this.#updateSimpleData(data)
 
@@ -204,7 +217,13 @@ export default class SimpleData {
     }
 
     @logCall()
-    valuesToInteger({ key, overwrite = true }: { key: string, overwrite?: boolean }): this {
+    valuesToInteger({
+        key,
+        overwrite = true,
+    }: {
+        key: string
+        overwrite?: boolean
+    }): this {
         const data = valuesToInteger_(this._data, key)
         overwrite && this.#updateSimpleData(data)
 
@@ -212,7 +231,13 @@ export default class SimpleData {
     }
 
     @logCall()
-    valuesToFloat({ key, overwrite = true }: { key: string, overwrite?: boolean }): this {
+    valuesToFloat({
+        key,
+        overwrite = true,
+    }: {
+        key: string
+        overwrite?: boolean
+    }): this {
         const data = valuesToFloat_(this._data, key)
         overwrite && this.#updateSimpleData(data)
 
@@ -220,7 +245,15 @@ export default class SimpleData {
     }
 
     @logCall()
-    valuesToDate({ key, format, overwrite = true }: { key: string, format: string, overwrite?: boolean }): this {
+    valuesToDate({
+        key,
+        format,
+        overwrite = true,
+    }: {
+        key: string
+        format: string
+        overwrite?: boolean
+    }): this {
         const data = valuesToDate_(this._data, key, format)
         overwrite && this.#updateSimpleData(data)
 
@@ -228,7 +261,15 @@ export default class SimpleData {
     }
 
     @logCall()
-    datesToString({ key, format, overwrite = true }: { key: string, format: string, overwrite?: boolean }): this {
+    datesToString({
+        key,
+        format,
+        overwrite = true,
+    }: {
+        key: string
+        format: string
+        overwrite?: boolean
+    }): this {
         const data = datesToString_(this._data, key, format)
         overwrite && this.#updateSimpleData(data)
 
@@ -236,7 +277,15 @@ export default class SimpleData {
     }
 
     @logCall()
-    roundValues({ key, nbDigits = 1, overwrite = true }: { key: string, nbDigits?: number, overwrite?: boolean }): this {
+    roundValues({
+        key,
+        nbDigits = 1,
+        overwrite = true,
+    }: {
+        key: string
+        nbDigits?: number
+        overwrite?: boolean
+    }): this {
         const data = roundValues_(this._data, key, nbDigits)
         overwrite && this.#updateSimpleData(data)
 
@@ -249,12 +298,12 @@ export default class SimpleData {
         oldValue,
         newValue,
         method = "entireString",
-        overwrite = true
+        overwrite = true,
     }: {
-        key: string,
-        oldValue: string,
-        newValue: string,
-        method: "entireString" | "partialString",
+        key: string
+        oldValue: string
+        newValue: string
+        method: "entireString" | "partialString"
         overwrite?: boolean
     }): this {
         const data = replaceValues_(this._data, key, oldValue, newValue, method)
@@ -264,14 +313,14 @@ export default class SimpleData {
     }
 
     @logCall()
-    modifyValues({ 
-        key, 
-        valueGenerator, 
-        overwrite = true 
-    } : { 
-        key: string, 
-        valueGenerator: (val: SimpleDataValue) => SimpleDataValue, 
-        overwrite?: boolean 
+    modifyValues({
+        key,
+        valueGenerator,
+        overwrite = true,
+    }: {
+        key: string
+        valueGenerator: (val: SimpleDataValue) => SimpleDataValue
+        overwrite?: boolean
     }): this {
         const data = modifyValues_(this._data, key, valueGenerator)
         overwrite && this.#updateSimpleData(data)
@@ -280,14 +329,14 @@ export default class SimpleData {
     }
 
     @logCall()
-    modifyItems({ 
-        key, 
-        itemGenerator, 
-        overwrite = true 
-    } : { 
-        key: string, 
-        itemGenerator: (item: SimpleDataItem) => SimpleDataValue, 
-        overwrite?: boolean 
+    modifyItems({
+        key,
+        itemGenerator,
+        overwrite = true,
+    }: {
+        key: string
+        itemGenerator: (item: SimpleDataItem) => SimpleDataValue
+        overwrite?: boolean
     }): this {
         const data = modifyItems_(this._data, key, itemGenerator)
         overwrite && this.#updateSimpleData(data)
@@ -296,7 +345,13 @@ export default class SimpleData {
     }
 
     @logCall()
-    excludeOutliers({ key, overwrite = true }: { key: string, overwrite?: boolean }): this {
+    excludeOutliers({
+        key,
+        overwrite = true,
+    }: {
+        key: string
+        overwrite?: boolean
+    }): this {
         const data = excludeOutliers_(this._data, key, this.verbose)
         overwrite && this.#updateSimpleData(data)
 
@@ -306,17 +361,13 @@ export default class SimpleData {
     @logCall()
     addItems({
         dataToBeAdded,
-        overwrite = true
+        overwrite = true,
     }: {
-        dataToBeAdded: SimpleDataItem[] | SimpleData,
-        nbDigits?: number,
+        dataToBeAdded: SimpleDataItem[] | SimpleData
+        nbDigits?: number
         overwrite?: boolean
     }): this {
-        const data = addItems_(
-            this._data,
-            dataToBeAdded,
-            this.verbose
-        )
+        const data = addItems_(this._data, dataToBeAdded, this.verbose)
         overwrite && this.#updateSimpleData(data)
 
         return this
@@ -327,12 +378,12 @@ export default class SimpleData {
         dataToBeMerged,
         commonKey,
         nbValuesTestedForTypeOf = 10000,
-        overwrite = true
+        overwrite = true,
     }: {
-        dataToBeMerged: SimpleDataItem[] | SimpleData,
-        commonKey: string,
-        nbValuesTestedForTypeOf?:
-        number, overwrite?: boolean
+        dataToBeMerged: SimpleDataItem[] | SimpleData
+        commonKey: string
+        nbValuesTestedForTypeOf?: number
+        overwrite?: boolean
     }): this {
         const data = mergeItems_(
             this._data,
@@ -349,7 +400,13 @@ export default class SimpleData {
     //*** SELECTION METHODS ***/
 
     @logCall()
-    selectKeys({ keys, overwrite = true }: { keys: string[], overwrite?: boolean }): this {
+    selectKeys({
+        keys,
+        overwrite = true,
+    }: {
+        keys: string[]
+        overwrite?: boolean
+    }): this {
         const data = selectKeys_(this._data, keys)
         overwrite && this.#updateSimpleData(data)
 
@@ -357,23 +414,34 @@ export default class SimpleData {
     }
 
     @logCall()
-    filterValues({ 
-        key, 
-        valueComparator, 
-        overwrite = true 
-    } : { 
-        key: string, 
-        valueComparator: (val: SimpleDataValue) => SimpleDataValue, 
-        overwrite?: boolean 
+    filterValues({
+        key,
+        valueComparator,
+        overwrite = true,
+    }: {
+        key: string
+        valueComparator: (val: SimpleDataValue) => SimpleDataValue
+        overwrite?: boolean
     }): this {
-        const data = filterValues_(this._data, key, valueComparator, this.verbose)
+        const data = filterValues_(
+            this._data,
+            key,
+            valueComparator,
+            this.verbose
+        )
         overwrite && this.#updateSimpleData(data)
 
         return this
     }
 
     @logCall()
-    filterItems({ itemComparator, overwrite = true }: { itemComparator: (val: SimpleDataItem) => boolean, overwrite?: boolean }): this {
+    filterItems({
+        itemComparator,
+        overwrite = true,
+    }: {
+        itemComparator: (val: SimpleDataItem) => boolean
+        overwrite?: boolean
+    }): this {
         const data = filterItems_(this._data, itemComparator, this.verbose)
         overwrite && this.#updateSimpleData(data)
 
@@ -386,10 +454,10 @@ export default class SimpleData {
     sortValues({
         key,
         order,
-        overwrite = true
+        overwrite = true,
     }: {
-        key: string,
-        order: "ascending" | "descending",
+        key: string
+        order: "ascending" | "descending"
         overwrite?: boolean
     }): this {
         const data = sortValues_(this._data, key, order)
@@ -406,14 +474,14 @@ export default class SimpleData {
         weight,
         overwrite = false,
         nbDigits = 1,
-        nbValuesTestedForTypeOf = 1000
+        nbValuesTestedForTypeOf = 1000,
     }: {
-        keyValue?: string | string[],
-        keyCategory?: string | string[],
-        summary?: string | string[],
-        weight?: string,
-        overwrite?: boolean,
-        nbDigits?: number,
+        keyValue?: string | string[]
+        keyCategory?: string | string[]
+        summary?: string | string[]
+        weight?: string
+        overwrite?: boolean
+        nbDigits?: number
         nbValuesTestedForTypeOf?: number
     } = {}): this {
         const data = summarize_(
@@ -435,12 +503,12 @@ export default class SimpleData {
         key1,
         key2,
         overwrite = false,
-        nbValuesTestedForTypeOf = 10000
+        nbValuesTestedForTypeOf = 10000,
     }: {
-        key1?: string,
-        key2?: string,
-        overwrite?: boolean,
-        nbDigits?: number,
+        key1?: string
+        key2?: string
+        overwrite?: boolean
+        nbDigits?: number
         nbValuesTestedForTypeOf?: number
     } = {}): this {
         const data = correlation_(
@@ -448,7 +516,7 @@ export default class SimpleData {
             this.verbose,
             nbValuesTestedForTypeOf,
             key1,
-            key2,
+            key2
         )
         overwrite && this.#updateSimpleData(data)
 
@@ -460,11 +528,11 @@ export default class SimpleData {
         key,
         newKey,
         nbQuantiles,
-        overwrite = true
+        overwrite = true,
     }: {
-        key: string,
-        newKey: string,
-        nbQuantiles: number,
+        key: string
+        newKey: string
+        nbQuantiles: number
         overwrite?: boolean
     }): this {
         const data = addQuantiles_(this._data, key, newKey, nbQuantiles)
@@ -478,11 +546,11 @@ export default class SimpleData {
         key,
         newKey,
         nbBins,
-        overwrite = true
+        overwrite = true,
     }: {
-        key: string,
-        newKey: string,
-        nbBins: number,
+        key: string
+        newKey: string
+        nbBins: number
         overwrite?: boolean
     }): this {
         const data = addBins_(this._data, key, newKey, nbBins)
@@ -495,10 +563,10 @@ export default class SimpleData {
     addOutliers({
         key,
         newKey,
-        overwrite = true
+        overwrite = true,
     }: {
-        key: string,
-        newKey: string,
+        key: string
+        newKey: string
         overwrite?: boolean
     }): this {
         const data = addOutliers_(this._data, key, newKey, this.verbose)
@@ -510,7 +578,17 @@ export default class SimpleData {
     // *** VISUALIZATION METHODS *** //
 
     @logCall()
-    getChart({ type, x, y, color }: { type: "dot" | "line" | "bar" | "box", x: string, y: string, color?: string }): string {
+    getChart({
+        type,
+        x,
+        y,
+        color,
+    }: {
+        type: "dot" | "line" | "bar" | "box"
+        x: string
+        y: string
+        color?: string
+    }): string {
         const chart = getChart_(this._data, type, x, y, color)
         return chart
     }
@@ -554,15 +632,15 @@ export default class SimpleData {
         return uniqueValues
     }
 
-
     // *** LOGGING METHODS AND OTHERS *** //
 
     @logCall()
-    showTable({ nbItemInTable = 5 }: { nbItemInTable?: "all" | number } = {}): this {
+    showTable({
+        nbItemInTable = 5,
+    }: { nbItemInTable?: "all" | number } = {}): this {
         // TODO: test this!
         showTable_(this._data, nbItemInTable)
 
         return this
     }
-
 }

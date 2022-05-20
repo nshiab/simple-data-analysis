@@ -8,9 +8,7 @@ import { logCall } from "../helpers/logCall.js"
 import checkKeys from "../helpers/checkKeys.js"
 import log from "../helpers/log.js"
 
-
 export default class SimpleDataNode extends SimpleData {
-
     #updateSimpleData(data: SimpleDataItem[]) {
         this._data = data
         this._keys = data[0] === undefined ? [] : Object.keys(data[0])
@@ -21,22 +19,24 @@ export default class SimpleDataNode extends SimpleData {
     @logCall()
     loadDataFromLocalFile({
         path,
-        missingKeyValues = { "null": null, "NaN": NaN, "undefined": undefined },
-        encoding = "utf8"
+        missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
+        encoding = "utf8",
     }: {
-        path: string,
-        encoding?: BufferEncoding,
+        path: string
+        encoding?: BufferEncoding
         missingKeyValues?: SimpleDataItem
     }): SimpleDataNode {
         if (this._data.length > 0) {
-            throw new Error("This SimpleData already has data. Create another one.")
+            throw new Error(
+                "This SimpleData already has data. Create another one."
+            )
         }
 
         const data = loadDataFromLocalFile_({
             path: path,
             verbose: this.verbose,
             missingKeyValues: missingKeyValues,
-            encoding: encoding
+            encoding: encoding,
         })
 
         if (data.length === 0) {
@@ -51,21 +51,32 @@ export default class SimpleDataNode extends SimpleData {
     }
 
     @logCall()
-    saveData({ path, encoding = "utf8" }: { path: string, encoding?: BufferEncoding }): SimpleDataNode {
-
-        saveData_(
-            this._data,
-            path,
-            this.verbose,
-            encoding
-        )
+    saveData({
+        path,
+        encoding = "utf8",
+    }: {
+        path: string
+        encoding?: BufferEncoding
+    }): SimpleDataNode {
+        saveData_(this._data, path, this.verbose, encoding)
 
         return this
     }
 
     @logCall()
-    saveChart({ path, type, x, y, color }: { path: string, type: "dot" | "line" | "bar" | "box", x: string, y: string, color?: string }): string {
-
+    saveChart({
+        path,
+        type,
+        x,
+        y,
+        color,
+    }: {
+        path: string
+        type: "dot" | "line" | "bar" | "box"
+        x: string
+        y: string
+        color?: string
+    }): string {
         if (global.document === undefined) {
             const jsdom = new JSDOM("")
             global.document = jsdom.window.document
@@ -80,8 +91,13 @@ export default class SimpleDataNode extends SimpleData {
     }
 
     @logCall()
-    saveCustomChart({ path, plotOptions }: { path: string, plotOptions: object }): string {
-
+    saveCustomChart({
+        path,
+        plotOptions,
+    }: {
+        path: string
+        plotOptions: object
+    }): string {
         if (global.document === undefined) {
             const jsdom = new JSDOM("")
             global.document = jsdom.window.document

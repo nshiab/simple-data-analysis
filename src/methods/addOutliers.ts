@@ -4,8 +4,12 @@ import { quantile, extent } from "d3-array"
 import percentage from "../helpers/percentage.js"
 import hasKey from "../helpers/hasKey.js"
 
-export default function addOutliers(data: SimpleDataItem[], key: string, newKey: string, verbose: boolean): SimpleDataItem[] {
-
+export default function addOutliers(
+    data: SimpleDataItem[],
+    key: string,
+    newKey: string,
+    verbose: boolean
+): SimpleDataItem[] {
     if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
@@ -13,7 +17,7 @@ export default function addOutliers(data: SimpleDataItem[], key: string, newKey:
         throw new Error("Already a key named " + key)
     }
 
-    const values = data.map(d => d[key]) as Iterable<number>
+    const values = data.map((d) => d[key]) as Iterable<number>
     const q1 = quantile(values, 0.25) as number
     const q3 = quantile(values, 0.75) as number
     const interQuartileRange = q3 - q1
@@ -23,12 +27,19 @@ export default function addOutliers(data: SimpleDataItem[], key: string, newKey:
 
     const [min, max] = extent(values)
 
-    verbose && log(`Min: ${min}, Lower threshold: ${lower}, Q1: ${q1}, Q3: ${q3}, Upper threshold: ${upper}, Max: ${max}`, "blue")
+    verbose &&
+        log(
+            `Min: ${min}, Lower threshold: ${lower}, Q1: ${q1}, Q3: ${q3}, Upper threshold: ${upper}, Max: ${max}`,
+            "blue"
+        )
 
     let outliers = 0
 
     for (let i = 0; i < data.length; i++) {
-        if (data[i][key] as number < lower || data[i][key] as number > upper) {
+        if (
+            (data[i][key] as number) < lower ||
+            (data[i][key] as number) > upper
+        ) {
             data[i][newKey] = true
             outliers += 1
         } else {
@@ -36,7 +47,14 @@ export default function addOutliers(data: SimpleDataItem[], key: string, newKey:
         }
     }
 
-    verbose && log(`${outliers} outliers found, representing ${percentage(outliers, data.length)} of the incoming data.`, "blue")
+    verbose &&
+        log(
+            `${outliers} outliers found, representing ${percentage(
+                outliers,
+                data.length
+            )} of the incoming data.`,
+            "blue"
+        )
 
     return data
 }

@@ -1,9 +1,8 @@
-import React from "react"
-import ReactDOMServer from 'react-dom/server';
-import getExtension from "../helpers/getExtension.js"
-import fs from "fs"
-import log from "../helpers/log.js"
-
+import React from "react";
+import ReactDOMServer from "react-dom/server";
+import getExtension from "../helpers/getExtension.js";
+import fs from "fs";
+import log from "../helpers/log.js";
 
 function renderFullPage(html: string) {
   return `
@@ -22,40 +21,40 @@ function renderFullPage(html: string) {
 }
 
 function renderReactComponent(html: string) {
-
   return `import React from "react"
 
   export default function Analysis() {
     return <div>${html}</div>
-  }`
+  }`;
 }
 
-
-export default async function saveDocument(components: (JSX.Element | string)[], path: string) {
-
-  const extension = getExtension(path)
+export default async function saveDocument(
+  components: (JSX.Element | string)[],
+  path: string
+) {
+  const extension = getExtension(path);
   if (!["html", "js"].includes(extension)) {
-    throw new Error("Your analysis must be saved into an html or js file.")
+    throw new Error("Your analysis must be saved into an html or js file.");
   }
 
-  let html = "<div id='simpleDataAnalysisDocument' style='width:100%;max-width:600px;margin-left:auto;margin-right:auto;'>"
+  let html =
+    "<div id='simpleDataAnalysisDocument' style='width:100%;max-width:600px;margin-left:auto;margin-right:auto;'>";
 
   for (const component of components) {
     if (typeof component === "string") {
-      html += component
+      html += component;
     } else {
-      html += ReactDOMServer.renderToString(component)
+      html += ReactDOMServer.renderToString(component);
     }
   }
 
-
-  html += "</div>"
+  html += "</div>";
 
   if (extension === "html") {
-    fs.writeFileSync(path, renderFullPage(html))
+    fs.writeFileSync(path, renderFullPage(html));
   } else if (extension === "js") {
-    fs.writeFileSync(path, renderReactComponent(html))
+    fs.writeFileSync(path, renderReactComponent(html));
   }
 
-  log(`=> Document saved to ${path}`, "blue")
+  log(`=> Document saved to ${path}`, "blue");
 }

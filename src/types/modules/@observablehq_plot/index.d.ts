@@ -1,1 +1,1 @@
-declare module '@observablehq/plot';
+declare module "@observablehq/plot"
