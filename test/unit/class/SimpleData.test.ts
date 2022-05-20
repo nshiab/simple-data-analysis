@@ -5,8 +5,8 @@ import assert from "assert"
 import { utcParse } from "d3-time-format"
 import { SimpleData } from "../../../src/index.js"
 
-describe('SimpleData', function () {
-    it('should instantiate', function () {
+describe("SimpleData", function () {
+    it("should instantiate", function () {
         const data = [{ patate: 1, poil: 2 }]
         const simpleData = new SimpleData({ data: data })
         assert.equal(data, simpleData.getData())
@@ -62,18 +62,18 @@ describe('SimpleData', function () {
         assert.deepEqual(simpleData.getData(), [
             {
                 count: 2,
-                key: 'patate',
+                key: "patate",
                 number: 0,
-                string: [2, '100.00%'],
-                uniques: [2, '100.00%']
+                string: [2, "100.00%"],
+                uniques: [2, "100.00%"],
             },
             {
                 count: 2,
-                key: 'poil',
-                number: [2, '100.00%'],
+                key: "poil",
+                number: [2, "100.00%"],
                 string: 0,
-                uniques: [2, '100.00%']
-            }
+                uniques: [2, "100.00%"],
+            },
         ])
     })
 
@@ -84,11 +84,13 @@ describe('SimpleData', function () {
         ]
         const simpleData = new SimpleData({ data: data })
         simpleData.describe({ overwrite: true })
-        assert.deepEqual(simpleData.getData(), [{
-            nbDataPoints: 4,
-            nbItems: 2,
-            nbKeys: 2
-        }])
+        assert.deepEqual(simpleData.getData(), [
+            {
+                nbDataPoints: 4,
+                nbItems: 2,
+                nbKeys: 2,
+            },
+        ])
     })
 
     it("should summarize", function () {
@@ -98,17 +100,18 @@ describe('SimpleData', function () {
         ]
         const simpleData = new SimpleData({ data: data })
         simpleData.summarize({ overwrite: true })
-        assert.deepEqual(simpleData.getData(), [{
-            value: 'poil',
-            count: 2,
-            min: 2,
-            max: 22,
-            sum: 24,
-            mean: 12,
-            median: 12,
-            deviation: 14.1
-        }])
-
+        assert.deepEqual(simpleData.getData(), [
+            {
+                value: "poil",
+                count: 2,
+                min: 2,
+                max: 22,
+                sum: 24,
+                mean: 12,
+                median: 12,
+                deviation: 14.1,
+            },
+        ])
     })
 
     it("should exclude missing values", function () {
@@ -141,22 +144,19 @@ describe('SimpleData', function () {
         ]
         const simpleData = new SimpleData({ data: data })
         simpleData.removeKey({ key: "patate" })
-        assert.deepEqual(simpleData.getData(), [
-            { poil: 2 },
-            { poil: 22 },
-        ])
+        assert.deepEqual(simpleData.getData(), [{ poil: 2 }, { poil: 22 }])
     })
 
     it("should add key", function () {
-        const data = [
-            { patate: 1 },
-            { patate: 11 },
-        ]
+        const data = [{ patate: 1 }, { patate: 11 }]
         const simpleData = new SimpleData({ data: data })
-        simpleData.addKey({ key: "poil", valueGenerator: item => item.patate as number * 2 })
+        simpleData.addKey({
+            key: "poil",
+            valueGenerator: (item) => (item.patate as number) * 2,
+        })
         assert.deepEqual(simpleData.getData(), [
             { patate: 1, poil: 2 },
-            { patate: 11, poil: 22 }
+            { patate: 11, poil: 22 },
         ])
     })
 
@@ -174,16 +174,13 @@ describe('SimpleData', function () {
     })
 
     it("should modify values", function () {
-        const data = [
-            { patate: 1 },
-            { patate: 11 },
-        ]
+        const data = [{ patate: 1 }, { patate: 11 }]
         const simpleData = new SimpleData({ data: data })
-        simpleData.modifyValues({ key: "patate", valueGenerator: item => item as number * 2 })
-        assert.deepEqual(simpleData.getData(), [
-            { patate: 2 },
-            { patate: 22 },
-        ])
+        simpleData.modifyValues({
+            key: "patate",
+            valueGenerator: (item) => (item as number) * 2,
+        })
+        assert.deepEqual(simpleData.getData(), [{ patate: 2 }, { patate: 22 }])
     })
 
     it("should modify items", function () {
@@ -194,7 +191,8 @@ describe('SimpleData', function () {
         const simpleData = new SimpleData({ data: data })
         simpleData.modifyItems({
             key: "patate",
-            itemGenerator: item => (item.patate as number) + (item.poil as number)
+            itemGenerator: (item) =>
+                (item.patate as number) + (item.poil as number),
         })
         assert.deepEqual(simpleData.getData(), [
             { poil: 2, patate: 3 },
@@ -203,54 +201,36 @@ describe('SimpleData', function () {
     })
 
     it("should format keys", function () {
-        const data = [
-            { patate_poil: 1 },
-        ]
+        const data = [{ patate_poil: 1 }]
         const simpleData = new SimpleData({ data: data })
         simpleData.formatAllKeys()
-        assert.deepEqual(simpleData.getData(), [
-            { patatePoil: 1 },
-        ])
+        assert.deepEqual(simpleData.getData(), [{ patatePoil: 1 }])
     })
 
     it("should convert values to string", function () {
-        const data = [
-            { patate: 1, poil: 2 },
-        ]
+        const data = [{ patate: 1, poil: 2 }]
         const simpleData = new SimpleData({ data: data })
         simpleData.valuesToString({ key: "patate" })
-        assert.deepEqual(simpleData.getData(), [
-            { patate: "1", poil: 2 },
-        ])
+        assert.deepEqual(simpleData.getData(), [{ patate: "1", poil: 2 }])
     })
 
     it("should convert values to integer", function () {
-        const data = [
-            { patate: "1", poil: 2 },
-        ]
+        const data = [{ patate: "1", poil: 2 }]
         const simpleData = new SimpleData({ data: data })
         simpleData.valuesToInteger({ key: "patate" })
-        assert.deepEqual(simpleData.getData(), [
-            { patate: 1, poil: 2 },
-        ])
+        assert.deepEqual(simpleData.getData(), [{ patate: 1, poil: 2 }])
     })
 
     it("should convert values to float", function () {
-        const data = [
-            { patate: "1", poil: 2 },
-        ]
+        const data = [{ patate: "1", poil: 2 }]
         const simpleData = new SimpleData({ data: data })
         simpleData.valuesToFloat({ key: "patate" })
-        assert.deepEqual(simpleData.getData(), [
-            { patate: 1.0, poil: 2 },
-        ])
+        assert.deepEqual(simpleData.getData(), [{ patate: 1.0, poil: 2 }])
     })
 
     it("should convert values to date", function () {
         const format = "%Y-%m-%d"
-        const data = [
-            { patate: "2022-02-03", poil: 2 },
-        ]
+        const data = [{ patate: "2022-02-03", poil: 2 }]
         const simpleData = new SimpleData({ data: data })
         simpleData.valuesToDate({ key: "patate", format })
         assert.deepEqual(simpleData.getData(), [
@@ -260,9 +240,7 @@ describe('SimpleData', function () {
 
     it("should convert date to string", function () {
         const format = "%Y-%m-%d"
-        const data = [
-            { patate: utcParse(format)("2022-02-03"), poil: 2 },
-        ]
+        const data = [{ patate: utcParse(format)("2022-02-03"), poil: 2 }]
         const simpleData = new SimpleData({ data: data })
         simpleData.datesToString({ key: "patate", format })
         assert.deepEqual(simpleData.getData(), [
@@ -276,10 +254,11 @@ describe('SimpleData', function () {
             { patate: 11, poil: 22 },
         ]
         const simpleData = new SimpleData({ data: data })
-        simpleData.filterValues({ key: "patate", valueComparator: val => val as number >= 10 })
-        assert.deepEqual(simpleData.getData(), [
-            { patate: 11, poil: 22 },
-        ])
+        simpleData.filterValues({
+            key: "patate",
+            valueComparator: (val) => (val as number) >= 10,
+        })
+        assert.deepEqual(simpleData.getData(), [{ patate: 11, poil: 22 }])
     })
 
     it("should filter items", function () {
@@ -290,11 +269,10 @@ describe('SimpleData', function () {
         ]
         const simpleData = new SimpleData({ data: data })
         simpleData.filterItems({
-            itemComparator: val => val.patate as number >= 10 && val.poil as number >= 200
+            itemComparator: (val) =>
+                (val.patate as number) >= 10 && (val.poil as number) >= 200,
         })
-        assert.deepEqual(simpleData.getData(), [
-            { patate: 111, poil: 222 },
-        ])
+        assert.deepEqual(simpleData.getData(), [{ patate: 111, poil: 222 }])
     })
 
     it("should round values", function () {
@@ -308,33 +286,34 @@ describe('SimpleData', function () {
             { patate: 1.11, poil: 2 },
             { patate: 11.11, poil: 22 },
         ])
-
     })
 
     it("should replace values", function () {
-        const data = [
-            { patate: "I am potato", poil: "I am poil" }
-        ]
+        const data = [{ patate: "I am potato", poil: "I am poil" }]
         const simpleData = new SimpleData({ data: data })
-        simpleData.replaceValues({ key: "patate", oldValue: "I am", newValue: "You are", method: "partialString" })
+        simpleData.replaceValues({
+            key: "patate",
+            oldValue: "I am",
+            newValue: "You are",
+            method: "partialString",
+        })
         assert.deepEqual(simpleData.getData(), [
-            { patate: "You are potato", poil: "I am poil" }
+            { patate: "You are potato", poil: "I am poil" },
         ])
-
     })
 
     it("should sort values", function () {
         const data = [
             { patate: 11, poil: 22 },
             { patate: 111, poil: 222 },
-            { patate: 1, poil: 2 }
+            { patate: 1, poil: 2 },
         ]
         const simpleData = new SimpleData({ data: data })
         simpleData.sortValues({ key: "patate", order: "descending" })
         assert.deepEqual(simpleData.getData(), [
             { patate: 111, poil: 222 },
             { patate: 11, poil: 22 },
-            { patate: 1, poil: 2 }
+            { patate: 1, poil: 2 },
         ])
     })
 
@@ -346,7 +325,11 @@ describe('SimpleData', function () {
             { patate: 1111, poil: 2222 },
         ]
         const simpleData = new SimpleData({ data: data })
-        simpleData.addQuantiles({ key: "patate", newKey: "quantile", nbQuantiles: 2 })
+        simpleData.addQuantiles({
+            key: "patate",
+            newKey: "quantile",
+            nbQuantiles: 2,
+        })
         assert.deepEqual(simpleData.getData(), [
             { patate: 1, poil: 2, quantile: 1 },
             { patate: 11, poil: 22, quantile: 1 },
@@ -401,7 +384,7 @@ describe('SimpleData', function () {
         assert.deepEqual(simpleData.getData(), [
             { patate: 1, poil: 2 },
             { patate: 11, poil: 22 },
-            { patate: 1, poil: 222 }
+            { patate: 1, poil: 222 },
         ])
     })
 
@@ -409,49 +392,50 @@ describe('SimpleData', function () {
         const data = [
             { patate: 1, poil: 2 },
             { patate: 11, poil: 22 },
-            { patate: 111, poil: 222 }
+            { patate: 111, poil: 222 },
         ]
         const simpleData = new SimpleData({ data: data })
-        simpleData.correlation({ key1: "patate", key2: "poil", overwrite: true })
-        assert.deepEqual(simpleData.getData(), [{
-            correlation: 1,
+        simpleData.correlation({
             key1: "patate",
-            key2: "poil"
-        }])
-    })
-
-    it("should add items", function () {
-        const data = [
-            { patate: 1, poil: 2 },
-            { patate: 11, poil: 22 },
-        ]
-        const dataToBeAdded = [
-            { patate: 1, poil: 222 }
-        ]
-        const simpleData = new SimpleData({ data: data })
-        simpleData.addItems({ dataToBeAdded })
+            key2: "poil",
+            overwrite: true,
+        })
         assert.deepEqual(simpleData.getData(), [
-            { patate: 1, poil: 2 },
-            { patate: 11, poil: 22 },
-            { patate: 1, poil: 222 }
+            {
+                correlation: 1,
+                key1: "patate",
+                key2: "poil",
+            },
         ])
     })
 
+    it("should add items", function () {
+        const data = [
+            { patate: 1, poil: 2 },
+            { patate: 11, poil: 22 },
+        ]
+        const dataToBeAdded = [{ patate: 1, poil: 222 }]
+        const simpleData = new SimpleData({ data: data })
+        simpleData.addItems({ dataToBeAdded })
+        assert.deepEqual(simpleData.getData(), [
+            { patate: 1, poil: 2 },
+            { patate: 11, poil: 22 },
+            { patate: 1, poil: 222 },
+        ])
+    })
 
     it("should add items", function () {
         const data = [
             { patate: 1, poil: 2 },
             { patate: 11, poil: 22 },
         ]
-        const dataToBeAdded = [
-            { patate: 1, poil: 222 }
-        ]
+        const dataToBeAdded = [{ patate: 1, poil: 222 }]
         const simpleData = new SimpleData({ data: data })
         simpleData.addItems({ dataToBeAdded })
         assert.deepEqual(simpleData.getData(), [
             { patate: 1, poil: 2 },
             { patate: 11, poil: 22 },
-            { patate: 1, poil: 222 }
+            { patate: 1, poil: 222 },
         ])
     })
 
@@ -478,11 +462,13 @@ describe('SimpleData', function () {
             { patate: "1", poil: 2 },
             { patate: "11", poil: 22 },
         ]
-        const chart = new SimpleData({ data: data })
-            .getChart({ type: "dot", x: "patate", y: "poil", color: "patate" })
+        const chart = new SimpleData({ data: data }).getChart({
+            type: "dot",
+            x: "patate",
+            y: "poil",
+            color: "patate",
+        })
         // TODO: is this the expected behaviour with strings?
         assert.deepEqual(typeof chart, "string")
     })
-
 })
-

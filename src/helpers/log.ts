@@ -1,7 +1,6 @@
 import checkEnvironment from "./checkEnvironment.js"
 
 export default function log(valuesToLog: any, color?: "bgRed" | "blue") {
-
     // TODO: colors for web browser
 
     const environment = checkEnvironment()

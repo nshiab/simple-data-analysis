@@ -1,7 +1,7 @@
 import assert from "assert"
 import addBins from "../../../src/methods/addBins.js"
 
-describe("addBins", function() {
+describe("addBins", function () {
     it("should add bins", function () {
         const data = [
             { patate: 1 },
@@ -77,23 +77,17 @@ describe("addBins", function() {
     })
 
     it("should throw error if nbBins < 1", function () {
-        const data = [
-            { patate: 1 },
-        ]
+        const data = [{ patate: 1 }]
         assert.throws(() => addBins(data, "patate", "bin", 0))
     })
 
     it("should throw error if key does not exists", function () {
-        const data = [
-            { patate: 1 },
-        ]
+        const data = [{ patate: 1 }]
         assert.throws(() => addBins(data, "poil", "bin", 5))
     })
 
     it("should throw error if newKey already exists", function () {
-        const data = [
-            { patate: 1 },
-        ]
+        const data = [{ patate: 1 }]
         assert.throws(() => addBins(data, "patate", "patate", 5))
     })
 })

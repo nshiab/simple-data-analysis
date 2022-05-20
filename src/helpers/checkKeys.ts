@@ -1,4 +1,4 @@
-import { SimpleDataItem } from "../types/SimpleData.types.js";
+import { SimpleDataItem } from "../types/SimpleData.types.js"
 import isEqual from "lodash.isequal"
 import log from "./log.js";
 

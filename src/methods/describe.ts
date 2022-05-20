@@ -1,7 +1,6 @@
 import { SimpleDataItem } from "../types/SimpleData.types.js"
 
 export default function describe(data: SimpleDataItem[]): SimpleDataItem[] {
-
     const nbItems = data.length
     const nbKeys = Object.keys(data[0]).length
     const nbDataPoints = nbItems * nbKeys
@@ -9,8 +8,8 @@ export default function describe(data: SimpleDataItem[]): SimpleDataItem[] {
     const dataDescription = {
         nbItems,
         nbKeys,
-        nbDataPoints
+        nbDataPoints,
     }
 
-    return [ dataDescription ]
+    return [dataDescription]
 }
