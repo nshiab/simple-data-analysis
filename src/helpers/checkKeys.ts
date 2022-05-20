@@ -1,8 +1,12 @@
 import { SimpleDataItem } from "../types/SimpleData.types.js"
 import isEqual from "lodash.isequal"
-import log from "./log.js";
+import log from "./log.js"
 
-export default function checkKeys(data: SimpleDataItem[], fillMissingKeys: boolean, verbose: boolean) {
+export default function checkKeys(
+    data: SimpleDataItem[],
+    fillMissingKeys: boolean,
+    verbose: boolean
+) {
     if (data.length === 0) {
         throw new Error("The data is empty")
     }
@@ -15,11 +19,22 @@ export default function checkKeys(data: SimpleDataItem[], fillMissingKeys: boole
                 for (const key of uniquesKeys) {
                     if (data[i][key] === undefined) {
                         data[i][key] = undefined
-                        verbose && log(`Missing key ${key} for item index ${i}. Adding value as undefined.`)
+                        verbose &&
+                            log(
+                                `Missing key ${key} for item index ${i}. Adding value as undefined.`
+                            )
                     }
                 }
             } else {
-                throw new Error(`Objects in the array don't have the same keys.\nObject index 0 keys => ${String(keys)}\n${JSON.stringify(data[0])}\nObject index ${i} keys => ${String(currentKeys)}\n${JSON.stringify(data[i])}`)
+                throw new Error(
+                    `Objects in the array don't have the same keys.\nObject index 0 keys => ${String(
+                        keys
+                    )}\n${JSON.stringify(
+                        data[0]
+                    )}\nObject index ${i} keys => ${String(
+                        currentKeys
+                    )}\n${JSON.stringify(data[i])}`
+                )
             }
         }
     }

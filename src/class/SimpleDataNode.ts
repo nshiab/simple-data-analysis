@@ -19,13 +19,13 @@ export default class SimpleDataNode extends SimpleData {
     @logCall()
     loadDataFromLocalFile({
         path,
-        missingKeyValues = { "null": null, "NaN": NaN, "undefined": undefined },
+        missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         encoding = "utf8",
-        fillMissingKeys = false
+        fillMissingKeys = false,
     }: {
-        path: string,
-        encoding?: BufferEncoding,
-        missingKeyValues?: SimpleDataItem,
+        path: string
+        encoding?: BufferEncoding
+        missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
     }): SimpleDataNode {
         if (this._data.length > 0) {

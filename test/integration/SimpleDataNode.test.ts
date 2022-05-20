@@ -12,14 +12,29 @@ async function main() {
         logParameters: true,
     })
 
-    new SimpleDataNode({ data: [{ first: "Nael", last: "Shiab" }, { first: "Isabelle", last: "Bouchard" }], verbose: true, logParameters: true })
+    new SimpleDataNode({
+        data: [
+            { first: "Nael", last: "Shiab" },
+            { first: "Isabelle", last: "Bouchard" },
+        ],
+        verbose: true,
+        logParameters: true,
+    })
 
-    new SimpleDataNode({ verbose: true, logParameters: true })
-        .loadDataFromLocalFile({ path: "./data/employees.json", fillMissingKeys: true })
+    new SimpleDataNode({
+        verbose: true,
+        logParameters: true,
+    }).loadDataFromLocalFile({
+        path: "./data/employees.json",
+        fillMissingKeys: true,
+    })
 
-    const simpleDataNode = await new SimpleDataNode({ verbose: true, logParameters: true })
-        .loadDataFromUrl({ url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv" })
-
+    const simpleDataNode = await new SimpleDataNode({
+        verbose: true,
+        logParameters: true,
+    }).loadDataFromUrl({
+        url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv",
+    })
 
     simpleDataNode.getData()
     simpleDataNode.getKeys()
@@ -73,7 +88,7 @@ async function main() {
             key: "bonus",
             itemGenerator: (item) =>
                 typeof item.salary === "number" &&
-                    typeof item.bonus === "number"
+                typeof item.bonus === "number"
                     ? item.salary * item.bonus
                     : NaN,
         })
