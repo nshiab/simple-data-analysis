@@ -4,7 +4,6 @@ import percentage from "../helpers/percentage.js"
 import hasKey from "../helpers/hasKey.js"
 
 export default function checkValues(data: SimpleDataItem[]): SimpleDataItem[] {
-
     const keys: string[] = Object.keys(data[0])
 
     const allChecks: SimpleDataItem[] = []
@@ -29,7 +28,6 @@ export default function checkValues(data: SimpleDataItem[]): SimpleDataItem[] {
         checks["number"] = 0
 
         for (let i = 0; i < array.length; i++) {
-
             let typeOf
 
             if (array[i] === undefined) {
@@ -51,7 +49,10 @@ export default function checkValues(data: SimpleDataItem[]): SimpleDataItem[] {
 
         for (const key of Object.keys(checks)) {
             if (key !== "key" && key != "count" && checks[key] !== 0) {
-                checks[key] = [checks[key], percentage(checks[key], checks.count)]
+                checks[key] = [
+                    checks[key],
+                    percentage(checks[key], checks.count),
+                ]
             }
         }
 

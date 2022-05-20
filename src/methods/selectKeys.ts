@@ -1,8 +1,10 @@
 import { SimpleDataItem } from "../types/SimpleData.types.js"
 import hasKey from "../helpers/hasKey.js"
 
-export default function selectKeys(data: SimpleDataItem[], keys: string[]): SimpleDataItem[] {
-
+export default function selectKeys(
+    data: SimpleDataItem[],
+    keys: string[]
+): SimpleDataItem[] {
     for (const key of keys) {
         if (!hasKey(data[0], key)) {
             throw new Error("No key " + key)

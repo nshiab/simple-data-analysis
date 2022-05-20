@@ -8,14 +8,13 @@ export default async function loadUrl({
     url,
     verbose = false,
     missingKeyValues,
-    encoding
+    encoding,
 }: {
-    url: string,
-    verbose: boolean,
-    missingKeyValues: SimpleDataItem,
+    url: string
+    verbose: boolean
+    missingKeyValues: SimpleDataItem
     encoding: BufferEncoding
 }): Promise<SimpleDataItem[]> {
-
     const request = await axios.get(url)
     const data = request.data
 
@@ -24,10 +23,12 @@ export default async function loadUrl({
     let arrayOfObjects: any[] = []
 
     if (fileExtension === "csv") {
+        verbose && log("=> Csv file extension detected", "blue")
 
-        verbose && log('=> Csv file extension detected', "blue")
-
-        arrayOfObjects = Papa.parse(data, { header: true, dynamicTyping: true }).data
+        arrayOfObjects = Papa.parse(data, {
+            header: true,
+            dynamicTyping: true,
+        }).data
 
         const keys = Object.keys(arrayOfObjects[0])
         const missingValueKeys = Object.keys(missingKeyValues)
@@ -40,15 +41,10 @@ export default async function loadUrl({
                 }
             }
         }
-
     } else if (fileExtension === "json") {
-
         arrayOfObjects = JSON.parse(data)
-
     } else {
-
-        throw new Error("Unknown file extension " + fileExtension);
-
+        throw new Error("Unknown file extension " + fileExtension)
     }
 
     return arrayOfObjects

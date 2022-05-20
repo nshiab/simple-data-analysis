@@ -15,36 +15,40 @@ export default function summarize(
     summary?: string | string[],
     weight?: string
 ): any[] {
-
     // Let's deal with the keys first
 
     let keys: string[] = []
 
     if (keyCategories === undefined) {
-
         verbose && log("No key provided. Data won't be grouped.")
-
     } else if (Array.isArray(keyCategories)) {
-
         for (const k of keyCategories) {
             if (!hasKey(data[0], k)) {
                 throw new Error("No key " + k)
             }
         }
 
-        keys = keyCategories.filter(k => checkTypeOfKey(data, k, "string", 0.5, verbose, nbValuesTested))
-
+        keys = keyCategories.filter((k) =>
+            checkTypeOfKey(data, k, "string", 0.5, verbose, nbValuesTested)
+        )
     } else if (typeof keyCategories === "string") {
-
         if (!hasKey(data[0], keyCategories)) {
             throw new Error("No key " + keyCategories)
         }
-        if (!checkTypeOfKey(data, keyCategories, "string", 0.5, verbose, nbValuesTested)) {
+        if (
+            !checkTypeOfKey(
+                data,
+                keyCategories,
+                "string",
+                0.5,
+                verbose,
+                nbValuesTested
+            )
+        ) {
             throw new Error("The key values should be of type string")
         }
 
         keys = [keyCategories]
-
     } else {
         throw new Error("key must be either a string or an array of string")
     }
@@ -59,12 +63,23 @@ export default function summarize(
                 throw new Error("No value " + v)
             }
         }
-        values = keyValue.filter(v => checkTypeOfKey(data, v, "number", 0.5, verbose, nbValuesTested))
+        values = keyValue.filter((v) =>
+            checkTypeOfKey(data, v, "number", 0.5, verbose, nbValuesTested)
+        )
     } else if (typeof keyValue === "string") {
         if (!hasKey(data[0], keyValue)) {
             throw new Error("No value " + keyValue)
         }
-        if (!checkTypeOfKey(data, keyValue, "number", 0.5, verbose, nbValuesTested)) {
+        if (
+            !checkTypeOfKey(
+                data,
+                keyValue,
+                "number",
+                0.5,
+                verbose,
+                nbValuesTested
+            )
+        ) {
             throw new Error("The value should be of type number")
         }
         values = [keyValue]
@@ -81,7 +96,15 @@ export default function summarize(
     } else if (typeof summary === "string") {
         summaries = [summary]
     } else if (summary === undefined) {
-        summaries = ["count", "min", "max", "sum", "mean", "median", "deviation"]
+        summaries = [
+            "count",
+            "min",
+            "max",
+            "sum",
+            "mean",
+            "median",
+            "deviation",
+        ]
     } else {
         throw new Error("summary must be either a string or an array of string")
     }
@@ -91,58 +114,74 @@ export default function summarize(
     const summariesResults: any[] = []
 
     for (const value of values) {
-
         for (const summary of summaries) {
-
             let func: (v: any) => any
 
             if (summary === "count") {
-                func = v => v.length
+                func = (v) => v.length
             } else if (summary === "min") {
-                func = v => min(v, (d: any) => d[value])
+                func = (v) => min(v, (d: any) => d[value])
             } else if (summary === "max") {
-                func = v => max(v, (d: any) => d[value])
+                func = (v) => max(v, (d: any) => d[value])
             } else if (summary === "sum") {
-                func = v => sum(v, (d: any) => d[value])
+                func = (v) => sum(v, (d: any) => d[value])
             } else if (summary === "mean") {
-                func = v => mean(v, (d: any) => d[value])
+                func = (v) => mean(v, (d: any) => d[value])
             } else if (summary === "median") {
-                func = v => median(v, (d: any) => d[value])
+                func = (v) => median(v, (d: any) => d[value])
             } else if (summary === "deviation") {
-                func = v => deviation(v, (d: any) => d[value])
+                func = (v) => deviation(v, (d: any) => d[value])
             } else if (summary === "weightedMean") {
-
                 if (weight === undefined) {
                     throw new Error("Missing argument weight")
                 }
                 if (!hasKey(data[0], weight)) {
                     throw new Error("No weight " + weight)
                 }
-                if (!checkTypeOfKey(data, weight, "number", 0.5, verbose, nbValuesTested)) {
+                if (
+                    !checkTypeOfKey(
+                        data,
+                        weight,
+                        "number",
+                        0.5,
+                        verbose,
+                        nbValuesTested
+                    )
+                ) {
                     throw new Error("The weight should be of type number")
                 }
 
-                func = v => sum(v, (d: any) => d[value] * d[weight]) / sum(v, (d: any) => d[weight])
-
+                func = (v) =>
+                    sum(v, (d: any) => d[value] * d[weight]) /
+                    sum(v, (d: any) => d[weight])
             } else {
                 throw new Error(`Unknown summary name/function ${summary}`)
             }
 
-            const keysFunc = keys.map(key => (d: SimpleDataItem) => d[key])
+            const keysFunc = keys.map((key) => (d: SimpleDataItem) => d[key])
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             const funcResults = flatRollup(data, func, ...keysFunc)
-            const results = keyCategories === "no key" || keys.length === 0 ? [[funcResults]] : funcResults
+            const results =
+                keyCategories === "no key" || keys.length === 0
+                    ? [[funcResults]]
+                    : funcResults
 
             // We structure the results to have an array of objects with the value
 
             for (const result of results) {
-
-                const arrayToCompare = [value].concat(result.slice(0, keys.length))
-                const filteredResults = summariesResults.find(d => isEqual(d.arrayToCompare, arrayToCompare))
+                const arrayToCompare = [value].concat(
+                    result.slice(0, keys.length)
+                )
+                const filteredResults = summariesResults.find((d) =>
+                    isEqual(d.arrayToCompare, arrayToCompare)
+                )
 
                 const fValue = result[result.length - 1]
-                const finalValue = fValue === undefined ? NaN : parseFloat(fValue.toFixed(nbDigits))
+                const finalValue =
+                    fValue === undefined
+                        ? NaN
+                        : parseFloat(fValue.toFixed(nbDigits))
 
                 if (filteredResults === undefined) {
                     const itemsSummarized: any = { value: value }
@@ -153,7 +192,7 @@ export default function summarize(
 
                     summariesResults.push({
                         arrayToCompare: arrayToCompare,
-                        itemsSummarized: itemsSummarized
+                        itemsSummarized: itemsSummarized,
                     })
                 } else {
                     filteredResults.itemsSummarized[summary] = finalValue
@@ -162,7 +201,7 @@ export default function summarize(
         }
     }
 
-    const summarizedData = summariesResults.map(d => d.itemsSummarized)
+    const summarizedData = summariesResults.map((d) => d.itemsSummarized)
 
     return summarizedData
 }

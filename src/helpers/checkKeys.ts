@@ -1,4 +1,4 @@
-import { SimpleDataItem } from "../types/SimpleData.types.js";
+import { SimpleDataItem } from "../types/SimpleData.types.js"
 import isEqual from "lodash.isequal"
 
 export default function checkKeys(data: SimpleDataItem[]) {
@@ -9,7 +9,11 @@ export default function checkKeys(data: SimpleDataItem[]) {
     for (let i = 1; i < data.length; i++) {
         const currentKeys = Object.keys(data[i]).sort()
         if (!isEqual(keys, currentKeys)) {
-            throw new Error(`Objects in the array don't have the same keys.\nObject index 0 keys => ${String(keys)}\nObject index ${i} keys => ${String(currentKeys)}`)
+            throw new Error(
+                `Objects in the array don't have the same keys.\nObject index 0 keys => ${String(
+                    keys
+                )}\nObject index ${i} keys => ${String(currentKeys)}`
+            )
         }
     }
 }
