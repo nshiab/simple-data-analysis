@@ -1,7 +1,7 @@
+import { JSDOM } from "jsdom"
+const jsdom = new JSDOM("")
+global.document = jsdom.window.document
 import assert from "assert"
-import * as fs from 'fs'
-import papaparse from "papaparse"
-import { temporaryDirectoryTask } from 'tempy'
 import { utcParse } from "d3-time-format"
 import { SimpleData } from "../../../src/index.js"
 
@@ -416,7 +416,7 @@ describe('SimpleData', function () {
         simpleData.correlation({ key1: "patate", key2: "poil", overwrite: true })
         // TODO: is this the expected behaviour?    
         assert.deepEqual(simpleData.getData(), [{
-            correlation: -0.427,
+            correlation: -0.4271,
             key1: "patate",
             key2: "poil"
         }])
@@ -475,22 +475,16 @@ describe('SimpleData', function () {
         ])
     })
 
-    it("should save data", function () {
+    it("should create a chart and return a string", function () {
         const data = [
             { patate: "1", poil: 2 },
             { patate: "11", poil: 22 },
         ]
-        const encoding = "utf8"
-        const simpleData = new SimpleData().loadDataFromArray({ data: data })
-        temporaryDirectoryTask((tempPath: string) => {
-            const filePath = `${tempPath}/test.csv`
-            simpleData.saveData({ path: filePath, encoding })
-
-            const csvString = fs.readFileSync(filePath).toString()
-            const csvData = papaparse.parse(csvString)
-
-            assert.deepEqual(data, csvData)
-        })
+        const chart = new SimpleData()
+            .loadDataFromArray({ data: data })
+            .createChart({ type: "dot", x: "patate", y: "poil", color: "patate" })
+        // TODO: is this the expected behaviour with strings?
+        assert.deepEqual(typeof chart, "string")
     })
 
 })

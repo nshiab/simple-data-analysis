@@ -6,7 +6,6 @@ import hasKey from "../helpers/hasKey.js"
 export default function correlation(
     data: SimpleDataItem[],
     verbose: boolean,
-    numDigits: number,
     nbTestedValues: number,
     key1?: string,
     key2?: string
@@ -82,7 +81,7 @@ export default function correlation(
 
         correlationData.push({
             ...corr,
-            correlation: Number.isNaN(result) ? NaN : parseFloat(result.toFixed(numDigits))
+            correlation: Number.isNaN(result) ? NaN : parseFloat(result.toFixed(4))
         })
     }
 
