@@ -1,4 +1,3 @@
-import React from "react";
 import ReactDOMServer from "react-dom/server";
 import getExtension from "../helpers/getExtension.js";
 import fs from "fs";

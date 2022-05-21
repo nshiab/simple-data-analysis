@@ -2,7 +2,7 @@ import log from "../helpers/log.js"
 import { SimpleDataItem } from "../types/SimpleData.types.js"
 import { flatRollup, mean, sum, median, max, min, deviation } from "d3-array"
 import checkTypeOfKey from "../helpers/checkTypeOfKey.js"
-import isEqual from "lodash.isequal"
+import { isEqual } from "lodash-es"
 import hasKey from "../helpers/hasKey.js"
 
 export default function summarize(

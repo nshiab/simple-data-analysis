@@ -1,5 +1,5 @@
 import { SimpleDataItem } from "../types/SimpleData.types.js"
-import isEqual from "lodash.isequal"
+import { isEqual } from "lodash-es"
 import log from "./log.js"
 
 export default function checkKeys(

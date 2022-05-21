@@ -3,6 +3,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import json from '@rollup/plugin-json';
 import { terser } from 'rollup-plugin-terser';
 import commonjs from '@rollup/plugin-commonjs';
+import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { visualizer } from "rollup-plugin-visualizer";
 import * as meta from "./package.json";
 
@@ -15,9 +16,10 @@ const copyright = readFileSync("./LICENSE", "utf-8")
 const banner = `// ${meta.homepage} v${meta.version} Copyright ${copyright}`
 
 const commonPlugins = [
+	nodePolyfills(),
 	json(),
 	commonjs(),
-	resolve(),
+	resolve()
 ]
 
 export default [
