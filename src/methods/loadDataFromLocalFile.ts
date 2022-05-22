@@ -1,7 +1,7 @@
 import log from "../helpers/log.js"
 import getExtension from "../helpers/getExtension.js"
 import fs from "fs"
-import Papa from "papaparse"
+import { csvParse, autoType } from "d3-dsv"
 import { SimpleDataItem } from "../types/SimpleData.types.js"
 
 export default function loadDataFromLocalFile({
@@ -26,10 +26,7 @@ export default function loadDataFromLocalFile({
 
         const csvString = fs.readFileSync(path, { encoding: encoding })
 
-        arrayOfObjects = Papa.parse(csvString, {
-            header: true,
-            dynamicTyping: true,
-        }).data as SimpleDataItem[]
+        arrayOfObjects = csvParse(csvString, autoType) as SimpleDataItem[]
 
         const keys = Object.keys(arrayOfObjects[0])
         const missingValueKeys = Object.keys(missingKeyValues)

@@ -19,7 +19,7 @@ const commonPlugins = [
 	nodePolyfills(),
 	json(),
 	commonjs(),
-	resolve({ browser: true })
+	resolve()
 ]
 
 export default [

@@ -1,5 +1,5 @@
 import axios from "axios"
-import Papa from "papaparse"
+import { csvParse, autoType } from "d3-dsv"
 import getExtension from "../helpers/getExtension.js"
 import log from "../helpers/log.js"
 import { SimpleDataItem } from "../types/SimpleData.types"
@@ -25,10 +25,7 @@ export default async function loadUrl({
     if (fileExtension === "csv") {
         verbose && log("=> Csv file extension detected", "blue")
 
-        arrayOfObjects = Papa.parse(data, {
-            header: true,
-            dynamicTyping: true,
-        }).data
+        arrayOfObjects = csvParse(data, autoType)
 
         const keys = Object.keys(arrayOfObjects[0])
         const missingValueKeys = Object.keys(missingKeyValues)
