@@ -1,4 +1,4 @@
-import { cloneDeep } from "lodash-es"
+import cloneDeep from "lodash.clonedeep"
 import renameKey_ from "../methods/renameKey.js"
 import describe_ from "../methods/describe.js"
 import formatAllKeys_ from "../methods/formatAllKeys.js"

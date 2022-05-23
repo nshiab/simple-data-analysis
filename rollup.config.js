@@ -4,7 +4,6 @@ import json from '@rollup/plugin-json';
 import { terser } from 'rollup-plugin-terser';
 import commonjs from '@rollup/plugin-commonjs';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
-import { optimizeLodashImports } from "@optimize-lodash/rollup-plugin";
 import typescript from '@rollup/plugin-typescript';
 import { visualizer } from "rollup-plugin-visualizer";
 import * as meta from "./package.json";
@@ -19,7 +18,6 @@ const banner = `// ${meta.homepage} v${meta.version} Copyright ${copyright}`
 
 const commonPlugins = [
 	typescript(),
-	optimizeLodashImports(),
 	commonjs(),
 	nodePolyfills(),
 	json(),
