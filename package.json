@@ -28,7 +28,7 @@
     "jsdelivr": "dist/simple-data-analysis.min.js",
     "unpkg": "dist/simple-data-analysis.min.js",
     "exports": {
-        "umd": "./dist/simple-data-analysis.min.js",
+        "umd": "./dist/simple-data-analysis.js",
         "default": "./dist/index.js"
     },
     "scripts": {
@@ -73,6 +73,7 @@
         "simple-data-analysis": "^0.8.0",
         "tempy": "^3.0.0",
         "ts-node": "^10.7.0",
+        "tslib": "^2.4.0",
         "typescript": "^4.6.4"
     },
     "dependencies": {
@@ -82,6 +83,8 @@
         "@mui/icons-material": "^5.8.0",
         "@mui/material": "^5.8.0",
         "@observablehq/plot": "^0.4.3",
+        "@optimize-lodash/rollup-plugin": "^3.0.0",
+        "@rollup/plugin-typescript": "^8.3.2",
         "@types/react": "^18.0.9",
         "@types/react-dom": "^18.0.4",
         "axios": "^0.27.2",
