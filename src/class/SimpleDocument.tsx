@@ -1,4 +1,4 @@
-import saveDocument_ from "../methods/saveDocument.js";
+import saveDocument_ from "../methods/exporting/saveDocument.js";
 import checkEnvironment from "../helpers/checkEnvironment.js";
 
 export default class SimpleDocument {

@@ -1,5 +1,5 @@
 import assert from "assert"
-import addQuantiles from "../../../src/methods/addQuantiles.js"
+import addQuantiles from "../../../src/methods/analyzing/addQuantiles.js"
 
 describe("addQuantiles", function () {
     it("should add quantiles", function () {

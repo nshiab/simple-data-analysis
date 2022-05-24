@@ -3,7 +3,6 @@ import resolve from '@rollup/plugin-node-resolve';
 import json from '@rollup/plugin-json';
 import { terser } from 'rollup-plugin-terser';
 import commonjs from '@rollup/plugin-commonjs';
-import nodePolyfills from 'rollup-plugin-polyfill-node';
 import typescript from '@rollup/plugin-typescript';
 import { visualizer } from "rollup-plugin-visualizer";
 import * as meta from "./package.json";
@@ -19,7 +18,6 @@ const banner = `// ${meta.homepage} v${meta.version} Copyright ${copyright}`
 const commonPlugins = [
 	typescript(),
 	commonjs(),
-	nodePolyfills(),
 	json(),
 	resolve({
 		jsnext: true,
@@ -43,7 +41,11 @@ export default [
 			visualizer((opts) => {
 				return { gzipSize: true, filename: "bundleSizeUMD.html" }
 			})
-		]
+		],
+		onwarn(message, warn) {
+			if (message.code === "CIRCULAR_DEPENDENCY") return;
+			warn(message);
+		}
 	},
 	{
 		input: 'src/indexWeb.ts',
@@ -64,6 +66,10 @@ export default [
 			visualizer((opts) => {
 				return { gzipSize: true, filename: "bundleSizeMin.html" }
 			})
-		]
+		],
+		onwarn(message, warn) {
+			if (message.code === "CIRCULAR_DEPENDENCY") return;
+			warn(message);
+		}
 	}
 ]

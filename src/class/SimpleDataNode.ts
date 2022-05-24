@@ -1,17 +1,47 @@
 import fs from "fs"
 import { JSDOM } from "jsdom"
 import SimpleData from "./SimpleData.js"
-import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
-import loadDataFromLocalFile_ from "../methods/loadDataFromLocalFile.js"
-import saveData_ from "../methods/saveData.js"
-import { logCall } from "../helpers/logCall.js"
+import { SimpleDataItem } from "../types/SimpleData.types"
+import loadDataFromLocalFile_ from "../methods/importing/loadDataFromLocalFile.js"
+import saveData_ from "../methods/exporting/saveData.js"
+import { logCall, asyncLogCall } from "../helpers/logCall.js"
 import checkKeys from "../helpers/checkKeys.js"
 import log from "../helpers/log.js"
+import loadDataFromUrlAxios_ from "../methods/importing/loadDataFromUrlAxios.js"
 
 export default class SimpleDataNode extends SimpleData {
     #updateSimpleData(data: SimpleDataItem[]) {
         this._data = data
         this._keys = data[0] === undefined ? [] : Object.keys(data[0])
+    }
+
+    // ** OVERWRITING METHODS ** //
+
+    @asyncLogCall()
+    async loadDataFromUrl({
+        url,
+        missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
+        fillMissingKeys = false,
+    }: {
+        url: string
+        missingKeyValues?: SimpleDataItem
+        fillMissingKeys?: boolean
+    }): Promise<this> {
+        const data = await loadDataFromUrlAxios_({
+            url: url,
+            verbose: this.verbose,
+            missingKeyValues: missingKeyValues,
+        })
+
+        if (data.length === 0) {
+            throw new Error("Incoming data is empty.")
+        }
+
+        checkKeys(data, fillMissingKeys, this.verbose)
+
+        this.#updateSimpleData(data)
+
+        return this
     }
 
     // ** SPECIFIC NODEJS METHODS ** //

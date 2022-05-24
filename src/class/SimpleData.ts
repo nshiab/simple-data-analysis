@@ -1,41 +1,41 @@
 import cloneDeep from "lodash.clonedeep"
-import renameKey_ from "../methods/renameKey.js"
-import describe_ from "../methods/describe.js"
-import formatAllKeys_ from "../methods/formatAllKeys.js"
-import getArray_ from "../methods/getArray.js"
+import renameKey_ from "../methods/cleaning/renameKey.js"
+import describe_ from "../methods/cleaning/describe.js"
+import formatAllKeys_ from "../methods/cleaning/formatAllKeys.js"
+import getArray_ from "../methods/exporting/getArray.js"
 import showTable_ from "../methods/showTable.js"
-import checkValues_ from "../methods/checkValues.js"
-import excludeMissingValues_ from "../methods/excludeMissingValues.js"
-import removeKey_ from "../methods/removeKey.js"
-import valuesToString_ from "../methods/valuesToString.js"
-import valuesToInteger_ from "../methods/valuesToInteger.js"
-import valuesToFloat_ from "../methods/valuesToFloat.js"
-import valuesToDate_ from "../methods/valuesToDate.js"
-import datesToString_ from "../methods/datesToString.js"
-import filterValues_ from "../methods/filterValues.js"
-import filterItems_ from "../methods/filterItems.js"
-import roundValues_ from "../methods/roundValues.js"
-import replaceValues_ from "../methods/replaceValues.js"
-import addKey_ from "../methods/addKey.js"
-import selectKeys_ from "../methods/selectKeys.js"
-import modifyValues_ from "../methods/modifyValues.js"
-import modifyItems_ from "../methods/modifyItems.js"
-import sortValues_ from "../methods/sortValues.js"
-import addQuantiles_ from "../methods/addQuantiles.js"
-import addBins_ from "../methods/addBins.js"
-import addOutliers_ from "../methods/addOutliers.js"
-import excludeOutliers_ from "../methods/excludeOutliers.js"
-import correlation_ from "../methods/correlation.js"
-import addItems_ from "../methods/addItems.js"
-import getUniqueValues_ from "../methods/getUniqueValues.js"
-import summarize_ from "../methods/summarize.js"
-import mergeItems_ from "../methods/mergeItems.js"
+import checkValues_ from "../methods/cleaning/checkValues.js"
+import excludeMissingValues_ from "../methods/cleaning/excludeMissingValues.js"
+import removeKey_ from "../methods/restructuring/removeKey.js"
+import valuesToString_ from "../methods/cleaning/valuesToString.js"
+import valuesToInteger_ from "../methods/cleaning/valuesToInteger.js"
+import valuesToFloat_ from "../methods/cleaning/valuesToFloat.js"
+import valuesToDate_ from "../methods/cleaning/valuesToDate.js"
+import datesToString_ from "../methods/cleaning/datesToString.js"
+import filterValues_ from "../methods/selecting/filterValues.js"
+import filterItems_ from "../methods/selecting/filterItems.js"
+import roundValues_ from "../methods/cleaning/roundValues.js"
+import replaceValues_ from "../methods/cleaning/replaceValues.js"
+import addKey_ from "../methods/restructuring/addKey.js"
+import selectKeys_ from "../methods/selecting/selectKeys.js"
+import modifyValues_ from "../methods/cleaning/modifyValues.js"
+import modifyItems_ from "../methods/cleaning/modifyItems.js"
+import sortValues_ from "../methods/analyzing/sortValues.js"
+import addQuantiles_ from "../methods/analyzing/addQuantiles.js"
+import addBins_ from "../methods/analyzing/addBins.js"
+import addOutliers_ from "../methods/analyzing/addOutliers.js"
+import excludeOutliers_ from "../methods/cleaning/excludeOutliers.js"
+import correlation_ from "../methods/analyzing/correlation.js"
+import addItems_ from "../methods/restructuring/addItems.js"
+import getUniqueValues_ from "../methods/exporting/getUniqueValues.js"
+import summarize_ from "../methods/analyzing/summarize.js"
+import mergeItems_ from "../methods/restructuring/mergeItems.js"
 import checkKeys from "../helpers/checkKeys.js"
 import { logCall, asyncLogCall } from "../helpers/logCall.js"
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
-import loadDataFromUrl_ from "../methods/loadDataFromUrl.js"
-import getChart_ from "../methods/getChart.js"
-import getCustomChart_ from "../methods/getCustomChart.js"
+import loadDataFromUrl_ from "../methods/importing/loadDataFromUrl.js"
+import getChart_ from "../methods/visualizing/getChart.js"
+import getCustomChart_ from "../methods/visualizing/getCustomChart.js"
 import log from "../helpers/log.js"
 
 export default class SimpleData {
@@ -84,11 +84,9 @@ export default class SimpleData {
     async loadDataFromUrl({
         url,
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
-        encoding = "utf8",
         fillMissingKeys = false,
     }: {
         url: string
-        encoding?: BufferEncoding
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
     }): Promise<this> {
@@ -96,7 +94,6 @@ export default class SimpleData {
             url: url,
             verbose: this.verbose,
             missingKeyValues: missingKeyValues,
-            encoding: encoding,
         })
 
         if (data.length === 0) {
@@ -110,7 +107,7 @@ export default class SimpleData {
         return this
     }
 
-    // CLEANING METHODS AND RESTRUCTURING METHODS //
+    // CLEANING METHODS //
 
     @logCall()
     describe({ overwrite = false }: { overwrite?: boolean } = {}): this {
@@ -171,36 +168,6 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         const data = renameKey_(this._data, oldKey, newKey)
-        overwrite && this.#updateSimpleData(data)
-
-        return this
-    }
-
-    @logCall()
-    removeKey({
-        key,
-        overwrite = true,
-    }: {
-        key: string
-        overwrite?: boolean
-    }): this {
-        const data = removeKey_(this._data, key)
-        overwrite && this.#updateSimpleData(data)
-
-        return this
-    }
-
-    @logCall()
-    addKey({
-        key,
-        valueGenerator,
-        overwrite = true,
-    }: {
-        key: string
-        valueGenerator: (item: SimpleDataItem) => SimpleDataValue
-        overwrite?: boolean
-    }): this {
-        const data = addKey_(this._data, key, valueGenerator)
         overwrite && this.#updateSimpleData(data)
 
         return this
@@ -357,6 +324,38 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         const data = excludeOutliers_(this._data, key, this.verbose)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    // *** RESTRUCTURING METHODS *** //
+
+    @logCall()
+    removeKey({
+        key,
+        overwrite = true,
+    }: {
+        key: string
+        overwrite?: boolean
+    }): this {
+        const data = removeKey_(this._data, key)
+        overwrite && this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    addKey({
+        key,
+        valueGenerator,
+        overwrite = true,
+    }: {
+        key: string
+        valueGenerator: (item: SimpleDataItem) => SimpleDataValue
+        overwrite?: boolean
+    }): this {
+        const data = addKey_(this._data, key, valueGenerator)
         overwrite && this.#updateSimpleData(data)
 
         return this

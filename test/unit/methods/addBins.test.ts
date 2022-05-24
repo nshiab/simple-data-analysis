@@ -1,5 +1,5 @@
 import assert from "assert"
-import addBins from "../../../src/methods/addBins.js"
+import addBins from "../../../src/methods/analyzing/addBins.js"
 
 describe("addBins", function () {
     it("should add bins", function () {

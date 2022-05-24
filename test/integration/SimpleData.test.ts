@@ -2,8 +2,10 @@ import { JSDOM } from "jsdom"
 const jsdom = new JSDOM("")
 global.document = jsdom.window.document
 
-import { SimpleData } from "../../src/index.js"
+import { SimpleData } from "../../src/indexWeb.js"
 import * as Plot from "@observablehq/plot"
+
+import employees from "../../data/employees.json" assert { type: "json" }
 
 async function main() {
     new SimpleData({
@@ -16,11 +18,16 @@ async function main() {
     })
 
     const simpleData = await new SimpleData({
+        data: employees,
+        fillMissingKeys: true,
         verbose: true,
         logParameters: true,
-    }).loadDataFromUrl({
-        url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv",
     })
+
+    // Can't use fetch with node
+    // .loadDataFromUrl({
+    //     url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv",
+    // })
 
     simpleData.getData()
     simpleData.getKeys()
