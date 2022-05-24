@@ -88,7 +88,7 @@ async function main() {
             key: "bonus",
             itemGenerator: (item) =>
                 typeof item.salary === "number" &&
-                typeof item.bonus === "number"
+                    typeof item.bonus === "number"
                     ? item.salary * item.bonus
                     : NaN,
         })
@@ -223,7 +223,7 @@ async function main() {
     simpleDataNode.valuesToDate({ key: "hireDate", format: "%Y-%m-%d" })
 
     temporaryDirectoryTask((tempDir) => {
-        tempDir = "../../"
+        // tempDir = "../../"
         simpleDataNode
             .saveData({ path: `${tempDir}/integrationTest.csv` })
             .saveData({ path: `${tempDir}/integrationTest.json` })
