@@ -49,10 +49,11 @@ export default function checkValues(data: SimpleDataItem[]): SimpleDataItem[] {
 
         for (const key of Object.keys(checks)) {
             if (key !== "key" && key != "count" && checks[key] !== 0) {
-                checks[key] = [
+                checks[key] = `${checks[key]} | ${percentage(
                     checks[key],
-                    percentage(checks[key], checks.count),
-                ]
+                    checks.count,
+                    0
+                )}`
             }
         }
 

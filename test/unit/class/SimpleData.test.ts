@@ -64,15 +64,15 @@ describe("SimpleData", function () {
                 count: 2,
                 key: "patate",
                 number: 0,
-                string: [2, "100.00%"],
-                uniques: [2, "100.00%"],
+                string: "2 | 100%",
+                uniques: "2 | 100%",
             },
             {
                 count: 2,
                 key: "poil",
-                number: [2, "100.00%"],
+                number: "2 | 100%",
                 string: 0,
-                uniques: [2, "100.00%"],
+                uniques: "2 | 100%",
             },
         ])
     })
