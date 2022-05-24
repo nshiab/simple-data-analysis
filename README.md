@@ -93,7 +93,7 @@ Here's an example.
 </script>
 ```
 
-And here's the result!
+And here's the result in the browser!
 
 <img src="./assets/webExample.png" alt="A chart of the mean salary of several jobs" style="display:block;width: 100%; max-width:400px;margin-bottom: 20px;border-radius: 5px;"/>
 
