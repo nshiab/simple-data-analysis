@@ -36,11 +36,11 @@ async function main() {
     simpleData.getUniqueValues({ key: "Job" })
 
     simpleData
-        .describe()
+        .describe({ overwrite: false })
         .formatAllKeys()
         .renameKey({ oldKey: "departementOrUnit", newKey: "unit" })
         .renameKey({ oldKey: "endOfYearBonus", newKey: "bonus" })
-        .checkValues()
+        .checkValues({ overwrite: false })
         .excludeMissingValues({ key: "name" })
         .excludeMissingValues()
         .addKey({
@@ -194,8 +194,8 @@ async function main() {
         .addBins({ key: "bonus", newKey: "salaryBins", nbBins: 5 })
         .addOutliers({ key: "bonus", newKey: "bonusOutlier" })
         .excludeOutliers({ key: "bonus" })
-        .correlation()
-        .correlation({ key1: "salary", key2: "bonus" })
+        .correlation({ overwrite: false })
+        .correlation({ key1: "salary", key2: "bonus", overwrite: false })
         .summarize({ overwrite: false })
         .summarize({
             keyValue: simpleData.getKeys(),

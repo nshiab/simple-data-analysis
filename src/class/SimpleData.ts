@@ -110,7 +110,7 @@ export default class SimpleData {
     // CLEANING METHODS //
 
     @logCall()
-    describe({ overwrite = false }: { overwrite?: boolean } = {}): this {
+    describe({ overwrite = true }: { overwrite?: boolean } = {}): this {
         const data = describe_(this._data)
         overwrite && this.#updateSimpleData(data)
 
@@ -118,7 +118,7 @@ export default class SimpleData {
     }
 
     @logCall()
-    checkValues({ overwrite = false }: { overwrite?: boolean } = {}): this {
+    checkValues({ overwrite = true }: { overwrite?: boolean } = {}): this {
         const data = checkValues_(this._data)
         overwrite && this.#updateSimpleData(data)
 
@@ -505,7 +505,7 @@ export default class SimpleData {
     correlation({
         key1,
         key2,
-        overwrite = false,
+        overwrite = true,
         nbValuesTestedForTypeOf = 10000,
     }: {
         key1?: string
