@@ -34,7 +34,8 @@ export default [
 			name: "sda",
 			format: "umd",
 			banner: banner,
-			inlineDynamicImports: true
+			inlineDynamicImports: true,
+			sourcemap: true
 		},
 		plugins: [
 			...commonPlugins,
@@ -55,6 +56,7 @@ export default [
 			name: "sda",
 			banner: banner,
 			inlineDynamicImports: true,
+			sourcemap: true
 		},
 		plugins: [
 			...commonPlugins,
