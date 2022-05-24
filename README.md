@@ -44,27 +44,48 @@ If you don't want to install anything, a great platform is Observable. Check thi
 
 If you want to add the library directly to your webpage, you can use the UMD minified bundle and call **sda**.
 
+Here's an example.
+
 ```js
-<script src="https://cdn.jsdelivr.net/npm/simple-data-analysis@latest">
+<script src="https://cdn.jsdelivr.net/npm/simple-data-analysis@latest/dist/simple-data-analysis.min.js">
 </script>
 
-<script>
+<div id="viz"></div>
 
+<script>
     async function main() {
 
         const simpleData = await new sda.SimpleData()
-        .loadDataFromUrl({ url: "https://.../some-file.csv" })
-        // You can also load json files.
+            .loadDataFromUrl({
+                url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv"
+            })
 
         simpleData
-            .checkValues()
+            // We compute the mean of
+            // the salaries for each job.
+            .summarize({
+                keyValue: "Salary",
+                keyCategory: "Job",
+                summary: "mean"
+            })
+            // We remove items with missing values.
             .excludeMissingValues()
-            // chain methods to clean, analyze and visualize
-            // your data
+            // We log the table in the console.
+            .showTable()
+
+        // We select our div with the id "viz"
+        document.querySelector("#viz").innerHTML =
+            simpleData
+                .getChart({
+                    x: "Job",
+                    y: "mean",
+                    color: "Job",
+                    type: "dot",
+                    marginLeft: 50 
+                })
     }
 
     main()
-
 </script>
 ```
 ## Working with NodeJS and JavaScript Bundlers

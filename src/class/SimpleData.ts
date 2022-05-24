@@ -456,7 +456,7 @@ export default class SimpleData {
     @logCall()
     sortValues({
         key,
-        order,
+        order = "ascending",
         overwrite = true,
     }: {
         key: string
@@ -589,7 +589,7 @@ export default class SimpleData {
         marginLeft,
         marginBottom,
     }: {
-        type: "dot" | "line" | "bar" | "box"
+        type: "dot" | "line" | "bar" | "barVertical" | "barHorizontal" | "box"
         x: string
         y: string
         color?: string

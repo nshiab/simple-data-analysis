@@ -1,10 +1,10 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import { dot, line, barY, boxY } from "@observablehq/plot"
+import { dot, line, barY, barX, boxY } from "@observablehq/plot"
 import plotChart from "../../helpers/plotChart.js"
 
 export default function getChart(
     data: SimpleDataItem[],
-    type: "dot" | "line" | "bar" | "box",
+    type: "dot" | "line" | "bar" | "barVertical" | "barHorizontal" | "box",
     x: string,
     y: string,
     color?: string,
@@ -25,8 +25,10 @@ export default function getChart(
         mark = dot(data, markOption)
     } else if (type === "line") {
         mark = line(data, markOption)
-    } else if (type === "bar") {
+    } else if (type === "bar" || type === "barVertical") {
         mark = barY(data, markOption)
+    } else if (type === "barHorizontal") {
+        mark = barX(data, markOption)
     } else if (type === "box") {
         mark = boxY(data, markOption)
     } else {
