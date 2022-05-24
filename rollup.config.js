@@ -35,7 +35,6 @@ export default [
 			file: `dist/${meta.name}.js`,
 			name: "sda",
 			format: "umd",
-			sourcemap: true,
 			banner: banner,
 			inlineDynamicImports: true
 		},
@@ -50,15 +49,18 @@ export default [
 		input: 'src/indexWeb.ts',
 		output: {
 			file: `dist/${meta.name}.min.js`,
-			format: 'iife',
-			sourcemap: true,
+			format: 'umd',
 			name: "sda",
 			banner: banner,
 			inlineDynamicImports: true,
 		},
 		plugins: [
 			...commonPlugins,
-			terser(),
+			terser({
+				output: {
+					preamble: banner
+				}
+			}),
 			visualizer((opts) => {
 				return { gzipSize: true, filename: "bundleSizeMin.html" }
 			})

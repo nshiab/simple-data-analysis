@@ -10,7 +10,9 @@
     "keywords": [
         "data",
         "analysis",
-        "visualization"
+        "visualization",
+        "nodejs",
+        "javascript"
     ],
     "license": "MIT",
     "author": {
@@ -28,7 +30,7 @@
     "jsdelivr": "dist/simple-data-analysis.min.js",
     "unpkg": "dist/simple-data-analysis.min.js",
     "exports": {
-        "umd": "./dist/simple-data-analysis.js",
+        "umd": "./dist/simple-data-analysis.min.js",
         "default": "./dist/index.js"
     },
     "scripts": {
