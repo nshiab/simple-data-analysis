@@ -14,7 +14,7 @@ A demo is available here: https://observablehq.com/@nshiab/simple-data-analysis
 
 1. [Core principles](#core-principles)
 2. [Easiest way to use](#the-easiest-way-to-use-the-library)
-3. [Importing from HTML](#importing-from-the-html)
+3. [Simple example from the HTML](#simple-example-from-the-html)
 4. [NodeJS and JavaScript bundlers](#working-with-nodejs-and-javascript-bundlers)
 5. [SimpleData](#simpledata)
 6. [SimpleDataNode](#simpledatanode)
@@ -40,7 +40,7 @@ If you don't want to install anything, a great platform is Observable. Check thi
 
 <img src="./assets/observable.png" alt="An Observable notebook using simple-data-analysis" style="display:block;width: 100%; max-width:400px;margin-left:auto;margin-right: auto;margin-bottom: 20px;border-radius: 5px;"/>
 
-## Importing from the HTML
+## Simple example from the HTML
 
 If you want to add the library directly to your webpage, you can use the UMD minified bundle and call **sda**.
 
@@ -56,38 +56,48 @@ Here's an example.
     async function main() {
 
         const simpleData = await new sda.SimpleData()
+            // We retrieve some data
             .loadDataFromUrl({
                 url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv"
             })
 
         simpleData
             // We compute the mean of
-            // the salaries for each job.
+            // the salaries for each job
             .summarize({
                 keyValue: "Salary",
                 keyCategory: "Job",
                 summary: "mean"
             })
-            // We remove items with missing values.
+            // We remove items with missing values
             .excludeMissingValues()
-            // We log the table in the console.
+            // We log the table in the console
             .showTable()
 
         // We select our div with the id "viz"
+        // and we push a chart in it.
         document.querySelector("#viz").innerHTML =
             simpleData
+                // getChart() returns SVG
+                // or HTML elements
                 .getChart({
-                    x: "Job",
-                    y: "mean",
+                    x: "mean",
+                    y: "Job",
                     color: "Job",
-                    type: "dot",
-                    marginLeft: 50 
+                    type: "barHorizontal",
+                    marginLeft: 100
                 })
     }
 
     main()
 </script>
 ```
+
+And here's the result!
+
+<img src="./assets/webExample.png" alt="A chart of the mean salary of several jobs" style="display:block;width: 100%; max-width:400px;margin-bottom: 20px;border-radius: 5px;"/>
+
+
 ## Working with NodeJS and JavaScript Bundlers
 
 First, make sure that your NodeJS version is 16 or higher. To check it, write ```node``` in your terminal and press Enter.
@@ -111,6 +121,8 @@ import { SimpleData } from "simple-data-analysis"
 const someData = [...] // An array of objects
 
 const simpleData = new SimpleData({ data: someData })
+// You can also load data 
+// from a local file or an url
 ```
 
 But you can also import everything if you wish. Just keep in mind that your final build will be bigger.
@@ -120,6 +132,7 @@ import * as sda from "simple-data-analysis"
 const someData = [...] // An array of objects
 
 const simpleData = new sda.SimpleData({ data: someData })
+// Start chaining methods
 ```
 
 ## SimpleData
@@ -128,127 +141,47 @@ The SimpleData class is the core of the library. It allows you clean, analyze an
 
 When you chain methods, the data is updated at each step and sent to the next one.
 
-```js
-import { SimpleData } from "simple-data-analysis"
-
-const someData = [...]
-// An array of objects.
-// Let's say each object is an employee,
-// with keys and values for salary and job.
-// In a tabular data format (CSV for example),
-// the keys would be the columns name and
-// the values would be the content of the cells.
-
-const simpleData = new SimpleData({ data: someData })
-    // A bit of cleaning first
-    .renameKey({
-        oldKey: "annualSalary",
-        newKey: "salary"
-    })
-    .replaceValues({
-        key: "salary",
-        oldValue: "$",
-        newValue: ""
-    })
-    .valuesToInteger({
-        key: "salary"
-    })
-    .excludeMissingValues({
-        key: "salary"
-    })
-    // Let's add a new information
-    .addKey({
-        key: "union",
-        valueGenerator:
-            employee =>
-                employee.job === "Manager" ?
-                "No union" :
-                "Unionized"
-    })
-    // Get the mean salary for each job
-    .summarize({
-        keyValue: "salary",
-        keyCategory: "job",
-        summary: "mean"
-    })
-    // If you want to see the result in
-    // your terminal or console
-    .showTable()
-
-// Now let's visualize the result
-const chart = simpleData
-    // First, we clone simpleData
-    // in case we want to work
-    // with it again later.
-    // Otherwise, it will
-    // be overwritten by the chart.
-    .clone()
-    .getChart({
-        type: "bar",
-        x: "job",
-        y: "mean",
-        color: "union"
-    })
-    // getChart returns SVG or HTML
-```
-
-The charts are based on the [Observable Plot](https://observablehq.com/@observablehq/plot) library. If you want to create a fancy dataviz, you can pass Observable Plot options directly to getCustomChart.
-
-```js
-import * as Plot from "@observablehq/plot"
-
-const chart = simpleData
-    .clone()
-    .getCustomChart({
-        plotOptions: {
-            grid: true,
-            facet: {
-                data: simpleData.getData(),
-                y: "job"
-            },
-            marks: [
-                Plot.dotX(
-                    simpleData.getData(),
-                    { x: "salary", fill: "union" }
-                )
-            ]
-        }
-    })
-```
-
-When working on a web project, you can insert the chart where needed easily.
-```js
-document.querySelector("#someDiv").innerHTML = chart
-```
-
-If you want to use another library to create your chart, extract the data you want. It's an array of objects, which works very well with D3 for example.
-
-```js
-const myData = simpleData
-    .selectKeys({ keys: ["job", "mean"] })
-    // We selected "job" and "mean". But you could use getData() directly and retrieve everything.
-    .getData()
-
-// Do some D3 magic with myData now!
-```
+For a description of all methods available, check this [Observable notebook](https://observablehq.com/@nshiab/simple-data-analysis).
 
 ## SimpleDataNode
 
 If you use the library with NodeJS, you can import SimpleDataNode instead of SimpleData. It will give you extra methods to load local files, save files and save charts.
 
-```js
-import { SimpleDataNode } from "simple-data-analysis"
+Here's an example.
 
-const simpleData = new SimpleDataNode()
-    .loadDataFromLocalFile({path: "./employees.csv"})
-    // You can load json files as well.
-    .saveChart({ path: "./salaries.html", type: "dot", x: "job", y: "salary", color: "union"})
-    // GetChart() returns SVG and HTML and you can't chain after it. But saveChart() returns simpleData so you can keep on chaining. Same for saveCustomChart().
-    .filterValues({ key: "job", valueComparator: job => job === "Manager" })
-    // All methods from SimpleData to manipulate your data are still available
-    .saveData({path: "./managers.csv"})
-    // You can also save json files.
+```js
+import { SimpleDataNode } from "simple-data-analysis";
+
+new SimpleDataNode()
+    .loadDataFromLocalFile({
+        path: "../simple-data-analysis/data/employees.csv"
+    })
+    // You can load json files as well
+    .summarize({
+        keyValue: "Salary",
+        keyCategory: "Job",
+        summary: "mean"
+    })
+    .excludeMissingValues()
+    .selectKeys({ keys: ["Job", "mean"] })
+    .showTable()
+    .saveData({ path: "./employees.json" })
+    // You can save csv files as well
+    .saveChart({
+        path: "./chart.html",
+        type: "barHorizontal",
+        x: "mean",
+        y: "Job",
+        color: "Job",
+        marginLeft: 100
+    })
+    // You need to save the charts
+    // as HTML files.
 ```
+
+And here's the result in VS Code!
+
+<img src="./assets/nodeExample.png" alt="A chart of the mean salary of several jobs" style="display:block;width: 100%; max-width:600px;margin-bottom: 20px;border-radius: 5px;"/>
 
 ## SimpleDocument (experimental, for NodeJS only)
 
@@ -263,19 +196,33 @@ import React from "react"
 import {SimpleData, SimpleDocument, Table} from "simple-data-analysis"
 import { Typography } from "@mui/material"
 
-const someData = [...] // Let's say it's some employees information again.
+const someData = [...]
+// Let's say it's some employees information again.
 
-const simpleData = new SimpleData({data: someData}) // or SimpleDataNode
+const simpleData = new SimpleData({data: someData})
+// or SimpleDataNode
 
 const simpleDocument = new SimpleDocument()
 
 simpleDocument
     .add(<h1>Some JSX!</h1>)
-    .add(<Typography>An MUI component!</Typography>)
-    .add(<Table keys={simpleData.keys} data={simpleData.data} />)
-    .add(simpleData.getChart({ type: "dot", x: "job", y: "salary", color: "union"}))
+    .add(<Typography>
+        An MUI component!
+    </Typography>)
+    .add(<Table
+        keys={simpleData.getKeys()}
+        data={simpleData.getData()}
+    />)
+    .add(simpleData.getChart({
+        type: "dot",
+        x: "job",
+        y: "salary",
+        color: "union"
+    }))
     .saveDocument('somePath/analysis.html')
-    .saveDocument('somePath/AnalysisComponent.js') // an HTML string exported as a React component
+    .saveDocument('somePath/AnalysisComponent.js')
+    // saveDocument use ReactDOMServer.renderToString
+    // on everyting that has been added
 
 ```
 
