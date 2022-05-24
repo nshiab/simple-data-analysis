@@ -589,7 +589,15 @@ export default class SimpleData {
         marginLeft,
         marginBottom,
     }: {
-        type: "dot" | "line" | "bar" | "barVertical" | "barHorizontal" | "box" | "boxVertical" | "boxHorizontal"
+        type:
+            | "dot"
+            | "line"
+            | "bar"
+            | "barVertical"
+            | "barHorizontal"
+            | "box"
+            | "boxVertical"
+            | "boxHorizontal"
         x: string
         y: string
         color?: string

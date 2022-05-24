@@ -4,7 +4,15 @@ import plotChart from "../../helpers/plotChart.js"
 
 export default function getChart(
     data: SimpleDataItem[],
-    type: "dot" | "line" | "bar" | "barVertical" | "barHorizontal" | "box" | "boxVertical" | "boxHorizontal",
+    type:
+        | "dot"
+        | "line"
+        | "bar"
+        | "barVertical"
+        | "barHorizontal"
+        | "box"
+        | "boxVertical"
+        | "boxHorizontal",
     x: string,
     y: string,
     color?: string,
@@ -14,7 +22,18 @@ export default function getChart(
 ): string {
     const markOption: { [key: string]: string | number } = { x, y }
 
-    if (color && ["dot", "bar", "barVertical", "barHorizontal", "box", "boxVertical", "boxHorizontal"].includes(type)) {
+    if (
+        color &&
+        [
+            "dot",
+            "bar",
+            "barVertical",
+            "barHorizontal",
+            "box",
+            "boxVertical",
+            "boxHorizontal",
+        ].includes(type)
+    ) {
         markOption.fill = color
     } else if (color) {
         markOption.stroke = color
