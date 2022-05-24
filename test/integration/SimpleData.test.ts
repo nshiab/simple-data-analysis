@@ -196,21 +196,36 @@ async function main() {
         .excludeOutliers({ key: "bonus" })
         .correlation()
         .correlation({ key1: "salary", key2: "bonus" })
-        .summarize()
-        .summarize({ keyValue: simpleData.getKeys(), keyCategory: "job" })
-        .summarize({ keyValue: "salary", keyCategory: ["job", "unit"] })
-        .summarize({ keyValue: "salary", keyCategory: "job", summary: "mean" })
-        .summarize({ keyValue: "salary", summary: "mean" })
+        .summarize({ overwrite: false })
+        .summarize({
+            keyValue: simpleData.getKeys(),
+            keyCategory: "job",
+            overwrite: false,
+        })
+        .summarize({
+            keyValue: "salary",
+            keyCategory: ["job", "unit"],
+            overwrite: false,
+        })
+        .summarize({
+            keyValue: "salary",
+            keyCategory: "job",
+            summary: "mean",
+            overwrite: false,
+        })
+        .summarize({ keyValue: "salary", summary: "mean", overwrite: false })
         .summarize({
             keyValue: "salary",
             keyCategory: "job",
             summary: ["mean", "median"],
+            overwrite: false,
         })
         .summarize({
             keyValue: "salary",
             keyCategory: "job",
             summary: "weightedMean",
             weight: "bonus",
+            overwrite: false,
         })
 
     simpleData.valuesToDate({ key: "hireDate", format: "%Y-%m-%d" })

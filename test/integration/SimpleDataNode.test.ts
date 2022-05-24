@@ -88,7 +88,7 @@ async function main() {
             key: "bonus",
             itemGenerator: (item) =>
                 typeof item.salary === "number" &&
-                    typeof item.bonus === "number"
+                typeof item.bonus === "number"
                     ? item.salary * item.bonus
                     : NaN,
         })
@@ -203,21 +203,36 @@ async function main() {
         .excludeOutliers({ key: "bonus" })
         .correlation()
         .correlation({ key1: "salary", key2: "bonus" })
-        .summarize()
-        .summarize({ keyValue: simpleDataNode.getKeys(), keyCategory: "job" })
-        .summarize({ keyValue: "salary", keyCategory: ["job", "unit"] })
-        .summarize({ keyValue: "salary", keyCategory: "job", summary: "mean" })
-        .summarize({ keyValue: "salary", summary: "mean" })
+        .summarize({ overwrite: false })
+        .summarize({
+            keyValue: simpleDataNode.getKeys(),
+            keyCategory: "job",
+            overwrite: false,
+        })
+        .summarize({
+            keyValue: "salary",
+            keyCategory: ["job", "unit"],
+            overwrite: false,
+        })
+        .summarize({
+            keyValue: "salary",
+            keyCategory: "job",
+            summary: "mean",
+            overwrite: false,
+        })
+        .summarize({ keyValue: "salary", summary: "mean", overwrite: false })
         .summarize({
             keyValue: "salary",
             keyCategory: "job",
             summary: ["mean", "median"],
+            overwrite: false,
         })
         .summarize({
             keyValue: "salary",
             keyCategory: "job",
             summary: "weightedMean",
             weight: "bonus",
+            overwrite: false,
         })
 
     simpleDataNode.valuesToDate({ key: "hireDate", format: "%Y-%m-%d" })

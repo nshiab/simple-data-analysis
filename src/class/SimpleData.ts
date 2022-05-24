@@ -475,7 +475,7 @@ export default class SimpleData {
         keyCategory,
         summary,
         weight,
-        overwrite = false,
+        overwrite = true,
         nbDigits = 1,
         nbValuesTestedForTypeOf = 1000,
     }: {
