@@ -45,21 +45,25 @@ If you don't want to install anything, a great platform is Observable. Check thi
 If you want to add the library directly to your webpage, you can use the UMD minified bundle and call **sda**.
 
 ```js
-<script src="https://cdn.jsdelivr.net/npm/simple-data-analysis@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/simple-data-analysis@latest">
+</script>
 
 <script>
 
-async function main() {
+    async function main() {
 
-    const simpleData = await new sda.SimpleData.loadDataFromUrl({ url: "https://.../some-file.csv" }) // You can also load json files.
+        const simpleData = await new sda.SimpleData()
+        .loadDataFromUrl({ url: "https://.../some-file.csv" })
+        // You can also load json files.
 
-    simpleData
-        .checkValues()
-        .excludeMissingValues()
-        // chain methods to clean, analyze and visualize your data
-}
+        simpleData
+            .checkValues()
+            .excludeMissingValues()
+            // chain methods to clean, analyze and visualize
+            // your data
+    }
 
-main()
+    main()
 
 </script>
 ```
@@ -68,8 +72,7 @@ main()
 First, make sure that your NodeJS version is 16 or higher. To check it, write ```node``` in your terminal and press Enter.
 
 You should see something like this.
-<img src="./assets/nodeJSVersion.png" alt="A terminal showing the NodeJS version" style="display:block;width: 100%; max-width:400px;margin-left:auto;margin-right: auto;"/>
-
+<img src="./assets/nodeJSVersion.png" alt="A terminal showing the NodeJS version" style="display:block;width: 100%; max-width:400px;"/>
 
 If the version is less than 16, update [NodeJS with the latest LTS (long-term support) version](https://nodejs.org/en/) .
 
@@ -80,11 +83,11 @@ npm i simple-data-analysis
 
 Once installed, you can import what you need. If you use a bundler (Webpack, Rollup, Parcel or others), importing only the required code will make your final project lighter.
 
-**/!\ This is how you should import the functions if you plan to publish your project on the web. /!\\**
+**/!\ This is how you should import if you plan to publish your project on the web. /!\\**
 ```js
 import { SimpleData } from "simple-data-analysis"
 
-const someData = [...]
+const someData = [...] // An array of objects
 
 const simpleData = new SimpleData({ data: someData })
 ```
@@ -93,7 +96,7 @@ But you can also import everything if you wish. Just keep in mind that your fina
 ```js
 import * as sda from "simple-data-analysis"
 
-const someData = [...]
+const someData = [...] // An array of objects
 
 const simpleData = new sda.SimpleData({ data: someData })
 ```
@@ -107,23 +110,65 @@ When you chain methods, the data is updated at each step and sent to the next on
 ```js
 import { SimpleData } from "simple-data-analysis"
 
-const someData = [...] // An array of objects. Let's say each object is an employee, with keys and values for salary and job. In a tabular data format (CSV for example), the keys would be the columns name and the values would be the content of the cells.
+const someData = [...]
+// An array of objects.
+// Let's say each object is an employee,
+// with keys and values for salary and job.
+// In a tabular data format (CSV for example),
+// the keys would be the columns name and
+// the values would be the content of the cells.
 
 const simpleData = new SimpleData({ data: someData })
-    // A bit of cleaning
-    .renameKey({ oldKey: "annualSalary", newKey: "salary" })
-    .replaceValues({ key: "salary", oldValue: "$", newValue: "" })
-    .valuesToInteger({ key: "salary" })
-    .excludeMissingValues({ key: "salary" })
+    // A bit of cleaning first
+    .renameKey({
+        oldKey: "annualSalary",
+        newKey: "salary"
+    })
+    .replaceValues({
+        key: "salary",
+        oldValue: "$",
+        newValue: ""
+    })
+    .valuesToInteger({
+        key: "salary"
+    })
+    .excludeMissingValues({
+        key: "salary"
+    })
     // Let's add a new information
-    .addKey({ key: "union", valueGenerator: employee => employee.job === "Manager" ? "No union" : "Unionized"})
-    // Looking for the mean salary for each job.
-    .summarize({ keyValue: "salary", keyCategory: "job", summary: "mean" })
+    .addKey({
+        key: "union",
+        valueGenerator:
+            employee =>
+                employee.job === "Manager" ?
+                "No union" :
+                "Unionized"
+    })
+    // Get the mean salary for each job
+    .summarize({
+        keyValue: "salary",
+        keyCategory: "job",
+        summary: "mean"
+    })
+    // If you want to see the result in
+    // your terminal or console
+    .showTable()
 
-// Now let's visualize the result.
+// Now let's visualize the result
 const chart = simpleData
-    .getChart({ type: "bar", x: "job", y: "mean", color: "union"})
-    // getChart returns SVG or HTML so we store the result in a seperate variable
+    // First, we clone simpleData
+    // in case we want to work
+    // with it again later.
+    // Otherwise, it will
+    // be overwritten by the chart.
+    .clone()
+    .getChart({
+        type: "bar",
+        x: "job",
+        y: "mean",
+        color: "union"
+    })
+    // getChart returns SVG or HTML
 ```
 
 The charts are based on the [Observable Plot](https://observablehq.com/@observablehq/plot) library. If you want to create a fancy dataviz, you can pass Observable Plot options directly to getCustomChart.
@@ -132,6 +177,7 @@ The charts are based on the [Observable Plot](https://observablehq.com/@observab
 import * as Plot from "@observablehq/plot"
 
 const chart = simpleData
+    .clone()
     .getCustomChart({
         plotOptions: {
             grid: true,
@@ -140,7 +186,10 @@ const chart = simpleData
                 y: "job"
             },
             marks: [
-                Plot.dotX(simpleData.getData(), { x: "salary", fill: "union" })
+                Plot.dotX(
+                    simpleData.getData(),
+                    { x: "salary", fill: "union" }
+                )
             ]
         }
     })

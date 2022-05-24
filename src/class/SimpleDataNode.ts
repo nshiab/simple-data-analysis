@@ -102,19 +102,30 @@ export default class SimpleDataNode extends SimpleData {
         x,
         y,
         color,
+        marginLeft,
+        marginBottom,
     }: {
         path: string
         type: "dot" | "line" | "bar" | "box"
         x: string
         y: string
         color?: string
+        marginLeft?: number
+        marginBottom?: number
     }): SimpleDataNode {
         if (global.document === undefined) {
             const jsdom = new JSDOM("")
             global.document = jsdom.window.document
         }
 
-        const chart = super.getChart({ x, y, type, color })
+        const chart = super.getChart({
+            x,
+            y,
+            type,
+            color,
+            marginLeft,
+            marginBottom,
+        })
 
         fs.writeFileSync(path, chart)
         this.verbose && log(`=> chart save to ${path}`, "blue")

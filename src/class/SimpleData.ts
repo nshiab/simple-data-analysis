@@ -586,13 +586,26 @@ export default class SimpleData {
         x,
         y,
         color,
+        marginLeft,
+        marginBottom,
     }: {
         type: "dot" | "line" | "bar" | "box"
         x: string
         y: string
         color?: string
+        marginLeft?: number
+        marginBottom?: number
     }): string {
-        const chart = getChart_(this._data, type, x, y, color)
+        const chart = getChart_(
+            this._data,
+            type,
+            x,
+            y,
+            color,
+            this.verbose,
+            marginLeft,
+            marginBottom
+        )
         return chart
     }
 

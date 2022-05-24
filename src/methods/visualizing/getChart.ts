@@ -8,9 +8,11 @@ export default function getChart(
     x: string,
     y: string,
     color?: string,
-    verbose?: boolean
+    verbose?: boolean,
+    marginLeft?: number,
+    marginBottom?: number
 ): string {
-    const markOption: { [key: string]: string } = { x, y }
+    const markOption: { [key: string]: string | number } = { x, y }
 
     if (color && ["dot", "bar", "box"].includes(type)) {
         markOption.fill = color
@@ -34,6 +36,13 @@ export default function getChart(
     const plotOptions: { [key: string]: any } = {
         grid: true,
         marks: [mark],
+    }
+
+    if (marginLeft) {
+        plotOptions.marginLeft = marginLeft
+    }
+    if (marginBottom) {
+        plotOptions.marginBottom = marginBottom
     }
 
     if (color && ["line", "dot"].includes(type)) {

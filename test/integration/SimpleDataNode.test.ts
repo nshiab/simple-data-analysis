@@ -223,6 +223,7 @@ async function main() {
     simpleDataNode.valuesToDate({ key: "hireDate", format: "%Y-%m-%d" })
 
     temporaryDirectoryTask((tempDir) => {
+        tempDir = "../../"
         simpleDataNode
             .saveData({ path: `${tempDir}/integrationTest.csv` })
             .saveData({ path: `${tempDir}/integrationTest.json` })
@@ -278,6 +279,7 @@ async function main() {
             x: "unit",
             y: "salary",
             color: "unit",
+            marginLeft: 75,
         })
 
         simpleDataNode.saveCustomChart({
