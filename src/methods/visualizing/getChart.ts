@@ -1,10 +1,10 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import { dot, line, barY, barX, boxY } from "@observablehq/plot"
+import { dot, line, barY, barX, boxY, boxX } from "@observablehq/plot"
 import plotChart from "../../helpers/plotChart.js"
 
 export default function getChart(
     data: SimpleDataItem[],
-    type: "dot" | "line" | "bar" | "barVertical" | "barHorizontal" | "box",
+    type: "dot" | "line" | "bar" | "barVertical" | "barHorizontal" | "box" | "boxVertical" | "boxHorizontal",
     x: string,
     y: string,
     color?: string,
@@ -14,7 +14,7 @@ export default function getChart(
 ): string {
     const markOption: { [key: string]: string | number } = { x, y }
 
-    if (color && ["dot", "bar", "box"].includes(type)) {
+    if (color && ["dot", "bar", "barVertical", "barHorizontal", "box", "boxVertical", "boxHorizontal"].includes(type)) {
         markOption.fill = color
     } else if (color) {
         markOption.stroke = color
@@ -29,8 +29,10 @@ export default function getChart(
         mark = barY(data, markOption)
     } else if (type === "barHorizontal") {
         mark = barX(data, markOption)
-    } else if (type === "box") {
+    } else if (type === "box" || type === "boxVertical") {
         mark = boxY(data, markOption)
+    } else if (type === "boxHorizontal") {
+        mark = boxX(data, markOption)
     } else {
         throw new Error("Unknown chart type.")
     }
