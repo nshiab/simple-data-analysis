@@ -627,9 +627,9 @@ export default class SimpleData {
 
     @logCall()
     clone(): SimpleData {
-        const newSimpleData = cloneDeep(this)
+        const dataCloned = cloneDeep(this._data)
 
-        return newSimpleData
+        return new SimpleData({ data: dataCloned })
     }
 
     // No @logCall otherwise it's triggered everywhere, including in methods
