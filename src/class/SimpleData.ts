@@ -1,6 +1,6 @@
 import cloneDeep from "lodash.clonedeep"
 import renameKey_ from "../methods/cleaning/renameKey.js"
-import describe_ from "../methods/cleaning/describe.js"
+import describe_ from "../methods/analyzing/describe.js"
 import formatAllKeys_ from "../methods/cleaning/formatAllKeys.js"
 import getArray_ from "../methods/exporting/getArray.js"
 import showTable_ from "../methods/showTable.js"
@@ -19,12 +19,12 @@ import replaceValues_ from "../methods/cleaning/replaceValues.js"
 import addKey_ from "../methods/restructuring/addKey.js"
 import selectKeys_ from "../methods/selecting/selectKeys.js"
 import modifyValues_ from "../methods/cleaning/modifyValues.js"
-import modifyItems_ from "../methods/cleaning/modifyItems.js"
+import modifyItems_ from "../methods/restructuring/modifyItems.js"
 import sortValues_ from "../methods/analyzing/sortValues.js"
 import addQuantiles_ from "../methods/analyzing/addQuantiles.js"
 import addBins_ from "../methods/analyzing/addBins.js"
 import addOutliers_ from "../methods/analyzing/addOutliers.js"
-import excludeOutliers_ from "../methods/cleaning/excludeOutliers.js"
+import excludeOutliers_ from "../methods/analyzing/excludeOutliers.js"
 import correlation_ from "../methods/analyzing/correlation.js"
 import addItems_ from "../methods/restructuring/addItems.js"
 import getUniqueValues_ from "../methods/exporting/getUniqueValues.js"
@@ -348,14 +348,14 @@ export default class SimpleData {
     @logCall()
     addKey({
         key,
-        valueGenerator,
+        itemGenerator,
         overwrite = true,
     }: {
         key: string
-        valueGenerator: (item: SimpleDataItem) => SimpleDataValue
+        itemGenerator: (item: SimpleDataItem) => SimpleDataValue
         overwrite?: boolean
     }): this {
-        const data = addKey_(this._data, key, valueGenerator)
+        const data = addKey_(this._data, key, itemGenerator)
         overwrite && this.#updateSimpleData(data)
 
         return this

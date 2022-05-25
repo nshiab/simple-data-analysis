@@ -52,7 +52,7 @@ async function main() {
         .excludeMissingValues()
         .addKey({
             key: "firstName",
-            valueGenerator: (item) => {
+            itemGenerator: (item) => {
                 if (typeof item.name === "string") {
                     const nameSplit = item.name.split(",")
                     if (nameSplit[1]) {

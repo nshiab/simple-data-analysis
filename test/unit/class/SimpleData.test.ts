@@ -152,7 +152,7 @@ describe("SimpleData", function () {
         const simpleData = new SimpleData({ data: data })
         simpleData.addKey({
             key: "poil",
-            valueGenerator: (item) => (item.patate as number) * 2,
+            itemGenerator: (item) => (item.patate as number) * 2,
         })
         assert.deepEqual(simpleData.getData(), [
             { patate: 1, poil: 2 },
