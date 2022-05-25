@@ -23,7 +23,7 @@ A demo is available here: https://observablehq.com/@nshiab/simple-data-analysis
 
 ## Core principles
 
-Under the hood, simple-data-analysis is mainly based on [D3 modules](https://github.com/d3/d3), focusing on providing code that is easy to use and understand.
+Under the hood, simple-data-analysis is mainly based on [D3 modules](https://github.com/d3/d3) and [Observable Plot](https://github.com/observablehq/plot). The main focus is on providing code that is easy to use and understand.
 
 The library expects **tabular data** stored in CSV files or **arrays of objects** stored in JSON files. It works best when the data is tidy:
 
