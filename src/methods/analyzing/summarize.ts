@@ -36,8 +36,6 @@ export default function summarize(
             throw new Error("No key " + keyCategory)
         }
 
-
-
         // if (
         //     !checkTypeOfKey(
         //         data,
