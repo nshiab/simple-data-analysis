@@ -11,44 +11,47 @@ export default function summarize(
     verbose: boolean,
     nbValuesTested: number,
     nbDigits: number,
-    keyCategories?: string | string[],
+    keyCategory?: string | string[],
     summary?: string | string[],
     weight?: string
 ): any[] {
-    // Let's deal with the keys first
+    // Let's deal with the keyCategory first
 
     let keys: string[] = []
 
-    if (keyCategories === undefined) {
+    if (keyCategory === undefined) {
         verbose && log("No key provided. Data won't be grouped.")
-    } else if (Array.isArray(keyCategories)) {
-        for (const k of keyCategories) {
+    } else if (Array.isArray(keyCategory)) {
+        for (const k of keyCategory) {
             if (!hasKey(data[0], k)) {
                 throw new Error("No key " + k)
             }
         }
 
-        keys = keyCategories.filter((k) =>
-            checkTypeOfKey(data, k, "string", 0.5, verbose, nbValuesTested)
-        )
-    } else if (typeof keyCategories === "string") {
-        if (!hasKey(data[0], keyCategories)) {
-            throw new Error("No key " + keyCategories)
-        }
-        if (
-            !checkTypeOfKey(
-                data,
-                keyCategories,
-                "string",
-                0.5,
-                verbose,
-                nbValuesTested
-            )
-        ) {
-            throw new Error("The key values should be of type string")
+        // keys = keyCategory.filter((k) =>
+        //     checkTypeOfKey(data, k, "string", 0.5, verbose, nbValuesTested)
+        // )
+    } else if (typeof keyCategory === "string") {
+        if (!hasKey(data[0], keyCategory)) {
+            throw new Error("No key " + keyCategory)
         }
 
-        keys = [keyCategories]
+
+
+        // if (
+        //     !checkTypeOfKey(
+        //         data,
+        //         keyCategory,
+        //         "string",
+        //         0.5,
+        //         verbose,
+        //         nbValuesTested
+        //     )
+        // ) {
+        //     throw new Error("The key category should be of type string or have less than 1000 unique values")
+        // }
+
+        keys = [keyCategory]
     } else {
         throw new Error("key must be either a string or an array of string")
     }
@@ -163,7 +166,7 @@ export default function summarize(
             // @ts-ignore
             const funcResults = flatRollup(data, func, ...keysFunc)
             const results =
-                keyCategories === "no key" || keys.length === 0
+                keyCategory === "no key" || keys.length === 0
                     ? [[funcResults]]
                     : funcResults
 
