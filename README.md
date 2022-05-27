@@ -1,5 +1,7 @@
 # Simple data analysis
 
+This repository is maintained by [Nael Shiab](http://naelshiab.com/), senior data producer, and [Isabelle Bouchard](https://github.com/isabellebouchard), data scientist, both working at [CBC/Radio-Canada](https://cbc.radio-canada.ca/).
+
 These project's goals are:
 
 - To ease the way for non-coders (especially journalists) into the beautiful world of data analysis and data visualization in JavaScript.
