@@ -101,6 +101,9 @@ And here's the result in the browser!
 
 <img src="./assets/webExample.png" alt="A chart of the mean salary of several jobs" style="display:block;width: 100%; max-width:400px;margin-bottom: 20px;border-radius: 5px;"/>
 
+As you can see below, simple-data-analysis is a lightweight library optimized for the web (83kb = 10ko).
+
+<img src="./assets/bundle-min-size.png" alt="The network tab in Google Chrome" style="display:block;width: 100%; max-width:400px;margin-bottom: 20px;border-radius: 5px;"/>
 
 ## Working with NodeJS and JavaScript Bundlers
 
