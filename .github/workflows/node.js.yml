@@ -28,8 +28,9 @@ jobs:
         cache: 'npm'
     - run: npm install
     - run: npm run check-format
+    - run: npm run lint
     - run: npm run test
     - run: npm run test-data
     - run: npm run test-data-node
     - run: npm run test-doc
-    - run: npm run lint
+    - run: npx tsc && npx rollup --config
