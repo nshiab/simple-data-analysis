@@ -111,7 +111,7 @@ You should see something like this.
 
 If the version is less than 16, update [NodeJS with the latest LTS (long-term support) version](https://nodejs.org/en/) .
 
-With NodeJS installed, you have access to [npm](https://www.npmjs.com/package/simple-data-analysis). To install the library with npm, type this command in your terminal:
+To install the library with [npm](https://www.npmjs.com/package/simple-data-analysis), type this command in your terminal:
 ```
 npm i simple-data-analysis
 ```
