@@ -38,6 +38,14 @@ import getChart_ from "../methods/visualizing/getChart.js"
 import getCustomChart_ from "../methods/visualizing/getCustomChart.js"
 import log from "../helpers/log.js"
 
+/**
+ * SimpleData usage example.
+ *
+ * ```typescript
+ * const data = [{ key: value }, ...]
+ * const simpleData = new SimplaData({ data: data })
+ * ```
+ */
 export default class SimpleData {
     _data: SimpleDataItem[]
     _keys: string[]
@@ -46,6 +54,15 @@ export default class SimpleData {
     logParameters: boolean
     nbTableItemsToLog: number
 
+
+    /**
+     * SimpleData constructor
+     * @param __namedParameters.data  Data as a list of objects with the same keys. 
+     * @param __namedParameters.verbose  Log information in the console on `SimpleData` method calls. 
+     * @param __namedParameters.logParameters  If true, logs methods parameters on every call. Only applies when `verbose` is true.
+     * @param __namedParameters.nbTableItemsToLog  Number of items to log in table. Only applies when `verbose` is true.  
+     * @param __namedParameters.fillMissingKeys  Fill missing keys with `undefined`. 
+     */
     constructor({
         data = [],
         verbose = false,
