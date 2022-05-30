@@ -235,4 +235,6 @@ simpleDocument
 
 ## All functions and methods
 
-For a description of all methods and how to use them, check this Observable notebook: https://observablehq.com/@nshiab/simple-data-analysis
+Our documentation is automatically generated with [TypeDoc](https://typedoc.org/) and available here: https://nshiab.github.io/simple-data-analysis/.
+
+For a description of all methods and how to use them, you can also check this Observable notebook: https://observablehq.com/@nshiab/simple-data-analysis.
