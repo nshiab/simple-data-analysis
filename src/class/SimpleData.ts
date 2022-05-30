@@ -54,14 +54,13 @@ export default class SimpleData {
     logParameters: boolean
     nbTableItemsToLog: number
 
-
     /**
      * SimpleData constructor
-     * @param __namedParameters.data  Data as a list of objects with the same keys. 
-     * @param __namedParameters.verbose  Log information in the console on `SimpleData` method calls. 
+     * @param __namedParameters.data  Data as a list of objects with the same keys.
+     * @param __namedParameters.verbose  Log information in the console on `SimpleData` method calls.
      * @param __namedParameters.logParameters  If true, logs methods parameters on every call. Only applies when `verbose` is true.
-     * @param __namedParameters.nbTableItemsToLog  Number of items to log in table. Only applies when `verbose` is true.  
-     * @param __namedParameters.fillMissingKeys  Fill missing keys with `undefined`. 
+     * @param __namedParameters.nbTableItemsToLog  Number of items to log in table. Only applies when `verbose` is true.
+     * @param __namedParameters.fillMissingKeys  Fill missing keys with `undefined`.
      */
     constructor({
         data = [],
@@ -607,14 +606,14 @@ export default class SimpleData {
         marginBottom,
     }: {
         type:
-        | "dot"
-        | "line"
-        | "bar"
-        | "barVertical"
-        | "barHorizontal"
-        | "box"
-        | "boxVertical"
-        | "boxHorizontal"
+            | "dot"
+            | "line"
+            | "bar"
+            | "barVertical"
+            | "barHorizontal"
+            | "box"
+            | "boxVertical"
+            | "boxHorizontal"
         x: string
         y: string
         color?: string
