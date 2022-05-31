@@ -47,9 +47,7 @@ export function asyncLogCall() {
             const end = Date.now()
 
             if (this.verbose) {
-                const data =
-                    result instanceof SimpleData ? result.getData() : result
-                showTable(data, this.nbTableItemsToLog)
+                showTable(this._tempData, this.nbTableItemsToLog)
                 log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
             }
 

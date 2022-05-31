@@ -40,6 +40,7 @@ import log from "../helpers/log.js"
 
 export default class SimpleData {
     _data: SimpleDataItem[]
+    _tempData: SimpleDataItem[]
     _keys: string[]
     // Logging
     verbose: boolean
@@ -66,6 +67,7 @@ export default class SimpleData {
         }
 
         this._data = data
+        this._tempData = []
         this._keys = data[0] ? Object.keys(data[0]) : []
 
         this.verbose = verbose
@@ -111,16 +113,16 @@ export default class SimpleData {
 
     @logCall()
     describe({ overwrite = true }: { overwrite?: boolean } = {}): this {
-        const data = describe_(this._data)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = describe_(this._data)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
 
     @logCall()
     checkValues({ overwrite = true }: { overwrite?: boolean } = {}): this {
-        const data = checkValues_(this._data)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = checkValues_(this._data)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -138,21 +140,21 @@ export default class SimpleData {
         if (missingValues === undefined) {
             missingValues = [null, NaN, undefined, ""]
         }
-        const data = excludeMissingValues_(
+        this._tempData = excludeMissingValues_(
             this._data,
             key,
             missingValues,
             this.verbose
         )
-        overwrite && this.#updateSimpleData(data)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
 
     @logCall()
     formatAllKeys({ overwrite = true }: { overwrite?: boolean } = {}): this {
-        const data = formatAllKeys_(this._data, this.verbose)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = formatAllKeys_(this._data, this.verbose)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -167,8 +169,8 @@ export default class SimpleData {
         newKey: string
         overwrite?: boolean
     }): this {
-        const data = renameKey_(this._data, oldKey, newKey)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = renameKey_(this._data, oldKey, newKey)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -181,8 +183,8 @@ export default class SimpleData {
         key: string
         overwrite?: boolean
     }): this {
-        const data = valuesToString_(this._data, key)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = valuesToString_(this._data, key)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -195,8 +197,8 @@ export default class SimpleData {
         key: string
         overwrite?: boolean
     }): this {
-        const data = valuesToInteger_(this._data, key)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = valuesToInteger_(this._data, key)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -209,8 +211,8 @@ export default class SimpleData {
         key: string
         overwrite?: boolean
     }): this {
-        const data = valuesToFloat_(this._data, key)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = valuesToFloat_(this._data, key)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -225,8 +227,8 @@ export default class SimpleData {
         format: string
         overwrite?: boolean
     }): this {
-        const data = valuesToDate_(this._data, key, format)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = valuesToDate_(this._data, key, format)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -241,8 +243,8 @@ export default class SimpleData {
         format: string
         overwrite?: boolean
     }): this {
-        const data = datesToString_(this._data, key, format)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = datesToString_(this._data, key, format)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -257,8 +259,8 @@ export default class SimpleData {
         nbDigits?: number
         overwrite?: boolean
     }): this {
-        const data = roundValues_(this._data, key, nbDigits)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = roundValues_(this._data, key, nbDigits)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -277,8 +279,14 @@ export default class SimpleData {
         method: "entireString" | "partialString"
         overwrite?: boolean
     }): this {
-        const data = replaceValues_(this._data, key, oldValue, newValue, method)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = replaceValues_(
+            this._data,
+            key,
+            oldValue,
+            newValue,
+            method
+        )
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -293,8 +301,8 @@ export default class SimpleData {
         valueGenerator: (val: SimpleDataValue) => SimpleDataValue
         overwrite?: boolean
     }): this {
-        const data = modifyValues_(this._data, key, valueGenerator)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = modifyValues_(this._data, key, valueGenerator)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -309,8 +317,8 @@ export default class SimpleData {
         itemGenerator: (item: SimpleDataItem) => SimpleDataValue
         overwrite?: boolean
     }): this {
-        const data = modifyItems_(this._data, key, itemGenerator)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = modifyItems_(this._data, key, itemGenerator)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -323,8 +331,8 @@ export default class SimpleData {
         key: string
         overwrite?: boolean
     }): this {
-        const data = excludeOutliers_(this._data, key, this.verbose)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = excludeOutliers_(this._data, key, this.verbose)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -339,8 +347,8 @@ export default class SimpleData {
         key: string
         overwrite?: boolean
     }): this {
-        const data = removeKey_(this._data, key)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = removeKey_(this._data, key)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -355,8 +363,8 @@ export default class SimpleData {
         itemGenerator: (item: SimpleDataItem) => SimpleDataValue
         overwrite?: boolean
     }): this {
-        const data = addKey_(this._data, key, itemGenerator)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = addKey_(this._data, key, itemGenerator)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -370,8 +378,8 @@ export default class SimpleData {
         nbDigits?: number
         overwrite?: boolean
     }): this {
-        const data = addItems_(this._data, dataToBeAdded, this.verbose)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = addItems_(this._data, dataToBeAdded, this.verbose)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -388,14 +396,14 @@ export default class SimpleData {
         nbValuesTestedForTypeOf?: number
         overwrite?: boolean
     }): this {
-        const data = mergeItems_(
+        this._tempData = mergeItems_(
             this._data,
             dataToBeMerged,
             commonKey,
             this.verbose,
             nbValuesTestedForTypeOf
         )
-        overwrite && this.#updateSimpleData(data)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -410,8 +418,8 @@ export default class SimpleData {
         keys: string[]
         overwrite?: boolean
     }): this {
-        const data = selectKeys_(this._data, keys)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = selectKeys_(this._data, keys)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -426,13 +434,13 @@ export default class SimpleData {
         valueComparator: (val: SimpleDataValue) => SimpleDataValue
         overwrite?: boolean
     }): this {
-        const data = filterValues_(
+        this._tempData = filterValues_(
             this._data,
             key,
             valueComparator,
             this.verbose
         )
-        overwrite && this.#updateSimpleData(data)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -445,8 +453,8 @@ export default class SimpleData {
         itemComparator: (val: SimpleDataItem) => boolean
         overwrite?: boolean
     }): this {
-        const data = filterItems_(this._data, itemComparator, this.verbose)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = filterItems_(this._data, itemComparator, this.verbose)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -463,8 +471,8 @@ export default class SimpleData {
         order: "ascending" | "descending"
         overwrite?: boolean
     }): this {
-        const data = sortValues_(this._data, key, order)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = sortValues_(this._data, key, order)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -487,7 +495,7 @@ export default class SimpleData {
         nbDigits?: number
         nbValuesTestedForTypeOf?: number
     } = {}): this {
-        const data = summarize_(
+        this._tempData = summarize_(
             this._data,
             keyValue === undefined ? this._keys : keyValue,
             this.verbose,
@@ -497,7 +505,7 @@ export default class SimpleData {
             summary,
             weight
         )
-        overwrite && this.#updateSimpleData(data)
+        overwrite && this.#updateSimpleData(this._tempData)
         return this
     }
 
@@ -514,14 +522,14 @@ export default class SimpleData {
         nbDigits?: number
         nbValuesTestedForTypeOf?: number
     } = {}): this {
-        const data = correlation_(
+        this._tempData = correlation_(
             this._data,
             this.verbose,
             nbValuesTestedForTypeOf,
             key1,
             key2
         )
-        overwrite && this.#updateSimpleData(data)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -538,8 +546,8 @@ export default class SimpleData {
         nbQuantiles: number
         overwrite?: boolean
     }): this {
-        const data = addQuantiles_(this._data, key, newKey, nbQuantiles)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = addQuantiles_(this._data, key, newKey, nbQuantiles)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -556,8 +564,8 @@ export default class SimpleData {
         nbBins: number
         overwrite?: boolean
     }): this {
-        const data = addBins_(this._data, key, newKey, nbBins)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = addBins_(this._data, key, newKey, nbBins)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -572,8 +580,8 @@ export default class SimpleData {
         newKey: string
         overwrite?: boolean
     }): this {
-        const data = addOutliers_(this._data, key, newKey, this.verbose)
-        overwrite && this.#updateSimpleData(data)
+        this._tempData = addOutliers_(this._data, key, newKey, this.verbose)
+        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
