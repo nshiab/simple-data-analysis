@@ -42,7 +42,8 @@
         "format": "prettier --ignore-path .prettierignore --write './**/*.ts'",
         "check-format": "prettier --ignore-path .prettierignore --check './**/*.ts'",
         "allTests": "npm run format && npm run test && npm run test-data && npm run test-data-node && npm run test-doc && npm run lint",
-        "build": "npm run allTests && rm -rf dist && npx tsc && rollup --config"
+        "build": "npm run allTests && rm -rf dist && npx tsc && rollup --config",
+        "doc": "npx typedoc --name Simple-data-analysis --includeVersion --readme none --out docs src/index.ts"
     },
     "engines": {
         "node": ">=16.0"
@@ -81,6 +82,7 @@
         "tempy": "^3.0.0",
         "ts-node": "^10.7.0",
         "tslib": "^2.4.0",
+        "typedoc": "^0.22.15",
         "typescript": "^4.6.4"
     },
     "dependencies": {
