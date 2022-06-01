@@ -42,8 +42,9 @@
         "format": "prettier --ignore-path .prettierignore --write './**/*.ts'",
         "check-format": "prettier --ignore-path .prettierignore --check './**/*.ts'",
         "allTests": "npm run format && npm run test && npm run test-data && npm run test-data-node && npm run test-doc && npm run lint",
-        "build": "npm run allTests && rm -rf dist && npx tsc && rollup --config",
-        "doc": "npx typedoc --name Simple-data-analysis --includeVersion --readme none --out docs src/index.ts"
+        "build": "npm run allTests && rm -rf dist && npx tsc && npm run commit-doc && rollup --config",
+        "doc": "npx typedoc --name Simple-data-analysis --includeVersion --readme none --out docs src/index.ts",
+        "commit-doc": "git checkout main && npm run doc && git add docs/ && git commit -m 'update documentation' && git push"
     },
     "engines": {
         "node": ">=16.0"
