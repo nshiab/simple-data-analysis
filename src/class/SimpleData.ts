@@ -30,7 +30,7 @@ import addItems_ from "../methods/restructuring/addItems.js"
 import getUniqueValues_ from "../methods/exporting/getUniqueValues.js"
 import summarize_ from "../methods/analyzing/summarize.js"
 import mergeItems_ from "../methods/restructuring/mergeItems.js"
-import checkKeys from "../helpers/checkKeys.js"
+import handleMissingKeys from "../helpers/handleMissingKeys.js"
 import { logCall, asyncLogCall } from "../helpers/logCall.js"
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
 import loadDataFromUrl_ from "../methods/importing/loadDataFromUrl.js"
@@ -77,9 +77,9 @@ export default class SimpleData {
         fillMissingKeys?: boolean
     } = {}) {
         if (data.length > 0) {
-            checkKeys(data, fillMissingKeys, verbose)
-        } else if (data.length === 0) {
-            verbose && log("\nnew SimpleDAta\nStarting an empty SimpleData")
+            handleMissingKeys(data, fillMissingKeys, undefined, verbose)
+        } else {
+            verbose && log("\nnew SimpleData\nStarting an empty SimpleData")
         }
 
         this._data = data
@@ -118,7 +118,7 @@ export default class SimpleData {
             throw new Error("Incoming data is empty.")
         }
 
-        checkKeys(data, fillMissingKeys, this.verbose)
+        handleMissingKeys(data, fillMissingKeys, undefined, this.verbose)
 
         this.#updateSimpleData(data)
 
@@ -388,13 +388,19 @@ export default class SimpleData {
     @logCall()
     addItems({
         dataToBeAdded,
+        fillMissingValues = false,
         overwrite = true,
     }: {
         dataToBeAdded: SimpleDataItem[] | SimpleData
-        nbDigits?: number
+        fillMissingValues?: boolean
         overwrite?: boolean
     }): this {
-        this._tempData = addItems_(this._data, dataToBeAdded, this.verbose)
+        this._tempData = addItems_(
+            this._data,
+            dataToBeAdded,
+            fillMissingValues,
+            this.verbose
+        )
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this

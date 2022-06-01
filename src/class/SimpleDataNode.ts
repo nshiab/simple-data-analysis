@@ -5,7 +5,7 @@ import { SimpleDataItem } from "../types/SimpleData.types"
 import loadDataFromLocalFile_ from "../methods/importing/loadDataFromLocalFile.js"
 import saveData_ from "../methods/exporting/saveData.js"
 import { logCall, asyncLogCall } from "../helpers/logCall.js"
-import checkKeys from "../helpers/checkKeys.js"
+import handleMissingKeys from "../helpers/handleMissingKeys.js"
 import log from "../helpers/log.js"
 import loadDataFromUrlAxios_ from "../methods/importing/loadDataFromUrlAxios.js"
 
@@ -37,7 +37,7 @@ export default class SimpleDataNode extends SimpleData {
             throw new Error("Incoming data is empty.")
         }
 
-        checkKeys(data, fillMissingKeys, this.verbose)
+        handleMissingKeys(data, fillMissingKeys, undefined, this.verbose)
 
         this.#updateSimpleData(data)
 
@@ -75,7 +75,7 @@ export default class SimpleDataNode extends SimpleData {
             throw new Error("Incoming data is empty.")
         }
 
-        checkKeys(data, fillMissingKeys, this.verbose)
+        handleMissingKeys(data, fillMissingKeys, undefined, this.verbose)
 
         this.#updateSimpleData(data)
 
