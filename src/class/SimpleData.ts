@@ -14,6 +14,7 @@ import valuesToDate_ from "../methods/cleaning/valuesToDate.js"
 import datesToString_ from "../methods/cleaning/datesToString.js"
 import filterValues_ from "../methods/selecting/filterValues.js"
 import filterItems_ from "../methods/selecting/filterItems.js"
+import removeDuplicates_ from "../methods/selecting/removeDuplicates.js"
 import roundValues_ from "../methods/cleaning/roundValues.js"
 import replaceValues_ from "../methods/cleaning/replaceValues.js"
 import addKey_ from "../methods/restructuring/addKey.js"
@@ -476,6 +477,22 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._tempData = filterItems_(this._data, itemComparator, this.verbose)
+        overwrite && this.#updateSimpleData(this._tempData)
+
+        return this
+    }
+
+    /**
+     * Remove duplicate items.
+     * @param __namedParameters.key data key to filter on.
+     * @param __namedParameters.overwrite  Should overwrite data with the result. overwrite=false only makes sense when SimpleData.verbose is true.
+     */
+    @logCall()
+    removeDuplicates({
+        key,
+        overwrite = true,
+    }: { key?: string; overwrite?: boolean } = {}): this {
+        this._tempData = removeDuplicates_(this._data, key, this.verbose)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this

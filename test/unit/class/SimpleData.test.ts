@@ -506,4 +506,18 @@ describe("SimpleData", function () {
         ])
         spy.restore()
     })
+
+    it("should remove duplicates", function () {
+        const data = [
+            { patate: 1, poil: 2 },
+            { patate: 11, poil: 22 },
+            { patate: 11, poil: 22 },
+        ]
+        const simpleData = new SimpleData({ data: data })
+        const newSimpleData = simpleData.removeDuplicates()
+        assert.deepEqual(newSimpleData.getData(), [
+            { patate: 1, poil: 2 },
+            { patate: 11, poil: 22 },
+        ])
+    })
 })
