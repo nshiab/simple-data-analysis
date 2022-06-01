@@ -476,12 +476,12 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
     /**
      * Remove duplicate items.
-     * @param __namedParameters.key  Data as a list of objects with the same keys.
-     * @param __namedParameters.overwrite  Should overwrite data with the result.
+     * @param __namedParameters.key data key to filter on.
+     * @param __namedParameters.overwrite  Should overwrite data with the result. overwrite=false only makes sense when SimpleData.verbose is true.
      */
+    @logCall()
     removeDuplicates({
         key,
         overwrite = true,
