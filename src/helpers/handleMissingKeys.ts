@@ -5,7 +5,7 @@ import getUniqueKeys from "./getUniqueKeys.js"
 
 export default function handleMissingKeys(
     data: SimpleDataItem[],
-    fillMissingKeys: boolean,
+    fillMissingKeys = true,
     uniqueKeys?: string[],
     verbose?: boolean
 ) {

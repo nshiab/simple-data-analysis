@@ -388,13 +388,19 @@ export default class SimpleData {
     @logCall()
     addItems({
         dataToBeAdded,
+        fillMissingValues = false,
         overwrite = true,
     }: {
         dataToBeAdded: SimpleDataItem[] | SimpleData
-        nbDigits?: number
+        fillMissingValues?: boolean
         overwrite?: boolean
     }): this {
-        this._tempData = addItems_(this._data, dataToBeAdded, this.verbose)
+        this._tempData = addItems_(
+            this._data,
+            dataToBeAdded,
+            fillMissingValues,
+            this.verbose
+        )
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
