@@ -12,7 +12,7 @@ We are always trying to improve it. Feel free to start a conversation or open an
 
 Pull requests are welcome as well! Just make sure to pass our tests locally with ```npm run allTests``` otherwise, your request will be automatically rejected.
 
-A demo is available here: https://observablehq.com/@nshiab/simple-data-analysis
+A demo is available [here](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript).
 
 # Table of contents
 
@@ -42,7 +42,7 @@ For more about tidy data, you can read [this great article](https://cran.r-proje
 
 ## The easiest way to use the library
 
-If you don't want to install anything, a great platform is Observable. Check this demo of the library in an [Observable's notebook](https://observablehq.com/@nshiab/simple-data-analysis).
+If you don't want to install anything, a great platform is Observable. Check this demo of the library in an [Observable's notebook](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript).
 
 <img src="./assets/observable.png" alt="An Observable notebook using simple-data-analysis" style="display:block;width: 100%; max-width:400px;margin-left:auto;margin-right: auto;margin-bottom: 20px;border-radius: 5px;"/>
 
@@ -150,7 +150,7 @@ The SimpleData class is the core of the library. It allows you clean, analyze an
 
 When you chain methods, the data is updated at each step and sent to the next one.
 
-For a description of all methods available, check this [Observable notebook](https://observablehq.com/@nshiab/simple-data-analysis) or our [automatically generated documentation](https://nshiab.github.io/simple-data-analysis/).
+For a description of all methods available, check this [Observable notebook](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript) or our [automatically generated documentation](https://nshiab.github.io/simple-data-analysis/).
 
 ## SimpleDataNode
 
@@ -239,4 +239,4 @@ simpleDocument
 
 Our documentation is automatically generated with [TypeDoc](https://typedoc.org/) and available here: https://nshiab.github.io/simple-data-analysis/.
 
-For a description of all methods and how to use them, you can also check this Observable notebook: https://observablehq.com/@nshiab/simple-data-analysis.
+For a description of all methods and how to use them, you can also check this Observable notebook: https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript.
