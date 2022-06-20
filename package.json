@@ -42,7 +42,9 @@
         "format": "prettier --ignore-path .prettierignore --write './**/*.ts'",
         "check-format": "prettier --ignore-path .prettierignore --check './**/*.ts'",
         "allTests": "npm run format && npm run test && npm run test-data && npm run test-data-node && npm run test-doc && npm run lint",
-        "build": "npm run allTests && rm -rf dist && npx tsc && rollup --config"
+        "build": "npm run allTests && rm -rf dist && npx tsc && npm run commit-doc && rollup --config",
+        "doc": "npx typedoc --name Simple-data-analysis --includeVersion --readme none --out docs src/index.ts",
+        "commit-doc": "git checkout main && npm run doc && git add docs/ && git commit -m 'update documentation' && git push"
     },
     "engines": {
         "node": ">=16.0"
@@ -66,9 +68,12 @@
         "@types/lodash.camelcase": "^4.3.7",
         "@types/lodash.clonedeep": "^4.5.7",
         "@types/lodash.isequal": "^4.5.6",
+        "@types/lodash.uniqby": "^4.7.7",
+        "@types/lodash.uniqwith": "^4.5.7",
         "@types/mocha": "^9.1.1",
         "@types/react": "^18.0.9",
         "@types/react-dom": "^18.0.4",
+        "@types/sinon": "^10.0.11",
         "@typescript-eslint/eslint-plugin": "^5.23.0",
         "@typescript-eslint/parser": "^5.23.0",
         "eslint": "^8.15.0",
@@ -78,9 +83,11 @@
         "rollup": "^2.70.2",
         "rollup-plugin-terser": "^7.0.2",
         "rollup-plugin-visualizer": "^5.6.0",
+        "sinon": "^14.0.0",
         "tempy": "^3.0.0",
         "ts-node": "^10.7.0",
         "tslib": "^2.4.0",
+        "typedoc": "^0.22.15",
         "typescript": "^4.6.4"
     },
     "dependencies": {
@@ -101,6 +108,8 @@
         "lodash.camelcase": "^4.3.0",
         "lodash.clonedeep": "^4.5.0",
         "lodash.isequal": "^4.5.0",
+        "lodash.uniqby": "^4.7.0",
+        "lodash.uniqwith": "^4.5.0",
         "react": "^18.1.0",
         "react-dom": "^18.1.0",
         "simple-statistics": "^7.7.5"

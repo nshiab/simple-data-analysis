@@ -2,6 +2,7 @@ import { JSDOM } from "jsdom"
 const jsdom = new JSDOM("")
 global.document = jsdom.window.document
 import assert from "assert"
+import sinon from "sinon"
 import { utcParse } from "d3-time-format"
 import { SimpleData } from "../../../src/index.js"
 
@@ -470,5 +471,53 @@ describe("SimpleData", function () {
         })
         // TODO: is this the expected behaviour with strings?
         assert.deepEqual(typeof chart, "string")
+    })
+
+    it("should log data", function () {
+        const data = [
+            { patate: 1, poil: 2 },
+            { patate: 11, poil: 22 },
+        ]
+        const dataToBeAdded = [{ patate: 1, poil: 222 }]
+        const simpleData = new SimpleData({
+            data: data,
+            verbose: true,
+            nbTableItemsToLog: 3,
+        })
+        // Spy the console.table function
+        const spy = sinon.spy(console, "table")
+        // Call method
+        simpleData.addItems({
+            dataToBeAdded,
+            overwrite: false,
+        })
+        // assert that it was called with the correct value
+        spy.withArgs(
+            sinon.match.same([
+                { patate: 1, poil: 2 },
+                { patate: 11, poil: 22 },
+                { patate: 1, poil: 222 },
+            ])
+        )
+        // assert that data is not overridden
+        assert.deepEqual(simpleData.getData(), [
+            { patate: 1, poil: 2 },
+            { patate: 11, poil: 22 },
+        ])
+        spy.restore()
+    })
+
+    it("should remove duplicates", function () {
+        const data = [
+            { patate: 1, poil: 2 },
+            { patate: 11, poil: 22 },
+            { patate: 11, poil: 22 },
+        ]
+        const simpleData = new SimpleData({ data: data })
+        const newSimpleData = simpleData.removeDuplicates()
+        assert.deepEqual(newSimpleData.getData(), [
+            { patate: 1, poil: 2 },
+            { patate: 11, poil: 22 },
+        ])
     })
 })

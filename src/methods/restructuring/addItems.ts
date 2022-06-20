@@ -2,48 +2,37 @@ import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import isEqual from "lodash.isequal"
 import log from "../../helpers/log.js"
 import SimpleData from "../../class/SimpleData.js"
+import handleMissingKeys from "../../helpers/handleMissingKeys.js"
+import getUniqueKeys from "../../helpers/getUniqueKeys.js"
 
 export default function addItems(
     data: SimpleDataItem[],
     dataToBeAdded: SimpleDataItem[] | SimpleData,
-    verbose: boolean
+    fillMissingValues?: boolean,
+    verbose?: boolean
 ): SimpleDataItem[] {
-    let newData
+    if (dataToBeAdded instanceof SimpleData) {
+        dataToBeAdded = dataToBeAdded.getData()
+    }
 
-    if (Array.isArray(dataToBeAdded) && typeof dataToBeAdded[0]) {
-        const keys1 = Object.keys(data[0]).sort()
-        const keys2 = Object.keys(dataToBeAdded[0]).sort()
+    const uniqueKeys = getUniqueKeys(data)
+    dataToBeAdded = handleMissingKeys(
+        dataToBeAdded,
+        fillMissingValues,
+        uniqueKeys
+    )
 
-        if (!isEqual(keys1, keys2)) {
-            throw new Error(
-                `data and dataToBeAdded don't have the same keys\ndata keys => ${String(
-                    keys1
-                )}\ndataToBeAdded keys => ${String(keys2)}`
-            )
-        }
+    const uniqueKeysToBeAdded = getUniqueKeys(dataToBeAdded)
 
-        newData = data.concat(dataToBeAdded)
-    } else if (dataToBeAdded instanceof SimpleData) {
-        const dataTBA = dataToBeAdded.getData()
-
-        const keys1 = Object.keys(data[0]).sort()
-        const keys2 = Object.keys(dataTBA[0]).sort()
-
-        if (!isEqual(keys1, keys2)) {
-            throw new Error(
-                `data and dataToBeAdded don't have the same keys\ndata keys => ${String(
-                    keys1
-                )}\ndataToBeAdded keys => ${String(keys2)}`
-            )
-        }
-
-        newData = data.concat(dataTBA)
-    } else {
-        throw Error(
-            "dataToBeAdded needs to be an array of objects or a SimpleData prototype"
+    if (!isEqual(uniqueKeys, uniqueKeysToBeAdded)) {
+        throw new Error(
+            `data and dataToBeAdded don't have the same keys\ndata keys => ${String(
+                uniqueKeys
+            )}\ndataToBeAdded keys => ${String(uniqueKeysToBeAdded)}`
         )
     }
 
+    const newData = data.concat(dataToBeAdded)
     verbose &&
         log(
             `/!\\ ${
