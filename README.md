@@ -8,7 +8,9 @@ These project's goals are:
 
 - To uniformize and accelerate frontend/backend workflows with a simple to use library working both in the browser and with NodeJS.
 
-We are always trying to improve it. Feel free to start a conversation or open an issue. Pull requests are welcome as well!
+We are always trying to improve it. Feel free to start a conversation or open an issue.
+
+Pull requests are welcome as well! Just make sure to pass our tests locally with ```npm run allTests``` otherwise, your request will be automatically rejected.
 
 A demo is available here: https://observablehq.com/@nshiab/simple-data-analysis
 
