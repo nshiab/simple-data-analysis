@@ -150,7 +150,7 @@ The SimpleData class is the core of the library. It allows you clean, analyze an
 
 When you chain methods, the data is updated at each step and sent to the next one.
 
-For a description of all methods available, check this [Observable notebook](https://observablehq.com/@nshiab/simple-data-analysis).
+For a description of all methods available, check this [Observable notebook](https://observablehq.com/@nshiab/simple-data-analysis) or our [automatically generated documentation](https://nshiab.github.io/simple-data-analysis/).
 
 ## SimpleDataNode
 
