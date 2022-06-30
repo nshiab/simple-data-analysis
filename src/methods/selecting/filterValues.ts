@@ -3,14 +3,14 @@ import {
     SimpleDataItem,
     SimpleDataValue,
 } from "../../types/SimpleData.types.js"
-import percentage from "../../helpers/percentage.js"
+import toPercentage from "../../helpers/toPercentage.js"
 import hasKey from "../../helpers/hasKey.js"
 
 export default function filterValues(
     data: SimpleDataItem[],
     key: string,
     valueComparator: (val: SimpleDataValue) => SimpleDataValue,
-    verbose: boolean
+    verbose = false
 ): SimpleDataItem[] {
     if (!hasKey(data[0], key)) {
         throw new Error("No key named " + key)
@@ -21,7 +21,7 @@ export default function filterValues(
     const nbRemoved = data.length - filteredData.length
     verbose &&
         log(
-            `/!\\ ${nbRemoved} items removed, representing ${percentage(
+            `/!\\ ${nbRemoved} items removed, representing ${toPercentage(
                 nbRemoved,
                 data.length
             )} of received items.`,

@@ -1,7 +1,7 @@
 import log from "../../helpers/log.js"
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { quantile, extent } from "d3-array"
-import percentage from "../../helpers/percentage.js"
+import toPercentage from "../../helpers/toPercentage.js"
 import hasKey from "../../helpers/hasKey.js"
 
 export default function addOutliers(
@@ -49,7 +49,7 @@ export default function addOutliers(
 
     verbose &&
         log(
-            `${outliers} outliers found, representing ${percentage(
+            `${outliers} outliers found, representing ${toPercentage(
                 outliers,
                 data.length
             )} of the incoming data.`,

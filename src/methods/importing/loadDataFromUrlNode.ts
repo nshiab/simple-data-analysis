@@ -4,15 +4,15 @@ import getExtension from "../../helpers/getExtension.js"
 import log from "../../helpers/log.js"
 import { SimpleDataItem } from "../../types/SimpleData.types"
 
-export default async function loadDataFromUrlNode({
-    url,
-    verbose = false,
-    missingKeyValues,
-}: {
-    url: string
-    verbose: boolean
-    missingKeyValues: SimpleDataItem
-}): Promise<SimpleDataItem[]> {
+export default async function loadDataFromUrlNode(
+    url: string,
+    missingKeyValues: SimpleDataItem = {
+        null: null,
+        NaN: NaN,
+        undefined: undefined,
+    },
+    verbose = false
+): Promise<SimpleDataItem[]> {
     const request = await axios.get(url)
     const data = request.data
 
@@ -24,6 +24,8 @@ export default async function loadDataFromUrlNode({
         verbose && log("=> Csv file extension detected", "blue")
 
         arrayOfObjects = csvParse(data, autoType)
+
+        delete arrayOfObjects["columns" as any]
 
         const keys = Object.keys(arrayOfObjects[0])
         const missingValueKeys = Object.keys(missingKeyValues)

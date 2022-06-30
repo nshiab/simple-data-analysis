@@ -2,15 +2,15 @@ import log from "../../helpers/log.js"
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import SimpleData from "../../class/SimpleData.js"
 import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
-import percentage from "../../helpers/percentage.js"
+import toPercentage from "../../helpers/toPercentage.js"
 import hasKey from "../../helpers/hasKey.js"
 
 export default function mergeItems(
     data: SimpleDataItem[],
     dataToBeMerged: SimpleDataItem[] | SimpleData,
     commonKey: string,
-    verbose: boolean,
-    nbValuesTested: number
+    verbose = false,
+    nbValuesTested = 10000
 ): SimpleDataItem[] {
     verbose && log("\nmergeItems() " + commonKey)
 
@@ -49,7 +49,7 @@ export default function mergeItems(
     }
 
     if (
-        !checkTypeOfKey(data, commonKey, "string", 1, verbose, nbValuesTested)
+        !checkTypeOfKey(data, commonKey, "string", 1, nbValuesTested, verbose)
     ) {
         throw new Error(
             "At least one value of " +
@@ -62,8 +62,8 @@ export default function mergeItems(
             commonKey,
             "string",
             1,
-            verbose,
-            nbValuesTested
+            nbValuesTested,
+            verbose
         )
     ) {
         throw new Error(
@@ -110,7 +110,7 @@ export default function mergeItems(
     verbose &&
         nbUndefined > 0 &&
         log(
-            `/!\\ Not match for ${nbUndefined} items, representing ${percentage(
+            `/!\\ Not match for ${nbUndefined} items, representing ${toPercentage(
                 nbUndefined,
                 data.length
             )} of items. New keys have undefined values for these items.`,

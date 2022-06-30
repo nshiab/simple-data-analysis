@@ -27,11 +27,11 @@ export default class SimpleDataNode extends SimpleData {
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
     }): Promise<this> {
-        const data = await loadDataFromUrlNode_({
-            url: url,
-            verbose: this.verbose,
-            missingKeyValues: missingKeyValues,
-        })
+        const data = await loadDataFromUrlNode_(
+            url,
+            missingKeyValues,
+            this.verbose
+        )
 
         if (data.length === 0) {
             throw new Error("Incoming data is empty.")

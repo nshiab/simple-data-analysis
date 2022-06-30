@@ -2,7 +2,7 @@ import log from "./log.js"
 import { plot } from "@observablehq/plot"
 
 export default function plotChart(
-    plotOptions: { [key: string]: any },
+    plotOptions: { [key: string]: object },
     verbose?: boolean
 ): string {
     verbose && log(plotOptions)

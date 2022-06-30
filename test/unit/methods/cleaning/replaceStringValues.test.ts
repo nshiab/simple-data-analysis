@@ -2,7 +2,7 @@ import assert from "assert"
 import replaceStringValues from "../../../../src/methods/cleaning/replaceStringValues.js"
 
 describe("replaceStringValues", function () {
-    it("should replace values", function () {
+    it("should replace string values", function () {
         const data = [{ patate: "I am potato", poil: "I am poil" }]
         const replacedValues = replaceStringValues(
             data,

@@ -14,7 +14,7 @@ export default function correlation(
 
     if (key1 === undefined && key2 === undefined) {
         const keys = Object.keys(data[0]).filter((d) =>
-            checkTypeOfKey(data, d, "number", 1, verbose, nbTestedValues)
+            checkTypeOfKey(data, d, "number", 1, nbTestedValues, verbose)
         )
         const combi = combinations(keys, 2)
 
@@ -28,7 +28,7 @@ export default function correlation(
         if (!hasKey(data[0], key1)) {
             throw new Error(`No key ${key1} in data`)
         }
-        if (!checkTypeOfKey(data, key1, "number", 1, verbose, nbTestedValues)) {
+        if (!checkTypeOfKey(data, key1, "number", 1, nbTestedValues, verbose)) {
             throw new Error(`${key1} should be of type number`)
         }
 
@@ -37,7 +37,7 @@ export default function correlation(
                 throw new Error(`No key ${key} in data`)
             }
             if (
-                !checkTypeOfKey(data, key, "number", 1, verbose, nbTestedValues)
+                !checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
             ) {
                 throw new Error(`${key} should be of type number`)
             }
@@ -50,13 +50,13 @@ export default function correlation(
         if (!hasKey(data[0], key1)) {
             throw new Error(`No key ${key1} in data`)
         }
-        if (!checkTypeOfKey(data, key1, "number", 1, verbose, nbTestedValues)) {
+        if (!checkTypeOfKey(data, key1, "number", 1, nbTestedValues, verbose)) {
             throw new Error(`${key1} should be of type number`)
         }
         if (!hasKey(data[0], key2)) {
             throw new Error(`No key ${key2} in data`)
         }
-        if (!checkTypeOfKey(data, key2, "number", 1, verbose, nbTestedValues)) {
+        if (!checkTypeOfKey(data, key2, "number", 1, nbTestedValues, verbose)) {
             throw new Error(`${key2} should be of type number`)
         }
         correlations.push({

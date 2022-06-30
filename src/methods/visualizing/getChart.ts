@@ -1,6 +1,7 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { dot, line, barY, barX, boxY, boxX } from "@observablehq/plot"
 import plotChart from "../../helpers/plotChart.js"
+import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 
 export default function getChart(
     data: SimpleDataItem[],
@@ -71,6 +72,27 @@ export default function getChart(
     if (color && ["line", "dot"].includes(type)) {
         plotOptions.color = {
             legend: true,
+        }
+    }
+
+    if (color && checkTypeOfKey(data, color, "string", 0.5, 100)) {
+        if (plotOptions.color) {
+            plotOptions.color.type = "ordinal"
+        } else {
+            plotOptions.color = { type: "ordinal" }
+        }
+    }
+
+    if (checkTypeOfKey(data, x, "string", 0.5, 100)) {
+        if (type === "dot") {
+            plotOptions.x = { type: "point" }
+        } else if (type !== "line") {
+            plotOptions.x = { type: "band" }
+        }
+    }
+    if (checkTypeOfKey(data, y, "string", 0.5, 100)) {
+        if (type === "dot") {
+            plotOptions.y = { type: "point" }
         }
     }
 

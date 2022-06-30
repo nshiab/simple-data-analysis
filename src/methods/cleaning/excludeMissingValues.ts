@@ -1,6 +1,5 @@
-import isMissingValue from "../../helpers/isMissingValue.js"
 import log from "../../helpers/log.js"
-import percentage from "../../helpers/percentage.js"
+import toPercentage from "../../helpers/toPercentage.js"
 import {
     SimpleDataItem,
     SimpleDataValue,
@@ -20,7 +19,7 @@ export default function excludeMissingValues(
             let check = true
             const values = Object.values(d)
             for (const val of values) {
-                if (isMissingValue(val, missingValues)) {
+                if (missingValues.includes(val)) {
                     check = false
                     break
                 }
@@ -28,9 +27,7 @@ export default function excludeMissingValues(
             return check
         })
     } else if (hasKey(data[0], key)) {
-        filteredData = data.filter(
-            (d) => !isMissingValue(d[key], missingValues)
-        )
+        filteredData = data.filter((d) => !missingValues.includes(d[key]))
     } else {
         throw new Error("No key " + key)
     }
@@ -38,7 +35,7 @@ export default function excludeMissingValues(
     const nbRemoved = data.length - filteredData.length
     verbose &&
         log(
-            `/!\\ ${nbRemoved} items removed, representing ${percentage(
+            `/!\\ ${nbRemoved} items removed, representing ${toPercentage(
                 nbRemoved,
                 data.length
             )} of received items.`,

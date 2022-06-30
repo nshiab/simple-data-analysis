@@ -1,5 +1,5 @@
 import assert from "assert"
-import removeDuplicates from "../../../../src/methods/selecting/removeDuplicates.js"
+import removeDuplicates from "../../../../src/methods/cleaning/removeDuplicates.js"
 
 describe("removeDuplicates", function () {
     it("should not remove items", function () {

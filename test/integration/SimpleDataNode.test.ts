@@ -48,6 +48,7 @@ async function main() {
         .renameKey({ oldKey: "departementOrUnit", newKey: "unit" })
         .renameKey({ oldKey: "endOfYearBonus", newKey: "bonus" })
         .checkValues({ overwrite: false })
+        .removeDuplicates()
         .excludeMissingValues({ key: "name" })
         .excludeMissingValues()
         .addKey({
@@ -301,6 +302,7 @@ async function main() {
         simpleDataNode.saveCustomChart({
             path: `${tempDir}/customChart.html`,
             plotOptions: {
+                color: { type: "ordinal" },
                 grid: true,
                 facet: {
                     data: simpleDataNode.getData(),

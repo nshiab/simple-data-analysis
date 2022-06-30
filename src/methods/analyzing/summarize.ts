@@ -4,7 +4,6 @@ import { flatRollup, mean, sum, median, max, min, deviation } from "d3-array"
 import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 import isEqual from "lodash.isequal"
 import hasKey from "../../helpers/hasKey.js"
-import handleMissingKeys from "../../helpers/handleMissingKeys.js"
 
 export default function summarize(
     data: SimpleDataItem[],
@@ -31,28 +30,10 @@ export default function summarize(
                 throw new Error("No key " + k)
             }
         }
-
-        // keys = keyCategory.filter((k) =>
-        //     checkTypeOfKey(data, k, "string", 0.5, verbose, nbValuesTested)
-        // )
     } else if (typeof keyCategory === "string") {
         if (!hasKey(data[0], keyCategory)) {
             throw new Error("No key " + keyCategory)
         }
-
-        // if (
-        //     !checkTypeOfKey(
-        //         data,
-        //         keyCategory,
-        //         "string",
-        //         0.5,
-        //         verbose,
-        //         nbValuesTested
-        //     )
-        // ) {
-        //     throw new Error("The key category should be of type string or have less than 1000 unique values")
-        // }
-
         keys = [keyCategory]
     } else {
         throw new Error("key must be either a string or an array of string")
@@ -69,7 +50,7 @@ export default function summarize(
             }
         }
         values = keyValue.filter((v) =>
-            checkTypeOfKey(data, v, "number", 0.5, verbose, nbValuesTested)
+            checkTypeOfKey(data, v, "number", 0.5, nbValuesTested, verbose)
         )
     } else if (typeof keyValue === "string") {
         if (!hasKey(data[0], keyValue)) {
@@ -81,8 +62,8 @@ export default function summarize(
                 keyValue,
                 "number",
                 0.5,
-                verbose,
-                nbValuesTested
+                nbValuesTested,
+                verbose
             )
         ) {
             throw new Error("The value should be of type number")
@@ -149,8 +130,8 @@ export default function summarize(
                         weight,
                         "number",
                         0.5,
-                        verbose,
-                        nbValuesTested
+                        nbValuesTested,
+                        verbose
                     )
                 ) {
                     throw new Error("The weight should be of type number")
@@ -178,6 +159,7 @@ export default function summarize(
                 const arrayToCompare = [value].concat(
                     result.slice(0, keys.length)
                 )
+
                 const filteredResults = summariesResults.find((d) =>
                     isEqual(d.arrayToCompare, arrayToCompare)
                 )

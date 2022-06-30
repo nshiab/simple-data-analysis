@@ -4,6 +4,7 @@ import isEqual from "lodash.isequal"
 import { SimpleDataItem } from "../../types/SimpleData.types"
 import log from "../../helpers/log.js"
 import getUniqueKeys from "../../helpers/getUniqueKeys.js"
+import toPercentage from "../../helpers/toPercentage.js"
 
 export default function removeDuplicates(
     data: SimpleDataItem[],
@@ -21,7 +22,15 @@ export default function removeDuplicates(
         result = uniqBy(data, key)
     }
 
-    verbose && log(`Removed ${data.length - result.length} duplicate items`)
+    const nbRemoved = data.length - result.length
+    verbose &&
+        log(
+            `/!\\ Removed ${nbRemoved} duplicate items, representing ${toPercentage(
+                nbRemoved,
+                data.length
+            )} of received items.`,
+            "bgRed"
+        )
 
     return result
 }

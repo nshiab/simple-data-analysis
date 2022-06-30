@@ -1,7 +1,7 @@
 import log from "../../helpers/log.js"
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { quantile, extent } from "d3-array"
-import percentage from "../../helpers/percentage.js"
+import toPercentage from "../../helpers/toPercentage.js"
 import hasKey from "../../helpers/hasKey.js"
 
 export default function excludeOutliers(
@@ -36,7 +36,7 @@ export default function excludeOutliers(
     const outliers = data.length - filteredData.length
     verbose &&
         log(
-            `/!\\ ${outliers} outliers found and excluded, representing ${percentage(
+            `/!\\ ${outliers} outliers found and excluded, representing ${toPercentage(
                 outliers,
                 data.length
             )} of the incoming data.`,

@@ -1,6 +1,6 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import getArray from "../exporting/getArray.js"
-import percentage from "../../helpers/percentage.js"
+import toPercentage from "../../helpers/toPercentage.js"
 import hasKey from "../../helpers/hasKey.js"
 
 export default function checkValues(data: SimpleDataItem[]): SimpleDataItem[] {
@@ -49,7 +49,7 @@ export default function checkValues(data: SimpleDataItem[]): SimpleDataItem[] {
 
         for (const key of Object.keys(checks)) {
             if (key !== "key" && key != "count" && checks[key] !== 0) {
-                checks[key] = `${checks[key]} | ${percentage(
+                checks[key] = `${checks[key]} | ${toPercentage(
                     checks[key],
                     checks.count,
                     0
