@@ -8,7 +8,7 @@ export default function addOutliers(
     data: SimpleDataItem[],
     key: string,
     newKey: string,
-    verbose: boolean
+    verbose = false
 ): SimpleDataItem[] {
     if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)

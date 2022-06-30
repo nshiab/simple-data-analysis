@@ -4,19 +4,23 @@ import { flatRollup, mean, sum, median, max, min, deviation } from "d3-array"
 import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 import isEqual from "lodash.isequal"
 import hasKey from "../../helpers/hasKey.js"
+import handleMissingKeys from "../../helpers/handleMissingKeys.js"
 
 export default function summarize(
     data: SimpleDataItem[],
-    keyValue: string | string[],
-    verbose: boolean,
-    nbValuesTested: number,
-    nbDigits: number,
+    keyValue?: string | string[],
     keyCategory?: string | string[],
     summary?: string | string[],
-    weight?: string
+    weight?: string,
+    verbose = false,
+    nbValuesTested = 10000,
+    nbDigits = 1
 ): any[] {
-    // Let's deal with the keyCategory first
+    if (keyValue === undefined) {
+        keyValue = Object.keys(data[0])
+    }
 
+    // Let's deal with the keyCategory first
     let keys: string[] = []
 
     if (keyCategory === undefined) {

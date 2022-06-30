@@ -16,7 +16,7 @@ import filterValues_ from "../methods/selecting/filterValues.js"
 import filterItems_ from "../methods/selecting/filterItems.js"
 import removeDuplicates_ from "../methods/selecting/removeDuplicates.js"
 import roundValues_ from "../methods/cleaning/roundValues.js"
-import replaceValues_ from "../methods/cleaning/replaceValues.js"
+import replaceStringValues_ from "../methods/cleaning/replaceStringValues.js"
 import addKey_ from "../methods/restructuring/addKey.js"
 import selectKeys_ from "../methods/selecting/selectKeys.js"
 import modifyValues_ from "../methods/cleaning/modifyValues.js"
@@ -34,7 +34,7 @@ import mergeItems_ from "../methods/restructuring/mergeItems.js"
 import handleMissingKeys from "../helpers/handleMissingKeys.js"
 import { logCall, asyncLogCall } from "../helpers/logCall.js"
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
-import loadDataFromUrl_ from "../methods/importing/loadDataFromUrl.js"
+import loadDataFromUrlWeb_ from "../methods/importing/loadDataFromUrlWeb.js"
 import getChart_ from "../methods/visualizing/getChart.js"
 import getCustomChart_ from "../methods/visualizing/getCustomChart.js"
 import log from "../helpers/log.js"
@@ -109,7 +109,7 @@ export default class SimpleData {
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
     }): Promise<this> {
-        const data = await loadDataFromUrl_({
+        const data = await loadDataFromUrlWeb_({
             url: url,
             verbose: this.verbose,
             missingKeyValues: missingKeyValues,
@@ -209,12 +209,14 @@ export default class SimpleData {
     @logCall()
     valuesToInteger({
         key,
+        language = "en",
         overwrite = true,
     }: {
         key: string
+        language?: "en" | "fr"
         overwrite?: boolean
     }): this {
-        this._tempData = valuesToInteger_(this._data, key)
+        this._tempData = valuesToInteger_(this._data, key, language)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -223,12 +225,14 @@ export default class SimpleData {
     @logCall()
     valuesToFloat({
         key,
+        language = "en",
         overwrite = true,
     }: {
         key: string
+        language?: "en" | "fr"
         overwrite?: boolean
     }): this {
-        this._tempData = valuesToFloat_(this._data, key)
+        this._tempData = valuesToFloat_(this._data, key, language)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -296,7 +300,7 @@ export default class SimpleData {
         method: "entireString" | "partialString"
         overwrite?: boolean
     }): this {
-        this._tempData = replaceValues_(
+        this._tempData = replaceStringValues_(
             this._data,
             key,
             oldValue,
@@ -524,7 +528,7 @@ export default class SimpleData {
         weight,
         overwrite = true,
         nbDigits = 1,
-        nbValuesTestedForTypeOf = 1000,
+        nbValuesTestedForTypeOf = 10000,
     }: {
         keyValue?: string | string[]
         keyCategory?: string | string[]
@@ -536,13 +540,13 @@ export default class SimpleData {
     } = {}): this {
         this._tempData = summarize_(
             this._data,
-            keyValue === undefined ? this._keys : keyValue,
-            this.verbose,
-            nbValuesTestedForTypeOf,
-            nbDigits,
+            keyValue,
             keyCategory,
             summary,
-            weight
+            weight,
+            this.verbose,
+            nbValuesTestedForTypeOf,
+            nbDigits
         )
         overwrite && this.#updateSimpleData(this._tempData)
         return this
@@ -563,10 +567,10 @@ export default class SimpleData {
     } = {}): this {
         this._tempData = correlation_(
             this._data,
-            this.verbose,
-            nbValuesTestedForTypeOf,
             key1,
-            key2
+            key2,
+            this.verbose,
+            nbValuesTestedForTypeOf
         )
         overwrite && this.#updateSimpleData(this._tempData)
 

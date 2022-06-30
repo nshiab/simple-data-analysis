@@ -7,7 +7,7 @@ import saveData_ from "../methods/exporting/saveData.js"
 import { logCall, asyncLogCall } from "../helpers/logCall.js"
 import handleMissingKeys from "../helpers/handleMissingKeys.js"
 import log from "../helpers/log.js"
-import loadDataFromUrlAxios_ from "../methods/importing/loadDataFromUrlAxios.js"
+import loadDataFromUrlNode_ from "../methods/importing/loadDataFromUrlNode.js"
 
 export default class SimpleDataNode extends SimpleData {
     #updateSimpleData(data: SimpleDataItem[]) {
@@ -27,7 +27,7 @@ export default class SimpleDataNode extends SimpleData {
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
     }): Promise<this> {
-        const data = await loadDataFromUrlAxios_({
+        const data = await loadDataFromUrlNode_({
             url: url,
             verbose: this.verbose,
             missingKeyValues: missingKeyValues,
@@ -64,12 +64,12 @@ export default class SimpleDataNode extends SimpleData {
             )
         }
 
-        const data = loadDataFromLocalFile_({
-            path: path,
-            verbose: this.verbose,
-            missingKeyValues: missingKeyValues,
-            encoding: encoding,
-        })
+        const data = loadDataFromLocalFile_(
+            path,
+            missingKeyValues,
+            encoding,
+            this.verbose
+        )
 
         if (data.length === 0) {
             throw new Error("Incoming data is empty.")

@@ -7,7 +7,7 @@ import hasKey from "../../helpers/hasKey.js"
 export default function excludeOutliers(
     data: SimpleDataItem[],
     key: string,
-    verbose: boolean
+    verbose = false
 ): SimpleDataItem[] {
     if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)

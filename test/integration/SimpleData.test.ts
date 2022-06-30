@@ -86,6 +86,7 @@ async function main() {
                     : NaN,
         })
         .roundValues({ key: "bonus", nbDigits: 2 })
+        .valuesToString({ key: "unit" })
         .valuesToInteger({ key: "unit" })
         .valuesToString({ key: "unit" })
         .valuesToDate({ key: "hireDate", format: "%d-%b-%y" })

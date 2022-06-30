@@ -1,10 +1,10 @@
-import { autoType } from "d3-dsv"
-import { csv, json } from "d3-fetch"
+import axios from "axios"
+import { csvParse, autoType } from "d3-dsv"
 import getExtension from "../../helpers/getExtension.js"
 import log from "../../helpers/log.js"
 import { SimpleDataItem } from "../../types/SimpleData.types"
 
-export default async function loadDataFromUrl({
+export default async function loadDataFromUrlNode({
     url,
     verbose = false,
     missingKeyValues,
@@ -13,6 +13,9 @@ export default async function loadDataFromUrl({
     verbose: boolean
     missingKeyValues: SimpleDataItem
 }): Promise<SimpleDataItem[]> {
+    const request = await axios.get(url)
+    const data = request.data
+
     const fileExtension = getExtension(url)
 
     let arrayOfObjects: any[] = []
@@ -20,7 +23,7 @@ export default async function loadDataFromUrl({
     if (fileExtension === "csv") {
         verbose && log("=> Csv file extension detected", "blue")
 
-        arrayOfObjects = await csv(url, autoType)
+        arrayOfObjects = csvParse(data, autoType)
 
         const keys = Object.keys(arrayOfObjects[0])
         const missingValueKeys = Object.keys(missingKeyValues)
@@ -34,7 +37,7 @@ export default async function loadDataFromUrl({
             }
         }
     } else if (fileExtension === "json") {
-        arrayOfObjects = (await json(url)) as any[]
+        arrayOfObjects = JSON.parse(data)
     } else {
         throw new Error("Unknown file extension " + fileExtension)
     }

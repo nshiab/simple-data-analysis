@@ -1,7 +1,7 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import hasKey from "../../helpers/hasKey.js"
 
-export default function replaceValues(
+export default function replaceStringValues(
     data: SimpleDataItem[],
     key: string,
     oldValue: string,

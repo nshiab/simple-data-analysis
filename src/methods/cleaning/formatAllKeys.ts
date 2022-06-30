@@ -4,7 +4,7 @@ import log from "../../helpers/log.js"
 
 export default function formatAllKeys(
     data: SimpleDataItem[],
-    verbose: boolean
+    verbose = false
 ): SimpleDataItem[] {
     const keysToChange = []
 

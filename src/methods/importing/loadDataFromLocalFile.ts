@@ -4,17 +4,16 @@ import fs from "fs"
 import { csvParse, autoType } from "d3-dsv"
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 
-export default function loadDataFromLocalFile({
-    path,
-    verbose = false,
-    missingKeyValues,
-    encoding = "utf8",
-}: {
-    path: string
-    verbose: boolean
-    missingKeyValues: SimpleDataItem
-    encoding: BufferEncoding
-}): SimpleDataItem[] {
+export default function loadDataFromLocalFile(
+    path: string,
+    missingKeyValues: SimpleDataItem = {
+        null: null,
+        NaN: NaN,
+        undefined: undefined,
+    },
+    encoding: BufferEncoding = "utf8",
+    verbose = false
+): SimpleDataItem[] {
     let arrayOfObjects: any[] = []
 
     const fileExtension = getExtension(path)
@@ -27,6 +26,8 @@ export default function loadDataFromLocalFile({
         const csvString = fs.readFileSync(path, { encoding: encoding })
 
         arrayOfObjects = csvParse(csvString, autoType) as SimpleDataItem[]
+
+        delete arrayOfObjects["columns" as any]
 
         const keys = Object.keys(arrayOfObjects[0])
         const missingValueKeys = Object.keys(missingKeyValues)

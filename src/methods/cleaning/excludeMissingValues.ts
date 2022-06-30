@@ -9,9 +9,9 @@ import hasKey from "../../helpers/hasKey.js"
 
 export default function excludeMissingValues(
     data: SimpleDataItem[],
-    key: string | undefined,
-    missingValues: SimpleDataValue[],
-    verbose: boolean
+    key?: string,
+    missingValues: SimpleDataValue[] = [null, NaN, undefined, ""],
+    verbose = false
 ): SimpleDataItem[] {
     let filteredData: SimpleDataItem[] = []
 

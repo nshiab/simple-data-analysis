@@ -5,10 +5,10 @@ import hasKey from "../../helpers/hasKey.js"
 
 export default function correlation(
     data: SimpleDataItem[],
-    verbose: boolean,
-    nbTestedValues: number,
     key1?: string,
-    key2?: string
+    key2?: string,
+    verbose = false,
+    nbTestedValues = 10000
 ): SimpleDataItem[] {
     const correlations = []
 
