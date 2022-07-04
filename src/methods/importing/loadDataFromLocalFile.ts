@@ -1,7 +1,7 @@
 import log from "../../helpers/log.js"
 import getExtension from "../../helpers/getExtension.js"
 import fs from "fs"
-import { csvParse, autoType } from "d3-dsv"
+import { csvParse, tsvParse, autoType } from "d3-dsv"
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 
 export default function loadDataFromLocalFile(
@@ -20,12 +20,16 @@ export default function loadDataFromLocalFile(
 
     verbose && log("Detected " + fileExtension + " file extension", "blue")
 
-    if (fileExtension === "csv") {
-        verbose && log("=> Csv file extension detected", "blue")
+    if (fileExtension === "csv" || fileExtension === "tsv") {
+        verbose && log(`=> ${fileExtension} file extension detected`, "blue")
 
-        const csvString = fs.readFileSync(path, { encoding: encoding })
+        const dsvString = fs.readFileSync(path, { encoding: encoding })
 
-        arrayOfObjects = csvParse(csvString, autoType) as SimpleDataItem[]
+        if (fileExtension === "csv") {
+            arrayOfObjects = csvParse(dsvString, autoType) as SimpleDataItem[]
+        } else if (fileExtension === "tsv") {
+            arrayOfObjects = tsvParse(dsvString, autoType) as SimpleDataItem[]
+        }
 
         delete arrayOfObjects["columns" as any]
 

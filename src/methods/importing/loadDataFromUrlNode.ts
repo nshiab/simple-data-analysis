@@ -1,5 +1,5 @@
 import axios from "axios"
-import { csvParse, autoType } from "d3-dsv"
+import { csvParse, tsvParse, autoType } from "d3-dsv"
 import getExtension from "../../helpers/getExtension.js"
 import log from "../../helpers/log.js"
 import { SimpleDataItem } from "../../types/SimpleData.types"
@@ -20,10 +20,14 @@ export default async function loadDataFromUrlNode(
 
     let arrayOfObjects: any[] = []
 
-    if (fileExtension === "csv") {
-        verbose && log("=> Csv file extension detected", "blue")
+    if (fileExtension === "csv" || fileExtension === "tsv") {
+        verbose && log(`=> ${fileExtension} file extension detected`, "blue")
 
-        arrayOfObjects = csvParse(data, autoType)
+        if (fileExtension === "csv") {
+            arrayOfObjects = csvParse(data, autoType) as SimpleDataItem[]
+        } else if (fileExtension === "tsv") {
+            arrayOfObjects = tsvParse(data, autoType) as SimpleDataItem[]
+        }
 
         delete arrayOfObjects["columns" as any]
 

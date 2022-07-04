@@ -1,5 +1,5 @@
 import { autoType } from "d3-dsv"
-import { csv, json } from "d3-fetch"
+import { csv, tsv, json } from "d3-fetch"
 import getExtension from "../../helpers/getExtension.js"
 import log from "../../helpers/log.js"
 import { SimpleDataItem } from "../../types/SimpleData.types"
@@ -17,10 +17,16 @@ export default async function loadDataFromUrlWeb({
 
     let arrayOfObjects: any[] = []
 
-    if (fileExtension === "csv") {
-        verbose && log("=> Csv file extension detected", "blue")
+    if (fileExtension === "csv" || fileExtension === "tsv") {
+        verbose && log(`=> ${fileExtension} file extension detected`, "blue")
 
-        arrayOfObjects = await csv(url, autoType)
+        if (fileExtension === "csv") {
+            arrayOfObjects = await csv(url, autoType)
+        } else if (fileExtension === "tsv") {
+            arrayOfObjects = await tsv(url, autoType)
+        }
+
+        delete arrayOfObjects["columns" as any]
 
         const keys = Object.keys(arrayOfObjects[0])
         const missingValueKeys = Object.keys(missingKeyValues)

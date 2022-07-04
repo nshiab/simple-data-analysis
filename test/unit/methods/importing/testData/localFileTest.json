@@ -1,0 +1,10 @@
+[
+    {
+        "patate": 1,
+        "poil": 2
+    },
+    {
+        "patate": 3,
+        "poil": "coucou"
+    }
+]
