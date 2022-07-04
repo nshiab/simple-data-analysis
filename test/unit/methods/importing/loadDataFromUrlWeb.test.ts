@@ -1,1 +1,1 @@
-// Todo. Tested in production. Fetch which can't be used with NodeJS.
+// Todo. Tested in production. Fetch can't be used with NodeJS.

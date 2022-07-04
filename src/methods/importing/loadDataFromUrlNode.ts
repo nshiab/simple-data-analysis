@@ -43,7 +43,7 @@ export default async function loadDataFromUrlNode(
             }
         }
     } else if (fileExtension === "json") {
-        arrayOfObjects = JSON.parse(data)
+        arrayOfObjects = data
     } else {
         throw new Error("Unknown file extension " + fileExtension)
     }
