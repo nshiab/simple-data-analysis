@@ -509,12 +509,23 @@ export default class SimpleData {
         key,
         order = "ascending",
         overwrite = true,
+        locale = "fr",
+        nbTestedValue = 10000,
     }: {
         key: string
         order: "ascending" | "descending"
         overwrite?: boolean
+        locale?: string
+        nbTestedValue?: number
     }): this {
-        this._tempData = sortValues_(this._data, key, order)
+        this._tempData = sortValues_(
+            this._data,
+            key,
+            order,
+            locale,
+            nbTestedValue,
+            this.verbose
+        )
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
