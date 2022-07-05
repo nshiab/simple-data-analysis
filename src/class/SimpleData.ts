@@ -539,7 +539,6 @@ export default class SimpleData {
         weight,
         overwrite = true,
         nbDigits = 1,
-        nbValuesTestedForTypeOf = 10000,
     }: {
         keyValue?: string | string[]
         keyCategory?: string | string[]
@@ -547,7 +546,6 @@ export default class SimpleData {
         weight?: string
         overwrite?: boolean
         nbDigits?: number
-        nbValuesTestedForTypeOf?: number
     } = {}): this {
         this._tempData = summarize_(
             this._data,
@@ -556,7 +554,6 @@ export default class SimpleData {
             summary,
             weight,
             this.verbose,
-            nbValuesTestedForTypeOf,
             nbDigits
         )
         overwrite && this.#updateSimpleData(this._tempData)
