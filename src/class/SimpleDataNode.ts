@@ -39,6 +39,7 @@ export default class SimpleDataNode extends SimpleData {
 
         handleMissingKeys(data, fillMissingKeys, undefined, this.verbose)
 
+        this._tempData = data
         this.#updateSimpleData(data)
 
         return this
@@ -77,6 +78,7 @@ export default class SimpleDataNode extends SimpleData {
 
         handleMissingKeys(data, fillMissingKeys, undefined, this.verbose)
 
+        this._tempData = data // important for decorator
         this.#updateSimpleData(data)
 
         return this

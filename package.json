@@ -35,16 +35,17 @@
     },
     "scripts": {
         "test": "mocha --require ts-node/register \"test/unit/**/*.test.ts\"",
-        "test-doc": "node --loader ts-node/esm test/integration/SimpleDocument.test.tsx",
         "test-data": "node --experimental-json-modules --loader ts-node/esm test/integration/SimpleData.test.ts",
         "test-data-node": "node --loader ts-node/esm test/integration/SimpleDataNode.test.ts",
-        "lint": "eslint . --ext .ts",
-        "format": "prettier --ignore-path .prettierignore --write './**/*.ts'",
-        "check-format": "prettier --ignore-path .prettierignore --check './**/*.ts'",
-        "allTests": "npm run format && npm run test && npm run test-data && npm run test-data-node && npm run test-doc && npm run lint",
+        "test-doc": "node --loader ts-node/esm test/integration/SimpleDocument.test.tsx",
+        "test-build": "rm -rf dist && npx tsc && rollup --config",
+        "allTests": "npm run format && npm run test && npm run test-data && npm run test-data-node && npm run test-doc && npm run test-build && npm run lint",
         "build": "npm run allTests && rm -rf dist && npx tsc && npm run commit-doc && rollup --config",
         "doc": "npx typedoc --name Simple-data-analysis --includeVersion --readme none --out docs src/index.ts",
-        "commit-doc": "git checkout main && npm run doc && git add docs/ && git commit -m 'update documentation' && git push"
+        "commit-doc": "git checkout main && npm run doc && git add docs/ && git commit -m 'update documentation' && git push",
+        "lint": "eslint . --ext .ts",
+        "format": "prettier --ignore-path .prettierignore --write './**/*.ts'",
+        "check-format": "prettier --ignore-path .prettierignore --check './**/*.ts'"
     },
     "engines": {
         "node": ">=16.0"

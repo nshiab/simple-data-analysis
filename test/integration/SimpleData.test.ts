@@ -60,13 +60,13 @@ async function main() {
             },
         })
         .removeKey({ key: "name" })
-        .replaceValues({
+        .replaceStringValues({
             key: "bonus",
             oldValue: "%",
             newValue: "",
             method: "partialString",
         })
-        .replaceValues({
+        .replaceStringValues({
             key: "bonus",
             oldValue: ",",
             newValue: ".",
@@ -105,6 +105,12 @@ async function main() {
         .sortValues({ key: "salary", order: "descending" })
         .sortValues({ key: "bonus", order: "ascending" })
         .selectKeys({ keys: ["firstName", "job", "bonus"], overwrite: false })
+        .valuesToKeys({ newKeys: "unit", newValues: "bonus" })
+        .keysToValues({
+            keys: ["30", "40", "50", "60", "100", "110"],
+            newKeyForKeys: "unit",
+            newKeyForValues: "bonus",
+        })
 
     const moreEmployees = [
         {

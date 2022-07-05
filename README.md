@@ -12,7 +12,7 @@ We are always trying to improve it. Feel free to start a conversation or open an
 
 Pull requests are welcome as well! Just make sure to pass our tests locally with ```npm run allTests``` otherwise, your request will be automatically rejected.
 
-A demo is available [here](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript).
+Note that while this project is open source. Contributing to it does not make you a CBC/Radio-Canada employee or contractor in any way.
 
 # Table of contents
 

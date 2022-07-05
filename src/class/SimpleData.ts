@@ -31,6 +31,8 @@ import addItems_ from "../methods/restructuring/addItems.js"
 import getUniqueValues_ from "../methods/exporting/getUniqueValues.js"
 import summarize_ from "../methods/analyzing/summarize.js"
 import mergeItems_ from "../methods/restructuring/mergeItems.js"
+import keysToValues_ from "../methods/restructuring/keysToValues.js"
+import valuesToKeys_ from "../methods/restructuring/valuesToKeys.js"
 import handleMissingKeys from "../helpers/handleMissingKeys.js"
 import { logCall, asyncLogCall } from "../helpers/logCall.js"
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
@@ -121,6 +123,7 @@ export default class SimpleData {
 
         handleMissingKeys(data, fillMissingKeys, undefined, this.verbose)
 
+        this._tempData = data // important for decorator
         this.#updateSimpleData(data)
 
         return this
@@ -287,7 +290,7 @@ export default class SimpleData {
     }
 
     @logCall()
-    replaceValues({
+    replaceStringValues({
         key,
         oldValue,
         newValue,
@@ -307,6 +310,7 @@ export default class SimpleData {
             newValue,
             method
         )
+
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -429,6 +433,51 @@ export default class SimpleData {
             commonKey,
             this.verbose,
             nbValuesTestedForTypeOf
+        )
+        overwrite && this.#updateSimpleData(this._tempData)
+
+        return this
+    }
+
+    @logCall()
+    valuesToKeys({
+        newKeys,
+        newValues,
+        overwrite = true,
+    }: {
+        newKeys: string
+        newValues: string
+        overwrite?: boolean
+    }): this {
+        this._tempData = valuesToKeys_(
+            this._data,
+            newKeys,
+            newValues,
+            this.verbose
+        )
+        overwrite && this.#updateSimpleData(this._tempData)
+
+        return this
+    }
+
+    @logCall()
+    keysToValues({
+        keys,
+        newKeyForKeys,
+        newKeyForValues,
+        overwrite = true,
+    }: {
+        keys: string[]
+        newKeyForKeys: string
+        newKeyForValues: string
+        overwrite?: boolean
+    }): this {
+        this._tempData = keysToValues_(
+            this._data,
+            keys,
+            newKeyForKeys,
+            newKeyForValues,
+            this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)
 

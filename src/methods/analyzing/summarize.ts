@@ -1,8 +1,5 @@
 import log from "../../helpers/log.js"
-import {
-    SimpleDataItem,
-    SimpleDataValue,
-} from "../../types/SimpleData.types.js"
+import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { flatRollup, mean, sum, median, max, min, deviation } from "d3-array"
 import isEqual from "lodash.isequal"
 import hasKey from "../../helpers/hasKey.js"
@@ -177,8 +174,6 @@ export default function summarize(
     }
 
     const summarizedData = summariesResults.map((d) => d.itemsSummarized)
-
-    console.log(summarizedData)
 
     return summarizedData
 }
