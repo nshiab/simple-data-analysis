@@ -6,6 +6,7 @@ import getArray_ from "../methods/exporting/getArray.js"
 import showTable_ from "../methods/showTable.js"
 import checkValues_ from "../methods/cleaning/checkValues.js"
 import excludeMissingValues_ from "../methods/cleaning/excludeMissingValues.js"
+import keepMissingValues_ from "../methods/cleaning/keepMissingValues.js"
 import removeKey_ from "../methods/restructuring/removeKey.js"
 import valuesToString_ from "../methods/cleaning/valuesToString.js"
 import valuesToInteger_ from "../methods/cleaning/valuesToInteger.js"
@@ -161,6 +162,30 @@ export default class SimpleData {
             missingValues = [null, NaN, undefined, ""]
         }
         this._tempData = excludeMissingValues_(
+            this._data,
+            key,
+            missingValues,
+            this.verbose
+        )
+        overwrite && this.#updateSimpleData(this._tempData)
+
+        return this
+    }
+
+    @logCall()
+    keepMissingValues({
+        key,
+        missingValues,
+        overwrite = true,
+    }: {
+        key?: string
+        missingValues?: SimpleDataValue[]
+        overwrite?: boolean
+    } = {}): this {
+        if (missingValues === undefined) {
+            missingValues = [null, NaN, undefined, ""]
+        }
+        this._tempData = keepMissingValues_(
             this._data,
             key,
             missingValues,

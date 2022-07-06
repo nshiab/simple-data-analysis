@@ -1,8 +1,8 @@
 import assert from "assert"
-import showMissingValues from "../../../../src/methods/cleaning/showMissingValues.js"
+import keepMissingValues from "../../../../src/methods/cleaning/keepMissingValues.js"
 
-describe("showMissingValues", function () {
-    it("should show missing values", function () {
+describe("keepMissingValues", function () {
+    it("should keep missing values", function () {
         const data = [
             { patate: null, poil: 2 },
             { patate: 3, poil: NaN },
@@ -11,7 +11,7 @@ describe("showMissingValues", function () {
             { patate: 11, poil: 22 },
         ]
 
-        const missingData = showMissingValues(data)
+        const missingData = keepMissingValues(data)
         assert.deepEqual(missingData, [
             { patate: null, poil: 2 },
             { patate: 3, poil: NaN },

@@ -6,7 +6,7 @@ import {
 } from "../../types/SimpleData.types.js"
 import hasKey from "../../helpers/hasKey.js"
 
-export default function showMissingValues(
+export default function keepMissingValues(
     data: SimpleDataItem[],
     key?: string,
     missingValues: SimpleDataValue[] = [null, NaN, undefined, ""],
@@ -32,7 +32,7 @@ export default function showMissingValues(
         throw new Error("No key " + key)
     }
 
-    const nbMissing = data.length - filteredData.length
+    const nbMissing = filteredData.length
     verbose &&
         log(
             `/!\\ ${nbMissing} items with missing values, representing ${toPercentage(
