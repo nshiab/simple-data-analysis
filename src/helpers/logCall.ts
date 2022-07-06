@@ -19,7 +19,12 @@ export function logCall() {
                 const result: SimpleDataItem[] = wrappedFunc.apply(this, args)
                 const end = Date.now()
 
-                if (this.verbose) {
+                if (args[0] && !args[0].overwrite) {
+                    const data =
+                        result instanceof SimpleData ? result._tempData : result
+                    showTable(data, this.nbTableItemsToLog)
+                    log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
+                } else if (this.verbose) {
                     const data =
                         result instanceof SimpleData ? result.getData() : result
                     showTable(data, this.nbTableItemsToLog)

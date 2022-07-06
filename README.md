@@ -1,6 +1,6 @@
 # Simple data analysis
 
-This repository is maintained by [Nael Shiab](http://naelshiab.com/), senior data producer, and [Isabelle Bouchard](https://github.com/isabellebouchard), data scientist, both working at [CBC/Radio-Canada](https://cbc.radio-canada.ca/).
+This repository is maintained by [Nael Shiab](http://naelshiab.com/), senior data producer at [CBC/Radio-Canada](https://cbc.radio-canada.ca/).
 
 These project's goals are:
 
