@@ -3,6 +3,7 @@ import renameKey_ from "../methods/cleaning/renameKey.js"
 import describe_ from "../methods/analyzing/describe.js"
 import formatAllKeys_ from "../methods/cleaning/formatAllKeys.js"
 import getArray_ from "../methods/exporting/getArray.js"
+import getDataAsArrays_ from "../methods/exporting/getDataAsArrays.js"
 import showTable_ from "../methods/showTable.js"
 import checkValues_ from "../methods/cleaning/checkValues.js"
 import excludeMissingValues_ from "../methods/cleaning/excludeMissingValues.js"
@@ -723,14 +724,14 @@ export default class SimpleData {
         marginBottom,
     }: {
         type:
-            | "dot"
-            | "line"
-            | "bar"
-            | "barVertical"
-            | "barHorizontal"
-            | "box"
-            | "boxVertical"
-            | "boxHorizontal"
+        | "dot"
+        | "line"
+        | "bar"
+        | "barVertical"
+        | "barHorizontal"
+        | "box"
+        | "boxVertical"
+        | "boxHorizontal"
         x: string
         y: string
         color?: string
@@ -775,14 +776,21 @@ export default class SimpleData {
         return this._keys
     }
 
-    @logCall()
+    // No @logCall for methods starting with get. It's not returning a simpleData class
     getArray({ key }: { key: string }): SimpleDataValue[] {
         const array = getArray_(this._data, key)
 
         return array
     }
 
-    @logCall()
+    // No @logCall for methods starting with get. It's not returning a simpleData class
+    getDataAsArrays() {
+        const arrays = getDataAsArrays_(this._data)
+
+        return arrays
+    }
+
+    // No @logCall for methods starting with get. It's not returning a simpleData class
     getUniqueValues({ key }: { key: string }): SimpleDataValue[] {
         const uniqueValues = getUniqueValues_(this._data, key)
 
@@ -791,7 +799,7 @@ export default class SimpleData {
 
     // *** LOGGING METHODS AND OTHERS *** //
 
-    @logCall()
+    // No log call, otherwise the table is shown twice.
     showTable({
         nbItemInTable = 5,
     }: { nbItemInTable?: "all" | number } = {}): this {

@@ -30,6 +30,7 @@ async function main() {
     // })
 
     simpleData.getData()
+    simpleData.getDataAsArrays()
     simpleData.getKeys()
 
     simpleData.getArray({ key: "Name" })
@@ -83,7 +84,7 @@ async function main() {
             key: "bonus",
             itemGenerator: (item) =>
                 typeof item.salary === "number" &&
-                typeof item.bonus === "number"
+                    typeof item.bonus === "number"
                     ? item.salary * item.bonus
                     : NaN,
         })
