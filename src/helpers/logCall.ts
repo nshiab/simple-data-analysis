@@ -9,7 +9,6 @@ export function logCall() {
 
         descriptor.value = function (...args: any[]) {
             try {
-
                 if (this.verbose) {
                     log("\n" + key + "()")
                     this.logParameters && log("parameters:")
@@ -20,7 +19,7 @@ export function logCall() {
                 const result: SimpleDataItem[] = wrappedFunc.apply(this, args)
                 const end = Date.now()
 
-                if (!this._overwrite) {
+                if (!this.noLogs && !this._overwrite) {
                     const data =
                         result instanceof SimpleData ? result._tempData : result
                     showTable(data, this.nbTableItemsToLog)

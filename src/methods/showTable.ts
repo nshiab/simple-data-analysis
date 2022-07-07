@@ -5,14 +5,16 @@ export default function showTable(
     nbItemInTable: number | "all",
     logFunctionName = false
 ) {
-    logFunctionName && console.log("\nshowTable({ nbItemInTable: " + nbItemInTable + " })")
+    logFunctionName &&
+        console.log("\nshowTable({ nbItemInTable: " + nbItemInTable + " })")
     console.table(nbItemInTable === "all" ? data : data.slice(0, nbItemInTable))
 
     typeof nbItemInTable === "number" && data.length - nbItemInTable > 0
         ? console.log(
-            `... and ${data.length - nbItemInTable} more items (total of ${data.length
-            })`
-        )
+              `... and ${data.length - nbItemInTable} more items (total of ${
+                  data.length
+              })`
+          )
         : console.log(`Total of ${data.length} items`)
 
     return data
