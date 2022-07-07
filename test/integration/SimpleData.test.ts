@@ -1,6 +1,11 @@
 import { JSDOM } from "jsdom"
-const jsdom = new JSDOM("")
-global.document = jsdom.window.document
+if (global.window === undefined || global.document === undefined) {
+    const jsdom = new JSDOM("")
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    global.window = jsdom.window
+    global.document = jsdom.window.document
+}
 
 import { SimpleData } from "../../src/indexWeb.js"
 import * as Plot from "@observablehq/plot"

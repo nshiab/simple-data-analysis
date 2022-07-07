@@ -32,7 +32,7 @@ async function main() {
         .valuesToFloat({ key: "bonus", language: "fr" })
 
     temporaryDirectoryTask((tempDir) => {
-        // tempDir = "../../"
+        // tempDir = ".."
         simpleDataNode
             .saveData({ path: `${tempDir}/integrationTest.csv` })
             .saveData({ path: `${tempDir}/integrationTest.json` })
@@ -42,6 +42,7 @@ async function main() {
             type: "dot",
             x: "salary",
             y: "bonus",
+            trend: true,
         })
 
         simpleDataNode.saveCustomChart({

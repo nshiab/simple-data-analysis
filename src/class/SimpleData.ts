@@ -785,6 +785,7 @@ export default class SimpleData {
         x,
         y,
         color,
+        trend = false,
         marginLeft,
         marginBottom,
     }: {
@@ -800,6 +801,7 @@ export default class SimpleData {
         x: string
         y: string
         color?: string
+        trend?: boolean
         marginLeft?: number
         marginBottom?: number
     }): string {
@@ -809,6 +811,7 @@ export default class SimpleData {
             x,
             y,
             color,
+            trend,
             this.verbose,
             marginLeft,
             marginBottom
@@ -818,7 +821,7 @@ export default class SimpleData {
 
     @logCall()
     getCustomChart({ plotOptions }: { plotOptions: object }): string {
-        const chart = getCustomChart_(plotOptions)
+        const chart = getCustomChart_(plotOptions, this.verbose)
         return chart
     }
 

@@ -1,7 +1,11 @@
-import { JSDOM } from "jsdom";
-const jsdom = new JSDOM("");
-global.document = jsdom.window.document;
-
+import { JSDOM } from "jsdom"
+if (global.window === undefined || global.document === undefined) {
+  const jsdom = new JSDOM("")
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  global.window = jsdom.window
+  global.document = jsdom.window.document
+}
 import { SimpleData, SimpleDocument, Table } from "../../src/index.js";
 import React from "react";
 import { Typography } from "@mui/material";
@@ -11,7 +15,7 @@ const simpleData = new SimpleData({
   data: [
     { name: "Nael", job: "Producer", variable1: 345, variable2: 56 },
     { name: "Isabelle", job: "Data scientist", variable1: 123, variable2: 432 },
-  ],
+  ]
 });
 
 simpleData.showTable();

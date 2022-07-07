@@ -58,7 +58,7 @@ export default class SimpleDataNode extends SimpleData {
         encoding?: BufferEncoding
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
-    }): SimpleDataNode {
+    }): this {
         if (this._data.length > 0) {
             throw new Error(
                 "This SimpleData already has data. Create another one."
@@ -91,7 +91,7 @@ export default class SimpleDataNode extends SimpleData {
     }: {
         path: string
         encoding?: BufferEncoding
-    }): SimpleDataNode {
+    }): this {
         saveData_(this._data, path, this.verbose, encoding)
 
         return this
@@ -104,6 +104,7 @@ export default class SimpleDataNode extends SimpleData {
         x,
         y,
         color,
+        trend = false,
         marginLeft,
         marginBottom,
     }: {
@@ -120,11 +121,15 @@ export default class SimpleDataNode extends SimpleData {
         x: string
         y: string
         color?: string
+        trend?: boolean
         marginLeft?: number
         marginBottom?: number
-    }): SimpleDataNode {
-        if (global.document === undefined) {
+    }): this {
+        if (global.window === undefined || global.document === undefined) {
             const jsdom = new JSDOM("")
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            global.window = jsdom.window
             global.document = jsdom.window.document
         }
 
@@ -133,6 +138,7 @@ export default class SimpleDataNode extends SimpleData {
             y,
             type,
             color,
+            trend,
             marginLeft,
             marginBottom,
         })
@@ -150,9 +156,12 @@ export default class SimpleDataNode extends SimpleData {
     }: {
         path: string
         plotOptions: object
-    }): SimpleDataNode {
-        if (global.document === undefined) {
+    }): this {
+        if (global.window === undefined || global.document === undefined) {
             const jsdom = new JSDOM("")
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            global.window = jsdom.window
             global.document = jsdom.window.document
         }
         const chart = super.getCustomChart({ plotOptions })
