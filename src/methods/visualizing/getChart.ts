@@ -74,7 +74,7 @@ export default function getChart(
 
     if (trend) {
         plotOptions.marks.push(
-            linearRegressionY(data, { x: x, y: y, stroke: color })
+            linearRegressionY(data, { x: x, y: y })
         )
     }
 
@@ -133,8 +133,8 @@ export default function getChart(
         chart = `<div>
             <div style='width: 100%; max-width: 640px;font-family:system-ui, sans-serif;font-size:10;text-align:right;'>
                 <p>Linear regression: y=${linearRegression.a.toFixed(
-                    nbDigits + 1
-                )}x + ${linearRegression.b.toFixed(
+            nbDigits + 1
+        )}x + ${linearRegression.b.toFixed(
             nbDigits + 1
         )} , R<sup>2</sup>: ${linearRegression.rSquared.toFixed(
             2
