@@ -6,13 +6,17 @@ These project's goals are:
 
 - To ease the way for non-coders (especially journalists) into the beautiful world of data analysis and data visualization in JavaScript.
 
-- To uniformize and accelerate frontend/backend workflows with a simple to use library working both in the browser and with NodeJS.
+- To uniformize and accelerate frontend/backend workflows with a simple-to-use library working both in the browser and with NodeJS.
 
 We are always trying to improve it. Feel free to start a conversation or open an issue.
 
-Pull requests are welcome as well! Just make sure to pass our tests locally with ```npm run allTests``` otherwise, your request will be automatically rejected.
+Pull requests are welcome as well! Just make sure to pass the tests locally with ```npm run allTests```; otherwise, your request will be automatically rejected.
 
 Note that while this project is open source. Contributing to it does not make you a CBC/Radio-Canada employee or contractor in any way.
+
+For more details on the project and a demo, [go there](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript).
+
+The documentation is available [here](https://nshiab.github.io/simple-data-analysis/).
 
 # Table of contents
 
@@ -27,15 +31,15 @@ Note that while this project is open source. Contributing to it does not make yo
 
 ## Core principles
 
-Under the hood, simple-data-analysis is mainly based on [D3 modules](https://github.com/d3/d3) and [Observable Plot](https://github.com/observablehq/plot). The main focus is on providing code that is easy to use and understand.
+Under the hood, simple-data-analysis is mainly based on [D3 modules](https://github.com/d3/d3), [Observable Plot](https://github.com/observablehq/plot), and [Lodash](https://lodash.com/). The main focus is on providing code that is easy to use and understand.
 
 The library expects **tabular data** stored in CSV files or **arrays of objects** stored in JSON files. It works best when the data is tidy:
 
-1. Every column (or key) is a variable
+1. Every key (or column) is a variable
 
-2. Every row (or item) is an observation
+2. Every item (or row) is an observation
 
-3. Every cell (or value) is a single value
+3. Every value (or cell) is a single value
 
 For more about tidy data, you can read [this great article](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html).
 
@@ -68,6 +72,8 @@ Here's an example.
             })
 
         simpleData
+            // We remove duplicate items
+            .removeDuplicates()
             // We compute the mean of
             // the salaries for each job
             .summarize({
@@ -237,6 +243,6 @@ simpleDocument
 
 ## All functions and methods
 
-Our documentation is automatically generated with [TypeDoc](https://typedoc.org/) and available here: https://nshiab.github.io/simple-data-analysis/.
+The documentation is automatically generated with [TypeDoc](https://typedoc.org/) and available here: https://nshiab.github.io/simple-data-analysis/.
 
 For a description of all methods and how to use them, you can also check this Observable notebook: https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript.
