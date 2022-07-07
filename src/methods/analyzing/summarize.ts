@@ -23,12 +23,6 @@ export default function summarize(
     if (keyCategory === undefined) {
         verbose && log("No key provided. Data won't be grouped.")
     } else if (Array.isArray(keyCategory)) {
-        if (keyCategories.length > 3) {
-            throw new Error(
-                "You can specify a maximum of 3 keys in keyCategory"
-            )
-        }
-
         for (const k of keyCategory) {
             if (!hasKey(data[0], k)) {
                 throw new Error("No key " + k)

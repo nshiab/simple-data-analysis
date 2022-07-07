@@ -84,7 +84,7 @@ async function main() {
             key: "bonus",
             itemGenerator: (item) =>
                 typeof item.salary === "number" &&
-                    typeof item.bonus === "number"
+                typeof item.bonus === "number"
                     ? item.salary * item.bonus
                     : NaN,
         })
@@ -204,6 +204,26 @@ async function main() {
         .addBins({ key: "bonus", newKey: "salaryBins", nbBins: 5 })
         .addOutliers({ key: "bonus", newKey: "bonusOutlier" })
         .excludeOutliers({ key: "bonus" })
+        .addPercentageDistribution({
+            method: "item",
+            keys: ["salary", "bonus"],
+            overwrite: false,
+        })
+        .addPercentageDistribution({
+            method: "data",
+            key: "salary",
+            newKey: "salaryPercent",
+            overwrite: false,
+            nbDigits: 5,
+        })
+        .addPercentageDistribution({
+            method: "data",
+            key: "salary",
+            groupKeys: ["unitName", "job"],
+            newKey: "salaryPercent",
+            overwrite: false,
+            nbDigits: 5,
+        })
         .correlation({ overwrite: false })
         .correlation({ key1: "salary", key2: "bonus", overwrite: false })
         .summarize({ overwrite: false })
