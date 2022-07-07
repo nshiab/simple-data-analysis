@@ -30,7 +30,7 @@ jobs:
     - run: npm run check-format
     - run: npm run lint
     - run: npm run test
-    - run: npm run test-data
-    - run: npm run test-data-node
-    - run: npm run test-doc
-    - run: npx tsc && npx rollup --config
+    - run: npm run test-simple-data
+    - run: npm run test-simple-data-node
+    - run: npm run test-simple-data-doc
+    - run: npm run test-build
