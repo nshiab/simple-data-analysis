@@ -11,17 +11,22 @@ import React from "react";
 import { Typography } from "@mui/material";
 import { temporaryDirectoryTask } from "tempy";
 
+const args = process.argv
+const noLogs = args[2] === "noLogs"
+console.log('noLogs =>', noLogs)
+
 const simpleData = new SimpleData({
   data: [
     { name: "Nael", job: "Producer", variable1: 345, variable2: 56 },
     { name: "Isabelle", job: "Data scientist", variable1: 123, variable2: 432 },
-  ]
+  ],
+  noLogs: noLogs
 });
 
 simpleData.showTable();
 
 temporaryDirectoryTask((tempDir) => {
-  new SimpleDocument()
+  new SimpleDocument({ verbose: true, noLogs: noLogs })
     .add({ component: <h1>Basic HTML element</h1> })
     .add({
       component: (

@@ -57,6 +57,7 @@ export default class SimpleData {
     _tempData: SimpleDataItem[]
     _keys: string[]
     // Logging
+    noLogs: boolean
     verbose: boolean
     logParameters: boolean
     nbTableItemsToLog: number
@@ -75,26 +76,36 @@ export default class SimpleData {
         logParameters = false,
         nbTableItemsToLog = 5,
         fillMissingKeys = false,
+        noLogs = false,
     }: {
         data?: SimpleDataItem[]
         verbose?: boolean
         logParameters?: boolean
         nbTableItemsToLog?: number
         fillMissingKeys?: boolean
+        noLogs?: boolean
     } = {}) {
         if (data.length > 0) {
-            handleMissingKeys(data, fillMissingKeys, undefined, verbose)
+            handleMissingKeys(
+                data,
+                fillMissingKeys,
+                undefined,
+                !noLogs && verbose
+            )
         } else {
-            verbose && log("\nnew SimpleData\nStarting an empty SimpleData")
+            !noLogs &&
+                verbose &&
+                log("\nnew SimpleData\nStarting an empty SimpleData")
         }
 
         this._data = data
         this._tempData = []
         this._keys = data[0] ? Object.keys(data[0]) : []
 
-        this.verbose = verbose
+        this.verbose = !noLogs && verbose
         this.logParameters = logParameters
         this.nbTableItemsToLog = nbTableItemsToLog
+        this.noLogs = noLogs
     }
 
     #updateSimpleData(data: SimpleDataItem[]) {
@@ -871,9 +882,10 @@ export default class SimpleData {
     showTable({
         nbItemInTable = 5,
     }: { nbItemInTable?: "all" | number } = {}): this {
-        // TODO: test this!
-        showTable_(this._data, nbItemInTable)
-
+        if (!this.noLogs) {
+            // TODO: test this!
+            showTable_(this._data, nbItemInTable)
+        }
         return this
     }
 }

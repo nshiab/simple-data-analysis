@@ -29,7 +29,8 @@ function renderReactComponent(html: string) {
 
 export default async function saveDocument(
   components: (JSX.Element | string)[],
-  path: string
+  path: string,
+  verbose?: boolean
 ) {
   const extension = getExtension(path);
   if (!["html", "js"].includes(extension)) {
@@ -55,5 +56,5 @@ export default async function saveDocument(
     fs.writeFileSync(path, renderReactComponent(html));
   }
 
-  log(`=> Document saved to ${path}`, "blue");
+  verbose && log(`=> Document saved to ${path}`, "blue");
 }

@@ -3,12 +3,22 @@ import checkEnvironment from "../helpers/checkEnvironment.js";
 
 export default class SimpleDocument {
   _components: (JSX.Element | string)[];
+  verbose: boolean
+  noLogs: boolean
 
-  constructor() {
+  constructor({
+    verbose = false,
+    noLogs = false
+  }: {
+    verbose?: boolean
+    noLogs?: boolean
+  } = {}) {
     if (checkEnvironment() !== "nodejs") {
       throw new Error("SimpleDocument is available for NodeJS only.");
     }
     this._components = [];
+    this.verbose = !noLogs && verbose
+    this.noLogs = noLogs
   }
 
   get components() {
@@ -24,7 +34,7 @@ export default class SimpleDocument {
   }
 
   saveDocument({ path }: { path: string }) {
-    saveDocument_(this.components, path);
+    saveDocument_(this.components, path, this.verbose);
 
     return this;
   }

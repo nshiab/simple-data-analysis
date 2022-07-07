@@ -19,7 +19,7 @@ export function logCall() {
                 const result: SimpleDataItem[] = wrappedFunc.apply(this, args)
                 const end = Date.now()
 
-                if (args[0] && !args[0].overwrite) {
+                if (!this.noLogs && args[0] && !args[0].overwrite) {
                     const data =
                         result instanceof SimpleData ? result._tempData : result
                     showTable(data, this.nbTableItemsToLog)

@@ -2,10 +2,15 @@ import { SimpleDataNode } from "../../src/index.js"
 import { temporaryDirectoryTask } from "tempy"
 import * as Plot from "@observablehq/plot"
 
+const args = process.argv
+const noLogs = args[2] === "noLogs"
+console.log("noLogs =>", noLogs)
+
 async function main() {
     new SimpleDataNode({
         verbose: true,
         logParameters: true,
+        noLogs: noLogs,
     }).loadDataFromLocalFile({
         path: "./data/employees.json",
         fillMissingKeys: true,
@@ -14,6 +19,7 @@ async function main() {
     const simpleDataNode = await new SimpleDataNode({
         verbose: true,
         logParameters: true,
+        noLogs: noLogs,
     }).loadDataFromUrl({
         url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv",
     })

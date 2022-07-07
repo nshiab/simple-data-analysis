@@ -12,6 +12,12 @@ import * as Plot from "@observablehq/plot"
 
 import employees from "../../data/employees.json" assert { type: "json" }
 
+const args = process.argv
+const noLogs = args[2] === "noLogs"
+console.log("noLogs =>", noLogs)
+
+main()
+
 async function main() {
     new SimpleData({
         data: [
@@ -20,6 +26,7 @@ async function main() {
         ],
         verbose: true,
         logParameters: true,
+        noLogs: noLogs,
     })
 
     const simpleData = await new SimpleData({
@@ -27,6 +34,7 @@ async function main() {
         fillMissingKeys: true,
         verbose: true,
         logParameters: true,
+        noLogs: noLogs,
     })
 
     // Can't use fetch with node
@@ -291,5 +299,3 @@ async function main() {
         },
     })
 }
-
-main()

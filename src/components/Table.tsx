@@ -9,12 +9,11 @@ import {
   TableBody,
 } from "@mui/material";
 
-interface Props {
+
+export default function T({ keys, data }: {
   keys: string[];
   data: { [key: string]: any }[];
-}
-
-export default function T({ keys, data }: Props) {
+}) {
   return (
     <TableContainer component={Paper}>
       <Table>
