@@ -2,6 +2,7 @@ import cloneDeep from "lodash.clonedeep"
 import renameKey_ from "../methods/cleaning/renameKey.js"
 import describe_ from "../methods/analyzing/describe.js"
 import formatAllKeys_ from "../methods/cleaning/formatAllKeys.js"
+import getItem_ from "../methods/exporting/getItem.js"
 import getArray_ from "../methods/exporting/getArray.js"
 import getDataAsArrays_ from "../methods/exporting/getDataAsArrays.js"
 import showTable_ from "../methods/showTable.js"
@@ -931,6 +932,18 @@ export default class SimpleData {
     //No @logCall otherwise it's triggered everywhere, including in methods
     getKeys(): string[] {
         return this._keys
+    }
+
+    // No @logCall for methods starting with get. It's not returning a simpleData class
+    getItem({
+        conditions,
+        noWarning = false,
+    }: {
+        conditions: SimpleDataItem
+        noWarning?: boolean
+    }): SimpleDataItem | undefined {
+        const item = getItem_(this._data, conditions, noWarning)
+        return item
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class

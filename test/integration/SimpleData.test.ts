@@ -48,6 +48,7 @@ async function main() {
 
     simpleData.getArray({ key: "Name" })
     simpleData.getUniqueValues({ key: "Job" })
+    simpleData.getItem({ conditions: { Name: "Seo, John" } })
 
     simpleData
         .describe({ overwrite: false })
