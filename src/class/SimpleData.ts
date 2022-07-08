@@ -33,6 +33,7 @@ import addItems_ from "../methods/restructuring/addItems.js"
 import getUniqueValues_ from "../methods/exporting/getUniqueValues.js"
 import summarize_ from "../methods/analyzing/summarize.js"
 import addPercentageDistribution_ from "../methods/analyzing/addPercentageDistribution.js"
+import addVariation_ from "../methods/analyzing/addVariation.js"
 import mergeItems_ from "../methods/restructuring/mergeItems.js"
 import keysToValues_ from "../methods/restructuring/keysToValues.js"
 import valuesToKeys_ from "../methods/restructuring/valuesToKeys.js"
@@ -708,6 +709,38 @@ export default class SimpleData {
             nbTestedValues,
             verbose: this.verbose,
         })
+        overwrite && this.#updateSimpleData(this._tempData)
+        return this
+    }
+
+    @logCall()
+    addVariation({
+        key,
+        newKey,
+        valueGenerator,
+        order = undefined,
+        firstValue = undefined,
+        overwrite = true,
+    }: {
+        key: string
+        newKey: string
+        valueGenerator: (
+            a: SimpleDataValue,
+            b: SimpleDataValue
+        ) => SimpleDataValue
+        order?: "ascending" | "descending" | undefined
+        firstValue?: SimpleDataValue
+        overwrite?: boolean
+    }) {
+        this._overwrite = overwrite
+        this._tempData = addVariation_(
+            cloneDeep(this._data),
+            key,
+            newKey,
+            valueGenerator,
+            order,
+            firstValue
+        )
         overwrite && this.#updateSimpleData(this._tempData)
         return this
     }

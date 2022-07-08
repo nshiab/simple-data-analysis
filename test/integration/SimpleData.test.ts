@@ -237,6 +237,14 @@ async function main() {
             overwrite: false,
             nbDigits: 5,
         })
+        .addVariation({
+            key: "salary",
+            newKey: "salaryVariation",
+            valueGenerator: (a, b) => (a as number) - (b as number),
+            firstValue: 0,
+            order: "ascending",
+            overwrite: false,
+        })
         .correlation({ overwrite: false })
         .correlation({ key1: "salary", key2: "bonus", overwrite: false })
         .summarize({ overwrite: false })
