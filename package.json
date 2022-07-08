@@ -31,7 +31,8 @@
     "unpkg": "dist/simple-data-analysis.min.js",
     "exports": {
         "umd": "./dist/simple-data-analysis.min.js",
-        "default": "./dist/index.js"
+        "node": "./dist/index.js",
+        "default": "./dist/indexWeb.js"
     },
     "scripts": {
         "test": "mocha --require ts-node/register \"test/unit/**/*.test.ts\"",
@@ -40,7 +41,7 @@
         "test-simple-data-doc": "node --loader ts-node/esm test/integration/SimpleDocument.test.tsx",
         "test-build": "rm -rf dist && npx tsc && rollup --config",
         "allTests": "npm run format && npm run test && npm run test-simple-data noLogs && npm run test-simple-data-node noLogs && npm run test-simple-data-doc noLogs && npm run test-build && npm run lint",
-        "build": "npm run allTests && rm -rf dist && npx tsc && npm run commit-doc && rollup --config",
+        "build": "npm run allTests && rm -rf dist && npx tsc && npm run commit-doc",
         "doc": "npx typedoc --name Simple-data-analysis --includeVersion --readme none --out docs src/index.ts",
         "commit-doc": "git checkout main && npm run doc && git add docs/ && git commit -m 'update documentation' && git push",
         "lint": "eslint . --ext .ts",
@@ -115,5 +116,8 @@
         "react": "^18.1.0",
         "react-dom": "^18.1.0",
         "simple-statistics": "^7.7.5"
+    },
+    "browser": {
+        "net": false
     }
 }
