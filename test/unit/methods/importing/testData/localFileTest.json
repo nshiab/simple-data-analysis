@@ -6,5 +6,13 @@
     {
         "patate": 3,
         "poil": "coucou"
+    },
+    {
+        "patate": 8,
+        "poil": 10
+    },
+    {
+        "patate": "brioche",
+        "poil": "croissant"
     }
 ]

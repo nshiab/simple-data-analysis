@@ -6,6 +6,8 @@ import { SimpleDataItem } from "../../types/SimpleData.types"
 
 export default async function loadDataFromUrlNode(
     url: string,
+    firstItem = 0,
+    lastItem = Infinity,
     missingKeyValues: SimpleDataItem = {
         null: null,
         NaN: NaN,
@@ -30,6 +32,7 @@ export default async function loadDataFromUrlNode(
         }
 
         delete arrayOfObjects["columns" as any]
+        arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
 
         const keys = Object.keys(arrayOfObjects[0])
         const missingValueKeys = Object.keys(missingKeyValues)
@@ -44,6 +47,7 @@ export default async function loadDataFromUrlNode(
         }
     } else if (fileExtension === "json") {
         arrayOfObjects = data
+        arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
     } else {
         throw new Error("Unknown file extension " + fileExtension)
     }

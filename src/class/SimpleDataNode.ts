@@ -10,6 +10,7 @@ import log from "../helpers/log.js"
 import loadDataFromUrlNode_ from "../methods/importing/loadDataFromUrlNode.js"
 
 export default class SimpleDataNode extends SimpleData {
+    // If modified, might need to be modified in SimpleData too
     #updateSimpleData(data: SimpleDataItem[]) {
         this._data = data
         this._keys = data[0] === undefined ? [] : Object.keys(data[0])
@@ -22,13 +23,19 @@ export default class SimpleDataNode extends SimpleData {
         url,
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         fillMissingKeys = false,
+        firstItem = 0,
+        lastItem = Infinity,
     }: {
         url: string
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
+        firstItem?: number
+        lastItem?: number
     }): Promise<this> {
         const data = await loadDataFromUrlNode_(
             url,
+            firstItem,
+            lastItem,
             missingKeyValues,
             this.verbose
         )
@@ -53,11 +60,15 @@ export default class SimpleDataNode extends SimpleData {
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         encoding = "utf8",
         fillMissingKeys = false,
+        firstItem = 0,
+        lastItem = Infinity,
     }: {
         path: string
         encoding?: BufferEncoding
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
+        firstItem?: number
+        lastItem?: number
     }): this {
         if (this._data.length > 0) {
             throw new Error(
@@ -67,6 +78,8 @@ export default class SimpleDataNode extends SimpleData {
 
         const data = loadDataFromLocalFile_(
             path,
+            firstItem,
+            lastItem,
             missingKeyValues,
             encoding,
             this.verbose

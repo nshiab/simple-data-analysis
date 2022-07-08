@@ -78,6 +78,8 @@ export default class SimpleData {
         nbTableItemsToLog = 5,
         fillMissingKeys = false,
         noLogs = false,
+        firstItem = 0,
+        lastItem = Infinity,
     }: {
         data?: SimpleDataItem[]
         verbose?: boolean
@@ -85,21 +87,28 @@ export default class SimpleData {
         nbTableItemsToLog?: number
         fillMissingKeys?: boolean
         noLogs?: boolean
+        firstItem?: number
+        lastItem?: number
     } = {}) {
         if (data.length > 0) {
+            const incomingData = cloneDeep(data.slice(firstItem, lastItem + 1))
+
             handleMissingKeys(
-                data,
+                incomingData,
                 fillMissingKeys,
                 undefined,
                 !noLogs && verbose
             )
+
+            this._data = incomingData
         } else {
             !noLogs &&
                 verbose &&
                 log("\nnew SimpleData\nStarting an empty SimpleData")
+
+            this._data = data
         }
 
-        this._data = data
         this._tempData = []
         this._overwrite = true
         this._keys = data[0] ? Object.keys(data[0]) : []
@@ -110,6 +119,7 @@ export default class SimpleData {
         this.noLogs = noLogs
     }
 
+    // If modified, needs to be modified in SimpleDataNode
     #updateSimpleData(data: SimpleDataItem[]) {
         this._data = data
         this._keys = data[0] === undefined ? [] : Object.keys(data[0])
@@ -122,16 +132,22 @@ export default class SimpleData {
         url,
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         fillMissingKeys = false,
+        firstItem = 0,
+        lastItem = Infinity,
     }: {
         url: string
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
+        firstItem?: number
+        lastItem?: number
     }): Promise<this> {
-        const data = await loadDataFromUrlWeb_({
-            url: url,
-            verbose: this.verbose,
-            missingKeyValues: missingKeyValues,
-        })
+        const data = await loadDataFromUrlWeb_(
+            url,
+            firstItem,
+            lastItem,
+            missingKeyValues,
+            this.verbose
+        )
 
         if (data.length === 0) {
             throw new Error("Incoming data is empty.")
