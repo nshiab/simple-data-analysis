@@ -3,10 +3,10 @@ import formatAllKeys from "../../../../src/methods/cleaning/formatAllKeys.js"
 
 describe("formatAllKeys", function () {
     it("should format keys", function () {
-        const data = [{ key1_key2_1: 1, "key1 key2 2": 2, "key1-key2#3": 3 }]
+        const data = [{ key1_key2_a: 1, "key1 key2 b": 2, "key1-key2#c": 3 }]
         const formatedData = formatAllKeys(data)
         assert.deepEqual(formatedData, [
-            { key1key21: 1, key1key22: 2, key1key23: 3 },
+            { key1Key2A: 1, key1Key2B: 2, key1Key2C: 3 },
         ])
     })
 })
