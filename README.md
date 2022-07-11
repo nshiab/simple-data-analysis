@@ -8,13 +8,7 @@ These project's goals are:
 
 - To uniformize and accelerate frontend/backend workflows with a simple-to-use library working both in the browser and with NodeJS.
 
-We are always trying to improve it. Feel free to start a conversation or open an issue.
-
-Pull requests are welcome as well! Just make sure to pass the tests locally with ```npm run allTests```; otherwise, your request will be automatically rejected.
-
-Note that while this project is open source. Contributing to it does not make you a CBC/Radio-Canada employee or contractor in any way.
-
-For more details on the project and a demo, [go there](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript).
+We are always trying to improve it. Feel free to start a conversation or open an issue, and check [how you can contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
 
 The documentation is available [here](https://nshiab.github.io/simple-data-analysis/).
 
@@ -24,10 +18,11 @@ The documentation is available [here](https://nshiab.github.io/simple-data-analy
 2. [Easiest way to use](#the-easiest-way-to-use-the-library)
 3. [Simple example from the HTML](#simple-example-from-the-html)
 4. [NodeJS and JavaScript bundlers](#working-with-nodejs-and-javascript-bundlers)
-5. [SimpleData](#simpledata)
-6. [SimpleDataNode](#simpledatanode)
-7. [SimpleDocument (experimental)](#simpledocument-experimental-for-nodejs-only)
-8. [All functions and methods](#all-functions-and-methods)
+5. [Using it with React](#using-it-with-react)
+6. [SimpleData](#simpledata)
+7. [SimpleDataNode](#simpledatanode)
+8. [SimpleDocument (experimental)](#simpledocument-experimental-for-nodejs-only)
+9. [All functions and methods](#all-functions-and-methods)
 
 ## Core principles
 
@@ -149,6 +144,9 @@ const someData = [...] // An array of objects
 const simpleData = new sda.SimpleData({ data: someData })
 // Start chaining methods
 ```
+## Using it with React
+
+To do.
 
 ## SimpleData
 
