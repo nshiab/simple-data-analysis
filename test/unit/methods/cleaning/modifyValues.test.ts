@@ -3,12 +3,12 @@ import modifyValues from "../../../../src/methods/cleaning/modifyValues.js"
 
 describe("modifyValues", function () {
     it("should modify values", function () {
-        const data = [{ patate: 1 }, { patate: 11 }]
+        const data = [{ key1: 1 }, { key1: 11 }]
         const modifiedData = modifyValues(
             data,
-            "patate",
+            "key1",
             (value) => (value as number) * 2
         )
-        assert.deepEqual(modifiedData, [{ patate: 2 }, { patate: 22 }])
+        assert.deepEqual(modifiedData, [{ key1: 2 }, { key1: 22 }])
     })
 })

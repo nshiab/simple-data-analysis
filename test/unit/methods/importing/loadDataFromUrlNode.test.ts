@@ -8,20 +8,20 @@ describe("loadDataFromUrlNode", function () {
         )
         assert.deepEqual(data, [
             {
-                patate: 1,
-                poil: 2,
+                key1: 1,
+                key2: 2,
             },
             {
-                patate: 3,
-                poil: "coucou",
+                key1: 3,
+                key2: "coucou",
             },
             {
-                patate: 8,
-                poil: 10,
+                key1: 8,
+                key2: 10,
             },
             {
-                patate: "brioche",
-                poil: "croissant",
+                key1: "brioche",
+                key2: "croissant",
             },
         ])
     })
@@ -34,12 +34,12 @@ describe("loadDataFromUrlNode", function () {
         )
         assert.deepEqual(data, [
             {
-                patate: 3,
-                poil: "coucou",
+                key1: 3,
+                key2: "coucou",
             },
             {
-                patate: 8,
-                poil: 10,
+                key1: 8,
+                key2: 10,
             },
         ])
     })
@@ -50,20 +50,20 @@ describe("loadDataFromUrlNode", function () {
         )
         assert.deepEqual(data, [
             {
-                patate: 1,
-                poil: 2,
+                key1: 1,
+                key2: 2,
             },
             {
-                patate: 3,
-                poil: "coucou",
+                key1: 3,
+                key2: "coucou",
             },
             {
-                patate: 8,
-                poil: 10,
+                key1: 8,
+                key2: 10,
             },
             {
-                patate: "brioche",
-                poil: "croissant",
+                key1: "brioche",
+                key2: "croissant",
             },
         ])
     })
@@ -76,12 +76,12 @@ describe("loadDataFromUrlNode", function () {
         )
         assert.deepEqual(data, [
             {
-                patate: 3,
-                poil: "coucou",
+                key1: 3,
+                key2: "coucou",
             },
             {
-                patate: 8,
-                poil: 10,
+                key1: 8,
+                key2: 10,
             },
         ])
     })
@@ -92,20 +92,20 @@ describe("loadDataFromUrlNode", function () {
         )
         assert.deepEqual(data, [
             {
-                patate: 1,
-                poil: 2,
+                key1: 1,
+                key2: 2,
             },
             {
-                patate: 3,
-                poil: "coucou",
+                key1: 3,
+                key2: "coucou",
             },
             {
-                patate: 8,
-                poil: 10,
+                key1: 8,
+                key2: 10,
             },
             {
-                patate: "brioche",
-                poil: "croissant",
+                key1: "brioche",
+                key2: "croissant",
             },
         ])
     })
@@ -118,12 +118,12 @@ describe("loadDataFromUrlNode", function () {
         )
         assert.deepEqual(data, [
             {
-                patate: 3,
-                poil: "coucou",
+                key1: 3,
+                key2: "coucou",
             },
             {
-                patate: 8,
-                poil: 10,
+                key1: 8,
+                key2: 10,
             },
         ])
     })

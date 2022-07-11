@@ -4,8 +4,8 @@ import descr from "../../../../src/methods/analyzing/describe.js"
 describe("describe", function () {
     it("should describe", function () {
         const data = [
-            { patate: "1", poil: 2 },
-            { patate: "11", poil: 22 },
+            { key1: "1", key2: 2 },
+            { key1: "11", key2: 22 },
         ]
         const describeData = descr(data)
         assert.deepEqual(describeData, [

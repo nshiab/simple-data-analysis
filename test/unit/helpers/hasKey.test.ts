@@ -3,11 +3,11 @@ import hasKey from "../../../src/helpers/hasKey.js"
 
 describe("hasKey", function () {
     it("should return true when the key exists", function () {
-        const hasPatate = hasKey({ patate: 1 }, "patate")
-        assert.deepEqual(hasPatate, true)
+        const haskey1 = hasKey({ key1: 1 }, "key1")
+        assert.deepEqual(haskey1, true)
     })
     it("should return false when the key doesn't exist", function () {
-        const hasPatate = hasKey({ patate: 1 }, "poil")
-        assert.deepEqual(hasPatate, false)
+        const haskey1 = hasKey({ key1: 1 }, "key2")
+        assert.deepEqual(haskey1, false)
     })
 })

@@ -4,10 +4,10 @@ import removeKey from "../../../../src/methods/restructuring/removeKey.js"
 describe("removeKey", function () {
     it("should remove a key", function () {
         const data = [
-            { patate: 1, poil: 2 },
-            { patate: 2, poil: 4 },
+            { key1: 1, key2: 2 },
+            { key1: 2, key2: 4 },
         ]
-        const newData = removeKey(data, "poil")
-        assert.deepEqual(newData, [{ patate: 1 }, { patate: 2 }])
+        const newData = removeKey(data, "key2")
+        assert.deepEqual(newData, [{ key1: 1 }, { key1: 2 }])
     })
 })

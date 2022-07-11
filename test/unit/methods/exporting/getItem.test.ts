@@ -4,11 +4,11 @@ import getItem from "../../../../src/methods/exporting/getItem.js"
 describe("getItem", function () {
     it("should return a specific item", function () {
         const data = [
-            { patate: "red", animal: "caribou", poil: 2 },
-            { patate: "red", animal: "castor", poil: 22 },
-            { patate: "blue", animal: "castor", poil: 222 },
+            { key1: "red", key3: "caribou", key2: 2 },
+            { key1: "red", key3: "castor", key2: 22 },
+            { key1: "blue", key3: "castor", key2: 222 },
         ]
-        const item = getItem(data, { patate: "red", animal: "castor" })
-        assert.deepEqual(item, { patate: "red", animal: "castor", poil: 22 })
+        const item = getItem(data, { key1: "red", key3: "castor" })
+        assert.deepEqual(item, { key1: "red", key3: "castor", key2: 22 })
     })
 })

@@ -4,29 +4,29 @@ import valuesToInteger from "../../../../src/methods/cleaning/valuesToInteger.js
 describe("valuesToInteger", function () {
     it("should convert values to integer", function () {
         const data = [
-            { patate: "1", poil: 2 },
-            { patate: "2.2", poil: 2 },
-            { patate: "100,000,000", poil: 2 },
+            { key1: "1", key2: 2 },
+            { key1: "2.2", key2: 2 },
+            { key1: "100,000,000", key2: 2 },
         ]
-        const intergerValues = valuesToInteger(data, "patate")
+        const intergerValues = valuesToInteger(data, "key1")
         assert.deepEqual(intergerValues, [
-            { patate: 1, poil: 2 },
-            { patate: 2, poil: 2 },
-            { patate: 100000000, poil: 2 },
+            { key1: 1, key2: 2 },
+            { key1: 2, key2: 2 },
+            { key1: 100000000, key2: 2 },
         ])
     })
 
     it("should convert French formatted numbers to integers", function () {
         const data = [
-            { patate: "1", poil: 2 },
-            { patate: "2,2", poil: 2 },
-            { patate: "100 000 000", poil: 2 },
+            { key1: "1", key2: 2 },
+            { key1: "2,2", key2: 2 },
+            { key1: "100 000 000", key2: 2 },
         ]
-        const intergerValues = valuesToInteger(data, "patate", "fr")
+        const intergerValues = valuesToInteger(data, "key1", "fr")
         assert.deepEqual(intergerValues, [
-            { patate: 1, poil: 2 },
-            { patate: 2, poil: 2 },
-            { patate: 100000000, poil: 2 },
+            { key1: 1, key2: 2 },
+            { key1: 2, key2: 2 },
+            { key1: 100000000, key2: 2 },
         ])
     })
 })

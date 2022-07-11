@@ -4,13 +4,13 @@ import renameKey from "../../../../src/methods/cleaning/renameKey.js"
 describe("renameKey", function () {
     it("should rename key", function () {
         const data = [
-            { patate: 1, poil: 2 },
-            { patate: 11, poil: 22 },
+            { key1: 1, key2: 2 },
+            { key1: 11, key2: 22 },
         ]
-        const renamedKeys = renameKey(data, "patate", "navet")
+        const renamedKeys = renameKey(data, "key1", "navet")
         assert.deepEqual(renamedKeys, [
-            { navet: 1, poil: 2 },
-            { navet: 11, poil: 22 },
+            { navet: 1, key2: 2 },
+            { navet: 11, key2: 22 },
         ])
     })
 })

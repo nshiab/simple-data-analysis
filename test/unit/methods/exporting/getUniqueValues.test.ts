@@ -4,11 +4,11 @@ import getUniqueValues from "../../../../src/methods/exporting/getUniqueValues.j
 describe("getUniqueValues", function () {
     it("should return unique values", function () {
         const data = [
-            { patate: 1, poil: 2 },
-            { patate: 111, poil: 22 },
-            { patate: 111, poil: 222 },
+            { key1: 1, key2: 2 },
+            { key1: 111, key2: 22 },
+            { key1: 111, key2: 222 },
         ]
-        const uniqueValues = getUniqueValues(data, "patate")
+        const uniqueValues = getUniqueValues(data, "key1")
         assert.deepEqual(uniqueValues, [1, 111])
     })
 })

@@ -7,10 +7,10 @@ describe("loadDataFromLocalFile", function () {
             "./test/unit/methods/importing/testData/localFileTest.csv"
         )
         assert.deepEqual(data, [
-            { patate: 1, poil: 2 },
-            { patate: 3, poil: "coucou" },
-            { patate: 8, poil: 10 },
-            { patate: "brioche", poil: "croissant" },
+            { key1: 1, key2: 2 },
+            { key1: 3, key2: "coucou" },
+            { key1: 8, key2: 10 },
+            { key1: "brioche", key2: "croissant" },
         ])
     })
 
@@ -21,8 +21,8 @@ describe("loadDataFromLocalFile", function () {
             2
         )
         assert.deepEqual(data, [
-            { patate: 3, poil: "coucou" },
-            { patate: 8, poil: 10 },
+            { key1: 3, key2: "coucou" },
+            { key1: 8, key2: 10 },
         ])
     })
 
@@ -31,10 +31,10 @@ describe("loadDataFromLocalFile", function () {
             "./test/unit/methods/importing/testData/localFileTest.tsv"
         )
         assert.deepEqual(data, [
-            { patate: 1, poil: 2 },
-            { patate: 3, poil: "coucou" },
-            { patate: 8, poil: 10 },
-            { patate: "brioche", poil: "croissant" },
+            { key1: 1, key2: 2 },
+            { key1: 3, key2: "coucou" },
+            { key1: 8, key2: 10 },
+            { key1: "brioche", key2: "croissant" },
         ])
     })
 
@@ -45,8 +45,8 @@ describe("loadDataFromLocalFile", function () {
             2
         )
         assert.deepEqual(data, [
-            { patate: 3, poil: "coucou" },
-            { patate: 8, poil: 10 },
+            { key1: 3, key2: "coucou" },
+            { key1: 8, key2: 10 },
         ])
     })
 
@@ -55,10 +55,10 @@ describe("loadDataFromLocalFile", function () {
             "./test/unit/methods/importing/testData/localFileTest.json"
         )
         assert.deepEqual(data, [
-            { patate: 1, poil: 2 },
-            { patate: 3, poil: "coucou" },
-            { patate: 8, poil: 10 },
-            { patate: "brioche", poil: "croissant" },
+            { key1: 1, key2: 2 },
+            { key1: 3, key2: "coucou" },
+            { key1: 8, key2: 10 },
+            { key1: "brioche", key2: "croissant" },
         ])
     })
 
@@ -69,8 +69,8 @@ describe("loadDataFromLocalFile", function () {
             2
         )
         assert.deepEqual(data, [
-            { patate: 3, poil: "coucou" },
-            { patate: 8, poil: 10 },
+            { key1: 3, key2: "coucou" },
+            { key1: 8, key2: 10 },
         ])
     })
 })

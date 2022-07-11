@@ -4,17 +4,17 @@ import modifyItems from "../../../../src/methods/restructuring/modifyItems.js"
 describe("modifyItems", function () {
     it("should modify items", function () {
         const data = [
-            { patate: 1, poil: 2 },
-            { patate: 2, poil: 4 },
+            { key1: 1, key2: 2 },
+            { key1: 2, key2: 4 },
         ]
-        const newData = modifyItems(data, "patate", (item) =>
-            item.patate && item.poil
-                ? (item.patate as number) * (item.poil as number)
+        const newData = modifyItems(data, "key1", (item) =>
+            item.key1 && item.key2
+                ? (item.key1 as number) * (item.key2 as number)
                 : undefined
         )
         assert.deepEqual(newData, [
-            { patate: 2, poil: 2 },
-            { patate: 8, poil: 4 },
+            { key1: 2, key2: 2 },
+            { key1: 8, key2: 4 },
         ])
     })
 })

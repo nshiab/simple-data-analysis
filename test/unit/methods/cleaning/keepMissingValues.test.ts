@@ -4,19 +4,19 @@ import keepMissingValues from "../../../../src/methods/cleaning/keepMissingValue
 describe("keepMissingValues", function () {
     it("should keep missing values", function () {
         const data = [
-            { patate: null, poil: 2 },
-            { patate: 3, poil: NaN },
-            { patate: "", poil: 5 },
-            { patate: undefined, poil: 4 },
-            { patate: 11, poil: 22 },
+            { key1: null, key2: 2 },
+            { key1: 3, key2: NaN },
+            { key1: "", key2: 5 },
+            { key1: undefined, key2: 4 },
+            { key1: 11, key2: 22 },
         ]
 
         const missingData = keepMissingValues(data)
         assert.deepEqual(missingData, [
-            { patate: null, poil: 2 },
-            { patate: 3, poil: NaN },
-            { patate: "", poil: 5 },
-            { patate: undefined, poil: 4 },
+            { key1: null, key2: 2 },
+            { key1: 3, key2: NaN },
+            { key1: "", key2: 5 },
+            { key1: undefined, key2: 4 },
         ])
     })
 })

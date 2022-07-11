@@ -4,13 +4,13 @@ import summarize from "../../../../src/methods/analyzing/summarize.js"
 describe("summarize", function () {
     it("should summarize without keyCategory", function () {
         const data = [
-            { patate: "Rubarbe", poil: 2, animal: new Date("2022-02-14") },
-            { patate: "Fraise", poil: 22, animal: new Date("2014-02-14") },
+            { key1: "Rubarbe", key2: 2, key3: new Date("2022-02-14") },
+            { key1: "Fraise", key2: 22, key3: new Date("2014-02-14") },
         ]
         const summarizedData = summarize(data)
         assert.deepEqual(summarizedData, [
             {
-                value: "patate",
+                value: "key1",
                 count: 2,
                 min: NaN,
                 max: NaN,
@@ -20,7 +20,7 @@ describe("summarize", function () {
                 deviation: NaN,
             },
             {
-                value: "poil",
+                value: "key2",
                 count: 2,
                 min: 2,
                 max: 22,
@@ -30,7 +30,7 @@ describe("summarize", function () {
                 deviation: 14.1,
             },
             {
-                value: "animal",
+                value: "key3",
                 count: 2,
                 min: NaN,
                 max: NaN,
@@ -44,16 +44,16 @@ describe("summarize", function () {
 
     it("should summarize with keyCategory", function () {
         const data = [
-            { patate: "Rubarbe", poil: 1 },
-            { patate: "Fraise", poil: 11 },
-            { patate: "Rubarbe", poil: 2 },
-            { patate: "Fraise", poil: 22 },
+            { key1: "Rubarbe", key2: 1 },
+            { key1: "Fraise", key2: 11 },
+            { key1: "Rubarbe", key2: 2 },
+            { key1: "Fraise", key2: 22 },
         ]
-        const summarizedData = summarize(data, "poil", "patate")
+        const summarizedData = summarize(data, "key2", "key1")
         assert.deepEqual(summarizedData, [
             {
-                value: "poil",
-                patate: "Rubarbe",
+                value: "key2",
+                key1: "Rubarbe",
                 count: 2,
                 min: 1,
                 max: 2,
@@ -63,8 +63,8 @@ describe("summarize", function () {
                 deviation: 0.7,
             },
             {
-                value: "poil",
-                patate: "Fraise",
+                value: "key2",
+                key1: "Fraise",
                 count: 2,
                 min: 11,
                 max: 22,

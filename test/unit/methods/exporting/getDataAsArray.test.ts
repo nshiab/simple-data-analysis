@@ -4,11 +4,11 @@ import getDataAsArrays from "../../../../src/methods/exporting/getDataAsArrays.j
 describe("getDataAsArrays", function () {
     it("should return the data as arrays", function () {
         const data = [
-            { patate: 1, poil: 2 },
-            { patate: 11, poil: 22 },
-            { patate: 111, poil: 222 },
+            { key1: 1, key2: 2 },
+            { key1: 11, key2: 22 },
+            { key1: 111, key2: 222 },
         ]
         const arrays = getDataAsArrays(data)
-        assert.deepEqual(arrays, { patate: [1, 11, 111], poil: [2, 22, 222] })
+        assert.deepEqual(arrays, { key1: [1, 11, 111], key2: [2, 22, 222] })
     })
 })

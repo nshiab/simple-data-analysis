@@ -4,9 +4,9 @@ import removeDuplicates from "../../../../src/methods/cleaning/removeDuplicates.
 describe("removeDuplicates", function () {
     it("should not remove items", function () {
         const data = [
-            { patate: 1, poil: 1 },
-            { patate: 2, poil: 2 },
-            { patate: 3, poil: 3 },
+            { key1: 1, key2: 1 },
+            { key1: 2, key2: 2 },
+            { key1: 3, key2: 3 },
         ]
         const newData = removeDuplicates(data)
         assert.deepEqual(newData, data)
@@ -14,38 +14,38 @@ describe("removeDuplicates", function () {
 
     it("should remove item", function () {
         const data = [
-            { patate: 1, poil: 1 },
-            { patate: 1, poil: 1 },
-            { patate: 2, poil: 2 },
+            { key1: 1, key2: 1 },
+            { key1: 1, key2: 1 },
+            { key1: 2, key2: 2 },
         ]
         const newData = removeDuplicates(data)
         assert.deepEqual(newData, [
-            { patate: 1, poil: 1 },
-            { patate: 2, poil: 2 },
+            { key1: 1, key2: 1 },
+            { key1: 2, key2: 2 },
         ])
     })
 
     it("should remove item with specific key", function () {
         const data = [
-            { id: 0, patate: 1, poil: 1 },
-            { id: 1, patate: 2, poil: 2 },
-            { id: 1, patate: 3, poil: 3 },
-            { id: 2, patate: 4, poil: 4 },
+            { id: 0, key1: 1, key2: 1 },
+            { id: 1, key1: 2, key2: 2 },
+            { id: 1, key1: 3, key2: 3 },
+            { id: 2, key1: 4, key2: 4 },
         ]
         const newData = removeDuplicates(data, "id")
         assert.deepEqual(newData, [
-            { id: 0, patate: 1, poil: 1 },
-            { id: 1, patate: 2, poil: 2 },
-            { id: 2, patate: 4, poil: 4 },
+            { id: 0, key1: 1, key2: 1 },
+            { id: 1, key1: 2, key2: 2 },
+            { id: 2, key1: 4, key2: 4 },
         ])
     })
 
     it("should throw with non existing key", function () {
         const data = [
-            { id: 0, patate: 1, poil: 1 },
-            { id: 1, patate: 2, poil: 2 },
-            { id: 1, patate: 3, poil: 3 },
-            { id: 2, patate: 4, poil: 4 },
+            { id: 0, key1: 1, key2: 1 },
+            { id: 1, key1: 2, key2: 2 },
+            { id: 1, key1: 3, key2: 3 },
+            { id: 2, key1: 4, key2: 4 },
         ]
         assert.throws(() => removeDuplicates(data, "peanut"))
     })

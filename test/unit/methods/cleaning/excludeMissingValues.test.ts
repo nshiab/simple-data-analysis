@@ -4,14 +4,14 @@ import excludeMissingValues from "../../../../src/methods/cleaning/excludeMissin
 describe("excludeMissingValues", function () {
     it("should exclude missing values", function () {
         const data = [
-            { patate: null, poil: 2 },
-            { patate: NaN, poil: 3 },
-            { patate: undefined, poil: 4 },
-            { patate: "", poil: 5 },
-            { patate: 11, poil: 22 },
+            { key1: null, key2: 2 },
+            { key1: NaN, key2: 3 },
+            { key1: undefined, key2: 4 },
+            { key1: "", key2: 5 },
+            { key1: 11, key2: 22 },
         ]
 
         const cleanData = excludeMissingValues(data)
-        assert.deepEqual(cleanData, [{ patate: 11, poil: 22 }])
+        assert.deepEqual(cleanData, [{ key1: 11, key2: 22 }])
     })
 })
