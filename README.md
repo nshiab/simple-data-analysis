@@ -10,7 +10,7 @@ These project's goals are:
 
 We are always trying to improve it. Feel free to start a conversation or open an issue, and check [how you can contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
 
-The documentation is available [here](https://nshiab.github.io/simple-data-analysis/).
+The documentation is available [here](https://nshiab.github.io/simple-data-analysis/) and more demos [here](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript).
 
 # Table of contents
 
@@ -173,7 +173,8 @@ export default function Home() {
             y: "Salary",
             type: "dot",
             marginLeft: 50,
-            trend: true
+            trend: true,
+            showTrendEquation: true
         })
     }
   }, [])
@@ -185,7 +186,7 @@ export default function Home() {
 
 Here's the result.
 
-
+<img src="./assets/nextjs-example.png" alt="The network tab in Google Chrome" style="display:block;width: 100%; max-width:400px;margin-bottom: 20px;border-radius: 5px;"/>
 
 ## SimpleData
 
@@ -199,7 +200,7 @@ For a description of all methods available, check this [Observable notebook](htt
 
 If you use the library with NodeJS, you can import SimpleDataNode instead of SimpleData. It will give you extra methods to load local files, save files and save charts.
 
-Here's an example.
+Here's an example. Note that you can modify verbose to true - like this `new SimpleDataNode({ verbose: true })` - for extra information in the console.
 
 ```js
 import { SimpleDataNode } from "simple-data-analysis";
