@@ -118,6 +118,7 @@ export default class SimpleDataNode extends SimpleData {
         y,
         color,
         trend = false,
+        showTrendEquation = false,
         marginLeft,
         marginBottom,
     }: {
@@ -135,6 +136,7 @@ export default class SimpleDataNode extends SimpleData {
         y: string
         color?: string
         trend?: boolean
+        showTrendEquation?: boolean
         marginLeft?: number
         marginBottom?: number
     }): this {
@@ -152,6 +154,7 @@ export default class SimpleDataNode extends SimpleData {
             type,
             color,
             trend,
+            showTrendEquation,
             marginLeft,
             marginBottom,
         })

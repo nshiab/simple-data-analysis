@@ -27,6 +27,7 @@ export default function getChart(
     y: string,
     color?: string,
     trend?: boolean,
+    showTrendEquation?: boolean,
     verbose?: boolean,
     marginLeft?: number,
     marginBottom?: number
@@ -113,7 +114,7 @@ export default function getChart(
 
     let chart = plotChart(plotOptions, verbose)
 
-    if (trend) {
+    if (showTrendEquation) {
         const linearRegression = regressionLinear()
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore

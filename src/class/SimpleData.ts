@@ -876,6 +876,7 @@ export default class SimpleData {
         y,
         color,
         trend = false,
+        showTrendEquation = false,
         marginLeft,
         marginBottom,
     }: {
@@ -892,6 +893,7 @@ export default class SimpleData {
         y: string
         color?: string
         trend?: boolean
+        showTrendEquation?: boolean
         marginLeft?: number
         marginBottom?: number
     }): string {
@@ -902,6 +904,7 @@ export default class SimpleData {
             y,
             color,
             trend,
+            showTrendEquation,
             this.verbose,
             marginLeft,
             marginBottom
