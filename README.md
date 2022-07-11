@@ -26,9 +26,9 @@ The documentation is available [here](https://nshiab.github.io/simple-data-analy
 
 ## Core principles
 
-Under the hood, simple-data-analysis is mainly based on [D3 modules](https://github.com/d3/d3), [Observable Plot](https://github.com/observablehq/plot), and [Lodash](https://lodash.com/). The main focus is on providing code that is easy to use and understand.
+Under the hood, simple-data-analysis is mainly based on [D3 modules](https://github.com/d3/d3), [Observable Plot](https://github.com/observablehq/plot), and [Lodash](https://lodash.com/). The focus is on providing code that is easy to use and understand.
 
-The library expects **tabular data** stored in CSV files or **arrays of objects** stored in JSON files. It works best when the data is tidy:
+The library expects **tabular data** stored in CSV/TSV files or **arrays of objects** stored in JSON files. It works best when the data is tidy:
 
 1. Every key (or column) is a variable
 
@@ -82,7 +82,7 @@ Here's an example.
             .showTable()
 
         // We select our div with the id "viz"
-        // and we push a chart in it.
+        // and we add a chart in it.
         document.querySelector("#viz").innerHTML =
             simpleData
                 // getChart() returns SVG
@@ -104,7 +104,7 @@ And here's the result in the browser!
 
 <img src="./assets/webExample.png" alt="A chart of the mean salary of several jobs" style="display:block;width: 100%; max-width:400px;margin-bottom: 20px;border-radius: 5px;"/>
 
-As you can see below, simple-data-analysis is a lightweight library optimized for the web (83kb = 10ko).
+As you can see below, simple-data-analysis is a lightweight library optimized for the web (98kb ≈ 12ko).
 
 <img src="./assets/bundle-min-size.png" alt="The network tab in Google Chrome" style="display:block;width: 100%; max-width:400px;margin-bottom: 20px;border-radius: 5px;"/>
 
@@ -122,31 +122,70 @@ To install the library with [npm](https://www.npmjs.com/package/simple-data-anal
 npm i simple-data-analysis
 ```
 
-Once installed, you can import what you need. If you use a bundler (Webpack, Rollup, Parcel or others), importing only the required code will make your final project lighter.
+Once installed, you can import what you need.
 
-**/!\ This is how you should import if you plan to publish your project on the web. /!\\**
 ```js
 import { SimpleData } from "simple-data-analysis"
 
 const someData = [...] // An array of objects
 
 const simpleData = new SimpleData({ data: someData })
-// You can also load data 
-// from a local file or an url
 ```
 
-But you can also import everything if you wish. Just keep in mind that your final build will be bigger.
+If you are using NodeJS and want to read or write local files, use SimpleDataNode instead.
+
 ```js
-import * as sda from "simple-data-analysis"
+import { SimpleDataNode } from "simple-data-analysis"
 
-const someData = [...] // An array of objects
-
-const simpleData = new sda.SimpleData({ data: someData })
-// Start chaining methods
+const simpleData = new SimpleDataNode()
+    .loadDataFromLocalFile({
+        path: "./someFile.csv"
+    })
 ```
+
 ## Using it with React
 
-To do.
+You can use SimpleData with React as well. Put the relevant code inside a useEffect or useMemo. The example below was created inside a [Next.js](https://nextjs.org/) app.
+
+```js
+import { useEffect, useRef } from "react"
+import { SimpleData } from "simple-data-analysis"
+
+export default function Home() {
+
+  const ref = useRef()
+
+  useEffect(() => {
+
+    SimpleDataFromUrl()
+
+    async function SimpleDataFromUrl() {
+
+      const simpleData = await new SimpleData()
+        .loadDataFromUrl({
+            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv"
+        })
+
+      ref.current.innerHTML =
+      simpleData
+        .getChart({
+            x: "Departement or unit",
+            y: "Salary",
+            type: "dot",
+            marginLeft: 50,
+            trend: true
+        })
+    }
+  }, [])
+
+  return <div ref={ref}>
+  </div>
+}
+```
+
+Here's the result.
+
+
 
 ## SimpleData
 

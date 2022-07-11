@@ -123,15 +123,15 @@ export default function getChart(
             .y((d) => d[y])(data)
         let nbDigits = 0
         while (
-            linearRegression.a < 1 / Math.pow(10, nbDigits) ||
-            linearRegression.b < 1 / Math.pow(10, nbDigits)
+            nbDigits < 10 &&
+            (linearRegression.a < 1 / Math.pow(10, nbDigits) ||
+                linearRegression.b < 1 / Math.pow(10, nbDigits))
         ) {
             nbDigits += 1
         }
-
         chart = `<div>
-            <div style='width: 100%; max-width: 640px;font-family:system-ui, sans-serif;font-size:10;text-align:right;'>
-                <p>Linear regression: y=${linearRegression.a.toFixed(
+            <div style='width: 100%; max-width: 640px;font-family:system-ui, sans-serif;font-size:10px;text-align:right;'>
+                <p id="simple-data-regression-details">Linear regression: y=${linearRegression.a.toFixed(
                     nbDigits + 1
                 )}x + ${linearRegression.b.toFixed(
             nbDigits + 1
