@@ -20,6 +20,7 @@ export default async function loadDataFromUrlNode(
 
     const fileExtension = getExtension(url)
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let arrayOfObjects: any[] = []
 
     if (fileExtension === "csv" || fileExtension === "tsv") {
@@ -31,6 +32,7 @@ export default async function loadDataFromUrlNode(
             arrayOfObjects = tsvParse(data, autoType) as SimpleDataItem[]
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         delete arrayOfObjects["columns" as any]
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
 

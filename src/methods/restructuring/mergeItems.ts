@@ -87,17 +87,20 @@ export default function mergeItems(
     for (let i = 0; i < newDataKeys.length; i++) {
         emptyItem[newDataKeys[i]] = undefined
     }
-    const lookupIndex: SimpleDataItem[] = []
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const lookupIndex: any[] = []
     const mergedData = []
 
     for (let i = 0; i < l; i++) {
         const row = newData[i]
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         lookupIndex[row[commonKey] as any] = row
     }
 
     let nbUndefined = 0
     for (let j = 0; j < m; j++) {
         const y = data[j]
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const x = lookupIndex[y[commonKey] as any]
         if (x === undefined) {
             mergedData.push({ ...y, ...emptyItem })

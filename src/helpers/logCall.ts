@@ -4,10 +4,18 @@ import log from "./log.js"
 import { SimpleDataItem } from "../types/SimpleData.types.js"
 
 export function logCall() {
-    return function (_: unknown, key: string, descriptor: any) {
+    return function (
+        _: unknown,
+        key: string,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        descriptor: any
+    ) {
         const wrappedFunc = descriptor.value
 
-        descriptor.value = function (...args: any[]) {
+        descriptor.value = function (
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ...args: any[]
+        ) {
             try {
                 if (this.verbose) {
                     log("\n" + key + "()")
@@ -42,10 +50,18 @@ export function logCall() {
 }
 
 export function asyncLogCall() {
-    return function (_: unknown, key: string, descriptor: any) {
+    return function (
+        _: unknown,
+        key: string,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        descriptor: any
+    ) {
         const wrappedFunc = descriptor.value
 
-        descriptor.value = async function (...args: any[]) {
+        descriptor.value = async function (
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ...args: any[]
+        ) {
             try {
                 if (this.verbose) {
                     log("\n" + key + "()")

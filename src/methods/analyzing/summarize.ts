@@ -12,7 +12,7 @@ export default function summarize(
     weight?: string,
     verbose = false,
     nbDigits = 1
-): any[] {
+): SimpleDataItem[] {
     if (keyValue === undefined) {
         keyValue = Object.keys(data[0])
     }
@@ -150,6 +150,7 @@ export default function summarize(
                         : parseFloat(fValue.toFixed(nbDigits))
 
                 if (filteredResults === undefined) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const itemsSummarized: any = { value: value }
                     for (let i = 0; i < keyCategories.length; i++) {
                         itemsSummarized[keyCategories[i]] = result[i]

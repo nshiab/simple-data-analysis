@@ -16,6 +16,7 @@ export default function loadDataFromLocalFile(
     encoding: BufferEncoding = "utf8",
     verbose = false
 ): SimpleDataItem[] {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let arrayOfObjects: any[] = []
 
     const fileExtension = getExtension(path)
@@ -33,6 +34,7 @@ export default function loadDataFromLocalFile(
             arrayOfObjects = tsvParse(dsvString, autoType) as SimpleDataItem[]
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         delete arrayOfObjects["columns" as any]
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
 

@@ -9,7 +9,7 @@ export default function checkValues(data: SimpleDataItem[]): SimpleDataItem[] {
     const allChecks: SimpleDataItem[] = []
 
     for (const key of keys) {
-        const checks: any = {}
+        const checks: { [key: string]: string | number } = {}
         checks["key"] = key
 
         const array = getArray(data, key)
@@ -43,14 +43,14 @@ export default function checkValues(data: SimpleDataItem[]): SimpleDataItem[] {
             if (!hasKey(checks, typeOf)) {
                 checks[typeOf] = 1
             } else {
-                checks[typeOf] += 1
+                ;(checks[typeOf] as number) += 1
             }
         }
 
         for (const key of Object.keys(checks)) {
             if (key !== "key" && key != "count" && checks[key] !== 0) {
                 checks[key] = `${checks[key]} | ${toPercentage(
-                    checks[key],
+                    checks[key] as number,
                     checks.count,
                     0
                 )}`

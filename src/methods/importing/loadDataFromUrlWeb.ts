@@ -17,6 +17,7 @@ export default async function loadDataFromUrlWeb(
 ): Promise<SimpleDataItem[]> {
     const fileExtension = getExtension(url)
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let arrayOfObjects: any[] = []
 
     if (fileExtension === "csv" || fileExtension === "tsv") {
@@ -28,6 +29,7 @@ export default async function loadDataFromUrlWeb(
             arrayOfObjects = await tsv(url, autoType)
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         delete arrayOfObjects["columns" as any]
 
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
@@ -44,6 +46,7 @@ export default async function loadDataFromUrlWeb(
             }
         }
     } else if (fileExtension === "json") {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         arrayOfObjects = (await json(url)) as any[]
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
     } else {

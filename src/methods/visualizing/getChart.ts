@@ -67,6 +67,7 @@ export default function getChart(
         throw new Error("Unknown chart type.")
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const plotOptions: { [key: string]: any } = {
         grid: true,
         marks: [mark],
