@@ -8,7 +8,8 @@ And thank you for your interest in contributing!
 
 ## 1 - Create an issue
 
-The first step is to create an issue with a clear title and a description of the problem you encountered here: https://github.com/nshiab/simple-data-analysis/issues
+The first step is to create an issue with a clear title and a description of the problem you encountered:
+https://github.com/nshiab/simple-data-analysis/issues
 
 If you want to solve the problem yourself, explain what you have in mind.
 
@@ -22,11 +23,11 @@ Once the issue is published, create a new branch. By default, the name of the br
 
 Start working on your branch.
 
-The suggested workflow is to create several tests in `test/unit` with the expected outputs. Then add functions in `src/` and write them to pass your tests.
+The suggested workflow is to create several tests in `test/unit/` with the expected outputs. Then add functions in `src/` and write them to pass your tests.
 
 It's a great way to stay focused and break down the tasks into small steps.
 
-We use [mocha](https://mochajs.org/) and the library is coded with [TypeScript](https://www.typescriptlang.org/). Here's how to run a specific test file with one or more tests in it:
+We use [mocha](https://mochajs.org/) for the tests and the library is coded with [TypeScript](https://www.typescriptlang.org/). Here's how to run a specific test file with one or more tests in it:
 
 `npx mocha --require ts-node/register ./test/unit/methods/analyzing/summarize.test.ts`
 
@@ -40,9 +41,9 @@ When your new code passes all your tests, you can add it to the SimpleData class
 
 Again, check how the other methods and functions are added and take them as examples.
 
-When added to the class, you add an integration test in `test/integration/SimpleData.test.ts` (or in the relevant class). 
+You can now move on to the integration test in `test/integration/SimpleData.test.ts` (or in the relevant class). 
 
-Chain your method to the others and run `npm run test-simple-data` (or `npm run test-simple-data-node`). Make sure that your code works in a (somewhat) real context.
+Chain your method to the others and run `npm run test-simple-data` (or `npm run test-simple-data-node`) to make sure that your code works in a (somewhat) real context.
 
 When all the steps above are dealt with, it's time for the final test: run `npm run allTests`.
 
