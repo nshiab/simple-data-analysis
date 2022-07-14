@@ -4,6 +4,8 @@ This page explains how you can contribute to the simple-data-analysis library.
 
 Feel free to start a [conversation](https://github.com/nshiab/simple-data-analysis/discussions) if some questions you have are not answered below.
 
+You can also check [this tutorial](https://github.com/firstcontributions/first-contributions) as a ressource.
+
 And thank you for your interest in contributing!
 
 ## 1 - Create an issue
