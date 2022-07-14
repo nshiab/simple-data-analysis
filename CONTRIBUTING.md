@@ -11,17 +11,21 @@ And thank you for your interest in contributing!
 The first step is to create an issue with a clear title and a description of the problem you encountered:
 https://github.com/nshiab/simple-data-analysis/issues
 
-If you want to solve the problem yourself, explain what you have in mind.
+If you want to solve the problem, explain what you have in mind and how you want to proceed.
 
-## 2 - Create a branch
+## 2 - Fork / create a branch
+
+If you are not a contributor to the repository, fork the repository.
 
 Once the issue is published, create a new branch. By default, the name of the branch will be the issue title. Adjust the name to make it more readable if needed.
+
+If you are a contributor, create the branch within the original repository. If you are not a contributor, create it inside your forked repository.
 
 <img src="./assets/create-branch.png" alt="An Observable notebook using simple-data-analysis" style="display:block;width: 100%; max-width:600px;margin-left:auto;margin-right: auto;margin-bottom: 20px;border-radius: 5px;"/>
 
 ## 3 - Do your magic
 
-Start working on your branch.
+Clone the repository (or forked repository), check out to your branch, and have fun!
 
 The suggested workflow is to create several tests in `test/unit/` with the expected outputs. Then add functions in `src/` and write them to pass your tests.
 
@@ -33,6 +37,8 @@ We use [mocha](https://mochajs.org/) for the tests and the library is coded with
 
 Read the tests and the functions already present as inspirations. Do your best to write clear and understandable code.
 
+When committing your work, keep in mind that your messages are public.
+
 If you have any questions at any step, leave a comment on the relevant issue.
 
 ## 4 - Final tests
@@ -43,7 +49,7 @@ Again, check how the other methods and functions are added and take them as exam
 
 You can now move on to the integration test in `test/integration/SimpleData.test.ts` (or in the relevant class). 
 
-Chain your method to the others and run `npm run test-simple-data` (or `npm run test-simple-data-node`) to make sure that your code works in a (somewhat) real context.
+Chain your method to the others and run `npm run test-simple-data` (or `npm run test-simple-data-node`) to ensure that your code works in a (somewhat) real context.
 
 When all the steps above are dealt with, it's time for the final test: run `npm run allTests`.
 
@@ -53,9 +59,7 @@ Make sure to correct any remaining problems, like linter warnings.
 
 It's now time to share your wonderful work!
 
-First, you need to make sure that your code is up-to-date. Some changes could have been pushed to the main branch while you worked on your branch.
-
-First, pull the last changes on the main branch (`git checkout main` and then `git pull`). Now, merge the up-to-date code to your work (`git checkout name-of-your-branch` and then `git merge main`).
+First, you need to make sure that your code is up-to-date. Some changes could have been pushed to the main branch while you worked on your branch or forked repo.
 
 If you have conflicts, adapt your code to solve them.
 
