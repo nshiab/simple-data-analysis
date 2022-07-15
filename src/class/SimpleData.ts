@@ -4,6 +4,7 @@ import describe_ from "../methods/analyzing/describe.js"
 import formatAllKeys_ from "../methods/cleaning/formatAllKeys.js"
 import getItem_ from "../methods/exporting/getItem.js"
 import getArray_ from "../methods/exporting/getArray.js"
+import getMin_ from "../methods/exporting/getMin.js"
 import getDataAsArrays_ from "../methods/exporting/getDataAsArrays.js"
 import showTable_ from "../methods/showTable.js"
 import checkValues_ from "../methods/cleaning/checkValues.js"
@@ -968,6 +969,11 @@ export default class SimpleData {
         const uniqueValues = getUniqueValues_(this._data, key)
 
         return uniqueValues
+    }
+
+    // No @logCall for methods starting with get. It's not returning a simpleData class
+    getMin({ key }: { key: string }): SimpleDataValue {
+        return getMin_(this._data, key)
     }
 
     // *** LOGGING METHODS AND OTHERS *** //
