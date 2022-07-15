@@ -38,7 +38,8 @@ export default function checkTypeOfKey(
         } else {
             verbose &&
                 log(
-                    `=> ${key} : ${(1 - percentTest) * 100
+                    `=> ${key} : ${
+                        (1 - percentTest) * 100
                     }% of tested values (n=${nbTested} / ${percentTested} of data) are not a ${type} (threshold: ${threshold})`,
                     "blue"
                 )
