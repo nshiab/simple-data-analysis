@@ -58,7 +58,6 @@ export default class SimpleData {
     _data: SimpleDataItem[]
     _tempData: SimpleDataItem[]
     _overwrite: boolean
-    _keys: string[]
     // Logging
     noLogs: boolean
     verbose: boolean
@@ -113,7 +112,6 @@ export default class SimpleData {
 
         this._tempData = []
         this._overwrite = true
-        this._keys = data[0] ? Object.keys(data[0]) : []
 
         this.verbose = !noLogs && verbose
         this.logParameters = logParameters
@@ -124,7 +122,6 @@ export default class SimpleData {
     // If modified, needs to be modified in SimpleDataNode
     #updateSimpleData(data: SimpleDataItem[]) {
         this._data = data
-        this._keys = data[0] === undefined ? [] : Object.keys(data[0])
     }
 
     // *** IMPORTING METHOD *** //
@@ -922,9 +919,15 @@ export default class SimpleData {
 
     @logCall()
     clone(): this {
-        const newSimpleData = cloneDeep(this)
-
-        return newSimpleData
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        return new this.constructor({
+            data: this._data,
+            verbose: this.verbose,
+            logParameters: this.logParameters,
+            noLogs: this.noLogs,
+            nbTableItemsToLog: this.nbTableItemsToLog,
+        })
     }
 
     // No @logCall otherwise it's triggered everywhere, including in methods
@@ -934,7 +937,7 @@ export default class SimpleData {
 
     //No @logCall otherwise it's triggered everywhere, including in methods
     getKeys(): string[] {
-        return this._keys
+        return Object.keys(this._data[0])
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class

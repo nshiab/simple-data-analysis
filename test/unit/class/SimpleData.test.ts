@@ -59,4 +59,28 @@ describe("SimpleData", function () {
 
         assert(newSimpleData instanceof SimpleData)
     })
+
+    it("should clone, return a SimpleData instance and run a method", function () {
+        const data = [
+            { key1: 1, key2: 2 },
+            { key1: 3, key2: 4 },
+            { key1: 5, key2: 6 },
+        ]
+        const simpleData = new SimpleData({ data: data })
+        const newSimpleData = simpleData.clone().filterValues({
+            key: "key1",
+            valueComparator: (val) => (val as number) < 5,
+        })
+
+        assert.deepEqual(simpleData.getData(), [
+            { key1: 1, key2: 2 },
+            { key1: 3, key2: 4 },
+            { key1: 5, key2: 6 },
+        ])
+
+        assert.deepEqual(newSimpleData.getData(), [
+            { key1: 1, key2: 2 },
+            { key1: 3, key2: 4 },
+        ])
+    })
 })

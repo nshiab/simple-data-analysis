@@ -13,7 +13,6 @@ export default class SimpleDataNode extends SimpleData {
     // If modified, might need to be modified in SimpleData too
     #updateSimpleData(data: SimpleDataItem[]) {
         this._data = data
-        this._keys = data[0] === undefined ? [] : Object.keys(data[0])
     }
 
     // ** OVERWRITING METHODS ** //

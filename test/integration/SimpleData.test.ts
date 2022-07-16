@@ -50,9 +50,10 @@ async function main() {
     simpleData.getUniqueValues({ key: "Job" })
     simpleData.getItem({ conditions: { Name: "Seo, John" } })
 
-    simpleData
+    const simpleDataClone = simpleData
         .describe({ overwrite: false })
         .formatAllKeys()
+        .clone()
         .renameKey({ oldKey: "departementOrUnit", newKey: "unit" })
         .renameKey({ oldKey: "endOfYearBonus", newKey: "bonus" })
         .checkValues({ overwrite: false })
@@ -147,7 +148,7 @@ async function main() {
         },
     ]
 
-    simpleData.addItems({ dataToBeAdded: moreEmployees })
+    simpleDataClone.addItems({ dataToBeAdded: moreEmployees })
 
     const moreEmployeesSimpleData = new SimpleData({
         data: [
@@ -170,7 +171,7 @@ async function main() {
         ],
     })
 
-    simpleData.addItems({ dataToBeAdded: moreEmployeesSimpleData })
+    simpleDataClone.addItems({ dataToBeAdded: moreEmployeesSimpleData })
 
     const unitsNames = [
         {
@@ -183,7 +184,8 @@ async function main() {
         },
     ]
 
-    simpleData
+    const simpleDataMerged = simpleDataClone
+        .clone()
         .mergeItems({ dataToBeMerged: unitsNames, commonKey: "unit" })
         .removeKey({ key: "unitName" })
 
@@ -204,12 +206,12 @@ async function main() {
         ],
     })
 
-    simpleData.mergeItems({
+    simpleDataMerged.mergeItems({
         dataToBeMerged: unitsNamesSimpleData,
         commonKey: "unit",
     })
 
-    simpleData
+    simpleDataMerged
         .addQuantiles({
             key: "bonus",
             newKey: "salaryQuintile",
@@ -250,7 +252,7 @@ async function main() {
         .correlation({ key1: "salary", key2: "bonus", overwrite: false })
         .summarize({ overwrite: false })
         .summarize({
-            keyValue: simpleData.getKeys(),
+            keyValue: simpleDataMerged.getKeys(),
             keyCategory: "job",
             overwrite: false,
         })
@@ -280,30 +282,43 @@ async function main() {
             overwrite: false,
         })
 
-    simpleData.valuesToDate({ key: "hireDate", format: "%Y-%m-%d" })
+    simpleDataMerged.valuesToDate({ key: "hireDate", format: "%Y-%m-%d" })
 
-    simpleData.getChart({ type: "line", x: "hireDate", y: "salary" })
-    simpleData.getChart({
+    simpleDataMerged.getChart({ type: "line", x: "hireDate", y: "salary" })
+    simpleDataMerged.getChart({
         type: "line",
         x: "hireDate",
         y: "salary",
         color: "unit",
     })
-    simpleData.getChart({ type: "bar", x: "unit", y: "salary" })
-    simpleData.getChart({ type: "bar", x: "unit", y: "salary", color: "unit" })
-    simpleData.getChart({ type: "box", x: "unit", y: "salary" })
-    simpleData.getChart({ type: "box", x: "unit", y: "salary", color: "unit" })
+    simpleDataMerged.getChart({ type: "bar", x: "unit", y: "salary" })
+    simpleDataMerged.getChart({
+        type: "bar",
+        x: "unit",
+        y: "salary",
+        color: "unit",
+    })
+    simpleDataMerged.getChart({ type: "box", x: "unit", y: "salary" })
+    simpleDataMerged.getChart({
+        type: "box",
+        x: "unit",
+        y: "salary",
+        color: "unit",
+    })
 
-    simpleData.getCustomChart({
+    simpleDataMerged.getCustomChart({
         plotOptions: {
             color: { type: "ordinal" },
             grid: true,
             facet: {
-                data: simpleData.getData(),
+                data: simpleDataMerged.getData(),
                 y: "unit",
             },
             marks: [
-                Plot.dotX(simpleData.getData(), { x: "salary", fill: "unit" }),
+                Plot.dotX(simpleDataMerged.getData(), {
+                    x: "salary",
+                    fill: "unit",
+                }),
             ],
         },
     })
