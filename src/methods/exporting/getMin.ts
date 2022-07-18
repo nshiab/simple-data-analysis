@@ -15,7 +15,7 @@ export default function getMin(
     }
 
     if (!checkTypeOfKey(data, key, "number", 0.5)) {
-        throw new Error(`${key} values are not numbers mostly.`)
+        throw new Error(`The majority of values inside "${key}" are not numbers.`)
     }
 
     return min(data, (d) => d[key] as number)

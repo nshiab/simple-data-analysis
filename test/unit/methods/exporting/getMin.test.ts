@@ -12,7 +12,7 @@ const data = [
 ]
 
 describe("getMin", function () {
-    it("should return min value 4 from key holding all numbers", function () {
+    it("should return min value 44 from key holding all numbers", function () {
         const minValue = getMin(data, "key1")
         assert.deepEqual(minValue, 44)
     })
