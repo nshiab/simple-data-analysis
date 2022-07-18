@@ -16,33 +16,29 @@ export function logCall() {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ...args: any[]
         ) {
-            try {
-                if (this.verbose) {
-                    log("\n" + key + "()")
-                    this.logParameters && log("parameters:")
-                    this.logParameters && log(args)
-                }
-
-                const start = Date.now()
-                const result: SimpleDataItem[] = wrappedFunc.apply(this, args)
-                const end = Date.now()
-
-                if (!this.noLogs && !this._overwrite) {
-                    const data =
-                        result instanceof SimpleData ? result._tempData : result
-                    showTable(data, this.nbTableItemsToLog)
-                    log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
-                } else if (this.verbose) {
-                    const data =
-                        result instanceof SimpleData ? result.getData() : result
-                    showTable(data, this.nbTableItemsToLog)
-                    log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
-                }
-
-                return result
-            } catch (error) {
-                console.log(error)
+            if (this.verbose) {
+                log("\n" + key + "()")
+                this.logParameters && log("parameters:")
+                this.logParameters && log(args)
             }
+
+            const start = Date.now()
+            const result: SimpleDataItem[] = wrappedFunc.apply(this, args)
+            const end = Date.now()
+
+            if (!this.noLogs && !this._overwrite) {
+                const data =
+                    result instanceof SimpleData ? result._tempData : result
+                showTable(data, this.nbTableItemsToLog)
+                log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
+            } else if (this.verbose) {
+                const data =
+                    result instanceof SimpleData ? result.getData() : result
+                showTable(data, this.nbTableItemsToLog)
+                log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
+            }
+
+            return result
         }
 
         return descriptor
@@ -62,29 +58,22 @@ export function asyncLogCall() {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ...args: any[]
         ) {
-            try {
-                if (this.verbose) {
-                    log("\n" + key + "()")
-                    this.logParameters && log("parameters:")
-                    this.logParameters && log(args)
-                }
-
-                const start = Date.now()
-                const result: SimpleDataItem[] = await wrappedFunc.apply(
-                    this,
-                    args
-                )
-                const end = Date.now()
-
-                if (this.verbose) {
-                    showTable(this._tempData, this.nbTableItemsToLog)
-                    log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
-                }
-
-                return result
-            } catch (error) {
-                console.log(error)
+            if (this.verbose) {
+                log("\n" + key + "()")
+                this.logParameters && log("parameters:")
+                this.logParameters && log(args)
             }
+
+            const start = Date.now()
+            const result: SimpleDataItem[] = await wrappedFunc.apply(this, args)
+            const end = Date.now()
+
+            if (this.verbose) {
+                showTable(this._tempData, this.nbTableItemsToLog)
+                log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
+            }
+
+            return result
         }
 
         return descriptor
