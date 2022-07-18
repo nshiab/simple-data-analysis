@@ -2,6 +2,8 @@
 
 This repository is maintained by [Nael Shiab](http://naelshiab.com/), senior data producer at [CBC/Radio-Canada](https://cbc.radio-canada.ca/).
 
+If you use the library, show off your work and tag me on [Twitter](https://twitter.com/NaelShiab) or [LinkedIn](https://www.linkedin.com/in/naelshiab/)! :)
+
 These project's goals are:
 
 - To ease the way for non-coders (especially journalists) into the beautiful world of data analysis and data visualization in JavaScript.

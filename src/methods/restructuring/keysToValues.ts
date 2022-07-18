@@ -9,6 +9,12 @@ export default function keysToValues(
     newKeyForValues: string,
     verbose = false
 ) {
+    if (newKeyForKeys === undefined) {
+        throw new Error("You need to provide a newKeyForKeys")
+    }
+    if (newKeyForValues === undefined) {
+        throw new Error("You need to provide a newKeyForValues")
+    }
     if (hasKey(data[0], newKeyForKeys)) {
         throw new Error("Already a key named " + newKeyForKeys)
     }

@@ -1,5 +1,5 @@
 import assert from "assert"
-import modifyItems from "../../../../src/methods/restructuring/modifyItems.js"
+import modifyItems from "../../../../src/methods/cleaning/modifyItems.js"
 
 describe("modifyItems", function () {
     it("should modify items", function () {

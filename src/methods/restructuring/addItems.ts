@@ -8,7 +8,7 @@ import getUniqueKeys from "../../helpers/getUniqueKeys.js"
 export default function addItems(
     data: SimpleDataItem[],
     dataToBeAdded: SimpleDataItem[] | SimpleData,
-    fillMissingValues?: boolean,
+    fillMissingKeys?: boolean,
     verbose?: boolean
 ): SimpleDataItem[] {
     if (dataToBeAdded instanceof SimpleData) {
@@ -18,7 +18,7 @@ export default function addItems(
     const uniqueKeys = getUniqueKeys(data)
     dataToBeAdded = handleMissingKeys(
         dataToBeAdded,
-        fillMissingValues,
+        fillMissingKeys,
         uniqueKeys
     )
 

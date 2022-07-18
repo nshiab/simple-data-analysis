@@ -23,7 +23,7 @@ import replaceStringValues_ from "../methods/cleaning/replaceStringValues.js"
 import addKey_ from "../methods/restructuring/addKey.js"
 import selectKeys_ from "../methods/selecting/selectKeys.js"
 import modifyValues_ from "../methods/cleaning/modifyValues.js"
-import modifyItems_ from "../methods/restructuring/modifyItems.js"
+import modifyItems_ from "../methods/cleaning/modifyItems.js"
 import sortValues_ from "../methods/analyzing/sortValues.js"
 import addQuantiles_ from "../methods/analyzing/addQuantiles.js"
 import addBins_ from "../methods/analyzing/addBins.js"
@@ -478,18 +478,18 @@ export default class SimpleData {
     @logCall()
     addItems({
         dataToBeAdded,
-        fillMissingValues = false,
+        fillMissingKeys = false,
         overwrite = true,
     }: {
         dataToBeAdded: SimpleDataItem[] | SimpleData
-        fillMissingValues?: boolean
+        fillMissingKeys?: boolean
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
         this._tempData = addItems_(
             cloneDeep(this._data),
             dataToBeAdded,
-            fillMissingValues,
+            fillMissingKeys,
             this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)
