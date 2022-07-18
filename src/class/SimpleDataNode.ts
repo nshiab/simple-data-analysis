@@ -99,12 +99,14 @@ export default class SimpleDataNode extends SimpleData {
     @logCall()
     saveData({
         path,
+        dataAsArrays = false,
         encoding = "utf8",
     }: {
         path: string
+        dataAsArrays?: boolean
         encoding?: BufferEncoding
     }): this {
-        saveData_(this._data, path, this.verbose, encoding)
+        saveData_(this._data, path, dataAsArrays, this.verbose, encoding)
 
         return this
     }

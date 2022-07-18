@@ -38,10 +38,13 @@ async function main() {
         .valuesToFloat({ key: "bonus", language: "fr" })
 
     temporaryDirectoryTask((tempDir) => {
-        // tempDir = ".."
         simpleDataNode
             .saveData({ path: `${tempDir}/integrationTest.csv` })
             .saveData({ path: `${tempDir}/integrationTest.json` })
+            .saveData({
+                path: `${tempDir}/integrationTestArrays.json`,
+                dataAsArrays: true,
+            })
 
         simpleDataNode.saveChart({
             path: `${tempDir}/dot1.html`,

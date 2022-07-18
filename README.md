@@ -213,7 +213,7 @@ new SimpleDataNode()
     .loadDataFromLocalFile({
         path: "../simple-data-analysis/data/employees.csv"
     })
-    // You can load json files as well
+    // You can load TSV and JSON files as well
     .summarize({
         keyValue: "Salary",
         keyCategory: "Job",
@@ -223,7 +223,9 @@ new SimpleDataNode()
     .selectKeys({ keys: ["Job", "mean"] })
     .showTable()
     .saveData({ path: "./employees.json" })
-    // You can save csv files as well
+    // You can save CSV and TSV files as wellé
+    // When saving JSON files, you can restructure
+    // the data as arrays by adding dataAsArrays : true
     .saveChart({
         path: "./chart.html",
         type: "barHorizontal",
