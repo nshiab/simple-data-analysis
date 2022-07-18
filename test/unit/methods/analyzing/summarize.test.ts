@@ -14,7 +14,7 @@ describe("summarize", function () {
                 count: 2,
                 min: NaN,
                 max: NaN,
-                sum: 0,
+                sum: NaN,
                 mean: NaN,
                 median: NaN,
                 deviation: NaN,
@@ -34,10 +34,10 @@ describe("summarize", function () {
                 count: 2,
                 min: NaN,
                 max: NaN,
-                sum: 3037132800000,
-                mean: 1518566400000,
-                median: 1518566400000,
-                deviation: 178516743663.8,
+                sum: NaN,
+                mean: NaN,
+                median: NaN,
+                deviation: NaN,
             },
         ])
     })

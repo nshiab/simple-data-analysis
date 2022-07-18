@@ -3,6 +3,7 @@ import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { flatRollup, mean, sum, median, max, min, deviation } from "d3-array"
 import isEqual from "lodash.isequal"
 import hasKey from "../../helpers/hasKey.js"
+import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 
 export default function summarize(
     data: SimpleDataItem[],
@@ -89,6 +90,7 @@ export default function summarize(
     const summariesResults = []
 
     for (const value of keyValues) {
+        const isNumber = checkTypeOfKey(data, value, "number", 0.5)
         for (const summary of summaries) {
             let func: (v: SimpleDataItem[]) => number | undefined
             if (summary === "count") {
@@ -98,14 +100,55 @@ export default function summarize(
             } else if (summary === "max") {
                 func = (v) => max(v, (d) => d[value] as number | undefined)
             } else if (summary === "sum") {
-                func = (v) => sum(v, (d) => d[value] as number | undefined)
+                if (isNumber) {
+                    func = (v) => sum(v, (d) => d[value] as number | undefined)
+                } else {
+                    verbose &&
+                        log(
+                            "The majority of " +
+                                value +
+                                " values are not numbers. Returning NaN for sum."
+                        )
+                    func = () => NaN
+                }
             } else if (summary === "mean") {
-                func = (v) => mean(v, (d) => d[value] as number | undefined)
+                if (isNumber) {
+                    func = (v) => mean(v, (d) => d[value] as number | undefined)
+                } else {
+                    verbose &&
+                        log(
+                            "The majority of " +
+                                value +
+                                " values are not numbers. Returning NaN for mean."
+                        )
+                    func = () => NaN
+                }
             } else if (summary === "median") {
-                func = (v) => median(v, (d) => d[value] as number | undefined)
+                if (isNumber) {
+                    func = (v) =>
+                        median(v, (d) => d[value] as number | undefined)
+                } else {
+                    verbose &&
+                        log(
+                            "The majority of " +
+                                value +
+                                " values are not numbers. Returning NaN for median."
+                        )
+                    func = () => NaN
+                }
             } else if (summary === "deviation") {
-                func = (v) =>
-                    deviation(v, (d) => d[value] as number | undefined)
+                if (isNumber) {
+                    func = (v) =>
+                        deviation(v, (d) => d[value] as number | undefined)
+                } else {
+                    verbose &&
+                        log(
+                            "The majority of " +
+                                value +
+                                " values are not numbers. Returning NaN for deviation."
+                        )
+                    func = () => NaN
+                }
             } else if (summary === "weightedMean") {
                 if (weight === undefined) {
                     throw new Error("Missing argument weight")

@@ -8,6 +8,7 @@ import getMin_ from "../methods/exporting/getMin.js"
 import getMax_ from "../methods/exporting/getMax.js"
 import getMean_ from "../methods/exporting/getMean.js"
 import getMedian_ from "../methods/exporting/getMedian.js"
+import getSum_ from "../methods/exporting/getSum.js"
 import getDataAsArrays_ from "../methods/exporting/getDataAsArrays.js"
 import showTable_ from "../methods/showTable.js"
 import checkValues_ from "../methods/cleaning/checkValues.js"
@@ -995,6 +996,11 @@ export default class SimpleData {
     // No @logCall for methods starting with get. It's not returning a simpleData class
     getMedian({ key }: { key: string }): SimpleDataValue {
         return getMedian_(this._data, key)
+    }
+
+    // No @logCall for methods starting with get. It's not returning a simpleData class
+    getSum({ key }: { key: string }): SimpleDataValue {
+        return getSum_(this._data, key)
     }
 
     // *** LOGGING METHODS AND OTHERS *** //
