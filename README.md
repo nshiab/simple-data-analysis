@@ -190,17 +190,19 @@ Here's the result.
 
 ## SimpleData
 
-The SimpleData class is the core of the library. It allows you clean, analyze and visualize your data easily by chaining methods.
+The SimpleData class is the core of the library. Chaining methods allow you to clean, analyze, and visualize your data easily.
 
 When you chain methods, the data is updated at each step and sent to the next one.
+
+You also have special properties to facilitate your work. If you create a SimpleData with verbose to true (like this `new SimpleDataNode({ verbose: true })`), extra information will be logged on the console at each step, like a table of your data. You can also log methods parameters with `logParameters: true`.
+
+If, for some reason, you want to chain a method but not overwrite the data, you can pass `overwrite: false` to the method (like this `simpleData.summarize({ overwrite: false })`). The result of the method will be logged in the console (even if verbose is set to false), but the data passed to the next chained method will not be modified.
 
 For a description of all methods available, check this [Observable notebook](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript) or our [automatically generated documentation](https://nshiab.github.io/simple-data-analysis/).
 
 ## SimpleDataNode
 
 If you use the library with NodeJS, you can import SimpleDataNode instead of SimpleData. It will give you extra methods to load local files, save files and save charts.
-
-Here's an example. Note that you can modify verbose to true - like this `new SimpleDataNode({ verbose: true })` - for extra information in the console.
 
 ```js
 import { SimpleDataNode } from "simple-data-analysis";
