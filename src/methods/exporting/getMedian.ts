@@ -8,7 +8,8 @@ import { median } from "d3-array"
 
 export default function getMedian(
     data: SimpleDataItem[],
-    key: string
+    key: string,
+    nbDigits = 2
 ): SimpleDataValue {
     if (!hasKey(data[0], key)) {
         throw new Error(`No key ${key} in data`)
@@ -18,5 +19,7 @@ export default function getMedian(
         throw new Error(`The majority of values inside ${key} are not numbers.`)
     }
 
-    return median(data, (d) => d[key] as number)
+    const result = median(data, (d) => d[key] as number)
+
+    return result ? parseFloat(result.toFixed(nbDigits)) : result
 }

@@ -979,27 +979,57 @@ export default class SimpleData {
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
-    getMin({ key }: { key: string }): SimpleDataValue {
-        return getMin_(this._data, key)
+    getMin({
+        key,
+        nbDigits = 2,
+    }: {
+        key: string
+        nbDigits?: number
+    }): SimpleDataValue {
+        return getMin_(this._data, key, nbDigits)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
-    getMax({ key }: { key: string }): SimpleDataValue {
-        return getMax_(this._data, key)
+    getMax({
+        key,
+        nbDigits = 2,
+    }: {
+        key: string
+        nbDigits?: number
+    }): SimpleDataValue {
+        return getMax_(this._data, key, nbDigits)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
-    getMean({ key }: { key: string }): SimpleDataValue {
-        return getMean_(this._data, key)
+    getMean({
+        key,
+        nbDigits = 2,
+    }: {
+        key: string
+        nbDigits?: number
+    }): SimpleDataValue {
+        return getMean_(this._data, key, nbDigits)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
-    getMedian({ key }: { key: string }): SimpleDataValue {
+    getMedian({
+        key,
+        nbDigits = 2,
+    }: {
+        key: string
+        nbDigits?: number
+    }): SimpleDataValue {
         return getMedian_(this._data, key)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
-    getSum({ key }: { key: string }): SimpleDataValue {
+    getSum({
+        key,
+        nbDigits = 2,
+    }: {
+        key: string
+        nbDigits?: number
+    }): SimpleDataValue {
         return getSum_(this._data, key)
     }
 

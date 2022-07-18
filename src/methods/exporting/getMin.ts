@@ -8,7 +8,8 @@ import { min } from "d3-array"
 
 export default function getMin(
     data: SimpleDataItem[],
-    key: string
+    key: string,
+    nbDigits = 2
 ): SimpleDataValue {
     if (!hasKey(data[0], key)) {
         throw new Error(`No key ${key} in data`)
@@ -18,5 +19,7 @@ export default function getMin(
         throw new Error(`The majority of values inside ${key} are not numbers.`)
     }
 
-    return min(data, (d) => d[key] as number)
+    const result = min(data, (d) => d[key] as number)
+
+    return result ? parseFloat(result.toFixed(nbDigits)) : result
 }

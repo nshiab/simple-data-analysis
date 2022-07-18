@@ -8,7 +8,8 @@ import { sum } from "d3-array"
 
 export default function getSum(
     data: SimpleDataItem[],
-    key: string
+    key: string,
+    nbDigits = 2
 ): SimpleDataValue {
     if (!hasKey(data[0], key)) {
         throw new Error(`No key ${key} in data`)
@@ -18,5 +19,7 @@ export default function getSum(
         throw new Error(`The majority of values inside ${key} are not numbers.`)
     }
 
-    return sum(data, (d) => d[key] as number)
+    const result = sum(data, (d) => d[key] as number)
+
+    return result ? parseFloat(result.toFixed(nbDigits)) : result
 }
