@@ -4,9 +4,9 @@ import {
 } from "../../types/SimpleData.types.js"
 import hasKey from "../../helpers/hasKey.js"
 import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
-import { min } from "d3-array"
+import { median } from "d3-array"
 
-export default function getMin(
+export default function getMedian(
     data: SimpleDataItem[],
     key: string
 ): SimpleDataValue {
@@ -18,5 +18,5 @@ export default function getMin(
         throw new Error(`The majority of values inside ${key} are not numbers.`)
     }
 
-    return min(data, (d) => d[key] as number)
+    return median(data, (d) => d[key] as number)
 }
