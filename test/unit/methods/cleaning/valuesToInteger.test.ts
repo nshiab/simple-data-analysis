@@ -29,4 +29,18 @@ describe("valuesToInteger", function () {
             { key1: 100000000, key2: 2 },
         ])
     })
+
+    it("should convert to integers and skip errors", function () {
+        const data = [
+            { key1: "1", key2: 2 },
+            { key1: 1, key2: 2 },
+            { key1: "100 000 000", key2: 2 },
+        ]
+        const intergerValues = valuesToInteger(data, "key1", "fr", true)
+        assert.deepEqual(intergerValues, [
+            { key1: 1, key2: 2 },
+            { key1: 1, key2: 2 },
+            { key1: 100000000, key2: 2 },
+        ])
+    })
 })

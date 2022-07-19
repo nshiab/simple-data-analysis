@@ -6,7 +6,8 @@ export default function replaceStringValues(
     key: string,
     oldValue: string,
     newValue: string,
-    method: "entireString" | "partialString"
+    method: "entireString" | "partialString",
+    skipErrors = false
 ): SimpleDataItem[] {
     if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
@@ -22,8 +23,15 @@ export default function replaceStringValues(
         const regex = new RegExp(oldValue, "g")
 
         for (let i = 0; i < data.length; i++) {
-            if (typeof data[i][key] === "string") {
-                const val = data[i][key] as string
+            const val = data[i][key]
+            if (typeof val !== "string") {
+                if (!skipErrors) {
+                    throw new Error(
+                        val +
+                            " is not a string. Convert to string first (valuesToString). If you want to ignore values that are not strings, pass { skipErrors: true }."
+                    )
+                }
+            } else {
                 data[i][key] = val.replace(regex, newValue)
             }
         }

@@ -109,7 +109,11 @@ async function main() {
         .valuesToInteger({ key: "unit" })
         .valuesToString({ key: "unit" })
         .valuesToDate({ key: "hireDate", format: "%d-%b-%y" })
-        .datesToString({ key: "hireDate", format: "%Y-%m-%d" })
+        .datesToString({
+            key: "hireDate",
+            format: "%Y-%m-%d",
+            skipErrors: true,
+        })
         .filterValues({
             key: "bonus",
             valueComparator: (val) => typeof val === "number" && val >= 100,

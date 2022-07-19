@@ -58,7 +58,9 @@ export default function loadDataFromLocalFile(
         const incomingData = JSON.parse(
             fs.readFileSync(path, { encoding: encoding })
         )
-        arrayOfObjects = dataAsArrays ? arraysToData(incomingData) : incomingData
+        arrayOfObjects = dataAsArrays
+            ? arraysToData(incomingData)
+            : incomingData
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
     } else {
         throw new Error("Unknown file extension " + fileExtension)

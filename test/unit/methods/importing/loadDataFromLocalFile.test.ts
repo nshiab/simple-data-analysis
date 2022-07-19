@@ -89,6 +89,4 @@ describe("loadDataFromLocalFile", function () {
             { key1: "brioche", key2: "croissant" },
         ])
     })
-
 })
-

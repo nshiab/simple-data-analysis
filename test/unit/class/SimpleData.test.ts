@@ -85,10 +85,9 @@ describe("SimpleData", function () {
     })
 
     it("should convert a { [key: string]: SimpleDataValue[] } to SimpleDataItem[]", function () {
-
         const data = {
             key1: [1, 2, 3],
-            key2: ["a", "b", "c"]
+            key2: ["a", "b", "c"],
         }
 
         const simpleData = new SimpleData({ data: data, dataAsArrays: true })
@@ -96,10 +95,7 @@ describe("SimpleData", function () {
         assert.deepEqual(simpleData.getData(), [
             { key1: 1, key2: "a" },
             { key1: 2, key2: "b" },
-            { key1: 3, key2: "c" }
+            { key1: 3, key2: "c" },
         ])
-
-
-
     })
 })

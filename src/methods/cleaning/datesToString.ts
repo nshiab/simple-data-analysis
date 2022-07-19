@@ -5,7 +5,8 @@ import hasKey from "../../helpers/hasKey.js"
 export default function datesToString(
     data: SimpleDataItem[],
     key: string,
-    format: string
+    format: string,
+    skipErrors = false
 ): SimpleDataItem[] {
     if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
@@ -14,7 +15,17 @@ export default function datesToString(
     const formatF = utcFormat(format)
 
     for (let i = 0; i < data.length; i++) {
-        data[i][key] = formatF(data[i][key] as Date)
+        const val = data[i][key]
+        if (val instanceof Date === false) {
+            if (!skipErrors) {
+                throw new Error(
+                    val +
+                        " is not a Date. Convert to Date first (valuesToDate()). If you want to ignore values that are not strings, pass { skipErrors: true }."
+                )
+            }
+        } else {
+            data[i][key] = formatF(data[i][key] as Date)
+        }
     }
 
     return data

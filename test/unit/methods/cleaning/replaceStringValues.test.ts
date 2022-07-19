@@ -15,4 +15,23 @@ describe("replaceStringValues", function () {
             { key1: "You are potato", key2: "I am key2" },
         ])
     })
+
+    it("should replace string values and skip errors", function () {
+        const data = [
+            { key1: "I am potato", key2: "I am key2" },
+            { key1: 32, key2: "I am key2" },
+        ]
+        const replacedValues = replaceStringValues(
+            data,
+            "key1",
+            "I am",
+            "You are",
+            "partialString",
+            true
+        )
+        assert.deepEqual(replacedValues, [
+            { key1: "You are potato", key2: "I am key2" },
+            { key1: 32, key2: "I am key2" },
+        ])
+    })
 })

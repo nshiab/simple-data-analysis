@@ -50,7 +50,13 @@ export default async function loadDataFromUrlWeb(
     } else if (fileExtension === "json") {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const incomingData = (await json(url)) as any[]
-        arrayOfObjects = dataAsArrays ? arraysToData(incomingData as unknown as { [key: string]: SimpleDataValue[] }) : incomingData
+        arrayOfObjects = dataAsArrays
+            ? arraysToData(
+                  incomingData as unknown as {
+                      [key: string]: SimpleDataValue[]
+                  }
+              )
+            : incomingData
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
     } else {
         throw new Error("Unknown file extension " + fileExtension)

@@ -103,12 +103,18 @@ export default class SimpleData {
         lastItem?: number
         duration?: 0
     } = {}) {
-
         if (data.length > 0 || Object.keys(data).length > 0) {
-
-            const incomingData = dataAsArrays ?
-                cloneDeep(arraysToData(data as unknown as { [key: string]: SimpleDataValue[] }).slice(firstItem, lastItem + 1)) :
-                cloneDeep((data as SimpleDataItem[]).slice(firstItem, lastItem + 1))
+            const incomingData = dataAsArrays
+                ? cloneDeep(
+                      arraysToData(
+                          data as unknown as {
+                              [key: string]: SimpleDataValue[]
+                          }
+                      ).slice(firstItem, lastItem + 1)
+                  )
+                : cloneDeep(
+                      (data as SimpleDataItem[]).slice(firstItem, lastItem + 1)
+                  )
 
             handleMissingKeys(
                 incomingData,
@@ -295,14 +301,21 @@ export default class SimpleData {
     valuesToInteger({
         key,
         language = "en",
+        skipErrors = false,
         overwrite = true,
     }: {
         key: string
         language?: "en" | "fr"
+        skipErrors?: boolean
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = valuesToInteger_(cloneDeep(this._data), key, language)
+        this._tempData = valuesToInteger_(
+            cloneDeep(this._data),
+            key,
+            language,
+            skipErrors
+        )
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -312,14 +325,21 @@ export default class SimpleData {
     valuesToFloat({
         key,
         language = "en",
+        skipErrors = false,
         overwrite = true,
     }: {
         key: string
         language?: "en" | "fr"
+        skipErrors?: boolean
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = valuesToFloat_(cloneDeep(this._data), key, language)
+        this._tempData = valuesToFloat_(
+            cloneDeep(this._data),
+            key,
+            language,
+            skipErrors
+        )
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -329,14 +349,21 @@ export default class SimpleData {
     valuesToDate({
         key,
         format,
+        skipErrors = false,
         overwrite = true,
     }: {
         key: string
         format: string
+        skipErrors?: boolean
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = valuesToDate_(cloneDeep(this._data), key, format)
+        this._tempData = valuesToDate_(
+            cloneDeep(this._data),
+            key,
+            format,
+            skipErrors
+        )
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -346,14 +373,21 @@ export default class SimpleData {
     datesToString({
         key,
         format,
+        skipErrors = false,
         overwrite = true,
     }: {
         key: string
         format: string
+        skipErrors?: boolean
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = datesToString_(cloneDeep(this._data), key, format)
+        this._tempData = datesToString_(
+            cloneDeep(this._data),
+            key,
+            format,
+            skipErrors
+        )
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -364,13 +398,20 @@ export default class SimpleData {
         key,
         nbDigits = 1,
         overwrite = true,
+        skipErrors = false,
     }: {
         key: string
         nbDigits?: number
+        skipErrors?: boolean
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = roundValues_(cloneDeep(this._data), key, nbDigits)
+        this._tempData = roundValues_(
+            cloneDeep(this._data),
+            key,
+            nbDigits,
+            skipErrors
+        )
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -382,12 +423,14 @@ export default class SimpleData {
         oldValue,
         newValue,
         method = "entireString",
+        skipErrors = false,
         overwrite = true,
     }: {
         key: string
         oldValue: string
         newValue: string
         method: "entireString" | "partialString"
+        skipErrors?: boolean
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
@@ -396,7 +439,8 @@ export default class SimpleData {
             key,
             oldValue,
             newValue,
-            method
+            method,
+            skipErrors
         )
 
         overwrite && this.#updateSimpleData(this._tempData)
@@ -914,14 +958,14 @@ export default class SimpleData {
         marginBottom,
     }: {
         type:
-        | "dot"
-        | "line"
-        | "bar"
-        | "barVertical"
-        | "barHorizontal"
-        | "box"
-        | "boxVertical"
-        | "boxHorizontal"
+            | "dot"
+            | "line"
+            | "bar"
+            | "barVertical"
+            | "barHorizontal"
+            | "box"
+            | "boxVertical"
+            | "boxHorizontal"
         x: string
         y: string
         color?: string
