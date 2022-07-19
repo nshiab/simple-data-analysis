@@ -16,7 +16,7 @@ export function logCall() {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ...args: any[]
         ) {
-            if (this.verbose) {
+            if (!this.noLogs && (this.verbose || !this._overwrite)) {
                 log("\n" + key + "()")
                 this.logParameters && log("parameters:")
                 this.logParameters && log(args)
@@ -25,17 +25,31 @@ export function logCall() {
             const start = Date.now()
             const result: SimpleDataItem[] = wrappedFunc.apply(this, args)
             const end = Date.now()
+            const duration = end - start
+            this._duration = this._duration + duration
 
             if (!this.noLogs && !this._overwrite) {
                 const data =
                     result instanceof SimpleData ? result._tempData : result
                 showTable(data, this.nbTableItemsToLog)
-                log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
+                log(
+                    `Done in ${(duration / 1000).toFixed(
+                        3
+                    )} sec. / Total duration ${(this._duration / 1000).toFixed(
+                        3
+                    )}.`
+                )
             } else if (this.verbose) {
                 const data =
                     result instanceof SimpleData ? result.getData() : result
                 showTable(data, this.nbTableItemsToLog)
-                log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
+                log(
+                    `Done in ${((end - start) / 1000).toFixed(
+                        3
+                    )} sec. / Total duration ${(this._duration / 1000).toFixed(
+                        3
+                    )}.`
+                )
             }
 
             return result

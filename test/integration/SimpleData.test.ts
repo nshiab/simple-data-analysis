@@ -95,6 +95,7 @@ async function main() {
             valueGenerator: (val) =>
                 typeof val === "number" ? val / 100 : NaN,
         })
+        .showDuration()
         .modifyItems({
             key: "bonus",
             itemGenerator: (item) =>
@@ -322,4 +323,8 @@ async function main() {
             ],
         },
     })
+
+    simpleDataMerged.getDuration()
+
+    simpleDataMerged.showDuration()
 }

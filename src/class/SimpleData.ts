@@ -63,6 +63,7 @@ export default class SimpleData {
     _data: SimpleDataItem[]
     _tempData: SimpleDataItem[]
     _overwrite: boolean
+    _duration: number
     // Logging
     noLogs: boolean
     verbose: boolean
@@ -86,6 +87,7 @@ export default class SimpleData {
         noLogs = false,
         firstItem = 0,
         lastItem = Infinity,
+        duration = 0,
     }: {
         data?: SimpleDataItem[]
         verbose?: boolean
@@ -95,6 +97,7 @@ export default class SimpleData {
         noLogs?: boolean
         firstItem?: number
         lastItem?: number
+        duration?: 0
     } = {}) {
         if (data.length > 0) {
             const incomingData = cloneDeep(data.slice(firstItem, lastItem + 1))
@@ -117,6 +120,7 @@ export default class SimpleData {
 
         this._tempData = []
         this._overwrite = true
+        this._duration = duration
 
         this.verbose = !noLogs && verbose
         this.logParameters = logParameters
@@ -932,6 +936,7 @@ export default class SimpleData {
             logParameters: this.logParameters,
             noLogs: this.noLogs,
             nbTableItemsToLog: this.nbTableItemsToLog,
+            duration: this._duration,
         })
     }
 
@@ -1019,7 +1024,7 @@ export default class SimpleData {
         key: string
         nbDigits?: number
     }): SimpleDataValue {
-        return getMedian_(this._data, key)
+        return getMedian_(this._data, key, nbDigits)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
@@ -1030,7 +1035,11 @@ export default class SimpleData {
         key: string
         nbDigits?: number
     }): SimpleDataValue {
-        return getSum_(this._data, key)
+        return getSum_(this._data, key, nbDigits)
+    }
+
+    getDuration() {
+        return this._duration
     }
 
     // *** LOGGING METHODS AND OTHERS *** //
@@ -1042,6 +1051,13 @@ export default class SimpleData {
         if (!this.noLogs) {
             // TODO: test this!
             showTable_(this._data, nbItemInTable, true)
+        }
+        return this
+    }
+
+    showDuration() {
+        if (!this.noLogs) {
+            log(`Total duration ${(this._duration / 1000).toFixed(3)}.`)
         }
         return this
     }
