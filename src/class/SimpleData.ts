@@ -51,6 +51,7 @@ import loadDataFromUrlWeb_ from "../methods/importing/loadDataFromUrlWeb.js"
 import getChart_ from "../methods/visualizing/getChart.js"
 import getCustomChart_ from "../methods/visualizing/getCustomChart.js"
 import log from "../helpers/log.js"
+import arraysToData from "../helpers/arraysToData.js"
 
 /**
  * SimpleData usage example.
@@ -81,6 +82,7 @@ export default class SimpleData {
      */
     constructor({
         data = [],
+        dataAsArrays = false,
         verbose = false,
         logParameters = false,
         nbTableItemsToLog = 5,
@@ -90,7 +92,8 @@ export default class SimpleData {
         lastItem = Infinity,
         duration = 0,
     }: {
-        data?: SimpleDataItem[]
+        data?: SimpleDataItem[] | { [key: string]: SimpleDataValue[] }
+        dataAsArrays?: boolean
         verbose?: boolean
         logParameters?: boolean
         nbTableItemsToLog?: number
@@ -100,8 +103,12 @@ export default class SimpleData {
         lastItem?: number
         duration?: 0
     } = {}) {
-        if (data.length > 0) {
-            const incomingData = cloneDeep(data.slice(firstItem, lastItem + 1))
+
+        if (data.length > 0 || Object.keys(data).length > 0) {
+
+            const incomingData = dataAsArrays ?
+                cloneDeep(arraysToData(data as unknown as { [key: string]: SimpleDataValue[] }).slice(firstItem, lastItem + 1)) :
+                cloneDeep((data as SimpleDataItem[]).slice(firstItem, lastItem + 1))
 
             handleMissingKeys(
                 incomingData,
@@ -116,7 +123,7 @@ export default class SimpleData {
                 verbose &&
                 log("\nnew SimpleData\nStarting an empty SimpleData")
 
-            this._data = data
+            this._data = []
         }
 
         this._tempData = []
@@ -141,17 +148,20 @@ export default class SimpleData {
         url,
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         fillMissingKeys = false,
+        dataAsArrays = false,
         firstItem = 0,
         lastItem = Infinity,
     }: {
         url: string
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
+        dataAsArrays?: boolean
         firstItem?: number
         lastItem?: number
     }): Promise<this> {
         const data = await loadDataFromUrlWeb_(
             url,
+            dataAsArrays,
             firstItem,
             lastItem,
             missingKeyValues,
@@ -904,14 +914,14 @@ export default class SimpleData {
         marginBottom,
     }: {
         type:
-            | "dot"
-            | "line"
-            | "bar"
-            | "barVertical"
-            | "barHorizontal"
-            | "box"
-            | "boxVertical"
-            | "boxHorizontal"
+        | "dot"
+        | "line"
+        | "bar"
+        | "barVertical"
+        | "barHorizontal"
+        | "box"
+        | "boxVertical"
+        | "boxHorizontal"
         x: string
         y: string
         color?: string

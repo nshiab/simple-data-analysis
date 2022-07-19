@@ -17,6 +17,7 @@ describe("loadDataFromLocalFile", function () {
     it("should return an array of objects from a csv file with specific items included", function () {
         const data = loadDataFromLocalFile(
             "./test/unit/methods/importing/testData/localFileTest.csv",
+            false,
             1,
             2
         )
@@ -41,6 +42,7 @@ describe("loadDataFromLocalFile", function () {
     it("should return an array of objects from a tsv file with specific items included", function () {
         const data = loadDataFromLocalFile(
             "./test/unit/methods/importing/testData/localFileTest.tsv",
+            false,
             1,
             2
         )
@@ -65,6 +67,7 @@ describe("loadDataFromLocalFile", function () {
     it("should return an array of objects from a json file with specific items included", function () {
         const data = loadDataFromLocalFile(
             "./test/unit/methods/importing/testData/localFileTest.json",
+            false,
             1,
             2
         )

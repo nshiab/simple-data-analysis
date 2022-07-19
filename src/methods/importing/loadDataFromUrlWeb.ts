@@ -1,11 +1,13 @@
 import { autoType } from "d3-dsv"
 import { csv, tsv, json } from "d3-fetch"
+import arraysToData from "../../helpers/arraysToData.js"
 import getExtension from "../../helpers/getExtension.js"
 import log from "../../helpers/log.js"
-import { SimpleDataItem } from "../../types/SimpleData.types"
+import { SimpleDataItem, SimpleDataValue } from "../../types/SimpleData.types"
 
 export default async function loadDataFromUrlWeb(
     url: string,
+    dataAsArrays = false,
     firstItem = 0,
     lastItem = Infinity,
     missingKeyValues: SimpleDataItem = {
@@ -47,7 +49,8 @@ export default async function loadDataFromUrlWeb(
         }
     } else if (fileExtension === "json") {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        arrayOfObjects = (await json(url)) as any[]
+        const incomingData = (await json(url)) as any[]
+        arrayOfObjects = dataAsArrays ? arraysToData(incomingData as unknown as { [key: string]: SimpleDataValue[] }) : incomingData
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
     } else {
         throw new Error("Unknown file extension " + fileExtension)

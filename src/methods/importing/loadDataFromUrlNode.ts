@@ -1,11 +1,13 @@
 import axios from "axios"
 import { csvParse, tsvParse, autoType } from "d3-dsv"
+import arraysToData from "../../helpers/arraysToData.js"
 import getExtension from "../../helpers/getExtension.js"
 import log from "../../helpers/log.js"
 import { SimpleDataItem } from "../../types/SimpleData.types"
 
 export default async function loadDataFromUrlNode(
     url: string,
+    dataAsArrays = false,
     firstItem = 0,
     lastItem = Infinity,
     missingKeyValues: SimpleDataItem = {
@@ -48,7 +50,7 @@ export default async function loadDataFromUrlNode(
             }
         }
     } else if (fileExtension === "json") {
-        arrayOfObjects = data
+        arrayOfObjects = dataAsArrays ? arraysToData(data) : data
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
     } else {
         throw new Error("Unknown file extension " + fileExtension)

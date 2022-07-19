@@ -3,9 +3,11 @@ import getExtension from "../../helpers/getExtension.js"
 import fs from "fs"
 import { csvParse, tsvParse, autoType } from "d3-dsv"
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
+import arraysToData from "../../helpers/arraysToData.js"
 
 export default function loadDataFromLocalFile(
     path: string,
+    dataAsArrays = false,
     firstItem = 0,
     lastItem = Infinity,
     missingKeyValues: SimpleDataItem = {
@@ -53,9 +55,10 @@ export default function loadDataFromLocalFile(
         verbose &&
             log("=> " + fileExtension + " file extension detected", "blue")
 
-        arrayOfObjects = JSON.parse(
+        const incomingData = JSON.parse(
             fs.readFileSync(path, { encoding: encoding })
         )
+        arrayOfObjects = dataAsArrays ? arraysToData(incomingData) : incomingData
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
     } else {
         throw new Error("Unknown file extension " + fileExtension)

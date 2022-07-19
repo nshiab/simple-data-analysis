@@ -28,7 +28,7 @@ const commonPlugins = [
 
 export default [
 	{
-		input: 'src/indexWeb.ts',
+		input: 'src/index.ts',
 		output: {
 			file: `dist/${meta.name}.js`,
 			name: "sda",
@@ -49,7 +49,7 @@ export default [
 		}
 	},
 	{
-		input: 'src/indexWeb.ts',
+		input: 'src/index.ts',
 		output: {
 			file: `dist/${meta.name}.min.js`,
 			format: 'umd',

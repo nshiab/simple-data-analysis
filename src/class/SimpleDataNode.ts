@@ -20,12 +20,14 @@ export default class SimpleDataNode extends SimpleData {
     @asyncLogCall()
     async loadDataFromUrl({
         url,
+        dataAsArrays = false,
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         fillMissingKeys = false,
         firstItem = 0,
         lastItem = Infinity,
     }: {
         url: string
+        dataAsArrays?: boolean
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
         firstItem?: number
@@ -33,6 +35,7 @@ export default class SimpleDataNode extends SimpleData {
     }): Promise<this> {
         const data = await loadDataFromUrlNode_(
             url,
+            dataAsArrays,
             firstItem,
             lastItem,
             missingKeyValues,
@@ -56,6 +59,7 @@ export default class SimpleDataNode extends SimpleData {
     @logCall()
     loadDataFromLocalFile({
         path,
+        dataAsArrays = false,
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         encoding = "utf8",
         fillMissingKeys = false,
@@ -63,6 +67,7 @@ export default class SimpleDataNode extends SimpleData {
         lastItem = Infinity,
     }: {
         path: string
+        dataAsArrays?: boolean
         encoding?: BufferEncoding
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
@@ -77,6 +82,7 @@ export default class SimpleDataNode extends SimpleData {
 
         const data = loadDataFromLocalFile_(
             path,
+            dataAsArrays,
             firstItem,
             lastItem,
             missingKeyValues,
@@ -125,14 +131,14 @@ export default class SimpleDataNode extends SimpleData {
     }: {
         path: string
         type:
-            | "dot"
-            | "line"
-            | "bar"
-            | "barVertical"
-            | "barHorizontal"
-            | "box"
-            | "boxVertical"
-            | "boxHorizontal"
+        | "dot"
+        | "line"
+        | "bar"
+        | "barVertical"
+        | "barHorizontal"
+        | "box"
+        | "boxVertical"
+        | "boxHorizontal"
         x: string
         y: string
         color?: string

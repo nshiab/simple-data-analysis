@@ -7,7 +7,7 @@ if (global.window === undefined || global.document === undefined) {
     global.document = jsdom.window.document
 }
 
-import { SimpleData } from "../../src/indexWeb.js"
+import { SimpleData } from "../../src/index.js"
 import * as Plot from "@observablehq/plot"
 
 import employees from "../../data/employees.json" assert { type: "json" }

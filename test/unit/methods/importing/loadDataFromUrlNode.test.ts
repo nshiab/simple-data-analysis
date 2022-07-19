@@ -29,6 +29,7 @@ describe("loadDataFromUrlNode", function () {
     it("should return an array of objects from a csv file with specific items included", async function () {
         const data = await loadDataFromUrlNode(
             "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/unit/methods/importing/testData/localFileTest.csv",
+            false,
             1,
             2
         )
@@ -71,6 +72,7 @@ describe("loadDataFromUrlNode", function () {
     it("should return an array of objects from a tsv file with specific items included", async function () {
         const data = await loadDataFromUrlNode(
             "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/unit/methods/importing/testData/localFileTest.tsv",
+            false,
             1,
             2
         )
@@ -113,6 +115,7 @@ describe("loadDataFromUrlNode", function () {
     it("should return an array of objects from a json file with specific items included", async function () {
         const data = await loadDataFromUrlNode(
             "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/unit/methods/importing/testData/localFileTest.json",
+            false,
             1,
             2
         )

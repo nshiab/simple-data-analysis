@@ -1,5 +1,5 @@
 import assert from "assert"
-import { SimpleDataNode } from "../../../src/index.js"
+import { SimpleDataNode } from "../../../src/indexNode.js"
 
 describe("SimpleDataNode", function () {
     it("should clone and return a SimpleDataNode instance", function () {
