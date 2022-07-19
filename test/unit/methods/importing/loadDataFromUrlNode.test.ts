@@ -130,4 +130,17 @@ describe("loadDataFromUrlNode", function () {
             },
         ])
     })
+
+    it("should return an array of objects from an object of arrays", async function () {
+        const data = await loadDataFromUrlNode(
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/unit/methods/importing/testData/localFileTestArrays.json",
+            true
+        )
+        assert.deepEqual(data, [
+            { key1: 1, key2: 2 },
+            { key1: 3, key2: "coucou" },
+            { key1: 8, key2: 10 },
+            { key1: "brioche", key2: "croissant" },
+        ])
+    })
 })

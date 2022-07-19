@@ -76,4 +76,19 @@ describe("loadDataFromLocalFile", function () {
             { key1: 8, key2: 10 },
         ])
     })
+
+    it("should return an array of objects from an object of arrays", function () {
+        const data = loadDataFromLocalFile(
+            "./test/unit/methods/importing/testData/localFileTestArrays.json",
+            true
+        )
+        assert.deepEqual(data, [
+            { key1: 1, key2: 2 },
+            { key1: 3, key2: "coucou" },
+            { key1: 8, key2: 10 },
+            { key1: "brioche", key2: "croissant" },
+        ])
+    })
+
 })
+
