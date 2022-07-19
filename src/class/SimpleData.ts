@@ -23,6 +23,7 @@ import datesToString_ from "../methods/cleaning/datesToString.js"
 import filterValues_ from "../methods/selecting/filterValues.js"
 import filterItems_ from "../methods/selecting/filterItems.js"
 import removeDuplicates_ from "../methods/cleaning/removeDuplicates.js"
+import keepDuplicates_ from "../methods/cleaning/keepDuplicates.js"
 import roundValues_ from "../methods/cleaning/roundValues.js"
 import replaceStringValues_ from "../methods/cleaning/replaceStringValues.js"
 import addKey_ from "../methods/restructuring/addKey.js"
@@ -652,6 +653,22 @@ export default class SimpleData {
         return this
     }
 
+    @logCall()
+    keepDuplicates({
+        key,
+        overwrite = true,
+    }: { key?: string; overwrite?: boolean } = {}): this {
+        this._overwrite = overwrite
+        this._tempData = keepDuplicates_(
+            cloneDeep(this._data),
+            key,
+            this.verbose || !this._overwrite
+        )
+        overwrite && this.#updateSimpleData(this._tempData)
+
+        return this
+    }
+
     // *** ANALYSIS METHODS *** //
 
     @logCall()
@@ -887,14 +904,14 @@ export default class SimpleData {
         marginBottom,
     }: {
         type:
-            | "dot"
-            | "line"
-            | "bar"
-            | "barVertical"
-            | "barHorizontal"
-            | "box"
-            | "boxVertical"
-            | "boxHorizontal"
+        | "dot"
+        | "line"
+        | "bar"
+        | "barVertical"
+        | "barHorizontal"
+        | "box"
+        | "boxVertical"
+        | "boxHorizontal"
         x: string
         y: string
         color?: string
