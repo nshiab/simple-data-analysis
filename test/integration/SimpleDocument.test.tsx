@@ -6,7 +6,7 @@ if (global.window === undefined || global.document === undefined) {
   global.window = jsdom.window
   global.document = jsdom.window.document
 }
-import { SimpleData, SimpleDocument, Table } from "../../src/indexNode.js";
+import { SimpleData, SimpleDocument, Table } from "../../src/index.js";
 import React from "react";
 import { Typography } from "@mui/material";
 import { temporaryDirectoryTask } from "tempy";

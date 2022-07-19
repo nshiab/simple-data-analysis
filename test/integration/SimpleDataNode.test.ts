@@ -1,4 +1,4 @@
-import { SimpleDataNode } from "../../src/indexNode.js"
+import { SimpleDataNode } from "../../src/index.js"
 import { temporaryDirectoryTask } from "tempy"
 import * as Plot from "@observablehq/plot"
 

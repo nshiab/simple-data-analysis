@@ -31,8 +31,8 @@
     "unpkg": "dist/simple-data-analysis.min.js",
     "exports": {
         "umd": "./dist/simple-data-analysis.min.js",
-        "node": "./dist/indexNode.js",
-        "default": "./dist/index.js"
+        "node": "./dist/index.js",
+        "default": "./dist/indexWeb.js"
     },
     "scripts": {
         "test": "mocha --require ts-node/register \"test/unit/**/*.test.ts\"",
