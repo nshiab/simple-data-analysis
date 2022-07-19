@@ -5,7 +5,7 @@ export default function plotChart(
     plotOptions: { [key: string]: object },
     verbose?: boolean
 ): string {
-    verbose && log(plotOptions)
+    // verbose && log(plotOptions)
 
     const outerHTML = plot(plotOptions).outerHTML
     const chart = outerHTML.replace(

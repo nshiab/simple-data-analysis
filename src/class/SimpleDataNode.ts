@@ -8,6 +8,8 @@ import { logCall, asyncLogCall } from "../helpers/logCall.js"
 import handleMissingKeys from "../helpers/handleMissingKeys.js"
 import log from "../helpers/log.js"
 import loadDataFromUrlNode_ from "../methods/importing/loadDataFromUrlNode.js"
+import getChart from "../methods/visualizing/getChart.js"
+import getCustomChart from "../methods/visualizing/getCustomChart.js"
 
 export default class SimpleDataNode extends SimpleData {
     // If modified, might need to be modified in SimpleData too
@@ -126,19 +128,19 @@ export default class SimpleDataNode extends SimpleData {
         color,
         trend = false,
         showTrendEquation = false,
-        marginLeft,
-        marginBottom,
+        marginLeft = 0,
+        marginBottom = 0,
     }: {
         path: string
         type:
-            | "dot"
-            | "line"
-            | "bar"
-            | "barVertical"
-            | "barHorizontal"
-            | "box"
-            | "boxVertical"
-            | "boxHorizontal"
+        | "dot"
+        | "line"
+        | "bar"
+        | "barVertical"
+        | "barHorizontal"
+        | "box"
+        | "boxVertical"
+        | "boxHorizontal"
         x: string
         y: string
         color?: string
@@ -155,19 +157,22 @@ export default class SimpleDataNode extends SimpleData {
             global.document = jsdom.window.document
         }
 
-        const chart = super.getChart({
+
+        const chart = getChart(
+            this._data,
+            type,
             x,
             y,
-            type,
             color,
             trend,
             showTrendEquation,
+            false,
             marginLeft,
-            marginBottom,
-        })
+            marginBottom
+        )
 
         fs.writeFileSync(path, chart)
-        this.verbose && log(`=> chart save to ${path}`, "blue")
+        this.verbose && log(`=> chart saved to ${path}`, "blue")
 
         return this
     }
@@ -187,10 +192,11 @@ export default class SimpleDataNode extends SimpleData {
             global.window = jsdom.window
             global.document = jsdom.window.document
         }
-        const chart = super.getCustomChart({ plotOptions })
+
+        const chart = getCustomChart(plotOptions)
 
         fs.writeFileSync(path, chart)
-        this.verbose && log(`=> chart save to ${path}`, "blue")
+        this.verbose && log(`=> chart saved to ${path}`, "blue")
 
         return this
     }

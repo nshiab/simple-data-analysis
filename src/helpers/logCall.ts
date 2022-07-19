@@ -29,9 +29,11 @@ export function logCall() {
             this._duration = this._duration + duration
 
             if (!this.noLogs && !this._overwrite) {
-                const data =
-                    result instanceof SimpleData ? result._tempData : result
-                showTable(data, this.nbTableItemsToLog)
+                if (!key.includes("Chart") && !key.includes("save")) {
+                    const data =
+                        result instanceof SimpleData ? result._tempData : result
+                    showTable(data, this.nbTableItemsToLog)
+                }
                 log(
                     `Done in ${(duration / 1000).toFixed(
                         3
@@ -40,9 +42,11 @@ export function logCall() {
                     )}.`
                 )
             } else if (this.verbose) {
-                const data =
-                    result instanceof SimpleData ? result.getData() : result
-                showTable(data, this.nbTableItemsToLog)
+                if (!key.includes("Chart") && !key.includes("save")) {
+                    const data =
+                        result instanceof SimpleData ? result.getData() : result
+                    showTable(data, this.nbTableItemsToLog)
+                }
                 log(
                     `Done in ${((end - start) / 1000).toFixed(
                         3
