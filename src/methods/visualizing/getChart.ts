@@ -28,7 +28,6 @@ export default function getChart(
     color?: string,
     trend?: boolean,
     showTrendEquation?: boolean,
-    verbose?: boolean,
     marginLeft?: number,
     marginBottom?: number
 ): string {
@@ -112,7 +111,7 @@ export default function getChart(
         }
     }
 
-    let chart = plotChart(plotOptions, verbose)
+    let chart = plotChart(plotOptions)
 
     if (showTrendEquation) {
         const linearRegression = regressionLinear()

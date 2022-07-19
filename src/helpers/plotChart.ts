@@ -1,12 +1,8 @@
-import log from "./log.js"
 import { plot } from "@observablehq/plot"
 
-export default function plotChart(
-    plotOptions: { [key: string]: object },
-    verbose?: boolean
-): string {
-    // verbose && log(plotOptions)
-
+export default function plotChart(plotOptions: {
+    [key: string]: object
+}): string {
     const outerHTML = plot(plotOptions).outerHTML
     const chart = outerHTML.replace(
         "<svg",

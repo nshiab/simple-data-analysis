@@ -133,14 +133,14 @@ export default class SimpleDataNode extends SimpleData {
     }: {
         path: string
         type:
-        | "dot"
-        | "line"
-        | "bar"
-        | "barVertical"
-        | "barHorizontal"
-        | "box"
-        | "boxVertical"
-        | "boxHorizontal"
+            | "dot"
+            | "line"
+            | "bar"
+            | "barVertical"
+            | "barHorizontal"
+            | "box"
+            | "boxVertical"
+            | "boxHorizontal"
         x: string
         y: string
         color?: string
@@ -157,7 +157,6 @@ export default class SimpleDataNode extends SimpleData {
             global.document = jsdom.window.document
         }
 
-
         const chart = getChart(
             this._data,
             type,
@@ -166,7 +165,6 @@ export default class SimpleDataNode extends SimpleData {
             color,
             trend,
             showTrendEquation,
-            false,
             marginLeft,
             marginBottom
         )
