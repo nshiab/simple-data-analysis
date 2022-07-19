@@ -198,9 +198,21 @@ export default class SimpleData {
     }
 
     @logCall()
-    checkValues({ overwrite = true }: { overwrite?: boolean } = {}): this {
+    checkValues({
+        nbItemsToCheck = "all",
+        randomize = false,
+        overwrite = true,
+    }: {
+        nbItemsToCheck?: "all" | number
+        randomize?: boolean
+        overwrite?: boolean
+    } = {}): this {
         this._overwrite = overwrite
-        this._tempData = checkValues_(cloneDeep(this._data))
+        this._tempData = checkValues_(
+            cloneDeep(this._data),
+            nbItemsToCheck,
+            randomize
+        )
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
