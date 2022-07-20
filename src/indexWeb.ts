@@ -1,1 +1,1 @@
-export { default as SimpleData } from "./class/SimpleData.js"
+export { SimpleData } from "./class/index.js"

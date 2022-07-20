@@ -1,9 +1,3 @@
-export * from "./types/SimpleData.types.js"
-
-export { default as SimpleData } from "./class/SimpleData.js"
-
-export { default as SimpleDataNode } from "./class/SimpleDataNode.js"
-
-export { default as SimpleDocument } from "./class/SimpleDocument.js"
-
-export { default as Table } from "./components/Table.js"
+export { SimpleDataItem, SimpleDataValue } from "./types/index.js"
+export { SimpleData, SimpleDataNode, SimpleDocument } from "./class/index.js"
+export { Table } from "./components/index.js"
