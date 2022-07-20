@@ -1,51 +1,45 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import hasKey from "../../helpers/hasKey.js"
+import isValidNumber from "../../helpers/isValidNumber.js"
 
 export default function valuesToInteger(
     data: SimpleDataItem[],
     key: string,
-    language: "fr" | "en" = "en",
+    thousandSeparator = ",",
+    decimalSeparator = ".",
     skipErrors = false
 ): SimpleDataItem[] {
     if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
 
-    if (language === "en") {
-        for (let i = 0; i < data.length; i++) {
-            const value = data[i][key]
-            if (typeof value !== "string") {
+    const thousandSeparatorRegex = new RegExp(thousandSeparator, "g")
+    for (let i = 0; i < data.length; i++) {
+        const value = data[i][key]
+        if (typeof value === "string") {
+            const valueClean = value
+                .replace(thousandSeparatorRegex, "")
+                .replace(decimalSeparator, ".")
+            if (isValidNumber(valueClean)) {
+                data[i][key] = parseInt(valueClean)
+            } else {
                 if (!skipErrors) {
                     throw new Error(
                         value +
-                            " is not a string. Convert to string first (valuesToString()). If you want to ignore values that are not strings, pass { skipErrors: true }."
+                            " (" +
+                            valueClean +
+                            " after ajusting thousandSeparator and decimalSeparator) is not a valid number. If you want to ignore values that are not valid, pass { skipErrors: true }."
                     )
                 }
-            } else {
-                data[i][key] = parseInt(value.replace(/,/g, ""))
             }
-        }
-    } else if (language === "fr") {
-        for (let i = 0; i < data.length; i++) {
-            const value = data[i][key]
-            if (typeof value !== "string") {
-                if (!skipErrors) {
-                    throw new Error(
-                        value +
-                            " is not a string. Convert to string first (valuesToString()). If you want to ignore values that are not strings, pass { skipErrors: true }."
-                    )
-                }
-            } else {
-                data[i][key] = parseInt(
-                    value
-                        .replace(/ /g, "")
-                        .replace(/\u00A0/g, "")
-                        .replace(",", ".")
+        } else {
+            if (!skipErrors && !Number.isInteger(value)) {
+                throw new Error(
+                    value +
+                        " is not a valid number. If you want to ignore values that are not valid, pass { skipErrors: true }."
                 )
             }
         }
-    } else {
-        throw new Error("Unknown langage. Only en and fr are supported.")
     }
 
     return data

@@ -6,13 +6,15 @@ describe("valuesToInteger", function () {
         const data = [
             { key1: "1", key2: 2 },
             { key1: "2.2", key2: 2 },
-            { key1: "100,000,000", key2: 2 },
+            { key1: "100000000", key2: 2 },
+            { key1: "-2", key2: 2 },
         ]
         const intergerValues = valuesToInteger(data, "key1")
         assert.deepEqual(intergerValues, [
             { key1: 1, key2: 2 },
             { key1: 2, key2: 2 },
             { key1: 100000000, key2: 2 },
+            { key1: -2, key2: 2 },
         ])
     })
 
@@ -20,25 +22,41 @@ describe("valuesToInteger", function () {
         const data = [
             { key1: "1", key2: 2 },
             { key1: "2,2", key2: 2 },
-            { key1: "100 000 000", key2: 2 },
+            { key1: "100 000 000", key2: 2 },
+            { key1: "-2", key2: 2 },
         ]
-        const intergerValues = valuesToInteger(data, "key1", "fr")
+        const intergerValues = valuesToInteger(data, "key1", " ", ",")
         assert.deepEqual(intergerValues, [
             { key1: 1, key2: 2 },
             { key1: 2, key2: 2 },
             { key1: 100000000, key2: 2 },
+            { key1: -2, key2: 2 },
         ])
     })
 
-    it("should convert to integers and skip errors", function () {
+    it("should not throw errors when integers are already here", function () {
         const data = [
             { key1: "1", key2: 2 },
             { key1: 1, key2: 2 },
-            { key1: "100 000 000", key2: 2 },
+            { key1: "100 000 000", key2: 2 },
         ]
-        const intergerValues = valuesToInteger(data, "key1", "fr", true)
+        const intergerValues = valuesToInteger(data, "key1", " ", ".")
         assert.deepEqual(intergerValues, [
             { key1: 1, key2: 2 },
+            { key1: 1, key2: 2 },
+            { key1: 100000000, key2: 2 },
+        ])
+    })
+
+    it("should skip errors", function () {
+        const data = [
+            { key1: "a", key2: 2 },
+            { key1: 1, key2: 2 },
+            { key1: "100 000 000", key2: 2 },
+        ]
+        const intergerValues = valuesToInteger(data, "key1", " ", ".", true)
+        assert.deepEqual(intergerValues, [
+            { key1: "a", key2: 2 },
             { key1: 1, key2: 2 },
             { key1: 100000000, key2: 2 },
         ])

@@ -312,12 +312,14 @@ export default class SimpleData {
     @logCall()
     valuesToInteger({
         key,
-        language = "en",
+        thousandSeparator = ",",
+        decimalSeparator = ".",
         skipErrors = false,
         overwrite = true,
     }: {
         key: string
-        language?: "en" | "fr"
+        thousandSeparator?: string
+        decimalSeparator?: string
         skipErrors?: boolean
         overwrite?: boolean
     }): this {
@@ -325,7 +327,8 @@ export default class SimpleData {
         this._tempData = valuesToInteger_(
             cloneDeep(this._data),
             key,
-            language,
+            thousandSeparator,
+            decimalSeparator,
             skipErrors
         )
         overwrite && this.#updateSimpleData(this._tempData)
@@ -336,12 +339,14 @@ export default class SimpleData {
     @logCall()
     valuesToFloat({
         key,
-        language = "en",
+        thousandSeparator = ",",
+        decimalSeparator = ".",
         skipErrors = false,
         overwrite = true,
     }: {
         key: string
-        language?: "en" | "fr"
+        thousandSeparator?: string
+        decimalSeparator?: string
         skipErrors?: boolean
         overwrite?: boolean
     }): this {
@@ -349,7 +354,8 @@ export default class SimpleData {
         this._tempData = valuesToFloat_(
             cloneDeep(this._data),
             key,
-            language,
+            thousandSeparator,
+            decimalSeparator,
             skipErrors
         )
         overwrite && this.#updateSimpleData(this._tempData)
