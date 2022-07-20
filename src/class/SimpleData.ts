@@ -1027,6 +1027,10 @@ export default class SimpleData {
         return this._data
     }
 
+    getLength(): number {
+        return this._data.length
+    }
+
     //No @logCall otherwise it's triggered everywhere, including in methods
     getKeys(): string[] {
         return Object.keys(this._data[0])
