@@ -84,12 +84,6 @@ export default function getChart(
         plotOptions.marginBottom = marginBottom
     }
 
-    if (color && ["line", "dot"].includes(type)) {
-        plotOptions.color = {
-            legend: true,
-        }
-    }
-
     if (color && checkTypeOfKey(data, color, "string", 0.5, 100)) {
         if (plotOptions.color) {
             plotOptions.color.type = "ordinal"
@@ -111,7 +105,12 @@ export default function getChart(
         }
     }
 
-    let chart = plotChart(plotOptions)
+    const chart = plotChart(plotOptions)
+
+    let legend
+    if (color && ["line", "dot"].includes(type)) {
+        legend = chart.plt.legend("color").outerHTML
+    }
 
     if (showTrendEquation) {
         const linearRegression = regressionLinear()
@@ -122,28 +121,46 @@ export default function getChart(
             // @ts-ignore
             .y((d) => d[y])(data)
         let nbDigits = 0
+
         while (
             nbDigits < 10 &&
-            (linearRegression.a < 1 / Math.pow(10, nbDigits) ||
-                linearRegression.b < 1 / Math.pow(10, nbDigits))
+            (Math.abs(linearRegression.a) < 1 / Math.pow(10, nbDigits) ||
+                Math.abs(linearRegression.b) < 1 / Math.pow(10, nbDigits))
         ) {
             nbDigits += 1
         }
-        chart = `<div>
-            <div style='width: 100%; max-width: 640px;font-family:system-ui, sans-serif;font-size:10px;text-align:right;'>
-                <p id="simple-data-regression-details">Linear regression: y=${linearRegression.a.toFixed(
+
+        return `<div>
+            ${
+                legend
+                    ? "<div style='width:100%;max-width: 640px;'>" +
+                      legend +
+                      "</div>"
+                    : null
+            }
+            <div style='width: 100%; max-width: 620px;font-family:system-ui, sans-serif;font-size:10px;text-align:right;'>
+                <div>Linear regression: y=${linearRegression.a.toFixed(
                     nbDigits + 1
                 )}x + ${linearRegression.b.toFixed(
             nbDigits + 1
         )} , R<sup>2</sup>: ${linearRegression.rSquared.toFixed(
             2
-        )}, chart CI: 0.95</p>
+        )}, chart CI: 0.95</div>
+            </div>
             <div>
-            <div>
-                ${chart}
+                ${chart.html}
             </div>
         </div>`
+    } else {
+        return `
+        ${
+            legend
+                ? "<div style='width:100%;max-width: 640px;'>" +
+                  legend +
+                  "</div>"
+                : null
+        }
+        ${chart.html}
+        `
     }
-
-    return chart
 }

@@ -6,5 +6,5 @@ export default function getCustomChart(
 ): string {
     const chart = plotChart(plotOptions)
 
-    return chart
+    return chart.html
 }

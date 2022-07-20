@@ -17,9 +17,9 @@ export default function checkValues(
         throw new Error("nbItemsToCheck needs to be either 'all' or a number.")
     }
 
-    if (data.length > 100000 && nbItemsToCheck === "all") {
+    if (data.length > 50000 && nbItemsToCheck === "all") {
         throw new Error(
-            `By default, the option nbItemsToCheck is set to "all". But the number of items in the data (${data.length}) is greater than 100000. Specify the number of items you want to check like this {nbItemsToCheck: 1000000} (the bigger, the longer to compute) and the *first* X items will be checked. If you want to randomize the order of your data to check X *random* items, add {randomize: true}.`
+            `By default, the option nbItemsToCheck is set to "all". But the number of items in the data (${data.length}) is greater than 50000. Specify the number of items you want to check like this {nbItemsToCheck: 100000} (the bigger, the longer to compute) and the *first* X items will be checked. If you want to randomize the order of your data to check X *random* items, add {randomize: true}.`
         )
     }
 
