@@ -1,1 +1,5 @@
-export { default as showTable_ } from "./showTable.js"
+import showTable_ from "./showTable.js"
+
+export default {
+    showTable_,
+}

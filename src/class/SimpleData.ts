@@ -6,12 +6,13 @@ import exporting from "../methods/exporting/index.js"
 import restructuring from "../methods/restructuring/index.js"
 import selecting from "../methods/selecting/index.js"
 import visualizing from "../methods/visualizing/index.js"
+import methods from "../methods/index.js"
 
-import showTable_ from "../methods/showTable.js"
-import handleMissingKeys from "../helpers/handleMissingKeys.js"
-import { logCall, asyncLogCall } from "../helpers/logCall.js"
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
 import loadDataFromUrlWeb_ from "../methods/importing/loadDataFromUrlWeb.js"
+
+import handleMissingKeys from "../helpers/handleMissingKeys.js"
+import { logCall, asyncLogCall } from "../helpers/logCall.js"
 import log from "../helpers/log.js"
 import arraysToData from "../helpers/arraysToData.js"
 
@@ -1117,7 +1118,7 @@ export default class SimpleData {
     }: { nbItemInTable?: "all" | number } = {}): this {
         if (!this.noLogs) {
             // TODO: test this!
-            showTable_(this._data, nbItemInTable, true)
+            methods.showTable_(this._data, nbItemInTable, true)
         }
         return this
     }
