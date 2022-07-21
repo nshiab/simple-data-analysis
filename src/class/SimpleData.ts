@@ -1,6 +1,8 @@
 import cloneDeep from "lodash.clonedeep"
+
+import analyzing from "../methods/analyzing/index.js"
+
 import renameKey_ from "../methods/cleaning/renameKey.js"
-import describe_ from "../methods/analyzing/describe.js"
 import formatAllKeys_ from "../methods/cleaning/formatAllKeys.js"
 import getItem_ from "../methods/exporting/getItem.js"
 import getArray_ from "../methods/exporting/getArray.js"
@@ -30,17 +32,8 @@ import addKey_ from "../methods/restructuring/addKey.js"
 import selectKeys_ from "../methods/selecting/selectKeys.js"
 import modifyValues_ from "../methods/cleaning/modifyValues.js"
 import modifyItems_ from "../methods/cleaning/modifyItems.js"
-import sortValues_ from "../methods/analyzing/sortValues.js"
-import addQuantiles_ from "../methods/analyzing/addQuantiles.js"
-import addBins_ from "../methods/analyzing/addBins.js"
-import addOutliers_ from "../methods/analyzing/addOutliers.js"
-import excludeOutliers_ from "../methods/analyzing/excludeOutliers.js"
-import correlation_ from "../methods/analyzing/correlation.js"
 import addItems_ from "../methods/restructuring/addItems.js"
 import getUniqueValues_ from "../methods/exporting/getUniqueValues.js"
-import summarize_ from "../methods/analyzing/summarize.js"
-import addPercentageDistribution_ from "../methods/analyzing/addPercentageDistribution.js"
-import addVariation_ from "../methods/analyzing/addVariation.js"
 import mergeItems_ from "../methods/restructuring/mergeItems.js"
 import keysToValues_ from "../methods/restructuring/keysToValues.js"
 import valuesToKeys_ from "../methods/restructuring/valuesToKeys.js"
@@ -191,7 +184,7 @@ export default class SimpleData {
     @logCall()
     describe({ overwrite = true }: { overwrite?: boolean } = {}): this {
         this._overwrite = overwrite
-        this._tempData = describe_(cloneDeep(this._data))
+        this._tempData = analyzing.describe_(cloneDeep(this._data))
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -507,7 +500,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = excludeOutliers_(
+        this._tempData = analyzing.excludeOutliers_(
             cloneDeep(this._data),
             key,
             this.verbose
@@ -752,7 +745,7 @@ export default class SimpleData {
         nbTestedValue?: number
     }): this {
         this._overwrite = overwrite
-        this._tempData = sortValues_(
+        this._tempData = analyzing.sortValues_(
             cloneDeep(this._data),
             key,
             order,
@@ -788,17 +781,20 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = addPercentageDistribution_(cloneDeep(this._data), {
-            method,
-            keys,
-            key,
-            newKey,
-            groupKeys,
-            suffix,
-            nbDigits,
-            nbTestedValues,
-            verbose: this.verbose,
-        })
+        this._tempData = analyzing.addPercentageDistribution_(
+            cloneDeep(this._data),
+            {
+                method,
+                keys,
+                key,
+                newKey,
+                groupKeys,
+                suffix,
+                nbDigits,
+                nbTestedValues,
+                verbose: this.verbose,
+            }
+        )
         overwrite && this.#updateSimpleData(this._tempData)
         return this
     }
@@ -823,7 +819,7 @@ export default class SimpleData {
         overwrite?: boolean
     }) {
         this._overwrite = overwrite
-        this._tempData = addVariation_(
+        this._tempData = analyzing.addVariation_(
             cloneDeep(this._data),
             key,
             newKey,
@@ -852,7 +848,7 @@ export default class SimpleData {
         nbDigits?: number
     } = {}): this {
         this._overwrite = overwrite
-        this._tempData = summarize_(
+        this._tempData = analyzing.summarize_(
             cloneDeep(this._data),
             keyValue,
             keyCategory,
@@ -879,7 +875,7 @@ export default class SimpleData {
         nbValuesTestedForTypeOf?: number
     } = {}): this {
         this._overwrite = overwrite
-        this._tempData = correlation_(
+        this._tempData = analyzing.correlation_(
             cloneDeep(this._data),
             key1,
             key2,
@@ -904,7 +900,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = addQuantiles_(
+        this._tempData = analyzing.addQuantiles_(
             cloneDeep(this._data),
             key,
             newKey,
@@ -928,7 +924,12 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = addBins_(cloneDeep(this._data), key, newKey, nbBins)
+        this._tempData = analyzing.addBins_(
+            cloneDeep(this._data),
+            key,
+            newKey,
+            nbBins
+        )
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -945,7 +946,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = addOutliers_(
+        this._tempData = analyzing.addOutliers_(
             cloneDeep(this._data),
             key,
             newKey,
