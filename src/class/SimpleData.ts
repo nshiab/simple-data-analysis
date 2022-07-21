@@ -2,15 +2,8 @@ import cloneDeep from "lodash.clonedeep"
 
 import analyzing from "../methods/analyzing/index.js"
 import cleaning from "../methods/cleaning/index.js"
+import exporting from "../methods/exporting/index.js"
 
-import getItem_ from "../methods/exporting/getItem.js"
-import getArray_ from "../methods/exporting/getArray.js"
-import getMin_ from "../methods/exporting/getMin.js"
-import getMax_ from "../methods/exporting/getMax.js"
-import getMean_ from "../methods/exporting/getMean.js"
-import getMedian_ from "../methods/exporting/getMedian.js"
-import getSum_ from "../methods/exporting/getSum.js"
-import getDataAsArrays_ from "../methods/exporting/getDataAsArrays.js"
 import showTable_ from "../methods/showTable.js"
 import removeKey_ from "../methods/restructuring/removeKey.js"
 import filterValues_ from "../methods/selecting/filterValues.js"
@@ -18,7 +11,6 @@ import filterItems_ from "../methods/selecting/filterItems.js"
 import addKey_ from "../methods/restructuring/addKey.js"
 import selectKeys_ from "../methods/selecting/selectKeys.js"
 import addItems_ from "../methods/restructuring/addItems.js"
-import getUniqueValues_ from "../methods/exporting/getUniqueValues.js"
 import mergeItems_ from "../methods/restructuring/mergeItems.js"
 import keysToValues_ from "../methods/restructuring/keysToValues.js"
 import valuesToKeys_ from "../methods/restructuring/valuesToKeys.js"
@@ -1037,27 +1029,27 @@ export default class SimpleData {
         conditions: SimpleDataItem
         noWarning?: boolean
     }): SimpleDataItem | undefined {
-        const item = getItem_(this._data, conditions, noWarning)
+        const item = exporting.getItem_(this._data, conditions, noWarning)
         return item
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
     getArray({ key }: { key: string }): SimpleDataValue[] {
-        const array = getArray_(this._data, key)
+        const array = exporting.getArray_(this._data, key)
 
         return array
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
     getDataAsArrays() {
-        const arrays = getDataAsArrays_(this._data)
+        const arrays = exporting.getDataAsArrays_(this._data)
 
         return arrays
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
     getUniqueValues({ key }: { key: string }): SimpleDataValue[] {
-        const uniqueValues = getUniqueValues_(this._data, key)
+        const uniqueValues = exporting.getUniqueValues_(this._data, key)
 
         return uniqueValues
     }
@@ -1070,7 +1062,7 @@ export default class SimpleData {
         key: string
         nbDigits?: number
     }): SimpleDataValue {
-        return getMin_(this._data, key, nbDigits)
+        return exporting.getMin_(this._data, key, nbDigits)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
@@ -1081,7 +1073,7 @@ export default class SimpleData {
         key: string
         nbDigits?: number
     }): SimpleDataValue {
-        return getMax_(this._data, key, nbDigits)
+        return exporting.getMax_(this._data, key, nbDigits)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
@@ -1092,7 +1084,7 @@ export default class SimpleData {
         key: string
         nbDigits?: number
     }): SimpleDataValue {
-        return getMean_(this._data, key, nbDigits)
+        return exporting.getMean_(this._data, key, nbDigits)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
@@ -1103,7 +1095,7 @@ export default class SimpleData {
         key: string
         nbDigits?: number
     }): SimpleDataValue {
-        return getMedian_(this._data, key, nbDigits)
+        return exporting.getMedian_(this._data, key, nbDigits)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
@@ -1114,7 +1106,7 @@ export default class SimpleData {
         key: string
         nbDigits?: number
     }): SimpleDataValue {
-        return getSum_(this._data, key, nbDigits)
+        return exporting.getSum_(this._data, key, nbDigits)
     }
 
     getDuration() {

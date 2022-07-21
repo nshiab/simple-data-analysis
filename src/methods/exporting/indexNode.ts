@@ -7,6 +7,8 @@ import getMedian_ from "./getMedian.js"
 import getMin_ from "./getMin.js"
 import getSum_ from "./getSum.js"
 import getUniqueValues_ from "./getUniqueValues.js"
+import saveData_ from "./saveData.js"
+import saveDocument_ from "./saveDocument.js"
 
 export default {
     getArray_,
@@ -18,4 +20,6 @@ export default {
     getMin_,
     getSum_,
     getUniqueValues_,
+    saveData_,
+    saveDocument_,
 }
