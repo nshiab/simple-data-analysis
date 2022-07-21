@@ -1,5 +1,6 @@
 import cloneDeep from "lodash.clonedeep"
 
+import { SimpleDataItem, SimpleDataValue } from "../types/index.js"
 import analyzing from "../methods/analyzing/index.js"
 import cleaning from "../methods/cleaning/index.js"
 import exporting from "../methods/exporting/index.js"
@@ -8,13 +9,7 @@ import restructuring from "../methods/restructuring/index.js"
 import selecting from "../methods/selecting/index.js"
 import visualizing from "../methods/visualizing/index.js"
 import methods from "../methods/index.js"
-
-import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
-
-import handleMissingKeys from "../helpers/handleMissingKeys.js"
-import { logCall, asyncLogCall } from "../helpers/logCall.js"
-import log from "../helpers/log.js"
-import arraysToData from "../helpers/arraysToData.js"
+import helpers from "../helpers/index.js"
 
 /**
  * SimpleData usage example.
@@ -69,7 +64,7 @@ export default class SimpleData {
         if (data.length > 0 || Object.keys(data).length > 0) {
             const incomingData = dataAsArrays
                 ? cloneDeep(
-                      arraysToData(
+                      helpers.arraysToData(
                           data as unknown as {
                               [key: string]: SimpleDataValue[]
                           }
@@ -79,7 +74,7 @@ export default class SimpleData {
                       (data as SimpleDataItem[]).slice(firstItem, lastItem + 1)
                   )
 
-            handleMissingKeys(
+            helpers.handleMissingKeys(
                 incomingData,
                 fillMissingKeys,
                 undefined,
@@ -90,7 +85,7 @@ export default class SimpleData {
         } else {
             !noLogs &&
                 verbose &&
-                log("\nnew SimpleData\nStarting an empty SimpleData")
+                helpers.log("\nnew SimpleData\nStarting an empty SimpleData")
 
             this._data = []
         }
@@ -112,7 +107,7 @@ export default class SimpleData {
 
     // *** IMPORTING METHOD *** //
 
-    @asyncLogCall()
+    @helpers.asyncLogCall()
     async loadDataFromUrl({
         url,
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
@@ -141,7 +136,7 @@ export default class SimpleData {
             throw new Error("Incoming data is empty.")
         }
 
-        handleMissingKeys(data, fillMissingKeys, undefined, this.verbose)
+        helpers.handleMissingKeys(data, fillMissingKeys, undefined, this.verbose)
 
         this._tempData = data // important for decorator
         this.#updateSimpleData(data)
@@ -151,7 +146,7 @@ export default class SimpleData {
 
     // CLEANING METHODS //
 
-    @logCall()
+    @helpers.logCall()
     describe({ overwrite = true }: { overwrite?: boolean } = {}): this {
         this._overwrite = overwrite
         this._tempData = analyzing.describe_(cloneDeep(this._data))
@@ -160,7 +155,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     checkValues({
         nbItemsToCheck = "all",
         randomize = false,
@@ -181,7 +176,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     excludeMissingValues({
         key,
         missingValues,
@@ -206,7 +201,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     keepMissingValues({
         key,
         missingValues,
@@ -231,7 +226,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     formatAllKeys({ overwrite = true }: { overwrite?: boolean } = {}): this {
         this._overwrite = overwrite
         this._tempData = cleaning.formatAllKeys_(
@@ -243,7 +238,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     renameKey({
         oldKey,
         newKey,
@@ -264,7 +259,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     valuesToString({
         key,
         overwrite = true,
@@ -279,7 +274,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     valuesToInteger({
         key,
         language = "en",
@@ -303,7 +298,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     valuesToFloat({
         key,
         language = "en",
@@ -327,7 +322,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     valuesToDate({
         key,
         format,
@@ -351,7 +346,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     datesToString({
         key,
         format,
@@ -375,7 +370,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     roundValues({
         key,
         nbDigits = 1,
@@ -399,7 +394,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     replaceStringValues({
         key,
         oldValue,
@@ -430,7 +425,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     modifyValues({
         key,
         valueGenerator,
@@ -451,7 +446,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     modifyItems({
         key,
         itemGenerator,
@@ -472,7 +467,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     excludeOutliers({
         key,
         overwrite = true,
@@ -493,7 +488,7 @@ export default class SimpleData {
 
     // *** RESTRUCTURING METHODS *** //
 
-    @logCall()
+    @helpers.logCall()
     removeKey({
         key,
         overwrite = true,
@@ -508,7 +503,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     addKey({
         key,
         itemGenerator,
@@ -529,7 +524,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     addItems({
         dataToBeAdded,
         fillMissingKeys = false,
@@ -551,7 +546,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     mergeItems({
         dataToBeMerged,
         commonKey,
@@ -576,7 +571,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     valuesToKeys({
         newKeys,
         newValues,
@@ -598,7 +593,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     keysToValues({
         keys,
         newKeyForKeys,
@@ -625,7 +620,7 @@ export default class SimpleData {
 
     //*** SELECTION METHODS ***/
 
-    @logCall()
+    @helpers.logCall()
     selectKeys({
         keys,
         overwrite = true,
@@ -640,7 +635,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     filterValues({
         key,
         valueComparator,
@@ -662,7 +657,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     filterItems({
         itemComparator,
         overwrite = true,
@@ -681,7 +676,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     removeDuplicates({
         key,
         overwrite = true,
@@ -697,7 +692,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     keepDuplicates({
         key,
         overwrite = true,
@@ -715,7 +710,7 @@ export default class SimpleData {
 
     // *** ANALYSIS METHODS *** //
 
-    @logCall()
+    @helpers.logCall()
     sortValues({
         key,
         order = "ascending",
@@ -743,7 +738,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     addPercentageDistribution({
         method,
         key,
@@ -784,7 +779,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     addVariation({
         key,
         newKey,
@@ -816,7 +811,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     summarize({
         keyValue,
         keyCategory,
@@ -846,7 +841,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     correlation({
         key1,
         key2,
@@ -872,7 +867,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     addQuantiles({
         key,
         newKey,
@@ -896,7 +891,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     addBins({
         key,
         newKey,
@@ -920,7 +915,7 @@ export default class SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     addOutliers({
         key,
         newKey,
@@ -944,7 +939,7 @@ export default class SimpleData {
 
     // *** VISUALIZATION METHODS *** //
 
-    @logCall()
+    @helpers.logCall()
     getChart({
         type,
         x,
@@ -986,7 +981,7 @@ export default class SimpleData {
         return chart
     }
 
-    @logCall()
+    @helpers.logCall()
     getCustomChart({ plotOptions }: { plotOptions: object }): string {
         const chart = visualizing.getCustomChart_(plotOptions)
         return chart
@@ -994,7 +989,7 @@ export default class SimpleData {
 
     // ** EXPORTING METHODS *** //
 
-    @logCall()
+    @helpers.logCall()
     clone(): this {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -1125,7 +1120,7 @@ export default class SimpleData {
 
     showDuration() {
         if (!this.noLogs) {
-            log(`Total duration ${(this._duration / 1000).toFixed(3)}.`)
+            helpers.log(`Total duration ${(this._duration / 1000).toFixed(3)}.`)
         }
         return this
     }
