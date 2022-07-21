@@ -1,6 +1,11 @@
 import { SimpleDataItem } from "../../types/index.js"
 import SimpleData from "../../class/SimpleData.js"
-import helpers from "../../helpers/index.js"
+import {
+    log,
+    hasKey,
+    checkTypeOfKey,
+    toPercentage,
+} from "../../helpers/index.js"
 
 export default function mergeItems(
     data: SimpleDataItem[],
@@ -9,7 +14,7 @@ export default function mergeItems(
     verbose = false,
     nbValuesTested = 10000
 ): SimpleDataItem[] {
-    verbose && helpers.log("\nmergeItems() " + commonKey)
+    verbose && log("\nmergeItems() " + commonKey)
 
     let newData
 
@@ -19,10 +24,10 @@ export default function mergeItems(
         newData = dataToBeMerged
     }
 
-    if (!helpers.hasKey(data[0], commonKey)) {
+    if (!hasKey(data[0], commonKey)) {
         throw new Error("No key named " + commonKey + " in data")
     }
-    if (!helpers.hasKey(newData[0], commonKey)) {
+    if (!hasKey(newData[0], commonKey)) {
         throw new Error("No key named " + commonKey + " in dataToBeMerged")
     }
 
@@ -46,14 +51,7 @@ export default function mergeItems(
     }
 
     if (
-        !helpers.checkTypeOfKey(
-            data,
-            commonKey,
-            "string",
-            1,
-            nbValuesTested,
-            verbose
-        )
+        !checkTypeOfKey(data, commonKey, "string", 1, nbValuesTested, verbose)
     ) {
         throw new Error(
             "At least one value of " +
@@ -61,7 +59,7 @@ export default function mergeItems(
                 " in data is not string. To avoid problems, ids should always be string. Convert them with valuesToString()"
         )
     } else if (
-        !helpers.checkTypeOfKey(
+        !checkTypeOfKey(
             newData,
             commonKey,
             "string",
@@ -116,8 +114,8 @@ export default function mergeItems(
 
     verbose &&
         nbUndefined > 0 &&
-        helpers.log(
-            `/!\\ Not match for ${nbUndefined} items, representing ${helpers.toPercentage(
+        log(
+            `/!\\ Not match for ${nbUndefined} items, representing ${toPercentage(
                 nbUndefined,
                 data.length
             )} of items. New keys have undefined values for these items.`,

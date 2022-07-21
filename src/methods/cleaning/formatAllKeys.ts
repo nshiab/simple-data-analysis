@@ -1,7 +1,7 @@
 import camelCase from "lodash.camelcase"
 
 import { SimpleDataItem } from "../../types/index.js"
-import helpers from "../../helpers/index.js"
+import { log } from "../../helpers/index.js"
 
 export default function formatAllKeys(
     data: SimpleDataItem[],
@@ -19,7 +19,7 @@ export default function formatAllKeys(
             for (let j = 0; j < keys.length; j++) {
                 if (keys[j] !== camelCasedKeys[j]) {
                     verbose &&
-                        helpers.log(
+                        log(
                             `=> ${keys[j]} changed to ${camelCasedKeys[j]}`,
                             "blue"
                         )

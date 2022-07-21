@@ -1,14 +1,14 @@
 import { quantile, extent } from "d3-array"
 
 import { SimpleDataItem } from "../../types/index.js"
-import helpers from "../../helpers/index.js"
+import { hasKey, log, toPercentage } from "../../helpers/index.js"
 
 export default function excludeOutliers(
     data: SimpleDataItem[],
     key: string,
     verbose = false
 ): SimpleDataItem[] {
-    if (!helpers.hasKey(data[0], key)) {
+    if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
 
@@ -23,7 +23,7 @@ export default function excludeOutliers(
     const [min, max] = extent(values)
 
     verbose &&
-        helpers.log(
+        log(
             `Min: ${min}, Lower threshold: ${lower}, Q1: ${q1}, Q3: ${q3}, Upper threshold: ${upper}, Max: ${max}`,
             "blue"
         )
@@ -34,8 +34,8 @@ export default function excludeOutliers(
 
     const outliers = data.length - filteredData.length
     verbose &&
-        helpers.log(
-            `/!\\ ${outliers} outliers found and excluded, representing ${helpers.toPercentage(
+        log(
+            `/!\\ ${outliers} outliers found and excluded, representing ${toPercentage(
                 outliers,
                 data.length
             )} of the incoming data.`,

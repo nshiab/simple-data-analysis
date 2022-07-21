@@ -1,7 +1,7 @@
 import isEqual from "lodash.isequal"
 
 import { SimpleDataItem } from "../../types/index.js"
-import helpers from "../../helpers/index.js"
+import { log, hasKey, toPercentage } from "../../helpers/index.js"
 
 export default function keepDuplicates(
     data: SimpleDataItem[],
@@ -16,7 +16,7 @@ export default function keepDuplicates(
             }
         }
     } else {
-        if (!helpers.hasKey(data[0], key)) {
+        if (!hasKey(data[0], key)) {
             throw new Error(`${key} key is not present in data.`)
         }
         for (let i = 0; i < data.length; i++) {
@@ -27,17 +27,17 @@ export default function keepDuplicates(
     }
 
     verbose &&
-        helpers.log(
+        log(
             key === undefined
                 ? `/!\\ Found ${
                       duplicates.length
-                  } duplicate items, representing ${helpers.toPercentage(
+                  } duplicate items, representing ${toPercentage(
                       duplicates.length,
                       data.length
                   )} of received items.`
                 : `/!\\ Found ${
                       duplicates.length
-                  } duplicate items for key ${key}, representing ${helpers.toPercentage(
+                  } duplicate items for key ${key}, representing ${toPercentage(
                       duplicates.length,
                       data.length
                   )} of received items.`,

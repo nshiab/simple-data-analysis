@@ -1,5 +1,5 @@
 import { SimpleDataItem } from "../../types/index.js"
-import helpers from "../../helpers/index.js"
+import { hasKey, isValidNumber } from "../../helpers/index.js"
 
 export default function valuesToFloat(
     data: SimpleDataItem[],
@@ -8,7 +8,7 @@ export default function valuesToFloat(
     decimalSeparator = ".",
     skipErrors = false
 ): SimpleDataItem[] {
-    if (!helpers.hasKey(data[0], key)) {
+    if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
 
@@ -19,7 +19,7 @@ export default function valuesToFloat(
             const valueClean = value
                 .replace(thousandSeparatorRegex, "")
                 .replace(decimalSeparator, ".")
-            if (helpers.isValidNumber(valueClean)) {
+            if (isValidNumber(valueClean)) {
                 const newVal = parseFloat(valueClean)
                 if (!skipErrors && isNaN(newVal)) {
                     throw new Error(

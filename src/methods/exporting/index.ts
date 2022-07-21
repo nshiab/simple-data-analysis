@@ -8,7 +8,7 @@ import getMin_ from "./getMin.js"
 import getSum_ from "./getSum.js"
 import getUniqueValues_ from "./getUniqueValues.js"
 
-export default {
+export {
     getArray_,
     getDataAsArrays_,
     getItem_,

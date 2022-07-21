@@ -5,7 +5,7 @@ import mergeItems_ from "./mergeItems.js"
 import removeKey_ from "./removeKey.js"
 import valuesToKeys_ from "./valuesToKeys.js"
 
-export default {
+export {
     addItems_,
     addKey_,
     keysToValues_,

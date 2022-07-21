@@ -1,7 +1,7 @@
 import { flatRollup, sum } from "d3-array"
 
 import { SimpleDataItem } from "../../types/index.js"
-import helpers from "../../helpers/index.js"
+import { log, hasKey, checkTypeOfKey } from "../../helpers/index.js"
 
 export default function addPercentageDistribution(
     data: SimpleDataItem[],
@@ -32,10 +32,10 @@ export default function addPercentageDistribution(
         }
 
         for (const key of options.keys) {
-            if (!helpers.hasKey(data[0], key)) {
+            if (!hasKey(data[0], key)) {
                 throw new Error("No key " + key + " in the data.")
             }
-            if (helpers.hasKey(data[0], key + suffix)) {
+            if (hasKey(data[0], key + suffix)) {
                 throw new Error(
                     "Your suffix is " +
                         suffix +
@@ -45,15 +45,7 @@ export default function addPercentageDistribution(
                         ". You need to choose another suffix."
                 )
             }
-            if (
-                !helpers.checkTypeOfKey(
-                    data,
-                    key,
-                    "number",
-                    0.5,
-                    nbTestedValues
-                )
-            ) {
+            if (!checkTypeOfKey(data, key, "number", 0.5, nbTestedValues)) {
                 throw new Error(
                     "The majority of values inside " + key + " are not numbers."
                 )
@@ -61,10 +53,7 @@ export default function addPercentageDistribution(
         }
 
         verbose &&
-            helpers.log(
-                "The suffix used to create new keys is " + suffix + ".",
-                "blue"
-            )
+            log("The suffix used to create new keys is " + suffix + ".", "blue")
 
         if (options.key !== undefined) {
             console.log(
@@ -99,19 +88,11 @@ export default function addPercentageDistribution(
                 "key is undefined. You need to specify on which key the percentage distribution will be calculated."
             )
         }
-        if (!helpers.hasKey(data[0], options.key)) {
+        if (!hasKey(data[0], options.key)) {
             throw new Error("No key named " + options.key + " in the data")
         }
 
-        if (
-            !helpers.checkTypeOfKey(
-                data,
-                options.key,
-                "number",
-                0.5,
-                nbTestedValues
-            )
-        ) {
+        if (!checkTypeOfKey(data, options.key, "number", 0.5, nbTestedValues)) {
             throw new Error(
                 "The majority of values inside " +
                     options.key +
@@ -124,7 +105,7 @@ export default function addPercentageDistribution(
                 "newKey is undefined. Give a name to the new key that will be created"
             )
         }
-        if (helpers.hasKey(data[0], options.newKey)) {
+        if (hasKey(data[0], options.newKey)) {
             throw new Error(
                 "Already an key named " + options.newKey + " in the data"
             )
@@ -138,7 +119,7 @@ export default function addPercentageDistribution(
                 : [options.groupKeys]
 
         for (const key of groupKeys) {
-            if (!helpers.hasKey(data[0], key)) {
+            if (!hasKey(data[0], key)) {
                 throw new Error(
                     "The key " + key + " does not exist in the data."
                 )

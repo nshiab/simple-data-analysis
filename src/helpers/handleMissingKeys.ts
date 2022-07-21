@@ -1,7 +1,7 @@
 import isEqual from "lodash.isequal"
 
 import { SimpleDataItem } from "../types/index.js"
-import helpers from "../helpers/index.js"
+import { getUniqueKeys, log } from "../helpers/index.js"
 
 export default function handleMissingKeys(
     data: SimpleDataItem[],
@@ -10,7 +10,7 @@ export default function handleMissingKeys(
     verbose?: boolean
 ) {
     if (uniqueKeys === undefined) {
-        uniqueKeys = helpers.getUniqueKeys(data)
+        uniqueKeys = getUniqueKeys(data)
     }
 
     for (let i = 0; i < data.length; i++) {
@@ -33,7 +33,7 @@ export default function handleMissingKeys(
         for (const key of missingKeys) {
             data[i][key] = undefined
             verbose &&
-                helpers.log(
+                log(
                     `Missing key ${key} for item index ${i}. Adding value as undefined.`
                 )
         }

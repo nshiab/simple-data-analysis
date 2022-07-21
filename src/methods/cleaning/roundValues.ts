@@ -1,5 +1,5 @@
 import { SimpleDataItem } from "../../types/index.js"
-import helpers from "../../helpers/index.js"
+import { hasKey } from "../../helpers/index.js"
 
 export default function roundValues(
     data: SimpleDataItem[],
@@ -7,7 +7,7 @@ export default function roundValues(
     numDigits: number,
     skipErrors = false
 ): SimpleDataItem[] {
-    if (!helpers.hasKey(data[0], key)) {
+    if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
 

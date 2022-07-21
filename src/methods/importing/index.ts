@@ -1,5 +1,3 @@
 import loadDataFromUrlWeb_ from "./loadDataFromUrlWeb.js"
 
-export default {
-    loadDataFromUrlWeb_,
-}
+export { loadDataFromUrlWeb_ }

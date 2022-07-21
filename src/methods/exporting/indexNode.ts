@@ -10,7 +10,7 @@ import getUniqueValues_ from "./getUniqueValues.js"
 import saveData_ from "./saveData.js"
 import saveDocument_ from "./saveDocument.js"
 
-export default {
+export {
     getArray_,
     getDataAsArrays_,
     getItem_,

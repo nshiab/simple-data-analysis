@@ -9,7 +9,7 @@ import excludeOutliers_ from "./excludeOutliers.js"
 import sortValues_ from "./sortValues.js"
 import summarize_ from "./summarize.js"
 
-export default {
+export {
     addBins_,
     addOutliers_,
     addPercentageDistribution_,

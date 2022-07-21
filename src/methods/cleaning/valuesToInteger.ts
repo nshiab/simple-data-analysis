@@ -1,5 +1,5 @@
 import { SimpleDataItem } from "../../types/index.js"
-import helpers from "../../helpers/index.js"
+import { hasKey, isValidNumber } from "../../helpers/index.js"
 
 export default function valuesToInteger(
     data: SimpleDataItem[],
@@ -8,7 +8,7 @@ export default function valuesToInteger(
     decimalSeparator = ".",
     skipErrors = false
 ): SimpleDataItem[] {
-    if (!helpers.hasKey(data[0], key)) {
+    if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
 
@@ -19,7 +19,7 @@ export default function valuesToInteger(
             const valueClean = value
                 .replace(thousandSeparatorRegex, "")
                 .replace(decimalSeparator, ".")
-            if (helpers.isValidNumber(valueClean)) {
+            if (isValidNumber(valueClean)) {
                 const newValue = parseInt(valueClean)
                 if (!skipErrors && !Number.isInteger(newValue)) {
                     throw new Error(

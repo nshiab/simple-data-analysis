@@ -1,7 +1,7 @@
 import fs from "fs";
 import ReactDOMServer from "react-dom/server";
 
-import helpers from "../../helpers/index.js"
+import {log, getExtension} from "../../helpers/index.js"
 
 function renderFullPage(html: string) {
   return `
@@ -32,7 +32,7 @@ export default async function saveDocument(
   path: string,
   verbose?: boolean
 ) {
-  const extension = helpers.getExtension(path)
+  const extension = getExtension(path)
   if (!["html", "js"].includes(extension)) {
     throw new Error("Your analysis must be saved into an html or js file.");
   }
@@ -56,5 +56,5 @@ export default async function saveDocument(
     fs.writeFileSync(path, renderReactComponent(html));
   }
 
-  verbose && helpers.log(`=> Document saved to ${path}`, "blue")
+  verbose && log(`=> Document saved to ${path}`, "blue")
 }

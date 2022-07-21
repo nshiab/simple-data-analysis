@@ -12,7 +12,7 @@ import logCall from "./logCall.js"
 import plotChart from "./plotChart.js"
 import toPercentage from "./toPercentage.js"
 
-export default {
+export {
     arraysToData,
     asyncLogCall,
     checkEnvironment,

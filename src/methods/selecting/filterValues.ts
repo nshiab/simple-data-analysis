@@ -1,5 +1,5 @@
 import { SimpleDataItem, SimpleDataValue } from "../../types/index.js"
-import helpers from "../../helpers/index.js"
+import { log, hasKey, toPercentage } from "../../helpers/index.js"
 
 export default function filterValues(
     data: SimpleDataItem[],
@@ -7,7 +7,7 @@ export default function filterValues(
     valueComparator: (val: SimpleDataValue) => SimpleDataValue,
     verbose = false
 ): SimpleDataItem[] {
-    if (!helpers.hasKey(data[0], key)) {
+    if (!hasKey(data[0], key)) {
         throw new Error("No key named " + key)
     }
 
@@ -15,8 +15,8 @@ export default function filterValues(
 
     const nbRemoved = data.length - filteredData.length
     verbose &&
-        helpers.log(
-            `/!\\ ${nbRemoved} items removed, representing ${helpers.toPercentage(
+        log(
+            `/!\\ ${nbRemoved} items removed, representing ${toPercentage(
                 nbRemoved,
                 data.length
             )} of received items.`,

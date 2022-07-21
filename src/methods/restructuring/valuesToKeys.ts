@@ -1,7 +1,7 @@
 import { SimpleDataItem, SimpleDataValue } from "../../types/index.js"
-import helpers from "../../helpers/index.js"
-import cleaning from "../cleaning/index.js"
-import exporting from "../exporting/index.js"
+import { hasKey, log } from "../../helpers/index.js"
+import { removeDuplicates_ } from "../cleaning/index.js"
+import { getUniqueValues_ } from "../exporting/index.js"
 
 export default function valuesToKeys(
     data: SimpleDataItem[],
@@ -9,10 +9,10 @@ export default function valuesToKeys(
     newValues: string,
     verbose = false
 ) {
-    if (!helpers.hasKey(data[0], newKeys)) {
+    if (!hasKey(data[0], newKeys)) {
         throw new Error("No key " + newKeys + " in the data")
     }
-    if (!helpers.hasKey(data[0], newValues)) {
+    if (!hasKey(data[0], newValues)) {
         throw new Error("No key " + newValues + " in the data")
     }
 
@@ -20,9 +20,9 @@ export default function valuesToKeys(
         (d) => ![newKeys, newValues].includes(d)
     )
 
-    const keysToAdd = exporting.getUniqueValues_(data, newKeys)
+    const keysToAdd = getUniqueValues_(data, newKeys)
 
-    const newData = cleaning.removeDuplicates_(
+    const newData = removeDuplicates_(
         data.map((d) => {
             const newItem: { [key: string]: SimpleDataValue } = {}
             for (const key of keysToKeep) {
@@ -53,7 +53,7 @@ export default function valuesToKeys(
     }
 
     verbose &&
-        helpers.log(
+        log(
             `The data received had ${data.length} items, ${
                 Object.keys(data[0]).length
             } keys and ${

@@ -10,7 +10,7 @@ import {
 import { regressionLinear } from "d3-regression"
 
 import { SimpleDataItem } from "../../types/index.js"
-import helpers from "../../helpers/index.js"
+import { plotChart, checkTypeOfKey } from "../../helpers/index.js"
 
 export default function getChart(
     data: SimpleDataItem[],
@@ -84,7 +84,7 @@ export default function getChart(
         plotOptions.marginBottom = marginBottom
     }
 
-    if (color && helpers.checkTypeOfKey(data, color, "string", 0.5, 100)) {
+    if (color && checkTypeOfKey(data, color, "string", 0.5, 100)) {
         if (plotOptions.color) {
             plotOptions.color.type = "ordinal"
         } else {
@@ -92,20 +92,20 @@ export default function getChart(
         }
     }
 
-    if (helpers.checkTypeOfKey(data, x, "string", 0.5, 100)) {
+    if (checkTypeOfKey(data, x, "string", 0.5, 100)) {
         if (type === "dot") {
             plotOptions.x = { type: "point" }
         } else if (type !== "line") {
             plotOptions.x = { type: "band" }
         }
     }
-    if (helpers.checkTypeOfKey(data, y, "string", 0.5, 100)) {
+    if (checkTypeOfKey(data, y, "string", 0.5, 100)) {
         if (type === "dot") {
             plotOptions.y = { type: "point" }
         }
     }
 
-    const chart = helpers.plotChart(plotOptions)
+    const chart = plotChart(plotOptions)
 
     let legend
     if (color && ["line", "dot"].includes(type)) {

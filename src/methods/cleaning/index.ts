@@ -15,7 +15,7 @@ import valuesToFloat_ from "./valuesToFloat.js"
 import valuesToInteger_ from "./valuesToInteger.js"
 import valuesToString_ from "./valuesToString.js"
 
-export default {
+export {
     checkValues_,
     datesToString_,
     excludeMissingValues_,

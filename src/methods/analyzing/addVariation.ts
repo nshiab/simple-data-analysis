@@ -1,7 +1,7 @@
 import { pairs } from "d3-array"
 
 import { SimpleDataItem, SimpleDataValue } from "../../types/index.js"
-import helpers from "../../helpers/index.js"
+import { hasKey } from "../../helpers/index.js"
 
 export default function addVariation(
     data: SimpleDataItem[],
@@ -11,10 +11,10 @@ export default function addVariation(
     order: "ascending" | "descending" | undefined = undefined,
     firstValue: SimpleDataValue = undefined
 ) {
-    if (!helpers.hasKey(data[0], key)) {
+    if (!hasKey(data[0], key)) {
         throw new Error("No key " + key + " in the data")
     }
-    if (helpers.hasKey(data[0], newKey)) {
+    if (hasKey(data[0], newKey)) {
         throw new Error(
             "The newKey " +
                 newKey +

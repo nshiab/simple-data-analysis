@@ -2,7 +2,7 @@ import axios from "axios"
 import { csvParse, tsvParse } from "d3-dsv"
 
 import { SimpleDataItem } from "../../types/index.js"
-import helpers from "../../helpers/index.js"
+import { getExtension, log, arraysToData } from "../../helpers/index.js"
 
 export default async function loadDataFromUrlNode(
     url: string,
@@ -19,14 +19,13 @@ export default async function loadDataFromUrlNode(
     const request = await axios.get(url)
     const data = request.data
 
-    const fileExtension = helpers.getExtension(url)
+    const fileExtension = getExtension(url)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let arrayOfObjects: any[] = []
 
     if (fileExtension === "csv" || fileExtension === "tsv") {
-        verbose &&
-            helpers.log(`=> ${fileExtension} file extension detected`, "blue")
+        verbose && log(`=> ${fileExtension} file extension detected`, "blue")
 
         if (fileExtension === "csv") {
             arrayOfObjects = csvParse(data) as SimpleDataItem[]
@@ -50,7 +49,7 @@ export default async function loadDataFromUrlNode(
             }
         }
     } else if (fileExtension === "json") {
-        arrayOfObjects = dataAsArrays ? helpers.arraysToData(data) : data
+        arrayOfObjects = dataAsArrays ? arraysToData(data) : data
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
     } else {
         throw new Error("Unknown file extension " + fileExtension)

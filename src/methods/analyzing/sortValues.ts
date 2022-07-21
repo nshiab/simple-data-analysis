@@ -1,5 +1,5 @@
 import { SimpleDataItem } from "../../types/index.js"
-import helpers from "../../helpers/index.js"
+import { hasKey, checkTypeOfKey } from "../../helpers/index.js"
 
 export default function sortValues(
     data: SimpleDataItem[],
@@ -9,13 +9,11 @@ export default function sortValues(
     nbTestedValue = 10000,
     verbose = false
 ): SimpleDataItem[] {
-    if (!helpers.hasKey(data[0], key)) {
+    if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
 
-    if (
-        helpers.checkTypeOfKey(data, key, "string", 0.5, nbTestedValue, verbose)
-    ) {
+    if (checkTypeOfKey(data, key, "string", 0.5, nbTestedValue, verbose)) {
         if (order === "ascending") {
             data.sort((a, b) =>
                 (a[key] as string).localeCompare(b[key] as string, locale)

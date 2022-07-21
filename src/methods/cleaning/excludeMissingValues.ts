@@ -1,5 +1,5 @@
 import { SimpleDataItem, SimpleDataValue } from "../../types/index.js"
-import helpers from "../../helpers/index.js"
+import { log, hasKey, toPercentage } from "../../helpers/index.js"
 
 export default function excludeMissingValues(
     data: SimpleDataItem[],
@@ -21,7 +21,7 @@ export default function excludeMissingValues(
             }
             return check
         })
-    } else if (helpers.hasKey(data[0], key)) {
+    } else if (hasKey(data[0], key)) {
         filteredData = data.filter((d) => !missingValues.includes(d[key]))
     } else {
         throw new Error("No key " + key)
@@ -29,8 +29,8 @@ export default function excludeMissingValues(
 
     const nbRemoved = data.length - filteredData.length
     verbose &&
-        helpers.log(
-            `/!\\ ${nbRemoved} items removed, representing ${helpers.toPercentage(
+        log(
+            `/!\\ ${nbRemoved} items removed, representing ${toPercentage(
                 nbRemoved,
                 data.length
             )} of received items.`,

@@ -1,5 +1,5 @@
 import { SimpleDataItem } from "../../types/index.js"
-import helpers from "../../helpers/index.js"
+import { hasKey } from "../../helpers/index.js"
 
 export default function getItem(
     data: SimpleDataItem[],
@@ -25,7 +25,7 @@ export default function getItem(
     }
 
     for (const key of keys) {
-        if (!helpers.hasKey(data[0], key)) {
+        if (!hasKey(data[0], key)) {
             throw new Error("No key " + key + " in the data.")
         }
     }

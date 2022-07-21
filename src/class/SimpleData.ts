@@ -1,15 +1,70 @@
 import cloneDeep from "lodash.clonedeep"
 
 import { SimpleDataItem, SimpleDataValue } from "../types/index.js"
-import analyzing from "../methods/analyzing/index.js"
-import cleaning from "../methods/cleaning/index.js"
-import exporting from "../methods/exporting/index.js"
-import importing from "../methods/importing/index.js"
-import restructuring from "../methods/restructuring/index.js"
-import selecting from "../methods/selecting/index.js"
-import visualizing from "../methods/visualizing/index.js"
-import methods from "../methods/index.js"
-import helpers from "../helpers/index.js"
+import {
+    addBins_,
+    addOutliers_,
+    addPercentageDistribution_,
+    addQuantiles_,
+    addVariation_,
+    correlation_,
+    describe_,
+    excludeOutliers_,
+    sortValues_,
+    summarize_,
+} from "../methods/analyzing/index.js"
+import {
+    checkValues_,
+    datesToString_,
+    excludeMissingValues_,
+    formatAllKeys_,
+    keepDuplicates_,
+    keepMissingValues_,
+    modifyItems_,
+    modifyValues_,
+    removeDuplicates_,
+    renameKey_,
+    replaceValues_,
+    roundValues_,
+    valuesToDate_,
+    valuesToFloat_,
+    valuesToInteger_,
+    valuesToString_,
+} from "../methods/cleaning/index.js"
+import {
+    getArray_,
+    getDataAsArrays_,
+    getItem_,
+    getMax_,
+    getMean_,
+    getMedian_,
+    getMin_,
+    getSum_,
+    getUniqueValues_,
+} from "../methods/exporting/index.js"
+import { loadDataFromUrlWeb_ } from "../methods/importing/index.js"
+import {
+    addItems_,
+    addKey_,
+    keysToValues_,
+    mergeItems_,
+    removeKey_,
+    valuesToKeys_,
+} from "../methods/restructuring/index.js"
+import {
+    filterItems_,
+    filterValues_,
+    selectKeys_,
+} from "../methods/selecting/index.js"
+import { getChart_, getCustomChart_ } from "../methods/visualizing/index.js"
+import { showTable_ } from "../methods/index.js"
+import {
+    arraysToData,
+    asyncLogCall,
+    handleMissingKeys,
+    log,
+    logCall,
+} from "../helpers/index.js"
 
 /**
  * SimpleData usage example.
@@ -64,19 +119,17 @@ export default class SimpleData {
         if (data.length > 0 || Object.keys(data).length > 0) {
             const incomingData = dataAsArrays
                 ? cloneDeep(
-                      helpers
-                          .arraysToData(
-                              data as unknown as {
-                                  [key: string]: SimpleDataValue[]
-                              }
-                          )
-                          .slice(firstItem, lastItem + 1)
+                      arraysToData(
+                          data as unknown as {
+                              [key: string]: SimpleDataValue[]
+                          }
+                      ).slice(firstItem, lastItem + 1)
                   )
                 : cloneDeep(
                       (data as SimpleDataItem[]).slice(firstItem, lastItem + 1)
                   )
 
-            helpers.handleMissingKeys(
+            handleMissingKeys(
                 incomingData,
                 fillMissingKeys,
                 undefined,
@@ -87,7 +140,7 @@ export default class SimpleData {
         } else {
             !noLogs &&
                 verbose &&
-                helpers.log("\nnew SimpleData\nStarting an empty SimpleData")
+                log("\nnew SimpleData\nStarting an empty SimpleData")
 
             this._data = []
         }
@@ -109,7 +162,7 @@ export default class SimpleData {
 
     // *** IMPORTING METHOD *** //
 
-    @helpers.asyncLogCall()
+    @asyncLogCall()
     async loadDataFromUrl({
         url,
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
@@ -125,7 +178,7 @@ export default class SimpleData {
         firstItem?: number
         lastItem?: number
     }): Promise<this> {
-        const data = await importing.loadDataFromUrlWeb_(
+        const data = await loadDataFromUrlWeb_(
             url,
             dataAsArrays,
             firstItem,
@@ -138,12 +191,7 @@ export default class SimpleData {
             throw new Error("Incoming data is empty.")
         }
 
-        helpers.handleMissingKeys(
-            data,
-            fillMissingKeys,
-            undefined,
-            this.verbose
-        )
+        handleMissingKeys(data, fillMissingKeys, undefined, this.verbose)
 
         this._tempData = data // important for decorator
         this.#updateSimpleData(data)
@@ -153,16 +201,16 @@ export default class SimpleData {
 
     // CLEANING METHODS //
 
-    @helpers.logCall()
+    @logCall()
     describe({ overwrite = true }: { overwrite?: boolean } = {}): this {
         this._overwrite = overwrite
-        this._tempData = analyzing.describe_(cloneDeep(this._data))
+        this._tempData = describe_(cloneDeep(this._data))
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     checkValues({
         nbItemsToCheck = "all",
         randomize = false,
@@ -173,7 +221,7 @@ export default class SimpleData {
         overwrite?: boolean
     } = {}): this {
         this._overwrite = overwrite
-        this._tempData = cleaning.checkValues_(
+        this._tempData = checkValues_(
             cloneDeep(this._data),
             nbItemsToCheck,
             randomize
@@ -183,7 +231,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     excludeMissingValues({
         key,
         missingValues,
@@ -197,7 +245,7 @@ export default class SimpleData {
         if (missingValues === undefined) {
             missingValues = [null, NaN, undefined, ""]
         }
-        this._tempData = cleaning.excludeMissingValues_(
+        this._tempData = excludeMissingValues_(
             cloneDeep(this._data),
             key,
             missingValues,
@@ -208,7 +256,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     keepMissingValues({
         key,
         missingValues,
@@ -222,7 +270,7 @@ export default class SimpleData {
         if (missingValues === undefined) {
             missingValues = [null, NaN, undefined, ""]
         }
-        this._tempData = cleaning.keepMissingValues_(
+        this._tempData = keepMissingValues_(
             cloneDeep(this._data),
             key,
             missingValues,
@@ -233,19 +281,16 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     formatAllKeys({ overwrite = true }: { overwrite?: boolean } = {}): this {
         this._overwrite = overwrite
-        this._tempData = cleaning.formatAllKeys_(
-            cloneDeep(this._data),
-            this.verbose
-        )
+        this._tempData = formatAllKeys_(cloneDeep(this._data), this.verbose)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     renameKey({
         oldKey,
         newKey,
@@ -256,17 +301,13 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = cleaning.renameKey_(
-            cloneDeep(this._data),
-            oldKey,
-            newKey
-        )
+        this._tempData = renameKey_(cloneDeep(this._data), oldKey, newKey)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     valuesToString({
         key,
         overwrite = true,
@@ -275,13 +316,13 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = cleaning.valuesToString_(cloneDeep(this._data), key)
+        this._tempData = valuesToString_(cloneDeep(this._data), key)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     valuesToInteger({
         key,
         thousandSeparator = ",",
@@ -296,7 +337,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = cleaning.valuesToInteger_(
+        this._tempData = valuesToInteger_(
             cloneDeep(this._data),
             key,
             thousandSeparator,
@@ -308,7 +349,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     valuesToFloat({
         key,
         thousandSeparator = ",",
@@ -323,7 +364,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = cleaning.valuesToFloat_(
+        this._tempData = valuesToFloat_(
             cloneDeep(this._data),
             key,
             thousandSeparator,
@@ -335,7 +376,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     valuesToDate({
         key,
         format,
@@ -348,7 +389,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = cleaning.valuesToDate_(
+        this._tempData = valuesToDate_(
             cloneDeep(this._data),
             key,
             format,
@@ -359,7 +400,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     datesToString({
         key,
         format,
@@ -372,7 +413,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = cleaning.datesToString_(
+        this._tempData = datesToString_(
             cloneDeep(this._data),
             key,
             format,
@@ -383,7 +424,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     roundValues({
         key,
         nbDigits = 1,
@@ -396,7 +437,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = cleaning.roundValues_(
+        this._tempData = roundValues_(
             cloneDeep(this._data),
             key,
             nbDigits,
@@ -407,7 +448,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     replaceStringValues({
         key,
         oldValue,
@@ -424,7 +465,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = cleaning.replaceValues_(
+        this._tempData = replaceValues_(
             cloneDeep(this._data),
             key,
             oldValue,
@@ -438,7 +479,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     modifyValues({
         key,
         valueGenerator,
@@ -449,7 +490,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = cleaning.modifyValues_(
+        this._tempData = modifyValues_(
             cloneDeep(this._data),
             key,
             valueGenerator
@@ -459,7 +500,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     modifyItems({
         key,
         itemGenerator,
@@ -470,17 +511,13 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = cleaning.modifyItems_(
-            cloneDeep(this._data),
-            key,
-            itemGenerator
-        )
+        this._tempData = modifyItems_(cloneDeep(this._data), key, itemGenerator)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     excludeOutliers({
         key,
         overwrite = true,
@@ -489,7 +526,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = analyzing.excludeOutliers_(
+        this._tempData = excludeOutliers_(
             cloneDeep(this._data),
             key,
             this.verbose
@@ -501,7 +538,7 @@ export default class SimpleData {
 
     // *** RESTRUCTURING METHODS *** //
 
-    @helpers.logCall()
+    @logCall()
     removeKey({
         key,
         overwrite = true,
@@ -510,13 +547,13 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = restructuring.removeKey_(cloneDeep(this._data), key)
+        this._tempData = removeKey_(cloneDeep(this._data), key)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     addKey({
         key,
         itemGenerator,
@@ -527,17 +564,13 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = restructuring.addKey_(
-            cloneDeep(this._data),
-            key,
-            itemGenerator
-        )
+        this._tempData = addKey_(cloneDeep(this._data), key, itemGenerator)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     addItems({
         dataToBeAdded,
         fillMissingKeys = false,
@@ -548,7 +581,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = restructuring.addItems_(
+        this._tempData = addItems_(
             cloneDeep(this._data),
             dataToBeAdded,
             fillMissingKeys,
@@ -559,7 +592,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     mergeItems({
         dataToBeMerged,
         commonKey,
@@ -572,7 +605,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = restructuring.mergeItems_(
+        this._tempData = mergeItems_(
             cloneDeep(this._data),
             dataToBeMerged,
             commonKey,
@@ -584,7 +617,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     valuesToKeys({
         newKeys,
         newValues,
@@ -595,7 +628,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = restructuring.valuesToKeys_(
+        this._tempData = valuesToKeys_(
             cloneDeep(this._data),
             newKeys,
             newValues,
@@ -606,7 +639,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     keysToValues({
         keys,
         newKeyForKeys,
@@ -619,7 +652,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = restructuring.keysToValues_(
+        this._tempData = keysToValues_(
             cloneDeep(this._data),
             keys,
             newKeyForKeys,
@@ -633,7 +666,7 @@ export default class SimpleData {
 
     //*** SELECTION METHODS ***/
 
-    @helpers.logCall()
+    @logCall()
     selectKeys({
         keys,
         overwrite = true,
@@ -642,13 +675,13 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = selecting.selectKeys_(cloneDeep(this._data), keys)
+        this._tempData = selectKeys_(cloneDeep(this._data), keys)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     filterValues({
         key,
         valueComparator,
@@ -659,7 +692,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = selecting.filterValues_(
+        this._tempData = filterValues_(
             cloneDeep(this._data),
             key,
             valueComparator,
@@ -670,7 +703,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     filterItems({
         itemComparator,
         overwrite = true,
@@ -679,7 +712,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = selecting.filterItems_(
+        this._tempData = filterItems_(
             cloneDeep(this._data),
             itemComparator,
             this.verbose
@@ -689,7 +722,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     removeDuplicates({
         key,
         nbToKeep = 1,
@@ -700,7 +733,7 @@ export default class SimpleData {
         overwrite?: boolean
     } = {}): this {
         this._overwrite = overwrite
-        this._tempData = cleaning.removeDuplicates_(
+        this._tempData = removeDuplicates_(
             cloneDeep(this._data),
             key,
             nbToKeep,
@@ -711,13 +744,13 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     keepDuplicates({
         key,
         overwrite = true,
     }: { key?: string; overwrite?: boolean } = {}): this {
         this._overwrite = overwrite
-        this._tempData = cleaning.keepDuplicates_(
+        this._tempData = keepDuplicates_(
             cloneDeep(this._data),
             key,
             this.verbose
@@ -729,7 +762,7 @@ export default class SimpleData {
 
     // *** ANALYSIS METHODS *** //
 
-    @helpers.logCall()
+    @logCall()
     sortValues({
         key,
         order = "ascending",
@@ -744,7 +777,7 @@ export default class SimpleData {
         nbTestedValue?: number
     }): this {
         this._overwrite = overwrite
-        this._tempData = analyzing.sortValues_(
+        this._tempData = sortValues_(
             cloneDeep(this._data),
             key,
             order,
@@ -757,7 +790,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     addPercentageDistribution({
         method,
         key,
@@ -780,25 +813,22 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = analyzing.addPercentageDistribution_(
-            cloneDeep(this._data),
-            {
-                method,
-                keys,
-                key,
-                newKey,
-                groupKeys,
-                suffix,
-                nbDigits,
-                nbTestedValues,
-                verbose: this.verbose,
-            }
-        )
+        this._tempData = addPercentageDistribution_(cloneDeep(this._data), {
+            method,
+            keys,
+            key,
+            newKey,
+            groupKeys,
+            suffix,
+            nbDigits,
+            nbTestedValues,
+            verbose: this.verbose,
+        })
         overwrite && this.#updateSimpleData(this._tempData)
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     addVariation({
         key,
         newKey,
@@ -818,7 +848,7 @@ export default class SimpleData {
         overwrite?: boolean
     }) {
         this._overwrite = overwrite
-        this._tempData = analyzing.addVariation_(
+        this._tempData = addVariation_(
             cloneDeep(this._data),
             key,
             newKey,
@@ -830,7 +860,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     summarize({
         keyValue,
         keyCategory,
@@ -847,7 +877,7 @@ export default class SimpleData {
         nbDigits?: number
     } = {}): this {
         this._overwrite = overwrite
-        this._tempData = analyzing.summarize_(
+        this._tempData = summarize_(
             cloneDeep(this._data),
             keyValue,
             keyCategory,
@@ -860,7 +890,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     correlation({
         key1,
         key2,
@@ -874,7 +904,7 @@ export default class SimpleData {
         nbValuesTestedForTypeOf?: number
     } = {}): this {
         this._overwrite = overwrite
-        this._tempData = analyzing.correlation_(
+        this._tempData = correlation_(
             cloneDeep(this._data),
             key1,
             key2,
@@ -886,7 +916,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     addQuantiles({
         key,
         newKey,
@@ -899,7 +929,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = analyzing.addQuantiles_(
+        this._tempData = addQuantiles_(
             cloneDeep(this._data),
             key,
             newKey,
@@ -910,7 +940,7 @@ export default class SimpleData {
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     addBins({
         key,
         newKey,
@@ -923,18 +953,13 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = analyzing.addBins_(
-            cloneDeep(this._data),
-            key,
-            newKey,
-            nbBins
-        )
+        this._tempData = addBins_(cloneDeep(this._data), key, newKey, nbBins)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
 
-    @helpers.logCall()
+    @logCall()
     addOutliers({
         key,
         newKey,
@@ -945,7 +970,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = analyzing.addOutliers_(
+        this._tempData = addOutliers_(
             cloneDeep(this._data),
             key,
             newKey,
@@ -958,7 +983,7 @@ export default class SimpleData {
 
     // *** VISUALIZATION METHODS *** //
 
-    @helpers.logCall()
+    @logCall()
     getChart({
         type,
         x,
@@ -986,7 +1011,7 @@ export default class SimpleData {
         marginLeft?: number
         marginBottom?: number
     }): string {
-        const chart = visualizing.getChart_(
+        const chart = getChart_(
             cloneDeep(this._data),
             type,
             x,
@@ -1000,15 +1025,15 @@ export default class SimpleData {
         return chart
     }
 
-    @helpers.logCall()
+    @logCall()
     getCustomChart({ plotOptions }: { plotOptions: object }): string {
-        const chart = visualizing.getCustomChart_(plotOptions)
+        const chart = getCustomChart_(plotOptions)
         return chart
     }
 
     // ** EXPORTING METHODS *** //
 
-    @helpers.logCall()
+    @logCall()
     clone(): this {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -1044,27 +1069,27 @@ export default class SimpleData {
         conditions: SimpleDataItem
         noWarning?: boolean
     }): SimpleDataItem | undefined {
-        const item = exporting.getItem_(this._data, conditions, noWarning)
+        const item = getItem_(this._data, conditions, noWarning)
         return item
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
     getArray({ key }: { key: string }): SimpleDataValue[] {
-        const array = exporting.getArray_(this._data, key)
+        const array = getArray_(this._data, key)
 
         return array
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
     getDataAsArrays() {
-        const arrays = exporting.getDataAsArrays_(this._data)
+        const arrays = getDataAsArrays_(this._data)
 
         return arrays
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
     getUniqueValues({ key }: { key: string }): SimpleDataValue[] {
-        const uniqueValues = exporting.getUniqueValues_(this._data, key)
+        const uniqueValues = getUniqueValues_(this._data, key)
 
         return uniqueValues
     }
@@ -1077,7 +1102,7 @@ export default class SimpleData {
         key: string
         nbDigits?: number
     }): SimpleDataValue {
-        return exporting.getMin_(this._data, key, nbDigits)
+        return getMin_(this._data, key, nbDigits)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
@@ -1088,7 +1113,7 @@ export default class SimpleData {
         key: string
         nbDigits?: number
     }): SimpleDataValue {
-        return exporting.getMax_(this._data, key, nbDigits)
+        return getMax_(this._data, key, nbDigits)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
@@ -1099,7 +1124,7 @@ export default class SimpleData {
         key: string
         nbDigits?: number
     }): SimpleDataValue {
-        return exporting.getMean_(this._data, key, nbDigits)
+        return getMean_(this._data, key, nbDigits)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
@@ -1110,7 +1135,7 @@ export default class SimpleData {
         key: string
         nbDigits?: number
     }): SimpleDataValue {
-        return exporting.getMedian_(this._data, key, nbDigits)
+        return getMedian_(this._data, key, nbDigits)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
@@ -1121,7 +1146,7 @@ export default class SimpleData {
         key: string
         nbDigits?: number
     }): SimpleDataValue {
-        return exporting.getSum_(this._data, key, nbDigits)
+        return getSum_(this._data, key, nbDigits)
     }
 
     getDuration() {
@@ -1136,14 +1161,14 @@ export default class SimpleData {
     }: { nbItemInTable?: "all" | number } = {}): this {
         if (!this.noLogs) {
             // TODO: test this!
-            methods.showTable_(this._data, nbItemInTable, true)
+            showTable_(this._data, nbItemInTable, true)
         }
         return this
     }
 
     showDuration() {
         if (!this.noLogs) {
-            helpers.log(`Total duration ${(this._duration / 1000).toFixed(3)}.`)
+            log(`Total duration ${(this._duration / 1000).toFixed(3)}.`)
         }
         return this
     }

@@ -2,7 +2,7 @@ import { range } from "d3-array"
 import { scaleQuantile } from "d3-scale"
 
 import { SimpleDataItem } from "../../types/index.js"
-import helpers from "../../helpers/index.js"
+import { hasKey } from "../../helpers/index.js"
 
 export default function addQuantiles(
     data: SimpleDataItem[],
@@ -10,10 +10,10 @@ export default function addQuantiles(
     newKey: string,
     nbQuantiles: number
 ): SimpleDataItem[] {
-    if (!helpers.hasKey(data[0], key)) {
+    if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
-    if (helpers.hasKey(data[0], newKey)) {
+    if (hasKey(data[0], newKey)) {
         throw new Error("Already a key named " + key)
     }
     if (nbQuantiles < 1) {

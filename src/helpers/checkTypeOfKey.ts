@@ -1,5 +1,5 @@
 import { SimpleDataItem } from "../types/index.js"
-import helpers from "../helpers/index.js"
+import { log, toPercentage } from "../helpers/index.js"
 
 export default function checkTypeOfKey(
     data: SimpleDataItem[],
@@ -12,10 +12,10 @@ export default function checkTypeOfKey(
     const nbTested = data.length < nbTestedValues ? data.length : nbTestedValues
     verbose &&
         nbTested < data.length &&
-        helpers.log(
+        log(
             `The key ${key} has ${data.length} values, but the type of only ${nbTested} is tested.`
         )
-    const percentTested = helpers.toPercentage(nbTested, data.length)
+    const percentTested = toPercentage(nbTested, data.length)
 
     let foundType = 0
     for (let i = 0; i < nbTested; i++) {
@@ -30,13 +30,13 @@ export default function checkTypeOfKey(
     if (!test) {
         if (threshold === 1) {
             verbose &&
-                helpers.log(
+                log(
                     `=> ${key} : at least one of the tested values (n=${nbTested} / ${percentTested} of data) is not a ${type} (threshold: ${threshold})`,
                     "blue"
                 )
         } else {
             verbose &&
-                helpers.log(
+                log(
                     `=> ${key} : ${
                         (1 - percentTest) * 100
                     }% of tested values (n=${nbTested} / ${percentTested} of data) are not a ${type} (threshold: ${threshold})`,

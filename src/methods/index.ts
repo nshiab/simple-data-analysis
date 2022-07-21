@@ -1,5 +1,3 @@
 import showTable_ from "./showTable.js"
 
-export default {
-    showTable_,
-}
+export { showTable_ }
