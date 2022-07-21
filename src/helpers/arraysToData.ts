@@ -1,4 +1,4 @@
-import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
+import { SimpleDataItem, SimpleDataValue } from "../types/index.js"
 
 export default function arraysToData(data: {
     [key: string]: SimpleDataValue[]

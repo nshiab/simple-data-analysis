@@ -1,5 +1,5 @@
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import hasKey from "../../helpers/hasKey.js"
+import { SimpleDataItem } from "../../types/index.js"
+import { hasKey } from "../../helpers/index.js"
 
 export default function roundValues(
     data: SimpleDataItem[],

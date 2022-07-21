@@ -1,8 +1,8 @@
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import getArray from "../exporting/getArray.js"
-import toPercentage from "../../helpers/toPercentage.js"
-import hasKey from "../../helpers/hasKey.js"
 import { shuffle } from "d3-array"
+
+import { SimpleDataItem } from "../../types/index.js"
+import { getArray_ } from "../exporting/index.js"
+import { hasKey, toPercentage } from "../../helpers/index.js"
 
 export default function checkValues(
     data: SimpleDataItem[],
@@ -36,7 +36,7 @@ export default function checkValues(
         const checks: { [key: string]: string | number } = {}
         checks["key"] = key
 
-        const array = getArray(dataToCheck, key)
+        const array = getArray_(dataToCheck, key)
 
         checks["count"] = array.length
 

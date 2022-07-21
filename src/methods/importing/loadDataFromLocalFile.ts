@@ -1,9 +1,8 @@
-import log from "../../helpers/log.js"
-import getExtension from "../../helpers/getExtension.js"
 import fs from "fs"
 import { csvParse, tsvParse } from "d3-dsv"
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import arraysToData from "../../helpers/arraysToData.js"
+
+import { SimpleDataItem } from "../../types/index.js"
+import { log, getExtension, arraysToData } from "../../helpers/index.js"
 
 export default function loadDataFromLocalFile(
     path: string,

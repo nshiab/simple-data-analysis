@@ -1,6 +1,5 @@
-import log from "../../helpers/log.js"
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import toPercentage from "../../helpers/toPercentage.js"
+import { SimpleDataItem } from "../../types/index.js"
+import { log, toPercentage } from "../../helpers/index.js"
 
 export default function filterItems(
     data: SimpleDataItem[],

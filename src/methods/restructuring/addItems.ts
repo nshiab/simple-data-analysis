@@ -1,9 +1,8 @@
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import isEqual from "lodash.isequal"
-import log from "../../helpers/log.js"
+
+import { SimpleDataItem } from "../../types/index.js"
 import SimpleData from "../../class/SimpleData.js"
-import handleMissingKeys from "../../helpers/handleMissingKeys.js"
-import getUniqueKeys from "../../helpers/getUniqueKeys.js"
+import { getUniqueKeys, handleMissingKeys, log } from "../../helpers/index.js"
 
 export default function addItems(
     data: SimpleDataItem[],

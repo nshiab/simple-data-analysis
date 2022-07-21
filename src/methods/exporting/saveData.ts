@@ -1,9 +1,9 @@
-import getExtension from "../../helpers/getExtension.js"
-import log from "../../helpers/log.js"
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import fs from "fs"
 import { parse } from "json2csv"
-import getDataAsArrays from "./getDataAsArrays.js"
+
+import { SimpleDataItem } from "../../types/index.js"
+import { getExtension, log } from "../../helpers/index.js"
+import { getDataAsArrays_ } from "./index.js"
 
 export default async function saveData(
     data: SimpleDataItem[],
@@ -23,7 +23,7 @@ export default async function saveData(
         verbose && log("=> " + extension + " file extension detected", "blue")
         if (dataAsArrays) {
             verbose && log("=> data as arrays", "blue")
-            fs.writeFileSync(path, JSON.stringify(getDataAsArrays(data)), {
+            fs.writeFileSync(path, JSON.stringify(getDataAsArrays_(data)), {
                 encoding: encoding,
             })
         } else {

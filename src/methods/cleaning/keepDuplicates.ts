@@ -1,8 +1,7 @@
 import isEqual from "lodash.isequal"
-import { SimpleDataItem } from "../../types/SimpleData.types"
-import log from "../../helpers/log.js"
-import toPercentage from "../../helpers/toPercentage.js"
-import hasKey from "../../helpers/hasKey.js"
+
+import { SimpleDataItem } from "../../types/index.js"
+import { log, hasKey, toPercentage } from "../../helpers/index.js"
 
 export default function keepDuplicates(
     data: SimpleDataItem[],

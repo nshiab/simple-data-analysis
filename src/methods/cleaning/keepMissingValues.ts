@@ -1,10 +1,5 @@
-import log from "../../helpers/log.js"
-import toPercentage from "../../helpers/toPercentage.js"
-import {
-    SimpleDataItem,
-    SimpleDataValue,
-} from "../../types/SimpleData.types.js"
-import hasKey from "../../helpers/hasKey.js"
+import { SimpleDataItem, SimpleDataValue } from "../../types/index.js"
+import { log, hasKey, toPercentage } from "../../helpers/index.js"
 
 export default function keepMissingValues(
     data: SimpleDataItem[],

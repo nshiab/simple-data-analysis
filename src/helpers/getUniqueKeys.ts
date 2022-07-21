@@ -1,4 +1,4 @@
-import { SimpleDataItem } from "../types/SimpleData.types"
+import { SimpleDataItem } from "../types/index.js"
 
 export default function getUniqueKeys(data: SimpleDataItem[]): string[] {
     const uniqueKeys = Object.keys(

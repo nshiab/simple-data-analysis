@@ -1,57 +1,70 @@
 import cloneDeep from "lodash.clonedeep"
-import renameKey_ from "../methods/cleaning/renameKey.js"
-import describe_ from "../methods/analyzing/describe.js"
-import formatAllKeys_ from "../methods/cleaning/formatAllKeys.js"
-import getItem_ from "../methods/exporting/getItem.js"
-import getArray_ from "../methods/exporting/getArray.js"
-import getMin_ from "../methods/exporting/getMin.js"
-import getMax_ from "../methods/exporting/getMax.js"
-import getMean_ from "../methods/exporting/getMean.js"
-import getMedian_ from "../methods/exporting/getMedian.js"
-import getSum_ from "../methods/exporting/getSum.js"
-import getDataAsArrays_ from "../methods/exporting/getDataAsArrays.js"
-import showTable_ from "../methods/showTable.js"
-import checkValues_ from "../methods/cleaning/checkValues.js"
-import excludeMissingValues_ from "../methods/cleaning/excludeMissingValues.js"
-import keepMissingValues_ from "../methods/cleaning/keepMissingValues.js"
-import removeKey_ from "../methods/restructuring/removeKey.js"
-import valuesToString_ from "../methods/cleaning/valuesToString.js"
-import valuesToInteger_ from "../methods/cleaning/valuesToInteger.js"
-import valuesToFloat_ from "../methods/cleaning/valuesToFloat.js"
-import valuesToDate_ from "../methods/cleaning/valuesToDate.js"
-import datesToString_ from "../methods/cleaning/datesToString.js"
-import filterValues_ from "../methods/selecting/filterValues.js"
-import filterItems_ from "../methods/selecting/filterItems.js"
-import removeDuplicates_ from "../methods/cleaning/removeDuplicates.js"
-import keepDuplicates_ from "../methods/cleaning/keepDuplicates.js"
-import roundValues_ from "../methods/cleaning/roundValues.js"
-import replaceValues_ from "../methods/cleaning/replaceValues.js"
-import addKey_ from "../methods/restructuring/addKey.js"
-import selectKeys_ from "../methods/selecting/selectKeys.js"
-import modifyValues_ from "../methods/cleaning/modifyValues.js"
-import modifyItems_ from "../methods/cleaning/modifyItems.js"
-import sortValues_ from "../methods/analyzing/sortValues.js"
-import addQuantiles_ from "../methods/analyzing/addQuantiles.js"
-import addBins_ from "../methods/analyzing/addBins.js"
-import addOutliers_ from "../methods/analyzing/addOutliers.js"
-import excludeOutliers_ from "../methods/analyzing/excludeOutliers.js"
-import correlation_ from "../methods/analyzing/correlation.js"
-import addItems_ from "../methods/restructuring/addItems.js"
-import getUniqueValues_ from "../methods/exporting/getUniqueValues.js"
-import summarize_ from "../methods/analyzing/summarize.js"
-import addPercentageDistribution_ from "../methods/analyzing/addPercentageDistribution.js"
-import addVariation_ from "../methods/analyzing/addVariation.js"
-import mergeItems_ from "../methods/restructuring/mergeItems.js"
-import keysToValues_ from "../methods/restructuring/keysToValues.js"
-import valuesToKeys_ from "../methods/restructuring/valuesToKeys.js"
-import handleMissingKeys from "../helpers/handleMissingKeys.js"
-import { logCall, asyncLogCall } from "../helpers/logCall.js"
-import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
-import loadDataFromUrlWeb_ from "../methods/importing/loadDataFromUrlWeb.js"
-import getChart_ from "../methods/visualizing/getChart.js"
-import getCustomChart_ from "../methods/visualizing/getCustomChart.js"
-import log from "../helpers/log.js"
-import arraysToData from "../helpers/arraysToData.js"
+
+import { SimpleDataItem, SimpleDataValue } from "../types/index.js"
+import {
+    addBins_,
+    addOutliers_,
+    addPercentageDistribution_,
+    addQuantiles_,
+    addVariation_,
+    correlation_,
+    describe_,
+    excludeOutliers_,
+    sortValues_,
+    summarize_,
+} from "../methods/analyzing/index.js"
+import {
+    checkValues_,
+    datesToString_,
+    excludeMissingValues_,
+    formatAllKeys_,
+    keepDuplicates_,
+    keepMissingValues_,
+    modifyItems_,
+    modifyValues_,
+    removeDuplicates_,
+    renameKey_,
+    replaceValues_,
+    roundValues_,
+    valuesToDate_,
+    valuesToFloat_,
+    valuesToInteger_,
+    valuesToString_,
+} from "../methods/cleaning/index.js"
+import {
+    getArray_,
+    getDataAsArrays_,
+    getItem_,
+    getMax_,
+    getMean_,
+    getMedian_,
+    getMin_,
+    getSum_,
+    getUniqueValues_,
+} from "../methods/exporting/index.js"
+import { loadDataFromUrlWeb_ } from "../methods/importing/index.js"
+import {
+    addItems_,
+    addKey_,
+    keysToValues_,
+    mergeItems_,
+    removeKey_,
+    valuesToKeys_,
+} from "../methods/restructuring/index.js"
+import {
+    filterItems_,
+    filterValues_,
+    selectKeys_,
+} from "../methods/selecting/index.js"
+import { getChart_, getCustomChart_ } from "../methods/visualizing/index.js"
+import { showTable_ } from "../methods/index.js"
+import {
+    arraysToData,
+    asyncLogCall,
+    handleMissingKeys,
+    log,
+    logCall,
+} from "../helpers/index.js"
 
 /**
  * SimpleData usage example.

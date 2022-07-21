@@ -1,15 +1,20 @@
 import fs from "fs"
 import { JSDOM } from "jsdom"
-import SimpleData from "./SimpleData.js"
-import { SimpleDataItem } from "../types/SimpleData.types"
-import loadDataFromLocalFile_ from "../methods/importing/loadDataFromLocalFile.js"
-import saveData_ from "../methods/exporting/saveData.js"
-import { logCall, asyncLogCall } from "../helpers/logCall.js"
-import handleMissingKeys from "../helpers/handleMissingKeys.js"
-import log from "../helpers/log.js"
-import loadDataFromUrlNode_ from "../methods/importing/loadDataFromUrlNode.js"
-import getChart from "../methods/visualizing/getChart.js"
-import getCustomChart from "../methods/visualizing/getCustomChart.js"
+
+import { SimpleData } from "./index.js"
+import { SimpleDataItem } from "../types/index.js"
+import { saveData_ } from "../methods/exporting/indexNode.js"
+import {
+    loadDataFromLocalFile_,
+    loadDataFromUrlNode_,
+} from "../methods/importing/indexNode.js"
+import { getChart_, getCustomChart_ } from "../methods/visualizing/index.js"
+import {
+    asyncLogCall,
+    logCall,
+    handleMissingKeys,
+    log,
+} from "../helpers/index.js"
 
 export default class SimpleDataNode extends SimpleData {
     // If modified, might need to be modified in SimpleData too
@@ -157,7 +162,7 @@ export default class SimpleDataNode extends SimpleData {
             global.document = jsdom.window.document
         }
 
-        const chart = getChart(
+        const chart = getChart_(
             this._data,
             type,
             x,
@@ -191,7 +196,7 @@ export default class SimpleDataNode extends SimpleData {
             global.document = jsdom.window.document
         }
 
-        const chart = getCustomChart(plotOptions)
+        const chart = getCustomChart_(plotOptions)
 
         fs.writeFileSync(path, chart)
         this.verbose && log(`=> chart saved to ${path}`, "blue")

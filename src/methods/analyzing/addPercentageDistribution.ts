@@ -1,8 +1,7 @@
 import { flatRollup, sum } from "d3-array"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
-import hasKey from "../../helpers/hasKey.js"
-import log from "../../helpers/log.js"
-import { SimpleDataItem } from "../../types/SimpleData.types"
+
+import { SimpleDataItem } from "../../types/index.js"
+import { log, hasKey, checkTypeOfKey } from "../../helpers/index.js"
 
 export default function addPercentageDistribution(
     data: SimpleDataItem[],

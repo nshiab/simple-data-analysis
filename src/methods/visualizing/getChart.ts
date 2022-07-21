@@ -1,4 +1,3 @@
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import {
     dot,
     line,
@@ -8,9 +7,10 @@ import {
     boxX,
     linearRegressionY,
 } from "@observablehq/plot"
-import plotChart from "../../helpers/plotChart.js"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 import { regressionLinear } from "d3-regression"
+
+import { SimpleDataItem } from "../../types/index.js"
+import { plotChart, checkTypeOfKey } from "../../helpers/index.js"
 
 export default function getChart(
     data: SimpleDataItem[],

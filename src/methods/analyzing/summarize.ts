@@ -1,9 +1,8 @@
-import log from "../../helpers/log.js"
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { flatRollup, mean, sum, median, max, min, deviation } from "d3-array"
 import isEqual from "lodash.isequal"
-import hasKey from "../../helpers/hasKey.js"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
+
+import { SimpleDataItem } from "../../types/index.js"
+import { hasKey, log, checkTypeOfKey } from "../../helpers/index.js"
 
 export default function summarize(
     data: SimpleDataItem[],

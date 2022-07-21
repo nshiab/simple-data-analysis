@@ -1,10 +1,7 @@
-import {
-    SimpleDataItem,
-    SimpleDataValue,
-} from "../../types/SimpleData.types.js"
-import hasKey from "../../helpers/hasKey.js"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 import { median } from "d3-array"
+
+import { SimpleDataItem, SimpleDataValue } from "../../types/index.js"
+import { hasKey, checkTypeOfKey } from "../../helpers/index.js"
 
 export default function getMedian(
     data: SimpleDataItem[],

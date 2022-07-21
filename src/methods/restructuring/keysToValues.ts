@@ -1,6 +1,5 @@
-import hasKey from "../../helpers/hasKey.js"
-import log from "../../helpers/log.js"
-import { SimpleDataItem, SimpleDataValue } from "../../types/SimpleData.types"
+import { SimpleDataItem, SimpleDataValue } from "../../types/index.js"
+import { log, hasKey } from "../../helpers/index.js"
 
 export default function keysToValues(
     data: SimpleDataItem[],

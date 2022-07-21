@@ -1,9 +1,8 @@
 import axios from "axios"
 import { csvParse, tsvParse } from "d3-dsv"
-import arraysToData from "../../helpers/arraysToData.js"
-import getExtension from "../../helpers/getExtension.js"
-import log from "../../helpers/log.js"
-import { SimpleDataItem } from "../../types/SimpleData.types"
+
+import { SimpleDataItem } from "../../types/index.js"
+import { getExtension, log, arraysToData } from "../../helpers/index.js"
 
 export default async function loadDataFromUrlNode(
     url: string,

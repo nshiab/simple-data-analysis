@@ -1,8 +1,7 @@
 import { csv, tsv, json } from "d3-fetch"
-import arraysToData from "../../helpers/arraysToData.js"
-import getExtension from "../../helpers/getExtension.js"
-import log from "../../helpers/log.js"
-import { SimpleDataItem, SimpleDataValue } from "../../types/SimpleData.types"
+
+import { SimpleDataItem, SimpleDataValue } from "../../types/index.js"
+import { log, arraysToData, getExtension } from "../../helpers/index.js"
 
 export default async function loadDataFromUrlWeb(
     url: string,

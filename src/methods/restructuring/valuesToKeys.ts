@@ -1,8 +1,7 @@
-import hasKey from "../../helpers/hasKey.js"
-import log from "../../helpers/log.js"
-import { SimpleDataItem, SimpleDataValue } from "../../types/SimpleData.types"
-import removeDuplicates from "../cleaning/removeDuplicates.js"
-import getUniqueValues from "../exporting/getUniqueValues.js"
+import { SimpleDataItem, SimpleDataValue } from "../../types/index.js"
+import { hasKey, log } from "../../helpers/index.js"
+import { removeDuplicates_ } from "../cleaning/index.js"
+import { getUniqueValues_ } from "../exporting/index.js"
 
 export default function valuesToKeys(
     data: SimpleDataItem[],
@@ -21,9 +20,9 @@ export default function valuesToKeys(
         (d) => ![newKeys, newValues].includes(d)
     )
 
-    const keysToAdd = getUniqueValues(data, newKeys)
+    const keysToAdd = getUniqueValues_(data, newKeys)
 
-    const newData = removeDuplicates(
+    const newData = removeDuplicates_(
         data.map((d) => {
             const newItem: { [key: string]: SimpleDataValue } = {}
             for (const key of keysToKeep) {
