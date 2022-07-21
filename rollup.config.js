@@ -30,29 +30,8 @@ export default [
 	{
 		input: 'src/indexWeb.ts',
 		output: {
-			file: `dist/${meta.name}.js`,
-			name: "sda",
-			format: "umd",
-			banner: banner,
-			inlineDynamicImports: true,
-			sourcemap: true
-		},
-		plugins: [
-			...commonPlugins,
-			visualizer((opts) => {
-				return { gzipSize: true, filename: "bundleSizeUMD.html" }
-			})
-		],
-		onwarn(message, warn) {
-			if (message.code === "CIRCULAR_DEPENDENCY") return;
-			warn(message);
-		}
-	},
-	{
-		input: 'src/indexWeb.ts',
-		output: {
 			file: `dist/${meta.name}.min.js`,
-			format: 'umd',
+			format: 'iife',
 			name: "sda",
 			banner: banner,
 			inlineDynamicImports: true,
