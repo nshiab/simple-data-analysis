@@ -21,7 +21,18 @@ export default function valuesToFloat(
                 .replace(thousandSeparatorRegex, "")
                 .replace(decimalSeparator, ".")
             if (isValidNumber(valueClean)) {
-                data[i][key] = parseFloat(valueClean)
+                const newVal = parseFloat(valueClean)
+                if (!skipErrors && isNaN(newVal)) {
+                    throw new Error(
+                        value +
+                            " (" +
+                            valueClean +
+                            " after ajusting thousandSeparator and decimalSeparator) is converted to " +
+                            newVal +
+                            " which is not a float. If you want to ignore values that are not valid, pass { skipErrors: true }."
+                    )
+                }
+                data[i][key] = newVal
             } else {
                 if (!skipErrors) {
                     throw new Error(

@@ -21,6 +21,15 @@ export default function valuesToInteger(
                 .replace(thousandSeparatorRegex, "")
                 .replace(decimalSeparator, ".")
             if (isValidNumber(valueClean)) {
+                const newValue = parseInt(valueClean)
+                if (!skipErrors && !Number.isInteger(newValue)) {
+                    throw new Error(
+                        value +
+                            " is converted to " +
+                            newValue +
+                            " is not an integer. If you want to ignore values that are not valid, pass { skipErrors: true }."
+                    )
+                }
                 data[i][key] = parseInt(valueClean)
             } else {
                 if (!skipErrors) {
@@ -36,7 +45,7 @@ export default function valuesToInteger(
             if (!skipErrors && !Number.isInteger(value)) {
                 throw new Error(
                     value +
-                        " is not a valid number. If you want to ignore values that are not valid, pass { skipErrors: true }."
+                        " is not a valid integer. If you want to ignore values that are not valid, pass { skipErrors: true }."
                 )
             }
         }

@@ -108,6 +108,10 @@ async function main() {
         .valuesToString({ key: "unit" })
         .valuesToInteger({ key: "unit" })
         .valuesToString({ key: "unit" })
+        .filterValues({
+            key: "hireDate",
+            valueComparator: (hireDate) => hireDate !== "07-ARB-07",
+        })
         .valuesToDate({ key: "hireDate", format: "%d-%b-%y" })
         .datesToString({
             key: "hireDate",
