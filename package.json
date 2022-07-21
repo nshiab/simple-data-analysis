@@ -1,6 +1,6 @@
 {
     "name": "simple-data-analysis",
-    "version": "0.32.0",
+    "version": "0.34.0",
     "description": "Easy to use library for most common data analysis tasks.",
     "homepage": "https://github.com/nshiab/simple-data-analysis#readme",
     "repository": {
@@ -30,7 +30,7 @@
     "jsdelivr": "dist/simple-data-analysis.min.js",
     "unpkg": "dist/simple-data-analysis.min.js",
     "exports": {
-        "umd": "./dist/simple-data-analysis.min.js",
+        "iife": "./dist/simple-data-analysis.min.js",
         "node": "./dist/index.js",
         "default": "./dist/indexWeb.js"
     },
