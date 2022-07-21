@@ -46,7 +46,13 @@ export default function addPercentageDistribution(
                 )
             }
             if (
-                !helpers.checkTypeOfKey(data, key, "number", 0.5, nbTestedValues)
+                !helpers.checkTypeOfKey(
+                    data,
+                    key,
+                    "number",
+                    0.5,
+                    nbTestedValues
+                )
             ) {
                 throw new Error(
                     "The majority of values inside " + key + " are not numbers."

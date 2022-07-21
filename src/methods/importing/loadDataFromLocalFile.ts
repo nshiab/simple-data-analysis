@@ -4,7 +4,6 @@ import { csvParse, tsvParse, autoType } from "d3-dsv"
 import { SimpleDataItem } from "../../types/index.js"
 import helpers from "../../helpers/index.js"
 
-
 export default function loadDataFromLocalFile(
     path: string,
     dataAsArrays = false,

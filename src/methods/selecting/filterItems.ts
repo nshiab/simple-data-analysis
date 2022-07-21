@@ -1,7 +1,6 @@
 import { SimpleDataItem } from "../../types/index.js"
 import helpers from "../../helpers/index.js"
 
-
 export default function filterItems(
     data: SimpleDataItem[],
     itemComparator: (item: SimpleDataItem) => boolean,

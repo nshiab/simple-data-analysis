@@ -4,7 +4,6 @@ import { SimpleDataItem } from "../../types/index.js"
 import SimpleData from "../../class/SimpleData.js"
 import helpers from "../../helpers/index.js"
 
-
 export default function addItems(
     data: SimpleDataItem[],
     dataToBeAdded: SimpleDataItem[] | SimpleData,
