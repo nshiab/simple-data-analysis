@@ -1,6 +1,15 @@
-export { default as addItems_ } from "./addItems.js"
-export { default as addKey_ } from "./addKey.js"
-export { default as keysToValues_ } from "./keysToValues.js"
-export { default as mergeItems_ } from "./mergeItems.js"
-export { default as removeKey_ } from "./removeKey.js"
-export { default as valuesToKeys_ } from "./valuesToKeys.js"
+import addItems_ from "./addItems.js"
+import addKey_ from "./addKey.js"
+import keysToValues_ from "./keysToValues.js"
+import mergeItems_ from "./mergeItems.js"
+import removeKey_ from "./removeKey.js"
+import valuesToKeys_ from "./valuesToKeys.js"
+
+export default {
+    addItems_,
+    addKey_,
+    keysToValues_,
+    mergeItems_,
+    removeKey_,
+    valuesToKeys_,
+}

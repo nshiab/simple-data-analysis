@@ -3,17 +3,12 @@ import cloneDeep from "lodash.clonedeep"
 import analyzing from "../methods/analyzing/index.js"
 import cleaning from "../methods/cleaning/index.js"
 import exporting from "../methods/exporting/index.js"
+import restructuring from "../methods/restructuring/index.js"
 
 import showTable_ from "../methods/showTable.js"
-import removeKey_ from "../methods/restructuring/removeKey.js"
 import filterValues_ from "../methods/selecting/filterValues.js"
 import filterItems_ from "../methods/selecting/filterItems.js"
-import addKey_ from "../methods/restructuring/addKey.js"
 import selectKeys_ from "../methods/selecting/selectKeys.js"
-import addItems_ from "../methods/restructuring/addItems.js"
-import mergeItems_ from "../methods/restructuring/mergeItems.js"
-import keysToValues_ from "../methods/restructuring/keysToValues.js"
-import valuesToKeys_ from "../methods/restructuring/valuesToKeys.js"
 import handleMissingKeys from "../helpers/handleMissingKeys.js"
 import { logCall, asyncLogCall } from "../helpers/logCall.js"
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
@@ -509,7 +504,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = removeKey_(cloneDeep(this._data), key)
+        this._tempData = restructuring.removeKey_(cloneDeep(this._data), key)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -526,7 +521,11 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = addKey_(cloneDeep(this._data), key, itemGenerator)
+        this._tempData = restructuring.addKey_(
+            cloneDeep(this._data),
+            key,
+            itemGenerator
+        )
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -543,7 +542,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = addItems_(
+        this._tempData = restructuring.addItems_(
             cloneDeep(this._data),
             dataToBeAdded,
             fillMissingKeys,
@@ -567,7 +566,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = mergeItems_(
+        this._tempData = restructuring.mergeItems_(
             cloneDeep(this._data),
             dataToBeMerged,
             commonKey,
@@ -590,7 +589,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = valuesToKeys_(
+        this._tempData = restructuring.valuesToKeys_(
             cloneDeep(this._data),
             newKeys,
             newValues,
@@ -614,7 +613,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = keysToValues_(
+        this._tempData = restructuring.keysToValues_(
             cloneDeep(this._data),
             keys,
             newKeyForKeys,
