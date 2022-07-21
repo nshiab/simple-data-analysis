@@ -4,48 +4,52 @@ import helpers from "../../helpers/index.js"
 export default function valuesToFloat(
     data: SimpleDataItem[],
     key: string,
-    language: "fr" | "en" = "en",
+    thousandSeparator = ",",
+    decimalSeparator = ".",
     skipErrors = false
 ): SimpleDataItem[] {
     if (!helpers.hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
 
-    if (language === "en") {
-        for (let i = 0; i < data.length; i++) {
-            const value = data[i][key]
-            if (typeof value !== "string") {
+    const thousandSeparatorRegex = new RegExp(thousandSeparator, "g")
+    for (let i = 0; i < data.length; i++) {
+        const value = data[i][key]
+        if (typeof value === "string") {
+            const valueClean = value
+                .replace(thousandSeparatorRegex, "")
+                .replace(decimalSeparator, ".")
+            if (helpers.isValidNumber(valueClean)) {
+                const newVal = parseFloat(valueClean)
+                if (!skipErrors && isNaN(newVal)) {
+                    throw new Error(
+                        value +
+                            " (" +
+                            valueClean +
+                            " after ajusting thousandSeparator and decimalSeparator) is converted to " +
+                            newVal +
+                            " which is not a float. If you want to ignore values that are not valid, pass { skipErrors: true }."
+                    )
+                }
+                data[i][key] = newVal
+            } else {
                 if (!skipErrors) {
                     throw new Error(
                         value +
-                            " is not a string. Convert to string first (valuesToString()). If you want to ignore values that are not strings, pass { skipErrors: true }."
+                            " (" +
+                            valueClean +
+                            " after ajusting thousandSeparator and decimalSeparator) is not a valid number. If you want to ignore values that are not valid, pass { skipErrors: true }."
                     )
                 }
-            } else {
-                data[i][key] = parseFloat(value.replace(/,/g, ""))
             }
-        }
-    } else if (language === "fr") {
-        for (let i = 0; i < data.length; i++) {
-            const value = data[i][key]
-            if (typeof value !== "string") {
-                if (!skipErrors) {
-                    throw new Error(
-                        value +
-                            " is not a string. Convert to string first (valuesToString()). If you want to ignore values that are not strings, pass { skipErrors: true }."
-                    )
-                }
-            } else {
-                data[i][key] = parseFloat(
-                    value
-                        .replace(/ /g, "")
-                        .replace(/\u00A0/g, "")
-                        .replace(",", ".")
+        } else {
+            if (!skipErrors && typeof value !== "number") {
+                throw new Error(
+                    value +
+                        " is not a valid number. If you want to ignore values that are not valid, pass { skipErrors: true }."
                 )
             }
         }
-    } else {
-        throw new Error("Unknown langage. Only en and fr are supported.")
     }
 
     return data

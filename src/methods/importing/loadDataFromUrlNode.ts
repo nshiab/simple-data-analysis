@@ -1,5 +1,5 @@
 import axios from "axios"
-import { csvParse, tsvParse, autoType } from "d3-dsv"
+import { csvParse, tsvParse } from "d3-dsv"
 
 import { SimpleDataItem } from "../../types/index.js"
 import helpers from "../../helpers/index.js"
@@ -29,9 +29,9 @@ export default async function loadDataFromUrlNode(
             helpers.log(`=> ${fileExtension} file extension detected`, "blue")
 
         if (fileExtension === "csv") {
-            arrayOfObjects = csvParse(data, autoType) as SimpleDataItem[]
+            arrayOfObjects = csvParse(data) as SimpleDataItem[]
         } else if (fileExtension === "tsv") {
-            arrayOfObjects = tsvParse(data, autoType) as SimpleDataItem[]
+            arrayOfObjects = tsvParse(data) as SimpleDataItem[]
         }
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

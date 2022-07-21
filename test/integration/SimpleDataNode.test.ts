@@ -35,7 +35,7 @@ async function main() {
             newValue: "",
             method: "partialString",
         })
-        .valuesToFloat({ key: "bonus", language: "fr" })
+        .valuesToFloat({ key: "bonus" })
 
     temporaryDirectoryTask((tempDir) => {
         simpleDataNode

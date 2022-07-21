@@ -1,5 +1,5 @@
 import fs from "fs"
-import { csvParse, tsvParse, autoType } from "d3-dsv"
+import { csvParse, tsvParse } from "d3-dsv"
 
 import { SimpleDataItem } from "../../types/index.js"
 import helpers from "../../helpers/index.js"
@@ -32,9 +32,9 @@ export default function loadDataFromLocalFile(
         const dsvString = fs.readFileSync(path, { encoding: encoding })
 
         if (fileExtension === "csv") {
-            arrayOfObjects = csvParse(dsvString, autoType) as SimpleDataItem[]
+            arrayOfObjects = csvParse(dsvString) as SimpleDataItem[]
         } else if (fileExtension === "tsv") {
-            arrayOfObjects = tsvParse(dsvString, autoType) as SimpleDataItem[]
+            arrayOfObjects = tsvParse(dsvString) as SimpleDataItem[]
         }
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

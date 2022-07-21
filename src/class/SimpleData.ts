@@ -284,12 +284,14 @@ export default class SimpleData {
     @helpers.logCall()
     valuesToInteger({
         key,
-        language = "en",
+        thousandSeparator = ",",
+        decimalSeparator = ".",
         skipErrors = false,
         overwrite = true,
     }: {
         key: string
-        language?: "en" | "fr"
+        thousandSeparator?: string
+        decimalSeparator?: string
         skipErrors?: boolean
         overwrite?: boolean
     }): this {
@@ -297,7 +299,8 @@ export default class SimpleData {
         this._tempData = cleaning.valuesToInteger_(
             cloneDeep(this._data),
             key,
-            language,
+            thousandSeparator,
+            decimalSeparator,
             skipErrors
         )
         overwrite && this.#updateSimpleData(this._tempData)
@@ -308,12 +311,14 @@ export default class SimpleData {
     @helpers.logCall()
     valuesToFloat({
         key,
-        language = "en",
+        thousandSeparator = ",",
+        decimalSeparator = ".",
         skipErrors = false,
         overwrite = true,
     }: {
         key: string
-        language?: "en" | "fr"
+        thousandSeparator?: string
+        decimalSeparator?: string
         skipErrors?: boolean
         overwrite?: boolean
     }): this {
@@ -321,7 +326,8 @@ export default class SimpleData {
         this._tempData = cleaning.valuesToFloat_(
             cloneDeep(this._data),
             key,
-            language,
+            thousandSeparator,
+            decimalSeparator,
             skipErrors
         )
         overwrite && this.#updateSimpleData(this._tempData)
@@ -1013,6 +1019,10 @@ export default class SimpleData {
     // No @logCall otherwise it's triggered everywhere, including in methods
     getData(): SimpleDataItem[] {
         return this._data
+    }
+
+    getLength(): number {
+        return this._data.length
     }
 
     //No @logCall otherwise it's triggered everywhere, including in methods
