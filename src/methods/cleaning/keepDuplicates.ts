@@ -16,8 +16,8 @@ export default function keepDuplicates(
             }
         }
     } else {
-        const uniqueKeys = helpers.getUniqueKeys(data)
-        if (!uniqueKeys.includes(key)) {
+
+        if (!helpers.hasKey(data[0], key)) {
             throw new Error(`${key} key is not present in data.`)
         }
         for (let i = 0; i < data.length; i++) {

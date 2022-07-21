@@ -412,14 +412,14 @@ export default class SimpleData {
         key,
         oldValue,
         newValue,
-        method = "entireString",
+        method = undefined,
         skipErrors = false,
         overwrite = true,
     }: {
         key: string
         oldValue: string
         newValue: string
-        method: "entireString" | "partialString"
+        method?: undefined | "entireString" | "partialString"
         skipErrors?: boolean
         overwrite?: boolean
     }): this {
@@ -692,13 +692,19 @@ export default class SimpleData {
     @helpers.logCall()
     removeDuplicates({
         key,
+        nbToKeep = 1,
         overwrite = true,
-    }: { key?: string; overwrite?: boolean } = {}): this {
+    }: {
+        key?: string
+        nbToKeep?: number
+        overwrite?: boolean
+    } = {}): this {
         this._overwrite = overwrite
         this._tempData = cleaning.removeDuplicates_(
             cloneDeep(this._data),
             key,
-            this.verbose || !this._overwrite
+            nbToKeep,
+            this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)
 
@@ -714,7 +720,7 @@ export default class SimpleData {
         this._tempData = cleaning.keepDuplicates_(
             cloneDeep(this._data),
             key,
-            this.verbose || !this._overwrite
+            this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)
 

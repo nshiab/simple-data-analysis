@@ -200,6 +200,8 @@ You also have special properties to facilitate your work. If you create a Simple
 
 If, for some reason, you want to chain a method but not overwrite the data, you can pass `overwrite: false` to the method (like this `simpleData.summarize({ overwrite: false })`). The result of the method will be logged in the console (even if verbose is set to false), but the data passed to the next chained method will not be modified.
 
+If you are curious about how much time everything took, you can use the *showDuration()* method to log this information. After logging, this method returns the SimpleData instance, so you can chain it anywhere you want, just like *showTable()*. If you want to retrieve the duration and put it inside a variable, use *getDuration()* which will return the number of milliseconds.
+
 For a description of all methods available, check this [Observable notebook](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript) or our [automatically generated documentation](https://nshiab.github.io/simple-data-analysis/).
 
 ## SimpleDataNode
