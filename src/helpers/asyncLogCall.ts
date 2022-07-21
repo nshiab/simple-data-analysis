@@ -1,6 +1,6 @@
-import showTable from "../methods/showTable.js"
-import log from "./log.js"
-import { SimpleDataItem } from "../types/SimpleData.types.js"
+import { SimpleDataItem } from "../types/index.js"
+import methods from "../methods/index.js"
+import helpers from "../helpers/index.js"
 
 export default function asyncLogCall() {
     return function (
@@ -16,9 +16,9 @@ export default function asyncLogCall() {
             ...args: any[]
         ) {
             if (this.verbose) {
-                log("\n" + key + "()")
-                this.logParameters && log("parameters:")
-                this.logParameters && log(args)
+                helpers.log("\n" + key + "()")
+                this.logParameters && helpers.log("parameters:")
+                this.logParameters && helpers.log(args)
             }
 
             const start = Date.now()
@@ -26,8 +26,8 @@ export default function asyncLogCall() {
             const end = Date.now()
 
             if (this.verbose) {
-                showTable(this._tempData, this.nbTableItemsToLog)
-                log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
+                methods.showTable_(this._tempData, this.nbTableItemsToLog)
+                helpers.log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
             }
 
             return result

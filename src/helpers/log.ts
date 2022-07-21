@@ -1,4 +1,4 @@
-import checkEnvironment from "./checkEnvironment.js"
+import helpers from "../helpers/index.js"
 
 export default function log(
     valuesToLog: object | string | number,
@@ -6,7 +6,7 @@ export default function log(
 ) {
     // TODO: colors for web browser
 
-    const environment = checkEnvironment()
+    const environment = helpers.checkEnvironment()
 
     if (environment === "nodejs") {
         if (color === "bgRed") {

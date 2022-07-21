@@ -1,7 +1,7 @@
-import { SimpleDataItem } from "../types/SimpleData.types.js"
 import isEqual from "lodash.isequal"
-import log from "./log.js"
-import getUniqueKeys from "./getUniqueKeys.js"
+
+import { SimpleDataItem } from "../types/index.js"
+import helpers from "../helpers/index.js"
 
 export default function handleMissingKeys(
     data: SimpleDataItem[],
@@ -10,7 +10,7 @@ export default function handleMissingKeys(
     verbose?: boolean
 ) {
     if (uniqueKeys === undefined) {
-        uniqueKeys = getUniqueKeys(data)
+        uniqueKeys = helpers.getUniqueKeys(data)
     }
 
     for (let i = 0; i < data.length; i++) {
@@ -33,7 +33,7 @@ export default function handleMissingKeys(
         for (const key of missingKeys) {
             data[i][key] = undefined
             verbose &&
-                log(
+                helpers.log(
                     `Missing key ${key} for item index ${i}. Adding value as undefined.`
                 )
         }

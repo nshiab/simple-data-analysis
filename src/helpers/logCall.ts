@@ -1,7 +1,7 @@
-import showTable from "../methods/showTable.js"
+import { SimpleDataItem } from "../types/index.js"
 import SimpleData from "../class/SimpleData.js"
-import log from "./log.js"
-import { SimpleDataItem } from "../types/SimpleData.types.js"
+import methods from "../methods/index.js"
+import helpers from "../helpers/index.js"
 
 export default function logCall() {
     return function (
@@ -17,9 +17,9 @@ export default function logCall() {
             ...args: any[]
         ) {
             if (!this.noLogs && (this.verbose || !this._overwrite)) {
-                log("\n" + key + "()")
-                this.logParameters && log("parameters:")
-                this.logParameters && log(args)
+                helpers.log("\n" + key + "()")
+                this.logParameters && helpers.log("parameters:")
+                this.logParameters && helpers.log(args)
             }
 
             const start = Date.now()
@@ -32,9 +32,9 @@ export default function logCall() {
                 if (!key.includes("Chart") && !key.includes("save")) {
                     const data =
                         result instanceof SimpleData ? result._tempData : result
-                    showTable(data, this.nbTableItemsToLog)
+                    methods.showTable_(data, this.nbTableItemsToLog)
                 }
-                log(
+                helpers.log(
                     `Done in ${(duration / 1000).toFixed(
                         3
                     )} sec. / Total duration ${(this._duration / 1000).toFixed(
@@ -45,9 +45,9 @@ export default function logCall() {
                 if (!key.includes("Chart") && !key.includes("save")) {
                     const data =
                         result instanceof SimpleData ? result.getData() : result
-                    showTable(data, this.nbTableItemsToLog)
+                    methods.showTable_(data, this.nbTableItemsToLog)
                 }
-                log(
+                helpers.log(
                     `Done in ${((end - start) / 1000).toFixed(
                         3
                     )} sec. / Total duration ${(this._duration / 1000).toFixed(
