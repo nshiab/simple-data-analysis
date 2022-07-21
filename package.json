@@ -30,7 +30,7 @@
     "jsdelivr": "dist/simple-data-analysis.min.js",
     "unpkg": "dist/simple-data-analysis.min.js",
     "exports": {
-        "umd": "./dist/simple-data-analysis.min.js",
+        "iife": "./dist/simple-data-analysis.min.js",
         "node": "./dist/index.js",
         "default": "./dist/indexWeb.js"
     },
