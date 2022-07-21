@@ -1,5 +1,5 @@
-import saveDocument_ from "../methods/exporting/saveDocument.js";
-import checkEnvironment from "../helpers/checkEnvironment.js";
+import exporting from "../methods/exporting/indexNode.js"
+import helpers from "../helpers/index.js"
 
 export default class SimpleDocument {
   _components: (JSX.Element | string)[];
@@ -13,8 +13,8 @@ export default class SimpleDocument {
     verbose?: boolean
     noLogs?: boolean
   } = {}) {
-    if (checkEnvironment() !== "nodejs") {
-      throw new Error("SimpleDocument is available for NodeJS only.");
+    if (helpers.checkEnvironment() !== "nodejs") {
+        throw new Error("SimpleDocument is available for NodeJS only.")
     }
     this._components = [];
     this.verbose = !noLogs && verbose
@@ -34,7 +34,7 @@ export default class SimpleDocument {
   }
 
   saveDocument({ path }: { path: string }) {
-    saveDocument_(this.components, path, this.verbose);
+    exporting.saveDocument_(this.components, path, this.verbose)
 
     return this;
   }

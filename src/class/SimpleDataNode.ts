@@ -1,16 +1,12 @@
 import fs from "fs"
 import { JSDOM } from "jsdom"
-import SimpleData from "./SimpleData.js"
-import { SimpleDataItem } from "../types/SimpleData.types"
-import loadDataFromLocalFile_ from "../methods/importing/loadDataFromLocalFile.js"
-import saveData_ from "../methods/exporting/saveData.js"
-import logCall from "../helpers/logCall.js"
-import asyncLogCall from "../helpers/asyncLogCall.js"
-import handleMissingKeys from "../helpers/handleMissingKeys.js"
-import log from "../helpers/log.js"
-import loadDataFromUrlNode_ from "../methods/importing/loadDataFromUrlNode.js"
-import getChart from "../methods/visualizing/getChart.js"
-import getCustomChart from "../methods/visualizing/getCustomChart.js"
+
+import { SimpleData } from "./index.js"
+import { SimpleDataItem } from "../types/index.js"
+import exporting from "../methods/exporting/indexNode.js"
+import importing from "../methods/importing/indexNode.js"
+import visualizing from "../methods/visualizing/index.js"
+import helpers from "../helpers/index.js"
 
 export default class SimpleDataNode extends SimpleData {
     // If modified, might need to be modified in SimpleData too
@@ -20,7 +16,7 @@ export default class SimpleDataNode extends SimpleData {
 
     // ** OVERWRITING METHODS ** //
 
-    @asyncLogCall()
+    @helpers.asyncLogCall()
     async loadDataFromUrl({
         url,
         dataAsArrays = false,
@@ -36,7 +32,7 @@ export default class SimpleDataNode extends SimpleData {
         firstItem?: number
         lastItem?: number
     }): Promise<this> {
-        const data = await loadDataFromUrlNode_(
+        const data = await importing.loadDataFromUrlNode_(
             url,
             dataAsArrays,
             firstItem,
@@ -49,7 +45,12 @@ export default class SimpleDataNode extends SimpleData {
             throw new Error("Incoming data is empty.")
         }
 
-        handleMissingKeys(data, fillMissingKeys, undefined, this.verbose)
+        helpers.handleMissingKeys(
+            data,
+            fillMissingKeys,
+            undefined,
+            this.verbose
+        )
 
         this._tempData = data
         this.#updateSimpleData(data)
@@ -59,7 +60,7 @@ export default class SimpleDataNode extends SimpleData {
 
     // ** SPECIFIC NODEJS METHODS ** //
 
-    @logCall()
+    @helpers.logCall()
     loadDataFromLocalFile({
         path,
         dataAsArrays = false,
@@ -83,7 +84,7 @@ export default class SimpleDataNode extends SimpleData {
             )
         }
 
-        const data = loadDataFromLocalFile_(
+        const data = importing.loadDataFromLocalFile_(
             path,
             dataAsArrays,
             firstItem,
@@ -97,7 +98,12 @@ export default class SimpleDataNode extends SimpleData {
             throw new Error("Incoming data is empty.")
         }
 
-        handleMissingKeys(data, fillMissingKeys, undefined, this.verbose)
+        helpers.handleMissingKeys(
+            data,
+            fillMissingKeys,
+            undefined,
+            this.verbose
+        )
 
         this._tempData = data // important for decorator
         this.#updateSimpleData(data)
@@ -105,7 +111,7 @@ export default class SimpleDataNode extends SimpleData {
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     saveData({
         path,
         dataAsArrays = false,
@@ -115,12 +121,18 @@ export default class SimpleDataNode extends SimpleData {
         dataAsArrays?: boolean
         encoding?: BufferEncoding
     }): this {
-        saveData_(this._data, path, dataAsArrays, this.verbose, encoding)
+        exporting.saveData_(
+            this._data,
+            path,
+            dataAsArrays,
+            this.verbose,
+            encoding
+        )
 
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     saveChart({
         path,
         type,
@@ -158,7 +170,7 @@ export default class SimpleDataNode extends SimpleData {
             global.document = jsdom.window.document
         }
 
-        const chart = getChart(
+        const chart = visualizing.getChart_(
             this._data,
             type,
             x,
@@ -171,12 +183,12 @@ export default class SimpleDataNode extends SimpleData {
         )
 
         fs.writeFileSync(path, chart)
-        this.verbose && log(`=> chart saved to ${path}`, "blue")
+        this.verbose && helpers.log(`=> chart saved to ${path}`, "blue")
 
         return this
     }
 
-    @logCall()
+    @helpers.logCall()
     saveCustomChart({
         path,
         plotOptions,
@@ -192,10 +204,10 @@ export default class SimpleDataNode extends SimpleData {
             global.document = jsdom.window.document
         }
 
-        const chart = getCustomChart(plotOptions)
+        const chart = visualizing.getCustomChart_(plotOptions)
 
         fs.writeFileSync(path, chart)
-        this.verbose && log(`=> chart saved to ${path}`, "blue")
+        this.verbose && helpers.log(`=> chart saved to ${path}`, "blue")
 
         return this
     }
