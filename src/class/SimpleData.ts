@@ -4,11 +4,9 @@ import analyzing from "../methods/analyzing/index.js"
 import cleaning from "../methods/cleaning/index.js"
 import exporting from "../methods/exporting/index.js"
 import restructuring from "../methods/restructuring/index.js"
+import selecting from "../methods/selecting/index.js"
 
 import showTable_ from "../methods/showTable.js"
-import filterValues_ from "../methods/selecting/filterValues.js"
-import filterItems_ from "../methods/selecting/filterItems.js"
-import selectKeys_ from "../methods/selecting/selectKeys.js"
 import handleMissingKeys from "../helpers/handleMissingKeys.js"
 import { logCall, asyncLogCall } from "../helpers/logCall.js"
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
@@ -636,7 +634,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = selectKeys_(cloneDeep(this._data), keys)
+        this._tempData = selecting.selectKeys_(cloneDeep(this._data), keys)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -653,7 +651,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = filterValues_(
+        this._tempData = selecting.filterValues_(
             cloneDeep(this._data),
             key,
             valueComparator,
@@ -673,7 +671,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = filterItems_(
+        this._tempData = selecting.filterItems_(
             cloneDeep(this._data),
             itemComparator,
             this.verbose

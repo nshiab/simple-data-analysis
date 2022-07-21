@@ -1,3 +1,9 @@
-export { default as filterItems_ } from "./filterItems.js"
-export { default as filterValues_ } from "./filterValues.js"
-export { default as selectKeys_ } from "./selectKeys.js"
+import filterItems_ from "./filterItems.js"
+import filterValues_ from "./filterValues.js"
+import selectKeys_ from "./selectKeys.js"
+
+export default {
+    filterItems_,
+    filterValues_,
+    selectKeys_,
+}
