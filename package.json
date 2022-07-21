@@ -40,7 +40,7 @@
         "test-simple-data-node": "node --loader ts-node/esm test/integration/SimpleDataNode.test.ts",
         "test-simple-data-doc": "node --loader ts-node/esm test/integration/SimpleDocument.test.tsx",
         "test-build": "rm -rf dist && npx tsc && rollup --config",
-        "allTests": "npm run format && npm run test && npm run test-simple-data noLogs && npm run test-simple-data-node noLogs && npm run test-simple-data-doc noLogs && npm run test-build && npm run lint",
+        "allTests": "npm run format && npm run test && npm run test-simple-data noLogs && npm run test-simple-data-node noLogs && npm run test-simple-data-doc noLogs && npm run lint && npm run test-build",
         "build": "npm run allTests && npx tsc && npm run commit-doc",
         "doc": "npx typedoc --name Simple-data-analysis --includeVersion --readme none --out docs src/index.ts",
         "commit-doc": "git checkout main && npm run doc && git add docs/ && git commit -m 'update documentation' && git push",
