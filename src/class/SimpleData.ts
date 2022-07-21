@@ -64,11 +64,13 @@ export default class SimpleData {
         if (data.length > 0 || Object.keys(data).length > 0) {
             const incomingData = dataAsArrays
                 ? cloneDeep(
-                      helpers.arraysToData(
-                          data as unknown as {
-                              [key: string]: SimpleDataValue[]
-                          }
-                      ).slice(firstItem, lastItem + 1)
+                      helpers
+                          .arraysToData(
+                              data as unknown as {
+                                  [key: string]: SimpleDataValue[]
+                              }
+                          )
+                          .slice(firstItem, lastItem + 1)
                   )
                 : cloneDeep(
                       (data as SimpleDataItem[]).slice(firstItem, lastItem + 1)
@@ -136,7 +138,12 @@ export default class SimpleData {
             throw new Error("Incoming data is empty.")
         }
 
-        helpers.handleMissingKeys(data, fillMissingKeys, undefined, this.verbose)
+        helpers.handleMissingKeys(
+            data,
+            fillMissingKeys,
+            undefined,
+            this.verbose
+        )
 
         this._tempData = data // important for decorator
         this.#updateSimpleData(data)

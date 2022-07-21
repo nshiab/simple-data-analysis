@@ -62,4 +62,3 @@ export default function logCall() {
         return descriptor
     }
 }
-
