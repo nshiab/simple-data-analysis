@@ -16,7 +16,6 @@ export default function keepDuplicates(
             }
         }
     } else {
-
         if (!helpers.hasKey(data[0], key)) {
             throw new Error(`${key} key is not present in data.`)
         }

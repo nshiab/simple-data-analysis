@@ -424,7 +424,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = cleaning.replaceStringValues_(
+        this._tempData = cleaning.replaceValues_(
             cloneDeep(this._data),
             key,
             oldValue,

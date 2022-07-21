@@ -8,7 +8,7 @@ import modifyItems_ from "./modifyItems.js"
 import modifyValues_ from "./modifyValues.js"
 import removeDuplicates_ from "./removeDuplicates.js"
 import renameKey_ from "./renameKey.js"
-import replaceStringValues_ from "./replaceStringValues.js"
+import replaceValues_ from "./replaceValues.js"
 import roundValues_ from "./roundValues.js"
 import valuesToDate_ from "./valuesToDate.js"
 import valuesToFloat_ from "./valuesToFloat.js"
@@ -26,7 +26,7 @@ export default {
     modifyValues_,
     removeDuplicates_,
     renameKey_,
-    replaceStringValues_,
+    replaceValues_,
     roundValues_,
     valuesToDate_,
     valuesToFloat_,
