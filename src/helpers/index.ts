@@ -6,6 +6,7 @@ import getExtension from "./getExtension.js"
 import getUniqueKeys from "./getUniqueKeys.js"
 import handleMissingKeys from "./handleMissingKeys.js"
 import hasKey from "./hasKey.js"
+import isValidNumber from "./isValidNumber.js"
 import log from "./log.js"
 import logCall from "./logCall.js"
 import plotChart from "./plotChart.js"
@@ -20,6 +21,7 @@ export default {
     getUniqueKeys,
     handleMissingKeys,
     hasKey,
+    isValidNumber,
     log,
     logCall,
     plotChart,
