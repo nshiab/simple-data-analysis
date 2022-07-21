@@ -1,9 +1,9 @@
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import isEqual from "lodash.isequal"
-import log from "../../helpers/log.js"
+
+import { SimpleDataItem } from "../../types/index.js"
 import SimpleData from "../../class/SimpleData.js"
-import handleMissingKeys from "../../helpers/handleMissingKeys.js"
-import getUniqueKeys from "../../helpers/getUniqueKeys.js"
+import helpers from "../../helpers/index.js"
+
 
 export default function addItems(
     data: SimpleDataItem[],
@@ -15,14 +15,14 @@ export default function addItems(
         dataToBeAdded = dataToBeAdded.getData()
     }
 
-    const uniqueKeys = getUniqueKeys(data)
-    dataToBeAdded = handleMissingKeys(
+    const uniqueKeys = helpers.getUniqueKeys(data)
+    dataToBeAdded = helpers.handleMissingKeys(
         dataToBeAdded,
         fillMissingKeys,
         uniqueKeys
     )
 
-    const uniqueKeysToBeAdded = getUniqueKeys(dataToBeAdded)
+    const uniqueKeysToBeAdded = helpers.getUniqueKeys(dataToBeAdded)
 
     if (!isEqual(uniqueKeys, uniqueKeysToBeAdded)) {
         throw new Error(
@@ -34,7 +34,7 @@ export default function addItems(
 
     const newData = data.concat(dataToBeAdded)
     verbose &&
-        log(
+        helpers.log(
             `/!\\ ${
                 newData.length - data.length
             } items added. Number of items increased by ${(

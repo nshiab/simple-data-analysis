@@ -1,9 +1,9 @@
-import log from "../../helpers/log.js"
-import getExtension from "../../helpers/getExtension.js"
 import fs from "fs"
 import { csvParse, tsvParse, autoType } from "d3-dsv"
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import arraysToData from "../../helpers/arraysToData.js"
+
+import { SimpleDataItem } from "../../types/index.js"
+import helpers from "../../helpers/index.js"
+
 
 export default function loadDataFromLocalFile(
     path: string,
@@ -21,12 +21,14 @@ export default function loadDataFromLocalFile(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let arrayOfObjects: any[] = []
 
-    const fileExtension = getExtension(path)
+    const fileExtension = helpers.getExtension(path)
 
-    verbose && log("Detected " + fileExtension + " file extension", "blue")
+    verbose &&
+        helpers.log("Detected " + fileExtension + " file extension", "blue")
 
     if (fileExtension === "csv" || fileExtension === "tsv") {
-        verbose && log(`=> ${fileExtension} file extension detected`, "blue")
+        verbose &&
+            helpers.log(`=> ${fileExtension} file extension detected`, "blue")
 
         const dsvString = fs.readFileSync(path, { encoding: encoding })
 
@@ -53,13 +55,16 @@ export default function loadDataFromLocalFile(
         }
     } else if (fileExtension === "json") {
         verbose &&
-            log("=> " + fileExtension + " file extension detected", "blue")
+            helpers.log(
+                "=> " + fileExtension + " file extension detected",
+                "blue"
+            )
 
         const incomingData = JSON.parse(
             fs.readFileSync(path, { encoding: encoding })
         )
         arrayOfObjects = dataAsArrays
-            ? arraysToData(incomingData)
+            ? helpers.arraysToData(incomingData)
             : incomingData
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
     } else {

@@ -1,9 +1,8 @@
 import { autoType } from "d3-dsv"
 import { csv, tsv, json } from "d3-fetch"
-import arraysToData from "../../helpers/arraysToData.js"
-import getExtension from "../../helpers/getExtension.js"
-import log from "../../helpers/log.js"
-import { SimpleDataItem, SimpleDataValue } from "../../types/SimpleData.types"
+
+import { SimpleDataItem, SimpleDataValue } from "../../types/index.js"
+import helpers from "../../helpers/index.js"
 
 export default async function loadDataFromUrlWeb(
     url: string,
@@ -17,13 +16,14 @@ export default async function loadDataFromUrlWeb(
     },
     verbose = false
 ): Promise<SimpleDataItem[]> {
-    const fileExtension = getExtension(url)
+    const fileExtension = helpers.getExtension(url)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let arrayOfObjects: any[] = []
 
     if (fileExtension === "csv" || fileExtension === "tsv") {
-        verbose && log(`=> ${fileExtension} file extension detected`, "blue")
+        verbose &&
+            helpers.log(`=> ${fileExtension} file extension detected`, "blue")
 
         if (fileExtension === "csv") {
             arrayOfObjects = await csv(url, autoType)
@@ -51,7 +51,7 @@ export default async function loadDataFromUrlWeb(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const incomingData = (await json(url)) as any[]
         arrayOfObjects = dataAsArrays
-            ? arraysToData(
+            ? helpers.arraysToData(
                   incomingData as unknown as {
                       [key: string]: SimpleDataValue[]
                   }

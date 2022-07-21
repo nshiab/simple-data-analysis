@@ -1,9 +1,6 @@
-import log from "../../helpers/log.js"
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
+import { SimpleDataItem } from "../../types/index.js"
 import SimpleData from "../../class/SimpleData.js"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
-import toPercentage from "../../helpers/toPercentage.js"
-import hasKey from "../../helpers/hasKey.js"
+import helpers from "../../helpers/index.js"
 
 export default function mergeItems(
     data: SimpleDataItem[],
@@ -12,7 +9,7 @@ export default function mergeItems(
     verbose = false,
     nbValuesTested = 10000
 ): SimpleDataItem[] {
-    verbose && log("\nmergeItems() " + commonKey)
+    verbose && helpers.log("\nmergeItems() " + commonKey)
 
     let newData
 
@@ -22,10 +19,10 @@ export default function mergeItems(
         newData = dataToBeMerged
     }
 
-    if (!hasKey(data[0], commonKey)) {
+    if (!helpers.hasKey(data[0], commonKey)) {
         throw new Error("No key named " + commonKey + " in data")
     }
-    if (!hasKey(newData[0], commonKey)) {
+    if (!helpers.hasKey(newData[0], commonKey)) {
         throw new Error("No key named " + commonKey + " in dataToBeMerged")
     }
 
@@ -49,7 +46,14 @@ export default function mergeItems(
     }
 
     if (
-        !checkTypeOfKey(data, commonKey, "string", 1, nbValuesTested, verbose)
+        !helpers.checkTypeOfKey(
+            data,
+            commonKey,
+            "string",
+            1,
+            nbValuesTested,
+            verbose
+        )
     ) {
         throw new Error(
             "At least one value of " +
@@ -57,7 +61,7 @@ export default function mergeItems(
                 " in data is not string. To avoid problems, ids should always be string. Convert them with valuesToString()"
         )
     } else if (
-        !checkTypeOfKey(
+        !helpers.checkTypeOfKey(
             newData,
             commonKey,
             "string",
@@ -112,8 +116,8 @@ export default function mergeItems(
 
     verbose &&
         nbUndefined > 0 &&
-        log(
-            `/!\\ Not match for ${nbUndefined} items, representing ${toPercentage(
+        helpers.log(
+            `/!\\ Not match for ${nbUndefined} items, representing ${helpers.toPercentage(
                 nbUndefined,
                 data.length
             )} of items. New keys have undefined values for these items.`,
