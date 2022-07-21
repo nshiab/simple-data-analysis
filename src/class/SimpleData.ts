@@ -3,13 +3,13 @@ import cloneDeep from "lodash.clonedeep"
 import analyzing from "../methods/analyzing/index.js"
 import cleaning from "../methods/cleaning/index.js"
 import exporting from "../methods/exporting/index.js"
+import importing from "../methods/importing/index.js"
 import restructuring from "../methods/restructuring/index.js"
 import selecting from "../methods/selecting/index.js"
 import visualizing from "../methods/visualizing/index.js"
 import methods from "../methods/index.js"
 
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
-import loadDataFromUrlWeb_ from "../methods/importing/loadDataFromUrlWeb.js"
 
 import handleMissingKeys from "../helpers/handleMissingKeys.js"
 import { logCall, asyncLogCall } from "../helpers/logCall.js"
@@ -128,7 +128,7 @@ export default class SimpleData {
         firstItem?: number
         lastItem?: number
     }): Promise<this> {
-        const data = await loadDataFromUrlWeb_(
+        const data = await importing.loadDataFromUrlWeb_(
             url,
             dataAsArrays,
             firstItem,
