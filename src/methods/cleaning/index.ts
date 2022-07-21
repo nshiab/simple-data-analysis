@@ -1,16 +1,35 @@
-export { default as checkValues_ } from "./checkValues.js"
-export { default as datesToString_ } from "./datesToString.js"
-export { default as excludeMissingValues_ } from "./excludeMissingValues.js"
-export { default as formatAllKeys_ } from "./formatAllKeys.js"
-export { default as keepDuplicates_ } from "./keepDuplicates.js"
-export { default as keepMissingValues_ } from "./keepMissingValues.js"
-export { default as modifyItems_ } from "./modifyItems.js"
-export { default as modifyValues_ } from "./modifyValues.js"
-export { default as removeDuplicates_ } from "./removeDuplicates.js"
-export { default as renameKey_ } from "./renameKey.js"
-export { default as replaceStringValues_ } from "./replaceStringValues.js"
-export { default as roundValues_ } from "./roundValues.js"
-export { default as valuesToDate_ } from "./valuesToDate.js"
-export { default as valuesToFloat_ } from "./valuesToFloat.js"
-export { default as valuesToInteger_ } from "./valuesToInteger.js"
-export { default as valuesToString_ } from "./valuesToString.js"
+import checkValues_ from "./checkValues.js"
+import datesToString_ from "./datesToString.js"
+import excludeMissingValues_ from "./excludeMissingValues.js"
+import formatAllKeys_ from "./formatAllKeys.js"
+import keepDuplicates_ from "./keepDuplicates.js"
+import keepMissingValues_ from "./keepMissingValues.js"
+import modifyItems_ from "./modifyItems.js"
+import modifyValues_ from "./modifyValues.js"
+import removeDuplicates_ from "./removeDuplicates.js"
+import renameKey_ from "./renameKey.js"
+import replaceStringValues_ from "./replaceStringValues.js"
+import roundValues_ from "./roundValues.js"
+import valuesToDate_ from "./valuesToDate.js"
+import valuesToFloat_ from "./valuesToFloat.js"
+import valuesToInteger_ from "./valuesToInteger.js"
+import valuesToString_ from "./valuesToString.js"
+
+export default {
+    checkValues_,
+    datesToString_,
+    excludeMissingValues_,
+    formatAllKeys_,
+    keepDuplicates_,
+    keepMissingValues_,
+    modifyItems_,
+    modifyValues_,
+    removeDuplicates_,
+    renameKey_,
+    replaceStringValues_,
+    roundValues_,
+    valuesToDate_,
+    valuesToFloat_,
+    valuesToInteger_,
+    valuesToString_,
+}

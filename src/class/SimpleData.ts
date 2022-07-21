@@ -1,9 +1,8 @@
 import cloneDeep from "lodash.clonedeep"
 
 import analyzing from "../methods/analyzing/index.js"
+import cleaning from "../methods/cleaning/index.js"
 
-import renameKey_ from "../methods/cleaning/renameKey.js"
-import formatAllKeys_ from "../methods/cleaning/formatAllKeys.js"
 import getItem_ from "../methods/exporting/getItem.js"
 import getArray_ from "../methods/exporting/getArray.js"
 import getMin_ from "../methods/exporting/getMin.js"
@@ -13,25 +12,11 @@ import getMedian_ from "../methods/exporting/getMedian.js"
 import getSum_ from "../methods/exporting/getSum.js"
 import getDataAsArrays_ from "../methods/exporting/getDataAsArrays.js"
 import showTable_ from "../methods/showTable.js"
-import checkValues_ from "../methods/cleaning/checkValues.js"
-import excludeMissingValues_ from "../methods/cleaning/excludeMissingValues.js"
-import keepMissingValues_ from "../methods/cleaning/keepMissingValues.js"
 import removeKey_ from "../methods/restructuring/removeKey.js"
-import valuesToString_ from "../methods/cleaning/valuesToString.js"
-import valuesToInteger_ from "../methods/cleaning/valuesToInteger.js"
-import valuesToFloat_ from "../methods/cleaning/valuesToFloat.js"
-import valuesToDate_ from "../methods/cleaning/valuesToDate.js"
-import datesToString_ from "../methods/cleaning/datesToString.js"
 import filterValues_ from "../methods/selecting/filterValues.js"
 import filterItems_ from "../methods/selecting/filterItems.js"
-import removeDuplicates_ from "../methods/cleaning/removeDuplicates.js"
-import keepDuplicates_ from "../methods/cleaning/keepDuplicates.js"
-import roundValues_ from "../methods/cleaning/roundValues.js"
-import replaceStringValues_ from "../methods/cleaning/replaceStringValues.js"
 import addKey_ from "../methods/restructuring/addKey.js"
 import selectKeys_ from "../methods/selecting/selectKeys.js"
-import modifyValues_ from "../methods/cleaning/modifyValues.js"
-import modifyItems_ from "../methods/cleaning/modifyItems.js"
 import addItems_ from "../methods/restructuring/addItems.js"
 import getUniqueValues_ from "../methods/exporting/getUniqueValues.js"
 import mergeItems_ from "../methods/restructuring/mergeItems.js"
@@ -201,7 +186,7 @@ export default class SimpleData {
         overwrite?: boolean
     } = {}): this {
         this._overwrite = overwrite
-        this._tempData = checkValues_(
+        this._tempData = cleaning.checkValues_(
             cloneDeep(this._data),
             nbItemsToCheck,
             randomize
@@ -225,7 +210,7 @@ export default class SimpleData {
         if (missingValues === undefined) {
             missingValues = [null, NaN, undefined, ""]
         }
-        this._tempData = excludeMissingValues_(
+        this._tempData = cleaning.excludeMissingValues_(
             cloneDeep(this._data),
             key,
             missingValues,
@@ -250,7 +235,7 @@ export default class SimpleData {
         if (missingValues === undefined) {
             missingValues = [null, NaN, undefined, ""]
         }
-        this._tempData = keepMissingValues_(
+        this._tempData = cleaning.keepMissingValues_(
             cloneDeep(this._data),
             key,
             missingValues,
@@ -264,7 +249,10 @@ export default class SimpleData {
     @logCall()
     formatAllKeys({ overwrite = true }: { overwrite?: boolean } = {}): this {
         this._overwrite = overwrite
-        this._tempData = formatAllKeys_(cloneDeep(this._data), this.verbose)
+        this._tempData = cleaning.formatAllKeys_(
+            cloneDeep(this._data),
+            this.verbose
+        )
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -281,7 +269,11 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = renameKey_(cloneDeep(this._data), oldKey, newKey)
+        this._tempData = cleaning.renameKey_(
+            cloneDeep(this._data),
+            oldKey,
+            newKey
+        )
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -296,7 +288,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = valuesToString_(cloneDeep(this._data), key)
+        this._tempData = cleaning.valuesToString_(cloneDeep(this._data), key)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -315,7 +307,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = valuesToInteger_(
+        this._tempData = cleaning.valuesToInteger_(
             cloneDeep(this._data),
             key,
             language,
@@ -339,7 +331,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = valuesToFloat_(
+        this._tempData = cleaning.valuesToFloat_(
             cloneDeep(this._data),
             key,
             language,
@@ -363,7 +355,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = valuesToDate_(
+        this._tempData = cleaning.valuesToDate_(
             cloneDeep(this._data),
             key,
             format,
@@ -387,7 +379,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = datesToString_(
+        this._tempData = cleaning.datesToString_(
             cloneDeep(this._data),
             key,
             format,
@@ -411,7 +403,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = roundValues_(
+        this._tempData = cleaning.roundValues_(
             cloneDeep(this._data),
             key,
             nbDigits,
@@ -439,7 +431,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = replaceStringValues_(
+        this._tempData = cleaning.replaceStringValues_(
             cloneDeep(this._data),
             key,
             oldValue,
@@ -464,7 +456,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = modifyValues_(
+        this._tempData = cleaning.modifyValues_(
             cloneDeep(this._data),
             key,
             valueGenerator
@@ -485,7 +477,11 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = modifyItems_(cloneDeep(this._data), key, itemGenerator)
+        this._tempData = cleaning.modifyItems_(
+            cloneDeep(this._data),
+            key,
+            itemGenerator
+        )
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -702,7 +698,7 @@ export default class SimpleData {
         overwrite = true,
     }: { key?: string; overwrite?: boolean } = {}): this {
         this._overwrite = overwrite
-        this._tempData = removeDuplicates_(
+        this._tempData = cleaning.removeDuplicates_(
             cloneDeep(this._data),
             key,
             this.verbose || !this._overwrite
@@ -718,7 +714,7 @@ export default class SimpleData {
         overwrite = true,
     }: { key?: string; overwrite?: boolean } = {}): this {
         this._overwrite = overwrite
-        this._tempData = keepDuplicates_(
+        this._tempData = cleaning.keepDuplicates_(
             cloneDeep(this._data),
             key,
             this.verbose || !this._overwrite
