@@ -1,2 +1,7 @@
-export { default as getChart_ } from "./getChart.js"
-export { default as getCustomChart_ } from "./getCustomChart.js"
+import getChart_ from "./getChart.js"
+import getCustomChart_ from "./getCustomChart.js"
+
+export default {
+    getChart_,
+    getCustomChart_,
+}

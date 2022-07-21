@@ -5,14 +5,13 @@ import cleaning from "../methods/cleaning/index.js"
 import exporting from "../methods/exporting/index.js"
 import restructuring from "../methods/restructuring/index.js"
 import selecting from "../methods/selecting/index.js"
+import visualizing from "../methods/visualizing/index.js"
 
 import showTable_ from "../methods/showTable.js"
 import handleMissingKeys from "../helpers/handleMissingKeys.js"
 import { logCall, asyncLogCall } from "../helpers/logCall.js"
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
 import loadDataFromUrlWeb_ from "../methods/importing/loadDataFromUrlWeb.js"
-import getChart_ from "../methods/visualizing/getChart.js"
-import getCustomChart_ from "../methods/visualizing/getCustomChart.js"
 import log from "../helpers/log.js"
 import arraysToData from "../helpers/arraysToData.js"
 
@@ -972,7 +971,7 @@ export default class SimpleData {
         marginLeft?: number
         marginBottom?: number
     }): string {
-        const chart = getChart_(
+        const chart = visualizing.getChart_(
             cloneDeep(this._data),
             type,
             x,
@@ -988,7 +987,7 @@ export default class SimpleData {
 
     @logCall()
     getCustomChart({ plotOptions }: { plotOptions: object }): string {
-        const chart = getCustomChart_(plotOptions)
+        const chart = visualizing.getCustomChart_(plotOptions)
         return chart
     }
 
