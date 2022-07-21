@@ -1,9 +1,8 @@
-import log from "../../helpers/log.js"
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { flatRollup, mean, sum, median, max, min, deviation } from "d3-array"
 import isEqual from "lodash.isequal"
-import hasKey from "../../helpers/hasKey.js"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
+
+import { SimpleDataItem } from "../../types/index.js"
+import helpers from "../../helpers/index.js"
 
 export default function summarize(
     data: SimpleDataItem[],
@@ -22,16 +21,16 @@ export default function summarize(
     let keyCategories: string[] = []
 
     if (keyCategory === undefined) {
-        verbose && log("No key provided. Data won't be grouped.")
+        verbose && helpers.log("No key provided. Data won't be grouped.")
     } else if (Array.isArray(keyCategory)) {
         for (const k of keyCategory) {
-            if (!hasKey(data[0], k)) {
+            if (!helpers.hasKey(data[0], k)) {
                 throw new Error("No key " + k)
             }
         }
         keyCategories = keyCategory
     } else if (typeof keyCategory === "string") {
-        if (!hasKey(data[0], keyCategory)) {
+        if (!helpers.hasKey(data[0], keyCategory)) {
             throw new Error("No key " + keyCategory)
         }
         keyCategories = [keyCategory]
@@ -45,13 +44,13 @@ export default function summarize(
 
     if (Array.isArray(keyValue)) {
         for (const v of keyValue) {
-            if (!hasKey(data[0], v)) {
+            if (!helpers.hasKey(data[0], v)) {
                 throw new Error("No value " + v)
             }
         }
         keyValues = keyValue
     } else if (typeof keyValue === "string") {
-        if (!hasKey(data[0], keyValue)) {
+        if (!helpers.hasKey(data[0], keyValue)) {
             throw new Error("No value " + keyValue)
         }
         keyValues = [keyValue]
@@ -90,7 +89,7 @@ export default function summarize(
     const summariesResults = []
 
     for (const value of keyValues) {
-        const isNumber = checkTypeOfKey(data, value, "number", 0.5)
+        const isNumber = helpers.checkTypeOfKey(data, value, "number", 0.5)
         for (const summary of summaries) {
             let func: (v: SimpleDataItem[]) => number | undefined
             if (summary === "count") {
@@ -104,7 +103,7 @@ export default function summarize(
                     func = (v) => sum(v, (d) => d[value] as number | undefined)
                 } else {
                     verbose &&
-                        log(
+                        helpers.log(
                             "The majority of " +
                                 value +
                                 " values are not numbers. Returning NaN for sum."
@@ -116,7 +115,7 @@ export default function summarize(
                     func = (v) => mean(v, (d) => d[value] as number | undefined)
                 } else {
                     verbose &&
-                        log(
+                        helpers.log(
                             "The majority of " +
                                 value +
                                 " values are not numbers. Returning NaN for mean."
@@ -129,7 +128,7 @@ export default function summarize(
                         median(v, (d) => d[value] as number | undefined)
                 } else {
                     verbose &&
-                        log(
+                        helpers.log(
                             "The majority of " +
                                 value +
                                 " values are not numbers. Returning NaN for median."
@@ -142,7 +141,7 @@ export default function summarize(
                         deviation(v, (d) => d[value] as number | undefined)
                 } else {
                     verbose &&
-                        log(
+                        helpers.log(
                             "The majority of " +
                                 value +
                                 " values are not numbers. Returning NaN for deviation."
@@ -153,7 +152,7 @@ export default function summarize(
                 if (weight === undefined) {
                     throw new Error("Missing argument weight")
                 }
-                if (!hasKey(data[0], weight)) {
+                if (!helpers.hasKey(data[0], weight)) {
                     throw new Error("No weight " + weight)
                 }
                 func = (v) =>

@@ -1,4 +1,4 @@
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
+import { SimpleDataItem } from "../../types/index.js"
 
 export default function describe(data: SimpleDataItem[]): SimpleDataItem[] {
     const nbItems = data.length

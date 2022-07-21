@@ -1,14 +1,11 @@
-import {
-    SimpleDataItem,
-    SimpleDataValue,
-} from "../../types/SimpleData.types.js"
-import hasKey from "../../helpers/hasKey.js"
+import { SimpleDataItem, SimpleDataValue } from "../../types/index.js"
+import helpers from "../../helpers/index.js"
 
 export default function getArray(
     data: SimpleDataItem[],
     key: string
 ): SimpleDataValue[] {
-    if (!hasKey(data[0], key)) {
+    if (!helpers.hasKey(data[0], key)) {
         throw new Error(`No key ${key} in data`)
     }
 

@@ -1,8 +1,7 @@
 import isEqual from "lodash.isequal"
-import { SimpleDataItem } from "../../types/SimpleData.types"
-import log from "../../helpers/log.js"
-import getUniqueKeys from "../../helpers/getUniqueKeys.js"
-import toPercentage from "../../helpers/toPercentage.js"
+
+import { SimpleDataItem } from "../../types/index.js"
+import helpers from "../../helpers/index.js"
 
 export default function keepDuplicates(
     data: SimpleDataItem[],
@@ -17,7 +16,7 @@ export default function keepDuplicates(
             }
         }
     } else {
-        const uniqueKeys = getUniqueKeys(data)
+        const uniqueKeys = helpers.getUniqueKeys(data)
         if (!uniqueKeys.includes(key)) {
             throw new Error(`${key} key is not present in data.`)
         }
@@ -29,17 +28,17 @@ export default function keepDuplicates(
     }
 
     verbose &&
-        log(
+        helpers.log(
             key === undefined
                 ? `/!\\ Found ${
                       duplicates.length
-                  } duplicate items, representing ${toPercentage(
+                  } duplicate items, representing ${helpers.toPercentage(
                       duplicates.length,
                       data.length
                   )} of received items.`
                 : `/!\\ Found ${
                       duplicates.length
-                  } duplicate items for key ${key}, representing ${toPercentage(
+                  } duplicate items for key ${key}, representing ${helpers.toPercentage(
                       duplicates.length,
                       data.length
                   )} of received items.`,

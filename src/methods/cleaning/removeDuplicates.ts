@@ -1,10 +1,9 @@
 import uniqBy from "lodash.uniqby"
 import uniqWith from "lodash.uniqwith"
 import isEqual from "lodash.isequal"
-import { SimpleDataItem } from "../../types/SimpleData.types"
-import log from "../../helpers/log.js"
-import getUniqueKeys from "../../helpers/getUniqueKeys.js"
-import toPercentage from "../../helpers/toPercentage.js"
+
+import { SimpleDataItem } from "../../types/index.js"
+import helpers from "../../helpers/index.js"
 
 export default function removeDuplicates(
     data: SimpleDataItem[],
@@ -15,7 +14,7 @@ export default function removeDuplicates(
     if (key === undefined) {
         result = uniqWith(data, isEqual)
     } else {
-        const uniqueKeys = getUniqueKeys(data)
+        const uniqueKeys = helpers.getUniqueKeys(data)
         if (!uniqueKeys.includes(key)) {
             throw new Error(`${key} key is not present in data.`)
         }
@@ -24,8 +23,8 @@ export default function removeDuplicates(
 
     const nbRemoved = data.length - result.length
     verbose &&
-        log(
-            `/!\\ Removed ${nbRemoved} duplicate items, representing ${toPercentage(
+        helpers.log(
+            `/!\\ Removed ${nbRemoved} duplicate items, representing ${helpers.toPercentage(
                 nbRemoved,
                 data.length
             )} of received items.`,

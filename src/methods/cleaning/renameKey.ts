@@ -1,12 +1,12 @@
-import hasKey from "../../helpers/hasKey.js"
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
+import { SimpleDataItem } from "../../types/index.js"
+import helpers from "../../helpers/index.js"
 
 export default function renameKey(
     data: SimpleDataItem[],
     oldKey: string,
     newKey: string
 ): SimpleDataItem[] {
-    if (!hasKey(data[0], oldKey)) {
+    if (!helpers.hasKey(data[0], oldKey)) {
         throw new Error("No key " + oldKey)
     }
 

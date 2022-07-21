@@ -1,5 +1,5 @@
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import hasKey from "../../helpers/hasKey.js"
+import { SimpleDataItem } from "../../types/index.js"
+import helpers from "../../helpers/index.js"
 
 export default function replaceStringValues(
     data: SimpleDataItem[],
@@ -9,7 +9,7 @@ export default function replaceStringValues(
     method: "entireString" | "partialString",
     skipErrors = false
 ): SimpleDataItem[] {
-    if (!hasKey(data[0], key)) {
+    if (!helpers.hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
 

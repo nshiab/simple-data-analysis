@@ -1,6 +1,7 @@
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { utcParse } from "d3-time-format"
-import hasKey from "../../helpers/hasKey.js"
+
+import { SimpleDataItem } from "../../types/index.js"
+import helpers from "../../helpers/index.js"
 
 export default function valuesToDate(
     data: SimpleDataItem[],
@@ -8,7 +9,7 @@ export default function valuesToDate(
     format: string,
     skipErrors = false
 ): SimpleDataItem[] {
-    if (!hasKey(data[0], key)) {
+    if (!helpers.hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
     if (typeof data[0][key] !== "string") {

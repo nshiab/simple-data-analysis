@@ -1,8 +1,7 @@
-import log from "../../helpers/log.js"
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { quantile, extent } from "d3-array"
-import toPercentage from "../../helpers/toPercentage.js"
-import hasKey from "../../helpers/hasKey.js"
+
+import { SimpleDataItem } from "../../types/index.js"
+import helpers from "../../helpers/index.js"
 
 export default function addOutliers(
     data: SimpleDataItem[],
@@ -10,10 +9,10 @@ export default function addOutliers(
     newKey: string,
     verbose = false
 ): SimpleDataItem[] {
-    if (!hasKey(data[0], key)) {
+    if (!helpers.hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
-    if (hasKey(data[0], newKey)) {
+    if (helpers.hasKey(data[0], newKey)) {
         throw new Error("Already a key named " + key)
     }
 
@@ -28,7 +27,7 @@ export default function addOutliers(
     const [min, max] = extent(values)
 
     verbose &&
-        log(
+        helpers.log(
             `Min: ${min}, Lower threshold: ${lower}, Q1: ${q1}, Q3: ${q3}, Upper threshold: ${upper}, Max: ${max}`,
             "blue"
         )
@@ -48,8 +47,8 @@ export default function addOutliers(
     }
 
     verbose &&
-        log(
-            `${outliers} outliers found, representing ${toPercentage(
+        helpers.log(
+            `${outliers} outliers found, representing ${helpers.toPercentage(
                 outliers,
                 data.length
             )} of the incoming data.`,

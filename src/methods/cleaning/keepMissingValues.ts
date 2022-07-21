@@ -1,10 +1,5 @@
-import log from "../../helpers/log.js"
-import toPercentage from "../../helpers/toPercentage.js"
-import {
-    SimpleDataItem,
-    SimpleDataValue,
-} from "../../types/SimpleData.types.js"
-import hasKey from "../../helpers/hasKey.js"
+import { SimpleDataItem, SimpleDataValue } from "../../types/index.js"
+import helpers from "../../helpers/index.js"
 
 export default function keepMissingValues(
     data: SimpleDataItem[],
@@ -26,7 +21,7 @@ export default function keepMissingValues(
             }
             return !check // adding ! is the only difference with excludeMissingValues.ts
         })
-    } else if (hasKey(data[0], key)) {
+    } else if (helpers.hasKey(data[0], key)) {
         filteredData = data.filter((d) => missingValues.includes(d[key])) // removing ! before missingValues is the only difference with excludeMissingValues.ts
     } else {
         throw new Error("No key " + key)
@@ -34,8 +29,8 @@ export default function keepMissingValues(
 
     const nbMissing = filteredData.length
     verbose &&
-        log(
-            `/!\\ ${nbMissing} items with missing values, representing ${toPercentage(
+        helpers.log(
+            `/!\\ ${nbMissing} items with missing values, representing ${helpers.toPercentage(
                 nbMissing,
                 data.length
             )} of received items.`,
