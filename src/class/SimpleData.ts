@@ -25,7 +25,7 @@ import filterItems_ from "../methods/selecting/filterItems.js"
 import removeDuplicates_ from "../methods/cleaning/removeDuplicates.js"
 import keepDuplicates_ from "../methods/cleaning/keepDuplicates.js"
 import roundValues_ from "../methods/cleaning/roundValues.js"
-import replaceStringValues_ from "../methods/cleaning/replaceStringValues.js"
+import replaceValues_ from "../methods/cleaning/replaceValues.js"
 import addKey_ from "../methods/restructuring/addKey.js"
 import selectKeys_ from "../methods/selecting/selectKeys.js"
 import modifyValues_ from "../methods/cleaning/modifyValues.js"
@@ -440,19 +440,19 @@ export default class SimpleData {
         key,
         oldValue,
         newValue,
-        method = "entireString",
+        method = undefined,
         skipErrors = false,
         overwrite = true,
     }: {
         key: string
         oldValue: string
         newValue: string
-        method: "entireString" | "partialString"
+        method?: undefined | "entireString" | "partialString"
         skipErrors?: boolean
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = replaceStringValues_(
+        this._tempData = replaceValues_(
             cloneDeep(this._data),
             key,
             oldValue,
