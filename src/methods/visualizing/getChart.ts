@@ -1,4 +1,3 @@
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import {
     dot,
     line,
@@ -8,9 +7,10 @@ import {
     boxX,
     linearRegressionY,
 } from "@observablehq/plot"
-import plotChart from "../../helpers/plotChart.js"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 import { regressionLinear } from "d3-regression"
+
+import { SimpleDataItem } from "../../types/index.js"
+import helpers from "../../helpers/index.js"
 
 export default function getChart(
     data: SimpleDataItem[],
@@ -90,7 +90,7 @@ export default function getChart(
         }
     }
 
-    if (color && checkTypeOfKey(data, color, "string", 0.5, 100)) {
+    if (color && helpers.checkTypeOfKey(data, color, "string", 0.5, 100)) {
         if (plotOptions.color) {
             plotOptions.color.type = "ordinal"
         } else {
@@ -98,20 +98,20 @@ export default function getChart(
         }
     }
 
-    if (checkTypeOfKey(data, x, "string", 0.5, 100)) {
+    if (helpers.checkTypeOfKey(data, x, "string", 0.5, 100)) {
         if (type === "dot") {
             plotOptions.x = { type: "point" }
         } else if (type !== "line") {
             plotOptions.x = { type: "band" }
         }
     }
-    if (checkTypeOfKey(data, y, "string", 0.5, 100)) {
+    if (helpers.checkTypeOfKey(data, y, "string", 0.5, 100)) {
         if (type === "dot") {
             plotOptions.y = { type: "point" }
         }
     }
 
-    let chart = plotChart(plotOptions)
+    let chart = helpers.plotChart(plotOptions)
 
     if (showTrendEquation) {
         const linearRegression = regressionLinear()

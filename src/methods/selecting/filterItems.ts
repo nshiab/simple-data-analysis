@@ -1,6 +1,6 @@
-import log from "../../helpers/log.js"
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import toPercentage from "../../helpers/toPercentage.js"
+import { SimpleDataItem } from "../../types/index.js"
+import helpers from "../../helpers/index.js"
+
 
 export default function filterItems(
     data: SimpleDataItem[],
@@ -11,8 +11,8 @@ export default function filterItems(
 
     const nbRemoved = data.length - filteredData.length
     verbose &&
-        log(
-            `/!\\ ${nbRemoved} items removed, representing ${toPercentage(
+        helpers.log(
+            `/!\\ ${nbRemoved} items removed, representing ${helpers.toPercentage(
                 nbRemoved,
                 data.length
             )} of received items.`,
