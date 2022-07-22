@@ -68,7 +68,7 @@ Here's an example.
             // We retrieve some data
             .loadDataFromUrl({
                 url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv",
-                autoType: true // CSV file are text. Automatically convert numbers.
+                autoType: true // CSV files are text. Automatically convert numbers.
             })
 
         simpleData
