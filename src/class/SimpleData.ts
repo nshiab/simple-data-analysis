@@ -760,7 +760,7 @@ export default class SimpleData {
         locale = "fr",
         nbTestedValue = 10000,
     }: {
-        key: string
+        key: string | string[]
         order: "ascending" | "descending"
         overwrite?: boolean
         locale?: string

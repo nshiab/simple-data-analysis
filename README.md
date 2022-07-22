@@ -230,7 +230,7 @@ new SimpleDataNode()
     .selectKeys({ keys: ["Job", "mean"] })
     .showTable()
     .saveData({ path: "./employees.json" })
-    // You can save CSV and TSV files as wellé
+    // You can save CSV and TSV files as well
     // When saving JSON files, you can restructure
     // the data as arrays by adding dataAsArrays : true
     .saveChart({
