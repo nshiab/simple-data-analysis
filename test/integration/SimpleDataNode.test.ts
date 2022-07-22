@@ -51,8 +51,31 @@ async function main() {
             type: "dot",
             x: "salary",
             y: "bonus",
+            color: "job",
             trend: true,
+            showTrendEquation: true,
         })
+
+        simpleDataNode
+            .clone()
+            .filterValues({
+                key: "salary",
+                valueComparator: (salary) => salary !== "&6%",
+            })
+            .valuesToInteger({ key: "salary" })
+            .summarize({
+                keyValue: "salary",
+                keyCategory: "job",
+                summary: "mean",
+            })
+            .saveChart({
+                path: `${tempDir}/bar1.html`,
+                type: "barHorizontal",
+                x: "mean",
+                y: "job",
+                color: "job",
+                marginLeft: 90,
+            })
 
         simpleDataNode.saveCustomChart({
             path: `${tempDir}/customChart.html`,

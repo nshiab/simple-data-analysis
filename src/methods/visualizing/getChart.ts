@@ -106,12 +106,17 @@ export default function getChart(
     }
 
     const chart = plotChart(plotOptions)
+    const chartHTML = chart.html
 
-    let legend
+    let legendHTML = ""
     if (color && ["line", "dot"].includes(type)) {
-        legend = chart.plt.legend("color").outerHTML
+        const legend = chart.plt.legend("color").outerHTML
+        if (legend) {
+            legendHTML = legend
+        }
     }
 
+    let trendEquationHTML = ""
     if (showTrendEquation) {
         const linearRegression = regressionLinear()
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -130,35 +135,14 @@ export default function getChart(
             nbDigits += 1
         }
 
-        return `<div>
-            ${legend
-                ? "<div style='width:100%;max-width: 640px;'>" +
-                legend +
-                "</div>"
-                : ""
-            }
-            <div style='width: 100%; max-width: 620px;font-family:system-ui, sans-serif;font-size:10px;text-align:right;'>
-                <div>Linear regression: y=${linearRegression.a.toFixed(
-                nbDigits + 1
-            )}x + ${linearRegression.b.toFixed(
-                nbDigits + 1
-            )} , R<sup>2</sup>: ${linearRegression.rSquared.toFixed(
-                2
-            )}, chart CI: 0.95</div>
-            </div>
-            <div>
-                ${chart.html}
-            </div>
-        </div>`
-    } else {
-        return `
-        ${legend
-                ? "<div style='width:100%;max-width: 640px;'>" +
-                legend +
-                "</div>"
-                : ""
-            }
-        ${chart.html}
-        `
+        trendEquationHTML = `<div style='width: 100%; max-width: 620px;font-family:system-ui, sans-serif;font-size:10px;text-align:right;'><div>Linear regression: y=${linearRegression.a.toFixed(
+            nbDigits + 1
+        )}x + ${linearRegression.b.toFixed(
+            nbDigits + 1
+        )} , R<sup>2</sup>: ${linearRegression.rSquared.toFixed(
+            2
+        )}, chart CI: 0.95</div></div>`
     }
+
+    return "<div>" + legendHTML + trendEquationHTML + chartHTML + "</div"
 }
