@@ -54,10 +54,10 @@ If you want to add the library directly to your webpage, you can use the minifie
 Here's an example.
 
 ```js
-<script src="https://cdn.jsdelivr.net/npm/simple-data-analysis">
+<script src="https://cdn.jsdelivr.net/npm/simple-data-analysis@latest">
+    // If you have a source map warning in the console,
+    // you can use src="https://cdn.jsdelivr.net/npm/simple-data-analysis@latest/dist/simple-data-analysis.min.js"
 </script>
-// If you have a .map warning in the console,
-// you can use src="https://cdn.jsdelivr.net/npm/simple-data-analysis@latest/dist/simple-data-analysis.min.js"
 
 <div id="viz"></div>
 
@@ -67,7 +67,8 @@ Here's an example.
         const simpleData = await new sda.SimpleData()
             // We retrieve some data
             .loadDataFromUrl({
-                url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv"
+                url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv",
+                autoType: true // CSV file are text. Automatically convert numbers.
             })
 
         simpleData
@@ -167,7 +168,8 @@ export default function Home() {
 
       const simpleData = await new SimpleData()
         .loadDataFromUrl({
-            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv"
+            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv",
+            autoType: true
         })
 
       ref.current.innerHTML =
@@ -215,7 +217,8 @@ import { SimpleDataNode } from "simple-data-analysis";
 
 new SimpleDataNode()
     .loadDataFromLocalFile({
-        path: "../simple-data-analysis/data/employees.csv"
+        path: "../simple-data-analysis/data/employees.csv",
+        autoType: true
     })
     // You can load TSV and JSON files as well
     .summarize({
