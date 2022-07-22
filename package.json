@@ -36,7 +36,7 @@
     },
     "scripts": {
         "test": "mocha --require ts-node/register \"test/unit/**/*.test.ts\"",
-        "test-simple-data": "node --experimental-json-modules --loader ts-node/esm test/integration/SimpleData.test.ts",
+        "test-simple-data": "node --loader ts-node/esm test/integration/SimpleData.test.ts",
         "test-simple-data-node": "node --loader ts-node/esm test/integration/SimpleDataNode.test.ts",
         "test-simple-data-doc": "node --loader ts-node/esm test/integration/SimpleDocument.test.tsx",
         "test-build": "rm -rf dist && npx tsc && rollup --config",

@@ -1,15 +1,15 @@
 import assert from "assert"
-import addPercentageDistribution from "../../../../src/methods/analyzing/addPercentageDistribution.js"
+import addProportions from "../../../../src/methods/analyzing/addProportions.js"
 
-describe("addPercentageDistribution", function () {
-    it("should calculate the percentage distribution for a group of keys inside each item", function () {
+describe("addProportions", function () {
+    it("should calculate the proportion for a group of keys inside each item", function () {
         const data = [
             { key1: 1, key2: 2 },
             { key1: 12, key2: 21 },
             { key1: 145, key2: 22 },
             { key1: 111, key2: 2222 },
         ]
-        const dataWithPercentages = addPercentageDistribution(data, {
+        const dataWithPercentages = addProportions(data, {
             method: "item",
             keys: ["key1", "key2"],
         })
@@ -22,7 +22,7 @@ describe("addPercentageDistribution", function () {
         ])
     })
 
-    it("should calculate a percentage distribution over the whole data and add the result in a new key", function () {
+    it("should calculate the proportion over the whole data and add the result in a new key", function () {
         const data = [
             { key1: "yellow", key2: 1 },
             { key1: "red", key2: 2 },
@@ -33,7 +33,7 @@ describe("addPercentageDistribution", function () {
             { key1: "red", key2: 22 },
             { key1: "red", key2: 13 },
         ]
-        const dataWithPercentages = addPercentageDistribution(data, {
+        const dataWithPercentages = addProportions(data, {
             method: "data",
             key: "key2",
             newKey: "key2Percent",
@@ -51,7 +51,7 @@ describe("addPercentageDistribution", function () {
         ])
     })
 
-    it("should calculate a percentage distribution over each group in the data and add the result in a new key", function () {
+    it("should calculate the proportion over each group in the data and add the result in a new key", function () {
         const data = [
             { key3: "caribou", key1: "yellow", key2: 1 },
             { key3: "caribou", key1: "red", key2: 2 },
@@ -62,7 +62,7 @@ describe("addPercentageDistribution", function () {
             { key3: "castor", key1: "red", key2: 22 },
             { key3: "castor", key1: "red", key2: 13 },
         ]
-        const dataWithPercentages = addPercentageDistribution(data, {
+        const dataWithPercentages = addProportions(data, {
             method: "data",
             key: "key2",
             newKey: "key3key1Percent",

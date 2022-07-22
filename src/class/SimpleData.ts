@@ -39,7 +39,7 @@ import correlation_ from "../methods/analyzing/correlation.js"
 import addItems_ from "../methods/restructuring/addItems.js"
 import getUniqueValues_ from "../methods/exporting/getUniqueValues.js"
 import summarize_ from "../methods/analyzing/summarize.js"
-import addPercentageDistribution_ from "../methods/analyzing/addPercentageDistribution.js"
+import addProportions_ from "../methods/analyzing/addProportions.js"
 import addVariation_ from "../methods/analyzing/addVariation.js"
 import mergeItems_ from "../methods/restructuring/mergeItems.js"
 import keysToValues_ from "../methods/restructuring/keysToValues.js"
@@ -778,7 +778,7 @@ export default class SimpleData {
     }
 
     @logCall()
-    addPercentageDistribution({
+    addProportions({
         method,
         key,
         keys,
@@ -800,7 +800,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = addPercentageDistribution_(cloneDeep(this._data), {
+        this._tempData = addProportions_(cloneDeep(this._data), {
             method,
             keys,
             key,

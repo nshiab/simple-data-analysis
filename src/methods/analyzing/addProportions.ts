@@ -4,7 +4,7 @@ import hasKey from "../../helpers/hasKey.js"
 import log from "../../helpers/log.js"
 import { SimpleDataItem } from "../../types/SimpleData.types"
 
-export default function addPercentageDistribution(
+export default function addProportions(
     data: SimpleDataItem[],
     options: {
         method: "item" | "data"
@@ -28,7 +28,7 @@ export default function addPercentageDistribution(
 
         if (options.keys === undefined || !Array.isArray(options.keys)) {
             throw new Error(
-                "The parameter keys needs a list of keys, like so ['key1', 'key2'] to calculate the percentage distribution."
+                "The parameter keys needs a list of keys, like so ['key1', 'key2'] to calculate the proportions."
             )
         }
 
@@ -86,7 +86,7 @@ export default function addPercentageDistribution(
     } else if (options.method === "data") {
         if (options.key === undefined) {
             throw new Error(
-                "key is undefined. You need to specify on which key the percentage distribution will be calculated."
+                "key is undefined. You need to specify on which key the proportions will be calculated."
             )
         }
         if (!hasKey(data[0], options.key)) {

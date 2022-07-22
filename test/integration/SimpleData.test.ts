@@ -229,19 +229,19 @@ async function main() {
         .addBins({ key: "bonus", newKey: "salaryBins", nbBins: 5 })
         .addOutliers({ key: "bonus", newKey: "bonusOutlier" })
         .excludeOutliers({ key: "bonus" })
-        .addPercentageDistribution({
+        .addProportions({
             method: "item",
             keys: ["salary", "bonus"],
             overwrite: false,
         })
-        .addPercentageDistribution({
+        .addProportions({
             method: "data",
             key: "salary",
             newKey: "salaryPercent",
             overwrite: false,
             nbDigits: 5,
         })
-        .addPercentageDistribution({
+        .addProportions({
             method: "data",
             key: "salary",
             groupKeys: ["unitName", "job"],
