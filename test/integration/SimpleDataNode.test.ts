@@ -81,6 +81,7 @@ async function main() {
             path: `${tempDir}/customChart.html`,
             plotOptions: {
                 color: { type: "ordinal" },
+                x: { type: "point" },
                 grid: true,
                 facet: {
                     data: simpleDataNode.getData(),

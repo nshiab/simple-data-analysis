@@ -22,6 +22,7 @@ export default class SimpleDataNode extends SimpleData {
     @asyncLogCall()
     async loadDataFromUrl({
         url,
+        autoType = false,
         dataAsArrays = false,
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         fillMissingKeys = false,
@@ -29,6 +30,7 @@ export default class SimpleDataNode extends SimpleData {
         lastItem = Infinity,
     }: {
         url: string
+        autoType?: boolean
         dataAsArrays?: boolean
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
@@ -37,6 +39,7 @@ export default class SimpleDataNode extends SimpleData {
     }): Promise<this> {
         const data = await loadDataFromUrlNode_(
             url,
+            autoType,
             dataAsArrays,
             firstItem,
             lastItem,
@@ -61,6 +64,7 @@ export default class SimpleDataNode extends SimpleData {
     @logCall()
     loadDataFromLocalFile({
         path,
+        autoType = false,
         dataAsArrays = false,
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         encoding = "utf8",
@@ -69,6 +73,7 @@ export default class SimpleDataNode extends SimpleData {
         lastItem = Infinity,
     }: {
         path: string
+        autoType?: boolean
         dataAsArrays?: boolean
         encoding?: BufferEncoding
         missingKeyValues?: SimpleDataItem
@@ -84,6 +89,7 @@ export default class SimpleDataNode extends SimpleData {
 
         const data = loadDataFromLocalFile_(
             path,
+            autoType,
             dataAsArrays,
             firstItem,
             lastItem,

@@ -1,3 +1,4 @@
+import { autoType as typed } from "d3-dsv"
 import { csv, tsv, json } from "d3-fetch"
 import arraysToData from "../../helpers/arraysToData.js"
 import getExtension from "../../helpers/getExtension.js"
@@ -6,6 +7,7 @@ import { SimpleDataItem, SimpleDataValue } from "../../types/SimpleData.types"
 
 export default async function loadDataFromUrlWeb(
     url: string,
+    autoType = false,
     dataAsArrays = false,
     firstItem = 0,
     lastItem = Infinity,
@@ -25,9 +27,9 @@ export default async function loadDataFromUrlWeb(
         verbose && log(`=> ${fileExtension} file extension detected`, "blue")
 
         if (fileExtension === "csv") {
-            arrayOfObjects = await csv(url)
+            arrayOfObjects = autoType ? await csv(url, typed) : await csv(url)
         } else if (fileExtension === "tsv") {
-            arrayOfObjects = await tsv(url)
+            arrayOfObjects = autoType ? await tsv(url, typed) : await tsv(url)
         }
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

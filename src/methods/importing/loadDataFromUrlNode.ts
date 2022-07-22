@@ -1,5 +1,5 @@
 import axios from "axios"
-import { csvParse, tsvParse } from "d3-dsv"
+import { csvParse, tsvParse, autoType as typed } from "d3-dsv"
 import arraysToData from "../../helpers/arraysToData.js"
 import getExtension from "../../helpers/getExtension.js"
 import log from "../../helpers/log.js"
@@ -7,6 +7,7 @@ import { SimpleDataItem } from "../../types/SimpleData.types"
 
 export default async function loadDataFromUrlNode(
     url: string,
+    autoType = false,
     dataAsArrays = false,
     firstItem = 0,
     lastItem = Infinity,
@@ -29,9 +30,13 @@ export default async function loadDataFromUrlNode(
         verbose && log(`=> ${fileExtension} file extension detected`, "blue")
 
         if (fileExtension === "csv") {
-            arrayOfObjects = csvParse(data) as SimpleDataItem[]
+            arrayOfObjects = autoType
+                ? (csvParse(data, typed) as SimpleDataItem[])
+                : (csvParse(data) as SimpleDataItem[])
         } else if (fileExtension === "tsv") {
-            arrayOfObjects = tsvParse(data) as SimpleDataItem[]
+            arrayOfObjects = autoType
+                ? (tsvParse(data, typed) as SimpleDataItem[])
+                : (tsvParse(data) as SimpleDataItem[])
         }
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

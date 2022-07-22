@@ -152,6 +152,7 @@ export default class SimpleData {
     @asyncLogCall()
     async loadDataFromUrl({
         url,
+        autoType = false,
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         fillMissingKeys = false,
         dataAsArrays = false,
@@ -159,6 +160,7 @@ export default class SimpleData {
         lastItem = Infinity,
     }: {
         url: string
+        autoType?: boolean
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
         dataAsArrays?: boolean
@@ -167,6 +169,7 @@ export default class SimpleData {
     }): Promise<this> {
         const data = await loadDataFromUrlWeb_(
             url,
+            autoType,
             dataAsArrays,
             firstItem,
             lastItem,
