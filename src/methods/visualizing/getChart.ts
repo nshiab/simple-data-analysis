@@ -132,11 +132,8 @@ export default function getChart(
 
         return `<div>
             ${
-                legend
-                    ? "<div style='width:100%;max-width: 640px;'>" +
-                      legend +
-                      "</div>"
-                    : null
+                legend &&
+                "<div style='width:100%;max-width: 640px;'>" + legend + "</div>"
             }
             <div style='width: 100%; max-width: 620px;font-family:system-ui, sans-serif;font-size:10px;text-align:right;'>
                 <div>Linear regression: y=${linearRegression.a.toFixed(
@@ -154,11 +151,8 @@ export default function getChart(
     } else {
         return `
         ${
-            legend
-                ? "<div style='width:100%;max-width: 640px;'>" +
-                  legend +
-                  "</div>"
-                : null
+            legend &&
+            "<div style='width:100%;max-width: 640px;'>" + legend + "</div>"
         }
         ${chart.html}
         `
