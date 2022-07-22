@@ -8,7 +8,7 @@ These project's goals are:
 
 - To ease the way for non-coders (especially journalists) into the beautiful world of data analysis and data visualization in JavaScript.
 
-- To uniformize and accelerate frontend/backend workflows with a simple-to-use library working both in the browser and with NodeJS.
+- To standardize and accelerate frontend/backend workflows with a simple-to-use library working both in the browser and with NodeJS.
 
 We are always trying to improve it. Feel free to start a conversation or open an issue, and check [how you can contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
 
@@ -49,13 +49,15 @@ If you don't want to install anything, a great platform is Observable. Check thi
 
 ## Simple example from the HTML
 
-If you want to add the library directly to your webpage, you can use the UMD minified bundle and call **sda**.
+If you want to add the library directly to your webpage, you can use the minified bundle from a npm-based CDN like jsDelivr and call **sda**.
 
 Here's an example.
 
 ```js
-<script src="https://cdn.jsdelivr.net/npm/simple-data-analysis@latest/dist/simple-data-analysis.min.js">
+<script src="https://cdn.jsdelivr.net/npm/simple-data-analysis">
 </script>
+// If you have a .map warning in the console,
+// you can use src="https://cdn.jsdelivr.net/npm/simple-data-analysis@latest/dist/simple-data-analysis.min.js"
 
 <div id="viz"></div>
 
@@ -200,9 +202,9 @@ You also have special properties to facilitate your work. If you create a Simple
 
 If, for some reason, you want to chain a method but not overwrite the data, you can pass `overwrite: false` to the method (like this `simpleData.summarize({ overwrite: false })`). The result of the method will be logged in the console (even if verbose is set to false), but the data passed to the next chained method will not be modified.
 
-If you are curious about how much time everything took, you can use the *showDuration()* method to log this information. After logging, this method returns the SimpleData instance, so you can chain it anywhere you want, just like *showTable()*. If you want to retrieve the duration and put it inside a variable, use *getDuration()* which will return the number of milliseconds.
+If you are curious about how much time everything took, you can use the showDuration method (like this `simpleData.showDuration()`) to log this information. After logging, this method returns the SimpleData instance, so you can chain it anywhere you want, just like showTable method. If you want to retrieve the duration and put it inside a variable, use getDuration (like this `simpleData.getDuration()`) which will return this information in milliseconds.
 
-For a description of all methods available, check this [Observable notebook](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript) or our [automatically generated documentation](https://nshiab.github.io/simple-data-analysis/).
+For a description of all methods available, check this [Observable notebook](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript) or the [automatically generated documentation](https://nshiab.github.io/simple-data-analysis/).
 
 ## SimpleDataNode
 
