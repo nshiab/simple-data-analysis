@@ -772,8 +772,7 @@ export default class SimpleData {
             key,
             order,
             locale,
-            nbTestedValue,
-            this.verbose
+            nbTestedValue
         )
         overwrite && this.#updateSimpleData(this._tempData)
 
