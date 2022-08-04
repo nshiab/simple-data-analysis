@@ -1,4 +1,4 @@
-# Simple data analysis
+# Simple data analysis (SDA)
 
 This repository is maintained by [Nael Shiab](http://naelshiab.com/), senior data producer at [CBC/Radio-Canada](https://cbc.radio-canada.ca/).
 
@@ -21,14 +21,14 @@ The documentation is available [here](https://nshiab.github.io/simple-data-analy
 3. [Simple example from the HTML](#simple-example-from-the-html)
 4. [NodeJS and JavaScript bundlers](#working-with-nodejs-and-javascript-bundlers)
 5. [Using it with React](#using-it-with-react)
-6. [SimpleData](#simpledata)
-7. [SimpleDataNode](#simpledatanode)
-8. [SimpleDocument (experimental)](#simpledocument-experimental-for-nodejs-only)
+6. [SimpleData class](#simpledata-class)
+7. [SimpleDataNode class](#simpledatanode-class)
+8. [SimpleDocument class (experimental)](#simpledocument-class-experimental-for-nodejs-only)
 9. [All functions and methods](#all-functions-and-methods)
 
 ## Core principles
 
-Under the hood, simple-data-analysis is mainly based on [D3 modules](https://github.com/d3/d3), [Observable Plot](https://github.com/observablehq/plot), and [Lodash](https://lodash.com/). The focus is on providing code that is easy to use and understand.
+Under the hood, SDA is mainly based on [D3 modules](https://github.com/d3/d3), [Observable Plot](https://github.com/observablehq/plot) and [Lodash](https://lodash.com/). The focus is on providing code that is easy to use and understand.
 
 The library expects **tabular data** stored in CSV/TSV files or **arrays of objects** stored in JSON files. It works best when the data is tidy:
 
@@ -109,7 +109,7 @@ And here's the result in the browser!
 
 <img src="./assets/webExample.png" alt="A chart of the mean salary of several jobs" style="display:block;width: 100%; max-width:400px;margin-bottom: 20px;border-radius: 5px;"/>
 
-As you can see below, simple-data-analysis is a lightweight library optimized for the web (98kb ≈ 12ko).
+As you can see below, SDA is a lightweight library optimized for the web (98kb ≈ 12ko).
 
 <img src="./assets/bundle-min-size.png" alt="The network tab in Google Chrome" style="display:block;width: 100%; max-width:400px;margin-bottom: 20px;border-radius: 5px;"/>
 
@@ -150,7 +150,7 @@ const simpleData = new SimpleDataNode()
 
 ## Using it with React
 
-You can use SimpleData with React as well. Put the relevant code inside a useEffect or useMemo. The example below was created inside a [Next.js](https://nextjs.org/) app.
+You can use SDA with React as well. Put the relevant code inside a useEffect or useMemo. The example below was created inside a [Next.js](https://nextjs.org/) app.
 
 ```js
 import { useEffect, useRef } from "react"
@@ -194,7 +194,7 @@ Here's the result.
 
 <img src="./assets/nextjs-example.png" alt="The network tab in Google Chrome" style="display:block;width: 100%; max-width:400px;margin-bottom: 20px;border-radius: 5px;"/>
 
-## SimpleData
+## SimpleData class
 
 The SimpleData class is the core of the library. Chaining methods allow you to clean, analyze, and visualize your data easily.
 
@@ -208,7 +208,7 @@ If you are curious about how much time everything took, you can use the showDura
 
 For a description of all methods available, check this [Observable notebook](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript) or the [automatically generated documentation](https://nshiab.github.io/simple-data-analysis/).
 
-## SimpleDataNode
+## SimpleDataNode class
 
 If you use the library with NodeJS, you can import SimpleDataNode instead of SimpleData. It will give you extra methods to load local files, save files and save charts.
 
@@ -249,7 +249,7 @@ And here's the result in VS Code!
 
 <img src="./assets/nodeExample.png" alt="A chart of the mean salary of several jobs" style="display:block;width: 100%; max-width:600px;margin-bottom: 20px;border-radius: 5px;"/>
 
-## SimpleDocument (experimental, for NodeJS only)
+## SimpleDocument class (experimental, for NodeJS only)
 
 While working on your analysis, it's sometimes helpful to build a document that you'll be able to share with your results.
 
