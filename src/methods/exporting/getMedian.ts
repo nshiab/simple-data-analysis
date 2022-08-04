@@ -3,7 +3,6 @@ import {
     SimpleDataValue,
 } from "../../types/SimpleData.types.js"
 import hasKey from "../../helpers/hasKey.js"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 import { median } from "d3-array"
 
 export default function getMedian(
@@ -15,11 +14,13 @@ export default function getMedian(
         throw new Error(`No key ${key} in data`)
     }
 
-    if (!checkTypeOfKey(data, key, "number", 0.5)) {
-        throw new Error(`The majority of values inside ${key} are not numbers.`)
+    const result = median(data, (d) => d[key] as number) as number | Date
+
+    if (result instanceof Date) {
+        return result.getTime()
+    } else if (typeof result === "number") {
+        return parseFloat(result.toFixed(nbDigits))
+    } else {
+        return result
     }
-
-    const result = median(data, (d) => d[key] as number)
-
-    return result ? parseFloat(result.toFixed(nbDigits)) : result
 }

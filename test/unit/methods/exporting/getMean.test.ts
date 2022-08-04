@@ -2,13 +2,13 @@ import assert from "assert"
 import getMean from "../../../../src/methods/exporting/getMean.js"
 
 const data = [
-    { key1: 9, key2: 90 },
-    { key1: 20, key2: null },
-    { key1: 30, key2: -90 },
-    { key1: 40, key2: 55 },
-    { key1: 50, key2: 11 },
-    { key1: 60, key2: undefined },
-    { key1: 70, key2: "haha" },
+    { key1: 9, key2: 90, key3: new Date(2022, 7, 1) },
+    { key1: 20, key2: null, key3: new Date(2022, 7, 2) },
+    { key1: 30, key2: -90, key3: new Date(2022, 7, 3) },
+    { key1: 40, key2: 55, key3: new Date(2022, 7, 4) },
+    { key1: 50, key2: 11, key3: new Date(2022, 7, 5) },
+    { key1: 60, key2: undefined, key3: new Date(2022, 7, 6) },
+    { key1: 70, key2: "haha", key3: new Date(2022, 7, 7) },
 ]
 
 describe("getMean", function () {
@@ -20,5 +20,9 @@ describe("getMean", function () {
     it("should return mean value 16.5 from key with different types", function () {
         const meanValue = getMean(data, "key2")
         assert.deepEqual(meanValue, 16.5)
+    })
+    it("should return mean value when working with dates", function () {
+        const meanValue = getMean(data, "key3")
+        assert.deepEqual(meanValue, 1659585600000)
     })
 })
