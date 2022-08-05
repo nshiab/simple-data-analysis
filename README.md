@@ -200,7 +200,7 @@ Here's the result.
 
 [D3](https://github.com/d3/d3) is a powerful library widely used to create stunning data visualizations.
 
-It works best with the data structured as an array of objects, exactly like SDA. This makes the two libraries complement each other very well.
+It works best with the data structured as an array of objects, exactly like SDA. The two libraries complement each other very well.
 
 ```javascript
 // Use SimpleData to prepare your data
@@ -215,9 +215,9 @@ const svg = d3.select("#dataviz")
     .data(
         simpleData.getData()
         // getData() returns the data as
-        // an array of objects! Easy!
+        // an array of objects. Easy!
     )
-    // Keep on doing your D3 magic!
+    // Keep on doing your D3 magic.
 ```
 
 ## Using it with ThreeJS / React Three Fiber (shaders)
@@ -226,9 +226,9 @@ const svg = d3.select("#dataviz")
 
 [React Three Fiber](https://github.com/pmndrs/react-three-fiber) is a React renderer for ThreeJS.
 
-To visualize hundreds thousands data points, you can use custom shaders.
+To visualize hundreds of thousands of data points, you can use custom shaders.
 
-To do so, you need to pass your data as a[BufferAttribute](https://threejs.org/docs/#api/en/core/BufferAttribute).
+To do so, you need to pass your data as a [BufferAttribute](https://threejs.org/docs/#api/en/core/BufferAttribute).
 
 Here's how to display points while passing custom data to the shaders.
 
@@ -247,7 +247,7 @@ const simpleData = new SimpleData({
 // ]
 
 // To pass the colors as a BufferAttribute,
-// you need to pass your data as one array
+// you need to restructure your data as one array
 // like this [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, ...]
 // Here's how to get this array.
 const keys = ["r", "g", "b"]
@@ -255,7 +255,6 @@ const colors = simpleData.getArray({
     key: keys
 })
 
-// That's it!
 // Now you can create your BufferAttribute
 const colorsAttribute = new THREE.BufferAttribute(
     new Float32Array(colors),
@@ -263,10 +262,8 @@ const colorsAttribute = new THREE.BufferAttribute(
 )
 
 const geometry = new THREE.BufferGeometry()
-// Pass your BufferAttribute to the geometry.
 geometry.setAttribute("color", colorsAttribute)
 
-// Setup your custom shaders.
 const material = new THREE.ShaderMaterial({
     vertexShader: yourVertexShader,
     fragmentShader: yourFragmentShader
@@ -277,7 +274,7 @@ const mesh = new THREE.Points(geometry, material)
 // You now have acces to your data as
 // an attribute for each vertice
 // in your vertex shader. Here, we added a color
-// but it can be anything, of course.
+// but it can be anything.
 ```
 
 And here's how to do it with React Three Fiber.
@@ -286,7 +283,7 @@ And here's how to do it with React Three Fiber.
 // Let's imagine that we are inside a React component
 // nested inside the React Three Fiber Canvas element.
 
-// Let's use SimpleData to deal with our data.
+// Use SimpleData to deal with the data.
 const colors = useMemo(() => {
 
     const simpleData = new SimpleData({
