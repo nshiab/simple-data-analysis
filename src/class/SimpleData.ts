@@ -1063,7 +1063,7 @@ export default class SimpleData {
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
-    getArray({ key }: { key: string }): SimpleDataValue[] {
+    getArray({ key }: { key: string | string[] }): SimpleDataValue[] {
         const array = getArray_(this._data, key)
 
         return array

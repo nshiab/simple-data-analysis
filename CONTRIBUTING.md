@@ -6,6 +6,8 @@ Feel free to start a [conversation](https://github.com/nshiab/simple-data-analys
 
 You can also check [this tutorial](https://github.com/firstcontributions/first-contributions) as a ressource.
 
+If you don't feel comfortable playing with the project's code, keep in mind that starting a conversation about a new feature or flagging a bug is already of great help! :)
+
 And thank you for your interest in contributing!
 
 ## 1 - Create an issue

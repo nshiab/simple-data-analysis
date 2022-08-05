@@ -1,4 +1,4 @@
-# Simple data analysis (SDA)
+# Simple data analysis (SDA) in JavaScript
 
 This repository is maintained by [Nael Shiab](http://naelshiab.com/), senior data producer at [CBC/Radio-Canada](https://cbc.radio-canada.ca/).
 
@@ -21,10 +21,12 @@ The documentation is available [here](https://nshiab.github.io/simple-data-analy
 3. [Simple example from the HTML](#simple-example-from-the-html)
 4. [NodeJS and JavaScript bundlers](#working-with-nodejs-and-javascript-bundlers)
 5. [Using it with React](#using-it-with-react)
-6. [SimpleData class](#simpledata-class)
-7. [SimpleDataNode class](#simpledatanode-class)
-8. [SimpleDocument class (experimental)](#simpledocument-class-experimental-for-nodejs-only)
-9. [All functions and methods](#all-functions-and-methods)
+6. [Using it with D3](#using-it-with-d3)
+7. [Using it with ThreeJS / React-three-fiber (shaders)](#using-it-with-threejs--react-three-fiber-shaders)
+8. [SimpleData class](#simpledata-class)
+9. [SimpleDataNode class](#simpledatanode-class)
+10. [SimpleDocument class (experimental)](#simpledocument-class-experimental-for-nodejs-only)
+11. [All functions and methods](#all-functions-and-methods)
 
 ## Core principles
 
@@ -193,6 +195,54 @@ export default function Home() {
 Here's the result.
 
 <img src="./assets/nextjs-example.png" alt="The network tab in Google Chrome" style="display:block;width: 100%; max-width:400px;margin-bottom: 20px;border-radius: 5px;"/>
+
+## Using it with D3
+
+[D3](https://github.com/d3/d3) is a powerful library widely used to create stunning data visualizations.
+
+It works best with the data structured as an array of objects, exactly like SDA. This makes the two libraries complement each other very well.
+
+```javascript
+// Use SimpleData to prepare your data
+const simpleData = new SimpleData({
+    data: arrayOfObjects
+})
+// Chain methods to filter,
+// clean, summarize, etc.
+
+// Then use D3 to visualize
+const svg = d3.select("#dataviz")
+    .data(
+        simpleData.getData()
+        // getData() returns the data as
+        // an array of objects! Easy!
+    )
+    // Keep on doing your D3 magic!
+```
+
+## Using it with ThreeJS / React Three Fiber (shaders)
+
+[ThreeJS](https://github.com/mrdoob/three.js/) is general purpose 3D library. Under the hood, it sends instructions to the GPU, which allows for high-performance visualizations in 2D and 3D.
+
+[React Three Fiber](https://github.com/pmndrs/react-three-fiber) is a React renderer for ThreeJS.
+
+To visualize hundreds thousands data points, you can use custom shaders.
+
+To do so, you need to pass your data as a[BufferAttribute](https://threejs.org/docs/#api/en/core/BufferAttribute) inside a [BufferGeometry](https://threejs.org/docs/#api/en/core/BufferGeometry).
+
+Here's an example with ThreeJS.
+
+```javascript
+// Use SimpleData to manipulate your data
+const simpleData = new SimpleData({
+    data: arrayOfObjects
+})
+// Let's imagine that you transformed your
+// data to look something like this
+// [{r: 0.1, g: 0.2, b: 0.3}]
+
+```
+
 
 ## SimpleData class
 

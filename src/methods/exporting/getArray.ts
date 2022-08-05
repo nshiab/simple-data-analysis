@@ -6,13 +6,30 @@ import hasKey from "../../helpers/hasKey.js"
 
 export default function getArray(
     data: SimpleDataItem[],
-    key: string
+    key: string | string[]
 ): SimpleDataValue[] {
-    if (!hasKey(data[0], key)) {
-        throw new Error(`No key ${key} in data`)
+    let keys
+    if (typeof key === "string") {
+        if (!hasKey(data[0], key)) {
+            throw new Error(`No key ${key} in data`)
+        }
+        keys = [key]
+    } else {
+        for (const k of key) {
+            if (!hasKey(data[0], k)) {
+                throw new Error(`No key ${key} in data`)
+            }
+        }
+        keys = key
     }
 
-    const array = data.map((d) => d[key])
+    const array = []
+
+    for (let i = 0; i < data.length; i++) {
+        for (const key of keys) {
+            array.push(data[i][key])
+        }
+    }
 
     return array
 }
