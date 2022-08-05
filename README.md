@@ -228,9 +228,9 @@ const svg = d3.select("#dataviz")
 
 To visualize hundreds thousands data points, you can use custom shaders.
 
-To do so, you need to pass your data as a[BufferAttribute](https://threejs.org/docs/#api/en/core/BufferAttribute) inside a [BufferGeometry](https://threejs.org/docs/#api/en/core/BufferGeometry).
+To do so, you need to pass your data as a[BufferAttribute](https://threejs.org/docs/#api/en/core/BufferAttribute).
 
-Here's an example with ThreeJS.
+Here's how to display points while passing custom data to the shaders.
 
 ```javascript
 // Use SimpleData to manipulate your data
@@ -238,11 +238,101 @@ const simpleData = new SimpleData({
     data: arrayOfObjects
 })
 // Let's imagine that you transformed your
-// data to look something like this
-// [{r: 0.1, g: 0.2, b: 0.3}]
+// data to rgb values.
+// [
+//  {r: 0.1, g: 0.2, b: 0.3},
+//  {r: 0.4, g: 0.5, b: 0.6},
+//  {r: 0.7, g: 0.8, b: 0.9},
+//  ...
+// ]
 
+// To pass the colors as a BufferAttribute,
+// you need to pass your data as one array
+// like this [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, ...]
+// Here's how to get this array.
+const keys = ["r", "g", "b"]
+const colors = simpleData.getArray({
+    key: keys
+})
+
+// That's it!
+// Now you can create your BufferAttribute
+const colorsAttribute = new THREE.BufferAttribute(
+    new Float32Array(colors),
+    keys.length
+)
+
+const geometry = new THREE.BufferGeometry()
+// Pass your BufferAttribute to the geometry.
+geometry.setAttribute("color", colorsAttribute)
+
+// Setup your custom shaders.
+const material = new THREE.ShaderMaterial({
+    vertexShader: yourVertexShader,
+    fragmentShader: yourFragmentShader
+})
+
+const mesh = new THREE.Points(geometry, material)
+
+// You now have acces to your data as
+// an attribute for each vertice
+// in your vertex shader. Here, we added a color
+// but it can be anything, of course.
 ```
 
+And here's how to do it with React Three Fiber.
+
+```javascript
+// Let's imagine that we are inside a React component
+// nested inside the React Three Fiber Canvas element.
+
+// Let's use SimpleData to deal with our data.
+const colors = useMemo(() => {
+
+    const simpleData = new SimpleData({
+        data: arrayOfObjects
+    })
+    // Let's imagine that you transformed your
+    // data to rgb values.
+    // [
+    //  {r: 0.1, g: 0.2, b: 0.3},
+    //  {r: 0.4, g: 0.5, b: 0.6},
+    //  {r: 0.7, g: 0.8, b: 0.9},
+    //  ...
+    // ]
+
+    const keys = ["r", "g", "b"]
+    const array = new simpleData.getArray({
+        key: keys
+    })
+    // Now the data is structured like this:
+    // [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, ...]
+
+    return {
+        array: new Float32Array(array),
+        itemSize: keys.length,
+        count: simpleData.getLength()
+    }
+
+
+}, [arrayOfObjects])
+
+// We setup and return our points here.
+return <points>
+    <bufferGeometry>
+        <bufferAttribute
+        attachObject={["attributes", "color"]}
+        count={colors.count}
+        itemSize={colors.itemSize}
+        array={colors.array}
+        />
+    </bufferGeometry>
+    <shaderMaterial 
+        vertexShader={yourVertexShader}
+        fragmentShader={yourFragmentShader}
+    />
+</points>
+```
 
 ## SimpleData class
 
