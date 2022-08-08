@@ -980,6 +980,8 @@ export default class SimpleData {
         color,
         trend = false,
         showTrendEquation = false,
+        width,
+        height,
         marginLeft,
         marginBottom,
     }: {
@@ -997,6 +999,8 @@ export default class SimpleData {
         color?: string
         trend?: boolean
         showTrendEquation?: boolean
+        width?: number
+        height?: number
         marginLeft?: number
         marginBottom?: number
     }): string {
@@ -1009,7 +1013,9 @@ export default class SimpleData {
             trend,
             showTrendEquation,
             marginLeft,
-            marginBottom
+            marginBottom,
+            width,
+            height
         )
         return chart
     }

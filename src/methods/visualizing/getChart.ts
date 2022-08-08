@@ -29,9 +29,19 @@ export default function getChart(
     trend?: boolean,
     showTrendEquation?: boolean,
     marginLeft?: number,
-    marginBottom?: number
+    marginBottom?: number,
+    width?: number,
+    height?: number
 ): string {
     const markOption: { [key: string]: string | number } = { x, y }
+
+    if (width) {
+        markOption.width = width
+    }
+
+    if (height) {
+        markOption.height = height
+    }
 
     if (
         color &&
