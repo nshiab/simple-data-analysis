@@ -16,15 +16,17 @@ export default function addItems(
     }
 
     const uniqueKeys = getUniqueKeys(data)
-    dataToBeAdded = handleMissingKeys(
-        dataToBeAdded,
-        fillMissingKeys,
-        uniqueKeys
-    )
+    if (uniqueKeys.length > 0) {
+        dataToBeAdded = handleMissingKeys(
+            dataToBeAdded,
+            fillMissingKeys,
+            uniqueKeys
+        )
+    }
 
     const uniqueKeysToBeAdded = getUniqueKeys(dataToBeAdded)
 
-    if (!isEqual(uniqueKeys, uniqueKeysToBeAdded)) {
+    if (uniqueKeys.length > 0 && !isEqual(uniqueKeys, uniqueKeysToBeAdded)) {
         throw new Error(
             `data and dataToBeAdded don't have the same keys\ndata keys => ${String(
                 uniqueKeys

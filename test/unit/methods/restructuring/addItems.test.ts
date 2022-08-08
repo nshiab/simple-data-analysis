@@ -1,6 +1,7 @@
 import assert from "assert"
 import SimpleData from "../../../../src/class/SimpleData.js"
 import addItems from "../../../../src/methods/restructuring/addItems.js"
+import { SimpleDataItem } from "../../../../src/types/SimpleData.types.js"
 
 describe("addItems", function () {
     it("should add items as array of objects", function () {
@@ -40,5 +41,18 @@ describe("addItems", function () {
         const data = [{ key1: 1 }]
         const dataToBeAdded = [{ key1: 2, key2: 2 }]
         assert.throws(() => addItems(data, dataToBeAdded, true))
+    })
+
+    it("should add items even if the main data is empty", function () {
+        const data: SimpleDataItem[] = []
+        const dataToBeAdded = [
+            { key1: 2, key2: 2 },
+            { key1: 3, key2: 4 },
+        ]
+        const newData = addItems(data, dataToBeAdded)
+        assert.deepEqual(newData, [
+            { key1: 2, key2: 2 },
+            { key1: 3, key2: 4 },
+        ])
     })
 })
