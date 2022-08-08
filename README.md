@@ -1,5 +1,8 @@
 # Simple data analysis (SDA) in JavaScript
 
+![GitHub package.json version](https://img.shields.io/github/package-json/v/nshiab/simple-data-analysis)
+![npm](https://img.shields.io/npm/dm/simple-data-analysis?label=npm%20downloads)
+
 This repository is maintained by [Nael Shiab](http://naelshiab.com/), senior data producer at [CBC/Radio-Canada](https://cbc.radio-canada.ca/).
 
 If you use the library, show off your work and tag me on [Twitter](https://twitter.com/NaelShiab) or [LinkedIn](https://www.linkedin.com/in/naelshiab/)! :)
@@ -212,11 +215,14 @@ const simpleData = new SimpleData({
 
 // Then use D3 to visualize
 const svg = d3.select("#dataviz")
+
+svg.selectAll("circle")
     .data(
         simpleData.getData()
         // getData() returns the data as
         // an array of objects. Easy!
     )
+    .join("circle")
     // Keep on doing your D3 magic.
 ```
 
@@ -226,11 +232,9 @@ const svg = d3.select("#dataviz")
 
 [React Three Fiber](https://github.com/pmndrs/react-three-fiber) is a React renderer for ThreeJS.
 
-To visualize hundreds of thousands of data points, you can use custom shaders.
+To visualize hundreds of thousands of data points, you can use custom shaders with these wonderful libraries. To do so, you need to pass your data as a [BufferAttribute](https://threejs.org/docs/#api/en/core/BufferAttribute).
 
-To do so, you need to pass your data as a [BufferAttribute](https://threejs.org/docs/#api/en/core/BufferAttribute).
-
-Here's how to display points while passing custom data to the shaders.
+Here's how to display points while passing custom data - from a SimpleData instance of course! - to the shaders.
 
 ```javascript
 // Use SimpleData to manipulate your data
@@ -238,79 +242,109 @@ const simpleData = new SimpleData({
     data: arrayOfObjects
 })
 // Let's imagine that you transformed your
-// data to rgb values.
+// data to look like this.
 // [
-//  {r: 0.1, g: 0.2, b: 0.3},
-//  {r: 0.4, g: 0.5, b: 0.6},
-//  {r: 0.7, g: 0.8, b: 0.9},
+//  {r: 0.1, g: 0.2, b: 0.3, x: 1, y: 2, z: 3},
+//  {r: 0.4, g: 0.5, b: 0.6, x: 4, y: 5, z: 6},
+//  {r: 0.7, g: 0.8, b: 0.9, x: 7, y: 8, z: 9},
 //  ...
 // ]
 
-// To pass the colors as a BufferAttribute,
+// To pass the positions and colors as BufferAttributes,
 // you need to restructure your data as one array
-// like this [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, ...]
-// Here's how to get this array.
-const keys = ["r", "g", "b"]
-const colors = simpleData.getArray({
-    key: keys
-})
+// Let's start with the positions
+const positionsKeys = ["x", "y", "z"];
+const positions = simpleData.getArray({
+  key: positionsKeys
+});
+// The returned array looks like this
+// [1, 2, 3, 4, 5, 6, 7, 8, 9, ...]
 
-// Now you can create your BufferAttribute
+// And now the colors.
+const colorsKeys = ["r", "g", "b"]
+const colors = simpleData.getArray({
+    key: colorsKeys
+})
+// The returned array looks like this
+// [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9...]
+
+// Now you can create your BufferAttributes
+const positionsAttribute = new THREE.BufferAttribute(
+    new Float32Array(positions),
+    positionsKeys.length
+)
 const colorsAttribute = new THREE.BufferAttribute(
     new Float32Array(colors),
-    keys.length
+    colorsKeys.length
 )
 
+// Create a BufferGeometry and add your attributes
 const geometry = new THREE.BufferGeometry()
-geometry.setAttribute("color", colorsAttribute)
+geometry.setAttribute("position", positionsAttribute);
+geometry.setAttribute("color", colorsAttribute);
 
 const material = new THREE.ShaderMaterial({
     vertexShader: yourVertexShader,
     fragmentShader: yourFragmentShader
 })
+// If you don't want to mess with shaders,
+// you can use the PointsMaterial and
+// set the vertexColors to true like so
+// new THREE.ShaderMaterial({vertexColors: true})
 
 const mesh = new THREE.Points(geometry, material)
 
 // You now have acces to your data as
 // an attribute for each vertice
-// in your vertex shader. Here, we added a color
-// but it can be anything.
+// in your shaders. Here we added
+// positions and colors but it can be anything!
+// PS: Don't forget to add your mesh to your scene. :)
 ```
 
-And here's how to do it with React Three Fiber.
+If you work with React, you can use React Three Fiber. Here's how to do the same thing, but the React way!
 
 ```javascript
 // Let's imagine that we are inside a React component
 // nested inside the React Three Fiber Canvas element.
 
-// Use SimpleData to deal with the data.
-const colors = useMemo(() => {
+// We create everything needed
+// for our BufferAttributes
+const attributes = useMemo(() => {
 
+    // Use SimpleData to manipulate your data
     const simpleData = new SimpleData({
         data: arrayOfObjects
     })
     // Let's imagine that you transformed your
-    // data to rgb values.
+    // data to look like this.
     // [
-    //  {r: 0.1, g: 0.2, b: 0.3},
-    //  {r: 0.4, g: 0.5, b: 0.6},
-    //  {r: 0.7, g: 0.8, b: 0.9},
+    //  {r: 0.1, g: 0.2, b: 0.3, x: 1, y: 2, z: 3},
+    //  {r: 0.4, g: 0.5, b: 0.6, x: 4, y: 5, z: 6},
+    //  {r: 0.7, g: 0.8, b: 0.9, x: 7, y: 8, z: 9},
     //  ...
     // ]
 
-    const keys = ["r", "g", "b"]
-    const array = new simpleData.getArray({
-        key: keys
+    const positionsKeys = ["x", "y", "z"];
+    const positions = simpleData.getArray({
+    key: positionsKeys
+    });
+    // The returned array looks this
+    // [1, 2, 3, 4, 5, 6, 7, 8, 9, ...]
+
+    const colorsKeys = ["r", "g", "b"]
+    const colors = simpleData.getArray({
+        key: colorsKeys
     })
-    // Now the data is structured like this:
-    // [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, ...]
+    // The returned array looks this
+    // [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9...]
 
     return {
-        array: new Float32Array(array),
-        itemSize: keys.length,
+        positions: new Float32Array(positions),
+        positionsItemSize: positionsKeys.length,
+        colors: new Float32Array(colors),
+        colorsItemSize: colorsKeys.length,
         count: simpleData.getLength()
     }
-
 
 }, [arrayOfObjects])
 
@@ -318,10 +352,16 @@ const colors = useMemo(() => {
 return <points>
     <bufferGeometry>
         <bufferAttribute
-        attachObject={["attributes", "color"]}
-        count={colors.count}
-        itemSize={colors.itemSize}
-        array={colors.array}
+            attach="attributes-position"
+            count={attributes.count}
+            itemSize={attributes.positionsItemSize}
+            array={attributes.positions}
+        />
+        <bufferAttribute
+            attach="attributes-color"
+            count={attributes.count}
+            itemSize={attributes.colorsItemSize}
+            array={attributes.colors}
         />
     </bufferGeometry>
     <shaderMaterial 
