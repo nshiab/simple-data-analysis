@@ -134,24 +134,28 @@ export default class SimpleDataNode extends SimpleData {
         color,
         trend = false,
         showTrendEquation = false,
+        width,
+        height,
         marginLeft = 0,
-        marginBottom = 0,
+        marginBottom = 0
     }: {
         path: string
         type:
-            | "dot"
-            | "line"
-            | "bar"
-            | "barVertical"
-            | "barHorizontal"
-            | "box"
-            | "boxVertical"
-            | "boxHorizontal"
+        | "dot"
+        | "line"
+        | "bar"
+        | "barVertical"
+        | "barHorizontal"
+        | "box"
+        | "boxVertical"
+        | "boxHorizontal"
         x: string
         y: string
         color?: string
         trend?: boolean
         showTrendEquation?: boolean
+        width?: number
+        height?: number
         marginLeft?: number
         marginBottom?: number
     }): this {
@@ -172,7 +176,9 @@ export default class SimpleDataNode extends SimpleData {
             trend,
             showTrendEquation,
             marginLeft,
-            marginBottom
+            marginBottom,
+            width,
+            height
         )
 
         fs.writeFileSync(path, chart)

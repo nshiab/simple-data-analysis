@@ -38,6 +38,7 @@ async function main() {
         .valuesToFloat({ key: "bonus" })
 
     temporaryDirectoryTask((tempDir) => {
+
         simpleDataNode
             .saveData({ path: `${tempDir}/integrationTest.csv` })
             .saveData({ path: `${tempDir}/integrationTest.json` })
@@ -75,6 +76,16 @@ async function main() {
                 y: "job",
                 color: "job",
                 marginLeft: 90,
+            })
+            .saveChart({
+                path: `${tempDir}/bar1-small.html`,
+                type: "barHorizontal",
+                x: "mean",
+                y: "job",
+                color: "job",
+                marginLeft: 90,
+                width: 200,
+                height: 100
             })
 
         simpleDataNode.saveCustomChart({
