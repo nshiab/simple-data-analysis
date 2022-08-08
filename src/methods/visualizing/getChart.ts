@@ -35,14 +35,6 @@ export default function getChart(
 ): string {
     const markOption: { [key: string]: string | number } = { x, y }
 
-    if (width) {
-        markOption.width = width
-    }
-
-    if (height) {
-        markOption.height = height
-    }
-
     if (
         color &&
         [
@@ -81,6 +73,14 @@ export default function getChart(
     const plotOptions: { [key: string]: any } = {
         grid: true,
         marks: [mark],
+    }
+
+    if (width) {
+        plotOptions.width = width
+    }
+
+    if (height) {
+        plotOptions.height = height
     }
 
     if (trend) {
