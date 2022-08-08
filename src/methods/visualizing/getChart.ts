@@ -31,7 +31,8 @@ export default function getChart(
     marginLeft?: number,
     marginBottom?: number,
     width?: number,
-    height?: number
+    height?: number,
+    title?: string
 ): string {
     const markOption: { [key: string]: string | number } = { x, y }
 
@@ -118,11 +119,21 @@ export default function getChart(
     const chart = plotChart(plotOptions)
     const chartHTML = chart.html
 
+    let titleHTML = ""
+    if (title) {
+        titleHTML = `<div style="font-family:system-ui, sans-serif;font-size:14px;font-weight: bold;">${title}</div>`
+    }
+
     let legendHTML = ""
     if (color && ["line", "dot"].includes(type)) {
         const legend = chart.plt.legend("color").outerHTML
         if (legend) {
-            legendHTML = legend
+            legendHTML =
+                `<div style="width:${width ? width : 640}px;margin-top: ${
+                    title ? 8 : 0
+                }px;">` +
+                legend +
+                "</div>"
         }
     }
 
@@ -145,14 +156,21 @@ export default function getChart(
             nbDigits += 1
         }
 
-        trendEquationHTML = `<div style='width: 100%; max-width: ${width ? width - 20 : 620}px;font-family:system-ui, sans-serif;font-size:10px;text-align:right;'><div>Linear regression: y=${linearRegression.a.toFixed(
+        trendEquationHTML = `<div style='width: 100%; max-width: ${
+            width ? width - 20 : 620
+        }px;font-family:system-ui, sans-serif;font-size:10px;text-align:right;'><div>y = ${linearRegression.a.toFixed(
             nbDigits + 1
         )}x + ${linearRegression.b.toFixed(
             nbDigits + 1
-        )} , R<sup>2</sup>: ${linearRegression.rSquared.toFixed(
-            2
-        )}, chart CI: 0.95</div></div>`
+        )} , R<sup>2</sup>: ${linearRegression.rSquared.toFixed(2)}</div></div>`
     }
 
-    return "<div>" + legendHTML + trendEquationHTML + chartHTML + "</div"
+    return (
+        "<div>" +
+        titleHTML +
+        legendHTML +
+        trendEquationHTML +
+        chartHTML +
+        "</div"
+    )
 }

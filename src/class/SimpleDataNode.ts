@@ -138,6 +138,7 @@ export default class SimpleDataNode extends SimpleData {
         height,
         marginLeft = 0,
         marginBottom = 0,
+        title,
     }: {
         path: string
         type:
@@ -158,6 +159,7 @@ export default class SimpleDataNode extends SimpleData {
         height?: number
         marginLeft?: number
         marginBottom?: number
+        title?: string
     }): this {
         if (global.window === undefined || global.document === undefined) {
             const jsdom = new JSDOM("")
@@ -178,7 +180,8 @@ export default class SimpleDataNode extends SimpleData {
             marginLeft,
             marginBottom,
             width,
-            height
+            height,
+            title
         )
 
         fs.writeFileSync(path, chart)

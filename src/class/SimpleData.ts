@@ -984,6 +984,7 @@ export default class SimpleData {
         height,
         marginLeft,
         marginBottom,
+        title,
     }: {
         type:
             | "dot"
@@ -1003,6 +1004,7 @@ export default class SimpleData {
         height?: number
         marginLeft?: number
         marginBottom?: number
+        title?: string
     }): string {
         const chart = getChart_(
             cloneDeep(this._data),
@@ -1015,7 +1017,8 @@ export default class SimpleData {
             marginLeft,
             marginBottom,
             width,
-            height
+            height,
+            title
         )
         return chart
     }

@@ -38,6 +38,7 @@ async function main() {
         .valuesToFloat({ key: "bonus" })
 
     temporaryDirectoryTask((tempDir) => {
+        // tempDir = "../"
 
         simpleDataNode
             .saveData({ path: `${tempDir}/integrationTest.csv` })
@@ -65,7 +66,31 @@ async function main() {
             trend: true,
             showTrendEquation: true,
             width: 400,
-            height: 300
+            height: 300,
+        })
+        simpleDataNode.saveChart({
+            path: `${tempDir}/dot1-small-title.html`,
+            type: "dot",
+            x: "salary",
+            y: "bonus",
+            color: "job",
+            trend: true,
+            showTrendEquation: true,
+            width: 400,
+            height: 300,
+            title: "Awesome chart",
+        })
+
+        simpleDataNode.saveChart({
+            path: `${tempDir}/dot1-small-title-noLegend.html`,
+            type: "dot",
+            x: "salary",
+            y: "bonus",
+            trend: true,
+            showTrendEquation: true,
+            width: 400,
+            height: 300,
+            title: "Awesome chart",
         })
 
         simpleDataNode
