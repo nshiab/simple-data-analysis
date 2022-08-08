@@ -145,7 +145,7 @@ export default function getChart(
             nbDigits += 1
         }
 
-        trendEquationHTML = `<div style='width: 100%; max-width: 620px;font-family:system-ui, sans-serif;font-size:10px;text-align:right;'><div>Linear regression: y=${linearRegression.a.toFixed(
+        trendEquationHTML = `<div style='width: 100%; max-width: ${width ? width - 20 : 620}px;font-family:system-ui, sans-serif;font-size:10px;text-align:right;'><div>Linear regression: y=${linearRegression.a.toFixed(
             nbDigits + 1
         )}x + ${linearRegression.b.toFixed(
             nbDigits + 1

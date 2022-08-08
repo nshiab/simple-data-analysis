@@ -137,18 +137,18 @@ export default class SimpleDataNode extends SimpleData {
         width,
         height,
         marginLeft = 0,
-        marginBottom = 0
+        marginBottom = 0,
     }: {
         path: string
         type:
-        | "dot"
-        | "line"
-        | "bar"
-        | "barVertical"
-        | "barHorizontal"
-        | "box"
-        | "boxVertical"
-        | "boxHorizontal"
+            | "dot"
+            | "line"
+            | "bar"
+            | "barVertical"
+            | "barHorizontal"
+            | "box"
+            | "boxVertical"
+            | "boxHorizontal"
         x: string
         y: string
         color?: string

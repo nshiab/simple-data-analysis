@@ -56,6 +56,17 @@ async function main() {
             trend: true,
             showTrendEquation: true,
         })
+        simpleDataNode.saveChart({
+            path: `${tempDir}/dot1-small.html`,
+            type: "dot",
+            x: "salary",
+            y: "bonus",
+            color: "job",
+            trend: true,
+            showTrendEquation: true,
+            width: 400,
+            height: 300
+        })
 
         simpleDataNode
             .clone()
@@ -85,7 +96,7 @@ async function main() {
                 color: "job",
                 marginLeft: 90,
                 width: 200,
-                height: 100
+                height: 100,
             })
 
         simpleDataNode.saveCustomChart({
