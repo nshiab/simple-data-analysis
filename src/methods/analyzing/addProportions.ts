@@ -11,7 +11,7 @@ export default function addProportions(
         keys?: string[]
         key?: string
         newKey?: string
-        groupKeys?: string | string[]
+        keyCategory?: string | string[]
         suffix?: string
         nbDigits?: number
         verbose?: boolean
@@ -66,9 +66,9 @@ export default function addProportions(
                 "Warning: with the method 'item', you don't need the parameter newKey."
             )
         }
-        if (options.groupKeys !== undefined) {
+        if (options.keyCategory !== undefined) {
             console.log(
-                "Warning: with the method 'item', you don't need the parameter groupKeys."
+                "Warning: with the method 'item', you don't need the parameter keyCategory."
             )
         }
 
@@ -112,14 +112,14 @@ export default function addProportions(
             )
         }
 
-        const groupKeys =
-            options.groupKeys === undefined
+        const keyCategory =
+            options.keyCategory === undefined
                 ? []
-                : Array.isArray(options.groupKeys)
-                ? options.groupKeys
-                : [options.groupKeys]
+                : Array.isArray(options.keyCategory)
+                ? options.keyCategory
+                : [options.keyCategory]
 
-        for (const key of groupKeys) {
+        for (const key of keyCategory) {
             if (!hasKey(data[0], key)) {
                 throw new Error(
                     "The key " + key + " does not exist in the data."
@@ -138,7 +138,7 @@ export default function addProportions(
             )
         }
 
-        if (groupKeys.length === 0) {
+        if (keyCategory.length === 0) {
             let total = 0
             for (let i = 0; i < data.length; i++) {
                 total += data[i][options.key] as number
@@ -149,7 +149,7 @@ export default function addProportions(
                 )
             }
         } else {
-            const groupKeysFunc = groupKeys.map(
+            const keyCategoryFunc = keyCategory.map(
                 (key) => (d: SimpleDataItem) => d[key]
             )
 
@@ -162,16 +162,16 @@ export default function addProportions(
                 (v) => sum(v, (d) => d[options.key]),
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
-                ...groupKeysFunc
+                ...keyCategoryFunc
             )
 
-            const totalValueIndex = groupKeys.length
+            const totalValueIndex = keyCategory.length
 
             for (let i = 0; i < data.length; i++) {
                 const total = totals.find((total) => {
                     let test = true
-                    for (let j = 0; j < groupKeys.length; j++) {
-                        if (data[i][groupKeys[j]] !== total[j]) {
+                    for (let j = 0; j < keyCategory.length; j++) {
+                        if (data[i][keyCategory[j]] !== total[j]) {
                             test = false
                             break
                         }

@@ -14,7 +14,11 @@ export default function valuesToFloat(
     }
 
     if (thousandSeparator === decimalSeparator) {
-        throw new Error('thousandSeparator and decimalSeparator are both "' + decimalSeparator + '"." Add the values associated with the two of them. They have to be different.')
+        throw new Error(
+            'thousandSeparator and decimalSeparator are both "' +
+                decimalSeparator +
+                '". Add the values associated with the two of them. They have to be different.'
+        )
     }
 
     const thousandSeparatorRegex = new RegExp(thousandSeparator, "g")
@@ -29,11 +33,11 @@ export default function valuesToFloat(
                 if (!skipErrors && isNaN(newVal)) {
                     throw new Error(
                         value +
-                        " (" +
-                        valueClean +
-                        " after ajusting thousandSeparator and decimalSeparator) is converted to " +
-                        newVal +
-                        " which is not a float. If you want to ignore values that are not valid, pass { skipErrors: true }."
+                            " (" +
+                            valueClean +
+                            " after ajusting thousandSeparator and decimalSeparator) is converted to " +
+                            newVal +
+                            " which is not a float. If you want to ignore values that are not valid, pass { skipErrors: true }."
                     )
                 }
                 data[i][key] = newVal
@@ -41,9 +45,9 @@ export default function valuesToFloat(
                 if (!skipErrors) {
                     throw new Error(
                         value +
-                        " (" +
-                        valueClean +
-                        " after ajusting thousandSeparator and decimalSeparator) is not a valid number. If you want to ignore values that are not valid, pass { skipErrors: true }."
+                            " (" +
+                            valueClean +
+                            " after ajusting thousandSeparator and decimalSeparator) is not a valid number. If you want to ignore values that are not valid, pass { skipErrors: true }."
                     )
                 }
             }
@@ -51,7 +55,7 @@ export default function valuesToFloat(
             if (!skipErrors && typeof value !== "number") {
                 throw new Error(
                     value +
-                    " is not a valid number. If you want to ignore values that are not valid, pass { skipErrors: true }."
+                        " is not a valid number. If you want to ignore values that are not valid, pass { skipErrors: true }."
                 )
             }
         }

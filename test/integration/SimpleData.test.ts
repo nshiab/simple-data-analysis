@@ -244,7 +244,7 @@ async function main() {
         .addProportions({
             method: "data",
             key: "salary",
-            groupKeys: ["unitName", "job"],
+            keyCategory: ["unitName", "job"],
             newKey: "salaryPercent",
             overwrite: false,
             nbDigits: 5,

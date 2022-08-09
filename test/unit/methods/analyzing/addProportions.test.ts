@@ -66,7 +66,7 @@ describe("addProportions", function () {
             method: "data",
             key: "key2",
             newKey: "key3key1Percent",
-            groupKeys: ["key3", "key1"],
+            keyCategory: ["key3", "key1"],
         })
 
         assert.deepEqual(dataWithPercentages, [

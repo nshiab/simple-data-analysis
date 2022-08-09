@@ -785,7 +785,7 @@ export default class SimpleData {
         key,
         keys,
         newKey,
-        groupKeys,
+        keyCategory,
         suffix,
         nbDigits = 2,
         nbTestedValues = 10000,
@@ -795,7 +795,7 @@ export default class SimpleData {
         key?: string
         keys?: string[]
         newKey?: string
-        groupKeys?: string | string[]
+        keyCategory?: string | string[]
         suffix?: string
         nbDigits?: number
         nbTestedValues?: number
@@ -807,7 +807,7 @@ export default class SimpleData {
             keys,
             key,
             newKey,
-            groupKeys,
+            keyCategory,
             suffix,
             nbDigits,
             nbTestedValues,

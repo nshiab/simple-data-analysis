@@ -14,7 +14,11 @@ export default function valuesToInteger(
     }
 
     if (thousandSeparator === decimalSeparator) {
-        throw new Error('thousandSeparator and decimalSeparator are both "' + decimalSeparator + '"." Add the values associated with the two of them. They have to be different.')
+        throw new Error(
+            'thousandSeparator and decimalSeparator are both "' +
+                decimalSeparator +
+                '". Add the values associated with the two of them. They have to be different.'
+        )
     }
 
     const thousandSeparatorRegex = new RegExp(thousandSeparator, "g")
@@ -29,9 +33,9 @@ export default function valuesToInteger(
                 if (!skipErrors && !Number.isInteger(newValue)) {
                     throw new Error(
                         value +
-                        " is converted to " +
-                        newValue +
-                        " is not an integer. If you want to ignore values that are not valid, pass { skipErrors: true }."
+                            " is converted to " +
+                            newValue +
+                            " is not an integer. If you want to ignore values that are not valid, pass { skipErrors: true }."
                     )
                 }
                 data[i][key] = parseInt(valueClean)
@@ -39,9 +43,9 @@ export default function valuesToInteger(
                 if (!skipErrors) {
                     throw new Error(
                         value +
-                        " (" +
-                        valueClean +
-                        " after ajusting thousandSeparator and decimalSeparator) is not a valid number. If you want to ignore values that are not valid, pass { skipErrors: true }."
+                            " (" +
+                            valueClean +
+                            " after ajusting thousandSeparator and decimalSeparator) is not a valid number. If you want to ignore values that are not valid, pass { skipErrors: true }."
                     )
                 }
             }
@@ -49,7 +53,7 @@ export default function valuesToInteger(
             if (!skipErrors && !Number.isInteger(value)) {
                 throw new Error(
                     value +
-                    " is not a valid integer. If you want to ignore values that are not valid, pass { skipErrors: true }."
+                        " is not a valid integer. If you want to ignore values that are not valid, pass { skipErrors: true }."
                 )
             }
         }
