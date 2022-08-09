@@ -77,13 +77,13 @@ async function main() {
             },
         })
         .removeKey({ key: "name" })
-        .replaceStringValues({
+        .replaceValues({
             key: "bonus",
             oldValue: "%",
             newValue: "",
             method: "partialString",
         })
-        .replaceStringValues({
+        .replaceValues({
             key: "bonus",
             oldValue: ",",
             newValue: ".",

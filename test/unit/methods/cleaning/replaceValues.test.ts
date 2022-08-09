@@ -1,7 +1,7 @@
 import assert from "assert"
 import replaceValues from "../../../../src/methods/cleaning/replaceValues.js"
 
-describe("replaceStringValues", function () {
+describe("replaceValues", function () {
     it("should replace partial string values", function () {
         const data = [{ key1: "I am potato", key2: "I am key2" }]
         const replacedValues = replaceValues(

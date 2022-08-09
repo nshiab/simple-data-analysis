@@ -289,7 +289,7 @@ const material = new THREE.ShaderMaterial({
 // If you don't want to mess with shaders,
 // you can use the PointsMaterial and
 // set the vertexColors to true like so
-// new THREE.ShaderMaterial({vertexColors: true})
+// new THREE.PointsMaterial({vertexColors: true})
 
 const mesh = new THREE.Points(geometry, material)
 

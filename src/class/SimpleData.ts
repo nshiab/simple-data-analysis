@@ -58,7 +58,7 @@ import arraysToData from "../helpers/arraysToData.js"
  *
  * ```typescript
  * const data = [{ key: value }, ...]
- * const simpleData = new SimplaData({ data: data })
+ * const simpleData = new SimpleData({ data: data })
  * ```
  */
 export default class SimpleData {
@@ -439,7 +439,7 @@ export default class SimpleData {
     }
 
     @logCall()
-    replaceStringValues({
+    replaceValues({
         key,
         oldValue,
         newValue,

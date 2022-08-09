@@ -29,7 +29,7 @@ async function main() {
         .excludeMissingValues()
         .renameKey({ oldKey: "departementOrUnit", newKey: "unit" })
         .renameKey({ oldKey: "endOfYearBonus", newKey: "bonus" })
-        .replaceStringValues({
+        .replaceValues({
             key: "bonus",
             oldValue: "%",
             newValue: "",
