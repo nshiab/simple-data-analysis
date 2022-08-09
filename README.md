@@ -1,7 +1,6 @@
 # Simple data analysis (SDA) in JavaScript
 
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/nshiab/simple-data-analysis)
-![npm](https://img.shields.io/npm/dm/simple-data-analysis?label=npm%20downloads)
 
 This repository is maintained by [Nael Shiab](http://naelshiab.com/), senior data producer at [CBC/Radio-Canada](https://cbc.radio-canada.ca/).
 

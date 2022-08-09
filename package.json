@@ -44,7 +44,9 @@
         "build": "npm run allTests && npx tsc && npm run commit-doc",
         "doc": "npx typedoc --name Simple-data-analysis --includeVersion --readme none --out docs src/index.ts",
         "commit-doc": "git checkout main && npm run doc && git add docs/ && git commit -m 'update documentation' && git push",
+        "publish-patch": "npm version patch && npm run build && npm publish",
         "publish-minor": "npm version minor && npm run build && npm publish",
+        "publish-major": "npm version major && npm run build && npm publish",
         "lint": "eslint . --ext .ts",
         "format": "prettier --ignore-path .prettierignore --write './**/*.ts'",
         "check-format": "prettier --ignore-path .prettierignore --check './**/*.ts'"
