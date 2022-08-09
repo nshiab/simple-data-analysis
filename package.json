@@ -5,7 +5,7 @@
     "homepage": "https://github.com/nshiab/simple-data-analysis#readme",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/nshiab/simple-data-analysis.git"
+        "url": "git+https://github.com/nshiab/simple-data-analysis.js.git"
     },
     "keywords": [
         "data",
@@ -58,16 +58,16 @@
         "url": "https://github.com/nshiab/simple-data-analysis/issues"
     },
     "devDependencies": {
-        "@rollup/plugin-commonjs": "^22.0.0",
+        "@rollup/plugin-commonjs": "^22.0.2",
         "@rollup/plugin-json": "^4.1.0",
         "@rollup/plugin-node-resolve": "^13.2.1",
-        "@rollup/plugin-typescript": "^8.3.2",
+        "@rollup/plugin-typescript": "^8.3.4",
         "@types/d3-array": "^3.0.2",
         "@types/d3-dsv": "^3.0.0",
         "@types/d3-fetch": "^3.0.1",
         "@types/d3-scale": "^4.0.2",
         "@types/d3-time-format": "^4.0.0",
-        "@types/jsdom": "^16.2.14",
+        "@types/jsdom": "^20.0.0",
         "@types/json2csv": "^5.0.3",
         "@types/lodash.camelcase": "^4.3.7",
         "@types/lodash.clonedeep": "^4.5.7",
@@ -75,31 +75,31 @@
         "@types/lodash.uniqby": "^4.7.7",
         "@types/lodash.uniqwith": "^4.5.7",
         "@types/mocha": "^9.1.1",
-        "@types/react": "^18.0.9",
+        "@types/react": "^18.0.17",
         "@types/react-dom": "^18.0.4",
-        "@types/sinon": "^10.0.11",
-        "@typescript-eslint/eslint-plugin": "^5.23.0",
-        "@typescript-eslint/parser": "^5.23.0",
-        "eslint": "^8.15.0",
+        "@types/sinon": "^10.0.13",
+        "@typescript-eslint/eslint-plugin": "^5.33.0",
+        "@typescript-eslint/parser": "^5.33.0",
+        "eslint": "^8.21.0",
         "eslint-config-prettier": "^8.5.0",
         "mocha": "^10.0.0",
         "prettier": "^2.6.2",
-        "rollup": "^2.70.2",
+        "rollup": "^2.77.2",
         "rollup-plugin-terser": "^7.0.2",
         "rollup-plugin-visualizer": "^5.6.0",
         "sinon": "^14.0.0",
         "tempy": "^3.0.0",
         "ts-node": "^10.7.0",
         "tslib": "^2.4.0",
-        "typedoc": "^0.23.5",
+        "typedoc": "^0.23.10",
         "typescript": "^4.6.4"
     },
     "dependencies": {
-        "@emotion/react": "^11.9.0",
-        "@emotion/server": "^11.4.0",
-        "@emotion/styled": "^11.8.1",
+        "@emotion/react": "^11.10.0",
+        "@emotion/server": "^11.10.0",
+        "@emotion/styled": "^11.10.0",
         "@mui/icons-material": "^5.8.0",
-        "@mui/material": "^5.8.0",
+        "@mui/material": "^5.10.0",
         "@observablehq/plot": "^0.5.2",
         "axios": "^0.27.2",
         "d3-array": "^3.1.6",
@@ -118,8 +118,5 @@
         "react": "^18.1.0",
         "react-dom": "^18.1.0",
         "simple-statistics": "^7.7.5"
-    },
-    "browser": {
-        "net": false
     }
 }

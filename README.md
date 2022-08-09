@@ -14,7 +14,7 @@ These project's goals are:
 
 We are always trying to improve it. Feel free to start a conversation or open an issue, and check [how you can contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
 
-The documentation is available [here](https://nshiab.github.io/simple-data-analysis/) and more demos [here](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript).
+The documentation is available [here](https://nshiab.github.io/simple-data-analysis.js/) and more demos [here](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript).
 
 # Table of contents
 
@@ -382,7 +382,7 @@ If, for some reason, you want to chain a method but not overwrite the data, you 
 
 If you are curious about how much time everything took, you can use the showDuration method (like this `simpleData.showDuration()`) to log this information. After logging, this method returns the SimpleData instance, so you can chain it anywhere you want, just like the showTable method. If you want to retrieve the duration and put it inside a variable, use getDuration (like this `simpleData.getDuration()`) which will return this information in milliseconds.
 
-For a description of all methods available, check this [Observable notebook](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript) or the [automatically generated documentation](https://nshiab.github.io/simple-data-analysis/).
+For a description of all methods available, check this [Observable notebook](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript) or the [automatically generated documentation](https://nshiab.github.io/simple-data-analysis.js/).
 
 ## SimpleDataNode class
 
@@ -470,6 +470,6 @@ simpleDocument
 
 ## All functions and methods
 
-The documentation is automatically generated with [TypeDoc](https://typedoc.org/) and available here: https://nshiab.github.io/simple-data-analysis/.
+The documentation is automatically generated with [TypeDoc](https://typedoc.org/) and available here: https://nshiab.github.io/simple-data-analysis.js/.
 
 For a description of all methods and how to use them, you can also check this Observable notebook: https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript.
