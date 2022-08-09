@@ -6,12 +6,7 @@ export default function log(
 ) {
     // TODO: colors for web browser
 
-    console.log("log function")
-    console.log("valuesToLog", valuesToLog)
-
     const environment = checkEnvironment()
-
-    console.log(environment)
 
     if (environment === "nodejs") {
         if (color === "bgRed") {
