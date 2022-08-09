@@ -887,7 +887,7 @@ export default class SimpleData {
         nbValuesTestedForTypeOf = 10000,
     }: {
         key1?: string
-        key2?: string
+        key2?: string | string[]
         overwrite?: boolean
         nbDigits?: number
         nbValuesTestedForTypeOf?: number

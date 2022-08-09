@@ -6,7 +6,7 @@ import hasKey from "../../helpers/hasKey.js"
 export default function correlation(
     data: SimpleDataItem[],
     key1?: string,
-    key2?: string,
+    key2?: string | string[],
     verbose = false,
     nbTestedValues = 10000
 ): SimpleDataItem[] {
