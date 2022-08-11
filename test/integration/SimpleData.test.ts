@@ -19,6 +19,8 @@ console.log("noLogs =>", noLogs)
 main()
 
 async function main() {
+    new SimpleData().getKeys()
+
     new SimpleData({
         data: [
             { first: "Nael", last: "Shiab" },

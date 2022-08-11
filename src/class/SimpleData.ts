@@ -1056,7 +1056,7 @@ export default class SimpleData {
 
     //No @logCall otherwise it's triggered everywhere, including in methods
     getKeys(): string[] {
-        return Object.keys(this._data[0])
+        return this._data.length > 0 ? Object.keys(this._data[0]) : []
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
