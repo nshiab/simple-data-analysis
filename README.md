@@ -6,7 +6,7 @@ This repository is maintained by [Nael Shiab](http://naelshiab.com/), senior dat
 
 If you use the library, show off your work and tag me on [Twitter](https://twitter.com/NaelShiab) or [LinkedIn](https://www.linkedin.com/in/naelshiab/)! :)
 
-This project is related to [SDA-Flow](https://github.com/nshiab/simple-data-analysis-flow), which allows you to use the simple-data-analysis.js library without code. You can use it here (stille under heaver development): https://nshiab.github.io/simple-data-analysis-flow/.
+This project is related to [SDA-Flow](https://github.com/nshiab/simple-data-analysis-flow), which allows you to use the simple-data-analysis.js library without code. You can use it here (still under heavy development): https://nshiab.github.io/simple-data-analysis-flow/.
 
 These project's goals are:
 
