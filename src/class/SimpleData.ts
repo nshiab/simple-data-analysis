@@ -63,7 +63,7 @@ import arraysToData from "../helpers/arraysToData.js"
  */
 export default class SimpleData {
     protected _data: SimpleDataItem[]
-    _tempData: SimpleDataItem[]
+    protected _tempData: SimpleDataItem[]
     protected _overwrite: boolean
     protected _duration: number
     // Logging
