@@ -62,10 +62,10 @@ import arraysToData from "../helpers/arraysToData.js"
  * ```
  */
 export default class SimpleData {
-    _data: SimpleDataItem[]
+    protected _data: SimpleDataItem[]
     _tempData: SimpleDataItem[]
-    _overwrite: boolean
-    _duration: number
+    protected _overwrite: boolean
+    protected _duration: number
     // Logging
     noLogs: boolean
     verbose: boolean
