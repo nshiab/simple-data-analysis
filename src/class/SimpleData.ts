@@ -1050,6 +1050,10 @@ export default class SimpleData {
         return this._data
     }
 
+    getTempData(): SimpleDataItem[] {
+        return this._tempData
+    }
+
     getLength(): number {
         return this._data.length
     }
