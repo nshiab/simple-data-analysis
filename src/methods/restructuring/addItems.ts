@@ -15,18 +15,12 @@ export default function addItems(
         dataToBeAdded = dataToBeAdded.getData()
     }
 
-    const uniqueKeys = getUniqueKeys(data)
-    if (uniqueKeys.length > 0) {
-        dataToBeAdded = handleMissingKeys(
-            dataToBeAdded,
-            fillMissingKeys,
-            uniqueKeys
-        )
-    }
+    let newData = data.concat(dataToBeAdded)
 
+    const uniqueKeys = getUniqueKeys(data)
     const uniqueKeysToBeAdded = getUniqueKeys(dataToBeAdded)
 
-    if (uniqueKeys.length > 0 && !isEqual(uniqueKeys, uniqueKeysToBeAdded)) {
+    if (!fillMissingKeys && !isEqual(uniqueKeys, uniqueKeysToBeAdded)) {
         throw new Error(
             `data and dataToBeAdded don't have the same keys\ndata keys => ${String(
                 uniqueKeys
@@ -34,7 +28,12 @@ export default function addItems(
         )
     }
 
-    const newData = data.concat(dataToBeAdded)
+    const uniqueKeysCombined = [
+        ...new Set([...uniqueKeys, ...uniqueKeysToBeAdded]),
+    ].sort()
+
+    newData = handleMissingKeys(newData, true, uniqueKeysCombined)
+
     verbose &&
         log(
             `/!\\ ${
