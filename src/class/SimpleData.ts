@@ -62,10 +62,10 @@ import arraysToData from "../helpers/arraysToData.js"
  * ```
  */
 export default class SimpleData {
-    _data: SimpleDataItem[]
-    _tempData: SimpleDataItem[]
-    _overwrite: boolean
-    _duration: number
+    protected _data: SimpleDataItem[]
+    protected _tempData: SimpleDataItem[]
+    protected _overwrite: boolean
+    protected _duration: number
     // Logging
     noLogs: boolean
     verbose: boolean
@@ -1048,6 +1048,10 @@ export default class SimpleData {
     // No @logCall otherwise it's triggered everywhere, including in methods
     getData(): SimpleDataItem[] {
         return this._data
+    }
+
+    getTempData(): SimpleDataItem[] {
+        return this._tempData
     }
 
     getLength(): number {

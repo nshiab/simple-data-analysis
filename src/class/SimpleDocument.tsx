@@ -2,7 +2,7 @@ import saveDocument_ from "../methods/exporting/saveDocument.js";
 import checkEnvironment from "../helpers/checkEnvironment.js";
 
 export default class SimpleDocument {
-  _components: (JSX.Element | string)[];
+  protected _components: (JSX.Element | string)[];
   verbose: boolean
   noLogs: boolean
 

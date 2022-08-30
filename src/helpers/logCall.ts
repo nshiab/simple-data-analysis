@@ -31,7 +31,9 @@ export function logCall() {
             if (!this.noLogs && !this._overwrite) {
                 if (!key.includes("Chart") && !key.includes("save")) {
                     const data =
-                        result instanceof SimpleData ? result._tempData : result
+                        result instanceof SimpleData
+                            ? result.getTempData()
+                            : result
                     showTable(data, this.nbTableItemsToLog)
                 }
                 log(
