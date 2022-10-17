@@ -128,17 +128,20 @@ async function main() {
 
         const jobs = simpleDataNode.getUniqueValues({ key: "job" })
 
-        for (let job of jobs) {
+        for (const job of jobs) {
             simpleDataNode
                 .clone()
-                .filterValues({ key: "job", valueComparator: val => val === job })
+                .filterValues({
+                    key: "job",
+                    valueComparator: (val) => val === job,
+                })
                 .saveChart({
                     path: `${tempDir}/${job}.html`,
                     type: "dot",
                     x: "bonus",
                     y: "name",
                     color: "bonus",
-                    marginLeft: 150
+                    marginLeft: 150,
                 })
         }
 
