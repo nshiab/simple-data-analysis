@@ -51,7 +51,13 @@ export default class SimpleDataNode extends SimpleData {
             throw new Error("Incoming data is empty.")
         }
 
-        handleMissingKeys(data, fillMissingKeys, undefined, this.verbose)
+        handleMissingKeys(
+            data,
+            fillMissingKeys,
+            undefined,
+            undefined,
+            this.verbose
+        )
 
         this._tempData = data
         this.#updateSimpleData(data)
@@ -102,7 +108,13 @@ export default class SimpleDataNode extends SimpleData {
             throw new Error("Incoming data is empty.")
         }
 
-        handleMissingKeys(data, fillMissingKeys, undefined, this.verbose)
+        handleMissingKeys(
+            data,
+            fillMissingKeys,
+            undefined,
+            undefined,
+            this.verbose
+        )
 
         this._tempData = data // important for decorator
         this.#updateSimpleData(data)

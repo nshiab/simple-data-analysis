@@ -30,6 +30,15 @@ describe("handleMissingKeys", function () {
         ])
     })
 
+    it("should fill missing keys with specific value", function () {
+        const data = [{ key1: 1, key2: 2 }, { key1: 2 }]
+        const newData = handleMissingKeys(data, true, "hi!")
+        assert.deepEqual(newData, [
+            { key1: 1, key2: 2 },
+            { key1: 2, key2: "hi!" },
+        ])
+    })
+
     it("should fill missing keys if first item is not complete", function () {
         const data = [{ key1: 2 }, { key1: 1, key2: 2 }]
         const newData = handleMissingKeys(data, true)
@@ -41,7 +50,7 @@ describe("handleMissingKeys", function () {
 
     it("should fill missing keys with unique keys", function () {
         const data = [{ key1: 2 }, { key1: 1, key2: 2 }]
-        const newData = handleMissingKeys(data, true, [
+        const newData = handleMissingKeys(data, true, undefined, [
             "key1",
             "key2",
             "peanut",

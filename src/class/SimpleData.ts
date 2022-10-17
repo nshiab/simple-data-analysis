@@ -120,6 +120,7 @@ export default class SimpleData {
                 incomingData,
                 fillMissingKeys,
                 undefined,
+                undefined,
                 !noLogs && verbose
             )
 
@@ -181,7 +182,13 @@ export default class SimpleData {
             throw new Error("Incoming data is empty.")
         }
 
-        handleMissingKeys(data, fillMissingKeys, undefined, this.verbose)
+        handleMissingKeys(
+            data,
+            fillMissingKeys,
+            undefined,
+            undefined,
+            this.verbose
+        )
 
         this._tempData = data // important for decorator
         this.#updateSimpleData(data)
