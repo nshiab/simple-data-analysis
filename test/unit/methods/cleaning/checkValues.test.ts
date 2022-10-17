@@ -7,22 +7,37 @@ describe("checkValues", function () {
         const data = [
             { key1: "1", key2: 2 },
             { key1: "11", key2: 22 },
+            { key1: "11", key2: undefined },
+            { key1: "11", key2: null },
+            { key1: "11", key2: NaN },
+            { key1: "11", key2: new Date("coucou") },
+            { key1: "11", key2: new Date(Date.UTC(2018, 1, 1)) },
         ]
         const dataChecked = checkValues(data)
         assert.deepEqual(dataChecked, [
             {
-                count: 2,
+                "invalid date": "0 | 0%",
+                NaN: "0 | 0%",
+                count: 7,
+                date: "0 | 0%",
                 key: "key1",
+                null: "0 | 0%",
                 number: 0,
-                string: "2 | 100%",
-                uniques: "2 | 100%",
+                string: "7 | 100%",
+                undefined: "0 | 0%",
+                uniques: "2 | 29%",
             },
             {
-                count: 2,
+                "invalid date": "1 | 14%",
+                NaN: "1 | 14%",
+                count: 7,
+                date: "1 | 14%",
                 key: "key2",
-                number: "2 | 100%",
+                null: "1 | 14%",
+                number: "2 | 29%",
                 string: 0,
-                uniques: "2 | 100%",
+                undefined: "1 | 14%",
+                uniques: "7 | 100%",
             },
         ])
     })

@@ -61,6 +61,12 @@ export default function checkValues(
                 typeOf = "null"
             } else if (Number.isNaN(array[i])) {
                 typeOf = "NaN"
+            } else if (array[i] instanceof Date) {
+                if (!isNaN(array[i] as number)) {
+                    typeOf = "date"
+                } else {
+                    typeOf = "invalid date"
+                }
             } else {
                 typeOf = typeof array[i]
             }
