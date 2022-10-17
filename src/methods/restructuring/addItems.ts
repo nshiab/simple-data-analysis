@@ -20,6 +20,7 @@ export default function addItems(
         dataToBeAdded = handleMissingKeys(
             dataToBeAdded,
             fillMissingKeys,
+            undefined,
             uniqueKeys
         )
     }

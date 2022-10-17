@@ -1,5 +1,6 @@
 import assert from "assert"
 import checkValues from "../../../../src/methods/cleaning/checkValues.js"
+import loadDataFromUrlNode from "../../../../src/methods/importing/loadDataFromUrlNode.js"
 
 describe("checkValues", function () {
     it("should check the type of values", () => {
@@ -58,5 +59,77 @@ describe("checkValues", function () {
         }
         const dataChecked = checkValues(data, 100, true)
         assert.deepEqual(dataChecked[0].count, 100)
+    })
+
+    it("should check values and all items should have the same keys", async function () {
+        const data = await loadDataFromUrlNode(
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis.js/main/data/employees.csv",
+            false
+        )
+
+        const dataChecked = checkValues(data)
+
+        assert.deepEqual(dataChecked, [
+            {
+                key: "Name",
+                count: 51,
+                uniques: "50 | 98%",
+                string: "48 | 94%",
+                number: 0,
+                NaN: "1 | 2%",
+                null: "1 | 2%",
+                undefined: "1 | 2%",
+            },
+            {
+                key: "Hire date",
+                count: 51,
+                uniques: "46 | 90%",
+                string: "47 | 92%",
+                number: 0,
+                null: "1 | 2%",
+                NaN: "2 | 4%",
+                undefined: "1 | 2%",
+            },
+            {
+                key: "Job",
+                count: 51,
+                uniques: "13 | 25%",
+                string: "47 | 92%",
+                number: 0,
+                NaN: "2 | 4%",
+                null: "1 | 2%",
+                undefined: "1 | 2%",
+            },
+            {
+                key: "Salary",
+                count: 51,
+                uniques: "36 | 71%",
+                string: "49 | 96%",
+                number: 0,
+                NaN: "1 | 2%",
+                undefined: "1 | 2%",
+                null: "0 | 0%",
+            },
+            {
+                key: "Departement or unit",
+                count: 51,
+                uniques: "14 | 27%",
+                string: "47 | 92%",
+                number: 0,
+                null: "2 | 4%",
+                undefined: "1 | 2%",
+                NaN: "1 | 2%",
+            },
+            {
+                key: "End-of_year-BONUS?",
+                count: 51,
+                uniques: "50 | 98%",
+                string: "48 | 94%",
+                number: 0,
+                undefined: "1 | 2%",
+                NaN: "1 | 2%",
+                null: "1 | 2%",
+            },
+        ])
     })
 })
