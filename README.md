@@ -133,6 +133,8 @@ To install the library with [npm](https://www.npmjs.com/package/simple-data-anal
 npm i simple-data-analysis
 ```
 
+_PS: If you have trouble installing (especially on M1 Macbooks), it's probably because of the canvas library which is used to generate charts. Go check [its repo for specific installing intructions](https://www.npmjs.com/package/canvas)._
+
 Once installed, you can import what you need.
 
 ```js
