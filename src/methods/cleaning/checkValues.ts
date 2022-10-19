@@ -80,7 +80,7 @@ export default function checkValues(
             if (!hasKey(checks, typeOf)) {
                 checks[typeOf] = 1
             } else {
-                ; (checks[typeOf] as number) += 1
+                ;(checks[typeOf] as number) += 1
             }
         }
 
