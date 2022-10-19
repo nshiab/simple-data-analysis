@@ -65,7 +65,13 @@ export default function checkValues(
                 if (!isNaN(array[i] as number)) {
                     typeOf = "date"
                 } else {
-                    typeOf = "invalid date"
+                    typeOf = "invalidDate"
+                }
+            } else if (typeof array[i] === "string") {
+                if (array[i] === "") {
+                    typeOf = "emptyString"
+                } else {
+                    typeOf = "string"
                 }
             } else {
                 typeOf = typeof array[i]
@@ -74,12 +80,12 @@ export default function checkValues(
             if (!hasKey(checks, typeOf)) {
                 checks[typeOf] = 1
             } else {
-                ;(checks[typeOf] as number) += 1
+                ; (checks[typeOf] as number) += 1
             }
         }
 
         for (const key of Object.keys(checks)) {
-            if (key !== "key" && key != "count" && checks[key] !== 0) {
+            if (key !== "key" && key != "count") {
                 checks[key] = `${checks[key]} | ${toPercentage(
                     checks[key] as number,
                     checks.count,
