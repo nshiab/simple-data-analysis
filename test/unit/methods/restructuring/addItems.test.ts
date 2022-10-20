@@ -37,7 +37,7 @@ describe("addItems", function () {
         assert.throws(() => addItems(data, dataToBeAdded, false))
     })
 
-    it("should also fill the missing keys in data if dataToBeAdded has extra keys", function () {
+    it("should fill the missing keys in data if dataToBeAdded has extra keys", function () {
         const data = [{ key1: 1 }]
         const dataToBeAdded = [{ key1: 2, key2: 2 }]
         const newData = addItems(data, dataToBeAdded, true)
@@ -45,6 +45,17 @@ describe("addItems", function () {
         assert.deepEqual(newData, [
             { key1: 1, key2: undefined },
             { key1: 2, key2: 2 },
+        ])
+    })
+
+    it("should fill the missing keys in dataToBeAdded if data has extra keys", function () {
+        const data = [{ key1: 1, key2: 2 }]
+        const dataToBeAdded = [{ key1: 2 }]
+        const newData = addItems(data, dataToBeAdded, true)
+
+        assert.deepEqual(newData, [
+            { key1: 1, key2: 2 },
+            { key1: 2, key2: undefined },
         ])
     })
 
