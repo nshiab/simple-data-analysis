@@ -571,10 +571,12 @@ export default class SimpleData {
     addItems({
         dataToBeAdded,
         fillMissingKeys = false,
+        defaultValue = undefined,
         overwrite = true,
     }: {
         dataToBeAdded: SimpleDataItem[] | SimpleData
         fillMissingKeys?: boolean
+        defaultValue?: SimpleDataValue
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
@@ -582,6 +584,7 @@ export default class SimpleData {
             cloneDeep(this._data),
             dataToBeAdded,
             fillMissingKeys,
+            defaultValue,
             this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)
