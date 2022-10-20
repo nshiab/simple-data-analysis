@@ -3,6 +3,7 @@ import getArray from "../exporting/getArray.js"
 import toPercentage from "../../helpers/toPercentage.js"
 import hasKey from "../../helpers/hasKey.js"
 import { shuffle } from "d3-array"
+import handleMissingKeys from "../../helpers/handleMissingKeys.js"
 
 export default function checkValues(
     data: SimpleDataItem[],
@@ -41,7 +42,7 @@ export default function checkValues(
         checks["count"] = array.length
 
         const uniques = array.filter((d, i) => array.indexOf(d) === i)
-        // because NaN is ignored in the line above. And we need to pass it as a string otherwise it will be ignored again.
+        // because NaN is ignored in the line above. We need to pass it as a string otherwise it will be ignored again.
         if (array.includes(NaN)) {
             uniques.push("NaN")
         }
@@ -60,6 +61,18 @@ export default function checkValues(
                 typeOf = "null"
             } else if (Number.isNaN(array[i])) {
                 typeOf = "NaN"
+            } else if (array[i] instanceof Date) {
+                if (!isNaN(array[i] as number)) {
+                    typeOf = "date"
+                } else {
+                    typeOf = "invalidDate"
+                }
+            } else if (typeof array[i] === "string") {
+                if (array[i] === "") {
+                    typeOf = "emptyString"
+                } else {
+                    typeOf = "string"
+                }
             } else {
                 typeOf = typeof array[i]
             }
@@ -72,7 +85,7 @@ export default function checkValues(
         }
 
         for (const key of Object.keys(checks)) {
-            if (key !== "key" && key != "count" && checks[key] !== 0) {
+            if (key !== "key" && key != "count") {
                 checks[key] = `${checks[key]} | ${toPercentage(
                     checks[key] as number,
                     checks.count,
@@ -84,5 +97,7 @@ export default function checkValues(
         allChecks.push(checks)
     }
 
-    return allChecks
+    // We make sure all objects share the same keys.
+
+    return handleMissingKeys(allChecks, true, "0 | 0%")
 }

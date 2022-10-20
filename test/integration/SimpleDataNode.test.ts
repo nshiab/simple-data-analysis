@@ -38,7 +38,9 @@ async function main() {
         .valuesToFloat({ key: "bonus" })
 
     temporaryDirectoryTask((tempDir) => {
-        // tempDir = "../"
+        // Uncomment to save the files locally
+        // BUT DON'T FORGET TO COMMENT BACK BEFORE PUSHING COMMITS
+        // tempDir = "../SDA-output-test"
 
         simpleDataNode
             .saveData({ path: `${tempDir}/integrationTest.csv` })
@@ -123,6 +125,25 @@ async function main() {
                 width: 200,
                 height: 100,
             })
+
+        const jobs = simpleDataNode.getUniqueValues({ key: "job" })
+
+        for (const job of jobs) {
+            simpleDataNode
+                .clone()
+                .filterValues({
+                    key: "job",
+                    valueComparator: (val) => val === job,
+                })
+                .saveChart({
+                    path: `${tempDir}/${job}.html`,
+                    type: "dot",
+                    x: "bonus",
+                    y: "name",
+                    color: "bonus",
+                    marginLeft: 150,
+                })
+        }
 
         simpleDataNode.saveCustomChart({
             path: `${tempDir}/customChart.html`,

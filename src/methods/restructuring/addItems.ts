@@ -1,4 +1,7 @@
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
+import {
+    SimpleDataItem,
+    SimpleDataValue,
+} from "../../types/SimpleData.types.js"
 import isEqual from "lodash.isequal"
 import log from "../../helpers/log.js"
 import SimpleData from "../../class/SimpleData.js"
@@ -9,6 +12,7 @@ export default function addItems(
     data: SimpleDataItem[],
     dataToBeAdded: SimpleDataItem[] | SimpleData,
     fillMissingKeys?: boolean,
+    defaultValue?: SimpleDataValue,
     verbose?: boolean
 ): SimpleDataItem[] {
     if (dataToBeAdded instanceof SimpleData) {
@@ -32,7 +36,7 @@ export default function addItems(
         ...new Set([...uniqueKeys, ...uniqueKeysToBeAdded]),
     ].sort()
 
-    newData = handleMissingKeys(newData, true, uniqueKeysCombined)
+    newData = handleMissingKeys(newData, true, defaultValue, uniqueKeysCombined)
 
     verbose &&
         log(

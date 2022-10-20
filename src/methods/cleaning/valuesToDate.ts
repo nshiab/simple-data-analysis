@@ -20,7 +20,17 @@ export default function valuesToDate(
     for (let i = 0; i < data.length; i++) {
         const val = data[i][key]
 
-        if (typeof val === "string") {
+        if (
+            !skipErrors &&
+            val instanceof Date &&
+            isNaN(val as unknown as number)
+        ) {
+            throw new Error(
+                "An value is " +
+                    val +
+                    " (before being converted), which cannot be converted to a valid date. If you want to bypass this error and keep the value, pass { skipErrors: true }. Keep in mind that all errors will be skipped."
+            )
+        } else if (typeof val === "string") {
             const newVal = parse(val)
             if (!skipErrors && newVal instanceof Date === false) {
                 throw new Error(
@@ -29,7 +39,7 @@ export default function valuesToDate(
                         newVal +
                         " with the format " +
                         format +
-                        ". The output is not a Date. If you want to ignore values that are not strings, pass { skipErrors: true }."
+                        ". The output is not a valid Date. If you want to bypass this error, pass { skipErrors: true }. Keep in mind that all errors will be skipped."
                 )
             }
             data[i][key] = newVal
@@ -37,7 +47,7 @@ export default function valuesToDate(
             if (!skipErrors && val instanceof Date === false) {
                 throw new Error(
                     val +
-                        " is not a string. Convert to string first (valuesToString()). If you want to ignore values that are not strings, pass { skipErrors: true }."
+                        " is not a string. Convert to string first (valuesToString()). If you want to bypass this error, pass { skipErrors: true }. Keep in mind that all errors will be skipped."
                 )
             }
         }

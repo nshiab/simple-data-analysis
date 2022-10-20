@@ -1,4 +1,4 @@
-import { SimpleDataItem } from "../types/SimpleData.types.js"
+import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types.js"
 import isEqual from "lodash.isequal"
 import log from "./log.js"
 import getUniqueKeys from "./getUniqueKeys.js"
@@ -6,6 +6,7 @@ import getUniqueKeys from "./getUniqueKeys.js"
 export default function handleMissingKeys(
     data: SimpleDataItem[],
     fillMissingKeys = false,
+    defaultValue?: SimpleDataValue,
     uniqueKeys?: string[],
     verbose?: boolean
 ) {
@@ -31,10 +32,10 @@ export default function handleMissingKeys(
 
         const missingKeys = uniqueKeys.filter((k) => !currentKeys.includes(k))
         for (const key of missingKeys) {
-            data[i][key] = undefined
+            data[i][key] = defaultValue
             verbose &&
                 log(
-                    `Missing key ${key} for item index ${i}. Adding value as undefined.`
+                    `Missing key ${key} for item index ${i}. Adding value as ${defaultValue}.`
                 )
         }
     }

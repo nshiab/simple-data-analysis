@@ -120,6 +120,7 @@ export default class SimpleData {
                 incomingData,
                 fillMissingKeys,
                 undefined,
+                undefined,
                 !noLogs && verbose
             )
 
@@ -181,7 +182,13 @@ export default class SimpleData {
             throw new Error("Incoming data is empty.")
         }
 
-        handleMissingKeys(data, fillMissingKeys, undefined, this.verbose)
+        handleMissingKeys(
+            data,
+            fillMissingKeys,
+            undefined,
+            undefined,
+            this.verbose
+        )
 
         this._tempData = data // important for decorator
         this.#updateSimpleData(data)
@@ -564,10 +571,12 @@ export default class SimpleData {
     addItems({
         dataToBeAdded,
         fillMissingKeys = false,
+        defaultValue = undefined,
         overwrite = true,
     }: {
         dataToBeAdded: SimpleDataItem[] | SimpleData
         fillMissingKeys?: boolean
+        defaultValue?: SimpleDataValue
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
@@ -575,6 +584,7 @@ export default class SimpleData {
             cloneDeep(this._data),
             dataToBeAdded,
             fillMissingKeys,
+            defaultValue,
             this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)
