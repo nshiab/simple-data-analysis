@@ -17,4 +17,54 @@ describe("correlation", function () {
             },
         ])
     })
+
+    it("should compute all correlations if key1 and key2 are undefined", function () {
+        const data = [
+            { key1: 1, key2: 2, key3: 3 },
+            { key1: 11, key2: 22, key3: 4 },
+            { key1: 111, key2: 222, key3: 5 }
+        ]
+        const correlationData = correlation(data)
+        assert.deepEqual(correlationData, [
+            { key1: 'key1', key2: 'key2', correlation: 1 },
+            { key1: 'key1', key2: 'key3', correlation: 0.9042 },
+            { key1: 'key2', key2: 'key3', correlation: 0.9042 }
+        ])
+    })
+
+    it("should compute multiple correlations if key2 is an array", function () {
+        const data = [
+            { key1: 1, key2: 2, key3: 3 },
+            { key1: 11, key2: 22, key3: 4 },
+            { key1: 111, key2: 222, key3: 5 }
+        ]
+        const correlationData = correlation(data, "key1", ["key2", "key3"])
+        assert.deepEqual(correlationData, [
+            {
+                correlation: 1,
+                key1: 'key1',
+                key2: 'key2'
+            },
+            {
+                correlation: 0.9042,
+                key1: 'key1',
+                key2: 'key3'
+            }
+        ])
+    })
+
+    it("should compute all correlations if key1 is undefined and key2 is an empty array", function () {
+        const data = [
+            { key1: 1, key2: 2, key3: 3 },
+            { key1: 11, key2: 22, key3: 4 },
+            { key1: 111, key2: 222, key3: 5 }
+        ]
+        const correlationData = correlation(data, undefined, [])
+        assert.deepEqual(correlationData, [
+            { key1: 'key1', key2: 'key2', correlation: 1 },
+            { key1: 'key1', key2: 'key3', correlation: 0.9042 },
+            { key1: 'key2', key2: 'key3', correlation: 0.9042 }
+        ])
+    })
+
 })

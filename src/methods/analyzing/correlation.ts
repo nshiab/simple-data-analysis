@@ -12,7 +12,7 @@ export default function correlation(
 ): SimpleDataItem[] {
     const correlations = []
 
-    if (key1 === undefined && key2 === undefined) {
+    if (key1 === undefined && (key2 === undefined || (Array.isArray(key2) && key2.length === 0))) {
         const keys = Object.keys(data[0]).filter((d) =>
             checkTypeOfKey(data, d, "number", 1, nbTestedValues, verbose)
         )
