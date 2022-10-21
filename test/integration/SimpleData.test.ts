@@ -301,6 +301,7 @@ async function main() {
         x: "hireDate",
         y: "salary",
         color: "unit",
+        colorScale: "ordinal",
     })
     simpleDataMerged.getChart({ type: "bar", x: "unit", y: "salary" })
     simpleDataMerged.getChart({
@@ -308,6 +309,7 @@ async function main() {
         x: "unit",
         y: "salary",
         color: "unit",
+        colorScale: "ordinal",
     })
     simpleDataMerged.getChart({ type: "box", x: "unit", y: "salary" })
     simpleDataMerged.getChart({
@@ -315,6 +317,7 @@ async function main() {
         x: "unit",
         y: "salary",
         color: "unit",
+        colorScale: "ordinal",
     })
 
     simpleDataMerged.getCustomChart({

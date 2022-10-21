@@ -1012,6 +1012,7 @@ export default class SimpleData {
         x,
         y,
         color,
+        colorScale,
         trend = false,
         showTrendEquation = false,
         width,
@@ -1032,6 +1033,7 @@ export default class SimpleData {
         x: string
         y: string
         color?: string
+        colorScale?: "linear" | "diverging" | "categorical" | "ordinal"
         trend?: boolean
         showTrendEquation?: boolean
         width?: number
@@ -1046,6 +1048,7 @@ export default class SimpleData {
             x,
             y,
             color,
+            colorScale,
             trend,
             showTrendEquation,
             marginLeft,
