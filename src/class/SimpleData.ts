@@ -9,6 +9,7 @@ import getMax_ from "../methods/exporting/getMax.js"
 import getMean_ from "../methods/exporting/getMean.js"
 import getMedian_ from "../methods/exporting/getMedian.js"
 import getSum_ from "../methods/exporting/getSum.js"
+import getQuantile_ from "../methods/exporting/getQuantile.js"
 import getDataAsArrays_ from "../methods/exporting/getDataAsArrays.js"
 import showTable_ from "../methods/showTable.js"
 import checkValues_ from "../methods/cleaning/checkValues.js"
@@ -1159,6 +1160,19 @@ export default class SimpleData {
         nbDigits?: number
     }): SimpleDataValue {
         return getSum_(this._data, key, nbDigits)
+    }
+
+    // No @logCall for methods starting with get. It's not returning a simpleData class
+    getQuantile({
+        key,
+        quantile,
+        nbDigits = 2,
+    }: {
+        key: string
+        quantile: number
+        nbDigits?: number
+    }): SimpleDataValue {
+        return getQuantile_(this._data, key, quantile, nbDigits)
     }
 
     getDuration() {
