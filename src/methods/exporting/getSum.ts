@@ -5,6 +5,7 @@ import {
 import hasKey from "../../helpers/hasKey.js"
 import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 import { sum } from "d3-array"
+import round from "../../helpers/round.js"
 
 export default function getSum(
     data: SimpleDataItem[],
@@ -22,5 +23,5 @@ export default function getSum(
 
     const result = sum(data, (d) => d[key] as number)
 
-    return result ? parseFloat(result.toFixed(nbDigits)) : result
+    return result ? round(result, nbDigits) : result
 }

@@ -1,5 +1,6 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import hasKey from "../../helpers/hasKey.js"
+import round from "../../helpers/round.js"
 
 export default function roundValues(
     data: SimpleDataItem[],
@@ -21,7 +22,7 @@ export default function roundValues(
                 )
             }
         } else {
-            data[i][key] = parseFloat(val.toFixed(numDigits))
+            data[i][key] = round(val, numDigits)
         }
     }
 

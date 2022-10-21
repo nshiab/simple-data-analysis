@@ -11,6 +11,7 @@ import {
 import plotChart from "../../helpers/plotChart.js"
 import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 import { regressionLinear } from "d3-regression"
+import round from "../../helpers/round.js"
 
 export default function getChart(
     data: SimpleDataItem[],
@@ -161,11 +162,13 @@ export default function getChart(
 
         trendEquationHTML = `<div style='width: 100%; max-width: ${
             width ? width - 20 : 620
-        }px;font-family:system-ui, sans-serif;font-size:10px;text-align:right;'><div>y = ${linearRegression.a.toFixed(
+        }px;font-family:system-ui, sans-serif;font-size:10px;text-align:right;'><div>y = ${round(
+            linearRegression.a,
             nbDigits + 1
-        )}x + ${linearRegression.b.toFixed(
+        )}x + ${round(
+            linearRegression.b,
             nbDigits + 1
-        )} , R<sup>2</sup>: ${linearRegression.rSquared.toFixed(2)}</div></div>`
+        )} , R<sup>2</sup>: ${round(linearRegression.rSquared, 2)}</div></div>`
     }
 
     return (

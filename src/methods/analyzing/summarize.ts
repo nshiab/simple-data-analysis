@@ -4,6 +4,7 @@ import { flatRollup, mean, sum, median, max, min, deviation } from "d3-array"
 import isEqual from "lodash.isequal"
 import hasKey from "../../helpers/hasKey.js"
 import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
+import round from "../../helpers/round.js"
 
 export default function summarize(
     data: SimpleDataItem[],
@@ -188,9 +189,7 @@ export default function summarize(
 
                 const fValue = result[result.length - 1]
                 const finalValue =
-                    typeof fValue !== "number"
-                        ? NaN
-                        : parseFloat(fValue.toFixed(nbDigits))
+                    typeof fValue !== "number" ? NaN : round(fValue, nbDigits)
 
                 if (filteredResults === undefined) {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any

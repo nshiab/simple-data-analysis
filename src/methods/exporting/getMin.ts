@@ -5,6 +5,7 @@ import {
 import hasKey from "../../helpers/hasKey.js"
 import { min } from "d3-array"
 import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
+import round from "../../helpers/round.js"
 
 export default function getMin(
     data: SimpleDataItem[],
@@ -23,7 +24,7 @@ export default function getMin(
     const result = min(data, (d) => d[key] as number)
 
     if (typeof result === "number") {
-        return parseFloat(result.toFixed(nbDigits))
+        return round(result, nbDigits)
     } else {
         return result
     }

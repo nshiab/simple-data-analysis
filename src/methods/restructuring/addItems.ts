@@ -7,6 +7,7 @@ import log from "../../helpers/log.js"
 import SimpleData from "../../class/SimpleData.js"
 import handleMissingKeys from "../../helpers/handleMissingKeys.js"
 import getUniqueKeys from "../../helpers/getUniqueKeys.js"
+import round from "../../helpers/round.js"
 
 export default function addItems(
     data: SimpleDataItem[],
@@ -42,10 +43,10 @@ export default function addItems(
         log(
             `/!\\ ${
                 newData.length - data.length
-            } items added. Number of items increased by ${(
-                ((newData.length - data.length) / data.length) *
-                100
-            ).toFixed(1)}%`,
+            } items added. Number of items increased by ${round(
+                ((newData.length - data.length) / data.length) * 100,
+                1
+            )}%`,
             "bgRed"
         )
 
