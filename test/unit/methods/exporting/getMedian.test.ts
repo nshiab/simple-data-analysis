@@ -17,12 +17,10 @@ describe("getMedian", function () {
         assert.deepEqual(medianValue, 40)
     })
 
-    it("should return median value 33 from key with different types", function () {
-        const medianValue = getMedian(data, "key2")
-        assert.deepEqual(medianValue, 33)
+    it("should throw an error when different types", function () {
+        assert.throws(() => getMedian(data, "key2"))
     })
-    it("should return median value with dates", function () {
-        const medianValue = getMedian(data, "key3")
-        assert.deepEqual(medianValue, 1659571200000)
+    it("should throw an error when working with dates", function () {
+        assert.throws(() => getMedian(data, "key3"))
     })
 })

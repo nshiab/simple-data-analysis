@@ -518,15 +518,18 @@ export default class SimpleData {
     @logCall()
     excludeOutliers({
         key,
+        nbTestedValues = 10000,
         overwrite = true,
     }: {
         key: string
+        nbTestedValues?: number
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
         this._tempData = excludeOutliers_(
             cloneDeep(this._data),
             key,
+            nbTestedValues,
             this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)
@@ -597,12 +600,12 @@ export default class SimpleData {
     mergeItems({
         dataToBeMerged,
         commonKey,
-        nbValuesTestedForTypeOf = 10000,
+        nbTestedValues = 10000,
         overwrite = true,
     }: {
         dataToBeMerged: SimpleDataItem[] | SimpleData
         commonKey: string
-        nbValuesTestedForTypeOf?: number
+        nbTestedValues?: number
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
@@ -611,7 +614,7 @@ export default class SimpleData {
             dataToBeMerged,
             commonKey,
             this.verbose,
-            nbValuesTestedForTypeOf
+            nbTestedValues
         )
         overwrite && this.#updateSimpleData(this._tempData)
 
@@ -769,13 +772,13 @@ export default class SimpleData {
         order = "ascending",
         overwrite = true,
         locale = "fr",
-        nbTestedValue = 10000,
+        nbTestedValues = 10000,
     }: {
         key: string | string[]
         order: "ascending" | "descending"
         overwrite?: boolean
         locale?: string
-        nbTestedValue?: number
+        nbTestedValues?: number
     }): this {
         this._overwrite = overwrite
         this._tempData = sortValues_(
@@ -783,7 +786,7 @@ export default class SimpleData {
             key,
             order,
             locale,
-            nbTestedValue
+            nbTestedValues
         )
         overwrite && this.#updateSimpleData(this._tempData)
 
@@ -835,6 +838,7 @@ export default class SimpleData {
         valueGenerator,
         order = undefined,
         firstValue = undefined,
+        nbTestedValues = 10000,
         overwrite = true,
     }: {
         key: string
@@ -845,6 +849,7 @@ export default class SimpleData {
         ) => SimpleDataValue
         order?: "ascending" | "descending" | undefined
         firstValue?: SimpleDataValue
+        nbTestedValues?: number
         overwrite?: boolean
     }) {
         this._overwrite = overwrite
@@ -854,7 +859,9 @@ export default class SimpleData {
             newKey,
             valueGenerator,
             order,
-            firstValue
+            firstValue,
+            nbTestedValues,
+            this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)
         return this
@@ -895,13 +902,13 @@ export default class SimpleData {
         key1,
         key2,
         overwrite = true,
-        nbValuesTestedForTypeOf = 10000,
+        nbTestedValues = 10000,
     }: {
         key1?: string
         key2?: string | string[]
         overwrite?: boolean
         nbDigits?: number
-        nbValuesTestedForTypeOf?: number
+        nbTestedValues?: number
     } = {}): this {
         this._overwrite = overwrite
         this._tempData = correlation_(
@@ -909,7 +916,7 @@ export default class SimpleData {
             key1,
             key2,
             this.verbose,
-            nbValuesTestedForTypeOf
+            nbTestedValues
         )
         overwrite && this.#updateSimpleData(this._tempData)
 
@@ -921,11 +928,13 @@ export default class SimpleData {
         key,
         newKey,
         nbQuantiles,
+        nbTestedValues = 10000,
         overwrite = true,
     }: {
         key: string
         newKey: string
         nbQuantiles: number
+        nbTestedValues?: number
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
@@ -933,7 +942,9 @@ export default class SimpleData {
             cloneDeep(this._data),
             key,
             newKey,
-            nbQuantiles
+            nbQuantiles,
+            nbTestedValues,
+            this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)
 
@@ -945,15 +956,24 @@ export default class SimpleData {
         key,
         newKey,
         nbBins,
+        nbTestedValues = 10000,
         overwrite = true,
     }: {
         key: string
         newKey: string
         nbBins: number
+        nbTestedValues?: number
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = addBins_(cloneDeep(this._data), key, newKey, nbBins)
+        this._tempData = addBins_(
+            cloneDeep(this._data),
+            key,
+            newKey,
+            nbBins,
+            nbTestedValues,
+            this.verbose
+        )
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -963,10 +983,12 @@ export default class SimpleData {
     addOutliers({
         key,
         newKey,
+        nbTestedValues = 10000,
         overwrite = true,
     }: {
         key: string
         newKey: string
+        nbTestedValues?: number
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
@@ -974,6 +996,7 @@ export default class SimpleData {
             cloneDeep(this._data),
             key,
             newKey,
+            nbTestedValues,
             this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)
@@ -1111,55 +1134,71 @@ export default class SimpleData {
     getMin({
         key,
         nbDigits = 2,
+        nbTestedValues = 10000,
     }: {
         key: string
         nbDigits?: number
+        nbTestedValues?: number
     }): SimpleDataValue {
-        return getMin_(this._data, key, nbDigits)
+        return getMin_(this._data, key, nbDigits, nbTestedValues, this.verbose)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
     getMax({
         key,
         nbDigits = 2,
+        nbTestedValues = 10000,
     }: {
         key: string
         nbDigits?: number
+        nbTestedValues?: number
     }): SimpleDataValue {
-        return getMax_(this._data, key, nbDigits)
+        return getMax_(this._data, key, nbDigits, nbTestedValues, this.verbose)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
     getMean({
         key,
         nbDigits = 2,
+        nbTestedValues = 10000,
     }: {
         key: string
         nbDigits?: number
+        nbTestedValues?: number
     }): SimpleDataValue {
-        return getMean_(this._data, key, nbDigits)
+        return getMean_(this._data, key, nbDigits, nbTestedValues, this.verbose)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
     getMedian({
         key,
         nbDigits = 2,
+        nbTestedValues = 10000,
     }: {
         key: string
         nbDigits?: number
+        nbTestedValues?: number
     }): SimpleDataValue {
-        return getMedian_(this._data, key, nbDigits)
+        return getMedian_(
+            this._data,
+            key,
+            nbDigits,
+            nbTestedValues,
+            this.verbose
+        )
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
     getSum({
         key,
         nbDigits = 2,
+        nbTestedValues = 10000,
     }: {
         key: string
         nbDigits?: number
+        nbTestedValues?: number
     }): SimpleDataValue {
-        return getSum_(this._data, key, nbDigits)
+        return getSum_(this._data, key, nbDigits, nbTestedValues, this.verbose)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
@@ -1167,12 +1206,21 @@ export default class SimpleData {
         key,
         quantile,
         nbDigits = 2,
+        nbTestedValues = 10000,
     }: {
         key: string
         quantile: number
         nbDigits?: number
+        nbTestedValues?: number
     }): SimpleDataValue {
-        return getQuantile_(this._data, key, quantile, nbDigits)
+        return getQuantile_(
+            this._data,
+            key,
+            quantile,
+            nbDigits,
+            nbTestedValues,
+            this.verbose
+        )
     }
 
     getDuration() {

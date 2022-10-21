@@ -3,14 +3,19 @@ import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { quantile, extent } from "d3-array"
 import toPercentage from "../../helpers/toPercentage.js"
 import hasKey from "../../helpers/hasKey.js"
+import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 
 export default function excludeOutliers(
     data: SimpleDataItem[],
     key: string,
+    nbTestedValues = 10000,
     verbose = false
 ): SimpleDataItem[] {
     if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
+    }
+    if (!checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)) {
+        throw new Error(`At least one value in ${key} is not a number.`)
     }
 
     const values = data.map((d) => d[key]) as Iterable<number>

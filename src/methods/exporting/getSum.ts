@@ -9,14 +9,15 @@ import { sum } from "d3-array"
 export default function getSum(
     data: SimpleDataItem[],
     key: string,
-    nbDigits = 2
+    nbDigits = 2,
+    nbTestedValues = 10000,
+    verbose = false
 ): SimpleDataValue {
     if (!hasKey(data[0], key)) {
         throw new Error(`No key ${key} in data`)
     }
-
-    if (!checkTypeOfKey(data, key, "number", 0.5)) {
-        throw new Error(`The majority of values inside ${key} are not numbers.`)
+    if (!checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)) {
+        throw new Error(`At least one value in ${key} is not a number.`)
     }
 
     const result = sum(data, (d) => d[key] as number)

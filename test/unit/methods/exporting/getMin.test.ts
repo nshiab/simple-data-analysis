@@ -17,12 +17,10 @@ describe("getMin", function () {
         assert.deepEqual(minValue, 44)
     })
 
-    it("should return min value -11.1 from key with different types", function () {
-        const minValue = getMin(data, "key2")
-        assert.deepEqual(minValue, -11.1)
+    it("should throw an error when different types", function () {
+        assert.throws(() => getMin(data, "key2"))
     })
-    it("should return min value when working with dates", function () {
-        const minValue = getMin(data, "key3")
-        assert.deepEqual(minValue, 1659312000000)
+    it("should throw an error when working with dates", function () {
+        assert.throws(() => getMin(data, "key3"))
     })
 })

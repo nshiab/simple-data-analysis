@@ -1,6 +1,7 @@
 import { SimpleDataItem, SimpleDataValue } from "../../types/SimpleData.types"
 import { pairs } from "d3-array"
 import hasKey from "../../helpers/hasKey.js"
+import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 
 export default function addVariation(
     data: SimpleDataItem[],
@@ -8,7 +9,9 @@ export default function addVariation(
     newKey: string,
     valueGenerator: (a: SimpleDataValue, b: SimpleDataValue) => SimpleDataValue,
     order: "ascending" | "descending" | undefined = undefined,
-    firstValue: SimpleDataValue = undefined
+    firstValue: SimpleDataValue = undefined,
+    nbTestedValues = 10000,
+    verbose = false
 ) {
     if (!hasKey(data[0], key)) {
         throw new Error("No key " + key + " in the data")
@@ -19,6 +22,9 @@ export default function addVariation(
                 newKey +
                 " already exists in the data. Write a new name."
         )
+    }
+    if (!checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)) {
+        throw new Error(`At least one value in ${key} is not a number.`)
     }
 
     if (order === "ascending") {

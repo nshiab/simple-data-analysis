@@ -17,8 +17,7 @@ describe("getSum", function () {
         assert.deepEqual(sum, 473)
     })
 
-    it("should return the sum from key with different types", function () {
-        const sum = getSum(data, "key2")
-        assert.deepEqual(sum, 8.9)
+    it("should throw an error when different types", function () {
+        assert.throws(() => getSum(data, "key2"))
     })
 })
