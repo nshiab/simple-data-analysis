@@ -32,7 +32,7 @@ export default function correlation(
             throw new Error(`No key ${key1} in data`)
         }
         if (!checkTypeOfKey(data, key1, "number", 1, nbTestedValues, verbose)) {
-            throw new Error(`${key1} should be of type number`)
+            throw new Error(`At least one value in ${key1} is not a number.`)
         }
 
         for (const key of key2) {
@@ -42,7 +42,7 @@ export default function correlation(
             if (
                 !checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
             ) {
-                throw new Error(`${key} should be of type number`)
+                throw new Error(`At least one value in ${key} is not a number.`)
             }
             correlations.push({
                 key1: key1,
@@ -54,13 +54,13 @@ export default function correlation(
             throw new Error(`No key ${key1} in data`)
         }
         if (!checkTypeOfKey(data, key1, "number", 1, nbTestedValues, verbose)) {
-            throw new Error(`${key1} should be of type number`)
+            throw new Error(`At least one value in ${key1} is not a number.`)
         }
         if (!hasKey(data[0], key2)) {
             throw new Error(`No key ${key2} in data`)
         }
         if (!checkTypeOfKey(data, key2, "number", 1, nbTestedValues, verbose)) {
-            throw new Error(`${key2} should be of type number`)
+            throw new Error(`At least one value in ${key2} is not a number.`)
         }
         correlations.push({
             key1: key1,
