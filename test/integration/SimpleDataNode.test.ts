@@ -40,7 +40,7 @@ async function main() {
     temporaryDirectoryTask((tempDir) => {
         // Uncomment to save the files locally
         // BUT DON'T FORGET TO COMMENT BACK BEFORE PUSHING COMMITS
-        tempDir = "../SDA-output-test"
+        // tempDir = "../SDA-output-test"
 
         simpleDataNode
             .saveData({ path: `${tempDir}/integrationTest.csv` })
