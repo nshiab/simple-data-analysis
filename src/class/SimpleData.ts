@@ -53,6 +53,7 @@ import getChart_ from "../methods/visualizing/getChart.js"
 import getCustomChart_ from "../methods/visualizing/getCustomChart.js"
 import log from "../helpers/log.js"
 import arraysToData from "../helpers/arraysToData.js"
+import round from "../helpers/round.js"
 
 /**
  * SimpleData usage example.
@@ -1238,7 +1239,7 @@ export default class SimpleData {
 
     showDuration() {
         if (!this.noLogs) {
-            log(`Total duration ${(this._duration / 1000).toFixed(3)}.`)
+            log(`Total duration ${round(this._duration / 1000, 3)}.`)
         }
         return this
     }

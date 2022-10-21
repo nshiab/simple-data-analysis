@@ -2,6 +2,7 @@ import { flatRollup, sum } from "d3-array"
 import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 import hasKey from "../../helpers/hasKey.js"
 import log from "../../helpers/log.js"
+import round from "../../helpers/round.js"
 import { SimpleDataItem } from "../../types/SimpleData.types"
 
 export default function addProportions(
@@ -78,8 +79,9 @@ export default function addProportions(
                 total += data[i][key] as number
             }
             for (const key of options.keys) {
-                data[i][key + suffix] = parseFloat(
-                    ((data[i][key] as number) / total).toFixed(nbDigits)
+                data[i][key + suffix] = round(
+                    (data[i][key] as number) / total,
+                    nbDigits
                 )
             }
         }
@@ -142,8 +144,9 @@ export default function addProportions(
                 total += data[i][options.key] as number
             }
             for (let i = 0; i < data.length; i++) {
-                data[i][options.newKey] = parseFloat(
-                    ((data[i][options.key] as number) / total).toFixed(nbDigits)
+                data[i][options.newKey] = round(
+                    (data[i][options.key] as number) / total,
+                    nbDigits
                 )
             }
         } else {
@@ -178,10 +181,9 @@ export default function addProportions(
                 })
                 if (total) {
                     const totalValue = total[totalValueIndex] as number
-                    data[i][options.newKey] = parseFloat(
-                        ((data[i][options.key] as number) / totalValue).toFixed(
-                            nbDigits
-                        )
+                    data[i][options.newKey] = round(
+                        (data[i][options.key] as number) / totalValue,
+                        nbDigits
                     )
                 } else {
                     data[i][options.newKey] === undefined

@@ -5,6 +5,7 @@ import {
 import hasKey from "../../helpers/hasKey.js"
 import { quantile as d3Quantile } from "d3-array"
 import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
+import round from "../../helpers/round.js"
 
 export default function getQuantile(
     data: SimpleDataItem[],
@@ -30,7 +31,7 @@ export default function getQuantile(
     const result = d3Quantile(data, quantile, (d) => d[key] as number)
 
     if (typeof result === "number") {
-        return parseFloat(result.toFixed(nbDigits))
+        return round(result, nbDigits)
     } else {
         return result
     }

@@ -2,6 +2,7 @@ import showTable from "../methods/showTable.js"
 import SimpleData from "../class/SimpleData.js"
 import log from "./log.js"
 import { SimpleDataItem } from "../types/SimpleData.types.js"
+import round from "./round.js"
 
 export function logCall() {
     return function (
@@ -37,9 +38,11 @@ export function logCall() {
                     showTable(data, this.nbTableItemsToLog)
                 }
                 log(
-                    `Done in ${(duration / 1000).toFixed(
+                    `Done in ${round(
+                        duration / 1000,
                         3
-                    )} sec. / Total duration ${(this._duration / 1000).toFixed(
+                    )} sec. / Total duration ${round(
+                        this._duration / 1000,
                         3
                     )}.`
                 )
@@ -50,9 +53,11 @@ export function logCall() {
                     showTable(data, this.nbTableItemsToLog)
                 }
                 log(
-                    `Done in ${((end - start) / 1000).toFixed(
+                    `Done in ${round(
+                        (end - start) / 1000,
                         3
-                    )} sec. / Total duration ${(this._duration / 1000).toFixed(
+                    )} sec. / Total duration ${round(
+                        this._duration / 1000,
                         3
                     )}.`
                 )
@@ -90,7 +95,7 @@ export function asyncLogCall() {
 
             if (this.verbose) {
                 showTable(this._tempData, this.nbTableItemsToLog)
-                log(`Done in ${((end - start) / 1000).toFixed(3)} sec.`)
+                log(`Done in ${round((end - start) / 1000, 3)} sec.`)
             }
 
             return result
