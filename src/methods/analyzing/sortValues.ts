@@ -1,14 +1,12 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { ascending, descending, Primitive } from "d3-array"
 import hasKey from "../../helpers/hasKey.js"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 
 export default function sortValues(
     data: SimpleDataItem[],
     key: string | string[],
     order: "ascending" | "descending",
-    locale = "fr",
-    nbTestedValue = 10000
+    locale?: string | (string | undefined | null | boolean)[]
 ): SimpleDataItem[] {
     let keysToSort
     if (typeof key === "string") {
@@ -19,20 +17,26 @@ export default function sortValues(
         throw new Error("key must be a string or an array of strings.")
     }
 
+    let locales: (string | undefined | null | boolean)[] = []
+    if (locale) {
+        if (typeof locale === "string") {
+            locales = [locale]
+        } else if (Array.isArray(locale)) {
+            locales = locale
+        }
+    }
+
     for (const key of keysToSort) {
         if (!hasKey(data[0], key)) {
             throw new Error("No key " + key)
         }
     }
 
-    if (!["ascending", "descending"].includes(order)) {
-        throw new Error(order + " must be ascending or descending.")
-    }
-
     if (order === "ascending") {
         for (let i = keysToSort.length - 1; i >= 0; i--) {
             const key = keysToSort[i]
-            if (checkTypeOfKey(data, key, "string", 0.5, nbTestedValue)) {
+            const locale = locales[i]
+            if (typeof locale === "string") {
                 data.sort((a, b) =>
                     (a[key] as string).localeCompare(b[key] as string, locale)
                 )
@@ -42,10 +46,11 @@ export default function sortValues(
                 )
             }
         }
-    } else {
+    } else if (order === "descending") {
         for (let i = keysToSort.length - 1; i >= 0; i--) {
             const key = keysToSort[i]
-            if (checkTypeOfKey(data, key, "string", 0.5, nbTestedValue)) {
+            const locale = locales[i]
+            if (typeof locale === "string") {
                 data.sort((a, b) =>
                     (b[key] as string).localeCompare(a[key] as string, locale)
                 )
@@ -55,6 +60,8 @@ export default function sortValues(
                 )
             }
         }
+    } else {
+        throw new Error("The order must be either ascending or descending.")
     }
 
     return data

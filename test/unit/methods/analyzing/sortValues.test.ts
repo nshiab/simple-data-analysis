@@ -37,7 +37,7 @@ describe("sortValues", function () {
             { key1: "Écouter" },
             { key1: "Escrime" },
         ]
-        const sortedData = sortValues(data, "key1", "ascending")
+        const sortedData = sortValues(data, "key1", "ascending", "fr")
         assert.deepEqual(sortedData, [
             { key1: "Autruche" },
             { key1: "Écouter" },
@@ -57,7 +57,7 @@ describe("sortValues", function () {
             { key1: "Écoutant les oiseaux" },
             { key1: "Autruche" },
         ]
-        const sortedData = sortValues(data, "key1", "descending")
+        const sortedData = sortValues(data, "key1", "descending", "fr")
         assert.deepEqual(sortedData, [
             { key1: "Escrime" },
             { key1: "Éléphant" },
@@ -128,7 +128,8 @@ describe("sortValues", function () {
         const sortedData = sortValues(
             data,
             ["key1", "key2", "key3"],
-            "descending"
+            "descending",
+            [false, "fr", false]
         )
 
         assert.deepEqual(sortedData, [

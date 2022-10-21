@@ -771,8 +771,7 @@ export default class SimpleData {
         key,
         order = "ascending",
         overwrite = true,
-        locale = "fr",
-        nbTestedValues = 10000,
+        locale,
     }: {
         key: string | string[]
         order: "ascending" | "descending"
@@ -781,13 +780,7 @@ export default class SimpleData {
         nbTestedValues?: number
     }): this {
         this._overwrite = overwrite
-        this._tempData = sortValues_(
-            cloneDeep(this._data),
-            key,
-            order,
-            locale,
-            nbTestedValues
-        )
+        this._tempData = sortValues_(cloneDeep(this._data), key, order, locale)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
