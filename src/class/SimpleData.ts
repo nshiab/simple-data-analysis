@@ -107,15 +107,15 @@ export default class SimpleData {
         if (data.length > 0 || Object.keys(data).length > 0) {
             const incomingData = dataAsArrays
                 ? cloneDeep(
-                      arraysToData(
-                          data as unknown as {
-                              [key: string]: SimpleDataValue[]
-                          }
-                      ).slice(firstItem, lastItem + 1)
-                  )
+                    arraysToData(
+                        data as unknown as {
+                            [key: string]: SimpleDataValue[]
+                        }
+                    ).slice(firstItem, lastItem + 1)
+                )
                 : cloneDeep(
-                      (data as SimpleDataItem[]).slice(firstItem, lastItem + 1)
-                  )
+                    (data as SimpleDataItem[]).slice(firstItem, lastItem + 1)
+                )
 
             handleMissingKeys(
                 incomingData,
@@ -771,8 +771,7 @@ export default class SimpleData {
         key,
         order = "ascending",
         overwrite = true,
-        locale = "fr",
-        nbTestedValues = 10000,
+        locale
     }: {
         key: string | string[]
         order: "ascending" | "descending"
@@ -785,8 +784,7 @@ export default class SimpleData {
             cloneDeep(this._data),
             key,
             order,
-            locale,
-            nbTestedValues
+            locale
         )
         overwrite && this.#updateSimpleData(this._tempData)
 
@@ -1022,14 +1020,14 @@ export default class SimpleData {
         title,
     }: {
         type:
-            | "dot"
-            | "line"
-            | "bar"
-            | "barVertical"
-            | "barHorizontal"
-            | "box"
-            | "boxVertical"
-            | "boxHorizontal"
+        | "dot"
+        | "line"
+        | "bar"
+        | "barVertical"
+        | "barHorizontal"
+        | "box"
+        | "boxVertical"
+        | "boxHorizontal"
         x: string
         y: string
         color?: string
