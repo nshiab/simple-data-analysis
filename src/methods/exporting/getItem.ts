@@ -48,14 +48,18 @@ export default function getItem(
     if (!noWarning && item === undefined) {
         console.log(
             `WARNING: no item matching your conditions ${JSON.stringify(
-                conditions
+                conditions,
+                null,
+                " "
             )}. Returning undefined. (To remove this warning, set noWarning to true.)`
         )
     }
     if (!noWarning && items.length > 1) {
         console.log(
             `WARNING: Several items matching your conditions ${JSON.stringify(
-                conditions
+                conditions,
+                null,
+                " "
             )}. Only the first one found is returned. (To remove this warning, set noWarning to true.)`
         )
     }
