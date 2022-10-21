@@ -26,7 +26,7 @@ export default function handleMissingKeys(
                     uniqueKeys
                 )}\nObject index ${i} keys => ${String(
                     currentKeys
-                )}\n${JSON.stringify(data[i])}`
+                )}\n${JSON.stringify(data[i], null, " ")}`
             )
         }
 
