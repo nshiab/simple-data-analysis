@@ -3,11 +3,13 @@ import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { quantile, extent } from "d3-array"
 import toPercentage from "../../helpers/toPercentage.js"
 import hasKey from "../../helpers/hasKey.js"
+import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 
 export default function addOutliers(
     data: SimpleDataItem[],
     key: string,
     newKey: string,
+    nbTestedValues = 10000,
     verbose = false
 ): SimpleDataItem[] {
     if (!hasKey(data[0], key)) {
@@ -15,6 +17,9 @@ export default function addOutliers(
     }
     if (hasKey(data[0], newKey)) {
         throw new Error("Already a key named " + key)
+    }
+    if (!checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)) {
+        throw new Error(`At least one value in ${key} is not a number.`)
     }
 
     const values = data.map((d) => d[key]) as Iterable<number>

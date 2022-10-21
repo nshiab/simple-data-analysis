@@ -17,12 +17,10 @@ describe("getMean", function () {
         assert.deepEqual(meanValue, 39.9)
     })
 
-    it("should return mean value 16.5 from key with different types", function () {
-        const meanValue = getMean(data, "key2")
-        assert.deepEqual(meanValue, 16.5)
+    it("should throw an error when different types", function () {
+        assert.throws(() => getMean(data, "key2"))
     })
-    it("should return mean value when working with dates", function () {
-        const meanValue = getMean(data, "key3")
-        assert.deepEqual(meanValue, 1659571200000)
+    it("should throw an error when working with dates", function () {
+        assert.throws(() => getMean(data, "key3"))
     })
 })

@@ -8,7 +8,7 @@ export default function sortValues(
     key: string | string[],
     order: "ascending" | "descending",
     locale = "fr",
-    nbTestedValue = 100
+    nbTestedValue = 10000
 ): SimpleDataItem[] {
     let keysToSort
     if (typeof key === "string") {

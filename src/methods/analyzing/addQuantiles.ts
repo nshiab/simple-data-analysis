@@ -2,12 +2,15 @@ import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { range } from "d3-array"
 import { scaleQuantile } from "d3-scale"
 import hasKey from "../../helpers/hasKey.js"
+import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 
 export default function addQuantiles(
     data: SimpleDataItem[],
     key: string,
     newKey: string,
-    nbQuantiles: number
+    nbQuantiles: number,
+    nbTestedValues = 10000,
+    verbose = false
 ): SimpleDataItem[] {
     if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
@@ -17,6 +20,9 @@ export default function addQuantiles(
     }
     if (nbQuantiles < 1) {
         throw new Error("nbQuantiles should always be > 0.")
+    }
+    if (!checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)) {
+        throw new Error(`At least one value in ${key} is not a number.`)
     }
 
     const quantileGenerator = scaleQuantile()

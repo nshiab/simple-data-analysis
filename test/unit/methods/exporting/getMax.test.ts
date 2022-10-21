@@ -17,12 +17,10 @@ describe("getMax", function () {
         assert.deepEqual(maxValue, 99)
     })
 
-    it("should return max value 9 from key with different types", function () {
-        const maxValue = getMax(data, "key2")
-        assert.deepEqual(maxValue, 9)
+    it("should throw an error when different types", function () {
+        assert.throws(() => getMax(data, "key2"))
     })
-    it("should return max value when working with dates", function () {
-        const maxValue = getMax(data, "key3")
-        assert.deepEqual(maxValue, 1659830400000)
+    it("should throw an error when working with dates", function () {
+        assert.throws(() => getMax(data, "key3"))
     })
 })

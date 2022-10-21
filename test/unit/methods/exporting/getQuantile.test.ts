@@ -17,12 +17,10 @@ describe("getQuantile", function () {
         assert.deepEqual(medianValue, 40)
     })
 
-    it("should return median value 33 from key with different types", function () {
-        const medianValue = getQuantile(data, "key2", 0.5)
-        assert.deepEqual(medianValue, 33)
+    it("should throw an error when different types", function () {
+        assert.throws(() => getQuantile(data, "key2", 0.5))
     })
-    it("should return median value with dates", function () {
-        const medianValue = getQuantile(data, "key3", 0.5)
-        assert.deepEqual(medianValue, 1659571200000)
+    it("should throw an error when working with dates", function () {
+        assert.throws(() => getQuantile(data, "key3", 0.5))
     })
 })

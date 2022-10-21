@@ -46,9 +46,9 @@ export default function addProportions(
                         ". You need to choose another suffix."
                 )
             }
-            if (!checkTypeOfKey(data, key, "number", 0.5, nbTestedValues)) {
+            if (!checkTypeOfKey(data, key, "number", 1, nbTestedValues)) {
                 throw new Error(
-                    "The majority of values inside " + key + " are not numbers."
+                    "At least one value in " + key + " is not a number."
                 )
             }
         }
@@ -93,11 +93,9 @@ export default function addProportions(
             throw new Error("No key named " + options.key + " in the data")
         }
 
-        if (!checkTypeOfKey(data, options.key, "number", 0.5, nbTestedValues)) {
+        if (!checkTypeOfKey(data, options.key, "number", 1, nbTestedValues)) {
             throw new Error(
-                "The majority of values inside " +
-                    options.key +
-                    " are not numbers."
+                `At least one value in ${options.key} is not a number.`
             )
         }
 
