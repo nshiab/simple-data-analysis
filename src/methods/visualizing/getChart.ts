@@ -26,6 +26,7 @@ export default function getChart(
     x: string,
     y: string,
     color?: string,
+    colorScale?: "linear" | "diverging" | "categorical" | "ordinal",
     trend?: boolean,
     showTrendEquation?: boolean,
     marginLeft?: number,
@@ -39,7 +40,6 @@ export default function getChart(
     if (
         color &&
         [
-            "dot",
             "bar",
             "barVertical",
             "barHorizontal",
@@ -95,11 +95,14 @@ export default function getChart(
         plotOptions.marginBottom = marginBottom
     }
 
-    if (color && checkTypeOfKey(data, color, "string", 0.5, 100)) {
+    if (color && colorScale) {
         if (plotOptions.color) {
-            plotOptions.color.type = "ordinal"
+            plotOptions.color.type = colorScale
         } else {
-            plotOptions.color = { type: "ordinal" }
+            plotOptions.color = { type: colorScale }
+        }
+        if (colorScale === "diverging") {
+            plotOptions.color.scheme = "BuRd"
         }
     }
 
