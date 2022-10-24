@@ -26,9 +26,9 @@ export default async function loadDataFromUrlNode(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let arrayOfObjects: any[] = []
 
-    if (fileExtension === "csv" || fileExtension === "tsv") {
-        verbose && log(`=> ${fileExtension} file extension detected`, "blue")
+    verbose && log("Detected " + fileExtension + " file extension", "blue")
 
+    if (fileExtension === "csv" || fileExtension === "tsv") {
         if (fileExtension === "csv") {
             arrayOfObjects = autoType
                 ? (csvParse(data, typed) as SimpleDataItem[])
