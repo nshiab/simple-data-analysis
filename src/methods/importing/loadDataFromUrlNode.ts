@@ -29,7 +29,6 @@ export default async function loadDataFromUrlNode(
     verbose && log("Detected " + fileExtension + " file extension", "blue")
 
     if (fileExtension === "csv" || fileExtension === "tsv") {
-
         if (fileExtension === "csv") {
             arrayOfObjects = autoType
                 ? (csvParse(data, typed) as SimpleDataItem[])

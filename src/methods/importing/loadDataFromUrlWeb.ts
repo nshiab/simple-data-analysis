@@ -26,7 +26,6 @@ export default async function loadDataFromUrlWeb(
     verbose && log("Detected " + fileExtension + " file extension", "blue")
 
     if (fileExtension === "csv" || fileExtension === "tsv") {
-
         if (fileExtension === "csv") {
             arrayOfObjects = autoType ? await csv(url, typed) : await csv(url)
         } else if (fileExtension === "tsv") {
@@ -54,10 +53,10 @@ export default async function loadDataFromUrlWeb(
         const incomingData = (await json(url)) as any[]
         arrayOfObjects = dataAsArrays
             ? arraysToData(
-                incomingData as unknown as {
-                    [key: string]: SimpleDataValue[]
-                }
-            )
+                  incomingData as unknown as {
+                      [key: string]: SimpleDataValue[]
+                  }
+              )
             : incomingData
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
     } else {
