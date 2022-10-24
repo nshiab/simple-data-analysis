@@ -24,7 +24,10 @@ export default function checkTypeOfKey(
         for (let i = 0; i < nbTested; i++) {
             if (data[i][key] instanceof Date) {
                 foundType += 1
-            } else if (data[i][key] instanceof Date === false && threshold === 1) {
+            } else if (
+                data[i][key] instanceof Date === false &&
+                threshold === 1
+            ) {
                 break
             }
         }
@@ -49,7 +52,8 @@ export default function checkTypeOfKey(
         } else {
             verbose &&
                 log(
-                    `=> ${key} : ${(1 - percentTest) * 100
+                    `=> ${key} : ${
+                        (1 - percentTest) * 100
                     }% of tested values (n=${nbTested} / ${percentTested} of data) are not a ${type} (threshold: ${threshold})`,
                     "blue"
                 )

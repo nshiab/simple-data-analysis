@@ -108,15 +108,15 @@ export default class SimpleData {
         if (data.length > 0 || Object.keys(data).length > 0) {
             const incomingData = dataAsArrays
                 ? cloneDeep(
-                    arraysToData(
-                        data as unknown as {
-                            [key: string]: SimpleDataValue[]
-                        }
-                    ).slice(firstItem, lastItem + 1)
-                )
+                      arraysToData(
+                          data as unknown as {
+                              [key: string]: SimpleDataValue[]
+                          }
+                      ).slice(firstItem, lastItem + 1)
+                  )
                 : cloneDeep(
-                    (data as SimpleDataItem[]).slice(firstItem, lastItem + 1)
-                )
+                      (data as SimpleDataItem[]).slice(firstItem, lastItem + 1)
+                  )
 
             handleMissingKeys(
                 incomingData,
@@ -1016,14 +1016,14 @@ export default class SimpleData {
         title,
     }: {
         type:
-        | "dot"
-        | "line"
-        | "bar"
-        | "barVertical"
-        | "barHorizontal"
-        | "box"
-        | "boxVertical"
-        | "boxHorizontal"
+            | "dot"
+            | "line"
+            | "bar"
+            | "barVertical"
+            | "barHorizontal"
+            | "box"
+            | "boxVertical"
+            | "boxHorizontal"
         x: string
         y: string
         color?: string
@@ -1132,14 +1132,21 @@ export default class SimpleData {
         key,
         nbDigits = undefined,
         nbTestedValues = 10000,
-        type = "number"
+        type = "number",
     }: {
         key: string
         nbDigits?: number
         nbTestedValues?: number
         type?: "number" | "Date"
     }): SimpleDataValue {
-        return getMin_(this._data, key, nbDigits, nbTestedValues, type, this.verbose)
+        return getMin_(
+            this._data,
+            key,
+            nbDigits,
+            nbTestedValues,
+            type,
+            this.verbose
+        )
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
@@ -1147,14 +1154,21 @@ export default class SimpleData {
         key,
         nbDigits = undefined,
         nbTestedValues = 10000,
-        type = "number"
+        type = "number",
     }: {
         key: string
         nbDigits?: number | undefined
         nbTestedValues?: number
         type?: "number" | "Date"
     }): SimpleDataValue {
-        return getMax_(this._data, key, nbDigits, nbTestedValues, type, this.verbose)
+        return getMax_(
+            this._data,
+            key,
+            nbDigits,
+            nbTestedValues,
+            type,
+            this.verbose
+        )
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
@@ -1162,14 +1176,21 @@ export default class SimpleData {
         key,
         nbDigits = 2,
         nbTestedValues = 10000,
-        type = "number"
+        type = "number",
     }: {
         key: string
         nbDigits?: number
         nbTestedValues?: number
         type?: "number" | "Date"
     }): SimpleDataValue {
-        return getMean_(this._data, key, nbDigits, nbTestedValues, type, this.verbose)
+        return getMean_(
+            this._data,
+            key,
+            nbDigits,
+            nbTestedValues,
+            type,
+            this.verbose
+        )
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
@@ -1177,7 +1198,7 @@ export default class SimpleData {
         key,
         nbDigits = 2,
         nbTestedValues = 10000,
-        type = "number"
+        type = "number",
     }: {
         key: string
         nbDigits?: number
