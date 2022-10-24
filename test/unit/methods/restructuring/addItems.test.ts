@@ -82,7 +82,7 @@ describe("addItems", function () {
             { key1: 2, key2: 2 },
             { key1: 3, key2: 4 },
         ]
-        const newData = addItems(data, dataToBeAdded, true)
+        const newData = addItems(data, dataToBeAdded)
         assert.deepEqual(newData, [
             { key1: 2, key2: 2 },
             { key1: 3, key2: 4 },
