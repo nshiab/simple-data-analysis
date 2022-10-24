@@ -20,7 +20,11 @@ describe("getMean", function () {
     it("should throw an error when different types", function () {
         assert.throws(() => getMean(data, "key2"))
     })
-    it("should throw an error when working with dates", function () {
+    it("should throw an error when not working with with numbers", function () {
         assert.throws(() => getMean(data, "key3"))
+    })
+    it("should return mean value when the type provided (Date)", function () {
+        const value = getMean(data, "key3", undefined, undefined, "Date")
+        assert.deepEqual(value, new Date(Date.UTC(2022, 7, 4)))
     })
 })

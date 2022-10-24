@@ -7,7 +7,15 @@ describe("summarize", function () {
             { key1: "Rubarbe", key2: 2, key3: new Date("2022-02-14") },
             { key1: "Fraise", key2: 22, key3: new Date("2014-02-14") },
         ]
-        const summarizedData = summarize(data)
+        const summarizedData = summarize(
+            data,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            false,
+            1
+        )
         assert.deepEqual(summarizedData, [
             {
                 value: "key1",
@@ -49,7 +57,15 @@ describe("summarize", function () {
             { key1: "Rubarbe", key2: 2 },
             { key1: "Fraise", key2: 22 },
         ]
-        const summarizedData = summarize(data, "key2", "key1")
+        const summarizedData = summarize(
+            data,
+            "key2",
+            "key1",
+            undefined,
+            undefined,
+            false,
+            1
+        )
         assert.deepEqual(summarizedData, [
             {
                 value: "key2",
