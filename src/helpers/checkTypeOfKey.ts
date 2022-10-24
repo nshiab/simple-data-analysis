@@ -19,11 +19,25 @@ export default function checkTypeOfKey(
     const percentTested = toPercentage(nbTested, data.length)
 
     let foundType = 0
-    for (let i = 0; i < nbTested; i++) {
-        if (typeof data[i][key] === type) {
-            foundType += 1
-        } else if (typeof data[i][key] !== type && threshold === 1) {
-            break
+
+    if (type === "Date") {
+        for (let i = 0; i < nbTested; i++) {
+            if (data[i][key] instanceof Date) {
+                foundType += 1
+            } else if (
+                data[i][key] instanceof Date === false &&
+                threshold === 1
+            ) {
+                break
+            }
+        }
+    } else {
+        for (let i = 0; i < nbTested; i++) {
+            if (typeof data[i][key] === type) {
+                foundType += 1
+            } else if (typeof data[i][key] !== type && threshold === 1) {
+                break
+            }
         }
     }
     const percentTest = foundType / nbTested

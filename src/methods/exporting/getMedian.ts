@@ -12,18 +12,21 @@ export default function getMedian(
     key: string,
     nbDigits = 2,
     nbTestedValues = 10000,
+    type: "number" | "Date" = "number",
     verbose = false
 ): SimpleDataValue {
     if (!hasKey(data[0], key)) {
         throw new Error(`No key ${key} in data`)
     }
-    if (!checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)) {
-        throw new Error(`At least one value in ${key} is not a number.`)
+    if (!checkTypeOfKey(data, key, type, 1, nbTestedValues, verbose)) {
+        throw new Error(`At least one value in ${key} is not a ${type}.`)
     }
 
-    const result = median(data, (d) => d[key] as number) as number
+    const result = median(data, (d) => d[key] as number) // And date too
 
-    if (typeof result === "number") {
+    if (type === "Date" && result !== undefined) {
+        return new Date(result)
+    } else if (typeof result === "number") {
         return round(result, nbDigits)
     } else {
         return result

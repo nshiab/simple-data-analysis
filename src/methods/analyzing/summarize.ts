@@ -13,7 +13,7 @@ export default function summarize(
     summary?: string | string[],
     weight?: string,
     verbose = false,
-    nbDigits = 1
+    nbDigits?: number
 ): SimpleDataItem[] {
     if (keyValue === undefined) {
         keyValue = Object.keys(data[0])

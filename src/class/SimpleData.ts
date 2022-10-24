@@ -868,7 +868,7 @@ export default class SimpleData {
         summary,
         weight,
         overwrite = true,
-        nbDigits = 1,
+        nbDigits,
     }: {
         keyValue?: string | string[]
         keyCategory?: string | string[]
@@ -1130,27 +1130,45 @@ export default class SimpleData {
     // No @logCall for methods starting with get. It's not returning a simpleData class
     getMin({
         key,
-        nbDigits = 2,
+        nbDigits = undefined,
         nbTestedValues = 10000,
+        type = "number",
     }: {
         key: string
         nbDigits?: number
         nbTestedValues?: number
+        type?: "number" | "Date"
     }): SimpleDataValue {
-        return getMin_(this._data, key, nbDigits, nbTestedValues, this.verbose)
+        return getMin_(
+            this._data,
+            key,
+            nbDigits,
+            nbTestedValues,
+            type,
+            this.verbose
+        )
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
     getMax({
         key,
-        nbDigits = 2,
+        nbDigits = undefined,
         nbTestedValues = 10000,
+        type = "number",
     }: {
         key: string
-        nbDigits?: number
+        nbDigits?: number | undefined
         nbTestedValues?: number
+        type?: "number" | "Date"
     }): SimpleDataValue {
-        return getMax_(this._data, key, nbDigits, nbTestedValues, this.verbose)
+        return getMax_(
+            this._data,
+            key,
+            nbDigits,
+            nbTestedValues,
+            type,
+            this.verbose
+        )
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
@@ -1158,12 +1176,21 @@ export default class SimpleData {
         key,
         nbDigits = 2,
         nbTestedValues = 10000,
+        type = "number",
     }: {
         key: string
         nbDigits?: number
         nbTestedValues?: number
+        type?: "number" | "Date"
     }): SimpleDataValue {
-        return getMean_(this._data, key, nbDigits, nbTestedValues, this.verbose)
+        return getMean_(
+            this._data,
+            key,
+            nbDigits,
+            nbTestedValues,
+            type,
+            this.verbose
+        )
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
@@ -1171,16 +1198,19 @@ export default class SimpleData {
         key,
         nbDigits = 2,
         nbTestedValues = 10000,
+        type = "number",
     }: {
         key: string
         nbDigits?: number
         nbTestedValues?: number
+        type?: "number" | "Date"
     }): SimpleDataValue {
         return getMedian_(
             this._data,
             key,
             nbDigits,
             nbTestedValues,
+            type,
             this.verbose
         )
     }
