@@ -23,8 +23,9 @@ export default async function loadDataFromUrlWeb(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let arrayOfObjects: any[] = []
 
+    verbose && log("Detected " + fileExtension + " file extension", "blue")
+
     if (fileExtension === "csv" || fileExtension === "tsv") {
-        verbose && log(`=> ${fileExtension} file extension detected`, "blue")
 
         if (fileExtension === "csv") {
             arrayOfObjects = autoType ? await csv(url, typed) : await csv(url)
@@ -53,10 +54,10 @@ export default async function loadDataFromUrlWeb(
         const incomingData = (await json(url)) as any[]
         arrayOfObjects = dataAsArrays
             ? arraysToData(
-                  incomingData as unknown as {
-                      [key: string]: SimpleDataValue[]
-                  }
-              )
+                incomingData as unknown as {
+                    [key: string]: SimpleDataValue[]
+                }
+            )
             : incomingData
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
     } else {

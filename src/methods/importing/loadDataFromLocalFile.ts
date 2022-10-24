@@ -27,7 +27,6 @@ export default function loadDataFromLocalFile(
     verbose && log("Detected " + fileExtension + " file extension", "blue")
 
     if (fileExtension === "csv" || fileExtension === "tsv") {
-        verbose && log(`=> ${fileExtension} file extension detected`, "blue")
 
         const dsvString = fs.readFileSync(path, { encoding: encoding })
 
@@ -57,8 +56,6 @@ export default function loadDataFromLocalFile(
             }
         }
     } else if (fileExtension === "json") {
-        verbose &&
-            log("=> " + fileExtension + " file extension detected", "blue")
 
         const incomingData = JSON.parse(
             fs.readFileSync(path, { encoding: encoding })
