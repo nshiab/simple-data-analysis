@@ -6,6 +6,7 @@ export default function round(value: number, nbDigits: number | undefined) {
     }
 
     const f = format(`.${nbDigits}f`)
+    const fValue = f(value).replace("−", "-")
 
-    return parseFloat(f(value))
+    return parseFloat(fValue)
 }
