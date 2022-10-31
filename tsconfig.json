@@ -10,6 +10,9 @@
     "typeRoots": [
       "./node_modules/@types"
     ],
+    "types":[
+      "mocha"
+    ],
     "paths": {
       "@observablehq/plot": [
         "./src/types/modules/@observablehq_plot"
@@ -25,7 +28,8 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "**/*.test.ts"
   ],
   "exclude": [
     "node_modules"
