@@ -61,7 +61,7 @@ export default function valuesToDate(
             }
         }
 
-        if (newKey && !hasKey(data[i], newKey)) {
+        if (newKey && !hasKey(data[i], newKey) && skipErrors) {
             data[i][keyToUpdate] = null
         }
     }
