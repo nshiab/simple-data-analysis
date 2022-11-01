@@ -7,11 +7,18 @@ export default function valuesToFloat(
     key: string,
     thousandSeparator = ",",
     decimalSeparator = ".",
-    skipErrors = false
+    skipErrors = false,
+    newKey?: string
 ): SimpleDataItem[] {
     if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
+
+    if (newKey && hasKey(data[0], newKey)) {
+        throw new Error(newKey + " already exists")
+    }
+
+    const keyToUpdate = newKey ? newKey : key
 
     if (thousandSeparator === decimalSeparator) {
         throw new Error(
@@ -40,7 +47,7 @@ export default function valuesToFloat(
                             " which is not a float. If you want to ignore values that are not valid, pass { skipErrors: true }."
                     )
                 }
-                data[i][key] = newVal
+                data[i][keyToUpdate] = newVal
             } else {
                 if (!skipErrors) {
                     throw new Error(

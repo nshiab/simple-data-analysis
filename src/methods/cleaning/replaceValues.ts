@@ -10,11 +10,18 @@ export default function replaceValues(
     oldValue: SimpleDataValue,
     newValue: SimpleDataValue,
     method: undefined | "entireString" | "partialString" = undefined,
-    skipErrors = false
+    skipErrors = false,
+    newKey?: string
 ): SimpleDataItem[] {
     if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
+
+    if (newKey && hasKey(data[0], newKey)) {
+        throw new Error(newKey + " already exists")
+    }
+
+    const keyToUpdate = newKey ? newKey : key
 
     if (typeof oldValue === "string" && typeof newValue === "string") {
         if (
@@ -29,7 +36,7 @@ export default function replaceValues(
         if (method === "entireString") {
             for (let i = 0; i < data.length; i++) {
                 if (data[i][key] === oldValue) {
-                    data[i][key] = newValue
+                    data[i][keyToUpdate] = newValue
                 }
             }
         } else {
@@ -45,7 +52,7 @@ export default function replaceValues(
                         )
                     }
                 } else {
-                    data[i][key] = val.replace(regex, newValue)
+                    data[i][keyToUpdate] = val.replace(regex, newValue)
                 }
             }
         }
@@ -58,7 +65,7 @@ export default function replaceValues(
 
         for (let i = 0; i < data.length; i++) {
             if (data[i][key] === oldValue) {
-                data[i][key] = newValue
+                data[i][keyToUpdate] = newValue
             }
         }
     }
