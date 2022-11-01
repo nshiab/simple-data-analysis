@@ -6,11 +6,18 @@ export default function datesToString(
     data: SimpleDataItem[],
     key: string,
     format: string,
-    skipErrors = false
+    skipErrors = false,
+    newKey?: string
 ): SimpleDataItem[] {
     if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
+
+    if (newKey && hasKey(data[0], newKey)) {
+        throw new Error(newKey + " already exists")
+    }
+
+    const keyToUpdate = newKey ? newKey : key
 
     const formatF = utcFormat(format)
 
@@ -24,7 +31,7 @@ export default function datesToString(
                 )
             }
         } else {
-            data[i][key] = formatF(data[i][key] as Date)
+            data[i][keyToUpdate] = formatF(data[i][key] as Date)
         }
     }
 
