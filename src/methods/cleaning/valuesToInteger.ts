@@ -1,6 +1,7 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import hasKey from "../../helpers/hasKey.js"
 import isValidNumber from "../../helpers/isValidNumber.js"
+import removeKey from "../restructuring/removeKey.js"
 
 export default function valuesToInteger(
     data: SimpleDataItem[],
@@ -38,6 +39,9 @@ export default function valuesToInteger(
             if (isValidNumber(valueClean)) {
                 const newValue = parseInt(valueClean)
                 if (!skipErrors && !Number.isInteger(newValue)) {
+                    if (newKey) {
+                        removeKey(data, newKey)
+                    }
                     throw new Error(
                         value +
                             " is converted to " +
@@ -48,6 +52,9 @@ export default function valuesToInteger(
                 data[i][keyToUpdate] = parseInt(valueClean)
             } else {
                 if (!skipErrors) {
+                    if (newKey) {
+                        removeKey(data, newKey)
+                    }
                     throw new Error(
                         value +
                             " (" +
@@ -58,6 +65,9 @@ export default function valuesToInteger(
             }
         } else {
             if (!skipErrors && !Number.isInteger(value)) {
+                if (newKey) {
+                    removeKey(data, newKey)
+                }
                 throw new Error(
                     value +
                         " is not a valid integer. If you want to ignore values that are not valid, pass { skipErrors: true }."

@@ -3,6 +3,7 @@ import {
     SimpleDataValue,
 } from "../../types/SimpleData.types.js"
 import hasKey from "../../helpers/hasKey.js"
+import removeKey from "../restructuring/removeKey.js"
 
 export default function replaceValues(
     data: SimpleDataItem[],
@@ -46,6 +47,9 @@ export default function replaceValues(
                 const val = data[i][key]
                 if (typeof val !== "string") {
                     if (!skipErrors) {
+                        if (newKey) {
+                            removeKey(data, newKey)
+                        }
                         throw new Error(
                             val +
                                 " is not a string. Convert to string first (valuesToString). If you want to ignore values that are not strings, pass { skipErrors: true }."
