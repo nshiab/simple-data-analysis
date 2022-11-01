@@ -61,4 +61,46 @@ describe("valuesToInteger", function () {
             { key1: 100000000, key2: 2 },
         ])
     })
+
+    it("should save values as integers with a new key", function () {
+        const data = [
+            { key1: "1", key2: 2 },
+            { key1: "2.2", key2: 2 },
+            { key1: "100000000", key2: 2 },
+            { key1: "-2", key2: 2 },
+        ]
+        const intergerValues = valuesToInteger(
+            data,
+            "key1",
+            undefined,
+            undefined,
+            undefined,
+            "key1x"
+        )
+        assert.deepEqual(intergerValues, [
+            { key1: "1", key2: 2, key1x: 1 },
+            { key1: "2.2", key2: 2, key1x: 2 },
+            { key1: "100000000", key2: 2, key1x: 100000000 },
+            { key1: "-2", key2: 2, key1x: -2 },
+        ])
+    })
+
+    it("should throw error if newKey already exists", function () {
+        const data = [
+            { key1: "1", key2: 2 },
+            { key1: "2.2", key2: 2 },
+            { key1: "100000000", key2: 2 },
+            { key1: "-2", key2: 2 },
+        ]
+        assert.throws(() =>
+            valuesToInteger(
+                data,
+                "key1",
+                undefined,
+                undefined,
+                undefined,
+                "key2"
+            )
+        )
+    })
 })

@@ -7,11 +7,18 @@ export default function valuesToInteger(
     key: string,
     thousandSeparator = ",",
     decimalSeparator = ".",
-    skipErrors = false
+    skipErrors = false,
+    newKey?: string
 ): SimpleDataItem[] {
     if (!hasKey(data[0], key)) {
         throw new Error("No key " + key)
     }
+
+    if (newKey && hasKey(data[0], newKey)) {
+        throw new Error(newKey + " already exists")
+    }
+
+    const keyToUpdate = newKey ? newKey : key
 
     if (thousandSeparator === decimalSeparator) {
         throw new Error(
@@ -38,7 +45,7 @@ export default function valuesToInteger(
                             " is not an integer. If you want to ignore values that are not valid, pass { skipErrors: true }."
                     )
                 }
-                data[i][key] = parseInt(valueClean)
+                data[i][keyToUpdate] = parseInt(valueClean)
             } else {
                 if (!skipErrors) {
                     throw new Error(
