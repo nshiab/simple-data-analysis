@@ -1,4 +1,4 @@
-import getKeyToUpdate from '../../helpers/getKeyToUpdate.js'
+import getKeyToUpdate from "../../helpers/getKeyToUpdate.js"
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 
 export default function renameKey(
