@@ -1,7 +1,7 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import hasKey from "../../helpers/hasKey.js"
 import isValidNumber from "../../helpers/isValidNumber.js"
 import removeKey from "../restructuring/removeKey.js"
+import getKeyToUpdate from "../../helpers/getKeyToUpdate.js"
 
 export default function valuesToInteger(
     data: SimpleDataItem[],
@@ -11,15 +11,7 @@ export default function valuesToInteger(
     skipErrors = false,
     newKey?: string
 ): SimpleDataItem[] {
-    if (!hasKey(data[0], key)) {
-        throw new Error("No key " + key)
-    }
-
-    if (newKey && hasKey(data[0], newKey)) {
-        throw new Error(newKey + " already exists")
-    }
-
-    const keyToUpdate = newKey ? newKey : key
+    const keyToUpdate = getKeyToUpdate(data, key, newKey)
 
     if (thousandSeparator === decimalSeparator) {
         throw new Error(

@@ -2,8 +2,8 @@ import {
     SimpleDataItem,
     SimpleDataValue,
 } from "../../types/SimpleData.types.js"
-import hasKey from "../../helpers/hasKey.js"
 import removeKey from "../restructuring/removeKey.js"
+import getKeyToUpdate from "../../helpers/getKeyToUpdate.js"
 
 export default function replaceValues(
     data: SimpleDataItem[],
@@ -14,15 +14,7 @@ export default function replaceValues(
     skipErrors = false,
     newKey?: string
 ): SimpleDataItem[] {
-    if (!hasKey(data[0], key)) {
-        throw new Error("No key " + key)
-    }
-
-    if (newKey && hasKey(data[0], newKey)) {
-        throw new Error(newKey + " already exists")
-    }
-
-    const keyToUpdate = newKey ? newKey : key
+    const keyToUpdate = getKeyToUpdate(data, key, newKey)
 
     if (typeof oldValue === "string" && typeof newValue === "string") {
         if (
