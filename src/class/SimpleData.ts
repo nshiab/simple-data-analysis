@@ -23,6 +23,7 @@ import valuesToDate_ from "../methods/cleaning/valuesToDate.js"
 import datesToString_ from "../methods/cleaning/datesToString.js"
 import filterValues_ from "../methods/selecting/filterValues.js"
 import filterItems_ from "../methods/selecting/filterItems.js"
+import pickRandomItems_ from "../methods/selecting/pickRandomItems.js"
 import removeDuplicates_ from "../methods/cleaning/removeDuplicates.js"
 import keepDuplicates_ from "../methods/cleaning/keepDuplicates.js"
 import roundValues_ from "../methods/cleaning/roundValues.js"
@@ -720,6 +721,28 @@ export default class SimpleData {
         this._tempData = filterItems_(
             cloneDeep(this._data),
             itemComparator,
+            this.verbose
+        )
+        overwrite && this.#updateSimpleData(this._tempData)
+
+        return this
+    }
+
+    @logCall()
+    pickRandomItems({
+        numberOfRandomItems,
+        seed,
+        overwrite = true,
+    }: {
+        numberOfRandomItems: number
+        seed?: number
+        overwrite?: boolean
+    }): this {
+        this._overwrite = overwrite
+        this._tempData = pickRandomItems_(
+            cloneDeep(this._data),
+            numberOfRandomItems,
+            seed,
             this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)

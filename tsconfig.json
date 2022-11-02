@@ -10,7 +10,7 @@
     "typeRoots": [
       "./node_modules/@types"
     ],
-    "types":[
+    "types": [
       "mocha"
     ],
     "paths": {
@@ -28,8 +28,7 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src/**/*",
-    "**/*.test.ts"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules"
