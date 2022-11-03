@@ -139,6 +139,7 @@ async function main() {
             newKeyForKeys: "unit",
             newKeyForValues: "bonus",
         })
+        .pickRandomItems({ nbItems: 3 })
 
     const moreEmployees = [
         {
