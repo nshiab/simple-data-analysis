@@ -31,9 +31,6 @@ export default function valuesToFloat(
             if (isValidNumber(valueClean)) {
                 const newVal = parseFloat(valueClean)
                 if (!skipErrors && isNaN(newVal)) {
-                    if (newKey) {
-                        removeKey(data, newKey)
-                    }
                     throw new Error(
                         value +
                             " (" +
@@ -46,9 +43,6 @@ export default function valuesToFloat(
                 data[i][keyToUpdate] = newVal
             } else {
                 if (!skipErrors) {
-                    if (newKey) {
-                        removeKey(data, newKey)
-                    }
                     throw new Error(
                         value +
                             " (" +
@@ -59,9 +53,6 @@ export default function valuesToFloat(
             }
         } else {
             if (!skipErrors && typeof value !== "number") {
-                if (newKey) {
-                    removeKey(data, newKey)
-                }
                 throw new Error(
                     value +
                         " is not a valid number. If you want to ignore values that are not valid, pass { skipErrors: true }."

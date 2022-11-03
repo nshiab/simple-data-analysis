@@ -1,6 +1,5 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import round from "../../helpers/round.js"
-import removeKey from "../restructuring/removeKey.js"
 import getKeyToUpdate from "../../helpers/getKeyToUpdate.js"
 
 export default function roundValues(
@@ -16,9 +15,6 @@ export default function roundValues(
         const val = data[i][key]
         if (typeof val !== "number") {
             if (!skipErrors) {
-                if (newKey) {
-                    removeKey(data, newKey)
-                }
                 throw new Error(
                     val +
                         " is not a number. Convert to number first (valuesToInteger() or valuesToFloat()). If you want to ignore values that are not numbers, pass { skipErrors: true }."

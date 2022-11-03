@@ -27,9 +27,6 @@ export default function valuesToDate(
             val instanceof Date &&
             isNaN(val as unknown as number)
         ) {
-            if (newKey) {
-                removeKey(data, newKey)
-            }
             throw new Error(
                 "An value is " +
                     val +
@@ -40,9 +37,6 @@ export default function valuesToDate(
         } else if (typeof val === "string") {
             const newVal = parse(val)
             if (!skipErrors && newVal instanceof Date === false) {
-                if (newKey) {
-                    removeKey(data, newKey)
-                }
                 throw new Error(
                     val +
                         " is converted to " +
@@ -55,9 +49,6 @@ export default function valuesToDate(
             data[i][keyToUpdate] = newVal
         } else {
             if (!skipErrors && val instanceof Date === false) {
-                if (newKey) {
-                    removeKey(data, newKey)
-                }
                 throw new Error(
                     val +
                         " is not a string. Convert to string first (valuesToString()). If you want to bypass this error, pass { skipErrors: true }. Keep in mind that all errors will be skipped."
