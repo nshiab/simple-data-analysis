@@ -1,17 +1,16 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import hasKey from "../../helpers/hasKey.js"
 import isValidNumber from "../../helpers/isValidNumber.js"
+import getKeyToUpdate from "../../helpers/getKeyToUpdate.js"
 
 export default function valuesToFloat(
     data: SimpleDataItem[],
     key: string,
     thousandSeparator = ",",
     decimalSeparator = ".",
-    skipErrors = false
+    skipErrors = false,
+    newKey?: string
 ): SimpleDataItem[] {
-    if (!hasKey(data[0], key)) {
-        throw new Error("No key " + key)
-    }
+    const keyToUpdate = getKeyToUpdate(data, key, newKey)
 
     if (thousandSeparator === decimalSeparator) {
         throw new Error(
@@ -40,7 +39,7 @@ export default function valuesToFloat(
                             " which is not a float. If you want to ignore values that are not valid, pass { skipErrors: true }."
                     )
                 }
-                data[i][key] = newVal
+                data[i][keyToUpdate] = newVal
             } else {
                 if (!skipErrors) {
                     throw new Error(

@@ -13,4 +13,12 @@ describe("renameKey", function () {
             { navet: 11, key2: 22 },
         ])
     })
+
+    it("should throw error if newKey already exists", function () {
+        const data = [
+            { key1: 1, key2: 2 },
+            { key1: 11, key2: 22 },
+        ]
+        assert.throws(() => renameKey(data, "key1", "key2"))
+    })
 })

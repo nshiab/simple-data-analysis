@@ -1,17 +1,16 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import hasKey from "../../helpers/hasKey.js"
 import isValidNumber from "../../helpers/isValidNumber.js"
+import getKeyToUpdate from "../../helpers/getKeyToUpdate.js"
 
 export default function valuesToInteger(
     data: SimpleDataItem[],
     key: string,
     thousandSeparator = ",",
     decimalSeparator = ".",
-    skipErrors = false
+    skipErrors = false,
+    newKey?: string
 ): SimpleDataItem[] {
-    if (!hasKey(data[0], key)) {
-        throw new Error("No key " + key)
-    }
+    const keyToUpdate = getKeyToUpdate(data, key, newKey)
 
     if (thousandSeparator === decimalSeparator) {
         throw new Error(
@@ -38,7 +37,7 @@ export default function valuesToInteger(
                             " is not an integer. If you want to ignore values that are not valid, pass { skipErrors: true }."
                     )
                 }
-                data[i][key] = parseInt(valueClean)
+                data[i][keyToUpdate] = parseInt(valueClean)
             } else {
                 if (!skipErrors) {
                     throw new Error(

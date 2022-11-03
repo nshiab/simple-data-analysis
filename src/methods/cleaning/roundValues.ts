@@ -1,16 +1,15 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import hasKey from "../../helpers/hasKey.js"
 import round from "../../helpers/round.js"
+import getKeyToUpdate from "../../helpers/getKeyToUpdate.js"
 
 export default function roundValues(
     data: SimpleDataItem[],
     key: string,
     numDigits: number,
-    skipErrors = false
+    skipErrors = false,
+    newKey?: string
 ): SimpleDataItem[] {
-    if (!hasKey(data[0], key)) {
-        throw new Error("No key " + key)
-    }
+    const keyToUpdate = getKeyToUpdate(data, key, newKey)
 
     for (let i = 0; i < data.length; i++) {
         const val = data[i][key]
@@ -22,7 +21,7 @@ export default function roundValues(
                 )
             }
         } else {
-            data[i][key] = round(val, numDigits)
+            data[i][keyToUpdate] = round(val, numDigits)
         }
     }
 

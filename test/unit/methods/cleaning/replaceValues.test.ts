@@ -60,4 +60,36 @@ describe("replaceValues", function () {
             { key1: 32, key2: "I am key2" },
         ])
     })
+
+    it("should save replaced partial string values with a new key", function () {
+        const data = [{ key1: "I am potato", key2: "I am key2" }]
+        const replacedValues = replaceValues(
+            data,
+            "key1",
+            "I am",
+            "You are",
+            "partialString",
+            undefined,
+            "key1x"
+        )
+        assert.deepEqual(replacedValues, [
+            { key1: "I am potato", key1x: "You are potato", key2: "I am key2" },
+        ])
+    })
+
+    it("should throw error if newKey already exists", function () {
+        const data = [{ key1: "I am potato", key2: "I am key2" }]
+
+        assert.throws(() =>
+            replaceValues(
+                data,
+                "key1",
+                "I am",
+                "You are",
+                "partialString",
+                undefined,
+                "key2"
+            )
+        )
+    })
 })

@@ -1,17 +1,15 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { utcFormat } from "d3-time-format"
-import hasKey from "../../helpers/hasKey.js"
+import getKeyToUpdate from "../../helpers/getKeyToUpdate.js"
 
 export default function datesToString(
     data: SimpleDataItem[],
     key: string,
     format: string,
-    skipErrors = false
+    skipErrors = false,
+    newKey?: string
 ): SimpleDataItem[] {
-    if (!hasKey(data[0], key)) {
-        throw new Error("No key " + key)
-    }
-
+    const keyToUpdate = getKeyToUpdate(data, key, newKey)
     const formatF = utcFormat(format)
 
     for (let i = 0; i < data.length; i++) {
@@ -24,7 +22,7 @@ export default function datesToString(
                 )
             }
         } else {
-            data[i][key] = formatF(data[i][key] as Date)
+            data[i][keyToUpdate] = formatF(data[i][key] as Date)
         }
     }
 

@@ -1,16 +1,15 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import hasKey from "../../helpers/hasKey.js"
+import getKeyToUpdate from "../../helpers/getKeyToUpdate.js"
 
 export default function valuesToString(
     data: SimpleDataItem[],
-    key: string
+    key: string,
+    newKey?: string
 ): SimpleDataItem[] {
-    if (!hasKey(data[0], key)) {
-        throw new Error("No key " + key)
-    }
+    const keyToUpdate = getKeyToUpdate(data, key, newKey)
 
     for (let i = 0; i < data.length; i++) {
-        data[i][key] = String(data[i][key])
+        data[i][keyToUpdate] = String(data[i][key])
     }
 
     return data
