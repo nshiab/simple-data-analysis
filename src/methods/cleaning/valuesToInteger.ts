@@ -1,6 +1,5 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import isValidNumber from "../../helpers/isValidNumber.js"
-import removeKey from "../restructuring/removeKey.js"
 import getKeyToUpdate from "../../helpers/getKeyToUpdate.js"
 
 export default function valuesToInteger(

@@ -1,7 +1,6 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { utcParse } from "d3-time-format"
 import hasKey from "../../helpers/hasKey.js"
-import removeKey from "../restructuring/removeKey.js"
 import getKeyToUpdate from "../../helpers/getKeyToUpdate.js"
 
 export default function valuesToDate(
