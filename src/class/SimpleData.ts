@@ -730,18 +730,18 @@ export default class SimpleData {
 
     @logCall()
     pickRandomItems({
-        numberOfRandomItems,
+        nbItems,
         seed,
         overwrite = true,
     }: {
-        numberOfRandomItems: number
+        nbItems: number
         seed?: number
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
         this._tempData = pickRandomItems_(
             cloneDeep(this._data),
-            numberOfRandomItems,
+            nbItems,
             seed,
             this.verbose
         )
