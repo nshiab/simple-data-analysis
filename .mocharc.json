@@ -1,6 +1,10 @@
 {
-    "$schema": "https://json.schemastore.org/mocharc",
-    "extension": ["ts"],
-    "loader": "ts-node/esm",
-    "spec": ["test"]
-  }
+  "$schema": "https://json.schemastore.org/mocharc",
+  "extension": [
+    "ts"
+  ],
+  "loader": "ts-node/esm",
+  "spec": [
+    "test"
+  ]
+}

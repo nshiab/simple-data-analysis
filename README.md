@@ -121,12 +121,12 @@ As you can see below, SDA is a lightweight library optimized for the web (98kb â
 
 ## Working with NodeJS and JavaScript Bundlers
 
-First, make sure that your NodeJS version is 16 or higher. To check it, write ```node``` in your terminal and press Enter.
+First, make sure that your NodeJS version is 18 or higher. To check it, write ```node``` in your terminal and press Enter.
 
 You should see something like this.
 <img src="./assets/nodeJSVersion.png" alt="A terminal showing the NodeJS version" style="display:block;width: 100%; max-width:400px;"/>
 
-If the version is less than 16, update [NodeJS with the latest LTS (long-term support) version](https://nodejs.org/en/) .
+If the version is less than 18, update [NodeJS with the latest LTS (long-term support) version](https://nodejs.org/en/) .
 
 To install the library with [npm](https://www.npmjs.com/package/simple-data-analysis), type this command in your terminal:
 ```
