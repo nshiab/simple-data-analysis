@@ -27,3 +27,15 @@ describe("pickRandomItems", function () {
         ])
     })
 })
+
+describe("pickRandomItems", function () {
+    it("should return an error because a negative value is given", function () {
+        const data = [
+            { key1: 0, key2: 2 },
+            { key1: 1, key2: 2 },
+            { key1: 2, key2: 4 },
+            { key1: 2, key2: 6 },
+        ]
+        assert.throws(() => pickRandomItems(data, -1), Error)
+    })
+})
