@@ -12,6 +12,7 @@ import plotChart from "../../helpers/plotChart.js"
 import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 import { regressionLinear } from "d3-regression"
 import round from "../../helpers/round.js"
+import log from "../../helpers/log.js"
 
 export default function getChart(
     data: SimpleDataItem[],
@@ -130,7 +131,16 @@ export default function getChart(
 
     let legendHTML = ""
     if (color && ["line", "dot"].includes(type)) {
-        const legend = chart.plt.legend("color").outerHTML
+        let legend
+
+        try {
+            legend = chart.plt.legend("color").outerHTML
+        } catch (err) {
+            log(
+                "You chart is supposed to have a legend, but it couldn't be rendered.",
+                "blue"
+            )
+        }
         if (legend) {
             legendHTML =
                 `<div style="width:${width ? width : 640}px;margin-top: ${
