@@ -10,6 +10,13 @@ export default function pickRandomItems(
     seed?: number,
     verbose = false
 ): SimpleDataItem[] {
+    if (nbItems <= 0) {
+        throw new Error("You must choose a number of items greater than 0")
+    }
+    if (nbItems > data.length) {
+        nbItems = data.length
+    }
+
     const shuffle = seed ? shuffler(randomLcg(seed)) : shuffler(randomLcg())
     const randomizedData = shuffle(data).slice(0, nbItems)
     const nbRemoved = data.length - nbItems
