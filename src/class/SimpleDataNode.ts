@@ -1,5 +1,4 @@
 import fs from "fs"
-import { JSDOM } from "jsdom"
 import SimpleData from "./SimpleData.js"
 import { SimpleDataItem } from "../types/SimpleData.types"
 import loadDataFromLocalFile_ from "../methods/importing/loadDataFromLocalFile.js"
@@ -10,6 +9,7 @@ import log from "../helpers/log.js"
 import loadDataFromUrlNode_ from "../methods/importing/loadDataFromUrlNode.js"
 import getChart from "../methods/visualizing/getChart.js"
 import getCustomChart from "../methods/visualizing/getCustomChart.js"
+import setJSDom from "../helpers/setJSDom.js"
 
 export default class SimpleDataNode extends SimpleData {
     // If modified, might need to be modified in SimpleData too
@@ -175,13 +175,7 @@ export default class SimpleDataNode extends SimpleData {
         marginBottom?: number
         title?: string
     }): this {
-        if (global.window === undefined || global.document === undefined) {
-            const jsdom = new JSDOM("")
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            global.window = jsdom.window
-            global.document = jsdom.window.document
-        }
+        setJSDom()
 
         const chart = getChart(
             this._data,
@@ -213,13 +207,7 @@ export default class SimpleDataNode extends SimpleData {
         path: string
         plotOptions: object
     }): this {
-        if (global.window === undefined || global.document === undefined) {
-            const jsdom = new JSDOM("")
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            global.window = jsdom.window
-            global.document = jsdom.window.document
-        }
+        setJSDom()
 
         const chart = getCustomChart(plotOptions)
 
