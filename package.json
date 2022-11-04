@@ -38,9 +38,8 @@
         "test": "npx mocha \"test/unit/**/*.test.ts\"",
         "test-simple-data": "npx ts-node-esm test/integration/SimpleData.test.ts",
         "test-simple-data-node": "npx ts-node-esm test/integration/SimpleDataNode.test.ts",
-        "test-simple-data-doc": "npx ts-node-esm test/integration/SimpleDocument.test.tsx",
         "test-build": "rm -rf dist && npx tsc && npx rollup --config",
-        "allTests": "npm run format && npm run test && npm run test-simple-data noLogs && npm run test-simple-data-node noLogs && npm run test-simple-data-doc noLogs && npm run lint && npm run test-build",
+        "allTests": "npm run format && npm run test && npm run test-simple-data noLogs && npm run test-simple-data-node noLogs && npm run lint && npm run test-build",
         "build": "npm run allTests && npx tsc && npm run commit-doc",
         "doc": "npx typedoc --name Simple-data-analysis --includeVersion --readme none --out docs src/index.ts",
         "commit-doc": "git checkout main && npm run doc && git add docs/ && git commit -m 'update documentation' && git push",
@@ -77,8 +76,6 @@
         "@types/lodash.uniqby": "^4.7.7",
         "@types/lodash.uniqwith": "^4.5.7",
         "@types/mocha": "^10.0.0",
-        "@types/react": "^18.0.17",
-        "@types/react-dom": "^18.0.4",
         "@types/sinon": "^10.0.13",
         "@typescript-eslint/eslint-plugin": "^5.33.0",
         "@typescript-eslint/parser": "^5.33.0",
@@ -97,11 +94,6 @@
         "typescript": "^4.6.4"
     },
     "dependencies": {
-        "@emotion/react": "^11.10.0",
-        "@emotion/server": "^11.10.0",
-        "@emotion/styled": "^11.10.0",
-        "@mui/icons-material": "^5.8.0",
-        "@mui/material": "^5.10.0",
         "@observablehq/plot": "^0.6.0",
         "axios": "^1.1.3",
         "d3-array": "^3.1.6",
@@ -119,8 +111,6 @@
         "lodash.isequal": "^4.5.0",
         "lodash.uniqby": "^4.7.0",
         "lodash.uniqwith": "^4.5.0",
-        "react": "^18.1.0",
-        "react-dom": "^18.1.0",
         "simple-statistics": "^7.7.5"
     }
 }

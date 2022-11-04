@@ -429,7 +429,7 @@ And here's the result in VS Code!
 
 <img src="./assets/nodeExample.png" alt="A chart of the mean salary of several jobs" style="display:block;width: 100%; max-width:600px;margin-bottom: 20px;border-radius: 5px;"/>
 
-## SimpleDocument class (experimental, for NodeJS only)
+## SimpleDocument class (experimental on branch 130-simpledatadoc, for NodeJS only)
 
 While working on your analysis, it's sometimes helpful to build a document that you'll be able to share with your results.
 
