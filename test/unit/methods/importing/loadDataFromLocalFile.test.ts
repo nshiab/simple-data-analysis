@@ -3,9 +3,7 @@ import loadDataFromLocalFile from "../../../../src/methods/importing/loadDataFro
 
 describe("loadDataFromLocalFile", function () {
     it("should return an array of objects from a csv file", function () {
-        const data = loadDataFromLocalFile(
-            "./test/unit/methods/importing/testData/localFileTest.csv"
-        )
+        const data = loadDataFromLocalFile("./test/data/localFileTest.csv")
         assert.deepEqual(data, [
             { key1: 1, key2: 2 },
             { key1: 3, key2: "coucou" },
@@ -16,7 +14,7 @@ describe("loadDataFromLocalFile", function () {
 
     it("should return an array of objects from a csv file with specific items included", function () {
         const data = loadDataFromLocalFile(
-            "./test/unit/methods/importing/testData/localFileTest.csv",
+            "./test/data/localFileTest.csv",
             false,
             false,
             1,
@@ -29,9 +27,7 @@ describe("loadDataFromLocalFile", function () {
     })
 
     it("should return an array of objects from a tsv file", function () {
-        const data = loadDataFromLocalFile(
-            "./test/unit/methods/importing/testData/localFileTest.tsv"
-        )
+        const data = loadDataFromLocalFile("./test/data/localFileTest.tsv")
         assert.deepEqual(data, [
             { key1: 1, key2: 2 },
             { key1: 3, key2: "coucou" },
@@ -42,7 +38,7 @@ describe("loadDataFromLocalFile", function () {
 
     it("should return an array of objects from a tsv file with specific items included", function () {
         const data = loadDataFromLocalFile(
-            "./test/unit/methods/importing/testData/localFileTest.tsv",
+            "./test/data/localFileTest.tsv",
             false,
             false,
             1,
@@ -55,9 +51,7 @@ describe("loadDataFromLocalFile", function () {
     })
 
     it("should return an array of objects from a json file", function () {
-        const data = loadDataFromLocalFile(
-            "./test/unit/methods/importing/testData/localFileTest.json"
-        )
+        const data = loadDataFromLocalFile("./test/data/localFileTest.json")
         assert.deepEqual(data, [
             { key1: 1, key2: 2 },
             { key1: 3, key2: "coucou" },
@@ -68,7 +62,7 @@ describe("loadDataFromLocalFile", function () {
 
     it("should return an array of objects from a json file with specific items included", function () {
         const data = loadDataFromLocalFile(
-            "./test/unit/methods/importing/testData/localFileTest.json",
+            "./test/data/localFileTest.json",
             false,
             false,
             1,
@@ -82,7 +76,7 @@ describe("loadDataFromLocalFile", function () {
 
     it("should return an array of objects from an object of arrays", function () {
         const data = loadDataFromLocalFile(
-            "./test/unit/methods/importing/testData/localFileTestArrays.json",
+            "./test/data/localFileTestArrays.json",
             false,
             true
         )
@@ -96,7 +90,7 @@ describe("loadDataFromLocalFile", function () {
 
     it("should return an array of objects from a csv file with inferred types", function () {
         const data = loadDataFromLocalFile(
-            "./test/unit/methods/importing/testData/localFileTest.csv",
+            "./test/data/localFileTest.csv",
             true,
             false,
             1,
@@ -109,7 +103,7 @@ describe("loadDataFromLocalFile", function () {
     })
     it("should return an array of objects from a tsv file with inferred types", function () {
         const data = loadDataFromLocalFile(
-            "./test/unit/methods/importing/testData/localFileTest.tsv",
+            "./test/data/localFileTest.tsv",
             true,
             false,
             1,

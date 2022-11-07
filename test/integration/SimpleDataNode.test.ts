@@ -1,5 +1,5 @@
+import { existsSync, mkdirSync } from "fs"
 import { SimpleDataNode } from "../../src/index.js"
-import { temporaryDirectoryTask } from "tempy"
 import * as Plot from "@observablehq/plot"
 
 const args = process.argv
@@ -7,6 +7,12 @@ const noLogs = args[2] === "noLogs"
 console.log("noLogs =>", noLogs)
 
 async function main() {
+    const directory = "./test/output/"
+
+    if (!existsSync(directory)) {
+        mkdirSync(directory)
+    }
+
     new SimpleDataNode({
         verbose: true,
         logParameters: true,
@@ -37,132 +43,126 @@ async function main() {
         })
         .valuesToFloat({ key: "bonus" })
 
-    temporaryDirectoryTask((tempDir) => {
-        // Uncomment to save the files locally
-        // BUT DON'T FORGET TO COMMENT BACK BEFORE PUSHING COMMITS
-        // tempDir = "../SDA-output-test"
+    simpleDataNode
+        .saveData({ path: `${directory}/integrationTest.csv` })
+        .saveData({ path: `${directory}/integrationTest.json` })
+        .saveData({
+            path: `${directory}/integrationTestArrays.json`,
+            dataAsArrays: true,
+        })
 
-        simpleDataNode
-            .saveData({ path: `${tempDir}/integrationTest.csv` })
-            .saveData({ path: `${tempDir}/integrationTest.json` })
-            .saveData({
-                path: `${tempDir}/integrationTestArrays.json`,
-                dataAsArrays: true,
-            })
+    simpleDataNode.saveChart({
+        path: `${directory}/dot1.html`,
+        type: "dot",
+        x: "salary",
+        y: "bonus",
+        color: "job",
+        trend: true,
+        showTrendEquation: true,
+    })
+    simpleDataNode.saveChart({
+        path: `${directory}/dot1-small.html`,
+        type: "dot",
+        x: "salary",
+        y: "bonus",
+        color: "job",
+        trend: true,
+        showTrendEquation: true,
+        width: 400,
+        height: 300,
+    })
+    simpleDataNode.saveChart({
+        path: `${directory}/dot1-small-title.html`,
+        type: "dot",
+        x: "salary",
+        y: "bonus",
+        color: "job",
+        trend: true,
+        showTrendEquation: true,
+        width: 400,
+        height: 300,
+        title: "Awesome chart",
+    })
 
-        simpleDataNode.saveChart({
-            path: `${tempDir}/dot1.html`,
-            type: "dot",
-            x: "salary",
-            y: "bonus",
+    simpleDataNode.saveChart({
+        path: `${directory}/dot1-small-title-noLegend.html`,
+        type: "dot",
+        x: "salary",
+        y: "bonus",
+        trend: true,
+        showTrendEquation: true,
+        width: 400,
+        height: 300,
+        title: "Awesome chart",
+    })
+
+    simpleDataNode
+        .clone()
+        .filterValues({
+            key: "salary",
+            valueComparator: (salary) => salary !== "&6%",
+        })
+        .valuesToInteger({ key: "salary" })
+        .summarize({
+            keyValue: "salary",
+            keyCategory: "job",
+            summary: "mean",
+        })
+        .saveChart({
+            path: `${directory}/bar1.html`,
+            type: "barHorizontal",
+            x: "mean",
+            y: "job",
             color: "job",
-            trend: true,
-            showTrendEquation: true,
+            marginLeft: 90,
         })
-        simpleDataNode.saveChart({
-            path: `${tempDir}/dot1-small.html`,
-            type: "dot",
-            x: "salary",
-            y: "bonus",
+        .saveChart({
+            path: `${directory}/bar1-small.html`,
+            type: "barHorizontal",
+            x: "mean",
+            y: "job",
             color: "job",
-            trend: true,
-            showTrendEquation: true,
-            width: 400,
-            height: 300,
-        })
-        simpleDataNode.saveChart({
-            path: `${tempDir}/dot1-small-title.html`,
-            type: "dot",
-            x: "salary",
-            y: "bonus",
-            color: "job",
-            trend: true,
-            showTrendEquation: true,
-            width: 400,
-            height: 300,
-            title: "Awesome chart",
+            marginLeft: 90,
+            width: 200,
+            height: 100,
         })
 
-        simpleDataNode.saveChart({
-            path: `${tempDir}/dot1-small-title-noLegend.html`,
-            type: "dot",
-            x: "salary",
-            y: "bonus",
-            trend: true,
-            showTrendEquation: true,
-            width: 400,
-            height: 300,
-            title: "Awesome chart",
-        })
+    const jobs = simpleDataNode.getUniqueValues({ key: "job" })
 
+    for (const job of jobs) {
         simpleDataNode
             .clone()
             .filterValues({
-                key: "salary",
-                valueComparator: (salary) => salary !== "&6%",
-            })
-            .valuesToInteger({ key: "salary" })
-            .summarize({
-                keyValue: "salary",
-                keyCategory: "job",
-                summary: "mean",
+                key: "job",
+                valueComparator: (val) => val === job,
             })
             .saveChart({
-                path: `${tempDir}/bar1.html`,
-                type: "barHorizontal",
-                x: "mean",
-                y: "job",
-                color: "job",
-                marginLeft: 90,
+                path: `${directory}/${job}.html`,
+                type: "dot",
+                x: "bonus",
+                y: "name",
+                color: "bonus",
+                marginLeft: 150,
             })
-            .saveChart({
-                path: `${tempDir}/bar1-small.html`,
-                type: "barHorizontal",
-                x: "mean",
-                y: "job",
-                color: "job",
-                marginLeft: 90,
-                width: 200,
-                height: 100,
-            })
+    }
 
-        const jobs = simpleDataNode.getUniqueValues({ key: "job" })
-
-        for (const job of jobs) {
-            simpleDataNode
-                .clone()
-                .filterValues({
-                    key: "job",
-                    valueComparator: (val) => val === job,
-                })
-                .saveChart({
-                    path: `${tempDir}/${job}.html`,
-                    type: "dot",
-                    x: "bonus",
-                    y: "name",
-                    color: "bonus",
-                    marginLeft: 150,
-                })
-        }
-
-        simpleDataNode.saveCustomChart({
-            path: `${tempDir}/customChart.html`,
-            plotOptions: {
-                color: { type: "ordinal" },
-                x: { type: "point" },
-                grid: true,
-                facet: {
-                    data: simpleDataNode.getData(),
-                    y: "unit",
-                },
-                marks: [
-                    Plot.dotX(simpleDataNode.getData(), {
-                        x: "salary",
-                        fill: "unit",
-                    }),
-                ],
+    simpleDataNode.saveCustomChart({
+        path: `${directory}/customChart.html`,
+        plotOptions: {
+            color: { type: "ordinal" },
+            x: { type: "point" },
+            grid: true,
+            facet: {
+                data: simpleDataNode.getData(),
+                y: "unit",
             },
-        })
+            marks: [
+                Plot.dotX(simpleDataNode.getData(), {
+                    x: "salary",
+                    fill: "unit",
+                }),
+            ],
+        },
     })
 }
 
