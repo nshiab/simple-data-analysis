@@ -46,6 +46,7 @@ import addVariation_ from "../methods/analyzing/addVariation.js"
 import mergeItems_ from "../methods/restructuring/mergeItems.js"
 import keysToValues_ from "../methods/restructuring/keysToValues.js"
 import valuesToKeys_ from "../methods/restructuring/valuesToKeys.js"
+import addRank_ from "../methods/analyzing/addRank.js"
 import handleMissingKeys from "../helpers/handleMissingKeys.js"
 import { logCall, asyncLogCall } from "../helpers/logCall.js"
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
@@ -598,6 +599,36 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = addKey_(cloneDeep(this._data), key, itemGenerator)
+        overwrite && this.#updateSimpleData(this._tempData)
+
+        return this
+    }
+
+    @logCall()
+    addRank({
+        rankTitle,
+        rankBy,
+        sort,
+        locale,
+        handleTies,
+        overwrite = true,
+    }: {
+        rankTitle: string
+        rankBy?: string | string[]
+        sort?: true | false
+        locale?: string | (string | undefined | null | boolean)[]
+        handleTies?: "sequential" | "indexWithTie" | "indexWithoutTie"
+        overwrite?: boolean
+    }): this {
+        this._overwrite = overwrite
+        this._tempData = addRank_(
+            cloneDeep(this._data),
+            rankTitle,
+            rankBy,
+            sort,
+            locale,
+            handleTies
+        )
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
