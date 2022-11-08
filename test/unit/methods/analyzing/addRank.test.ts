@@ -19,7 +19,7 @@ describe("addRank", function () {
             { key1: 5, rank: 5 },
         ])
     })
-    it("should add rank based on array key parameter", function () {
+    it("should add rank based on key parameter", function () {
         const data = [
             { key1: 111 },
             { key1: 21 },
@@ -36,7 +36,7 @@ describe("addRank", function () {
             { key1: 2, key1Rank: 5 },
         ])
     })
-    it("should add rank based on array key parameter, even though there are duplicates", function () {
+    it("should add rank based on key parameter, even though there are duplicates", function () {
         const data = [
             { key1: 111 },
             { key1: 22 },
@@ -53,7 +53,7 @@ describe("addRank", function () {
             { key1: 2, key1Rank: 3 },
         ])
     })
-    it("should add rank based on array key parameter, and handle ties by index ignoring ties", function () {
+    it("should add rank based on key parameter, and handle ties by index ignoring ties", function () {
         const data = [
             { key1: 111 },
             { key1: 22 },
@@ -77,7 +77,7 @@ describe("addRank", function () {
             { key1: 2, key1Rank: 5 },
         ])
     })
-    it("should add rank based on array key parameter, with ties having the same rank and non ties being based on sorted index", function () {
+    it("should add rank based on key parameter, with ties having the same rank and non ties being based on sorted index", function () {
         const data = [
             { key1: 111 },
             { key1: 22 },
@@ -101,7 +101,7 @@ describe("addRank", function () {
             { key1: 2, key1Rank: 5 },
         ])
     })
-    it("should add rank based on array key parameter, with ties having the same rank and non ties following in sequential order", function () {
+    it("should add rank based on key parameter, with ties having the same rank and non ties following in sequential order", function () {
         const data = [
             { key1: 111 },
             { key1: 22 },
