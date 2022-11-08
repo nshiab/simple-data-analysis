@@ -606,26 +606,29 @@ export default class SimpleData {
 
     @logCall()
     addRank({
-        rankTitle,
-        rankBy,
-        sort,
+        newKey,
+        key,
+        sortInPlace,
+        order,
         locale,
         handleTies,
         overwrite = true,
     }: {
-        rankTitle: string
-        rankBy?: string | string[]
-        sort?: true | false
+        newKey: string
+        key?: string | string[]
+        sortInPlace?: true | false
+        order?: "ascending" | "descending"
         locale?: string | (string | undefined | null | boolean)[]
-        handleTies?: "sequential" | "indexWithTie" | "indexWithoutTie"
+        handleTies?: "tieNoGaps" | "tie" | "noTie"
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
         this._tempData = addRank_(
             cloneDeep(this._data),
-            rankTitle,
-            rankBy,
-            sort,
+            newKey,
+            key,
+            sortInPlace,
+            order,
             locale,
             handleTies
         )

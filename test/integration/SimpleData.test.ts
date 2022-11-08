@@ -79,8 +79,8 @@ async function main() {
             },
         })
         .addRank({
-            rankTitle: "firstName",
-            rankBy: "firstName",
+            newKey: "firstName",
+            key: "firstName",
         })
         .removeKey({ key: "firstNameRank" })
         .removeKey({ key: "name" })
