@@ -4,7 +4,7 @@ import loadDataFromUrlNode from "../../../../src/methods/importing/loadDataFromU
 describe("loadDataFromUrlNode", function () {
     it("should return an array of objects from a csv file", async function () {
         const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/unit/methods/importing/testData/localFileTest.csv"
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.csv"
         )
         assert.deepEqual(data, [
             {
@@ -28,7 +28,7 @@ describe("loadDataFromUrlNode", function () {
 
     it("should return an array of objects from a csv file with specific items included", async function () {
         const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/unit/methods/importing/testData/localFileTest.csv",
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.csv",
             false,
             false,
             1,
@@ -48,7 +48,7 @@ describe("loadDataFromUrlNode", function () {
 
     it("should return an array of objects from a tsv file", async function () {
         const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/unit/methods/importing/testData/localFileTest.tsv"
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.tsv"
         )
         assert.deepEqual(data, [
             {
@@ -72,7 +72,7 @@ describe("loadDataFromUrlNode", function () {
 
     it("should return an array of objects from a tsv file with specific items included", async function () {
         const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/unit/methods/importing/testData/localFileTest.tsv",
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.tsv",
             false,
             false,
             1,
@@ -92,7 +92,7 @@ describe("loadDataFromUrlNode", function () {
 
     it("should return an array of objects from a json file", async function () {
         const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/unit/methods/importing/testData/localFileTest.json"
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.json"
         )
         assert.deepEqual(data, [
             {
@@ -116,7 +116,7 @@ describe("loadDataFromUrlNode", function () {
 
     it("should return an array of objects from a json file with specific items included", async function () {
         const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/unit/methods/importing/testData/localFileTest.json",
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.json",
             false,
             false,
             1,
@@ -136,7 +136,7 @@ describe("loadDataFromUrlNode", function () {
 
     it("should return an array of objects from an object of arrays", async function () {
         const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/unit/methods/importing/testData/localFileTestArrays.json",
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTestArrays.json",
             false,
             true
         )
@@ -150,7 +150,7 @@ describe("loadDataFromUrlNode", function () {
 
     it("should return an array of objects from a csv file with types inferred", async function () {
         const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/unit/methods/importing/testData/localFileTest.csv",
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.csv",
             true,
             false,
             1,
@@ -169,7 +169,7 @@ describe("loadDataFromUrlNode", function () {
     })
     it("should return an array of objects from a tsv file with types inferred", async function () {
         const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/unit/methods/importing/testData/localFileTest.tsv",
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.tsv",
             true,
             false,
             1,
