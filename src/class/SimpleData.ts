@@ -629,8 +629,8 @@ export default class SimpleData {
             key,
             sortInPlace,
             order,
-            locale,
-            handleTies
+            handleTies,
+            locale
         )
         overwrite && this.#updateSimpleData(this._tempData)
 
