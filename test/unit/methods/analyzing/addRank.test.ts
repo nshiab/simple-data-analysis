@@ -36,23 +36,6 @@ describe("addRank", function () {
             { key1: 2, key1Rank: 5 },
         ])
     })
-    it("should add rank based on key parameter, even though there are duplicates", function () {
-        const data = [
-            { key1: 111 },
-            { key1: 22 },
-            { key1: 22 },
-            { key1: 22 },
-            { key1: 2 },
-        ]
-        const rankData = addRank(data, "key1Rank", "key1")
-        assert.deepEqual(rankData, [
-            { key1: 111, key1Rank: 1 },
-            { key1: 22, key1Rank: 2 },
-            { key1: 22, key1Rank: 2 },
-            { key1: 22, key1Rank: 2 },
-            { key1: 2, key1Rank: 3 },
-        ])
-    })
     it("should add rank based on key parameter, and handle ties by index ignoring ties", function () {
         const data = [
             { key1: 111 },
