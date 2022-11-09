@@ -7,7 +7,7 @@ export default function checkTypeOfKey(
     key: string,
     type: string,
     threshold: number,
-    nbTestedValues = 10000,
+    nbTestedValues: number,
     verbose = false
 ): boolean {
     const nbTested = data.length < nbTestedValues ? data.length : nbTestedValues

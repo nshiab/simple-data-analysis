@@ -16,7 +16,8 @@ export default async function loadDataFromUrlNode(
         NaN: NaN,
         undefined: undefined,
     },
-    verbose = false
+    verbose = false,
+    noTest = false
 ): Promise<SimpleDataItem[]> {
     const request = await axios.get(url)
     const data = request.data
@@ -55,7 +56,7 @@ export default async function loadDataFromUrlNode(
             }
         }
     } else if (fileExtension === "json") {
-        arrayOfObjects = dataAsArrays ? arraysToData(data) : data
+        arrayOfObjects = dataAsArrays ? arraysToData(data, noTest) : data
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
     } else {
         throw new Error("Unknown file extension " + fileExtension)

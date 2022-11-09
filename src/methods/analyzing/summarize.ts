@@ -12,6 +12,7 @@ export default function summarize(
     keyCategory?: string | string[],
     summary?: string | string[],
     weight?: string,
+    nbTestedValues = 10000,
     verbose = false,
     nbDigits?: number
 ): SimpleDataItem[] {
@@ -91,7 +92,14 @@ export default function summarize(
     const summariesResults = []
 
     for (const value of keyValues) {
-        const isNumber = checkTypeOfKey(data, value, "number", 0.5)
+        const isNumber = checkTypeOfKey(
+            data,
+            value,
+            "number",
+            1,
+            nbTestedValues,
+            verbose
+        )
         for (const summary of summaries) {
             let func: (v: SimpleDataItem[]) => number | undefined
             if (summary === "count") {

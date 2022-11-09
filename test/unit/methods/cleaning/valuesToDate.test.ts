@@ -32,7 +32,7 @@ describe("valuesToDate", function () {
         assert.deepEqual(datesData, [
             { key1: new Date(Date.UTC(2022, 1, 3)), key2: 2 },
             { key1: NaN, key2: 2 },
-            { key1: null, key2: 2 },
+            { key1: "coucou", key2: 2 },
             { key1: 35, key2: 2 },
             { key1: new Date(Date.UTC(2022, 1, 3)), key2: 2 },
         ])
@@ -53,9 +53,9 @@ describe("valuesToDate", function () {
                 key1x: new Date(Date.UTC(2022, 1, 3)),
                 key2: 2,
             },
-            { key1: NaN, key1x: null, key2: 2 },
-            { key1: "coucou", key1x: null, key2: 2 },
-            { key1: 35, key1x: null, key2: 2 },
+            { key1: NaN, key1x: NaN, key2: 2 },
+            { key1: "coucou", key1x: "coucou", key2: 2 },
+            { key1: 35, key1x: 35, key2: 2 },
             {
                 key1: new Date(Date.UTC(2022, 1, 3)),
                 key1x: new Date(Date.UTC(2022, 1, 3)),
