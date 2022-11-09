@@ -88,6 +88,11 @@ async function main() {
                 }
             },
         })
+        .addRank({
+            newKey: "firstNameRank",
+            key: "firstName",
+        })
+        .removeKey({ key: "firstNameRank" })
         .removeKey({ key: "name" })
         .replaceValues({
             key: "bonus",
