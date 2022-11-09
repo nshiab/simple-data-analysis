@@ -17,7 +17,7 @@ export default function valuesToDate(
     for (let i = 0; i < data.length; i++) {
         const val = data[i][key]
         if (noTests) {
-            data[i][keyToUpdate] = data[i][key]
+            data[i][keyToUpdate] = parse(data[i][key] as string)
         } else {
             try {
                 if (val instanceof Date && isNaN(val as unknown as number)) {
