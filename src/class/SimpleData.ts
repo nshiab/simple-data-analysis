@@ -940,15 +940,17 @@ export default class SimpleData {
         keyCategory,
         summary,
         weight,
-        overwrite = true,
+        nbTestedValues = 10000,
         nbDigits,
+        overwrite = true,
     }: {
         keyValue?: string | string[]
         keyCategory?: string | string[]
         summary?: string | string[]
         weight?: string
-        overwrite?: boolean
+        nbTestedValues?: number
         nbDigits?: number
+        overwrite?: boolean
     } = {}): this {
         this._overwrite = overwrite
         this._tempData = summarize_(
@@ -957,6 +959,7 @@ export default class SimpleData {
             keyCategory,
             summary,
             weight,
+            this.noTests ? 0 : nbTestedValues,
             this.verbose,
             nbDigits
         )

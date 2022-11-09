@@ -32,14 +32,11 @@ async function main() {
     })
 
     new SimpleData({
-        data: [
-            { first: "Nael", last: "Shiab" },
-            { first: "Isabelle" },
-        ],
+        data: [{ first: "Nael", last: "Shiab" }, { first: "Isabelle" }],
         verbose: true,
         logParameters: true,
         noLogs: noLogs,
-        noTests: true
+        noTests: true,
     })
 
     const simpleData = new SimpleData({
@@ -47,7 +44,7 @@ async function main() {
         fillMissingKeys: true,
         verbose: true,
         logParameters: true,
-        noLogs: noLogs
+        noLogs: noLogs,
     })
 
     simpleData.noTests = false
@@ -115,7 +112,7 @@ async function main() {
             key: "bonus",
             itemGenerator: (item) =>
                 typeof item.salary === "number" &&
-                    typeof item.bonus === "number"
+                typeof item.bonus === "number"
                     ? item.salary * item.bonus
                     : NaN,
         })

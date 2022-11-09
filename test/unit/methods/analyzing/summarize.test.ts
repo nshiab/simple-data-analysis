@@ -13,6 +13,7 @@ describe("summarize", function () {
             undefined,
             undefined,
             undefined,
+            100,
             false,
             1
         )
@@ -63,6 +64,7 @@ describe("summarize", function () {
             "key1",
             undefined,
             undefined,
+            100,
             false,
             1
         )

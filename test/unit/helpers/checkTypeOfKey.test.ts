@@ -10,7 +10,7 @@ describe("checkTypeOfKey", function () {
             { key1: 4 },
             { key1: 5 },
         ]
-        const isNumber = checkTypeOfKey(data, "key1", "number", 1)
+        const isNumber = checkTypeOfKey(data, "key1", "number", 1, 100)
         assert.deepEqual(isNumber, true)
     })
 
@@ -22,7 +22,7 @@ describe("checkTypeOfKey", function () {
             { key1: 4 },
             { key1: 5 },
         ]
-        const isNumber = checkTypeOfKey(data, "key1", "number", 1)
+        const isNumber = checkTypeOfKey(data, "key1", "number", 1, 100)
         assert.deepEqual(isNumber, false)
     })
 
@@ -34,7 +34,7 @@ describe("checkTypeOfKey", function () {
             { key1: "4" },
             { key1: 5 },
         ]
-        const isNumber = checkTypeOfKey(data, "key1", "number", 0.5)
+        const isNumber = checkTypeOfKey(data, "key1", "number", 0.5, 100)
         assert.deepEqual(isNumber, false)
     })
     it("should check the type of values threshold is 0.5 and return true", function () {
@@ -45,7 +45,7 @@ describe("checkTypeOfKey", function () {
             { key1: "4" },
             { key1: 5 },
         ]
-        const isNumber = checkTypeOfKey(data, "key1", "number", 0.5)
+        const isNumber = checkTypeOfKey(data, "key1", "number", 0.5, 100)
         assert.deepEqual(isNumber, false)
     })
 })
