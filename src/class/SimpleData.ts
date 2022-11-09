@@ -1253,7 +1253,7 @@ export default class SimpleData {
             this._data,
             key,
             nbDigits,
-            this.noTests ? nbTestedValues : 0,
+            this.noTests ? 0 : nbTestedValues,
             type,
             this.verbose
         )
