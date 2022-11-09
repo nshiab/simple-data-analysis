@@ -31,6 +31,14 @@ async function main() {
         noLogs: noLogs,
     })
 
+    new SimpleData({
+        data: [{ first: "Nael", last: "Shiab" }, { first: "Isabelle" }],
+        verbose: true,
+        logParameters: true,
+        noLogs: noLogs,
+        noTests: true,
+    })
+
     const simpleData = new SimpleData({
         data: employees,
         fillMissingKeys: true,
@@ -38,6 +46,8 @@ async function main() {
         logParameters: true,
         noLogs: noLogs,
     })
+
+    simpleData.noTests = false
 
     // Can't use fetch with node
     // .loadDataFromUrl({

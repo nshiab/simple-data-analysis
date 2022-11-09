@@ -16,7 +16,8 @@ export default async function loadDataFromUrlWeb(
         NaN: NaN,
         undefined: undefined,
     },
-    verbose = false
+    verbose = false,
+    noTest = false
 ): Promise<SimpleDataItem[]> {
     const fileExtension = getExtension(url)
 
@@ -55,7 +56,8 @@ export default async function loadDataFromUrlWeb(
             ? arraysToData(
                   incomingData as unknown as {
                       [key: string]: SimpleDataValue[]
-                  }
+                  },
+                  noTest
               )
             : incomingData
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)

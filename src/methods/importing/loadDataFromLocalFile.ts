@@ -17,7 +17,8 @@ export default function loadDataFromLocalFile(
         undefined: undefined,
     },
     encoding: BufferEncoding = "utf8",
-    verbose = false
+    verbose = false,
+    noTest = false
 ): SimpleDataItem[] {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let arrayOfObjects: any[] = []
@@ -59,7 +60,7 @@ export default function loadDataFromLocalFile(
             fs.readFileSync(path, { encoding: encoding })
         )
         arrayOfObjects = dataAsArrays
-            ? arraysToData(incomingData)
+            ? arraysToData(incomingData, noTest)
             : incomingData
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
     } else {
