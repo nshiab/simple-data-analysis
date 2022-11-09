@@ -31,13 +31,26 @@ async function main() {
         noLogs: noLogs,
     })
 
+    new SimpleData({
+        data: [
+            { first: "Nael", last: "Shiab" },
+            { first: "Isabelle" },
+        ],
+        verbose: true,
+        logParameters: true,
+        noLogs: noLogs,
+        noTests: true
+    })
+
     const simpleData = new SimpleData({
         data: employees,
         fillMissingKeys: true,
         verbose: true,
         logParameters: true,
-        noLogs: noLogs,
+        noLogs: noLogs
     })
+
+    simpleData.noTests = false
 
     // Can't use fetch with node
     // .loadDataFromUrl({
@@ -102,7 +115,7 @@ async function main() {
             key: "bonus",
             itemGenerator: (item) =>
                 typeof item.salary === "number" &&
-                typeof item.bonus === "number"
+                    typeof item.bonus === "number"
                     ? item.salary * item.bonus
                     : NaN,
         })
