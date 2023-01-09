@@ -1,4 +1,4 @@
-import cloneDeep from "lodash.clonedeep"
+import cloneData from "../helpers/cloneData.js"
 import renameKey_ from "../methods/cleaning/renameKey.js"
 import describe_ from "../methods/analyzing/describe.js"
 import formatAllKeys_ from "../methods/cleaning/formatAllKeys.js"
@@ -70,7 +70,6 @@ export default class SimpleData {
     protected _tempData: SimpleDataItem[]
     protected _overwrite: boolean
     protected _duration: number
-    // Logging
     noTests: boolean
     noLogs: boolean
     verbose: boolean
@@ -113,7 +112,7 @@ export default class SimpleData {
     } = {}) {
         if (data.length > 0 || Object.keys(data).length > 0) {
             const incomingData = dataAsArrays
-                ? cloneDeep(
+                ? cloneData(
                       arraysToData(
                           data as unknown as {
                               [key: string]: SimpleDataValue[]
@@ -121,7 +120,7 @@ export default class SimpleData {
                           noTests
                       ).slice(firstItem, lastItem + 1)
                   )
-                : cloneDeep(
+                : cloneData(
                       (data as SimpleDataItem[]).slice(firstItem, lastItem + 1)
                   )
 
@@ -221,7 +220,7 @@ export default class SimpleData {
     @logCall()
     describe({ overwrite = true }: { overwrite?: boolean } = {}): this {
         this._overwrite = overwrite
-        this._tempData = describe_(cloneDeep(this._data))
+        this._tempData = describe_(cloneData(this._data))
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -239,7 +238,7 @@ export default class SimpleData {
     } = {}): this {
         this._overwrite = overwrite
         this._tempData = checkValues_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             nbItemsToCheck,
             randomize
         )
@@ -263,7 +262,7 @@ export default class SimpleData {
             missingValues = [null, NaN, undefined, ""]
         }
         this._tempData = excludeMissingValues_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key,
             missingValues,
             this.verbose
@@ -288,7 +287,7 @@ export default class SimpleData {
             missingValues = [null, NaN, undefined, ""]
         }
         this._tempData = keepMissingValues_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key,
             missingValues,
             this.verbose
@@ -301,7 +300,7 @@ export default class SimpleData {
     @logCall()
     formatAllKeys({ overwrite = true }: { overwrite?: boolean } = {}): this {
         this._overwrite = overwrite
-        this._tempData = formatAllKeys_(cloneDeep(this._data), this.verbose)
+        this._tempData = formatAllKeys_(cloneData(this._data), this.verbose)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -318,7 +317,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = renameKey_(cloneDeep(this._data), oldKey, newKey)
+        this._tempData = renameKey_(cloneData(this._data), oldKey, newKey)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -335,7 +334,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = valuesToString_(cloneDeep(this._data), key, newKey)
+        this._tempData = valuesToString_(cloneData(this._data), key, newKey)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -359,7 +358,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = valuesToInteger_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key,
             thousandSeparator,
             decimalSeparator,
@@ -390,7 +389,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = valuesToFloat_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key,
             thousandSeparator,
             decimalSeparator,
@@ -419,7 +418,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = valuesToDate_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key,
             format,
             skipErrors,
@@ -447,7 +446,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = datesToString_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key,
             format,
             skipErrors,
@@ -475,7 +474,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = roundValues_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key,
             nbDigits,
             skipErrors,
@@ -507,7 +506,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = replaceValues_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key,
             oldValue,
             newValue,
@@ -535,7 +534,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = modifyValues_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key,
             valueGenerator,
             newKey
@@ -559,7 +558,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = modifyItems_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key,
             itemGenerator,
             newKey
@@ -581,7 +580,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = excludeOutliers_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key,
             this.noTests ? 0 : nbTestedValues,
             this.verbose
@@ -602,7 +601,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = removeKey_(cloneDeep(this._data), key)
+        this._tempData = removeKey_(cloneData(this._data), key)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -619,7 +618,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = addKey_(cloneDeep(this._data), key, itemGenerator)
+        this._tempData = addKey_(cloneData(this._data), key, itemGenerator)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -645,7 +644,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = addRank_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             newKey,
             key,
             sortInPlace,
@@ -672,7 +671,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = addItems_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             dataToBeAdded,
             this.noTests ? false : fillMissingKeys,
             defaultValue,
@@ -697,7 +696,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = mergeItems_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             dataToBeMerged,
             commonKey,
             this.verbose,
@@ -720,7 +719,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = valuesToKeys_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             newKeys,
             newValues,
             this.verbose
@@ -744,7 +743,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = keysToValues_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             keys,
             newKeyForKeys,
             newKeyForValues,
@@ -766,7 +765,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = selectKeys_(cloneDeep(this._data), keys)
+        this._tempData = selectKeys_(cloneData(this._data), keys)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -784,7 +783,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = filterValues_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key,
             valueComparator,
             this.verbose
@@ -804,7 +803,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = filterItems_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             itemComparator,
             this.verbose
         )
@@ -825,7 +824,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = pickRandomItems_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             nbItems,
             seed,
             this.verbose
@@ -847,7 +846,7 @@ export default class SimpleData {
     } = {}): this {
         this._overwrite = overwrite
         this._tempData = removeDuplicates_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key,
             nbToKeep,
             this.verbose
@@ -864,7 +863,7 @@ export default class SimpleData {
     }: { key?: string; overwrite?: boolean } = {}): this {
         this._overwrite = overwrite
         this._tempData = keepDuplicates_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key,
             this.verbose
         )
@@ -888,7 +887,7 @@ export default class SimpleData {
         locale?: string
     }): this {
         this._overwrite = overwrite
-        this._tempData = sortValues_(cloneDeep(this._data), key, order, locale)
+        this._tempData = sortValues_(cloneData(this._data), key, order, locale)
         overwrite && this.#updateSimpleData(this._tempData)
 
         return this
@@ -917,7 +916,7 @@ export default class SimpleData {
         overwrite?: boolean
     }): this {
         this._overwrite = overwrite
-        this._tempData = addProportions_(cloneDeep(this._data), {
+        this._tempData = addProportions_(cloneData(this._data), {
             method,
             keys,
             key,
@@ -955,7 +954,7 @@ export default class SimpleData {
     }) {
         this._overwrite = overwrite
         this._tempData = addVariation_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key,
             newKey,
             valueGenerator,
@@ -988,7 +987,7 @@ export default class SimpleData {
     } = {}): this {
         this._overwrite = overwrite
         this._tempData = summarize_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             keyValue,
             keyCategory,
             summary,
@@ -1016,7 +1015,7 @@ export default class SimpleData {
     } = {}): this {
         this._overwrite = overwrite
         this._tempData = correlation_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key1,
             key2,
             this.verbose,
@@ -1043,7 +1042,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = addQuantiles_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key,
             newKey,
             nbQuantiles,
@@ -1071,7 +1070,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = addBins_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key,
             newKey,
             nbBins,
@@ -1097,7 +1096,7 @@ export default class SimpleData {
     }): this {
         this._overwrite = overwrite
         this._tempData = addOutliers_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             key,
             newKey,
             this.noTests ? 0 : nbTestedValues,
@@ -1147,7 +1146,7 @@ export default class SimpleData {
         title?: string
     }): string {
         const chart = getChart_(
-            cloneDeep(this._data),
+            cloneData(this._data),
             type,
             x,
             y,
@@ -1182,7 +1181,7 @@ export default class SimpleData {
             logParameters: this.logParameters,
             noLogs: this.noLogs,
             nbTableItemsToLog: this.nbTableItemsToLog,
-            duration: this._duration,
+            noTest: this.noTests,
         })
     }
 
