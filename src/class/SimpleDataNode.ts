@@ -1,5 +1,5 @@
 import fs from "fs"
-import SimpleData from "./SimpleData.js"
+import SimpleDataGeo from "./SimpleDataGeo.js"
 import { SimpleDataItem } from "../types/SimpleData.types"
 import loadDataFromLocalFile_ from "../methods/importing/loadDataFromLocalFile.js"
 import saveData_ from "../methods/exporting/saveData.js"
@@ -11,7 +11,7 @@ import getChart from "../methods/visualizing/getChart.js"
 import getCustomChart from "../methods/visualizing/getCustomChart.js"
 import setJSDom from "../helpers/setJSDom.js"
 
-export default class SimpleDataNode extends SimpleData {
+export default class SimpleDataNode extends SimpleDataGeo {
     // If modified, might need to be modified in SimpleData too
     #updateSimpleData(data: SimpleDataItem[]) {
         this._data = data
