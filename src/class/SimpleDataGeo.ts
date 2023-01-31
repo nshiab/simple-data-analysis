@@ -1,3 +1,4 @@
+import { FeatureCollection } from "@turf/turf"
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
 import SimpleData from "./SimpleData.js"
 
@@ -10,6 +11,7 @@ export default class SimpleDataGeo extends SimpleData {
     constructor({
         data = [],
         dataAsArrays = false,
+        geoData = null,
         verbose = false,
         noTests = false,
         logParameters = false,
@@ -21,6 +23,7 @@ export default class SimpleDataGeo extends SimpleData {
         duration = 0,
     }: {
         data?: SimpleDataItem[] | { [key: string]: SimpleDataValue[] }
+        geoData?: null | FeatureCollection
         dataAsArrays?: boolean
         verbose?: boolean
         noTests?: boolean
@@ -45,5 +48,20 @@ export default class SimpleDataGeo extends SimpleData {
             lastItem,
             duration,
         })
+
+        const incomingData = []
+        if (geoData) {
+            for (const feature of geoData.features.slice(
+                firstItem,
+                lastItem + 1
+            )) {
+                incomingData.push({
+                    geometry: feature.geometry,
+                    ...feature.properties,
+                })
+            }
+
+            this._data = incomingData
+        }
     }
 }

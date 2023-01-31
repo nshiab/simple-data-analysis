@@ -1,3 +1,5 @@
+import { Geometry, GeometryCollection } from "@turf/turf"
+
 export type SimpleDataValue =
     | string
     | number
@@ -5,6 +7,8 @@ export type SimpleDataValue =
     | Date
     | null
     | undefined
+    | Geometry
+    | GeometryCollection
 
 export interface SimpleDataItem {
     [key: string]: SimpleDataValue
