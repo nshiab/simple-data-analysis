@@ -67,13 +67,16 @@ export default class SimpleDataGeo extends SimpleData {
         if (geoData) {
             !noLogs && verbose && log("Incoming geoData")
 
+            // Put in helper
             for (const feature of geoData.features.slice(
                 firstItem,
                 lastItem + 1
             )) {
+                const properties = feature.properties
+                feature.properties = {}
                 incomingData.push({
-                    geometry: feature.geometry,
-                    ...feature.properties,
+                    feature: feature,
+                    ...properties,
                 })
             }
 
@@ -88,13 +91,16 @@ export default class SimpleDataGeo extends SimpleData {
                 topoData.objects[topoKey]
             ) as unknown as FeatureCollection
 
+            // Put in helper
             for (const feature of convertedTopo.features.slice(
                 firstItem,
                 lastItem + 1
             )) {
+                const properties = feature.properties
+                feature.properties = {}
                 incomingData.push({
-                    geometry: feature.geometry,
-                    ...feature.properties,
+                    feature: feature,
+                    ...properties,
                 })
             }
 
