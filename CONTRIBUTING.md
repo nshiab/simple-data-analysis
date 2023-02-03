@@ -51,7 +51,7 @@ When your new code passes all your tests, you can add it to the SimpleData class
 
 Again, check how the other methods and functions are added and take them as examples.
 
-You can now move on to the integration test in `test/integration/SimpleData.test.ts` (or in the relevant class). 
+You can now move on to the integration test in `test/integration/SimpleData.test.ts` (or in the relevant class).
 
 Chain your method to the others and run `npm run test-simple-data` (or `npm run test-simple-data-node`) to ensure that your code works in a (somewhat) real context.
 
@@ -73,6 +73,6 @@ And now create a pull request! Choose your branch. Explain what you did in your 
 
 <img src="./assets/pull-request.png" alt="An Observable notebook using simple-data-analysis" style="display:block;width: 100%; max-width:600px;margin-left:auto;margin-right: auto;margin-bottom: 20px;border-radius: 5px;"/>
 
-An experienced contributor will look at your proposition. They might ask questions and suggest modifications to your code. 
+An experienced contributor will look at your proposition. They might ask questions and suggest modifications to your code.
 
 When all questions are answered, and modifications are done, your code will be merged into the main branch and officially part of the library! Congrats!

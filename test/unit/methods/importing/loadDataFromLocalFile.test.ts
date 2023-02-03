@@ -3,7 +3,7 @@ import loadDataFromLocalFile from "../../../../src/methods/importing/loadDataFro
 
 describe("loadDataFromLocalFile", function () {
     it("should return an array of objects from a csv file", function () {
-        const data = loadDataFromLocalFile("./test/data/localFileTest.csv")
+        const data = loadDataFromLocalFile("./data/localFileTest.csv")
         assert.deepEqual(data, [
             { key1: 1, key2: 2 },
             { key1: 3, key2: "coucou" },
@@ -14,7 +14,7 @@ describe("loadDataFromLocalFile", function () {
 
     it("should return an array of objects from a csv file with specific items included", function () {
         const data = loadDataFromLocalFile(
-            "./test/data/localFileTest.csv",
+            "./data/localFileTest.csv",
             false,
             false,
             1,
@@ -27,7 +27,7 @@ describe("loadDataFromLocalFile", function () {
     })
 
     it("should return an array of objects from a tsv file", function () {
-        const data = loadDataFromLocalFile("./test/data/localFileTest.tsv")
+        const data = loadDataFromLocalFile("./data/localFileTest.tsv")
         assert.deepEqual(data, [
             { key1: 1, key2: 2 },
             { key1: 3, key2: "coucou" },
@@ -38,7 +38,7 @@ describe("loadDataFromLocalFile", function () {
 
     it("should return an array of objects from a tsv file with specific items included", function () {
         const data = loadDataFromLocalFile(
-            "./test/data/localFileTest.tsv",
+            "./data/localFileTest.tsv",
             false,
             false,
             1,
@@ -51,7 +51,7 @@ describe("loadDataFromLocalFile", function () {
     })
 
     it("should return an array of objects from a json file", function () {
-        const data = loadDataFromLocalFile("./test/data/localFileTest.json")
+        const data = loadDataFromLocalFile("./data/localFileTest.json")
         assert.deepEqual(data, [
             { key1: 1, key2: 2 },
             { key1: 3, key2: "coucou" },
@@ -62,7 +62,7 @@ describe("loadDataFromLocalFile", function () {
 
     it("should return an array of objects from a json file with specific items included", function () {
         const data = loadDataFromLocalFile(
-            "./test/data/localFileTest.json",
+            "./data/localFileTest.json",
             false,
             false,
             1,
@@ -76,7 +76,7 @@ describe("loadDataFromLocalFile", function () {
 
     it("should return an array of objects from an object of arrays", function () {
         const data = loadDataFromLocalFile(
-            "./test/data/localFileTestArrays.json",
+            "./data/localFileTestArrays.json",
             false,
             true
         )
@@ -90,7 +90,7 @@ describe("loadDataFromLocalFile", function () {
 
     it("should return an array of objects from a csv file with inferred types", function () {
         const data = loadDataFromLocalFile(
-            "./test/data/localFileTest.csv",
+            "./data/localFileTest.csv",
             true,
             false,
             1,
@@ -103,7 +103,7 @@ describe("loadDataFromLocalFile", function () {
     })
     it("should return an array of objects from a tsv file with inferred types", function () {
         const data = loadDataFromLocalFile(
-            "./test/data/localFileTest.tsv",
+            "./data/localFileTest.tsv",
             true,
             false,
             1,

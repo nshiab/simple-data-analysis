@@ -142,7 +142,7 @@ export default class SimpleData {
         } else {
             !noLogs &&
                 verbose &&
-                log("\nnew SimpleData()\nStarting an empty SimpleData")
+                log("new SimpleData() - Starting an empty SimpleData")
 
             this._data = []
         }
