@@ -16,7 +16,6 @@ export default class SimpleDataGeo extends SimpleData {
         dataAsArrays = false,
         geoData = null,
         topoData = null,
-        topoKey = null,
         verbose = false,
         noTests = false,
         logParameters = false,
@@ -30,7 +29,6 @@ export default class SimpleDataGeo extends SimpleData {
         data?: SimpleDataItem[] | { [key: string]: SimpleDataValue[] }
         geoData?: null | FeatureCollection
         topoData?: null | Topology
-        topoKey?: null | string
         dataAsArrays?: boolean
         verbose?: boolean
         noTests?: boolean
@@ -82,13 +80,9 @@ export default class SimpleDataGeo extends SimpleData {
 
             this._data = incomingData
         } else if (topoData) {
-            if (topoKey === null) {
-                throw new Error("Need a topoKey for topoData.objects[topoKey]")
-            }
-
             const convertedTopo = feature(
                 topoData,
-                topoData.objects[topoKey]
+                Object.keys(topoData.objects)[0]
             ) as unknown as FeatureCollection
 
             // Put in helper
