@@ -1,4 +1,4 @@
-import { FeatureCollection } from "@turf/turf"
+import { FeatureCollection, geojsonType } from "@turf/turf"
 import log from "../helpers/log.js"
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
 import SimpleData from "./SimpleData.js"
