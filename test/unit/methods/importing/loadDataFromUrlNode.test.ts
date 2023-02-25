@@ -46,25 +46,37 @@ describe("loadDataFromUrlNode", function () {
         ])
     })
 
-    it("should return an array of objects from a csv file with specific items included, even when badly formatted.", async function () {
-        const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest-extra-line.csv",
+    it("should return an array of objects from a csv file while skipping rows", function () {
+        const data = loadDataFromUrlNode(
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTestExtraLines.csv",
             false,
             false,
             undefined,
             undefined,
-            1,
+            2,
             3
         )
         assert.deepEqual(data, [
-            {
-                key1: 3,
-                key2: "coucou",
-            },
-            {
-                key1: 8,
-                key2: 10,
-            },
+            { key1: 1, key2: 2 },
+            { key1: 3, key2: "coucou" },
+            { key1: 8, key2: 10 },
+            { key1: "brioche", key2: "croissant" },
+        ])
+    })
+
+    it("should return an array of objects from a csv file with specific items included, while skipping rows", function () {
+        const data = loadDataFromUrlNode(
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTestExtraLines.csv",
+            false,
+            false,
+            1,
+            2,
+            2,
+            3
+        )
+        assert.deepEqual(data, [
+            { key1: 3, key2: "coucou" },
+            { key1: 8, key2: 10 },
         ])
     })
 

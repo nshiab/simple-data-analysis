@@ -33,7 +33,7 @@ export default function parseDataFile(
             data = dataSplit
                 .slice(
                     nbFirstRowsToExclude,
-                    dataSplit.length - 1 - nbLastRowsToExclude
+                    dataSplit.length - nbLastRowsToExclude
                 )
                 .join("\n")
         }
