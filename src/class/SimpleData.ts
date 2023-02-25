@@ -1221,6 +1221,16 @@ export default class SimpleData {
         return this._data
     }
 
+    // No @logCall otherwise it's triggered everywhere, including in methods
+    getFirst(): SimpleDataItem {
+        return this._data[0]
+    }
+
+    // No @logCall otherwise it's triggered everywhere, including in methods
+    getLast(): SimpleDataItem {
+        return this._data[this._data.length - 1]
+    }
+
     getTempData(): SimpleDataItem[] {
         return this._tempData
     }
