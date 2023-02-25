@@ -4,7 +4,6 @@ import { SimpleDataItem } from "../types/SimpleData.types"
 import loadDataFromLocalFile_ from "../methods/importing/loadDataFromLocalFile.js"
 import saveData_ from "../methods/exporting/saveData.js"
 import { logCall, asyncLogCall } from "../helpers/logCall.js"
-import handleMissingKeys from "../helpers/handleMissingKeys.js"
 import log from "../helpers/log.js"
 import loadDataFromUrlNode_ from "../methods/importing/loadDataFromUrlNode.js"
 import getChart from "../methods/visualizing/getChart.js"
@@ -28,6 +27,8 @@ export default class SimpleDataNode extends SimpleData {
         fillMissingKeys = false,
         firstItem = 0,
         lastItem = Infinity,
+        nbFirstRowsToExclude = 0,
+        nbLastRowsToExclude = Infinity,
     }: {
         url: string
         autoType?: boolean
@@ -36,6 +37,8 @@ export default class SimpleDataNode extends SimpleData {
         fillMissingKeys?: boolean
         firstItem?: number
         lastItem?: number
+        nbFirstRowsToExclude?: number
+        nbLastRowsToExclude?: number
     }): Promise<this> {
         const data = await loadDataFromUrlNode_(
             url,
@@ -43,25 +46,13 @@ export default class SimpleDataNode extends SimpleData {
             dataAsArrays,
             firstItem,
             lastItem,
+            nbFirstRowsToExclude,
+            nbLastRowsToExclude,
+            fillMissingKeys,
             missingKeyValues,
-            this.verbose
+            this.verbose,
+            this.noTests
         )
-
-        if (data.length === 0) {
-            throw new Error("Incoming data is empty.")
-        }
-
-        if (this.noTests && fillMissingKeys) {
-            throw new Error("fillMissingKeys cannot be true if noTests is true")
-        } else if (!this.noTests) {
-            handleMissingKeys(
-                data,
-                fillMissingKeys,
-                undefined,
-                undefined,
-                this.verbose
-            )
-        }
 
         this._tempData = data
         this.#updateSimpleData(data)
@@ -81,6 +72,8 @@ export default class SimpleDataNode extends SimpleData {
         fillMissingKeys = false,
         firstItem = 0,
         lastItem = Infinity,
+        nbFirstRowsToExclude = 0,
+        nbLastRowsToExclude = Infinity,
     }: {
         path: string
         autoType?: boolean
@@ -90,6 +83,8 @@ export default class SimpleDataNode extends SimpleData {
         fillMissingKeys?: boolean
         firstItem?: number
         lastItem?: number
+        nbFirstRowsToExclude?: number
+        nbLastRowsToExclude?: number
     }): this {
         if (this._data.length > 0) {
             throw new Error(
@@ -103,26 +98,14 @@ export default class SimpleDataNode extends SimpleData {
             dataAsArrays,
             firstItem,
             lastItem,
+            nbFirstRowsToExclude,
+            nbLastRowsToExclude,
+            fillMissingKeys,
             missingKeyValues,
             encoding,
-            this.verbose
+            this.verbose,
+            this.noTests
         )
-
-        if (data.length === 0) {
-            throw new Error("Incoming data is empty.")
-        }
-
-        if (this.noTests && fillMissingKeys) {
-            throw new Error("fillMissingKeys cannot be true if noTests is true")
-        } else if (!this.noTests) {
-            handleMissingKeys(
-                data,
-                fillMissingKeys,
-                undefined,
-                undefined,
-                this.verbose
-            )
-        }
 
         this._tempData = data // important for decorator
         this.#updateSimpleData(data)

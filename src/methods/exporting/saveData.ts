@@ -12,15 +12,13 @@ export default async function saveData(
     verbose: boolean,
     encoding: BufferEncoding
 ) {
-    const extension = getExtension(path)
+    const extension = getExtension(path, verbose)
 
     if (extension === "csv") {
-        verbose && log("=> Csv file extension detected", "blue")
         const csvString = parse(data)
 
         fs.writeFileSync(path, csvString, { encoding: encoding })
     } else if (extension === "json") {
-        verbose && log("=> " + extension + " file extension detected", "blue")
         if (dataAsArrays) {
             verbose && log("=> data as arrays", "blue")
             fs.writeFileSync(path, JSON.stringify(getDataAsArrays(data)), {

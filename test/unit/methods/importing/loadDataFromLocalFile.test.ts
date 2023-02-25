@@ -26,6 +26,20 @@ describe("loadDataFromLocalFile", function () {
         ])
     })
 
+    it("should return an array of objects from a csv file with specific items included, even when csv is badly formatted", function () {
+        const data = loadDataFromLocalFile(
+            "./test/data/localFileTest-extra-line.csv",
+            false,
+            false,
+            1,
+            2
+        )
+        assert.deepEqual(data, [
+            { key1: 3, key2: "coucou" },
+            { key1: 8, key2: 10 },
+        ])
+    })
+
     it("should return an array of objects from a tsv file", function () {
         const data = loadDataFromLocalFile("./test/data/localFileTest.tsv")
         assert.deepEqual(data, [

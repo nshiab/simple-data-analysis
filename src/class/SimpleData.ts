@@ -175,6 +175,8 @@ export default class SimpleData {
         dataAsArrays = false,
         firstItem = 0,
         lastItem = Infinity,
+        nbFirstRowsToExclude = 0,
+        nbLastRowsToExclude = Infinity,
     }: {
         url: string
         autoType?: boolean
@@ -183,6 +185,8 @@ export default class SimpleData {
         dataAsArrays?: boolean
         firstItem?: number
         lastItem?: number
+        nbFirstRowsToExclude?: number
+        nbLastRowsToExclude?: number
     }): Promise<this> {
         const data = await loadDataFromUrlWeb_(
             url,
@@ -190,25 +194,13 @@ export default class SimpleData {
             dataAsArrays,
             firstItem,
             lastItem,
+            nbFirstRowsToExclude,
+            nbLastRowsToExclude,
+            fillMissingKeys,
             missingKeyValues,
-            this.verbose
+            this.verbose,
+            this.noTests
         )
-
-        if (data.length === 0) {
-            throw new Error("Incoming data is empty.")
-        }
-
-        if (this.noTests && fillMissingKeys) {
-            throw new Error("fillMissingKeys cannot be true if noTests is true")
-        } else if (!this.noTests) {
-            handleMissingKeys(
-                data,
-                fillMissingKeys,
-                undefined,
-                undefined,
-                this.verbose
-            )
-        }
 
         this._tempData = data // important for decorator
         this.#updateSimpleData(data)
