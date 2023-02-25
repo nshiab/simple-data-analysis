@@ -1,10 +1,10 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import { sampleCorrelation, combinations } from "simple-statistics"
+import { linearRegression as linReg, combinations } from "simple-statistics"
 import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 import hasKey from "../../helpers/hasKey.js"
 import round from "../../helpers/round.js"
 
-export default function correlation(
+export default function linearRegression(
     data: SimpleDataItem[],
     key1?: string,
     key2?: string | string[],
@@ -12,7 +12,7 @@ export default function correlation(
     verbose = false,
     nbTestedValues = 10000
 ): SimpleDataItem[] {
-    const correlations = []
+    const linearRegressions = []
 
     if (
         key1 === undefined &&
@@ -24,7 +24,7 @@ export default function correlation(
         const combi = combinations(keys, 2)
 
         for (const c of combi) {
-            correlations.push({
+            linearRegressions.push({
                 key1: c[0],
                 key2: c[1],
             })
@@ -46,7 +46,7 @@ export default function correlation(
             ) {
                 throw new Error(`At least one value in ${key} is not a number.`)
             }
-            correlations.push({
+            linearRegressions.push({
                 key1: key1,
                 key2: key,
             })
@@ -64,7 +64,7 @@ export default function correlation(
         if (!checkTypeOfKey(data, key2, "number", 1, nbTestedValues, verbose)) {
             throw new Error(`At least one value in ${key2} is not a number.`)
         }
-        correlations.push({
+        linearRegressions.push({
             key1: key1,
             key2: key2,
         })
@@ -74,19 +74,22 @@ export default function correlation(
         )
     }
 
-    const correlationData = []
+    const linearRegressionData: SimpleDataItem[] = []
 
-    for (const corr of correlations) {
-        const x = data.map((d) => d[corr.key1])
-        const y = data.map((d) => d[corr.key2])
+    for (const lr of linearRegressions) {
+        const coords = data.map((d) => [
+            d[lr.key1] as number,
+            d[lr.key2] as number,
+        ])
 
-        const result = sampleCorrelation(x as number[], y as number[])
+        const result = linReg(coords)
 
-        correlationData.push({
-            ...corr,
-            correlation: Number.isNaN(result) ? NaN : round(result, nbDigits),
+        linearRegressionData.push({
+            ...lr,
+            slope: Number.isNaN(result.m) ? NaN : round(result.m, nbDigits),
+            intersect: Number.isNaN(result.b) ? NaN : round(result.b, nbDigits),
         })
     }
 
-    return correlationData
+    return linearRegressionData
 }

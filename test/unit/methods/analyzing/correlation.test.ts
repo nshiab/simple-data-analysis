@@ -66,4 +66,18 @@ describe("correlation", function () {
             { key1: "key2", key2: "key3", correlation: 0.9042 },
         ])
     })
+
+    it("should compute all correlations if key1 is undefined and key2 is an empty array, with only two decimals.", function () {
+        const data = [
+            { key1: 1, key2: 2, key3: 3 },
+            { key1: 11, key2: 22, key3: 4 },
+            { key1: 111, key2: 222, key3: 5 },
+        ]
+        const correlationData = correlation(data, undefined, [], 2)
+        assert.deepEqual(correlationData, [
+            { key1: "key1", key2: "key2", correlation: 1 },
+            { key1: "key1", key2: "key3", correlation: 0.9 },
+            { key1: "key2", key2: "key3", correlation: 0.9 },
+        ])
+    })
 })
