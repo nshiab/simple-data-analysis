@@ -277,6 +277,7 @@ async function main() {
         })
         .correlation({ overwrite: false })
         .correlation({ key1: "salary", key2: "bonus", overwrite: false })
+        .linearRegression({ key1: "salary", key2: "bonus", overwrite: false })
         .summarize({ overwrite: false })
         .summarize({
             keyValue: simpleDataMerged.getKeys(),

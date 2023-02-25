@@ -38,6 +38,7 @@ import addBins_ from "../methods/analyzing/addBins.js"
 import addOutliers_ from "../methods/analyzing/addOutliers.js"
 import excludeOutliers_ from "../methods/analyzing/excludeOutliers.js"
 import correlation_ from "../methods/analyzing/correlation.js"
+import linearRegression_ from "../methods/analyzing/linearRegression.js"
 import addItems_ from "../methods/restructuring/addItems.js"
 import getUniqueValues_ from "../methods/exporting/getUniqueValues.js"
 import summarize_ from "../methods/analyzing/summarize.js"
@@ -1004,6 +1005,7 @@ export default class SimpleData {
     correlation({
         key1,
         key2,
+        nbDigits = 4,
         overwrite = true,
         nbTestedValues = 10000,
     }: {
@@ -1018,6 +1020,35 @@ export default class SimpleData {
             cloneData(this._data),
             key1,
             key2,
+            nbDigits,
+            this.verbose,
+            this.noTests ? 0 : nbTestedValues
+        )
+        overwrite && this.#updateSimpleData(this._tempData)
+
+        return this
+    }
+
+    @logCall()
+    linearRegression({
+        key1,
+        key2,
+        nbDigits = 4,
+        overwrite = true,
+        nbTestedValues = 10000,
+    }: {
+        key1?: string
+        key2?: string | string[]
+        overwrite?: boolean
+        nbDigits?: number
+        nbTestedValues?: number
+    } = {}): this {
+        this._overwrite = overwrite
+        this._tempData = linearRegression_(
+            cloneData(this._data),
+            key1,
+            key2,
+            nbDigits,
             this.verbose,
             this.noTests ? 0 : nbTestedValues
         )
