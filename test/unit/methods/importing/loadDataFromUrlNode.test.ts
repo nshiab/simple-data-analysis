@@ -46,8 +46,8 @@ describe("loadDataFromUrlNode", function () {
         ])
     })
 
-    it("should return an array of objects from a csv file while skipping rows", function () {
-        const data = loadDataFromUrlNode(
+    it("should return an array of objects from a csv file while skipping rows", async function () {
+        const data = await loadDataFromUrlNode(
             "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTestExtraLines.csv",
             false,
             false,
@@ -64,8 +64,8 @@ describe("loadDataFromUrlNode", function () {
         ])
     })
 
-    it("should return an array of objects from a csv file with specific items included, while skipping rows", function () {
-        const data = loadDataFromUrlNode(
+    it("should return an array of objects from a csv file with specific items included, while skipping rows", async function () {
+        const data = await loadDataFromUrlNode(
             "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTestExtraLines.csv",
             false,
             false,
