@@ -38,7 +38,7 @@ import addBins_ from "../methods/analyzing/addBins.js"
 import addOutliers_ from "../methods/analyzing/addOutliers.js"
 import excludeOutliers_ from "../methods/analyzing/excludeOutliers.js"
 import correlation_ from "../methods/analyzing/correlation.js"
-import linearRegression_ from "../methods/analyzing/linearRegression.js"
+import regression_ from "../methods/analyzing/regression.js"
 import addItems_ from "../methods/restructuring/addItems.js"
 import getUniqueValues_ from "../methods/exporting/getUniqueValues.js"
 import summarize_ from "../methods/analyzing/summarize.js"
@@ -1030,24 +1030,40 @@ export default class SimpleData {
     }
 
     @logCall()
-    linearRegression({
+    regression({
         key1,
         key2,
+        type = "linear",
+        order,
+        bandwidth,
         nbDigits = 4,
         overwrite = true,
         nbTestedValues = 10000,
     }: {
         key1?: string
         key2?: string | string[]
+        type?:
+            | "linear"
+            | "quadratic"
+            | "polynomial"
+            | "exponential"
+            | "logarithmic"
+            | "power"
+            | "loess"
+        order?: number
+        bandwidth?: number
         overwrite?: boolean
         nbDigits?: number
         nbTestedValues?: number
     } = {}): this {
         this._overwrite = overwrite
-        this._tempData = linearRegression_(
+        this._tempData = regression_(
             cloneData(this._data),
             key1,
             key2,
+            type,
+            order,
+            bandwidth,
             nbDigits,
             this.verbose,
             this.noTests ? 0 : nbTestedValues

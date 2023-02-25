@@ -277,7 +277,21 @@ async function main() {
         })
         .correlation({ overwrite: false })
         .correlation({ key1: "salary", key2: "bonus", overwrite: false })
-        .linearRegression({ key1: "salary", key2: "bonus", overwrite: false })
+        .regression({ key1: "salary", key2: "bonus", overwrite: false })
+        .regression({
+            key1: "salary",
+            key2: "bonus",
+            type: "loess",
+            bandwidth: 0.4,
+            overwrite: false,
+        })
+        .regression({
+            key1: "salary",
+            key2: "bonus",
+            type: "polynomial",
+            order: 4,
+            overwrite: false,
+        })
         .summarize({ overwrite: false })
         .summarize({
             keyValue: simpleDataMerged.getKeys(),
