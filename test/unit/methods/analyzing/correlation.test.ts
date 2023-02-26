@@ -12,8 +12,8 @@ describe("correlation", function () {
         assert.deepEqual(correlationData, [
             {
                 correlation: 1,
-                key1: "key1",
-                key2: "key2",
+                keyX: "key1",
+                keyY: "key2",
             },
         ])
     })
@@ -26,9 +26,9 @@ describe("correlation", function () {
         ]
         const correlationData = correlation(data)
         assert.deepEqual(correlationData, [
-            { key1: "key1", key2: "key2", correlation: 1 },
-            { key1: "key1", key2: "key3", correlation: 0.9042 },
-            { key1: "key2", key2: "key3", correlation: 0.9042 },
+            { keyX: "key1", keyY: "key2", correlation: 1 },
+            { keyX: "key1", keyY: "key3", correlation: 0.9042 },
+            { keyX: "key2", keyY: "key3", correlation: 0.9042 },
         ])
     })
 
@@ -42,13 +42,13 @@ describe("correlation", function () {
         assert.deepEqual(correlationData, [
             {
                 correlation: 1,
-                key1: "key1",
-                key2: "key2",
+                keyX: "key1",
+                keyY: "key2",
             },
             {
                 correlation: 0.9042,
-                key1: "key1",
-                key2: "key3",
+                keyX: "key1",
+                keyY: "key3",
             },
         ])
     })
@@ -61,9 +61,9 @@ describe("correlation", function () {
         ]
         const correlationData = correlation(data, undefined, [])
         assert.deepEqual(correlationData, [
-            { key1: "key1", key2: "key2", correlation: 1 },
-            { key1: "key1", key2: "key3", correlation: 0.9042 },
-            { key1: "key2", key2: "key3", correlation: 0.9042 },
+            { keyX: "key1", keyY: "key2", correlation: 1 },
+            { keyX: "key1", keyY: "key3", correlation: 0.9042 },
+            { keyX: "key2", keyY: "key3", correlation: 0.9042 },
         ])
     })
 
@@ -75,9 +75,9 @@ describe("correlation", function () {
         ]
         const correlationData = correlation(data, undefined, [], 2)
         assert.deepEqual(correlationData, [
-            { key1: "key1", key2: "key2", correlation: 1 },
-            { key1: "key1", key2: "key3", correlation: 0.9 },
-            { key1: "key2", key2: "key3", correlation: 0.9 },
+            { keyX: "key1", keyY: "key2", correlation: 1 },
+            { keyX: "key1", keyY: "key3", correlation: 0.9 },
+            { keyX: "key2", keyY: "key3", correlation: 0.9 },
         ])
     })
 })

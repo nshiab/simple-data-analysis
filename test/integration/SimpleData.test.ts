@@ -276,18 +276,11 @@ async function main() {
             overwrite: false,
         })
         .correlation({ overwrite: false })
-        .correlation({ key1: "salary", key2: "bonus", overwrite: false })
-        .regression({ key1: "salary", key2: "bonus", overwrite: false })
+        .correlation({ keyX: "salary", keyY: "bonus", overwrite: false })
+        .regression({ keyX: "salary", keyY: "bonus", overwrite: false })
         .regression({
-            key1: "salary",
-            key2: "bonus",
-            type: "loess",
-            bandwidth: 0.4,
-            overwrite: false,
-        })
-        .regression({
-            key1: "salary",
-            key2: "bonus",
+            keyX: "salary",
+            keyY: "bonus",
             type: "polynomial",
             order: 4,
             overwrite: false,
