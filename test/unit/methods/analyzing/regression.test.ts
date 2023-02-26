@@ -19,7 +19,7 @@ describe("regression", function () {
         ]
         const regressionData = regression(data, "x", "y")
         assert.deepEqual(regressionData, [
-            { key1: "x", key2: "y", a: -1.1064, b: 14.0811, r2: 0.8731 },
+            { keyX: "x", keyY: "y", a: -1.1064, b: 14.0811, r2: 0.8731 },
         ])
     })
 
@@ -35,7 +35,7 @@ describe("regression", function () {
         ]
         const regressionData = regression(data, "x", "y", "quadratic")
         assert.deepEqual(regressionData, [
-            { key1: "x", key2: "y", a: 1.1071, b: 1, c: 0.5714, r2: 0.9884 },
+            { keyX: "x", keyY: "y", a: 1.1071, b: 1, c: 0.5714, r2: 0.9884 },
         ])
     })
 
@@ -54,8 +54,8 @@ describe("regression", function () {
         const regressionData = regression(data, "x", "y", "polynomial", 3)
         assert.deepEqual(regressionData, [
             {
-                key1: "x",
-                key2: "y",
+                keyX: "x",
+                keyY: "y",
                 a: 0.2417,
                 b: -2.9952,
                 c: 13.4536,
@@ -76,7 +76,7 @@ describe("regression", function () {
         ]
         const regressionData = regression(data, "x", "y", "exponential")
         assert.deepEqual(regressionData, [
-            { key1: "x", key2: "y", a: 3.0331, b: 0.6909, r2: 0.9984 },
+            { keyX: "x", keyY: "y", a: 3.0331, b: 0.6909, r2: 0.9984 },
         ])
     })
 
@@ -116,7 +116,7 @@ describe("regression", function () {
         ]
         const regressionData = regression(data, "x", "y", "logarithmic")
         assert.deepEqual(regressionData, [
-            { key1: "x", key2: "y", a: 0.8808, b: 4.1734, r2: 0.9584 },
+            { keyX: "x", keyY: "y", a: 0.8808, b: 4.1734, r2: 0.9584 },
         ])
     })
 
@@ -229,141 +229,7 @@ describe("regression", function () {
         ]
         const regressionData = regression(data, "rank", "sales", "power")
         assert.deepEqual(regressionData, [
-            { key1: "rank", key2: "sales", a: 108.7538, b: -0.627, r2: 0.832 },
-        ])
-    })
-
-    it("should apply loess regression", function () {
-        const data = [
-            { year: 1900, temperature: 57.5605 },
-            { year: 1901, temperature: 57.3214 },
-            { year: 1902, temperature: 56.2134 },
-            { year: 1903, temperature: 56.317 },
-            { year: 1904, temperature: 57.4467 },
-            { year: 1905, temperature: 57.1332 },
-            { year: 1906, temperature: 57.2392 },
-            { year: 1907, temperature: 56.5545 },
-            { year: 1908, temperature: 56.2721 },
-            { year: 1909, temperature: 56.2912 },
-            { year: 1910, temperature: 57.7532 },
-            { year: 1911, temperature: 55.474 },
-            { year: 1912, temperature: 55.5628 },
-            { year: 1913, temperature: 56.5263 },
-            { year: 1914, temperature: 57.4455 },
-            { year: 1915, temperature: 56.8189 },
-            { year: 1916, temperature: 55.5932 },
-            { year: 1917, temperature: 56.6997 },
-            { year: 1918, temperature: 56.9079 },
-            { year: 1919, temperature: 56.3611 },
-            { year: 1920, temperature: 56.1257 },
-            { year: 1921, temperature: 57.3778 },
-            { year: 1922, temperature: 56.1452 },
-            { year: 1923, temperature: 56.4466 },
-            { year: 1924, temperature: 57.1546 },
-            { year: 1925, temperature: 57.206 },
-            { year: 1926, temperature: 58.8471 },
-            { year: 1927, temperature: 56.94 },
-            { year: 1928, temperature: 57.7148 },
-            { year: 1929, temperature: 57.3422 },
-            { year: 1930, temperature: 56.9745 },
-            { year: 1931, temperature: 58.3638 },
-            { year: 1932, temperature: 56.9607 },
-            { year: 1933, temperature: 56.8247 },
-            { year: 1934, temperature: 59.7805 },
-            { year: 1935, temperature: 56.8945 },
-            { year: 1936, temperature: 58.6637 },
-            { year: 1937, temperature: 57.2449 },
-            { year: 1938, temperature: 57.3329 },
-            { year: 1939, temperature: 58.4247 },
-            { year: 1940, temperature: 58.8798 },
-            { year: 1941, temperature: 57.1222 },
-            { year: 1942, temperature: 57.1411 },
-            { year: 1943, temperature: 57.894 },
-            { year: 1944, temperature: 56.2842 },
-            { year: 1945, temperature: 57.1573 },
-            { year: 1946, temperature: 56.8022 },
-            { year: 1947, temperature: 57.6003 },
-            { year: 1948, temperature: 55.6891 },
-            { year: 1949, temperature: 56.2792 },
-            { year: 1950, temperature: 58.1899 },
-            { year: 1951, temperature: 57.2899 },
-            { year: 1952, temperature: 56.8036 },
-            { year: 1953, temperature: 57.2433 },
-            { year: 1954, temperature: 57.6142 },
-            { year: 1955, temperature: 56.3011 },
-            { year: 1956, temperature: 57.0172 },
-            { year: 1957, temperature: 57.1288 },
-            { year: 1958, temperature: 58.9603 },
-            { year: 1959, temperature: 59.0416 },
-            { year: 1960, temperature: 58.0866 },
-            { year: 1961, temperature: 57.8652 },
-            { year: 1962, temperature: 57.4384 },
-            { year: 1963, temperature: 57.1077 },
-            { year: 1964, temperature: 56.6202 },
-            { year: 1965, temperature: 56.774 },
-            { year: 1966, temperature: 58.0992 },
-            { year: 1967, temperature: 57.5668 },
-            { year: 1968, temperature: 57.5989 },
-            { year: 1969, temperature: 57.5899 },
-            { year: 1970, temperature: 57.8767 },
-            { year: 1971, temperature: 56.2718 },
-            { year: 1972, temperature: 57.2934 },
-            { year: 1973, temperature: 57.3641 },
-            { year: 1974, temperature: 57.7036 },
-            { year: 1975, temperature: 56.3447 },
-            { year: 1976, temperature: 57.5107 },
-            { year: 1977, temperature: 58.0088 },
-            { year: 1978, temperature: 57.6893 },
-            { year: 1979, temperature: 57.7485 },
-            { year: 1980, temperature: 58.1052 },
-            { year: 1981, temperature: 59.3551 },
-            { year: 1982, temperature: 56.4003 },
-            { year: 1983, temperature: 57.6184 },
-            { year: 1984, temperature: 58.2609 },
-            { year: 1985, temperature: 57.3929 },
-            { year: 1986, temperature: 58.9427 },
-            { year: 1987, temperature: 58.3293 },
-            { year: 1988, temperature: 58.7852 },
-            { year: 1989, temperature: 58.1885 },
-            { year: 1990, temperature: 58.0488 },
-            { year: 1991, temperature: 58.16 },
-            { year: 1992, temperature: 59.2918 },
-            { year: 1993, temperature: 57.7408 },
-            { year: 1994, temperature: 58.1055 },
-            { year: 1995, temperature: 58.9677 },
-            { year: 1996, temperature: 59.594 },
-            { year: 1997, temperature: 59.1923 },
-            { year: 1998, temperature: 56.7942 },
-            { year: 1999, temperature: 58.0356 },
-            { year: 2000, temperature: 58.8363 },
-            { year: 2001, temperature: 59.2216 },
-            { year: 2002, temperature: 58.8964 },
-            { year: 2003, temperature: 59.529 },
-            { year: 2004, temperature: 58.9128 },
-            { year: 2005, temperature: 58.6833 },
-            { year: 2006, temperature: 58.6975 },
-            { year: 2007, temperature: 58.9929 },
-            { year: 2008, temperature: 58.9459 },
-            { year: 2009, temperature: 58.917 },
-            { year: 2010, temperature: 57.7926 },
-            { year: 2011, temperature: 57.5186 },
-            { year: 2012, temperature: 59.5448 },
-            { year: 2013, temperature: 59.3921 },
-            { year: 2014, temperature: 61.5208 },
-            { year: 2015, temperature: 60.7992 },
-            { year: 2016, temperature: 60.1429 },
-            { year: 2017, temperature: 60.4208 },
-        ]
-        const regressionData = regression(
-            data,
-            "year",
-            "temperature",
-            "loess",
-            undefined,
-            0.5
-        )
-        assert.deepEqual(regressionData, [
-            { key1: "year", key2: "temperature" },
+            { keyX: "rank", keyY: "sales", a: 108.7538, b: -0.627, r2: 0.832 },
         ])
     })
 
@@ -375,9 +241,9 @@ describe("regression", function () {
         ]
         const regressionData = regression(data)
         assert.deepEqual(regressionData, [
-            { key1: "key1", key2: "key2", a: 2, b: 0, r2: 1 },
-            { key1: "key1", key2: "key3", a: 0.0149, b: 3.3905, r2: 0.8176 },
-            { key1: "key2", key2: "key3", a: 0.0074, b: 3.3905, r2: 0.8176 },
+            { keyX: "key1", keyY: "key2", a: 2, b: 0, r2: 1 },
+            { keyX: "key1", keyY: "key3", a: 0.0149, b: 3.3905, r2: 0.8176 },
+            { keyX: "key2", keyY: "key3", a: 0.0074, b: 3.3905, r2: 0.8176 },
         ])
     })
 
@@ -389,8 +255,8 @@ describe("regression", function () {
         ]
         const regressionData = regression(data, "key1", ["key2", "key3"])
         assert.deepEqual(regressionData, [
-            { key1: "key1", key2: "key2", a: 2, b: 0, r2: 1 },
-            { key1: "key1", key2: "key3", a: 0.0149, b: 3.3905, r2: 0.8176 },
+            { keyX: "key1", keyY: "key2", a: 2, b: 0, r2: 1 },
+            { keyX: "key1", keyY: "key3", a: 0.0149, b: 3.3905, r2: 0.8176 },
         ])
     })
 
@@ -402,9 +268,9 @@ describe("regression", function () {
         ]
         const regressionData = regression(data, undefined, [])
         assert.deepEqual(regressionData, [
-            { key1: "key1", key2: "key2", a: 2, b: 0, r2: 1 },
-            { key1: "key1", key2: "key3", a: 0.0149, b: 3.3905, r2: 0.8176 },
-            { key1: "key2", key2: "key3", a: 0.0074, b: 3.3905, r2: 0.8176 },
+            { keyX: "key1", keyY: "key2", a: 2, b: 0, r2: 1 },
+            { keyX: "key1", keyY: "key3", a: 0.0149, b: 3.3905, r2: 0.8176 },
+            { keyX: "key2", keyY: "key3", a: 0.0074, b: 3.3905, r2: 0.8176 },
         ])
     })
 
@@ -420,13 +286,12 @@ describe("regression", function () {
             [],
             "linear",
             undefined,
-            undefined,
             2
         )
         assert.deepEqual(regressionData, [
-            { key1: "key1", key2: "key2", a: 2, b: 0, r2: 1 },
-            { key1: "key1", key2: "key3", a: 0.01, b: 3.39, r2: 0.82 },
-            { key1: "key2", key2: "key3", a: 0.01, b: 3.39, r2: 0.82 },
+            { keyX: "key1", keyY: "key2", a: 2, b: 0, r2: 1 },
+            { keyX: "key1", keyY: "key3", a: 0.01, b: 3.39, r2: 0.82 },
+            { keyX: "key2", keyY: "key3", a: 0.01, b: 3.39, r2: 0.82 },
         ])
     })
 })

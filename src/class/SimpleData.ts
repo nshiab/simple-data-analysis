@@ -995,14 +995,14 @@ export default class SimpleData {
 
     @logCall()
     correlation({
-        key1,
-        key2,
+        keyX,
+        keyY,
         nbDigits = 4,
         overwrite = true,
         nbTestedValues = 10000,
     }: {
-        key1?: string
-        key2?: string | string[]
+        keyX?: string
+        keyY?: string | string[]
         overwrite?: boolean
         nbDigits?: number
         nbTestedValues?: number
@@ -1010,8 +1010,8 @@ export default class SimpleData {
         this._overwrite = overwrite
         this._tempData = correlation_(
             cloneData(this._data),
-            key1,
-            key2,
+            keyX,
+            keyY,
             nbDigits,
             this.verbose,
             this.noTests ? 0 : nbTestedValues
@@ -1023,17 +1023,16 @@ export default class SimpleData {
 
     @logCall()
     regression({
-        key1,
-        key2,
+        keyX,
+        keyY,
         type = "linear",
         order,
-        bandwidth,
         nbDigits = 4,
         overwrite = true,
         nbTestedValues = 10000,
     }: {
-        key1?: string
-        key2?: string | string[]
+        keyX?: string
+        keyY?: string | string[]
         type?:
             | "linear"
             | "quadratic"
@@ -1041,9 +1040,7 @@ export default class SimpleData {
             | "exponential"
             | "logarithmic"
             | "power"
-            | "loess"
         order?: number
-        bandwidth?: number
         overwrite?: boolean
         nbDigits?: number
         nbTestedValues?: number
@@ -1051,11 +1048,10 @@ export default class SimpleData {
         this._overwrite = overwrite
         this._tempData = regression_(
             cloneData(this._data),
-            key1,
-            key2,
+            keyX,
+            keyY,
             type,
             order,
-            bandwidth,
             nbDigits,
             this.verbose,
             this.noTests ? 0 : nbTestedValues
