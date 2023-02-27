@@ -5,12 +5,14 @@ import { SimpleDataItem } from "../../types/SimpleData.types"
 export default function keepDates(
     data: SimpleDataItem[],
     key: string,
+    keepNonDatesOnly = false,
     verbose?: boolean
 ) {
     verbose && log("Keeping only Dates. Excluding invalid Dates as well.")
-    const filteredData = data.filter(
-        (d) => d[key] instanceof Date && !isNaN(d[key] as number) // in fact, it's a Date
-    )
+    const filteredData = data.filter((d) => {
+        const test = d[key] instanceof Date && !isNaN(d[key] as number) // in fact, it's a Date
+        return keepNonDatesOnly ? !test : test
+    })
 
     const nbRemoved = data.length - filteredData.length
     verbose &&

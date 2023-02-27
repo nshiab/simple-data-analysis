@@ -5,13 +5,15 @@ import { SimpleDataItem } from "../../types/SimpleData.types"
 export default function keepStrings(
     data: SimpleDataItem[],
     key: string,
+    keepNonStringOnly = false,
     verbose?: boolean
 ) {
     verbose &&
         log("Keeping only strings. Excluding empty strings ('') as well.")
-    const filteredData = data.filter(
-        (d) => typeof d[key] === "string" && d[key] !== ""
-    )
+    const filteredData = data.filter((d) => {
+        const test = typeof d[key] === "string" && d[key] !== ""
+        return keepNonStringOnly ? !test : test
+    })
 
     const nbRemoved = data.length - filteredData.length
     verbose &&
