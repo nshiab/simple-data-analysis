@@ -28,17 +28,19 @@ export default function summarize(
     } else if (Array.isArray(keyCategory)) {
         for (const k of keyCategory) {
             if (!hasKey(data, k)) {
-                throw new Error("No key " + k)
+                throw new Error("No keyCategory " + k)
             }
         }
         keyCategories = keyCategory
     } else if (typeof keyCategory === "string") {
         if (!hasKey(data, keyCategory)) {
-            throw new Error("No key " + keyCategory)
+            throw new Error("No keyCategory " + keyCategory)
         }
         keyCategories = [keyCategory]
     } else {
-        throw new Error("key must be either a string or an array of string")
+        throw new Error(
+            "keyCategory must be either a string or an array of string"
+        )
     }
 
     // Now the values
@@ -48,13 +50,13 @@ export default function summarize(
     if (Array.isArray(keyValue)) {
         for (const v of keyValue) {
             if (!hasKey(data, v)) {
-                throw new Error("No value " + v)
+                throw new Error("No keyValue " + v)
             }
         }
         keyValues = keyValue
     } else if (typeof keyValue === "string") {
         if (!hasKey(data, keyValue)) {
-            throw new Error("No value " + keyValue)
+            throw new Error("No keyValue " + keyValue)
         }
         keyValues = [keyValue]
     } else {
