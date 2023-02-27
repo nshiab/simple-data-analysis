@@ -2,9 +2,10 @@ import getExtension from "../../helpers/getExtension.js"
 import { readFileSync } from "fs"
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import parseDataFile from "../../helpers/parseDataFile.js"
+import log from "../../helpers/log.js"
 
 export default function loadDataFromLocalFile(
-    path: string,
+    path: string | string[],
     autoType = false,
     dataAsArrays = false,
     firstItem = 0,
@@ -21,23 +22,38 @@ export default function loadDataFromLocalFile(
     verbose = false,
     noTest = false
 ): SimpleDataItem[] {
-    const fileExtension = getExtension(path, verbose)
+    const paths: string[] = []
+    const arrayOfObjects: SimpleDataItem[] = []
 
-    const data = readFileSync(path, { encoding: encoding })
+    if (typeof path === "string") {
+        paths.push(path)
+    } else {
+        paths.push(...path)
+    }
 
-    const arrayOfObjects = parseDataFile(
-        data,
-        fileExtension,
-        autoType,
-        dataAsArrays,
-        firstItem,
-        lastItem,
-        nbFirstRowsToExclude,
-        nbLastRowsToExclude,
-        fillMissingKeys,
-        missingKeyValues,
-        noTest
-    )
+    for (const path of paths) {
+        verbose && log(`Reading ${path} with encoding ${encoding}...`, "blue")
+        const data = readFileSync(path, { encoding: encoding })
+
+        const fileExtension = getExtension(path, verbose)
+
+        arrayOfObjects.push(
+            ...parseDataFile(
+                data,
+                fileExtension,
+                autoType,
+                dataAsArrays,
+                firstItem,
+                lastItem,
+                nbFirstRowsToExclude,
+                nbLastRowsToExclude,
+                fillMissingKeys,
+                missingKeyValues,
+                verbose,
+                noTest
+            )
+        )
+    }
 
     return arrayOfObjects
 }

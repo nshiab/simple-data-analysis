@@ -1,11 +1,19 @@
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
+import log from "./log.js"
 
 export default function arraysToData(
     data: {
         [key: string]: SimpleDataValue[]
     },
+    verbose: boolean,
     noTests: boolean
 ): SimpleDataItem[] {
+    verbose &&
+        log(
+            "Restructing data from arrays of arrays to array of objects.",
+            "blue"
+        )
+
     const keys = Object.keys(data)
     const nbItems = data[keys[0]].length
 

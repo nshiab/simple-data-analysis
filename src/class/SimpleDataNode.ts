@@ -2,6 +2,7 @@ import fs from "fs"
 import SimpleData from "./SimpleData.js"
 import { SimpleDataItem } from "../types/SimpleData.types"
 import loadDataFromLocalFile_ from "../methods/importing/loadDataFromLocalFile.js"
+import loadDataFromLocalDirectory_ from "../methods/importing/loadDataFromLocalDirectory.js"
 import saveData_ from "../methods/exporting/saveData.js"
 import { logCall, asyncLogCall } from "../helpers/logCall.js"
 import log from "../helpers/log.js"
@@ -30,7 +31,7 @@ export default class SimpleDataNode extends SimpleData {
         nbFirstRowsToExclude = 0,
         nbLastRowsToExclude = Infinity,
     }: {
-        url: string
+        url: string | string[]
         autoType?: boolean
         dataAsArrays?: boolean
         missingKeyValues?: SimpleDataItem
@@ -75,7 +76,7 @@ export default class SimpleDataNode extends SimpleData {
         nbFirstRowsToExclude = 0,
         nbLastRowsToExclude = Infinity,
     }: {
-        path: string
+        path: string | string[]
         autoType?: boolean
         dataAsArrays?: boolean
         encoding?: BufferEncoding
@@ -93,6 +94,57 @@ export default class SimpleDataNode extends SimpleData {
         }
 
         const data = loadDataFromLocalFile_(
+            path,
+            autoType,
+            dataAsArrays,
+            firstItem,
+            lastItem,
+            nbFirstRowsToExclude,
+            nbLastRowsToExclude,
+            fillMissingKeys,
+            missingKeyValues,
+            encoding,
+            this.verbose,
+            this.noTests
+        )
+
+        this._tempData = data // important for decorator
+        this.#updateSimpleData(data)
+
+        return this
+    }
+
+    @logCall()
+    loadDataFromLocalDirectory({
+        path,
+        autoType = false,
+        dataAsArrays = false,
+        missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
+        encoding = "utf8",
+        fillMissingKeys = false,
+        firstItem = 0,
+        lastItem = Infinity,
+        nbFirstRowsToExclude = 0,
+        nbLastRowsToExclude = Infinity,
+    }: {
+        path: string
+        autoType?: boolean
+        dataAsArrays?: boolean
+        encoding?: BufferEncoding
+        missingKeyValues?: SimpleDataItem
+        fillMissingKeys?: boolean
+        firstItem?: number
+        lastItem?: number
+        nbFirstRowsToExclude?: number
+        nbLastRowsToExclude?: number
+    }): this {
+        if (this._data.length > 0) {
+            throw new Error(
+                "This SimpleData already has data. Create another one."
+            )
+        }
+
+        const data = loadDataFromLocalDirectory_(
             path,
             autoType,
             dataAsArrays,

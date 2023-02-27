@@ -118,6 +118,7 @@ export default class SimpleData {
                           data as unknown as {
                               [key: string]: SimpleDataValue[]
                           },
+                          verbose,
                           noTests
                       ).slice(firstItem, lastItem + 1)
                   )
@@ -178,7 +179,7 @@ export default class SimpleData {
         nbFirstRowsToExclude = 0,
         nbLastRowsToExclude = Infinity,
     }: {
-        url: string
+        url: string | string[]
         autoType?: boolean
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
@@ -188,6 +189,11 @@ export default class SimpleData {
         nbFirstRowsToExclude?: number
         nbLastRowsToExclude?: number
     }): Promise<this> {
+        if (this._data.length > 0) {
+            throw new Error(
+                "This SimpleData already has data. Create another one."
+            )
+        }
         const data = await loadDataFromUrlWeb_(
             url,
             autoType,

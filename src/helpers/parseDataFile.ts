@@ -2,6 +2,7 @@ import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
 import { csvParse, tsvParse, autoType as typed } from "d3-dsv"
 import arraysToData from "./arraysToData.js"
 import handleMissingKeys from "./handleMissingKeys.js"
+import log from "./log.js"
 
 export default function parseDataFile(
     data: string | { [key: string]: SimpleDataValue[] },
@@ -21,6 +22,8 @@ export default function parseDataFile(
     verbose = false,
     noTests = false
 ): SimpleDataItem[] {
+    verbose && log(`Parsing the data...`, "blue")
+
     let arrayOfObjects: SimpleDataItem[] = []
 
     if (
@@ -69,14 +72,14 @@ export default function parseDataFile(
     } else if (fileExtension === "json" && typeof data === "string") {
         const incomingData = JSON.parse(data)
         arrayOfObjects = dataAsArrays
-            ? arraysToData(incomingData, noTests)
+            ? arraysToData(incomingData, verbose, noTests)
             : incomingData
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
     } else if (fileExtension === "json" && Array.isArray(data)) {
         arrayOfObjects = data.slice(firstItem, lastItem + 1) as SimpleDataItem[]
     } else if (fileExtension === "json" && typeof data === "object") {
         arrayOfObjects = (
-            dataAsArrays ? arraysToData(data, noTests) : data
+            dataAsArrays ? arraysToData(data, verbose, noTests) : data
         ) as SimpleDataItem[]
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
     } else {
