@@ -10,9 +10,9 @@ This project is related to [SDA-Flow](https://github.com/nshiab/simple-data-anal
 
 These project's goals are:
 
-- To ease the way for non-coders (especially journalists) into the beautiful world of data analysis and data visualization in JavaScript.
+-   To ease the way for non-coders (especially journalists) into the beautiful world of data analysis and data visualization in JavaScript.
 
-- To standardize and accelerate frontend/backend workflows with a simple-to-use library working both in the browser and with NodeJS.
+-   To standardize and accelerate frontend/backend workflows with a simple-to-use library working both in the browser and with NodeJS.
 
 We are always trying to improve it. Feel free to start a conversation or open an issue, and check [how you can contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
 
@@ -45,7 +45,6 @@ The library expects **tabular data** stored in CSV/TSV files or **arrays of obje
 3. Every value (or cell) is a single value
 
 For more about tidy data, you can read [this great article](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html).
-
 
 ## The easiest way to use the library
 
@@ -121,7 +120,7 @@ As you can see below, SDA is a lightweight library optimized for the web (98kb â
 
 ## Working with NodeJS and JavaScript Bundlers
 
-First, make sure that your NodeJS version is 18 or higher. To check it, write ```node``` in your terminal and press Enter.
+First, make sure that your NodeJS version is 18 or higher. To check it, write `node` in your terminal and press Enter.
 
 You should see something like this.
 <img src="./assets/nodeJSVersion.png" alt="A terminal showing the NodeJS version" style="display:block;width: 100%; max-width:400px;"/>
@@ -129,6 +128,7 @@ You should see something like this.
 If the version is less than 18, update [NodeJS with the latest LTS (long-term support) version](https://nodejs.org/en/) .
 
 To install the library with [npm](https://www.npmjs.com/package/simple-data-analysis), type this command in your terminal:
+
 ```
 npm i simple-data-analysis
 ```
@@ -150,10 +150,9 @@ If you are using NodeJS and want to read or write local files, use SimpleDataNod
 ```js
 import { SimpleDataNode } from "simple-data-analysis"
 
-const simpleData = new SimpleDataNode()
-    .loadDataFromLocalFile({
-        path: "./someFile.csv"
-    })
+const simpleData = new SimpleDataNode().loadDataFromLocalFile({
+    path: "./someFile.csv",
+})
 ```
 
 ## Using it with React
@@ -165,36 +164,29 @@ import { useEffect, useRef } from "react"
 import { SimpleData } from "simple-data-analysis"
 
 export default function Home() {
+    const ref = useRef()
 
-  const ref = useRef()
+    useEffect(() => {
+        SimpleDataFromUrl()
 
-  useEffect(() => {
+        async function SimpleDataFromUrl() {
+            const simpleData = await new SimpleData().loadDataFromUrl({
+                url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv",
+                autoType: true,
+            })
 
-    SimpleDataFromUrl()
+            ref.current.innerHTML = simpleData.getChart({
+                x: "Departement or unit",
+                y: "Salary",
+                type: "dot",
+                marginLeft: 50,
+                trend: true,
+                showTrendEquation: true,
+            })
+        }
+    }, [])
 
-    async function SimpleDataFromUrl() {
-
-      const simpleData = await new SimpleData()
-        .loadDataFromUrl({
-            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv",
-            autoType: true
-        })
-
-      ref.current.innerHTML =
-      simpleData
-        .getChart({
-            x: "Departement or unit",
-            y: "Salary",
-            type: "dot",
-            marginLeft: 50,
-            trend: true,
-            showTrendEquation: true
-        })
-    }
-  }, [])
-
-  return <div ref={ref}>
-  </div>
+    return <div ref={ref}></div>
 }
 ```
 
@@ -211,7 +203,7 @@ It works best with the data structured as an array of objects, exactly like SDA.
 ```javascript
 // Use SimpleData to prepare your data
 const simpleData = new SimpleData({
-    data: arrayOfObjects
+    data: arrayOfObjects,
 })
 // Chain methods to filter,
 // clean, summarize, etc.
@@ -226,7 +218,7 @@ svg.selectAll("circle")
         // an array of objects. Easy!
     )
     .join("circle")
-    // Keep on doing your D3 magic.
+// Keep on doing your D3 magic.
 ```
 
 ## Using it with ThreeJS / React Three Fiber (shaders)
@@ -242,7 +234,7 @@ Here's how to display points while passing custom data - from a SimpleData insta
 ```javascript
 // Use SimpleData to manipulate your data
 const simpleData = new SimpleData({
-    data: arrayOfObjects
+    data: arrayOfObjects,
 })
 // Let's imagine that you transformed your
 // data to look like this.
@@ -256,17 +248,17 @@ const simpleData = new SimpleData({
 // To pass the positions and colors as BufferAttributes,
 // you need to restructure your data as one array
 // Let's start with the positions
-const positionsKeys = ["x", "y", "z"];
+const positionsKeys = ["x", "y", "z"]
 const positions = simpleData.getArray({
-  key: positionsKeys
-});
+    key: positionsKeys,
+})
 // The returned array looks like this
 // [1, 2, 3, 4, 5, 6, 7, 8, 9, ...]
 
 // And now the colors.
 const colorsKeys = ["r", "g", "b"]
 const colors = simpleData.getArray({
-    key: colorsKeys
+    key: colorsKeys,
 })
 // The returned array looks like this
 // [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9...]
@@ -283,12 +275,12 @@ const colorsAttribute = new THREE.BufferAttribute(
 
 // Create a BufferGeometry and add your attributes
 const geometry = new THREE.BufferGeometry()
-geometry.setAttribute("position", positionsAttribute);
-geometry.setAttribute("color", colorsAttribute);
+geometry.setAttribute("position", positionsAttribute)
+geometry.setAttribute("color", colorsAttribute)
 
 const material = new THREE.ShaderMaterial({
     vertexShader: yourVertexShader,
-    fragmentShader: yourFragmentShader
+    fragmentShader: yourFragmentShader,
 })
 // If you don't want to mess with shaders,
 // you can use the PointsMaterial and
@@ -313,10 +305,9 @@ If you work with React, you can use React Three Fiber. Here's how to do the same
 // We create everything needed
 // for our BufferAttributes
 const attributes = useMemo(() => {
-
     // Use SimpleData to manipulate your data
     const simpleData = new SimpleData({
-        data: arrayOfObjects
+        data: arrayOfObjects,
     })
     // Let's imagine that you transformed your
     // data to look like this.
@@ -327,16 +318,16 @@ const attributes = useMemo(() => {
     //  ...
     // ]
 
-    const positionsKeys = ["x", "y", "z"];
+    const positionsKeys = ["x", "y", "z"]
     const positions = simpleData.getArray({
-    key: positionsKeys
-    });
+        key: positionsKeys,
+    })
     // The returned array looks this
     // [1, 2, 3, 4, 5, 6, 7, 8, 9, ...]
 
     const colorsKeys = ["r", "g", "b"]
     const colors = simpleData.getArray({
-        key: colorsKeys
+        key: colorsKeys,
     })
     // The returned array looks this
     // [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9...]
@@ -346,32 +337,33 @@ const attributes = useMemo(() => {
         positionsItemSize: positionsKeys.length,
         colors: new Float32Array(colors),
         colorsItemSize: colorsKeys.length,
-        count: simpleData.getLength()
+        count: simpleData.getLength(),
     }
-
 }, [arrayOfObjects])
 
 // We setup and return our points here.
-return <points>
-    <bufferGeometry>
-        <bufferAttribute
-            attach="attributes-position"
-            count={attributes.count}
-            itemSize={attributes.positionsItemSize}
-            array={attributes.positions}
+return (
+    <points>
+        <bufferGeometry>
+            <bufferAttribute
+                attach="attributes-position"
+                count={attributes.count}
+                itemSize={attributes.positionsItemSize}
+                array={attributes.positions}
+            />
+            <bufferAttribute
+                attach="attributes-color"
+                count={attributes.count}
+                itemSize={attributes.colorsItemSize}
+                array={attributes.colors}
+            />
+        </bufferGeometry>
+        <shaderMaterial
+            vertexShader={yourVertexShader}
+            fragmentShader={yourFragmentShader}
         />
-        <bufferAttribute
-            attach="attributes-color"
-            count={attributes.count}
-            itemSize={attributes.colorsItemSize}
-            array={attributes.colors}
-        />
-    </bufferGeometry>
-    <shaderMaterial 
-        vertexShader={yourVertexShader}
-        fragmentShader={yourFragmentShader}
-    />
-</points>
+    </points>
+)
 ```
 
 ## SimpleData class
@@ -393,18 +385,18 @@ For a description of all methods available, check this [Observable notebook](htt
 If you use the library with NodeJS, you can import SimpleDataNode instead of SimpleData. It will give you extra methods to load local files, save files and save charts.
 
 ```js
-import { SimpleDataNode } from "simple-data-analysis";
+import { SimpleDataNode } from "simple-data-analysis"
 
 new SimpleDataNode()
     .loadDataFromLocalFile({
         path: "../simple-data-analysis/data/employees.csv",
-        autoType: true
+        autoType: true,
     })
     // You can load TSV and JSON files as well
     .summarize({
         keyValue: "Salary",
         keyCategory: "Job",
-        summary: "mean"
+        summary: "mean",
     })
     .excludeMissingValues()
     .selectKeys({ keys: ["Job", "mean"] })
@@ -419,58 +411,15 @@ new SimpleDataNode()
         x: "mean",
         y: "Job",
         color: "Job",
-        marginLeft: 100
+        marginLeft: 100,
     })
-    // You need to save the charts
-    // as HTML files.
+// You need to save the charts
+// as HTML files.
 ```
 
 And here's the result in VS Code!
 
 <img src="./assets/nodeExample.png" alt="A chart of the mean salary of several jobs" style="display:block;width: 100%; max-width:600px;margin-bottom: 20px;border-radius: 5px;"/>
-
-## SimpleDocument class (experimental on branch 130-simpledatadoc, for NodeJS only)
-
-While working on your analysis, it's sometimes helpful to build a document that you'll be able to share with your results.
-
-The SimpleDocument allows you to do that. You can pass JSX expressions, React components and SVG to it, and it will render everything as an HTML file or React component.
-
-Note that this class is still under heavy development.
-
-```js
-import React from "react"
-import {SimpleData, SimpleDocument, Table} from "simple-data-analysis"
-import { Typography } from "@mui/material"
-
-const someData = [...]
-// Let's say it's some employees information again.
-
-const simpleData = new SimpleData({data: someData})
-// or SimpleDataNode
-
-const simpleDocument = new SimpleDocument()
-
-simpleDocument
-    .add(<h1>Some JSX!</h1>)
-    .add(<Typography>
-        An MUI component!
-    </Typography>)
-    .add(<Table
-        keys={simpleData.getKeys()}
-        data={simpleData.getData()}
-    />)
-    .add(simpleData.getChart({
-        type: "dot",
-        x: "job",
-        y: "salary",
-        color: "union"
-    }))
-    .saveDocument('somePath/analysis.html')
-    .saveDocument('somePath/AnalysisComponent.js')
-    // saveDocument use ReactDOMServer.renderToString
-    // on everything that has been added
-
-```
 
 ## All functions and methods
 
