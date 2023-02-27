@@ -38,18 +38,6 @@ export default function regression(
         if (!hasKey(data, keyCategory)) {
             throw new Error("No keyCategory " + keyCategory)
         }
-        if (
-            !checkTypeOfKey(
-                data,
-                keyCategory,
-                "string",
-                1,
-                nbTestedValues,
-                verbose
-            )
-        ) {
-            throw new Error(`Values in ${keyCategory} must be strings.`)
-        }
     } else {
         throw new Error("keyCategory must be a string")
     }
@@ -127,8 +115,13 @@ export default function regression(
 
         for (const category of categories) {
             for (const lr of linearRegressions) {
-                if (typeof category !== "string") {
-                    throw new Error(`Values of ${keyCategory} must be strings`)
+                if (
+                    typeof category !== "string" &&
+                    typeof category !== "number"
+                ) {
+                    throw new Error(
+                        `Values of ${keyCategory} must be strings or numbers.`
+                    )
                 }
                 lr[keyCategory] = category
                 computeRegr(

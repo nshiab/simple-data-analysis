@@ -24,23 +24,11 @@ export default function correlation(
         if (!hasKey(data, keyCategory)) {
             throw new Error("No keyCategory " + keyCategory)
         }
-        if (
-            !checkTypeOfKey(
-                data,
-                keyCategory,
-                "string",
-                1,
-                nbTestedValues,
-                verbose
-            )
-        ) {
-            throw new Error(`Values in ${keyCategory} must be strings.`)
-        }
     } else {
         throw new Error("keyCategory must be a string")
     }
 
-    const correlations: { [key: string]: string }[] = []
+    const correlations: { [key: string]: string | number }[] = []
 
     if (
         keyX === undefined &&
@@ -116,8 +104,13 @@ export default function correlation(
                     .filter((d) => d[keyCategory] === category)
                     .map((d) => d[corr.keyY])
 
-                if (typeof category !== "string") {
-                    throw new Error(`Values of ${keyCategory} must be strings`)
+                if (
+                    typeof category !== "string" &&
+                    typeof category !== "number"
+                ) {
+                    throw new Error(
+                        `Values of ${keyCategory} must be strings or numbers.`
+                    )
                 }
                 corr[keyCategory] = category
 
@@ -139,7 +132,7 @@ function computeCorr(
     x: SimpleDataValue[],
     y: SimpleDataValue[],
     corr: {
-        [key: string]: string
+        [key: string]: string | number
     },
     correlationData: SimpleDataItem[],
     nbDigits: number

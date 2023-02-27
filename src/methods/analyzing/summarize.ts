@@ -17,7 +17,18 @@ export default function summarize(
     nbDigits?: number
 ): SimpleDataItem[] {
     if (keyValue === undefined) {
-        keyValue = Object.keys(data[0])
+        verbose && log(`No keyValue provided. Will summarize over all keys.`)
+        keyValue = Object.keys(data[0]).filter((d) => {
+            if (checkTypeOfKey(data, d, "number", 1, nbTestedValues)) {
+                return true
+            } else {
+                verbose &&
+                    log(
+                        `At least one value in ${d} is not a number. Excluded from summaries.`
+                    )
+                return false
+            }
+        })
     }
 
     // Let's deal with the keyCategory first
@@ -112,7 +123,7 @@ export default function summarize(
                 )
             ) {
                 throw new Error(
-                    `At least one value in ${value} is not a number. For sum, mean, median, deviation, and weightedMean, all values must be a number.`
+                    `At least one value in ${value} is not a number. To summarize with sum, mean, median, deviation, and weightedMean, all values must be a number.`
                 )
             }
         }

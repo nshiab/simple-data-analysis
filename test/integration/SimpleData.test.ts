@@ -287,7 +287,7 @@ async function main() {
         })
         .summarize({ overwrite: false })
         .summarize({
-            keyValue: simpleDataMerged.getKeys(),
+            keyValue: ["salary", "bonus"],
             keyCategory: "job",
             overwrite: false,
         })
