@@ -6,7 +6,7 @@ export default function selectKeys(
     keys: string[]
 ): SimpleDataItem[] {
     for (const key of keys) {
-        if (!hasKey(data[0], key)) {
+        if (!hasKey(data, key)) {
             throw new Error("No key " + key)
         }
     }

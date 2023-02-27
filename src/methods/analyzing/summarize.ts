@@ -27,13 +27,13 @@ export default function summarize(
         verbose && log("No key provided. Data won't be grouped.")
     } else if (Array.isArray(keyCategory)) {
         for (const k of keyCategory) {
-            if (!hasKey(data[0], k)) {
+            if (!hasKey(data, k)) {
                 throw new Error("No key " + k)
             }
         }
         keyCategories = keyCategory
     } else if (typeof keyCategory === "string") {
-        if (!hasKey(data[0], keyCategory)) {
+        if (!hasKey(data, keyCategory)) {
             throw new Error("No key " + keyCategory)
         }
         keyCategories = [keyCategory]
@@ -47,13 +47,13 @@ export default function summarize(
 
     if (Array.isArray(keyValue)) {
         for (const v of keyValue) {
-            if (!hasKey(data[0], v)) {
+            if (!hasKey(data, v)) {
                 throw new Error("No value " + v)
             }
         }
         keyValues = keyValue
     } else if (typeof keyValue === "string") {
-        if (!hasKey(data[0], keyValue)) {
+        if (!hasKey(data, keyValue)) {
             throw new Error("No value " + keyValue)
         }
         keyValues = [keyValue]
@@ -162,7 +162,7 @@ export default function summarize(
                 if (weight === undefined) {
                     throw new Error("Missing argument weight")
                 }
-                if (!hasKey(data[0], weight)) {
+                if (!hasKey(data, weight)) {
                     throw new Error("No weight " + weight)
                 }
                 func = (v) =>

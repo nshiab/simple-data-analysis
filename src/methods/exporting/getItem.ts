@@ -25,7 +25,7 @@ export default function getItem(
     }
 
     for (const key of keys) {
-        if (!hasKey(data[0], key)) {
+        if (!hasKey(data, key)) {
             throw new Error("No key " + key + " in the data.")
         }
     }

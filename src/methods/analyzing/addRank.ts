@@ -10,7 +10,7 @@ export default function addRank(
     handleTies?: "tieNoGaps" | "tie" | "noTie",
     locale?: string | (string | undefined | null | boolean)[]
 ): SimpleDataItem[] {
-    if (hasKey(data[0], newKey)) {
+    if (hasKey(data, newKey)) {
         throw new Error(`The newKey ${newKey} already exists`)
     }
     if (!key) {

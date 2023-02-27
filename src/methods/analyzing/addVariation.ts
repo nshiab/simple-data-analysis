@@ -13,10 +13,10 @@ export default function addVariation(
     nbTestedValues = 10000,
     verbose = false
 ) {
-    if (!hasKey(data[0], key)) {
+    if (!hasKey(data, key)) {
         throw new Error("No key " + key + " in the data")
     }
-    if (hasKey(data[0], newKey)) {
+    if (hasKey(data, newKey)) {
         throw new Error(
             "The newKey " +
                 newKey +

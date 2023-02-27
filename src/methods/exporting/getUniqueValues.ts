@@ -8,7 +8,7 @@ export default function getUniqueValues(
     data: SimpleDataItem[],
     key: string
 ): SimpleDataValue[] {
-    if (!hasKey(data[0], key)) {
+    if (!hasKey(data, key)) {
         throw new Error(`No key ${key} in data`)
     }
 

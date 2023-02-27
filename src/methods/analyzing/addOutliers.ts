@@ -12,10 +12,10 @@ export default function addOutliers(
     nbTestedValues = 10000,
     verbose = false
 ): SimpleDataItem[] {
-    if (!hasKey(data[0], key)) {
+    if (!hasKey(data, key)) {
         throw new Error("No key " + key)
     }
-    if (hasKey(data[0], newKey)) {
+    if (hasKey(data, newKey)) {
         throw new Error("Already a key named " + key)
     }
     if (!checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)) {

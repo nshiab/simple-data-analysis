@@ -34,10 +34,10 @@ export default function addProportions(
         }
 
         for (const key of options.keys) {
-            if (!hasKey(data[0], key)) {
+            if (!hasKey(data, key)) {
                 throw new Error("No key " + key + " in the data.")
             }
-            if (hasKey(data[0], key + suffix)) {
+            if (hasKey(data, key + suffix)) {
                 throw new Error(
                     "Your suffix is " +
                         suffix +
@@ -91,7 +91,7 @@ export default function addProportions(
                 "key is undefined. You need to specify on which key the proportions will be calculated."
             )
         }
-        if (!hasKey(data[0], options.key)) {
+        if (!hasKey(data, options.key)) {
             throw new Error("No key named " + options.key + " in the data")
         }
 
@@ -106,7 +106,7 @@ export default function addProportions(
                 "newKey is undefined. Give a name to the new key that will be created"
             )
         }
-        if (hasKey(data[0], options.newKey)) {
+        if (hasKey(data, options.newKey)) {
             throw new Error(
                 "Already an key named " + options.newKey + " in the data"
             )
@@ -120,7 +120,7 @@ export default function addProportions(
                 : [options.keyCategory]
 
         for (const key of keyCategory) {
-            if (!hasKey(data[0], key)) {
+            if (!hasKey(data, key)) {
                 throw new Error(
                     "The key " + key + " does not exist in the data."
                 )
