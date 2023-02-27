@@ -179,6 +179,7 @@ function renderChart(
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const plotOptions: { [key: string]: any } = {
+        color: { scheme: "viridis" },
         grid: true,
         marks: [mark],
     }
