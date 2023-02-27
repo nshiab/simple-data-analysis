@@ -22,9 +22,7 @@ export default function addBins(
         throw new Error("nbBins should always be > 0.")
     }
 
-    if (!checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)) {
-        throw new Error(`At least one value in ${key} is not a number.`)
-    }
+    checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
 
     const [min, max] = extent(data.map((d) => d[key] as number))
     const binGenerator = scaleQuantize()

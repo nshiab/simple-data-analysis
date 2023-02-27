@@ -18,9 +18,7 @@ export default function getMedian(
     if (!hasKey(data, key)) {
         throw new Error(`No key ${key} in data`)
     }
-    if (!checkTypeOfKey(data, key, type, 1, nbTestedValues, verbose)) {
-        throw new Error(`At least one value in ${key} is not a ${type}.`)
-    }
+    checkTypeOfKey(data, key, type, 1, nbTestedValues, verbose)
 
     const result = median(data, (d) => d[key] as number) // And date too
 

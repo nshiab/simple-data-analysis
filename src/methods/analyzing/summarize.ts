@@ -19,7 +19,17 @@ export default function summarize(
     if (keyValue === undefined) {
         verbose && log(`No keyValue provided. Will summarize over all keys.`)
         keyValue = Object.keys(data[0]).filter((d) => {
-            if (checkTypeOfKey(data, d, "number", 1, nbTestedValues)) {
+            if (
+                checkTypeOfKey(
+                    data,
+                    d,
+                    "number",
+                    1,
+                    nbTestedValues,
+                    verbose,
+                    true
+                )
+            ) {
                 return true
             } else {
                 verbose &&
@@ -112,20 +122,7 @@ export default function summarize(
             summaries.includes("deviation") ||
             summaries.includes("weightedMean")
         ) {
-            if (
-                !checkTypeOfKey(
-                    data,
-                    value,
-                    "number",
-                    1,
-                    nbTestedValues,
-                    verbose
-                )
-            ) {
-                throw new Error(
-                    `At least one value in ${value} is not a number. To summarize with sum, mean, median, deviation, and weightedMean, all values must be a number.`
-                )
-            }
+            checkTypeOfKey(data, value, "number", 1, nbTestedValues, verbose)
         }
 
         for (const summary of summaries) {

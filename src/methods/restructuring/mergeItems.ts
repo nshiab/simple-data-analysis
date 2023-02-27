@@ -49,7 +49,15 @@ export default function mergeItems(
     }
 
     if (
-        !checkTypeOfKey(data, commonKey, "string", 1, nbValuesTested, verbose)
+        !checkTypeOfKey(
+            data,
+            commonKey,
+            "string",
+            1,
+            nbValuesTested,
+            verbose,
+            true
+        )
     ) {
         throw new Error(
             "At least one value of " +
@@ -63,7 +71,8 @@ export default function mergeItems(
             "string",
             1,
             nbValuesTested,
-            verbose
+            verbose,
+            true
         )
     ) {
         throw new Error(

@@ -217,14 +217,14 @@ function renderChart(
         }
     }
 
-    if (checkTypeOfKey(data, x, "string", 0.5, 100)) {
+    if (checkTypeOfKey(data, x, "string", 0.5, 100, false, true)) {
         if (type === "dot") {
             plotOptions.x = { type: "point" }
         } else if (type !== "line") {
             plotOptions.x = { type: "band" }
         }
     }
-    if (checkTypeOfKey(data, y, "string", 0.5, 100)) {
+    if (checkTypeOfKey(data, y, "string", 0.5, 100, false, true)) {
         if (type === "dot") {
             plotOptions.y = { type: "point" }
         }

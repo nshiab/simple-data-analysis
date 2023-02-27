@@ -18,9 +18,7 @@ export default function addOutliers(
     if (hasKey(data, newKey)) {
         throw new Error("Already a key named " + key)
     }
-    if (!checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)) {
-        throw new Error(`At least one value in ${key} is not a number.`)
-    }
+    checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
 
     const values = data.map((d) => d[key]) as Iterable<number>
     const q1 = quantile(values, 0.25) as number

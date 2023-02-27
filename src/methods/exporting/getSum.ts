@@ -17,9 +17,7 @@ export default function getSum(
     if (!hasKey(data, key)) {
         throw new Error(`No key ${key} in data`)
     }
-    if (!checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)) {
-        throw new Error(`At least one value in ${key} is not a number.`)
-    }
+    checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
 
     const result = sum(data, (d) => d[key] as number)
 

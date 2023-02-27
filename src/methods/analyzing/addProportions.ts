@@ -47,11 +47,7 @@ export default function addProportions(
                         ". You need to choose another suffix."
                 )
             }
-            if (!checkTypeOfKey(data, key, "number", 1, nbTestedValues)) {
-                throw new Error(
-                    "At least one value in " + key + " is not a number."
-                )
-            }
+            checkTypeOfKey(data, key, "number", 1, nbTestedValues)
         }
 
         verbose &&
@@ -95,11 +91,7 @@ export default function addProportions(
             throw new Error("No key named " + options.key + " in the data")
         }
 
-        if (!checkTypeOfKey(data, options.key, "number", 1, nbTestedValues)) {
-            throw new Error(
-                `At least one value in ${options.key} is not a number.`
-            )
-        }
+        checkTypeOfKey(data, options.key, "number", 1, nbTestedValues)
 
         if (options.newKey === undefined) {
             throw new Error(
