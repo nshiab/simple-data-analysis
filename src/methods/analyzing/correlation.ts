@@ -1,18 +1,48 @@
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
+import {
+    SimpleDataItem,
+    SimpleDataValue,
+} from "../../types/SimpleData.types.js"
 import { sampleCorrelation, combinations } from "simple-statistics"
 import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 import hasKey from "../../helpers/hasKey.js"
 import round from "../../helpers/round.js"
+import log from "../../helpers/log.js"
+import getUniqueValues from "../exporting/getUniqueValues.js"
 
 export default function correlation(
     data: SimpleDataItem[],
     keyX?: string,
     keyY?: string | string[],
+    keyCategory?: string,
     nbDigits = 4,
     verbose = false,
     nbTestedValues = 10000
 ): SimpleDataItem[] {
     const correlations = []
+
+    if (keyCategory === undefined) {
+        verbose && log("No keyCategory provided. Data won't be grouped.")
+    } else if (typeof keyCategory === "string") {
+        if (!hasKey(data, keyCategory)) {
+            throw new Error("No keyCategory " + keyCategory)
+        }
+        if (
+            !checkTypeOfKey(
+                data,
+                keyCategory,
+                "string",
+                1,
+                nbTestedValues,
+                verbose
+            )
+        ) {
+            throw new Error(`Values in ${keyCategory} must be strings.`)
+        }
+    } else {
+        throw new Error(
+            "keyCategory must be either a string or an array of string"
+        )
+    }
 
     if (
         keyX === undefined &&
@@ -76,16 +106,46 @@ export default function correlation(
 
     const correlationData = []
 
-    for (const corr of correlations) {
-        const x = data.map((d) => d[corr.keyX])
-        const y = data.map((d) => d[corr.keyY])
+    if (keyCategory) {
+        const categories = getUniqueValues(data, keyCategory)
 
-        const result = sampleCorrelation(x as number[], y as number[])
+        for (const category of categories) {
+            for (const corr of correlations) {
+                const x = data
+                    .filter((d) => d[keyCategory] === category)
+                    .map((d) => d[corr.keyX])
+                const y = data
+                    .filter((d) => d[keyCategory] === category)
+                    .map((d) => d[corr.keyY])
 
-        correlationData.push({
-            ...corr,
-            correlation: Number.isNaN(result) ? NaN : round(result, nbDigits),
-        })
+                const result = sampleCorrelation(x as number[], y as number[])
+
+                const obj: { [key: string]: SimpleDataValue } = {}
+                obj[keyCategory] = category
+
+                correlationData.push({
+                    ...obj,
+                    ...corr,
+                    correlation: Number.isNaN(result)
+                        ? NaN
+                        : round(result, nbDigits),
+                })
+            }
+        }
+    } else {
+        for (const corr of correlations) {
+            const x = data.map((d) => d[corr.keyX])
+            const y = data.map((d) => d[corr.keyY])
+
+            const result = sampleCorrelation(x as number[], y as number[])
+
+            correlationData.push({
+                ...corr,
+                correlation: Number.isNaN(result)
+                    ? NaN
+                    : round(result, nbDigits),
+            })
+        }
     }
 
     return correlationData
