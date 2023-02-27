@@ -35,7 +35,7 @@ export default function correlation(
         (keyY === undefined || (Array.isArray(keyY) && keyY.length === 0))
     ) {
         const keys = Object.keys(data[0]).filter((d) =>
-            checkTypeOfKey(data, d, "number", 1, nbTestedValues, verbose)
+            checkTypeOfKey(data, d, "number", 1, nbTestedValues, verbose, true)
         )
         const combi = combinations(keys, 2)
 
@@ -49,19 +49,13 @@ export default function correlation(
         if (!hasKey(data, keyX)) {
             throw new Error(`No key ${keyX} in data`)
         }
-        if (!checkTypeOfKey(data, keyX, "number", 1, nbTestedValues, verbose)) {
-            throw new Error(`At least one value in ${keyX} is not a number.`)
-        }
+        checkTypeOfKey(data, keyX, "number", 1, nbTestedValues, verbose)
 
         for (const key of keyY) {
             if (!hasKey(data, key)) {
                 throw new Error(`No key ${key} in data`)
             }
-            if (
-                !checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
-            ) {
-                throw new Error(`At least one value in ${key} is not a number.`)
-            }
+            checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
             correlations.push({
                 keyX: keyX,
                 keyY: key,
@@ -71,15 +65,11 @@ export default function correlation(
         if (!hasKey(data, keyX)) {
             throw new Error(`No key ${keyX} in data`)
         }
-        if (!checkTypeOfKey(data, keyX, "number", 1, nbTestedValues, verbose)) {
-            throw new Error(`At least one value in ${keyX} is not a number.`)
-        }
+        checkTypeOfKey(data, keyX, "number", 1, nbTestedValues, verbose)
         if (!hasKey(data, keyY)) {
             throw new Error(`No key ${keyY} in data`)
         }
-        if (!checkTypeOfKey(data, keyY, "number", 1, nbTestedValues, verbose)) {
-            throw new Error(`At least one value in ${keyY} is not a number.`)
-        }
+        checkTypeOfKey(data, keyY, "number", 1, nbTestedValues, verbose)
         correlations.push({
             keyX: keyX,
             keyY: keyY,

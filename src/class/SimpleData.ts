@@ -14,7 +14,9 @@ import getDataAsArrays_ from "../methods/exporting/getDataAsArrays.js"
 import showTable_ from "../methods/showTable.js"
 import checkValues_ from "../methods/cleaning/checkValues.js"
 import excludeMissingValues_ from "../methods/cleaning/excludeMissingValues.js"
-import keepMissingValues_ from "../methods/cleaning/keepMissingValues.js"
+import keepNumbers_ from "../methods/cleaning/keepNumbers.js"
+import keepDates_ from "../methods/cleaning/keepDates.js"
+import keepStrings_ from "../methods/cleaning/keepStrings.js"
 import removeKey_ from "../methods/restructuring/removeKey.js"
 import valuesToString_ from "../methods/cleaning/valuesToString.js"
 import valuesToInteger_ from "../methods/cleaning/valuesToInteger.js"
@@ -24,7 +26,6 @@ import datesToString_ from "../methods/cleaning/datesToString.js"
 import filterValues_ from "../methods/selecting/filterValues.js"
 import filterItems_ from "../methods/selecting/filterItems.js"
 import removeDuplicates_ from "../methods/cleaning/removeDuplicates.js"
-import keepDuplicates_ from "../methods/cleaning/keepDuplicates.js"
 import roundValues_ from "../methods/cleaning/roundValues.js"
 import replaceValues_ from "../methods/cleaning/replaceValues.js"
 import addKey_ from "../methods/restructuring/addKey.js"
@@ -250,10 +251,12 @@ export default class SimpleData {
     excludeMissingValues({
         key,
         missingValues,
+        keepExcludedOnly = false,
         overwrite = true,
     }: {
         key?: string
         missingValues?: SimpleDataValue[]
+        keepExcludedOnly?: boolean
         overwrite?: boolean
     } = {}): this {
         this._overwrite = overwrite
@@ -264,6 +267,30 @@ export default class SimpleData {
             cloneData(this._data),
             key,
             missingValues,
+            this.verbose,
+            keepExcludedOnly
+        )
+        overwrite && this.#updateSimpleData(this._tempData)
+
+        return this
+    }
+
+    @logCall()
+    keepNumbers({
+        key,
+        keepNonNumbersOnly = false,
+        overwrite = true,
+    }: {
+        key: string
+        keepNonNumbersOnly?: boolean
+        overwrite?: boolean
+    }): this {
+        this._overwrite = overwrite
+
+        this._tempData = keepNumbers_(
+            cloneData(this._data),
+            key,
+            keepNonNumbersOnly,
             this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)
@@ -272,23 +299,44 @@ export default class SimpleData {
     }
 
     @logCall()
-    keepMissingValues({
+    keepDates({
         key,
-        missingValues,
+        keepNonDatesOnly = false,
         overwrite = true,
     }: {
-        key?: string
-        missingValues?: SimpleDataValue[]
+        key: string
+        keepNonDatesOnly?: boolean
         overwrite?: boolean
-    } = {}): this {
+    }): this {
         this._overwrite = overwrite
-        if (missingValues === undefined) {
-            missingValues = [null, NaN, undefined, ""]
-        }
-        this._tempData = keepMissingValues_(
+
+        this._tempData = keepDates_(
             cloneData(this._data),
             key,
-            missingValues,
+            keepNonDatesOnly,
+            this.verbose
+        )
+        overwrite && this.#updateSimpleData(this._tempData)
+
+        return this
+    }
+
+    @logCall()
+    keepStrings({
+        key,
+        keepNonStringOnly = false,
+        overwrite = true,
+    }: {
+        key: string
+        keepNonStringOnly?: boolean
+        overwrite?: boolean
+    }): this {
+        this._overwrite = overwrite
+
+        this._tempData = keepStrings_(
+            cloneData(this._data),
+            key,
+            keepNonStringOnly,
             this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)
@@ -836,10 +884,12 @@ export default class SimpleData {
     @logCall()
     removeDuplicates({
         key,
+        keepDuplicatesOnly = false,
         nbToKeep = 1,
         overwrite = true,
     }: {
         key?: string
+        keepDuplicatesOnly?: boolean
         nbToKeep?: number
         overwrite?: boolean
     } = {}): this {
@@ -847,23 +897,8 @@ export default class SimpleData {
         this._tempData = removeDuplicates_(
             cloneData(this._data),
             key,
+            keepDuplicatesOnly,
             nbToKeep,
-            this.verbose
-        )
-        overwrite && this.#updateSimpleData(this._tempData)
-
-        return this
-    }
-
-    @logCall()
-    keepDuplicates({
-        key,
-        overwrite = true,
-    }: { key?: string; overwrite?: boolean } = {}): this {
-        this._overwrite = overwrite
-        this._tempData = keepDuplicates_(
-            cloneData(this._data),
-            key,
             this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)

@@ -23,9 +23,7 @@ export default function addVariation(
                 " already exists in the data. Write a new name."
         )
     }
-    if (!checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)) {
-        throw new Error(`At least one value in ${key} is not a number.`)
-    }
+    checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
 
     if (order === "ascending") {
         data.sort((a, b) => ((a[key] as number) < (b[key] as number) ? -1 : 1))

@@ -10,7 +10,8 @@ export default function excludeMissingValues(
     data: SimpleDataItem[],
     key?: string,
     missingValues: SimpleDataValue[] = [null, NaN, undefined, ""],
-    verbose = false
+    verbose = false,
+    keepMissingValuesOnly = false
 ): SimpleDataItem[] {
     let filteredData: SimpleDataItem[] = []
 
@@ -24,7 +25,7 @@ export default function excludeMissingValues(
                     break
                 }
             }
-            return check
+            return keepMissingValuesOnly ? !check : check
         })
     } else if (hasKey(data, key)) {
         filteredData = data.filter((d) => !missingValues.includes(d[key]))

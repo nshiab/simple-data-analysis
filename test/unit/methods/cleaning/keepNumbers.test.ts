@@ -1,8 +1,8 @@
 import assert from "assert"
-import excludeMissingValues from "../../../../src/methods/cleaning/excludeMissingValues.js"
+import keepNumbers from "../../../../src/methods/cleaning/keepNumbers.js"
 
-describe("excludeMissingValues", function () {
-    it("should exclude missing values", function () {
+describe("keepNumbers", function () {
+    it("should keep only valid numbers", function () {
         const data = [
             { key1: null, key2: 2 },
             { key1: NaN, key2: 3 },
@@ -11,10 +11,10 @@ describe("excludeMissingValues", function () {
             { key1: 11, key2: 22 },
         ]
 
-        const cleanData = excludeMissingValues(data)
+        const cleanData = keepNumbers(data, "key1")
         assert.deepEqual(cleanData, [{ key1: 11, key2: 22 }])
     })
-    it("should keep missing values", function () {
+    it("should keep only non valid numbers", function () {
         const data = [
             { key1: null, key2: 2 },
             { key1: NaN, key2: 3 },
@@ -23,14 +23,8 @@ describe("excludeMissingValues", function () {
             { key1: 11, key2: 22 },
         ]
 
-        const missingData = excludeMissingValues(
-            data,
-            undefined,
-            undefined,
-            undefined,
-            true
-        )
-        assert.deepEqual(missingData, [
+        const cleanData = keepNumbers(data, "key1", true)
+        assert.deepEqual(cleanData, [
             { key1: null, key2: 2 },
             { key1: NaN, key2: 3 },
             { key1: undefined, key2: 4 },

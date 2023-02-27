@@ -7,8 +7,9 @@ export default function checkTypeOfKey(
     key: string,
     type: string,
     threshold: number,
-    nbTestedValues: number,
-    verbose = false
+    nbTestedValues = 10000,
+    verbose = false,
+    noError = false
 ): boolean {
     const nbTested = data.length < nbTestedValues ? data.length : nbTestedValues
     verbose &&
@@ -22,13 +23,54 @@ export default function checkTypeOfKey(
 
     if (type === "Date") {
         for (let i = 0; i < nbTested; i++) {
-            if (data[i][key] instanceof Date) {
+            const typeCheck =
+                data[i][key] instanceof Date && !isNaN(data[i][key] as number) // in fact, it's a Date.
+            if (typeCheck) {
                 foundType += 1
-            } else if (
-                data[i][key] instanceof Date === false &&
-                threshold === 1
-            ) {
-                break
+            } else if (!typeCheck && threshold === 1) {
+                if (noError) {
+                    break
+                } else {
+                    throw new Error(
+                        `${data[i][key]} in ${key} is not a valid Date.`
+                    )
+                }
+            }
+        }
+    } else if (type === "number") {
+        for (let i = 0; i < nbTested; i++) {
+            const typeCheck =
+                typeof data[i][key] === "number" && !Number.isNaN(data[i][key])
+            if (typeCheck) {
+                foundType += 1
+            } else if (!typeCheck && threshold === 1) {
+                if (noError) {
+                    break
+                } else {
+                    throw new Error(
+                        `${data[i][key]} in ${key} is not a valid number.`
+                    )
+                }
+            }
+        }
+    } else if (type === "string") {
+        for (let i = 0; i < nbTested; i++) {
+            const typeCheck =
+                typeof data[i][key] === "string" && data[i][key] !== ""
+            if (typeCheck) {
+                foundType += 1
+            } else if (!typeCheck && threshold === 1) {
+                if (noError) {
+                    break
+                } else {
+                    throw new Error(
+                        `${
+                            data[i][key] === ""
+                                ? "<empty string>"
+                                : data[i][key]
+                        } in ${key} is not a valid string.`
+                    )
+                }
             }
         }
     } else {
@@ -36,28 +78,29 @@ export default function checkTypeOfKey(
             if (typeof data[i][key] === type) {
                 foundType += 1
             } else if (typeof data[i][key] !== type && threshold === 1) {
-                break
+                if (noError) {
+                    break
+                } else {
+                    throw new Error(
+                        `${data[i][key]} in ${key} is not a valid ${type}.`
+                    )
+                }
             }
         }
     }
     const percentTest = foundType / nbTested
-    const test = percentTest >= threshold
-    if (!test) {
-        if (threshold === 1) {
-            verbose &&
-                log(
-                    `=> ${key} : at least one of the tested values (n=${nbTested} / ${percentTested} of data) is not a ${type} (threshold: ${threshold})`,
-                    "blue"
-                )
+    const message = `=> ${key} : ${
+        (1 - percentTest) * 100
+    }% of tested values (n=${nbTested} / ${percentTested} of data) are not a ${type} (threshold: ${threshold})`
+
+    if (percentTest < threshold) {
+        if (noError) {
+            verbose && log(message)
+            return false
         } else {
-            verbose &&
-                log(
-                    `=> ${key} : ${
-                        (1 - percentTest) * 100
-                    }% of tested values (n=${nbTested} / ${percentTested} of data) are not a ${type} (threshold: ${threshold})`,
-                    "blue"
-                )
+            throw new Error(message)
         }
+    } else {
+        return true
     }
-    return test
 }

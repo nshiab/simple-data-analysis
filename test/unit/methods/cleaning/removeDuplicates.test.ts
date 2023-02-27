@@ -40,13 +40,27 @@ describe("removeDuplicates", function () {
         ])
     })
 
+    it("should keep only duplicates with specific key", function () {
+        const data = [
+            { id: 0, key1: 1, key2: 1 },
+            { id: 1, key1: 2, key2: 2 },
+            { id: 1, key1: 3, key2: 3 },
+            { id: 2, key1: 4, key2: 4 },
+        ]
+        const newData = removeDuplicates(data, "id", true)
+        assert.deepEqual(newData, [
+            { id: 1, key1: 2, key2: 2 },
+            { id: 1, key1: 3, key2: 3 },
+        ])
+    })
+
     it("should remove duplicates but keep none", function () {
         const data = [
             { key1: 1, key2: 1 },
             { key1: 1, key2: 1 },
             { key1: 2, key2: 2 },
         ]
-        const newData = removeDuplicates(data, undefined, 0)
+        const newData = removeDuplicates(data, undefined, false, 0)
         assert.deepEqual(newData, [{ key1: 2, key2: 2 }])
     })
 
@@ -57,7 +71,7 @@ describe("removeDuplicates", function () {
             { id: 1, key1: 3, key2: 3 },
             { id: 2, key1: 4, key2: 4 },
         ]
-        const newData = removeDuplicates(data, "id", 0)
+        const newData = removeDuplicates(data, "id", false, 0)
         assert.deepEqual(newData, [
             { id: 0, key1: 1, key2: 1 },
             { id: 2, key1: 4, key2: 4 },

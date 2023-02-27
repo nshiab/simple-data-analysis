@@ -21,9 +21,7 @@ export default function addQuantiles(
     if (nbQuantiles < 1) {
         throw new Error("nbQuantiles should always be > 0.")
     }
-    if (!checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)) {
-        throw new Error(`At least one value in ${key} is not a number.`)
-    }
+    checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
 
     const quantileGenerator = scaleQuantile()
         .domain(data.map((d) => d[key] as number))

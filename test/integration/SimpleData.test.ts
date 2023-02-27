@@ -70,7 +70,6 @@ async function main() {
         .renameKey({ oldKey: "endOfYearBonus", newKey: "bonus" })
         .checkValues({ overwrite: false })
         .removeDuplicates()
-        .keepMissingValues({ key: "name", overwrite: false })
         .excludeMissingValues({ key: "name" })
         .excludeMissingValues()
         .addKey({
