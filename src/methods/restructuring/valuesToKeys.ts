@@ -10,10 +10,10 @@ export default function valuesToKeys(
     newValues: string,
     verbose = false
 ) {
-    if (!hasKey(data[0], newKeys)) {
+    if (!hasKey(data, newKeys)) {
         throw new Error("No key " + newKeys + " in the data")
     }
-    if (!hasKey(data[0], newValues)) {
+    if (!hasKey(data, newValues)) {
         throw new Error("No key " + newValues + " in the data")
     }
 

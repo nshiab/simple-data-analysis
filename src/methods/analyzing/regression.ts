@@ -52,7 +52,7 @@ export default function regression(
             })
         }
     } else if (typeof keyX === "string" && Array.isArray(keyY)) {
-        if (!hasKey(data[0], keyX)) {
+        if (!hasKey(data, keyX)) {
             throw new Error(`No key ${keyX} in data`)
         }
         if (!checkTypeOfKey(data, keyX, "number", 1, nbTestedValues, verbose)) {
@@ -60,7 +60,7 @@ export default function regression(
         }
 
         for (const key of keyY) {
-            if (!hasKey(data[0], key)) {
+            if (!hasKey(data, key)) {
                 throw new Error(`No key ${key} in data`)
             }
             if (
@@ -74,13 +74,13 @@ export default function regression(
             })
         }
     } else if (typeof keyX === "string" && typeof keyY === "string") {
-        if (!hasKey(data[0], keyX)) {
+        if (!hasKey(data, keyX)) {
             throw new Error(`No key ${keyX} in data`)
         }
         if (!checkTypeOfKey(data, keyX, "number", 1, nbTestedValues, verbose)) {
             throw new Error(`At least one value in ${keyX} is not a number.`)
         }
-        if (!hasKey(data[0], keyY)) {
+        if (!hasKey(data, keyY)) {
             throw new Error(`No key ${keyY} in data`)
         }
         if (!checkTypeOfKey(data, keyY, "number", 1, nbTestedValues, verbose)) {

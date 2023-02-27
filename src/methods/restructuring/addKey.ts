@@ -9,7 +9,7 @@ export default function addKey(
     key: string,
     itemGenerator: (item: SimpleDataItem) => SimpleDataValue
 ): SimpleDataItem[] {
-    if (hasKey(data[0], key)) {
+    if (hasKey(data, key)) {
         throw new Error("Already a key named " + key)
     }
 

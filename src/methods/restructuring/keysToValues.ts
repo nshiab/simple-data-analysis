@@ -15,14 +15,14 @@ export default function keysToValues(
     if (newKeyForValues === undefined) {
         throw new Error("You need to provide a newKeyForValues")
     }
-    if (hasKey(data[0], newKeyForKeys)) {
+    if (hasKey(data, newKeyForKeys)) {
         throw new Error("Already a key named " + newKeyForKeys)
     }
-    if (hasKey(data[0], newKeyForValues)) {
+    if (hasKey(data, newKeyForValues)) {
         throw new Error("Already a key named " + newKeyForValues)
     }
     for (const key of keys) {
-        if (!hasKey(data[0], key)) {
+        if (!hasKey(data, key)) {
             throw new Error("No key " + key + " in the data")
         }
     }

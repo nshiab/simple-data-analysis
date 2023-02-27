@@ -77,7 +77,7 @@ export default function checkValues(
                 typeOf = typeof array[i]
             }
 
-            if (!hasKey(checks, typeOf)) {
+            if (!hasKey([checks], typeOf)) {
                 checks[typeOf] = 1
             } else {
                 ;(checks[typeOf] as number) += 1

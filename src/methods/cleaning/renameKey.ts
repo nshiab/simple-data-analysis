@@ -6,11 +6,11 @@ export default function renameKey(
     oldKey: string,
     newKey: string
 ): SimpleDataItem[] {
-    if (!hasKey(data[0], oldKey)) {
+    if (!hasKey(data, oldKey)) {
         throw new Error("No key " + oldKey)
     }
 
-    if (newKey && hasKey(data[0], newKey)) {
+    if (newKey && hasKey(data, newKey)) {
         throw new Error(newKey + " already exists")
     }
 

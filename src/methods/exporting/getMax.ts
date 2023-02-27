@@ -15,7 +15,7 @@ export default function getMax(
     type: "number" | "Date" = "number",
     verbose = false
 ): SimpleDataValue {
-    if (!hasKey(data[0], key)) {
+    if (!hasKey(data, key)) {
         throw new Error(`No key ${key} in data`)
     }
     if (!checkTypeOfKey(data, key, type, 1, nbTestedValues, verbose)) {

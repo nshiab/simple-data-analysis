@@ -22,10 +22,10 @@ export default function mergeItems(
         newData = dataToBeMerged
     }
 
-    if (!hasKey(data[0], commonKey)) {
+    if (!hasKey(data, commonKey)) {
         throw new Error("No key named " + commonKey + " in data")
     }
-    if (!hasKey(newData[0], commonKey)) {
+    if (!hasKey(newData, commonKey)) {
         throw new Error("No key named " + commonKey + " in dataToBeMerged")
     }
 

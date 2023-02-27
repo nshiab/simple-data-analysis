@@ -26,7 +26,7 @@ export default function excludeMissingValues(
             }
             return check
         })
-    } else if (hasKey(data[0], key)) {
+    } else if (hasKey(data, key)) {
         filteredData = data.filter((d) => !missingValues.includes(d[key]))
     } else {
         throw new Error("No key " + key)

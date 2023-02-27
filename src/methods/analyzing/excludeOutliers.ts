@@ -11,7 +11,7 @@ export default function excludeOutliers(
     nbTestedValues = 10000,
     verbose = false
 ): SimpleDataItem[] {
-    if (!hasKey(data[0], key)) {
+    if (!hasKey(data, key)) {
         throw new Error("No key " + key)
     }
     if (!checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)) {

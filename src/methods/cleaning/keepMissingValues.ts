@@ -26,7 +26,7 @@ export default function keepMissingValues(
             }
             return !check // adding ! is the only difference with excludeMissingValues.ts
         })
-    } else if (hasKey(data[0], key)) {
+    } else if (hasKey(data, key)) {
         filteredData = data.filter((d) => missingValues.includes(d[key])) // removing ! before missingValues is the only difference with excludeMissingValues.ts
     } else {
         throw new Error("No key " + key)

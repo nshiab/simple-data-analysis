@@ -29,7 +29,7 @@ export default function removeDuplicates(
                 }
             }
         } else {
-            if (!hasKey(data[0], key)) {
+            if (!hasKey(data, key)) {
                 throw new Error(`${key} key is not present in data.`)
             }
             for (let i = 0; i < data.length; i++) {
@@ -45,7 +45,7 @@ export default function removeDuplicates(
         if (key === undefined) {
             result = uniqWith(data, isEqual)
         } else {
-            if (!hasKey(data[0], key)) {
+            if (!hasKey(data, key)) {
                 throw new Error(`${key} key is not present in data.`)
             }
             result = uniqBy(data, key)

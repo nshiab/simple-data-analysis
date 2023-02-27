@@ -6,11 +6,11 @@ export default function (
     key: string,
     newKey?: string
 ): string {
-    if (!hasKey(data[0], key)) {
+    if (!hasKey(data, key)) {
         throw new Error("No key " + key)
     }
 
-    if (newKey && hasKey(data[0], newKey)) {
+    if (newKey && hasKey(data, newKey)) {
         throw new Error(newKey + " already exists")
     }
 

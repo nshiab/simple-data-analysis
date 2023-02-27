@@ -5,7 +5,7 @@ export default function removeKey(
     data: SimpleDataItem[],
     key: string
 ): SimpleDataItem[] {
-    if (!hasKey(data[0], key)) {
+    if (!hasKey(data, key)) {
         throw new Error("No key " + key)
     }
 
