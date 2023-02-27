@@ -17,7 +17,18 @@ export default function summarize(
     nbDigits?: number
 ): SimpleDataItem[] {
     if (keyValue === undefined) {
-        keyValue = Object.keys(data[0])
+        verbose && log(`No keyValue provided. Will summarize over all keys.`)
+        keyValue = Object.keys(data[0]).filter((d) => {
+            if (checkTypeOfKey(data, d, "number", 1, nbTestedValues)) {
+                return true
+            } else {
+                verbose &&
+                    log(
+                        `At least one value in ${d} is not a number. Excluded from summaries.`
+                    )
+                return false
+            }
+        })
     }
 
     // Let's deal with the keyCategory first
@@ -94,14 +105,29 @@ export default function summarize(
     const summariesResults = []
 
     for (const value of keyValues) {
-        const isNumber = checkTypeOfKey(
-            data,
-            value,
-            "number",
-            1,
-            nbTestedValues,
-            verbose
-        )
+        if (
+            summaries.includes("sum") ||
+            summaries.includes("mean") ||
+            summaries.includes("median") ||
+            summaries.includes("deviation") ||
+            summaries.includes("weightedMean")
+        ) {
+            if (
+                !checkTypeOfKey(
+                    data,
+                    value,
+                    "number",
+                    1,
+                    nbTestedValues,
+                    verbose
+                )
+            ) {
+                throw new Error(
+                    `At least one value in ${value} is not a number. To summarize with sum, mean, median, deviation, and weightedMean, all values must be a number.`
+                )
+            }
+        }
+
         for (const summary of summaries) {
             let func: (v: SimpleDataItem[]) => number | undefined
             if (summary === "count") {
@@ -111,55 +137,14 @@ export default function summarize(
             } else if (summary === "max") {
                 func = (v) => max(v, (d) => d[value] as number | undefined)
             } else if (summary === "sum") {
-                if (isNumber) {
-                    func = (v) => sum(v, (d) => d[value] as number | undefined)
-                } else {
-                    verbose &&
-                        log(
-                            "The majority of " +
-                                value +
-                                " values are not numbers. Returning NaN for sum."
-                        )
-                    func = () => NaN
-                }
+                func = (v) => sum(v, (d) => d[value] as number | undefined)
             } else if (summary === "mean") {
-                if (isNumber) {
-                    func = (v) => mean(v, (d) => d[value] as number | undefined)
-                } else {
-                    verbose &&
-                        log(
-                            "The majority of " +
-                                value +
-                                " values are not numbers. Returning NaN for mean."
-                        )
-                    func = () => NaN
-                }
+                func = (v) => mean(v, (d) => d[value] as number | undefined)
             } else if (summary === "median") {
-                if (isNumber) {
-                    func = (v) =>
-                        median(v, (d) => d[value] as number | undefined)
-                } else {
-                    verbose &&
-                        log(
-                            "The majority of " +
-                                value +
-                                " values are not numbers. Returning NaN for median."
-                        )
-                    func = () => NaN
-                }
+                func = (v) => median(v, (d) => d[value] as number | undefined)
             } else if (summary === "deviation") {
-                if (isNumber) {
-                    func = (v) =>
-                        deviation(v, (d) => d[value] as number | undefined)
-                } else {
-                    verbose &&
-                        log(
-                            "The majority of " +
-                                value +
-                                " values are not numbers. Returning NaN for deviation."
-                        )
-                    func = () => NaN
-                }
+                func = (v) =>
+                    deviation(v, (d) => d[value] as number | undefined)
             } else if (summary === "weightedMean") {
                 if (weight === undefined) {
                     throw new Error("Missing argument weight")

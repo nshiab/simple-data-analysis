@@ -4,8 +4,8 @@ import summarize from "../../../../src/methods/analyzing/summarize.js"
 describe("summarize", function () {
     it("should summarize without keyCategory", function () {
         const data = [
-            { key1: "Rubarbe", key2: 2, key3: new Date("2022-02-14") },
-            { key1: "Fraise", key2: 22, key3: new Date("2014-02-14") },
+            { key1: 1, key2: 2, key3: 55 },
+            { key1: 2, key2: 22, key3: 99 },
         ]
         const summarizedData = summarize(
             data,
@@ -21,12 +21,12 @@ describe("summarize", function () {
             {
                 value: "key1",
                 count: 2,
-                min: NaN,
-                max: NaN,
-                sum: NaN,
-                mean: NaN,
-                median: NaN,
-                deviation: NaN,
+                min: 1,
+                max: 2,
+                sum: 3,
+                mean: 1.5,
+                median: 1.5,
+                deviation: 0.7,
             },
             {
                 value: "key2",
@@ -41,12 +41,12 @@ describe("summarize", function () {
             {
                 value: "key3",
                 count: 2,
-                min: NaN,
-                max: NaN,
-                sum: NaN,
-                mean: NaN,
-                median: NaN,
-                deviation: NaN,
+                min: 55,
+                max: 99,
+                sum: 154,
+                mean: 77,
+                median: 77,
+                deviation: 31.1,
             },
         ])
     })
