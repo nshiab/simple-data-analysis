@@ -96,6 +96,20 @@ async function main() {
         title: "Awesome chart",
     })
 
+    simpleDataNode.saveChart({
+        path: `${directory}/small-multiples.html`,
+        type: "dot",
+        x: "salary",
+        y: "bonus",
+        trend: true,
+        showTrendEquation: true,
+        width: 600,
+        title: "Small multiples",
+        smallMultipleKey: "job",
+        smallMultipleWidth: 200,
+        smallMultipleHeight: 200,
+    })
+
     simpleDataNode
         .clone()
         .filterValues({
