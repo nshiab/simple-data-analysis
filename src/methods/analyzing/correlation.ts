@@ -18,8 +18,6 @@ export default function correlation(
     verbose = false,
     nbTestedValues = 10000
 ): SimpleDataItem[] {
-    const correlations = []
-
     if (keyCategory === undefined) {
         verbose && log("No keyCategory provided. Data won't be grouped.")
     } else if (typeof keyCategory === "string") {
@@ -39,10 +37,10 @@ export default function correlation(
             throw new Error(`Values in ${keyCategory} must be strings.`)
         }
     } else {
-        throw new Error(
-            "keyCategory must be either a string or an array of string"
-        )
+        throw new Error("keyCategory must be a string")
     }
+
+    const correlations: { [key: string]: string }[] = []
 
     if (
         keyX === undefined &&
@@ -104,9 +102,9 @@ export default function correlation(
         )
     }
 
-    const correlationData = []
+    const correlationData: SimpleDataItem[] = []
 
-    if (keyCategory) {
+    if (typeof keyCategory === "string") {
         const categories = getUniqueValues(data, keyCategory)
 
         for (const category of categories) {
@@ -118,35 +116,38 @@ export default function correlation(
                     .filter((d) => d[keyCategory] === category)
                     .map((d) => d[corr.keyY])
 
-                const result = sampleCorrelation(x as number[], y as number[])
+                if (typeof category !== "string") {
+                    throw new Error(`Values of ${keyCategory} must be strings`)
+                }
+                corr[keyCategory] = category
 
-                const obj: { [key: string]: SimpleDataValue } = {}
-                obj[keyCategory] = category
-
-                correlationData.push({
-                    ...obj,
-                    ...corr,
-                    correlation: Number.isNaN(result)
-                        ? NaN
-                        : round(result, nbDigits),
-                })
+                computeCorr(x, y, corr, correlationData, nbDigits)
             }
         }
     } else {
         for (const corr of correlations) {
             const x = data.map((d) => d[corr.keyX])
             const y = data.map((d) => d[corr.keyY])
-
-            const result = sampleCorrelation(x as number[], y as number[])
-
-            correlationData.push({
-                ...corr,
-                correlation: Number.isNaN(result)
-                    ? NaN
-                    : round(result, nbDigits),
-            })
+            computeCorr(x, y, corr, correlationData, nbDigits)
         }
     }
 
     return correlationData
+}
+
+function computeCorr(
+    x: SimpleDataValue[],
+    y: SimpleDataValue[],
+    corr: {
+        [key: string]: string
+    },
+    correlationData: SimpleDataItem[],
+    nbDigits: number
+) {
+    const result = sampleCorrelation(x as number[], y as number[])
+
+    correlationData.push({
+        ...corr,
+        correlation: Number.isNaN(result) ? NaN : round(result, nbDigits),
+    })
 }

@@ -51,7 +51,14 @@ describe("regression", function () {
             { x: 7, y: 169 },
             { x: 8, y: 180 },
         ]
-        const regressionData = regression(data, "x", "y", "polynomial", 3)
+        const regressionData = regression(
+            data,
+            "x",
+            "y",
+            "polynomial",
+            undefined,
+            3
+        )
         assert.deepEqual(regressionData, [
             {
                 keyX: "x",
@@ -247,6 +254,84 @@ describe("regression", function () {
         ])
     })
 
+    it("should compute all regressions if key1 and key2 are undefined, but for each value in key4", function () {
+        const data = [
+            { key1: 1, key2: 2, key3: 3, key4: "a" },
+            { key1: 11, key2: 22, key3: 4, key4: "b" },
+            { key1: 111, key2: 222, key3: 5, key4: "b" },
+            { key1: 1111, key2: 2222, key3: 6, key4: "b" },
+            { key1: 11111, key2: 22222, key3: 7, key4: "a" },
+            { key1: 111111, key2: 222222, key3: 8, key4: "a" },
+        ]
+
+        const regressionData = regression(
+            data,
+            undefined,
+            undefined,
+            "linear",
+            "key4"
+        )
+        assert.deepEqual(regressionData, [
+            { keyX: "key1", keyY: "key2", key4: "a", a: 2, b: 0, r2: 1 },
+            {
+                keyX: "key1",
+                keyY: "key3",
+                key4: "a",
+                a: 0,
+                b: 4.7308,
+                r2: 0.5192,
+            },
+            {
+                keyX: "key2",
+                keyY: "key3",
+                key4: "a",
+                a: 0,
+                b: 4.7308,
+                r2: 0.5192,
+            },
+            { keyX: "key1", keyY: "key2", key4: "b", a: 2, b: 0, r2: 1 },
+            {
+                keyX: "key1",
+                keyY: "key3",
+                key4: "b",
+                a: 0.0015,
+                b: 4.3891,
+                r2: 0.8176,
+            },
+            {
+                keyX: "key2",
+                keyY: "key3",
+                key4: "b",
+                a: 0.0007,
+                b: 4.3891,
+                r2: 0.8176,
+            },
+        ])
+    })
+
+    it("should compute regressions for key1 and key2, but for each value in key4", function () {
+        const data = [
+            { key1: 1, key2: 2, key3: 3, key4: "a" },
+            { key1: 11, key2: 22, key3: 4, key4: "b" },
+            { key1: 111, key2: 222, key3: 5, key4: "b" },
+            { key1: 1111, key2: 2222, key3: 6, key4: "b" },
+            { key1: 11111, key2: 22222, key3: 7, key4: "a" },
+            { key1: 111111, key2: 222222, key3: 8, key4: "a" },
+        ]
+
+        const regressionData = regression(
+            data,
+            "key1",
+            "key2",
+            "linear",
+            "key4"
+        )
+        assert.deepEqual(regressionData, [
+            { keyX: "key1", keyY: "key2", key4: "a", a: 2, b: 0, r2: 1 },
+            { keyX: "key1", keyY: "key2", key4: "b", a: 2, b: 0, r2: 1 },
+        ])
+    })
+
     it("should compute multiple linear regressions if key2 is an array", function () {
         const data = [
             { key1: 1, key2: 2, key3: 3 },
@@ -285,6 +370,7 @@ describe("regression", function () {
             undefined,
             [],
             "linear",
+            undefined,
             undefined,
             2
         )

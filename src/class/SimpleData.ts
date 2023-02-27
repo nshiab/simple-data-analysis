@@ -1003,12 +1003,14 @@ export default class SimpleData {
     correlation({
         keyX,
         keyY,
+        keyCategory,
         nbDigits = 4,
         overwrite = true,
         nbTestedValues = 10000,
     }: {
         keyX?: string
         keyY?: string | string[]
+        keyCategory?: string
         overwrite?: boolean
         nbDigits?: number
         nbTestedValues?: number
@@ -1018,6 +1020,7 @@ export default class SimpleData {
             cloneData(this._data),
             keyX,
             keyY,
+            keyCategory,
             nbDigits,
             this.verbose,
             this.noTests ? 0 : nbTestedValues
@@ -1031,6 +1034,7 @@ export default class SimpleData {
     regression({
         keyX,
         keyY,
+        keyCategory,
         type = "linear",
         order,
         nbDigits = 4,
@@ -1039,6 +1043,7 @@ export default class SimpleData {
     }: {
         keyX?: string
         keyY?: string | string[]
+        keyCategory?: string
         type?:
             | "linear"
             | "quadratic"
@@ -1057,6 +1062,7 @@ export default class SimpleData {
             keyX,
             keyY,
             type,
+            keyCategory,
             order,
             nbDigits,
             this.verbose,
