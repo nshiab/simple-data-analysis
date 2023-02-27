@@ -179,7 +179,6 @@ function renderChart(
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const plotOptions: { [key: string]: any } = {
-        color: { scheme: "viridis" },
         grid: true,
         marks: [mark],
     }
@@ -215,6 +214,18 @@ function renderChart(
         }
         if (colorScale === "diverging") {
             plotOptions.color.scheme = "BuRd"
+        }
+        if (colorScale === "linear") {
+            plotOptions.color.scheme = "viridis"
+        }
+    } else if (
+        color &&
+        checkTypeOfKey(data, color, "number", 0.5, 100, false, true)
+    ) {
+        if (plotOptions.color) {
+            plotOptions.color.scheme = "viridis"
+        } else {
+            plotOptions.color = { scheme: "viridis" }
         }
     }
 

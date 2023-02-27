@@ -127,7 +127,7 @@ async function main() {
             type: "barHorizontal",
             x: "mean",
             y: "job",
-            color: "job",
+            color: "mean",
             marginLeft: 90,
         })
         .saveChart({
@@ -135,7 +135,7 @@ async function main() {
             type: "barHorizontal",
             x: "mean",
             y: "job",
-            color: "job",
+            color: "mean",
             marginLeft: 90,
             width: 200,
             height: 100,
