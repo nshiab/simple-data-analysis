@@ -1,10 +1,11 @@
 import getExtension from "../../helpers/getExtension.js"
-import log from "../../helpers/log.js"
+import { readFileSync, readdirSync } from "fs"
+import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import parseDataFile from "../../helpers/parseDataFile.js"
-import { SimpleDataItem } from "../../types/SimpleData.types"
+import log from "../../helpers/log.js"
 
-export default async function loadDataFromUrlWeb(
-    url: string | string[],
+export default function loadDataFromLocalDirectory(
+    path: string,
     autoType = false,
     dataAsArrays = false,
     firstItem = 0,
@@ -17,25 +18,23 @@ export default async function loadDataFromUrlWeb(
         NaN: NaN,
         undefined: undefined,
     },
+    encoding: BufferEncoding = "utf8",
     verbose = false,
     noTest = false
-): Promise<SimpleDataItem[]> {
-    const urls: string[] = []
+): SimpleDataItem[] {
+    const files = readdirSync(path)
+
+    verbose &&
+        log(`Files in the directory: ${JSON.stringify(files, undefined, 1)}`)
+
     const arrayOfObjects: SimpleDataItem[] = []
 
-    if (typeof url === "string") {
-        urls.push(url)
-    } else {
-        urls.push(...url)
-    }
+    for (const filePath of files.map((d) => `${path}${d}`)) {
+        verbose &&
+            log(`Reading ${filePath} with encoding ${encoding}...`, "blue")
+        const data = readFileSync(filePath, { encoding: encoding })
 
-    for (const url of urls) {
-        verbose && log(`Fetching ${url}...`, "blue")
-
-        const request = await fetch(url)
-        const data = await request.text()
-
-        const fileExtension = getExtension(url, verbose)
+        const fileExtension = getExtension(filePath, verbose)
 
         arrayOfObjects.push(
             ...parseDataFile(
@@ -54,5 +53,6 @@ export default async function loadDataFromUrlWeb(
             )
         )
     }
+
     return arrayOfObjects
 }
