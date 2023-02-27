@@ -195,6 +195,9 @@ export default class SimpleDataNode extends SimpleData {
         marginLeft = 0,
         marginBottom = 0,
         title,
+        smallMultipleKey,
+        smallMultipleWidth,
+        smallMultipleHeight,
     }: {
         path: string
         type:
@@ -217,6 +220,9 @@ export default class SimpleDataNode extends SimpleData {
         marginLeft?: number
         marginBottom?: number
         title?: string
+        smallMultipleKey?: string
+        smallMultipleWidth?: number
+        smallMultipleHeight?: number
     }): this {
         setJSDom()
 
@@ -233,11 +239,14 @@ export default class SimpleDataNode extends SimpleData {
             marginBottom,
             width,
             height,
-            title
+            title,
+            smallMultipleKey,
+            smallMultipleWidth,
+            smallMultipleHeight
         )
 
         fs.writeFileSync(path, chart)
-        this.verbose && log(`=> chart saved to ${path}`, "blue")
+        this.verbose && log(`=> Chart saved to ${path}`, "blue")
 
         return this
     }

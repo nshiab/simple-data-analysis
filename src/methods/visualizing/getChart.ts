@@ -1,5 +1,6 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import {
+    frame as frameMark,
     dot,
     line,
     barY,
@@ -13,6 +14,8 @@ import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 import { regressionLinear } from "d3-regression"
 import round from "../../helpers/round.js"
 import log from "../../helpers/log.js"
+import getUniqueValues from "../exporting/getUniqueValues.js"
+import hasKey from "../../helpers/hasKey.js"
 
 export default function getChart(
     data: SimpleDataItem[],
@@ -33,11 +36,113 @@ export default function getChart(
     showTrendEquation?: boolean,
     marginLeft?: number,
     marginBottom?: number,
+    width = 600,
+    height = 450,
+    title?: string,
+    smallMultipleKey?: string,
+    smallMultipleWidth?: number,
+    smallMultipleHeight?: number
+): string {
+    if (typeof smallMultipleKey === "string") {
+        if (!hasKey(data, smallMultipleKey)) {
+            throw new Error(`No smallMultipleKey ${smallMultipleKey} in data.`)
+        }
+
+        const smallMultiple = getUniqueValues(data, smallMultipleKey)
+
+        let multipleCharts = ""
+        const gap = 10
+
+        for (const multiple of smallMultiple) {
+            if (typeof multiple !== "string") {
+                throw new Error(
+                    `Values of ${smallMultipleKey} must be strings.`
+                )
+            }
+
+            multipleCharts += `<div>${renderChart(
+                data.filter((d) => d[smallMultipleKey] === multiple),
+                type,
+                x,
+                y,
+                color,
+                colorScale,
+                trend,
+                showTrendEquation,
+                marginLeft,
+                marginBottom,
+                smallMultipleWidth ? smallMultipleWidth - gap : width - gap,
+                smallMultipleHeight ? smallMultipleHeight : height,
+                multiple,
+                true
+            )}</div>`
+        }
+
+        let titleHTML = ""
+        if (title) {
+            titleHTML = `<div style="font-family:system-ui, sans-serif;font-size:20px;font-weight: bold;margin-bottom: 8px;">${title}</div>`
+        }
+
+        return `<div style='width: ${width}px; height: auto;'>
+                    <div>${titleHTML}</div>
+                    <div style='display: flex; flex-wrap: wrap; gap: ${gap}px; width: ${width}px; height: auto;'>
+                        ${multipleCharts}
+                    </div>
+        </div>`
+    } else {
+        return renderChart(
+            data,
+            type,
+            x,
+            y,
+            color,
+            colorScale,
+            trend,
+            showTrendEquation,
+            marginLeft,
+            marginBottom,
+            width,
+            height,
+            title
+        )
+    }
+}
+
+function renderChart(
+    data: SimpleDataItem[],
+    type:
+        | "dot"
+        | "line"
+        | "bar"
+        | "barVertical"
+        | "barHorizontal"
+        | "box"
+        | "boxVertical"
+        | "boxHorizontal",
+    x: string,
+    y: string,
+    color?: string,
+    colorScale?: "linear" | "diverging" | "categorical" | "ordinal",
+    trend?: boolean,
+    showTrendEquation?: boolean,
+    marginLeft?: number,
+    marginBottom?: number,
     width?: number,
     height?: number,
-    title?: string
-): string {
+    title?: string,
+    frame?: boolean
+) {
     const markOption: { [key: string]: string | number } = { x, y }
+
+    if (!hasKey(data, x)) {
+        throw new Error(`No x key ${x} in data.`)
+    }
+    if (!hasKey(data, y)) {
+        throw new Error(`No y key ${y} in data.`)
+    }
+    if (color && !hasKey(data, color)) {
+        throw new Error(`No color key ${color} in data.`)
+    }
 
     if (
         color &&
@@ -88,6 +193,10 @@ export default function getChart(
 
     if (trend) {
         plotOptions.marks.push(linearRegressionY(data, { x: x, y: y }))
+    }
+
+    if (frame) {
+        plotOptions.marks.push(frameMark())
     }
 
     if (marginLeft) {
@@ -187,6 +296,6 @@ export default function getChart(
         legendHTML +
         trendEquationHTML +
         chartHTML +
-        "</div"
+        "</div>"
     )
 }
