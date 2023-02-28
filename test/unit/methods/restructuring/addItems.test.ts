@@ -111,7 +111,6 @@ describe("addItems", function () {
     })
 
     it("should add items even if the SimpleData is empty", function () {
-        const data = []
         const dataToBeAdded = [
             { key1: 2, key2: 2 },
             { key1: 3, key2: 4 },
