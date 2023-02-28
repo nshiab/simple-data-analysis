@@ -6,13 +6,8 @@ export default function (
     key: string,
     newKey?: string
 ): string {
-    if (!hasKey(data, key)) {
-        throw new Error("No key " + key)
-    }
-
-    if (newKey && hasKey(data, newKey)) {
-        throw new Error(newKey + " already exists")
-    }
+    hasKey(data, key)
+    newKey && hasKey(data, newKey, true)
 
     return newKey ? newKey : key
 }

@@ -12,9 +12,7 @@ export default function filterValues(
     valueComparator: (val: SimpleDataValue) => SimpleDataValue,
     verbose = false
 ): SimpleDataItem[] {
-    if (!hasKey(data, key)) {
-        throw new Error("No key named " + key)
-    }
+    hasKey(data, key)
 
     const filteredData = data.filter((d) => valueComparator(d[key]))
 

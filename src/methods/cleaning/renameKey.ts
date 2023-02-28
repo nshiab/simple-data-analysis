@@ -6,13 +6,8 @@ export default function renameKey(
     oldKey: string,
     newKey: string
 ): SimpleDataItem[] {
-    if (!hasKey(data, oldKey)) {
-        throw new Error("No key " + oldKey)
-    }
-
-    if (newKey && hasKey(data, newKey)) {
-        throw new Error(newKey + " already exists")
-    }
+    hasKey(data, oldKey)
+    hasKey(data, newKey, true)
 
     for (let i = 0; i < data.length; i++) {
         const d = data[i]

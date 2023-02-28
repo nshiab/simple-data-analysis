@@ -10,15 +10,11 @@ export default function getArray(
 ): SimpleDataValue[] {
     let keys
     if (typeof key === "string") {
-        if (!hasKey(data, key)) {
-            throw new Error(`No key ${key} in data`)
-        }
+        hasKey(data, key)
         keys = [key]
     } else {
         for (const k of key) {
-            if (!hasKey(data, k)) {
-                throw new Error(`No key ${key} in data`)
-            }
+            hasKey(data, k)
         }
         keys = key
     }

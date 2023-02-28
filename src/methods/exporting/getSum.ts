@@ -14,9 +14,7 @@ export default function getSum(
     nbTestedValues = 10000,
     verbose = false
 ): SimpleDataValue {
-    if (!hasKey(data, key)) {
-        throw new Error(`No key ${key} in data`)
-    }
+    hasKey(data, key)
     checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
 
     const result = sum(data, (d) => d[key] as number)

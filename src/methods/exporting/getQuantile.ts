@@ -15,9 +15,7 @@ export default function getQuantile(
     nbTestedValues = 10000,
     verbose = false
 ): SimpleDataValue {
-    if (!hasKey(data, key)) {
-        throw new Error(`No key ${key} in data`)
-    }
+    hasKey(data, key)
     checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
 
     if (quantile === undefined) {

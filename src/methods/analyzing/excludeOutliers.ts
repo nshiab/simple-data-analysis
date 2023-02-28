@@ -11,9 +11,7 @@ export default function excludeOutliers(
     nbTestedValues = 10000,
     verbose = false
 ): SimpleDataItem[] {
-    if (!hasKey(data, key)) {
-        throw new Error("No key " + key)
-    }
+    hasKey(data, key)
     checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
 
     const values = data.map((d) => d[key]) as Iterable<number>

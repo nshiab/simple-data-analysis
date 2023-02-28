@@ -13,16 +13,8 @@ export default function addVariation(
     nbTestedValues = 10000,
     verbose = false
 ) {
-    if (!hasKey(data, key)) {
-        throw new Error("No key " + key + " in the data")
-    }
-    if (hasKey(data, newKey)) {
-        throw new Error(
-            "The newKey " +
-                newKey +
-                " already exists in the data. Write a new name."
-        )
-    }
+    hasKey(data, key)
+    hasKey(data, newKey, true)
     checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
 
     if (order === "ascending") {

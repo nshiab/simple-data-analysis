@@ -12,12 +12,8 @@ export default function addOutliers(
     nbTestedValues = 10000,
     verbose = false
 ): SimpleDataItem[] {
-    if (!hasKey(data, key)) {
-        throw new Error("No key " + key)
-    }
-    if (hasKey(data, newKey)) {
-        throw new Error("Already a key named " + key)
-    }
+    hasKey(data, key)
+    hasKey(data, newKey, true)
     checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
 
     const values = data.map((d) => d[key]) as Iterable<number>

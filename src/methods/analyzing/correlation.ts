@@ -21,9 +21,7 @@ export default function correlation(
     if (keyCategory === undefined) {
         verbose && log("No keyCategory provided. Data won't be grouped.")
     } else if (typeof keyCategory === "string") {
-        if (!hasKey(data, keyCategory)) {
-            throw new Error("No keyCategory " + keyCategory)
-        }
+        hasKey(data, keyCategory)
     } else {
         throw new Error("keyCategory must be a string")
     }
@@ -46,15 +44,11 @@ export default function correlation(
             })
         }
     } else if (typeof keyX === "string" && Array.isArray(keyY)) {
-        if (!hasKey(data, keyX)) {
-            throw new Error(`No key ${keyX} in data`)
-        }
+        hasKey(data, keyX)
         checkTypeOfKey(data, keyX, "number", 1, nbTestedValues, verbose)
 
         for (const key of keyY) {
-            if (!hasKey(data, key)) {
-                throw new Error(`No key ${key} in data`)
-            }
+            hasKey(data, key)
             checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
             correlations.push({
                 keyX: keyX,
@@ -62,13 +56,9 @@ export default function correlation(
             })
         }
     } else if (typeof keyX === "string" && typeof keyY === "string") {
-        if (!hasKey(data, keyX)) {
-            throw new Error(`No key ${keyX} in data`)
-        }
+        hasKey(data, keyX)
         checkTypeOfKey(data, keyX, "number", 1, nbTestedValues, verbose)
-        if (!hasKey(data, keyY)) {
-            throw new Error(`No key ${keyY} in data`)
-        }
+        hasKey(data, keyY)
         checkTypeOfKey(data, keyY, "number", 1, nbTestedValues, verbose)
         correlations.push({
             keyX: keyX,

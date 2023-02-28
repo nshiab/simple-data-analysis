@@ -10,9 +10,7 @@ export default function addRank(
     handleTies?: "tieNoGaps" | "tie" | "noTie",
     locale?: string | (string | undefined | null | boolean)[]
 ): SimpleDataItem[] {
-    if (hasKey(data, newKey)) {
-        throw new Error(`The newKey ${newKey} already exists`)
-    }
+    hasKey(data, newKey, true)
     if (!key) {
         data.map((datum, i) => {
             datum[newKey] = i + 1

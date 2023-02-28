@@ -15,9 +15,7 @@ export default function getMax(
     type: "number" | "Date" = "number",
     verbose = false
 ): SimpleDataValue {
-    if (!hasKey(data, key)) {
-        throw new Error(`No key ${key} in data`)
-    }
+    hasKey(data, key)
     checkTypeOfKey(data, key, type, 1, nbTestedValues, verbose)
 
     const result = max(data, (d) => d[key] as number | Date)

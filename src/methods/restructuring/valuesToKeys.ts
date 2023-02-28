@@ -10,12 +10,8 @@ export default function valuesToKeys(
     newValues: string,
     verbose = false
 ) {
-    if (!hasKey(data, newKeys)) {
-        throw new Error("No key " + newKeys + " in the data")
-    }
-    if (!hasKey(data, newValues)) {
-        throw new Error("No key " + newValues + " in the data")
-    }
+    hasKey(data, newKeys)
+    hasKey(data, newValues)
 
     const keysToKeep = Object.keys(data[0]).filter(
         (d) => ![newKeys, newValues].includes(d)

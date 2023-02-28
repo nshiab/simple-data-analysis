@@ -34,19 +34,8 @@ export default function addProportions(
         }
 
         for (const key of options.keys) {
-            if (!hasKey(data, key)) {
-                throw new Error("No key " + key + " in the data.")
-            }
-            if (hasKey(data, key + suffix)) {
-                throw new Error(
-                    "Your suffix is " +
-                        suffix +
-                        ", but there's already a key " +
-                        key +
-                        suffix +
-                        ". You need to choose another suffix."
-                )
-            }
+            hasKey(data, key)
+            hasKey(data, key + suffix, true)
             checkTypeOfKey(data, key, "number", 1, nbTestedValues)
         }
 
@@ -87,22 +76,10 @@ export default function addProportions(
                 "key is undefined. You need to specify on which key the proportions will be calculated."
             )
         }
-        if (!hasKey(data, options.key)) {
-            throw new Error("No key named " + options.key + " in the data")
-        }
 
+        hasKey(data, options.key)
         checkTypeOfKey(data, options.key, "number", 1, nbTestedValues)
-
-        if (options.newKey === undefined) {
-            throw new Error(
-                "newKey is undefined. Give a name to the new key that will be created"
-            )
-        }
-        if (hasKey(data, options.newKey)) {
-            throw new Error(
-                "Already an key named " + options.newKey + " in the data"
-            )
-        }
+        options.newKey && hasKey(data, options.newKey, true)
 
         const keyCategory =
             options.keyCategory === undefined
@@ -112,11 +89,7 @@ export default function addProportions(
                 : [options.keyCategory]
 
         for (const key of keyCategory) {
-            if (!hasKey(data, key)) {
-                throw new Error(
-                    "The key " + key + " does not exist in the data."
-                )
-            }
+            hasKey(data, key)
         }
 
         if (options.keys !== undefined) {
@@ -136,10 +109,9 @@ export default function addProportions(
                 total += data[i][options.key] as number
             }
             for (let i = 0; i < data.length; i++) {
-                data[i][options.newKey] = round(
-                    (data[i][options.key] as number) / total,
-                    nbDigits
-                )
+                data[i][
+                    options.newKey as string /*we are testing undefined with hasKey above*/
+                ] = round((data[i][options.key] as number) / total, nbDigits)
             }
         } else {
             const keyCategoryFunc = keyCategory.map(
@@ -173,12 +145,16 @@ export default function addProportions(
                 })
                 if (total) {
                     const totalValue = total[totalValueIndex] as number
-                    data[i][options.newKey] = round(
+                    data[i][
+                        options.newKey as string /*we are testing undefined with hasKey above*/
+                    ] = round(
                         (data[i][options.key] as number) / totalValue,
                         nbDigits
                     )
                 } else {
-                    data[i][options.newKey] === undefined
+                    data[i][
+                        options.newKey as string /*we are testing undefined with hasKey above*/
+                    ] === undefined
                 }
             }
         }

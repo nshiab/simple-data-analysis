@@ -8,9 +8,7 @@ export default function getUniqueValues(
     data: SimpleDataItem[],
     key: string
 ): SimpleDataValue[] {
-    if (!hasKey(data, key)) {
-        throw new Error(`No key ${key} in data`)
-    }
+    hasKey(data, key)
 
     const uniques = [...new Set(data.map((d) => d[key]))]
 

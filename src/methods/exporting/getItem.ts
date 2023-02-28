@@ -25,9 +25,7 @@ export default function getItem(
     }
 
     for (const key of keys) {
-        if (!hasKey(data, key)) {
-            throw new Error("No key " + key + " in the data.")
-        }
+        hasKey(data, key)
     }
 
     const values = Object.values(conditions)
