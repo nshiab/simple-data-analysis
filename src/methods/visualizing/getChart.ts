@@ -63,14 +63,14 @@ export default function getChart(
                 type,
                 x,
                 y,
+                smallMultipleWidth ? smallMultipleWidth - gap : width - gap,
+                smallMultipleHeight ? smallMultipleHeight - gap : height - gap,
                 color,
                 colorScale,
                 trend,
                 showTrendEquation,
                 marginLeft,
                 marginBottom,
-                smallMultipleWidth ? smallMultipleWidth - gap : width - gap,
-                smallMultipleHeight ? smallMultipleHeight : height,
                 multiple,
                 true
             )}</div>`
@@ -93,14 +93,14 @@ export default function getChart(
             type,
             x,
             y,
+            width,
+            height,
             color,
             colorScale,
             trend,
             showTrendEquation,
             marginLeft,
             marginBottom,
-            width,
-            height,
             title
         )
     }
@@ -119,14 +119,14 @@ function renderChart(
         | "boxHorizontal",
     x: string,
     y: string,
+    width: number,
+    height: number,
     color?: string,
     colorScale?: "linear" | "diverging" | "categorical" | "ordinal",
     trend?: boolean,
     showTrendEquation?: boolean,
     marginLeft?: number,
     marginBottom?: number,
-    width?: number,
-    height?: number,
     title?: string,
     frame?: boolean
 ) {
@@ -171,16 +171,10 @@ function renderChart(
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const plotOptions: { [key: string]: any } = {
+        width: width,
+        height: height,
         grid: true,
         marks: [mark],
-    }
-
-    if (width) {
-        plotOptions.width = width
-    }
-
-    if (height) {
-        plotOptions.height = height
     }
 
     if (trend) {

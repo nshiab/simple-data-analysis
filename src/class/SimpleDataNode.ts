@@ -1,15 +1,12 @@
-import fs from "fs"
 import SimpleData from "./SimpleData.js"
 import { SimpleDataItem } from "../types/SimpleData.types"
 import loadDataFromLocalFile_ from "../methods/importing/loadDataFromLocalFile.js"
 import loadDataFromLocalDirectory_ from "../methods/importing/loadDataFromLocalDirectory.js"
 import saveData_ from "../methods/exporting/saveData.js"
 import { logCall, asyncLogCall } from "../helpers/logCall.js"
-import log from "../helpers/log.js"
 import loadDataFromUrlNode_ from "../methods/importing/loadDataFromUrlNode.js"
-import getChart from "../methods/visualizing/getChart.js"
-import getCustomChart from "../methods/visualizing/getCustomChart.js"
-import setJSDom from "../helpers/setJSDom.js"
+import saveChart_ from "../methods/visualizing/saveChart.js"
+import saveCustomChart_ from "../methods/visualizing/saveCustomChart.js"
 
 export default class SimpleDataNode extends SimpleData {
     // If modified, might need to be modified in SimpleData too
@@ -185,8 +182,8 @@ export default class SimpleDataNode extends SimpleData {
         showTrendEquation = false,
         width,
         height,
-        marginLeft = 0,
-        marginBottom = 0,
+        marginLeft,
+        marginBottom,
         title,
         smallMultipleKey,
         smallMultipleWidth,
@@ -217,10 +214,9 @@ export default class SimpleDataNode extends SimpleData {
         smallMultipleWidth?: number
         smallMultipleHeight?: number
     }): this {
-        setJSDom()
-
-        const chart = getChart(
+        saveChart_(
             this._data,
+            path,
             type,
             x,
             y,
@@ -235,11 +231,9 @@ export default class SimpleDataNode extends SimpleData {
             title,
             smallMultipleKey,
             smallMultipleWidth,
-            smallMultipleHeight
+            smallMultipleHeight,
+            this.verbose
         )
-
-        fs.writeFileSync(path, chart)
-        this.verbose && log(`=> Chart saved to ${path}`, "blue")
 
         return this
     }
@@ -252,12 +246,7 @@ export default class SimpleDataNode extends SimpleData {
         path: string
         plotOptions: object
     }): this {
-        setJSDom()
-
-        const chart = getCustomChart(plotOptions)
-
-        fs.writeFileSync(path, chart)
-        this.verbose && log(`=> chart saved to ${path}`, "blue")
+        saveCustomChart_(path, plotOptions, this.verbose)
 
         return this
     }
