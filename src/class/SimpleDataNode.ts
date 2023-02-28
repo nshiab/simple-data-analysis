@@ -53,8 +53,6 @@ export default class SimpleDataNode extends SimpleData {
             missingKeyValues,
             this.verbose
         )
-
-        this._tempData = data
         this.#updateSimpleData(data)
 
         return this
@@ -92,22 +90,21 @@ export default class SimpleDataNode extends SimpleData {
             )
         }
 
-        const data = loadDataFromLocalFile_(
-            path,
-            autoType,
-            dataAsArrays,
-            firstItem,
-            lastItem,
-            nbFirstRowsToExclude,
-            nbLastRowsToExclude,
-            fillMissingKeys,
-            missingKeyValues,
-            encoding,
-            this.verbose
+        this.#updateSimpleData(
+            loadDataFromLocalFile_(
+                path,
+                autoType,
+                dataAsArrays,
+                firstItem,
+                lastItem,
+                nbFirstRowsToExclude,
+                nbLastRowsToExclude,
+                fillMissingKeys,
+                missingKeyValues,
+                encoding,
+                this.verbose
+            )
         )
-
-        this._tempData = data // important for decorator
-        this.#updateSimpleData(data)
 
         return this
     }
@@ -142,22 +139,21 @@ export default class SimpleDataNode extends SimpleData {
             )
         }
 
-        const data = loadDataFromLocalDirectory_(
-            path,
-            autoType,
-            dataAsArrays,
-            firstItem,
-            lastItem,
-            nbFirstRowsToExclude,
-            nbLastRowsToExclude,
-            fillMissingKeys,
-            missingKeyValues,
-            encoding,
-            this.verbose
+        this.#updateSimpleData(
+            loadDataFromLocalDirectory_(
+                path,
+                autoType,
+                dataAsArrays,
+                firstItem,
+                lastItem,
+                nbFirstRowsToExclude,
+                nbLastRowsToExclude,
+                fillMissingKeys,
+                missingKeyValues,
+                encoding,
+                this.verbose
+            )
         )
-
-        this._tempData = data // important for decorator
-        this.#updateSimpleData(data)
 
         return this
     }

@@ -33,7 +33,6 @@ describe("keepDates", function () {
         ]
 
         const cleanData = keepDates(data, "key1", true)
-        console.log(cleanData)
 
         assert.deepEqual(cleanData, [
             { key1: null, key2: 2 },
