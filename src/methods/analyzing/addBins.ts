@@ -12,12 +12,8 @@ export default function addBins(
     nbTestedValues = 10000,
     verbose = false
 ): SimpleDataItem[] {
-    if (!hasKey(data, key)) {
-        throw new Error("No key " + key)
-    }
-    if (hasKey(data, newKey)) {
-        throw new Error("Already a key named " + key)
-    }
+    hasKey(data, key)
+    hasKey(data, newKey, true)
     if (nbBins < 1) {
         throw new Error("nbBins should always be > 0.")
     }

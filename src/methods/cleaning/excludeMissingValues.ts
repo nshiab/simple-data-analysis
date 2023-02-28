@@ -4,7 +4,6 @@ import {
     SimpleDataItem,
     SimpleDataValue,
 } from "../../types/SimpleData.types.js"
-import hasKey from "../../helpers/hasKey.js"
 
 export default function excludeMissingValues(
     data: SimpleDataItem[],
@@ -27,7 +26,7 @@ export default function excludeMissingValues(
             }
             return keepMissingValuesOnly ? !check : check
         })
-    } else if (hasKey(data, key)) {
+    } else if (Object.prototype.hasOwnProperty.call(data[0], key)) {
         filteredData = data.filter((d) => !missingValues.includes(d[key]))
     } else {
         throw new Error("No key " + key)

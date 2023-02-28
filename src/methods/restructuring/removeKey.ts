@@ -5,9 +5,7 @@ export default function removeKey(
     data: SimpleDataItem[],
     key: string
 ): SimpleDataItem[] {
-    if (!hasKey(data, key)) {
-        throw new Error("No key " + key)
-    }
+    hasKey(data, key)
 
     for (let i = 0; i < data.length; i++) {
         delete data[i][key]

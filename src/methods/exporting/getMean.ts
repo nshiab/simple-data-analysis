@@ -15,10 +15,7 @@ export default function getMean(
     type: "number" | "Date" = "number",
     verbose = false
 ): SimpleDataValue {
-    if (!hasKey(data, key)) {
-        throw new Error(`No key ${key} in data`)
-    }
-
+    hasKey(data, key)
     checkTypeOfKey(data, key, type, 1, nbTestedValues, verbose)
 
     const result = mean(data, (d) => d[key] as number) // and Date too

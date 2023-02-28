@@ -1,7 +1,6 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import getArray from "../exporting/getArray.js"
 import toPercentage from "../../helpers/toPercentage.js"
-import hasKey from "../../helpers/hasKey.js"
 import { shuffle } from "d3-array"
 import handleMissingKeys from "../../helpers/handleMissingKeys.js"
 
@@ -77,7 +76,7 @@ export default function checkValues(
                 typeOf = typeof array[i]
             }
 
-            if (!hasKey([checks], typeOf)) {
+            if (!Object.prototype.hasOwnProperty.call(checks, typeOf)) {
                 checks[typeOf] = 1
             } else {
                 ;(checks[typeOf] as number) += 1

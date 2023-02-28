@@ -31,9 +31,7 @@ export default function removeDuplicates(
                     }
                 }
             } else {
-                if (!hasKey(data, key)) {
-                    throw new Error(`${key} key is not present in data.`)
-                }
+                hasKey(data, key)
                 for (let i = 0; i < data.length; i++) {
                     if (
                         data.filter((d) => isEqual(data[i][key], d[key]))
@@ -47,9 +45,7 @@ export default function removeDuplicates(
             if (key === undefined) {
                 result = uniqWith(data, isEqual)
             } else {
-                if (!hasKey(data, key)) {
-                    throw new Error(`${key} key is not present in data.`)
-                }
+                hasKey(data, key)
                 result = uniqBy(data, key)
             }
         } else if (nbToKeep > 1) {
@@ -76,9 +72,7 @@ export default function removeDuplicates(
                 }
             }
         } else {
-            if (!hasKey(data, key)) {
-                throw new Error(`${key} key is not present in data.`)
-            }
+            hasKey(data, key)
             for (let i = 0; i < data.length; i++) {
                 if (
                     data.filter((d) => isEqual(data[i][key], d[key])).length > 1

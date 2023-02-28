@@ -22,12 +22,8 @@ export default function mergeItems(
         newData = dataToBeMerged
     }
 
-    if (!hasKey(data, commonKey)) {
-        throw new Error("No key named " + commonKey + " in data")
-    }
-    if (!hasKey(newData, commonKey)) {
-        throw new Error("No key named " + commonKey + " in dataToBeMerged")
-    }
+    hasKey(data, commonKey)
+    hasKey(newData, commonKey)
 
     const dataKeys: string[] = Object.keys(data[0]).filter(
         (d) => d !== commonKey

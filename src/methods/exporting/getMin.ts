@@ -15,9 +15,7 @@ export default function getMin(
     type: "number" | "Date" = "number",
     verbose = false
 ): SimpleDataValue {
-    if (!hasKey(data, key)) {
-        throw new Error(`No key ${key} in data`)
-    }
+    hasKey(data, key)
     checkTypeOfKey(data, key, type, 1, nbTestedValues, verbose)
 
     const result = min(data, (d) => d[key] as number) // and Date too

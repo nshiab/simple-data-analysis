@@ -27,9 +27,7 @@ export default function sortValues(
     }
 
     for (const key of keysToSort) {
-        if (!hasKey(data, key)) {
-            throw new Error("No key " + key)
-        }
+        hasKey(data, key)
     }
 
     if (order === "ascending") {

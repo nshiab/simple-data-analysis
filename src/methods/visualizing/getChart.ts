@@ -44,9 +44,7 @@ export default function getChart(
     smallMultipleHeight?: number
 ): string {
     if (typeof smallMultipleKey === "string") {
-        if (!hasKey(data, smallMultipleKey)) {
-            throw new Error(`No smallMultipleKey ${smallMultipleKey} in data.`)
-        }
+        hasKey(data, smallMultipleKey)
 
         const smallMultiple = getUniqueValues(data, smallMultipleKey)
 
@@ -134,15 +132,9 @@ function renderChart(
 ) {
     const markOption: { [key: string]: string | number } = { x, y }
 
-    if (!hasKey(data, x)) {
-        throw new Error(`No x key ${x} in data.`)
-    }
-    if (!hasKey(data, y)) {
-        throw new Error(`No y key ${y} in data.`)
-    }
-    if (color && !hasKey(data, color)) {
-        throw new Error(`No color key ${color} in data.`)
-    }
+    hasKey(data, x)
+    hasKey(data, y)
+    color && hasKey(data, color)
 
     if (
         color &&
