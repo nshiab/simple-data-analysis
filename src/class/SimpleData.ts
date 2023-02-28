@@ -69,7 +69,7 @@ import round from "../helpers/round.js"
  */
 export default class SimpleData {
     protected _data: SimpleDataItem[]
-    protected _duration: number
+    duration: number
     noLogs: boolean
     verbose: boolean
     logParameters: boolean
@@ -137,7 +137,7 @@ export default class SimpleData {
             this._data = []
         }
 
-        this._duration = duration
+        this.duration = duration
         this.verbose = !noLogs && verbose
         this.logParameters = logParameters
         this.nbTableItemsToLog = nbTableItemsToLog
@@ -1305,7 +1305,7 @@ export default class SimpleData {
     }
 
     getDuration() {
-        return this._duration
+        return this.duration
     }
 
     // *** LOGGING METHODS AND OTHERS *** //
@@ -1323,7 +1323,7 @@ export default class SimpleData {
 
     showDuration() {
         if (!this.noLogs) {
-            log(`Total duration ${round(this._duration / 1000, 3)}.`)
+            log(`Total duration ${round(this.duration / 1000, 3)}.`)
         }
         return this
     }
