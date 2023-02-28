@@ -17,7 +17,7 @@ export function logCall() {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ...args: any[]
         ) {
-            if (!this.noLogs && (this.verbose || !this._overwrite)) {
+            if (!this.noLogs && this.verbose) {
                 log("\n" + key + "()")
                 this.logParameters && log("parameters:")
                 this.logParameters && log(args)
@@ -29,24 +29,7 @@ export function logCall() {
             const duration = end - start
             this._duration = this._duration + duration
 
-            if (!this.noLogs && !this._overwrite) {
-                if (!key.includes("Chart") && !key.includes("save")) {
-                    const data =
-                        result instanceof SimpleData
-                            ? result.getTempData()
-                            : result
-                    showTable(data, this.nbTableItemsToLog)
-                }
-                log(
-                    `Done in ${round(
-                        duration / 1000,
-                        3
-                    )} sec. / Total duration ${round(
-                        this._duration / 1000,
-                        3
-                    )}.`
-                )
-            } else if (this.verbose) {
+            if (!this.noLogs && this.verbose) {
                 if (!key.includes("Chart") && !key.includes("save")) {
                     const data =
                         result instanceof SimpleData ? result.getData() : result
@@ -54,7 +37,7 @@ export function logCall() {
                 }
                 log(
                     `Done in ${round(
-                        (end - start) / 1000,
+                        duration / 1000,
                         3
                     )} sec. / Total duration ${round(
                         this._duration / 1000,
@@ -92,10 +75,12 @@ export function asyncLogCall() {
             const start = Date.now()
             const result: SimpleDataItem[] = await wrappedFunc.apply(this, args)
             const end = Date.now()
+            const duration = end - start
+            this._duration = this._duration + duration
 
             if (this.verbose) {
                 showTable(this._tempData, this.nbTableItemsToLog)
-                log(`Done in ${round((end - start) / 1000, 3)} sec.`)
+                log(`Done in ${round(duration / 1000, 3)} sec.`)
             }
 
             return result
