@@ -1,5 +1,5 @@
 import assert from "assert"
-import getArray from "../../../../src/methods/exporting/getArray.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("getArray", function () {
     it("should return an array", function () {
@@ -8,8 +8,10 @@ describe("getArray", function () {
             { key1: 11, key2: 22 },
             { key1: 111, key2: 222 },
         ]
-        const array = getArray(data, "key1")
-        assert.deepEqual(array, [1, 11, 111])
+        assert.deepEqual(
+            new SimpleData({ data }).getArray({ key: "key1" }),
+            [1, 11, 111]
+        )
     })
     it("should return an array with multiple keys", function () {
         const data = [
@@ -17,7 +19,9 @@ describe("getArray", function () {
             { key1: 11, key2: 22 },
             { key1: 111, key2: 222 },
         ]
-        const array = getArray(data, ["key1", "key2"])
-        assert.deepEqual(array, [1, 2, 11, 22, 111, 222])
+        assert.deepEqual(
+            new SimpleData({ data }).getArray({ key: ["key1", "key2"] }),
+            [1, 2, 11, 22, 111, 222]
+        )
     })
 })

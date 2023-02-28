@@ -476,8 +476,8 @@ export default class SimpleData {
         newKey,
     }: {
         key: string
-        oldValue: string
-        newValue: string
+        oldValue: SimpleDataValue
+        newValue: SimpleDataValue
         method?: undefined | "entireString" | "partialString"
         skipErrors?: boolean
         newKey?: string
@@ -781,13 +781,11 @@ export default class SimpleData {
     sortValues({
         key,
         order = "ascending",
-
         locale,
     }: {
         key: string | string[]
         order: "ascending" | "descending"
-
-        locale?: string
+        locale?: string | (string | undefined | null | boolean)[]
     }): this {
         this.#updateSimpleData(
             sortValues_(cloneData(this._data), key, order, locale)

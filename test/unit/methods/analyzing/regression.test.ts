@@ -1,10 +1,10 @@
 // from https://observablehq.com/@harrystevens/introducing-d3-regression
 
 import assert from "assert"
-import regression from "../../../../src/methods/analyzing/regression.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("regression", function () {
-    it("should apply linear regression", function () {
+    it("should apply linear regression by default", function () {
         const data = [
             { x: 8, y: 3 },
             { x: 2, y: 10 },
@@ -17,8 +17,9 @@ describe("regression", function () {
             { x: 6, y: 9 },
             { x: 1, y: 14 },
         ]
-        const regressionData = regression(data, "x", "y")
-        assert.deepEqual(regressionData, [
+
+        const sd = new SimpleData({ data }).regression({ keyX: "x", keyY: "y" })
+        assert.deepEqual(sd.getData(), [
             { keyX: "x", keyY: "y", a: -1.1064, b: 14.0811, r2: 0.8731 },
         ])
     })
@@ -33,8 +34,12 @@ describe("regression", function () {
             { x: 2, y: 6 },
             { x: 3, y: 14 },
         ]
-        const regressionData = regression(data, "x", "y", "quadratic")
-        assert.deepEqual(regressionData, [
+        const sd = new SimpleData({ data }).regression({
+            keyX: "x",
+            keyY: "y",
+            type: "quadratic",
+        })
+        assert.deepEqual(sd.getData(), [
             { keyX: "x", keyY: "y", a: 1.1071, b: 1, c: 0.5714, r2: 0.9884 },
         ])
     })
@@ -51,15 +56,13 @@ describe("regression", function () {
             { x: 7, y: 169 },
             { x: 8, y: 180 },
         ]
-        const regressionData = regression(
-            data,
-            "x",
-            "y",
-            "polynomial",
-            undefined,
-            3
-        )
-        assert.deepEqual(regressionData, [
+        const sd = new SimpleData({ data }).regression({
+            keyX: "x",
+            keyY: "y",
+            type: "polynomial",
+            order: 3,
+        })
+        assert.deepEqual(sd.getData(), [
             {
                 keyX: "x",
                 keyY: "y",
@@ -81,8 +84,12 @@ describe("regression", function () {
             { x: 4, y: 50 },
             { x: 5, y: 95 },
         ]
-        const regressionData = regression(data, "x", "y", "exponential")
-        assert.deepEqual(regressionData, [
+        const sd = new SimpleData({ data }).regression({
+            keyX: "x",
+            keyY: "y",
+            type: "exponential",
+        })
+        assert.deepEqual(sd.getData(), [
             { keyX: "x", keyY: "y", a: 3.0331, b: 0.6909, r2: 0.9984 },
         ])
     })
@@ -121,8 +128,12 @@ describe("regression", function () {
             { x: 30, y: 7.392 },
             { x: 31, y: 6.938 },
         ]
-        const regressionData = regression(data, "x", "y", "logarithmic")
-        assert.deepEqual(regressionData, [
+        const sd = new SimpleData({ data }).regression({
+            keyX: "x",
+            keyY: "y",
+            type: "logarithmic",
+        })
+        assert.deepEqual(sd.getData(), [
             { keyX: "x", keyY: "y", a: 0.8808, b: 4.1734, r2: 0.9584 },
         ])
     })
@@ -234,27 +245,31 @@ describe("regression", function () {
             { game: "NBA Live 09", rank: 4900, sales: 0.39 },
             { game: "The Cat in the Hat", rank: 5000, sales: 0.38 },
         ]
-        const regressionData = regression(data, "rank", "sales", "power")
-        assert.deepEqual(regressionData, [
+        const sd = new SimpleData({ data }).regression({
+            keyX: "rank",
+            keyY: "sales",
+            type: "power",
+        })
+        assert.deepEqual(sd.getData(), [
             { keyX: "rank", keyY: "sales", a: 108.7538, b: -0.627, r2: 0.832 },
         ])
     })
 
-    it("should compute all linear regressions if key1 and key2 are undefined", function () {
+    it("should compute all linear regressions if keyX and keyY are undefined", function () {
         const data = [
             { key1: 1, key2: 2, key3: 3 },
             { key1: 11, key2: 22, key3: 4 },
             { key1: 111, key2: 222, key3: 5 },
         ]
-        const regressionData = regression(data)
-        assert.deepEqual(regressionData, [
+        const sd = new SimpleData({ data }).regression()
+        assert.deepEqual(sd.getData(), [
             { keyX: "key1", keyY: "key2", a: 2, b: 0, r2: 1 },
             { keyX: "key1", keyY: "key3", a: 0.0149, b: 3.3905, r2: 0.8176 },
             { keyX: "key2", keyY: "key3", a: 0.0074, b: 3.3905, r2: 0.8176 },
         ])
     })
 
-    it("should compute all regressions if key1 and key2 are undefined, but for each value in key4", function () {
+    it("should compute all regressions if keyX and keyY are undefined, but for each value in key4", function () {
         const data = [
             { key1: 1, key2: 2, key3: 3, key4: "a" },
             { key1: 11, key2: 22, key3: 4, key4: "b" },
@@ -264,14 +279,8 @@ describe("regression", function () {
             { key1: 111111, key2: 222222, key3: 8, key4: "a" },
         ]
 
-        const regressionData = regression(
-            data,
-            undefined,
-            undefined,
-            "linear",
-            "key4"
-        )
-        assert.deepEqual(regressionData, [
+        const sd = new SimpleData({ data }).regression({ keyCategory: "key4" })
+        assert.deepEqual(sd.getData(), [
             { keyX: "key1", keyY: "key2", key4: "a", a: 2, b: 0, r2: 1 },
             {
                 keyX: "key1",
@@ -319,14 +328,12 @@ describe("regression", function () {
             { key1: 111111, key2: 222222, key3: 8, key4: "a" },
         ]
 
-        const regressionData = regression(
-            data,
-            "key1",
-            "key2",
-            "linear",
-            "key4"
-        )
-        assert.deepEqual(regressionData, [
+        const sd = new SimpleData({ data }).regression({
+            keyX: "key1",
+            keyY: "key2",
+            keyCategory: "key4",
+        })
+        assert.deepEqual(sd.getData(), [
             { keyX: "key1", keyY: "key2", key4: "a", a: 2, b: 0, r2: 1 },
             { keyX: "key1", keyY: "key2", key4: "b", a: 2, b: 0, r2: 1 },
         ])
@@ -338,8 +345,11 @@ describe("regression", function () {
             { key1: 11, key2: 22, key3: 4 },
             { key1: 111, key2: 222, key3: 5 },
         ]
-        const regressionData = regression(data, "key1", ["key2", "key3"])
-        assert.deepEqual(regressionData, [
+        const sd = new SimpleData({ data }).regression({
+            keyX: "key1",
+            keyY: ["key2", "key3"],
+        })
+        assert.deepEqual(sd.getData(), [
             { keyX: "key1", keyY: "key2", a: 2, b: 0, r2: 1 },
             { keyX: "key1", keyY: "key3", a: 0.0149, b: 3.3905, r2: 0.8176 },
         ])
@@ -351,8 +361,8 @@ describe("regression", function () {
             { key1: 11, key2: 22, key3: 4 },
             { key1: 111, key2: 222, key3: 5 },
         ]
-        const regressionData = regression(data, undefined, [])
-        assert.deepEqual(regressionData, [
+        const sd = new SimpleData({ data }).regression({ keyY: [] })
+        assert.deepEqual(sd.getData(), [
             { keyX: "key1", keyY: "key2", a: 2, b: 0, r2: 1 },
             { keyX: "key1", keyY: "key3", a: 0.0149, b: 3.3905, r2: 0.8176 },
             { keyX: "key2", keyY: "key3", a: 0.0074, b: 3.3905, r2: 0.8176 },
@@ -365,16 +375,11 @@ describe("regression", function () {
             { key1: 11, key2: 22, key3: 4 },
             { key1: 111, key2: 222, key3: 5 },
         ]
-        const regressionData = regression(
-            data,
-            undefined,
-            [],
-            "linear",
-            undefined,
-            undefined,
-            2
-        )
-        assert.deepEqual(regressionData, [
+        const sd = new SimpleData({ data }).regression({
+            keyY: [],
+            nbDigits: 2,
+        })
+        assert.deepEqual(sd.getData(), [
             { keyX: "key1", keyY: "key2", a: 2, b: 0, r2: 1 },
             { keyX: "key1", keyY: "key3", a: 0.01, b: 3.39, r2: 0.82 },
             { keyX: "key2", keyY: "key3", a: 0.01, b: 3.39, r2: 0.82 },

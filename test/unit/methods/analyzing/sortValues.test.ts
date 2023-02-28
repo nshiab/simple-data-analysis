@@ -1,5 +1,5 @@
 import assert from "assert"
-import sortValues from "../../../../src/methods/analyzing/sortValues.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("sortValues", function () {
     it("should sort number values in an ascending order", function () {
@@ -8,8 +8,11 @@ describe("sortValues", function () {
             { key1: 111, key2: 222 },
             { key1: 1, key2: 2 },
         ]
-        const sortedData = sortValues(data, "key1", "ascending")
-        assert.deepEqual(sortedData, [
+        const sd = new SimpleData({ data }).sortValues({
+            key: "key1",
+            order: "ascending",
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 1, key2: 2 },
             { key1: 11, key2: 22 },
             { key1: 111, key2: 222 },
@@ -22,8 +25,11 @@ describe("sortValues", function () {
             { key1: 111, key2: 222 },
             { key1: 1, key2: 2 },
         ]
-        const sortedData = sortValues(data, "key1", "descending")
-        assert.deepEqual(sortedData, [
+        const sd = new SimpleData({ data }).sortValues({
+            key: "key1",
+            order: "descending",
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 111, key2: 222 },
             { key1: 11, key2: 22 },
             { key1: 1, key2: 2 },
@@ -37,8 +43,12 @@ describe("sortValues", function () {
             { key1: "Écouter" },
             { key1: "Escrime" },
         ]
-        const sortedData = sortValues(data, "key1", "ascending", "fr")
-        assert.deepEqual(sortedData, [
+        const sd = new SimpleData({ data }).sortValues({
+            key: "key1",
+            order: "ascending",
+            locale: "fr",
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: "Autruche" },
             { key1: "Écouter" },
             { key1: "Éléphant" },
@@ -57,8 +67,12 @@ describe("sortValues", function () {
             { key1: "Écoutant les oiseaux" },
             { key1: "Autruche" },
         ]
-        const sortedData = sortValues(data, "key1", "descending", "fr")
-        assert.deepEqual(sortedData, [
+        const sd = new SimpleData({ data }).sortValues({
+            key: "key1",
+            order: "descending",
+            locale: "fr",
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: "Escrime" },
             { key1: "Éléphant" },
             { key1: "Écouter" },
@@ -86,13 +100,12 @@ describe("sortValues", function () {
             { key1: 3, key2: "b", key3: 0 },
             { key1: 3, key2: "b", key3: -3 },
         ]
-        const sortedData = sortValues(
-            data,
-            ["key1", "key2", "key3"],
-            "ascending"
-        )
 
-        assert.deepEqual(sortedData, [
+        const sd = new SimpleData({ data }).sortValues({
+            key: ["key1", "key2", "key3"],
+            order: "ascending",
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 1, key2: "a", key3: 2 },
             { key1: 1, key2: "a", key3: 3 },
             { key1: 1, key2: "c", key3: 1 },
@@ -125,14 +138,13 @@ describe("sortValues", function () {
             { key1: 3, key2: "b", key3: 0 },
             { key1: 3, key2: "b", key3: -3 },
         ]
-        const sortedData = sortValues(
-            data,
-            ["key1", "key2", "key3"],
-            "descending",
-            [false, "fr", false]
-        )
 
-        assert.deepEqual(sortedData, [
+        const sd = new SimpleData({ data }).sortValues({
+            key: ["key1", "key2", "key3"],
+            order: "descending",
+            locale: [false, "fr", false],
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 3, key2: "b", key3: 9 },
             { key1: 3, key2: "b", key3: 0 },
             { key1: 3, key2: "b", key3: -3 },

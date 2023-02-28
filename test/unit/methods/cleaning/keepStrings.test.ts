@@ -1,5 +1,5 @@
 import assert from "assert"
-import keepStrings from "../../../../src/methods/cleaning/keepStrings.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("keepStrings", function () {
     it("should keep only non-empty strings", function () {
@@ -11,8 +11,8 @@ describe("keepStrings", function () {
             { key1: "11", key2: 22 },
         ]
 
-        const cleanData = keepStrings(data, "key1")
-        assert.deepEqual(cleanData, [{ key1: "11", key2: 22 }])
+        const sd = new SimpleData({ data }).keepStrings({ key: "key1" })
+        assert.deepEqual(sd.getData(), [{ key1: "11", key2: 22 }])
     })
     it("should keep only everyting except non-empty strings", function () {
         const data = [
@@ -23,8 +23,11 @@ describe("keepStrings", function () {
             { key1: "11", key2: 22 },
         ]
 
-        const cleanData = keepStrings(data, "key1", true)
-        assert.deepEqual(cleanData, [
+        const sd = new SimpleData({ data }).keepStrings({
+            key: "key1",
+            keepNonStringOnly: true,
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: null, key2: 2 },
             { key1: NaN, key2: 3 },
             { key1: undefined, key2: 4 },

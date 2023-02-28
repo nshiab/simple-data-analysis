@@ -1,5 +1,5 @@
 import assert from "assert"
-import SimpleData from "../../../../src/class/SimpleData.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("getArray", function () {
     it("should return first item", function () {

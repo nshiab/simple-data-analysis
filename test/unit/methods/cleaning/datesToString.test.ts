@@ -1,11 +1,14 @@
 import assert from "assert"
-import datesToString from "../../../../src/methods/cleaning/datesToString.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("datesToString", function () {
     it("should convert date to string", function () {
         const data = [{ key1: new Date(Date.UTC(2022, 1, 3)), key2: 2 }]
-        const dataParsed = datesToString(data, "key1", "%Y-%m-%d")
-        assert.deepEqual(dataParsed, [{ key1: "2022-02-03", key2: 2 }])
+        const sd = new SimpleData({ data }).datesToString({
+            key: "key1",
+            format: "%Y-%m-%d",
+        })
+        assert.deepEqual(sd.getData(), [{ key1: "2022-02-03", key2: 2 }])
     })
 
     it("should convert date to string and skip errors", function () {
@@ -13,8 +16,12 @@ describe("datesToString", function () {
             { key1: new Date(Date.UTC(2022, 1, 3)), key2: 2 },
             { key1: 12, key2: 2 },
         ]
-        const dataParsed = datesToString(data, "key1", "%Y-%m-%d", true)
-        assert.deepEqual(dataParsed, [
+        const sd = new SimpleData({ data }).datesToString({
+            key: "key1",
+            format: "%Y-%m-%d",
+            skipErrors: true,
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: "2022-02-03", key2: 2 },
             { key1: 12, key2: 2 },
         ])
@@ -22,14 +29,12 @@ describe("datesToString", function () {
 
     it("should save dates as strings with a new key", function () {
         const data = [{ key1: new Date(Date.UTC(2022, 1, 3)), key2: 2 }]
-        const dataParsed = datesToString(
-            data,
-            "key1",
-            "%Y-%m-%d",
-            undefined,
-            "key1x"
-        )
-        assert.deepEqual(dataParsed, [
+        const sd = new SimpleData({ data }).datesToString({
+            key: "key1",
+            newKey: "key1x",
+            format: "%Y-%m-%d",
+        })
+        assert.deepEqual(sd.getData(), [
             {
                 key1: new Date(Date.UTC(2022, 1, 3)),
                 key2: 2,
@@ -41,7 +46,11 @@ describe("datesToString", function () {
     it("should throw error if newKey already exists", function () {
         const data = [{ key1: new Date(Date.UTC(2022, 1, 3)), key2: 2 }]
         assert.throws(() =>
-            datesToString(data, "key1", "%Y-%m-%d", undefined, "key2")
+            new SimpleData({ data }).datesToString({
+                key: "key1",
+                newKey: "key2",
+                format: "%Y-%m-%d",
+            })
         )
     })
 })

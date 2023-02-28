@@ -1,5 +1,5 @@
 import assert from "assert"
-import getMax from "../../../../src/methods/exporting/getMax.js"
+import { SimpleData } from "../../../../src/index.js"
 
 const data = [
     { key1: 66, key2: 5, key3: new Date(Date.UTC(2022, 7, 1)) },
@@ -13,17 +13,18 @@ const data = [
 
 describe("getMax", function () {
     it("should return max value 99 from key holding all numbers", function () {
-        const maxValue = getMax(data, "key1")
-        assert.deepEqual(maxValue, 99)
+        assert.deepEqual(new SimpleData({ data }).getMax({ key: "key1" }), 99)
     })
     it("should throw an error when different types", function () {
-        assert.throws(() => getMax(data, "key2"))
+        assert.throws(() => new SimpleData({ data }).getMax({ key: "key2" }))
     })
     it("should throw an error when not working with with numbers", function () {
-        assert.throws(() => getMax(data, "key3"))
+        assert.throws(() => new SimpleData({ data }).getMax({ key: "key3" }))
     })
     it("should return max value when the type provided (Date)", function () {
-        const maxValue = getMax(data, "key3", undefined, undefined, "Date")
-        assert.deepEqual(maxValue, new Date(Date.UTC(2022, 7, 7)))
+        assert.deepEqual(
+            new SimpleData({ data }).getMax({ key: "key3", type: "Date" }),
+            new Date(Date.UTC(2022, 7, 7))
+        )
     })
 })

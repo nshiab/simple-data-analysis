@@ -1,5 +1,5 @@
 import assert from "assert"
-import keepDates from "../../../../src/methods/cleaning/keepDates.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("keepDates", function () {
     it("should keep only valid Dates", function () {
@@ -15,9 +15,9 @@ describe("keepDates", function () {
             { key1: new Date("x"), key2: 22 },
         ]
 
-        const cleanData = keepDates(data, "key1")
+        const sd = new SimpleData({ data }).keepDates({ key: "key1" })
 
-        assert.deepEqual(cleanData, [{ key1: validDate, key2: 22 }])
+        assert.deepEqual(sd.getData(), [{ key1: validDate, key2: 22 }])
     })
     it("should keep only non Dates and invalid Dates", function () {
         const inValidDate = new Date("x")
@@ -32,9 +32,12 @@ describe("keepDates", function () {
             { key1: inValidDate, key2: 22 },
         ]
 
-        const cleanData = keepDates(data, "key1", true)
+        const sd = new SimpleData({ data }).keepDates({
+            key: "key1",
+            keepNonDatesOnly: true,
+        })
 
-        assert.deepEqual(cleanData, [
+        assert.deepEqual(sd.getData(), [
             { key1: null, key2: 2 },
             { key1: NaN, key2: 3 },
             { key1: undefined, key2: 4 },

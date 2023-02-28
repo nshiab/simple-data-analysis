@@ -1,12 +1,12 @@
 import assert from "assert"
-import loadDataFromUrlNode from "../../../../src/methods/importing/loadDataFromUrlNode.js"
+import { SimpleDataNode } from "../../../../src/index.js"
 
 describe("loadDataFromUrlNode", function () {
     it("should return an array of objects from a csv file", async function () {
-        const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.csv"
-        )
-        assert.deepEqual(data, [
+        const sd = await new SimpleDataNode().loadDataFromUrl({
+            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.csv",
+        })
+        assert.deepEqual(sd.getData(), [
             {
                 key1: 1,
                 key2: 2,
@@ -27,12 +27,14 @@ describe("loadDataFromUrlNode", function () {
     })
 
     it("should return an array of objects from multiple files", async function () {
-        const data = await loadDataFromUrlNode([
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.csv",
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.tsv",
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.json",
-        ])
-        assert.deepEqual(data, [
+        const sd = await new SimpleDataNode().loadDataFromUrl({
+            url: [
+                "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.csv",
+                "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.tsv",
+                "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.json",
+            ],
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: "1", key2: "2" },
             { key1: "3", key2: "coucou" },
             { key1: "8", key2: "10" },
@@ -49,14 +51,12 @@ describe("loadDataFromUrlNode", function () {
     })
 
     it("should return an array of objects from a csv file with specific items included", async function () {
-        const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.csv",
-            false,
-            false,
-            1,
-            2
-        )
-        assert.deepEqual(data, [
+        const sd = await new SimpleDataNode().loadDataFromUrl({
+            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.csv",
+            firstItem: 1,
+            lastItem: 2,
+        })
+        assert.deepEqual(sd.getData(), [
             {
                 key1: 3,
                 key2: "coucou",
@@ -69,16 +69,12 @@ describe("loadDataFromUrlNode", function () {
     })
 
     it("should return an array of objects from a csv file while skipping rows", async function () {
-        const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTestExtraLines.csv",
-            false,
-            false,
-            undefined,
-            undefined,
-            2,
-            3
-        )
-        assert.deepEqual(data, [
+        const sd = await new SimpleDataNode().loadDataFromUrl({
+            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTestExtraLines.csv",
+            nbFirstRowsToExclude: 2,
+            nbLastRowsToExclude: 3,
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 1, key2: 2 },
             { key1: 3, key2: "coucou" },
             { key1: 8, key2: 10 },
@@ -87,26 +83,24 @@ describe("loadDataFromUrlNode", function () {
     })
 
     it("should return an array of objects from a csv file with specific items included, while skipping rows", async function () {
-        const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTestExtraLines.csv",
-            false,
-            false,
-            1,
-            2,
-            2,
-            3
-        )
-        assert.deepEqual(data, [
+        const sd = await new SimpleDataNode().loadDataFromUrl({
+            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTestExtraLines.csv",
+            firstItem: 1,
+            lastItem: 2,
+            nbFirstRowsToExclude: 2,
+            nbLastRowsToExclude: 3,
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 3, key2: "coucou" },
             { key1: 8, key2: 10 },
         ])
     })
 
     it("should return an array of objects from a tsv file", async function () {
-        const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.tsv"
-        )
-        assert.deepEqual(data, [
+        const sd = await new SimpleDataNode().loadDataFromUrl({
+            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.tsv",
+        })
+        assert.deepEqual(sd.getData(), [
             {
                 key1: 1,
                 key2: 2,
@@ -127,14 +121,12 @@ describe("loadDataFromUrlNode", function () {
     })
 
     it("should return an array of objects from a tsv file with specific items included", async function () {
-        const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.tsv",
-            false,
-            false,
-            1,
-            2
-        )
-        assert.deepEqual(data, [
+        const sd = await new SimpleDataNode().loadDataFromUrl({
+            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.tsv",
+            firstItem: 1,
+            lastItem: 2,
+        })
+        assert.deepEqual(sd.getData(), [
             {
                 key1: 3,
                 key2: "coucou",
@@ -147,10 +139,10 @@ describe("loadDataFromUrlNode", function () {
     })
 
     it("should return an array of objects from a json file", async function () {
-        const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.json"
-        )
-        assert.deepEqual(data, [
+        const sd = await new SimpleDataNode().loadDataFromUrl({
+            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.json",
+        })
+        assert.deepEqual(sd.getData(), [
             {
                 key1: 1,
                 key2: 2,
@@ -171,14 +163,12 @@ describe("loadDataFromUrlNode", function () {
     })
 
     it("should return an array of objects from a json file with specific items included", async function () {
-        const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.json",
-            false,
-            false,
-            1,
-            2
-        )
-        assert.deepEqual(data, [
+        const sd = await new SimpleDataNode().loadDataFromUrl({
+            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.json",
+            firstItem: 1,
+            lastItem: 2,
+        })
+        assert.deepEqual(sd.getData(), [
             {
                 key1: 3,
                 key2: "coucou",
@@ -191,12 +181,11 @@ describe("loadDataFromUrlNode", function () {
     })
 
     it("should return an array of objects from an object of arrays", async function () {
-        const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTestArrays.json",
-            false,
-            true
-        )
-        assert.deepEqual(data, [
+        const sd = await new SimpleDataNode().loadDataFromUrl({
+            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTestArrays.json",
+            dataAsArrays: true,
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 1, key2: 2 },
             { key1: 3, key2: "coucou" },
             { key1: 8, key2: 10 },
@@ -205,14 +194,13 @@ describe("loadDataFromUrlNode", function () {
     })
 
     it("should return an array of objects from a csv file with types inferred", async function () {
-        const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.csv",
-            true,
-            false,
-            1,
-            2
-        )
-        assert.deepEqual(data, [
+        const sd = await new SimpleDataNode().loadDataFromUrl({
+            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.csv",
+            autoType: true,
+            firstItem: 1,
+            lastItem: 2,
+        })
+        assert.deepEqual(sd.getData(), [
             {
                 key1: 3,
                 key2: "coucou",
@@ -224,14 +212,13 @@ describe("loadDataFromUrlNode", function () {
         ])
     })
     it("should return an array of objects from a tsv file with types inferred", async function () {
-        const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.tsv",
-            true,
-            false,
-            1,
-            2
-        )
-        assert.deepEqual(data, [
+        const sd = await new SimpleDataNode().loadDataFromUrl({
+            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.tsv",
+            autoType: true,
+            firstItem: 1,
+            lastItem: 2,
+        })
+        assert.deepEqual(sd.getData(), [
             {
                 key1: 3,
                 key2: "coucou",

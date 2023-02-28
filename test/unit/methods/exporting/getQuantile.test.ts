@@ -1,5 +1,5 @@
 import assert from "assert"
-import getQuantile from "../../../../src/methods/exporting/getQuantile.js"
+import { SimpleData } from "../../../../src/index.js"
 
 const data = [
     { key1: 9, key2: 90, key3: new Date(Date.UTC(2022, 7, 1)) },
@@ -13,14 +13,29 @@ const data = [
 
 describe("getQuantile", function () {
     it("should return median value 40 from key holding all numbers", function () {
-        const medianValue = getQuantile(data, "key1", 0.5)
-        assert.deepEqual(medianValue, 40)
+        assert.deepEqual(
+            new SimpleData({ data }).getQuantile({
+                key: "key1",
+                quantile: 0.5,
+            }),
+            40
+        )
     })
 
     it("should throw an error when different types", function () {
-        assert.throws(() => getQuantile(data, "key2", 0.5))
+        assert.throws(() =>
+            new SimpleData({ data }).getQuantile({
+                key: "key2",
+                quantile: 0.5,
+            })
+        )
     })
     it("should throw an error when working with dates", function () {
-        assert.throws(() => getQuantile(data, "key3", 0.5))
+        assert.throws(() =>
+            new SimpleData({ data }).getQuantile({
+                key: "key3",
+                quantile: 0.5,
+            })
+        )
     })
 })

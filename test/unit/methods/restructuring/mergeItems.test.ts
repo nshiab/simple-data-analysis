@@ -1,6 +1,5 @@
 import assert from "assert"
-import SimpleData from "../../../../src/class/SimpleData.js"
-import mergeItems from "../../../../src/methods/restructuring/mergeItems.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("mergeItems", function () {
     it("should add keys based on a common key", function () {
@@ -12,9 +11,13 @@ describe("mergeItems", function () {
             { key1: "yellow", key3: "raton" },
             { key1: "red", key3: "castor" },
         ]
-        const newData = mergeItems(data, dataToBeMerged, "key1")
 
-        assert.deepEqual(newData, [
+        const sd = new SimpleData({ data }).mergeItems({
+            dataToBeMerged,
+            commonKey: "key1",
+        })
+
+        assert.deepEqual(sd.getData(), [
             { key1: "red", key2: 1, key3: "castor" },
             { key1: "yellow", key3: "raton", key2: 2 },
         ])
@@ -31,9 +34,12 @@ describe("mergeItems", function () {
                 { key1: "red", key3: "castor" },
             ],
         })
-        const newData = mergeItems(data, dataToBeMerged, "key1")
+        const sd = new SimpleData({ data }).mergeItems({
+            dataToBeMerged,
+            commonKey: "key1",
+        })
 
-        assert.deepEqual(newData, [
+        assert.deepEqual(sd.getData(), [
             { key1: "red", key2: 1, key3: "castor" },
             { key1: "yellow", key3: "raton", key2: 2 },
         ])

@@ -1,5 +1,5 @@
 import assert from "assert"
-import getUniqueValues from "../../../../src/methods/exporting/getUniqueValues.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("getUniqueValues", function () {
     it("should return unique values", function () {
@@ -8,7 +8,9 @@ describe("getUniqueValues", function () {
             { key1: 111, key2: 22 },
             { key1: 111, key2: 222 },
         ]
-        const uniqueValues = getUniqueValues(data, "key1")
-        assert.deepEqual(uniqueValues, [1, 111])
+        assert.deepEqual(
+            new SimpleData({ data }).getUniqueValues({ key: "key1" }),
+            [1, 111]
+        )
     })
 })
