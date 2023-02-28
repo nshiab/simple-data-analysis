@@ -26,17 +26,13 @@ async function main() {
             { first: "Nael", last: "Shiab" },
             { first: "Isabelle", last: "Bouchard" },
         ],
-        verbose: true,
-        logParameters: true,
-        noLogs: noLogs,
+        verbose: !noLogs,
     })
 
     const simpleData = new SimpleData({
         data: employees,
         fillMissingKeys: true,
-        verbose: true,
-        logParameters: true,
-        noLogs: noLogs,
+        verbose: !noLogs,
     })
 
     // Can't use fetch with node

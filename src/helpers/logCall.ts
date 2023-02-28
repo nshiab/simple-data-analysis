@@ -68,10 +68,10 @@ export function asyncLogCall() {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function logParameters(sd: SimpleData, key: string, args: any) {
-    if (!sd.noLogs && sd.verbose) {
+    if (sd.verbose) {
         log("\n" + key + "()")
-        sd.logParameters && log("parameters:")
-        sd.logParameters && log(args)
+        log("parameters:")
+        log(args)
     }
 }
 
@@ -85,7 +85,7 @@ function logDataAndDuration(
     const duration = end - start
     sd.duration = sd.duration + duration
 
-    if (!sd.noLogs && sd.verbose) {
+    if (sd.verbose) {
         if (!key.includes("Chart") && !key.includes("save")) {
             const data =
                 result instanceof SimpleData ? result.getData() : result

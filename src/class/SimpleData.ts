@@ -70,16 +70,13 @@ import round from "../helpers/round.js"
 export default class SimpleData {
     protected _data: SimpleDataItem[]
     duration: number
-    noLogs: boolean
     verbose: boolean
-    logParameters: boolean
     nbTableItemsToLog: number
 
     /**
      * SimpleData constructor
      * @param __namedParameters.data  Data as a list of objects with the same keys.
      * @param __namedParameters.verbose  Log information in the console on `SimpleData` method calls.
-     * @param __namedParameters.logParameters  If true, logs methods parameters on every call. Only applies when `verbose` is true.
      * @param __namedParameters.nbTableItemsToLog  Number of items to log in table. Only applies when `verbose` is true.
      * @param __namedParameters.fillMissingKeys  Fill missing keys with `undefined`.
      */
@@ -87,10 +84,8 @@ export default class SimpleData {
         data = [],
         dataAsArrays = false,
         verbose = false,
-        logParameters = false,
         nbTableItemsToLog = 5,
         fillMissingKeys = false,
-        noLogs = false,
         firstItem = 0,
         lastItem = Infinity,
         duration = 0,
@@ -98,10 +93,8 @@ export default class SimpleData {
         data?: SimpleDataItem[] | { [key: string]: SimpleDataValue[] }
         dataAsArrays?: boolean
         verbose?: boolean
-        logParameters?: boolean
         nbTableItemsToLog?: number
         fillMissingKeys?: boolean
-        noLogs?: boolean
         firstItem?: number
         lastItem?: number
         duration?: 0
@@ -125,23 +118,19 @@ export default class SimpleData {
                 fillMissingKeys,
                 undefined,
                 undefined,
-                !noLogs && verbose
+                verbose
             )
 
             this._data = incomingData
         } else {
-            !noLogs &&
-                verbose &&
-                log("\nnew SimpleData()\nStarting an empty SimpleData")
+            verbose && log("\nnew SimpleData()\nStarting an empty SimpleData")
 
             this._data = []
         }
 
         this.duration = duration
-        this.verbose = !noLogs && verbose
-        this.logParameters = logParameters
+        this.verbose = verbose
         this.nbTableItemsToLog = nbTableItemsToLog
-        this.noLogs = noLogs
     }
 
     // If modified, needs to be modified in SimpleDataNode
@@ -1122,8 +1111,6 @@ export default class SimpleData {
         return new this.constructor({
             data: this._data,
             verbose: this.verbose,
-            logParameters: this.logParameters,
-            noLogs: this.noLogs,
             nbTableItemsToLog: this.nbTableItemsToLog,
         })
     }
@@ -1312,17 +1299,14 @@ export default class SimpleData {
     showTable({
         nbItemInTable = 5,
     }: { nbItemInTable?: "all" | number } = {}): this {
-        if (!this.noLogs) {
-            // TODO: test this!
-            showTable_(this._data, nbItemInTable, true)
-        }
+        showTable_(this._data, nbItemInTable, true)
+
         return this
     }
 
     showDuration() {
-        if (!this.noLogs) {
-            log(`Total duration ${round(this.duration / 1000, 3)}.`)
-        }
+        log(`Total duration ${round(this.duration / 1000, 3)}.`)
+
         return this
     }
 }
