@@ -17,8 +17,7 @@ export default async function loadDataFromUrlWeb(
         NaN: NaN,
         undefined: undefined,
     },
-    verbose = false,
-    noTest = false
+    verbose = false
 ): Promise<SimpleDataItem[]> {
     const urls: string[] = []
     const arrayOfObjects: SimpleDataItem[] = []
@@ -49,8 +48,7 @@ export default async function loadDataFromUrlWeb(
                 nbLastRowsToExclude,
                 fillMissingKeys,
                 missingKeyValues,
-                verbose,
-                noTest
+                verbose
             )
         )
     }

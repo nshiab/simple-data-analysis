@@ -19,8 +19,7 @@ export default function loadDataFromLocalFile(
         undefined: undefined,
     },
     encoding: BufferEncoding = "utf8",
-    verbose = false,
-    noTest = false
+    verbose = false
 ): SimpleDataItem[] {
     const paths: string[] = []
     const arrayOfObjects: SimpleDataItem[] = []
@@ -49,8 +48,7 @@ export default function loadDataFromLocalFile(
                 nbLastRowsToExclude,
                 fillMissingKeys,
                 missingKeyValues,
-                verbose,
-                noTest
+                verbose
             )
         )
     }

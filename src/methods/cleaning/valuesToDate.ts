@@ -7,8 +7,7 @@ export default function valuesToDate(
     key: string,
     format: string,
     skipErrors = false,
-    newKey?: string,
-    noTests = false
+    newKey?: string
 ): SimpleDataItem[] {
     const keyToUpdate = getKeyToUpdate(data, key, newKey)
 
@@ -16,43 +15,40 @@ export default function valuesToDate(
 
     for (let i = 0; i < data.length; i++) {
         const val = data[i][key]
-        if (noTests) {
-            data[i][keyToUpdate] = parse(data[i][key] as string)
-        } else {
-            try {
-                if (val instanceof Date && isNaN(val as unknown as number)) {
-                    throw new Error(
-                        "An value is " +
-                            val +
-                            " (before being converted), which cannot be converted to a valid date. If you want to bypass this error and keep the value, pass { skipErrors: true }. Keep in mind that all errors will be skipped."
-                    )
-                } else if (val instanceof Date) {
-                    data[i][keyToUpdate] = data[i][key]
-                } else if (typeof val !== "string") {
+
+        try {
+            if (val instanceof Date && isNaN(val as unknown as number)) {
+                throw new Error(
+                    "An value is " +
+                        val +
+                        " (before being converted), which cannot be converted to a valid date. If you want to bypass this error and keep the value, pass { skipErrors: true }. Keep in mind that all errors will be skipped."
+                )
+            } else if (val instanceof Date) {
+                data[i][keyToUpdate] = data[i][key]
+            } else if (typeof val !== "string") {
+                throw new Error(
+                    val +
+                        " is not a string. Convert to string first (valuesToString()). If you want to bypass this error, pass { skipErrors: true }. Keep in mind that all errors will be skipped."
+                )
+            } else {
+                const newVal = parse(val)
+                if (newVal instanceof Date === false) {
                     throw new Error(
                         val +
-                            " is not a string. Convert to string first (valuesToString()). If you want to bypass this error, pass { skipErrors: true }. Keep in mind that all errors will be skipped."
+                            " is converted to " +
+                            newVal +
+                            " with the format " +
+                            format +
+                            ". The output is not a valid Date. If you want to bypass this error, pass { skipErrors: true }. Keep in mind that all errors will be skipped."
                     )
-                } else {
-                    const newVal = parse(val)
-                    if (newVal instanceof Date === false) {
-                        throw new Error(
-                            val +
-                                " is converted to " +
-                                newVal +
-                                " with the format " +
-                                format +
-                                ". The output is not a valid Date. If you want to bypass this error, pass { skipErrors: true }. Keep in mind that all errors will be skipped."
-                        )
-                    }
-                    data[i][keyToUpdate] = newVal
                 }
-            } catch (error) {
-                if (error instanceof Error && !skipErrors) {
-                    throw new Error(String(error.message))
-                }
-                data[i][keyToUpdate] = val
+                data[i][keyToUpdate] = newVal
             }
+        } catch (error) {
+            if (error instanceof Error && !skipErrors) {
+                throw new Error(String(error.message))
+            }
+            data[i][keyToUpdate] = val
         }
     }
 

@@ -51,8 +51,7 @@ export default class SimpleDataNode extends SimpleData {
             nbLastRowsToExclude,
             fillMissingKeys,
             missingKeyValues,
-            this.verbose,
-            this.noTests
+            this.verbose
         )
 
         this._tempData = data
@@ -104,8 +103,7 @@ export default class SimpleDataNode extends SimpleData {
             fillMissingKeys,
             missingKeyValues,
             encoding,
-            this.verbose,
-            this.noTests
+            this.verbose
         )
 
         this._tempData = data // important for decorator
@@ -155,8 +153,7 @@ export default class SimpleDataNode extends SimpleData {
             fillMissingKeys,
             missingKeyValues,
             encoding,
-            this.verbose,
-            this.noTests
+            this.verbose
         )
 
         this._tempData = data // important for decorator
