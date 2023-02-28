@@ -72,7 +72,6 @@ export default class SimpleData {
     protected _tempData: SimpleDataItem[]
     protected _overwrite: boolean
     protected _duration: number
-    noTests: boolean
     noLogs: boolean
     verbose: boolean
     logParameters: boolean
@@ -82,7 +81,6 @@ export default class SimpleData {
      * SimpleData constructor
      * @param __namedParameters.data  Data as a list of objects with the same keys.
      * @param __namedParameters.verbose  Log information in the console on `SimpleData` method calls.
-     * @param __namedParameters.noTests  If true, the type of the values won't be tested.
      * @param __namedParameters.logParameters  If true, logs methods parameters on every call. Only applies when `verbose` is true.
      * @param __namedParameters.nbTableItemsToLog  Number of items to log in table. Only applies when `verbose` is true.
      * @param __namedParameters.fillMissingKeys  Fill missing keys with `undefined`.
@@ -91,7 +89,6 @@ export default class SimpleData {
         data = [],
         dataAsArrays = false,
         verbose = false,
-        noTests = false,
         logParameters = false,
         nbTableItemsToLog = 5,
         fillMissingKeys = false,
@@ -103,7 +100,6 @@ export default class SimpleData {
         data?: SimpleDataItem[] | { [key: string]: SimpleDataValue[] }
         dataAsArrays?: boolean
         verbose?: boolean
-        noTests?: boolean
         logParameters?: boolean
         nbTableItemsToLog?: number
         fillMissingKeys?: boolean
@@ -119,27 +115,20 @@ export default class SimpleData {
                           data as unknown as {
                               [key: string]: SimpleDataValue[]
                           },
-                          verbose,
-                          noTests
+                          verbose
                       ).slice(firstItem, lastItem + 1)
                   )
                 : cloneData(
                       (data as SimpleDataItem[]).slice(firstItem, lastItem + 1)
                   )
 
-            if (noTests && fillMissingKeys) {
-                throw new Error(
-                    "fillMissingKeys cannot be true if noTests is true"
-                )
-            } else if (!noTests) {
-                handleMissingKeys(
-                    incomingData,
-                    fillMissingKeys,
-                    undefined,
-                    undefined,
-                    !noLogs && verbose
-                )
-            }
+            handleMissingKeys(
+                incomingData,
+                fillMissingKeys,
+                undefined,
+                undefined,
+                !noLogs && verbose
+            )
 
             this._data = incomingData
         } else {
@@ -155,7 +144,6 @@ export default class SimpleData {
         this._duration = duration
 
         this.verbose = !noLogs && verbose
-        this.noTests = noTests
         this.logParameters = logParameters
         this.nbTableItemsToLog = nbTableItemsToLog
         this.noLogs = noLogs
@@ -205,8 +193,7 @@ export default class SimpleData {
             nbLastRowsToExclude,
             fillMissingKeys,
             missingKeyValues,
-            this.verbose,
-            this.noTests
+            this.verbose
         )
 
         this._tempData = data // important for decorator
@@ -410,8 +397,7 @@ export default class SimpleData {
             thousandSeparator,
             decimalSeparator,
             skipErrors,
-            newKey,
-            this.noTests
+            newKey
         )
         overwrite && this.#updateSimpleData(this._tempData)
 
@@ -441,8 +427,7 @@ export default class SimpleData {
             thousandSeparator,
             decimalSeparator,
             skipErrors,
-            newKey,
-            this.noTests
+            newKey
         )
         overwrite && this.#updateSimpleData(this._tempData)
 
@@ -469,8 +454,7 @@ export default class SimpleData {
             key,
             format,
             skipErrors,
-            newKey,
-            this.noTests
+            newKey
         )
         overwrite && this.#updateSimpleData(this._tempData)
 
@@ -497,8 +481,7 @@ export default class SimpleData {
             key,
             format,
             skipErrors,
-            newKey,
-            this.noTests
+            newKey
         )
         overwrite && this.#updateSimpleData(this._tempData)
 
@@ -525,8 +508,7 @@ export default class SimpleData {
             key,
             nbDigits,
             skipErrors,
-            newKey,
-            this.noTests
+            newKey
         )
         overwrite && this.#updateSimpleData(this._tempData)
 
@@ -629,7 +611,7 @@ export default class SimpleData {
         this._tempData = excludeOutliers_(
             cloneData(this._data),
             key,
-            this.noTests ? 0 : nbTestedValues,
+            nbTestedValues,
             this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)
@@ -720,7 +702,7 @@ export default class SimpleData {
         this._tempData = addItems_(
             cloneData(this._data),
             dataToBeAdded,
-            this.noTests ? false : fillMissingKeys,
+            fillMissingKeys,
             defaultValue,
             this.verbose
         )
@@ -747,7 +729,7 @@ export default class SimpleData {
             dataToBeMerged,
             commonKey,
             this.verbose,
-            this.noTests ? 0 : nbTestedValues
+            nbTestedValues
         )
         overwrite && this.#updateSimpleData(this._tempData)
 
@@ -958,7 +940,7 @@ export default class SimpleData {
             keyCategory,
             suffix,
             nbDigits,
-            nbTestedValues: this.noTests ? 0 : nbTestedValues,
+            nbTestedValues,
             verbose: this.verbose,
         })
         overwrite && this.#updateSimpleData(this._tempData)
@@ -994,7 +976,7 @@ export default class SimpleData {
             valueGenerator,
             order,
             firstValue,
-            this.noTests ? 0 : nbTestedValues,
+            nbTestedValues,
             this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)
@@ -1026,7 +1008,7 @@ export default class SimpleData {
             keyCategory,
             summary,
             weight,
-            this.noTests ? 0 : nbTestedValues,
+            nbTestedValues,
             this.verbose,
             nbDigits
         )
@@ -1058,7 +1040,7 @@ export default class SimpleData {
             keyCategory,
             nbDigits,
             this.verbose,
-            this.noTests ? 0 : nbTestedValues
+            nbTestedValues
         )
         overwrite && this.#updateSimpleData(this._tempData)
 
@@ -1101,7 +1083,7 @@ export default class SimpleData {
             order,
             nbDigits,
             this.verbose,
-            this.noTests ? 0 : nbTestedValues
+            nbTestedValues
         )
         overwrite && this.#updateSimpleData(this._tempData)
 
@@ -1128,7 +1110,7 @@ export default class SimpleData {
             key,
             newKey,
             nbQuantiles,
-            this.noTests ? 0 : nbTestedValues,
+            nbTestedValues,
             this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)
@@ -1156,7 +1138,7 @@ export default class SimpleData {
             key,
             newKey,
             nbBins,
-            this.noTests ? 0 : nbTestedValues,
+            nbTestedValues,
             this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)
@@ -1181,7 +1163,7 @@ export default class SimpleData {
             cloneData(this._data),
             key,
             newKey,
-            this.noTests ? 0 : nbTestedValues,
+            nbTestedValues,
             this.verbose
         )
         overwrite && this.#updateSimpleData(this._tempData)
@@ -1272,7 +1254,6 @@ export default class SimpleData {
             logParameters: this.logParameters,
             noLogs: this.noLogs,
             nbTableItemsToLog: this.nbTableItemsToLog,
-            noTest: this.noTests,
         })
     }
 
@@ -1353,7 +1334,7 @@ export default class SimpleData {
             this._data,
             key,
             nbDigits,
-            this.noTests ? 0 : nbTestedValues,
+            nbTestedValues,
             type,
             this.verbose
         )
@@ -1375,7 +1356,7 @@ export default class SimpleData {
             this._data,
             key,
             nbDigits,
-            this.noTests ? 0 : nbTestedValues,
+            nbTestedValues,
             type,
             this.verbose
         )
@@ -1397,7 +1378,7 @@ export default class SimpleData {
             this._data,
             key,
             nbDigits,
-            this.noTests ? 0 : nbTestedValues,
+            nbTestedValues,
             type,
             this.verbose
         )
@@ -1419,7 +1400,7 @@ export default class SimpleData {
             this._data,
             key,
             nbDigits,
-            this.noTests ? 0 : nbTestedValues,
+            nbTestedValues,
             type,
             this.verbose
         )
@@ -1435,13 +1416,7 @@ export default class SimpleData {
         nbDigits?: number
         nbTestedValues?: number
     }): SimpleDataValue {
-        return getSum_(
-            this._data,
-            key,
-            nbDigits,
-            this.noTests ? 0 : nbTestedValues,
-            this.verbose
-        )
+        return getSum_(this._data, key, nbDigits, nbTestedValues, this.verbose)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
@@ -1461,7 +1436,7 @@ export default class SimpleData {
             key,
             quantile,
             nbDigits,
-            this.noTests ? 0 : nbTestedValues,
+            nbTestedValues,
             this.verbose
         )
     }

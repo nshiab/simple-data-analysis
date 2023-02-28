@@ -8,7 +8,6 @@ describe("arraysToData", function () {
                 key1: [1, 2, 3],
                 key2: ["a", "b", "c"],
             },
-            false,
             false
         )
 

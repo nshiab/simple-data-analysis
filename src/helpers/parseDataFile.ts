@@ -19,8 +19,7 @@ export default function parseDataFile(
         NaN: NaN,
         undefined: undefined,
     },
-    verbose = false,
-    noTests = false
+    verbose = false
 ): SimpleDataItem[] {
     verbose && log(`Parsing the data...`, "blue")
 
@@ -72,14 +71,14 @@ export default function parseDataFile(
     } else if (fileExtension === "json" && typeof data === "string") {
         const incomingData = JSON.parse(data)
         arrayOfObjects = dataAsArrays
-            ? arraysToData(incomingData, verbose, noTests)
+            ? arraysToData(incomingData, verbose)
             : incomingData
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
     } else if (fileExtension === "json" && Array.isArray(data)) {
         arrayOfObjects = data.slice(firstItem, lastItem + 1) as SimpleDataItem[]
     } else if (fileExtension === "json" && typeof data === "object") {
         arrayOfObjects = (
-            dataAsArrays ? arraysToData(data, verbose, noTests) : data
+            dataAsArrays ? arraysToData(data, verbose) : data
         ) as SimpleDataItem[]
         arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
     } else {
@@ -90,17 +89,11 @@ export default function parseDataFile(
         throw new Error("Incoming data is empty.")
     }
 
-    if (noTests && fillMissingKeys) {
-        throw new Error("fillMissingKeys cannot be true if noTests is true")
-    } else if (!noTests) {
-        arrayOfObjects = handleMissingKeys(
-            arrayOfObjects,
-            fillMissingKeys,
-            undefined,
-            undefined,
-            verbose
-        )
-    }
-
-    return arrayOfObjects
+    return handleMissingKeys(
+        arrayOfObjects,
+        fillMissingKeys,
+        undefined,
+        undefined,
+        verbose
+    )
 }

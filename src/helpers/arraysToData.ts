@@ -5,8 +5,7 @@ export default function arraysToData(
     data: {
         [key: string]: SimpleDataValue[]
     },
-    verbose: boolean,
-    noTests: boolean
+    verbose: boolean
 ): SimpleDataItem[] {
     verbose &&
         log(
@@ -17,17 +16,13 @@ export default function arraysToData(
     const keys = Object.keys(data)
     const nbItems = data[keys[0]].length
 
-    if (!noTests) {
-        for (let i = 1; i < keys.length; i++) {
-            if (data[keys[i]].length !== nbItems) {
-                throw new Error(
-                    `Key ${keys[0]} has ${nbItems} items but key ${
-                        keys[i]
-                    } has ${
-                        data[keys[i]].length
-                    }. All keys must have the same number of values.`
-                )
-            }
+    for (let i = 1; i < keys.length; i++) {
+        if (data[keys[i]].length !== nbItems) {
+            throw new Error(
+                `Key ${keys[0]} has ${nbItems} items but key ${keys[i]} has ${
+                    data[keys[i]].length
+                }. All keys must have the same number of values.`
+            )
         }
     }
 

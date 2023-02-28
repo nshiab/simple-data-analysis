@@ -19,8 +19,7 @@ export default function loadDataFromLocalDirectory(
         undefined: undefined,
     },
     encoding: BufferEncoding = "utf8",
-    verbose = false,
-    noTest = false
+    verbose = false
 ): SimpleDataItem[] {
     const files = readdirSync(path)
 
@@ -48,8 +47,7 @@ export default function loadDataFromLocalDirectory(
                 nbLastRowsToExclude,
                 fillMissingKeys,
                 missingKeyValues,
-                verbose,
-                noTest
+                verbose
             )
         )
     }

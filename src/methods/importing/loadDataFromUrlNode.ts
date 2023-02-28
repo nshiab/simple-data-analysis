@@ -18,8 +18,7 @@ export default async function loadDataFromUrlNode(
         NaN: NaN,
         undefined: undefined,
     },
-    verbose = false,
-    noTest = false
+    verbose = false
 ): Promise<SimpleDataItem[]> {
     const urls: string[] = []
     const arrayOfObjects: SimpleDataItem[] = []
@@ -49,8 +48,7 @@ export default async function loadDataFromUrlNode(
                 nbLastRowsToExclude,
                 fillMissingKeys,
                 missingKeyValues,
-                verbose,
-                noTest
+                verbose
             )
         )
     }
