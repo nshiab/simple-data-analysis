@@ -44,15 +44,15 @@ async function main() {
         .valuesToFloat({ key: "bonus" })
 
     simpleDataNode
-        .saveData({ path: `${directory}/integrationTest.csv` })
-        .saveData({ path: `${directory}/integrationTest.json` })
+        .saveData({ path: `${directory}integrationTest.csv` })
+        .saveData({ path: `${directory}integrationTest.json` })
         .saveData({
-            path: `${directory}/integrationTestArrays.json`,
+            path: `${directory}integrationTestArrays.json`,
             dataAsArrays: true,
         })
 
     simpleDataNode.saveChart({
-        path: `${directory}/dot1.html`,
+        path: `${directory}dot1.html`,
         type: "dot",
         x: "salary",
         y: "bonus",
@@ -61,18 +61,7 @@ async function main() {
         showTrendEquation: true,
     })
     simpleDataNode.saveChart({
-        path: `${directory}/dot1-small.html`,
-        type: "dot",
-        x: "salary",
-        y: "bonus",
-        color: "job",
-        trend: true,
-        showTrendEquation: true,
-        width: 400,
-        height: 300,
-    })
-    simpleDataNode.saveChart({
-        path: `${directory}/dot1-small-title.html`,
+        path: `${directory}dot1-small.html`,
         type: "dot",
         x: "salary",
         y: "bonus",
@@ -81,14 +70,13 @@ async function main() {
         showTrendEquation: true,
         width: 400,
         height: 300,
-        title: "Awesome chart",
     })
-
     simpleDataNode.saveChart({
-        path: `${directory}/dot1-small-title-noLegend.html`,
+        path: `${directory}dot1-small-title.html`,
         type: "dot",
         x: "salary",
         y: "bonus",
+        color: "job",
         trend: true,
         showTrendEquation: true,
         width: 400,
@@ -97,7 +85,19 @@ async function main() {
     })
 
     simpleDataNode.saveChart({
-        path: `${directory}/small-multiples.html`,
+        path: `${directory}dot1-small-title-noLegend.html`,
+        type: "dot",
+        x: "salary",
+        y: "bonus",
+        trend: true,
+        showTrendEquation: true,
+        width: 400,
+        height: 300,
+        title: "Awesome chart",
+    })
+
+    simpleDataNode.saveChart({
+        path: `${directory}small-multiples.html`,
         type: "dot",
         x: "salary",
         y: "bonus",
@@ -123,7 +123,7 @@ async function main() {
             summary: "mean",
         })
         .saveChart({
-            path: `${directory}/bar1.html`,
+            path: `${directory}bar1.html`,
             type: "barHorizontal",
             x: "mean",
             y: "job",
@@ -131,7 +131,7 @@ async function main() {
             marginLeft: 90,
         })
         .saveChart({
-            path: `${directory}/bar1-small.html`,
+            path: `${directory}bar1-small.html`,
             type: "barHorizontal",
             x: "mean",
             y: "job",
@@ -151,7 +151,7 @@ async function main() {
                 valueComparator: (val) => val === job,
             })
             .saveChart({
-                path: `${directory}/${job}.html`,
+                path: `${directory}${job}.html`,
                 type: "dot",
                 x: "bonus",
                 y: "name",
@@ -161,7 +161,7 @@ async function main() {
     }
 
     simpleDataNode.saveCustomChart({
-        path: `${directory}/customChart.html`,
+        path: `${directory}customChart.html`,
         plotOptions: {
             color: { type: "ordinal" },
             x: { type: "point" },
