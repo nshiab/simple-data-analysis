@@ -1,5 +1,5 @@
 import assert from "assert"
-import descr from "../../../../src/methods/analyzing/describe.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("describe", function () {
     it("should describe", function () {
@@ -7,8 +7,8 @@ describe("describe", function () {
             { key1: "1", key2: 2 },
             { key1: "11", key2: 22 },
         ]
-        const describeData = descr(data)
-        assert.deepEqual(describeData, [
+        const sd = new SimpleData({ data }).describe()
+        assert.deepEqual(sd.getData(), [
             {
                 nbDataPoints: 4,
                 nbItems: 2,

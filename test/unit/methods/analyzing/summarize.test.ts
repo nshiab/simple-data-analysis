@@ -1,5 +1,5 @@
 import assert from "assert"
-import summarize from "../../../../src/methods/analyzing/summarize.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("summarize", function () {
     it("should summarize without keyCategory", function () {
@@ -7,17 +7,11 @@ describe("summarize", function () {
             { key1: 1, key2: 2, key3: 55 },
             { key1: 2, key2: 22, key3: 99 },
         ]
-        const summarizedData = summarize(
-            data,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            100,
-            false,
-            1
-        )
-        assert.deepEqual(summarizedData, [
+
+        const sd = new SimpleData({ data }).summarize({
+            nbDigits: 1,
+        })
+        assert.deepEqual(sd.getData(), [
             {
                 value: "key1",
                 count: 2,
@@ -58,17 +52,11 @@ describe("summarize", function () {
             { key1: 2, key2: 22, key3: "c" },
             { key1: 2, key2: 22, key3: "d" },
         ]
-        const summarizedData = summarize(
-            data,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            100,
-            false,
-            1
-        )
-        assert.deepEqual(summarizedData, [
+
+        const sd = new SimpleData({ data }).summarize({
+            nbDigits: 1,
+        })
+        assert.deepEqual(sd.getData(), [
             {
                 value: "key1",
                 count: 4,
@@ -99,17 +87,12 @@ describe("summarize", function () {
             { key1: "Rubarbe", key2: 2 },
             { key1: "Fraise", key2: 22 },
         ]
-        const summarizedData = summarize(
-            data,
-            "key2",
-            "key1",
-            undefined,
-            undefined,
-            100,
-            false,
-            1
-        )
-        assert.deepEqual(summarizedData, [
+        const sd = new SimpleData({ data }).summarize({
+            keyValue: "key2",
+            keyCategory: "key1",
+            nbDigits: 1,
+        })
+        assert.deepEqual(sd.getData(), [
             {
                 value: "key2",
                 key1: "Rubarbe",
