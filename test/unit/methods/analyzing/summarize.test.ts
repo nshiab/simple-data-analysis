@@ -51,6 +51,47 @@ describe("summarize", function () {
         ])
     })
 
+    it("should summarize and filter out keys with non numerical values", function () {
+        const data = [
+            { key1: 1, key2: 2, key3: "a" },
+            { key1: 2, key2: 22, key3: "b" },
+            { key1: 2, key2: 22, key3: "c" },
+            { key1: 2, key2: 22, key3: "d" },
+        ]
+        const summarizedData = summarize(
+            data,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            100,
+            false,
+            1
+        )
+        assert.deepEqual(summarizedData, [
+            {
+                value: "key1",
+                count: 4,
+                min: 1,
+                max: 2,
+                sum: 7,
+                mean: 1.8,
+                median: 2,
+                deviation: 0.5,
+            },
+            {
+                value: "key2",
+                count: 4,
+                min: 2,
+                max: 22,
+                sum: 68,
+                mean: 17,
+                median: 22,
+                deviation: 10,
+            },
+        ])
+    })
+
     it("should summarize with keyCategory", function () {
         const data = [
             { key1: "Rubarbe", key2: 1 },
