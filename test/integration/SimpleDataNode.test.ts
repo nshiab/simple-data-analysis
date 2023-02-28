@@ -14,18 +14,14 @@ async function main() {
     }
 
     new SimpleDataNode({
-        verbose: true,
-        logParameters: true,
-        noLogs: noLogs,
+        verbose: !noLogs,
     }).loadDataFromLocalFile({
         path: "./data/employees.json",
         fillMissingKeys: true,
     })
 
     const simpleDataNode = await new SimpleDataNode({
-        verbose: true,
-        logParameters: true,
-        noLogs: noLogs,
+        verbose: !noLogs,
     }).loadDataFromUrl({
         url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv",
     })

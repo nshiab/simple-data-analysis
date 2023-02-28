@@ -38,10 +38,8 @@ describe("SimpleData", function () {
         const data = [{ key1: 1, key2: 2 }]
         const simpleData = new SimpleData({ data: data })
         simpleData.verbose = true
-        simpleData.logParameters = true
         simpleData.nbTableItemsToLog = 11
         assert.equal(simpleData.verbose, true)
-        assert.equal(simpleData.logParameters, true)
         assert.equal(simpleData.nbTableItemsToLog, 11)
     })
 
