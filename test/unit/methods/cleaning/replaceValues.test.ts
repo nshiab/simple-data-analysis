@@ -1,31 +1,29 @@
 import assert from "assert"
-import replaceValues from "../../../../src/methods/cleaning/replaceValues.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("replaceValues", function () {
     it("should replace partial string values", function () {
         const data = [{ key1: "I am potato", key2: "I am key2" }]
-        const replacedValues = replaceValues(
-            data,
-            "key1",
-            "I am",
-            "You are",
-            "partialString"
-        )
-        assert.deepEqual(replacedValues, [
+        const sd = new SimpleData({ data }).replaceValues({
+            key: "key1",
+            oldValue: "I am",
+            newValue: "You are",
+            method: "partialString",
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: "You are potato", key2: "I am key2" },
         ])
     })
 
     it("should replace entire string values", function () {
         const data = [{ key1: "I am potato", key2: "I am key2" }]
-        const replacedValues = replaceValues(
-            data,
-            "key1",
-            "I am potato",
-            "You are potato",
-            "entireString"
-        )
-        assert.deepEqual(replacedValues, [
+        const sd = new SimpleData({ data }).replaceValues({
+            key: "key1",
+            oldValue: "I am potato",
+            newValue: "You are potato",
+            method: "entireString",
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: "You are potato", key2: "I am key2" },
         ])
     })
@@ -35,8 +33,13 @@ describe("replaceValues", function () {
             { key1: 12, key2: "I am key2" },
             { key1: 45, key2: "I am key2" },
         ]
-        const replacedValues = replaceValues(data, "key1", 12, 25)
-        assert.deepEqual(replacedValues, [
+
+        const sd = new SimpleData({ data }).replaceValues({
+            key: "key1",
+            oldValue: 12,
+            newValue: 25,
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 25, key2: "I am key2" },
             { key1: 45, key2: "I am key2" },
         ])
@@ -47,15 +50,14 @@ describe("replaceValues", function () {
             { key1: "I am potato", key2: "I am key2" },
             { key1: 32, key2: "I am key2" },
         ]
-        const replacedValues = replaceValues(
-            data,
-            "key1",
-            "I am",
-            "You are",
-            "partialString",
-            true
-        )
-        assert.deepEqual(replacedValues, [
+        const sd = new SimpleData({ data }).replaceValues({
+            key: "key1",
+            oldValue: "I am",
+            newValue: "You are",
+            method: "partialString",
+            skipErrors: true,
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: "You are potato", key2: "I am key2" },
             { key1: 32, key2: "I am key2" },
         ])
@@ -63,16 +65,15 @@ describe("replaceValues", function () {
 
     it("should save replaced partial string values with a new key", function () {
         const data = [{ key1: "I am potato", key2: "I am key2" }]
-        const replacedValues = replaceValues(
-            data,
-            "key1",
-            "I am",
-            "You are",
-            "partialString",
-            undefined,
-            "key1x"
-        )
-        assert.deepEqual(replacedValues, [
+
+        const sd = new SimpleData({ data }).replaceValues({
+            key: "key1",
+            newKey: "key1x",
+            oldValue: "I am",
+            newValue: "You are",
+            method: "partialString",
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: "I am potato", key1x: "You are potato", key2: "I am key2" },
         ])
     })
@@ -81,15 +82,13 @@ describe("replaceValues", function () {
         const data = [{ key1: "I am potato", key2: "I am key2" }]
 
         assert.throws(() =>
-            replaceValues(
-                data,
-                "key1",
-                "I am",
-                "You are",
-                "partialString",
-                undefined,
-                "key2"
-            )
+            new SimpleData({ data }).replaceValues({
+                key: "key1",
+                newKey: "key2",
+                oldValue: "I am",
+                newValue: "You are",
+                method: "partialString",
+            })
         )
     })
 })

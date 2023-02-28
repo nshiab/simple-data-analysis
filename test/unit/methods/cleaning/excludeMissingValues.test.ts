@@ -1,5 +1,5 @@
 import assert from "assert"
-import excludeMissingValues from "../../../../src/methods/cleaning/excludeMissingValues.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("excludeMissingValues", function () {
     it("should exclude missing values", function () {
@@ -11,8 +11,8 @@ describe("excludeMissingValues", function () {
             { key1: 11, key2: 22 },
         ]
 
-        const cleanData = excludeMissingValues(data)
-        assert.deepEqual(cleanData, [{ key1: 11, key2: 22 }])
+        const sd = new SimpleData({ data }).excludeMissingValues()
+        assert.deepEqual(sd.getData(), [{ key1: 11, key2: 22 }])
     })
     it("should keep missing values", function () {
         const data = [
@@ -23,14 +23,10 @@ describe("excludeMissingValues", function () {
             { key1: 11, key2: 22 },
         ]
 
-        const missingData = excludeMissingValues(
-            data,
-            undefined,
-            undefined,
-            undefined,
-            true
-        )
-        assert.deepEqual(missingData, [
+        const sd = new SimpleData({ data }).excludeMissingValues({
+            keepExcludedOnly: true,
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: null, key2: 2 },
             { key1: NaN, key2: 3 },
             { key1: undefined, key2: 4 },

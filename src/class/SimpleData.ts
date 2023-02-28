@@ -476,8 +476,8 @@ export default class SimpleData {
         newKey,
     }: {
         key: string
-        oldValue: string
-        newValue: string
+        oldValue: SimpleDataValue
+        newValue: SimpleDataValue
         method?: undefined | "entireString" | "partialString"
         skipErrors?: boolean
         newKey?: string

@@ -1,11 +1,14 @@
 import assert from "assert"
-import valuesToDate from "../../../../src/methods/cleaning/valuesToDate.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("valuesToDate", function () {
     it("should convert values to date", function () {
         const data = [{ key1: "2022-02-03", key2: 2 }]
-        const datesData = valuesToDate(data, "key1", "%Y-%m-%d")
-        assert.deepEqual(datesData, [
+        const sd = new SimpleData({ data }).valuesToDate({
+            key: "key1",
+            format: "%Y-%m-%d",
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: new Date(Date.UTC(2022, 1, 3)), key2: 2 },
         ])
     })
@@ -14,8 +17,11 @@ describe("valuesToDate", function () {
             { key1: "2022-02-03", key2: 2 },
             { key1: new Date(Date.UTC(2022, 1, 3)), key2: 2 },
         ]
-        const datesData = valuesToDate(data, "key1", "%Y-%m-%d")
-        assert.deepEqual(datesData, [
+        const sd = new SimpleData({ data }).valuesToDate({
+            key: "key1",
+            format: "%Y-%m-%d",
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: new Date(Date.UTC(2022, 1, 3)), key2: 2 },
             { key1: new Date(Date.UTC(2022, 1, 3)), key2: 2 },
         ])
@@ -28,8 +34,12 @@ describe("valuesToDate", function () {
             { key1: 35, key2: 2 },
             { key1: new Date(Date.UTC(2022, 1, 3)), key2: 2 },
         ]
-        const datesData = valuesToDate(data, "key1", "%Y-%m-%d", true)
-        assert.deepEqual(datesData, [
+        const sd = new SimpleData({ data }).valuesToDate({
+            key: "key1",
+            format: "%Y-%m-%d",
+            skipErrors: true,
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: new Date(Date.UTC(2022, 1, 3)), key2: 2 },
             { key1: NaN, key2: 2 },
             { key1: "coucou", key2: 2 },
@@ -46,8 +56,13 @@ describe("valuesToDate", function () {
             { key1: 35, key2: 2 },
             { key1: new Date(Date.UTC(2022, 1, 3)), key2: 2 },
         ]
-        const datesData = valuesToDate(data, "key1", "%Y-%m-%d", true, "key1x")
-        assert.deepEqual(datesData, [
+        const sd = new SimpleData({ data }).valuesToDate({
+            key: "key1",
+            newKey: "key1x",
+            format: "%Y-%m-%d",
+            skipErrors: true,
+        })
+        assert.deepEqual(sd.getData(), [
             {
                 key1: "2022-02-03",
                 key1x: new Date(Date.UTC(2022, 1, 3)),
@@ -68,7 +83,11 @@ describe("valuesToDate", function () {
         const data = [{ key1: "2022-02-03", key2: 2 }]
 
         assert.throws(() =>
-            valuesToDate(data, "key1", "%Y-%m-%d", undefined, "key2")
+            new SimpleData({ data }).valuesToDate({
+                key: "key1",
+                format: "%y-%m-%d",
+                newKey: "key2",
+            })
         )
     })
 })

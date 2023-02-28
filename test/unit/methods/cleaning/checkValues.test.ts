@@ -1,6 +1,5 @@
 import assert from "assert"
-import checkValues from "../../../../src/methods/cleaning/checkValues.js"
-import loadDataFromUrlNode from "../../../../src/methods/importing/loadDataFromUrlNode.js"
+import { SimpleData, SimpleDataNode } from "../../../../src/index.js"
 
 describe("checkValues", function () {
     it("should check the type of values", () => {
@@ -14,8 +13,9 @@ describe("checkValues", function () {
             { key1: "11", key2: new Date(Date.UTC(2018, 1, 1)) },
             { key1: "", key2: new Date(Date.UTC(2018, 1, 1)) },
         ]
-        const dataChecked = checkValues(data)
-        assert.deepEqual(dataChecked, [
+
+        const sd = new SimpleData({ data }).checkValues()
+        assert.deepEqual(sd.getData(), [
             {
                 NaN: "0 | 0%",
                 count: 8,
@@ -54,8 +54,8 @@ describe("checkValues", function () {
                 data.push({ key1: "coucou" })
             }
         }
-        const dataChecked = checkValues(data, 500)
-        assert.deepEqual(dataChecked, [
+        const sd = new SimpleData({ data }).checkValues({ nbItemsToCheck: 500 })
+        assert.deepEqual(sd.getData(), [
             {
                 key: "key1",
                 count: 500,
@@ -75,19 +75,19 @@ describe("checkValues", function () {
                 data.push({ key1: "coucou" })
             }
         }
-        const dataChecked = checkValues(data, 100, true)
-        assert.deepEqual(dataChecked[0].count, 100)
+        const sd = new SimpleData({ data }).checkValues({
+            nbItemsToCheck: 100,
+            randomize: true,
+        })
+        assert.deepEqual(sd.getFirst().count, 100)
     })
 
     it("should check values and all items should have the same keys", async function () {
-        const data = await loadDataFromUrlNode(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis.js/main/data/employees.csv",
-            false
-        )
+        const sd = await new SimpleDataNode().loadDataFromUrl({
+            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis.js/main/data/employees.csv",
+        })
 
-        const dataChecked = checkValues(data)
-
-        assert.deepEqual(dataChecked, [
+        assert.deepEqual(sd.checkValues().getData(), [
             {
                 key: "Name",
                 count: 51,
