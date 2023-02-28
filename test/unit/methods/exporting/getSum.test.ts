@@ -1,5 +1,5 @@
 import assert from "assert"
-import getSum from "../../../../src/methods/exporting/getSum.js"
+import { SimpleData } from "../../../../src/index.js"
 
 const data = [
     { key1: 66, key2: 5 },
@@ -13,11 +13,10 @@ const data = [
 
 describe("getSum", function () {
     it("should return the sum from key holding all numbers", function () {
-        const sum = getSum(data, "key1")
-        assert.deepEqual(sum, 473)
+        assert.deepEqual(new SimpleData({ data }).getSum({ key: "key1" }), 473)
     })
 
     it("should throw an error when different types", function () {
-        assert.throws(() => getSum(data, "key2"))
+        assert.throws(() => new SimpleData({ data }).getSum({ key: "key2" }))
     })
 })

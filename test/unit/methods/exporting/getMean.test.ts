@@ -1,5 +1,5 @@
 import assert from "assert"
-import getMean from "../../../../src/methods/exporting/getMean.js"
+import { SimpleData } from "../../../../src/index.js"
 
 const data = [
     { key1: 9, key2: 90, key3: new Date(Date.UTC(2022, 7, 1)) },
@@ -13,18 +13,22 @@ const data = [
 
 describe("getMean", function () {
     it("should return mean value 39.9 from key holding all numbers", function () {
-        const meanValue = getMean(data, "key1", 1)
-        assert.deepEqual(meanValue, 39.9)
+        assert.deepEqual(
+            new SimpleData({ data }).getMean({ key: "key1", nbDigits: 1 }),
+            39.9
+        )
     })
 
     it("should throw an error when different types", function () {
-        assert.throws(() => getMean(data, "key2"))
+        assert.throws(() => new SimpleData({ data }).getMean({ key: "key2" }))
     })
     it("should throw an error when not working with with numbers", function () {
-        assert.throws(() => getMean(data, "key3"))
+        assert.throws(() => new SimpleData({ data }).getMean({ key: "key3" }))
     })
     it("should return mean value when the type provided (Date)", function () {
-        const value = getMean(data, "key3", undefined, undefined, "Date")
-        assert.deepEqual(value, new Date(Date.UTC(2022, 7, 4)))
+        assert.deepEqual(
+            new SimpleData({ data }).getMean({ key: "key3", type: "Date" }),
+            new Date(Date.UTC(2022, 7, 4))
+        )
     })
 })
