@@ -16,6 +16,7 @@ export default function summarize(
     verbose = false,
     nbDigits?: number
 ): SimpleDataItem[] {
+    let noKeyValue = false
     if (keyValue === undefined) {
         verbose && log(`No keyValue provided. Will summarize over all keys.`)
         keyValue = Object.keys(data[0]).filter((d) => {
@@ -39,6 +40,7 @@ export default function summarize(
                 return false
             }
         })
+        noKeyValue = true
     }
 
     // Let's deal with the keyCategory first
@@ -116,7 +118,8 @@ export default function summarize(
 
     for (const value of keyValues) {
         if (
-            summaries.includes("sum") ||
+            (!noKeyValue && // if noKeyValue is true, we already filtered out non numerical values
+                summaries.includes("sum")) ||
             summaries.includes("mean") ||
             summaries.includes("median") ||
             summaries.includes("deviation") ||
