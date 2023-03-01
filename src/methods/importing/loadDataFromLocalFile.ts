@@ -36,21 +36,23 @@ export default function loadDataFromLocalFile(
 
         const fileExtension = getExtension(path, verbose)
 
-        arrayOfObjects.push(
-            ...parseDataFile(
-                data,
-                fileExtension,
-                autoType,
-                dataAsArrays,
-                firstItem,
-                lastItem,
-                nbFirstRowsToExclude,
-                nbLastRowsToExclude,
-                fillMissingKeys,
-                missingKeyValues,
-                verbose
-            )
+        const parsedData = parseDataFile(
+            data,
+            fileExtension,
+            autoType,
+            dataAsArrays,
+            firstItem,
+            lastItem,
+            nbFirstRowsToExclude,
+            nbLastRowsToExclude,
+            fillMissingKeys,
+            missingKeyValues,
+            verbose
         )
+
+        for (let i = 0; i < parsedData.length; i++) {
+            arrayOfObjects.push(parsedData[i])
+        }
     }
 
     return arrayOfObjects
