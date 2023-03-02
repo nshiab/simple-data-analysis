@@ -23,6 +23,7 @@ export default class SimpleDataNode extends SimpleData {
         dataAsArrays = false,
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         fillMissingKeys = false,
+        fileNameAsId = false,
         firstItem = 0,
         lastItem = Infinity,
         nbFirstRowsToExclude = 0,
@@ -33,6 +34,7 @@ export default class SimpleDataNode extends SimpleData {
         dataAsArrays?: boolean
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
+        fileNameAsId?: boolean
         firstItem?: number
         lastItem?: number
         nbFirstRowsToExclude?: number
@@ -47,6 +49,7 @@ export default class SimpleDataNode extends SimpleData {
             nbFirstRowsToExclude,
             nbLastRowsToExclude,
             fillMissingKeys,
+            fileNameAsId,
             missingKeyValues,
             this.verbose
         )
@@ -65,6 +68,7 @@ export default class SimpleDataNode extends SimpleData {
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         encoding = "utf8",
         fillMissingKeys = false,
+        fileNameAsId = false,
         firstItem = 0,
         lastItem = Infinity,
         nbFirstRowsToExclude = 0,
@@ -76,6 +80,7 @@ export default class SimpleDataNode extends SimpleData {
         encoding?: BufferEncoding
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
+        fileNameAsId?: boolean
         firstItem?: number
         lastItem?: number
         nbFirstRowsToExclude?: number
@@ -97,6 +102,7 @@ export default class SimpleDataNode extends SimpleData {
                 nbFirstRowsToExclude,
                 nbLastRowsToExclude,
                 fillMissingKeys,
+                fileNameAsId,
                 missingKeyValues,
                 encoding,
                 this.verbose

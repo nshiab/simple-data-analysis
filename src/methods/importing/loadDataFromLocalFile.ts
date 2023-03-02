@@ -13,6 +13,7 @@ export default function loadDataFromLocalFile(
     nbFirstRowsToExclude = 0,
     nbLastRowsToExclude = Infinity,
     fillMissingKeys = false,
+    fileNameAsId = false,
     missingKeyValues: SimpleDataItem = {
         null: null,
         NaN: NaN,
@@ -49,6 +50,14 @@ export default function loadDataFromLocalFile(
             missingKeyValues,
             verbose
         )
+
+        if (fileNameAsId) {
+            const filePathSplit = path.split("/")
+            const fileName = filePathSplit[filePathSplit.length - 1]
+            for (let i = 0; i < parsedData.length; i++) {
+                parsedData[i].id = fileName
+            }
+        }
 
         for (let i = 0; i < parsedData.length; i++) {
             arrayOfObjects.push(parsedData[i])
