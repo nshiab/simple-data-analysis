@@ -49,9 +49,9 @@ export default function loadDataFromLocalDirectory(
             verbose
         )
 
-        const filePathSplit = filePath.split("/")
-        const fileName = filePathSplit[filePathSplit.length - 1]
         if (fileNameAsId) {
+            const filePathSplit = filePath.split("/")
+            const fileName = filePathSplit[filePathSplit.length - 1]
             for (let i = 0; i < parsedData.length; i++) {
                 parsedData[i].id = fileName
             }

@@ -50,6 +50,31 @@ describe("loadDataFromUrlNode", function () {
         ])
     })
 
+    it("should return an array of objects from multiple files with the file name as id", async function () {
+        const sd = await new SimpleDataNode().loadDataFromUrl({
+            url: [
+                "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.csv",
+                "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.tsv",
+                "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.json",
+            ],
+            fileNameAsId: true,
+        })
+        assert.deepEqual(sd.getData(), [
+            { key1: "1", key2: "2", id: "localFileTest.csv" },
+            { key1: "3", key2: "coucou", id: "localFileTest.csv" },
+            { key1: "8", key2: "10", id: "localFileTest.csv" },
+            { key1: "brioche", key2: "croissant", id: "localFileTest.csv" },
+            { key1: "1", key2: "2", id: "localFileTest.tsv" },
+            { key1: "3", key2: "coucou", id: "localFileTest.tsv" },
+            { key1: "8", key2: "10", id: "localFileTest.tsv" },
+            { key1: "brioche", key2: "croissant", id: "localFileTest.tsv" },
+            { key1: 1, key2: 2, id: "localFileTest.json" },
+            { key1: 3, key2: "coucou", id: "localFileTest.json" },
+            { key1: 8, key2: 10, id: "localFileTest.json" },
+            { key1: "brioche", key2: "croissant", id: "localFileTest.json" },
+        ])
+    })
+
     it("should return an array of objects from a csv file with specific items included", async function () {
         const sd = await new SimpleDataNode().loadDataFromUrl({
             url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.csv",
