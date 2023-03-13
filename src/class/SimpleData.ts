@@ -14,9 +14,11 @@ import getDataAsArrays_ from "../methods/exporting/getDataAsArrays.js"
 import showTable_ from "../methods/showTable.js"
 import checkValues_ from "../methods/cleaning/checkValues.js"
 import excludeMissingValues_ from "../methods/cleaning/excludeMissingValues.js"
-import keepNumbers_ from "../methods/cleaning/keepNumbers.js"
-import keepDates_ from "../methods/cleaning/keepDates.js"
-import keepStrings_ from "../methods/cleaning/keepStrings.js"
+import keep_ from "../methods/selecting/keep.js"
+import exclude_ from "../methods/selecting/exclude.js"
+import keepNumbers_ from "../methods/selecting/keepNumbers.js"
+import keepDates_ from "../methods/selecting/keepDates.js"
+import keepStrings_ from "../methods/selecting/keepStrings.js"
 import removeKey_ from "../methods/restructuring/removeKey.js"
 import valuesToString_ from "../methods/cleaning/valuesToString.js"
 import valuesToInteger_ from "../methods/cleaning/valuesToInteger.js"
@@ -232,66 +234,6 @@ export default class SimpleData {
                 missingValues,
                 this.verbose,
                 keepExcludedOnly
-            )
-        )
-
-        return this
-    }
-
-    @logCall()
-    keepNumbers({
-        key,
-        keepNonNumbersOnly = false,
-    }: {
-        key: string
-        keepNonNumbersOnly?: boolean
-    }): this {
-        this.#updateSimpleData(
-            keepNumbers_(
-                cloneData(this._data),
-                key,
-                keepNonNumbersOnly,
-                this.verbose
-            )
-        )
-
-        return this
-    }
-
-    @logCall()
-    keepDates({
-        key,
-        keepNonDatesOnly = false,
-    }: {
-        key: string
-        keepNonDatesOnly?: boolean
-    }): this {
-        this.#updateSimpleData(
-            keepDates_(
-                cloneData(this._data),
-                key,
-                keepNonDatesOnly,
-                this.verbose
-            )
-        )
-
-        return this
-    }
-
-    @logCall()
-    keepStrings({
-        key,
-        keepNonStringOnly = false,
-    }: {
-        key: string
-        keepNonStringOnly?: boolean
-    }): this {
-        this.#updateSimpleData(
-            keepStrings_(
-                cloneData(this._data),
-                key,
-                keepNonStringOnly,
-                this.verbose
             )
         )
 
@@ -760,6 +702,96 @@ export default class SimpleData {
                 key,
                 keepDuplicatesOnly,
                 nbToKeep,
+                this.verbose
+            )
+        )
+
+        return this
+    }
+
+    @logCall()
+    keep({
+        key,
+        value,
+    }: {
+        key: string
+        value: SimpleDataValue | SimpleDataValue[]
+    }) {
+        this.#updateSimpleData(
+            keep_(cloneData(this._data), key, value, this.verbose)
+        )
+
+        return this
+    }
+
+    @logCall()
+    exclude({
+        key,
+        value,
+    }: {
+        key: string
+        value: SimpleDataValue | SimpleDataValue[]
+    }) {
+        this.#updateSimpleData(
+            exclude_(cloneData(this._data), key, value, this.verbose)
+        )
+
+        return this
+    }
+
+    @logCall()
+    keepNumbers({
+        key,
+        keepNonNumbersOnly = false,
+    }: {
+        key: string
+        keepNonNumbersOnly?: boolean
+    }): this {
+        this.#updateSimpleData(
+            keepNumbers_(
+                cloneData(this._data),
+                key,
+                keepNonNumbersOnly,
+                this.verbose
+            )
+        )
+
+        return this
+    }
+
+    @logCall()
+    keepDates({
+        key,
+        keepNonDatesOnly = false,
+    }: {
+        key: string
+        keepNonDatesOnly?: boolean
+    }): this {
+        this.#updateSimpleData(
+            keepDates_(
+                cloneData(this._data),
+                key,
+                keepNonDatesOnly,
+                this.verbose
+            )
+        )
+
+        return this
+    }
+
+    @logCall()
+    keepStrings({
+        key,
+        keepNonStringOnly = false,
+    }: {
+        key: string
+        keepNonStringOnly?: boolean
+    }): this {
+        this.#updateSimpleData(
+            keepStrings_(
+                cloneData(this._data),
+                key,
+                keepNonStringOnly,
                 this.verbose
             )
         )

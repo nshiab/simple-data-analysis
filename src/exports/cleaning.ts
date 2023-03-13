@@ -2,9 +2,6 @@ import checkValues from "../methods/cleaning/checkValues.js"
 import datesToString from "../methods/cleaning/datesToString.js"
 import excludeMissingValues from "../methods/cleaning/excludeMissingValues.js"
 import formatAllKeys from "../methods/cleaning/formatAllKeys.js"
-import keepDates from "../methods/cleaning/keepDates.js"
-import keepNumbers from "../methods/cleaning/keepNumbers.js"
-import keepStrings from "../methods/cleaning/keepStrings.js"
 import modifyItems from "../methods/cleaning/modifyItems.js"
 import modifyValues from "../methods/cleaning/modifyValues.js"
 import removeDuplicates from "../methods/cleaning/removeDuplicates.js"
@@ -21,9 +18,6 @@ export {
     datesToString,
     excludeMissingValues,
     formatAllKeys,
-    keepDates,
-    keepNumbers,
-    keepStrings,
     modifyItems,
     modifyValues,
     removeDuplicates,

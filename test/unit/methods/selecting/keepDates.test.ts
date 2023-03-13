@@ -15,7 +15,9 @@ describe("keepDates", function () {
             { key1: new Date("x"), key2: 22 },
         ]
 
-        const sd = new SimpleData({ data }).keepDates({ key: "key1" })
+        const sd = new SimpleData({ data }).keepDates({
+            key: "key1",
+        })
 
         assert.deepEqual(sd.getData(), [{ key1: validDate, key2: 22 }])
     })
