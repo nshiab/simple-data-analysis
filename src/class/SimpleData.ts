@@ -14,6 +14,8 @@ import getDataAsArrays_ from "../methods/exporting/getDataAsArrays.js"
 import showTable_ from "../methods/showTable.js"
 import checkValues_ from "../methods/cleaning/checkValues.js"
 import excludeMissingValues_ from "../methods/cleaning/excludeMissingValues.js"
+import keep_ from "../methods/selecting/keep.js"
+import exclude_ from "../methods/selecting/exclude.js"
 import keepNumbers_ from "../methods/selecting/keepNumbers.js"
 import keepDates_ from "../methods/selecting/keepDates.js"
 import keepStrings_ from "../methods/selecting/keepStrings.js"
@@ -702,6 +704,36 @@ export default class SimpleData {
                 nbToKeep,
                 this.verbose
             )
+        )
+
+        return this
+    }
+
+    @logCall()
+    keep({
+        key,
+        value,
+    }: {
+        key: string
+        value: SimpleDataValue | SimpleDataValue[]
+    }) {
+        this.#updateSimpleData(
+            keep_(cloneData(this._data), key, value, this.verbose)
+        )
+
+        return this
+    }
+
+    @logCall()
+    exclude({
+        key,
+        value,
+    }: {
+        key: string
+        value: SimpleDataValue | SimpleDataValue[]
+    }) {
+        this.#updateSimpleData(
+            exclude_(cloneData(this._data), key, value, this.verbose)
         )
 
         return this
