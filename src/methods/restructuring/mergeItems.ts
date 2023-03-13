@@ -14,6 +14,10 @@ export default function mergeItems(
 ): SimpleDataItem[] {
     verbose && log("\nmergeItems() " + commonKey)
 
+    if (commonKey === undefined) {
+        throw new Error("You must provide a common key to merge items.")
+    }
+
     let newData
 
     if (dataToBeMerged instanceof SimpleData) {
