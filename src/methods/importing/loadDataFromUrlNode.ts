@@ -1,8 +1,6 @@
 import axios from "axios"
-import getExtension from "../../helpers/getExtension.js"
-import log from "../../helpers/log.js"
-import parseDataFile from "../../helpers/parseDataFile.js"
 import { SimpleDataItem } from "../../types/SimpleData.types"
+import { log, parseDataFile, getExtension } from "../../exports/helpers.js"
 
 export default async function loadDataFromUrlNode(
     url: string | string[],

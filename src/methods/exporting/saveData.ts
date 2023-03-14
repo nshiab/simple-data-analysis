@@ -1,9 +1,9 @@
 import getExtension from "../../helpers/getExtension.js"
-import log from "../../helpers/log.js"
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import fs from "fs"
 import { parse } from "json2csv"
-import getDataAsArrays from "./getDataAsArrays.js"
+import { log } from "../../exports/helpers.js"
+import { getDataAsArrays } from "../../exports/exporting.js"
 
 export default async function saveData(
     data: SimpleDataItem[],

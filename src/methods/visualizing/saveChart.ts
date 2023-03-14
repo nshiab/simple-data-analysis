@@ -1,8 +1,8 @@
-import log from "../../helpers/log.js"
 import { SimpleDataItem } from "../../types/SimpleData.types"
-import getChart from "./getChart.js"
 import { writeFileSync } from "fs"
-import setJSDom from "../../helpers/setJSDom.js"
+import { log } from "../../exports/helpers.js"
+import { setJSDom } from "../../exports/helpersNode.js"
+import { getChart } from "../../exports/visualizing.js"
 
 export default function saveChart(
     data: SimpleDataItem[],

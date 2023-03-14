@@ -1,8 +1,6 @@
-import showTable from "../methods/showTable.js"
 import SimpleData from "../class/SimpleData.js"
-import log from "./log.js"
 import { SimpleDataItem } from "../types/SimpleData.types.js"
-import round from "./round.js"
+import { log, round, showTable } from "../exports/helpers.js"
 
 export function logCall() {
     return function (

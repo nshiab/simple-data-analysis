@@ -1,6 +1,6 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import camelCase from "lodash.camelcase"
-import log from "../../helpers/log.js"
+import { log } from "../../exports/helpers.js"
 
 export default function formatAllKeys(
     data: SimpleDataItem[],

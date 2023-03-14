@@ -2,10 +2,8 @@ import {
     SimpleDataItem,
     SimpleDataValue,
 } from "../../types/SimpleData.types.js"
-import hasKey from "../../helpers/hasKey.js"
 import { mean } from "d3-array"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
-import round from "../../helpers/round.js"
+import { hasKey, round, checkTypeOfKey } from "../../exports/helpers.js"
 
 export default function getMean(
     data: SimpleDataItem[],

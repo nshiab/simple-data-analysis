@@ -1,8 +1,7 @@
-import log from "../../helpers/log.js"
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import toPercentage from "../../helpers/toPercentage.js"
 import { shuffler } from "d3-array"
 import { randomLcg } from "d3-random"
+import { log, toPercentage } from "../../exports/helpers.js"
 
 export default function pickRandomItems(
     data: SimpleDataItem[],

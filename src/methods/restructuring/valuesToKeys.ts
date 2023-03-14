@@ -1,8 +1,7 @@
-import hasKey from "../../helpers/hasKey.js"
-import log from "../../helpers/log.js"
 import { SimpleDataItem, SimpleDataValue } from "../../types/SimpleData.types"
-import removeDuplicates from "../cleaning/removeDuplicates.js"
-import getUniqueValues from "../exporting/getUniqueValues.js"
+import { hasKey, log } from "../../exports/helpers.js"
+import { removeDuplicates } from "../../exports/cleaning.js"
+import { getUniqueValues } from "../../exports/exporting.js"
 
 export default function valuesToKeys(
     data: SimpleDataItem[],

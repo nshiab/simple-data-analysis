@@ -1,5 +1,5 @@
-import hasKey from "../../helpers/hasKey.js"
 import { SimpleDataItem } from "../../types/SimpleData.types"
+import { hasKey } from "../../exports/helpers.js"
 
 export default function getItem(
     data: SimpleDataItem[],

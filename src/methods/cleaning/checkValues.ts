@@ -1,8 +1,7 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import getArray from "../exporting/getArray.js"
-import toPercentage from "../../helpers/toPercentage.js"
 import { shuffle } from "d3-array"
-import handleMissingKeys from "../../helpers/handleMissingKeys.js"
+import { toPercentage, handleMissingKeys } from "../../exports/helpers.js"
+import { getArray } from "../../exports/exporting.js"
 
 export default function checkValues(
     data: SimpleDataItem[],

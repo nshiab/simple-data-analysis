@@ -1,6 +1,5 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import round from "../../helpers/round.js"
-import getKeyToUpdate from "../../helpers/getKeyToUpdate.js"
+import { getKeyToUpdate, round } from "../../exports/helpers.js"
 
 export default function roundValues(
     data: SimpleDataItem[],

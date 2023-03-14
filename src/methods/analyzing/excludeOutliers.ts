@@ -1,9 +1,11 @@
-import log from "../../helpers/log.js"
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { quantile, extent } from "d3-array"
-import toPercentage from "../../helpers/toPercentage.js"
-import hasKey from "../../helpers/hasKey.js"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
+import {
+    hasKey,
+    checkTypeOfKey,
+    log,
+    toPercentage,
+} from "../../exports/helpers.js"
 
 export default function excludeOutliers(
     data: SimpleDataItem[],

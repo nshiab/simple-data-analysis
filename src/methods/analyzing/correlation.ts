@@ -3,11 +3,8 @@ import {
     SimpleDataValue,
 } from "../../types/SimpleData.types.js"
 import { sampleCorrelation, combinations } from "simple-statistics"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
-import hasKey from "../../helpers/hasKey.js"
-import round from "../../helpers/round.js"
-import log from "../../helpers/log.js"
-import getUniqueValues from "../exporting/getUniqueValues.js"
+import { hasKey, checkTypeOfKey, round, log } from "../../exports/helpers.js"
+import { getUniqueValues } from "../../exports/exporting.js"
 
 export default function correlation(
     data: SimpleDataItem[],

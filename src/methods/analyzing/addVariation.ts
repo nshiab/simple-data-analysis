@@ -1,7 +1,6 @@
 import { SimpleDataItem, SimpleDataValue } from "../../types/SimpleData.types"
 import { pairs } from "d3-array"
-import hasKey from "../../helpers/hasKey.js"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
+import { hasKey, checkTypeOfKey } from "../../exports/helpers.js"
 
 export default function addVariation(
     data: SimpleDataItem[],

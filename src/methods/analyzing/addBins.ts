@@ -1,8 +1,7 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { range, extent } from "d3-array"
-import hasKey from "../../helpers/hasKey.js"
 import { scaleQuantize } from "d3-scale"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
+import { hasKey, checkTypeOfKey } from "../../exports/helpers.js"
 
 export default function addBins(
     data: SimpleDataItem[],

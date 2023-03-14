@@ -2,7 +2,7 @@ import {
     SimpleDataItem,
     SimpleDataValue,
 } from "../../types/SimpleData.types.js"
-import getKeyToUpdate from "../../helpers/getKeyToUpdate.js"
+import { getKeyToUpdate } from "../../exports/helpers.js"
 
 export default function modifyItems(
     data: SimpleDataItem[],

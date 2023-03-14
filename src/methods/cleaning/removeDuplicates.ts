@@ -2,9 +2,7 @@ import uniqBy from "lodash.uniqby"
 import uniqWith from "lodash.uniqwith"
 import isEqual from "lodash.isequal"
 import { SimpleDataItem } from "../../types/SimpleData.types"
-import log from "../../helpers/log.js"
-import toPercentage from "../../helpers/toPercentage.js"
-import hasKey from "../../helpers/hasKey.js"
+import { log, toPercentage, hasKey } from "../../exports/helpers.js"
 
 export default function removeDuplicates(
     data: SimpleDataItem[],
