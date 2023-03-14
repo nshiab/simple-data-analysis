@@ -1,5 +1,5 @@
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
-import log from "./log.js"
+import { log } from "../exports/helpers.js"
 
 export default function arraysToData(
     data: {

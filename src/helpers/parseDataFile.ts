@@ -1,8 +1,6 @@
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
 import { csvParse, tsvParse, autoType as typed } from "d3-dsv"
-import arraysToData from "./arraysToData.js"
-import handleMissingKeys from "./handleMissingKeys.js"
-import log from "./log.js"
+import { log, handleMissingKeys, arraysToData } from "../exports/helpers.js"
 
 export default function parseDataFile(
     data: string | { [key: string]: SimpleDataValue[] },

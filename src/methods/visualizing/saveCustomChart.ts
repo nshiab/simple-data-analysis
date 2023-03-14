@@ -1,7 +1,7 @@
-import setJSDom from "../../helpers/setJSDom.js"
 import { writeFileSync } from "fs"
-import log from "../../helpers/log.js"
-import getCustomChart from "./getCustomChart.js"
+import { log } from "../../exports/helpers.js"
+import { setJSDom } from "../../exports/helpersNode.js"
+import { getCustomChart } from "../../exports/visualizing.js"
 
 export default function saveCustomChart(
     path: string,

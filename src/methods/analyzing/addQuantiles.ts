@@ -1,8 +1,7 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { range } from "d3-array"
 import { scaleQuantile } from "d3-scale"
-import hasKey from "../../helpers/hasKey.js"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
+import { hasKey, checkTypeOfKey } from "../../exports/helpers.js"
 
 export default function addQuantiles(
     data: SimpleDataItem[],

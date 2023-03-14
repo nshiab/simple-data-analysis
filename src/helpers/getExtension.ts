@@ -1,4 +1,4 @@
-import log from "./log.js"
+import { log } from "../exports/helpers.js"
 
 export default function getExtension(path: string, verbose: boolean) {
     const extensionSplit = path.split(".")

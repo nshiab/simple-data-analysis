@@ -1,9 +1,6 @@
 import { flatRollup, sum } from "d3-array"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
-import hasKey from "../../helpers/hasKey.js"
-import log from "../../helpers/log.js"
-import round from "../../helpers/round.js"
 import { SimpleDataItem } from "../../types/SimpleData.types"
+import { hasKey, checkTypeOfKey, log, round } from "../../exports/helpers.js"
 
 export default function addProportions(
     data: SimpleDataItem[],

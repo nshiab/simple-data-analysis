@@ -9,13 +9,15 @@ import {
     boxX,
     linearRegressionY,
 } from "@observablehq/plot"
-import plotChart from "../../helpers/plotChart.js"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 import { regressionLinear } from "d3-regression"
-import round from "../../helpers/round.js"
-import log from "../../helpers/log.js"
-import getUniqueValues from "../exporting/getUniqueValues.js"
-import hasKey from "../../helpers/hasKey.js"
+import {
+    log,
+    round,
+    hasKey,
+    plotChart,
+    checkTypeOfKey,
+} from "../../exports/helpers.js"
+import { getUniqueValues } from "../../exports/exporting.js"
 
 export default function getChart(
     data: SimpleDataItem[],

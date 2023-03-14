@@ -1,5 +1,5 @@
 import { JSDOM, VirtualConsole } from "jsdom"
-import log from "./log.js"
+import { log } from "../exports/helpers.js"
 
 export default function setJSDom() {
     if (global.window === undefined || global.document === undefined) {

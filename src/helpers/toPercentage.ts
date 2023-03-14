@@ -1,6 +1,6 @@
-import round from "./round.js"
+import { round } from "../exports/helpers.js"
 
-export default function percentage(
+export default function toPercentage(
     value: number,
     totalValue: number,
     numDigits = 2

@@ -1,6 +1,6 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { ascending, descending, Primitive } from "d3-array"
-import hasKey from "../../helpers/hasKey.js"
+import { hasKey } from "../../exports/helpers.js"
 
 export default function sortValues(
     data: SimpleDataItem[],

@@ -1,6 +1,5 @@
-import log from "../../helpers/log.js"
-import toPercentage from "../../helpers/toPercentage.js"
 import { SimpleDataItem } from "../../types/SimpleData.types"
+import { log, toPercentage } from "../../exports/helpers.js"
 
 export default function keepStrings(
     data: SimpleDataItem[],

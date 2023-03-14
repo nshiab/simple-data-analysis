@@ -1,6 +1,6 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { utcFormat } from "d3-time-format"
-import getKeyToUpdate from "../../helpers/getKeyToUpdate.js"
+import { getKeyToUpdate } from "../../exports/helpers.js"
 
 export default function datesToString(
     data: SimpleDataItem[],

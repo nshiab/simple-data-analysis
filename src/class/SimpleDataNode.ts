@@ -1,12 +1,13 @@
 import SimpleData from "./SimpleData.js"
 import { SimpleDataItem } from "../types/SimpleData.types"
-import loadDataFromLocalFile_ from "../methods/importing/loadDataFromLocalFile.js"
-import loadDataFromLocalDirectory_ from "../methods/importing/loadDataFromLocalDirectory.js"
-import saveData_ from "../methods/exporting/saveData.js"
-import { logCall, asyncLogCall } from "../helpers/logCall.js"
-import loadDataFromUrlNode_ from "../methods/importing/loadDataFromUrlNode.js"
-import saveChart_ from "../methods/visualizing/saveChart.js"
-import saveCustomChart_ from "../methods/visualizing/saveCustomChart.js"
+import { asyncLogCall, logCall } from "../exports/helpers.js"
+import {
+    loadDataFromUrl,
+    loadDataFromLocalFile,
+    loadDataFromLocalDirectory,
+} from "../exports/importingNode.js"
+import { saveData } from "../exports/exportingNode.js"
+import { saveChart, saveCustomChart } from "../exports/visualizingNode.js"
 
 export default class SimpleDataNode extends SimpleData {
     // If modified, might need to be modified in SimpleData too
@@ -40,7 +41,7 @@ export default class SimpleDataNode extends SimpleData {
         nbFirstRowsToExclude?: number
         nbLastRowsToExclude?: number
     }): Promise<this> {
-        const data = await loadDataFromUrlNode_(
+        const data = await loadDataFromUrl(
             url,
             autoType,
             dataAsArrays,
@@ -93,7 +94,7 @@ export default class SimpleDataNode extends SimpleData {
         }
 
         this.#updateSimpleData(
-            loadDataFromLocalFile_(
+            loadDataFromLocalFile(
                 path,
                 autoType,
                 dataAsArrays,
@@ -145,7 +146,7 @@ export default class SimpleDataNode extends SimpleData {
         }
 
         this.#updateSimpleData(
-            loadDataFromLocalDirectory_(
+            loadDataFromLocalDirectory(
                 path,
                 autoType,
                 dataAsArrays,
@@ -174,7 +175,7 @@ export default class SimpleDataNode extends SimpleData {
         dataAsArrays?: boolean
         encoding?: BufferEncoding
     }): this {
-        saveData_(this._data, path, dataAsArrays, this.verbose, encoding)
+        saveData(this._data, path, dataAsArrays, this.verbose, encoding)
 
         return this
     }
@@ -223,7 +224,7 @@ export default class SimpleDataNode extends SimpleData {
         smallMultipleWidth?: number
         smallMultipleHeight?: number
     }): this {
-        saveChart_(
+        saveChart(
             this._data,
             path,
             type,
@@ -255,7 +256,7 @@ export default class SimpleDataNode extends SimpleData {
         path: string
         plotOptions: object
     }): this {
-        saveCustomChart_(path, plotOptions, this.verbose)
+        saveCustomChart(path, plotOptions, this.verbose)
 
         return this
     }

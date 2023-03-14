@@ -6,6 +6,8 @@ import getMin from "../methods/exporting/getMin.js"
 import getQuantile from "../methods/exporting/getQuantile.js"
 import getSum from "../methods/exporting/getSum.js"
 import getUniqueValues from "../methods/exporting/getUniqueValues.js"
+import getArray from "../methods/exporting/getArray.js"
+import getItem from "../methods/exporting/getItem.js"
 
 export {
     getDataAsArrays,
@@ -16,4 +18,6 @@ export {
     getQuantile,
     getSum,
     getUniqueValues,
+    getArray,
+    getItem,
 }

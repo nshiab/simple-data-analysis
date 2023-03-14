@@ -1,9 +1,8 @@
-import log from "../../helpers/log.js"
-import toPercentage from "../../helpers/toPercentage.js"
 import {
     SimpleDataItem,
     SimpleDataValue,
 } from "../../types/SimpleData.types.js"
+import { log, toPercentage } from "../../exports/helpers.js"
 
 export default function excludeMissingValues(
     data: SimpleDataItem[],

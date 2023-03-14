@@ -1,6 +1,6 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import isValidNumber from "../../helpers/isValidNumber.js"
-import getKeyToUpdate from "../../helpers/getKeyToUpdate.js"
+import { getKeyToUpdate } from "../../exports/helpers.js"
 
 export default function valuesToFloat(
     data: SimpleDataItem[],

@@ -1,6 +1,5 @@
 import { SimpleDataItem } from "../types/SimpleData.types.js"
-import log from "./log.js"
-import toPercentage from "./toPercentage.js"
+import { log, toPercentage } from "../exports/helpers.js"
 
 export default function checkTypeOfKey(
     data: SimpleDataItem[],

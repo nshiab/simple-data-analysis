@@ -1,4 +1,4 @@
-import plotChart from "../../helpers/plotChart.js"
+import { plotChart } from "../../exports/helpers.js"
 
 export default function getCustomChart(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

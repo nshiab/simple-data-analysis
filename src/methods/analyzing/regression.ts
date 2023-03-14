@@ -9,11 +9,8 @@ import {
     regressionLog,
     regressionPow,
 } from "d3-regression"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
-import hasKey from "../../helpers/hasKey.js"
-import round from "../../helpers/round.js"
-import log from "../../helpers/log.js"
-import getUniqueValues from "../exporting/getUniqueValues.js"
+import { hasKey, checkTypeOfKey, log, round } from "../../exports/helpers.js"
+import { getUniqueValues } from "../../exports/exporting.js"
 
 export default function regression(
     data: SimpleDataItem[],

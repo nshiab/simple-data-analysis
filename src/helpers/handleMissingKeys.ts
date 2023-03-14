@@ -1,7 +1,6 @@
 import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types.js"
 import isEqual from "lodash.isequal"
-import log from "./log.js"
-import getUniqueKeys from "./getUniqueKeys.js"
+import { log, getUniqueKeys } from "../exports/helpers.js"
 
 export default function handleMissingKeys(
     data: SimpleDataItem[],

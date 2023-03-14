@@ -1,6 +1,7 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import sortValues from "./sortValues.js"
-import hasKey from "../../helpers/hasKey.js"
+import { hasKey } from "../../exports/helpers.js"
+import { sortValues } from "../../exports/analyzing.js"
+
 export default function addRank(
     data: SimpleDataItem[],
     newKey: string,

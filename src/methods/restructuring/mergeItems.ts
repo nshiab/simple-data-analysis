@@ -1,9 +1,11 @@
-import log from "../../helpers/log.js"
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import SimpleData from "../../class/SimpleData.js"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
-import toPercentage from "../../helpers/toPercentage.js"
-import hasKey from "../../helpers/hasKey.js"
+import { SimpleDataItem } from "../../types/SimpleData.types.js"
+import {
+    hasKey,
+    log,
+    checkTypeOfKey,
+    toPercentage,
+} from "../../exports/helpers.js"
 
 export default function mergeItems(
     data: SimpleDataItem[],

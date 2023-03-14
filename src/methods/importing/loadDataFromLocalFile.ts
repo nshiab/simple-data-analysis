@@ -1,8 +1,6 @@
-import getExtension from "../../helpers/getExtension.js"
 import { readFileSync } from "fs"
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import parseDataFile from "../../helpers/parseDataFile.js"
-import log from "../../helpers/log.js"
+import { log, parseDataFile, getExtension } from "../../exports/helpers.js"
 
 export default function loadDataFromLocalFile(
     path: string | string[],
