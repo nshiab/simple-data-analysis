@@ -15,6 +15,8 @@ import plotChart from "../helpers/plotChart.js"
 import round from "../helpers/round.js"
 import toPercentage from "../helpers/toPercentage.js"
 import showTable from "../helpers/showTable.js"
+// GEO
+import geoDataToArrayOfObjects from "../helpers/geoDataToArrayOfObjects.js"
 
 export {
     arraysToData,
@@ -35,4 +37,5 @@ export {
     round,
     toPercentage,
     showTable,
+    geoDataToArrayOfObjects,
 }

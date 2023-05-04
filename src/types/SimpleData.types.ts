@@ -1,4 +1,4 @@
-import { Feature, Geometry, GeometryCollection } from "@turf/turf"
+import { Feature } from "@turf/turf"
 
 export type SimpleDataValue =
     | string
