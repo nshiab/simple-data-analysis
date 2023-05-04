@@ -84,7 +84,7 @@ describe("checkValues", function () {
 
     it("should check values and all items should have the same keys", async function () {
         const sd = await new SimpleDataNode().loadDataFromUrl({
-            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis.js/main/data/employees.csv",
+            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis.js/main/test/data/employees.csv",
         })
 
         assert.deepStrictEqual(sd.checkValues().getData(), [
