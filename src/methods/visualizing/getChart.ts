@@ -1,5 +1,6 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import {
+    frame as frameMark,
     dot,
     line,
     barY,
@@ -8,11 +9,15 @@ import {
     boxX,
     linearRegressionY,
 } from "@observablehq/plot"
-import plotChart from "../../helpers/plotChart.js"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
 import { regressionLinear } from "d3-regression"
-import round from "../../helpers/round.js"
-import log from "../../helpers/log.js"
+import {
+    log,
+    round,
+    hasKey,
+    plotChart,
+    checkTypeOfKey,
+} from "../../exports/helpers.js"
+import { getUniqueValues } from "../../exports/exporting.js"
 
 export default function getChart(
     data: SimpleDataItem[],
@@ -33,11 +38,105 @@ export default function getChart(
     showTrendEquation?: boolean,
     marginLeft?: number,
     marginBottom?: number,
-    width?: number,
-    height?: number,
-    title?: string
+    width = 600,
+    height = 450,
+    title?: string,
+    smallMultipleKey?: string,
+    smallMultipleWidth?: number,
+    smallMultipleHeight?: number
 ): string {
+    if (typeof smallMultipleKey === "string") {
+        hasKey(data, smallMultipleKey)
+
+        const smallMultiple = getUniqueValues(data, smallMultipleKey)
+
+        let multipleCharts = ""
+        const gap = 10
+
+        for (const multiple of smallMultiple) {
+            if (typeof multiple !== "string") {
+                throw new Error(
+                    `Values of ${smallMultipleKey} must be strings.`
+                )
+            }
+
+            multipleCharts += `<div>${renderChart(
+                data.filter((d) => d[smallMultipleKey] === multiple),
+                type,
+                x,
+                y,
+                smallMultipleWidth ? smallMultipleWidth - gap : width - gap,
+                smallMultipleHeight ? smallMultipleHeight - gap : height - gap,
+                color,
+                colorScale,
+                trend,
+                showTrendEquation,
+                marginLeft,
+                marginBottom,
+                multiple,
+                true
+            )}</div>`
+        }
+
+        let titleHTML = ""
+        if (title) {
+            titleHTML = `<div style="font-family:system-ui, sans-serif;font-size:20px;font-weight: bold;margin-bottom: 8px;">${title}</div>`
+        }
+
+        return `<div style='width: ${width}px; height: auto;'>
+                    <div>${titleHTML}</div>
+                    <div style='display: flex; flex-wrap: wrap; gap: ${gap}px; width: ${width}px; height: auto;'>
+                        ${multipleCharts}
+                    </div>
+        </div>`
+    } else {
+        return renderChart(
+            data,
+            type,
+            x,
+            y,
+            width,
+            height,
+            color,
+            colorScale,
+            trend,
+            showTrendEquation,
+            marginLeft,
+            marginBottom,
+            title
+        )
+    }
+}
+
+function renderChart(
+    data: SimpleDataItem[],
+    type:
+        | "dot"
+        | "line"
+        | "bar"
+        | "barVertical"
+        | "barHorizontal"
+        | "box"
+        | "boxVertical"
+        | "boxHorizontal",
+    x: string,
+    y: string,
+    width: number,
+    height: number,
+    color?: string,
+    colorScale?: "linear" | "diverging" | "categorical" | "ordinal",
+    trend?: boolean,
+    showTrendEquation?: boolean,
+    marginLeft?: number,
+    marginBottom?: number,
+    title?: string,
+    frame?: boolean
+) {
     const markOption: { [key: string]: string | number } = { x, y }
+
+    hasKey(data, x)
+    hasKey(data, y)
+    color && hasKey(data, color)
 
     if (
         color &&
@@ -74,20 +173,18 @@ export default function getChart(
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const plotOptions: { [key: string]: any } = {
+        width: width,
+        height: height,
         grid: true,
         marks: [mark],
     }
 
-    if (width) {
-        plotOptions.width = width
-    }
-
-    if (height) {
-        plotOptions.height = height
-    }
-
     if (trend) {
         plotOptions.marks.push(linearRegressionY(data, { x: x, y: y }))
+    }
+
+    if (frame) {
+        plotOptions.marks.push(frameMark())
     }
 
     if (marginLeft) {
@@ -106,16 +203,28 @@ export default function getChart(
         if (colorScale === "diverging") {
             plotOptions.color.scheme = "BuRd"
         }
+        if (colorScale === "linear") {
+            plotOptions.color.scheme = "viridis"
+        }
+    } else if (
+        color &&
+        checkTypeOfKey(data, color, "number", 0.5, 100, false, true)
+    ) {
+        if (plotOptions.color) {
+            plotOptions.color.scheme = "viridis"
+        } else {
+            plotOptions.color = { scheme: "viridis" }
+        }
     }
 
-    if (checkTypeOfKey(data, x, "string", 0.5, 100)) {
+    if (checkTypeOfKey(data, x, "string", 0.5, 100, false, true)) {
         if (type === "dot") {
             plotOptions.x = { type: "point" }
         } else if (type !== "line") {
             plotOptions.x = { type: "band" }
         }
     }
-    if (checkTypeOfKey(data, y, "string", 0.5, 100)) {
+    if (checkTypeOfKey(data, y, "string", 0.5, 100, false, true)) {
         if (type === "dot") {
             plotOptions.y = { type: "point" }
         }
@@ -187,6 +296,6 @@ export default function getChart(
         legendHTML +
         trendEquationHTML +
         chartHTML +
-        "</div"
+        "</div>"
     )
 }

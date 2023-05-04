@@ -2,7 +2,7 @@ import {
     SimpleDataItem,
     SimpleDataValue,
 } from "../../types/SimpleData.types.js"
-import hasKey from "../../helpers/hasKey.js"
+import { hasKey } from "../../exports/helpers.js"
 
 export default function getArray(
     data: SimpleDataItem[],
@@ -10,15 +10,11 @@ export default function getArray(
 ): SimpleDataValue[] {
     let keys
     if (typeof key === "string") {
-        if (!hasKey(data[0], key)) {
-            throw new Error(`No key ${key} in data`)
-        }
+        hasKey(data, key)
         keys = [key]
     } else {
         for (const k of key) {
-            if (!hasKey(data[0], k)) {
-                throw new Error(`No key ${key} in data`)
-            }
+            hasKey(data, k)
         }
         keys = key
     }

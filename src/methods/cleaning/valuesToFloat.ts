@@ -1,6 +1,6 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import isValidNumber from "../../helpers/isValidNumber.js"
-import getKeyToUpdate from "../../helpers/getKeyToUpdate.js"
+import { getKeyToUpdate } from "../../exports/helpers.js"
 
 export default function valuesToFloat(
     data: SimpleDataItem[],
@@ -8,8 +8,7 @@ export default function valuesToFloat(
     thousandSeparator = ",",
     decimalSeparator = ".",
     skipErrors = false,
-    newKey?: string,
-    noTests = false
+    newKey?: string
 ): SimpleDataItem[] {
     const keyToUpdate = getKeyToUpdate(data, key, newKey)
 
@@ -24,49 +23,46 @@ export default function valuesToFloat(
     const thousandSeparatorRegex = new RegExp(thousandSeparator, "g")
     for (let i = 0; i < data.length; i++) {
         const value = data[i][key]
-        if (noTests) {
-            data[i][keyToUpdate] = parseFloat(value as string)
-        } else {
-            try {
-                if (typeof value == "number") {
-                    data[i][keyToUpdate] = value
-                } else if (typeof value === "string") {
-                    const valueClean = value
-                        .replace(thousandSeparatorRegex, "")
-                        .replace(decimalSeparator, ".")
-                    if (isValidNumber(valueClean)) {
-                        const newVal = parseFloat(valueClean)
-                        if (!skipErrors && isNaN(newVal)) {
-                            throw new Error(
-                                value +
-                                    " (" +
-                                    valueClean +
-                                    " after ajusting thousandSeparator and decimalSeparator) is converted to " +
-                                    newVal +
-                                    " which is not a float. If you want to ignore values that are not valid, pass { skipErrors: true }."
-                            )
-                        }
-                        data[i][keyToUpdate] = newVal
-                    } else {
+
+        try {
+            if (typeof value == "number") {
+                data[i][keyToUpdate] = value
+            } else if (typeof value === "string") {
+                const valueClean = value
+                    .replace(thousandSeparatorRegex, "")
+                    .replace(decimalSeparator, ".")
+                if (isValidNumber(valueClean)) {
+                    const newVal = parseFloat(valueClean)
+                    if (!skipErrors && isNaN(newVal)) {
                         throw new Error(
                             value +
                                 " (" +
                                 valueClean +
-                                " after ajusting thousandSeparator and decimalSeparator) is not a valid number. If you want to ignore values that are not valid, pass { skipErrors: true }."
+                                " after ajusting thousandSeparator and decimalSeparator) is converted to " +
+                                newVal +
+                                " which is not a float. If you want to ignore values that are not valid, pass { skipErrors: true }."
                         )
                     }
+                    data[i][keyToUpdate] = newVal
                 } else {
                     throw new Error(
                         value +
-                            " is not a string that can be converted to a number. If you want to ignore values that are not valid, pass { skipErrors: true }."
+                            " (" +
+                            valueClean +
+                            " after ajusting thousandSeparator and decimalSeparator) is not a valid number. If you want to ignore values that are not valid, pass { skipErrors: true }."
                     )
                 }
-            } catch (error) {
-                if (error instanceof Error && !skipErrors) {
-                    throw new Error(String(error.message))
-                }
-                data[i][keyToUpdate] = value
+            } else {
+                throw new Error(
+                    value +
+                        " is not a string that can be converted to a number. If you want to ignore values that are not valid, pass { skipErrors: true }."
+                )
             }
+        } catch (error) {
+            if (error instanceof Error && !skipErrors) {
+                throw new Error(String(error.message))
+            }
+            data[i][keyToUpdate] = value
         }
     }
 

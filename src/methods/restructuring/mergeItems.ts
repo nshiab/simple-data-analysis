@@ -1,9 +1,11 @@
-import log from "../../helpers/log.js"
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import SimpleData from "../../class/SimpleData.js"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
-import toPercentage from "../../helpers/toPercentage.js"
-import hasKey from "../../helpers/hasKey.js"
+import { SimpleDataItem } from "../../types/SimpleData.types.js"
+import {
+    hasKey,
+    log,
+    checkTypeOfKey,
+    toPercentage,
+} from "../../exports/helpers.js"
 
 export default function mergeItems(
     data: SimpleDataItem[],
@@ -14,6 +16,10 @@ export default function mergeItems(
 ): SimpleDataItem[] {
     verbose && log("\nmergeItems() " + commonKey)
 
+    if (commonKey === undefined) {
+        throw new Error("You must provide a common key to merge items.")
+    }
+
     let newData
 
     if (dataToBeMerged instanceof SimpleData) {
@@ -22,12 +28,8 @@ export default function mergeItems(
         newData = dataToBeMerged
     }
 
-    if (!hasKey(data[0], commonKey)) {
-        throw new Error("No key named " + commonKey + " in data")
-    }
-    if (!hasKey(newData[0], commonKey)) {
-        throw new Error("No key named " + commonKey + " in dataToBeMerged")
-    }
+    hasKey(data, commonKey)
+    hasKey(newData, commonKey)
 
     const dataKeys: string[] = Object.keys(data[0]).filter(
         (d) => d !== commonKey
@@ -49,7 +51,15 @@ export default function mergeItems(
     }
 
     if (
-        !checkTypeOfKey(data, commonKey, "string", 1, nbValuesTested, verbose)
+        !checkTypeOfKey(
+            data,
+            commonKey,
+            "string",
+            1,
+            nbValuesTested,
+            verbose,
+            true
+        )
     ) {
         throw new Error(
             "At least one value of " +
@@ -63,7 +73,8 @@ export default function mergeItems(
             "string",
             1,
             nbValuesTested,
-            verbose
+            verbose,
+            true
         )
     ) {
         throw new Error(

@@ -1,5 +1,5 @@
 import assert from "assert"
-import getItem from "../../../../src/methods/exporting/getItem.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("getItem", function () {
     it("should return a specific item", function () {
@@ -8,7 +8,11 @@ describe("getItem", function () {
             { key1: "red", key3: "castor", key2: 22 },
             { key1: "blue", key3: "castor", key2: 222 },
         ]
-        const item = getItem(data, { key1: "red", key3: "castor" })
-        assert.deepEqual(item, { key1: "red", key3: "castor", key2: 22 })
+        assert.deepEqual(
+            new SimpleData({ data }).getItem({
+                conditions: { key1: "red", key3: "castor" },
+            }),
+            { key1: "red", key3: "castor", key2: 22 }
+        )
     })
 })

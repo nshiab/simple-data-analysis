@@ -1,10 +1,8 @@
-import log from "../../helpers/log.js"
 import {
     SimpleDataItem,
     SimpleDataValue,
 } from "../../types/SimpleData.types.js"
-import toPercentage from "../../helpers/toPercentage.js"
-import hasKey from "../../helpers/hasKey.js"
+import { log, toPercentage, hasKey } from "../../exports/helpers.js"
 
 export default function filterValues(
     data: SimpleDataItem[],
@@ -12,9 +10,7 @@ export default function filterValues(
     valueComparator: (val: SimpleDataValue) => SimpleDataValue,
     verbose = false
 ): SimpleDataItem[] {
-    if (!hasKey(data[0], key)) {
-        throw new Error("No key named " + key)
-    }
+    hasKey(data, key)
 
     const filteredData = data.filter((d) => valueComparator(d[key]))
 

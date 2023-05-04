@@ -1,91 +1,123 @@
-import { SimpleDataItem } from "../../types/SimpleData.types.js"
+import {
+    SimpleDataItem,
+    SimpleDataValue,
+} from "../../types/SimpleData.types.js"
 import { sampleCorrelation, combinations } from "simple-statistics"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
-import hasKey from "../../helpers/hasKey.js"
-import round from "../../helpers/round.js"
+import { hasKey, checkTypeOfKey, round, log } from "../../exports/helpers.js"
+import { getUniqueValues } from "../../exports/exporting.js"
 
 export default function correlation(
     data: SimpleDataItem[],
-    key1?: string,
-    key2?: string | string[],
+    keyX?: string,
+    keyY?: string | string[],
+    keyCategory?: string,
+    nbDigits = 4,
     verbose = false,
     nbTestedValues = 10000
 ): SimpleDataItem[] {
-    const correlations = []
+    if (keyCategory === undefined) {
+        verbose && log("No keyCategory provided. Data won't be grouped.")
+    } else if (typeof keyCategory === "string") {
+        hasKey(data, keyCategory)
+    } else {
+        throw new Error("keyCategory must be a string")
+    }
+
+    const correlations: { [key: string]: string | number }[] = []
 
     if (
-        key1 === undefined &&
-        (key2 === undefined || (Array.isArray(key2) && key2.length === 0))
+        keyX === undefined &&
+        (keyY === undefined || (Array.isArray(keyY) && keyY.length === 0))
     ) {
         const keys = Object.keys(data[0]).filter((d) =>
-            checkTypeOfKey(data, d, "number", 1, nbTestedValues, verbose)
+            checkTypeOfKey(data, d, "number", 1, nbTestedValues, verbose, true)
         )
         const combi = combinations(keys, 2)
 
         for (const c of combi) {
             correlations.push({
-                key1: c[0],
-                key2: c[1],
+                keyX: c[0],
+                keyY: c[1],
             })
         }
-    } else if (typeof key1 === "string" && Array.isArray(key2)) {
-        if (!hasKey(data[0], key1)) {
-            throw new Error(`No key ${key1} in data`)
-        }
-        if (!checkTypeOfKey(data, key1, "number", 1, nbTestedValues, verbose)) {
-            throw new Error(`At least one value in ${key1} is not a number.`)
-        }
+    } else if (typeof keyX === "string" && Array.isArray(keyY)) {
+        hasKey(data, keyX)
+        checkTypeOfKey(data, keyX, "number", 1, nbTestedValues, verbose)
 
-        for (const key of key2) {
-            if (!hasKey(data[0], key)) {
-                throw new Error(`No key ${key} in data`)
-            }
-            if (
-                !checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
-            ) {
-                throw new Error(`At least one value in ${key} is not a number.`)
-            }
+        for (const key of keyY) {
+            hasKey(data, key)
+            checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
             correlations.push({
-                key1: key1,
-                key2: key,
+                keyX: keyX,
+                keyY: key,
             })
         }
-    } else if (typeof key1 === "string" && typeof key2 === "string") {
-        if (!hasKey(data[0], key1)) {
-            throw new Error(`No key ${key1} in data`)
-        }
-        if (!checkTypeOfKey(data, key1, "number", 1, nbTestedValues, verbose)) {
-            throw new Error(`At least one value in ${key1} is not a number.`)
-        }
-        if (!hasKey(data[0], key2)) {
-            throw new Error(`No key ${key2} in data`)
-        }
-        if (!checkTypeOfKey(data, key2, "number", 1, nbTestedValues, verbose)) {
-            throw new Error(`At least one value in ${key2} is not a number.`)
-        }
+    } else if (typeof keyX === "string" && typeof keyY === "string") {
+        hasKey(data, keyX)
+        checkTypeOfKey(data, keyX, "number", 1, nbTestedValues, verbose)
+        hasKey(data, keyY)
+        checkTypeOfKey(data, keyY, "number", 1, nbTestedValues, verbose)
         correlations.push({
-            key1: key1,
-            key2: key2,
+            keyX: keyX,
+            keyY: keyY,
         })
     } else {
         throw new Error(
-            "key1 should be a string and key2 should be a string or array of strings"
+            "keyX should be a string and keyY should be a string or array of strings"
         )
     }
 
-    const correlationData = []
+    const correlationData: SimpleDataItem[] = []
 
-    for (const corr of correlations) {
-        const x = data.map((d) => d[corr.key1])
-        const y = data.map((d) => d[corr.key2])
+    if (typeof keyCategory === "string") {
+        const categories = getUniqueValues(data, keyCategory)
 
-        const result = sampleCorrelation(x as number[], y as number[])
+        for (const category of categories) {
+            for (const corr of correlations) {
+                const x = data
+                    .filter((d) => d[keyCategory] === category)
+                    .map((d) => d[corr.keyX])
+                const y = data
+                    .filter((d) => d[keyCategory] === category)
+                    .map((d) => d[corr.keyY])
 
-        correlationData.push({
-            ...corr,
-            correlation: Number.isNaN(result) ? NaN : round(result, 4),
-        })
+                if (
+                    typeof category !== "string" &&
+                    typeof category !== "number"
+                ) {
+                    throw new Error(
+                        `Values of ${keyCategory} must be strings or numbers.`
+                    )
+                }
+                corr[keyCategory] = category
+
+                computeCorr(x, y, corr, correlationData, nbDigits)
+            }
+        }
+    } else {
+        for (const corr of correlations) {
+            const x = data.map((d) => d[corr.keyX])
+            const y = data.map((d) => d[corr.keyY])
+            computeCorr(x, y, corr, correlationData, nbDigits)
+        }
     }
 
     return correlationData
+}
+
+function computeCorr(
+    x: SimpleDataValue[],
+    y: SimpleDataValue[],
+    corr: {
+        [key: string]: string | number
+    },
+    correlationData: SimpleDataItem[],
+    nbDigits: number
+) {
+    const result = sampleCorrelation(x as number[], y as number[])
+
+    correlationData.push({
+        ...corr,
+        correlation: Number.isNaN(result) ? NaN : round(result, nbDigits),
+    })
 }

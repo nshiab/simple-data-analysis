@@ -1,5 +1,5 @@
 import { JSDOM, VirtualConsole } from "jsdom"
-import log from "./log.js"
+import { log } from "../exports/helpers.js"
 
 export default function setJSDom() {
     if (global.window === undefined || global.document === undefined) {
@@ -12,7 +12,7 @@ export default function setJSDom() {
                     )
                 ) {
                     log(
-                        "\n/!\\ We use Observable Plot (https://github.com/observablehq/plot) to generate charts, which is meant to be used on the browser. JSDOM (https://github.com/jsdom/jsdom) simulates the browser, but it has has no implementation of the canvas element. Install canvas if you need it: https://www.npmjs.com/.package/canvas.",
+                        "\n/!\\ We use Observable Plot (https://github.com/observablehq/plot) to generate charts, which is meant to be used on the browser. JSDOM (https://github.com/jsdom/jsdom) simulates the browser, but it has has no implementation of the canvas element. Install canvas if you need it: https://www.npmjs.com/package/canvas",
                         "blue"
                     )
                 } else {

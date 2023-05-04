@@ -1,5 +1,5 @@
 import assert from "assert"
-import addProportions from "../../../../src/methods/analyzing/addProportions.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("addProportions", function () {
     it("should calculate the proportion for a group of keys inside each item", function () {
@@ -9,12 +9,13 @@ describe("addProportions", function () {
             { key1: 145, key2: 22 },
             { key1: 111, key2: 2222 },
         ]
-        const dataWithPercentages = addProportions(data, {
+
+        const sd = new SimpleData({ data }).addProportions({
             method: "item",
             keys: ["key1", "key2"],
         })
 
-        assert.deepEqual(dataWithPercentages, [
+        assert.deepEqual(sd.getData(), [
             { key1: 1, key2: 2, key1Percent: 0.33, key2Percent: 0.67 },
             { key1: 12, key2: 21, key1Percent: 0.36, key2Percent: 0.64 },
             { key1: 145, key2: 22, key1Percent: 0.87, key2Percent: 0.13 },
@@ -33,13 +34,14 @@ describe("addProportions", function () {
             { key1: "red", key2: 22 },
             { key1: "red", key2: 13 },
         ]
-        const dataWithPercentages = addProportions(data, {
+
+        const sd = new SimpleData({ data }).addProportions({
             method: "data",
             key: "key2",
             newKey: "key2Percent",
         })
 
-        assert.deepEqual(dataWithPercentages, [
+        assert.deepEqual(sd.getData(), [
             { key1: "yellow", key2: 1, key2Percent: 0.02 },
             { key1: "red", key2: 2, key2Percent: 0.03 },
             { key1: "yellow", key2: 5, key2Percent: 0.08 },
@@ -62,14 +64,15 @@ describe("addProportions", function () {
             { key3: "castor", key1: "red", key2: 22 },
             { key3: "castor", key1: "red", key2: 13 },
         ]
-        const dataWithPercentages = addProportions(data, {
+
+        const sd = new SimpleData({ data }).addProportions({
             method: "data",
             key: "key2",
             newKey: "key3key1Percent",
             keyCategory: ["key3", "key1"],
         })
 
-        assert.deepEqual(dataWithPercentages, [
+        assert.deepEqual(sd.getData(), [
             {
                 key3: "caribou",
                 key1: "yellow",

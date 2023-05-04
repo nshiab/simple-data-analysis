@@ -1,5 +1,5 @@
-import hasKey from "../../helpers/hasKey.js"
 import { SimpleDataItem } from "../../types/SimpleData.types"
+import { hasKey } from "../../exports/helpers.js"
 
 export default function getItem(
     data: SimpleDataItem[],
@@ -25,9 +25,7 @@ export default function getItem(
     }
 
     for (const key of keys) {
-        if (!hasKey(data[0], key)) {
-            throw new Error("No key " + key + " in the data.")
-        }
+        hasKey(data, key)
     }
 
     const values = Object.values(conditions)

@@ -1,15 +1,13 @@
-import fs from "fs"
-import SimpleDataGeo from "./SimpleDataGeo.js"
+import SimpleData from "./SimpleData.js"
 import { SimpleDataItem } from "../types/SimpleData.types"
-import loadDataFromLocalFile_ from "../methods/importing/loadDataFromLocalFile.js"
-import saveData_ from "../methods/exporting/saveData.js"
-import { logCall, asyncLogCall } from "../helpers/logCall.js"
-import handleMissingKeys from "../helpers/handleMissingKeys.js"
-import log from "../helpers/log.js"
-import loadDataFromUrlNode_ from "../methods/importing/loadDataFromUrlNode.js"
-import getChart from "../methods/visualizing/getChart.js"
-import getCustomChart from "../methods/visualizing/getCustomChart.js"
-import setJSDom from "../helpers/setJSDom.js"
+import { asyncLogCall, logCall } from "../exports/helpers.js"
+import {
+    loadDataFromUrl,
+    loadDataFromLocalFile,
+    loadDataFromLocalDirectory,
+} from "../exports/importingNode.js"
+import { saveData } from "../exports/exportingNode.js"
+import { saveChart, saveCustomChart } from "../exports/visualizingNode.js"
 
 export default class SimpleDataNode extends SimpleDataGeo {
     // If modified, might need to be modified in SimpleData too
@@ -26,44 +24,36 @@ export default class SimpleDataNode extends SimpleDataGeo {
         dataAsArrays = false,
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         fillMissingKeys = false,
+        fileNameAsId = false,
         firstItem = 0,
         lastItem = Infinity,
+        nbFirstRowsToExclude = 0,
+        nbLastRowsToExclude = Infinity,
     }: {
-        url: string
+        url: string | string[]
         autoType?: boolean
         dataAsArrays?: boolean
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
+        fileNameAsId?: boolean
         firstItem?: number
         lastItem?: number
+        nbFirstRowsToExclude?: number
+        nbLastRowsToExclude?: number
     }): Promise<this> {
-        const data = await loadDataFromUrlNode_(
+        const data = await loadDataFromUrl(
             url,
             autoType,
             dataAsArrays,
             firstItem,
             lastItem,
+            nbFirstRowsToExclude,
+            nbLastRowsToExclude,
+            fillMissingKeys,
+            fileNameAsId,
             missingKeyValues,
             this.verbose
         )
-
-        if (data.length === 0) {
-            throw new Error("Incoming data is empty.")
-        }
-
-        if (this.noTests && fillMissingKeys) {
-            throw new Error("fillMissingKeys cannot be true if noTests is true")
-        } else if (!this.noTests) {
-            handleMissingKeys(
-                data,
-                fillMissingKeys,
-                undefined,
-                undefined,
-                this.verbose
-            )
-        }
-
-        this._tempData = data
         this.#updateSimpleData(data)
 
         return this
@@ -79,17 +69,23 @@ export default class SimpleDataNode extends SimpleDataGeo {
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         encoding = "utf8",
         fillMissingKeys = false,
+        fileNameAsId = false,
         firstItem = 0,
         lastItem = Infinity,
+        nbFirstRowsToExclude = 0,
+        nbLastRowsToExclude = Infinity,
     }: {
-        path: string
+        path: string | string[]
         autoType?: boolean
         dataAsArrays?: boolean
         encoding?: BufferEncoding
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
+        fileNameAsId?: boolean
         firstItem?: number
         lastItem?: number
+        nbFirstRowsToExclude?: number
+        nbLastRowsToExclude?: number
     }): this {
         if (this._data.length > 0) {
             throw new Error(
@@ -97,35 +93,74 @@ export default class SimpleDataNode extends SimpleDataGeo {
             )
         }
 
-        const data = loadDataFromLocalFile_(
-            path,
-            autoType,
-            dataAsArrays,
-            firstItem,
-            lastItem,
-            missingKeyValues,
-            encoding,
-            this.verbose
+        this.#updateSimpleData(
+            loadDataFromLocalFile(
+                path,
+                autoType,
+                dataAsArrays,
+                firstItem,
+                lastItem,
+                nbFirstRowsToExclude,
+                nbLastRowsToExclude,
+                fillMissingKeys,
+                fileNameAsId,
+                missingKeyValues,
+                encoding,
+                this.verbose
+            )
         )
 
-        if (data.length === 0) {
-            throw new Error("Incoming data is empty.")
-        }
+        return this
+    }
 
-        if (this.noTests && fillMissingKeys) {
-            throw new Error("fillMissingKeys cannot be true if noTests is true")
-        } else if (!this.noTests) {
-            handleMissingKeys(
-                data,
-                fillMissingKeys,
-                undefined,
-                undefined,
-                this.verbose
+    @logCall()
+    loadDataFromLocalDirectory({
+        path,
+        autoType = false,
+        dataAsArrays = false,
+        missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
+        encoding = "utf8",
+        fillMissingKeys = false,
+        fileNameAsId = false,
+        firstItem = 0,
+        lastItem = Infinity,
+        nbFirstRowsToExclude = 0,
+        nbLastRowsToExclude = Infinity,
+    }: {
+        path: string
+        autoType?: boolean
+        dataAsArrays?: boolean
+        encoding?: BufferEncoding
+        missingKeyValues?: SimpleDataItem
+        fillMissingKeys?: boolean
+        fileNameAsId?: boolean
+        firstItem?: number
+        lastItem?: number
+        nbFirstRowsToExclude?: number
+        nbLastRowsToExclude?: number
+    }): this {
+        if (this._data.length > 0) {
+            throw new Error(
+                "This SimpleData already has data. Create another one."
             )
         }
 
-        this._tempData = data // important for decorator
-        this.#updateSimpleData(data)
+        this.#updateSimpleData(
+            loadDataFromLocalDirectory(
+                path,
+                autoType,
+                dataAsArrays,
+                firstItem,
+                lastItem,
+                nbFirstRowsToExclude,
+                nbLastRowsToExclude,
+                fillMissingKeys,
+                fileNameAsId,
+                missingKeyValues,
+                encoding,
+                this.verbose
+            )
+        )
 
         return this
     }
@@ -140,7 +175,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
         dataAsArrays?: boolean
         encoding?: BufferEncoding
     }): this {
-        saveData_(this._data, path, dataAsArrays, this.verbose, encoding)
+        saveData(this._data, path, dataAsArrays, this.verbose, encoding)
 
         return this
     }
@@ -157,9 +192,12 @@ export default class SimpleDataNode extends SimpleDataGeo {
         showTrendEquation = false,
         width,
         height,
-        marginLeft = 0,
-        marginBottom = 0,
+        marginLeft,
+        marginBottom,
         title,
+        smallMultipleKey,
+        smallMultipleWidth,
+        smallMultipleHeight,
     }: {
         path: string
         type:
@@ -182,11 +220,13 @@ export default class SimpleDataNode extends SimpleDataGeo {
         marginLeft?: number
         marginBottom?: number
         title?: string
+        smallMultipleKey?: string
+        smallMultipleWidth?: number
+        smallMultipleHeight?: number
     }): this {
-        setJSDom()
-
-        const chart = getChart(
+        saveChart(
             this._data,
+            path,
             type,
             x,
             y,
@@ -198,11 +238,12 @@ export default class SimpleDataNode extends SimpleDataGeo {
             marginBottom,
             width,
             height,
-            title
+            title,
+            smallMultipleKey,
+            smallMultipleWidth,
+            smallMultipleHeight,
+            this.verbose
         )
-
-        fs.writeFileSync(path, chart)
-        this.verbose && log(`=> chart saved to ${path}`, "blue")
 
         return this
     }
@@ -215,12 +256,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
         path: string
         plotOptions: object
     }): this {
-        setJSDom()
-
-        const chart = getCustomChart(plotOptions)
-
-        fs.writeFileSync(path, chart)
-        this.verbose && log(`=> chart saved to ${path}`, "blue")
+        saveCustomChart(path, plotOptions, this.verbose)
 
         return this
     }

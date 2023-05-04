@@ -1,69 +1,65 @@
-import { autoType as typed } from "d3-dsv"
-import { csv, tsv, json } from "d3-fetch"
-import arraysToData from "../../helpers/arraysToData.js"
-import getExtension from "../../helpers/getExtension.js"
-import log from "../../helpers/log.js"
-import { SimpleDataItem, SimpleDataValue } from "../../types/SimpleData.types"
+import { SimpleDataItem } from "../../types/SimpleData.types"
+import { log, parseDataFile, getExtension } from "../../exports/helpers.js"
 
 export default async function loadDataFromUrlWeb(
-    url: string,
+    url: string | string[],
     autoType = false,
     dataAsArrays = false,
     firstItem = 0,
     lastItem = Infinity,
+    nbFirstRowsToExclude = 0,
+    nbLastRowsToExclude = Infinity,
+    fillMissingKeys = false,
+    fileNameAsId = false,
     missingKeyValues: SimpleDataItem = {
         null: null,
         NaN: NaN,
         undefined: undefined,
     },
-    verbose = false,
-    noTest = false
+    verbose = false
 ): Promise<SimpleDataItem[]> {
-    const fileExtension = getExtension(url)
+    const urls: string[] = []
+    const arrayOfObjects: SimpleDataItem[] = []
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let arrayOfObjects: any[] = []
-
-    verbose && log("Detected " + fileExtension + " file extension", "blue")
-
-    if (fileExtension === "csv" || fileExtension === "tsv") {
-        if (fileExtension === "csv") {
-            arrayOfObjects = autoType ? await csv(url, typed) : await csv(url)
-        } else if (fileExtension === "tsv") {
-            arrayOfObjects = autoType ? await tsv(url, typed) : await tsv(url)
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        delete arrayOfObjects["columns" as any]
-
-        arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
-
-        const keys = Object.keys(arrayOfObjects[0])
-        const missingValueKeys = Object.keys(missingKeyValues)
-
-        for (let i = 0; i < arrayOfObjects.length; i++) {
-            for (let j = 0; j < keys.length; j++) {
-                if (missingValueKeys.includes(arrayOfObjects[i][keys[j]])) {
-                    const val = arrayOfObjects[i][keys[j]]
-                    arrayOfObjects[i][keys[j]] = missingKeyValues[val]
-                }
-            }
-        }
-    } else if (fileExtension === "json") {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const incomingData = (await json(url)) as any[]
-        arrayOfObjects = dataAsArrays
-            ? arraysToData(
-                  incomingData as unknown as {
-                      [key: string]: SimpleDataValue[]
-                  },
-                  noTest
-              )
-            : incomingData
-        arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
+    if (typeof url === "string") {
+        urls.push(url)
     } else {
-        throw new Error("Unknown file extension " + fileExtension)
+        urls.push(...url)
     }
 
+    for (const url of urls) {
+        verbose && log(`Fetching ${url}...`, "blue")
+
+        const request = await fetch(url)
+        const data = await request.text()
+
+        const fileExtension = getExtension(url, verbose)
+
+        const parsedData = parseDataFile(
+            data,
+            fileExtension,
+            autoType,
+            dataAsArrays,
+            firstItem,
+            lastItem,
+            nbFirstRowsToExclude,
+            nbLastRowsToExclude,
+            fillMissingKeys,
+            missingKeyValues,
+            verbose
+        )
+
+        if (fileNameAsId) {
+            const filePathSplit = url.split("/")
+            const fileName = filePathSplit[filePathSplit.length - 1]
+            for (let i = 0; i < parsedData.length; i++) {
+                parsedData[i].id = fileName
+            }
+        }
+
+        for (let i = 0; i < parsedData.length; i++) {
+            arrayOfObjects.push(parsedData[i])
+        }
+    }
     return arrayOfObjects
 }

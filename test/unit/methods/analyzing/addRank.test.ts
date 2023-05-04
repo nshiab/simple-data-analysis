@@ -1,5 +1,5 @@
 import assert from "assert"
-import addRank from "../../../../src/methods/analyzing/addRank.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("addRank", function () {
     it("should add rank based on array index", function () {
@@ -10,8 +10,8 @@ describe("addRank", function () {
             { key1: 4 },
             { key1: 5 },
         ]
-        const rankData = addRank(data, "rank")
-        assert.deepEqual(rankData, [
+        const sd = new SimpleData({ data }).addRank({ newKey: "rank" })
+        assert.deepEqual(sd.getData(), [
             { key1: 1, rank: 1 },
             { key1: 2, rank: 2 },
             { key1: 3, rank: 3 },
@@ -27,8 +27,11 @@ describe("addRank", function () {
             { key1: 11 },
             { key1: 2 },
         ]
-        const rankData = addRank(data, "key1Rank", "key1")
-        assert.deepEqual(rankData, [
+        const sd = new SimpleData({ data }).addRank({
+            key: "key1",
+            newKey: "key1Rank",
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 111, key1Rank: 1 },
             { key1: 21, key1Rank: 3 },
             { key1: 32, key1Rank: 2 },
@@ -44,15 +47,12 @@ describe("addRank", function () {
             { key1: 22 },
             { key1: 2 },
         ]
-        const rankData = addRank(
-            data,
-            "key1Rank",
-            "key1",
-            false,
-            undefined,
-            "noTie"
-        )
-        assert.deepEqual(rankData, [
+        const sd = new SimpleData({ data }).addRank({
+            key: "key1",
+            newKey: "key1Rank",
+            handleTies: "noTie",
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 111, key1Rank: 1 },
             { key1: 22, key1Rank: 2 },
             { key1: 22, key1Rank: 3 },
@@ -68,15 +68,13 @@ describe("addRank", function () {
             { key1: 23 },
             { key1: 2 },
         ]
-        const rankData = addRank(
-            data,
-            "key1Rank",
-            "key1",
-            false,
-            undefined,
-            "tie"
-        )
-        assert.deepEqual(rankData, [
+
+        const sd = new SimpleData({ data }).addRank({
+            key: "key1",
+            newKey: "key1Rank",
+            handleTies: "tie",
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 111, key1Rank: 1 },
             { key1: 22, key1Rank: 3 },
             { key1: 22, key1Rank: 3 },
@@ -92,15 +90,12 @@ describe("addRank", function () {
             { key1: 23 },
             { key1: 2 },
         ]
-        const rankData = addRank(
-            data,
-            "key1Rank",
-            "key1",
-            false,
-            undefined,
-            "tieNoGaps"
-        )
-        assert.deepEqual(rankData, [
+        const sd = new SimpleData({ data }).addRank({
+            key: "key1",
+            newKey: "key1Rank",
+            handleTies: "tieNoGaps",
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 111, key1Rank: 1 },
             { key1: 22, key1Rank: 3 },
             { key1: 22, key1Rank: 3 },
@@ -119,16 +114,14 @@ describe("addRank", function () {
             { key1: "Écoutant les oiseaux" },
             { key1: "Autruche" },
         ]
-        const sortedData = addRank(
-            data,
-            "key1Rank",
-            "key1",
-            false,
-            undefined,
-            "tieNoGaps",
-            "fr"
-        )
-        assert.deepEqual(sortedData, [
+
+        const sd = new SimpleData({ data }).addRank({
+            key: "key1",
+            newKey: "key1Rank",
+            handleTies: "tieNoGaps",
+            locale: "fr",
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: "Autruche", key1Rank: "5" },
             { key1: "Éléphant", key1Rank: "2" },
             { key1: "À la claire fontaine", key1Rank: "7" },
@@ -156,17 +149,13 @@ describe("addRank", function () {
             { key1: 3, key2: "b", key3: 0 },
             { key1: 3, key2: "b", key3: -3 },
         ]
-        const sortedData = addRank(
-            data,
-            "multiKey",
-            ["key1", "key2", "key3"],
-            false,
-            undefined,
-            "tieNoGaps",
-            [false, "fr", false]
-        )
-
-        assert.deepEqual(sortedData, [
+        const sd = new SimpleData({ data }).addRank({
+            key: ["key1", "key2", "key3"],
+            newKey: "multiKey",
+            handleTies: "tieNoGaps",
+            locale: [false, "fr", false],
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 1, key2: "c", key3: 1, multiKey: 10 },
             { key1: 1, key2: "a", key3: 2, multiKey: 12 },
             { key1: 1, key2: "a", key3: 3, multiKey: 11 },
@@ -190,8 +179,12 @@ describe("addRank", function () {
             { key1: 2 },
             { key1: 3 },
         ]
-        const rankData = addRank(data, "key1Rank", "key1", true)
-        assert.deepEqual(rankData, [
+        const sd = new SimpleData({ data }).addRank({
+            key: "key1",
+            newKey: "key1Rank",
+            sortInPlace: true,
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 5, key1Rank: 1 },
             { key1: 4, key1Rank: 2 },
             { key1: 3, key1Rank: 3 },
@@ -207,8 +200,13 @@ describe("addRank", function () {
             { key1: 2 },
             { key1: 3 },
         ]
-        const rankData = addRank(data, "key1Rank", "key1", true, "ascending")
-        assert.deepEqual(rankData, [
+        const sd = new SimpleData({ data }).addRank({
+            key: "key1",
+            newKey: "key1Rank",
+            sortInPlace: true,
+            order: "ascending",
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 1, key1Rank: 1 },
             { key1: 2, key1Rank: 2 },
             { key1: 3, key1Rank: 3 },
@@ -216,7 +214,7 @@ describe("addRank", function () {
             { key1: 5, key1Rank: 5 },
         ])
     })
-    it("should add rank based on array key parameter, with an existing key for the rank title. Should throw an error", function () {
+    it("should throw an error when adding rank based on array key parameter, with an existing key for the rank title. ", function () {
         const data = [
             { key1: 111 },
             { key1: 21 },
@@ -224,6 +222,14 @@ describe("addRank", function () {
             { key1: 11 },
             { key1: 2 },
         ]
-        assert.throws(() => addRank(data, "key1", "key1"), Error)
+
+        assert.throws(
+            () =>
+                new SimpleData({ data }).addRank({
+                    key: "key1",
+                    newKey: "key1",
+                }),
+            Error
+        )
     })
 })

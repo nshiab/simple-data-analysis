@@ -1,5 +1,5 @@
 import assert from "assert"
-import valuesToInteger from "../../../../src/methods/cleaning/valuesToInteger.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("valuesToInteger", function () {
     it("should convert values to integer", function () {
@@ -9,8 +9,10 @@ describe("valuesToInteger", function () {
             { key1: "100000000", key2: 2 },
             { key1: "-2", key2: 2 },
         ]
-        const intergerValues = valuesToInteger(data, "key1")
-        assert.deepEqual(intergerValues, [
+
+        const sd = new SimpleData({ data }).valuesToInteger({ key: "key1" })
+
+        assert.deepEqual(sd.getData(), [
             { key1: 1, key2: 2 },
             { key1: 2, key2: 2 },
             { key1: 100000000, key2: 2 },
@@ -25,8 +27,13 @@ describe("valuesToInteger", function () {
             { key1: "100 000 000", key2: 2 },
             { key1: "-2", key2: 2 },
         ]
-        const intergerValues = valuesToInteger(data, "key1", " ", ",")
-        assert.deepEqual(intergerValues, [
+        const sd = new SimpleData({ data }).valuesToInteger({
+            key: "key1",
+            thousandSeparator: " ",
+            decimalSeparator: ",",
+        })
+
+        assert.deepEqual(sd.getData(), [
             { key1: 1, key2: 2 },
             { key1: 2, key2: 2 },
             { key1: 100000000, key2: 2 },
@@ -40,8 +47,13 @@ describe("valuesToInteger", function () {
             { key1: 1, key2: 2 },
             { key1: "100 000 000", key2: 2 },
         ]
-        const intergerValues = valuesToInteger(data, "key1", " ", ".")
-        assert.deepEqual(intergerValues, [
+        const sd = new SimpleData({ data }).valuesToInteger({
+            key: "key1",
+            thousandSeparator: " ",
+            decimalSeparator: ",",
+        })
+
+        assert.deepEqual(sd.getData(), [
             { key1: 1, key2: 2 },
             { key1: 1, key2: 2 },
             { key1: 100000000, key2: 2 },
@@ -54,8 +66,14 @@ describe("valuesToInteger", function () {
             { key1: 1, key2: 2 },
             { key1: "100 000 000", key2: 2 },
         ]
-        const intergerValues = valuesToInteger(data, "key1", " ", ".", true)
-        assert.deepEqual(intergerValues, [
+        const sd = new SimpleData({ data }).valuesToInteger({
+            key: "key1",
+            thousandSeparator: " ",
+            decimalSeparator: ",",
+            skipErrors: true,
+        })
+
+        assert.deepEqual(sd.getData(), [
             { key1: "a", key2: 2 },
             { key1: 1, key2: 2 },
             { key1: 100000000, key2: 2 },
@@ -69,15 +87,12 @@ describe("valuesToInteger", function () {
             { key1: "100000000", key2: 2 },
             { key1: "-2", key2: 2 },
         ]
-        const intergerValues = valuesToInteger(
-            data,
-            "key1",
-            undefined,
-            undefined,
-            undefined,
-            "key1x"
-        )
-        assert.deepEqual(intergerValues, [
+        const sd = new SimpleData({ data }).valuesToInteger({
+            key: "key1",
+            newKey: "key1x",
+        })
+
+        assert.deepEqual(sd.getData(), [
             { key1: "1", key2: 2, key1x: 1 },
             { key1: "2.2", key2: 2, key1x: 2 },
             { key1: "100000000", key2: 2, key1x: 100000000 },
@@ -93,14 +108,10 @@ describe("valuesToInteger", function () {
             { key1: "-2", key2: 2 },
         ]
         assert.throws(() =>
-            valuesToInteger(
-                data,
-                "key1",
-                undefined,
-                undefined,
-                undefined,
-                "key2"
-            )
+            new SimpleData({ data }).valuesToInteger({
+                key: "key1",
+                newKey: "key2",
+            })
         )
     })
 })

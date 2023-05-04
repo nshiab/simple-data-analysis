@@ -1,61 +1,77 @@
-import cloneData from "../helpers/cloneData.js"
-import renameKey_ from "../methods/cleaning/renameKey.js"
-import describe_ from "../methods/analyzing/describe.js"
-import formatAllKeys_ from "../methods/cleaning/formatAllKeys.js"
-import getItem_ from "../methods/exporting/getItem.js"
-import getArray_ from "../methods/exporting/getArray.js"
-import getMin_ from "../methods/exporting/getMin.js"
-import getMax_ from "../methods/exporting/getMax.js"
-import getMean_ from "../methods/exporting/getMean.js"
-import getMedian_ from "../methods/exporting/getMedian.js"
-import getSum_ from "../methods/exporting/getSum.js"
-import getQuantile_ from "../methods/exporting/getQuantile.js"
-import getDataAsArrays_ from "../methods/exporting/getDataAsArrays.js"
-import showTable_ from "../methods/showTable.js"
-import checkValues_ from "../methods/cleaning/checkValues.js"
-import excludeMissingValues_ from "../methods/cleaning/excludeMissingValues.js"
-import keepMissingValues_ from "../methods/cleaning/keepMissingValues.js"
-import removeKey_ from "../methods/restructuring/removeKey.js"
-import valuesToString_ from "../methods/cleaning/valuesToString.js"
-import valuesToInteger_ from "../methods/cleaning/valuesToInteger.js"
-import valuesToFloat_ from "../methods/cleaning/valuesToFloat.js"
-import valuesToDate_ from "../methods/cleaning/valuesToDate.js"
-import datesToString_ from "../methods/cleaning/datesToString.js"
-import filterValues_ from "../methods/selecting/filterValues.js"
-import filterItems_ from "../methods/selecting/filterItems.js"
-import removeDuplicates_ from "../methods/cleaning/removeDuplicates.js"
-import keepDuplicates_ from "../methods/cleaning/keepDuplicates.js"
-import roundValues_ from "../methods/cleaning/roundValues.js"
-import replaceValues_ from "../methods/cleaning/replaceValues.js"
-import addKey_ from "../methods/restructuring/addKey.js"
-import selectKeys_ from "../methods/selecting/selectKeys.js"
-import pickRandomItems_ from "../methods/selecting/pickRandomItems.js"
-import modifyValues_ from "../methods/cleaning/modifyValues.js"
-import modifyItems_ from "../methods/cleaning/modifyItems.js"
-import sortValues_ from "../methods/analyzing/sortValues.js"
-import addQuantiles_ from "../methods/analyzing/addQuantiles.js"
-import addBins_ from "../methods/analyzing/addBins.js"
-import addOutliers_ from "../methods/analyzing/addOutliers.js"
-import excludeOutliers_ from "../methods/analyzing/excludeOutliers.js"
-import correlation_ from "../methods/analyzing/correlation.js"
-import addItems_ from "../methods/restructuring/addItems.js"
-import getUniqueValues_ from "../methods/exporting/getUniqueValues.js"
-import summarize_ from "../methods/analyzing/summarize.js"
-import addProportions_ from "../methods/analyzing/addProportions.js"
-import addVariation_ from "../methods/analyzing/addVariation.js"
-import mergeItems_ from "../methods/restructuring/mergeItems.js"
-import keysToValues_ from "../methods/restructuring/keysToValues.js"
-import valuesToKeys_ from "../methods/restructuring/valuesToKeys.js"
-import addRank_ from "../methods/analyzing/addRank.js"
-import handleMissingKeys from "../helpers/handleMissingKeys.js"
-import { logCall, asyncLogCall } from "../helpers/logCall.js"
-import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
-import loadDataFromUrlWeb_ from "../methods/importing/loadDataFromUrlWeb.js"
-import getChart_ from "../methods/visualizing/getChart.js"
-import getCustomChart_ from "../methods/visualizing/getCustomChart.js"
-import log from "../helpers/log.js"
-import arraysToData from "../helpers/arraysToData.js"
-import round from "../helpers/round.js"
+import {
+    addBins,
+    addOutliers,
+    addProportions,
+    addQuantiles,
+    addRank,
+    addVariation,
+    correlation,
+    describe,
+    excludeOutliers,
+    regression,
+    sortValues,
+    summarize,
+} from "../exports/analyzing.js"
+import {
+    checkValues,
+    datesToString,
+    excludeMissingValues,
+    formatAllKeys,
+    modifyItems,
+    modifyValues,
+    removeDuplicates,
+    renameKey,
+    replaceValues,
+    roundValues,
+    valuesToDate,
+    valuesToFloat,
+    valuesToInteger,
+    valuesToString,
+} from "../exports/cleaning.js"
+import {
+    getDataAsArrays,
+    getMax,
+    getMean,
+    getMedian,
+    getMin,
+    getQuantile,
+    getSum,
+    getUniqueValues,
+    getArray,
+    getItem,
+} from "../exports/exporting.js"
+import {
+    arraysToData,
+    asyncLogCall,
+    cloneData,
+    handleMissingKeys,
+    log,
+    logCall,
+    round,
+    showTable,
+} from "../exports/helpers.js"
+import { loadDataFromUrl } from "../exports/importing.js"
+import {
+    addItems,
+    addKey,
+    keysToValues,
+    mergeItems,
+    removeKey,
+    valuesToKeys,
+} from "../exports/restructuring.js"
+import {
+    exclude,
+    filterItems,
+    filterValues,
+    keep,
+    keepDates,
+    keepNumbers,
+    keepStrings,
+    pickRandomItems,
+    selectKeys,
+} from "../exports/selecting.js"
+import { getChart, getCustomChart } from "../exports/visualizing.js"
+import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types.js"
 
 /**
  * SimpleData usage example.
@@ -67,21 +83,14 @@ import round from "../helpers/round.js"
  */
 export default class SimpleData {
     protected _data: SimpleDataItem[]
-    protected _tempData: SimpleDataItem[]
-    protected _overwrite: boolean
-    protected _duration: number
-    noTests: boolean
-    noLogs: boolean
+    duration: number
     verbose: boolean
-    logParameters: boolean
     nbTableItemsToLog: number
 
     /**
      * SimpleData constructor
      * @param __namedParameters.data  Data as a list of objects with the same keys.
      * @param __namedParameters.verbose  Log information in the console on `SimpleData` method calls.
-     * @param __namedParameters.noTests  If true, the type of the values won't be tested.
-     * @param __namedParameters.logParameters  If true, logs methods parameters on every call. Only applies when `verbose` is true.
      * @param __namedParameters.nbTableItemsToLog  Number of items to log in table. Only applies when `verbose` is true.
      * @param __namedParameters.fillMissingKeys  Fill missing keys with `undefined`.
      */
@@ -89,11 +98,8 @@ export default class SimpleData {
         data = [],
         dataAsArrays = false,
         verbose = false,
-        noTests = false,
-        logParameters = false,
         nbTableItemsToLog = 5,
         fillMissingKeys = false,
-        noLogs = false,
         firstItem = 0,
         lastItem = Infinity,
         duration = 0,
@@ -101,11 +107,8 @@ export default class SimpleData {
         data?: SimpleDataItem[] | { [key: string]: SimpleDataValue[] }
         dataAsArrays?: boolean
         verbose?: boolean
-        noTests?: boolean
-        logParameters?: boolean
         nbTableItemsToLog?: number
         fillMissingKeys?: boolean
-        noLogs?: boolean
         firstItem?: number
         lastItem?: number
         duration?: 0
@@ -117,45 +120,31 @@ export default class SimpleData {
                           data as unknown as {
                               [key: string]: SimpleDataValue[]
                           },
-                          noTests
+                          verbose
                       ).slice(firstItem, lastItem + 1)
                   )
                 : cloneData(
                       (data as SimpleDataItem[]).slice(firstItem, lastItem + 1)
                   )
 
-            if (noTests && fillMissingKeys) {
-                throw new Error(
-                    "fillMissingKeys cannot be true if noTests is true"
-                )
-            } else if (!noTests) {
-                handleMissingKeys(
-                    incomingData,
-                    fillMissingKeys,
-                    undefined,
-                    undefined,
-                    !noLogs && verbose
-                )
-            }
+            handleMissingKeys(
+                incomingData,
+                fillMissingKeys,
+                undefined,
+                undefined,
+                verbose
+            )
 
             this._data = incomingData
         } else {
-            !noLogs &&
-                verbose &&
-                log("new SimpleData() - Starting an empty SimpleData")
+            verbose && log("\nnew SimpleData()\nStarting an empty SimpleData")
 
             this._data = []
         }
 
-        this._tempData = []
-        this._overwrite = true
-        this._duration = duration
-
-        this.verbose = !noLogs && verbose
-        this.noTests = noTests
-        this.logParameters = logParameters
+        this.duration = duration
+        this.verbose = verbose
         this.nbTableItemsToLog = nbTableItemsToLog
-        this.noLogs = noLogs
     }
 
     // If modified, needs to be modified in SimpleDataNode
@@ -171,45 +160,43 @@ export default class SimpleData {
         autoType = false,
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         fillMissingKeys = false,
+        fileNameAsId = false,
         dataAsArrays = false,
         firstItem = 0,
         lastItem = Infinity,
+        nbFirstRowsToExclude = 0,
+        nbLastRowsToExclude = Infinity,
     }: {
-        url: string
+        url: string | string[]
         autoType?: boolean
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
+        fileNameAsId?: boolean
         dataAsArrays?: boolean
         firstItem?: number
         lastItem?: number
+        nbFirstRowsToExclude?: number
+        nbLastRowsToExclude?: number
     }): Promise<this> {
-        const data = await loadDataFromUrlWeb_(
+        if (this._data.length > 0) {
+            throw new Error(
+                "This SimpleData already has data. Create another one."
+            )
+        }
+        const data = await loadDataFromUrl(
             url,
             autoType,
             dataAsArrays,
             firstItem,
             lastItem,
+            nbFirstRowsToExclude,
+            nbLastRowsToExclude,
+            fillMissingKeys,
+            fileNameAsId,
             missingKeyValues,
             this.verbose
         )
 
-        if (data.length === 0) {
-            throw new Error("Incoming data is empty.")
-        }
-
-        if (this.noTests && fillMissingKeys) {
-            throw new Error("fillMissingKeys cannot be true if noTests is true")
-        } else if (!this.noTests) {
-            handleMissingKeys(
-                data,
-                fillMissingKeys,
-                undefined,
-                undefined,
-                this.verbose
-            )
-        }
-
-        this._tempData = data // important for decorator
         this.#updateSimpleData(data)
 
         return this
@@ -218,10 +205,8 @@ export default class SimpleData {
     // CLEANING METHODS //
 
     @logCall()
-    describe({ overwrite = true }: { overwrite?: boolean } = {}): this {
-        this._overwrite = overwrite
-        this._tempData = describe_(cloneData(this._data))
-        overwrite && this.#updateSimpleData(this._tempData)
+    describe(): this {
+        this.#updateSimpleData(describe(cloneData(this._data)))
 
         return this
     }
@@ -230,19 +215,13 @@ export default class SimpleData {
     checkValues({
         nbItemsToCheck = "all",
         randomize = false,
-        overwrite = true,
     }: {
         nbItemsToCheck?: "all" | number
         randomize?: boolean
-        overwrite?: boolean
     } = {}): this {
-        this._overwrite = overwrite
-        this._tempData = checkValues_(
-            cloneData(this._data),
-            nbItemsToCheck,
-            randomize
+        this.#updateSimpleData(
+            checkValues(cloneData(this._data), nbItemsToCheck, randomize)
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -251,91 +230,49 @@ export default class SimpleData {
     excludeMissingValues({
         key,
         missingValues,
-        overwrite = true,
+        keepExcludedOnly = false,
     }: {
         key?: string
         missingValues?: SimpleDataValue[]
-        overwrite?: boolean
+        keepExcludedOnly?: boolean
     } = {}): this {
-        this._overwrite = overwrite
         if (missingValues === undefined) {
             missingValues = [null, NaN, undefined, ""]
         }
-        this._tempData = excludeMissingValues_(
-            cloneData(this._data),
-            key,
-            missingValues,
-            this.verbose
+        this.#updateSimpleData(
+            excludeMissingValues(
+                cloneData(this._data),
+                key,
+                missingValues,
+                this.verbose,
+                keepExcludedOnly
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
 
     @logCall()
-    keepMissingValues({
-        key,
-        missingValues,
-        overwrite = true,
-    }: {
-        key?: string
-        missingValues?: SimpleDataValue[]
-        overwrite?: boolean
-    } = {}): this {
-        this._overwrite = overwrite
-        if (missingValues === undefined) {
-            missingValues = [null, NaN, undefined, ""]
-        }
-        this._tempData = keepMissingValues_(
-            cloneData(this._data),
-            key,
-            missingValues,
-            this.verbose
+    formatAllKeys(): this {
+        this.#updateSimpleData(
+            formatAllKeys(cloneData(this._data), this.verbose)
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
 
     @logCall()
-    formatAllKeys({ overwrite = true }: { overwrite?: boolean } = {}): this {
-        this._overwrite = overwrite
-        this._tempData = formatAllKeys_(cloneData(this._data), this.verbose)
-        overwrite && this.#updateSimpleData(this._tempData)
+    renameKey({ oldKey, newKey }: { oldKey: string; newKey: string }): this {
+        this.#updateSimpleData(renameKey(cloneData(this._data), oldKey, newKey))
 
         return this
     }
 
     @logCall()
-    renameKey({
-        oldKey,
-        newKey,
-        overwrite = true,
-    }: {
-        oldKey: string
-        newKey: string
-        overwrite?: boolean
-    }): this {
-        this._overwrite = overwrite
-        this._tempData = renameKey_(cloneData(this._data), oldKey, newKey)
-        overwrite && this.#updateSimpleData(this._tempData)
-
-        return this
-    }
-
-    @logCall()
-    valuesToString({
-        key,
-        newKey,
-        overwrite = true,
-    }: {
-        key: string
-        newKey?: string
-        overwrite?: boolean
-    }): this {
-        this._overwrite = overwrite
-        this._tempData = valuesToString_(cloneData(this._data), key, newKey)
-        overwrite && this.#updateSimpleData(this._tempData)
+    valuesToString({ key, newKey }: { key: string; newKey?: string }): this {
+        this.#updateSimpleData(
+            valuesToString(cloneData(this._data), key, newKey)
+        )
 
         return this
     }
@@ -347,26 +284,23 @@ export default class SimpleData {
         decimalSeparator = ".",
         skipErrors = false,
         newKey,
-        overwrite = true,
     }: {
         key: string
         thousandSeparator?: string
         decimalSeparator?: string
         skipErrors?: boolean
         newKey?: string
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = valuesToInteger_(
-            cloneData(this._data),
-            key,
-            thousandSeparator,
-            decimalSeparator,
-            skipErrors,
-            newKey,
-            this.noTests
+        this.#updateSimpleData(
+            valuesToInteger(
+                cloneData(this._data),
+                key,
+                thousandSeparator,
+                decimalSeparator,
+                skipErrors,
+                newKey
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -378,26 +312,23 @@ export default class SimpleData {
         decimalSeparator = ".",
         skipErrors = false,
         newKey,
-        overwrite = true,
     }: {
         key: string
         thousandSeparator?: string
         decimalSeparator?: string
         skipErrors?: boolean
         newKey?: string
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = valuesToFloat_(
-            cloneData(this._data),
-            key,
-            thousandSeparator,
-            decimalSeparator,
-            skipErrors,
-            newKey,
-            this.noTests
+        this.#updateSimpleData(
+            valuesToFloat(
+                cloneData(this._data),
+                key,
+                thousandSeparator,
+                decimalSeparator,
+                skipErrors,
+                newKey
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -408,24 +339,15 @@ export default class SimpleData {
         format,
         skipErrors = false,
         newKey,
-        overwrite = true,
     }: {
         key: string
         format: string
         skipErrors?: boolean
         newKey?: string
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = valuesToDate_(
-            cloneData(this._data),
-            key,
-            format,
-            skipErrors,
-            newKey,
-            this.noTests
+        this.#updateSimpleData(
+            valuesToDate(cloneData(this._data), key, format, skipErrors, newKey)
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -436,24 +358,21 @@ export default class SimpleData {
         format,
         skipErrors = false,
         newKey,
-        overwrite = true,
     }: {
         key: string
         format: string
         skipErrors?: boolean
         newKey?: string
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = datesToString_(
-            cloneData(this._data),
-            key,
-            format,
-            skipErrors,
-            newKey,
-            this.noTests
+        this.#updateSimpleData(
+            datesToString(
+                cloneData(this._data),
+                key,
+                format,
+                skipErrors,
+                newKey
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -462,26 +381,25 @@ export default class SimpleData {
     roundValues({
         key,
         nbDigits = 1,
-        overwrite = true,
+
         skipErrors = false,
         newKey,
     }: {
         key: string
         nbDigits?: number
         skipErrors?: boolean
-        overwrite?: boolean
+
         newKey?: string
     }): this {
-        this._overwrite = overwrite
-        this._tempData = roundValues_(
-            cloneData(this._data),
-            key,
-            nbDigits,
-            skipErrors,
-            newKey,
-            this.noTests
+        this.#updateSimpleData(
+            roundValues(
+                cloneData(this._data),
+                key,
+                nbDigits,
+                skipErrors,
+                newKey
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -494,28 +412,25 @@ export default class SimpleData {
         method = undefined,
         skipErrors = false,
         newKey,
-        overwrite = true,
     }: {
         key: string
-        oldValue: string
-        newValue: string
+        oldValue: SimpleDataValue
+        newValue: SimpleDataValue
         method?: undefined | "entireString" | "partialString"
         skipErrors?: boolean
         newKey?: string
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = replaceValues_(
-            cloneData(this._data),
-            key,
-            oldValue,
-            newValue,
-            method,
-            skipErrors,
-            newKey
+        this.#updateSimpleData(
+            replaceValues(
+                cloneData(this._data),
+                key,
+                oldValue,
+                newValue,
+                method,
+                skipErrors,
+                newKey
+            )
         )
-
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -525,21 +440,14 @@ export default class SimpleData {
         key,
         valueGenerator,
         newKey,
-        overwrite = true,
     }: {
         key: string
         valueGenerator: (val: SimpleDataValue) => SimpleDataValue
         newKey?: string
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = modifyValues_(
-            cloneData(this._data),
-            key,
-            valueGenerator,
-            newKey
+        this.#updateSimpleData(
+            modifyValues(cloneData(this._data), key, valueGenerator, newKey)
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -549,21 +457,14 @@ export default class SimpleData {
         key,
         itemGenerator,
         newKey,
-        overwrite = true,
     }: {
         key: string
         itemGenerator: (item: SimpleDataItem) => SimpleDataValue
         newKey?: string
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = modifyItems_(
-            cloneData(this._data),
-            key,
-            itemGenerator,
-            newKey
+        this.#updateSimpleData(
+            modifyItems(cloneData(this._data), key, itemGenerator, newKey)
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -572,20 +473,18 @@ export default class SimpleData {
     excludeOutliers({
         key,
         nbTestedValues = 10000,
-        overwrite = true,
     }: {
         key: string
         nbTestedValues?: number
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = excludeOutliers_(
-            cloneData(this._data),
-            key,
-            this.noTests ? 0 : nbTestedValues,
-            this.verbose
+        this.#updateSimpleData(
+            excludeOutliers(
+                cloneData(this._data),
+                key,
+                nbTestedValues,
+                this.verbose
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -593,16 +492,8 @@ export default class SimpleData {
     // *** RESTRUCTURING METHODS *** //
 
     @logCall()
-    removeKey({
-        key,
-        overwrite = true,
-    }: {
-        key: string
-        overwrite?: boolean
-    }): this {
-        this._overwrite = overwrite
-        this._tempData = removeKey_(cloneData(this._data), key)
-        overwrite && this.#updateSimpleData(this._tempData)
+    removeKey({ key }: { key: string }): this {
+        this.#updateSimpleData(removeKey(cloneData(this._data), key))
 
         return this
     }
@@ -611,15 +502,13 @@ export default class SimpleData {
     addKey({
         key,
         itemGenerator,
-        overwrite = true,
     }: {
         key: string
         itemGenerator: (item: SimpleDataItem) => SimpleDataValue
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = addKey_(cloneData(this._data), key, itemGenerator)
-        overwrite && this.#updateSimpleData(this._tempData)
+        this.#updateSimpleData(
+            addKey(cloneData(this._data), key, itemGenerator)
+        )
 
         return this
     }
@@ -632,7 +521,6 @@ export default class SimpleData {
         order,
         locale,
         handleTies,
-        overwrite = true,
     }: {
         newKey: string
         key?: string | string[]
@@ -640,19 +528,18 @@ export default class SimpleData {
         order?: "ascending" | "descending"
         locale?: string | (string | undefined | null | boolean)[]
         handleTies?: "tieNoGaps" | "tie" | "noTie"
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = addRank_(
-            cloneData(this._data),
-            newKey,
-            key,
-            sortInPlace,
-            order,
-            handleTies,
-            locale
+        this.#updateSimpleData(
+            addRank(
+                cloneData(this._data),
+                newKey,
+                key,
+                sortInPlace,
+                order,
+                handleTies,
+                locale
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -662,22 +549,20 @@ export default class SimpleData {
         dataToBeAdded,
         fillMissingKeys = false,
         defaultValue = undefined,
-        overwrite = true,
     }: {
         dataToBeAdded: SimpleDataItem[] | SimpleData
         fillMissingKeys?: boolean
         defaultValue?: SimpleDataValue
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = addItems_(
-            cloneData(this._data),
-            dataToBeAdded,
-            this.noTests ? false : fillMissingKeys,
-            defaultValue,
-            this.verbose
+        this.#updateSimpleData(
+            addItems(
+                cloneData(this._data),
+                dataToBeAdded,
+                fillMissingKeys,
+                defaultValue,
+                this.verbose
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -687,22 +572,20 @@ export default class SimpleData {
         dataToBeMerged,
         commonKey,
         nbTestedValues = 10000,
-        overwrite = true,
     }: {
         dataToBeMerged: SimpleDataItem[] | SimpleData
         commonKey: string
         nbTestedValues?: number
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = mergeItems_(
-            cloneData(this._data),
-            dataToBeMerged,
-            commonKey,
-            this.verbose,
-            this.noTests ? 0 : nbTestedValues
+        this.#updateSimpleData(
+            mergeItems(
+                cloneData(this._data),
+                dataToBeMerged,
+                commonKey,
+                this.verbose,
+                nbTestedValues
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -711,20 +594,18 @@ export default class SimpleData {
     valuesToKeys({
         newKeys,
         newValues,
-        overwrite = true,
     }: {
         newKeys: string
         newValues: string
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = valuesToKeys_(
-            cloneData(this._data),
-            newKeys,
-            newValues,
-            this.verbose
+        this.#updateSimpleData(
+            valuesToKeys(
+                cloneData(this._data),
+                newKeys,
+                newValues,
+                this.verbose
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -734,22 +615,20 @@ export default class SimpleData {
         keys,
         newKeyForKeys,
         newKeyForValues,
-        overwrite = true,
     }: {
         keys: string[]
         newKeyForKeys: string
         newKeyForValues: string
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = keysToValues_(
-            cloneData(this._data),
-            keys,
-            newKeyForKeys,
-            newKeyForValues,
-            this.verbose
+        this.#updateSimpleData(
+            keysToValues(
+                cloneData(this._data),
+                keys,
+                newKeyForKeys,
+                newKeyForValues,
+                this.verbose
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -757,16 +636,8 @@ export default class SimpleData {
     //*** SELECTION METHODS ***/
 
     @logCall()
-    selectKeys({
-        keys,
-        overwrite = true,
-    }: {
-        keys: string[]
-        overwrite?: boolean
-    }): this {
-        this._overwrite = overwrite
-        this._tempData = selectKeys_(cloneData(this._data), keys)
-        overwrite && this.#updateSimpleData(this._tempData)
+    selectKeys({ keys }: { keys: string[] }): this {
+        this.#updateSimpleData(selectKeys(cloneData(this._data), keys))
 
         return this
     }
@@ -775,20 +646,18 @@ export default class SimpleData {
     filterValues({
         key,
         valueComparator,
-        overwrite = true,
     }: {
         key: string
         valueComparator: (val: SimpleDataValue) => SimpleDataValue
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = filterValues_(
-            cloneData(this._data),
-            key,
-            valueComparator,
-            this.verbose
+        this.#updateSimpleData(
+            filterValues(
+                cloneData(this._data),
+                key,
+                valueComparator,
+                this.verbose
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -796,18 +665,12 @@ export default class SimpleData {
     @logCall()
     filterItems({
         itemComparator,
-        overwrite = true,
     }: {
         itemComparator: (val: SimpleDataItem) => boolean
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = filterItems_(
-            cloneData(this._data),
-            itemComparator,
-            this.verbose
+        this.#updateSimpleData(
+            filterItems(cloneData(this._data), itemComparator, this.verbose)
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -816,20 +679,13 @@ export default class SimpleData {
     pickRandomItems({
         nbItems,
         seed,
-        overwrite = true,
     }: {
         nbItems: number
         seed?: number
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = pickRandomItems_(
-            cloneData(this._data),
-            nbItems,
-            seed,
-            this.verbose
+        this.#updateSimpleData(
+            pickRandomItems(cloneData(this._data), nbItems, seed, this.verbose)
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -837,37 +693,112 @@ export default class SimpleData {
     @logCall()
     removeDuplicates({
         key,
+        keepDuplicatesOnly = false,
         nbToKeep = 1,
-        overwrite = true,
     }: {
         key?: string
+        keepDuplicatesOnly?: boolean
         nbToKeep?: number
-        overwrite?: boolean
     } = {}): this {
-        this._overwrite = overwrite
-        this._tempData = removeDuplicates_(
-            cloneData(this._data),
-            key,
-            nbToKeep,
-            this.verbose
+        this.#updateSimpleData(
+            removeDuplicates(
+                cloneData(this._data),
+                key,
+                keepDuplicatesOnly,
+                nbToKeep,
+                this.verbose
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
 
     @logCall()
-    keepDuplicates({
+    keep({
         key,
-        overwrite = true,
-    }: { key?: string; overwrite?: boolean } = {}): this {
-        this._overwrite = overwrite
-        this._tempData = keepDuplicates_(
-            cloneData(this._data),
-            key,
-            this.verbose
+        value,
+    }: {
+        key: string
+        value: SimpleDataValue | SimpleDataValue[]
+    }) {
+        this.#updateSimpleData(
+            keep(cloneData(this._data), key, value, this.verbose)
         )
-        overwrite && this.#updateSimpleData(this._tempData)
+
+        return this
+    }
+
+    @logCall()
+    exclude({
+        key,
+        value,
+    }: {
+        key: string
+        value: SimpleDataValue | SimpleDataValue[]
+    }) {
+        this.#updateSimpleData(
+            exclude(cloneData(this._data), key, value, this.verbose)
+        )
+
+        return this
+    }
+
+    @logCall()
+    keepNumbers({
+        key,
+        keepNonNumbersOnly = false,
+    }: {
+        key: string
+        keepNonNumbersOnly?: boolean
+    }): this {
+        this.#updateSimpleData(
+            keepNumbers(
+                cloneData(this._data),
+                key,
+                keepNonNumbersOnly,
+                this.verbose
+            )
+        )
+
+        return this
+    }
+
+    @logCall()
+    keepDates({
+        key,
+        keepNonDatesOnly = false,
+    }: {
+        key: string
+        keepNonDatesOnly?: boolean
+    }): this {
+        this.#updateSimpleData(
+            keepDates(
+                cloneData(this._data),
+                key,
+                keepNonDatesOnly,
+                this.verbose
+            )
+        )
+
+        return this
+    }
+
+    @logCall()
+    keepStrings({
+        key,
+        keepNonStringOnly = false,
+    }: {
+        key: string
+        keepNonStringOnly?: boolean
+    }): this {
+        this.#updateSimpleData(
+            keepStrings(
+                cloneData(this._data),
+                key,
+                keepNonStringOnly,
+                this.verbose
+            )
+        )
 
         return this
     }
@@ -878,17 +809,15 @@ export default class SimpleData {
     sortValues({
         key,
         order = "ascending",
-        overwrite = true,
         locale,
     }: {
         key: string | string[]
         order: "ascending" | "descending"
-        overwrite?: boolean
-        locale?: string
+        locale?: string | (string | undefined | null | boolean)[]
     }): this {
-        this._overwrite = overwrite
-        this._tempData = sortValues_(cloneData(this._data), key, order, locale)
-        overwrite && this.#updateSimpleData(this._tempData)
+        this.#updateSimpleData(
+            sortValues(cloneData(this._data), key, order, locale)
+        )
 
         return this
     }
@@ -903,7 +832,6 @@ export default class SimpleData {
         suffix,
         nbDigits = 2,
         nbTestedValues = 10000,
-        overwrite = true,
     }: {
         method: "item" | "data"
         key?: string
@@ -913,21 +841,20 @@ export default class SimpleData {
         suffix?: string
         nbDigits?: number
         nbTestedValues?: number
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = addProportions_(cloneData(this._data), {
-            method,
-            keys,
-            key,
-            newKey,
-            keyCategory,
-            suffix,
-            nbDigits,
-            nbTestedValues: this.noTests ? 0 : nbTestedValues,
-            verbose: this.verbose,
-        })
-        overwrite && this.#updateSimpleData(this._tempData)
+        this.#updateSimpleData(
+            addProportions(cloneData(this._data), {
+                method,
+                keys,
+                key,
+                newKey,
+                keyCategory,
+                suffix,
+                nbDigits,
+                nbTestedValues,
+                verbose: this.verbose,
+            })
+        )
         return this
     }
 
@@ -939,7 +866,6 @@ export default class SimpleData {
         order = undefined,
         firstValue = undefined,
         nbTestedValues = 10000,
-        overwrite = true,
     }: {
         key: string
         newKey: string
@@ -950,20 +876,19 @@ export default class SimpleData {
         order?: "ascending" | "descending" | undefined
         firstValue?: SimpleDataValue
         nbTestedValues?: number
-        overwrite?: boolean
     }) {
-        this._overwrite = overwrite
-        this._tempData = addVariation_(
-            cloneData(this._data),
-            key,
-            newKey,
-            valueGenerator,
-            order,
-            firstValue,
-            this.noTests ? 0 : nbTestedValues,
-            this.verbose
+        this.#updateSimpleData(
+            addVariation(
+                cloneData(this._data),
+                key,
+                newKey,
+                valueGenerator,
+                order,
+                firstValue,
+                nbTestedValues,
+                this.verbose
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
         return this
     }
 
@@ -975,7 +900,6 @@ export default class SimpleData {
         weight,
         nbTestedValues = 10000,
         nbDigits,
-        overwrite = true,
     }: {
         keyValue?: string | string[]
         keyCategory?: string | string[]
@@ -983,45 +907,92 @@ export default class SimpleData {
         weight?: string
         nbTestedValues?: number
         nbDigits?: number
-        overwrite?: boolean
     } = {}): this {
-        this._overwrite = overwrite
-        this._tempData = summarize_(
-            cloneData(this._data),
-            keyValue,
-            keyCategory,
-            summary,
-            weight,
-            this.noTests ? 0 : nbTestedValues,
-            this.verbose,
-            nbDigits
+        this.#updateSimpleData(
+            summarize(
+                cloneData(this._data),
+                keyValue,
+                keyCategory,
+                summary,
+                weight,
+                nbTestedValues,
+                this.verbose,
+                nbDigits
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
         return this
     }
 
     @logCall()
     correlation({
-        key1,
-        key2,
-        overwrite = true,
+        keyX,
+        keyY,
+        keyCategory,
+        nbDigits = 4,
+
         nbTestedValues = 10000,
     }: {
-        key1?: string
-        key2?: string | string[]
-        overwrite?: boolean
+        keyX?: string
+        keyY?: string | string[]
+        keyCategory?: string
+
         nbDigits?: number
         nbTestedValues?: number
     } = {}): this {
-        this._overwrite = overwrite
-        this._tempData = correlation_(
-            cloneData(this._data),
-            key1,
-            key2,
-            this.verbose,
-            this.noTests ? 0 : nbTestedValues
+        this.#updateSimpleData(
+            correlation(
+                cloneData(this._data),
+                keyX,
+                keyY,
+                keyCategory,
+                nbDigits,
+                this.verbose,
+                nbTestedValues
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
+
+        return this
+    }
+
+    @logCall()
+    regression({
+        keyX,
+        keyY,
+        keyCategory,
+        type = "linear",
+        order,
+        nbDigits = 4,
+
+        nbTestedValues = 10000,
+    }: {
+        keyX?: string
+        keyY?: string | string[]
+        keyCategory?: string
+        type?:
+            | "linear"
+            | "quadratic"
+            | "polynomial"
+            | "exponential"
+            | "logarithmic"
+            | "power"
+        order?: number
+
+        nbDigits?: number
+        nbTestedValues?: number
+    } = {}): this {
+        this.#updateSimpleData(
+            regression(
+                cloneData(this._data),
+                keyX,
+                keyY,
+                type,
+                keyCategory,
+                order,
+                nbDigits,
+                this.verbose,
+                nbTestedValues
+            )
+        )
 
         return this
     }
@@ -1032,24 +1003,22 @@ export default class SimpleData {
         newKey,
         nbQuantiles,
         nbTestedValues = 10000,
-        overwrite = true,
     }: {
         key: string
         newKey: string
         nbQuantiles: number
         nbTestedValues?: number
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = addQuantiles_(
-            cloneData(this._data),
-            key,
-            newKey,
-            nbQuantiles,
-            this.noTests ? 0 : nbTestedValues,
-            this.verbose
+        this.#updateSimpleData(
+            addQuantiles(
+                cloneData(this._data),
+                key,
+                newKey,
+                nbQuantiles,
+                nbTestedValues,
+                this.verbose
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -1060,24 +1029,22 @@ export default class SimpleData {
         newKey,
         nbBins,
         nbTestedValues = 10000,
-        overwrite = true,
     }: {
         key: string
         newKey: string
         nbBins: number
         nbTestedValues?: number
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = addBins_(
-            cloneData(this._data),
-            key,
-            newKey,
-            nbBins,
-            this.noTests ? 0 : nbTestedValues,
-            this.verbose
+        this.#updateSimpleData(
+            addBins(
+                cloneData(this._data),
+                key,
+                newKey,
+                nbBins,
+                nbTestedValues,
+                this.verbose
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -1087,22 +1054,20 @@ export default class SimpleData {
         key,
         newKey,
         nbTestedValues = 10000,
-        overwrite = true,
     }: {
         key: string
         newKey: string
         nbTestedValues?: number
-        overwrite?: boolean
     }): this {
-        this._overwrite = overwrite
-        this._tempData = addOutliers_(
-            cloneData(this._data),
-            key,
-            newKey,
-            this.noTests ? 0 : nbTestedValues,
-            this.verbose
+        this.#updateSimpleData(
+            addOutliers(
+                cloneData(this._data),
+                key,
+                newKey,
+                nbTestedValues,
+                this.verbose
+            )
         )
-        overwrite && this.#updateSimpleData(this._tempData)
 
         return this
     }
@@ -1123,6 +1088,9 @@ export default class SimpleData {
         marginLeft,
         marginBottom,
         title,
+        smallMultipleKey,
+        smallMultipleWidth,
+        smallMultipleHeight,
     }: {
         type:
             | "dot"
@@ -1144,8 +1112,11 @@ export default class SimpleData {
         marginLeft?: number
         marginBottom?: number
         title?: string
+        smallMultipleKey?: string
+        smallMultipleWidth?: number
+        smallMultipleHeight?: number
     }): string {
-        const chart = getChart_(
+        return getChart(
             cloneData(this._data),
             type,
             x,
@@ -1158,15 +1129,16 @@ export default class SimpleData {
             marginBottom,
             width,
             height,
-            title
+            title,
+            smallMultipleKey,
+            smallMultipleWidth,
+            smallMultipleHeight
         )
-        return chart
     }
 
     @logCall()
     getCustomChart({ plotOptions }: { plotOptions: object }): string {
-        const chart = getCustomChart_(plotOptions)
-        return chart
+        return getCustomChart(plotOptions)
     }
 
     // ** EXPORTING METHODS *** //
@@ -1178,10 +1150,7 @@ export default class SimpleData {
         return new this.constructor({
             data: this._data,
             verbose: this.verbose,
-            logParameters: this.logParameters,
-            noLogs: this.noLogs,
             nbTableItemsToLog: this.nbTableItemsToLog,
-            noTest: this.noTests,
         })
     }
 
@@ -1190,10 +1159,17 @@ export default class SimpleData {
         return this._data
     }
 
-    getTempData(): SimpleDataItem[] {
-        return this._tempData
+    // No @logCall otherwise it's triggered everywhere, including in methods
+    getFirst(): SimpleDataItem {
+        return this._data[0]
     }
 
+    // No @logCall otherwise it's triggered everywhere, including in methods
+    getLast(): SimpleDataItem {
+        return this._data[this._data.length - 1]
+    }
+
+    //No @logCall otherwise it's triggered everywhere, including in methods
     getLength(): number {
         return this._data.length
     }
@@ -1211,29 +1187,22 @@ export default class SimpleData {
         conditions: SimpleDataItem
         noWarning?: boolean
     }): SimpleDataItem | undefined {
-        const item = getItem_(this._data, conditions, noWarning)
-        return item
+        return getItem(this._data, conditions, noWarning)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
     getArray({ key }: { key: string | string[] }): SimpleDataValue[] {
-        const array = getArray_(this._data, key)
-
-        return array
+        return getArray(this._data, key)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
     getDataAsArrays() {
-        const arrays = getDataAsArrays_(this._data)
-
-        return arrays
+        return getDataAsArrays(this._data)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
     getUniqueValues({ key }: { key: string }): SimpleDataValue[] {
-        const uniqueValues = getUniqueValues_(this._data, key)
-
-        return uniqueValues
+        return getUniqueValues(this._data, key)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
@@ -1248,11 +1217,11 @@ export default class SimpleData {
         nbTestedValues?: number
         type?: "number" | "Date"
     }): SimpleDataValue {
-        return getMin_(
+        return getMin(
             this._data,
             key,
             nbDigits,
-            this.noTests ? 0 : nbTestedValues,
+            nbTestedValues,
             type,
             this.verbose
         )
@@ -1270,11 +1239,11 @@ export default class SimpleData {
         nbTestedValues?: number
         type?: "number" | "Date"
     }): SimpleDataValue {
-        return getMax_(
+        return getMax(
             this._data,
             key,
             nbDigits,
-            this.noTests ? 0 : nbTestedValues,
+            nbTestedValues,
             type,
             this.verbose
         )
@@ -1292,11 +1261,11 @@ export default class SimpleData {
         nbTestedValues?: number
         type?: "number" | "Date"
     }): SimpleDataValue {
-        return getMean_(
+        return getMean(
             this._data,
             key,
             nbDigits,
-            this.noTests ? 0 : nbTestedValues,
+            nbTestedValues,
             type,
             this.verbose
         )
@@ -1314,11 +1283,11 @@ export default class SimpleData {
         nbTestedValues?: number
         type?: "number" | "Date"
     }): SimpleDataValue {
-        return getMedian_(
+        return getMedian(
             this._data,
             key,
             nbDigits,
-            this.noTests ? 0 : nbTestedValues,
+            nbTestedValues,
             type,
             this.verbose
         )
@@ -1334,13 +1303,7 @@ export default class SimpleData {
         nbDigits?: number
         nbTestedValues?: number
     }): SimpleDataValue {
-        return getSum_(
-            this._data,
-            key,
-            nbDigits,
-            this.noTests ? 0 : nbTestedValues,
-            this.verbose
-        )
+        return getSum(this._data, key, nbDigits, nbTestedValues, this.verbose)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
@@ -1355,18 +1318,18 @@ export default class SimpleData {
         nbDigits?: number
         nbTestedValues?: number
     }): SimpleDataValue {
-        return getQuantile_(
+        return getQuantile(
             this._data,
             key,
             quantile,
             nbDigits,
-            this.noTests ? 0 : nbTestedValues,
+            nbTestedValues,
             this.verbose
         )
     }
 
     getDuration() {
-        return this._duration
+        return this.duration
     }
 
     // *** LOGGING METHODS AND OTHERS *** //
@@ -1375,17 +1338,14 @@ export default class SimpleData {
     showTable({
         nbItemInTable = 5,
     }: { nbItemInTable?: "all" | number } = {}): this {
-        if (!this.noLogs) {
-            // TODO: test this!
-            showTable_(this._data, nbItemInTable, true)
-        }
+        showTable(this._data, nbItemInTable, true)
+
         return this
     }
 
     showDuration() {
-        if (!this.noLogs) {
-            log(`Total duration ${round(this._duration / 1000, 3)}.`)
-        }
+        log(`Total duration ${round(this.duration / 1000, 3)}.`)
+
         return this
     }
 }

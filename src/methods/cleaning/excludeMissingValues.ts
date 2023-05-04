@@ -1,16 +1,15 @@
-import log from "../../helpers/log.js"
-import toPercentage from "../../helpers/toPercentage.js"
 import {
     SimpleDataItem,
     SimpleDataValue,
 } from "../../types/SimpleData.types.js"
-import hasKey from "../../helpers/hasKey.js"
+import { log, toPercentage } from "../../exports/helpers.js"
 
 export default function excludeMissingValues(
     data: SimpleDataItem[],
     key?: string,
     missingValues: SimpleDataValue[] = [null, NaN, undefined, ""],
-    verbose = false
+    verbose = false,
+    keepMissingValuesOnly = false
 ): SimpleDataItem[] {
     let filteredData: SimpleDataItem[] = []
 
@@ -24,9 +23,9 @@ export default function excludeMissingValues(
                     break
                 }
             }
-            return check
+            return keepMissingValuesOnly ? !check : check
         })
-    } else if (hasKey(data[0], key)) {
+    } else if (Object.prototype.hasOwnProperty.call(data[0], key)) {
         filteredData = data.filter((d) => !missingValues.includes(d[key]))
     } else {
         throw new Error("No key " + key)

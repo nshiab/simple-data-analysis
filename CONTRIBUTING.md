@@ -25,15 +25,15 @@ Once the issue is published, create a new branch. By default, the name of the br
 
 If you are a contributor, create the branch within the original repository. If you are not a contributor, create it inside your forked repository.
 
-<img src="./assets/create-branch.png" alt="An Observable notebook using simple-data-analysis" style="display:block;width: 100%; max-width:600px;margin-left:auto;margin-right: auto;margin-bottom: 20px;border-radius: 5px;"/>
+![A GitHubd issue](./assets/create-branch.png)
 
 ## 3 - Do your magic
 
 Clone the repository (or forked repository), check out to your branch, and have fun!
 
-The suggested workflow is to create several tests in `test/unit/` with the expected outputs. Then add functions in `src/` and write them to pass your tests.
+The suggested workflow is to create tests in `test/unit/` with the expected outputs. Then add methods in `src/` and into the SimpleData class in `src/class/SimpleData.ts` (or in the relevant class).
 
-It's a great way to stay focused and break down the tasks into small steps.
+Then do your magic to pass the tests you created. It's a great way to stay focused and break down the tasks into small steps.
 
 We use [mocha](https://mochajs.org/) for the tests and the library is coded with [TypeScript](https://www.typescriptlang.org/). Here's how to run a specific test file with one or more tests in it:
 
@@ -47,15 +47,11 @@ If you have any questions at any step, leave a comment on the relevant issue.
 
 ## 4 - Final tests
 
-When your new code passes all your tests, you can add it to the SimpleData class in `src/class/SimpleData.ts` (or in the relevant class).
-
-Again, check how the other methods and functions are added and take them as examples.
-
-You can now move on to the integration test in `test/integration/SimpleData.test.ts` (or in the relevant class).
+When your new code passes all your tests, you can now move on to the integration test in `test/integration/SimpleData.test.ts` (or in the relevant class).
 
 Chain your method to the others and run `npm run test-simple-data` (or `npm run test-simple-data-node`) to ensure that your code works in a (somewhat) real context.
 
-When all the steps above are dealt with, it's time for the final test: run `npm run allTests`.
+When all the steps above are dealt with, it's time for the final test: `npm run allTests`.
 
 Make sure to correct any remaining problems, like linter warnings.
 
@@ -65,13 +61,13 @@ It's now time to share your wonderful work!
 
 First, you need to make sure that your code is up-to-date. Some changes could have been pushed to the main branch while you worked on your branch or forked repo.
 
-If you have conflicts, adapt your code to solve them.
+Pull the main branch and merge it to your branch. If you have conflicts, adapt your code to fix them.
 
 Don't forget to commit and push your changes.
 
 And now create a pull request! Choose your branch. Explain what you did in your code and what issue you solved.
 
-<img src="./assets/pull-request.png" alt="An Observable notebook using simple-data-analysis" style="display:block;width: 100%; max-width:600px;margin-left:auto;margin-right: auto;margin-bottom: 20px;border-radius: 5px;"/>
+![A GitHub pull request.](./assets/pull-request.png)
 
 An experienced contributor will look at your proposition. They might ask questions and suggest modifications to your code.
 

@@ -1,9 +1,6 @@
 import { flatRollup, sum } from "d3-array"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
-import hasKey from "../../helpers/hasKey.js"
-import log from "../../helpers/log.js"
-import round from "../../helpers/round.js"
 import { SimpleDataItem } from "../../types/SimpleData.types"
+import { hasKey, checkTypeOfKey, log, round } from "../../exports/helpers.js"
 
 export default function addProportions(
     data: SimpleDataItem[],
@@ -34,24 +31,9 @@ export default function addProportions(
         }
 
         for (const key of options.keys) {
-            if (!hasKey(data[0], key)) {
-                throw new Error("No key " + key + " in the data.")
-            }
-            if (hasKey(data[0], key + suffix)) {
-                throw new Error(
-                    "Your suffix is " +
-                        suffix +
-                        ", but there's already a key " +
-                        key +
-                        suffix +
-                        ". You need to choose another suffix."
-                )
-            }
-            if (!checkTypeOfKey(data, key, "number", 1, nbTestedValues)) {
-                throw new Error(
-                    "At least one value in " + key + " is not a number."
-                )
-            }
+            hasKey(data, key)
+            hasKey(data, key + suffix, true)
+            checkTypeOfKey(data, key, "number", 1, nbTestedValues)
         }
 
         verbose &&
@@ -91,26 +73,10 @@ export default function addProportions(
                 "key is undefined. You need to specify on which key the proportions will be calculated."
             )
         }
-        if (!hasKey(data[0], options.key)) {
-            throw new Error("No key named " + options.key + " in the data")
-        }
 
-        if (!checkTypeOfKey(data, options.key, "number", 1, nbTestedValues)) {
-            throw new Error(
-                `At least one value in ${options.key} is not a number.`
-            )
-        }
-
-        if (options.newKey === undefined) {
-            throw new Error(
-                "newKey is undefined. Give a name to the new key that will be created"
-            )
-        }
-        if (hasKey(data[0], options.newKey)) {
-            throw new Error(
-                "Already an key named " + options.newKey + " in the data"
-            )
-        }
+        hasKey(data, options.key)
+        checkTypeOfKey(data, options.key, "number", 1, nbTestedValues)
+        options.newKey && hasKey(data, options.newKey, true)
 
         const keyCategory =
             options.keyCategory === undefined
@@ -120,11 +86,7 @@ export default function addProportions(
                 : [options.keyCategory]
 
         for (const key of keyCategory) {
-            if (!hasKey(data[0], key)) {
-                throw new Error(
-                    "The key " + key + " does not exist in the data."
-                )
-            }
+            hasKey(data, key)
         }
 
         if (options.keys !== undefined) {
@@ -144,10 +106,9 @@ export default function addProportions(
                 total += data[i][options.key] as number
             }
             for (let i = 0; i < data.length; i++) {
-                data[i][options.newKey] = round(
-                    (data[i][options.key] as number) / total,
-                    nbDigits
-                )
+                data[i][
+                    options.newKey as string /*we are testing undefined with hasKey above*/
+                ] = round((data[i][options.key] as number) / total, nbDigits)
             }
         } else {
             const keyCategoryFunc = keyCategory.map(
@@ -181,12 +142,16 @@ export default function addProportions(
                 })
                 if (total) {
                     const totalValue = total[totalValueIndex] as number
-                    data[i][options.newKey] = round(
+                    data[i][
+                        options.newKey as string /*we are testing undefined with hasKey above*/
+                    ] = round(
                         (data[i][options.key] as number) / totalValue,
                         nbDigits
                     )
                 } else {
-                    data[i][options.newKey] === undefined
+                    data[i][
+                        options.newKey as string /*we are testing undefined with hasKey above*/
+                    ] === undefined
                 }
             }
         }

@@ -1,6 +1,7 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import sortValues from "./sortValues.js"
-import hasKey from "../../helpers/hasKey.js"
+import { hasKey } from "../../exports/helpers.js"
+import { sortValues } from "../../exports/analyzing.js"
+
 export default function addRank(
     data: SimpleDataItem[],
     newKey: string,
@@ -10,9 +11,7 @@ export default function addRank(
     handleTies?: "tieNoGaps" | "tie" | "noTie",
     locale?: string | (string | undefined | null | boolean)[]
 ): SimpleDataItem[] {
-    if (hasKey(data[0], newKey)) {
-        throw new Error(`The newKey ${newKey} already exists`)
-    }
+    hasKey(data, newKey, true)
     if (!key) {
         data.map((datum, i) => {
             datum[newKey] = i + 1

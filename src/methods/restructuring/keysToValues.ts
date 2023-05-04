@@ -1,6 +1,5 @@
-import hasKey from "../../helpers/hasKey.js"
-import log from "../../helpers/log.js"
 import { SimpleDataItem, SimpleDataValue } from "../../types/SimpleData.types"
+import { hasKey, log } from "../../exports/helpers.js"
 
 export default function keysToValues(
     data: SimpleDataItem[],
@@ -15,16 +14,10 @@ export default function keysToValues(
     if (newKeyForValues === undefined) {
         throw new Error("You need to provide a newKeyForValues")
     }
-    if (hasKey(data[0], newKeyForKeys)) {
-        throw new Error("Already a key named " + newKeyForKeys)
-    }
-    if (hasKey(data[0], newKeyForValues)) {
-        throw new Error("Already a key named " + newKeyForValues)
-    }
+    hasKey(data, newKeyForKeys, true)
+    hasKey(data, newKeyForValues, true)
     for (const key of keys) {
-        if (!hasKey(data[0], key)) {
-            throw new Error("No key " + key + " in the data")
-        }
+        hasKey(data, key)
     }
 
     const keysToKeep = Object.keys(data[0]).filter((d) => !keys.includes(d))

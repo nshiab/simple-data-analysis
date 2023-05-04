@@ -1,8 +1,7 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { range, extent } from "d3-array"
-import hasKey from "../../helpers/hasKey.js"
 import { scaleQuantize } from "d3-scale"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
+import { hasKey, checkTypeOfKey } from "../../exports/helpers.js"
 
 export default function addBins(
     data: SimpleDataItem[],
@@ -12,19 +11,13 @@ export default function addBins(
     nbTestedValues = 10000,
     verbose = false
 ): SimpleDataItem[] {
-    if (!hasKey(data[0], key)) {
-        throw new Error("No key " + key)
-    }
-    if (hasKey(data[0], newKey)) {
-        throw new Error("Already a key named " + key)
-    }
+    hasKey(data, key)
+    hasKey(data, newKey, true)
     if (nbBins < 1) {
         throw new Error("nbBins should always be > 0.")
     }
 
-    if (!checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)) {
-        throw new Error(`At least one value in ${key} is not a number.`)
-    }
+    checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
 
     const [min, max] = extent(data.map((d) => d[key] as number))
     const binGenerator = scaleQuantize()

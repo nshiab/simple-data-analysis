@@ -1,4 +1,4 @@
-import checkEnvironment from "./checkEnvironment.js"
+import { checkEnvironment } from "../exports/helpers.js"
 
 export default function log(
     valuesToLog: object | string | number,

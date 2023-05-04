@@ -1,9 +1,11 @@
-import log from "../../helpers/log.js"
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { quantile, extent } from "d3-array"
-import toPercentage from "../../helpers/toPercentage.js"
-import hasKey from "../../helpers/hasKey.js"
-import checkTypeOfKey from "../../helpers/checkTypeOfKey.js"
+import {
+    hasKey,
+    checkTypeOfKey,
+    log,
+    toPercentage,
+} from "../../exports/helpers.js"
 
 export default function addOutliers(
     data: SimpleDataItem[],
@@ -12,15 +14,9 @@ export default function addOutliers(
     nbTestedValues = 10000,
     verbose = false
 ): SimpleDataItem[] {
-    if (!hasKey(data[0], key)) {
-        throw new Error("No key " + key)
-    }
-    if (hasKey(data[0], newKey)) {
-        throw new Error("Already a key named " + key)
-    }
-    if (!checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)) {
-        throw new Error(`At least one value in ${key} is not a number.`)
-    }
+    hasKey(data, key)
+    hasKey(data, newKey, true)
+    checkTypeOfKey(data, key, "number", 1, nbTestedValues, verbose)
 
     const values = data.map((d) => d[key]) as Iterable<number>
     const q1 = quantile(values, 0.25) as number

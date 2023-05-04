@@ -1,5 +1,5 @@
 import assert from "assert"
-import renameKey from "../../../../src/methods/cleaning/renameKey.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("renameKey", function () {
     it("should rename key", function () {
@@ -7,8 +7,11 @@ describe("renameKey", function () {
             { key1: 1, key2: 2 },
             { key1: 11, key2: 22 },
         ]
-        const renamedKeys = renameKey(data, "key1", "navet")
-        assert.deepEqual(renamedKeys, [
+        const sd = new SimpleData({ data }).renameKey({
+            oldKey: "key1",
+            newKey: "navet",
+        })
+        assert.deepEqual(sd.getData(), [
             { navet: 1, key2: 2 },
             { navet: 11, key2: 22 },
         ])
@@ -19,6 +22,11 @@ describe("renameKey", function () {
             { key1: 1, key2: 2 },
             { key1: 11, key2: 22 },
         ]
-        assert.throws(() => renameKey(data, "key1", "key2"))
+        assert.throws(() =>
+            new SimpleData({ data }).renameKey({
+                oldKey: "key1",
+                newKey: "key2",
+            })
+        )
     })
 })

@@ -1,5 +1,5 @@
 import assert from "assert"
-import addBins from "../../../../src/methods/analyzing/addBins.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("addBins", function () {
     it("should add bins", function () {
@@ -10,8 +10,12 @@ describe("addBins", function () {
             { key1: 4 },
             { key1: 5 },
         ]
-        const binsData = addBins(data, "key1", "bin", 5)
-        assert.deepEqual(binsData, [
+        const sd = new SimpleData({ data }).addBins({
+            key: "key1",
+            newKey: "bin",
+            nbBins: 5,
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 1, bin: 1 },
             { key1: 2, bin: 2 },
             { key1: 3, bin: 3 },
@@ -28,8 +32,12 @@ describe("addBins", function () {
             { key1: 4 },
             { key1: 5 },
         ]
-        const binsData = addBins(data, "key1", "bin", 2)
-        assert.deepEqual(binsData, [
+        const sd = new SimpleData({ data }).addBins({
+            key: "key1",
+            newKey: "bin",
+            nbBins: 2,
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 1, bin: 1 },
             { key1: 2, bin: 1 },
             { key1: 3, bin: 2 },
@@ -46,8 +54,12 @@ describe("addBins", function () {
             { key1: 4 },
             { key1: 50 },
         ]
-        const binsData = addBins(data, "key1", "bin", 2)
-        assert.deepEqual(binsData, [
+        const sd = new SimpleData({ data }).addBins({
+            key: "key1",
+            newKey: "bin",
+            nbBins: 2,
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 1, bin: 1 },
             { key1: 2, bin: 1 },
             { key1: 3, bin: 1 },
@@ -65,8 +77,12 @@ describe("addBins", function () {
             { key1: 52 },
             { key1: 100 },
         ]
-        const binsData = addBins(data, "key1", "bin", 4)
-        assert.deepEqual(binsData, [
+        const sd = new SimpleData({ data }).addBins({
+            key: "key1",
+            newKey: "bin",
+            nbBins: 4,
+        })
+        assert.deepEqual(sd.getData(), [
             { key1: 1, bin: 1 },
             { key1: 2, bin: 1 },
             { key1: 50, bin: 2 },
@@ -78,16 +94,34 @@ describe("addBins", function () {
 
     it("should throw error if nbBins < 1", function () {
         const data = [{ key1: 1 }]
-        assert.throws(() => addBins(data, "key1", "bin", 0))
+        assert.throws(() =>
+            new SimpleData({ data }).addBins({
+                key: "key1",
+                newKey: "bin",
+                nbBins: 0,
+            })
+        )
     })
 
     it("should throw error if key does not exists", function () {
         const data = [{ key1: 1 }]
-        assert.throws(() => addBins(data, "key2", "bin", 5))
+        assert.throws(() =>
+            new SimpleData({ data }).addBins({
+                key: "key2",
+                newKey: "bin",
+                nbBins: 5,
+            })
+        )
     })
 
     it("should throw error if newKey already exists", function () {
         const data = [{ key1: 1 }]
-        assert.throws(() => addBins(data, "key1", "key1", 5))
+        assert.throws(() =>
+            new SimpleData({ data }).addBins({
+                key: "key1",
+                newKey: "key1",
+                nbBins: 5,
+            })
+        )
     })
 })

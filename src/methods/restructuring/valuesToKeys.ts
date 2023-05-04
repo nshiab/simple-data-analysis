@@ -1,8 +1,7 @@
-import hasKey from "../../helpers/hasKey.js"
-import log from "../../helpers/log.js"
 import { SimpleDataItem, SimpleDataValue } from "../../types/SimpleData.types"
-import removeDuplicates from "../cleaning/removeDuplicates.js"
-import getUniqueValues from "../exporting/getUniqueValues.js"
+import { hasKey, log } from "../../exports/helpers.js"
+import { removeDuplicates } from "../../exports/cleaning.js"
+import { getUniqueValues } from "../../exports/exporting.js"
 
 export default function valuesToKeys(
     data: SimpleDataItem[],
@@ -10,12 +9,8 @@ export default function valuesToKeys(
     newValues: string,
     verbose = false
 ) {
-    if (!hasKey(data[0], newKeys)) {
-        throw new Error("No key " + newKeys + " in the data")
-    }
-    if (!hasKey(data[0], newValues)) {
-        throw new Error("No key " + newValues + " in the data")
-    }
+    hasKey(data, newKeys)
+    hasKey(data, newValues)
 
     const keysToKeep = Object.keys(data[0]).filter(
         (d) => ![newKeys, newValues].includes(d)

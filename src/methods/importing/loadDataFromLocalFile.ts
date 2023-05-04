@@ -1,70 +1,65 @@
-import log from "../../helpers/log.js"
-import getExtension from "../../helpers/getExtension.js"
-import fs from "fs"
-import { csvParse, tsvParse, autoType as typed } from "d3-dsv"
+import { readFileSync } from "fs"
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import arraysToData from "../../helpers/arraysToData.js"
+import { log, parseDataFile, getExtension } from "../../exports/helpers.js"
 
 export default function loadDataFromLocalFile(
-    path: string,
+    path: string | string[],
     autoType = false,
     dataAsArrays = false,
     firstItem = 0,
     lastItem = Infinity,
+    nbFirstRowsToExclude = 0,
+    nbLastRowsToExclude = Infinity,
+    fillMissingKeys = false,
+    fileNameAsId = false,
     missingKeyValues: SimpleDataItem = {
         null: null,
         NaN: NaN,
         undefined: undefined,
     },
     encoding: BufferEncoding = "utf8",
-    verbose = false,
-    noTest = false
+    verbose = false
 ): SimpleDataItem[] {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let arrayOfObjects: any[] = []
+    const paths: string[] = []
+    const arrayOfObjects: SimpleDataItem[] = []
 
-    const fileExtension = getExtension(path)
+    if (typeof path === "string") {
+        paths.push(path)
+    } else {
+        paths.push(...path)
+    }
 
-    verbose && log("Detected " + fileExtension + " file extension", "blue")
+    for (const path of paths) {
+        verbose && log(`Reading ${path} with encoding ${encoding}...`, "blue")
+        const data = readFileSync(path, { encoding: encoding })
 
-    if (fileExtension === "csv" || fileExtension === "tsv") {
-        const dsvString = fs.readFileSync(path, { encoding: encoding })
+        const fileExtension = getExtension(path, verbose)
 
-        if (fileExtension === "csv") {
-            arrayOfObjects = autoType
-                ? (csvParse(dsvString, typed) as SimpleDataItem[])
-                : (csvParse(dsvString) as SimpleDataItem[])
-        } else if (fileExtension === "tsv") {
-            arrayOfObjects = autoType
-                ? (tsvParse(dsvString, typed) as SimpleDataItem[])
-                : (tsvParse(dsvString) as SimpleDataItem[])
-        }
+        const parsedData = parseDataFile(
+            data,
+            fileExtension,
+            autoType,
+            dataAsArrays,
+            firstItem,
+            lastItem,
+            nbFirstRowsToExclude,
+            nbLastRowsToExclude,
+            fillMissingKeys,
+            missingKeyValues,
+            verbose
+        )
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        delete arrayOfObjects["columns" as any]
-        arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
-
-        const keys = Object.keys(arrayOfObjects[0])
-        const missingValueKeys = Object.keys(missingKeyValues)
-
-        for (let i = 0; i < arrayOfObjects.length; i++) {
-            for (let j = 0; j < keys.length; j++) {
-                if (missingValueKeys.includes(arrayOfObjects[i][keys[j]])) {
-                    const val = arrayOfObjects[i][keys[j]]
-                    arrayOfObjects[i][keys[j]] = missingKeyValues[val]
-                }
+        if (fileNameAsId) {
+            const filePathSplit = path.split("/")
+            const fileName = filePathSplit[filePathSplit.length - 1]
+            for (let i = 0; i < parsedData.length; i++) {
+                parsedData[i].id = fileName
             }
         }
-    } else if (fileExtension === "json") {
-        const incomingData = JSON.parse(
-            fs.readFileSync(path, { encoding: encoding })
-        )
-        arrayOfObjects = dataAsArrays
-            ? arraysToData(incomingData, noTest)
-            : incomingData
-        arrayOfObjects = arrayOfObjects.slice(firstItem, lastItem + 1)
-    } else {
-        throw new Error("Unknown file extension " + fileExtension)
+
+        for (let i = 0; i < parsedData.length; i++) {
+            arrayOfObjects.push(parsedData[i])
+        }
     }
 
     return arrayOfObjects

@@ -4,15 +4,15 @@
 
 This repository is maintained by [Nael Shiab](http://naelshiab.com/), senior data producer at [CBC/Radio-Canada](https://cbc.radio-canada.ca/).
 
-If you use the library, show off your work and tag me on [Twitter](https://twitter.com/NaelShiab) or [LinkedIn](https://www.linkedin.com/in/naelshiab/)! :)
+If you use the library, show off your work and tag me on [Mastodon](https://vis.social/@naelshiab), [Twitter](https://twitter.com/NaelShiab) or [LinkedIn](https://www.linkedin.com/in/naelshiab/)! :)
 
 This project is related to [SDA-Flow](https://github.com/nshiab/simple-data-analysis-flow), which allows you to use the simple-data-analysis.js library without code. You can use it here (still under heavy development): https://nshiab.github.io/simple-data-analysis-flow/.
 
 These project's goals are:
 
-- To ease the way for non-coders (especially journalists) into the beautiful world of data analysis and data visualization in JavaScript.
+-   To ease the way for non-coders (especially journalists) into the beautiful world of data analysis and data visualization in JavaScript.
 
-- To standardize and accelerate frontend/backend workflows with a simple-to-use library working both in the browser and with NodeJS.
+-   To standardize and accelerate frontend/backend workflows with a simple-to-use library working both in the browser and with NodeJS.
 
 We are always trying to improve it. Feel free to start a conversation or open an issue, and check [how you can contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
 
@@ -29,12 +29,11 @@ The documentation is available [here](https://nshiab.github.io/simple-data-analy
 7. [Using it with ThreeJS / React-three-fiber (shaders)](#using-it-with-threejs--react-three-fiber-shaders)
 8. [SimpleData class](#simpledata-class)
 9. [SimpleDataNode class](#simpledatanode-class)
-10. [SimpleDocument class (experimental)](#simpledocument-class-experimental-for-nodejs-only)
-11. [All functions and methods](#all-functions-and-methods)
+10. [All functions and methods](#all-functions-and-methods)
 
 ## Core principles
 
-Under the hood, SDA is mainly based on [D3 modules](https://github.com/d3/d3), [Observable Plot](https://github.com/observablehq/plot) and [Lodash](https://lodash.com/). The focus is on providing code that is easy to use and understand.
+Under the hood, SDA is based on [D3 modules](https://github.com/d3/d3), [Observable Plot](https://github.com/observablehq/plot), [Lodash](https://lodash.com/) and other open-source JavaScript libraries. The focus is on providing code that is easy to use and understand.
 
 The library expects **tabular data** stored in CSV/TSV files or **arrays of objects** stored in JSON files. It works best when the data is tidy:
 
@@ -44,8 +43,29 @@ The library expects **tabular data** stored in CSV/TSV files or **arrays of obje
 
 3. Every value (or cell) is a single value
 
-For more about tidy data, you can read [this great article](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html).
+```js
+// This is an array.
+const data = [
+    // This is an item
+    {
+        // firstName is a key
+        firstName: "Nael", // "Nael" is a value
+        // lastName is a key
+        lastName: "Shiab" // "Shiab" is a value
+    },
+    // This is an other item
+    // with same keys,
+    // but different values
+    {
+        firstName: "Isabelle",
+        lastName: "Bouchard"
+    },
+    // More items...
+    ...
+]
+```
 
+For more about tidy data, you can read [this great article](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html).
 
 ## The easiest way to use the library
 
@@ -60,68 +80,87 @@ If you want to add the library directly to your webpage, you can use the minifie
 Here's an example.
 
 ```js
+// Load the library in your browser.
 <script src="https://cdn.jsdelivr.net/npm/simple-data-analysis@latest">
-    // If you have a source map warning in the console,
-    // you can use src="https://cdn.jsdelivr.net/npm/simple-data-analysis@latest/dist/simple-data-analysis.min.js"
+  // If you have a source map warning in the console,
+  // you can use src="https://cdn.jsdelivr.net/npm/simple-data-analysis@latest/dist/simple-data-analysis.min.js"
 </script>
 
 <div id="viz"></div>
 
 <script>
-    async function main() {
+  async function main() {
+    // This first part is async because
+    // we are fetching data from the web.
+    // We use 'await' to wait for the data.
+    const simpleData = await new sda.SimpleData()
+      // We retrieve some data.
+      .loadDataFromUrl({
+        url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv",
+        // CSV files are text.
+        // Automatically convert numbers, among other things.
+        autoType: true,
+      });
 
-        const simpleData = await new sda.SimpleData()
-            // We retrieve some data
-            .loadDataFromUrl({
-                url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv",
-                autoType: true // CSV files are text. Automatically convert numbers.
-            })
+    // This is now sync. No need to await anymore.
+    // We can chain methods.
+    simpleData
+      // There a duplicate in the data.
+      // We remove it.
+      .removeDuplicates()
+      // We keep items with
+      // a number as Salary value.
+      .keepNumbers({ key: "Salary" })
+      // We remove items with missing values
+      // as Job (i.e: "", null, NaN, undefined).
+      .excludeMissingValues({ key: "Job" })
+      // We compute the average Salary
+      // for each Job
+      .summarize({
+        keyValue: "Salary",
+        keyCategory: "Job",
+        // We compute the mean and get the
+        // the number of employees per Job.
+        summary: ["count", "mean"],
+        // One decimal in results.
+        nbDigits: 1,
+      })
+      // We sort by number
+      // of employees per job.
+      .sortValues({ key: "count", order: "descending" })
+      // We log the table in the console
+      .showTable();
 
-        simpleData
-            // We remove duplicate items
-            .removeDuplicates()
-            // We compute the mean of
-            // the salaries for each job
-            .summarize({
-                keyValue: "Salary",
-                keyCategory: "Job",
-                summary: "mean"
-            })
-            // We remove items with missing values
-            .excludeMissingValues()
-            // We log the table in the console
-            .showTable()
+    // We select our div with the id "viz"
+    // and we add a chart in it.
+    document.querySelector("#viz").innerHTML = simpleData
+      // getChart() returns SVG
+      // and HTML elements
+      .getChart({
+        x: "mean",
+        y: "Job",
+        color: "mean",
+        type: "barHorizontal",
+        marginLeft: 100,
+      });
+  }
 
-        // We select our div with the id "viz"
-        // and we add a chart in it.
-        document.querySelector("#viz").innerHTML =
-            simpleData
-                // getChart() returns SVG
-                // or HTML elements
-                .getChart({
-                    x: "mean",
-                    y: "Job",
-                    color: "Job",
-                    type: "barHorizontal",
-                    marginLeft: 100
-                })
-    }
-
-    main()
+  main();
 </script>
+
 ```
 
 And here's the result in the browser!
 
-<img src="./assets/webExample.png" alt="A chart of the mean salary of several jobs" style="display:block;width: 100%; max-width:400px;margin-bottom: 20px;border-radius: 5px;"/>
+![A chart of the mean salary of several jobs](./assets/web-example.png)
 
-As you can see below, SDA is a lightweight library optimized for the web (98kb ≈ 12ko).
+As you can see below, SDA is a lightweight library optimized for the web and we keep working on making it lighter.
 
-<img src="./assets/bundle-min-size.png" alt="The network tab in Google Chrome" style="display:block;width: 100%; max-width:400px;margin-bottom: 20px;border-radius: 5px;"/>
+![The network tab in Google Chrome](./assets/bundle-min-size.png)
 
 ## Working with NodeJS and JavaScript Bundlers
 
-First, make sure that your NodeJS version is 18 or higher. To check it, write ```node``` in your terminal and press Enter.
+First, make sure that your NodeJS version is 18 or higher. To check it, write `node` in your terminal and press Enter.
 
 You should see something like this.
 <img src="./assets/nodeJSVersion.png" alt="A terminal showing the NodeJS version" style="display:block;width: 100%; max-width:400px;"/>
@@ -129,11 +168,10 @@ You should see something like this.
 If the version is less than 18, update [NodeJS with the latest LTS (long-term support) version](https://nodejs.org/en/) .
 
 To install the library with [npm](https://www.npmjs.com/package/simple-data-analysis), type this command in your terminal:
+
 ```
 npm i simple-data-analysis
 ```
-
-_PS: If you have trouble installing (especially on M1 Macbooks), it's probably because of the canvas library which is used to generate charts. Go check [its repo for specific installing intructions](https://www.npmjs.com/package/canvas)._
 
 Once installed, you can import what you need.
 
@@ -150,10 +188,24 @@ If you are using NodeJS and want to read or write local files, use SimpleDataNod
 ```js
 import { SimpleDataNode } from "simple-data-analysis"
 
-const simpleData = new SimpleDataNode()
-    .loadDataFromLocalFile({
-        path: "./someFile.csv"
-    })
+const simpleData = new SimpleDataNode().loadDataFromLocalFile({
+    path: "./someFile.csv",
+})
+```
+
+And if you want to import only the functions that you need, instead of the whole class, they are available too.
+
+```js
+import { summarize} from "simple-data-analysis"
+
+const someData = [...] // array of objects
+
+const summarized = summarize(
+    someData,
+    "key1",
+    "key2",
+    ["mean", "min", "max"]
+)
 ```
 
 ## Using it with React
@@ -165,42 +217,58 @@ import { useEffect, useRef } from "react"
 import { SimpleData } from "simple-data-analysis"
 
 export default function Home() {
+    const ref = useRef()
 
-  const ref = useRef()
+    useEffect(() => {
+        fetchDataAndDrawChart()
 
-  useEffect(() => {
+        async function fetchDataAndDrawChart() {
+            const simpleData = await new SimpleData().loadDataFromUrl({
+                url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv",
+                autoType: true,
+            })
 
-    SimpleDataFromUrl()
+            simpleData
+                .removeDuplicates() // There are duplicates in the data.
+                .excludeMissingValues() // We exclude "", null, NaN, undefined.
+                .filterValues({
+                    key: "Hire date",
+                    // If we parse "07-ARB-07" to a Date,
+                    // it will throw an error.
+                    valueComparator: (val) => val !== "07-ARB-07",
+                })
+                // We convert Hire date strings to Dates.
+                .valuesToDate({ key: "Hire date", format: "%d-%b-%y" })
+                // Now we can compute the number
+                // of years of employment.
+                .addKey({
+                    key: "Seniority (in years)",
+                    itemGenerator: (item) =>
+                        (new Date().getTime() - item["Hire date"].getTime()) /
+                        (365 * 24 * 60 * 60 * 1000),
+                })
 
-    async function SimpleDataFromUrl() {
+            // We add a chart in our div, identified with a useRef()
+            ref.current.innerHTML = simpleData.getChart({
+                title: "Is there a link between salary and seniority?",
+                x: "Seniority (in years)",
+                y: "Salary",
+                type: "dot",
+                color: "Salary",
+                marginLeft: 50,
+                trend: true,
+                showTrendEquation: true,
+            })
+        }
+    }, [])
 
-      const simpleData = await new SimpleData()
-        .loadDataFromUrl({
-            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv",
-            autoType: true
-        })
-
-      ref.current.innerHTML =
-      simpleData
-        .getChart({
-            x: "Departement or unit",
-            y: "Salary",
-            type: "dot",
-            marginLeft: 50,
-            trend: true,
-            showTrendEquation: true
-        })
-    }
-  }, [])
-
-  return <div ref={ref}>
-  </div>
+    return <div style={{ margin: 10 }} ref={ref}></div>
 }
 ```
 
 Here's the result.
 
-<img src="./assets/nextjs-example.png" alt="The network tab in Google Chrome" style="display:block;width: 100%; max-width:400px;margin-bottom: 20px;border-radius: 5px;"/>
+![The network tab in Google Chrome](./assets/nextjs-example.png)
 
 ## Using it with D3
 
@@ -211,7 +279,7 @@ It works best with the data structured as an array of objects, exactly like SDA.
 ```javascript
 // Use SimpleData to prepare your data
 const simpleData = new SimpleData({
-    data: arrayOfObjects
+    data: arrayOfObjects,
 })
 // Chain methods to filter,
 // clean, summarize, etc.
@@ -226,12 +294,12 @@ svg.selectAll("circle")
         // an array of objects. Easy!
     )
     .join("circle")
-    // Keep on doing your D3 magic.
+// Keep on doing your D3 magic.
 ```
 
 ## Using it with ThreeJS / React Three Fiber (shaders)
 
-[ThreeJS](https://github.com/mrdoob/three.js/) is general purpose 3D library. Under the hood, it sends instructions to the GPU, which allows for high-performance visualizations in 2D and 3D.
+[ThreeJS](https://github.com/mrdoob/three.js/) is a general purpose 3D library. Under the hood, it sends instructions to the GPU, which allows for high-performance visualizations in 2D and 3D.
 
 [React Three Fiber](https://github.com/pmndrs/react-three-fiber) is a React renderer for ThreeJS.
 
@@ -242,7 +310,7 @@ Here's how to display points while passing custom data - from a SimpleData insta
 ```javascript
 // Use SimpleData to manipulate your data
 const simpleData = new SimpleData({
-    data: arrayOfObjects
+    data: arrayOfObjects,
 })
 // Let's imagine that you transformed your
 // data to look like this.
@@ -256,17 +324,17 @@ const simpleData = new SimpleData({
 // To pass the positions and colors as BufferAttributes,
 // you need to restructure your data as one array
 // Let's start with the positions
-const positionsKeys = ["x", "y", "z"];
+const positionsKeys = ["x", "y", "z"]
 const positions = simpleData.getArray({
-  key: positionsKeys
-});
+    key: positionsKeys,
+})
 // The returned array looks like this
 // [1, 2, 3, 4, 5, 6, 7, 8, 9, ...]
 
 // And now the colors.
 const colorsKeys = ["r", "g", "b"]
 const colors = simpleData.getArray({
-    key: colorsKeys
+    key: colorsKeys,
 })
 // The returned array looks like this
 // [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9...]
@@ -283,12 +351,12 @@ const colorsAttribute = new THREE.BufferAttribute(
 
 // Create a BufferGeometry and add your attributes
 const geometry = new THREE.BufferGeometry()
-geometry.setAttribute("position", positionsAttribute);
-geometry.setAttribute("color", colorsAttribute);
+geometry.setAttribute("position", positionsAttribute)
+geometry.setAttribute("color", colorsAttribute)
 
 const material = new THREE.ShaderMaterial({
     vertexShader: yourVertexShader,
-    fragmentShader: yourFragmentShader
+    fragmentShader: yourFragmentShader,
 })
 // If you don't want to mess with shaders,
 // you can use the PointsMaterial and
@@ -313,10 +381,9 @@ If you work with React, you can use React Three Fiber. Here's how to do the same
 // We create everything needed
 // for our BufferAttributes
 const attributes = useMemo(() => {
-
     // Use SimpleData to manipulate your data
     const simpleData = new SimpleData({
-        data: arrayOfObjects
+        data: arrayOfObjects,
     })
     // Let's imagine that you transformed your
     // data to look like this.
@@ -327,16 +394,16 @@ const attributes = useMemo(() => {
     //  ...
     // ]
 
-    const positionsKeys = ["x", "y", "z"];
+    const positionsKeys = ["x", "y", "z"]
     const positions = simpleData.getArray({
-    key: positionsKeys
-    });
+        key: positionsKeys,
+    })
     // The returned array looks this
     // [1, 2, 3, 4, 5, 6, 7, 8, 9, ...]
 
     const colorsKeys = ["r", "g", "b"]
     const colors = simpleData.getArray({
-        key: colorsKeys
+        key: colorsKeys,
     })
     // The returned array looks this
     // [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9...]
@@ -346,32 +413,33 @@ const attributes = useMemo(() => {
         positionsItemSize: positionsKeys.length,
         colors: new Float32Array(colors),
         colorsItemSize: colorsKeys.length,
-        count: simpleData.getLength()
+        count: simpleData.getLength(),
     }
-
 }, [arrayOfObjects])
 
 // We setup and return our points here.
-return <points>
-    <bufferGeometry>
-        <bufferAttribute
-            attach="attributes-position"
-            count={attributes.count}
-            itemSize={attributes.positionsItemSize}
-            array={attributes.positions}
+return (
+    <points>
+        <bufferGeometry>
+            <bufferAttribute
+                attach="attributes-position"
+                count={attributes.count}
+                itemSize={attributes.positionsItemSize}
+                array={attributes.positions}
+            />
+            <bufferAttribute
+                attach="attributes-color"
+                count={attributes.count}
+                itemSize={attributes.colorsItemSize}
+                array={attributes.colors}
+            />
+        </bufferGeometry>
+        <shaderMaterial
+            vertexShader={yourVertexShader}
+            fragmentShader={yourFragmentShader}
         />
-        <bufferAttribute
-            attach="attributes-color"
-            count={attributes.count}
-            itemSize={attributes.colorsItemSize}
-            array={attributes.colors}
-        />
-    </bufferGeometry>
-    <shaderMaterial 
-        vertexShader={yourVertexShader}
-        fragmentShader={yourFragmentShader}
-    />
-</points>
+    </points>
+)
 ```
 
 ## SimpleData class
@@ -380,11 +448,9 @@ The SimpleData class is the core of the library. Chaining methods allow you to c
 
 When you chain methods, the data is updated at each step and sent to the next one.
 
-You also have special properties to facilitate your work. If you create a SimpleData with verbose to true (like this `new SimpleDataNode({ verbose: true })`), extra information will be logged on the console at each step, like a table of your data. You can also log methods parameters with `logParameters: true`.
+You also have special properties to facilitate your work. If you create a SimpleData with verbose to true (like this `new SimpleDataNode({ verbose: true })`), extra information will be logged on the console at each step, like a table of your data.
 
-If, for some reason, you want to chain a method but not overwrite the data, you can pass `overwrite: false` to the method (like this `simpleData.summarize({ overwrite: false })`). The result of the method will be logged in the console (even if verbose is set to false), but the data passed to the next chained method will not be modified.
-
-If you are curious about how much time everything took, you can use the showDuration method (like this `simpleData.showDuration()`) to log this information. After logging, this method returns the SimpleData instance, so you can chain it anywhere you want, just like the showTable method. If you want to retrieve the duration and put it inside a variable, use getDuration (like this `simpleData.getDuration()`) which will return this information in milliseconds.
+If you are curious about how much time everything took, you can use the showDuration method (`simpleData.showDuration()`) to log this information.
 
 For a description of all methods available, check this [Observable notebook](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript) or the [automatically generated documentation](https://nshiab.github.io/simple-data-analysis.js/).
 
@@ -393,86 +459,58 @@ For a description of all methods available, check this [Observable notebook](htt
 If you use the library with NodeJS, you can import SimpleDataNode instead of SimpleData. It will give you extra methods to load local files, save files and save charts.
 
 ```js
-import { SimpleDataNode } from "simple-data-analysis";
+import { SimpleDataNode } from "simple-data-analysis"
 
 new SimpleDataNode()
+    // You can load TSV and JSON files as well.
     .loadDataFromLocalFile({
-        path: "../simple-data-analysis/data/employees.csv",
-        autoType: true
+        path: "./employees.csv",
+        autoType: true,
     })
-    // You can load TSV and JSON files as well
+    .excludeMissingValues()
+    .keepNumbers({ key: "Salary" })
     .summarize({
         keyValue: "Salary",
         keyCategory: "Job",
-        summary: "mean"
+        summary: "mean",
+        nbDigits: 1,
     })
-    .excludeMissingValues()
     .selectKeys({ keys: ["Job", "mean"] })
     .showTable()
-    .saveData({ path: "./employees.json" })
-    // You can save CSV and TSV files as well
+    // You can save CSV and TSV files as well.
     // When saving JSON files, you can restructure
-    // the data as arrays by adding dataAsArrays : true
+    // the data as arrays by adding dataAsArrays: true.
+    .saveData({ path: "./employees.json" })
+    // You need to save the charts
+    // as HTML files.
     .saveChart({
         path: "./chart.html",
         type: "barHorizontal",
         x: "mean",
         y: "Job",
         color: "Job",
-        marginLeft: 100
+        marginLeft: 100,
+        width: 300,
+        height: 200,
     })
-    // You need to save the charts
-    // as HTML files.
 ```
 
 And here's the result in VS Code!
 
-<img src="./assets/nodeExample.png" alt="A chart of the mean salary of several jobs" style="display:block;width: 100%; max-width:600px;margin-bottom: 20px;border-radius: 5px;"/>
-
-## SimpleDocument class (experimental on branch 130-simpledatadoc, for NodeJS only)
-
-While working on your analysis, it's sometimes helpful to build a document that you'll be able to share with your results.
-
-The SimpleDocument allows you to do that. You can pass JSX expressions, React components and SVG to it, and it will render everything as an HTML file or React component.
-
-Note that this class is still under heavy development.
-
-```js
-import React from "react"
-import {SimpleData, SimpleDocument, Table} from "simple-data-analysis"
-import { Typography } from "@mui/material"
-
-const someData = [...]
-// Let's say it's some employees information again.
-
-const simpleData = new SimpleData({data: someData})
-// or SimpleDataNode
-
-const simpleDocument = new SimpleDocument()
-
-simpleDocument
-    .add(<h1>Some JSX!</h1>)
-    .add(<Typography>
-        An MUI component!
-    </Typography>)
-    .add(<Table
-        keys={simpleData.getKeys()}
-        data={simpleData.getData()}
-    />)
-    .add(simpleData.getChart({
-        type: "dot",
-        x: "job",
-        y: "salary",
-        color: "union"
-    }))
-    .saveDocument('somePath/analysis.html')
-    .saveDocument('somePath/AnalysisComponent.js')
-    // saveDocument use ReactDOMServer.renderToString
-    // on everything that has been added
-
-```
+![A chart of the mean salary of several jobs](./assets/nodejs-example.png)
 
 ## All functions and methods
+
+You can import all methods independently if wanted.
+
+```js
+import { excludeMissingValues } from "simple-data-analysis"
+
+const someData = [...] // Array of objects
+
+const dataClean = excludeMissingValues(someData)
+
+```
 
 The documentation is automatically generated with [TypeDoc](https://typedoc.org/) and available here: https://nshiab.github.io/simple-data-analysis.js/.
 

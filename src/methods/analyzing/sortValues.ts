@@ -1,6 +1,6 @@
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
 import { ascending, descending, Primitive } from "d3-array"
-import hasKey from "../../helpers/hasKey.js"
+import { hasKey } from "../../exports/helpers.js"
 
 export default function sortValues(
     data: SimpleDataItem[],
@@ -27,9 +27,7 @@ export default function sortValues(
     }
 
     for (const key of keysToSort) {
-        if (!hasKey(data[0], key)) {
-            throw new Error("No key " + key)
-        }
+        hasKey(data, key)
     }
 
     if (order === "ascending") {

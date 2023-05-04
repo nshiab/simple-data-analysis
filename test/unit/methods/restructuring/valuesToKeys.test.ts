@@ -1,5 +1,5 @@
 import assert from "assert"
-import valuesToKeys from "../../../../src/methods/restructuring/valuesToKeys.js"
+import { SimpleData } from "../../../../src/index.js"
 
 describe("valuesToKeys", function () {
     it("should take two keys, one for the new keys and one for their values, and create new keys based on them", function () {
@@ -24,9 +24,11 @@ describe("valuesToKeys", function () {
             { Departement: "sales", year: "2020", nbEmployees: 27 },
         ]
 
-        const newData = valuesToKeys(data, "year", "nbEmployees")
-
-        assert.deepStrictEqual(newData, [
+        const sd = new SimpleData({ data }).valuesToKeys({
+            newKeys: "year",
+            newValues: "nbEmployees",
+        })
+        assert.deepStrictEqual(sd.getData(), [
             {
                 Departement: "accounting",
                 "2015": 10,

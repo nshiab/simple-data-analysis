@@ -26,28 +26,14 @@ async function main() {
             { first: "Nael", last: "Shiab" },
             { first: "Isabelle", last: "Bouchard" },
         ],
-        verbose: true,
-        logParameters: true,
-        noLogs: noLogs,
-    })
-
-    new SimpleData({
-        data: [{ first: "Nael", last: "Shiab" }, { first: "Isabelle" }],
-        verbose: true,
-        logParameters: true,
-        noLogs: noLogs,
-        noTests: true,
+        verbose: !noLogs,
     })
 
     const simpleData = new SimpleData({
         data: employees,
         fillMissingKeys: true,
-        verbose: true,
-        logParameters: true,
-        noLogs: noLogs,
+        verbose: !noLogs,
     })
-
-    simpleData.noTests = false
 
     // Can't use fetch with node
     // .loadDataFromUrl({
@@ -62,15 +48,18 @@ async function main() {
     simpleData.getUniqueValues({ key: "Job" })
     simpleData.getItem({ conditions: { Name: "Seo, John" } })
 
+    simpleData.clone().describe()
+
     const simpleDataClone = simpleData
-        .describe({ overwrite: false })
         .formatAllKeys()
         .clone()
         .renameKey({ oldKey: "departementOrUnit", newKey: "unit" })
         .renameKey({ oldKey: "endOfYearBonus", newKey: "bonus" })
-        .checkValues({ overwrite: false })
+
+    simpleDataClone.clone().checkValues()
+
+    simpleDataClone
         .removeDuplicates()
-        .keepMissingValues({ key: "name", overwrite: false })
         .excludeMissingValues({ key: "name" })
         .excludeMissingValues()
         .addKey({
@@ -147,7 +136,10 @@ async function main() {
         })
         .sortValues({ key: "salary", order: "descending" })
         .sortValues({ key: "bonus", order: "ascending" })
-        .selectKeys({ keys: ["firstName", "job", "bonus"], overwrite: false })
+
+    simpleDataClone.clone().selectKeys({ keys: ["firstName", "job", "bonus"] })
+
+    simpleDataClone
         .valuesToKeys({ newKeys: "unit", newValues: "bonus" })
         .keysToValues({
             keys: ["30", "40", "50", "60", "100", "110"],
@@ -247,67 +239,68 @@ async function main() {
         .addBins({ key: "bonus", newKey: "salaryBins", nbBins: 5 })
         .addOutliers({ key: "bonus", newKey: "bonusOutlier" })
         .excludeOutliers({ key: "bonus" })
-        .addProportions({
-            method: "item",
-            keys: ["salary", "bonus"],
-            overwrite: false,
-        })
-        .addProportions({
-            method: "data",
-            key: "salary",
-            newKey: "salaryPercent",
-            overwrite: false,
-            nbDigits: 5,
-        })
-        .addProportions({
-            method: "data",
-            key: "salary",
-            keyCategory: ["unitName", "job"],
-            newKey: "salaryPercent",
-            overwrite: false,
-            nbDigits: 5,
-        })
-        .addVariation({
-            key: "salary",
-            newKey: "salaryVariation",
-            valueGenerator: (a, b) => (a as number) - (b as number),
-            firstValue: 0,
-            order: "ascending",
-            overwrite: false,
-        })
-        .correlation({ overwrite: false })
-        .correlation({ key1: "salary", key2: "bonus", overwrite: false })
-        .summarize({ overwrite: false })
-        .summarize({
-            keyValue: simpleDataMerged.getKeys(),
-            keyCategory: "job",
-            overwrite: false,
-        })
-        .summarize({
-            keyValue: "salary",
-            keyCategory: ["job", "unit"],
-            overwrite: false,
-        })
-        .summarize({
-            keyValue: "salary",
-            keyCategory: "job",
-            summary: "mean",
-            overwrite: false,
-        })
-        .summarize({ keyValue: "salary", summary: "mean", overwrite: false })
-        .summarize({
-            keyValue: "salary",
-            keyCategory: "job",
-            summary: ["mean", "median"],
-            overwrite: false,
-        })
-        .summarize({
-            keyValue: "salary",
-            keyCategory: "job",
-            summary: "weightedMean",
-            weight: "bonus",
-            overwrite: false,
-        })
+
+    simpleDataMerged.clone().addProportions({
+        method: "item",
+        keys: ["salary", "bonus"],
+    })
+
+    simpleDataMerged.clone().addProportions({
+        method: "data",
+        key: "salary",
+        newKey: "salaryPercent",
+        nbDigits: 5,
+    })
+    simpleDataMerged.clone().addProportions({
+        method: "data",
+        key: "salary",
+        keyCategory: ["unitName", "job"],
+        newKey: "salaryPercent",
+        nbDigits: 5,
+    })
+    simpleDataMerged.clone().addVariation({
+        key: "salary",
+        newKey: "salaryVariation",
+        valueGenerator: (a, b) => (a as number) - (b as number),
+        firstValue: 0,
+        order: "ascending",
+    })
+    simpleDataMerged.clone().correlation()
+    simpleDataMerged.clone().correlation({ keyX: "salary", keyY: "bonus" })
+    simpleDataMerged.clone().regression({ keyX: "salary", keyY: "bonus" })
+
+    simpleDataMerged.clone().regression({
+        keyX: "salary",
+        keyY: "bonus",
+        type: "polynomial",
+        order: 4,
+    })
+    simpleDataMerged.clone().summarize()
+    simpleDataMerged.clone().summarize({
+        keyValue: ["salary", "bonus"],
+        keyCategory: "job",
+    })
+    simpleDataMerged.clone().summarize({
+        keyValue: "salary",
+        keyCategory: ["job", "unit"],
+    })
+    simpleDataMerged.clone().summarize({
+        keyValue: "salary",
+        keyCategory: "job",
+        summary: "mean",
+    })
+    simpleDataMerged.clone().summarize({ keyValue: "salary", summary: "mean" })
+    simpleDataMerged.clone().summarize({
+        keyValue: "salary",
+        keyCategory: "job",
+        summary: ["mean", "median"],
+    })
+    simpleDataMerged.clone().summarize({
+        keyValue: "salary",
+        keyCategory: "job",
+        summary: "weightedMean",
+        weight: "bonus",
+    })
 
     simpleDataMerged.valuesToDate({ key: "hireDate", format: "%Y-%m-%d" })
 
