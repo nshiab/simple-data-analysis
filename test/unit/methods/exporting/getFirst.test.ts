@@ -9,7 +9,7 @@ describe("getArray", function () {
             { key1: 111, key2: 222 },
         ]
 
-        assert.deepEqual(
+        assert.deepStrictEqual(
             { key1: 1, key2: 2 },
             new SimpleData({ data: data }).getFirst()
         )

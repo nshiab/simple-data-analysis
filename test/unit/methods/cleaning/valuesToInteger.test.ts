@@ -12,7 +12,7 @@ describe("valuesToInteger", function () {
 
         const sd = new SimpleData({ data }).valuesToInteger({ key: "key1" })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key2: 2 },
             { key1: 2, key2: 2 },
             { key1: 100000000, key2: 2 },
@@ -33,7 +33,7 @@ describe("valuesToInteger", function () {
             decimalSeparator: ",",
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key2: 2 },
             { key1: 2, key2: 2 },
             { key1: 100000000, key2: 2 },
@@ -53,7 +53,7 @@ describe("valuesToInteger", function () {
             decimalSeparator: ",",
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key2: 2 },
             { key1: 1, key2: 2 },
             { key1: 100000000, key2: 2 },
@@ -73,7 +73,7 @@ describe("valuesToInteger", function () {
             skipErrors: true,
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: "a", key2: 2 },
             { key1: 1, key2: 2 },
             { key1: 100000000, key2: 2 },
@@ -92,7 +92,7 @@ describe("valuesToInteger", function () {
             newKey: "key1x",
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: "1", key2: 2, key1x: 1 },
             { key1: "2.2", key2: 2, key1x: 2 },
             { key1: "100000000", key2: 2, key1x: 100000000 },

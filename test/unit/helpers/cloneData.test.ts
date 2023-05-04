@@ -10,6 +10,6 @@ describe("cloneData", function () {
         clonedData[0].key1 = "Hi!"
         clonedData[0].key2 = 10
 
-        assert.deepEqual(data, [{ key1: "Coucou", key2: 345 }])
+        assert.deepStrictEqual(data, [{ key1: "Coucou", key2: 345 }])
     })
 })

@@ -19,7 +19,7 @@ describe("regression", function () {
         ]
 
         const sd = new SimpleData({ data }).regression({ keyX: "x", keyY: "y" })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { keyX: "x", keyY: "y", a: -1.1064, b: 14.0811, r2: 0.8731 },
         ])
     })
@@ -39,7 +39,7 @@ describe("regression", function () {
             keyY: "y",
             type: "quadratic",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { keyX: "x", keyY: "y", a: 1.1071, b: 1, c: 0.5714, r2: 0.9884 },
         ])
     })
@@ -62,7 +62,7 @@ describe("regression", function () {
             type: "polynomial",
             order: 3,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
                 keyX: "x",
                 keyY: "y",
@@ -89,7 +89,7 @@ describe("regression", function () {
             keyY: "y",
             type: "exponential",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { keyX: "x", keyY: "y", a: 3.0331, b: 0.6909, r2: 0.9984 },
         ])
     })
@@ -133,7 +133,7 @@ describe("regression", function () {
             keyY: "y",
             type: "logarithmic",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { keyX: "x", keyY: "y", a: 0.8808, b: 4.1734, r2: 0.9584 },
         ])
     })
@@ -250,7 +250,7 @@ describe("regression", function () {
             keyY: "sales",
             type: "power",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { keyX: "rank", keyY: "sales", a: 108.7538, b: -0.627, r2: 0.832 },
         ])
     })
@@ -262,7 +262,7 @@ describe("regression", function () {
             { key1: 111, key2: 222, key3: 5 },
         ]
         const sd = new SimpleData({ data }).regression()
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { keyX: "key1", keyY: "key2", a: 2, b: 0, r2: 1 },
             { keyX: "key1", keyY: "key3", a: 0.0149, b: 3.3905, r2: 0.8176 },
             { keyX: "key2", keyY: "key3", a: 0.0074, b: 3.3905, r2: 0.8176 },
@@ -280,7 +280,7 @@ describe("regression", function () {
         ]
 
         const sd = new SimpleData({ data }).regression({ keyCategory: "key4" })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { keyX: "key1", keyY: "key2", key4: "a", a: 2, b: 0, r2: 1 },
             {
                 keyX: "key1",
@@ -333,7 +333,7 @@ describe("regression", function () {
             keyY: "key2",
             keyCategory: "key4",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { keyX: "key1", keyY: "key2", key4: "a", a: 2, b: 0, r2: 1 },
             { keyX: "key1", keyY: "key2", key4: "b", a: 2, b: 0, r2: 1 },
         ])
@@ -349,7 +349,7 @@ describe("regression", function () {
             keyX: "key1",
             keyY: ["key2", "key3"],
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { keyX: "key1", keyY: "key2", a: 2, b: 0, r2: 1 },
             { keyX: "key1", keyY: "key3", a: 0.0149, b: 3.3905, r2: 0.8176 },
         ])
@@ -362,7 +362,7 @@ describe("regression", function () {
             { key1: 111, key2: 222, key3: 5 },
         ]
         const sd = new SimpleData({ data }).regression({ keyY: [] })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { keyX: "key1", keyY: "key2", a: 2, b: 0, r2: 1 },
             { keyX: "key1", keyY: "key3", a: 0.0149, b: 3.3905, r2: 0.8176 },
             { keyX: "key2", keyY: "key3", a: 0.0074, b: 3.3905, r2: 0.8176 },
@@ -379,7 +379,7 @@ describe("regression", function () {
             keyY: [],
             nbDigits: 2,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { keyX: "key1", keyY: "key2", a: 2, b: 0, r2: 1 },
             { keyX: "key1", keyY: "key3", a: 0.01, b: 3.39, r2: 0.82 },
             { keyX: "key2", keyY: "key3", a: 0.01, b: 3.39, r2: 0.82 },

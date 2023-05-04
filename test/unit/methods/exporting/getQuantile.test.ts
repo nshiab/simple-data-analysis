@@ -13,7 +13,7 @@ const data = [
 
 describe("getQuantile", function () {
     it("should return median value 40 from key holding all numbers", function () {
-        assert.deepEqual(
+        assert.deepStrictEqual(
             new SimpleData({ data }).getQuantile({
                 key: "key1",
                 quantile: 0.5,

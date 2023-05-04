@@ -13,7 +13,10 @@ const data = [
 
 describe("getMax", function () {
     it("should return max value 99 from key holding all numbers", function () {
-        assert.deepEqual(new SimpleData({ data }).getMax({ key: "key1" }), 99)
+        assert.deepStrictEqual(
+            new SimpleData({ data }).getMax({ key: "key1" }),
+            99
+        )
     })
     it("should throw an error when different types", function () {
         assert.throws(() => new SimpleData({ data }).getMax({ key: "key2" }))
@@ -22,7 +25,7 @@ describe("getMax", function () {
         assert.throws(() => new SimpleData({ data }).getMax({ key: "key3" }))
     })
     it("should return max value when the type provided (Date)", function () {
-        assert.deepEqual(
+        assert.deepStrictEqual(
             new SimpleData({ data }).getMax({ key: "key3", type: "Date" }),
             new Date(Date.UTC(2022, 7, 7))
         )

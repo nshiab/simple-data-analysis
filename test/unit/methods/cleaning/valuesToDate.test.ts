@@ -8,7 +8,7 @@ describe("valuesToDate", function () {
             key: "key1",
             format: "%Y-%m-%d",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: new Date(Date.UTC(2022, 1, 3)), key2: 2 },
         ])
     })
@@ -21,7 +21,7 @@ describe("valuesToDate", function () {
             key: "key1",
             format: "%Y-%m-%d",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: new Date(Date.UTC(2022, 1, 3)), key2: 2 },
             { key1: new Date(Date.UTC(2022, 1, 3)), key2: 2 },
         ])
@@ -39,7 +39,7 @@ describe("valuesToDate", function () {
             format: "%Y-%m-%d",
             skipErrors: true,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: new Date(Date.UTC(2022, 1, 3)), key2: 2 },
             { key1: NaN, key2: 2 },
             { key1: "coucou", key2: 2 },
@@ -62,7 +62,7 @@ describe("valuesToDate", function () {
             format: "%Y-%m-%d",
             skipErrors: true,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
                 key1: "2022-02-03",
                 key1x: new Date(Date.UTC(2022, 1, 3)),

@@ -13,7 +13,7 @@ const data = [
 
 describe("getMedian", function () {
     it("should return median value 40 from key holding all numbers", function () {
-        assert.deepEqual(
+        assert.deepStrictEqual(
             new SimpleData({ data }).getMedian({ key: "key1" }),
             40
         )
@@ -26,7 +26,7 @@ describe("getMedian", function () {
         assert.throws(() => new SimpleData({ data }).getMedian({ key: "key3" }))
     })
     it("should return median value when the type provided (Date)", function () {
-        assert.deepEqual(
+        assert.deepStrictEqual(
             new SimpleData({ data }).getMedian({ key: "key3", type: "Date" }),
             new Date(Date.UTC(2022, 7, 4))
         )

@@ -13,7 +13,7 @@ describe("correlation", function () {
             keyX: "key1",
             keyY: "key2",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
                 correlation: 1,
                 keyX: "key1",
@@ -29,7 +29,7 @@ describe("correlation", function () {
             { key1: 111, key2: 222, key3: 5 },
         ]
         const sd = new SimpleData({ data }).correlation()
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { keyX: "key1", keyY: "key2", correlation: 1 },
             { keyX: "key1", keyY: "key3", correlation: 0.9042 },
             { keyX: "key2", keyY: "key3", correlation: 0.9042 },
@@ -46,7 +46,7 @@ describe("correlation", function () {
             { key1: 111111, key2: 222222, key3: 8, key4: "a" },
         ]
         const sd = new SimpleData({ data }).correlation({ keyCategory: "key4" })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key4: "a", keyX: "key1", keyY: "key2", correlation: 1 },
             { key4: "a", keyX: "key1", keyY: "key3", correlation: 0.7206 },
             { key4: "a", keyX: "key2", keyY: "key3", correlation: 0.7206 },
@@ -70,7 +70,7 @@ describe("correlation", function () {
             keyY: "key2",
             keyCategory: "key4",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key4: "a", keyX: "key1", keyY: "key2", correlation: 1 },
             { key4: "b", keyX: "key1", keyY: "key2", correlation: 1 },
         ])
@@ -86,7 +86,7 @@ describe("correlation", function () {
             keyX: "key1",
             keyY: ["key2", "key3"],
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
                 correlation: 1,
                 keyX: "key1",
@@ -109,7 +109,7 @@ describe("correlation", function () {
         const sd = new SimpleData({ data }).correlation({
             keyY: [],
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { keyX: "key1", keyY: "key2", correlation: 1 },
             { keyX: "key1", keyY: "key3", correlation: 0.9042 },
             { keyX: "key2", keyY: "key3", correlation: 0.9042 },
@@ -126,7 +126,7 @@ describe("correlation", function () {
             keyY: [],
             nbDigits: 2,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { keyX: "key1", keyY: "key2", correlation: 1 },
             { keyX: "key1", keyY: "key3", correlation: 0.9 },
             { keyX: "key2", keyY: "key3", correlation: 0.9 },

@@ -36,10 +36,8 @@
     },
     "scripts": {
         "test": "npx mocha \"test/unit/**/*.test.ts\"",
-        "test-simple-data": "npx ts-node-esm test/integration/SimpleData.test.ts",
-        "test-simple-data-node": "npx ts-node-esm test/integration/SimpleDataNode.test.ts",
         "test-build": "rm -rf dist && npx tsc && npx rollup --config",
-        "allTests": "npm run format && npm run test && npm run test-simple-data noLogs && npm run test-simple-data-node noLogs && npm run lint && npm run test-build",
+        "allTests": "npm run format && npm run test && npm run lint && npm run test-build",
         "build": "npm run allTests && npx tsc && npm run commit-doc",
         "rollup": "npx rollup --config",
         "doc": "npx typedoc --name Simple-data-analysis --includeVersion --readme none --out docs src/index.ts",
@@ -76,6 +74,7 @@
         "@types/lodash.uniqby": "^4.7.7",
         "@types/lodash.uniqwith": "^4.5.7",
         "@types/mocha": "^10.0.0",
+        "@types/topojson-client": "^3.1.1",
         "@typescript-eslint/eslint-plugin": "^5.59.2",
         "@typescript-eslint/parser": "^5.59.2",
         "eslint": "^8.39.0",
@@ -92,6 +91,8 @@
     "dependencies": {
         "@observablehq/plot": "^0.6.6",
         "@rollup/plugin-terser": "^0.4.1",
+        "@turf/turf": "^6.5.0",
+        "@types/topojson-specification": "^1.0.2",
         "axios": "^1.4.0",
         "d3-array": "^3.2.3",
         "d3-dsv": "^3.0.1",
@@ -107,6 +108,8 @@
         "lodash.isequal": "^4.5.0",
         "lodash.uniqby": "^4.7.0",
         "lodash.uniqwith": "^4.5.0",
-        "simple-statistics": "^7.7.5"
+        "simple-statistics": "^7.7.5",
+        "topojson": "^3.0.2",
+        "topojson-client": "^3.1.0"
     }
 }

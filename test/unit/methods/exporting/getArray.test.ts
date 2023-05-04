@@ -8,7 +8,7 @@ describe("getArray", function () {
             { key1: 11, key2: 22 },
             { key1: 111, key2: 222 },
         ]
-        assert.deepEqual(
+        assert.deepStrictEqual(
             new SimpleData({ data }).getArray({ key: "key1" }),
             [1, 11, 111]
         )
@@ -19,7 +19,7 @@ describe("getArray", function () {
             { key1: 11, key2: 22 },
             { key1: 111, key2: 222 },
         ]
-        assert.deepEqual(
+        assert.deepStrictEqual(
             new SimpleData({ data }).getArray({ key: ["key1", "key2"] }),
             [1, 2, 11, 22, 111, 222]
         )

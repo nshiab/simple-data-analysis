@@ -15,7 +15,7 @@ describe("addBins", function () {
             newKey: "bin",
             nbBins: 5,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, bin: 1 },
             { key1: 2, bin: 2 },
             { key1: 3, bin: 3 },
@@ -37,7 +37,7 @@ describe("addBins", function () {
             newKey: "bin",
             nbBins: 2,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, bin: 1 },
             { key1: 2, bin: 1 },
             { key1: 3, bin: 2 },
@@ -59,7 +59,7 @@ describe("addBins", function () {
             newKey: "bin",
             nbBins: 2,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, bin: 1 },
             { key1: 2, bin: 1 },
             { key1: 3, bin: 1 },
@@ -82,7 +82,7 @@ describe("addBins", function () {
             newKey: "bin",
             nbBins: 4,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, bin: 1 },
             { key1: 2, bin: 1 },
             { key1: 50, bin: 2 },

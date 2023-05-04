@@ -8,7 +8,7 @@ describe("addItems", function () {
             key: "key2",
             itemGenerator: (item) => (item.key1 as number) * 2,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key2: 2 },
             { key1: 2, key2: 4 },
         ])

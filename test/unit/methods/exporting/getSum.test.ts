@@ -13,7 +13,10 @@ const data = [
 
 describe("getSum", function () {
     it("should return the sum from key holding all numbers", function () {
-        assert.deepEqual(new SimpleData({ data }).getSum({ key: "key1" }), 473)
+        assert.deepStrictEqual(
+            new SimpleData({ data }).getSum({ key: "key1" }),
+            473
+        )
     })
 
     it("should throw an error when different types", function () {

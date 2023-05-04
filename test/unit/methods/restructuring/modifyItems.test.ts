@@ -15,7 +15,7 @@ describe("modifyItems", function () {
                     ? (item.key1 as number) * (item.key2 as number)
                     : undefined,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 2, key2: 2 },
             { key1: 8, key2: 4 },
         ])
@@ -34,7 +34,7 @@ describe("modifyItems", function () {
                     ? (item.key1 as number) * (item.key2 as number)
                     : undefined,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
                 key1: 1,
                 key2: 2,

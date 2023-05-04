@@ -10,7 +10,7 @@ describe("pickRandomItems", function () {
             { key1: 2, key2: 6 },
         ]
         const sd = new SimpleData({ data }).pickRandomItems({ nbItems: 2 })
-        assert.deepEqual(sd.getLength(), 2)
+        assert.deepStrictEqual(sd.getLength(), 2)
     })
 
     it("should return a random set of data, of the same length as the value provided. This random data should match the random data selected previously generated using the same seed.", function () {
@@ -24,7 +24,7 @@ describe("pickRandomItems", function () {
             nbItems: 2,
             seed: 0.2,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key2: 2 },
             { key1: 2, key2: 4 },
         ])

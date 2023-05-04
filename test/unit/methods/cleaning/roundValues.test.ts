@@ -11,7 +11,7 @@ describe("roundValues", function () {
             key: "key1",
             nbDigits: 2,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1.11, key2: 2 },
             { key1: 11.67, key2: 22 },
         ])
@@ -26,7 +26,7 @@ describe("roundValues", function () {
             nbDigits: 2,
             skipErrors: true,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1.11, key2: 2 },
             { key1: "Hi!", key2: 22 },
         ])
@@ -42,7 +42,7 @@ describe("roundValues", function () {
             newKey: "key1x",
             nbDigits: 2,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1.1111, key2: 2, key1x: 1.11 },
             { key1: 11.6666, key2: 22, key1x: 11.67 },
         ])

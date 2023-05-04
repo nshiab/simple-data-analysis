@@ -19,7 +19,7 @@ describe("keepDates", function () {
             key: "key1",
         })
 
-        assert.deepEqual(sd.getData(), [{ key1: validDate, key2: 22 }])
+        assert.deepStrictEqual(sd.getData(), [{ key1: validDate, key2: 22 }])
     })
     it("should keep only non Dates and invalid Dates", function () {
         const inValidDate = new Date("x")
@@ -39,7 +39,7 @@ describe("keepDates", function () {
             keepNonDatesOnly: true,
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: null, key2: 2 },
             { key1: NaN, key2: 3 },
             { key1: undefined, key2: 4 },

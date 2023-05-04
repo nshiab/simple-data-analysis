@@ -8,7 +8,7 @@ describe("getDataAsArrays", function () {
             { key1: 11, key2: 22 },
             { key1: 111, key2: 222 },
         ]
-        assert.deepEqual(new SimpleData({ data }).getDataAsArrays(), {
+        assert.deepStrictEqual(new SimpleData({ data }).getDataAsArrays(), {
             key1: [1, 11, 111],
             key2: [2, 22, 222],
         })

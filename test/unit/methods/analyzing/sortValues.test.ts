@@ -12,7 +12,7 @@ describe("sortValues", function () {
             key: "key1",
             order: "ascending",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key2: 2 },
             { key1: 11, key2: 22 },
             { key1: 111, key2: 222 },
@@ -29,7 +29,7 @@ describe("sortValues", function () {
             key: "key1",
             order: "descending",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 111, key2: 222 },
             { key1: 11, key2: 22 },
             { key1: 1, key2: 2 },
@@ -48,7 +48,7 @@ describe("sortValues", function () {
             order: "ascending",
             locale: "fr",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: "Autruche" },
             { key1: "Écouter" },
             { key1: "Éléphant" },
@@ -72,7 +72,7 @@ describe("sortValues", function () {
             order: "descending",
             locale: "fr",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: "Escrime" },
             { key1: "Éléphant" },
             { key1: "Écouter" },
@@ -105,7 +105,7 @@ describe("sortValues", function () {
             key: ["key1", "key2", "key3"],
             order: "ascending",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key2: "a", key3: 2 },
             { key1: 1, key2: "a", key3: 3 },
             { key1: 1, key2: "c", key3: 1 },
@@ -144,7 +144,7 @@ describe("sortValues", function () {
             order: "descending",
             locale: [false, "fr", false],
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 3, key2: "b", key3: 9 },
             { key1: 3, key2: "b", key3: 0 },
             { key1: 3, key2: "b", key3: -3 },

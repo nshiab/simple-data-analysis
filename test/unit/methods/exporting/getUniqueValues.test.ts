@@ -8,7 +8,7 @@ describe("getUniqueValues", function () {
             { key1: 111, key2: 22 },
             { key1: 111, key2: 222 },
         ]
-        assert.deepEqual(
+        assert.deepStrictEqual(
             new SimpleData({ data }).getUniqueValues({ key: "key1" }),
             [1, 111]
         )

@@ -49,7 +49,11 @@ export default [
             }),
         ],
         onwarn(message, warn) {
-            if (message.code === "CIRCULAR_DEPENDENCY") return
+            if (
+                message.code === "CIRCULAR_DEPENDENCY" ||
+                message.code === "THIS_IS_UNDEFINED"
+            )
+                return
             warn(message)
         },
     },

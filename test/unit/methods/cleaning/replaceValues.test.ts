@@ -10,7 +10,7 @@ describe("replaceValues", function () {
             newValue: "You are",
             method: "partialString",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: "You are potato", key2: "I am key2" },
         ])
     })
@@ -23,7 +23,7 @@ describe("replaceValues", function () {
             newValue: "You are potato",
             method: "entireString",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: "You are potato", key2: "I am key2" },
         ])
     })
@@ -39,7 +39,7 @@ describe("replaceValues", function () {
             oldValue: 12,
             newValue: 25,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 25, key2: "I am key2" },
             { key1: 45, key2: "I am key2" },
         ])
@@ -57,7 +57,7 @@ describe("replaceValues", function () {
             method: "partialString",
             skipErrors: true,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: "You are potato", key2: "I am key2" },
             { key1: 32, key2: "I am key2" },
         ])
@@ -73,7 +73,7 @@ describe("replaceValues", function () {
             newValue: "You are",
             method: "partialString",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: "I am potato", key1x: "You are potato", key2: "I am key2" },
         ])
     })

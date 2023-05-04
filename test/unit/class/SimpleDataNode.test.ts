@@ -16,8 +16,8 @@ describe("SimpleDataNode", function () {
         const newSimpleData = simpleData.clone()
         simpleData.removeKey({ key: "key1" })
 
-        assert.deepEqual(simpleData.getData(), [{ key2: 2 }])
-        assert.deepEqual(newSimpleData.getData(), [{ key1: 1, key2: 2 }])
+        assert.deepStrictEqual(simpleData.getData(), [{ key2: 2 }])
+        assert.deepStrictEqual(newSimpleData.getData(), [{ key1: 1, key2: 2 }])
     })
 
     it("should clone and run a method", function () {
@@ -32,12 +32,12 @@ describe("SimpleDataNode", function () {
             valueComparator: (val) => (val as number) < 5,
         })
 
-        assert.deepEqual(simpleData.getData(), [
+        assert.deepStrictEqual(simpleData.getData(), [
             { key1: 1, key2: 2 },
             { key1: 3, key2: 4 },
             { key1: 5, key2: 6 },
         ])
-        assert.deepEqual(newSimpleData.getData(), [
+        assert.deepStrictEqual(newSimpleData.getData(), [
             { key1: 1, key2: 2 },
             { key1: 3, key2: 4 },
         ])

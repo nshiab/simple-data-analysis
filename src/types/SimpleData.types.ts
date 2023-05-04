@@ -1,3 +1,5 @@
+import { Feature } from "@turf/turf"
+
 export type SimpleDataValue =
     | string
     | number
@@ -5,6 +7,7 @@ export type SimpleDataValue =
     | Date
     | null
     | undefined
+    | Feature
 
 export interface SimpleDataItem {
     [key: string]: SimpleDataValue

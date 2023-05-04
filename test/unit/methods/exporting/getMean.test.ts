@@ -13,7 +13,7 @@ const data = [
 
 describe("getMean", function () {
     it("should return mean value 39.9 from key holding all numbers", function () {
-        assert.deepEqual(
+        assert.deepStrictEqual(
             new SimpleData({ data }).getMean({ key: "key1", nbDigits: 1 }),
             39.9
         )
@@ -26,7 +26,7 @@ describe("getMean", function () {
         assert.throws(() => new SimpleData({ data }).getMean({ key: "key3" }))
     })
     it("should return mean value when the type provided (Date)", function () {
-        assert.deepEqual(
+        assert.deepStrictEqual(
             new SimpleData({ data }).getMean({ key: "key3", type: "Date" }),
             new Date(Date.UTC(2022, 7, 4))
         )

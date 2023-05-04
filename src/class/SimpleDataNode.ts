@@ -1,4 +1,3 @@
-import SimpleData from "./SimpleData.js"
 import { SimpleDataItem } from "../types/SimpleData.types"
 import { asyncLogCall, logCall } from "../exports/helpers.js"
 import {
@@ -8,13 +7,9 @@ import {
 } from "../exports/importingNode.js"
 import { saveData } from "../exports/exportingNode.js"
 import { saveChart, saveCustomChart } from "../exports/visualizingNode.js"
+import SimpleDataGeo from "./SimpleDataGeo.js"
 
-export default class SimpleDataNode extends SimpleData {
-    // If modified, might need to be modified in SimpleData too
-    #updateSimpleData(data: SimpleDataItem[]) {
-        this._data = data
-    }
-
+export default class SimpleDataNode extends SimpleDataGeo {
     // ** OVERWRITING METHODS ** //
 
     @asyncLogCall()
@@ -54,7 +49,7 @@ export default class SimpleDataNode extends SimpleData {
             missingKeyValues,
             this.verbose
         )
-        this.#updateSimpleData(data)
+        this._data = data
 
         return this
     }
@@ -93,21 +88,19 @@ export default class SimpleDataNode extends SimpleData {
             )
         }
 
-        this.#updateSimpleData(
-            loadDataFromLocalFile(
-                path,
-                autoType,
-                dataAsArrays,
-                firstItem,
-                lastItem,
-                nbFirstRowsToExclude,
-                nbLastRowsToExclude,
-                fillMissingKeys,
-                fileNameAsId,
-                missingKeyValues,
-                encoding,
-                this.verbose
-            )
+        this._data = loadDataFromLocalFile(
+            path,
+            autoType,
+            dataAsArrays,
+            firstItem,
+            lastItem,
+            nbFirstRowsToExclude,
+            nbLastRowsToExclude,
+            fillMissingKeys,
+            fileNameAsId,
+            missingKeyValues,
+            encoding,
+            this.verbose
         )
 
         return this
@@ -145,21 +138,19 @@ export default class SimpleDataNode extends SimpleData {
             )
         }
 
-        this.#updateSimpleData(
-            loadDataFromLocalDirectory(
-                path,
-                autoType,
-                dataAsArrays,
-                firstItem,
-                lastItem,
-                nbFirstRowsToExclude,
-                nbLastRowsToExclude,
-                fillMissingKeys,
-                fileNameAsId,
-                missingKeyValues,
-                encoding,
-                this.verbose
-            )
+        this._data = loadDataFromLocalDirectory(
+            path,
+            autoType,
+            dataAsArrays,
+            firstItem,
+            lastItem,
+            nbFirstRowsToExclude,
+            nbLastRowsToExclude,
+            fillMissingKeys,
+            fileNameAsId,
+            missingKeyValues,
+            encoding,
+            this.verbose
         )
 
         return this

@@ -10,7 +10,7 @@ describe("excludeOutliers", function () {
             { key1: 11111, key2: 2222 },
         ]
         const sd = new SimpleData({ data }).excludeOutliers({ key: "key1" })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key2: 2 },
             { key1: 11, key2: 22 },
             { key1: 1, key2: 222 },

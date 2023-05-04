@@ -6,18 +6,18 @@ describe("loadDataFromUrlNode", function () {
         const sd = await new SimpleDataNode().loadDataFromUrl({
             url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.csv",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
-                key1: 1,
-                key2: 2,
+                key1: "1",
+                key2: "2",
             },
             {
-                key1: 3,
+                key1: "3",
                 key2: "coucou",
             },
             {
-                key1: 8,
-                key2: 10,
+                key1: "8",
+                key2: "10",
             },
             {
                 key1: "brioche",
@@ -34,7 +34,7 @@ describe("loadDataFromUrlNode", function () {
                 "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.json",
             ],
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: "1", key2: "2" },
             { key1: "3", key2: "coucou" },
             { key1: "8", key2: "10" },
@@ -59,7 +59,7 @@ describe("loadDataFromUrlNode", function () {
             ],
             fileNameAsId: true,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: "1", key2: "2", id: "localFileTest.csv" },
             { key1: "3", key2: "coucou", id: "localFileTest.csv" },
             { key1: "8", key2: "10", id: "localFileTest.csv" },
@@ -81,14 +81,14 @@ describe("loadDataFromUrlNode", function () {
             firstItem: 1,
             lastItem: 2,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
-                key1: 3,
+                key1: "3",
                 key2: "coucou",
             },
             {
-                key1: 8,
-                key2: 10,
+                key1: "8",
+                key2: "10",
             },
         ])
     })
@@ -99,10 +99,10 @@ describe("loadDataFromUrlNode", function () {
             nbFirstRowsToExclude: 2,
             nbLastRowsToExclude: 3,
         })
-        assert.deepEqual(sd.getData(), [
-            { key1: 1, key2: 2 },
-            { key1: 3, key2: "coucou" },
-            { key1: 8, key2: 10 },
+        assert.deepStrictEqual(sd.getData(), [
+            { key1: "1", key2: "2" },
+            { key1: "3", key2: "coucou" },
+            { key1: "8", key2: "10" },
             { key1: "brioche", key2: "croissant" },
         ])
     })
@@ -115,9 +115,9 @@ describe("loadDataFromUrlNode", function () {
             nbFirstRowsToExclude: 2,
             nbLastRowsToExclude: 3,
         })
-        assert.deepEqual(sd.getData(), [
-            { key1: 3, key2: "coucou" },
-            { key1: 8, key2: 10 },
+        assert.deepStrictEqual(sd.getData(), [
+            { key1: "3", key2: "coucou" },
+            { key1: "8", key2: "10" },
         ])
     })
 
@@ -125,18 +125,18 @@ describe("loadDataFromUrlNode", function () {
         const sd = await new SimpleDataNode().loadDataFromUrl({
             url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.tsv",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
-                key1: 1,
-                key2: 2,
+                key1: "1",
+                key2: "2",
             },
             {
-                key1: 3,
+                key1: "3",
                 key2: "coucou",
             },
             {
-                key1: 8,
-                key2: 10,
+                key1: "8",
+                key2: "10",
             },
             {
                 key1: "brioche",
@@ -151,14 +151,14 @@ describe("loadDataFromUrlNode", function () {
             firstItem: 1,
             lastItem: 2,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
-                key1: 3,
+                key1: "3",
                 key2: "coucou",
             },
             {
-                key1: 8,
-                key2: 10,
+                key1: "8",
+                key2: "10",
             },
         ])
     })
@@ -167,7 +167,7 @@ describe("loadDataFromUrlNode", function () {
         const sd = await new SimpleDataNode().loadDataFromUrl({
             url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTest.json",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
                 key1: 1,
                 key2: 2,
@@ -193,7 +193,7 @@ describe("loadDataFromUrlNode", function () {
             firstItem: 1,
             lastItem: 2,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
                 key1: 3,
                 key2: "coucou",
@@ -210,7 +210,7 @@ describe("loadDataFromUrlNode", function () {
             url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/localFileTestArrays.json",
             dataAsArrays: true,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key2: 2 },
             { key1: 3, key2: "coucou" },
             { key1: 8, key2: 10 },
@@ -225,7 +225,7 @@ describe("loadDataFromUrlNode", function () {
             firstItem: 1,
             lastItem: 2,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
                 key1: 3,
                 key2: "coucou",
@@ -243,7 +243,7 @@ describe("loadDataFromUrlNode", function () {
             firstItem: 1,
             lastItem: 2,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
                 key1: 3,
                 key2: "coucou",

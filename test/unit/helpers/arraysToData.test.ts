@@ -11,7 +11,7 @@ describe("arraysToData", function () {
             false
         )
 
-        assert.deepEqual(data, [
+        assert.deepStrictEqual(data, [
             { key1: 1, key2: "a" },
             { key1: 2, key2: "b" },
             { key1: 3, key2: "c" },

@@ -39,15 +39,15 @@ describe("SimpleData", function () {
         const simpleData = new SimpleData({ data: data })
         simpleData.verbose = true
         simpleData.nbTableItemsToLog = 11
-        assert.equal(simpleData.verbose, true)
-        assert.equal(simpleData.nbTableItemsToLog, 11)
+        assert.deepStrictEqual(simpleData.verbose, true)
+        assert.deepStrictEqual(simpleData.nbTableItemsToLog, 11)
     })
 
     it("should clone", function () {
         const data = [{ key1: 1, key2: 2 }]
         const simpleData = new SimpleData({ data: data })
         const newSimpleData = simpleData.clone()
-        assert.deepEqual(data, newSimpleData.getData())
+        assert.deepStrictEqual(data, newSimpleData.getData())
     })
 
     it("should clone and return a SimpleData instance", function () {
@@ -70,13 +70,13 @@ describe("SimpleData", function () {
             valueComparator: (val) => (val as number) < 5,
         })
 
-        assert.deepEqual(simpleData.getData(), [
+        assert.deepStrictEqual(simpleData.getData(), [
             { key1: 1, key2: 2 },
             { key1: 3, key2: 4 },
             { key1: 5, key2: 6 },
         ])
 
-        assert.deepEqual(newSimpleData.getData(), [
+        assert.deepStrictEqual(newSimpleData.getData(), [
             { key1: 1, key2: 2 },
             { key1: 3, key2: 4 },
         ])
@@ -90,7 +90,7 @@ describe("SimpleData", function () {
 
         const simpleData = new SimpleData({ data: data, dataAsArrays: true })
 
-        assert.deepEqual(simpleData.getData(), [
+        assert.deepStrictEqual(simpleData.getData(), [
             { key1: 1, key2: "a" },
             { key1: 2, key2: "b" },
             { key1: 3, key2: "c" },
