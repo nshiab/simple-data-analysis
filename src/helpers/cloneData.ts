@@ -1,8 +1,11 @@
 import { FeatureCollection } from "@turf/turf"
-import { SimpleDataItem } from "../types/SimpleData.types"
+import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
 
 export default function cloneData(
-    data: SimpleDataItem[] | FeatureCollection,
+    data:
+        | SimpleDataItem[]
+        | FeatureCollection
+        | { [key: string]: SimpleDataValue[] },
     stringify = false
 ) {
     if (Array.isArray(data) && stringify === false) {
