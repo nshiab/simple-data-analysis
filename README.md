@@ -28,8 +28,9 @@ The documentation is available [here](https://nshiab.github.io/simple-data-analy
 6. [Using it with D3](#using-it-with-d3)
 7. [Using it with ThreeJS / React-three-fiber (shaders)](#using-it-with-threejs--react-three-fiber-shaders)
 8. [SimpleData class](#simpledata-class)
-9. [SimpleDataNode class](#simpledatanode-class)
-10. [All functions and methods](#all-functions-and-methods)
+9. [SimpleDataGeo class](#simpledatageo-class)
+10. [SimpleDataNode class](#simpledatanode-class)
+11. [All functions and methods](#all-functions-and-methods)
 
 ## Core principles
 
@@ -454,7 +455,7 @@ If you are curious about how much time everything took, you can use the showDura
 
 For a description of all methods available, check this [Observable notebook](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript) or the [automatically generated documentation](https://nshiab.github.io/simple-data-analysis.js/).
 
-## SimpleDataGeo
+## SimpleDataGeo class
 
 The SimpleDataGeo class inherits from SimpleData. It adds methods to work with geographic data. Currently, it's just a proof of concept. It will be improved in the future. In the meantime, you can check the [automatically generated documentation](https://nshiab.github.io/simple-data-analysis.js/).
 
