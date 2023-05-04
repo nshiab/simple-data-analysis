@@ -2,8 +2,8 @@ import assert from "assert"
 import { SimpleDataGeo } from "../../../src/index.js"
 import geoJson from "../../data/geo/canadian-census-divisions-geojson.json" assert { type: "json" }
 import topoJson from "../../data/geo/canadian-census-divisions-topojson.json" assert { type: "json" }
-import geoDataTestResult from "../../data/geo/geoDataTestResult.json" assert { type: "json" }
-import topoDataTestResult from "../../data/geo/topoDataTestResult.json" assert { type: "json" }
+import geoDataTestResult from "../../data/geo/testResults/geoData.json" assert { type: "json" }
+import topoDataTestResult from "../../data/geo/testResults/topoData.json" assert { type: "json" }
 import { FeatureCollection } from "@turf/turf"
 import { Topology } from "topojson-specification"
 
