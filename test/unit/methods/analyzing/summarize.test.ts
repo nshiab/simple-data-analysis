@@ -11,7 +11,7 @@ describe("summarize", function () {
         const sd = new SimpleData({ data }).summarize({
             nbDigits: 1,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
                 value: "key1",
                 count: 2,
@@ -56,7 +56,7 @@ describe("summarize", function () {
         const sd = new SimpleData({ data }).summarize({
             nbDigits: 1,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
                 value: "key1",
                 count: 4,
@@ -92,7 +92,7 @@ describe("summarize", function () {
             keyCategory: "key1",
             nbDigits: 1,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
                 value: "key2",
                 key1: "Rubarbe",

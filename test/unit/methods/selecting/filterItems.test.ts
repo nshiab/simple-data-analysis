@@ -16,7 +16,7 @@ describe("filterItems", function () {
                     ? item.key2 < 5 && item.key1 >= 1
                     : false,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key2: 2 },
             { key1: 2, key2: 4 },
         ])

@@ -14,7 +14,7 @@ describe("filterValues", function () {
             valueComparator: (value) =>
                 typeof value === "number" ? value < 5 : false,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 0, key2: 2 },
             { key1: 1, key2: 2 },
             { key1: 2, key2: 4 },

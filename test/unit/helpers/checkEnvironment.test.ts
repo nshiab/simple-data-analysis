@@ -4,6 +4,6 @@ import checkEnvironment from "../../../src/helpers/checkEnvironment.js"
 describe("checkEnvironment", function () {
     it("should return the environment", function () {
         const env = checkEnvironment()
-        assert.deepEqual(env, "nodejs")
+        assert.deepStrictEqual(env, "nodejs")
     })
 })

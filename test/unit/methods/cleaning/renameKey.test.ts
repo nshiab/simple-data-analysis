@@ -11,7 +11,7 @@ describe("renameKey", function () {
             oldKey: "key1",
             newKey: "navet",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { navet: 1, key2: 2 },
             { navet: 11, key2: 22 },
         ])

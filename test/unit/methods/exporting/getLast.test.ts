@@ -9,7 +9,7 @@ describe("getLast", function () {
             { key1: 111, key2: 222 },
         ]
 
-        assert.deepEqual(
+        assert.deepStrictEqual(
             { key1: 111, key2: 222 },
             new SimpleData({ data: data }).getLast()
         )

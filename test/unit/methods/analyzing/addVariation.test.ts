@@ -17,7 +17,7 @@ describe("addVariation", function () {
                 typeof a === "number" && typeof b === "number" ? a - b : NaN,
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: "yellow", key2: 12, key2Variation: undefined },
             { key1: "red", key2: 1, key2Variation: 11 },
             { key1: "blue", key2: 5, key2Variation: -4 },
@@ -40,7 +40,7 @@ describe("addVariation", function () {
                 typeof a === "number" && typeof b === "number" ? a - b : NaN,
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: "red", key2: 1, key2Variation: 0 },
             { key1: "blue", key2: 5, key2Variation: -4 },
             { key1: "yellow", key2: 12, key2Variation: -7 },
@@ -64,7 +64,7 @@ describe("addVariation", function () {
                 typeof a === "number" && typeof b === "number" ? a - b : NaN,
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: "pink", key2: 25, key2Variation: 0 },
             { key1: "yellow", key2: 12, key2Variation: 13 },
             { key1: "blue", key2: 5, key2Variation: 7 },

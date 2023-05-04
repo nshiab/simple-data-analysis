@@ -9,7 +9,7 @@ describe("modifyValues", function () {
             key: "key1",
             valueGenerator: (val) => (val as number) * 2,
         })
-        assert.deepEqual(sd.getData(), [{ key1: 2 }, { key1: 22 }])
+        assert.deepStrictEqual(sd.getData(), [{ key1: 2 }, { key1: 22 }])
     })
 
     it("should save modified values with a new key", function () {
@@ -19,7 +19,7 @@ describe("modifyValues", function () {
             newKey: "key1x",
             valueGenerator: (val) => (val as number) * 2,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key1x: 2 },
             { key1: 11, key1x: 22 },
         ])

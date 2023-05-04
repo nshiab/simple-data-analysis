@@ -8,7 +8,7 @@ describe("addItems", function () {
 
         const sd = new SimpleData({ data }).addItems({ dataToBeAdded })
 
-        assert.deepEqual(sd.getData(), [{ key1: 1 }, { key1: 2 }])
+        assert.deepStrictEqual(sd.getData(), [{ key1: 1 }, { key1: 2 }])
     })
 
     it("should add items as a SimpleData instance", function () {
@@ -17,7 +17,7 @@ describe("addItems", function () {
 
         const sd = new SimpleData({ data }).addItems({ dataToBeAdded })
 
-        assert.deepEqual(sd.getData(), [{ key1: 1 }, { key1: 2 }])
+        assert.deepStrictEqual(sd.getData(), [{ key1: 1 }, { key1: 2 }])
     })
 
     it("should add items if missing keys and fillMissingKeys is true", function () {
@@ -29,7 +29,7 @@ describe("addItems", function () {
             fillMissingKeys: true,
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key2: 2 },
             { key1: 2, key2: undefined },
         ])
@@ -59,7 +59,7 @@ describe("addItems", function () {
             fillMissingKeys: true,
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key2: undefined },
             { key1: 2, key2: 2 },
         ])
@@ -73,7 +73,7 @@ describe("addItems", function () {
             fillMissingKeys: true,
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key2: 2 },
             { key1: 2, key2: undefined },
         ])
@@ -88,7 +88,7 @@ describe("addItems", function () {
             defaultValue: 0,
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key2: 2 },
             { key1: 2, key2: 0 },
         ])
@@ -104,7 +104,7 @@ describe("addItems", function () {
             dataToBeAdded,
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 2, key2: 2 },
             { key1: 3, key2: 4 },
         ])
@@ -119,7 +119,7 @@ describe("addItems", function () {
             dataToBeAdded,
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 2, key2: 2 },
             { key1: 3, key2: 4 },
         ])

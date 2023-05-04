@@ -8,7 +8,7 @@ describe("datesToString", function () {
             key: "key1",
             format: "%Y-%m-%d",
         })
-        assert.deepEqual(sd.getData(), [{ key1: "2022-02-03", key2: 2 }])
+        assert.deepStrictEqual(sd.getData(), [{ key1: "2022-02-03", key2: 2 }])
     })
 
     it("should convert date to string and skip errors", function () {
@@ -21,7 +21,7 @@ describe("datesToString", function () {
             format: "%Y-%m-%d",
             skipErrors: true,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: "2022-02-03", key2: 2 },
             { key1: 12, key2: 2 },
         ])
@@ -34,7 +34,7 @@ describe("datesToString", function () {
             newKey: "key1x",
             format: "%Y-%m-%d",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
                 key1: new Date(Date.UTC(2022, 1, 3)),
                 key2: 2,

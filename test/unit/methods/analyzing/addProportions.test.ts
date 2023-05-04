@@ -15,7 +15,7 @@ describe("addProportions", function () {
             keys: ["key1", "key2"],
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key2: 2, key1Percent: 0.33, key2Percent: 0.67 },
             { key1: 12, key2: 21, key1Percent: 0.36, key2Percent: 0.64 },
             { key1: 145, key2: 22, key1Percent: 0.87, key2Percent: 0.13 },
@@ -41,7 +41,7 @@ describe("addProportions", function () {
             newKey: "key2Percent",
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: "yellow", key2: 1, key2Percent: 0.02 },
             { key1: "red", key2: 2, key2Percent: 0.03 },
             { key1: "yellow", key2: 5, key2Percent: 0.08 },
@@ -72,7 +72,7 @@ describe("addProportions", function () {
             keyCategory: ["key3", "key1"],
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
                 key3: "caribou",
                 key1: "yellow",

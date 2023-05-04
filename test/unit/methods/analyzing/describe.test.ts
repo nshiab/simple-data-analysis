@@ -8,7 +8,7 @@ describe("describe", function () {
             { key1: "11", key2: 22 },
         ]
         const sd = new SimpleData({ data }).describe()
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
                 nbDataPoints: 4,
                 nbItems: 2,

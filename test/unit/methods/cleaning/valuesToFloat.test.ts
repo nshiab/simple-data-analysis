@@ -5,7 +5,7 @@ describe("valuesToFloat", function () {
     it("should convert values to float", function () {
         const data = [{ key1: "1,000,000.5", key2: 2 }]
         const sd = new SimpleData({ data }).valuesToFloat({ key: "key1" })
-        assert.deepEqual(sd.getData(), [{ key1: 1000000.5, key2: 2 }])
+        assert.deepStrictEqual(sd.getData(), [{ key1: 1000000.5, key2: 2 }])
     })
 
     it("should convert French formatted numbers to float", function () {
@@ -15,7 +15,7 @@ describe("valuesToFloat", function () {
             thousandSeparator: " ",
             decimalSeparator: ",",
         })
-        assert.deepEqual(sd.getData(), [{ key1: 1000000.5, key2: 2 }])
+        assert.deepStrictEqual(sd.getData(), [{ key1: 1000000.5, key2: 2 }])
     })
 
     it("should not throw errors when floats are already here", function () {
@@ -29,7 +29,7 @@ describe("valuesToFloat", function () {
             thousandSeparator: ",",
             decimalSeparator: ".",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 12, key2: 2 },
             { key1: 1000000.5, key2: 2 },
             { key1: 1000000.75, key2: 2 },
@@ -48,7 +48,7 @@ describe("valuesToFloat", function () {
             decimalSeparator: ".",
             skipErrors: true,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 12, key2: 2 },
             { key1: 1000000.5, key2: 2 },
             { key1: "a", key2: 2 },
@@ -62,7 +62,7 @@ describe("valuesToFloat", function () {
             key: "key1",
             newKey: "key1x",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: "1,000,000.5", key2: 2, key1x: 1000000.5 },
         ])
     })

@@ -19,7 +19,7 @@ describe("checkTypeOfKey", function () {
             false,
             true
         )
-        assert.deepEqual(isNumber, true)
+        assert.deepStrictEqual(isNumber, true)
     })
 
     it("should check the type of values threshold is 1 and return false", function () {
@@ -39,7 +39,7 @@ describe("checkTypeOfKey", function () {
             false,
             true
         )
-        assert.deepEqual(isNumber, false)
+        assert.deepStrictEqual(isNumber, false)
     })
 
     it("should check the type of values threshold is 0.5 and return false", function () {
@@ -59,7 +59,7 @@ describe("checkTypeOfKey", function () {
             false,
             true
         )
-        assert.deepEqual(isNumber, false)
+        assert.deepStrictEqual(isNumber, false)
     })
     it("should check the type of values threshold is 0.5 and return true", function () {
         const data = [
@@ -78,7 +78,7 @@ describe("checkTypeOfKey", function () {
             false,
             true
         )
-        assert.deepEqual(isNumber, false)
+        assert.deepStrictEqual(isNumber, false)
     })
     it("should check detect NaN values", function () {
         const data = [
@@ -97,7 +97,7 @@ describe("checkTypeOfKey", function () {
             false,
             true
         )
-        assert.deepEqual(isNumber, false)
+        assert.deepStrictEqual(isNumber, false)
     })
     it("should check detect empty strings", function () {
         const data = [
@@ -116,7 +116,7 @@ describe("checkTypeOfKey", function () {
             false,
             true
         )
-        assert.deepEqual(isNumber, false)
+        assert.deepStrictEqual(isNumber, false)
     })
     it("should check detect invalid Dates", function () {
         const data = [
@@ -135,6 +135,6 @@ describe("checkTypeOfKey", function () {
             false,
             true
         )
-        assert.deepEqual(isNumber, false)
+        assert.deepStrictEqual(isNumber, false)
     })
 })

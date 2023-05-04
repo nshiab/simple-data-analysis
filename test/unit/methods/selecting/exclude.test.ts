@@ -17,7 +17,7 @@ describe("exclude", function () {
             value: 11,
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: null, key2: 2 },
             { key1: NaN, key2: 3 },
             { key1: undefined, key2: 4 },
@@ -40,7 +40,7 @@ describe("exclude", function () {
             value: [11, "coucou"],
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: null, key2: 2 },
             { key1: NaN, key2: 3 },
             { key1: undefined, key2: 4 },

@@ -11,7 +11,7 @@ describe("addRank", function () {
             { key1: 5 },
         ]
         const sd = new SimpleData({ data }).addRank({ newKey: "rank" })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, rank: 1 },
             { key1: 2, rank: 2 },
             { key1: 3, rank: 3 },
@@ -31,7 +31,7 @@ describe("addRank", function () {
             key: "key1",
             newKey: "key1Rank",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 111, key1Rank: 1 },
             { key1: 21, key1Rank: 3 },
             { key1: 32, key1Rank: 2 },
@@ -52,7 +52,7 @@ describe("addRank", function () {
             newKey: "key1Rank",
             handleTies: "noTie",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 111, key1Rank: 1 },
             { key1: 22, key1Rank: 2 },
             { key1: 22, key1Rank: 3 },
@@ -74,7 +74,7 @@ describe("addRank", function () {
             newKey: "key1Rank",
             handleTies: "tie",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 111, key1Rank: 1 },
             { key1: 22, key1Rank: 3 },
             { key1: 22, key1Rank: 3 },
@@ -95,7 +95,7 @@ describe("addRank", function () {
             newKey: "key1Rank",
             handleTies: "tieNoGaps",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 111, key1Rank: 1 },
             { key1: 22, key1Rank: 3 },
             { key1: 22, key1Rank: 3 },
@@ -121,15 +121,15 @@ describe("addRank", function () {
             handleTies: "tieNoGaps",
             locale: "fr",
         })
-        assert.deepEqual(sd.getData(), [
-            { key1: "Autruche", key1Rank: "5" },
-            { key1: "Éléphant", key1Rank: "2" },
-            { key1: "À la claire fontaine", key1Rank: "7" },
-            { key1: "Écouter", key1Rank: "3" },
-            { key1: "Escrime", key1Rank: "1" },
-            { key1: "Amoureux", key1Rank: "6" },
-            { key1: "Écoutant les oiseaux", key1Rank: "4" },
-            { key1: "Autruche", key1Rank: "5" },
+        assert.deepStrictEqual(sd.getData(), [
+            { key1: "Autruche", key1Rank: 5 },
+            { key1: "Éléphant", key1Rank: 2 },
+            { key1: "À la claire fontaine", key1Rank: 7 },
+            { key1: "Écouter", key1Rank: 3 },
+            { key1: "Escrime", key1Rank: 1 },
+            { key1: "Amoureux", key1Rank: 6 },
+            { key1: "Écoutant les oiseaux", key1Rank: 4 },
+            { key1: "Autruche", key1Rank: 5 },
         ])
     })
 
@@ -155,7 +155,7 @@ describe("addRank", function () {
             handleTies: "tieNoGaps",
             locale: [false, "fr", false],
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key2: "c", key3: 1, multiKey: 10 },
             { key1: 1, key2: "a", key3: 2, multiKey: 12 },
             { key1: 1, key2: "a", key3: 3, multiKey: 11 },
@@ -184,7 +184,7 @@ describe("addRank", function () {
             newKey: "key1Rank",
             sortInPlace: true,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 5, key1Rank: 1 },
             { key1: 4, key1Rank: 2 },
             { key1: 3, key1Rank: 3 },
@@ -206,7 +206,7 @@ describe("addRank", function () {
             sortInPlace: true,
             order: "ascending",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key1Rank: 1 },
             { key1: 2, key1Rank: 2 },
             { key1: 3, key1Rank: 3 },

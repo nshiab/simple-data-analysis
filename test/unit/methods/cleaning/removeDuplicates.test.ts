@@ -10,7 +10,7 @@ describe("removeDuplicates", function () {
         ]
 
         const sd = new SimpleData({ data }).removeDuplicates()
-        assert.deepEqual(sd.getData(), data)
+        assert.deepStrictEqual(sd.getData(), data)
     })
 
     it("should remove duplicates but keep one", function () {
@@ -20,7 +20,7 @@ describe("removeDuplicates", function () {
             { key1: 2, key2: 2 },
         ]
         const sd = new SimpleData({ data }).removeDuplicates()
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key2: 1 },
             { key1: 2, key2: 2 },
         ])
@@ -34,7 +34,7 @@ describe("removeDuplicates", function () {
             { id: 2, key1: 4, key2: 4 },
         ]
         const sd = new SimpleData({ data }).removeDuplicates({ key: "id" })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { id: 0, key1: 1, key2: 1 },
             { id: 1, key1: 2, key2: 2 },
             { id: 2, key1: 4, key2: 4 },
@@ -52,7 +52,7 @@ describe("removeDuplicates", function () {
             key: "id",
             keepDuplicatesOnly: true,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { id: 1, key1: 2, key2: 2 },
             { id: 1, key1: 3, key2: 3 },
         ])
@@ -68,7 +68,7 @@ describe("removeDuplicates", function () {
             key: "key1",
             nbToKeep: 0,
         })
-        assert.deepEqual(sd.getData(), [{ key1: 2, key2: 2 }])
+        assert.deepStrictEqual(sd.getData(), [{ key1: 2, key2: 2 }])
     })
 
     it("should remove duplicates with specific key but none", function () {
@@ -82,7 +82,7 @@ describe("removeDuplicates", function () {
             key: "id",
             nbToKeep: 0,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { id: 0, key1: 1, key2: 1 },
             { id: 2, key1: 4, key2: 4 },
         ])

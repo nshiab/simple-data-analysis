@@ -13,7 +13,7 @@ describe("addOutliers", function () {
             key: "key1",
             newKey: "outliers",
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, key2: 2, outliers: false },
             { key1: 11, key2: 22, outliers: false },
             { key1: 1, key2: 222, outliers: false },

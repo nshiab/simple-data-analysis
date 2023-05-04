@@ -18,7 +18,7 @@ describe("keep", function () {
             value: 11,
         })
 
-        assert.deepEqual(sd.getData(), [{ key1: 11, key2: 22 }])
+        assert.deepStrictEqual(sd.getData(), [{ key1: 11, key2: 22 }])
     })
     it("should keep only specific values", function () {
         const data = [
@@ -36,7 +36,7 @@ describe("keep", function () {
             value: [11, "coucou"],
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 11, key2: 22 },
             { key1: "coucou", key2: 22 },
         ])

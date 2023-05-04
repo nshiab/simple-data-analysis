@@ -8,6 +8,6 @@ describe("removeKey", function () {
             { key1: 2, key2: 4 },
         ]
         const sd = new SimpleData({ data }).removeKey({ key: "key2" })
-        assert.deepEqual(sd.getData(), [{ key1: 1 }, { key1: 2 }])
+        assert.deepStrictEqual(sd.getData(), [{ key1: 1 }, { key1: 2 }])
     })
 })

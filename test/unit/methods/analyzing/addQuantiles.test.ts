@@ -16,7 +16,7 @@ describe("addQuantiles", function () {
             newKey: "quantile",
             nbQuantiles: 5,
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, quantile: 1 },
             { key1: 2, quantile: 2 },
             { key1: 3, quantile: 3 },
@@ -40,7 +40,7 @@ describe("addQuantiles", function () {
             nbQuantiles: 2,
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, quantile: 1 },
             { key1: 2, quantile: 1 },
             { key1: 3, quantile: 2 },
@@ -64,7 +64,7 @@ describe("addQuantiles", function () {
             nbQuantiles: 2,
         })
 
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 1, quantile: 1 },
             { key1: 2, quantile: 1 },
             { key1: 3, quantile: 2 },

@@ -15,7 +15,7 @@ describe("checkValues", function () {
         ]
 
         const sd = new SimpleData({ data }).checkValues()
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
                 NaN: "0 | 0%",
                 count: 8,
@@ -55,7 +55,7 @@ describe("checkValues", function () {
             }
         }
         const sd = new SimpleData({ data }).checkValues({ nbItemsToCheck: 500 })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             {
                 key: "key1",
                 count: 500,
@@ -79,7 +79,7 @@ describe("checkValues", function () {
             nbItemsToCheck: 100,
             randomize: true,
         })
-        assert.deepEqual(sd.getFirst().count, 100)
+        assert.deepStrictEqual(sd.getFirst().count, 100)
     })
 
     it("should check values and all items should have the same keys", async function () {
@@ -87,7 +87,7 @@ describe("checkValues", function () {
             url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis.js/main/data/employees.csv",
         })
 
-        assert.deepEqual(sd.checkValues().getData(), [
+        assert.deepStrictEqual(sd.checkValues().getData(), [
             {
                 key: "Name",
                 count: 51,

@@ -8,7 +8,7 @@ describe("getItem", function () {
             { key1: "red", key3: "castor", key2: 22 },
             { key1: "blue", key3: "castor", key2: 222 },
         ]
-        assert.deepEqual(
+        assert.deepStrictEqual(
             new SimpleData({ data }).getItem({
                 conditions: { key1: "red", key3: "castor" },
             }),

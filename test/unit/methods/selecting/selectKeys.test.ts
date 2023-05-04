@@ -12,7 +12,7 @@ describe("selectKeys", function () {
         const sd = new SimpleData({ data }).selectKeys({
             keys: ["key1", "key2"],
         })
-        assert.deepEqual(sd.getData(), [
+        assert.deepStrictEqual(sd.getData(), [
             { key1: 0, key2: 2 },
             { key1: 1, key2: 2 },
             { key1: 2, key2: 4 },

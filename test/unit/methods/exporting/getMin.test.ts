@@ -33,7 +33,10 @@ const data = [
 
 describe("getMin", function () {
     it("should return min value 44 from key holding all numbers", function () {
-        assert.deepEqual(new SimpleData({ data }).getMin({ key: "key1" }), 44)
+        assert.deepStrictEqual(
+            new SimpleData({ data }).getMin({ key: "key1" }),
+            44
+        )
     })
 
     it("should throw an error when different types", function () {
@@ -47,10 +50,10 @@ describe("getMin", function () {
             key: "key3",
             type: "Date",
         })
-        assert.deepEqual(value, new Date(Date.UTC(2022, 7, 1)))
+        assert.deepStrictEqual(value, new Date(Date.UTC(2022, 7, 1)))
     })
     it("should return min rounded value when the nbDigits is provided", function () {
-        assert.deepEqual(
+        assert.deepStrictEqual(
             new SimpleData({ data }).getMin({ key: "key4", nbDigits: 1 }),
             -44.8
         )
