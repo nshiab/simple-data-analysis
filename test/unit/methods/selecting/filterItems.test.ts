@@ -12,7 +12,7 @@ describe("filterItems", function () {
 
         const sd = new SimpleData({ data }).filterItems({
             itemComparator: (item) =>
-                item.key2 && item.key1
+                typeof item.key2 === "number" && typeof item.key1 === "number"
                     ? item.key2 < 5 && item.key1 >= 1
                     : false,
         })

@@ -11,7 +11,8 @@ describe("filterValues", function () {
         ]
         const sd = new SimpleData({ data }).filterValues({
             key: "key2",
-            valueComparator: (value) => (value ? value < 5 : false),
+            valueComparator: (value) =>
+                typeof value === "number" ? value < 5 : false,
         })
         assert.deepEqual(sd.getData(), [
             { key1: 0, key2: 2 },

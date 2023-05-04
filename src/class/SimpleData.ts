@@ -113,7 +113,10 @@ export default class SimpleData {
         lastItem?: number
         duration?: 0
     } = {}) {
-        if (data.length > 0 || Object.keys(data).length > 0) {
+        if (
+            (Array.isArray(data) && data.length > 0) ||
+            Object.keys(data).length > 0
+        ) {
             const incomingData = dataAsArrays
                 ? cloneData(
                       arraysToData(
