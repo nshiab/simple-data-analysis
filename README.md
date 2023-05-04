@@ -454,9 +454,13 @@ If you are curious about how much time everything took, you can use the showDura
 
 For a description of all methods available, check this [Observable notebook](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript) or the [automatically generated documentation](https://nshiab.github.io/simple-data-analysis.js/).
 
+## SimpleDataGeo
+
+The SimpleDataGeo class inherits from SimpleData. It adds methods to work with geographic data. Currently, it's just a proof of concept. It will be improved in the future. In the meantime, you can check the [automatically generated documentation](https://nshiab.github.io/simple-data-analysis.js/).
+
 ## SimpleDataNode class
 
-If you use the library with NodeJS, you can import SimpleDataNode instead of SimpleData. It will give you extra methods to load local files, save files and save charts.
+If you use the library with NodeJS, you can import SimpleDataNode instead of SimpleData or SimpleDataGeo. It will give you extra methods to load local files, save files and save charts.
 
 ```js
 import { SimpleDataNode } from "simple-data-analysis"
