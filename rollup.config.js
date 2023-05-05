@@ -31,11 +31,13 @@ export default [
         input: "src/indexWeb.ts",
         output: {
             file: `dist/${meta.name}.min.js`,
-            format: "iife",
             name: "sda",
+            format: "umd",
+            indent: false,
+            extend: true,
             banner: banner,
-            inlineDynamicImports: true,
             sourcemap: true,
+            // inlineDynamicImports: true,
         },
         plugins: [
             ...commonPlugins,
