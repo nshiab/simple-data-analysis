@@ -97,7 +97,7 @@ Here's an example.
     const simpleData = await new sda.SimpleData()
       // We retrieve some data.
       .loadDataFromUrl({
-        url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv",
+        url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/employees.csv",
         // CSV files are text.
         // Automatically convert numbers, among other things.
         autoType: true,
@@ -225,7 +225,7 @@ export default function Home() {
 
         async function fetchDataAndDrawChart() {
             const simpleData = await new SimpleData().loadDataFromUrl({
-                url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/data/employees.csv",
+                url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/employees.csv",
                 autoType: true,
             })
 
