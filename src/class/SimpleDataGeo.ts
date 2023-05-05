@@ -4,7 +4,11 @@ import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
 import SimpleData from "./SimpleData.js"
 import { Topology } from "topojson-specification"
 import { feature } from "topojson-client"
-import { cloneData, geoDataToArrayOfObjects } from "../exports/helpers.js"
+import {
+    cloneData,
+    geoDataToArrayOfObjects,
+    handleMissingKeys,
+} from "../exports/helpers.js"
 import { addCentroid } from "../exports/geospatial.js"
 
 export default class SimpleDataGeo extends SimpleData {
@@ -48,10 +52,12 @@ export default class SimpleDataGeo extends SimpleData {
             )
         }
 
+        let incomingData
+
         if (geoData) {
             verbose && log("Incoming geoData")
 
-            this._data = geoDataToArrayOfObjects(
+            incomingData = geoDataToArrayOfObjects(
                 cloneData(geoData),
                 firstItem,
                 lastItem
@@ -64,10 +70,20 @@ export default class SimpleDataGeo extends SimpleData {
                 Object.keys(topoData.objects)[0]
             ) as unknown as FeatureCollection
 
-            this._data = geoDataToArrayOfObjects(
+            incomingData = geoDataToArrayOfObjects(
                 cloneData(convertedTopoData),
                 firstItem,
                 lastItem
+            )
+        }
+
+        if (incomingData !== undefined) {
+            this._data = handleMissingKeys(
+                incomingData,
+                fillMissingKeys,
+                undefined,
+                undefined,
+                verbose
             )
         }
     }

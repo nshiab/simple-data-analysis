@@ -3,6 +3,7 @@ import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types"
 
 export default function cloneData(
     data:
+        | SimpleDataItem
         | SimpleDataItem[]
         | FeatureCollection
         | { [key: string]: SimpleDataValue[] },

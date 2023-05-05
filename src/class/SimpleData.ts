@@ -129,15 +129,13 @@ export default class SimpleData {
                       lastItem + 1
                   )
 
-            handleMissingKeys(
+            this._data = handleMissingKeys(
                 incomingData,
                 fillMissingKeys,
                 undefined,
                 undefined,
                 verbose
             )
-
-            this._data = incomingData
         } else {
             verbose && log("\nnew SimpleData()\nStarting an empty SimpleData")
 
@@ -1060,17 +1058,17 @@ export default class SimpleData {
 
     // No @logCall otherwise it's triggered everywhere, including in methods
     getData(): SimpleDataItem[] {
-        return this._data
+        return cloneData(this._data)
     }
 
     // No @logCall otherwise it's triggered everywhere, including in methods
     getFirst(): SimpleDataItem {
-        return this._data[0]
+        return cloneData(this._data[0])
     }
 
     // No @logCall otherwise it's triggered everywhere, including in methods
     getLast(): SimpleDataItem {
-        return this._data[this._data.length - 1]
+        return cloneData(this._data[this._data.length - 1])
     }
 
     //No @logCall otherwise it's triggered everywhere, including in methods
