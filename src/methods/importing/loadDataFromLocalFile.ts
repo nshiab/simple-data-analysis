@@ -1,6 +1,12 @@
 import { readFileSync } from "fs"
+
 import { SimpleDataItem } from "../../types/SimpleData.types.js"
-import { log, parseDataFile, getExtension } from "../../exports/helpers.js"
+import {
+    log,
+    parseDataFile,
+    getExtension,
+    addFileNameAsValue,
+} from "../../exports/helpers.js"
 
 export default function loadDataFromLocalFile(
     path: string | string[],
@@ -11,7 +17,7 @@ export default function loadDataFromLocalFile(
     nbFirstRowsToExclude = 0,
     nbLastRowsToExclude = Infinity,
     fillMissingKeys = false,
-    fileNameAsId = false,
+    fileNameAsValue = false,
     missingKeyValues: SimpleDataItem = {
         null: null,
         NaN: NaN,
@@ -31,6 +37,7 @@ export default function loadDataFromLocalFile(
 
     for (const path of paths) {
         verbose && log(`Reading ${path} with encoding ${encoding}...`, "blue")
+
         const data = readFileSync(path, { encoding: encoding })
 
         const fileExtension = getExtension(path, verbose)
@@ -49,12 +56,8 @@ export default function loadDataFromLocalFile(
             verbose
         )
 
-        if (fileNameAsId) {
-            const filePathSplit = path.split("/")
-            const fileName = filePathSplit[filePathSplit.length - 1]
-            for (let i = 0; i < parsedData.length; i++) {
-                parsedData[i].id = fileName
-            }
+        if (fileNameAsValue) {
+            addFileNameAsValue(path, parsedData)
         }
 
         for (let i = 0; i < parsedData.length; i++) {

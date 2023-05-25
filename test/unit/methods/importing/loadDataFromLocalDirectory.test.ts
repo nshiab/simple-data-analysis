@@ -21,24 +21,24 @@ describe("loadDataFromLocalDirectory", function () {
             { key1: "brioche", key2: "croissant" },
         ])
     })
-    it("should return an array of objects from a directory with data files file id key as file name", function () {
+    it("should return an array of objects from a directory with the file name as value", function () {
         const sd = new SimpleDataNode().loadDataFromLocalDirectory({
             path: "./test/data/wholeDirectory/",
-            fileNameAsId: true,
+            fileNameAsValue: true,
         })
         assert.deepStrictEqual(sd.getData(), [
-            { key1: "1", key2: "2", id: "data.csv" },
-            { key1: "3", key2: "coucou", id: "data.csv" },
-            { key1: "8", key2: "10", id: "data.csv" },
-            { key1: "brioche", key2: "croissant", id: "data.csv" },
-            { key1: 1, key2: 2, id: "data.json" },
-            { key1: 3, key2: "coucou", id: "data.json" },
-            { key1: 8, key2: 10, id: "data.json" },
-            { key1: "brioche", key2: "croissant", id: "data.json" },
-            { key1: "1", key2: "2", id: "data.tsv" },
-            { key1: "3", key2: "coucou", id: "data.tsv" },
-            { key1: "8", key2: "10", id: "data.tsv" },
-            { key1: "brioche", key2: "croissant", id: "data.tsv" },
+            { key1: "1", key2: "2", file: "data.csv" },
+            { key1: "3", key2: "coucou", file: "data.csv" },
+            { key1: "8", key2: "10", file: "data.csv" },
+            { key1: "brioche", key2: "croissant", file: "data.csv" },
+            { key1: 1, key2: 2, file: "data.json" },
+            { key1: 3, key2: "coucou", file: "data.json" },
+            { key1: 8, key2: 10, file: "data.json" },
+            { key1: "brioche", key2: "croissant", file: "data.json" },
+            { key1: "1", key2: "2", file: "data.tsv" },
+            { key1: "3", key2: "coucou", file: "data.tsv" },
+            { key1: "8", key2: "10", file: "data.tsv" },
+            { key1: "brioche", key2: "croissant", file: "data.tsv" },
         ])
     })
 })
