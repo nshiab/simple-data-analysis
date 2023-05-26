@@ -39,28 +39,73 @@ export default async function readFileWithStream(
         })
     )
 
-    parser.on("readable", function () {
-        let item
-        while ((item = parser.read()) !== null) {
-            // Work with each record
-            if (specificKeys && specificKeys.length > 0) {
+    // Long list of options, but we don't want to check useless conditions for each item.
+    if (
+        specificKeys &&
+        specificKeys.length > 0 &&
+        typeof showItemIndexEveryX === "number"
+    ) {
+        parser.on("readable", function () {
+            let item
+            while ((item = parser.read()) !== null) {
+                if (specificKeys && specificKeys.length > 0) {
+                    const newItem: SimpleDataItem = {}
+                    for (let i = 0; i < specificKeys.length; i++) {
+                        const key = specificKeys[i]
+                        newItem[key] = item[key]
+                    }
+                    parsedData.push(newItem)
+                } else {
+                    parsedData.push(item)
+                }
+
+                if (typeof showItemIndexEveryX === "number") {
+                    index % showItemIndexEveryX === 0 &&
+                        log(`Item ${index}`, "blue")
+                    index += 1
+                }
+            }
+        })
+    } else if (
+        specificKeys &&
+        specificKeys.length > 0 &&
+        typeof showItemIndexEveryX !== "number"
+    ) {
+        parser.on("readable", function () {
+            let item
+            while ((item = parser.read()) !== null) {
                 const newItem: SimpleDataItem = {}
                 for (let i = 0; i < specificKeys.length; i++) {
                     const key = specificKeys[i]
                     newItem[key] = item[key]
                 }
                 parsedData.push(newItem)
-            } else {
+            }
+        })
+    } else if (
+        (!specificKeys || specificKeys.length === 0) &&
+        typeof showItemIndexEveryX === "number"
+    ) {
+        parser.on("readable", function () {
+            let item
+            while ((item = parser.read()) !== null) {
+                parsedData.push(item)
+
+                if (typeof showItemIndexEveryX === "number") {
+                    index % showItemIndexEveryX === 0 &&
+                        log(`Item ${index}`, "blue")
+                    index += 1
+                }
+            }
+        })
+    } else {
+        parser.on("readable", function () {
+            let item
+            while ((item = parser.read()) !== null) {
                 parsedData.push(item)
             }
-
-            if (typeof showItemIndexEveryX === "number") {
-                index % showItemIndexEveryX === 0 &&
-                    log(`Item ${index}`, "blue")
-                index += 1
-            }
-        }
-    })
+        })
+    }
 
     await finished(parser)
 }
