@@ -95,6 +95,7 @@
         "@types/topojson-specification": "^1.0.2",
         "axios": "^1.4.0",
         "csv-parse": "^5.3.10",
+        "csv-stringify": "^6.4.0",
         "d3-array": "^3.2.3",
         "d3-dsv": "^3.0.1",
         "d3-fetch": "^3.0.1",
