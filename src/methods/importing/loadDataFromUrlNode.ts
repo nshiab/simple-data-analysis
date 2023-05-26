@@ -1,6 +1,11 @@
 import axios from "axios"
 import { SimpleDataItem } from "../../types/SimpleData.types"
-import { log, parseDataFile, getExtension } from "../../exports/helpers.js"
+import {
+    log,
+    parseDataFile,
+    getExtension,
+    addFileNameAsValue,
+} from "../../exports/helpers.js"
 
 export default async function loadDataFromUrlNode(
     url: string | string[],
@@ -11,7 +16,7 @@ export default async function loadDataFromUrlNode(
     nbFirstRowsToExclude = 0,
     nbLastRowsToExclude = Infinity,
     fillMissingKeys = false,
-    fileNameAsId = false,
+    fileNameAsValue = false,
     missingKeyValues: SimpleDataItem = {
         null: null,
         NaN: NaN,
@@ -49,12 +54,8 @@ export default async function loadDataFromUrlNode(
             verbose
         )
 
-        if (fileNameAsId) {
-            const filePathSplit = url.split("/")
-            const fileName = filePathSplit[filePathSplit.length - 1]
-            for (let i = 0; i < parsedData.length; i++) {
-                parsedData[i].id = fileName
-            }
+        if (fileNameAsValue) {
+            addFileNameAsValue(url, parsedData)
         }
 
         for (let i = 0; i < parsedData.length; i++) {

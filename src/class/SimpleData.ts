@@ -155,7 +155,7 @@ export default class SimpleData {
         autoType = false,
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         fillMissingKeys = false,
-        fileNameAsId = false,
+        fileNameAsValue = false,
         dataAsArrays = false,
         firstItem = 0,
         lastItem = Infinity,
@@ -166,7 +166,7 @@ export default class SimpleData {
         autoType?: boolean
         missingKeyValues?: SimpleDataItem
         fillMissingKeys?: boolean
-        fileNameAsId?: boolean
+        fileNameAsValue?: boolean
         dataAsArrays?: boolean
         firstItem?: number
         lastItem?: number
@@ -187,7 +187,7 @@ export default class SimpleData {
             nbFirstRowsToExclude,
             nbLastRowsToExclude,
             fillMissingKeys,
-            fileNameAsId,
+            fileNameAsValue,
             missingKeyValues,
             this.verbose
         )

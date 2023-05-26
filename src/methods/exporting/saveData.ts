@@ -9,8 +9,8 @@ export default async function saveData(
     data: SimpleDataItem[],
     path: string,
     dataAsArrays: boolean,
-    verbose: boolean,
-    encoding: BufferEncoding
+    encoding: BufferEncoding,
+    verbose: boolean
 ) {
     const extension = getExtension(path, verbose)
 

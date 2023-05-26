@@ -38,29 +38,29 @@ describe("loadDataFromLocalFile", function () {
         ])
     })
 
-    it("should return an array of objects from multiple files with an id as filename", function () {
+    it("should return an array of objects from multiple files file name as value", function () {
         const sd = new SimpleDataNode().loadDataFromLocalFile({
             path: [
                 "./test/data/files/data.csv",
                 "./test/data/files/data.tsv",
                 "./test/data/files/data.json",
             ],
-            fileNameAsId: true,
+            fileNameAsValue: true,
         })
 
         assert.deepStrictEqual(sd.getData(), [
-            { key1: "1", key2: "2", id: "data.csv" },
-            { key1: "3", key2: "coucou", id: "data.csv" },
-            { key1: "8", key2: "10", id: "data.csv" },
-            { key1: "brioche", key2: "croissant", id: "data.csv" },
-            { key1: "1", key2: "2", id: "data.tsv" },
-            { key1: "3", key2: "coucou", id: "data.tsv" },
-            { key1: "8", key2: "10", id: "data.tsv" },
-            { key1: "brioche", key2: "croissant", id: "data.tsv" },
-            { key1: 1, key2: 2, id: "data.json" },
-            { key1: 3, key2: "coucou", id: "data.json" },
-            { key1: 8, key2: 10, id: "data.json" },
-            { key1: "brioche", key2: "croissant", id: "data.json" },
+            { key1: "1", key2: "2", file: "data.csv" },
+            { key1: "3", key2: "coucou", file: "data.csv" },
+            { key1: "8", key2: "10", file: "data.csv" },
+            { key1: "brioche", key2: "croissant", file: "data.csv" },
+            { key1: "1", key2: "2", file: "data.tsv" },
+            { key1: "3", key2: "coucou", file: "data.tsv" },
+            { key1: "8", key2: "10", file: "data.tsv" },
+            { key1: "brioche", key2: "croissant", file: "data.tsv" },
+            { key1: 1, key2: 2, file: "data.json" },
+            { key1: 3, key2: "coucou", file: "data.json" },
+            { key1: 8, key2: 10, file: "data.json" },
+            { key1: "brioche", key2: "croissant", file: "data.json" },
         ])
     })
 

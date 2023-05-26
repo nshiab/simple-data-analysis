@@ -14,6 +14,7 @@ import parseDataFile from "../helpers/parseDataFile.js"
 import plotChart from "../helpers/plotChart.js"
 import round from "../helpers/round.js"
 import toPercentage from "../helpers/toPercentage.js"
+import addFileNameAsValue from "../helpers/addFileNameAsValue.js"
 import showTable from "../helpers/showTable.js"
 // GEO
 import geoDataToArrayOfObjects from "../helpers/geoDataToArrayOfObjects.js"
@@ -36,6 +37,7 @@ export {
     plotChart,
     round,
     toPercentage,
+    addFileNameAsValue,
     showTable,
     geoDataToArrayOfObjects,
 }

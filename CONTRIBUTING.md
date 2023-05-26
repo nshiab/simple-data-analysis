@@ -47,11 +47,7 @@ If you have any questions at any step, leave a comment on the relevant issue.
 
 ## 4 - Final tests
 
-When your new code passes all your tests, you can now move on to the integration test in `test/integration/SimpleData.test.ts` (or in the relevant class).
-
-Chain your method to the others and run `npm run test-simple-data` (or `npm run test-simple-data-node`) to ensure that your code works in a (somewhat) real context.
-
-When all the steps above are dealt with, it's time for the final test: `npm run allTests`.
+When all the steps above are dealt with, it's time to run the final test `npm run allTests` which will also build the library with your changes.
 
 Make sure to correct any remaining problems, like linter warnings.
 
