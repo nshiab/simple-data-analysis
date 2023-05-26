@@ -193,11 +193,19 @@ export default class SimpleDataNode extends SimpleDataGeo {
     async saveDataWithStream({
         path,
         encoding = "utf8",
+        showItemIndexEveryX,
     }: {
         path: string
         encoding?: BufferEncoding
+        showItemIndexEveryX?: undefined | number | false
     }): Promise<this> {
-        await saveDataWithStream(this._data, path, encoding, this.verbose)
+        await saveDataWithStream(
+            this._data,
+            path,
+            encoding,
+            showItemIndexEveryX,
+            this.verbose
+        )
 
         return this
     }

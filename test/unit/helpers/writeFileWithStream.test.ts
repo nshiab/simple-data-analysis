@@ -13,6 +13,7 @@ describe("writeFileWithStream", function () {
             data,
             "./test/output/dataWrittenWithStream.csv",
             "utf8",
+            false,
             true
         )
     })

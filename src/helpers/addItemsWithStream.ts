@@ -55,7 +55,8 @@ export default async function readFileWithStream(
             }
 
             if (typeof showItemIndexEveryX === "number") {
-                index % showItemIndexEveryX === 0 && log(`Item ${index}`)
+                index % showItemIndexEveryX === 0 &&
+                    log(`Item ${index}`, "blue")
                 index += 1
             }
         }
