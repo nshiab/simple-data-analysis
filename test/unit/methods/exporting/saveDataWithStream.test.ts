@@ -1,4 +1,10 @@
+import { existsSync, mkdirSync } from "fs"
 import { SimpleDataNode } from "../../../../src/index.js"
+
+const outputPath = "./test/output/"
+if (!existsSync(outputPath)) {
+    mkdirSync(outputPath)
+}
 
 describe("saveDataWithStream", function () {
     it("should save the data as a csv file with stream", async function () {
@@ -8,7 +14,7 @@ describe("saveDataWithStream", function () {
             { key1: 111, key2: 222 },
         ]
         await new SimpleDataNode({ data }).saveDataWithStream({
-            path: "./test/output/savedDataWithStream.csv",
+            path: `${outputPath}savedDataWithStream.csv`,
         })
     })
 })

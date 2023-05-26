@@ -1,6 +1,6 @@
 node_modules
 dist/
-test/output
+test/output/
 .DS_Store
 bundleSizeUMD.html
 bundleSizeMin.html
