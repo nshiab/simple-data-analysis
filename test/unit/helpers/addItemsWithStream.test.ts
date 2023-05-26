@@ -11,7 +11,6 @@ describe("addItemsWithStream", function () {
             "utf8",
             false
         )
-        console.log(data)
 
         assert.deepStrictEqual(data, [
             { key1: "1", key2: "2" },
@@ -28,7 +27,6 @@ describe("addItemsWithStream", function () {
             "utf8",
             false
         )
-        console.log(data)
 
         assert.deepStrictEqual(data, [
             { key1: "1", key2: "2" },

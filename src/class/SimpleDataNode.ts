@@ -6,7 +6,7 @@ import {
     loadDataFromLocalDirectory,
     loadDataWithStream,
 } from "../exports/importingNode.js"
-import { saveData } from "../exports/exportingNode.js"
+import { saveData, saveDataWithStream } from "../exports/exportingNode.js"
 import { saveChart, saveCustomChart } from "../exports/visualizingNode.js"
 import SimpleDataGeo from "./SimpleDataGeo.js"
 
@@ -184,6 +184,18 @@ export default class SimpleDataNode extends SimpleDataGeo {
     }
 
     @logCall()
+    saveDataWithStream({
+        path,
+        encoding = "utf8",
+    }: {
+        path: string
+        encoding?: BufferEncoding
+    }): this {
+        saveDataWithStream(this._data, path, encoding, this.verbose)
+
+        return this
+    }
+    @logCall()
     saveData({
         path,
         dataAsArrays = false,
@@ -193,7 +205,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
         dataAsArrays?: boolean
         encoding?: BufferEncoding
     }): this {
-        saveData(this._data, path, dataAsArrays, this.verbose, encoding)
+        saveData(this._data, path, dataAsArrays, encoding, this.verbose)
 
         return this
     }

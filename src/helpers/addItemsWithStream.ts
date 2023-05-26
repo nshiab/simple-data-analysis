@@ -37,7 +37,7 @@ export default function readFileWithStream(
                 reject()
             })
             .on("end", () => {
-                verbose && log(`Done with ${path}`)
+                verbose && log(`Done with ${path}`, "blue")
                 resolve()
             })
     })
