@@ -6,6 +6,7 @@ export default async function loadDataWithStream(
     path: string | string[],
     fileNameAsValue: boolean,
     encoding: BufferEncoding,
+    showItemIndexEveryX: undefined | number | false,
     verbose: boolean
 ) {
     const paths: string[] = []
@@ -20,7 +21,13 @@ export default async function loadDataWithStream(
 
     for (const path of paths) {
         const parsedData: SimpleDataItem[] = []
-        await addItemsWithStream(parsedData, path, encoding, verbose)
+        await addItemsWithStream(
+            parsedData,
+            path,
+            encoding,
+            showItemIndexEveryX,
+            verbose
+        )
         if (fileNameAsValue) {
             addFileNameAsValue(path, parsedData)
         }

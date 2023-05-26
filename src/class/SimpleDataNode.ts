@@ -112,10 +112,12 @@ export default class SimpleDataNode extends SimpleDataGeo {
         path,
         fileNameAsValue = false,
         encoding = "utf8",
+        showItemIndexEveryX,
     }: {
         path: string | string[]
         fileNameAsValue?: boolean
         encoding?: BufferEncoding
+        showItemIndexEveryX?: number | false
     }): Promise<this> {
         if (this._data.length > 0) {
             throw new Error(
@@ -127,6 +129,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
             path,
             fileNameAsValue,
             encoding,
+            showItemIndexEveryX,
             this.verbose
         )
 

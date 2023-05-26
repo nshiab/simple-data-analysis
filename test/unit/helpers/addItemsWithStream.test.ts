@@ -9,6 +9,7 @@ describe("addItemsWithStream", function () {
             data,
             "./test/data/files/data.csv",
             "utf8",
+            false,
             false
         )
 
@@ -25,6 +26,7 @@ describe("addItemsWithStream", function () {
             data,
             "./test/data/files/data.tsv",
             "utf8",
+            false,
             false
         )
 
