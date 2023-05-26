@@ -107,7 +107,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
         return this
     }
 
-    @logCall()
+    @asyncLogCall()
     async loadDataWithStream({
         path,
         fileNameAsValue = false,
@@ -183,15 +183,15 @@ export default class SimpleDataNode extends SimpleDataGeo {
         return this
     }
 
-    @logCall()
-    saveDataWithStream({
+    @asyncLogCall()
+    async saveDataWithStream({
         path,
         encoding = "utf8",
     }: {
         path: string
         encoding?: BufferEncoding
-    }): this {
-        saveDataWithStream(this._data, path, encoding, this.verbose)
+    }): Promise<this> {
+        await saveDataWithStream(this._data, path, encoding, this.verbose)
 
         return this
     }
