@@ -110,11 +110,13 @@ export default class SimpleDataNode extends SimpleDataGeo {
     @asyncLogCall()
     async loadDataWithStream({
         path,
+        specificKeys,
         fileNameAsValue = false,
         encoding = "utf8",
         showItemIndexEveryX,
     }: {
         path: string | string[]
+        specificKeys?: string[] | false
         fileNameAsValue?: boolean
         encoding?: BufferEncoding
         showItemIndexEveryX?: number | false
@@ -127,6 +129,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
 
         this._data = await loadDataWithStream(
             path,
+            specificKeys,
             fileNameAsValue,
             encoding,
             showItemIndexEveryX,

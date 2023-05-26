@@ -4,6 +4,7 @@ import { SimpleDataItem } from "../../types/SimpleData.types"
 
 export default async function loadDataWithStream(
     path: string | string[],
+    specificKeys: undefined | false | string[],
     fileNameAsValue: boolean,
     encoding: BufferEncoding,
     showItemIndexEveryX: undefined | number | false,
@@ -24,6 +25,7 @@ export default async function loadDataWithStream(
         await addItemsWithStream(
             parsedData,
             path,
+            specificKeys,
             encoding,
             showItemIndexEveryX,
             verbose
