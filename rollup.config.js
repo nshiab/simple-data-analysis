@@ -46,7 +46,7 @@ export default [
                     preamble: banner,
                 },
             }),
-            visualizer((opts) => {
+            visualizer(() => {
                 return { gzipSize: true, filename: "bundleSizeMin.html" }
             }),
         ],

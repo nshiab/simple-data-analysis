@@ -37,8 +37,8 @@
     "scripts": {
         "test": "npx mocha \"test/unit/**/*.test.ts\"",
         "test-build": "rm -rf dist && npx tsc && npx rollup --config",
-        "allTests": "npm run format && npm run test && npm run lint && npm run test-build",
-        "build": "npm run allTests && npx tsc && npm run commit-doc",
+        "all-tests": "npm run format && npm run test && npm run lint && npm run test-build",
+        "build": "npm run all-tests && npx tsc && npm run commit-doc",
         "rollup": "npx rollup --config",
         "doc": "npx typedoc --name Simple-data-analysis --includeVersion --readme none --out docs src/index.ts",
         "commit-doc": "git checkout main && npm run doc && git add docs/ && git commit -m 'update documentation' && git push",
