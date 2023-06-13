@@ -96,4 +96,16 @@ describe("SimpleData", function () {
             { key1: 3, key2: "c" },
         ])
     })
+
+    it("should empty the data in the SimpleData instance", function () {
+        const data = [
+            { key1: 1, key2: "a" },
+            { key1: 2, key2: "b" },
+            { key1: 3, key2: "c" },
+        ]
+
+        const simpleData = new SimpleData({ data: data }).empty()
+
+        assert.deepStrictEqual(simpleData.getData(), [])
+    })
 })

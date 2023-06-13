@@ -1236,6 +1236,12 @@ export default class SimpleData {
 
     // *** LOGGING METHODS AND OTHERS *** //
 
+    @logCall()
+    empty() {
+        this._data = []
+        return this
+    }
+
     // No log call, otherwise the table is shown twice.
     showTable({
         nbItemInTable = 5,

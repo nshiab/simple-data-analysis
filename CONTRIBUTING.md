@@ -47,7 +47,7 @@ If you have any questions at any step, leave a comment on the relevant issue.
 
 ## 4 - Final tests
 
-When all the steps above are dealt with, it's time to run the final test `npm run allTests` which will also build the library with your changes.
+When all the steps above are dealt with, it's time to run the final test `npm run all-tests` which will also build the library with your changes.
 
 Make sure to correct any remaining problems, like linter warnings.
 
