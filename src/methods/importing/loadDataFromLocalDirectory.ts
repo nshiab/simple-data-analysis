@@ -23,6 +23,7 @@ export default function loadDataFromLocalDirectory(
         undefined: undefined,
     },
     encoding: BufferEncoding = "utf8",
+    format: undefined | "csv" | "tsv" | "json" = undefined,
     verbose = false
 ): SimpleDataItem[] {
     const files = readdirSync(path)
@@ -37,7 +38,7 @@ export default function loadDataFromLocalDirectory(
             log(`Reading ${filePath} with encoding ${encoding}...`, "blue")
         const data = readFileSync(filePath, { encoding: encoding })
 
-        const fileExtension = getExtension(filePath, verbose)
+        const fileExtension = format ? format : getExtension(filePath, verbose)
         const parsedData = parseDataFile(
             data,
             fileExtension,

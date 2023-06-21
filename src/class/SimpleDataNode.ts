@@ -25,6 +25,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
         lastItem = Infinity,
         nbFirstRowsToExclude = 0,
         nbLastRowsToExclude = Infinity,
+        format = undefined,
     }: {
         url: string | string[]
         autoType?: boolean
@@ -36,6 +37,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
         lastItem?: number
         nbFirstRowsToExclude?: number
         nbLastRowsToExclude?: number
+        format?: "csv" | "tsv" | "json"
     }): Promise<this> {
         const data = await loadDataFromUrl(
             url,
@@ -48,6 +50,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
             fillMissingKeys,
             fileNameAsValue,
             missingKeyValues,
+            format,
             this.verbose
         )
         this._data = data
@@ -70,6 +73,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
         lastItem = Infinity,
         nbFirstRowsToExclude = 0,
         nbLastRowsToExclude = Infinity,
+        format = undefined,
     }: {
         path: string | string[]
         autoType?: boolean
@@ -82,6 +86,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
         lastItem?: number
         nbFirstRowsToExclude?: number
         nbLastRowsToExclude?: number
+        format?: "csv" | "tsv" | "json"
     }): this {
         if (this._data.length > 0) {
             throw new Error(
@@ -100,6 +105,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
             fillMissingKeys,
             fileNameAsValue,
             missingKeyValues,
+            format,
             encoding,
             this.verbose
         )
@@ -114,12 +120,14 @@ export default class SimpleDataNode extends SimpleDataGeo {
         fileNameAsValue = false,
         encoding = "utf8",
         showItemIndexEveryX,
+        format = undefined,
     }: {
         path: string | string[]
         specificKeys?: string[] | false
         fileNameAsValue?: boolean
         encoding?: BufferEncoding
         showItemIndexEveryX?: number | false
+        format?: "csv" | "tsv"
     }): Promise<this> {
         if (this._data.length > 0) {
             throw new Error(
@@ -133,6 +141,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
             fileNameAsValue,
             encoding,
             showItemIndexEveryX,
+            format,
             this.verbose
         )
 
@@ -152,6 +161,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
         lastItem = Infinity,
         nbFirstRowsToExclude = 0,
         nbLastRowsToExclude = Infinity,
+        format = undefined,
     }: {
         path: string
         autoType?: boolean
@@ -164,6 +174,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
         lastItem?: number
         nbFirstRowsToExclude?: number
         nbLastRowsToExclude?: number
+        format?: "csv" | "tsv" | "json"
     }): this {
         if (this._data.length > 0) {
             throw new Error(
@@ -183,6 +194,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
             fileNameAsValue,
             missingKeyValues,
             encoding,
+            format,
             this.verbose
         )
 

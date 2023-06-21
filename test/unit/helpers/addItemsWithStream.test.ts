@@ -11,6 +11,7 @@ describe("addItemsWithStream", function () {
             false,
             "utf8",
             false,
+            undefined,
             false
         )
 
@@ -29,6 +30,7 @@ describe("addItemsWithStream", function () {
             ["key2"],
             "utf8",
             false,
+            undefined,
             false
         )
 
@@ -47,6 +49,7 @@ describe("addItemsWithStream", function () {
             false,
             "utf8",
             false,
+            undefined,
             false
         )
 

@@ -11,13 +11,14 @@ export default async function readFileWithStream(
     specificKeys: undefined | false | string[],
     encoding: BufferEncoding,
     showItemIndexEveryX: undefined | number | false,
+    format: undefined | "csv" | "tsv" = undefined,
     verbose: boolean
 ): Promise<void> {
     if (parsedData.length > 0) {
         throw Error("Already data in there")
     }
 
-    const fileExtension = getExtension(path, verbose)
+    const fileExtension = format ? format : getExtension(path, verbose)
 
     if (!["csv", "tsv"].includes(fileExtension)) {
         throw new Error("stream works with csv and tsv files only.")

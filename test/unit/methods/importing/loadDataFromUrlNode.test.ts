@@ -26,6 +26,31 @@ describe("loadDataFromUrlNode", function () {
         ])
     })
 
+    it("should return an array of objects from a text file with a csv format", async function () {
+        const sd = await new SimpleDataNode().loadDataFromUrl({
+            url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/data.txt",
+            format: "csv",
+        })
+        assert.deepStrictEqual(sd.getData(), [
+            {
+                key1: "1",
+                key2: "2",
+            },
+            {
+                key1: "3",
+                key2: "coucou",
+            },
+            {
+                key1: "8",
+                key2: "10",
+            },
+            {
+                key1: "brioche",
+                key2: "croissant",
+            },
+        ])
+    })
+
     it("should return an array of objects from multiple files", async function () {
         const sd = await new SimpleDataNode().loadDataFromUrl({
             url: [
@@ -33,6 +58,31 @@ describe("loadDataFromUrlNode", function () {
                 "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/data.tsv",
                 "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/data.json",
             ],
+        })
+        assert.deepStrictEqual(sd.getData(), [
+            { key1: "1", key2: "2" },
+            { key1: "3", key2: "coucou" },
+            { key1: "8", key2: "10" },
+            { key1: "brioche", key2: "croissant" },
+            { key1: "1", key2: "2" },
+            { key1: "3", key2: "coucou" },
+            { key1: "8", key2: "10" },
+            { key1: "brioche", key2: "croissant" },
+            { key1: 1, key2: 2 },
+            { key1: 3, key2: "coucou" },
+            { key1: 8, key2: 10 },
+            { key1: "brioche", key2: "croissant" },
+        ])
+    })
+
+    it("should return an array of objects from multiple files with a specific format", async function () {
+        const sd = await new SimpleDataNode().loadDataFromUrl({
+            url: [
+                "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/wholeDirectoryText/data1.txt",
+                "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/wholeDirectoryText/data2.txt",
+                "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/wholeDirectoryText/data3.txt",
+            ],
+            format: "csv",
         })
         assert.deepStrictEqual(sd.getData(), [
             { key1: "1", key2: "2" },
