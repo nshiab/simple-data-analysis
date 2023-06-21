@@ -8,6 +8,7 @@ export default async function loadDataWithStream(
     fileNameAsValue: boolean,
     encoding: BufferEncoding,
     showItemIndexEveryX: undefined | number | false,
+    format: undefined | "csv" | "tsv" = undefined,
     verbose: boolean
 ) {
     const paths: string[] = []
@@ -28,6 +29,7 @@ export default async function loadDataWithStream(
             specificKeys,
             encoding,
             showItemIndexEveryX,
+            format,
             verbose
         )
         if (fileNameAsValue) {

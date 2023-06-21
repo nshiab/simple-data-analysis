@@ -22,6 +22,7 @@ export default async function loadDataFromUrlNode(
         NaN: NaN,
         undefined: undefined,
     },
+    format: undefined | "csv" | "tsv" | "json" = undefined,
     verbose = false
 ): Promise<SimpleDataItem[]> {
     const urls: string[] = []
@@ -38,7 +39,7 @@ export default async function loadDataFromUrlNode(
         const request = await axios.get(url)
         const data = request.data
 
-        const fileExtension = getExtension(url, verbose)
+        const fileExtension = format ? format : getExtension(url, verbose)
 
         const parsedData = parseDataFile(
             data,

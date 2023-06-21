@@ -21,6 +21,7 @@ export default async function loadDataFromUrlWeb(
         NaN: NaN,
         undefined: undefined,
     },
+    format: undefined | "csv" | "tsv" | "json" = undefined,
     verbose = false
 ): Promise<SimpleDataItem[]> {
     const urls: string[] = []
@@ -38,7 +39,7 @@ export default async function loadDataFromUrlWeb(
         const request = await fetch(url)
         const data = await request.text()
 
-        const fileExtension = getExtension(url, verbose)
+        const fileExtension = format ? format : getExtension(url, verbose)
 
         const parsedData = parseDataFile(
             data,

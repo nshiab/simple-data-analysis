@@ -23,6 +23,7 @@ export default function loadDataFromLocalFile(
         NaN: NaN,
         undefined: undefined,
     },
+    format: undefined | "csv" | "tsv" | "json" = undefined,
     encoding: BufferEncoding = "utf8",
     verbose = false
 ): SimpleDataItem[] {
@@ -40,7 +41,7 @@ export default function loadDataFromLocalFile(
 
         const data = readFileSync(path, { encoding: encoding })
 
-        const fileExtension = getExtension(path, verbose)
+        const fileExtension = format ? format : getExtension(path, verbose)
 
         const parsedData = parseDataFile(
             data,

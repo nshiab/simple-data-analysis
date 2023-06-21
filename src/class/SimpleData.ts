@@ -161,6 +161,7 @@ export default class SimpleData {
         lastItem = Infinity,
         nbFirstRowsToExclude = 0,
         nbLastRowsToExclude = Infinity,
+        format = undefined,
     }: {
         url: string | string[]
         autoType?: boolean
@@ -172,6 +173,7 @@ export default class SimpleData {
         lastItem?: number
         nbFirstRowsToExclude?: number
         nbLastRowsToExclude?: number
+        format?: "csv" | "tsv" | "json"
     }): Promise<this> {
         if (this._data.length > 0) {
             throw new Error(
@@ -189,6 +191,7 @@ export default class SimpleData {
             fillMissingKeys,
             fileNameAsValue,
             missingKeyValues,
+            format,
             this.verbose
         )
 
