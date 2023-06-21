@@ -89,14 +89,14 @@ describe("loadDataFromUrlNode", function () {
             { key1: "3", key2: "coucou" },
             { key1: "8", key2: "10" },
             { key1: "brioche", key2: "croissant" },
-            { key1: "1", key2: "2" },
-            { key1: "3", key2: "coucou" },
-            { key1: "8", key2: "10" },
-            { key1: "brioche", key2: "croissant" },
-            { key1: 1, key2: 2 },
-            { key1: 3, key2: "coucou" },
-            { key1: 8, key2: 10 },
-            { key1: "brioche", key2: "croissant" },
+            { key1: "5", key2: "6" },
+            { key1: "miam", key2: "patate" },
+            { key1: "89", key2: "2" },
+            { key1: "brb", key2: "tbh" },
+            { key1: "10", key2: "20" },
+            { key1: "30", key2: "hi" },
+            { key1: "1", key2: "0" },
+            { key1: "testing", key2: "extension" },
         ])
     })
 
