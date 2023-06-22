@@ -12,6 +12,7 @@ export default async function readFileWithStream(
     encoding: BufferEncoding,
     showItemIndexEveryX: undefined | number | false,
     format: undefined | "csv" | "tsv" = undefined,
+    headers: undefined | string[] = undefined,
     verbose: boolean
 ): Promise<void> {
     if (parsedData.length > 0) {
@@ -35,7 +36,7 @@ export default async function readFileWithStream(
     const parser = createReadStream(path).pipe(
         parse({
             delimiter: delimiter,
-            columns: true,
+            columns: Array.isArray(headers) ? headers : true,
             encoding: encoding,
         })
     )

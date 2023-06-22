@@ -22,6 +22,7 @@ export default async function loadDataFromUrlWeb(
         undefined: undefined,
     },
     format: undefined | "csv" | "tsv" | "json" = undefined,
+    headers: undefined | string[] = undefined,
     verbose = false
 ): Promise<SimpleDataItem[]> {
     const urls: string[] = []
@@ -52,6 +53,7 @@ export default async function loadDataFromUrlWeb(
             nbLastRowsToExclude,
             fillMissingKeys,
             missingKeyValues,
+            headers,
             verbose
         )
 

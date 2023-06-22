@@ -12,6 +12,27 @@ describe("addItemsWithStream", function () {
             "utf8",
             false,
             undefined,
+            undefined,
+            false
+        )
+
+        assert.deepStrictEqual(data, [
+            { key1: "1", key2: "2" },
+            { key1: "3", key2: "coucou" },
+            { key1: "8", key2: "10" },
+            { key1: "brioche", key2: "croissant" },
+        ])
+    })
+    it("should return the data in a csv file without headers while using stream", async function () {
+        const data: SimpleDataItem[] = []
+        await addItemsWithStream(
+            data,
+            "./test/data/files/dataNoHeaders.csv",
+            false,
+            "utf8",
+            false,
+            undefined,
+            ["key1", "key2"],
             false
         )
 
@@ -31,6 +52,7 @@ describe("addItemsWithStream", function () {
             "utf8",
             false,
             undefined,
+            undefined,
             false
         )
 
@@ -49,6 +71,7 @@ describe("addItemsWithStream", function () {
             false,
             "utf8",
             false,
+            undefined,
             undefined,
             false
         )
