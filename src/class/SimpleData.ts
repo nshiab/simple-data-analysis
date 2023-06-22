@@ -30,6 +30,7 @@ import {
 } from "../exports/cleaning.js"
 import {
     getDataAsArrays,
+    getDataAsCSV,
     getMax,
     getMean,
     getMedian,
@@ -1106,6 +1107,11 @@ export default class SimpleData {
     // No @logCall for methods starting with get. It's not returning a simpleData class
     getDataAsArrays() {
         return getDataAsArrays(cloneData(this._data))
+    }
+
+    // No @logCall for methods starting with get. It's not returning a simpleData class
+    getDataAsCSV() {
+        return getDataAsCSV(this._data)
     }
 
     // No @logCall for methods starting with get. It's not returning a simpleData class
