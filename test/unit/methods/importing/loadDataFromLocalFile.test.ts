@@ -14,6 +14,19 @@ describe("loadDataFromLocalFile", function () {
         ])
     })
 
+    it("should return an array of objects from a csv file without headers", function () {
+        const sd = new SimpleDataNode().loadDataFromLocalFile({
+            path: "./test/data/files/dataNoHeaders.csv",
+            headers: ["key1", "key2"],
+        })
+        assert.deepStrictEqual(sd.getData(), [
+            { key1: "1", key2: "2" },
+            { key1: "3", key2: "coucou" },
+            { key1: "8", key2: "10" },
+            { key1: "brioche", key2: "croissant" },
+        ])
+    })
+
     it("should return an array of objects from a text file but with a specific format", function () {
         const sd = new SimpleDataNode().loadDataFromLocalFile({
             path: "./test/data/files/data.txt",

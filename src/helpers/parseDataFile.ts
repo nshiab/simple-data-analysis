@@ -17,6 +17,7 @@ export default function parseDataFile(
         NaN: NaN,
         undefined: undefined,
     },
+    headers: undefined | string[] = undefined,
     verbose = false
 ): SimpleDataItem[] {
     verbose && log(`Parsing the data...`, "blue")
@@ -35,7 +36,17 @@ export default function parseDataFile(
                     nbFirstRowsToExclude,
                     dataSplit.length - nbLastRowsToExclude
                 )
-                .join("\n")
+                .join("\n") as string
+        }
+
+        if (headers) {
+            if (!["csv", "tsv"].includes(fileExtension)) {
+                throw new Error(
+                    "headers can also be used with csv or tsv files"
+                )
+            } else {
+                data = `${headers.join(",")}\n${data}`
+            }
         }
 
         if (fileExtension === "csv") {

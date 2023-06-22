@@ -25,6 +25,7 @@ export default function loadDataFromLocalFile(
     },
     format: undefined | "csv" | "tsv" | "json" = undefined,
     encoding: BufferEncoding = "utf8",
+    headers: undefined | string[] = undefined,
     verbose = false
 ): SimpleDataItem[] {
     const paths: string[] = []
@@ -54,6 +55,7 @@ export default function loadDataFromLocalFile(
             nbLastRowsToExclude,
             fillMissingKeys,
             missingKeyValues,
+            headers,
             verbose
         )
 
