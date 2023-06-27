@@ -427,7 +427,11 @@ export default class SimpleData {
         newKey,
     }: {
         key: string
-        itemGenerator: (item: SimpleDataItem) => SimpleDataValue
+        itemGenerator: (
+            item: SimpleDataItem,
+            idx: number,
+            items: SimpleDataItem[]
+        ) => SimpleDataValue
         newKey?: string
     }): this {
         this._data = modifyItems(this._data, key, itemGenerator, newKey)
@@ -468,7 +472,11 @@ export default class SimpleData {
         itemGenerator,
     }: {
         key: string
-        itemGenerator: (item: SimpleDataItem) => SimpleDataValue
+        itemGenerator: (
+            item: SimpleDataItem,
+            idx: number,
+            items: SimpleDataItem[]
+        ) => SimpleDataValue
     }): this {
         this._data = addKey(this._data, key, itemGenerator)
 
