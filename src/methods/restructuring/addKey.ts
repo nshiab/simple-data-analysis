@@ -7,7 +7,7 @@ import { hasKey } from "../../exports/helpers.js"
 export default function addKey(
     data: SimpleDataItem[],
     key: string,
-    itemGenerator: (
+    valueGenerator: (
         item: SimpleDataItem,
         idx: number,
         data: SimpleDataItem[]
@@ -16,7 +16,7 @@ export default function addKey(
     hasKey(data, key, true)
 
     for (let i = 0; i < data.length; i++) {
-        data[i][key] = itemGenerator(data[i], i, data)
+        data[i][key] = valueGenerator(data[i], i, data)
     }
 
     return data
