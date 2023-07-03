@@ -7,12 +7,16 @@ import { hasKey } from "../../exports/helpers.js"
 export default function addKey(
     data: SimpleDataItem[],
     key: string,
-    itemGenerator: (item: SimpleDataItem) => SimpleDataValue
+    valueGenerator: (
+        item: SimpleDataItem,
+        idx: number,
+        data: SimpleDataItem[]
+    ) => SimpleDataValue
 ): SimpleDataItem[] {
     hasKey(data, key, true)
 
     for (let i = 0; i < data.length; i++) {
-        data[i][key] = itemGenerator(data[i])
+        data[i][key] = valueGenerator(data[i], i, data)
     }
 
     return data

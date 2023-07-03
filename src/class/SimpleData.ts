@@ -422,15 +422,15 @@ export default class SimpleData {
 
     @logCall()
     modifyItems({
-        key,
         itemGenerator,
-        newKey,
     }: {
-        key: string
-        itemGenerator: (item: SimpleDataItem) => SimpleDataValue
-        newKey?: string
+        itemGenerator: (
+            item: SimpleDataItem,
+            idx: number,
+            items: SimpleDataItem[]
+        ) => SimpleDataItem
     }): this {
-        this._data = modifyItems(this._data, key, itemGenerator, newKey)
+        this._data = modifyItems(this._data, itemGenerator)
 
         return this
     }
@@ -465,12 +465,16 @@ export default class SimpleData {
     @logCall()
     addKey({
         key,
-        itemGenerator,
+        valueGenerator,
     }: {
         key: string
-        itemGenerator: (item: SimpleDataItem) => SimpleDataValue
+        valueGenerator: (
+            item: SimpleDataItem,
+            idx: number,
+            items: SimpleDataItem[]
+        ) => SimpleDataValue
     }): this {
-        this._data = addKey(this._data, key, itemGenerator)
+        this._data = addKey(this._data, key, valueGenerator)
 
         return this
     }
