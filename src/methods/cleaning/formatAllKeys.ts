@@ -4,6 +4,7 @@ import { log } from "../../exports/helpers.js"
 
 export default function formatAllKeys(
     data: SimpleDataItem[],
+    formatKey?: (key: string) => string,
     verbose = false
 ): SimpleDataItem[] {
     const keysToChange = []
@@ -13,18 +14,21 @@ export default function formatAllKeys(
 
         if (i === 0) {
             const keys = Object.keys(d)
-            const camelCasedKeys = keys.map((d) => camelCase(d))
+            const formattedKeys =
+                typeof formatKey === "function"
+                    ? keys.map((d) => formatKey(d))
+                    : keys.map((d) => camelCase(d))
 
             for (let j = 0; j < keys.length; j++) {
-                if (keys[j] !== camelCasedKeys[j]) {
+                if (keys[j] !== formattedKeys[j]) {
                     verbose &&
                         log(
-                            `=> ${keys[j]} changed to ${camelCasedKeys[j]}`,
+                            `=> ${keys[j]} changed to ${formattedKeys[j]}`,
                             "blue"
                         )
                     keysToChange.push({
                         oldKey: keys[j],
-                        newKey: camelCasedKeys[j],
+                        newKey: formattedKeys[j],
                     })
                 }
             }

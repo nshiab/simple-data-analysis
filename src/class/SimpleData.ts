@@ -251,8 +251,10 @@ export default class SimpleData {
     }
 
     @logCall()
-    formatAllKeys(): this {
-        this._data = formatAllKeys(this._data, this.verbose)
+    formatAllKeys({
+        formatKey,
+    }: { formatKey?: (key: string) => string } = {}): this {
+        this._data = formatAllKeys(this._data, formatKey, this.verbose)
 
         return this
     }
