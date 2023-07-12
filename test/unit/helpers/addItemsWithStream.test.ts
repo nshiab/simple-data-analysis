@@ -13,6 +13,7 @@ describe("addItemsWithStream", function () {
             false,
             undefined,
             undefined,
+            undefined,
             false
         )
 
@@ -33,6 +34,7 @@ describe("addItemsWithStream", function () {
             false,
             undefined,
             ["key1", "key2"],
+            undefined,
             false
         )
 
@@ -51,6 +53,7 @@ describe("addItemsWithStream", function () {
             ["key2"],
             "utf8",
             false,
+            undefined,
             undefined,
             undefined,
             false
@@ -73,6 +76,7 @@ describe("addItemsWithStream", function () {
             false,
             undefined,
             undefined,
+            undefined,
             false
         )
 
@@ -82,5 +86,23 @@ describe("addItemsWithStream", function () {
             { key1: "8", key2: "10" },
             { key1: "brioche", key2: "croissant" },
         ])
+    })
+    it("should return the data in a csv file while using stream with specific keys, with a specific number of items", async function () {
+        const data: SimpleDataItem[] = []
+        await addItemsWithStream(
+            data,
+            "./test/data/files/data.csv",
+            ["key2"],
+            "utf8",
+            false,
+            undefined,
+            undefined,
+            2,
+            false
+        )
+
+        console.log(data)
+
+        assert.deepStrictEqual(data, [{ key2: "2" }, { key2: "coucou" }])
     })
 })
