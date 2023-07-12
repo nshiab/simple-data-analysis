@@ -26,6 +26,27 @@ describe("loadDataWithStream", function () {
         ])
     })
 
+    it("should return an array of objects from a csv file, with a limited number of items", async function () {
+        const sd = await new SimpleDataNode().loadDataWithStream({
+            path: "./test/data/files/data.csv",
+            nbItems: 3,
+        })
+        assert.deepStrictEqual(sd.getData(), [
+            {
+                key1: "1",
+                key2: "2",
+            },
+            {
+                key1: "3",
+                key2: "coucou",
+            },
+            {
+                key1: "8",
+                key2: "10",
+            },
+        ])
+    })
+
     it("should return an array of objects from a csv file without headers", async function () {
         const sd = await new SimpleDataNode().loadDataWithStream({
             path: "./test/data/files/dataNoHeaders.csv",

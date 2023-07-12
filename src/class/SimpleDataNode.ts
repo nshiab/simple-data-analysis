@@ -128,6 +128,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
         showItemIndexEveryX,
         format = undefined,
         headers = undefined,
+        nbItems = undefined,
     }: {
         path: string | string[]
         specificKeys?: string[] | false
@@ -136,6 +137,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
         showItemIndexEveryX?: number | false
         format?: "csv" | "tsv"
         headers?: string[]
+        nbItems?: number
     }): Promise<this> {
         if (this._data.length > 0) {
             throw new Error(
@@ -151,6 +153,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
             showItemIndexEveryX,
             format,
             headers,
+            nbItems,
             this.verbose
         )
 

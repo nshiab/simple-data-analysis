@@ -13,6 +13,7 @@ export default async function readFileWithStream(
     showItemIndexEveryX: undefined | number | false,
     format: undefined | "csv" | "tsv" = undefined,
     headers: undefined | string[] = undefined,
+    nbItems: undefined | number = undefined,
     verbose: boolean
 ): Promise<void> {
     if (parsedData.length > 0) {
@@ -38,6 +39,7 @@ export default async function readFileWithStream(
             delimiter: delimiter,
             columns: Array.isArray(headers) ? headers : true,
             encoding: encoding,
+            toLine: nbItems === undefined ? undefined : nbItems + 1,
         })
     )
 
@@ -109,5 +111,13 @@ export default async function readFileWithStream(
         })
     }
 
-    await finished(parser)
+    // When nbItems is a number, we have a premature close error
+    try {
+        await finished(parser)
+    } catch (err) {
+        const stringified = JSON.stringify(err)
+        if (stringified !== '{"code":"ERR_STREAM_PREMATURE_CLOSE"}') {
+            throw err
+        }
+    }
 }
