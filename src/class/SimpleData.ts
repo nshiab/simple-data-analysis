@@ -257,7 +257,13 @@ export default class SimpleData {
     }
 
     @logCall()
-    renameKey({ oldKey, newKey }: { oldKey: string; newKey: string }): this {
+    renameKey({
+        oldKey,
+        newKey,
+    }: {
+        oldKey: string | string[]
+        newKey: string | string[]
+    }): this {
         this._data = renameKey(this._data, oldKey, newKey)
 
         return this

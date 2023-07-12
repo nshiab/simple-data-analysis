@@ -101,8 +101,6 @@ describe("addItemsWithStream", function () {
             false
         )
 
-        console.log(data)
-
         assert.deepStrictEqual(data, [{ key2: "2" }, { key2: "coucou" }])
     })
 })
