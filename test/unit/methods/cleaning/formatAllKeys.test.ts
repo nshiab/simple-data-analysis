@@ -10,4 +10,12 @@ describe("formatAllKeys", function () {
             { key1Key2A: 1, key1Key2B: 2, key1Key2C: 3 },
         ])
     })
+    it("should format keys with a specific format function", function () {
+        const data = [{ key1: 1, key2: 2, key3: 3 }]
+
+        const sd = new SimpleData({ data }).formatAllKeys({
+            formatKey: (key) => key.toUpperCase(),
+        })
+        assert.deepStrictEqual(sd.getData(), [{ KEY1: 1, KEY2: 2, KEY3: 3 }])
+    })
 })
