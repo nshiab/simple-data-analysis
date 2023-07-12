@@ -84,17 +84,11 @@ import { SimpleDataItem, SimpleDataValue } from "../types/SimpleData.types.js"
  */
 export default class SimpleData {
     protected _data: SimpleDataItem[]
+    name: string
     duration: number
     verbose: boolean
     nbTableItemsToLog: number
 
-    /**
-     * SimpleData constructor
-     * @param __namedParameters.data  Data as a list of objects with the same keys.
-     * @param __namedParameters.verbose  Log information in the console on `SimpleData` method calls.
-     * @param __namedParameters.nbTableItemsToLog  Number of items to log in table. Only applies when `verbose` is true.
-     * @param __namedParameters.fillMissingKeys  Fill missing keys with `undefined`.
-     */
     constructor({
         data = [],
         dataAsArrays = false,
@@ -104,6 +98,7 @@ export default class SimpleData {
         firstItem = 0,
         lastItem = Infinity,
         duration = 0,
+        name = "",
     }: {
         data?: SimpleDataItem[] | { [key: string]: SimpleDataValue[] }
         dataAsArrays?: boolean
@@ -113,6 +108,7 @@ export default class SimpleData {
         firstItem?: number
         lastItem?: number
         duration?: 0
+        name?: string
     } = {}) {
         if (
             (Array.isArray(data) && data.length > 0) ||
@@ -143,6 +139,7 @@ export default class SimpleData {
             this._data = []
         }
 
+        this.name = name
         this.duration = duration
         this.verbose = verbose
         this.nbTableItemsToLog = nbTableItemsToLog
