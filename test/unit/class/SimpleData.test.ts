@@ -104,7 +104,9 @@ describe("SimpleData", function () {
             { key1: 3, key2: "c" },
         ]
 
-        const simpleData = new SimpleData({ data: data }).empty()
+        const simpleData = new SimpleData({
+            data: data,
+        }).empty()
 
         assert.deepStrictEqual(simpleData.getData(), [])
     })

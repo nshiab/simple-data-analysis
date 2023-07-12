@@ -45,11 +45,7 @@ export function asyncLogCall() {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ...args: any[]
         ) {
-            if (this.verbose) {
-                log("\n" + key + "()")
-                this.logParameters && log("parameters:")
-                this.logParameters && log(args)
-            }
+            logParameters(this, key, args)
 
             const start = Date.now()
             const result: SimpleData | SimpleDataItem[] =
@@ -67,7 +63,9 @@ export function asyncLogCall() {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function logParameters(sd: SimpleData, key: string, args: any) {
     if (sd.verbose) {
-        log("\n" + key + "()")
+        sd.name !== ""
+            ? log("\n " + sd.name + " | " + key + "()")
+            : log("\n" + key + "()")
         log("parameters:")
         log(args)
     }
