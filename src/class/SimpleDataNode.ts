@@ -5,6 +5,7 @@ import {
     loadDataFromLocalFile,
     loadDataFromLocalDirectory,
     loadDataWithStream,
+    loadDataFromStatsCan,
 } from "../exports/importingNode.js"
 import { saveData, saveDataWithStream } from "../exports/exportingNode.js"
 import { saveChart, saveCustomChart } from "../exports/visualizingNode.js"
@@ -154,6 +155,50 @@ export default class SimpleDataNode extends SimpleDataGeo {
             format,
             headers,
             nbItems,
+            this.verbose
+        )
+
+        return this
+    }
+
+    @asyncLogCall()
+    async loadDataFromStatsCan({
+        pid,
+        lang = "en",
+        autoType = false,
+        missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
+        fillMissingKeys = false,
+        firstItem = 0,
+        lastItem = Infinity,
+        nbFirstRowsToExclude = 0,
+        nbLastRowsToExclude = Infinity,
+        headers = undefined,
+    }: {
+        pid: string
+        lang?: "fr" | "en"
+        autoType?: boolean
+        dataAsArrays?: boolean
+        encoding?: BufferEncoding
+        missingKeyValues?: SimpleDataItem
+        fillMissingKeys?: boolean
+        fileNameAsValue?: boolean
+        firstItem?: number
+        lastItem?: number
+        nbFirstRowsToExclude?: number
+        nbLastRowsToExclude?: number
+        headers?: string[]
+    }) {
+        this._data = await loadDataFromStatsCan(
+            pid,
+            lang,
+            autoType,
+            firstItem,
+            lastItem,
+            nbFirstRowsToExclude,
+            nbLastRowsToExclude,
+            fillMissingKeys,
+            missingKeyValues,
+            headers,
             this.verbose
         )
 
