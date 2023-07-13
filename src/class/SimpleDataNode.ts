@@ -6,6 +6,7 @@ import {
     loadDataFromLocalDirectory,
     loadDataWithStream,
     loadDataFromStatsCan,
+    loadDataFromHtmlTable,
 } from "../exports/importingNode.js"
 import { saveData, saveDataWithStream } from "../exports/exportingNode.js"
 import { saveChart, saveCustomChart } from "../exports/visualizingNode.js"
@@ -200,6 +201,25 @@ export default class SimpleDataNode extends SimpleDataGeo {
             missingKeyValues,
             headers,
             this.verbose
+        )
+
+        return this
+    }
+
+    @asyncLogCall()
+    async loadDataFromHtmlTable({
+        url,
+        tableSelector,
+        tableNumber,
+    }: {
+        url: string
+        tableSelector?: string
+        tableNumber?: number
+    }) {
+        this._data = await loadDataFromHtmlTable(
+            url,
+            tableSelector,
+            tableNumber
         )
 
         return this
