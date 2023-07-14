@@ -211,15 +211,43 @@ export default class SimpleDataNode extends SimpleDataGeo {
         url,
         tableSelector,
         tableNumber,
+        autoType = false,
+        missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
+        fillMissingKeys = false,
+        firstItem = 0,
+        lastItem = Infinity,
+        nbFirstRowsToExclude = 0,
+        nbLastRowsToExclude = Infinity,
+        headers = undefined,
     }: {
         url: string
         tableSelector?: string
         tableNumber?: number
+        autoType?: boolean
+        dataAsArrays?: boolean
+        encoding?: BufferEncoding
+        missingKeyValues?: SimpleDataItem
+        fillMissingKeys?: boolean
+        fileNameAsValue?: boolean
+        firstItem?: number
+        lastItem?: number
+        nbFirstRowsToExclude?: number
+        nbLastRowsToExclude?: number
+        headers?: string[]
     }) {
         this._data = await loadDataFromHtmlTable(
             url,
             tableSelector,
-            tableNumber
+            tableNumber,
+            autoType,
+            firstItem,
+            lastItem,
+            nbFirstRowsToExclude,
+            nbLastRowsToExclude,
+            fillMissingKeys,
+            missingKeyValues,
+            headers,
+            this.verbose
         )
 
         return this
