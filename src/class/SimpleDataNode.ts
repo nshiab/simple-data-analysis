@@ -210,7 +210,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
     async loadDataFromHtmlTable({
         url,
         tableSelector,
-        tableNumber,
+        tableIndex,
         autoType = false,
         missingKeyValues = { null: null, NaN: NaN, undefined: undefined },
         fillMissingKeys = false,
@@ -222,7 +222,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
     }: {
         url: string
         tableSelector?: string
-        tableNumber?: number
+        tableIndex?: number
         autoType?: boolean
         dataAsArrays?: boolean
         encoding?: BufferEncoding
@@ -238,7 +238,7 @@ export default class SimpleDataNode extends SimpleDataGeo {
         this._data = await loadDataFromHtmlTable(
             url,
             tableSelector,
-            tableNumber,
+            tableIndex,
             autoType,
             firstItem,
             lastItem,

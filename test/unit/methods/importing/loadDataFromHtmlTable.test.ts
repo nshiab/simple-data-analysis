@@ -50,7 +50,7 @@ describe("loadDataFromHtmlTable", function () {
     it("should return an array of objects from the nth table in a webpage", async function () {
         const sd = await new SimpleDataNode().loadDataFromHtmlTable({
             url: "https://raw.githubusercontent.com/nshiab/simple-data-analysis.js/main/test/data/tables/Medieval%20demography%20-%20Wikipedia.html",
-            tableNumber: 3,
+            tableIndex: 3,
             lastItem: 2,
         })
 

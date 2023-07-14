@@ -7,7 +7,7 @@ import axios from "axios"
 export default async function loadDataFromHtmlTableNode(
     url: string,
     tableSelector: string | undefined = undefined,
-    tableNumber: number | undefined = undefined,
+    tableIndex: number | undefined = undefined,
     autoType = false,
     firstItem = 0,
     lastItem = Infinity,
@@ -33,11 +33,11 @@ export default async function loadDataFromHtmlTableNode(
 
     if (typeof tableSelector === "string") {
         table = $(tableSelector).filter(
-            (i) => i === (typeof tableNumber === "number" ? tableNumber : 0)
+            (i) => i === (typeof tableIndex === "number" ? tableIndex : 0)
         )
     } else {
         table = $("table").filter(
-            (i) => i === (typeof tableNumber === "number" ? tableNumber : 0)
+            (i) => i === (typeof tableIndex === "number" ? tableIndex : 0)
         )
     }
 
