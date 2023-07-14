@@ -25,8 +25,6 @@ export default async function loadDataFromHtmlTableNode(
     const response = await axios.get(url)
     const html = response.data
 
-    url.includes("ourcommons") && console.log(html)
-
     const $ = load(html)
 
     let table
