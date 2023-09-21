@@ -1,15 +1,17 @@
 import { AsyncDuckDB, AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
 import getDuckDB from "../helpers/getDuckDB.js"
 import loadData from "../methods/importing/loadData.js"
+import fetchData from "../methods/importing/fetchData.js"
 
 export default class SimpleDB {
     ready!: boolean
     protected db!: AsyncDuckDB
     protected connection!: AsyncDuckDBConnection
-    protected worker!: Worker | null
+    protected worker: Worker | null
 
     constructor() {
         this.ready = false
+        this.worker = null
     }
 
     async start(verbose = false) {
@@ -18,7 +20,6 @@ export default class SimpleDB {
         this.connection = await this.db.connect()
         this.worker = duckDB.worker
         this.ready = true
-        return this
     }
 
     async loadData(
@@ -28,8 +29,10 @@ export default class SimpleDB {
         }[]
     ) {
         await loadData(this.db, this.connection, tableName, data)
+    }
 
-        return this
+    async fetchData(tableName: string, url: string) {
+        await fetchData(this.connection, tableName, url)
     }
 
     async query(query: string) {

@@ -51,6 +51,14 @@ async function browserWorkerBundle(): Promise<WorkerBundle> {
 export default async function getDuckDB(
     verbose: boolean
 ): Promise<{ db: AsyncDuckDB; worker: Worker }> {
+    if (typeof window === "undefined") {
+        console.log(
+            "\x1b[41m",
+            "If you are not using a browser, please use SimpleNodeDB.",
+            "\x1b[0m"
+        )
+    }
+
     const { worker, bundle } = await (typeof window === "undefined"
         ? nodeWorkerBundle()
         : browserWorkerBundle())
