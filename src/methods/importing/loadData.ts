@@ -13,6 +13,5 @@ export default async function loadData(
     await db.registerFileBuffer(tableName, buffer)
     await connection.insertJSONFromPath(tableName, {
         name: tableName,
-        schema: "main",
     })
 }
