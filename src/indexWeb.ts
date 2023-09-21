@@ -1,12 +1,1 @@
-export { default as SimpleData } from "./class/SimpleData.js"
-export { default as SimpleDataGeo } from "./class/SimpleDataGeo.js"
-
-export * from "./exports/analyzing.js"
-export * from "./exports/cleaning.js"
-export * from "./exports/exporting.js"
-export * from "./exports/importing.js"
-export * from "./exports/geospatial.js"
-export * from "./exports/restructuring.js"
-export * from "./exports/selecting.js"
-export * from "./exports/visualizing.js"
-export * from "./exports/helpers.js"
+export { default as SimpleDB } from "./class/SimpleDB.js"
