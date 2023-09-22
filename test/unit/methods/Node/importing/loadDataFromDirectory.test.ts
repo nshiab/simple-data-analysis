@@ -1,5 +1,5 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../../src/class/SimpleNodeDB.js"
+import SimpleNodeDB from "../../../../../src/class/SimpleNodeDB.js"
 
 describe("loadDataFromDirectory", () => {
     const simpleNodeDB = new SimpleNodeDB().start()

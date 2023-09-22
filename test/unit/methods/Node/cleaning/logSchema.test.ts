@@ -1,14 +1,16 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../../src/class/SimpleNodeDB.js"
+import SimpleNodeDB from "../../../../../src/class/SimpleNodeDB.js"
 
-describe("loadData", () => {
+describe("logSchema", () => {
     const simpleNodeDB = new SimpleNodeDB().start()
-    simpleNodeDB.noLogs = true
 
     it("should return the schema of a table", async () => {
         await simpleNodeDB.loadData("dataJson", ["test/data/files/data.json"])
 
-        const schema = await simpleNodeDB.showSchema("dataJson", true)
+        const schema = await simpleNodeDB.logSchema("dataJson", {
+            logTable: false,
+            returnData: true,
+        })
         assert.deepStrictEqual(schema, [
             {
                 column_name: "key1",

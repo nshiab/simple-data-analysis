@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync } from "fs"
 import assert from "assert"
-import SimpleNodeDB from "../../../../src/class/SimpleNodeDB.js"
+import SimpleNodeDB from "../../../../../src/class/SimpleNodeDB.js"
 
 const output = "./test/output/"
 if (!existsSync(output)) {
