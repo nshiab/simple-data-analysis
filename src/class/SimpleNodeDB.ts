@@ -6,6 +6,7 @@ import queryNode from "../helpers/queryNode.js"
 import writeDataQuery from "../methods/exporting/writeDataQuery.js"
 
 export default class SimpleNodeDB {
+    noLogs: boolean // Just to avoid logs in test
     protected verbose: boolean
     protected nbRowsToLog: number
     protected db!: Database
@@ -14,6 +15,7 @@ export default class SimpleNodeDB {
     constructor(options: { verbose?: boolean; nbRowsToLog?: number } = {}) {
         this.verbose = options.verbose ?? false
         this.nbRowsToLog = options.nbRowsToLog ?? 10
+        this.noLogs = false
     }
 
     start() {
@@ -27,7 +29,7 @@ export default class SimpleNodeDB {
         return await queryNode(
             query,
             this.connection,
-            this.verbose,
+            this.noLogs === true ? false : this.verbose,
             this.nbRowsToLog,
             options
         )
@@ -110,6 +112,16 @@ export default class SimpleNodeDB {
             true,
             nbRowsToLog,
             { returnData: true }
+        )
+    }
+
+    async showSchema(tableName: string, returnData = false) {
+        return await queryNode(
+            `DESCRIBE ${tableName}`,
+            this.connection,
+            !this.noLogs,
+            Infinity,
+            { returnData }
         )
     }
 
