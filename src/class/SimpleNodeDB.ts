@@ -3,6 +3,7 @@ import loadDataQuery from "../methods/importing/loadDataQuery.js"
 import { readdirSync } from "fs"
 import SimpleNodeTable from "./SimpleNodeTable.js"
 import queryNode from "../helpers/queryNode.js"
+import writeDataQuery from "../methods/exporting/writeDataQuery.js"
 
 export default class SimpleNodeDB {
     protected verbose: boolean
@@ -75,6 +76,14 @@ export default class SimpleNodeDB {
             (file) => `${directory}${file}`
         )
         this.query(loadDataQuery(tableName, files, options))
+    }
+
+    async writeData(
+        file: string,
+        tableName: string,
+        options: { compression?: boolean } = {}
+    ) {
+        this.query(writeDataQuery(file, tableName, options))
     }
 
     async getData(tableName: string) {
