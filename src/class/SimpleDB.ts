@@ -1,6 +1,6 @@
 import { AsyncDuckDB, AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
 import getDuckDB from "../helpers/getDuckDB.js"
-import loadData from "../methods/importing/loadData.js"
+import loadData from "../methods/importing/loadDataWeb.js"
 import fetchData from "../methods/importing/fetchData.js"
 
 export default class SimpleDB {

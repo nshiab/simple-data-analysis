@@ -1,4 +1,5 @@
 import duckdb, { Database, Connection } from "duckdb"
+import loadDataQuery from "../methods/importing/loadDataQuery.js"
 
 export default class SimpleNodeDB {
     protected verbose: boolean
@@ -18,6 +19,7 @@ export default class SimpleNodeDB {
 
     start() {
         this.db = new duckdb.Database(":memory:")
+        this.db.exec("INSTALL httpfs")
         this.connection = this.db.connect()
         return this
     }
@@ -34,7 +36,14 @@ export default class SimpleNodeDB {
                         throw err
                     }
                     if (this.verbose) {
-                        console.table(res.slice(0, this.nbRowsToLog))
+                        if (res.length <= this.nbRowsToLog) {
+                            console.table(res)
+                        } else {
+                            console.table(res.slice(0, this.nbRowsToLog))
+                            console.log(
+                                `Total rows: ${res.length} (nbRowsToLog: ${this.nbRowsToLog})`
+                            )
+                        }
                     }
                     resolve(res)
                 })
@@ -43,34 +52,31 @@ export default class SimpleNodeDB {
                     if (err) {
                         throw err
                     }
-                    Promise.resolve()
+                    resolve(true)
                 })
             }
         })
     }
 
-    async loadCSV(
+    async loadData(
         tableName: string,
-        path: string,
+        files: string[],
         options: {
-            header?: boolean
-            columns?: { [key: string]: string }
-            delim?: string
+            fileType?: "csv" | "dsv" | "json" | "parquet"
             autoDetect?: boolean
+            fileName?: boolean
+            unifyColumns?: boolean
+            columns?: { [key: string]: string }
+            // csv options
+            header?: boolean
+            delim?: string
             skip?: number
+            // json options
+            format?: "unstructured" | "newlineDelimited" | "array"
+            records?: boolean
         } = {}
     ) {
-        await this.query(
-            `CREATE TABLE ${tableName} AS SELECT * FROM read_csv_auto('${path}', auto_detect=${
-                options.autoDetect ?? true
-            }, header=${options.header ?? true}, delim='${
-                options.delim ?? ","
-            }', skip=${options.skip ?? 0}${
-                options.columns
-                    ? `, columns=${JSON.stringify(options.columns)}`
-                    : ""
-            })`
-        )
+        await this.query(loadDataQuery(tableName, files, options))
     }
 
     async getData(tableName: string) {
