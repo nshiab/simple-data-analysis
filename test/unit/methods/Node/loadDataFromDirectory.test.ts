@@ -30,4 +30,6 @@ describe("loadDataFromDirectory", () => {
             { key1: 11, key2: "onze", key3: "eleven" },
         ])
     })
+
+    simpleNodeDB.done()
 })

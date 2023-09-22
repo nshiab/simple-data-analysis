@@ -1,7 +1,5 @@
 import { AsyncDuckDB, AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
 import getDuckDB from "../helpers/getDuckDB.js"
-import loadData from "../methods/importing/loadDataWeb.js"
-import fetchData from "../methods/importing/fetchData.js"
 
 export default class SimpleDB {
     ready!: boolean
@@ -22,26 +20,9 @@ export default class SimpleDB {
         this.ready = true
     }
 
-    async loadData(
-        tableName: string,
-        data: {
-            [key: string]: string | number | Date | undefined | null | boolean
-        }[]
-    ) {
-        await loadData(this.db, this.connection, tableName, data)
-    }
-
-    async fetchData(tableName: string, url: string) {
-        await fetchData(this.connection, tableName, url)
-    }
-
     async query(query: string) {
         const result = await this.connection.query(query)
         return JSON.parse(result.toString())
-    }
-
-    async getTablesNames() {
-        return this.connection.getTableNames("SHOW TABLES")
     }
 
     async getData(tableName: string) {

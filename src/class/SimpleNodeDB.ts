@@ -1,6 +1,8 @@
 import duckdb, { Database, Connection } from "duckdb"
 import loadDataQuery from "../methods/importing/loadDataQuery.js"
 import { readdirSync } from "fs"
+import SimpleNodeTable from "./SimpleNodeTable.js"
+import queryNode from "../helpers/queryNode.js"
 
 export default class SimpleNodeDB {
     protected verbose: boolean
@@ -8,12 +10,7 @@ export default class SimpleNodeDB {
     protected db!: Database
     protected connection!: Connection
 
-    constructor(
-        options: { verbose?: boolean; nbRowsToLog?: number } = {
-            verbose: false,
-            nbRowsToLog: 10,
-        }
-    ) {
+    constructor(options: { verbose?: boolean; nbRowsToLog?: number } = {}) {
         this.verbose = options.verbose ?? false
         this.nbRowsToLog = options.nbRowsToLog ?? 10
     }
@@ -26,37 +23,13 @@ export default class SimpleNodeDB {
     }
 
     async query(query: string, options = { returnData: false }) {
-        if (this.verbose) {
-            console.log(query)
-        }
-
-        return new Promise((resolve) => {
-            if (options.returnData || this.verbose) {
-                this.connection.all(query, (err, res) => {
-                    if (err) {
-                        throw err
-                    }
-                    if (this.verbose) {
-                        if (res.length <= this.nbRowsToLog) {
-                            console.table(res)
-                        } else {
-                            console.table(res.slice(0, this.nbRowsToLog))
-                            console.log(
-                                `Total rows: ${res.length} (nbRowsToLog: ${this.nbRowsToLog})`
-                            )
-                        }
-                    }
-                    resolve(res)
-                })
-            } else {
-                this.connection.exec(query, (err) => {
-                    if (err) {
-                        throw err
-                    }
-                    resolve(true)
-                })
-            }
-        })
+        return await queryNode(
+            query,
+            this.connection,
+            this.verbose,
+            this.nbRowsToLog,
+            options
+        )
     }
 
     async loadData(
@@ -112,6 +85,13 @@ export default class SimpleNodeDB {
 
     getDB() {
         return this.db
+    }
+
+    getTable(
+        tableName: string,
+        options: { verbose?: boolean; nbRowsToLog?: number } = {}
+    ) {
+        return new SimpleNodeTable(tableName, this.db, this.connection, options)
     }
 
     done() {
