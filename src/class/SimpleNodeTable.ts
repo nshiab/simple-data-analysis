@@ -1,5 +1,6 @@
 import { Connection, Database } from "duckdb"
 import queryNode from "../helpers/queryNode.js"
+import writeDataQuery from "../methods/exporting/writeDataQuery.js"
 
 export default class SimpleNodeTable {
     protected tableName: string
@@ -32,6 +33,10 @@ export default class SimpleNodeTable {
             this.nbRowsToLog,
             options
         )
+    }
+
+    async writeData(file: string, options: { compression?: boolean } = {}) {
+        this.query(writeDataQuery(file, this.tableName, options))
     }
 
     async getData() {
