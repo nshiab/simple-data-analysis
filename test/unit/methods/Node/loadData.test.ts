@@ -9,15 +9,12 @@ describe("loadData", () => {
 
         const data = await simpleNodeDB.getData("dataCsv")
 
-        assert.deepStrictEqual(
-            [
-                { key1: "1", key2: "2" },
-                { key1: "3", key2: "coucou" },
-                { key1: "8", key2: "10" },
-                { key1: "brioche", key2: "croissant" },
-            ],
-            data
-        )
+        assert.deepStrictEqual(data, [
+            { key1: "1", key2: "2" },
+            { key1: "3", key2: "coucou" },
+            { key1: "8", key2: "10" },
+            { key1: "brioche", key2: "croissant" },
+        ])
     })
     it("should load data from a fetched csv file", async () => {
         await simpleNodeDB.loadData("dataFetchCsv", [
@@ -26,15 +23,12 @@ describe("loadData", () => {
 
         const data = await simpleNodeDB.getData("dataFetchCsv")
 
-        assert.deepStrictEqual(
-            [
-                { key1: "1", key2: "2" },
-                { key1: "3", key2: "coucou" },
-                { key1: "8", key2: "10" },
-                { key1: "brioche", key2: "croissant" },
-            ],
-            data
-        )
+        assert.deepStrictEqual(data, [
+            { key1: "1", key2: "2" },
+            { key1: "3", key2: "coucou" },
+            { key1: "8", key2: "10" },
+            { key1: "brioche", key2: "croissant" },
+        ])
     })
     it("should load data from a csv file after skypping some lines at the top", async () => {
         await simpleNodeDB.loadData(
@@ -45,15 +39,12 @@ describe("loadData", () => {
             }
         )
         const data = await simpleNodeDB.getData("dataCsvSkip")
-        assert.deepStrictEqual(
-            [
-                { key1: "1", key2: "2" },
-                { key1: "3", key2: "coucou" },
-                { key1: "8", key2: "10" },
-                { key1: "brioche", key2: "croissant" },
-            ],
-            data
-        )
+        assert.deepStrictEqual(data, [
+            { key1: "1", key2: "2" },
+            { key1: "3", key2: "coucou" },
+            { key1: "8", key2: "10" },
+            { key1: "brioche", key2: "croissant" },
+        ])
     })
     it("should load data from a tsv file", async () => {
         await simpleNodeDB.loadData("dataTsv", ["test/data/files/data.tsv"], {
@@ -62,15 +53,12 @@ describe("loadData", () => {
 
         const data = await simpleNodeDB.getData("dataTsv")
 
-        assert.deepStrictEqual(
-            [
-                { key1: "1", key2: "2" },
-                { key1: "3", key2: "coucou" },
-                { key1: "8", key2: "10" },
-                { key1: "brioche", key2: "croissant" },
-            ],
-            data
-        )
+        assert.deepStrictEqual(data, [
+            { key1: "1", key2: "2" },
+            { key1: "3", key2: "coucou" },
+            { key1: "8", key2: "10" },
+            { key1: "brioche", key2: "croissant" },
+        ])
     })
     it("should load data from a txt file", async () => {
         await simpleNodeDB.loadData("dataTxt", ["test/data/files/data.txt"], {
@@ -79,42 +67,36 @@ describe("loadData", () => {
 
         const data = await simpleNodeDB.getData("dataTxt")
 
-        assert.deepStrictEqual(
-            [
-                { key1: "1", key2: "2" },
-                { key1: "3", key2: "coucou" },
-                { key1: "8", key2: "10" },
-                { key1: "brioche", key2: "croissant" },
-            ],
-            data
-        )
+        assert.deepStrictEqual(data, [
+            { key1: "1", key2: "2" },
+            { key1: "3", key2: "coucou" },
+            { key1: "8", key2: "10" },
+            { key1: "brioche", key2: "croissant" },
+        ])
     })
     it("should load data from a json file", async () => {
         await simpleNodeDB.loadData("dataJson", ["test/data/files/data.json"])
 
         const data = await simpleNodeDB.getData("dataJson")
 
-        assert.deepStrictEqual(
-            [
-                {
-                    key1: 1,
-                    key2: "un",
-                },
-                {
-                    key1: 2,
-                    key2: "deux",
-                },
-                {
-                    key1: 3,
-                    key2: "trois",
-                },
-                {
-                    key1: 4,
-                    key2: "quatre",
-                },
-            ],
-            data
-        )
+        assert.deepStrictEqual(data, [
+            {
+                key1: 1,
+                key2: "un",
+            },
+            {
+                key1: 2,
+                key2: "deux",
+            },
+            {
+                key1: 3,
+                key2: "trois",
+            },
+            {
+                key1: 4,
+                key2: "quatre",
+            },
+        ])
     })
     it("should load data from a parquet file", async () => {
         await simpleNodeDB.loadData("dataParquet", [
@@ -123,27 +105,24 @@ describe("loadData", () => {
 
         const data = await simpleNodeDB.getData("dataParquet")
 
-        assert.deepStrictEqual(
-            [
-                {
-                    key1: 1,
-                    key2: "un",
-                },
-                {
-                    key1: 3,
-                    key2: "deux",
-                },
-                {
-                    key1: 8,
-                    key2: "trois",
-                },
-                {
-                    key1: 3,
-                    key2: "quatre",
-                },
-            ],
-            data
-        )
+        assert.deepStrictEqual(data, [
+            {
+                key1: 1,
+                key2: "un",
+            },
+            {
+                key1: 3,
+                key2: "deux",
+            },
+            {
+                key1: 8,
+                key2: "trois",
+            },
+            {
+                key1: 3,
+                key2: "quatre",
+            },
+        ])
     })
     it("should load data from a compressed parquet file", async () => {
         await simpleNodeDB.loadData("dataParquetCompressed", [
@@ -152,27 +131,24 @@ describe("loadData", () => {
 
         const data = await simpleNodeDB.getData("dataParquetCompressed")
 
-        assert.deepStrictEqual(
-            [
-                {
-                    key1: 1,
-                    key2: "un",
-                },
-                {
-                    key1: 3,
-                    key2: "deux",
-                },
-                {
-                    key1: 8,
-                    key2: "trois",
-                },
-                {
-                    key1: 3,
-                    key2: "quatre",
-                },
-            ],
-            data
-        )
+        assert.deepStrictEqual(data, [
+            {
+                key1: 1,
+                key2: "un",
+            },
+            {
+                key1: 3,
+                key2: "deux",
+            },
+            {
+                key1: 8,
+                key2: "trois",
+            },
+            {
+                key1: 3,
+                key2: "quatre",
+            },
+        ])
     })
     it("should load data from multiple files", async () => {
         await simpleNodeDB.loadData("multipleFiles", [
@@ -183,22 +159,19 @@ describe("loadData", () => {
 
         const data = await simpleNodeDB.getData("multipleFiles")
 
-        assert.deepStrictEqual(
-            [
-                { key1: 1, key2: "un" },
-                { key1: 2, key2: "deux" },
-                { key1: 3, key2: "trois" },
-                { key1: 4, key2: "quatre" },
-                { key1: 5, key2: "cinq" },
-                { key1: 6, key2: "six" },
-                { key1: 7, key2: "sept" },
-                { key1: 8, key2: "huit" },
-                { key1: 9, key2: "neuf" },
-                { key1: 10, key2: "dix" },
-                { key1: 11, key2: "onze" },
-            ],
-            data
-        )
+        assert.deepStrictEqual(data, [
+            { key1: 1, key2: "un" },
+            { key1: 2, key2: "deux" },
+            { key1: 3, key2: "trois" },
+            { key1: 4, key2: "quatre" },
+            { key1: 5, key2: "cinq" },
+            { key1: 6, key2: "six" },
+            { key1: 7, key2: "sept" },
+            { key1: 8, key2: "huit" },
+            { key1: 9, key2: "neuf" },
+            { key1: 10, key2: "dix" },
+            { key1: 11, key2: "onze" },
+        ])
     })
     it("should load data from multiple files and add a column with the file name.", async () => {
         await simpleNodeDB.loadData(
@@ -213,66 +186,63 @@ describe("loadData", () => {
 
         const data = await simpleNodeDB.getData("multipleFilesFileName")
 
-        assert.deepStrictEqual(
-            [
-                {
-                    key1: 1,
-                    key2: "un",
-                    filename: "test/data/directory/data1.csv",
-                },
-                {
-                    key1: 2,
-                    key2: "deux",
-                    filename: "test/data/directory/data1.csv",
-                },
-                {
-                    key1: 3,
-                    key2: "trois",
-                    filename: "test/data/directory/data1.csv",
-                },
-                {
-                    key1: 4,
-                    key2: "quatre",
-                    filename: "test/data/directory/data1.csv",
-                },
-                {
-                    key1: 5,
-                    key2: "cinq",
-                    filename: "test/data/directory/data2.csv",
-                },
-                {
-                    key1: 6,
-                    key2: "six",
-                    filename: "test/data/directory/data2.csv",
-                },
-                {
-                    key1: 7,
-                    key2: "sept",
-                    filename: "test/data/directory/data2.csv",
-                },
-                {
-                    key1: 8,
-                    key2: "huit",
-                    filename: "test/data/directory/data2.csv",
-                },
-                {
-                    key1: 9,
-                    key2: "neuf",
-                    filename: "test/data/directory/data3.csv",
-                },
-                {
-                    key1: 10,
-                    key2: "dix",
-                    filename: "test/data/directory/data3.csv",
-                },
-                {
-                    key1: 11,
-                    key2: "onze",
-                    filename: "test/data/directory/data3.csv",
-                },
-            ],
-            data
-        )
+        assert.deepStrictEqual(data, [
+            {
+                key1: 1,
+                key2: "un",
+                filename: "test/data/directory/data1.csv",
+            },
+            {
+                key1: 2,
+                key2: "deux",
+                filename: "test/data/directory/data1.csv",
+            },
+            {
+                key1: 3,
+                key2: "trois",
+                filename: "test/data/directory/data1.csv",
+            },
+            {
+                key1: 4,
+                key2: "quatre",
+                filename: "test/data/directory/data1.csv",
+            },
+            {
+                key1: 5,
+                key2: "cinq",
+                filename: "test/data/directory/data2.csv",
+            },
+            {
+                key1: 6,
+                key2: "six",
+                filename: "test/data/directory/data2.csv",
+            },
+            {
+                key1: 7,
+                key2: "sept",
+                filename: "test/data/directory/data2.csv",
+            },
+            {
+                key1: 8,
+                key2: "huit",
+                filename: "test/data/directory/data2.csv",
+            },
+            {
+                key1: 9,
+                key2: "neuf",
+                filename: "test/data/directory/data3.csv",
+            },
+            {
+                key1: 10,
+                key2: "dix",
+                filename: "test/data/directory/data3.csv",
+            },
+            {
+                key1: 11,
+                key2: "onze",
+                filename: "test/data/directory/data3.csv",
+            },
+        ])
     })
     it("should load data from multiple files and unify the columns.", async () => {
         await simpleNodeDB.loadData(
@@ -287,24 +257,22 @@ describe("loadData", () => {
         )
 
         const data = await simpleNodeDB.getData("multipleFilesColumns")
-        assert.deepStrictEqual(
-            [
-                { key1: 1, key2: "un", key3: null },
-                { key1: 2, key2: "deux", key3: null },
-                { key1: 3, key2: "trois", key3: null },
-                { key1: 4, key2: "quatre", key3: null },
-                { key1: 5, key2: "cinq", key3: null },
-                { key1: 6, key2: "six", key3: null },
-                { key1: 7, key2: "sept", key3: null },
-                { key1: 8, key2: "huit", key3: null },
-                { key1: 9, key2: "neuf", key3: null },
-                { key1: 10, key2: "dix", key3: null },
-                { key1: 11, key2: "onze", key3: null },
-                { key1: 9, key2: "neuf", key3: "nine" },
-                { key1: 10, key2: "dix", key3: "ten" },
-                { key1: 11, key2: "onze", key3: "eleven" },
-            ],
-            data
-        )
+        assert.deepStrictEqual(data, [
+            { key1: 1, key2: "un", key3: null },
+            { key1: 2, key2: "deux", key3: null },
+            { key1: 3, key2: "trois", key3: null },
+            { key1: 4, key2: "quatre", key3: null },
+            { key1: 5, key2: "cinq", key3: null },
+            { key1: 6, key2: "six", key3: null },
+            { key1: 7, key2: "sept", key3: null },
+            { key1: 8, key2: "huit", key3: null },
+            { key1: 9, key2: "neuf", key3: null },
+            { key1: 10, key2: "dix", key3: null },
+            { key1: 11, key2: "onze", key3: null },
+            { key1: 9, key2: "neuf", key3: "nine" },
+            { key1: 10, key2: "dix", key3: "ten" },
+            { key1: 11, key2: "onze", key3: "eleven" },
+        ])
     })
+    simpleNodeDB.done()
 })

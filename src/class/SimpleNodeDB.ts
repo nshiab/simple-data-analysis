@@ -1,5 +1,6 @@
 import duckdb, { Database, Connection } from "duckdb"
 import loadDataQuery from "../methods/importing/loadDataQuery.js"
+import { readdirSync } from "fs"
 
 export default class SimpleNodeDB {
     protected verbose: boolean
@@ -77,6 +78,30 @@ export default class SimpleNodeDB {
         } = {}
     ) {
         await this.query(loadDataQuery(tableName, files, options))
+    }
+
+    async loadDataFromDirectory(
+        tableName: string,
+        directory: string,
+        options: {
+            fileType?: "csv" | "dsv" | "json" | "parquet"
+            autoDetect?: boolean
+            fileName?: boolean
+            unifyColumns?: boolean
+            columns?: { [key: string]: string }
+            // csv options
+            header?: boolean
+            delim?: string
+            skip?: number
+            // json options
+            format?: "unstructured" | "newlineDelimited" | "array"
+            records?: boolean
+        } = {}
+    ) {
+        const files = readdirSync(directory).map(
+            (file) => `${directory}${file}`
+        )
+        this.query(loadDataQuery(tableName, files, options))
     }
 
     async getData(tableName: string) {
