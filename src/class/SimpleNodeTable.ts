@@ -39,6 +39,16 @@ export default class SimpleNodeTable {
         this.query(writeDataQuery(file, this.tableName, options))
     }
 
+    async showTable(nbRowsToLog: number = this.nbRowsToLog) {
+        return await queryNode(
+            `SELECT * FROM ${this.tableName} LIMIT ${nbRowsToLog}`,
+            this.connection,
+            true,
+            nbRowsToLog,
+            { returnData: true }
+        )
+    }
+
     async getData() {
         return await this.query(`SELECT * from ${this.tableName}`, {
             returnData: true,

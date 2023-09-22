@@ -103,6 +103,16 @@ export default class SimpleNodeDB {
         return new SimpleNodeTable(tableName, this.db, this.connection, options)
     }
 
+    async showTable(tableName: string, nbRowsToLog: number = this.nbRowsToLog) {
+        return await queryNode(
+            `SELECT * FROM ${tableName} LIMIT ${nbRowsToLog}`,
+            this.connection,
+            true,
+            nbRowsToLog,
+            { returnData: true }
+        )
+    }
+
     done() {
         this.db.close()
     }
