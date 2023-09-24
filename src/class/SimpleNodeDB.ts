@@ -26,7 +26,7 @@ export default class SimpleNodeDB {
 
     private async query(query: string, options = { returnData: false }) {
         return await queryNode(
-            { query },
+            query,
             this.connection,
             this.verbose,
             this.nbRowsToLog,
@@ -47,7 +47,7 @@ export default class SimpleNodeDB {
         }
     ) {
         return await queryNode(
-            { query },
+            query,
             this.connection,
             this.verbose,
             options.nbRowsToLog,
@@ -113,13 +113,13 @@ export default class SimpleNodeDB {
         }
     ) {
         const types = await this.getTypes(tableName)
-
+        const { query, resParser } = logDescriptionQuery(tableName, types)
         return await queryNode(
-            logDescriptionQuery(tableName, types),
+            query,
             this.connection,
             options.logTable,
             options.nbRowsToLog,
-            { returnData: options.returnData }
+            { returnData: options.returnData, resParser }
         )
     }
 
@@ -134,7 +134,7 @@ export default class SimpleNodeDB {
     async getColumns(tableName: string) {
         return (
             (await queryNode(
-                { query: `DESCRIBE ${tableName}` },
+                `DESCRIBE ${tableName}`,
                 this.connection,
                 false,
                 Infinity,
@@ -145,7 +145,7 @@ export default class SimpleNodeDB {
 
     async getTypes(tableName: string) {
         const schema = (await queryNode(
-            { query: `DESCRIBE ${tableName}` },
+            `DESCRIBE ${tableName}`,
             this.connection,
             false,
             Infinity,
@@ -191,9 +191,7 @@ export default class SimpleNodeDB {
         }
     ) {
         return await queryNode(
-            {
-                query: `SELECT * FROM ${tableName} LIMIT ${options.nbRowsToLog}`,
-            },
+            `SELECT * FROM ${tableName} LIMIT ${options.nbRowsToLog}`,
             this.connection,
             true,
             options.nbRowsToLog,
@@ -214,7 +212,7 @@ export default class SimpleNodeDB {
         }
     ) {
         return await queryNode(
-            { query: `DESCRIBE ${tableName}` },
+            `DESCRIBE ${tableName}`,
             this.connection,
             options.logTable,
             options.nbRowsToLog,

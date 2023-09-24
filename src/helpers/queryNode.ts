@@ -1,27 +1,34 @@
 import { Connection } from "duckdb"
 
 export default async function queryNode(
-    q: { query: string; extraData?: unknown },
+    query: string,
     connection: Connection,
     verbose = false,
     nbRowsToLog = 10,
-    options: { returnData?: boolean } = { returnData: false }
+    options: {
+        returnData?: boolean
+        resParser?: (
+            res: { [key: string]: unknown }[]
+        ) => { [key: string]: unknown }[]
+    } = {
+        returnData: false,
+    }
 ) {
     if (verbose) {
-        console.log(q.query)
-        if (q.extraData) {
-            console.log("extraData:", q.extraData)
+        console.log(query)
+        if (options.resParser) {
+            console.log("extraData:", options.resParser)
         }
     }
 
     return new Promise((resolve) => {
         if (options.returnData || verbose) {
-            connection.all(q.query, (err, res) => {
+            connection.all(query, (err, res) => {
                 if (err) {
                     throw err
                 }
-                if (q.extraData) {
-                    res = [q.extraData].concat(res)
+                if (options.resParser) {
+                    res = options.resParser(res)
                 }
                 if (verbose) {
                     if (res.length <= nbRowsToLog) {
@@ -37,7 +44,7 @@ export default async function queryNode(
                 resolve(res)
             })
         } else {
-            connection.exec(q.query, (err) => {
+            connection.exec(query, (err) => {
                 if (err) {
                     throw err
                 }
