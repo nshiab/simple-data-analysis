@@ -14,7 +14,7 @@ const expectedData = [
     { key1: "brioche", key2: "croissant" },
 ]
 
-describe("loadData", () => {
+describe("writeData", () => {
     const simpleNodeDB = new SimpleNodeDB().start()
 
     it("should write a csv file", async () => {

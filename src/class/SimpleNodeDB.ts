@@ -6,6 +6,7 @@ import queryNode from "../helpers/queryNode.js"
 import writeDataQuery from "../methods/exporting/writeDataQuery.js"
 import logDescriptionQuery from "../methods/cleaning/logDescriptionQuery.js"
 import removeMissingQuery from "../methods/cleaning/removeMissingQuery.js"
+import renameColumnQuery from "../methods/cleaning/renameColumnQuery.js"
 
 export default class SimpleNodeDB {
     protected debug: boolean
@@ -286,11 +287,48 @@ export default class SimpleNodeDB {
         )
     }
 
+    async renameColumns(
+        table: string,
+        oldColumns: string[],
+        newColumns: string[],
+        options: {
+            returnDataFrom?: "query" | "table" | "none"
+            verbose?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nremoveMissing()")
+
+        let data
+        for (let i = 0; i < oldColumns.length; i++) {
+            if (i === oldColumns.length - 1) {
+                data = await this.query(
+                    renameColumnQuery(table, oldColumns[i], newColumns[i]),
+                    this.mergeOptions({ ...options, table })
+                )
+            } else {
+                await this.query(
+                    renameColumnQuery(table, oldColumns[i], newColumns[i]),
+                    {
+                        table,
+                        returnDataFrom: "none",
+                        verbose: false,
+                        nbRowsToLog: 0,
+                        rowsModifier: undefined,
+                        debug: false,
+                    }
+                )
+            }
+        }
+
+        return data
+    }
+
     async removeMissing(
         table: string,
         columns: string[] = [],
         options: {
-            otherMissingValues?: string[]
             invert?: boolean
             returnDataFrom?: "query" | "table" | "none"
             verbose?: boolean
