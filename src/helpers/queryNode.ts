@@ -7,15 +7,15 @@ export default async function queryNode(
         verbose: boolean
         nbRowsToLog: number
         returnData: boolean
-        resParser?: (
+        rowsModifier?: (
             res: { [key: string]: unknown }[]
         ) => { [key: string]: unknown }[]
     }
 ) {
     if (options.verbose) {
         console.log(query)
-        if (options.resParser) {
-            console.log("extraData:", options.resParser)
+        if (options.rowsModifier) {
+            console.log("rowsModifier:", options.rowsModifier)
         }
     }
 
@@ -25,18 +25,16 @@ export default async function queryNode(
                 if (err) {
                     throw err
                 }
-                if (options.resParser) {
-                    res = options.resParser(res)
+                if (options.rowsModifier) {
+                    res = options.rowsModifier(res)
                 }
                 if (options.verbose) {
-                    if (res.length <= (options.nbRowsToLog ?? 10)) {
+                    if (res.length <= options.nbRowsToLog) {
                         console.table(res)
                     } else {
-                        console.table(res.slice(0, options.nbRowsToLog ?? 10))
+                        console.table(res.slice(0, options.nbRowsToLog))
                         console.log(
-                            `Total rows: ${res.length} (nbRowsToLog: ${
-                                options.nbRowsToLog ?? 10
-                            })`
+                            `Total rows: ${res.length} (nbRowsToLog: ${options.nbRowsToLog})`
                         )
                     }
                 }

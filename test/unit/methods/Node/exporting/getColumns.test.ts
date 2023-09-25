@@ -1,7 +1,7 @@
 import assert from "assert"
 import SimpleNodeDB from "../../../../../src/class/SimpleNodeDB.js"
 
-describe("loadData", () => {
+describe("getColumns", () => {
     const simpleNodeDB = new SimpleNodeDB().start()
 
     it("should return the columns of a table", async () => {

@@ -25,6 +25,26 @@ export default class SimpleNodeDB {
         return this
     }
 
+    private mergeOptions(options: {
+        returnData?: boolean
+        verbose?: boolean
+        nbRowsToLog?: number
+        rowsModifier?: (
+            rows: {
+                [key: string]: unknown
+            }[]
+        ) => {
+            [key: string]: unknown
+        }[]
+    }) {
+        return {
+            verbose: this.verbose || (options.verbose ?? false),
+            returnData: options.returnData ?? false,
+            nbRowsToLog: options.nbRowsToLog ?? this.nbRowsToLog,
+            rowsModifier: options.rowsModifier,
+        }
+    }
+
     private async query(
         query: string,
         options: {
@@ -44,11 +64,11 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        return await queryNode(query, this.connection, {
-            verbose: this.verbose || (options.verbose ?? false),
-            returnData: options.returnData ?? false,
-            nbRowsToLog: options.nbRowsToLog ?? 10,
-        })
+        return await queryNode(
+            query,
+            this.connection,
+            this.mergeOptions(options)
+        )
     }
 
     async loadData(
@@ -73,11 +93,10 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        await this.query(loadDataQuery(table, files, options), {
-            verbose: this.verbose || (options.verbose ?? false),
-            returnData: options.returnData ?? false,
-            nbRowsToLog: options.nbRowsToLog ?? 10,
-        })
+        await this.query(
+            loadDataQuery(table, files, options),
+            this.mergeOptions(options)
+        )
     }
 
     async loadDataFromDirectory(
@@ -105,11 +124,10 @@ export default class SimpleNodeDB {
         const files = readdirSync(directory).map(
             (file) => `${directory}${file}`
         )
-        this.query(loadDataQuery(table, files, options), {
-            verbose: this.verbose || (options.verbose ?? false),
-            returnData: options.returnData ?? false,
-            nbRowsToLog: options.nbRowsToLog ?? 10,
-        })
+        this.query(
+            loadDataQuery(table, files, options),
+            this.mergeOptions(options)
+        )
     }
 
     async logSchema(
@@ -118,13 +136,14 @@ export default class SimpleNodeDB {
             verbose?: boolean
             returnData?: boolean
             nbRowsToLog?: number
-        } = { verbose: true }
+        } = {}
     ) {
-        return await queryNode(`DESCRIBE ${table}`, this.connection, {
-            verbose: this.verbose || (options.verbose ?? false),
-            returnData: options.returnData ?? false,
-            nbRowsToLog: options.nbRowsToLog ?? 10,
-        })
+        options.verbose = options.verbose ?? true
+        return await queryNode(
+            `DESCRIBE ${table}`,
+            this.connection,
+            this.mergeOptions(options)
+        )
     }
 
     async logDescription(
@@ -133,18 +152,17 @@ export default class SimpleNodeDB {
             returnData?: boolean
             verbose?: boolean
             nbRowsToLog?: number
-        } = {
-            verbose: true,
-        }
+        } = {}
     ) {
+        options.verbose = options.verbose ?? true
+
         const types = await this.getTypes(table)
-        const { query, resParser } = logDescriptionQuery(table, types)
-        return await queryNode(query, this.connection, {
-            verbose: this.verbose || (options.verbose ?? false),
-            returnData: options.returnData ?? false,
-            nbRowsToLog: options.nbRowsToLog ?? 10,
-            resParser,
-        })
+        const { query, rowsModifier } = logDescriptionQuery(table, types)
+        return await queryNode(
+            query,
+            this.connection,
+            this.mergeOptions({ ...options, rowsModifier })
+        )
     }
 
     async removeMissing(
@@ -167,11 +185,7 @@ export default class SimpleNodeDB {
                 columns.length === 0 ? await this.getColumns(table) : columns,
                 options
             ),
-            {
-                verbose: this.verbose || (options.verbose ?? false),
-                returnData: options.returnData ?? false,
-                nbRowsToLog: options.nbRowsToLog ?? 10,
-            }
+            this.mergeOptions(options)
         )
     }
 
@@ -185,11 +199,10 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        this.query(writeDataQuery(file, table, options), {
-            verbose: this.verbose || (options.verbose ?? false),
-            returnData: options.returnData ?? false,
-            nbRowsToLog: options.nbRowsToLog ?? 10,
-        })
+        this.query(
+            writeDataQuery(file, table, options),
+            this.mergeOptions(options)
+        )
     }
 
     async getColumns(
@@ -198,14 +211,16 @@ export default class SimpleNodeDB {
             verbose?: boolean
             returnData?: boolean
             nbRowsToLog?: number
-        } = { returnData: true }
+        } = {}
     ) {
+        options.returnData = options.returnData ?? true
+
         return (
-            (await queryNode(`DESCRIBE ${table}`, this.connection, {
-                verbose: this.verbose || (options.verbose ?? false),
-                returnData: options.returnData ?? false,
-                nbRowsToLog: options.nbRowsToLog ?? 10,
-            })) as { column_name: string }[]
+            (await queryNode(
+                `DESCRIBE ${table}`,
+                this.connection,
+                this.mergeOptions(options)
+            )) as { column_name: string }[]
         ).map((d) => d.column_name)
     }
 
@@ -215,17 +230,21 @@ export default class SimpleNodeDB {
             verbose?: boolean
             returnData?: boolean
             nbRowsToLog?: number
-        } = { returnData: true }
+        } = {}
     ) {
-        const schema = (await queryNode(`DESCRIBE ${table}`, this.connection, {
-            verbose: this.verbose || (options.verbose ?? false),
-            returnData: options.returnData ?? false,
-            nbRowsToLog: options.nbRowsToLog ?? 10,
-        })) as { column_name: string; column_type: string }[]
+        options.returnData = options.returnData ?? true
+
+        const schema = (await queryNode(
+            `DESCRIBE ${table}`,
+            this.connection,
+            this.mergeOptions(options)
+        )) as { column_name: string; column_type: string }[]
+
         const types: { [key: string]: string } = {}
         for (const column of schema) {
             types[column.column_name] = column.column_type
         }
+
         return types
     }
 
@@ -235,25 +254,22 @@ export default class SimpleNodeDB {
             verbose?: boolean
             returnData?: boolean
             nbRowsToLog?: number
-        } = { returnData: true }
+        } = {}
     ) {
-        return await this.query(`SELECT * from ${table}`, {
-            verbose: this.verbose || (options.verbose ?? false),
-            returnData: options.returnData ?? false,
-            nbRowsToLog: options.nbRowsToLog ?? 10,
-        })
-    }
+        options.returnData = options.returnData ?? true
 
-    getDB() {
-        return this.db
+        return await this.query(
+            `SELECT * from ${table}`,
+            this.mergeOptions(options)
+        )
     }
 
     getTable(
         table: string,
-        options: { verbose?: boolean; nbRowsToLog?: number } = {
-            verbose: this.verbose,
-            nbRowsToLog: this.nbRowsToLog,
-        }
+        options: {
+            verbose?: boolean
+            nbRowsToLog?: number
+        } = {}
     ) {
         return new SimpleNodeTable(table, this.db, this.connection, options)
     }
@@ -264,19 +280,19 @@ export default class SimpleNodeDB {
             verbose?: boolean
             returnData?: boolean
             nbRowsToLog?: number
-        } = {
-            verbose: true,
-        }
+        } = {}
     ) {
+        options.verbose = options.verbose ?? true
+
         return await queryNode(
             `SELECT * FROM ${table} LIMIT ${options.nbRowsToLog}`,
             this.connection,
-            {
-                verbose: this.verbose || (options.verbose ?? false),
-                returnData: options.returnData ?? false,
-                nbRowsToLog: options.nbRowsToLog ?? 10,
-            }
+            this.mergeOptions(options)
         )
+    }
+
+    getDB() {
+        return this.db
     }
 
     done() {
