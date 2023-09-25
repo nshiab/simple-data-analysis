@@ -9,10 +9,7 @@ describe("logDescription", () => {
 
         const description = await simpleNodeDB.logDescription("employees", {
             returnData: true,
-            verbose: true,
         })
-
-        await simpleNodeDB.logTable("employees")
 
         assert.deepStrictEqual(description, [
             {

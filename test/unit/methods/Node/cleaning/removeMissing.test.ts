@@ -9,6 +9,7 @@ describe("removeMissing()", () => {
 
         await simpleNodeDB.removeMissing("employees", [], {
             returnData: true,
+            verbose: true,
         })
     })
 
