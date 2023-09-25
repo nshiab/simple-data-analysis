@@ -27,7 +27,7 @@ export default class SimpleNodeDB {
     }
 
     start() {
-        ;(this.verbose || this.debug) && console.log("start()")
+        ;(this.verbose || this.debug) && console.log("\nstart()")
         this.db = new duckdb.Database(":memory:")
         this.db.exec("INSTALL httpfs")
         this.connection = this.db.connect()
@@ -76,7 +76,7 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(this.verbose || this.debug) && console.log("customQuery()")
+        ;(this.verbose || this.debug) && console.log("\ncustomQuery()")
         return await queryNode(
             query,
             this.connection,
@@ -106,7 +106,7 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(this.verbose || this.debug) && console.log("loadData()")
+        ;(this.verbose || this.debug) && console.log("\nloadData()")
         await this.query(
             loadDataQuery(table, files, options),
             this.mergeOptions(options)
@@ -135,7 +135,8 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(this.verbose || this.debug) && console.log("loadDataFromDirectory()")
+        ;(this.verbose || this.debug) &&
+            console.log("\nloadDataFromDirectory()")
         const files = readdirSync(directory).map(
             (file) => `${directory}${file}`
         )
@@ -154,7 +155,7 @@ export default class SimpleNodeDB {
         } = {}
     ) {
         options.verbose = options.verbose ?? true
-        ;(this.verbose || this.debug) && console.log("logSchema()")
+        ;(this.verbose || this.debug) && console.log("\nlogSchema()")
         return await queryNode(
             `DESCRIBE ${table}`,
             this.connection,
@@ -171,7 +172,7 @@ export default class SimpleNodeDB {
         } = {}
     ) {
         options.verbose = options.verbose ?? true
-        ;(this.verbose || this.debug) && console.log("logDescription()")
+        ;(this.verbose || this.debug) && console.log("\nlogDescription()")
         const types = await this.getTypes(table)
         const { query, rowsModifier } = logDescriptionQuery(table, types)
         return await queryNode(
@@ -192,7 +193,7 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(this.verbose || this.debug) && console.log("removeMissing()")
+        ;(this.verbose || this.debug) && console.log("\nremoveMissing()")
         if (options.otherMissingValues === undefined) {
             options.otherMissingValues = ["undefined", "NaN", "null", ""]
         }
@@ -216,7 +217,7 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(this.verbose || this.debug) && console.log("writeData()")
+        ;(this.verbose || this.debug) && console.log("\nwriteData()")
         this.query(
             writeDataQuery(file, table, options),
             this.mergeOptions(options)
@@ -232,7 +233,7 @@ export default class SimpleNodeDB {
         } = {}
     ) {
         options.returnData = options.returnData ?? true
-        ;(this.verbose || this.debug) && console.log("getColumns()")
+        ;(this.verbose || this.debug) && console.log("\ngetColumns()")
         return (
             (await queryNode(
                 `DESCRIBE ${table}`,
@@ -250,7 +251,7 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(this.verbose || this.debug) && console.log("getTypes()")
+        ;(this.verbose || this.debug) && console.log("\ngetTypes()")
         options.returnData = options.returnData ?? true
 
         const schema = (await queryNode(
@@ -275,7 +276,7 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(this.verbose || this.debug) && console.log("getData()")
+        ;(this.verbose || this.debug) && console.log("\ngetData()")
         options.returnData = options.returnData ?? true
 
         return await this.query(
@@ -291,7 +292,7 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(this.verbose || this.debug) && console.log("getTable()")
+        ;(this.verbose || this.debug) && console.log("\ngetTable()")
         return new SimpleNodeTable(table, this.db, this.connection, options)
     }
 
@@ -304,7 +305,7 @@ export default class SimpleNodeDB {
         } = {}
     ) {
         options.verbose = options.verbose ?? true
-        ;(this.verbose || this.debug) && console.log("logTable()")
+        ;(this.verbose || this.debug) && console.log("\nlogTable()")
 
         return await queryNode(
             `SELECT * FROM ${table} LIMIT ${options.nbRowsToLog}`,

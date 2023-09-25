@@ -41,8 +41,10 @@ export default async function queryNode(
                     }
                 }
 
-                const end = Date.now()
-                console.log(`${end - start} ms`)
+                if (options.verbose || options.debug) {
+                    const end = Date.now()
+                    console.log(`Done in ${end - start} ms`)
+                }
 
                 resolve(res)
             })
@@ -51,8 +53,11 @@ export default async function queryNode(
                 if (err) {
                     throw err
                 }
-                const end = Date.now()
-                console.log(`${end - start} ms`)
+
+                if (options.verbose || options.debug) {
+                    const end = Date.now()
+                    console.log(`Done in ${end - start} ms`)
+                }
                 resolve(true)
             })
         }
