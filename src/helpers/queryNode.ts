@@ -3,18 +3,16 @@ import { Connection } from "duckdb"
 export default async function queryNode(
     query: string,
     connection: Connection,
-    verbose = false,
-    nbRowsToLog = 10,
     options: {
-        returnData?: boolean
+        verbose: boolean
+        nbRowsToLog: number
+        returnData: boolean
         resParser?: (
             res: { [key: string]: unknown }[]
         ) => { [key: string]: unknown }[]
-    } = {
-        returnData: false,
     }
 ) {
-    if (verbose) {
+    if (options.verbose) {
         console.log(query)
         if (options.resParser) {
             console.log("extraData:", options.resParser)
@@ -22,7 +20,7 @@ export default async function queryNode(
     }
 
     return new Promise((resolve) => {
-        if (options.returnData || verbose) {
+        if (options.returnData || options.verbose) {
             connection.all(query, (err, res) => {
                 if (err) {
                     throw err
@@ -30,13 +28,15 @@ export default async function queryNode(
                 if (options.resParser) {
                     res = options.resParser(res)
                 }
-                if (verbose) {
-                    if (res.length <= nbRowsToLog) {
+                if (options.verbose) {
+                    if (res.length <= (options.nbRowsToLog ?? 10)) {
                         console.table(res)
                     } else {
-                        console.table(res.slice(0, nbRowsToLog))
+                        console.table(res.slice(0, options.nbRowsToLog ?? 10))
                         console.log(
-                            `Total rows: ${res.length} (nbRowsToLog: ${nbRowsToLog})`
+                            `Total rows: ${res.length} (nbRowsToLog: ${
+                                options.nbRowsToLog ?? 10
+                            })`
                         )
                     }
                 }

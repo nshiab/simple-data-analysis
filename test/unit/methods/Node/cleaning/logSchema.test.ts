@@ -8,7 +8,7 @@ describe("logSchema", () => {
         await simpleNodeDB.loadData("dataJson", ["test/data/files/data.json"])
 
         const schema = await simpleNodeDB.logSchema("dataJson", {
-            logTable: false,
+            verbose: false,
             returnData: true,
         })
         assert.deepStrictEqual(schema, [

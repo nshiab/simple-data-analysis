@@ -1,7 +1,7 @@
 import getExtension from "../../helpers/getExtension.js"
 
 export default function loadDataQuery(
-    tableName: string,
+    table: string,
     files: string[],
     options: {
         fileType?: "csv" | "dsv" | "json" | "parquet"
@@ -53,10 +53,10 @@ export default function loadDataQuery(
             const delim = options.delim ? `, delim='${options.delim}'` : ""
             const skip = options.skip ? `, skip=${options.skip}` : ""
 
-            return `CREATE TABLE ${tableName}
+            return `CREATE TABLE ${table}
             AS SELECT * FROM read_csv_auto(${filesAsString}${generalOptions}${header}${delim}${skip})`
         } else {
-            return `CREATE TABLE ${tableName}
+            return `CREATE TABLE ${table}
             AS SELECT * FROM read_csv_auto(${filesAsString}${generalOptions}, header=TRUE)`
         }
     } else if (options.fileType === "json" || fileExtension === "json") {
@@ -66,14 +66,14 @@ export default function loadDataQuery(
                 typeof options.records === "boolean"
                     ? `, records=${String(options.records).toUpperCase()}`
                     : ""
-            return `CREATE TABLE ${tableName}
+            return `CREATE TABLE ${table}
             AS SELECT * FROM read_json_auto(${filesAsString}${generalOptions}${format}${records})`
         } else {
-            return `CREATE TABLE ${tableName}
+            return `CREATE TABLE ${table}
             AS SELECT * FROM read_json_auto(${filesAsString}${generalOptions})`
         }
     } else if (options.fileType === "parquet" || fileExtension === "parquet") {
-        return `CREATE TABLE ${tableName} AS SELECT * FROM read_parquet(${filesAsString}${fileName}${unifyColumns})`
+        return `CREATE TABLE ${table} AS SELECT * FROM read_parquet(${filesAsString}${fileName}${unifyColumns})`
     } else {
         throw new Error(
             `Unknown options.fileType ${options.fileType} or fileExtension ${fileExtension}`

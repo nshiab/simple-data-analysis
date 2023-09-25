@@ -5,6 +5,7 @@ import SimpleNodeTable from "./SimpleNodeTable.js"
 import queryNode from "../helpers/queryNode.js"
 import writeDataQuery from "../methods/exporting/writeDataQuery.js"
 import logDescriptionQuery from "../methods/cleaning/logDescriptionQuery.js"
+import removeMissingQuery from "../methods/cleaning/removeMissingQuery.js"
 
 export default class SimpleNodeDB {
     protected verbose: boolean
@@ -24,39 +25,34 @@ export default class SimpleNodeDB {
         return this
     }
 
-    private async query(query: string, options = { returnData: false }) {
-        return await queryNode(
-            query,
-            this.connection,
-            this.verbose,
-            this.nbRowsToLog,
-            options
-        )
+    private async query(
+        query: string,
+        options: {
+            verbose: boolean
+            nbRowsToLog: number
+            returnData: boolean
+        }
+    ) {
+        return await queryNode(query, this.connection, options)
     }
 
     async customQuery(
         query: string,
         options: {
             returnData?: boolean
-            logTable?: boolean
+            verbose?: boolean
             nbRowsToLog?: number
-        } = {
-            returnData: true,
-            logTable: true,
-            nbRowsToLog: this.nbRowsToLog,
-        }
+        } = {}
     ) {
-        return await queryNode(
-            query,
-            this.connection,
-            this.verbose,
-            options.nbRowsToLog,
-            options
-        )
+        return await queryNode(query, this.connection, {
+            verbose: this.verbose || (options.verbose ?? false),
+            returnData: options.returnData ?? false,
+            nbRowsToLog: options.nbRowsToLog ?? 10,
+        })
     }
 
     async loadData(
-        tableName: string,
+        table: string,
         files: string[],
         options: {
             fileType?: "csv" | "dsv" | "json" | "parquet"
@@ -71,13 +67,21 @@ export default class SimpleNodeDB {
             // json options
             format?: "unstructured" | "newlineDelimited" | "array"
             records?: boolean
+            // others
+            verbose?: boolean
+            returnData?: boolean
+            nbRowsToLog?: number
         } = {}
     ) {
-        await this.query(loadDataQuery(tableName, files, options))
+        await this.query(loadDataQuery(table, files, options), {
+            verbose: this.verbose || (options.verbose ?? false),
+            returnData: options.returnData ?? false,
+            nbRowsToLog: options.nbRowsToLog ?? 10,
+        })
     }
 
     async loadDataFromDirectory(
-        tableName: string,
+        table: string,
         directory: string,
         options: {
             fileType?: "csv" | "dsv" | "json" | "parquet"
@@ -92,65 +96,132 @@ export default class SimpleNodeDB {
             // json options
             format?: "unstructured" | "newlineDelimited" | "array"
             records?: boolean
+            // others
+            verbose?: boolean
+            returnData?: boolean
+            nbRowsToLog?: number
         } = {}
     ) {
         const files = readdirSync(directory).map(
             (file) => `${directory}${file}`
         )
-        this.query(loadDataQuery(tableName, files, options))
+        this.query(loadDataQuery(table, files, options), {
+            verbose: this.verbose || (options.verbose ?? false),
+            returnData: options.returnData ?? false,
+            nbRowsToLog: options.nbRowsToLog ?? 10,
+        })
+    }
+
+    async logSchema(
+        table: string,
+        options: {
+            verbose?: boolean
+            returnData?: boolean
+            nbRowsToLog?: number
+        } = { verbose: true }
+    ) {
+        return await queryNode(`DESCRIBE ${table}`, this.connection, {
+            verbose: this.verbose || (options.verbose ?? false),
+            returnData: options.returnData ?? false,
+            nbRowsToLog: options.nbRowsToLog ?? 10,
+        })
     }
 
     async logDescription(
-        tableName: string,
+        table: string,
         options: {
             returnData?: boolean
-            logTable?: boolean
+            verbose?: boolean
             nbRowsToLog?: number
         } = {
-            returnData: true,
-            logTable: true,
-            nbRowsToLog: Infinity,
+            verbose: true,
         }
     ) {
-        const types = await this.getTypes(tableName)
-        const { query, resParser } = logDescriptionQuery(tableName, types)
-        return await queryNode(
-            query,
-            this.connection,
-            options.logTable,
-            options.nbRowsToLog,
-            { returnData: options.returnData, resParser }
+        const types = await this.getTypes(table)
+        const { query, resParser } = logDescriptionQuery(table, types)
+        return await queryNode(query, this.connection, {
+            verbose: this.verbose || (options.verbose ?? false),
+            returnData: options.returnData ?? false,
+            nbRowsToLog: options.nbRowsToLog ?? 10,
+            resParser,
+        })
+    }
+
+    async removeMissing(
+        table: string,
+        columns = [],
+        options: {
+            otherMissingValues?: string[]
+            invert?: boolean
+            returnData?: boolean
+            verbose?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        if (options.otherMissingValues === undefined) {
+            options.otherMissingValues = ["undefined", "NaN", "null", ""]
+        }
+        this.query(
+            removeMissingQuery(
+                table,
+                columns.length === 0 ? await this.getColumns(table) : columns,
+                options
+            ),
+            {
+                verbose: this.verbose || (options.verbose ?? false),
+                returnData: options.returnData ?? false,
+                nbRowsToLog: options.nbRowsToLog ?? 10,
+            }
         )
     }
 
     async writeData(
         file: string,
-        tableName: string,
-        options: { compression?: boolean } = {}
+        table: string,
+        options: {
+            compression?: boolean
+            verbose?: boolean
+            returnData?: boolean
+            nbRowsToLog?: number
+        } = {}
     ) {
-        this.query(writeDataQuery(file, tableName, options))
+        this.query(writeDataQuery(file, table, options), {
+            verbose: this.verbose || (options.verbose ?? false),
+            returnData: options.returnData ?? false,
+            nbRowsToLog: options.nbRowsToLog ?? 10,
+        })
     }
 
-    async getColumns(tableName: string) {
+    async getColumns(
+        table: string,
+        options: {
+            verbose?: boolean
+            returnData?: boolean
+            nbRowsToLog?: number
+        } = { returnData: true }
+    ) {
         return (
-            (await queryNode(
-                `DESCRIBE ${tableName}`,
-                this.connection,
-                false,
-                Infinity,
-                { returnData: true }
-            )) as { column_name: string }[]
+            (await queryNode(`DESCRIBE ${table}`, this.connection, {
+                verbose: this.verbose || (options.verbose ?? false),
+                returnData: options.returnData ?? false,
+                nbRowsToLog: options.nbRowsToLog ?? 10,
+            })) as { column_name: string }[]
         ).map((d) => d.column_name)
     }
 
-    async getTypes(tableName: string) {
-        const schema = (await queryNode(
-            `DESCRIBE ${tableName}`,
-            this.connection,
-            false,
-            Infinity,
-            { returnData: true }
-        )) as { column_name: string; column_type: string }[]
+    async getTypes(
+        table: string,
+        options: {
+            verbose?: boolean
+            returnData?: boolean
+            nbRowsToLog?: number
+        } = { returnData: true }
+    ) {
+        const schema = (await queryNode(`DESCRIBE ${table}`, this.connection, {
+            verbose: this.verbose || (options.verbose ?? false),
+            returnData: options.returnData ?? false,
+            nbRowsToLog: options.nbRowsToLog ?? 10,
+        })) as { column_name: string; column_type: string }[]
         const types: { [key: string]: string } = {}
         for (const column of schema) {
             types[column.column_name] = column.column_type
@@ -158,9 +229,18 @@ export default class SimpleNodeDB {
         return types
     }
 
-    async getData(tableName: string) {
-        return await this.query(`SELECT * from ${tableName}`, {
-            returnData: true,
+    async getData(
+        table: string,
+        options: {
+            verbose?: boolean
+            returnData?: boolean
+            nbRowsToLog?: number
+        } = { returnData: true }
+    ) {
+        return await this.query(`SELECT * from ${table}`, {
+            verbose: this.verbose || (options.verbose ?? false),
+            returnData: options.returnData ?? false,
+            nbRowsToLog: options.nbRowsToLog ?? 10,
         })
     }
 
@@ -169,54 +249,33 @@ export default class SimpleNodeDB {
     }
 
     getTable(
-        tableName: string,
+        table: string,
         options: { verbose?: boolean; nbRowsToLog?: number } = {
             verbose: this.verbose,
             nbRowsToLog: this.nbRowsToLog,
         }
     ) {
-        return new SimpleNodeTable(tableName, this.db, this.connection, options)
+        return new SimpleNodeTable(table, this.db, this.connection, options)
     }
 
     async logTable(
-        tableName: string,
+        table: string,
         options: {
+            verbose?: boolean
             returnData?: boolean
-            logTable?: boolean
             nbRowsToLog?: number
         } = {
-            returnData: true,
-            logTable: true,
-            nbRowsToLog: this.nbRowsToLog,
+            verbose: true,
         }
     ) {
         return await queryNode(
-            `SELECT * FROM ${tableName} LIMIT ${options.nbRowsToLog}`,
+            `SELECT * FROM ${table} LIMIT ${options.nbRowsToLog}`,
             this.connection,
-            true,
-            options.nbRowsToLog,
-            { returnData: options.returnData }
-        )
-    }
-
-    async logSchema(
-        tableName: string,
-        options: {
-            returnData?: boolean
-            logTable?: boolean
-            nbRowsToLog?: number
-        } = {
-            returnData: true,
-            logTable: true,
-            nbRowsToLog: Infinity,
-        }
-    ) {
-        return await queryNode(
-            `DESCRIBE ${tableName}`,
-            this.connection,
-            options.logTable,
-            options.nbRowsToLog,
-            options
+            {
+                verbose: this.verbose || (options.verbose ?? false),
+                returnData: options.returnData ?? false,
+                nbRowsToLog: options.nbRowsToLog ?? 10,
+            }
         )
     }
 

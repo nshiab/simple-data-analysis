@@ -25,8 +25,8 @@ export default class SimpleDB {
         return JSON.parse(result.toString())
     }
 
-    async getData(tableName: string) {
-        return await this.query(`SELECT * FROM ${tableName}`)
+    async getData(table: string) {
+        return await this.query(`SELECT * FROM ${table}`)
     }
 
     getDB() {

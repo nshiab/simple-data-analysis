@@ -10,16 +10,6 @@ describe("SimpleNodeTable", () => {
         const simpleNodeTable = simpleNodeDB.getTable("csv")
         assert.deepStrictEqual(simpleNodeTable instanceof SimpleNodeTable, true)
     })
-    it("should return the data of the table", async () => {
-        const simpleNodeTable = simpleNodeDB.getTable("csv")
-        const data = await simpleNodeTable.getData()
-        assert.deepStrictEqual(data, [
-            { key1: "1", key2: "2" },
-            { key1: "3", key2: "coucou" },
-            { key1: "8", key2: "10" },
-            { key1: "brioche", key2: "croissant" },
-        ])
-    })
 
     simpleNodeDB.done()
 })

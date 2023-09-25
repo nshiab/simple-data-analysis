@@ -1,5 +1,5 @@
 export default function logDescriptionQuery(
-    tableName: string,
+    table: string,
     types: { [key: string]: string }
 ) {
     const extraData: { [key: string]: unknown } = { _: "type" }
@@ -23,17 +23,15 @@ export default function logDescriptionQuery(
 
     const query = `SELECT ${columnsNullQuery.join(
         ", "
-    )}, '0-Null' as "_" FROM ${tableName},
+    )}, '0-Null' as "_" FROM ${table},
         UNION
         SELECT ${columnsCountQuery.join(
             ", "
-        )}, '1-Not null' as "_" FROM ${tableName}
+        )}, '1-Not null' as "_" FROM ${table}
         UNION
-        SELECT ${columnsDistinctQuery.join(
-            ", "
-        )}, '2-Distinct' FROM ${tableName}
+        SELECT ${columnsDistinctQuery.join(", ")}, '2-Distinct' FROM ${table}
         UNION
-        SELECT ${columnsCountAllQuery.join(", ")}, '3-Total' FROM ${tableName};`
+        SELECT ${columnsCountAllQuery.join(", ")}, '3-Total' FROM ${table};`
 
     return {
         query,

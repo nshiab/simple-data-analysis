@@ -4,7 +4,7 @@ import SimpleNodeDB from "../../../../../src/class/SimpleNodeDB.js"
 describe("logDescription", () => {
     const simpleNodeDB = new SimpleNodeDB().start()
 
-    it("should return the number of null values in each column of a table", async () => {
+    it("should return the count of null values, non null values, and distinct values in each column of a table", async () => {
         await simpleNodeDB.loadData("employees", ["test/data/employees.json"])
 
         const description = await simpleNodeDB.logDescription("employees", {
