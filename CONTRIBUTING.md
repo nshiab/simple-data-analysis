@@ -37,7 +37,7 @@ Then do your magic to pass the tests you created. It's a great way to stay focus
 
 We use [mocha](https://mochajs.org/) for the tests and the library is coded with [TypeScript](https://www.typescriptlang.org/). Here's how to run a specific test file with one or more tests in it:
 
-`npx mocha --require ts-node/register ./test/unit/methods/analyzing/summarize.test.ts`
+`npx mocha --require ts-node/register ./test/unit/methods/backend/analyzing/summarize.test.ts`
 
 Read the tests and the functions already present as inspirations. Do your best to write clear and understandable code.
 

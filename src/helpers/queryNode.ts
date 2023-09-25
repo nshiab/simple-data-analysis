@@ -3,10 +3,10 @@ import { Connection } from "duckdb"
 export default async function queryNode(
     query: string,
     connection: Connection,
-    returnData: boolean
+    returnDataFromQuery: boolean
 ) {
     return new Promise((resolve) => {
-        if (returnData) {
+        if (returnDataFromQuery) {
             connection.all(query, (err, res) => {
                 if (err) {
                     throw err
@@ -18,7 +18,7 @@ export default async function queryNode(
                 if (err) {
                     throw err
                 }
-                resolve(true)
+                resolve("No error")
             })
         }
     })
