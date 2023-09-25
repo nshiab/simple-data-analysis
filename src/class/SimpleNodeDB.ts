@@ -43,9 +43,7 @@ export default class SimpleNodeDB {
             rows: {
                 [key: string]: unknown
             }[]
-        ) => {
-            [key: string]: unknown
-        }[]
+        ) => unknown
         debug?: boolean
     }) {
         return {
@@ -69,9 +67,7 @@ export default class SimpleNodeDB {
                 rows: {
                     [key: string]: unknown
                 }[]
-            ) => {
-                [key: string]: unknown
-            }[]
+            ) => unknown
             debug: boolean
         }
     ) {
@@ -85,11 +81,19 @@ export default class SimpleNodeDB {
 
         let data = null
 
-        if (options.returnDataFrom === "none") {
+        if (
+            options.returnDataFrom === "none" &&
+            options.verbose === false &&
+            options.debug === false
+        ) {
             data = await queryNode(query, this.connection, false)
         } else if (options.returnDataFrom === "query") {
             data = await queryNode(query, this.connection, true)
-        } else if (options.returnDataFrom === "table") {
+        } else if (
+            options.returnDataFrom === "table" ||
+            (options.returnDataFrom === "none" &&
+                (options.verbose || options.debug))
+        ) {
             if (typeof options.table !== "string") {
                 throw new Error("No options.table")
             }
@@ -99,13 +103,13 @@ export default class SimpleNodeDB {
                 data = await queryNode(
                     `SELECT * FROM ${options.table};`,
                     this.connection,
-                    false
+                    true
                 )
             } else {
                 data = await queryNode(
                     `SELECT * FROM ${options.table} LIMIT ${options.nbRowsToLog};`,
                     this.connection,
-                    false
+                    true
                 )
             }
         }
@@ -167,9 +171,7 @@ export default class SimpleNodeDB {
                 rows: {
                     [key: string]: unknown
                 }[]
-            ) => {
-                [key: string]: unknown
-            }[]
+            ) => unknown
         } = {}
     ) {
         ;(options.verbose || this.verbose || this.debug) &&
@@ -286,7 +288,7 @@ export default class SimpleNodeDB {
 
     async removeMissing(
         table: string,
-        columns = [],
+        columns: string[] = [],
         options: {
             otherMissingValues?: string[]
             invert?: boolean
@@ -295,15 +297,16 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
+        const allColumns = await this.getColumns(table)
+
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\nremoveMissing()")
-        if (options.otherMissingValues === undefined) {
-            options.otherMissingValues = ["undefined", "NaN", "null", ""]
-        }
+
         return await this.query(
             removeMissingQuery(
                 table,
-                columns.length === 0 ? await this.getColumns(table) : columns,
+                allColumns,
+                columns.length === 0 ? allColumns : columns,
                 options
             ),
             this.mergeOptions({ ...options, table })
@@ -336,12 +339,15 @@ export default class SimpleNodeDB {
     ) {
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\ngetColumns()")
-        return (
-            (await this.query(
-                `DESCRIBE ${table}`,
-                this.mergeOptions({ ...options, returnDataFrom: "query" })
-            )) as { column_name: string }[]
-        ).map((d) => d.column_name)
+        return (await this.query(
+            `DESCRIBE ${table}`,
+            this.mergeOptions({
+                ...options,
+                table,
+                returnDataFrom: "query",
+                rowsModifier: (rows) => rows.map((d) => d.column_name),
+            })
+        )) as string[]
     }
 
     async getTypes(
