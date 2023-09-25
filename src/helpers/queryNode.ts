@@ -31,14 +31,10 @@ export default async function queryNode(
                     res = options.rowsModifier(res)
                 }
                 if (options.verbose || options.debug) {
-                    if (res.length <= options.nbRowsToLog) {
-                        console.table(res)
-                    } else {
-                        console.table(res.slice(0, options.nbRowsToLog))
-                        console.log(
-                            `Total rows: ${res.length} (nbRowsToLog: ${options.nbRowsToLog})`
-                        )
-                    }
+                    console.table(res.slice(0, options.nbRowsToLog))
+                    console.log(
+                        `Total rows: ${res.length} (nbRowsToLog: ${options.nbRowsToLog})`
+                    )
                 }
 
                 if (options.verbose || options.debug) {
