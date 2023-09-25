@@ -10,9 +10,11 @@ export default async function queryNode(
         rowsModifier?: (
             res: { [key: string]: unknown }[]
         ) => { [key: string]: unknown }[]
+        debug: boolean
     }
 ) {
-    if (options.verbose) {
+    const start = Date.now()
+    if (options.debug) {
         console.log(query)
         if (options.rowsModifier) {
             console.log("rowsModifier:", options.rowsModifier)
@@ -20,7 +22,7 @@ export default async function queryNode(
     }
 
     return new Promise((resolve) => {
-        if (options.returnData || options.verbose) {
+        if (options.returnData || options.verbose || options.debug) {
             connection.all(query, (err, res) => {
                 if (err) {
                     throw err
@@ -28,7 +30,7 @@ export default async function queryNode(
                 if (options.rowsModifier) {
                     res = options.rowsModifier(res)
                 }
-                if (options.verbose) {
+                if (options.verbose || options.debug) {
                     if (res.length <= options.nbRowsToLog) {
                         console.table(res)
                     } else {
@@ -39,6 +41,9 @@ export default async function queryNode(
                     }
                 }
 
+                const end = Date.now()
+                console.log(`${end - start} ms`)
+
                 resolve(res)
             })
         } else {
@@ -46,6 +51,8 @@ export default async function queryNode(
                 if (err) {
                     throw err
                 }
+                const end = Date.now()
+                console.log(`${end - start} ms`)
                 resolve(true)
             })
         }

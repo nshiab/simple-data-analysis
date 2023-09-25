@@ -2,7 +2,7 @@
 import SimpleNodeDB from "../../../../../src/class/SimpleNodeDB.js"
 
 describe("removeMissing()", () => {
-    const simpleNodeDB = new SimpleNodeDB().start()
+    const simpleNodeDB = new SimpleNodeDB({ debug: true }).start()
 
     it("should return a table without any missing values", async () => {
         await simpleNodeDB.loadData("employees", ["test/data/employees.json"])

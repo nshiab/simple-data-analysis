@@ -8,17 +8,26 @@ import logDescriptionQuery from "../methods/cleaning/logDescriptionQuery.js"
 import removeMissingQuery from "../methods/cleaning/removeMissingQuery.js"
 
 export default class SimpleNodeDB {
+    protected debug: boolean
     protected verbose: boolean
     protected nbRowsToLog: number
     protected db!: Database
     protected connection!: Connection
 
-    constructor(options: { verbose?: boolean; nbRowsToLog?: number } = {}) {
+    constructor(
+        options: {
+            verbose?: boolean
+            nbRowsToLog?: number
+            debug?: boolean
+        } = {}
+    ) {
         this.verbose = options.verbose ?? false
         this.nbRowsToLog = options.nbRowsToLog ?? 10
+        this.debug = options.debug ?? false
     }
 
     start() {
+        ;(this.verbose || this.debug) && console.log("start()")
         this.db = new duckdb.Database(":memory:")
         this.db.exec("INSTALL httpfs")
         this.connection = this.db.connect()
@@ -36,12 +45,14 @@ export default class SimpleNodeDB {
         ) => {
             [key: string]: unknown
         }[]
+        debug?: boolean
     }) {
         return {
             verbose: this.verbose || (options.verbose ?? false),
             returnData: options.returnData ?? false,
             nbRowsToLog: options.nbRowsToLog ?? this.nbRowsToLog,
             rowsModifier: options.rowsModifier,
+            debug: this.debug,
         }
     }
 
@@ -51,6 +62,7 @@ export default class SimpleNodeDB {
             verbose: boolean
             nbRowsToLog: number
             returnData: boolean
+            debug: boolean
         }
     ) {
         return await queryNode(query, this.connection, options)
@@ -64,6 +76,7 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
+        ;(this.verbose || this.debug) && console.log("customQuery()")
         return await queryNode(
             query,
             this.connection,
@@ -93,6 +106,7 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
+        ;(this.verbose || this.debug) && console.log("loadData()")
         await this.query(
             loadDataQuery(table, files, options),
             this.mergeOptions(options)
@@ -121,6 +135,7 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
+        ;(this.verbose || this.debug) && console.log("loadDataFromDirectory()")
         const files = readdirSync(directory).map(
             (file) => `${directory}${file}`
         )
@@ -139,6 +154,7 @@ export default class SimpleNodeDB {
         } = {}
     ) {
         options.verbose = options.verbose ?? true
+        ;(this.verbose || this.debug) && console.log("logSchema()")
         return await queryNode(
             `DESCRIBE ${table}`,
             this.connection,
@@ -155,7 +171,7 @@ export default class SimpleNodeDB {
         } = {}
     ) {
         options.verbose = options.verbose ?? true
-
+        ;(this.verbose || this.debug) && console.log("logDescription()")
         const types = await this.getTypes(table)
         const { query, rowsModifier } = logDescriptionQuery(table, types)
         return await queryNode(
@@ -176,6 +192,7 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
+        ;(this.verbose || this.debug) && console.log("removeMissing()")
         if (options.otherMissingValues === undefined) {
             options.otherMissingValues = ["undefined", "NaN", "null", ""]
         }
@@ -199,6 +216,7 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
+        ;(this.verbose || this.debug) && console.log("writeData()")
         this.query(
             writeDataQuery(file, table, options),
             this.mergeOptions(options)
@@ -214,7 +232,7 @@ export default class SimpleNodeDB {
         } = {}
     ) {
         options.returnData = options.returnData ?? true
-
+        ;(this.verbose || this.debug) && console.log("getColumns()")
         return (
             (await queryNode(
                 `DESCRIBE ${table}`,
@@ -232,6 +250,7 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
+        ;(this.verbose || this.debug) && console.log("getTypes()")
         options.returnData = options.returnData ?? true
 
         const schema = (await queryNode(
@@ -256,6 +275,7 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
+        ;(this.verbose || this.debug) && console.log("getData()")
         options.returnData = options.returnData ?? true
 
         return await this.query(
@@ -271,6 +291,7 @@ export default class SimpleNodeDB {
             nbRowsToLog?: number
         } = {}
     ) {
+        ;(this.verbose || this.debug) && console.log("getTable()")
         return new SimpleNodeTable(table, this.db, this.connection, options)
     }
 
@@ -283,6 +304,7 @@ export default class SimpleNodeDB {
         } = {}
     ) {
         options.verbose = options.verbose ?? true
+        ;(this.verbose || this.debug) && console.log("logTable()")
 
         return await queryNode(
             `SELECT * FROM ${table} LIMIT ${options.nbRowsToLog}`,
