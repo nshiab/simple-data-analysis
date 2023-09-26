@@ -35,7 +35,7 @@ export default function logDescriptionQuery(
 
     return {
         query,
-        rowsModifier: (rows: { [key: string]: unknown }[]) =>
+        returnedDataModifier: (rows: { [key: string]: unknown }[]) =>
             [extraData].concat(
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore

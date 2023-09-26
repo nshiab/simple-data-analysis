@@ -7,6 +7,7 @@ import writeDataQuery from "../methods/exporting/writeDataQuery.js"
 import logDescriptionQuery from "../methods/cleaning/logDescriptionQuery.js"
 import removeMissingQuery from "../methods/cleaning/removeMissingQuery.js"
 import renameColumnQuery from "../methods/cleaning/renameColumnQuery.js"
+import replaceTextQuery from "../methods/cleaning/replaceTextQuery.js"
 
 export default class SimpleNodeDB {
     protected debug: boolean
@@ -40,7 +41,7 @@ export default class SimpleNodeDB {
         verbose?: boolean
         table?: string
         nbRowsToLog?: number
-        rowsModifier?: (
+        returnedDataModifier?: (
             rows: {
                 [key: string]: unknown
             }[]
@@ -53,7 +54,7 @@ export default class SimpleNodeDB {
             table: options.table,
             returnDataFrom: options.returnDataFrom ?? "none",
             nbRowsToLog: options.nbRowsToLog ?? this.nbRowsToLog,
-            rowsModifier: options.rowsModifier,
+            returnedDataModifier: options.returnedDataModifier,
             debug: this.debug,
             noTiming: options.noTiming ?? false,
         }
@@ -66,7 +67,7 @@ export default class SimpleNodeDB {
             verbose: boolean
             nbRowsToLog: number
             returnDataFrom: "query" | "table" | "none"
-            rowsModifier?: (
+            returnedDataModifier?: (
                 rows: {
                     [key: string]: unknown
                 }[]
@@ -81,6 +82,7 @@ export default class SimpleNodeDB {
         }
         if (options.debug) {
             console.log(query)
+            console.log(options)
         }
 
         let data = null
@@ -90,8 +92,14 @@ export default class SimpleNodeDB {
             options.verbose === false &&
             options.debug === false
         ) {
+            if (options.debug) {
+                console.log(`No data returned.`)
+            }
             data = await queryNode(query, this.connection, false)
         } else if (options.returnDataFrom === "query") {
+            if (options.debug) {
+                console.log(`Query data returned.`)
+            }
             data = await queryNode(query, this.connection, true)
         } else if (
             options.returnDataFrom === "table" ||
@@ -104,27 +112,37 @@ export default class SimpleNodeDB {
 
             await queryNode(query, this.connection, false)
             if (options.nbRowsToLog === Infinity) {
+                if (options.debug) {
+                    console.log(`Table data returned without LIMIT.`)
+                }
                 data = await queryNode(
                     `SELECT * FROM ${options.table};`,
                     this.connection,
                     true
                 )
             } else {
+                if (options.debug) {
+                    console.log(`Table data returned with LIMIT.`)
+                }
                 data = await queryNode(
                     `SELECT * FROM ${options.table} LIMIT ${options.nbRowsToLog};`,
                     this.connection,
                     true
                 )
             }
+        } else {
+            throw new Error(
+                "No condition handling the returned data in this.query!"
+            )
         }
 
-        if (options.rowsModifier) {
+        if (options.returnedDataModifier) {
             if (data === null) {
                 throw new Error(
                     "Data is null. Use option returnDataFrom with 'query' or 'table'."
                 )
             }
-            data = options.rowsModifier(
+            data = options.returnedDataModifier(
                 data as {
                     [key: string]: unknown
                 }[]
@@ -171,7 +189,7 @@ export default class SimpleNodeDB {
             verbose?: boolean
             table?: string
             nbRowsToLog?: number
-            rowsModifier?: (
+            returnedDataModifier?: (
                 rows: {
                     [key: string]: unknown
                 }[]
@@ -277,13 +295,16 @@ export default class SimpleNodeDB {
         options.verbose = options.verbose ?? true
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\nlogDescription()")
-        const { query, rowsModifier } = logDescriptionQuery(table, types)
+        const { query, returnedDataModifier } = logDescriptionQuery(
+            table,
+            types
+        )
         return await this.query(
             query,
             this.mergeOptions({
                 ...options,
                 table,
-                rowsModifier,
+                returnedDataModifier,
                 nbRowsToLog: Infinity,
                 returnDataFrom: "query",
             })
@@ -301,11 +322,17 @@ export default class SimpleNodeDB {
         } = {}
     ) {
         ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nremoveMissing()")
+            console.log("\nrenameColumns()")
 
         let start
         if (options.verbose || this.debug) {
             start = Date.now()
+        }
+
+        if (oldColumns.length !== newColumns.length) {
+            throw new Error(
+                "oldColumns and newColumns must have the same number of items."
+            )
         }
 
         let data
@@ -323,7 +350,7 @@ export default class SimpleNodeDB {
                         returnDataFrom: "none",
                         verbose: false,
                         nbRowsToLog: 0,
-                        rowsModifier: undefined,
+                        returnedDataModifier: undefined,
                         debug: false,
                         noTiming: true,
                     }
@@ -365,6 +392,67 @@ export default class SimpleNodeDB {
         )
     }
 
+    async replaceText(
+        table: string,
+        columns: string[],
+        oldText: string[],
+        newText: string[],
+        options: {
+            verbose?: boolean
+            returnDataFrom?: "query" | "table" | "none"
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nreplaceText()")
+
+        let start
+        if (options.verbose || this.debug) {
+            start = Date.now()
+        }
+
+        if (oldText.length !== newText.length) {
+            throw new Error(
+                "oldText and newText must have the same number of items."
+            )
+        }
+
+        const lastColumn = columns[columns.length - 1]
+        const lastOldText = oldText[oldText.length - 1]
+
+        let data
+        for (const column of columns) {
+            for (let i = 0; i < oldText.length; i++) {
+                if (column === lastColumn && oldText[i] === lastOldText) {
+                    data = await this.query(
+                        replaceTextQuery(table, column, oldText[i], newText[i]),
+                        this.mergeOptions({ ...options, table })
+                    )
+                } else {
+                    await this.query(
+                        replaceTextQuery(table, column, oldText[i], newText[i]),
+                        {
+                            table,
+                            returnDataFrom: "none",
+                            verbose: false,
+                            nbRowsToLog: 0,
+                            returnedDataModifier: undefined,
+                            debug: false,
+                            noTiming: true,
+                        }
+                    )
+                }
+            }
+        }
+
+        if (start) {
+            const end = Date.now()
+            console.log(`Done in ${end - start} ms`)
+        }
+
+        return data
+    }
+
     async writeData(
         file: string,
         table: string,
@@ -397,7 +485,7 @@ export default class SimpleNodeDB {
                 ...options,
                 table,
                 returnDataFrom: "query",
-                rowsModifier: (rows) => rows.map((d) => d.column_name),
+                returnedDataModifier: (rows) => rows.map((d) => d.column_name),
             })
         )) as string[]
     }
