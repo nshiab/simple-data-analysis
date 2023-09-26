@@ -4,11 +4,33 @@ import SimpleNodeDB from "../../../../../src/class/SimpleNodeDB.js"
 describe("renameColumns", () => {
     const simpleNodeDB = new SimpleNodeDB().start()
 
-    it("should change the name of the columns", async () => {
-        await simpleNodeDB.loadData("dataJSON", ["test/data/files/data.json"])
+    it("should change the name of one column", async () => {
+        await simpleNodeDB.loadData("dataJSONOneColumn", [
+            "test/data/files/data.json",
+        ])
 
         const data = await simpleNodeDB.renameColumns(
-            "dataJSON",
+            "dataJSONOneColumn",
+            ["key1"],
+            ["A"],
+            { returnDataFrom: "table" }
+        )
+
+        assert.deepStrictEqual(data, [
+            { A: 1, key2: "un" },
+            { A: 2, key2: "deux" },
+            { A: 3, key2: "trois" },
+            { A: 4, key2: "quatre" },
+        ])
+    })
+
+    it("should change the name of multiple columns", async () => {
+        await simpleNodeDB.loadData("dataJSONMultipleColumns", [
+            "test/data/files/data.json",
+        ])
+
+        const data = await simpleNodeDB.renameColumns(
+            "dataJSONMultipleColumns",
             ["key1", "key2"],
             ["A", "B"],
             { returnDataFrom: "table" }

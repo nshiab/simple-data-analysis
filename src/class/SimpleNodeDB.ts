@@ -46,6 +46,7 @@ export default class SimpleNodeDB {
             }[]
         ) => unknown
         debug?: boolean
+        noTiming?: boolean
     }) {
         return {
             verbose: this.verbose || (options.verbose ?? false),
@@ -54,6 +55,7 @@ export default class SimpleNodeDB {
             nbRowsToLog: options.nbRowsToLog ?? this.nbRowsToLog,
             rowsModifier: options.rowsModifier,
             debug: this.debug,
+            noTiming: options.noTiming ?? false,
         }
     }
 
@@ -70,10 +72,11 @@ export default class SimpleNodeDB {
                 }[]
             ) => unknown
             debug: boolean
+            noTiming: boolean
         }
     ) {
         let start
-        if (options.verbose || options.debug) {
+        if ((options.verbose || options.debug) && !options.noTiming) {
             start = Date.now()
         }
         if (options.debug) {
@@ -300,6 +303,11 @@ export default class SimpleNodeDB {
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\nremoveMissing()")
 
+        let start
+        if (options.verbose || this.debug) {
+            start = Date.now()
+        }
+
         let data
         for (let i = 0; i < oldColumns.length; i++) {
             if (i === oldColumns.length - 1) {
@@ -317,9 +325,15 @@ export default class SimpleNodeDB {
                         nbRowsToLog: 0,
                         rowsModifier: undefined,
                         debug: false,
+                        noTiming: true,
                     }
                 )
             }
+        }
+
+        if (start) {
+            const end = Date.now()
+            console.log(`Done in ${end - start} ms`)
         }
 
         return data
