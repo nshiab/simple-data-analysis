@@ -462,7 +462,15 @@ export default class SimpleNodeDB {
     async convertTo(
         table: string,
         columns: string[],
-        types: ("integer" | "float" | "string")[],
+        types: (
+            | "integer"
+            | "float"
+            | "string"
+            | "date"
+            | "time"
+            | "datetime"
+            | "datetimeTz"
+        )[],
         options: {
             verbose?: boolean
             returnDataFrom?: "query" | "table" | "none"

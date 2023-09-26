@@ -16,6 +16,44 @@ describe("loadData", () => {
             { key1: "brioche", key2: "croissant" },
         ])
     })
+    it("should load data with dates", async () => {
+        await simpleNodeDB.loadData("dataDates", [
+            "test/data/files/dataDates.csv",
+        ])
+
+        const data = await simpleNodeDB.getData("dataDates")
+
+        assert.deepStrictEqual(data, [
+            {
+                date: new Date("2010-01-01T00:00:00.000Z"),
+                datetime: new Date("2010-01-01T14:01:12.000Z"),
+                datetimeWithMs: new Date("2010-01-01T14:12:12.014Z"),
+                time: "14:12:12",
+                timeMs: "14:12:12.014",
+            },
+            {
+                date: new Date("2010-01-02T00:00:00.000Z"),
+                datetime: new Date("2010-01-02T01:12:54.000Z"),
+                datetimeWithMs: new Date("2010-01-02T01:12:54.955Z"),
+                time: "01:12:54",
+                timeMs: "01:12:54.955",
+            },
+            {
+                date: new Date("2010-01-03T00:00:00.000Z"),
+                datetime: new Date("2010-01-03T02:25:01.000Z"),
+                datetimeWithMs: new Date("2010-01-03T02:25:01.111Z"),
+                time: "02:25:01",
+                timeMs: "02:25:01.111",
+            },
+            {
+                date: new Date("2010-01-04T00:00:00.000Z"),
+                datetime: new Date("2010-01-04T23:25:15.000Z"),
+                datetimeWithMs: new Date("2010-01-04T12:01:15.123Z"),
+                time: "12:01:15",
+                timeMs: "12:01:15.123",
+            },
+        ])
+    })
     it("should load data from a fetched csv file", async () => {
         await simpleNodeDB.loadData("dataFetchCsv", [
             "https://raw.githubusercontent.com/nshiab/simple-data-analysis.js/main/test/data/files/data.csv",
@@ -274,5 +312,6 @@ describe("loadData", () => {
             { key1: 11, key2: "onze", key3: "eleven" },
         ])
     })
+
     simpleNodeDB.done()
 })

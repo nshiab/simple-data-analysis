@@ -1,7 +1,15 @@
 export default function convertToQuery(
     table: string,
     columns: string[],
-    types: ("integer" | "float" | "string")[],
+    types: (
+        | "integer"
+        | "float"
+        | "string"
+        | "date"
+        | "time"
+        | "datetime"
+        | "datetimeTz"
+    )[],
     allColumns: string[]
 ) {
     let query = `CREATE OR REPLACE TABLE ${table} AS SELECT`
@@ -21,13 +29,30 @@ export default function convertToQuery(
     return query
 }
 
-function parseType(type: "integer" | "float" | "string") {
+function parseType(
+    type:
+        | "integer"
+        | "float"
+        | "string"
+        | "date"
+        | "time"
+        | "datetime"
+        | "datetimeTz"
+) {
     if (type === "integer") {
         return "BIGINT"
     } else if (type === "float") {
         return "DOUBLE"
     } else if (type === "string") {
         return "VARCHAR"
+    } else if (type === "date") {
+        return "DATE"
+    } else if (type === "datetime") {
+        return "TIMESTAMP"
+    } else if (type === "datetimeTz") {
+        return "TIMESTAMP WITH TIME ZONE"
+    } else if (type === "time") {
+        return "TIME"
     } else {
         throw new Error(`Unknown type ${type}`)
     }
