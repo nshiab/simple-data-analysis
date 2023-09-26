@@ -475,12 +475,25 @@ export default class SimpleNodeDB {
             verbose?: boolean
             returnDataFrom?: "query" | "table" | "none"
             nbRowsToLog?: number
+            datetimeFormat?: string
         } = {}
     ) {
         const allColumns = await this.getColumns(table)
 
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\nconvertTo()")
+
+        if (
+            (types.includes("date") ||
+                types.includes("time") ||
+                types.includes("datetime") ||
+                types.includes("datetimeTz")) &&
+            !options.datetimeFormat
+        ) {
+            throw new Error(
+                "When converting to time or date, you must specify a format in options.datetimeFormat. See https://duckdb.org/docs/sql/functions/dateformat"
+            )
+        }
         return await this.query(
             convertToQuery(table, columns, types, allColumns),
             this.mergeOptions({ ...options, table })
