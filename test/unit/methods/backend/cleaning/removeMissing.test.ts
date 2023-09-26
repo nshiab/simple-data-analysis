@@ -20,6 +20,52 @@ describe("removeMissing", () => {
         assert.deepStrictEqual(data, dataNoNulls)
     })
 
+    it("should return a table without any missing values even if there is a type JSON", async () => {
+        await simpleNodeDB.loadData("employeesJSON", [
+            "test/data/employees.json",
+        ])
+
+        const data = await simpleNodeDB.removeMissing("employeesJSON", [], {
+            returnDataFrom: "table",
+        })
+
+        assert.deepStrictEqual(data, dataNoNullsJSON)
+    })
+
+    it("should return a table without any missing values even if there is a type associated with numbers", async () => {
+        await simpleNodeDB.loadData("missingValuesJSON", [
+            "test/data/files/dataWithMissingValues.json",
+        ])
+
+        const data = await simpleNodeDB.removeMissing("missingValuesJSON", [], {
+            returnDataFrom: "table",
+        })
+
+        assert.deepStrictEqual(data, [
+            { key1: 4, key2: "quatre", key3: 11545.12 },
+        ])
+    })
+
+    it("should return a table without any missing values even if there is a type associated with numbers and otherMissingValues as number", async () => {
+        await simpleNodeDB.loadData("missingValuesJSONOtherMissingValues", [
+            "test/data/files/dataWithMissingValues.json",
+        ])
+
+        const data = await simpleNodeDB.removeMissing(
+            "missingValuesJSONOtherMissingValues",
+            ["key3"],
+            {
+                returnDataFrom: "table",
+                otherMissingValues: [0.5],
+            }
+        )
+
+        assert.deepStrictEqual(data, [
+            { key1: null, key2: "deux", key3: 12 },
+            { key1: 4, key2: "quatre", key3: 11545.12 },
+        ])
+    })
+
     it("should return a table without any missing values for a specific column", async () => {
         await simpleNodeDB.loadData("employeesForOneSpecificColumnTest", [
             "test/data/employees.csv",
@@ -143,6 +189,89 @@ const dataNoNulls = [
         "Hire date": "21-SEP-05",
         Job: "Vice-president",
         Salary: "&6%",
+        "Departement or unit": "90",
+        "End-of_year-BONUS?": "11,6%",
+    },
+    {
+        Name: "Hunold, Alexander",
+        "Hire date": "03-JAN-06",
+        Job: "Programmer",
+        Salary: "9000",
+        "Departement or unit": "60",
+        "End-of_year-BONUS?": "23,01%",
+    },
+    {
+        Name: "Ernst, Bruce",
+        "Hire date": "21-MAY-07",
+        Job: "Programmer",
+        Salary: "6000",
+        "Departement or unit": "60",
+        "End-of_year-BONUS?": "25,91%",
+    },
+    {
+        Name: "Lorentz, Diana",
+        "Hire date": "07-ARB-07",
+        Job: "Programmer",
+        Salary: "4200",
+        "Departement or unit": "60",
+        "End-of_year-BONUS?": "13,17%",
+    },
+]
+
+const dataNoNullsJSON = [
+    {
+        Name: "OConnell, Donald",
+        "Hire date": "21-JUN-07",
+        Job: "Clerk",
+        Salary: "2600",
+        "Departement or unit": "50",
+        "End-of_year-BONUS?": "1,94%",
+    },
+    {
+        Name: "OConnell, Donald",
+        "Hire date": "21-JUN-07",
+        Job: "Clerk",
+        Salary: "2600",
+        "Departement or unit": "50",
+        "End-of_year-BONUS?": "1,94%",
+    },
+    {
+        Name: "Hartstein, Michael",
+        "Hire date": "17-FEB-04",
+        Job: "Manager",
+        Salary: "13000",
+        "Departement or unit": "20",
+        "End-of_year-BONUS?": "2,71%",
+    },
+    {
+        Name: "Fay, Pat",
+        "Hire date": "17-AUG-05",
+        Job: "Representative",
+        Salary: "6000",
+        "Departement or unit": "20",
+        "End-of_year-BONUS?": "18,68%",
+    },
+    {
+        Name: "Mavris, Susan",
+        "Hire date": "07-JUN-02",
+        Job: "Salesperson",
+        Salary: "6500",
+        "Departement or unit": "40",
+        "End-of_year-BONUS?": "23,47%",
+    },
+    {
+        Name: "Higgins, Shelley",
+        "Hire date": "07-JUN-02",
+        Job: "Manager",
+        Salary: "12008",
+        "Departement or unit": "110",
+        "End-of_year-BONUS?": "17,09%",
+    },
+    {
+        Name: "Kochhar, Neena",
+        "Hire date": "21-SEP-05",
+        Job: "Vice-president",
+        Salary: '"&6%"',
         "Departement or unit": "90",
         "End-of_year-BONUS?": "11,6%",
     },

@@ -1,6 +1,9 @@
 export default function removeMissingQuery(
     table: string,
     allColumns: string[],
+    types: {
+        [key: string]: string
+    },
     columns: string[],
     options: {
         otherMissingValues?: (string | number)[]
@@ -17,9 +20,15 @@ export default function removeMissingQuery(
             query += `\n"${columns[i]}" IS NULL OR`
             if (options.otherMissingValues) {
                 for (const otherMissingValue of options.otherMissingValues) {
-                    if (typeof otherMissingValue === "string") {
+                    if (
+                        typeof otherMissingValue === "string" &&
+                        types[columns[i]] === "VARCHAR"
+                    ) {
                         query += `\n"${columns[i]}" = '${otherMissingValue}' OR`
-                    } else if (typeof otherMissingValue === "number") {
+                    } else if (
+                        typeof otherMissingValue === "number" &&
+                        ["BIGINT", "DOUBLE"].includes(types[columns[i]])
+                    ) {
                         query += `\n"${columns[i]}" = ${otherMissingValue} OR`
                     }
                 }
@@ -30,10 +39,16 @@ export default function removeMissingQuery(
             query += `\n"${columns[i]}" IS NOT NULL AND`
             if (options.otherMissingValues) {
                 for (const otherMissingValue of options.otherMissingValues) {
-                    if (typeof otherMissingValue === "string") {
+                    if (
+                        typeof otherMissingValue === "string" &&
+                        types[columns[i]] === "VARCHAR"
+                    ) {
                         query += `\n"${columns[i]}" != '${otherMissingValue}' AND`
-                    } else if (typeof otherMissingValue === "number") {
-                        query += `\n"${columns[i]}"! = ${otherMissingValue} AND`
+                    } else if (
+                        typeof otherMissingValue === "number" &&
+                        ["BIGINT", "DOUBLE"].includes(types[columns[i]])
+                    ) {
+                        query += `\n"${columns[i]}" != ${otherMissingValue} AND`
                     }
                 }
             }

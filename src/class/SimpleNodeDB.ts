@@ -150,21 +150,25 @@ export default class SimpleNodeDB {
                     "Data is null. Use option returnDataFrom with 'query' or 'table'."
                 )
             }
-            console.table(data)
-            const nbRows = (
-                (await queryNode(
-                    `SELECT COUNT(*) FROM ${options.table};`,
-                    this.connection,
-                    true
-                )) as { "count_star()": number }[]
-            )[0]["count_star()"]
-            console.log(
-                `${nbRows} rows in total ${
-                    options.returnDataFrom === "none"
-                        ? ""
-                        : `(nbRowsToLog: ${options.nbRowsToLog})`
-                }`
-            )
+            if (Array.isArray(data)) {
+                console.table(data)
+                const nbRows = (
+                    (await queryNode(
+                        `SELECT COUNT(*) FROM ${options.table};`,
+                        this.connection,
+                        true
+                    )) as { "count_star()": number }[]
+                )[0]["count_star()"]
+                console.log(
+                    `${nbRows} rows in total ${
+                        options.returnDataFrom === "none"
+                            ? ""
+                            : `(nbRowsToLog: ${options.nbRowsToLog})`
+                    }`
+                )
+            } else {
+                console.log(data)
+            }
 
             if (start) {
                 const end = Date.now()
@@ -373,7 +377,8 @@ export default class SimpleNodeDB {
             otherMissingValues: ["undefined", "NaN", "null", ""],
         }
     ) {
-        const allColumns = await this.getColumns(table)
+        const types = await this.getTypes(table)
+        const allColumns = Object.keys(types)
 
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\nremoveMissing()")
@@ -389,6 +394,7 @@ export default class SimpleNodeDB {
             removeMissingQuery(
                 table,
                 allColumns,
+                types,
                 columns.length === 0 ? allColumns : columns,
                 options
             ),
@@ -501,17 +507,23 @@ export default class SimpleNodeDB {
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\ngetTypes()")
 
-        const schema = (await this.query(
+        const types = await this.query(
             `DESCRIBE ${table}`,
-            this.mergeOptions({ ...options, table, returnDataFrom: "query" })
-        )) as { column_name: string; column_type: string }[]
+            this.mergeOptions({
+                ...options,
+                table,
+                returnDataFrom: "query",
+                returnedDataModifier: (rows: { [key: string]: unknown }[]) => {
+                    const types: { [key: string]: unknown } = {}
+                    for (const row of rows) {
+                        types[row.column_name as string] = row.column_type
+                    }
+                    return types
+                },
+            })
+        )
 
-        const types: { [key: string]: string } = {}
-        for (const column of schema) {
-            types[column.column_name] = column.column_type
-        }
-
-        return types
+        return types as { [key: string]: string }
     }
 
     async getData(
