@@ -8,6 +8,7 @@ import logDescriptionQuery from "../methods/cleaning/logDescriptionQuery.js"
 import removeMissingQuery from "../methods/cleaning/removeMissingQuery.js"
 import renameColumnQuery from "../methods/cleaning/renameColumnQuery.js"
 import replaceTextQuery from "../methods/cleaning/replaceTextQuery.js"
+import convertToQuery from "../methods/cleaning/convertToQuery.js"
 
 export default class SimpleNodeDB {
     protected debug: boolean
@@ -85,9 +86,6 @@ export default class SimpleNodeDB {
         }
         if (options.debug) {
             console.log(query)
-            if (!options.justQuery) {
-                console.log(options)
-            }
         }
 
         let data = null
@@ -459,6 +457,26 @@ export default class SimpleNodeDB {
         }
 
         return data
+    }
+
+    async convertTo(
+        table: string,
+        columns: string[],
+        types: ("integer" | "float" | "string")[],
+        options: {
+            verbose?: boolean
+            returnDataFrom?: "query" | "table" | "none"
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        const allColumns = await this.getColumns(table)
+
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nconvertTo()")
+        return await this.query(
+            convertToQuery(table, columns, types, allColumns),
+            this.mergeOptions({ ...options, table })
+        )
     }
 
     async writeData(
