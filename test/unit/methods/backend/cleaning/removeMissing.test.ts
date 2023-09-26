@@ -6,7 +6,7 @@ describe("removeMissing", () => {
 
     it("should return a table without any missing values", async () => {
         await simpleNodeDB.loadData("employeesForAllColumnsTest", [
-            "test/data/employees.json",
+            "test/data/employees.csv",
         ])
 
         const data = await simpleNodeDB.removeMissing(
@@ -22,7 +22,7 @@ describe("removeMissing", () => {
 
     it("should return a table without any missing values for a specific column", async () => {
         await simpleNodeDB.loadData("employeesForOneSpecificColumnTest", [
-            "test/data/employees.json",
+            "test/data/employees.csv",
         ])
 
         const data = await simpleNodeDB.removeMissing(
@@ -38,7 +38,7 @@ describe("removeMissing", () => {
 
     it("should return a table without any missing values for multiple specific columns", async () => {
         await simpleNodeDB.loadData("employeesForMultipleSpecificColumnTest", [
-            "test/data/employees.json",
+            "test/data/employees.csv",
         ])
 
         const data = await simpleNodeDB.removeMissing(
@@ -54,7 +54,7 @@ describe("removeMissing", () => {
 
     it("should return a table with null values in any columns", async () => {
         await simpleNodeDB.loadData("employeesInvertTest", [
-            "test/data/employees.json",
+            "test/data/employees.csv",
         ])
 
         const data = await simpleNodeDB.removeMissing(
@@ -71,7 +71,7 @@ describe("removeMissing", () => {
 
     it("should return a table with null values in a specific column", async () => {
         await simpleNodeDB.loadData("employeesInvertOneColumnTest", [
-            "test/data/employees.json",
+            "test/data/employees.csv",
         ])
 
         const data = await simpleNodeDB.removeMissing(
@@ -142,7 +142,7 @@ const dataNoNulls = [
         Name: "Kochhar, Neena",
         "Hire date": "21-SEP-05",
         Job: "Vice-president",
-        Salary: '"&6%"',
+        Salary: "&6%",
         "Departement or unit": "90",
         "End-of_year-BONUS?": "11,6%",
     },
@@ -193,7 +193,7 @@ const dataNoNullsName = [
         Name: "Grant, Douglas",
         "Hire date": "13-JAN-08",
         Job: "Clerk",
-        Salary: null,
+        Salary: "NaN",
         "Departement or unit": "50",
         "End-of_year-BONUS?": "23,39%",
     },
@@ -241,13 +241,13 @@ const dataNoNullsName = [
         Name: "Kochhar, Neena",
         "Hire date": "21-SEP-05",
         Job: "Vice-president",
-        Salary: '"&6%"',
+        Salary: "&6%",
         "Departement or unit": "90",
         "End-of_year-BONUS?": "11,6%",
     },
     {
         Name: "De Haan, Lex",
-        "Hire date": null,
+        "Hire date": "null",
         Job: "Vice-president",
         Salary: "17000",
         "Departement or unit": "90",
@@ -316,13 +316,13 @@ const dataNoNullsMultipleColumns = [
         Name: "Kochhar, Neena",
         "Hire date": "21-SEP-05",
         Job: "Vice-president",
-        Salary: '"&6%"',
+        Salary: "&6%",
         "Departement or unit": "90",
         "End-of_year-BONUS?": "11,6%",
     },
     {
         Name: "De Haan, Lex",
-        "Hire date": null,
+        "Hire date": "null",
         Job: "Vice-president",
         Salary: "17000",
         "Departement or unit": "90",
@@ -348,28 +348,36 @@ const dataJustNulls = [
         "End-of_year-BONUS?": "17,51%",
     },
     {
-        Name: null,
-        "Hire date": "07-JUN-02",
-        Job: "Salesperson",
-        Salary: "10000",
-        "Departement or unit": '"xyz"',
-        "End-of_year-BONUS?": "17,63%",
-    },
-    {
-        Name: null,
-        "Hire date": "07-JUN-02",
-        Job: "Accountant",
-        Salary: "8300",
-        "Departement or unit": "110",
-        "End-of_year-BONUS?": "15,7%",
-    },
-    {
-        Name: null,
-        "Hire date": "14-JUN-04",
+        Name: "Stiles, Stephen",
+        "Hire date": "26-OCT-05",
         Job: "Clerk",
-        Salary: "3300",
+        Salary: "3200",
         "Departement or unit": "50",
-        "End-of_year-BONUS?": "18,54%",
+        "End-of_year-BONUS?": null,
+    },
+    {
+        Name: "Tobias, Sigal",
+        "Hire date": "24-JUL-05",
+        Job: "NaN",
+        Salary: "2800",
+        "Departement or unit": null,
+        "End-of_year-BONUS?": "undefined",
+    },
+    {
+        Name: "Pataballa, Valli",
+        "Hire date": "abc",
+        Job: "Programmer",
+        Salary: null,
+        "Departement or unit": "60",
+        "End-of_year-BONUS?": "1,62%",
+    },
+    {
+        Name: "Ladwig, Renske",
+        "Hire date": "14-JUL-03",
+        Job: null,
+        Salary: "3600",
+        "Departement or unit": "50",
+        "End-of_year-BONUS?": "17,86%",
     },
     {
         Name: "King, Steven",
@@ -380,44 +388,36 @@ const dataJustNulls = [
         "End-of_year-BONUS?": "2,46%",
     },
     {
-        Name: "De Haan, Lex",
-        "Hire date": null,
-        Job: "Vice-president",
-        Salary: "17000",
-        "Departement or unit": "90",
-        "End-of_year-BONUS?": "23,43%",
-    },
-    {
-        Name: "Austin, David",
-        "Hire date": null,
-        Job: "Programmer",
-        Salary: "4800",
-        "Departement or unit": null,
-        "End-of_year-BONUS?": "6,89%",
-    },
-    {
         Name: "Mourgos, Kevin",
-        "Hire date": null,
+        "Hire date": "undefined",
         Job: "Manager",
         Salary: "5800",
         "Departement or unit": "50",
         "End-of_year-BONUS?": "19,07%",
     },
     {
+        Name: "Austin, David",
+        "Hire date": "NaN",
+        Job: "Programmer",
+        Salary: "4800",
+        "Departement or unit": "null",
+        "End-of_year-BONUS?": "6,89%",
+    },
+    {
         Name: "Markle, Steven",
-        "Hire date": null,
+        "Hire date": "NaN",
         Job: "Clerk",
         Salary: "2200",
         "Departement or unit": "50",
         "End-of_year-BONUS?": "11,26%",
     },
     {
-        Name: "Tobias, Sigal",
-        "Hire date": "24-JUL-05",
-        Job: null,
-        Salary: "2800",
-        "Departement or unit": null,
-        "End-of_year-BONUS?": null,
+        Name: "De Haan, Lex",
+        "Hire date": "null",
+        Job: "Vice-president",
+        Salary: "17000",
+        "Departement or unit": "90",
+        "End-of_year-BONUS?": "23,43%",
     },
 ]
 
@@ -431,27 +431,27 @@ const dataNullsInName = [
         "End-of_year-BONUS?": "17,51%",
     },
     {
-        Name: null,
-        "Hire date": "07-JUN-02",
-        Job: "Salesperson",
-        Salary: "10000",
-        "Departement or unit": '"xyz"',
-        "End-of_year-BONUS?": "17,63%",
-    },
-    {
-        Name: null,
-        "Hire date": "07-JUN-02",
-        Job: "Accountant",
-        Salary: "8300",
-        "Departement or unit": "110",
-        "End-of_year-BONUS?": "15,7%",
-    },
-    {
-        Name: null,
+        Name: "undefined",
         "Hire date": "14-JUN-04",
         Job: "Clerk",
         Salary: "3300",
         "Departement or unit": "50",
         "End-of_year-BONUS?": "18,54%",
+    },
+    {
+        Name: "NaN",
+        "Hire date": "07-JUN-02",
+        Job: "Salesperson",
+        Salary: "10000",
+        "Departement or unit": "xyz",
+        "End-of_year-BONUS?": "17,63%",
+    },
+    {
+        Name: "null",
+        "Hire date": "07-JUN-02",
+        Job: "Accountant",
+        Salary: "8300",
+        "Departement or unit": "110",
+        "End-of_year-BONUS?": "15,7%",
     },
 ]

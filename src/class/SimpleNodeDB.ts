@@ -48,6 +48,7 @@ export default class SimpleNodeDB {
         ) => unknown
         debug?: boolean
         noTiming?: boolean
+        justQuery?: boolean
     }) {
         return {
             verbose: this.verbose || (options.verbose ?? false),
@@ -57,6 +58,7 @@ export default class SimpleNodeDB {
             returnedDataModifier: options.returnedDataModifier,
             debug: this.debug,
             noTiming: options.noTiming ?? false,
+            justQuery: options.justQuery ?? false,
         }
     }
 
@@ -74,6 +76,7 @@ export default class SimpleNodeDB {
             ) => unknown
             debug: boolean
             noTiming: boolean
+            justQuery: boolean
         }
     ) {
         let start
@@ -82,7 +85,9 @@ export default class SimpleNodeDB {
         }
         if (options.debug) {
             console.log(query)
-            console.log(options)
+            if (!options.justQuery) {
+                console.log(options)
+            }
         }
 
         let data = null
@@ -92,14 +97,8 @@ export default class SimpleNodeDB {
             options.verbose === false &&
             options.debug === false
         ) {
-            if (options.debug) {
-                console.log(`No data returned.`)
-            }
             data = await queryNode(query, this.connection, false)
         } else if (options.returnDataFrom === "query") {
-            if (options.debug) {
-                console.log(`Query data returned.`)
-            }
             data = await queryNode(query, this.connection, true)
         } else if (
             options.returnDataFrom === "table" ||
@@ -112,18 +111,12 @@ export default class SimpleNodeDB {
 
             await queryNode(query, this.connection, false)
             if (options.nbRowsToLog === Infinity) {
-                if (options.debug) {
-                    console.log(`Table data returned without LIMIT.`)
-                }
                 data = await queryNode(
                     `SELECT * FROM ${options.table};`,
                     this.connection,
                     true
                 )
             } else {
-                if (options.debug) {
-                    console.log(`Table data returned with LIMIT.`)
-                }
                 data = await queryNode(
                     `SELECT * FROM ${options.table} LIMIT ${options.nbRowsToLog};`,
                     this.connection,
@@ -151,7 +144,7 @@ export default class SimpleNodeDB {
             }[]
         }
 
-        if (options.verbose || options.debug) {
+        if ((options.verbose || options.debug) && !options.justQuery) {
             if (data === null) {
                 throw new Error(
                     "Data is null. Use option returnDataFrom with 'query' or 'table'."
@@ -353,6 +346,7 @@ export default class SimpleNodeDB {
                         returnedDataModifier: undefined,
                         debug: false,
                         noTiming: true,
+                        justQuery: true,
                     }
                 )
             }
@@ -374,12 +368,22 @@ export default class SimpleNodeDB {
             returnDataFrom?: "query" | "table" | "none"
             verbose?: boolean
             nbRowsToLog?: number
-        } = {}
+            otherMissingValues?: (string | number)[]
+        } = {
+            otherMissingValues: ["undefined", "NaN", "null", ""],
+        }
     ) {
         const allColumns = await this.getColumns(table)
 
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\nremoveMissing()")
+
+        options.otherMissingValues = options.otherMissingValues ?? [
+            "undefined",
+            "NaN",
+            "null",
+            "",
+        ]
 
         return await this.query(
             removeMissingQuery(
@@ -431,15 +435,13 @@ export default class SimpleNodeDB {
                 } else {
                     await this.query(
                         replaceTextQuery(table, column, oldText[i], newText[i]),
-                        {
+                        this.mergeOptions({
+                            ...options,
                             table,
                             returnDataFrom: "none",
-                            verbose: false,
-                            nbRowsToLog: 0,
-                            returnedDataModifier: undefined,
-                            debug: false,
                             noTiming: true,
-                        }
+                            justQuery: true,
+                        })
                     )
                 }
             }

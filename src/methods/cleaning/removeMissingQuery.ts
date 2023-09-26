@@ -3,6 +3,7 @@ export default function removeMissingQuery(
     allColumns: string[],
     columns: string[],
     options: {
+        otherMissingValues?: (string | number)[]
         invert?: boolean
     } = {}
 ) {
@@ -14,10 +15,28 @@ export default function removeMissingQuery(
     if (options.invert) {
         for (let i = 0; i < columns.length; i++) {
             query += `\n"${columns[i]}" IS NULL OR`
+            if (options.otherMissingValues) {
+                for (const otherMissingValue of options.otherMissingValues) {
+                    if (typeof otherMissingValue === "string") {
+                        query += `\n"${columns[i]}" = '${otherMissingValue}' OR`
+                    } else if (typeof otherMissingValue === "number") {
+                        query += `\n"${columns[i]}" = ${otherMissingValue} OR`
+                    }
+                }
+            }
         }
     } else {
         for (let i = 0; i < columns.length; i++) {
             query += `\n"${columns[i]}" IS NOT NULL AND`
+            if (options.otherMissingValues) {
+                for (const otherMissingValue of options.otherMissingValues) {
+                    if (typeof otherMissingValue === "string") {
+                        query += `\n"${columns[i]}" != '${otherMissingValue}' AND`
+                    } else if (typeof otherMissingValue === "number") {
+                        query += `\n"${columns[i]}"! = ${otherMissingValue} AND`
+                    }
+                }
+            }
         }
     }
 
