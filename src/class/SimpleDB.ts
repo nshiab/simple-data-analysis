@@ -412,6 +412,57 @@ export default class SimpleDB {
         )
     }
 
+    async removeTables(
+        tables: string | string[],
+        options: {
+            verbose?: boolean
+            returnDataFrom?: "query" | "table" | "none"
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nremoveTables()")
+
+        let start
+        if (options.verbose || this.debug) {
+            start = Date.now()
+        }
+
+        tables = stringToArray(tables)
+        const lastTable = tables[tables.length - 1]
+        let data
+        for (const table of tables) {
+            if (table === lastTable) {
+                data = await queryDB(
+                    this.connection,
+                    this.runQuery,
+                    `DROP TABLE ${table}`,
+                    mergeOptions(this, { ...options, table })
+                )
+            } else {
+                await queryDB(
+                    this.connection,
+                    this.runQuery,
+                    `DROP TABLE ${table}`,
+                    mergeOptions(this, {
+                        ...options,
+                        table,
+                        returnDataFrom: "none",
+                        noTiming: true,
+                        justQuery: true,
+                    })
+                )
+            }
+        }
+
+        if (start) {
+            const end = Date.now()
+            console.log(`Done in ${end - start} ms`)
+        }
+
+        return data
+    }
+
     async removeColumns(
         table: string,
         columns: string | string[],
@@ -462,6 +513,32 @@ export default class SimpleDB {
         }
 
         return data
+    }
+
+    // async join(
+    //     newTable: string,
+    //     tableLeft: string,
+    //     tableRight: string,
+    //     join: "INNER" | "LEFT" | "RIGHT" | "FULL"
+    // ) {}
+
+    async getTables(
+        options: {
+            verbose?: boolean
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\ngetTables()")
+        return (await queryDB(
+            this.connection,
+            this.runQuery,
+            `SHOW TABLES`,
+            mergeOptions(this, {
+                ...options,
+                returnDataFrom: "query",
+                returnedDataModifier: (rows) => rows.map((d) => d.name),
+            })
+        )) as unknown as string[]
     }
 
     async getColumns(
