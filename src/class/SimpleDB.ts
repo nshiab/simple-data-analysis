@@ -13,6 +13,7 @@ import renameColumnQuery from "../methods/restructuring/renameColumnQuery.js"
 import replaceTextQuery from "../methods/cleaning/replaceStringQuery.js"
 import convertQuery from "../methods/cleaning/convertQuery.js"
 import roundQuery from "../methods/cleaning/round.js"
+import joinQuery from "../methods/restructuring/joinQuery.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -310,7 +311,11 @@ export default class SimpleDB {
                         this.connection,
                         this.runQuery,
                         replaceTextQuery(table, column, oldText[i], newText[i]),
-                        mergeOptions(this, { ...options, table })
+                        mergeOptions(this, {
+                            ...options,
+                            table,
+                            noTiming: true,
+                        })
                     )
                 } else {
                     await queryDB(
@@ -437,7 +442,7 @@ export default class SimpleDB {
                     this.connection,
                     this.runQuery,
                     `DROP TABLE ${table}`,
-                    mergeOptions(this, { ...options, table })
+                    mergeOptions(this, { ...options, table, noTiming: true })
                 )
             } else {
                 await queryDB(
@@ -470,13 +475,14 @@ export default class SimpleDB {
             verbose?: boolean
             returnDataFrom?: "query" | "table" | "none"
             nbRowsToLog?: number
+            noTiming?: boolean
         } = {}
     ) {
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\nremoveColumns()")
 
         let start
-        if (options.verbose || this.debug) {
+        if ((options.verbose || this.debug) && options.noTiming === false) {
             start = Date.now()
         }
 
@@ -489,7 +495,7 @@ export default class SimpleDB {
                     this.connection,
                     this.runQuery,
                     `ALTER TABLE ${table} DROP "${column}"`,
-                    mergeOptions(this, { ...options, table })
+                    mergeOptions(this, { ...options, table, noTiming: true })
                 )
             } else {
                 await queryDB(
@@ -515,12 +521,55 @@ export default class SimpleDB {
         return data
     }
 
-    // async join(
-    //     newTable: string,
-    //     tableLeft: string,
-    //     tableRight: string,
-    //     join: "INNER" | "LEFT" | "RIGHT" | "FULL"
-    // ) {}
+    async join(
+        leftTable: string,
+        rightTable: string,
+        commonColumn: string,
+        outputTable: string,
+        join: "inner" | "left" | "right" | "full",
+        options: {
+            verbose?: boolean
+            returnDataFrom?: "query" | "table" | "none"
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\njoin()")
+
+        let start
+        if (options.verbose || this.debug) {
+            start = Date.now()
+        }
+
+        await queryDB(
+            this.connection,
+            this.runQuery,
+            joinQuery(leftTable, rightTable, commonColumn, outputTable, join),
+            mergeOptions(this, {
+                ...options,
+                table: outputTable,
+                returnDataFrom: "none",
+                noTiming: true,
+            })
+        )
+
+        const data = await this.removeColumns(
+            outputTable,
+            `${commonColumn}:1`,
+            mergeOptions(this, {
+                ...options,
+                table: outputTable,
+                noTiming: true,
+            })
+        )
+
+        if (start) {
+            const end = Date.now()
+            console.log(`Done in ${end - start} ms`)
+        }
+
+        return data
+    }
 
     async getTables(
         options: {
