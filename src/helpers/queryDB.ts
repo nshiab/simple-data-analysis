@@ -42,10 +42,19 @@ export default async function queryDB(
         data = await runQuery(query, connection, false)
     } else if (options.returnDataFrom === "query") {
         data = await runQuery(query, connection, true)
+    } else if (options.returnDataFrom === "table") {
+        if (typeof options.table !== "string") {
+            throw new Error("No options.table")
+        }
+        await runQuery(query, connection, false)
+        data = await runQuery(
+            `SELECT * FROM ${options.table};`,
+            connection,
+            true
+        )
     } else if (
-        options.returnDataFrom === "table" ||
-        (options.returnDataFrom === "none" &&
-            (options.verbose || options.debug))
+        options.returnDataFrom === "none" &&
+        (options.verbose || options.debug)
     ) {
         if (typeof options.table !== "string") {
             throw new Error("No options.table")

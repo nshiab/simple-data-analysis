@@ -55,7 +55,7 @@ export default async function getDuckDB(): Promise<{
     if (typeof window === "undefined") {
         console.log(
             "\x1b[41m",
-            "If you are not using a web browser, please use SimpleNodeDB.",
+            "If you are not on a web browser, please use SimpleNodeDB.",
             "\x1b[0m"
         )
     }

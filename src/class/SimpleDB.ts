@@ -180,6 +180,28 @@ export default class SimpleDB {
         )
     }
 
+    async selectColumns(
+        table: string,
+        columns: string | string[],
+        options: {
+            returnDataFrom?: "query" | "table" | "none"
+            verbose?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nselectColumns")
+
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            `CREATE OR REPLACE TABLE ${table} AS SELECT ${stringToArray(columns)
+                .map((d) => `"${d}"`)
+                .join(", ")} FROM ${table}`,
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
     async removeDuplicates(
         table: string,
         options: {
