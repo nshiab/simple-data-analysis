@@ -1,7 +1,7 @@
 export default function convertQuery(
     table: string,
     columns: string[],
-    types: (
+    columnsTypes: (
         | "integer"
         | "float"
         | "string"
@@ -25,7 +25,7 @@ export default function convertQuery(
         if (indexOf === -1) {
             query += ` "${column}",`
         } else {
-            const expectedType = parseType(types[indexOf])
+            const expectedType = parseType(columnsTypes[indexOf])
             const currentType = allTypes[column]
             const datetimeFormatExist =
                 typeof options.datetimeFormat === "string"
@@ -43,7 +43,7 @@ export default function convertQuery(
                 query += ` strftime("${column}", '${options.datetimeFormat}') AS "${column}",`
             } else {
                 query += ` ${cast}("${columns[indexOf]}" AS ${parseType(
-                    types[indexOf]
+                    columnsTypes[indexOf]
                 )}) AS "${columns[indexOf]}",`
             }
         }

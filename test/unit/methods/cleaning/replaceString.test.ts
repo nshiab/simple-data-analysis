@@ -1,7 +1,7 @@
 import assert from "assert"
 import SimpleNodeDB from "../../../../src/class/SimpleNodeDB.js"
 
-describe("replaceText", () => {
+describe("replaceString", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
         simpleNodeDB = await new SimpleNodeDB().start()
@@ -15,11 +15,10 @@ describe("replaceText", () => {
             "test/data/employees.csv",
         ])
 
-        const data = await simpleNodeDB.replaceText(
+        const data = await simpleNodeDB.replaceString(
             "employeesOneColumn",
             ["Name", "End-of_year-BONUS?"],
-            ["%"],
-            [""],
+            { "%": "" },
             { returnDataFrom: "table" }
         )
 
@@ -112,11 +111,10 @@ describe("replaceText", () => {
             "test/data/employees.csv",
         ])
 
-        const data = await simpleNodeDB.replaceText(
+        const data = await simpleNodeDB.replaceString(
             "employeesOneColumnMultipleTexts",
             ["End-of_year-BONUS?"],
-            ["%", ","],
-            ["", "."],
+            { "%": "", ",": "." },
             { returnDataFrom: "table" }
         )
 
@@ -209,11 +207,10 @@ describe("replaceText", () => {
             "test/data/employees.csv",
         ])
 
-        const data = await simpleNodeDB.replaceText(
+        const data = await simpleNodeDB.replaceString(
             "employeesMultipleColumns",
             ["Name", "End-of_year-BONUS?"],
-            [","],
-            [" => "],
+            { ",": " => " },
             { returnDataFrom: "table" }
         )
 
@@ -306,11 +303,10 @@ describe("replaceText", () => {
             "test/data/employees.csv",
         ])
 
-        const data = await simpleNodeDB.replaceText(
+        const data = await simpleNodeDB.replaceString(
             "employeesMultipleColumnsMultipleTexts",
             ["Name", "End-of_year-BONUS?"],
-            ["%", ","],
-            ["", "."],
+            { "%": "", ",": "." },
             { returnDataFrom: "table" }
         )
 

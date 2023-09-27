@@ -4,12 +4,13 @@ import { Database, Connection } from "duckdb"
 import getDuckDB from "../helpers/getDuckDB.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
+import stringToArray from "../helpers/stringToArray.js"
 
 import loadDataQuery from "../methods/importing/loadDataQuery.js"
 import logDescriptionQuery from "../methods/cleaning/logDescriptionQuery.js"
 import removeMissingQuery from "../methods/cleaning/removeMissingQuery.js"
 import renameColumnQuery from "../methods/cleaning/renameColumnQuery.js"
-import replaceTextQuery from "../methods/cleaning/replaceTextQuery.js"
+import replaceTextQuery from "../methods/cleaning/replaceStringQuery.js"
 import convertQuery from "../methods/cleaning/convertQuery.js"
 import roundQuery from "../methods/cleaning/round.js"
 
@@ -96,7 +97,7 @@ export default class SimpleDB {
 
     async loadData(
         table: string,
-        files: string[],
+        files: string | string[],
         options: {
             fileType?: "csv" | "dsv" | "json" | "parquet"
             autoDetect?: boolean
@@ -122,7 +123,7 @@ export default class SimpleDB {
         await queryDB(
             this.connection,
             this.runQuery,
-            loadDataQuery(table, files, options),
+            loadDataQuery(table, stringToArray(files), options),
             mergeOptions(this, { ...options, table })
         )
     }
@@ -180,8 +181,7 @@ export default class SimpleDB {
 
     async renameColumns(
         table: string,
-        oldColumns: string[],
-        newColumns: string[],
+        names: { [key: string]: string },
         options: {
             returnDataFrom?: "query" | "table" | "none"
             verbose?: boolean
@@ -196,11 +196,8 @@ export default class SimpleDB {
             start = Date.now()
         }
 
-        if (oldColumns.length !== newColumns.length) {
-            throw new Error(
-                "oldColumns and newColumns must have the same number of items."
-            )
-        }
+        const oldColumns = Object.keys(names)
+        const newColumns = Object.values(names)
 
         let data
         for (let i = 0; i < oldColumns.length; i++) {
@@ -240,7 +237,7 @@ export default class SimpleDB {
 
     async removeMissing(
         table: string,
-        columns: string[] = [],
+        columns: string | string[] = [],
         options: {
             invert?: boolean
             returnDataFrom?: "query" | "table" | "none"
@@ -264,6 +261,8 @@ export default class SimpleDB {
             "",
         ]
 
+        columns = stringToArray(columns)
+
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -278,11 +277,10 @@ export default class SimpleDB {
         )
     }
 
-    async replaceText(
+    async replaceString(
         table: string,
-        columns: string[],
-        oldText: string[],
-        newText: string[],
+        columns: string | string[],
+        strings: { [key: string]: string },
         options: {
             verbose?: boolean
             returnDataFrom?: "query" | "table" | "none"
@@ -297,11 +295,9 @@ export default class SimpleDB {
             start = Date.now()
         }
 
-        if (oldText.length !== newText.length) {
-            throw new Error(
-                "oldText and newText must have the same number of items."
-            )
-        }
+        columns = stringToArray(columns)
+        const oldText = Object.keys(strings)
+        const newText = Object.values(strings)
 
         const lastColumn = columns[columns.length - 1]
         const lastOldText = oldText[oldText.length - 1]
@@ -343,16 +339,16 @@ export default class SimpleDB {
 
     async convert(
         table: string,
-        columns: string[],
-        types: (
-            | "integer"
-            | "float"
-            | "string"
-            | "date"
-            | "time"
-            | "datetime"
-            | "datetimeTz"
-        )[],
+        types: {
+            [key: string]:
+                | "integer"
+                | "float"
+                | "string"
+                | "date"
+                | "time"
+                | "datetime"
+                | "datetimeTz"
+        },
         options: {
             verbose?: boolean
             returnDataFrom?: "query" | "table" | "none"
@@ -364,20 +360,30 @@ export default class SimpleDB {
         const allTypes = await this.getTypes(table)
         const allColumns = Object.keys(allTypes)
 
+        const columns = Object.keys(types)
+        const columnsTypes = Object.values(types)
+
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\nconvert()")
 
         return await queryDB(
             this.connection,
             this.runQuery,
-            convertQuery(table, columns, types, allColumns, allTypes, options),
+            convertQuery(
+                table,
+                columns,
+                columnsTypes,
+                allColumns,
+                allTypes,
+                options
+            ),
             mergeOptions(this, { ...options, table })
         )
     }
 
     async round(
         table: string,
-        columns: string[],
+        columns: string | string[],
         options: {
             verbose?: boolean
             returnDataFrom?: "query" | "table" | "none"
@@ -401,7 +407,7 @@ export default class SimpleDB {
         return await queryDB(
             this.connection,
             this.runQuery,
-            roundQuery(table, columns, options),
+            roundQuery(table, stringToArray(columns), options),
             mergeOptions(this, { ...options, table })
         )
     }

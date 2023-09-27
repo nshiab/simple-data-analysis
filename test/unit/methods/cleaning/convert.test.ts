@@ -17,8 +17,7 @@ describe("convert", () => {
 
         const data = await simpleNodeDB.convert(
             "dataJustNumbers",
-            ["key1"],
-            ["string"],
+            { key1: "string" },
             { returnDataFrom: "table" }
         )
 
@@ -39,8 +38,7 @@ describe("convert", () => {
 
         const data = await simpleNodeDB.convert(
             "dataMixedTypes",
-            ["key1"],
-            ["integer"],
+            { key1: "integer" },
             { returnDataFrom: "table", try: true }
         )
 
@@ -55,8 +53,7 @@ describe("convert", () => {
     it("should convert string to float", async () => {
         const data = await simpleNodeDB.convert(
             "dataJustNumbers",
-            ["key1"],
-            ["float"],
+            { key1: "float" },
             { returnDataFrom: "table" }
         )
 
@@ -69,12 +66,11 @@ describe("convert", () => {
     })
 
     it("should convert string to integer", async () => {
-        await simpleNodeDB.convert("dataJustNumbers", ["key2"], ["string"])
+        await simpleNodeDB.convert("dataJustNumbers", { key2: "string" })
 
         const data = await simpleNodeDB.convert(
             "dataJustNumbers",
-            ["key2"],
-            ["integer"],
+            { key2: "integer" },
             { returnDataFrom: "table" }
         )
 
@@ -87,12 +83,11 @@ describe("convert", () => {
     })
 
     it("convert multiple columns in multiple types", async () => {
-        await simpleNodeDB.convert("dataJustNumbers", ["key1"], ["string"])
+        await simpleNodeDB.convert("dataJustNumbers", { key1: "string" })
 
         const data = await simpleNodeDB.convert(
             "dataJustNumbers",
-            ["key1", "key2"],
-            ["float", "string"],
+            { key1: "float", key2: "string" },
             { returnDataFrom: "table" }
         )
 
@@ -113,8 +108,7 @@ describe("convert", () => {
 
         const data = await simpleNodeDB.convert(
             "dataDates",
-            ["date", "datetime", "datetimeWithMs"],
-            ["date", "datetime", "datetime"],
+            { date: "date", datetime: "datetime", datetimeWithMs: "datetime" },
             { returnDataFrom: "table" }
         )
 
@@ -157,8 +151,7 @@ describe("convert", () => {
     it("should convert time string to date", async () => {
         await simpleNodeDB.convert(
             "dataDates",
-            ["time", "timeMs"],
-            ["time", "time"],
+            { time: "time", timeMs: "time" },
             { returnDataFrom: "table" }
         )
 
@@ -177,8 +170,7 @@ describe("convert", () => {
     it("should convert date and time from string to date with a specific format", async () => {
         const data = await simpleNodeDB.convert(
             "dataDates",
-            ["weirdDatetime"],
-            ["time"],
+            { weirdDatetime: "time" },
             {
                 returnDataFrom: "table",
                 datetimeFormat: "%Y/%m/%d_%Hh_%Mmin_%Ssec",
@@ -224,8 +216,12 @@ describe("convert", () => {
     it("should convert dates to strings", async () => {
         const data = await simpleNodeDB.convert(
             "dataDates",
-            ["date", "datetime", "datetimeWithMs", "weirdDatetime"],
-            ["string", "string", "string", "string"],
+            {
+                date: "string",
+                datetime: "string",
+                datetimeWithMs: "string",
+                weirdDatetime: "string",
+            },
             {
                 returnDataFrom: "table",
                 datetimeFormat: "%Y/%m/%d_%Hh_%Mmin_%Ssec",
@@ -269,16 +265,21 @@ describe("convert", () => {
     })
 
     it("should convert dates to strings with a specific format", async () => {
-        await simpleNodeDB.convert(
-            "dataDates",
-            ["date", "datetime", "datetimeWithMs", "weirdDatetime"],
-            ["datetime", "datetime", "datetime", "datetime"]
-        )
+        await simpleNodeDB.convert("dataDates", {
+            date: "datetime",
+            datetime: "datetime",
+            datetimeWithMs: "datetime",
+            weirdDatetime: "datetime",
+        })
 
         const data = await simpleNodeDB.convert(
             "dataDates",
-            ["date", "datetime", "datetimeWithMs", "weirdDatetime"],
-            ["date", "datetime", "datetime", "datetime"],
+            {
+                date: "date",
+                datetime: "datetime",
+                datetimeWithMs: "datetime",
+                weirdDatetime: "datetime",
+            },
             {
                 returnDataFrom: "table",
                 datetimeFormat: "%Y/%m/%d_%Hh_%Mmin_%Ssec",

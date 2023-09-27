@@ -17,8 +17,7 @@ describe("renameColumns", () => {
 
         const data = await simpleNodeDB.renameColumns(
             "dataJSONOneColumn",
-            ["key1"],
-            ["A"],
+            { key1: "A" },
             { returnDataFrom: "table" }
         )
 
@@ -37,8 +36,7 @@ describe("renameColumns", () => {
 
         const data = await simpleNodeDB.renameColumns(
             "dataJSONMultipleColumns",
-            ["key1", "key2"],
-            ["A", "B"],
+            { key1: "A", key2: "B" },
             { returnDataFrom: "table" }
         )
 
