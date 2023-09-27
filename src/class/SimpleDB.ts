@@ -1,15 +1,17 @@
 import { AsyncDuckDB, AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
 import { Database, Connection } from "duckdb"
+
 import getDuckDB from "../helpers/getDuckDB.js"
+import mergeOptions from "../helpers/mergeOptions.js"
+import queryDB from "../helpers/queryDB.js"
+
 import loadDataQuery from "../methods/importing/loadDataQuery.js"
-import writeDataQuery from "../methods/exporting/writeDataQuery.js"
 import logDescriptionQuery from "../methods/cleaning/logDescriptionQuery.js"
 import removeMissingQuery from "../methods/cleaning/removeMissingQuery.js"
 import renameColumnQuery from "../methods/cleaning/renameColumnQuery.js"
 import replaceTextQuery from "../methods/cleaning/replaceTextQuery.js"
 import convertQuery from "../methods/cleaning/convertQuery.js"
-import mergeOptions from "../helpers/mergeOptions.js"
-import queryDB from "../helpers/queryDB.js"
+import roundQuery from "../methods/cleaning/round.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -373,22 +375,33 @@ export default class SimpleDB {
         )
     }
 
-    async writeData(
-        file: string,
+    async round(
         table: string,
+        columns: string[],
         options: {
-            compression?: boolean
             verbose?: boolean
             returnDataFrom?: "query" | "table" | "none"
             nbRowsToLog?: number
+            decimals?: number
+            method?: "round" | "ceiling" | "floor"
         } = {}
     ) {
         ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nwriteData()")
-        await queryDB(
+            console.log("\nround()")
+
+        if (
+            (options.method === "ceiling" || options.method === "floor") &&
+            typeof options.decimals === "number"
+        ) {
+            console.log(
+                "Ceiling and floor methods round to the nearest integer. Your option decimals has no effect."
+            )
+        }
+
+        return await queryDB(
             this.connection,
             this.runQuery,
-            writeDataQuery(file, table, options),
+            roundQuery(table, columns, options),
             mergeOptions(this, { ...options, table })
         )
     }

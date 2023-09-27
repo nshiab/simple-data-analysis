@@ -1,10 +1,13 @@
 import duckdb, { Connection, Database } from "duckdb"
+import { AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
 import { readdirSync } from "fs"
 import SimpleDB from "./SimpleDB.js"
+
 import mergeOptions from "../helpers/mergeOptions.js"
-import loadDataQuery from "../methods/importing/loadDataQuery.js"
 import queryDB from "../helpers/queryDB.js"
-import { AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
+
+import loadDataQuery from "../methods/importing/loadDataQuery.js"
+import writeDataQuery from "../methods/exporting/writeDataQuery.js"
 
 export default class SimpleNodeDB extends SimpleDB {
     constructor() {
@@ -73,6 +76,26 @@ export default class SimpleNodeDB extends SimpleDB {
             this.connection,
             this.runQuery,
             loadDataQuery(table, files, options),
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
+    async writeData(
+        file: string,
+        table: string,
+        options: {
+            compression?: boolean
+            verbose?: boolean
+            returnDataFrom?: "query" | "table" | "none"
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nwriteData()")
+        await queryDB(
+            this.connection,
+            this.runQuery,
+            writeDataQuery(file, table, options),
             mergeOptions(this, { ...options, table })
         )
     }
