@@ -641,6 +641,29 @@ export default class SimpleDB {
         return types as unknown as { [key: string]: string }
     }
 
+    async getValues(
+        table: string,
+        column: string,
+        options: {
+            verbose?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\ngetColumnData()")
+
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            `SELECT ${column} FROM ${table}`,
+            mergeOptions(this, {
+                ...options,
+                returnDataFrom: "query",
+                returnedDataModifier: (rows) => rows.map((d) => d[column]),
+            })
+        )
+    }
+
     async getData(
         table: string,
         options: {
