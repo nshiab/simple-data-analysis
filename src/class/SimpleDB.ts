@@ -202,6 +202,31 @@ export default class SimpleDB {
         )
     }
 
+    async sample(
+        table: string,
+        numberRows: number,
+        options: {
+            seed?: number
+            returnDataFrom?: "query" | "table" | "none"
+            verbose?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nsample")
+
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ${table} USING SAMPLE reservoir(${numberRows} ROWS)${
+                typeof options.seed === "number"
+                    ? ` REPEATABLE(${options.seed})`
+                    : ""
+            }`,
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
     async removeDuplicates(
         table: string,
         options: {

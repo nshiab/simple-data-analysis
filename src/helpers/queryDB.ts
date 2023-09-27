@@ -83,7 +83,7 @@ export default async function queryDB(
     if (options.returnedDataModifier) {
         if (data === null) {
             throw new Error(
-                "Data is null. Use option returnDataFrom with 'query' or 'table'."
+                "Data is null. Use option returnedDataModifier with 'query' or 'table'."
             )
         }
         data = options.returnedDataModifier(
@@ -98,7 +98,7 @@ export default async function queryDB(
     if ((options.verbose || options.debug) && !options.justQuery) {
         if (data === null) {
             throw new Error(
-                "Data is null. Use option returnDataFrom with 'query' or 'table'."
+                "Data is null. Use option returnedDataModifier with 'query' or 'table'."
             )
         }
         if (Array.isArray(data)) {
@@ -127,5 +127,5 @@ export default async function queryDB(
         }
     }
 
-    return data
+    return data as { [key: string]: unknown }[]
 }
