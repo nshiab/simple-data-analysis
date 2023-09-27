@@ -180,6 +180,24 @@ export default class SimpleDB {
         )
     }
 
+    async removeDuplicates(
+        table: string,
+        options: {
+            returnDataFrom?: "query" | "table" | "none"
+            verbose?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nremoveDuplicates()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            `CREATE OR REPLACE TABLE ${table} AS SELECT DISTINCT * FROM ${table}`,
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
     async renameColumns(
         table: string,
         names: { [key: string]: string },
