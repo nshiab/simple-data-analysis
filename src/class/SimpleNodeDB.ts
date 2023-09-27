@@ -10,8 +10,14 @@ import loadDataQuery from "../methods/importing/loadDataQuery.js"
 import writeDataQuery from "../methods/exporting/writeDataQuery.js"
 
 export default class SimpleNodeDB extends SimpleDB {
-    constructor() {
-        super()
+    constructor(
+        options: {
+            verbose?: boolean
+            nbRowsToLog?: number
+            debug?: boolean
+        } = {}
+    ) {
+        super(options)
         this.runQuery = function (
             query: string,
             connection: AsyncDuckDBConnection | Connection,

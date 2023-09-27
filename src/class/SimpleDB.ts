@@ -9,7 +9,7 @@ import stringToArray from "../helpers/stringToArray.js"
 import loadDataQuery from "../methods/importing/loadDataQuery.js"
 import logDescriptionQuery from "../methods/cleaning/logDescriptionQuery.js"
 import removeMissingQuery from "../methods/cleaning/removeMissingQuery.js"
-import renameColumnQuery from "../methods/cleaning/renameColumnQuery.js"
+import renameColumnQuery from "../methods/restructuring/renameColumnQuery.js"
 import replaceTextQuery from "../methods/cleaning/replaceStringQuery.js"
 import convertQuery from "../methods/cleaning/convertQuery.js"
 import roundQuery from "../methods/cleaning/round.js"
@@ -410,6 +410,58 @@ export default class SimpleDB {
             roundQuery(table, stringToArray(columns), options),
             mergeOptions(this, { ...options, table })
         )
+    }
+
+    async removeColumns(
+        table: string,
+        columns: string | string[],
+        options: {
+            verbose?: boolean
+            returnDataFrom?: "query" | "table" | "none"
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nremoveColumns()")
+
+        let start
+        if (options.verbose || this.debug) {
+            start = Date.now()
+        }
+
+        columns = stringToArray(columns)
+        const lastColumn = columns[columns.length - 1]
+        let data
+        for (const column of columns) {
+            if (column === lastColumn) {
+                data = await queryDB(
+                    this.connection,
+                    this.runQuery,
+                    `ALTER TABLE ${table} DROP "${column}"`,
+                    mergeOptions(this, { ...options, table })
+                )
+            } else {
+                await queryDB(
+                    this.connection,
+                    this.runQuery,
+                    `ALTER TABLE ${table} DROP "${column}"`,
+                    mergeOptions(this, {
+                        ...options,
+                        table,
+                        returnDataFrom: "none",
+                        noTiming: true,
+                        justQuery: true,
+                    })
+                )
+            }
+        }
+
+        if (start) {
+            const end = Date.now()
+            console.log(`Done in ${end - start} ms`)
+        }
+
+        return data
     }
 
     async getColumns(
