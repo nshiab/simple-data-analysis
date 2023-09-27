@@ -10,7 +10,7 @@ describe("getValues", () => {
         await simpleNodeDB.done()
     })
 
-    it("should return the columns of a table", async () => {
+    it("should return the values of a column", async () => {
         await simpleNodeDB.loadData("dataCsv", ["test/data/files/data.csv"])
 
         const values = await simpleNodeDB.getValues("dataCsv", "key1")

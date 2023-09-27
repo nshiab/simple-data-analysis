@@ -650,12 +650,35 @@ export default class SimpleDB {
         } = {}
     ) {
         ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\ngetColumnData()")
+            console.log("\ngetValues()")
 
         return await queryDB(
             this.connection,
             this.runQuery,
             `SELECT ${column} FROM ${table}`,
+            mergeOptions(this, {
+                ...options,
+                returnDataFrom: "query",
+                returnedDataModifier: (rows) => rows.map((d) => d[column]),
+            })
+        )
+    }
+
+    async getUniques(
+        table: string,
+        column: string,
+        options: {
+            verbose?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\ngetUniques()")
+
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            `SELECT DISTINCT ${column} FROM ${table}`,
             mergeOptions(this, {
                 ...options,
                 returnDataFrom: "query",
