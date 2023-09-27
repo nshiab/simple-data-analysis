@@ -30,6 +30,7 @@ describe("loadData", () => {
                 datetimeWithMs: new Date("2010-01-01T14:12:12.014Z"),
                 time: "14:12:12",
                 timeMs: "14:12:12.014",
+                weirdDatetime: "2010/01/01_14h_01min_12sec",
             },
             {
                 date: new Date("2010-01-02T00:00:00.000Z"),
@@ -37,6 +38,7 @@ describe("loadData", () => {
                 datetimeWithMs: new Date("2010-01-02T01:12:54.955Z"),
                 time: "01:12:54",
                 timeMs: "01:12:54.955",
+                weirdDatetime: "2010/01/02_01h_12min_54sec",
             },
             {
                 date: new Date("2010-01-03T00:00:00.000Z"),
@@ -44,6 +46,7 @@ describe("loadData", () => {
                 datetimeWithMs: new Date("2010-01-03T02:25:01.111Z"),
                 time: "02:25:01",
                 timeMs: "02:25:01.111",
+                weirdDatetime: "2010/01/03_02h_25min_54sec",
             },
             {
                 date: new Date("2010-01-04T00:00:00.000Z"),
@@ -51,6 +54,51 @@ describe("loadData", () => {
                 datetimeWithMs: new Date("2010-01-04T12:01:15.123Z"),
                 time: "12:01:15",
                 timeMs: "12:01:15.123",
+                weirdDatetime: "2010/01/04_23h_25min_15sec",
+            },
+        ])
+    })
+    it("should load data while keeping everything as text", async () => {
+        await simpleNodeDB.loadData(
+            "dataDatesText",
+            ["test/data/files/dataDates.csv"],
+            { allText: true }
+        )
+
+        const data = await simpleNodeDB.getData("dataDatesText")
+
+        assert.deepStrictEqual(data, [
+            {
+                date: "2010-01-01",
+                datetime: "2010-01-01 14:01:12",
+                datetimeWithMs: "2010-01-01 14:12:12.014",
+                time: "14:12:12",
+                timeMs: "14:12:12.014",
+                weirdDatetime: "2010/01/01_14h_01min_12sec",
+            },
+            {
+                date: "2010-01-02",
+                datetime: "2010-01-02 01:12:54",
+                datetimeWithMs: "2010-01-02 01:12:54.955",
+                time: "01:12:54",
+                timeMs: "01:12:54.955",
+                weirdDatetime: "2010/01/02_01h_12min_54sec",
+            },
+            {
+                date: "2010-01-03",
+                datetime: "2010-01-03 02:25:01",
+                datetimeWithMs: "2010-01-03 02:25:01.111",
+                time: "02:25:01",
+                timeMs: "02:25:01.111",
+                weirdDatetime: "2010/01/03_02h_25min_54sec",
+            },
+            {
+                date: "2010-01-04",
+                datetime: "2010-01-04 23:25:15",
+                datetimeWithMs: "2010-01-04 12:01:15.123",
+                time: "12:01:15",
+                timeMs: "12:01:15.123",
+                weirdDatetime: "2010/01/04_23h_25min_15sec",
             },
         ])
     })

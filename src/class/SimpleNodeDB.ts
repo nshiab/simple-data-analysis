@@ -8,7 +8,7 @@ import logDescriptionQuery from "../methods/cleaning/logDescriptionQuery.js"
 import removeMissingQuery from "../methods/cleaning/removeMissingQuery.js"
 import renameColumnQuery from "../methods/cleaning/renameColumnQuery.js"
 import replaceTextQuery from "../methods/cleaning/replaceTextQuery.js"
-import convertToQuery from "../methods/cleaning/convertToQuery.js"
+import convertQuery from "../methods/cleaning/convertQuery.js"
 
 export default class SimpleNodeDB {
     protected debug: boolean
@@ -207,6 +207,7 @@ export default class SimpleNodeDB {
             columns?: { [key: string]: string }
             // csv options
             header?: boolean
+            allText?: boolean
             delim?: string
             skip?: number
             // json options
@@ -459,7 +460,7 @@ export default class SimpleNodeDB {
         return data
     }
 
-    async convertTo(
+    async convert(
         table: string,
         columns: string[],
         types: (
@@ -478,24 +479,14 @@ export default class SimpleNodeDB {
             datetimeFormat?: string
         } = {}
     ) {
-        const allColumns = await this.getColumns(table)
+        const allTypes = await this.getTypes(table)
+        const allColumns = Object.keys(allTypes)
 
         ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nconvertTo()")
+            console.log("\nconvert()")
 
-        if (
-            (types.includes("date") ||
-                types.includes("time") ||
-                types.includes("datetime") ||
-                types.includes("datetimeTz")) &&
-            !options.datetimeFormat
-        ) {
-            throw new Error(
-                "When converting to time or date, you must specify a format in options.datetimeFormat. See https://duckdb.org/docs/sql/functions/dateformat"
-            )
-        }
         return await this.query(
-            convertToQuery(table, columns, types, allColumns),
+            convertQuery(table, columns, types, allColumns, allTypes, options),
             this.mergeOptions({ ...options, table })
         )
     }

@@ -11,6 +11,7 @@ export default function loadDataQuery(
         columns?: { [key: string]: string }
         // csv options
         header?: boolean
+        allText?: boolean
         delim?: string
         skip?: number
         // json options
@@ -50,11 +51,15 @@ export default function loadDataQuery(
                 typeof options.header === "boolean"
                     ? `, header=${String(options.header).toUpperCase()}`
                     : ", header=TRUE"
+            const allText =
+                typeof options.allText === "boolean"
+                    ? `, all_varchar=${String(options.allText).toUpperCase()}`
+                    : ""
             const delim = options.delim ? `, delim='${options.delim}'` : ""
             const skip = options.skip ? `, skip=${options.skip}` : ""
 
             return `CREATE TABLE ${table}
-            AS SELECT * FROM read_csv_auto(${filesAsString}${generalOptions}${header}${delim}${skip})`
+            AS SELECT * FROM read_csv_auto(${filesAsString}${generalOptions}${header}${allText}${delim}${skip})`
         } else {
             return `CREATE TABLE ${table}
             AS SELECT * FROM read_csv_auto(${filesAsString}${generalOptions}, header=TRUE)`
