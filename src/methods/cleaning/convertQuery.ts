@@ -14,9 +14,12 @@ export default function convertQuery(
     allTypes: {
         [key: string]: string
     },
-    options: { datetimeFormat?: string }
+    options: { datetimeFormat?: string; try?: boolean }
 ) {
     let query = `CREATE OR REPLACE TABLE ${table} AS SELECT`
+
+    const cast = options.try ? "TRY_CAST" : "CAST"
+
     for (const column of allColumns) {
         const indexOf = columns.indexOf(column)
         if (indexOf === -1) {
@@ -39,7 +42,7 @@ export default function convertQuery(
             } else if (datetimeFormatExist && dateToString) {
                 query += ` strftime("${column}", '${options.datetimeFormat}') AS "${column}",`
             } else {
-                query += ` CAST("${columns[indexOf]}" AS ${parseType(
+                query += ` ${cast}("${columns[indexOf]}" AS ${parseType(
                     types[indexOf]
                 )}) AS "${columns[indexOf]}",`
             }

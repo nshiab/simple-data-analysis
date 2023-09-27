@@ -477,6 +477,7 @@ export default class SimpleNodeDB {
             returnDataFrom?: "query" | "table" | "none"
             nbRowsToLog?: number
             datetimeFormat?: string
+            try?: boolean
         } = {}
     ) {
         const allTypes = await this.getTypes(table)

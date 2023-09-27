@@ -24,6 +24,28 @@ describe("convert", () => {
         ])
     })
 
+    it("should try to convert string to number", async () => {
+        await simpleNodeDB.loadData(
+            "dataMixedTypes",
+            ["test/data/files/data.csv"],
+            { allText: true }
+        )
+
+        const data = await simpleNodeDB.convert(
+            "dataMixedTypes",
+            ["key1"],
+            ["integer"],
+            { returnDataFrom: "table", try: true }
+        )
+
+        assert.deepStrictEqual(data, [
+            { key1: 1, key2: "2" },
+            { key1: 3, key2: "coucou" },
+            { key1: 8, key2: "10" },
+            { key1: null, key2: "croissant" },
+        ])
+    })
+
     it("should convert string to float", async () => {
         const data = await simpleNodeDB.convert(
             "dataJustNumbers",
