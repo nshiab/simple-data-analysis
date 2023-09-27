@@ -9,11 +9,11 @@ describe("SimpleNodeDB", () => {
         assert.deepStrictEqual(simpleNodeDB instanceof SimpleNodeDB, true)
     })
 
-    it("should start and instantiate a db", () => {
-        simpleNodeDB.start()
-        assert.deepStrictEqual(simpleNodeDB.getDB() instanceof Database, true)
+    it("should start and instantiate a db", async () => {
+        await simpleNodeDB.start()
+        assert.deepStrictEqual(simpleNodeDB.db instanceof Database, true)
     })
-    it("should close the db", () => {
-        simpleNodeDB.done()
+    it("should close the db", async () => {
+        await simpleNodeDB.done()
     })
 })

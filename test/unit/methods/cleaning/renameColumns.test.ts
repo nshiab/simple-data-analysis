@@ -1,8 +1,14 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../../../src/class/SimpleNodeDB.js"
+import SimpleNodeDB from "../../../../src/class/SimpleNodeDB.js"
 
 describe("renameColumns", () => {
-    const simpleNodeDB = new SimpleNodeDB().start()
+    let simpleNodeDB: SimpleNodeDB
+    before(async function () {
+        simpleNodeDB = await new SimpleNodeDB().start()
+    })
+    after(async function () {
+        await simpleNodeDB.done()
+    })
 
     it("should change the name of one column", async () => {
         await simpleNodeDB.loadData("dataJSONOneColumn", [
@@ -43,6 +49,4 @@ describe("renameColumns", () => {
             { A: 4, B: "quatre" },
         ])
     })
-
-    simpleNodeDB.done()
 })

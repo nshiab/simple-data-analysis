@@ -1,8 +1,14 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../../../src/class/SimpleNodeDB.js"
+import SimpleNodeDB from "../../../../src/class/SimpleNodeDB.js"
 
 describe("getColumns", () => {
-    const simpleNodeDB = new SimpleNodeDB().start()
+    let simpleNodeDB: SimpleNodeDB
+    before(async function () {
+        simpleNodeDB = await new SimpleNodeDB().start()
+    })
+    after(async function () {
+        await simpleNodeDB.done()
+    })
 
     it("should return the columns of a table", async () => {
         await simpleNodeDB.loadData("dataCsv", ["test/data/files/data.csv"])
@@ -11,6 +17,4 @@ describe("getColumns", () => {
 
         assert.deepStrictEqual(columns, ["key1", "key2"])
     })
-
-    simpleNodeDB.done()
 })

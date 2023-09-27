@@ -1,8 +1,14 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../../../src/class/SimpleNodeDB.js"
+import SimpleNodeDB from "../../../../src/class/SimpleNodeDB.js"
 
 describe("loadDataFromDirectory", () => {
-    const simpleNodeDB = new SimpleNodeDB().start()
+    let simpleNodeDB: SimpleNodeDB
+    before(async function () {
+        simpleNodeDB = await new SimpleNodeDB().start()
+    })
+    after(async function () {
+        await simpleNodeDB.done()
+    })
 
     it("should load data from a directory", async () => {
         await simpleNodeDB.loadDataFromDirectory(
@@ -30,6 +36,4 @@ describe("loadDataFromDirectory", () => {
             { key1: 11, key2: "onze", key3: "eleven" },
         ])
     })
-
-    simpleNodeDB.done()
 })

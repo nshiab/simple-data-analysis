@@ -1,8 +1,14 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../../../src/class/SimpleNodeDB.js"
+import SimpleNodeDB from "../../../../src/class/SimpleNodeDB.js"
 
 describe("logDescription", () => {
-    const simpleNodeDB = new SimpleNodeDB().start()
+    let simpleNodeDB: SimpleNodeDB
+    before(async function () {
+        simpleNodeDB = await new SimpleNodeDB().start()
+    })
+    after(async function () {
+        await simpleNodeDB.done()
+    })
 
     it("should return the count of null values, non null values, and distinct values in each column of a table", async () => {
         await simpleNodeDB.loadData("employees", ["test/data/employees.json"])
@@ -59,6 +65,4 @@ describe("logDescription", () => {
             },
         ])
     })
-
-    simpleNodeDB.done()
 })

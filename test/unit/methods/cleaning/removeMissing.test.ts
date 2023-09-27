@@ -1,8 +1,14 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../../../src/class/SimpleNodeDB.js"
+import SimpleNodeDB from "../../../../src/class/SimpleNodeDB.js"
 
 describe("removeMissing", () => {
-    const simpleNodeDB = new SimpleNodeDB().start()
+    let simpleNodeDB: SimpleNodeDB
+    before(async function () {
+        simpleNodeDB = await new SimpleNodeDB().start()
+    })
+    after(async function () {
+        await simpleNodeDB.done()
+    })
 
     it("should return a table without any missing values", async () => {
         await simpleNodeDB.loadData("employeesForAllColumnsTest", [
@@ -131,8 +137,6 @@ describe("removeMissing", () => {
 
         assert.deepStrictEqual(data, dataNullsInName)
     })
-
-    simpleNodeDB.done()
 })
 
 const dataNoNulls = [
