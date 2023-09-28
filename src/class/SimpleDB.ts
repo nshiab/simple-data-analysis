@@ -747,8 +747,31 @@ export default class SimpleDB {
         options: {
             values?: string | string[]
             categories?: string | string[]
-            summaries?: string | string[]
+            summaries?:
+                | (
+                      | "count"
+                      | "min"
+                      | "max"
+                      | "avg"
+                      | "median"
+                      | "sum"
+                      | "skew"
+                      | "stdDev"
+                      | "var"
+                  )
+                | (
+                      | "count"
+                      | "min"
+                      | "max"
+                      | "avg"
+                      | "median"
+                      | "sum"
+                      | "skew"
+                      | "stdDev"
+                      | "var"
+                  )[]
             decimals?: number
+            lang?: string
             verbose?: boolean
             returnDataFrom?: "query" | "table" | "none"
             nbRowsToLog?: number
@@ -762,7 +785,17 @@ export default class SimpleDB {
             ? stringToArray(options.categories)
             : []
         options.summaries = options.summaries
-            ? stringToArray(options.summaries)
+            ? (stringToArray(options.summaries) as unknown as (
+                  | "count"
+                  | "min"
+                  | "max"
+                  | "avg"
+                  | "median"
+                  | "sum"
+                  | "skew"
+                  | "stdDev"
+                  | "var"
+              )[])
             : []
         options.decimals = options.decimals ?? 2
 
@@ -777,6 +810,9 @@ export default class SimpleDB {
                 }
             }
         }
+        options.values = options.values.filter(
+            (d) => !options.categories?.includes(d)
+        )
 
         return await queryDB(
             this.connection,

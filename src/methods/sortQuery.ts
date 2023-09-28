@@ -3,7 +3,7 @@ export default function sortQuery(
     columns: { [key: string]: "asc" | "desc" },
     options: {
         lang?: { [key: string]: string }
-    }
+    } = {}
 ) {
     let query = `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ${table}
     ORDER BY`

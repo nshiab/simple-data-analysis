@@ -14,7 +14,7 @@ describe("tidy", () => {
         await simpleNodeDB.done()
     })
 
-    it("should sort one number column ascendingly", async () => {
+    it("should tidy data by stacking mutiple columns", async () => {
         const data = await simpleNodeDB.tidy(
             "dataUntidy",
             ["2015", "2016", "2017", "2018", "2019", "2020"],

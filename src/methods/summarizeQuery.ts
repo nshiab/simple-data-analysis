@@ -1,9 +1,19 @@
 export default function summarizeQuery(
     table: string,
     values: string[],
-    category: string[],
-    summary: string[],
-    options: { decimals?: number } = {}
+    categories: string[],
+    summaries: (
+        | "count"
+        | "min"
+        | "max"
+        | "avg"
+        | "median"
+        | "sum"
+        | "skew"
+        | "stdDev"
+        | "var"
+    )[],
+    options: { decimals?: number; lang?: string } = {}
 ) {
     const aggregates: { [key: string]: string } = {
         count: "COUNT",
@@ -16,31 +26,46 @@ export default function summarizeQuery(
         stdDev: "STDDEV",
         var: "var_samp",
     }
-    const aggs = Object.keys(aggregates)
+
+    if (summaries.length === 0) {
+        summaries = Object.keys(aggregates) as (
+            | "count"
+            | "min"
+            | "max"
+            | "avg"
+            | "median"
+            | "sum"
+            | "skew"
+            | "stdDev"
+            | "var"
+        )[]
+    }
 
     let query = `CREATE OR REPLACE TABLE ${table} AS`
 
     let firstValue = true
     for (const value of values) {
-        if (category.length === 0 && summary.length === 0) {
-            if (firstValue) {
-                firstValue = false
-            } else {
-                query += "\nUNION"
-            }
-            query += `\nSELECT '${value}' AS 'value',${aggs.map(
-                (d) =>
-                    `\nROUND(${aggregates[d]}("${value}"), ${
-                        options.decimals ?? 2
-                    }) AS '${d}'`
-            )}
-            FROM ${table}`
+        if (firstValue) {
+            firstValue = false
         } else {
-            throw new Error("Don't know what to do.")
+            query += "\nUNION"
+        }
+        query += `\nSELECT '${value}' AS 'value'${
+            categories.length > 0
+                ? categories.map((d) => `,\n"${d}"`).join(", ")
+                : ""
+        },${summaries.map(
+            (d) =>
+                `\nROUND(${aggregates[d]}("${value}"), ${
+                    options.decimals ?? 2
+                }) AS '${d}'`
+        )}\nFROM ${table}`
+        if (categories.length > 0) {
+            query += `\nGROUP BY ${categories.map((d) => `"${d}"`).join(", ")}`
         }
     }
 
-    query += `\nORDER BY "value" ASC`
+    query += `\nORDER BY "value" ASC${categories.map((d) => `, "${d}" ASC`)}`
 
     return query
 }
