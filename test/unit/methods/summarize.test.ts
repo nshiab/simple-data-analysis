@@ -73,4 +73,34 @@ describe("summarize", () => {
             },
         ])
     })
+    it("should summarize specific numerical columns in a table with a specific number of decimals", async () => {
+        await simpleNodeDB.loadData(
+            "dataSummarizeOneValueDecimals",
+            "test/data/files/dataSummarize.json"
+        )
+
+        const data = await simpleNodeDB.summarize(
+            "dataSummarizeOneValueDecimals",
+            {
+                values: "key2",
+                decimals: 4,
+                returnDataFrom: "table",
+            }
+        )
+
+        assert.deepStrictEqual(data, [
+            {
+                value: "key2",
+                count: 4,
+                min: 1,
+                max: 22,
+                avg: 9,
+                median: 6.5,
+                sum: 36,
+                skew: 0.9669,
+                stdDev: 9.7639,
+                var: 95.3333,
+            },
+        ])
+    })
 })
