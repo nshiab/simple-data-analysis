@@ -256,27 +256,6 @@ export default class SimpleDB {
         )
     }
 
-    async sort(
-        table: string,
-        columns: { [key: string]: "asc" | "desc" },
-        options: {
-            lang?: { [key: string]: string }
-            returnDataFrom?: "query" | "table" | "none"
-            verbose?: boolean
-            nbRowsToLog?: number
-        } = {}
-    ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nsort")
-
-        return await queryDB(
-            this.connection,
-            this.runQuery,
-            sortQuery(table, columns, options),
-            mergeOptions(this, { ...options, table })
-        )
-    }
-
     async sample(
         table: string,
         numberRows: number,
@@ -298,24 +277,6 @@ export default class SimpleDB {
                     ? ` REPEATABLE(${options.seed})`
                     : ""
             }`,
-            mergeOptions(this, { ...options, table })
-        )
-    }
-
-    async removeDuplicates(
-        table: string,
-        options: {
-            returnDataFrom?: "query" | "table" | "none"
-            verbose?: boolean
-            nbRowsToLog?: number
-        } = {}
-    ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nremoveDuplicates()")
-        return await queryDB(
-            this.connection,
-            this.runQuery,
-            `CREATE OR REPLACE TABLE ${table} AS SELECT DISTINCT * FROM ${table}`,
             mergeOptions(this, { ...options, table })
         )
     }
@@ -376,6 +337,49 @@ export default class SimpleDB {
         return data
     }
 
+    async tidy(
+        table: string,
+        columns: string[],
+        columnsName: string,
+        valuesName: string,
+        options: {
+            returnDataFrom?: "query" | "table" | "none"
+            verbose?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\ntidy()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM (UNPIVOT ${table}
+        ON ${columns.map((d) => `"${d}"`).join(", ")}
+        INTO
+            NAME ${columnsName}
+            VALUE ${valuesName})`,
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
+    async removeDuplicates(
+        table: string,
+        options: {
+            returnDataFrom?: "query" | "table" | "none"
+            verbose?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nremoveDuplicates()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            `CREATE OR REPLACE TABLE ${table} AS SELECT DISTINCT * FROM ${table}`,
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
     async removeMissing(
         table: string,
         columns: string | string[] = [],
@@ -414,6 +418,27 @@ export default class SimpleDB {
                 columns.length === 0 ? allColumns : columns,
                 options
             ),
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
+    async sort(
+        table: string,
+        columns: { [key: string]: "asc" | "desc" },
+        options: {
+            lang?: { [key: string]: string }
+            returnDataFrom?: "query" | "table" | "none"
+            verbose?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nsort")
+
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            sortQuery(table, columns, options),
             mergeOptions(this, { ...options, table })
         )
     }
