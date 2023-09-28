@@ -528,6 +528,11 @@ export default class SimpleDB {
                 | "time"
                 | "datetime"
                 | "datetimeTz"
+                | "bigint"
+                | "double"
+                | "varchar"
+                | "timestamp"
+                | "timestamp with time zone"
         },
         options: {
             verbose?: boolean

@@ -9,6 +9,11 @@ export default function convertQuery(
         | "time"
         | "datetime"
         | "datetimeTz"
+        | "bigint"
+        | "double"
+        | "varchar"
+        | "timestamp"
+        | "timestamp with time zone"
     )[],
     allColumns: string[],
     allTypes: {
@@ -63,6 +68,11 @@ function parseType(
         | "time"
         | "datetime"
         | "datetimeTz"
+        | "bigint"
+        | "double"
+        | "varchar"
+        | "timestamp"
+        | "timestamp with time zone"
 ) {
     if (type === "integer") {
         return "BIGINT"
@@ -70,14 +80,24 @@ function parseType(
         return "DOUBLE"
     } else if (type === "string") {
         return "VARCHAR"
-    } else if (type === "date") {
-        return "DATE"
     } else if (type === "datetime") {
         return "TIMESTAMP"
     } else if (type === "datetimeTz") {
         return "TIMESTAMP WITH TIME ZONE"
     } else if (type === "time") {
         return "TIME"
+    } else if (
+        [
+            "date",
+            "time",
+            "bigint",
+            "double",
+            "varchar",
+            "timestamp",
+            "timestamp with time zone",
+        ].includes(type)
+    ) {
+        return type.toUpperCase()
     } else {
         throw new Error(`Unknown type ${type}`)
     }
