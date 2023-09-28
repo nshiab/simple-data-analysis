@@ -14,6 +14,7 @@ import replaceTextQuery from "../methods/cleaning/replaceStringQuery.js"
 import convertQuery from "../methods/cleaning/convertQuery.js"
 import roundQuery from "../methods/cleaning/round.js"
 import joinQuery from "../methods/restructuring/joinQuery.js"
+import insertRowsQuery from "../methods/importing/insertRowsQuery.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -125,6 +126,23 @@ export default class SimpleDB {
             this.connection,
             this.runQuery,
             loadDataQuery(table, stringToArray(files), options),
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
+    async insertRows(
+        table: string,
+        rows: { [key: string]: unknown }[],
+        options: {
+            returnDataFrom?: "query" | "table" | "none"
+            verbose?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            insertRowsQuery(table, rows),
             mergeOptions(this, { ...options, table })
         )
     }
