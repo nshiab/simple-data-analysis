@@ -15,6 +15,7 @@ import convertQuery from "../methods/cleaning/convertQuery.js"
 import roundQuery from "../methods/cleaning/round.js"
 import joinQuery from "../methods/restructuring/joinQuery.js"
 import insertRowsQuery from "../methods/importing/insertRowsQuery.js"
+import sortQuery from "../methods/restructuring/sortQuery.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -63,11 +64,6 @@ export default class SimpleDB {
         const duckDB = await getDuckDB()
         this.db = duckDB.db
         this.connection = await this.db.connect()
-        if (typeof window !== "undefined") {
-            this.connection.query("INSTALL httpfs")
-        } else {
-            console.log("No window. Not running 'INSTALL httpfs'")
-        }
 
         this.worker = duckDB.worker
         return this
@@ -256,6 +252,27 @@ export default class SimpleDB {
             `CREATE OR REPLACE TABLE ${table} AS SELECT ${stringToArray(columns)
                 .map((d) => `"${d}"`)
                 .join(", ")} FROM ${table}`,
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
+    async sort(
+        table: string,
+        columns: { [key: string]: "asc" | "desc" },
+        options: {
+            lang?: { [key: string]: string }
+            returnDataFrom?: "query" | "table" | "none"
+            verbose?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nsort")
+
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            sortQuery(table, columns, options),
             mergeOptions(this, { ...options, table })
         )
     }
