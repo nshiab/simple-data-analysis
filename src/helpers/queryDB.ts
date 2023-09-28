@@ -127,5 +127,10 @@ export default async function queryDB(
         }
     }
 
-    return data as { [key: string]: unknown }[]
+    if (
+        options.returnDataFrom === "table" ||
+        options.returnDataFrom === "query"
+    ) {
+        return data as { [key: string]: unknown }[]
+    }
 }

@@ -15,7 +15,7 @@ describe("replaceString", () => {
             "test/data/employees.csv",
         ])
 
-        const data = await simpleNodeDB.replaceString(
+        const data = await simpleNodeDB.replaceStrings(
             "employeesOneColumn",
             ["Name", "End-of_year-BONUS?"],
             { "%": "" },
@@ -439,7 +439,7 @@ describe("replaceString", () => {
             "test/data/employees.csv",
         ])
 
-        const data = await simpleNodeDB.replaceString(
+        const data = await simpleNodeDB.replaceStrings(
             "employeesOneColumnMultipleTexts",
             ["End-of_year-BONUS?"],
             { "%": "", ",": "." },
@@ -863,7 +863,7 @@ describe("replaceString", () => {
             "test/data/employees.csv",
         ])
 
-        const data = await simpleNodeDB.replaceString(
+        const data = await simpleNodeDB.replaceStrings(
             "employeesMultipleColumns",
             ["Name", "End-of_year-BONUS?"],
             { ",": " => " },
@@ -1287,7 +1287,7 @@ describe("replaceString", () => {
             "test/data/employees.csv",
         ])
 
-        const data = await simpleNodeDB.replaceString(
+        const data = await simpleNodeDB.replaceStrings(
             "employeesMultipleColumnsMultipleTexts",
             ["Name", "End-of_year-BONUS?"],
             { "%": "", ",": "." },

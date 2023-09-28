@@ -19,7 +19,7 @@ describe("sample", () => {
             returnDataFrom: "table",
         })
 
-        assert.deepStrictEqual(data.length, 5)
+        assert.deepStrictEqual(data?.length, 5)
     })
 
     it("should return the 5 same random rows based on seed", async () => {

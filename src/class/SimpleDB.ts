@@ -180,6 +180,25 @@ export default class SimpleDB {
         )
     }
 
+    async cloneTable(
+        originalTable: string,
+        newTable: string,
+        options: {
+            returnDataFrom?: "query" | "table" | "none"
+            verbose?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\ncloneTable")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            `CREATE OR REPLACE TABLE ${newTable} AS SELECT * FROM ${originalTable}`,
+            mergeOptions(this, { ...options, table: newTable })
+        )
+    }
+
     async selectColumns(
         table: string,
         columns: string | string[],
@@ -343,7 +362,7 @@ export default class SimpleDB {
         )
     }
 
-    async replaceString(
+    async replaceStrings(
         table: string,
         columns: string | string[],
         strings: { [key: string]: string },
