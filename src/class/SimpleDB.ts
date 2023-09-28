@@ -139,10 +139,31 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\ninsertRows()")
         return await queryDB(
             this.connection,
             this.runQuery,
             insertRowsQuery(table, rows),
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
+    async insertTable(
+        table: string,
+        tableToInsert: string,
+        options: {
+            returnDataFrom?: "query" | "table" | "none"
+            verbose?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\ninsertTable()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            `INSERT INTO ${table} SELECT * FROM ${tableToInsert}`,
             mergeOptions(this, { ...options, table })
         )
     }
