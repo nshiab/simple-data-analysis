@@ -10,7 +10,7 @@ describe("summarize", () => {
         await simpleNodeDB.done()
     })
 
-    it("summarize all numerical columns in a table", async () => {
+    it("should summarize all numerical columns in a table", async () => {
         await simpleNodeDB.loadData(
             "dataSummarizeAll",
             "test/data/files/dataSummarize.json"
@@ -44,6 +44,32 @@ describe("summarize", () => {
                 skew: -0.06,
                 stdDev: 4.75,
                 var: 22.54,
+            },
+        ])
+    })
+    it("should summarize specific numerical columns in a table", async () => {
+        await simpleNodeDB.loadData(
+            "dataSummarizeOneValue",
+            "test/data/files/dataSummarize.json"
+        )
+
+        const data = await simpleNodeDB.summarize("dataSummarizeOneValue", {
+            values: "key2",
+            returnDataFrom: "table",
+        })
+
+        assert.deepStrictEqual(data, [
+            {
+                value: "key2",
+                count: 4,
+                min: 1,
+                max: 22,
+                avg: 9,
+                median: 6.5,
+                sum: 36,
+                skew: 0.97,
+                stdDev: 9.76,
+                var: 95.33,
             },
         ])
     })
