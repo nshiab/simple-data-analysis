@@ -6,16 +6,16 @@ import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import stringToArray from "../helpers/stringToArray.js"
 
-import loadDataQuery from "../methods/importing/loadDataQuery.js"
-import logDescriptionQuery from "../methods/cleaning/logDescriptionQuery.js"
-import removeMissingQuery from "../methods/cleaning/removeMissingQuery.js"
-import renameColumnQuery from "../methods/restructuring/renameColumnQuery.js"
-import replaceTextQuery from "../methods/cleaning/replaceStringQuery.js"
-import convertQuery from "../methods/cleaning/convertQuery.js"
-import roundQuery from "../methods/cleaning/round.js"
-import joinQuery from "../methods/restructuring/joinQuery.js"
-import insertRowsQuery from "../methods/importing/insertRowsQuery.js"
-import sortQuery from "../methods/restructuring/sortQuery.js"
+import loadDataQuery from "../methods/loadDataQuery.js"
+import logDescriptionQuery from "../methods/logDescriptionQuery.js"
+import removeMissingQuery from "../methods/removeMissingQuery.js"
+import renameColumnQuery from "../methods/renameColumnQuery.js"
+import replaceTextQuery from "../methods/replaceStringQuery.js"
+import convertQuery from "../methods/convertQuery.js"
+import roundQuery from "../methods/round.js"
+import joinQuery from "../methods/joinQuery.js"
+import insertRowsQuery from "../methods/insertRowsQuery.js"
+import sortQuery from "../methods/sortQuery.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -422,27 +422,6 @@ export default class SimpleDB {
         )
     }
 
-    async sort(
-        table: string,
-        columns: { [key: string]: "asc" | "desc" },
-        options: {
-            lang?: { [key: string]: string }
-            returnDataFrom?: "query" | "table" | "none"
-            verbose?: boolean
-            nbRowsToLog?: number
-        } = {}
-    ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nsort")
-
-        return await queryDB(
-            this.connection,
-            this.runQuery,
-            sortQuery(table, columns, options),
-            mergeOptions(this, { ...options, table })
-        )
-    }
-
     async replaceStrings(
         table: string,
         columns: string | string[],
@@ -507,6 +486,37 @@ export default class SimpleDB {
         return data
     }
 
+    async round(
+        table: string,
+        columns: string | string[],
+        options: {
+            verbose?: boolean
+            returnDataFrom?: "query" | "table" | "none"
+            nbRowsToLog?: number
+            decimals?: number
+            method?: "round" | "ceiling" | "floor"
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nround()")
+
+        if (
+            (options.method === "ceiling" || options.method === "floor") &&
+            typeof options.decimals === "number"
+        ) {
+            console.log(
+                "Ceiling and floor methods round to the nearest integer. Your option decimals has no effect."
+            )
+        }
+
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            roundQuery(table, stringToArray(columns), options),
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
     async convert(
         table: string,
         types: {
@@ -547,37 +557,6 @@ export default class SimpleDB {
                 allTypes,
                 options
             ),
-            mergeOptions(this, { ...options, table })
-        )
-    }
-
-    async round(
-        table: string,
-        columns: string | string[],
-        options: {
-            verbose?: boolean
-            returnDataFrom?: "query" | "table" | "none"
-            nbRowsToLog?: number
-            decimals?: number
-            method?: "round" | "ceiling" | "floor"
-        } = {}
-    ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nround()")
-
-        if (
-            (options.method === "ceiling" || options.method === "floor") &&
-            typeof options.decimals === "number"
-        ) {
-            console.log(
-                "Ceiling and floor methods round to the nearest integer. Your option decimals has no effect."
-            )
-        }
-
-        return await queryDB(
-            this.connection,
-            this.runQuery,
-            roundQuery(table, stringToArray(columns), options),
             mergeOptions(this, { ...options, table })
         )
     }
@@ -684,6 +663,27 @@ export default class SimpleDB {
         }
 
         return data
+    }
+
+    async sort(
+        table: string,
+        columns: { [key: string]: "asc" | "desc" },
+        options: {
+            lang?: { [key: string]: string }
+            returnDataFrom?: "query" | "table" | "none"
+            verbose?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nsort")
+
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            sortQuery(table, columns, options),
+            mergeOptions(this, { ...options, table })
+        )
     }
 
     async join(

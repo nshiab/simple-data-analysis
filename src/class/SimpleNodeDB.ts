@@ -6,8 +6,8 @@ import SimpleDB from "./SimpleDB.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 
-import loadDataQuery from "../methods/importing/loadDataQuery.js"
-import writeDataQuery from "../methods/exporting/writeDataQuery.js"
+import loadDataQuery from "../methods/loadDataQuery.js"
+import writeDataQuery from "../methods/writeDataQuery.js"
 
 export default class SimpleNodeDB extends SimpleDB {
     constructor(
