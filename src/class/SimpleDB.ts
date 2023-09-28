@@ -16,6 +16,7 @@ import roundQuery from "../methods/round.js"
 import joinQuery from "../methods/joinQuery.js"
 import insertRowsQuery from "../methods/insertRowsQuery.js"
 import sortQuery from "../methods/sortQuery.js"
+import summarizeQuery from "../methods/summarizeQuery.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -741,6 +742,56 @@ export default class SimpleDB {
         return data
     }
 
+    async summarize(
+        table: string,
+        options: {
+            values?: string | string[]
+            categories?: string | string[]
+            summaries?: string | string[]
+            decimals?: number
+            verbose?: boolean
+            returnDataFrom?: "query" | "table" | "none"
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nsummarize()")
+
+        options.values = options.values ? stringToArray(options.values) : []
+        options.categories = options.categories
+            ? stringToArray(options.categories)
+            : []
+        options.summaries = options.summaries
+            ? stringToArray(options.summaries)
+            : []
+        options.decimals = options.decimals ?? 2
+
+        if (options.values.length === 0) {
+            const types = await this.getTypes(table)
+            for (const col of Object.keys(types)) {
+                if (
+                    ["FLOAT", "DOUBLE", "DECIMAL"].includes(types[col]) ||
+                    types[col].includes("INT")
+                ) {
+                    options.values.push(col)
+                }
+            }
+        }
+
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            summarizeQuery(
+                table,
+                options.values,
+                options.categories,
+                options.summaries,
+                options
+            ),
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
     async getTables(
         options: {
             verbose?: boolean
@@ -885,14 +936,14 @@ export default class SimpleDB {
     ) {
         options.verbose = options.verbose ?? true
         options.nbRowsToLog = options.nbRowsToLog ?? this.nbRowsToLog
-        ;(options.verbose || options.verbose || this.verbose || this.debug) &&
+        ;(options.verbose || this.verbose || this.debug) &&
             console.log("\nlogTable()")
 
         return await queryDB(
             this.connection,
             this.runQuery,
             `SELECT * FROM ${table} LIMIT ${options.nbRowsToLog}`,
-            mergeOptions(this, { ...options, returnDataFrom: "table" })
+            mergeOptions(this, { ...options, returnDataFrom: "table", table })
         )
     }
 
