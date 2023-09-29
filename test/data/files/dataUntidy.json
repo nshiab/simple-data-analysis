@@ -1,6 +1,6 @@
 [
     {
-        "Departement": "accounting",
+        "Department": "accounting",
         "2015": 10,
         "2016": 9,
         "2017": 15,
@@ -9,7 +9,7 @@
         "2020": 32
     },
     {
-        "Departement": "R&D",
+        "Department": "R&D",
         "2015": 1,
         "2016": 2,
         "2017": 5,
@@ -18,7 +18,7 @@
         "2020": 3
     },
     {
-        "Departement": "sales",
+        "Department": "sales",
         "2015": 2,
         "2016": 7,
         "2017": 15,

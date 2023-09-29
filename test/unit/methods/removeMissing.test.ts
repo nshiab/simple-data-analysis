@@ -145,7 +145,7 @@ const dataNoNulls = [
         "Hire date": "21-JUN-07",
         Job: "Clerk",
         Salary: "2600",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "1,94%",
     },
     {
@@ -153,7 +153,7 @@ const dataNoNulls = [
         "Hire date": "21-JUN-07",
         Job: "Clerk",
         Salary: "2600",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "1,94%",
     },
     {
@@ -161,7 +161,7 @@ const dataNoNulls = [
         "Hire date": "17-FEB-04",
         Job: "Manager",
         Salary: "13000",
-        "Departement or unit": "20",
+        "Department or unit": "20",
         "End-of_year-BONUS?": "2,71%",
     },
     {
@@ -169,7 +169,7 @@ const dataNoNulls = [
         "Hire date": "17-AUG-05",
         Job: "Representative",
         Salary: "6000",
-        "Departement or unit": "20",
+        "Department or unit": "20",
         "End-of_year-BONUS?": "18,68%",
     },
     {
@@ -177,7 +177,7 @@ const dataNoNulls = [
         "Hire date": "07-JUN-02",
         Job: "Salesperson",
         Salary: "6500",
-        "Departement or unit": "40",
+        "Department or unit": "40",
         "End-of_year-BONUS?": "23,47%",
     },
     {
@@ -185,7 +185,7 @@ const dataNoNulls = [
         "Hire date": "07-JUN-02",
         Job: "Manager",
         Salary: "12008",
-        "Departement or unit": "110",
+        "Department or unit": "110",
         "End-of_year-BONUS?": "17,09%",
     },
     {
@@ -193,7 +193,7 @@ const dataNoNulls = [
         "Hire date": "21-SEP-05",
         Job: "Vice-president",
         Salary: "&6%",
-        "Departement or unit": "90",
+        "Department or unit": "90",
         "End-of_year-BONUS?": "11,6%",
     },
     {
@@ -201,7 +201,7 @@ const dataNoNulls = [
         "Hire date": "03-JAN-06",
         Job: "Programmer",
         Salary: "9000",
-        "Departement or unit": "60",
+        "Department or unit": "60",
         "End-of_year-BONUS?": "23,01%",
     },
     {
@@ -209,7 +209,7 @@ const dataNoNulls = [
         "Hire date": "21-MAY-07",
         Job: "Programmer",
         Salary: "6000",
-        "Departement or unit": "60",
+        "Department or unit": "60",
         "End-of_year-BONUS?": "25,91%",
     },
     {
@@ -217,7 +217,7 @@ const dataNoNulls = [
         "Hire date": "07-ARB-07",
         Job: "Programmer",
         Salary: "4200",
-        "Departement or unit": "60",
+        "Department or unit": "60",
         "End-of_year-BONUS?": "13,17%",
     },
     {
@@ -225,7 +225,7 @@ const dataNoNulls = [
         "Hire date": "17-AUG-02",
         Job: "Manager",
         Salary: "12008",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "74,69%",
     },
     {
@@ -233,7 +233,7 @@ const dataNoNulls = [
         "Hire date": "16-AUG-02",
         Job: "Accountant",
         Salary: "9000",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "2,92%",
     },
     {
@@ -241,7 +241,7 @@ const dataNoNulls = [
         "Hire date": "28-SEP-05",
         Job: "Accountant",
         Salary: "8200",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "9,31%",
     },
     {
@@ -249,7 +249,7 @@ const dataNoNulls = [
         "Hire date": "30-SEP-05",
         Job: "Accountant",
         Salary: "7700",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "13,18%",
     },
     {
@@ -257,7 +257,7 @@ const dataNoNulls = [
         "Hire date": "07-MAR-06",
         Job: "Accountant",
         Salary: "7800",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "1,33%",
     },
     {
@@ -265,7 +265,7 @@ const dataNoNulls = [
         "Hire date": "07-DEC-07",
         Job: "Accountant",
         Salary: "6900",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "2,98%",
     },
     {
@@ -273,7 +273,7 @@ const dataNoNulls = [
         "Hire date": "07-DEC-02",
         Job: "Manager",
         Salary: "11000",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "3,35%",
     },
     {
@@ -281,7 +281,7 @@ const dataNoNulls = [
         "Hire date": "18-MAY-03",
         Job: "Clerk",
         Salary: "3100",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "19,81%",
     },
     {
@@ -289,7 +289,7 @@ const dataNoNulls = [
         "Hire date": "24-DEC-05",
         Job: "Clerk",
         Salary: "2900",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "11,06%",
     },
     {
@@ -297,7 +297,7 @@ const dataNoNulls = [
         "Hire date": "15-NOV-05",
         Job: "Clerk",
         Salary: "2600",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "25,98%",
     },
     {
@@ -305,7 +305,7 @@ const dataNoNulls = [
         "Hire date": "10-AUG-07",
         Job: "Clerk",
         Salary: "2500",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "15,8%",
     },
     {
@@ -313,7 +313,7 @@ const dataNoNulls = [
         "Hire date": "18-JUL-04",
         Job: "Manager",
         Salary: "8000",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "25,17%",
     },
     {
@@ -321,7 +321,7 @@ const dataNoNulls = [
         "Hire date": "10-APR-05",
         Job: "Manager",
         Salary: "8200",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "21%",
     },
     {
@@ -329,7 +329,7 @@ const dataNoNulls = [
         "Hire date": "16-JUL-05",
         Job: "Clerk",
         Salary: "3200",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "18,7%",
     },
     {
@@ -337,7 +337,7 @@ const dataNoNulls = [
         "Hire date": "28-SEP-06",
         Job: "Clerk",
         Salary: "2700",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "11,82%",
     },
     {
@@ -345,7 +345,7 @@ const dataNoNulls = [
         "Hire date": "16-FEB-05",
         Job: "Clerk",
         Salary: "2500",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "15,74%",
     },
     {
@@ -353,7 +353,7 @@ const dataNoNulls = [
         "Hire date": "12-FEB-06",
         Job: "Clerk",
         Salary: "2700",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "0,16%",
     },
     {
@@ -361,7 +361,7 @@ const dataNoNulls = [
         "Hire date": "06-APR-06",
         Job: "Clerk",
         Salary: "2500",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "16,19%",
     },
 ]
@@ -372,7 +372,7 @@ const dataNoNullsJSON = [
         "Hire date": "21-JUN-07",
         Job: "Clerk",
         Salary: "2600",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "1,94%",
     },
     {
@@ -380,7 +380,7 @@ const dataNoNullsJSON = [
         "Hire date": "21-JUN-07",
         Job: "Clerk",
         Salary: "2600",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "1,94%",
     },
     {
@@ -388,7 +388,7 @@ const dataNoNullsJSON = [
         "Hire date": "17-FEB-04",
         Job: "Manager",
         Salary: "13000",
-        "Departement or unit": "20",
+        "Department or unit": "20",
         "End-of_year-BONUS?": "2,71%",
     },
     {
@@ -396,7 +396,7 @@ const dataNoNullsJSON = [
         "Hire date": "17-AUG-05",
         Job: "Representative",
         Salary: "6000",
-        "Departement or unit": "20",
+        "Department or unit": "20",
         "End-of_year-BONUS?": "18,68%",
     },
     {
@@ -404,7 +404,7 @@ const dataNoNullsJSON = [
         "Hire date": "07-JUN-02",
         Job: "Salesperson",
         Salary: "6500",
-        "Departement or unit": "40",
+        "Department or unit": "40",
         "End-of_year-BONUS?": "23,47%",
     },
     {
@@ -412,7 +412,7 @@ const dataNoNullsJSON = [
         "Hire date": "07-JUN-02",
         Job: "Manager",
         Salary: "12008",
-        "Departement or unit": "110",
+        "Department or unit": "110",
         "End-of_year-BONUS?": "17,09%",
     },
     {
@@ -420,7 +420,7 @@ const dataNoNullsJSON = [
         "Hire date": "21-SEP-05",
         Job: "Vice-president",
         Salary: '"&6%"',
-        "Departement or unit": "90",
+        "Department or unit": "90",
         "End-of_year-BONUS?": "11,6%",
     },
     {
@@ -428,7 +428,7 @@ const dataNoNullsJSON = [
         "Hire date": "03-JAN-06",
         Job: "Programmer",
         Salary: "9000",
-        "Departement or unit": "60",
+        "Department or unit": "60",
         "End-of_year-BONUS?": "23,01%",
     },
     {
@@ -436,7 +436,7 @@ const dataNoNullsJSON = [
         "Hire date": "21-MAY-07",
         Job: "Programmer",
         Salary: "6000",
-        "Departement or unit": "60",
+        "Department or unit": "60",
         "End-of_year-BONUS?": "25,91%",
     },
     {
@@ -444,7 +444,7 @@ const dataNoNullsJSON = [
         "Hire date": "07-ARB-07",
         Job: "Programmer",
         Salary: "4200",
-        "Departement or unit": "60",
+        "Department or unit": "60",
         "End-of_year-BONUS?": "13,17%",
     },
     {
@@ -452,7 +452,7 @@ const dataNoNullsJSON = [
         "Hire date": "17-AUG-02",
         Job: "Manager",
         Salary: "12008",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "74,69%",
     },
     {
@@ -460,7 +460,7 @@ const dataNoNullsJSON = [
         "Hire date": "16-AUG-02",
         Job: "Accountant",
         Salary: "9000",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "2,92%",
     },
     {
@@ -468,7 +468,7 @@ const dataNoNullsJSON = [
         "Hire date": "28-SEP-05",
         Job: "Accountant",
         Salary: "8200",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "9,31%",
     },
     {
@@ -476,7 +476,7 @@ const dataNoNullsJSON = [
         "Hire date": "30-SEP-05",
         Job: "Accountant",
         Salary: "7700",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "13,18%",
     },
     {
@@ -484,7 +484,7 @@ const dataNoNullsJSON = [
         "Hire date": "07-MAR-06",
         Job: "Accountant",
         Salary: "7800",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "1,33%",
     },
     {
@@ -492,7 +492,7 @@ const dataNoNullsJSON = [
         "Hire date": "07-DEC-07",
         Job: "Accountant",
         Salary: "6900",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "2,98%",
     },
     {
@@ -500,7 +500,7 @@ const dataNoNullsJSON = [
         "Hire date": "07-DEC-02",
         Job: "Manager",
         Salary: "11000",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "3,35%",
     },
     {
@@ -508,7 +508,7 @@ const dataNoNullsJSON = [
         "Hire date": "18-MAY-03",
         Job: "Clerk",
         Salary: "3100",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "19,81%",
     },
     {
@@ -516,7 +516,7 @@ const dataNoNullsJSON = [
         "Hire date": "24-DEC-05",
         Job: "Clerk",
         Salary: "2900",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "11,06%",
     },
     {
@@ -524,7 +524,7 @@ const dataNoNullsJSON = [
         "Hire date": "15-NOV-05",
         Job: "Clerk",
         Salary: "2600",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "25,98%",
     },
     {
@@ -532,7 +532,7 @@ const dataNoNullsJSON = [
         "Hire date": "10-AUG-07",
         Job: "Clerk",
         Salary: "2500",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "15,8%",
     },
     {
@@ -540,7 +540,7 @@ const dataNoNullsJSON = [
         "Hire date": "18-JUL-04",
         Job: "Manager",
         Salary: "8000",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "25,17%",
     },
     {
@@ -548,7 +548,7 @@ const dataNoNullsJSON = [
         "Hire date": "10-APR-05",
         Job: "Manager",
         Salary: "8200",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "21%",
     },
     {
@@ -556,7 +556,7 @@ const dataNoNullsJSON = [
         "Hire date": "16-JUL-05",
         Job: "Clerk",
         Salary: "3200",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "18,7%",
     },
     {
@@ -564,7 +564,7 @@ const dataNoNullsJSON = [
         "Hire date": "28-SEP-06",
         Job: "Clerk",
         Salary: "2700",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "11,82%",
     },
     {
@@ -572,7 +572,7 @@ const dataNoNullsJSON = [
         "Hire date": "16-FEB-05",
         Job: "Clerk",
         Salary: "2500",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "15,74%",
     },
     {
@@ -580,7 +580,7 @@ const dataNoNullsJSON = [
         "Hire date": "12-FEB-06",
         Job: "Clerk",
         Salary: "2700",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "0,16%",
     },
     {
@@ -588,7 +588,7 @@ const dataNoNullsJSON = [
         "Hire date": "06-APR-06",
         Job: "Clerk",
         Salary: "2500",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "16,19%",
     },
 ]
@@ -599,7 +599,7 @@ const dataNoNullsName = [
         "Hire date": "21-JUN-07",
         Job: "Clerk",
         Salary: "2600",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "1,94%",
     },
     {
@@ -607,7 +607,7 @@ const dataNoNullsName = [
         "Hire date": "21-JUN-07",
         Job: "Clerk",
         Salary: "2600",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "1,94%",
     },
     {
@@ -615,7 +615,7 @@ const dataNoNullsName = [
         "Hire date": "13-JAN-08",
         Job: "Clerk",
         Salary: "NaN",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "23,39%",
     },
     {
@@ -623,7 +623,7 @@ const dataNoNullsName = [
         "Hire date": "17-FEB-04",
         Job: "Manager",
         Salary: "13000",
-        "Departement or unit": "20",
+        "Department or unit": "20",
         "End-of_year-BONUS?": "2,71%",
     },
     {
@@ -631,7 +631,7 @@ const dataNoNullsName = [
         "Hire date": "17-AUG-05",
         Job: "Representative",
         Salary: "6000",
-        "Departement or unit": "20",
+        "Department or unit": "20",
         "End-of_year-BONUS?": "18,68%",
     },
     {
@@ -639,7 +639,7 @@ const dataNoNullsName = [
         "Hire date": "07-JUN-02",
         Job: "Salesperson",
         Salary: "6500",
-        "Departement or unit": "40",
+        "Department or unit": "40",
         "End-of_year-BONUS?": "23,47%",
     },
     {
@@ -647,7 +647,7 @@ const dataNoNullsName = [
         "Hire date": "07-JUN-02",
         Job: "Manager",
         Salary: "12008",
-        "Departement or unit": "110",
+        "Department or unit": "110",
         "End-of_year-BONUS?": "17,09%",
     },
     {
@@ -655,7 +655,7 @@ const dataNoNullsName = [
         "Hire date": null,
         Job: "President",
         Salary: "24000",
-        "Departement or unit": "90",
+        "Department or unit": "90",
         "End-of_year-BONUS?": "2,46%",
     },
     {
@@ -663,7 +663,7 @@ const dataNoNullsName = [
         "Hire date": "21-SEP-05",
         Job: "Vice-president",
         Salary: "&6%",
-        "Departement or unit": "90",
+        "Department or unit": "90",
         "End-of_year-BONUS?": "11,6%",
     },
     {
@@ -671,7 +671,7 @@ const dataNoNullsName = [
         "Hire date": "null",
         Job: "Vice-president",
         Salary: "17000",
-        "Departement or unit": "90",
+        "Department or unit": "90",
         "End-of_year-BONUS?": "23,43%",
     },
     {
@@ -679,7 +679,7 @@ const dataNoNullsName = [
         "Hire date": "03-JAN-06",
         Job: "Programmer",
         Salary: "9000",
-        "Departement or unit": "60",
+        "Department or unit": "60",
         "End-of_year-BONUS?": "23,01%",
     },
     {
@@ -687,7 +687,7 @@ const dataNoNullsName = [
         "Hire date": "21-MAY-07",
         Job: "Programmer",
         Salary: "6000",
-        "Departement or unit": "60",
+        "Department or unit": "60",
         "End-of_year-BONUS?": "25,91%",
     },
     {
@@ -695,7 +695,7 @@ const dataNoNullsName = [
         "Hire date": "NaN",
         Job: "Programmer",
         Salary: "4800",
-        "Departement or unit": "null",
+        "Department or unit": "null",
         "End-of_year-BONUS?": "6,89%",
     },
     {
@@ -703,7 +703,7 @@ const dataNoNullsName = [
         "Hire date": "abc",
         Job: "Programmer",
         Salary: null,
-        "Departement or unit": "60",
+        "Department or unit": "60",
         "End-of_year-BONUS?": "1,62%",
     },
     {
@@ -711,7 +711,7 @@ const dataNoNullsName = [
         "Hire date": "07-ARB-07",
         Job: "Programmer",
         Salary: "4200",
-        "Departement or unit": "60",
+        "Department or unit": "60",
         "End-of_year-BONUS?": "13,17%",
     },
     {
@@ -719,7 +719,7 @@ const dataNoNullsName = [
         "Hire date": "17-AUG-02",
         Job: "Manager",
         Salary: "12008",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "74,69%",
     },
     {
@@ -727,7 +727,7 @@ const dataNoNullsName = [
         "Hire date": "16-AUG-02",
         Job: "Accountant",
         Salary: "9000",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "2,92%",
     },
     {
@@ -735,7 +735,7 @@ const dataNoNullsName = [
         "Hire date": "28-SEP-05",
         Job: "Accountant",
         Salary: "8200",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "9,31%",
     },
     {
@@ -743,7 +743,7 @@ const dataNoNullsName = [
         "Hire date": "30-SEP-05",
         Job: "Accountant",
         Salary: "7700",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "13,18%",
     },
     {
@@ -751,7 +751,7 @@ const dataNoNullsName = [
         "Hire date": "07-MAR-06",
         Job: "Accountant",
         Salary: "7800",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "1,33%",
     },
     {
@@ -759,7 +759,7 @@ const dataNoNullsName = [
         "Hire date": "07-DEC-07",
         Job: "Accountant",
         Salary: "6900",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "2,98%",
     },
     {
@@ -767,7 +767,7 @@ const dataNoNullsName = [
         "Hire date": "07-DEC-02",
         Job: "Manager",
         Salary: "11000",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "3,35%",
     },
     {
@@ -775,7 +775,7 @@ const dataNoNullsName = [
         "Hire date": "18-MAY-03",
         Job: "Clerk",
         Salary: "3100",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "19,81%",
     },
     {
@@ -783,7 +783,7 @@ const dataNoNullsName = [
         "Hire date": "24-DEC-05",
         Job: "Clerk",
         Salary: "2900",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "11,06%",
     },
     {
@@ -791,7 +791,7 @@ const dataNoNullsName = [
         "Hire date": "24-JUL-05",
         Job: "NaN",
         Salary: "2800",
-        "Departement or unit": null,
+        "Department or unit": null,
         "End-of_year-BONUS?": "undefined",
     },
     {
@@ -799,7 +799,7 @@ const dataNoNullsName = [
         "Hire date": "15-NOV-05",
         Job: "Clerk",
         Salary: "2600",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "25,98%",
     },
     {
@@ -807,7 +807,7 @@ const dataNoNullsName = [
         "Hire date": "10-AUG-07",
         Job: "Clerk",
         Salary: "2500",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "15,8%",
     },
     {
@@ -815,7 +815,7 @@ const dataNoNullsName = [
         "Hire date": "18-JUL-04",
         Job: "Manager",
         Salary: "8000",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "25,17%",
     },
     {
@@ -823,7 +823,7 @@ const dataNoNullsName = [
         "Hire date": "10-APR-05",
         Job: "Manager",
         Salary: "8200",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "21%",
     },
     {
@@ -831,7 +831,7 @@ const dataNoNullsName = [
         "Hire date": "01-MAY-03",
         Job: "Manager",
         Salary: "7900",
-        "Departement or unit": "undefined",
+        "Department or unit": "undefined",
         "End-of_year-BONUS?": "21,33%",
     },
     {
@@ -839,7 +839,7 @@ const dataNoNullsName = [
         "Hire date": "10-OCT-05",
         Job: "null",
         Salary: "6500",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "3,45%",
     },
     {
@@ -847,7 +847,7 @@ const dataNoNullsName = [
         "Hire date": "undefined",
         Job: "Manager",
         Salary: "5800",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "19,07%",
     },
     {
@@ -855,7 +855,7 @@ const dataNoNullsName = [
         "Hire date": "16-JUL-05",
         Job: "Clerk",
         Salary: "3200",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "18,7%",
     },
     {
@@ -863,7 +863,7 @@ const dataNoNullsName = [
         "Hire date": "28-SEP-06",
         Job: "Clerk",
         Salary: "2700",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "11,82%",
     },
     {
@@ -871,7 +871,7 @@ const dataNoNullsName = [
         "Hire date": "14-JAN-07",
         Job: "Clerk",
         Salary: "2400",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "NaN",
     },
     {
@@ -879,7 +879,7 @@ const dataNoNullsName = [
         "Hire date": "NaN",
         Job: "Clerk",
         Salary: "2200",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "11,26%",
     },
     {
@@ -887,7 +887,7 @@ const dataNoNullsName = [
         "Hire date": "20-AUG-05",
         Job: "undefined",
         Salary: "3300",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "4,53%",
     },
     {
@@ -895,7 +895,7 @@ const dataNoNullsName = [
         "Hire date": "30-OCT-05",
         Job: "Clerk",
         Salary: "undefined",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "9,61%",
     },
     {
@@ -903,7 +903,7 @@ const dataNoNullsName = [
         "Hire date": "16-FEB-05",
         Job: "Clerk",
         Salary: "2500",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "15,74%",
     },
     {
@@ -911,7 +911,7 @@ const dataNoNullsName = [
         "Hire date": "10-APR-07",
         Job: "Clerk",
         Salary: "2100",
-        "Departement or unit": "null",
+        "Department or unit": "null",
         "End-of_year-BONUS?": "22,3%",
     },
     {
@@ -919,7 +919,7 @@ const dataNoNullsName = [
         "Hire date": "26-AUG-06",
         Job: "Clerk",
         Salary: "2900",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "null",
     },
     {
@@ -927,7 +927,7 @@ const dataNoNullsName = [
         "Hire date": "12-DEC-07",
         Job: "NaN",
         Salary: "2400",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "12,64%",
     },
     {
@@ -935,7 +935,7 @@ const dataNoNullsName = [
         "Hire date": "06-FEB-08",
         Job: "Clerk",
         Salary: "2200",
-        "Departement or unit": "NaN",
+        "Department or unit": "NaN",
         "End-of_year-BONUS?": "24,17%",
     },
     {
@@ -943,7 +943,7 @@ const dataNoNullsName = [
         "Hire date": "14-JUL-03",
         Job: null,
         Salary: "3600",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "17,86%",
     },
     {
@@ -951,7 +951,7 @@ const dataNoNullsName = [
         "Hire date": "26-OCT-05",
         Job: "Clerk",
         Salary: "3200",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": null,
     },
     {
@@ -959,7 +959,7 @@ const dataNoNullsName = [
         "Hire date": "12-FEB-06",
         Job: "Clerk",
         Salary: "2700",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "0,16%",
     },
     {
@@ -967,7 +967,7 @@ const dataNoNullsName = [
         "Hire date": "06-APR-06",
         Job: "Clerk",
         Salary: "2500",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "16,19%",
     },
 ]
@@ -978,7 +978,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "21-JUN-07",
         Job: "Clerk",
         Salary: "2600",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "1,94%",
     },
     {
@@ -986,7 +986,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "21-JUN-07",
         Job: "Clerk",
         Salary: "2600",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "1,94%",
     },
     {
@@ -994,7 +994,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "17-FEB-04",
         Job: "Manager",
         Salary: "13000",
-        "Departement or unit": "20",
+        "Department or unit": "20",
         "End-of_year-BONUS?": "2,71%",
     },
     {
@@ -1002,7 +1002,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "17-AUG-05",
         Job: "Representative",
         Salary: "6000",
-        "Departement or unit": "20",
+        "Department or unit": "20",
         "End-of_year-BONUS?": "18,68%",
     },
     {
@@ -1010,7 +1010,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "07-JUN-02",
         Job: "Salesperson",
         Salary: "6500",
-        "Departement or unit": "40",
+        "Department or unit": "40",
         "End-of_year-BONUS?": "23,47%",
     },
     {
@@ -1018,7 +1018,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "07-JUN-02",
         Job: "Manager",
         Salary: "12008",
-        "Departement or unit": "110",
+        "Department or unit": "110",
         "End-of_year-BONUS?": "17,09%",
     },
     {
@@ -1026,7 +1026,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": null,
         Job: "President",
         Salary: "24000",
-        "Departement or unit": "90",
+        "Department or unit": "90",
         "End-of_year-BONUS?": "2,46%",
     },
     {
@@ -1034,7 +1034,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "21-SEP-05",
         Job: "Vice-president",
         Salary: "&6%",
-        "Departement or unit": "90",
+        "Department or unit": "90",
         "End-of_year-BONUS?": "11,6%",
     },
     {
@@ -1042,7 +1042,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "null",
         Job: "Vice-president",
         Salary: "17000",
-        "Departement or unit": "90",
+        "Department or unit": "90",
         "End-of_year-BONUS?": "23,43%",
     },
     {
@@ -1050,7 +1050,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "03-JAN-06",
         Job: "Programmer",
         Salary: "9000",
-        "Departement or unit": "60",
+        "Department or unit": "60",
         "End-of_year-BONUS?": "23,01%",
     },
     {
@@ -1058,7 +1058,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "21-MAY-07",
         Job: "Programmer",
         Salary: "6000",
-        "Departement or unit": "60",
+        "Department or unit": "60",
         "End-of_year-BONUS?": "25,91%",
     },
     {
@@ -1066,7 +1066,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "NaN",
         Job: "Programmer",
         Salary: "4800",
-        "Departement or unit": "null",
+        "Department or unit": "null",
         "End-of_year-BONUS?": "6,89%",
     },
     {
@@ -1074,7 +1074,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "07-ARB-07",
         Job: "Programmer",
         Salary: "4200",
-        "Departement or unit": "60",
+        "Department or unit": "60",
         "End-of_year-BONUS?": "13,17%",
     },
     {
@@ -1082,7 +1082,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "17-AUG-02",
         Job: "Manager",
         Salary: "12008",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "74,69%",
     },
     {
@@ -1090,7 +1090,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "16-AUG-02",
         Job: "Accountant",
         Salary: "9000",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "2,92%",
     },
     {
@@ -1098,7 +1098,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "28-SEP-05",
         Job: "Accountant",
         Salary: "8200",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "9,31%",
     },
     {
@@ -1106,7 +1106,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "30-SEP-05",
         Job: "Accountant",
         Salary: "7700",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "13,18%",
     },
     {
@@ -1114,7 +1114,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "07-MAR-06",
         Job: "Accountant",
         Salary: "7800",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "1,33%",
     },
     {
@@ -1122,7 +1122,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "07-DEC-07",
         Job: "Accountant",
         Salary: "6900",
-        "Departement or unit": "100",
+        "Department or unit": "100",
         "End-of_year-BONUS?": "2,98%",
     },
     {
@@ -1130,7 +1130,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "07-DEC-02",
         Job: "Manager",
         Salary: "11000",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "3,35%",
     },
     {
@@ -1138,7 +1138,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "18-MAY-03",
         Job: "Clerk",
         Salary: "3100",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "19,81%",
     },
     {
@@ -1146,7 +1146,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "24-DEC-05",
         Job: "Clerk",
         Salary: "2900",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "11,06%",
     },
     {
@@ -1154,7 +1154,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "24-JUL-05",
         Job: "NaN",
         Salary: "2800",
-        "Departement or unit": null,
+        "Department or unit": null,
         "End-of_year-BONUS?": "undefined",
     },
     {
@@ -1162,7 +1162,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "15-NOV-05",
         Job: "Clerk",
         Salary: "2600",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "25,98%",
     },
     {
@@ -1170,7 +1170,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "10-AUG-07",
         Job: "Clerk",
         Salary: "2500",
-        "Departement or unit": "30",
+        "Department or unit": "30",
         "End-of_year-BONUS?": "15,8%",
     },
     {
@@ -1178,7 +1178,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "18-JUL-04",
         Job: "Manager",
         Salary: "8000",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "25,17%",
     },
     {
@@ -1186,7 +1186,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "10-APR-05",
         Job: "Manager",
         Salary: "8200",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "21%",
     },
     {
@@ -1194,7 +1194,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "01-MAY-03",
         Job: "Manager",
         Salary: "7900",
-        "Departement or unit": "undefined",
+        "Department or unit": "undefined",
         "End-of_year-BONUS?": "21,33%",
     },
     {
@@ -1202,7 +1202,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "10-OCT-05",
         Job: "null",
         Salary: "6500",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "3,45%",
     },
     {
@@ -1210,7 +1210,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "undefined",
         Job: "Manager",
         Salary: "5800",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "19,07%",
     },
     {
@@ -1218,7 +1218,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "16-JUL-05",
         Job: "Clerk",
         Salary: "3200",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "18,7%",
     },
     {
@@ -1226,7 +1226,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "28-SEP-06",
         Job: "Clerk",
         Salary: "2700",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "11,82%",
     },
     {
@@ -1234,7 +1234,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "14-JAN-07",
         Job: "Clerk",
         Salary: "2400",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "NaN",
     },
     {
@@ -1242,7 +1242,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "NaN",
         Job: "Clerk",
         Salary: "2200",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "11,26%",
     },
     {
@@ -1250,7 +1250,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "20-AUG-05",
         Job: "undefined",
         Salary: "3300",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "4,53%",
     },
     {
@@ -1258,7 +1258,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "16-FEB-05",
         Job: "Clerk",
         Salary: "2500",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "15,74%",
     },
     {
@@ -1266,7 +1266,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "10-APR-07",
         Job: "Clerk",
         Salary: "2100",
-        "Departement or unit": "null",
+        "Department or unit": "null",
         "End-of_year-BONUS?": "22,3%",
     },
     {
@@ -1274,7 +1274,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "26-AUG-06",
         Job: "Clerk",
         Salary: "2900",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "null",
     },
     {
@@ -1282,7 +1282,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "12-DEC-07",
         Job: "NaN",
         Salary: "2400",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "12,64%",
     },
     {
@@ -1290,7 +1290,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "06-FEB-08",
         Job: "Clerk",
         Salary: "2200",
-        "Departement or unit": "NaN",
+        "Department or unit": "NaN",
         "End-of_year-BONUS?": "24,17%",
     },
     {
@@ -1298,7 +1298,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "14-JUL-03",
         Job: null,
         Salary: "3600",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "17,86%",
     },
     {
@@ -1306,7 +1306,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "26-OCT-05",
         Job: "Clerk",
         Salary: "3200",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": null,
     },
     {
@@ -1314,7 +1314,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "12-FEB-06",
         Job: "Clerk",
         Salary: "2700",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "0,16%",
     },
     {
@@ -1322,7 +1322,7 @@ const dataNoNullsMultipleColumns = [
         "Hire date": "06-APR-06",
         Job: "Clerk",
         Salary: "2500",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "16,19%",
     },
 ]
@@ -1333,7 +1333,7 @@ const dataJustNulls = [
         "Hire date": "17-SEP-03",
         Job: "Assistant",
         Salary: "4400",
-        "Departement or unit": "10",
+        "Department or unit": "10",
         "End-of_year-BONUS?": "17,51%",
     },
     {
@@ -1341,7 +1341,7 @@ const dataJustNulls = [
         "Hire date": "26-OCT-05",
         Job: "Clerk",
         Salary: "3200",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": null,
     },
     {
@@ -1349,7 +1349,7 @@ const dataJustNulls = [
         "Hire date": "24-JUL-05",
         Job: "NaN",
         Salary: "2800",
-        "Departement or unit": null,
+        "Department or unit": null,
         "End-of_year-BONUS?": "undefined",
     },
     {
@@ -1357,7 +1357,7 @@ const dataJustNulls = [
         "Hire date": "abc",
         Job: "Programmer",
         Salary: null,
-        "Departement or unit": "60",
+        "Department or unit": "60",
         "End-of_year-BONUS?": "1,62%",
     },
     {
@@ -1365,7 +1365,7 @@ const dataJustNulls = [
         "Hire date": "14-JUL-03",
         Job: null,
         Salary: "3600",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "17,86%",
     },
     {
@@ -1373,7 +1373,7 @@ const dataJustNulls = [
         "Hire date": null,
         Job: "President",
         Salary: "24000",
-        "Departement or unit": "90",
+        "Department or unit": "90",
         "End-of_year-BONUS?": "2,46%",
     },
     {
@@ -1381,7 +1381,7 @@ const dataJustNulls = [
         "Hire date": "undefined",
         Job: "Manager",
         Salary: "5800",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "19,07%",
     },
     {
@@ -1389,7 +1389,7 @@ const dataJustNulls = [
         "Hire date": "NaN",
         Job: "Programmer",
         Salary: "4800",
-        "Departement or unit": "null",
+        "Department or unit": "null",
         "End-of_year-BONUS?": "6,89%",
     },
     {
@@ -1397,7 +1397,7 @@ const dataJustNulls = [
         "Hire date": "NaN",
         Job: "Clerk",
         Salary: "2200",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "11,26%",
     },
     {
@@ -1405,7 +1405,7 @@ const dataJustNulls = [
         "Hire date": "null",
         Job: "Vice-president",
         Salary: "17000",
-        "Departement or unit": "90",
+        "Department or unit": "90",
         "End-of_year-BONUS?": "23,43%",
     },
     {
@@ -1413,7 +1413,7 @@ const dataJustNulls = [
         "Hire date": "20-AUG-05",
         Job: "undefined",
         Salary: "3300",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "4,53%",
     },
     {
@@ -1421,7 +1421,7 @@ const dataJustNulls = [
         "Hire date": "12-DEC-07",
         Job: "NaN",
         Salary: "2400",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "12,64%",
     },
     {
@@ -1429,7 +1429,7 @@ const dataJustNulls = [
         "Hire date": "10-OCT-05",
         Job: "null",
         Salary: "6500",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "3,45%",
     },
     {
@@ -1437,7 +1437,7 @@ const dataJustNulls = [
         "Hire date": "07-JUN-02",
         Job: "Accountant",
         Salary: "8300",
-        "Departement or unit": "110",
+        "Department or unit": "110",
         "End-of_year-BONUS?": "15,7%",
     },
     {
@@ -1445,7 +1445,7 @@ const dataJustNulls = [
         "Hire date": "30-OCT-05",
         Job: "Clerk",
         Salary: "undefined",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "9,61%",
     },
     {
@@ -1453,7 +1453,7 @@ const dataJustNulls = [
         "Hire date": "13-JAN-08",
         Job: "Clerk",
         Salary: "NaN",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "23,39%",
     },
     {
@@ -1461,7 +1461,7 @@ const dataJustNulls = [
         "Hire date": "07-JUN-02",
         Job: "Salesperson",
         Salary: "10000",
-        "Departement or unit": "xyz",
+        "Department or unit": "xyz",
         "End-of_year-BONUS?": "17,63%",
     },
     {
@@ -1469,7 +1469,7 @@ const dataJustNulls = [
         "Hire date": "01-MAY-03",
         Job: "Manager",
         Salary: "7900",
-        "Departement or unit": "undefined",
+        "Department or unit": "undefined",
         "End-of_year-BONUS?": "21,33%",
     },
     {
@@ -1477,7 +1477,7 @@ const dataJustNulls = [
         "Hire date": "06-FEB-08",
         Job: "Clerk",
         Salary: "2200",
-        "Departement or unit": "NaN",
+        "Department or unit": "NaN",
         "End-of_year-BONUS?": "24,17%",
     },
     {
@@ -1485,7 +1485,7 @@ const dataJustNulls = [
         "Hire date": "10-APR-07",
         Job: "Clerk",
         Salary: "2100",
-        "Departement or unit": "null",
+        "Department or unit": "null",
         "End-of_year-BONUS?": "22,3%",
     },
     {
@@ -1493,7 +1493,7 @@ const dataJustNulls = [
         "Hire date": "14-JUN-04",
         Job: "Clerk",
         Salary: "3300",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "18,54%",
     },
     {
@@ -1501,7 +1501,7 @@ const dataJustNulls = [
         "Hire date": "14-JAN-07",
         Job: "Clerk",
         Salary: "2400",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "NaN",
     },
     {
@@ -1509,7 +1509,7 @@ const dataJustNulls = [
         "Hire date": "26-AUG-06",
         Job: "Clerk",
         Salary: "2900",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "null",
     },
 ]
@@ -1520,7 +1520,7 @@ const dataNullsInName = [
         "Hire date": "17-SEP-03",
         Job: "Assistant",
         Salary: "4400",
-        "Departement or unit": "10",
+        "Department or unit": "10",
         "End-of_year-BONUS?": "17,51%",
     },
     {
@@ -1528,7 +1528,7 @@ const dataNullsInName = [
         "Hire date": "14-JUN-04",
         Job: "Clerk",
         Salary: "3300",
-        "Departement or unit": "50",
+        "Department or unit": "50",
         "End-of_year-BONUS?": "18,54%",
     },
     {
@@ -1536,7 +1536,7 @@ const dataNullsInName = [
         "Hire date": "07-JUN-02",
         Job: "Salesperson",
         Salary: "10000",
-        "Departement or unit": "xyz",
+        "Department or unit": "xyz",
         "End-of_year-BONUS?": "17,63%",
     },
     {
@@ -1544,7 +1544,7 @@ const dataNullsInName = [
         "Hire date": "07-JUN-02",
         Job: "Accountant",
         Salary: "8300",
-        "Departement or unit": "110",
+        "Department or unit": "110",
         "End-of_year-BONUS?": "15,7%",
     },
 ]

@@ -38,7 +38,7 @@ describe("sample", () => {
                 "Hire date": "28-SEP-06",
                 Job: "Clerk",
                 Salary: "2700",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "11,82%",
             },
             {
@@ -46,7 +46,7 @@ describe("sample", () => {
                 "Hire date": "18-MAY-03",
                 Job: "Clerk",
                 Salary: "3100",
-                "Departement or unit": "30",
+                "Department or unit": "30",
                 "End-of_year-BONUS?": "19,81%",
             },
             {
@@ -54,7 +54,7 @@ describe("sample", () => {
                 "Hire date": "30-SEP-05",
                 Job: "Accountant",
                 Salary: "7700",
-                "Departement or unit": "100",
+                "Department or unit": "100",
                 "End-of_year-BONUS?": "13,18%",
             },
             {
@@ -62,7 +62,7 @@ describe("sample", () => {
                 "Hire date": "15-NOV-05",
                 Job: "Clerk",
                 Salary: "2600",
-                "Departement or unit": "30",
+                "Department or unit": "30",
                 "End-of_year-BONUS?": "25,98%",
             },
             {
@@ -70,7 +70,7 @@ describe("sample", () => {
                 "Hire date": "07-DEC-02",
                 Job: "Manager",
                 Salary: "11000",
-                "Departement or unit": "30",
+                "Department or unit": "30",
                 "End-of_year-BONUS?": "3,35%",
             },
         ])

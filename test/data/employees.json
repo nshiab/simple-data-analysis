@@ -4,7 +4,7 @@
         "Hire date": "21-JUN-07",
         "Job": "Clerk",
         "Salary": 2600,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": "1,94%"
     },
     {
@@ -12,7 +12,7 @@
         "Hire date": "21-JUN-07",
         "Job": "Clerk",
         "Salary": 2600,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": "1,94%"
     },
     {
@@ -20,7 +20,7 @@
         "Hire date": "13-JAN-08",
         "Job": "Clerk",
         "Salary": null,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": "23,39%"
     },
     {
@@ -28,7 +28,7 @@
         "Hire date": "17-SEP-03",
         "Job": "Assistant",
         "Salary": 4400,
-        "Departement or unit": 10,
+        "Department or unit": 10,
         "End-of_year-BONUS?": "17,51%"
     },
     {
@@ -36,7 +36,7 @@
         "Hire date": "17-FEB-04",
         "Job": "Manager",
         "Salary": 13000,
-        "Departement or unit": 20,
+        "Department or unit": 20,
         "End-of_year-BONUS?": "2,71%"
     },
     {
@@ -44,7 +44,7 @@
         "Hire date": "17-AUG-05",
         "Job": "Representative",
         "Salary": 6000,
-        "Departement or unit": 20,
+        "Department or unit": 20,
         "End-of_year-BONUS?": "18,68%"
     },
     {
@@ -52,7 +52,7 @@
         "Hire date": "07-JUN-02",
         "Job": "Salesperson",
         "Salary": 6500,
-        "Departement or unit": 40,
+        "Department or unit": 40,
         "End-of_year-BONUS?": "23,47%"
     },
     {
@@ -60,7 +60,7 @@
         "Hire date": "07-JUN-02",
         "Job": "Salesperson",
         "Salary": 10000,
-        "Departement or unit": "xyz",
+        "Department or unit": "xyz",
         "End-of_year-BONUS?": "17,63%"
     },
     {
@@ -68,7 +68,7 @@
         "Hire date": "07-JUN-02",
         "Job": "Manager",
         "Salary": 12008,
-        "Departement or unit": 110,
+        "Department or unit": 110,
         "End-of_year-BONUS?": "17,09%"
     },
     {
@@ -76,7 +76,7 @@
         "Hire date": "07-JUN-02",
         "Job": "Accountant",
         "Salary": 8300,
-        "Departement or unit": 110,
+        "Department or unit": 110,
         "End-of_year-BONUS?": "15,7%"
     },
     {
@@ -84,7 +84,7 @@
         "Hire date": null,
         "Job": "President",
         "Salary": 24000,
-        "Departement or unit": 90,
+        "Department or unit": 90,
         "End-of_year-BONUS?": "2,46%"
     },
     {
@@ -92,7 +92,7 @@
         "Hire date": "21-SEP-05",
         "Job": "Vice-president",
         "Salary": "&6%",
-        "Departement or unit": 90,
+        "Department or unit": 90,
         "End-of_year-BONUS?": "11,6%"
     },
     {
@@ -100,7 +100,7 @@
         "Hire date": null,
         "Job": "Vice-president",
         "Salary": 17000,
-        "Departement or unit": 90,
+        "Department or unit": 90,
         "End-of_year-BONUS?": "23,43%"
     },
     {
@@ -108,7 +108,7 @@
         "Hire date": "03-JAN-06",
         "Job": "Programmer",
         "Salary": 9000,
-        "Departement or unit": 60,
+        "Department or unit": 60,
         "End-of_year-BONUS?": "23,01%"
     },
     {
@@ -116,7 +116,7 @@
         "Hire date": "21-MAY-07",
         "Job": "Programmer",
         "Salary": 6000,
-        "Departement or unit": 60,
+        "Department or unit": 60,
         "End-of_year-BONUS?": "25,91%"
     },
     {
@@ -124,7 +124,7 @@
         "Hire date": null,
         "Job": "Programmer",
         "Salary": 4800,
-        "Departement or unit": null,
+        "Department or unit": null,
         "End-of_year-BONUS?": "6,89%"
     },
     {
@@ -132,7 +132,7 @@
         "Hire date": "abc",
         "Job": "Programmer",
         "Salary": null,
-        "Departement or unit": 60,
+        "Department or unit": 60,
         "End-of_year-BONUS?": "1,62%"
     },
     {
@@ -140,7 +140,7 @@
         "Hire date": "07-ARB-07",
         "Job": "Programmer",
         "Salary": 4200,
-        "Departement or unit": 60,
+        "Department or unit": 60,
         "End-of_year-BONUS?": "13,17%"
     },
     {
@@ -148,7 +148,7 @@
         "Hire date": "17-AUG-02",
         "Job": "Manager",
         "Salary": 12008,
-        "Departement or unit": 100,
+        "Department or unit": 100,
         "End-of_year-BONUS?": "74,69%"
     },
     {
@@ -156,7 +156,7 @@
         "Hire date": "16-AUG-02",
         "Job": "Accountant",
         "Salary": 9000,
-        "Departement or unit": 100,
+        "Department or unit": 100,
         "End-of_year-BONUS?": "2,92%"
     },
     {
@@ -164,7 +164,7 @@
         "Hire date": "28-SEP-05",
         "Job": "Accountant",
         "Salary": 8200,
-        "Departement or unit": 100,
+        "Department or unit": 100,
         "End-of_year-BONUS?": "9,31%"
     },
     {
@@ -172,7 +172,7 @@
         "Hire date": "30-SEP-05",
         "Job": "Accountant",
         "Salary": 7700,
-        "Departement or unit": 100,
+        "Department or unit": 100,
         "End-of_year-BONUS?": "13,18%"
     },
     {
@@ -180,7 +180,7 @@
         "Hire date": "07-MAR-06",
         "Job": "Accountant",
         "Salary": 7800,
-        "Departement or unit": 100,
+        "Department or unit": 100,
         "End-of_year-BONUS?": "1,33%"
     },
     {
@@ -188,7 +188,7 @@
         "Hire date": "07-DEC-07",
         "Job": "Accountant",
         "Salary": 6900,
-        "Departement or unit": 100,
+        "Department or unit": 100,
         "End-of_year-BONUS?": "2,98%"
     },
     {
@@ -196,7 +196,7 @@
         "Hire date": "07-DEC-02",
         "Job": "Manager",
         "Salary": 11000,
-        "Departement or unit": 30,
+        "Department or unit": 30,
         "End-of_year-BONUS?": "3,35%"
     },
     {
@@ -204,7 +204,7 @@
         "Hire date": "18-MAY-03",
         "Job": "Clerk",
         "Salary": 3100,
-        "Departement or unit": 30,
+        "Department or unit": 30,
         "End-of_year-BONUS?": "19,81%"
     },
     {
@@ -212,7 +212,7 @@
         "Hire date": "24-DEC-05",
         "Job": "Clerk",
         "Salary": 2900,
-        "Departement or unit": 30,
+        "Department or unit": 30,
         "End-of_year-BONUS?": "11,06%"
     },
     {
@@ -226,7 +226,7 @@
         "Hire date": "15-NOV-05",
         "Job": "Clerk",
         "Salary": 2600,
-        "Departement or unit": 30,
+        "Department or unit": 30,
         "End-of_year-BONUS?": "25,98%"
     },
     {
@@ -234,7 +234,7 @@
         "Hire date": "10-AUG-07",
         "Job": "Clerk",
         "Salary": 2500,
-        "Departement or unit": 30,
+        "Department or unit": 30,
         "End-of_year-BONUS?": "15,8%"
     },
     {
@@ -242,7 +242,7 @@
         "Hire date": "18-JUL-04",
         "Job": "Manager",
         "Salary": 8000,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": "25,17%"
     },
     {
@@ -250,7 +250,7 @@
         "Hire date": "10-APR-05",
         "Job": "Manager",
         "Salary": 8200,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": "21%"
     },
     {
@@ -265,14 +265,14 @@
         "Hire date": "10-OCT-05",
         "Job": null,
         "Salary": 6500,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": "3,45%"
     },
     {
         "Name": "Mourgos, Kevin",
         "Job": "Manager",
         "Salary": 5800,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": "19,07%"
     },
     {
@@ -280,7 +280,7 @@
         "Hire date": "16-JUL-05",
         "Job": "Clerk",
         "Salary": 3200,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": "18,7%"
     },
     {
@@ -288,7 +288,7 @@
         "Hire date": "28-SEP-06",
         "Job": "Clerk",
         "Salary": 2700,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": "11,82%"
     },
     {
@@ -296,7 +296,7 @@
         "Hire date": "14-JAN-07",
         "Job": "Clerk",
         "Salary": 2400,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": null
     },
     {
@@ -304,21 +304,21 @@
         "Hire date": null,
         "Job": "Clerk",
         "Salary": 2200,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": "11,26%"
     },
     {
         "Name": "Bissot, Laura",
         "Hire date": "20-AUG-05",
         "Salary": 3300,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": "4,53%"
     },
     {
         "Name": "Atkinson, Mozhe",
         "Hire date": "30-OCT-05",
         "Job": "Clerk",
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": "9,61%"
     },
     {
@@ -326,7 +326,7 @@
         "Hire date": "16-FEB-05",
         "Job": "Clerk",
         "Salary": 2500,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": "15,74%"
     },
     {
@@ -334,14 +334,14 @@
         "Hire date": "10-APR-07",
         "Job": "Clerk",
         "Salary": 2100,
-        "Departement or unit": null,
+        "Department or unit": null,
         "End-of_year-BONUS?": "22,3%"
     },
     {
         "Hire date": "14-JUN-04",
         "Job": "Clerk",
         "Salary": 3300,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": "18,54%"
     },
     {
@@ -349,7 +349,7 @@
         "Hire date": "26-AUG-06",
         "Job": "Clerk",
         "Salary": 2900,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": null
     },
     {
@@ -357,7 +357,7 @@
         "Hire date": "12-DEC-07",
         "Job": null,
         "Salary": 2400,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": "12,64%"
     },
     {
@@ -365,7 +365,7 @@
         "Hire date": "06-FEB-08",
         "Job": "Clerk",
         "Salary": 2200,
-        "Departement or unit": null,
+        "Department or unit": null,
         "End-of_year-BONUS?": "24,17%"
     },
     {
@@ -373,7 +373,7 @@
         "Hire date": "14-JUL-03",
         "Job": null,
         "Salary": 3600,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": "17,86%"
     },
     {
@@ -381,7 +381,7 @@
         "Hire date": "26-OCT-05",
         "Job": "Clerk",
         "Salary": 3200,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": null
     },
     {
@@ -389,7 +389,7 @@
         "Hire date": "12-FEB-06",
         "Job": "Clerk",
         "Salary": 2700,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": "0,16%"
     },
     {
@@ -397,7 +397,7 @@
         "Hire date": "06-APR-06",
         "Job": "Clerk",
         "Salary": 2500,
-        "Departement or unit": 50,
+        "Department or unit": 50,
         "End-of_year-BONUS?": "16,19%"
     }
 ]

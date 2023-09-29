@@ -23,7 +23,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "21-JUN-07",
                 Job: "Clerk",
                 Salary: "2600",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "1,94%",
             },
             {
@@ -31,7 +31,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "13-JAN-08",
                 Job: "Clerk",
                 Salary: "NaN",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "23,39%",
             },
             {
@@ -39,7 +39,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "17-SEP-03",
                 Job: "Assistant",
                 Salary: "4400",
-                "Departement or unit": "10",
+                "Department or unit": "10",
                 "End-of_year-BONUS?": "17,51%",
             },
             {
@@ -47,7 +47,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "17-FEB-04",
                 Job: "Manager",
                 Salary: "13000",
-                "Departement or unit": "20",
+                "Department or unit": "20",
                 "End-of_year-BONUS?": "2,71%",
             },
             {
@@ -55,7 +55,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "17-AUG-05",
                 Job: "Representative",
                 Salary: "6000",
-                "Departement or unit": "20",
+                "Department or unit": "20",
                 "End-of_year-BONUS?": "18,68%",
             },
             {
@@ -63,7 +63,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "07-JUN-02",
                 Job: "Salesperson",
                 Salary: "6500",
-                "Departement or unit": "40",
+                "Department or unit": "40",
                 "End-of_year-BONUS?": "23,47%",
             },
             {
@@ -71,7 +71,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "07-JUN-02",
                 Job: "Salesperson",
                 Salary: "10000",
-                "Departement or unit": "xyz",
+                "Department or unit": "xyz",
                 "End-of_year-BONUS?": "17,63%",
             },
             {
@@ -79,7 +79,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "07-JUN-02",
                 Job: "Manager",
                 Salary: "12008",
-                "Departement or unit": "110",
+                "Department or unit": "110",
                 "End-of_year-BONUS?": "17,09%",
             },
             {
@@ -87,7 +87,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "07-JUN-02",
                 Job: "Accountant",
                 Salary: "8300",
-                "Departement or unit": "110",
+                "Department or unit": "110",
                 "End-of_year-BONUS?": "15,7%",
             },
             {
@@ -95,7 +95,7 @@ describe("removeDuplicates", () => {
                 "Hire date": null,
                 Job: "President",
                 Salary: "24000",
-                "Departement or unit": "90",
+                "Department or unit": "90",
                 "End-of_year-BONUS?": "2,46%",
             },
             {
@@ -103,7 +103,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "21-SEP-05",
                 Job: "Vice-president",
                 Salary: "&6%",
-                "Departement or unit": "90",
+                "Department or unit": "90",
                 "End-of_year-BONUS?": "11,6%",
             },
             {
@@ -111,7 +111,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "null",
                 Job: "Vice-president",
                 Salary: "17000",
-                "Departement or unit": "90",
+                "Department or unit": "90",
                 "End-of_year-BONUS?": "23,43%",
             },
             {
@@ -119,7 +119,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "03-JAN-06",
                 Job: "Programmer",
                 Salary: "9000",
-                "Departement or unit": "60",
+                "Department or unit": "60",
                 "End-of_year-BONUS?": "23,01%",
             },
             {
@@ -127,7 +127,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "21-MAY-07",
                 Job: "Programmer",
                 Salary: "6000",
-                "Departement or unit": "60",
+                "Department or unit": "60",
                 "End-of_year-BONUS?": "25,91%",
             },
             {
@@ -135,7 +135,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "NaN",
                 Job: "Programmer",
                 Salary: "4800",
-                "Departement or unit": "null",
+                "Department or unit": "null",
                 "End-of_year-BONUS?": "6,89%",
             },
             {
@@ -143,7 +143,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "abc",
                 Job: "Programmer",
                 Salary: null,
-                "Departement or unit": "60",
+                "Department or unit": "60",
                 "End-of_year-BONUS?": "1,62%",
             },
             {
@@ -151,7 +151,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "07-ARB-07",
                 Job: "Programmer",
                 Salary: "4200",
-                "Departement or unit": "60",
+                "Department or unit": "60",
                 "End-of_year-BONUS?": "13,17%",
             },
             {
@@ -159,7 +159,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "17-AUG-02",
                 Job: "Manager",
                 Salary: "12008",
-                "Departement or unit": "100",
+                "Department or unit": "100",
                 "End-of_year-BONUS?": "74,69%",
             },
             {
@@ -167,7 +167,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "16-AUG-02",
                 Job: "Accountant",
                 Salary: "9000",
-                "Departement or unit": "100",
+                "Department or unit": "100",
                 "End-of_year-BONUS?": "2,92%",
             },
             {
@@ -175,7 +175,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "28-SEP-05",
                 Job: "Accountant",
                 Salary: "8200",
-                "Departement or unit": "100",
+                "Department or unit": "100",
                 "End-of_year-BONUS?": "9,31%",
             },
             {
@@ -183,7 +183,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "30-SEP-05",
                 Job: "Accountant",
                 Salary: "7700",
-                "Departement or unit": "100",
+                "Department or unit": "100",
                 "End-of_year-BONUS?": "13,18%",
             },
             {
@@ -191,7 +191,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "07-MAR-06",
                 Job: "Accountant",
                 Salary: "7800",
-                "Departement or unit": "100",
+                "Department or unit": "100",
                 "End-of_year-BONUS?": "1,33%",
             },
             {
@@ -199,7 +199,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "07-DEC-07",
                 Job: "Accountant",
                 Salary: "6900",
-                "Departement or unit": "100",
+                "Department or unit": "100",
                 "End-of_year-BONUS?": "2,98%",
             },
             {
@@ -207,7 +207,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "07-DEC-02",
                 Job: "Manager",
                 Salary: "11000",
-                "Departement or unit": "30",
+                "Department or unit": "30",
                 "End-of_year-BONUS?": "3,35%",
             },
             {
@@ -215,7 +215,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "18-MAY-03",
                 Job: "Clerk",
                 Salary: "3100",
-                "Departement or unit": "30",
+                "Department or unit": "30",
                 "End-of_year-BONUS?": "19,81%",
             },
             {
@@ -223,7 +223,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "24-DEC-05",
                 Job: "Clerk",
                 Salary: "2900",
-                "Departement or unit": "30",
+                "Department or unit": "30",
                 "End-of_year-BONUS?": "11,06%",
             },
             {
@@ -231,7 +231,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "24-JUL-05",
                 Job: "NaN",
                 Salary: "2800",
-                "Departement or unit": null,
+                "Department or unit": null,
                 "End-of_year-BONUS?": "undefined",
             },
             {
@@ -239,7 +239,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "15-NOV-05",
                 Job: "Clerk",
                 Salary: "2600",
-                "Departement or unit": "30",
+                "Department or unit": "30",
                 "End-of_year-BONUS?": "25,98%",
             },
             {
@@ -247,7 +247,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "10-AUG-07",
                 Job: "Clerk",
                 Salary: "2500",
-                "Departement or unit": "30",
+                "Department or unit": "30",
                 "End-of_year-BONUS?": "15,8%",
             },
             {
@@ -255,7 +255,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "18-JUL-04",
                 Job: "Manager",
                 Salary: "8000",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "25,17%",
             },
             {
@@ -263,7 +263,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "10-APR-05",
                 Job: "Manager",
                 Salary: "8200",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "21%",
             },
             {
@@ -271,7 +271,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "01-MAY-03",
                 Job: "Manager",
                 Salary: "7900",
-                "Departement or unit": "undefined",
+                "Department or unit": "undefined",
                 "End-of_year-BONUS?": "21,33%",
             },
             {
@@ -279,7 +279,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "10-OCT-05",
                 Job: "null",
                 Salary: "6500",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "3,45%",
             },
             {
@@ -287,7 +287,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "undefined",
                 Job: "Manager",
                 Salary: "5800",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "19,07%",
             },
             {
@@ -295,7 +295,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "16-JUL-05",
                 Job: "Clerk",
                 Salary: "3200",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "18,7%",
             },
             {
@@ -303,7 +303,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "28-SEP-06",
                 Job: "Clerk",
                 Salary: "2700",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "11,82%",
             },
             {
@@ -311,7 +311,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "14-JAN-07",
                 Job: "Clerk",
                 Salary: "2400",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "NaN",
             },
             {
@@ -319,7 +319,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "NaN",
                 Job: "Clerk",
                 Salary: "2200",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "11,26%",
             },
             {
@@ -327,7 +327,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "20-AUG-05",
                 Job: "undefined",
                 Salary: "3300",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "4,53%",
             },
             {
@@ -335,7 +335,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "30-OCT-05",
                 Job: "Clerk",
                 Salary: "undefined",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "9,61%",
             },
             {
@@ -343,7 +343,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "16-FEB-05",
                 Job: "Clerk",
                 Salary: "2500",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "15,74%",
             },
             {
@@ -351,7 +351,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "10-APR-07",
                 Job: "Clerk",
                 Salary: "2100",
-                "Departement or unit": "null",
+                "Department or unit": "null",
                 "End-of_year-BONUS?": "22,3%",
             },
             {
@@ -359,7 +359,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "14-JUN-04",
                 Job: "Clerk",
                 Salary: "3300",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "18,54%",
             },
             {
@@ -367,7 +367,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "26-AUG-06",
                 Job: "Clerk",
                 Salary: "2900",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "null",
             },
             {
@@ -375,7 +375,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "12-DEC-07",
                 Job: "NaN",
                 Salary: "2400",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "12,64%",
             },
             {
@@ -383,7 +383,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "14-JUL-03",
                 Job: null,
                 Salary: "3600",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "17,86%",
             },
             {
@@ -391,7 +391,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "26-OCT-05",
                 Job: "Clerk",
                 Salary: "3200",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": null,
             },
             {
@@ -399,7 +399,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "12-FEB-06",
                 Job: "Clerk",
                 Salary: "2700",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "0,16%",
             },
             {
@@ -407,7 +407,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "06-APR-06",
                 Job: "Clerk",
                 Salary: "2500",
-                "Departement or unit": "50",
+                "Department or unit": "50",
                 "End-of_year-BONUS?": "16,19%",
             },
             {
@@ -415,7 +415,7 @@ describe("removeDuplicates", () => {
                 "Hire date": "06-FEB-08",
                 Job: "Clerk",
                 Salary: "2200",
-                "Departement or unit": "NaN",
+                "Department or unit": "NaN",
                 "End-of_year-BONUS?": "24,17%",
             },
         ])

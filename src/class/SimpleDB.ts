@@ -487,6 +487,27 @@ export default class SimpleDB {
         return data
     }
 
+    async filter(
+        table: string,
+        conditions: string,
+        options: {
+            verbose?: boolean
+            returnDataFrom?: "query" | "table" | "none"
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nfilter()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            `CREATE OR REPLACE TABLE ${table} AS SELECT *
+            FROM ${table}
+            WHERE ${conditions}`,
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
     async round(
         table: string,
         columns: string | string[],
@@ -673,7 +694,7 @@ export default class SimpleDB {
 
     async sort(
         table: string,
-        columns: { [key: string]: "asc" | "desc" },
+        order: { [key: string]: "asc" | "desc" },
         options: {
             lang?: { [key: string]: string }
             returnDataFrom?: "query" | "table" | "none"
@@ -687,7 +708,7 @@ export default class SimpleDB {
         return await queryDB(
             this.connection,
             this.runQuery,
-            sortQuery(table, columns, options),
+            sortQuery(table, order, options),
             mergeOptions(this, { ...options, table })
         )
     }

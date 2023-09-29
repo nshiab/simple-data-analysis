@@ -1,6 +1,6 @@
 export default function sortQuery(
     table: string,
-    columns: { [key: string]: "asc" | "desc" },
+    order: { [key: string]: "asc" | "desc" },
     options: {
         lang?: { [key: string]: string }
     } = {}
@@ -8,13 +8,13 @@ export default function sortQuery(
     let query = `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ${table}
     ORDER BY`
 
-    for (const column of Object.keys(columns)) {
+    for (const column of Object.keys(order)) {
         if (options.lang && options.lang[column]) {
-            query += `\n"${column}" COLLATE ${options.lang[column]} ${columns[
+            query += `\n"${column}" COLLATE ${options.lang[column]} ${order[
                 column
             ].toUpperCase()},`
         } else {
-            query += `\n"${column}" ${columns[column].toUpperCase()},`
+            query += `\n"${column}" ${order[column].toUpperCase()},`
         }
     }
 
