@@ -82,7 +82,7 @@ describe("convert", () => {
         ])
     })
 
-    it("convert multiple columns in multiple types", async () => {
+    it("should convert multiple columns in multiple types", async () => {
         await simpleNodeDB.convert("dataJustNumbers", { key1: "string" })
 
         const data = await simpleNodeDB.convert(

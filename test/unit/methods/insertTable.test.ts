@@ -10,7 +10,7 @@ describe("insertTable", () => {
         await simpleNodeDB.done()
     })
 
-    it("add rows from a table into another table", async () => {
+    it("should add rows from a table into another table", async () => {
         await simpleNodeDB.loadData("dataJSON1", "test/data/files/data.json")
         await simpleNodeDB.loadData("dataJSON2", "test/data/files/data.json")
 

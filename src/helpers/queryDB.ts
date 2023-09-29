@@ -10,7 +10,7 @@ export default async function queryDB(
     ) => Promise<{ [key: string]: number | string | Date | boolean | null }[]>,
     query: string,
     options: {
-        table?: string
+        table: string | null
         verbose: boolean
         nbRowsToLog: number
         returnDataFrom: "query" | "table" | "none"
@@ -99,6 +99,9 @@ export default async function queryDB(
         }
         if (Array.isArray(data)) {
             console.table(data)
+            if (!options.table) {
+                throw new Error("No options.table")
+            }
             const nbRows = (
                 await runQuery(
                     `SELECT COUNT(*) FROM ${options.table};`,

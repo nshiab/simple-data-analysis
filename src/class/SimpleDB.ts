@@ -604,32 +604,6 @@ export default class SimpleDB {
         )
     }
 
-    async customQuery(
-        query: string,
-        options: {
-            returnDataFrom?: "query" | "table" | "none"
-            verbose?: boolean
-            table?: string
-            nbRowsToLog?: number
-            returnedDataModifier?: (
-                rows: {
-                    [key: string]: number | string | Date | boolean | null
-                }[]
-            ) => {
-                [key: string]: number | string | Date | boolean | null
-            }[]
-        } = {}
-    ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\ncustomQuery()")
-        return await queryDB(
-            this.connection,
-            this.runQuery,
-            query,
-            mergeOptions(this, options)
-        )
-    }
-
     async removeTables(
         tables: string | string[],
         options: {
@@ -883,6 +857,79 @@ export default class SimpleDB {
         )
     }
 
+    async customQuery(
+        query: string,
+        options: {
+            returnDataFrom?: "query" | "table" | "none"
+            verbose?: boolean
+            table?: string
+            nbRowsToLog?: number
+            returnedDataModifier?: (
+                rows: {
+                    [key: string]: number | string | Date | boolean | null
+                }[]
+            ) => {
+                [key: string]: number | string | Date | boolean | null
+            }[]
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\ncustomQuery()")
+
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            query,
+            mergeOptions(this, { ...options, table: options.table ?? null })
+        )
+    }
+
+    async updateWithJS(
+        table: string,
+        dataModifier: (
+            rows: {
+                [key: string]: number | string | Date | boolean | null
+            }[]
+        ) => {
+            [key: string]: number | string | Date | boolean | null
+        }[],
+        options: {
+            verbose?: boolean
+            returnDataFrom?: "query" | "table" | "none"
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nupdateWithJS()")
+
+        let start
+        if (options.verbose || this.debug) {
+            start = Date.now()
+        }
+
+        const oldData = await this.getData(
+            table,
+            mergeOptions(this, { noTiming: true, verbose: false, table })
+        )
+        if (!oldData) {
+            throw new Error("No data from getData.")
+        }
+        const newData = dataModifier(oldData)
+        const updatedData = await queryDB(
+            this.connection,
+            this.runQuery,
+            loadArrayQuery(table, newData),
+            mergeOptions(this, { ...options, table, noTiming: true })
+        )
+
+        if (start) {
+            const end = Date.now()
+            console.log(`Done in ${end - start} ms`)
+        }
+
+        return updatedData
+    }
+
     async getTables(
         options: {
             verbose?: boolean
@@ -898,6 +945,7 @@ export default class SimpleDB {
             mergeOptions(this, {
                 ...options,
                 returnDataFrom: "query",
+                table: null,
             })
         )
 
@@ -984,6 +1032,7 @@ export default class SimpleDB {
             `SELECT ${column} FROM ${table}`,
             mergeOptions(this, {
                 ...options,
+                table,
                 returnDataFrom: "query",
             })
         )
@@ -1011,6 +1060,7 @@ export default class SimpleDB {
             `SELECT DISTINCT ${column} FROM ${table}`,
             mergeOptions(this, {
                 ...options,
+                table,
                 returnDataFrom: "query",
             })
         )
@@ -1036,7 +1086,7 @@ export default class SimpleDB {
             this.connection,
             this.runQuery,
             `SELECT * from ${table}`,
-            mergeOptions(this, { ...options, returnDataFrom: "query" })
+            mergeOptions(this, { ...options, returnDataFrom: "query", table })
         )
     }
 

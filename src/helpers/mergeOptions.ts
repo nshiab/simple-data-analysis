@@ -6,7 +6,7 @@ export default function mergeOptions(
     options: {
         returnDataFrom?: "query" | "table" | "none"
         verbose?: boolean
-        table?: string
+        table: string | null
         nbRowsToLog?: number
         returnedDataModifier?: (
             rows: {
