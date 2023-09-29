@@ -1,6 +1,5 @@
 import { AsyncDuckDB, AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
 import { Database, Connection } from "duckdb"
-
 import getDuckDB from "../helpers/getDuckDB.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
@@ -17,6 +16,7 @@ import joinQuery from "../methods/joinQuery.js"
 import insertRowsQuery from "../methods/insertRowsQuery.js"
 import sortQuery from "../methods/sortQuery.js"
 import summarizeQuery from "../methods/summarizeQuery.js"
+import loadArrayQuery from "../methods/loadArrayQuery.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -101,6 +101,26 @@ export default class SimpleDB {
             this.runQuery,
             query,
             mergeOptions(this, options)
+        )
+    }
+
+    async loadArray(
+        table: string,
+        arrayOfObjects: { [key: string]: unknown }[],
+        options: {
+            returnDataFrom?: "query" | "table" | "none"
+            verbose?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nloadArray()")
+
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            loadArrayQuery(table, arrayOfObjects),
+            mergeOptions(this, { ...options, table })
         )
     }
 

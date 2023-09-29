@@ -10,7 +10,7 @@ describe("cloneTable", () => {
         await simpleNodeDB.done()
     })
 
-    it("clone a table", async () => {
+    it("should clone a table", async () => {
         await simpleNodeDB.loadData(
             "dataCsvOriginal",
             "test/data/employees.csv"
