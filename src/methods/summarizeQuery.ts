@@ -1,5 +1,6 @@
 export default function summarizeQuery(
     table: string,
+    outputTable: string,
     values: string[],
     categories: string[],
     summaries: (
@@ -41,7 +42,7 @@ export default function summarizeQuery(
         )[]
     }
 
-    let query = `CREATE OR REPLACE TABLE ${table} AS`
+    let query = `CREATE OR REPLACE TABLE ${outputTable} AS`
 
     let firstValue = true
     for (const value of values) {

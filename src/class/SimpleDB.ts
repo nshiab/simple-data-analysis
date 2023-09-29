@@ -17,6 +17,9 @@ import insertRowsQuery from "../methods/insertRowsQuery.js"
 import sortQuery from "../methods/sortQuery.js"
 import summarizeQuery from "../methods/summarizeQuery.js"
 import loadArrayQuery from "../methods/loadArrayQuery.js"
+import correlationsQuery from "../methods/correlationsQuery.js"
+import getCombinations from "../helpers/getCombinations.js"
+import keepNumericalColumns from "../helpers/keepNumericalColumns.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -781,6 +784,7 @@ export default class SimpleDB {
 
     async summarize(
         table: string,
+        outputTable: string,
         options: {
             values?: string | string[]
             categories?: string | string[]
@@ -830,14 +834,7 @@ export default class SimpleDB {
 
         if (options.values.length === 0) {
             const types = await this.getTypes(table)
-            for (const col of Object.keys(types)) {
-                if (
-                    ["FLOAT", "DOUBLE", "DECIMAL"].includes(types[col]) ||
-                    types[col].includes("INT")
-                ) {
-                    options.values.push(col)
-                }
-            }
+            options.values = keepNumericalColumns(types)
         }
         options.values = options.values.filter(
             (d) => !options.categories?.includes(d)
@@ -848,12 +845,58 @@ export default class SimpleDB {
             this.runQuery,
             summarizeQuery(
                 table,
+                outputTable,
                 options.values,
                 options.categories,
                 options.summaries,
                 options
             ),
             mergeOptions(this, { ...options, table })
+        )
+    }
+
+    async correlations(
+        table: string,
+        outputTable: string,
+        options: {
+            x?: string
+            y?: string
+            decimals?: number
+            verbose?: boolean
+            nbRowsToLog?: number
+            returnDataFrom?: "query" | "table" | "none"
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\ngetCorrelation()")
+
+        options.decimals = options.decimals ?? 2
+
+        let combinations: [string, string][] = []
+        if (!options.x && !options.y) {
+            const types = await this.getTypes(table)
+            const columns = keepNumericalColumns(types)
+            combinations = getCombinations(columns, 2)
+        } else if (options.x && !options.y) {
+            const types = await this.getTypes(table)
+            const columns = keepNumericalColumns(types)
+            combinations = []
+            for (const col of columns) {
+                if (col !== options.x) {
+                    combinations.push([options.x, col])
+                }
+            }
+        } else if (options.x && options.y) {
+            combinations = [[options.x, options.y]]
+        } else {
+            throw new Error("No combinations of x and y")
+        }
+
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            correlationsQuery(table, outputTable, combinations, options),
+            mergeOptions(this, { ...options, table: outputTable })
         )
     }
 

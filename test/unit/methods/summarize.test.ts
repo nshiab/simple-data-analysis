@@ -5,20 +5,23 @@ describe("summarize", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
         simpleNodeDB = await new SimpleNodeDB().start()
+        await simpleNodeDB.loadData(
+            "dataSummarize",
+            "test/data/files/dataSummarize.json"
+        )
     })
     after(async function () {
         await simpleNodeDB.done()
     })
 
     it("should summarize all numerical columns in a table", async () => {
-        await simpleNodeDB.loadData(
+        const data = await simpleNodeDB.summarize(
+            "dataSummarize",
             "dataSummarizeAll",
-            "test/data/files/dataSummarize.json"
+            {
+                returnDataFrom: "table",
+            }
         )
-
-        const data = await simpleNodeDB.summarize("dataSummarizeAll", {
-            returnDataFrom: "table",
-        })
 
         assert.deepStrictEqual(data, [
             {
@@ -48,15 +51,14 @@ describe("summarize", () => {
         ])
     })
     it("should summarize specific numerical columns in a table", async () => {
-        await simpleNodeDB.loadData(
+        const data = await simpleNodeDB.summarize(
+            "dataSummarize",
             "dataSummarizeOneValue",
-            "test/data/files/dataSummarize.json"
+            {
+                values: "key2",
+                returnDataFrom: "table",
+            }
         )
-
-        const data = await simpleNodeDB.summarize("dataSummarizeOneValue", {
-            values: "key2",
-            returnDataFrom: "table",
-        })
 
         assert.deepStrictEqual(data, [
             {
@@ -74,12 +76,8 @@ describe("summarize", () => {
         ])
     })
     it("should summarize specific numerical columns in a table with a specific number of decimals", async () => {
-        await simpleNodeDB.loadData(
-            "dataSummarizeOneValueDecimals",
-            "test/data/files/dataSummarize.json"
-        )
-
         const data = await simpleNodeDB.summarize(
+            "dataSummarize",
             "dataSummarizeOneValueDecimals",
             {
                 values: "key2",
@@ -104,12 +102,8 @@ describe("summarize", () => {
         ])
     })
     it("should summarize all numerical columns in a table with a non numerical category", async () => {
-        await simpleNodeDB.loadData(
-            "dataSummarizeNonNumericalCategory",
-            "test/data/files/dataSummarize.json"
-        )
-
         const data = await simpleNodeDB.summarize(
+            "dataSummarize",
             "dataSummarizeNonNumericalCategory",
             {
                 categories: "key1",
@@ -173,12 +167,8 @@ describe("summarize", () => {
         ])
     })
     it("should summarize all numerical columns in a table with a numerical category", async () => {
-        await simpleNodeDB.loadData(
-            "dataSummarizeNumericalCategory",
-            "test/data/files/dataSummarize.json"
-        )
-
         const data = await simpleNodeDB.summarize(
+            "dataSummarize",
             "dataSummarizeNumericalCategory",
             {
                 categories: "key2",
@@ -242,12 +232,8 @@ describe("summarize", () => {
         ])
     })
     it("should summarize all numerical columns in a table with specific summaries", async () => {
-        await simpleNodeDB.loadData(
-            "dataSummarizeAllSpecificSummaries",
-            "test/data/files/dataSummarize.json"
-        )
-
         const data = await simpleNodeDB.summarize(
+            "dataSummarize",
             "dataSummarizeAllSpecificSummaries",
             {
                 summaries: ["avg", "count"],
@@ -261,12 +247,8 @@ describe("summarize", () => {
         ])
     })
     it("should summarize all numerical columns in a table with specific summaries and specific categories", async () => {
-        await simpleNodeDB.loadData(
-            "dataSummarizeAllSpecificSummariesAndCategories",
-            "test/data/files/dataSummarize.json"
-        )
-
         const data = await simpleNodeDB.summarize(
+            "dataSummarize",
             "dataSummarizeAllSpecificSummariesAndCategories",
             {
                 categories: "key1",
@@ -283,12 +265,8 @@ describe("summarize", () => {
         ])
     })
     it("should summarize specific columns in a table with specific summaries and specific categories", async () => {
-        await simpleNodeDB.loadData(
-            "dataSummarizeAllSpecificValuesSummariesAndCategories",
-            "test/data/files/dataSummarize.json"
-        )
-
         const data = await simpleNodeDB.summarize(
+            "dataSummarize",
             "dataSummarizeAllSpecificValuesSummariesAndCategories",
             {
                 values: "key2",
