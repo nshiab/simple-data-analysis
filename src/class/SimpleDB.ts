@@ -29,7 +29,11 @@ export default class SimpleDB {
         query: string,
         connection: AsyncDuckDBConnection | Connection,
         returnDataFromQuery: boolean
-    ) => Promise<unknown>
+    ) => Promise<
+        {
+            [key: string]: number | string | Date | boolean | null
+        }[]
+    >
 
     constructor(
         options: {
@@ -53,9 +57,13 @@ export default class SimpleDB {
             )
             // No difference on the Web. But different with NodeJS.
             if (returnDataFromQuery) {
-                return data as unknown
+                return data.toArray() as unknown as {
+                    [key: string]: number | string | Date | boolean | null
+                }[]
             } else {
-                return data as unknown
+                return data.toArray() as unknown as {
+                    [key: string]: number | string | Date | boolean | null
+                }[]
             }
         }
     }
@@ -79,9 +87,11 @@ export default class SimpleDB {
             nbRowsToLog?: number
             returnedDataModifier?: (
                 rows: {
-                    [key: string]: unknown
+                    [key: string]: number | string | Date | boolean | null
                 }[]
-            ) => unknown
+            ) => {
+                [key: string]: number | string | Date | boolean | null
+            }[]
         } = {}
     ) {
         ;(options.verbose || this.verbose || this.debug) &&
@@ -198,21 +208,33 @@ export default class SimpleDB {
         options.verbose = options.verbose ?? true
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\nlogDescription()")
-        const { query, returnedDataModifier } = logDescriptionQuery(
-            table,
-            types
-        )
-        return await queryDB(
+        const { query, extraData } = logDescriptionQuery(table, types)
+
+        const queryResult = await queryDB(
             this.connection,
             this.runQuery,
             query,
             mergeOptions(this, {
                 ...options,
                 table,
-                returnedDataModifier,
                 nbRowsToLog: Infinity,
                 returnDataFrom: "query",
             })
+        )
+
+        return [extraData].concat(
+            queryResult
+                ? queryResult.sort((a, b) => {
+                      if (
+                          typeof a["_"] === "string" &&
+                          typeof b["_"] === "string"
+                      ) {
+                          return a["_"].localeCompare(b["_"])
+                      } else {
+                          return 0
+                      }
+                  })
+                : []
         )
     }
 
@@ -805,19 +827,11 @@ export default class SimpleDB {
         options.categories = options.categories
             ? stringToArray(options.categories)
             : []
-        options.summaries = options.summaries
-            ? (stringToArray(options.summaries) as unknown as (
-                  | "count"
-                  | "min"
-                  | "max"
-                  | "avg"
-                  | "median"
-                  | "sum"
-                  | "skew"
-                  | "stdDev"
-                  | "var"
-              )[])
-            : []
+        if (options.summaries === undefined) {
+            options.summaries = []
+        } else if (typeof options.summaries === "string") {
+            options.summaries = [options.summaries]
+        }
         options.decimals = options.decimals ?? 2
 
         if (options.values.length === 0) {
@@ -856,16 +870,21 @@ export default class SimpleDB {
     ) {
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\ngetTables()")
-        return (await queryDB(
+
+        const queryResult = await queryDB(
             this.connection,
             this.runQuery,
             `SHOW TABLES`,
             mergeOptions(this, {
                 ...options,
                 returnDataFrom: "query",
-                returnedDataModifier: (rows) => rows.map((d) => d.name),
             })
-        )) as unknown as string[]
+        )
+
+        if (!queryResult) {
+            throw new Error("No result")
+        }
+        return queryResult.map((d) => d.name) as string[]
     }
 
     async getColumns(
@@ -876,7 +895,8 @@ export default class SimpleDB {
     ) {
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\ngetColumns()")
-        return (await queryDB(
+
+        const queryResult = await queryDB(
             this.connection,
             this.runQuery,
             `DESCRIBE ${table}`,
@@ -884,9 +904,14 @@ export default class SimpleDB {
                 ...options,
                 table,
                 returnDataFrom: "query",
-                returnedDataModifier: (rows) => rows.map((d) => d.column_name),
+                returnedDataModifier: (rows) => rows,
             })
-        )) as unknown as string[]
+        )
+
+        if (!queryResult) {
+            throw new Error("No result")
+        }
+        return queryResult.map((d) => d.column_name) as string[]
     }
 
     async getTypes(
@@ -906,17 +931,20 @@ export default class SimpleDB {
                 ...options,
                 table,
                 returnDataFrom: "query",
-                returnedDataModifier: (rows: { [key: string]: unknown }[]) => {
-                    const types: { [key: string]: unknown } = {}
-                    for (const row of rows) {
-                        types[row.column_name as string] = row.column_type
-                    }
-                    return types
-                },
             })
         )
 
-        return types as unknown as { [key: string]: string }
+        const typesObj: { [key: string]: string } = {}
+        if (types) {
+            for (const t of types as { [key: string]: string }[]) {
+                if (t.column_name) {
+                    typesObj[t.column_name] = t.column_type
+                }
+            }
+            return typesObj
+        } else {
+            return typesObj
+        }
     }
 
     async getValues(
@@ -930,16 +958,20 @@ export default class SimpleDB {
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\ngetValues()")
 
-        return await queryDB(
+        const queryResult = await queryDB(
             this.connection,
             this.runQuery,
             `SELECT ${column} FROM ${table}`,
             mergeOptions(this, {
                 ...options,
                 returnDataFrom: "query",
-                returnedDataModifier: (rows) => rows.map((d) => d[column]),
             })
         )
+        if (!queryResult) {
+            throw new Error("No result")
+        }
+
+        return queryResult.map((d) => d[column])
     }
 
     async getUniques(
@@ -953,16 +985,21 @@ export default class SimpleDB {
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\ngetUniques()")
 
-        return await queryDB(
+        const queryResult = await queryDB(
             this.connection,
             this.runQuery,
             `SELECT DISTINCT ${column} FROM ${table}`,
             mergeOptions(this, {
                 ...options,
                 returnDataFrom: "query",
-                returnedDataModifier: (rows) => rows.map((d) => d[column]),
             })
         )
+
+        if (!queryResult) {
+            throw new Error("No result.")
+        }
+
+        return queryResult.map((d) => d[column])
     }
 
     async getData(

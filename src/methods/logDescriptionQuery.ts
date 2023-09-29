@@ -35,11 +35,6 @@ export default function logDescriptionQuery(
 
     return {
         query,
-        returnedDataModifier: (rows: { [key: string]: unknown }[]) =>
-            [extraData].concat(
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                rows.sort((a, b) => a["_"].localeCompare(b["_"]))
-            ),
+        extraData,
     }
 }

@@ -29,14 +29,23 @@ export default class SimpleNodeDB extends SimpleDB {
                         if (err) {
                             throw err
                         }
-                        resolve(res)
+                        resolve(
+                            res as {
+                                [key: string]:
+                                    | number
+                                    | string
+                                    | Date
+                                    | boolean
+                                    | null
+                            }[]
+                        )
                     })
                 } else {
                     ;(connection as Connection).exec(query, (err) => {
                         if (err) {
                             throw err
                         }
-                        resolve("No error")
+                        resolve([])
                     })
                 }
             })

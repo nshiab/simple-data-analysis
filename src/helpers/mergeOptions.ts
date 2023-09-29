@@ -10,9 +10,11 @@ export default function mergeOptions(
         nbRowsToLog?: number
         returnedDataModifier?: (
             rows: {
-                [key: string]: unknown
+                [key: string]: number | string | Date | boolean | null
             }[]
-        ) => unknown
+        ) => {
+            [key: string]: number | string | Date | boolean | null
+        }[]
         debug?: boolean
         noTiming?: boolean
         justQuery?: boolean

@@ -7,7 +7,7 @@ export default async function queryDB(
         query: string,
         connection: AsyncDuckDBConnection | Connection,
         returnDataFromQuery: boolean
-    ) => Promise<unknown>,
+    ) => Promise<{ [key: string]: number | string | Date | boolean | null }[]>,
     query: string,
     options: {
         table?: string
@@ -16,9 +16,11 @@ export default async function queryDB(
         returnDataFrom: "query" | "table" | "none"
         returnedDataModifier?: (
             rows: {
-                [key: string]: unknown
+                [key: string]: number | string | Date | boolean | null
             }[]
-        ) => unknown
+        ) => {
+            [key: string]: number | string | Date | boolean | null
+        }[]
         debug: boolean
         noTiming: boolean
         justQuery: boolean
@@ -86,13 +88,7 @@ export default async function queryDB(
                 "Data is null. Use option returnedDataModifier with 'query' or 'table'."
             )
         }
-        data = options.returnedDataModifier(
-            data as unknown as {
-                [key: string]: unknown
-            }[]
-        ) as {
-            [key: string]: unknown
-        }[]
+        data = options.returnedDataModifier(data)
     }
 
     if ((options.verbose || options.debug) && !options.justQuery) {
@@ -104,11 +100,11 @@ export default async function queryDB(
         if (Array.isArray(data)) {
             console.table(data)
             const nbRows = (
-                (await runQuery(
+                await runQuery(
                     `SELECT COUNT(*) FROM ${options.table};`,
                     connection,
                     true
-                )) as unknown as { "count_star()": number }[]
+                )
             )[0]["count_star()"]
             console.log(
                 `${nbRows} rows in total ${
@@ -131,6 +127,6 @@ export default async function queryDB(
         options.returnDataFrom === "table" ||
         options.returnDataFrom === "query"
     ) {
-        return data as { [key: string]: unknown }[]
+        return data
     }
 }
