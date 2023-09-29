@@ -78,32 +78,6 @@ export default class SimpleDB {
         return this
     }
 
-    async customQuery(
-        query: string,
-        options: {
-            returnDataFrom?: "query" | "table" | "none"
-            verbose?: boolean
-            table?: string
-            nbRowsToLog?: number
-            returnedDataModifier?: (
-                rows: {
-                    [key: string]: number | string | Date | boolean | null
-                }[]
-            ) => {
-                [key: string]: number | string | Date | boolean | null
-            }[]
-        } = {}
-    ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\ncustomQuery()")
-        return await queryDB(
-            this.connection,
-            this.runQuery,
-            query,
-            mergeOptions(this, options)
-        )
-    }
-
     async loadArray(
         table: string,
         arrayOfObjects: { [key: string]: unknown }[],
@@ -627,6 +601,32 @@ export default class SimpleDB {
                 options
             ),
             mergeOptions(this, { ...options, table })
+        )
+    }
+
+    async customQuery(
+        query: string,
+        options: {
+            returnDataFrom?: "query" | "table" | "none"
+            verbose?: boolean
+            table?: string
+            nbRowsToLog?: number
+            returnedDataModifier?: (
+                rows: {
+                    [key: string]: number | string | Date | boolean | null
+                }[]
+            ) => {
+                [key: string]: number | string | Date | boolean | null
+            }[]
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\ncustomQuery()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            query,
+            mergeOptions(this, options)
         )
     }
 

@@ -37,7 +37,7 @@ describe("loadArray", () => {
         await simpleNodeDB.done()
     })
 
-    it("should load an array of objects from SimpleDB", async () => {
+    it("should load an array of objects into a table", async () => {
         const data = await simpleNodeDB.loadArray(
             "arrayOfObjects",
             arrayOfObjects,
