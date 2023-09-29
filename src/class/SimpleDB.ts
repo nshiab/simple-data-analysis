@@ -851,7 +851,7 @@ export default class SimpleDB {
                 options.summaries,
                 options
             ),
-            mergeOptions(this, { ...options, table })
+            mergeOptions(this, { ...options, table: outputTable })
         )
     }
 
