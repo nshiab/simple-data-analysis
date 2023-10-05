@@ -20,6 +20,7 @@ import loadArrayQuery from "../methods/loadArrayQuery.js"
 import correlationsQuery from "../methods/correlationsQuery.js"
 import getCombinations from "../helpers/getCombinations.js"
 import keepNumericalColumns from "../helpers/keepNumericalColumns.js"
+import linearRegressionQuery from "../methods/linearRegressionQuery.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -862,13 +863,14 @@ export default class SimpleDB {
             x?: string
             y?: string
             decimals?: number
+            order?: "asc" | "desc"
             verbose?: boolean
             nbRowsToLog?: number
             returnDataFrom?: "query" | "table" | "none"
         } = {}
     ) {
         ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\ngetCorrelation()")
+            console.log("\ncorrelation()")
 
         options.decimals = options.decimals ?? 2
 
@@ -896,6 +898,54 @@ export default class SimpleDB {
             this.connection,
             this.runQuery,
             correlationsQuery(table, outputTable, combinations, options),
+            mergeOptions(this, { ...options, table: outputTable })
+        )
+    }
+
+    async linearRegressions(
+        table: string,
+        outputTable: string,
+        options: {
+            x?: string
+            y?: string
+            decimals?: number
+            verbose?: boolean
+            nbRowsToLog?: number
+            returnDataFrom?: "query" | "table" | "none"
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nlinearRegression()")
+
+        options.decimals = options.decimals ?? 2
+
+        const permutations: [string, string][] = []
+        if (!options.x && !options.y) {
+            const types = await this.getTypes(table)
+            const columns = keepNumericalColumns(types)
+            const combinations = getCombinations(columns, 2)
+            for (const c of combinations) {
+                permutations.push(c)
+                permutations.push([c[1], c[0]])
+            }
+        } else if (options.x && !options.y) {
+            const types = await this.getTypes(table)
+            const columns = keepNumericalColumns(types)
+            for (const col of columns) {
+                if (col !== options.x) {
+                    permutations.push([options.x, col])
+                }
+            }
+        } else if (options.x && options.y) {
+            permutations.push([options.x, options.y])
+        } else {
+            throw new Error("No combinations of x and y")
+        }
+
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            linearRegressionQuery(table, outputTable, permutations, options),
             mergeOptions(this, { ...options, table: outputTable })
         )
     }

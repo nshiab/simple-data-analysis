@@ -28,6 +28,20 @@ describe("correlations", () => {
         ])
     })
 
+    it("should give all correlations between numerical columns in the table and sort the correlation values in ascending order", async () => {
+        const data = await simpleNodeDB.correlations(
+            "someData",
+            "allCorrelations",
+            { returnDataFrom: "table", decimals: 1, order: "asc" }
+        )
+
+        assert.deepStrictEqual(data, [
+            { x: "key3", y: "key4", corr: -0.7 },
+            { x: "key2", y: "key4", corr: -0.2 },
+            { x: "key2", y: "key3", corr: 0.4 },
+        ])
+    })
+
     it("should give all correlations between numerical columns with a specific x column", async () => {
         const data = await simpleNodeDB.correlations(
             "someData",
