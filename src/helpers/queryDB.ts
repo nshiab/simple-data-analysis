@@ -7,7 +7,9 @@ export default async function queryDB(
         query: string,
         connection: AsyncDuckDBConnection | Connection,
         returnDataFromQuery: boolean
-    ) => Promise<{ [key: string]: number | string | Date | boolean | null }[]>,
+    ) => Promise<
+        { [key: string]: number | string | Date | boolean | null }[] | undefined
+    >,
     query: string,
     options: {
         table: string | null
@@ -83,7 +85,7 @@ export default async function queryDB(
     }
 
     if (options.returnedDataModifier) {
-        if (data === null) {
+        if (data === null || data === undefined) {
             throw new Error(
                 "Data is null. Use option returnedDataModifier with 'query' or 'table'."
             )
@@ -102,15 +104,16 @@ export default async function queryDB(
             if (!options.table) {
                 throw new Error("No options.table")
             }
-            const nbRows = (
-                await runQuery(
-                    `SELECT COUNT(*) FROM ${options.table};`,
-                    connection,
-                    true
-                )
-            )[0]["count_star()"]
+            const nbRows = await runQuery(
+                `SELECT COUNT(*) FROM ${options.table};`,
+                connection,
+                true
+            )
+            if (nbRows === undefined) {
+                throw new Error("nbRows is undefined")
+            }
             console.log(
-                `${nbRows} rows in total ${
+                `${nbRows[0]["count_star()"]} rows in total ${
                     options.returnDataFrom === "none"
                         ? ""
                         : `(nbRowsToLog: ${options.nbRowsToLog})`

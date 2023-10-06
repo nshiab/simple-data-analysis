@@ -41,9 +41,10 @@ export default class SimpleDB {
         connection: AsyncDuckDBConnection | Connection,
         returnDataFromQuery: boolean
     ) => Promise<
-        {
-            [key: string]: number | string | Date | boolean | null
-        }[]
+        | {
+              [key: string]: number | string | Date | boolean | null
+          }[]
+        | undefined
     >
 
     constructor(
@@ -62,15 +63,13 @@ export default class SimpleDB {
             connection: AsyncDuckDBConnection | Connection,
             returnDataFromQuery: boolean
         ) {
-            // Specific type for web
-            const data = await (connection as AsyncDuckDBConnection).query(
-                query
-            )
-            // No difference on the Web. But different with NodeJS.
             if (returnDataFromQuery) {
+                const data = await (connection as AsyncDuckDBConnection).query(
+                    query
+                )
                 return tableToArrayOfObjects(data)
             } else {
-                return tableToArrayOfObjects(data)
+                await (connection as AsyncDuckDBConnection).query(query)
             }
         }
     }
