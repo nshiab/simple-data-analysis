@@ -1,11 +1,14 @@
-import { AsyncDuckDB, AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
+import {
+    AsyncDuckDB,
+    AsyncDuckDBConnection,
+    DuckDBDataProtocol,
+} from "@duckdb/duckdb-wasm"
 import { Database, Connection } from "duckdb"
 import getDuckDB from "../helpers/getDuckDB.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import stringToArray from "../helpers/stringToArray.js"
 
-import loadDataQuery from "../methods/loadDataQuery.js"
 import logDescriptionQuery from "../methods/logDescriptionQuery.js"
 import removeMissingQuery from "../methods/removeMissingQuery.js"
 import renameColumnQuery from "../methods/renameColumnQuery.js"
@@ -24,6 +27,7 @@ import linearRegressionQuery from "../methods/linearRegressionQuery.js"
 import outliersIQRQuery from "../methods/outliersIQRQuery.js"
 import zScoreQuery from "../methods/zScoreQuery.js"
 import tableToArrayOfObjects from "../helpers/arraysToData.js"
+import getExtension from "../helpers/getExtension.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -103,35 +107,91 @@ export default class SimpleDB {
 
     async loadData(
         table: string,
-        files: string | string[],
+        url: string,
         options: {
             fileType?: "csv" | "dsv" | "json" | "parquet"
             autoDetect?: boolean
-            fileName?: boolean
-            unifyColumns?: boolean
-            columns?: { [key: string]: string }
             // csv options
             header?: boolean
-            allText?: boolean
             delim?: string
             skip?: number
-            // json options
-            format?: "unstructured" | "newlineDelimited" | "array"
-            records?: boolean
             // others
             verbose?: boolean
-            returnDataFrom?: "query" | "table" | "none"
+            returnDataFrom?: "table" | "query" | "none"
             nbRowsToLog?: number
         } = {}
     ) {
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\nloadData()")
-        await queryDB(
-            this.connection,
-            this.runQuery,
-            loadDataQuery(table, stringToArray(files), options),
-            mergeOptions(this, { ...options, table })
+
+        let start
+        if (options.verbose || this.debug) {
+            start = Date.now()
+        }
+
+        const fileExtension = getExtension(url)
+        const filename = url.split("/")[url.split("/").length - 1]
+
+        await (this.db as AsyncDuckDB).registerFileURL(
+            filename,
+            url,
+            DuckDBDataProtocol.HTTP,
+            false
         )
+
+        if (
+            options.fileType === "csv" ||
+            fileExtension === "csv" ||
+            options.fileType === "dsv" ||
+            typeof options.delim === "string"
+        ) {
+            await (this.connection as AsyncDuckDBConnection).insertCSVFromPath(
+                filename,
+                {
+                    name: table,
+                    detect: options.autoDetect ?? true,
+                    header: options.header ?? true,
+                    delimiter: options.delim ?? ",",
+                    skip: options.skip,
+                }
+            )
+        } else if (options.fileType === "json" || fileExtension === "json") {
+            await (this.connection as AsyncDuckDBConnection).insertJSONFromPath(
+                "somedata",
+                {
+                    name: table,
+                }
+            )
+        } else if (
+            options.fileType === "parquet" ||
+            fileExtension === "parquet"
+        ) {
+            const res = await fetch(url)
+            await (this.db as AsyncDuckDB).registerFileBuffer(
+                table,
+                new Uint8Array(await res.arrayBuffer())
+            )
+        } else {
+            throw new Error(
+                `Unknown options.fileType ${options.fileType} or fileExtension ${fileExtension}`
+            )
+        }
+
+        if (start) {
+            const end = Date.now()
+            console.log(`Done in ${end - start} ms`)
+        }
+
+        if (
+            options.returnDataFrom === "table" ||
+            options.returnDataFrom === "query"
+        ) {
+            return await this.runQuery(
+                `SELECT * FROM ${table}`,
+                this.connection,
+                true
+            )
+        }
     }
 
     async insertRows(

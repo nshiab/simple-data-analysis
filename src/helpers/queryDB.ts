@@ -131,5 +131,7 @@ export default async function queryDB(
         options.returnDataFrom === "query"
     ) {
         return data
+    } else {
+        return undefined
     }
 }

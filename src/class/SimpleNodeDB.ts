@@ -8,6 +8,7 @@ import queryDB from "../helpers/queryDB.js"
 
 import loadDataQuery from "../methods/loadDataQuery.js"
 import writeDataQuery from "../methods/writeDataQuery.js"
+import stringToArray from "../helpers/stringToArray.js"
 
 export default class SimpleNodeDB extends SimpleDB {
     constructor(
@@ -58,6 +59,44 @@ export default class SimpleNodeDB extends SimpleDB {
         this.db.exec("INSTALL httpfs")
         this.connection = this.db.connect()
         return this
+    }
+
+    async loadData(
+        table: string,
+        files: string | string[],
+        options: {
+            fileType?: "csv" | "dsv" | "json" | "parquet"
+            autoDetect?: boolean
+            fileName?: boolean
+            unifyColumns?: boolean
+            columns?: { [key: string]: string }
+            // csv options
+            header?: boolean
+            allText?: boolean
+            delim?: string
+            skip?: number
+            // json options
+            format?: "unstructured" | "newlineDelimited" | "array"
+            records?: boolean
+            // others
+            verbose?: boolean
+            returnDataFrom?: "query" | "table" | "none"
+            nbRowsToLog?: number
+        } = {}
+    ): Promise<
+        | {
+              [key: string]: string | number | boolean | Date | null
+          }[]
+        | undefined
+    > {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nloadData()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            loadDataQuery(table, stringToArray(files), options),
+            mergeOptions(this, { ...options, table })
+        )
     }
 
     async loadDataFromDirectory(
