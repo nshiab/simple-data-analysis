@@ -132,19 +132,18 @@ export default class SimpleDB {
         const fileExtension = getExtension(url)
         const filename = url.split("/")[url.split("/").length - 1]
 
-        await (this.db as AsyncDuckDB).registerFileURL(
-            filename,
-            url,
-            DuckDBDataProtocol.HTTP,
-            false
-        )
-
         if (
             options.fileType === "csv" ||
             fileExtension === "csv" ||
             options.fileType === "dsv" ||
             typeof options.delim === "string"
         ) {
+            await (this.db as AsyncDuckDB).registerFileURL(
+                filename,
+                url,
+                DuckDBDataProtocol.HTTP,
+                false
+            )
             await (this.connection as AsyncDuckDBConnection).insertCSVFromPath(
                 filename,
                 {
@@ -156,8 +155,14 @@ export default class SimpleDB {
                 }
             )
         } else if (options.fileType === "json" || fileExtension === "json") {
+            await (this.db as AsyncDuckDB).registerFileURL(
+                filename,
+                url,
+                DuckDBDataProtocol.HTTP,
+                false
+            )
             await (this.connection as AsyncDuckDBConnection).insertJSONFromPath(
-                "somedata",
+                filename,
                 {
                     name: table,
                 }
