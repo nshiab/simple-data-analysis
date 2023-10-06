@@ -22,6 +22,7 @@ import getCombinations from "../helpers/getCombinations.js"
 import keepNumericalColumns from "../helpers/keepNumericalColumns.js"
 import linearRegressionQuery from "../methods/linearRegressionQuery.js"
 import outliersIQRQuery from "../methods/outliersIQRQuery.js"
+import zScoreQuery from "../methods/zScoreQuery.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -973,6 +974,31 @@ export default class SimpleDB {
             this.connection,
             this.runQuery,
             outliersIQRQuery(table, column, parity, options),
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
+    async zScore(
+        table: string,
+        column: string,
+        options: {
+            newColumn?: string
+            decimals?: number
+            verbose?: boolean
+            nbRowsToLog?: number
+            returnDataFrom?: "query" | "table" | "none"
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\nzScore()")
+
+        options.newColumn = options.newColumn ?? "zScore"
+        options.decimals = options.decimals ?? 2
+
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            zScoreQuery(table, column, options),
             mergeOptions(this, { ...options, table })
         )
     }
