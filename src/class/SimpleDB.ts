@@ -155,11 +155,10 @@ export default class SimpleDB {
                 }
             )
         } else if (options.fileType === "json" || fileExtension === "json") {
-            await (this.db as AsyncDuckDB).registerFileURL(
+            const res = await fetch(url)
+            await (this.db as AsyncDuckDB).registerFileText(
                 filename,
-                url,
-                DuckDBDataProtocol.HTTP,
-                false
+                await res.text()
             )
             await (this.connection as AsyncDuckDBConnection).insertJSONFromPath(
                 filename,
