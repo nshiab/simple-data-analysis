@@ -23,6 +23,7 @@ import keepNumericalColumns from "../helpers/keepNumericalColumns.js"
 import linearRegressionQuery from "../methods/linearRegressionQuery.js"
 import outliersIQRQuery from "../methods/outliersIQRQuery.js"
 import zScoreQuery from "../methods/zScoreQuery.js"
+import tableToArrayOfObjects from "../helpers/arraysToData.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -63,13 +64,9 @@ export default class SimpleDB {
             )
             // No difference on the Web. But different with NodeJS.
             if (returnDataFromQuery) {
-                return data.toArray() as unknown as {
-                    [key: string]: number | string | Date | boolean | null
-                }[]
+                return tableToArrayOfObjects(data)
             } else {
-                return data.toArray() as unknown as {
-                    [key: string]: number | string | Date | boolean | null
-                }[]
+                return tableToArrayOfObjects(data)
             }
         }
     }
