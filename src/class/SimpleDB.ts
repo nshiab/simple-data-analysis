@@ -21,6 +21,7 @@ import correlationsQuery from "../methods/correlationsQuery.js"
 import getCombinations from "../helpers/getCombinations.js"
 import keepNumericalColumns from "../helpers/keepNumericalColumns.js"
 import linearRegressionQuery from "../methods/linearRegressionQuery.js"
+import outliersIQRQuery from "../methods/outliersIQRQuery.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -950,6 +951,32 @@ export default class SimpleDB {
         )
     }
 
+    async outliersIQR(
+        table: string,
+        column: string,
+        options: {
+            newColumn?: string
+            verbose?: boolean
+            nbRowsToLog?: number
+            returnDataFrom?: "query" | "table" | "none"
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\noutliersIQR()")
+
+        options.newColumn = options.newColumn ?? "outliers"
+
+        const length = await this.getLength(table)
+        const parity = length % 2 === 0 ? "even" : "odd"
+
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            outliersIQRQuery(table, column, parity, options),
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
     async customQuery(
         query: string,
         options: {
@@ -1073,6 +1100,29 @@ export default class SimpleDB {
             throw new Error("No result")
         }
         return queryResult.map((d) => d.column_name) as string[]
+    }
+
+    async getLength(
+        table: string,
+        options: {
+            verbose?: boolean
+        } = {}
+    ) {
+        ;(options.verbose || this.verbose || this.debug) &&
+            console.log("\ngetLength()")
+
+        const queryResult = await queryDB(
+            this.connection,
+            this.runQuery,
+            `SELECT COUNT(*) FROM ${table}`,
+            mergeOptions(this, { ...options, table, returnDataFrom: "query" })
+        )
+
+        if (!queryResult) {
+            throw new Error("No result")
+        }
+
+        return queryResult[0]["count_star()"] as number
     }
 
     async getTypes(
