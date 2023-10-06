@@ -170,10 +170,10 @@ export default class SimpleDB {
             options.fileType === "parquet" ||
             fileExtension === "parquet"
         ) {
-            const res = await fetch(url)
-            await (this.db as AsyncDuckDB).registerFileBuffer(
-                table,
-                new Uint8Array(await res.arrayBuffer())
+            await this.runQuery(
+                `CREATE TABLE ${table} AS SELECT * FROM "${url}"`,
+                this.connection,
+                false
             )
         } else {
             throw new Error(
