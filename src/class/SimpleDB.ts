@@ -169,8 +169,14 @@ export default class SimpleDB {
             options.fileType === "parquet" ||
             fileExtension === "parquet"
         ) {
+            await (this.db as AsyncDuckDB).registerFileURL(
+                filename,
+                url,
+                DuckDBDataProtocol.HTTP,
+                false
+            )
             await this.runQuery(
-                `CREATE TABLE ${table} AS SELECT * FROM "${url}"`,
+                `CREATE TABLE ${table} AS SELECT * FROM parquet_scan('${filename}')`,
                 this.connection,
                 false
             )
