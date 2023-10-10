@@ -510,18 +510,21 @@ export default class SimpleDB {
         columns: string | string[],
         strings: { [key: string]: string },
         options: {
+            entireString?: boolean
             verbose?: boolean
             returnDataFrom?: "query" | "table" | "none"
             nbRowsToLog?: number
         } = {}
     ) {
         ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nreplaceText()")
+            console.log("\nreplaceStrings")
 
         let start
         if (options.verbose || this.debug) {
             start = Date.now()
         }
+
+        options.entireString = options.entireString ?? false
 
         columns = stringToArray(columns)
         const oldText = Object.keys(strings)
@@ -537,7 +540,13 @@ export default class SimpleDB {
                     data = await queryDB(
                         this.connection,
                         this.runQuery,
-                        replaceTextQuery(table, column, oldText[i], newText[i]),
+                        replaceTextQuery(
+                            table,
+                            column,
+                            oldText[i],
+                            newText[i],
+                            options
+                        ),
                         mergeOptions(this, {
                             ...options,
                             table,
@@ -548,7 +557,13 @@ export default class SimpleDB {
                     await queryDB(
                         this.connection,
                         this.runQuery,
-                        replaceTextQuery(table, column, oldText[i], newText[i]),
+                        replaceTextQuery(
+                            table,
+                            column,
+                            oldText[i],
+                            newText[i],
+                            options
+                        ),
                         mergeOptions(this, {
                             ...options,
                             table,
