@@ -650,44 +650,16 @@ export default class SimpleDB {
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\nremoveColumns()")
 
-        let start
-        if ((options.verbose || this.debug) && options.noTiming === false) {
-            start = Date.now()
+        let query = ""
+        for (const column of stringToArray(columns)) {
+            query += `ALTER TABLE ${table} DROP "${column}";\n`
         }
-
-        columns = stringToArray(columns)
-        const lastColumn = columns[columns.length - 1]
-        let data
-        for (const column of columns) {
-            if (column === lastColumn) {
-                data = await queryDB(
-                    this.connection,
-                    this.runQuery,
-                    `ALTER TABLE ${table} DROP "${column}"`,
-                    mergeOptions(this, { ...options, table, noTiming: true })
-                )
-            } else {
-                await queryDB(
-                    this.connection,
-                    this.runQuery,
-                    `ALTER TABLE ${table} DROP "${column}"`,
-                    mergeOptions(this, {
-                        ...options,
-                        table,
-                        returnDataFrom: "none",
-                        noTiming: true,
-                        justQuery: true,
-                    })
-                )
-            }
-        }
-
-        if (start) {
-            const end = Date.now()
-            console.log(`Done in ${end - start} ms`)
-        }
-
-        return data
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            query,
+            mergeOptions(this, { ...options, table })
+        )
     }
 
     async sort(
