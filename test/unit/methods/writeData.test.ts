@@ -26,7 +26,7 @@ describe("writeData", () => {
 
     it("should write a csv file", async () => {
         await simpleNodeDB.loadData("testTable", ["test/data/files/data.csv"])
-        await simpleNodeDB.writeData(`${output}test.csv`, "testTable")
+        await simpleNodeDB.writeData("testTable", `${output}test.csv`)
 
         // We test the content of the file
         const csvDB = await new SimpleNodeDB().start()
@@ -36,7 +36,7 @@ describe("writeData", () => {
         assert.deepStrictEqual(data, expectedData)
     })
     it("should write a compressed csv file", async () => {
-        await simpleNodeDB.writeData(`${output}test.csv`, "testTable", {
+        await simpleNodeDB.writeData("testTable", `${output}test.csv`, {
             compression: true,
         })
 
@@ -48,7 +48,7 @@ describe("writeData", () => {
         assert.deepStrictEqual(data, expectedData)
     })
     it("should write a json file", async () => {
-        await simpleNodeDB.writeData(`${output}test.json`, "testTable")
+        await simpleNodeDB.writeData("testTable", `${output}test.json`)
 
         // We test the content of the file
         const csvDB = await new SimpleNodeDB().start()
@@ -58,7 +58,7 @@ describe("writeData", () => {
         assert.deepStrictEqual(data, expectedData)
     })
     it("should write a compressed json file", async () => {
-        await simpleNodeDB.writeData(`${output}test.json`, "testTable", {
+        await simpleNodeDB.writeData("testTable", `${output}test.json`, {
             compression: true,
         })
 
@@ -70,7 +70,7 @@ describe("writeData", () => {
         assert.deepStrictEqual(data, expectedData)
     })
     it("should write a parquet file", async () => {
-        await simpleNodeDB.writeData(`${output}test.parquet`, "testTable")
+        await simpleNodeDB.writeData("testTable", `${output}test.parquet`)
 
         // We test the content of the file
         const csvDB = await new SimpleNodeDB().start()
@@ -81,8 +81,8 @@ describe("writeData", () => {
     })
     it("should write a compressed parquet file", async () => {
         await simpleNodeDB.writeData(
-            `${output}testCompressed.parquet`,
             "testTable",
+            `${output}testCompressed.parquet`,
             { compression: true }
         )
 

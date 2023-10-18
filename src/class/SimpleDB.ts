@@ -12,7 +12,7 @@ import stringToArray from "../helpers/stringToArray.js"
 import logDescriptionQuery from "../methods/logDescriptionQuery.js"
 import removeMissingQuery from "../methods/removeMissingQuery.js"
 import renameColumnQuery from "../methods/renameColumnQuery.js"
-import replaceTextQuery from "../methods/replaceStringQuery.js"
+import replaceStringsQuery from "../methods/replaceStringsQuery.js"
 import convertQuery from "../methods/convertQuery.js"
 import roundQuery from "../methods/round.js"
 import joinQuery from "../methods/joinQuery.js"
@@ -525,69 +525,26 @@ export default class SimpleDB {
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\nreplaceStrings")
 
-        let start
-        if (options.verbose || this.debug) {
-            start = Date.now()
-        }
-
         options.entireString = options.entireString ?? false
 
-        columns = stringToArray(columns)
         const oldText = Object.keys(strings)
         const newText = Object.values(strings)
 
-        const lastColumn = columns[columns.length - 1]
-        const lastOldText = oldText[oldText.length - 1]
-
-        let data
-        for (const column of columns) {
-            for (let i = 0; i < oldText.length; i++) {
-                if (column === lastColumn && oldText[i] === lastOldText) {
-                    data = await queryDB(
-                        this.connection,
-                        this.runQuery,
-                        replaceTextQuery(
-                            table,
-                            column,
-                            oldText[i],
-                            newText[i],
-                            options
-                        ),
-                        mergeOptions(this, {
-                            ...options,
-                            table,
-                            noTiming: true,
-                        })
-                    )
-                } else {
-                    await queryDB(
-                        this.connection,
-                        this.runQuery,
-                        replaceTextQuery(
-                            table,
-                            column,
-                            oldText[i],
-                            newText[i],
-                            options
-                        ),
-                        mergeOptions(this, {
-                            ...options,
-                            table,
-                            returnDataFrom: "none",
-                            noTiming: true,
-                            justQuery: true,
-                        })
-                    )
-                }
-            }
-        }
-
-        if (start) {
-            const end = Date.now()
-            console.log(`Done in ${end - start} ms`)
-        }
-
-        return data
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            replaceStringsQuery(
+                table,
+                stringToArray(columns),
+                oldText,
+                newText,
+                options
+            ),
+            mergeOptions(this, {
+                ...options,
+                table,
+            })
+        )
     }
 
     async filter(
