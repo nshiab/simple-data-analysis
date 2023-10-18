@@ -60,23 +60,28 @@ export default async function queryDB(
         options.returnDataFrom === "none" &&
         (options.verbose || options.debug)
     ) {
-        if (typeof options.table !== "string") {
-            throw new Error("No options.table")
+        if (options.table !== null && typeof options.table !== "string") {
+            throw new Error("No options.table. It should be a string.")
         }
 
         await runQuery(query, connection, false)
-        if (options.nbRowsToLog === Infinity) {
-            data = await runQuery(
-                `SELECT * FROM ${options.table};`,
-                connection,
-                true
-            )
+
+        if (options.table !== null) {
+            if (options.nbRowsToLog === Infinity) {
+                data = await runQuery(
+                    `SELECT * FROM ${options.table};`,
+                    connection,
+                    true
+                )
+            } else {
+                data = await runQuery(
+                    `SELECT * FROM ${options.table} LIMIT ${options.nbRowsToLog};`,
+                    connection,
+                    true
+                )
+            }
         } else {
-            data = await runQuery(
-                `SELECT * FROM ${options.table} LIMIT ${options.nbRowsToLog};`,
-                connection,
-                true
-            )
+            data = [{ message: "Table is null" }]
         }
     } else {
         throw new Error(
@@ -101,24 +106,27 @@ export default async function queryDB(
         }
         if (Array.isArray(data)) {
             console.table(data)
-            if (!options.table) {
+            if (options.table !== null && !options.table) {
                 throw new Error("No options.table")
             }
-            const nbRows = await runQuery(
-                `SELECT COUNT(*) FROM ${options.table};`,
-                connection,
-                true
-            )
-            if (nbRows === undefined) {
-                throw new Error("nbRows is undefined")
+
+            if (options.table !== null) {
+                const nbRows = await runQuery(
+                    `SELECT COUNT(*) FROM ${options.table};`,
+                    connection,
+                    true
+                )
+                if (nbRows === undefined) {
+                    throw new Error("nbRows is undefined")
+                }
+                console.log(
+                    `${nbRows[0]["count_star()"]} rows in total ${
+                        options.returnDataFrom === "none"
+                            ? ""
+                            : `(nbRowsToLog: ${options.nbRowsToLog})`
+                    }`
+                )
             }
-            console.log(
-                `${nbRows[0]["count_star()"]} rows in total ${
-                    options.returnDataFrom === "none"
-                        ? ""
-                        : `(nbRowsToLog: ${options.nbRowsToLog})`
-                }`
-            )
         } else {
             console.log(data)
         }

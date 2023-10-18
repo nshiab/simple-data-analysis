@@ -4,7 +4,7 @@ import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
 describe("replaceString", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
-        simpleNodeDB = await new SimpleNodeDB({ debug: true }).start()
+        simpleNodeDB = await new SimpleNodeDB().start()
     })
     after(async function () {
         await simpleNodeDB.done()

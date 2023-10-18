@@ -652,51 +652,22 @@ export default class SimpleDB {
         tables: string | string[],
         options: {
             verbose?: boolean
-            returnDataFrom?: "query" | "table" | "none"
-            nbRowsToLog?: number
         } = {}
     ) {
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\nremoveTables()")
 
-        let start
-        if (options.verbose || this.debug) {
-            start = Date.now()
+        let query = ""
+        for (const table of stringToArray(tables)) {
+            query += `DROP TABLE ${table};\n`
         }
 
-        tables = stringToArray(tables)
-        const lastTable = tables[tables.length - 1]
-        let data
-        for (const table of tables) {
-            if (table === lastTable) {
-                data = await queryDB(
-                    this.connection,
-                    this.runQuery,
-                    `DROP TABLE ${table}`,
-                    mergeOptions(this, { ...options, table, noTiming: true })
-                )
-            } else {
-                await queryDB(
-                    this.connection,
-                    this.runQuery,
-                    `DROP TABLE ${table}`,
-                    mergeOptions(this, {
-                        ...options,
-                        table,
-                        returnDataFrom: "none",
-                        noTiming: true,
-                        justQuery: true,
-                    })
-                )
-            }
-        }
-
-        if (start) {
-            const end = Date.now()
-            console.log(`Done in ${end - start} ms`)
-        }
-
-        return data
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            query,
+            mergeOptions(this, { ...options, table: null })
+        )
     }
 
     async removeColumns(
