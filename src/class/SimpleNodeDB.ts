@@ -135,8 +135,8 @@ export default class SimpleNodeDB extends SimpleDB {
     }
 
     async writeData(
-        file: string,
         table: string,
+        file: string,
         options: {
             compression?: boolean
             verbose?: boolean
@@ -149,7 +149,7 @@ export default class SimpleNodeDB extends SimpleDB {
         await queryDB(
             this.connection,
             this.runQuery,
-            writeDataQuery(file, table, options),
+            writeDataQuery(table, file, options),
             mergeOptions(this, { ...options, table })
         )
     }

@@ -1,8 +1,8 @@
 import getExtension from "../helpers/getExtension.js"
 
 export default function writeDataQuery(
-    file: string,
     table: string,
+    file: string,
     options: { compression?: boolean }
 ) {
     const fileExtension = getExtension(file)
