@@ -382,48 +382,15 @@ export default class SimpleDB {
         ;(options.verbose || this.verbose || this.debug) &&
             console.log("\nrenameColumns()")
 
-        let start
-        if (options.verbose || this.debug) {
-            start = Date.now()
-        }
-
         const oldColumns = Object.keys(names)
         const newColumns = Object.values(names)
 
-        let data
-        for (let i = 0; i < oldColumns.length; i++) {
-            if (i === oldColumns.length - 1) {
-                data = await queryDB(
-                    this.connection,
-                    this.runQuery,
-                    renameColumnQuery(table, oldColumns[i], newColumns[i]),
-                    mergeOptions(this, { ...options, table })
-                )
-            } else {
-                await queryDB(
-                    this.connection,
-                    this.runQuery,
-                    renameColumnQuery(table, oldColumns[i], newColumns[i]),
-                    {
-                        table,
-                        returnDataFrom: "none",
-                        verbose: false,
-                        nbRowsToLog: 0,
-                        returnedDataModifier: undefined,
-                        debug: false,
-                        noTiming: true,
-                        justQuery: true,
-                    }
-                )
-            }
-        }
-
-        if (start) {
-            const end = Date.now()
-            console.log(`Done in ${end - start} ms`)
-        }
-
-        return data
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            renameColumnQuery(table, oldColumns, newColumns),
+            mergeOptions(this, { ...options, table })
+        )
     }
 
     async tidy(

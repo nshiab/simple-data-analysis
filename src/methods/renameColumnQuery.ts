@@ -1,7 +1,11 @@
 export default function renameColumnQuery(
     table: string,
-    oldColumn: string,
-    newColumn: string
+    oldColumns: string[],
+    newColumns: string[]
 ) {
-    return `ALTER TABLE ${table} RENAME COLUMN "${oldColumn}" TO "${newColumn}"`
+    let query = ""
+    for (let i = 0; i < oldColumns.length; i++) {
+        query += `ALTER TABLE ${table} RENAME COLUMN "${oldColumns[i]}" TO "${newColumns[i]}";\n`
+    }
+    return query
 }
