@@ -13,9 +13,7 @@ describe("logSchema", () => {
     it("should return the schema of a table", async () => {
         await simpleNodeDB.loadData("dataJson", ["test/data/files/data.json"])
 
-        const schema = await simpleNodeDB.logSchema("dataJson", {
-            verbose: false,
-        })
+        const schema = await simpleNodeDB.getSchema("dataJson")
         assert.deepStrictEqual(schema, [
             {
                 column_name: "key1",

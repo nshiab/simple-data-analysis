@@ -1,4 +1,4 @@
-export default function logDescriptionQuery(
+export default function getDescription(
     table: string,
     types: { [key: string]: string }
 ) {

@@ -13,9 +13,7 @@ describe("logDescription", () => {
     it("should return the count of null values, non null values, and distinct values in each column of a table", async () => {
         await simpleNodeDB.loadData("employees", ["test/data/employees.json"])
 
-        const description = await simpleNodeDB.logDescription("employees", {
-            verbose: false,
-        })
+        const description = await simpleNodeDB.getDescription("employees")
 
         assert.deepStrictEqual(description, [
             {

@@ -18,6 +18,7 @@ export default function joinQuery(
         throw new Error(`Unknown ${join} join.`)
     }
 
-    query += ` ON (${leftTable}."${commonColumn}" = ${rightTable}."${commonColumn}")`
+    query += ` ON (${leftTable}."${commonColumn}" = ${rightTable}."${commonColumn}");\n`
+    query += `ALTER TABLE ${outputTable} DROP COLUMN "${commonColumn}:1";`
     return query
 }

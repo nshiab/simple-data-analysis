@@ -13,7 +13,6 @@ export default async function queryDB(
     query: string,
     options: {
         table: string | null
-        verbose: boolean
         nbRowsToLog: number
         returnDataFrom: "query" | "table" | "none"
         returnedDataModifier?: (
@@ -24,26 +23,50 @@ export default async function queryDB(
             [key: string]: number | string | Date | boolean | null
         }[]
         debug: boolean
-        noTiming: boolean
-        justQuery: boolean
     }
-) {
+): Promise<
+    | {
+          [key: string]: string | number | boolean | Date | null
+      }[]
+    | null
+    | undefined
+> {
     let start
-    if ((options.verbose || options.debug) && !options.noTiming) {
+    if (options.debug) {
         start = Date.now()
     }
     if (options.debug) {
+        console.log(options)
         console.log(query)
     }
 
     let data = null
 
-    if (
-        options.returnDataFrom === "none" &&
-        options.verbose === false &&
-        options.debug === false
-    ) {
-        data = await runQuery(query, connection, false)
+    if (options.debug) {
+        const queryResult = await runQuery(query, connection, true)
+        console.log("\nquery result:")
+        console.table(queryResult)
+
+        if (options.returnDataFrom === "query") {
+            data = queryResult
+        } else if (options.returnDataFrom === "table") {
+            if (typeof options.table !== "string") {
+                throw new Error("No options.table")
+            }
+            data = await runQuery(
+                `SELECT * FROM ${options.table};`,
+                connection,
+                true
+            )
+        } else if (options.returnDataFrom === "none") {
+            // Nothing
+        } else {
+            throw new Error(
+                `Unknown ${options.returnDataFrom} options.returnDataFrom`
+            )
+        }
+    } else if (options.returnDataFrom === "none") {
+        await runQuery(query, connection, false)
     } else if (options.returnDataFrom === "query") {
         data = await runQuery(query, connection, true)
     } else if (options.returnDataFrom === "table") {
@@ -56,36 +79,9 @@ export default async function queryDB(
             connection,
             true
         )
-    } else if (
-        options.returnDataFrom === "none" &&
-        (options.verbose || options.debug)
-    ) {
-        if (options.table !== null && typeof options.table !== "string") {
-            throw new Error("No options.table. It should be a string.")
-        }
-
-        await runQuery(query, connection, false)
-
-        if (options.table !== null) {
-            if (options.nbRowsToLog === Infinity) {
-                data = await runQuery(
-                    `SELECT * FROM ${options.table};`,
-                    connection,
-                    true
-                )
-            } else {
-                data = await runQuery(
-                    `SELECT * FROM ${options.table} LIMIT ${options.nbRowsToLog};`,
-                    connection,
-                    true
-                )
-            }
-        } else {
-            data = [{ message: "Table is null" }]
-        }
     } else {
         throw new Error(
-            "No condition handling the returned data in this.query!"
+            `Unknown ${options.returnDataFrom} options.returnDataFrom`
         )
     }
 
@@ -98,19 +94,13 @@ export default async function queryDB(
         data = options.returnedDataModifier(data)
     }
 
-    if ((options.verbose || options.debug) && !options.justQuery) {
-        if (data === null) {
-            throw new Error(
-                "Data is null. Use option returnedDataModifier with 'query' or 'table'."
-            )
-        }
+    if (options.debug) {
         if (Array.isArray(data)) {
-            console.table(data)
-            if (options.table !== null && !options.table) {
-                throw new Error("No options.table")
-            }
-
-            if (options.table !== null) {
+            if (options.returnDataFrom === "query") {
+                console.log(`${data.length} rows in total`)
+            } else if (typeof options.table === "string") {
+                console.log(`\ntable ${options.table}:`)
+                console.table(data)
                 const nbRows = await runQuery(
                     `SELECT COUNT(*) FROM ${options.table};`,
                     connection,
@@ -128,7 +118,7 @@ export default async function queryDB(
                 )
             }
         } else {
-            console.log(data)
+            console.log("data:", data)
         }
 
         if (start) {

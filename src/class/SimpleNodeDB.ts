@@ -13,7 +13,6 @@ import stringToArray from "../helpers/stringToArray.js"
 export default class SimpleNodeDB extends SimpleDB {
     constructor(
         options: {
-            verbose?: boolean
             nbRowsToLog?: number
             debug?: boolean
         } = {}
@@ -54,7 +53,7 @@ export default class SimpleNodeDB extends SimpleDB {
     }
 
     async start() {
-        ;(this.verbose || this.debug) && console.log("\nstart()")
+        this.debug && console.log("\nstart()")
         this.db = new duckdb.Database(":memory:")
         this.db.exec("INSTALL httpfs")
         this.connection = this.db.connect()
@@ -79,7 +78,7 @@ export default class SimpleNodeDB extends SimpleDB {
             format?: "unstructured" | "newlineDelimited" | "array"
             records?: boolean
             // others
-            verbose?: boolean
+            debug?: boolean
             returnDataFrom?: "query" | "table" | "none"
             nbRowsToLog?: number
         } = {}
@@ -88,9 +87,9 @@ export default class SimpleNodeDB extends SimpleDB {
               [key: string]: string | number | boolean | Date | null
           }[]
         | undefined
+        | null
     > {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nloadData()")
+        ;(options.debug || this.debug) && console.log("\nloadData()")
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -116,12 +115,12 @@ export default class SimpleNodeDB extends SimpleDB {
             format?: "unstructured" | "newlineDelimited" | "array"
             records?: boolean
             // others
-            verbose?: boolean
+            debug?: boolean
             returnDataFrom?: "query" | "table" | "none"
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
+        ;(options.debug || this.debug) &&
             console.log("\nloadDataFromDirectory()")
         const files = readdirSync(directory).map(
             (file) => `${directory}${file}`
@@ -139,13 +138,12 @@ export default class SimpleNodeDB extends SimpleDB {
         file: string,
         options: {
             compression?: boolean
-            verbose?: boolean
+            debug?: boolean
             returnDataFrom?: "query" | "table" | "none"
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nwriteData()")
+        ;(options.debug || this.debug) && console.log("\nwriteData()")
         await queryDB(
             this.connection,
             this.runQuery,

@@ -9,7 +9,7 @@ import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import stringToArray from "../helpers/stringToArray.js"
 
-import logDescriptionQuery from "../methods/logDescriptionQuery.js"
+import getDescription from "../methods/getDescriptionQuery.js"
 import removeMissingQuery from "../methods/removeMissingQuery.js"
 import renameColumnQuery from "../methods/renameColumnQuery.js"
 import replaceStringsQuery from "../methods/replaceStringsQuery.js"
@@ -31,7 +31,6 @@ import getExtension from "../helpers/getExtension.js"
 
 export default class SimpleDB {
     debug: boolean
-    verbose: boolean
     nbRowsToLog: number
     db!: AsyncDuckDB | Database
     connection!: AsyncDuckDBConnection | Connection
@@ -49,12 +48,10 @@ export default class SimpleDB {
 
     constructor(
         options: {
-            verbose?: boolean
             nbRowsToLog?: number
             debug?: boolean
         } = {}
     ) {
-        this.verbose = options.verbose ?? false
         this.nbRowsToLog = options.nbRowsToLog ?? 10
         this.debug = options.debug ?? false
         this.worker = null
@@ -75,7 +72,7 @@ export default class SimpleDB {
     }
 
     async start() {
-        ;(this.verbose || this.debug) && console.log("\nstart()")
+        this.debug && console.log("\nstart()")
         const duckDB = await getDuckDB()
         this.db = duckDB.db
         this.connection = await this.db.connect()
@@ -89,12 +86,11 @@ export default class SimpleDB {
         arrayOfObjects: { [key: string]: unknown }[],
         options: {
             returnDataFrom?: "query" | "table" | "none"
-            verbose?: boolean
             nbRowsToLog?: number
+            debug?: boolean
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nloadArray()")
+        ;(options.debug || this.debug) && console.log("\nloadArray()")
 
         return await queryDB(
             this.connection,
@@ -115,16 +111,21 @@ export default class SimpleDB {
             delim?: string
             skip?: number
             // others
-            verbose?: boolean
+            debug?: boolean
             returnDataFrom?: "table" | "query" | "none"
             nbRowsToLog?: number
         } = {}
-    ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nloadData()")
+    ): Promise<
+        | {
+              [key: string]: string | number | boolean | Date | null
+          }[]
+        | undefined
+        | null
+    > {
+        ;(options.debug || this.debug) && console.log("\nloadData()")
 
         let start
-        if (options.verbose || this.debug) {
+        if (options.debug || this.debug) {
             start = Date.now()
         }
 
@@ -208,12 +209,12 @@ export default class SimpleDB {
         rows: { [key: string]: unknown }[],
         options: {
             returnDataFrom?: "query" | "table" | "none"
-            verbose?: boolean
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\ninsertRows()")
+        ;(options.debug || this.debug) && console.log("\ninsertRows()")
+
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -227,12 +228,11 @@ export default class SimpleDB {
         tableToInsert: string,
         options: {
             returnDataFrom?: "query" | "table" | "none"
-            verbose?: boolean
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\ninsertTable()")
+        ;(options.debug || this.debug) && console.log("\ninsertTable()")
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -241,80 +241,16 @@ export default class SimpleDB {
         )
     }
 
-    async logSchema(
-        table: string,
-        options: {
-            verbose?: boolean
-        } = {}
-    ) {
-        options.verbose = options.verbose ?? true
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nlogSchema()")
-        return await queryDB(
-            this.connection,
-            this.runQuery,
-            `DESCRIBE ${table}`,
-            mergeOptions(this, {
-                ...options,
-                table,
-                nbRowsToLog: Infinity,
-                returnDataFrom: "query",
-            })
-        )
-    }
-
-    async logDescription(
-        table: string,
-        options: {
-            verbose?: boolean
-        } = {}
-    ) {
-        const types = await this.getTypes(table)
-
-        options.verbose = options.verbose ?? true
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nlogDescription()")
-        const { query, extraData } = logDescriptionQuery(table, types)
-
-        const queryResult = await queryDB(
-            this.connection,
-            this.runQuery,
-            query,
-            mergeOptions(this, {
-                ...options,
-                table,
-                nbRowsToLog: Infinity,
-                returnDataFrom: "query",
-            })
-        )
-
-        return [extraData].concat(
-            queryResult
-                ? queryResult.sort((a, b) => {
-                      if (
-                          typeof a["_"] === "string" &&
-                          typeof b["_"] === "string"
-                      ) {
-                          return a["_"].localeCompare(b["_"])
-                      } else {
-                          return 0
-                      }
-                  })
-                : []
-        )
-    }
-
     async cloneTable(
         originalTable: string,
         newTable: string,
         options: {
             returnDataFrom?: "query" | "table" | "none"
-            verbose?: boolean
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\ncloneTable")
+        ;(options.debug || this.debug) && console.log("\ncloneTable")
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -328,12 +264,11 @@ export default class SimpleDB {
         columns: string | string[],
         options: {
             returnDataFrom?: "query" | "table" | "none"
-            verbose?: boolean
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nselectColumns")
+        ;(options.debug || this.debug) && console.log("\nselectColumns")
 
         return await queryDB(
             this.connection,
@@ -351,12 +286,11 @@ export default class SimpleDB {
         options: {
             seed?: number
             returnDataFrom?: "query" | "table" | "none"
-            verbose?: boolean
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nsample")
+        ;(options.debug || this.debug) && console.log("\nsample")
 
         return await queryDB(
             this.connection,
@@ -375,12 +309,11 @@ export default class SimpleDB {
         names: { [key: string]: string },
         options: {
             returnDataFrom?: "query" | "table" | "none"
-            verbose?: boolean
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nrenameColumns()")
+        ;(options.debug || this.debug) && console.log("\nrenameColumns()")
 
         const oldColumns = Object.keys(names)
         const newColumns = Object.values(names)
@@ -400,12 +333,11 @@ export default class SimpleDB {
         valuesName: string,
         options: {
             returnDataFrom?: "query" | "table" | "none"
-            verbose?: boolean
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\ntidy()")
+        ;(options.debug || this.debug) && console.log("\ntidy()")
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -422,12 +354,11 @@ export default class SimpleDB {
         table: string,
         options: {
             returnDataFrom?: "query" | "table" | "none"
-            verbose?: boolean
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nremoveDuplicates()")
+        ;(options.debug || this.debug) && console.log("\nremoveDuplicates()")
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -440,11 +371,11 @@ export default class SimpleDB {
         table: string,
         columns: string | string[] = [],
         options: {
+            otherMissingValues?: (string | number)[]
             invert?: boolean
             returnDataFrom?: "query" | "table" | "none"
-            verbose?: boolean
+            debug?: boolean
             nbRowsToLog?: number
-            otherMissingValues?: (string | number)[]
         } = {
             otherMissingValues: ["undefined", "NaN", "null", ""],
         }
@@ -452,8 +383,7 @@ export default class SimpleDB {
         const types = await this.getTypes(table)
         const allColumns = Object.keys(types)
 
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nremoveMissing()")
+        ;(options.debug || this.debug) && console.log("\nremoveMissing()")
 
         options.otherMissingValues = options.otherMissingValues ?? [
             "undefined",
@@ -484,13 +414,12 @@ export default class SimpleDB {
         strings: { [key: string]: string },
         options: {
             entireString?: boolean
-            verbose?: boolean
             returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nreplaceStrings")
+        ;(options.debug || this.debug) && console.log("\nreplaceStrings")
 
         options.entireString = options.entireString ?? false
 
@@ -518,13 +447,12 @@ export default class SimpleDB {
         table: string,
         conditions: string,
         options: {
-            verbose?: boolean
             returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nfilter()")
+        ;(options.debug || this.debug) && console.log("\nfilter()")
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -539,15 +467,14 @@ export default class SimpleDB {
         table: string,
         columns: string | string[],
         options: {
-            verbose?: boolean
-            returnDataFrom?: "query" | "table" | "none"
-            nbRowsToLog?: number
             decimals?: number
             method?: "round" | "ceiling" | "floor"
+            returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
+            nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nround()")
+        ;(options.debug || this.debug) && console.log("\nround()")
 
         if (
             (options.method === "ceiling" || options.method === "floor") &&
@@ -584,11 +511,11 @@ export default class SimpleDB {
                 | "timestamp with time zone"
         },
         options: {
-            verbose?: boolean
+            try?: boolean
+            datetimeFormat?: string
+            debug?: boolean
             returnDataFrom?: "query" | "table" | "none"
             nbRowsToLog?: number
-            datetimeFormat?: string
-            try?: boolean
         } = {}
     ) {
         const allTypes = await this.getTypes(table)
@@ -597,8 +524,7 @@ export default class SimpleDB {
         const columns = Object.keys(types)
         const columnsTypes = Object.values(types)
 
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nconvert()")
+        ;(options.debug || this.debug) && console.log("\nconvert()")
 
         return await queryDB(
             this.connection,
@@ -618,11 +544,10 @@ export default class SimpleDB {
     async removeTables(
         tables: string | string[],
         options: {
-            verbose?: boolean
+            debug?: boolean
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nremoveTables()")
+        ;(options.debug || this.debug) && console.log("\nremoveTables()")
 
         let query = ""
         for (const table of stringToArray(tables)) {
@@ -641,14 +566,12 @@ export default class SimpleDB {
         table: string,
         columns: string | string[],
         options: {
-            verbose?: boolean
             returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
             nbRowsToLog?: number
-            noTiming?: boolean
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nremoveColumns()")
+        ;(options.debug || this.debug) && console.log("\nremoveColumns()")
 
         let query = ""
         for (const column of stringToArray(columns)) {
@@ -668,12 +591,11 @@ export default class SimpleDB {
         options: {
             lang?: { [key: string]: string }
             returnDataFrom?: "query" | "table" | "none"
-            verbose?: boolean
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nsort")
+        ;(options.debug || this.debug) && console.log("\nsort")
 
         return await queryDB(
             this.connection,
@@ -690,47 +612,22 @@ export default class SimpleDB {
         outputTable: string,
         join: "inner" | "left" | "right" | "full",
         options: {
-            verbose?: boolean
+            debug?: boolean
             returnDataFrom?: "query" | "table" | "none"
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\njoin()")
+        ;(options.debug || this.debug) && console.log("\njoin()")
 
-        let start
-        if (options.verbose || this.debug) {
-            start = Date.now()
-        }
-
-        await queryDB(
+        return await queryDB(
             this.connection,
             this.runQuery,
             joinQuery(leftTable, rightTable, commonColumn, outputTable, join),
             mergeOptions(this, {
                 ...options,
                 table: outputTable,
-                returnDataFrom: "none",
-                noTiming: true,
             })
         )
-
-        const data = await this.removeColumns(
-            outputTable,
-            `${commonColumn}:1`,
-            mergeOptions(this, {
-                ...options,
-                table: outputTable,
-                noTiming: true,
-            })
-        )
-
-        if (start) {
-            const end = Date.now()
-            console.log(`Done in ${end - start} ms`)
-        }
-
-        return data
     }
 
     async summarize(
@@ -764,13 +661,12 @@ export default class SimpleDB {
                   )[]
             decimals?: number
             lang?: string
-            verbose?: boolean
+            debug?: boolean
             returnDataFrom?: "query" | "table" | "none"
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nsummarize()")
+        ;(options.debug || this.debug) && console.log("\nsummarize()")
 
         options.values = options.values ? stringToArray(options.values) : []
         options.categories = options.categories
@@ -814,13 +710,12 @@ export default class SimpleDB {
             y?: string
             decimals?: number
             order?: "asc" | "desc"
-            verbose?: boolean
+            debug?: boolean
             nbRowsToLog?: number
             returnDataFrom?: "query" | "table" | "none"
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\ncorrelation()")
+        ;(options.debug || this.debug) && console.log("\ncorrelation()")
 
         options.decimals = options.decimals ?? 2
 
@@ -859,13 +754,12 @@ export default class SimpleDB {
             x?: string
             y?: string
             decimals?: number
-            verbose?: boolean
+            debug?: boolean
             nbRowsToLog?: number
             returnDataFrom?: "query" | "table" | "none"
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nlinearRegression()")
+        ;(options.debug || this.debug) && console.log("\nlinearRegression()")
 
         options.decimals = options.decimals ?? 2
 
@@ -905,13 +799,12 @@ export default class SimpleDB {
         column: string,
         options: {
             newColumn?: string
-            verbose?: boolean
+            debug?: boolean
             nbRowsToLog?: number
             returnDataFrom?: "query" | "table" | "none"
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\noutliersIQR()")
+        ;(options.debug || this.debug) && console.log("\noutliersIQR()")
 
         options.newColumn = options.newColumn ?? "outliers"
 
@@ -932,13 +825,12 @@ export default class SimpleDB {
         options: {
             newColumn?: string
             decimals?: number
-            verbose?: boolean
+            debug?: boolean
             nbRowsToLog?: number
             returnDataFrom?: "query" | "table" | "none"
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nzScore()")
+        ;(options.debug || this.debug) && console.log("\nzScore()")
 
         options.newColumn = options.newColumn ?? "zScore"
         options.decimals = options.decimals ?? 2
@@ -955,9 +847,7 @@ export default class SimpleDB {
         query: string,
         options: {
             returnDataFrom?: "query" | "table" | "none"
-            verbose?: boolean
             table?: string
-            nbRowsToLog?: number
             returnedDataModifier?: (
                 rows: {
                     [key: string]: number | string | Date | boolean | null
@@ -965,10 +855,11 @@ export default class SimpleDB {
             ) => {
                 [key: string]: number | string | Date | boolean | null
             }[]
+            debug?: boolean
+            nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\ncustomQuery()")
+        ;(options.debug || this.debug) && console.log("\ncustomQuery()")
 
         return await queryDB(
             this.connection,
@@ -988,22 +879,16 @@ export default class SimpleDB {
             [key: string]: number | string | Date | boolean | null
         }[],
         options: {
-            verbose?: boolean
+            debug?: boolean
             returnDataFrom?: "query" | "table" | "none"
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nupdateWithJS()")
-
-        let start
-        if (options.verbose || this.debug) {
-            start = Date.now()
-        }
+        ;(options.debug || this.debug) && console.log("\nupdateWithJS()")
 
         const oldData = await this.getData(
             table,
-            mergeOptions(this, { noTiming: true, verbose: false, table })
+            mergeOptions(this, { ...options, table })
         )
         if (!oldData) {
             throw new Error("No data from getData.")
@@ -1013,24 +898,83 @@ export default class SimpleDB {
             this.connection,
             this.runQuery,
             loadArrayQuery(table, newData),
-            mergeOptions(this, { ...options, table, noTiming: true })
+            mergeOptions(this, { ...options, table })
         )
-
-        if (start) {
-            const end = Date.now()
-            console.log(`Done in ${end - start} ms`)
-        }
 
         return updatedData
     }
 
-    async getTables(
+    async getSchema(
+        table: string,
         options: {
-            verbose?: boolean
+            debug?: boolean
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\ngetTables()")
+        ;(options.debug || this.debug) && console.log("\ngetSchema()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            `DESCRIBE ${table}`,
+            mergeOptions(this, {
+                ...options,
+                returnDataFrom: "query",
+                nbRowsToLog: Infinity,
+                table,
+            })
+        )
+    }
+
+    async getDescription(
+        table: string,
+        options: {
+            debug?: boolean
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\ngetDescription()")
+
+        const types = await this.getTypes(table)
+
+        const { query, extraData } = getDescription(table, types)
+
+        const queryResult = await queryDB(
+            this.connection,
+            this.runQuery,
+            query,
+            mergeOptions(this, {
+                ...options,
+                table,
+                nbRowsToLog: Infinity,
+                returnDataFrom: "query",
+            })
+        )
+
+        const description = [extraData].concat(
+            queryResult
+                ? queryResult.sort((a, b) => {
+                      if (
+                          typeof a["_"] === "string" &&
+                          typeof b["_"] === "string"
+                      ) {
+                          return a["_"].localeCompare(b["_"])
+                      } else {
+                          return 0
+                      }
+                  })
+                : []
+        )
+
+        ;(options.debug || this.debug) &&
+            console.log("\ndescription:", description)
+
+        return description
+    }
+
+    async getTables(
+        options: {
+            debug?: boolean
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\ngetTables()")
 
         const queryResult = await queryDB(
             this.connection,
@@ -1046,17 +990,21 @@ export default class SimpleDB {
         if (!queryResult) {
             throw new Error("No result")
         }
-        return queryResult.map((d) => d.name) as string[]
+
+        const tables = queryResult.map((d) => d.name) as string[]
+
+        ;(options.debug || this.debug) && console.log("\ntables:", tables)
+
+        return tables
     }
 
     async getColumns(
         table: string,
         options: {
-            verbose?: boolean
+            debug?: boolean
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\ngetColumns()")
+        ;(options.debug || this.debug) && console.log("\ngetColumns()")
 
         const queryResult = await queryDB(
             this.connection,
@@ -1073,17 +1021,21 @@ export default class SimpleDB {
         if (!queryResult) {
             throw new Error("No result")
         }
-        return queryResult.map((d) => d.column_name) as string[]
+
+        const columns = queryResult.map((d) => d.column_name) as string[]
+
+        ;(options.debug || this.debug) && console.log("\ncolumns:", columns)
+
+        return columns
     }
 
     async getLength(
         table: string,
         options: {
-            verbose?: boolean
+            debug?: boolean
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\ngetLength()")
+        ;(options.debug || this.debug) && console.log("\ngetLength()")
 
         const queryResult = await queryDB(
             this.connection,
@@ -1095,18 +1047,20 @@ export default class SimpleDB {
         if (!queryResult) {
             throw new Error("No result")
         }
+        const length = queryResult[0]["count_star()"] as number
 
-        return queryResult[0]["count_star()"] as number
+        ;(options.debug || this.debug) && console.log("\nlength:", length)
+
+        return length
     }
 
     async getTypes(
         table: string,
         options: {
-            verbose?: boolean
+            debug?: boolean
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\ngetTypes()")
+        ;(options.debug || this.debug) && console.log("\ngetTypes()")
 
         const types = await queryDB(
             this.connection,
@@ -1126,22 +1080,22 @@ export default class SimpleDB {
                     typesObj[t.column_name] = t.column_type
                 }
             }
-            return typesObj
-        } else {
-            return typesObj
         }
+
+        ;(options.debug || this.debug) && console.log("\ntypes:", typesObj)
+
+        return typesObj
     }
 
     async getValues(
         table: string,
         column: string,
         options: {
-            verbose?: boolean
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\ngetValues()")
+        ;(options.debug || this.debug) && console.log("\ngetValues()")
 
         const queryResult = await queryDB(
             this.connection,
@@ -1157,19 +1111,22 @@ export default class SimpleDB {
             throw new Error("No result")
         }
 
-        return queryResult.map((d) => d[column])
+        const values = queryResult.map((d) => d[column])
+
+        ;(options.debug || this.debug) && console.log("\nvalues:", values)
+
+        return values
     }
 
     async getUniques(
         table: string,
         column: string,
         options: {
-            verbose?: boolean
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\ngetUniques()")
+        ;(options.debug || this.debug) && console.log("\ngetUniques()")
 
         const queryResult = await queryDB(
             this.connection,
@@ -1186,18 +1143,21 @@ export default class SimpleDB {
             throw new Error("No result.")
         }
 
-        return queryResult.map((d) => d[column])
+        const uniques = queryResult.map((d) => d[column])
+
+        ;(options.debug || this.debug) && console.log("\nuniques:", uniques)
+
+        return uniques
     }
 
     async getData(
         table: string,
         options: {
-            verbose?: boolean
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\ngetData()")
+        ;(options.debug || this.debug) && console.log("\ngetData()")
 
         return await queryDB(
             this.connection,
@@ -1210,21 +1170,20 @@ export default class SimpleDB {
     async logTable(
         table: string,
         options: {
-            verbose?: boolean
+            debug?: boolean
             returnData?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
-        options.verbose = options.verbose ?? true
+        options.debug = options.debug ?? true
         options.nbRowsToLog = options.nbRowsToLog ?? this.nbRowsToLog
-        ;(options.verbose || this.verbose || this.debug) &&
-            console.log("\nlogTable()")
+        ;(options.debug || this.debug) && console.log("\nlogTable()")
 
         return await queryDB(
             this.connection,
             this.runQuery,
             `SELECT * FROM ${table} LIMIT ${options.nbRowsToLog}`,
-            mergeOptions(this, { ...options, returnDataFrom: "table", table })
+            mergeOptions(this, { ...options, table })
         )
     }
 
