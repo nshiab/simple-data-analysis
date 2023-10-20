@@ -831,6 +831,16 @@ export default class SimpleDB {
         return await getColumns(this, table, options)
     }
 
+    async getWidth(
+        table: string,
+        options: {
+            debug?: boolean
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\ngetWidth()")
+        return (await getColumns(this, table, options)).length
+    }
+
     async getLength(
         table: string,
         options: {
@@ -838,6 +848,19 @@ export default class SimpleDB {
         } = {}
     ) {
         return await getLength(this, table, options)
+    }
+
+    async dataPoints(
+        table: string,
+        options: {
+            debug?: boolean
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\ndataPoints()")
+        return (
+            (await this.getWidth(table, options)) *
+            (await this.getLength(table, options))
+        )
     }
 
     async getTypes(
