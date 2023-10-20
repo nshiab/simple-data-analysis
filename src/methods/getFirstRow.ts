@@ -1,6 +1,6 @@
-import mergeOptions from "../helpers/mergeOptions"
-import queryDB from "../helpers/queryDB"
-import { SimpleDB } from "../indexWeb"
+import mergeOptions from "../helpers/mergeOptions.js"
+import queryDB from "../helpers/queryDB.js"
+import { SimpleDB } from "../indexWeb.js"
 
 export default async function getFirstRow(
     simpleDB: SimpleDB,
