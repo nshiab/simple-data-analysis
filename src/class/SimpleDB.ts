@@ -913,6 +913,32 @@ export default class SimpleDB {
         return Array.isArray(queryResult) ? queryResult[0] : queryResult
     }
 
+    async getLastRow(
+        table: string,
+        options: {
+            condition?: string
+            debug?: boolean
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\ngetLastRow()")
+        const queryResult = await queryDB(
+            this.connection,
+            this.runQuery,
+            `WITH numberedRowsForGetLastRow AS (
+                SELECT *, row_number() OVER () as rowNumberForGetLastRow FROM ${table}${
+                    options.condition ? ` WHERE ${options.condition}` : ""
+                }
+            )
+            SELECT * FROM numberedRowsForGetLastRow ORDER BY rowNumberForGetLastRow DESC LIMIT 1;`,
+            mergeOptions(this, { ...options, table, returnDataFrom: "query" })
+        )
+        if (!queryResult) {
+            throw new Error("No queryResult")
+        }
+        delete queryResult[0].rowNumberForGetLastRow
+        return queryResult[0]
+    }
+
     async getData(
         table: string,
         options: {
