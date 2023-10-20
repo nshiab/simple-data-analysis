@@ -29,6 +29,7 @@ import zScoreQuery from "../methods/zScoreQuery.js"
 import tableToArrayOfObjects from "../helpers/arraysToData.js"
 import getExtension from "../helpers/getExtension.js"
 import parseType from "../helpers/parseTypes.js"
+import concatenateQuery from "../methods/concatenateQuery.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -441,6 +442,27 @@ export default class SimpleDB {
                 ...options,
                 table,
             })
+        )
+    }
+
+    async concatenate(
+        table: string,
+        columns: string[],
+        newColumn: string,
+        options: {
+            separator?: string
+            returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\nfilter()")
+
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            concatenateQuery(table, columns, newColumn, options),
+            mergeOptions(this, { ...options, table })
         )
     }
 
