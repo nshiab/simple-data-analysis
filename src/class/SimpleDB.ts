@@ -28,6 +28,7 @@ import outliersIQRQuery from "../methods/outliersIQRQuery.js"
 import zScoreQuery from "../methods/zScoreQuery.js"
 import tableToArrayOfObjects from "../helpers/arraysToData.js"
 import getExtension from "../helpers/getExtension.js"
+import parseType from "../helpers/parseTypes.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -901,6 +902,39 @@ export default class SimpleDB {
         )
 
         return updatedData
+    }
+
+    async createTable(
+        table: string,
+        types: {
+            [key: string]:
+                | "integer"
+                | "float"
+                | "string"
+                | "date"
+                | "time"
+                | "datetime"
+                | "datetimeTz"
+                | "bigint"
+                | "double"
+                | "varchar"
+                | "timestamp"
+                | "timestamp with time zone"
+        },
+        options: {
+            debug?: boolean
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\ncreateTable()")
+
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            `CREATE TABLE ${table} (${Object.keys(types)
+                .map((d) => `"${d}" ${parseType(types[d])}`)
+                .join(", ")});`,
+            mergeOptions(this, { ...options, table })
+        )
     }
 
     async getSchema(
