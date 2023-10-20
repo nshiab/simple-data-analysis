@@ -328,26 +328,45 @@ export default class SimpleDB {
         )
     }
 
-    async tidy(
+    async stack(
         table: string,
         columns: string[],
-        columnsName: string,
-        valuesName: string,
+        columnsTo: string,
+        valuesTo: string,
         options: {
             returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\ntidy()")
+        ;(options.debug || this.debug) && console.log("\nstack()")
         return await queryDB(
             this.connection,
             this.runQuery,
             `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM (UNPIVOT ${table}
         ON ${columns.map((d) => `"${d}"`).join(", ")}
         INTO
-            NAME ${columnsName}
-            VALUE ${valuesName})`,
+            NAME ${columnsTo}
+            VALUE ${valuesTo})`,
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
+    async expand(
+        table: string,
+        columnsFrom: string,
+        valuesFrom: string,
+        options: {
+            returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\nexpand()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM (PIVOT ${table} ON "${columnsFrom}" USING FIRST("${valuesFrom}"))`,
             mergeOptions(this, { ...options, table })
         )
     }

@@ -1,7 +1,7 @@
 import assert from "assert"
 import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
 
-describe("tidy", () => {
+describe("stack", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
         simpleNodeDB = await new SimpleNodeDB().start()
@@ -15,7 +15,7 @@ describe("tidy", () => {
     })
 
     it("should tidy data by stacking mutiple columns", async () => {
-        const data = await simpleNodeDB.tidy(
+        const data = await simpleNodeDB.stack(
             "dataUntidy",
             ["2015", "2016", "2017", "2018", "2019", "2020"],
             "year",
