@@ -135,7 +135,6 @@ export default class SimpleDB {
         | {
               [key: string]: string | number | boolean | Date | null
           }[]
-        | undefined
         | null
     > {
         return await loadDataBrowser(this, table, url, options)

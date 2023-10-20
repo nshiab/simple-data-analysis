@@ -85,7 +85,7 @@ export default async function queryDB(
     }
 
     if (options.returnedDataModifier) {
-        if (data === null || data === undefined) {
+        if (data === null) {
             throw new Error(
                 "Data is null. Use option returnedDataModifier with 'query' or 'table'."
             )

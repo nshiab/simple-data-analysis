@@ -99,5 +99,7 @@ export default async function loadDataBrowser(
             simpleDB.connection,
             true
         )
+    } else {
+        return null
     }
 }

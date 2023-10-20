@@ -86,7 +86,6 @@ export default class SimpleNodeDB extends SimpleDB {
         | {
               [key: string]: string | number | boolean | Date | null
           }[]
-        | undefined
         | null
     > {
         ;(options.debug || this.debug) && console.log("\nloadData()")
