@@ -34,6 +34,15 @@ import getFirstRow from "../methods/getFirstRow.js"
 import getLastRow from "../methods/getLastRow.js"
 import getTop from "../methods/getTop.js"
 import getBottom from "../methods/getBottom.js"
+import getMin from "../methods/getMin.js"
+import getMax from "../methods/getMax.js"
+import getMean from "../methods/getMean.js"
+import getMedian from "../methods/getMedian.js"
+import getSum from "../methods/getSum.js"
+import getSkew from "../methods/getSkew.js"
+import getStdDev from "../methods/getStdDev.js"
+import getVar from "../methods/getVar.js"
+import getQuantile from "../methods/getQuantile.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -885,6 +894,100 @@ export default class SimpleDB {
         } = {}
     ) {
         return await getValues(this, table, column, options)
+    }
+
+    async getMin(
+        table: string,
+        column: string,
+        options: {
+            debug?: boolean
+        } = {}
+    ) {
+        return await getMin(this, table, column, options)
+    }
+
+    async getMax(
+        table: string,
+        column: string,
+        options: {
+            debug?: boolean
+        } = {}
+    ) {
+        return await getMax(this, table, column, options)
+    }
+
+    async getMean(
+        table: string,
+        column: string,
+        options: {
+            decimals?: number
+            debug?: boolean
+        } = {}
+    ) {
+        return await getMean(this, table, column, options)
+    }
+
+    async getMedian(
+        table: string,
+        column: string,
+        options: {
+            decimals?: number
+            debug?: boolean
+        } = {}
+    ) {
+        return await getMedian(this, table, column, options)
+    }
+
+    async getSum(
+        table: string,
+        column: string,
+        options: {
+            debug?: boolean
+        } = {}
+    ) {
+        return await getSum(this, table, column, options)
+    }
+
+    async getSkew(
+        table: string,
+        column: string,
+        options: {
+            decimals?: number
+            debug?: boolean
+        } = {}
+    ) {
+        return await getSkew(this, table, column, options)
+    }
+
+    async getStdDev(
+        table: string,
+        column: string,
+        options: {
+            decimals?: number
+            debug?: boolean
+        } = {}
+    ) {
+        return await getStdDev(this, table, column, options)
+    }
+
+    async getVar(
+        table: string,
+        column: string,
+        options: {
+            decimals?: number
+            debug?: boolean
+        } = {}
+    ) {
+        return await getVar(this, table, column, options)
+    }
+
+    async getQuantile(
+        table: string,
+        column: string,
+        quantile: number,
+        options: { decimals?: number; debug?: boolean } = {}
+    ) {
+        return await getQuantile(this, table, column, quantile, options)
     }
 
     async getUniques(

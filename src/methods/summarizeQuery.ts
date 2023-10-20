@@ -25,7 +25,7 @@ export default function summarizeQuery(
         sum: "SUM",
         skew: "SKEWNESS",
         stdDev: "STDDEV",
-        var: "var_samp",
+        var: "VARIANCE",
     }
 
     if (summaries.length === 0) {
