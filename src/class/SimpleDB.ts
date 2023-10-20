@@ -1,35 +1,35 @@
-import {
-    AsyncDuckDB,
-    AsyncDuckDBConnection,
-    DuckDBDataProtocol,
-} from "@duckdb/duckdb-wasm"
+import { AsyncDuckDB, AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
 import { Database, Connection } from "duckdb"
 import getDuckDB from "../helpers/getDuckDB.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import stringToArray from "../helpers/stringToArray.js"
 
-import getDescription from "../methods/getDescriptionQuery.js"
-import removeMissingQuery from "../methods/removeMissingQuery.js"
+import getDescription from "../methods/getDescription.js"
 import renameColumnQuery from "../methods/renameColumnQuery.js"
 import replaceStringsQuery from "../methods/replaceStringsQuery.js"
 import convertQuery from "../methods/convertQuery.js"
-import roundQuery from "../methods/round.js"
+import roundQuery from "../methods/roundQuery.js"
 import joinQuery from "../methods/joinQuery.js"
 import insertRowsQuery from "../methods/insertRowsQuery.js"
 import sortQuery from "../methods/sortQuery.js"
-import summarizeQuery from "../methods/summarizeQuery.js"
 import loadArrayQuery from "../methods/loadArrayQuery.js"
-import correlationsQuery from "../methods/correlationsQuery.js"
-import getCombinations from "../helpers/getCombinations.js"
-import keepNumericalColumns from "../helpers/keepNumericalColumns.js"
-import linearRegressionQuery from "../methods/linearRegressionQuery.js"
 import outliersIQRQuery from "../methods/outliersIQRQuery.js"
 import zScoreQuery from "../methods/zScoreQuery.js"
 import tableToArrayOfObjects from "../helpers/arraysToData.js"
-import getExtension from "../helpers/getExtension.js"
 import parseType from "../helpers/parseTypes.js"
 import concatenateQuery from "../methods/concatenateQuery.js"
+import loadDataBrowser from "../methods/loadDataBrowser.js"
+import removeMissing from "../methods/removeMissing.js"
+import summarize from "../methods/summarize.js"
+import correlations from "../methods/correlations.js"
+import linearRegressions from "../methods/linearRegressions.js"
+import getTables from "../methods/getTables.js"
+import getColumns from "../methods/getColumns.js"
+import getLength from "../methods/getLength.js"
+import getTypes from "../methods/getTypes.js"
+import getValues from "../methods/getValues.js"
+import getUniques from "../methods/getUniques.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -124,86 +124,7 @@ export default class SimpleDB {
         | undefined
         | null
     > {
-        ;(options.debug || this.debug) && console.log("\nloadData()")
-
-        let start
-        if (options.debug || this.debug) {
-            start = Date.now()
-        }
-
-        const fileExtension = getExtension(url)
-        const filename = url.split("/")[url.split("/").length - 1]
-
-        if (
-            options.fileType === "csv" ||
-            fileExtension === "csv" ||
-            options.fileType === "dsv" ||
-            typeof options.delim === "string"
-        ) {
-            await (this.db as AsyncDuckDB).registerFileURL(
-                filename,
-                url,
-                DuckDBDataProtocol.HTTP,
-                false
-            )
-            await (this.connection as AsyncDuckDBConnection).insertCSVFromPath(
-                filename,
-                {
-                    name: table,
-                    detect: options.autoDetect ?? true,
-                    header: options.header ?? true,
-                    delimiter: options.delim ?? ",",
-                    skip: options.skip,
-                }
-            )
-        } else if (options.fileType === "json" || fileExtension === "json") {
-            const res = await fetch(url)
-            await (this.db as AsyncDuckDB).registerFileText(
-                filename,
-                await res.text()
-            )
-            await (this.connection as AsyncDuckDBConnection).insertJSONFromPath(
-                filename,
-                {
-                    name: table,
-                }
-            )
-        } else if (
-            options.fileType === "parquet" ||
-            fileExtension === "parquet"
-        ) {
-            await (this.db as AsyncDuckDB).registerFileURL(
-                filename,
-                url,
-                DuckDBDataProtocol.HTTP,
-                false
-            )
-            await this.runQuery(
-                `CREATE TABLE ${table} AS SELECT * FROM parquet_scan('${filename}')`,
-                this.connection,
-                false
-            )
-        } else {
-            throw new Error(
-                `Unknown options.fileType ${options.fileType} or fileExtension ${fileExtension}`
-            )
-        }
-
-        if (start) {
-            const end = Date.now()
-            console.log(`Done in ${end - start} ms`)
-        }
-
-        if (
-            options.returnDataFrom === "table" ||
-            options.returnDataFrom === "query"
-        ) {
-            return await this.runQuery(
-                `SELECT * FROM ${table}`,
-                this.connection,
-                true
-            )
-        }
+        return await loadDataBrowser(this, table, url, options)
     }
 
     async insertRows(
@@ -317,13 +238,10 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\nrenameColumns()")
 
-        const oldColumns = Object.keys(names)
-        const newColumns = Object.values(names)
-
         return await queryDB(
             this.connection,
             this.runQuery,
-            renameColumnQuery(table, oldColumns, newColumns),
+            renameColumnQuery(table, Object.keys(names), Object.values(names)),
             mergeOptions(this, { ...options, table })
         )
     }
@@ -401,32 +319,7 @@ export default class SimpleDB {
             otherMissingValues: ["undefined", "NaN", "null", ""],
         }
     ) {
-        const types = await this.getTypes(table)
-        const allColumns = Object.keys(types)
-
-        ;(options.debug || this.debug) && console.log("\nremoveMissing()")
-
-        options.otherMissingValues = options.otherMissingValues ?? [
-            "undefined",
-            "NaN",
-            "null",
-            "",
-        ]
-
-        columns = stringToArray(columns)
-
-        return await queryDB(
-            this.connection,
-            this.runQuery,
-            removeMissingQuery(
-                table,
-                allColumns,
-                types,
-                columns.length === 0 ? allColumns : columns,
-                options
-            ),
-            mergeOptions(this, { ...options, table })
-        )
+        return await removeMissing(this, table, columns, options)
     }
 
     async replaceStrings(
@@ -441,20 +334,15 @@ export default class SimpleDB {
         } = {}
     ) {
         ;(options.debug || this.debug) && console.log("\nreplaceStrings")
-
         options.entireString = options.entireString ?? false
-
-        const oldText = Object.keys(strings)
-        const newText = Object.values(strings)
-
         return await queryDB(
             this.connection,
             this.runQuery,
             replaceStringsQuery(
                 table,
                 stringToArray(columns),
-                oldText,
-                newText,
+                Object.keys(strings),
+                Object.values(strings),
                 options
             ),
             mergeOptions(this, {
@@ -476,7 +364,6 @@ export default class SimpleDB {
         } = {}
     ) {
         ;(options.debug || this.debug) && console.log("\nfilter()")
-
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -517,16 +404,6 @@ export default class SimpleDB {
         } = {}
     ) {
         ;(options.debug || this.debug) && console.log("\nround()")
-
-        if (
-            (options.method === "ceiling" || options.method === "floor") &&
-            typeof options.decimals === "number"
-        ) {
-            console.log(
-                "Ceiling and floor methods round to the nearest integer. Your option decimals has no effect."
-            )
-        }
-
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -560,21 +437,18 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
+        ;(options.debug || this.debug) && console.log("\nconvert()")
+
         const allTypes = await this.getTypes(table)
         const allColumns = Object.keys(allTypes)
-
-        const columns = Object.keys(types)
-        const columnsTypes = Object.values(types)
-
-        ;(options.debug || this.debug) && console.log("\nconvert()")
 
         return await queryDB(
             this.connection,
             this.runQuery,
             convertQuery(
                 table,
-                columns,
-                columnsTypes,
+                Object.keys(types),
+                Object.values(types),
                 allColumns,
                 allTypes,
                 options
@@ -591,15 +465,12 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\nremoveTables()")
 
-        let query = ""
-        for (const table of stringToArray(tables)) {
-            query += `DROP TABLE ${table};\n`
-        }
-
         return await queryDB(
             this.connection,
             this.runQuery,
-            query,
+            stringToArray(tables)
+                .map((d) => `DROP TABLE ${d};`)
+                .join("\n"),
             mergeOptions(this, { ...options, table: null })
         )
     }
@@ -615,14 +486,12 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\nremoveColumns()")
 
-        let query = ""
-        for (const column of stringToArray(columns)) {
-            query += `ALTER TABLE ${table} DROP "${column}";\n`
-        }
         return await queryDB(
             this.connection,
             this.runQuery,
-            query,
+            stringToArray(columns)
+                .map((d) => `ALTER TABLE ${table} DROP "${d}";`)
+                .join("\n"),
             mergeOptions(this, { ...options, table })
         )
     }
@@ -671,7 +540,6 @@ export default class SimpleDB {
         } = {}
     ) {
         ;(options.debug || this.debug) && console.log("\nsort")
-
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -740,40 +608,7 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\nsummarize()")
-
-        options.values = options.values ? stringToArray(options.values) : []
-        options.categories = options.categories
-            ? stringToArray(options.categories)
-            : []
-        if (options.summaries === undefined) {
-            options.summaries = []
-        } else if (typeof options.summaries === "string") {
-            options.summaries = [options.summaries]
-        }
-        options.decimals = options.decimals ?? 2
-
-        if (options.values.length === 0) {
-            const types = await this.getTypes(table)
-            options.values = keepNumericalColumns(types)
-        }
-        options.values = options.values.filter(
-            (d) => !options.categories?.includes(d)
-        )
-
-        return await queryDB(
-            this.connection,
-            this.runQuery,
-            summarizeQuery(
-                table,
-                outputTable,
-                options.values,
-                options.categories,
-                options.summaries,
-                options
-            ),
-            mergeOptions(this, { ...options, table: outputTable })
-        )
+        return await summarize(this, table, outputTable, options)
     }
 
     async correlations(
@@ -789,36 +624,7 @@ export default class SimpleDB {
             returnDataFrom?: "query" | "table" | "none"
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\ncorrelation()")
-
-        options.decimals = options.decimals ?? 2
-
-        let combinations: [string, string][] = []
-        if (!options.x && !options.y) {
-            const types = await this.getTypes(table)
-            const columns = keepNumericalColumns(types)
-            combinations = getCombinations(columns, 2)
-        } else if (options.x && !options.y) {
-            const types = await this.getTypes(table)
-            const columns = keepNumericalColumns(types)
-            combinations = []
-            for (const col of columns) {
-                if (col !== options.x) {
-                    combinations.push([options.x, col])
-                }
-            }
-        } else if (options.x && options.y) {
-            combinations = [[options.x, options.y]]
-        } else {
-            throw new Error("No combinations of x and y")
-        }
-
-        return await queryDB(
-            this.connection,
-            this.runQuery,
-            correlationsQuery(table, outputTable, combinations, options),
-            mergeOptions(this, { ...options, table: outputTable })
-        )
+        return await correlations(this, table, outputTable, options)
     }
 
     async linearRegressions(
@@ -833,39 +639,7 @@ export default class SimpleDB {
             returnDataFrom?: "query" | "table" | "none"
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\nlinearRegression()")
-
-        options.decimals = options.decimals ?? 2
-
-        const permutations: [string, string][] = []
-        if (!options.x && !options.y) {
-            const types = await this.getTypes(table)
-            const columns = keepNumericalColumns(types)
-            const combinations = getCombinations(columns, 2)
-            for (const c of combinations) {
-                permutations.push(c)
-                permutations.push([c[1], c[0]])
-            }
-        } else if (options.x && !options.y) {
-            const types = await this.getTypes(table)
-            const columns = keepNumericalColumns(types)
-            for (const col of columns) {
-                if (col !== options.x) {
-                    permutations.push([options.x, col])
-                }
-            }
-        } else if (options.x && options.y) {
-            permutations.push([options.x, options.y])
-        } else {
-            throw new Error("No combinations of x and y")
-        }
-
-        return await queryDB(
-            this.connection,
-            this.runQuery,
-            linearRegressionQuery(table, outputTable, permutations, options),
-            mergeOptions(this, { ...options, table: outputTable })
-        )
+        return await linearRegressions(this, table, outputTable, options)
     }
 
     async outliersIQR(
@@ -879,16 +653,16 @@ export default class SimpleDB {
         } = {}
     ) {
         ;(options.debug || this.debug) && console.log("\noutliersIQR()")
-
         options.newColumn = options.newColumn ?? "outliers"
-
-        const length = await this.getLength(table)
-        const parity = length % 2 === 0 ? "even" : "odd"
-
         return await queryDB(
             this.connection,
             this.runQuery,
-            outliersIQRQuery(table, column, parity, options),
+            outliersIQRQuery(
+                table,
+                column,
+                (await this.getLength(table)) % 2 === 0 ? "even" : "odd",
+                options
+            ),
             mergeOptions(this, { ...options, table })
         )
     }
@@ -905,10 +679,8 @@ export default class SimpleDB {
         } = {}
     ) {
         ;(options.debug || this.debug) && console.log("\nzScore()")
-
         options.newColumn = options.newColumn ?? "zScore"
         options.decimals = options.decimals ?? 2
-
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -934,7 +706,6 @@ export default class SimpleDB {
         } = {}
     ) {
         ;(options.debug || this.debug) && console.log("\ncustomQuery()")
-
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -959,7 +730,6 @@ export default class SimpleDB {
         } = {}
     ) {
         ;(options.debug || this.debug) && console.log("\nupdateWithJS()")
-
         const oldData = await this.getData(
             table,
             mergeOptions(this, { ...options, table })
@@ -1000,7 +770,6 @@ export default class SimpleDB {
         } = {}
     ) {
         ;(options.debug || this.debug) && console.log("\ncreateTable()")
-
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -1037,51 +806,12 @@ export default class SimpleDB {
             debug?: boolean
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\ngetDescription()")
-
-        const types = await this.getTypes(table)
-
-        const { query, extraData } = getDescription(table, types)
-
-        const queryResult = await queryDB(
-            this.connection,
-            this.runQuery,
-            query,
-            mergeOptions(this, {
-                ...options,
-                table,
-                nbRowsToLog: Infinity,
-                returnDataFrom: "query",
-            })
-        )
-
-        const description = [extraData].concat(
-            queryResult
-                ? queryResult.sort((a, b) => {
-                      if (
-                          typeof a["_"] === "string" &&
-                          typeof b["_"] === "string"
-                      ) {
-                          return a["_"].localeCompare(b["_"])
-                      } else {
-                          return 0
-                      }
-                  })
-                : []
-        )
-
-        ;(options.debug || this.debug) &&
-            console.log("\ndescription:", description)
-
-        return description
+        return await getDescription(this, table, options)
     }
 
     async hasTable(table: string, options: { debug?: boolean } = {}) {
         ;(options.debug || this.debug) && console.log("\nhasTable()")
-
-        const tables = await this.getTables(options)
-
-        return tables.includes(table)
+        return (await this.getTables(options)).includes(table)
     }
 
     async getTables(
@@ -1089,28 +819,7 @@ export default class SimpleDB {
             debug?: boolean
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\ngetTables()")
-
-        const queryResult = await queryDB(
-            this.connection,
-            this.runQuery,
-            `SHOW TABLES`,
-            mergeOptions(this, {
-                ...options,
-                returnDataFrom: "query",
-                table: null,
-            })
-        )
-
-        if (!queryResult) {
-            throw new Error("No result")
-        }
-
-        const tables = queryResult.map((d) => d.name) as string[]
-
-        ;(options.debug || this.debug) && console.log("\ntables:", tables)
-
-        return tables
+        return getTables(this, options)
     }
 
     async getColumns(
@@ -1119,29 +828,7 @@ export default class SimpleDB {
             debug?: boolean
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\ngetColumns()")
-
-        const queryResult = await queryDB(
-            this.connection,
-            this.runQuery,
-            `DESCRIBE ${table}`,
-            mergeOptions(this, {
-                ...options,
-                table,
-                returnDataFrom: "query",
-                returnedDataModifier: (rows) => rows,
-            })
-        )
-
-        if (!queryResult) {
-            throw new Error("No result")
-        }
-
-        const columns = queryResult.map((d) => d.column_name) as string[]
-
-        ;(options.debug || this.debug) && console.log("\ncolumns:", columns)
-
-        return columns
+        return await getColumns(this, table, options)
     }
 
     async getLength(
@@ -1150,23 +837,7 @@ export default class SimpleDB {
             debug?: boolean
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\ngetLength()")
-
-        const queryResult = await queryDB(
-            this.connection,
-            this.runQuery,
-            `SELECT COUNT(*) FROM ${table}`,
-            mergeOptions(this, { ...options, table, returnDataFrom: "query" })
-        )
-
-        if (!queryResult) {
-            throw new Error("No result")
-        }
-        const length = queryResult[0]["count_star()"] as number
-
-        ;(options.debug || this.debug) && console.log("\nlength:", length)
-
-        return length
+        return await getLength(this, table, options)
     }
 
     async getTypes(
@@ -1175,31 +846,7 @@ export default class SimpleDB {
             debug?: boolean
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\ngetTypes()")
-
-        const types = await queryDB(
-            this.connection,
-            this.runQuery,
-            `DESCRIBE ${table}`,
-            mergeOptions(this, {
-                ...options,
-                table,
-                returnDataFrom: "query",
-            })
-        )
-
-        const typesObj: { [key: string]: string } = {}
-        if (types) {
-            for (const t of types as { [key: string]: string }[]) {
-                if (t.column_name) {
-                    typesObj[t.column_name] = t.column_type
-                }
-            }
-        }
-
-        ;(options.debug || this.debug) && console.log("\ntypes:", typesObj)
-
-        return typesObj
+        return await getTypes(this, table, options)
     }
 
     async getValues(
@@ -1210,27 +857,7 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\ngetValues()")
-
-        const queryResult = await queryDB(
-            this.connection,
-            this.runQuery,
-            `SELECT ${column} FROM ${table}`,
-            mergeOptions(this, {
-                ...options,
-                table,
-                returnDataFrom: "query",
-            })
-        )
-        if (!queryResult) {
-            throw new Error("No result")
-        }
-
-        const values = queryResult.map((d) => d[column])
-
-        ;(options.debug || this.debug) && console.log("\nvalues:", values)
-
-        return values
+        return await getValues(this, table, column, options)
     }
 
     async getUniques(
@@ -1241,28 +868,7 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\ngetUniques()")
-
-        const queryResult = await queryDB(
-            this.connection,
-            this.runQuery,
-            `SELECT DISTINCT ${column} FROM ${table}`,
-            mergeOptions(this, {
-                ...options,
-                table,
-                returnDataFrom: "query",
-            })
-        )
-
-        if (!queryResult) {
-            throw new Error("No result.")
-        }
-
-        const uniques = queryResult.map((d) => d[column])
-
-        ;(options.debug || this.debug) && console.log("\nuniques:", uniques)
-
-        return uniques
+        return await getUniques(this, table, column, options)
     }
 
     async getData(
@@ -1273,7 +879,6 @@ export default class SimpleDB {
         } = {}
     ) {
         ;(options.debug || this.debug) && console.log("\ngetData()")
-
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -1290,10 +895,9 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
+        ;(options.debug || this.debug) && console.log("\nlogTable()")
         options.debug = options.debug ?? true
         options.nbRowsToLog = options.nbRowsToLog ?? this.nbRowsToLog
-        ;(options.debug || this.debug) && console.log("\nlogTable()")
-
         return await queryDB(
             this.connection,
             this.runQuery,

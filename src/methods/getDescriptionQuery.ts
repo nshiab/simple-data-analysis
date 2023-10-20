@@ -1,4 +1,4 @@
-export default function getDescription(
+export default function getDescriptionQuery(
     table: string,
     types: { [key: string]: string }
 ) {
