@@ -627,6 +627,39 @@ export default class SimpleDB {
         )
     }
 
+    async addColumn(
+        table: string,
+        column: string,
+        type:
+            | "integer"
+            | "float"
+            | "string"
+            | "date"
+            | "time"
+            | "datetime"
+            | "datetimeTz"
+            | "bigint"
+            | "double"
+            | "varchar"
+            | "timestamp"
+            | "timestamp with time zone",
+        definition: string,
+        options: {
+            returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\naddColumn")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            `ALTER TABLE ${table} ADD "${column}" ${parseType(type)};
+            UPDATE ${table} SET "${column}" = ${definition}`,
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
     async sort(
         table: string,
         order: { [key: string]: "asc" | "desc" },
