@@ -894,6 +894,25 @@ export default class SimpleDB {
         return await getUniques(this, table, column, options)
     }
 
+    async getFirstRow(
+        table: string,
+        options: {
+            condition?: string
+            debug?: boolean
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\ngetFirstRow()")
+        const queryResult = await queryDB(
+            this.connection,
+            this.runQuery,
+            `SELECT * FROM ${table}${
+                options.condition ? ` WHERE ${options.condition}` : ""
+            } LIMIT 1`,
+            mergeOptions(this, { ...options, table, returnDataFrom: "query" })
+        )
+        return Array.isArray(queryResult) ? queryResult[0] : queryResult
+    }
+
     async getData(
         table: string,
         options: {
