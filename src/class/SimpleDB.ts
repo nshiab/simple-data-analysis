@@ -660,7 +660,6 @@ export default class SimpleDB {
                       | "var"
                   )[]
             decimals?: number
-            lang?: string
             debug?: boolean
             returnDataFrom?: "query" | "table" | "none"
             nbRowsToLog?: number

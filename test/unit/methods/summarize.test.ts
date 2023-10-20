@@ -280,4 +280,23 @@ describe("summarize", () => {
             { value: "key2", key1: "Rubarbe", avg: 1.5, count: 2 },
         ])
     })
+    it("should summarize with multiple categories", async () => {
+        const data = await simpleNodeDB.summarize(
+            "dataSummarize",
+            "dataSummarizeMultipleCategories",
+            {
+                values: "key3",
+                categories: ["key1", "key2"],
+                summaries: ["avg", "count"],
+                returnDataFrom: "table",
+            }
+        )
+
+        assert.deepStrictEqual(data, [
+            { value: "key3", key1: "Fraise", key2: 11, avg: 2.35, count: 1 },
+            { value: "key3", key1: "Fraise", key2: 22, avg: 12.34, count: 1 },
+            { value: "key3", key1: "Rubarbe", key2: 1, avg: 10.5, count: 1 },
+            { value: "key3", key1: "Rubarbe", key2: 2, avg: 4.57, count: 1 },
+        ])
+    })
 })

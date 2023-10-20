@@ -14,7 +14,7 @@ export default function summarizeQuery(
         | "stdDev"
         | "var"
     )[],
-    options: { decimals?: number; lang?: string } = {}
+    options: { decimals?: number } = {}
 ) {
     const aggregates: { [key: string]: string } = {
         count: "COUNT",
@@ -53,7 +53,7 @@ export default function summarizeQuery(
         }
         query += `\nSELECT '${value}' AS 'value'${
             categories.length > 0
-                ? categories.map((d) => `,\n"${d}"`).join(", ")
+                ? `, ${categories.map((d) => `"${d}"`).join(", ")}`
                 : ""
         },${summaries.map(
             (d) =>
@@ -66,7 +66,9 @@ export default function summarizeQuery(
         }
     }
 
-    query += `\nORDER BY "value" ASC${categories.map((d) => `, "${d}" ASC`)}`
+    query += `\nORDER BY ${["value", ...categories]
+        .map((d) => `"${d}" ASC`)
+        .join(", ")}`
 
     return query
 }
