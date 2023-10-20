@@ -968,6 +968,14 @@ export default class SimpleDB {
         return description
     }
 
+    async hasTable(table: string, options: { debug?: boolean } = {}) {
+        ;(options.debug || this.debug) && console.log("\nhasTable()")
+
+        const tables = await this.getTables(options)
+
+        return tables.includes(table)
+    }
+
     async getTables(
         options: {
             debug?: boolean
