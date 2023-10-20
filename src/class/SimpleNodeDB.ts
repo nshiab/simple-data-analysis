@@ -45,7 +45,7 @@ export default class SimpleNodeDB extends SimpleDB {
                         if (err) {
                             throw err
                         }
-                        resolve([])
+                        resolve(null)
                     })
                 }
             })

@@ -8,7 +8,7 @@ export default async function queryDB(
         connection: AsyncDuckDBConnection | Connection,
         returnDataFromQuery: boolean
     ) => Promise<
-        { [key: string]: number | string | Date | boolean | null }[] | undefined
+        { [key: string]: number | string | Date | boolean | null }[] | null
     >,
     query: string,
     options: {
@@ -29,7 +29,6 @@ export default async function queryDB(
           [key: string]: string | number | boolean | Date | null
       }[]
     | null
-    | undefined
 > {
     let start
     if (options.debug) {
@@ -106,8 +105,8 @@ export default async function queryDB(
                     connection,
                     true
                 )
-                if (nbRows === undefined) {
-                    throw new Error("nbRows is undefined")
+                if (nbRows === null) {
+                    throw new Error("nbRows is null")
                 }
                 console.log(
                     `${nbRows[0]["count_star()"]} rows in total ${
@@ -131,6 +130,9 @@ export default async function queryDB(
         options.returnDataFrom === "table" ||
         options.returnDataFrom === "query"
     ) {
+        if (data === null) {
+            throw new Error("data is null")
+        }
         return data
     } else {
         return null

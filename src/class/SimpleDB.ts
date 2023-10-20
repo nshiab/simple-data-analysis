@@ -58,7 +58,7 @@ export default class SimpleDB {
         | {
               [key: string]: number | string | Date | boolean | null
           }[]
-        | undefined
+        | null
     >
 
     constructor(
@@ -82,6 +82,7 @@ export default class SimpleDB {
                 return tableToArrayOfObjects(data)
             } else {
                 await (connection as AsyncDuckDBConnection).query(query)
+                return null
             }
         }
     }
