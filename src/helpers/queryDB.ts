@@ -133,6 +133,6 @@ export default async function queryDB(
     ) {
         return data
     } else {
-        return undefined
+        return null
     }
 }
