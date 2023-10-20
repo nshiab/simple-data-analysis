@@ -919,6 +919,7 @@ export default class SimpleDB {
     async getData(
         table: string,
         options: {
+            condition?: string
             debug?: boolean
             nbRowsToLog?: number
         } = {}
@@ -927,7 +928,9 @@ export default class SimpleDB {
         return await queryDB(
             this.connection,
             this.runQuery,
-            `SELECT * from ${table}`,
+            `SELECT * from ${table}${
+                options.condition ? ` WHERE ${options.condition}` : ""
+            }`,
             mergeOptions(this, { ...options, returnDataFrom: "query", table })
         )
     }
