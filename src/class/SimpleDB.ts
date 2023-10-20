@@ -218,7 +218,7 @@ export default class SimpleDB {
 
     async sample(
         table: string,
-        numberRows: number,
+        quantity: number | string,
         options: {
             seed?: number
             returnDataFrom?: "query" | "table" | "none"
@@ -231,7 +231,9 @@ export default class SimpleDB {
         return await queryDB(
             this.connection,
             this.runQuery,
-            `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ${table} USING SAMPLE reservoir(${numberRows} ROWS)${
+            `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ${table} USING SAMPLE RESERVOIR(${
+                typeof quantity === "number" ? `${quantity} ROWS` : quantity
+            })${
                 typeof options.seed === "number"
                     ? ` REPEATABLE(${options.seed})`
                     : ""
