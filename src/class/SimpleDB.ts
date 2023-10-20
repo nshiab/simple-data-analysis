@@ -32,6 +32,8 @@ import getValues from "../methods/getValues.js"
 import getUniques from "../methods/getUniques.js"
 import getFirstRow from "../methods/getFirstRow.js"
 import getLastRow from "../methods/getLastRow.js"
+import getTop from "../methods/getTop.js"
+import getBottom from "../methods/getBottom.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -914,6 +916,27 @@ export default class SimpleDB {
         } = {}
     ) {
         return getLastRow(this, table, options)
+    }
+
+    async getTop(
+        table: string,
+        count: number,
+        options: {
+            debug?: boolean
+        } = {}
+    ) {
+        return await getTop(this, table, count, options)
+    }
+
+    async getBottom(
+        table: string,
+        count: number,
+        options: {
+            originalOrder?: boolean
+            debug?: boolean
+        } = {}
+    ) {
+        return await getBottom(this, table, count, options)
     }
 
     async getData(

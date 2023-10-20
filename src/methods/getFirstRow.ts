@@ -19,5 +19,9 @@ export default async function getFirstRow(
         } LIMIT 1`,
         mergeOptions(simpleDB, { ...options, table, returnDataFrom: "query" })
     )
-    return Array.isArray(queryResult) ? queryResult[0] : queryResult
+    if (!queryResult) {
+        throw new Error("No queryResult")
+    }
+
+    return queryResult[0]
 }
