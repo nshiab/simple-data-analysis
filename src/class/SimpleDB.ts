@@ -30,6 +30,8 @@ import getLength from "../methods/getLength.js"
 import getTypes from "../methods/getTypes.js"
 import getValues from "../methods/getValues.js"
 import getUniques from "../methods/getUniques.js"
+import getFirstRow from "../methods/getFirstRow.js"
+import getLastRow from "../methods/getLastRow.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -901,16 +903,7 @@ export default class SimpleDB {
             debug?: boolean
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\ngetFirstRow()")
-        const queryResult = await queryDB(
-            this.connection,
-            this.runQuery,
-            `SELECT * FROM ${table}${
-                options.condition ? ` WHERE ${options.condition}` : ""
-            } LIMIT 1`,
-            mergeOptions(this, { ...options, table, returnDataFrom: "query" })
-        )
-        return Array.isArray(queryResult) ? queryResult[0] : queryResult
+        return getFirstRow(this, table, options)
     }
 
     async getLastRow(
@@ -920,23 +913,7 @@ export default class SimpleDB {
             debug?: boolean
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\ngetLastRow()")
-        const queryResult = await queryDB(
-            this.connection,
-            this.runQuery,
-            `WITH numberedRowsForGetLastRow AS (
-                SELECT *, row_number() OVER () as rowNumberForGetLastRow FROM ${table}${
-                    options.condition ? ` WHERE ${options.condition}` : ""
-                }
-            )
-            SELECT * FROM numberedRowsForGetLastRow ORDER BY rowNumberForGetLastRow DESC LIMIT 1;`,
-            mergeOptions(this, { ...options, table, returnDataFrom: "query" })
-        )
-        if (!queryResult) {
-            throw new Error("No queryResult")
-        }
-        delete queryResult[0].rowNumberForGetLastRow
-        return queryResult[0]
+        return getLastRow(this, table, options)
     }
 
     async getData(
