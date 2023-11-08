@@ -44,6 +44,7 @@ import getStdDev from "../methods/getStdDev.js"
 import getVar from "../methods/getVar.js"
 import getQuantile from "../methods/getQuantile.js"
 import rankQuery from "../methods/rankQuery.js"
+import quantilesQuery from "../methods/quantilesQuery.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -581,6 +582,27 @@ export default class SimpleDB {
             this.connection,
             this.runQuery,
             rankQuery(table, values, newColumn, options),
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
+    async quantiles(
+        table: string,
+        values: string,
+        nbQuantiles: number,
+        newColumn: string,
+        options: {
+            categories?: string | string[]
+            returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\nquantiles()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            quantilesQuery(table, values, nbQuantiles, newColumn, options),
             mergeOptions(this, { ...options, table })
         )
     }
