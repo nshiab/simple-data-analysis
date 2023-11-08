@@ -43,6 +43,7 @@ import getSkew from "../methods/getSkew.js"
 import getStdDev from "../methods/getStdDev.js"
 import getVar from "../methods/getVar.js"
 import getQuantile from "../methods/getQuantile.js"
+import rankQuery from "../methods/rankQuery.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -534,7 +535,7 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\naddColumn")
+        ;(options.debug || this.debug) && console.log("\naddColumn()")
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -554,11 +555,32 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\nsort")
+        ;(options.debug || this.debug) && console.log("\nsort()")
         return await queryDB(
             this.connection,
             this.runQuery,
             sortQuery(table, order, options),
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
+    async rank(
+        table: string,
+        values: string,
+        newColumn: string,
+        options: {
+            categories?: string | string[]
+            noGaps?: boolean
+            returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\nrank()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            rankQuery(table, values, newColumn, options),
             mergeOptions(this, { ...options, table })
         )
     }
