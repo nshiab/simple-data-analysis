@@ -7,9 +7,6 @@ export default function quantilesQuery(
     newColumn: string,
     options: {
         categories?: string | string[]
-        returnDataFrom?: "query" | "table" | "none"
-        debug?: boolean
-        nbRowsToLog?: number
     } = {}
 ) {
     const categories = options.categories

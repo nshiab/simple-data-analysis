@@ -43,8 +43,9 @@ import getSkew from "../methods/getSkew.js"
 import getStdDev from "../methods/getStdDev.js"
 import getVar from "../methods/getVar.js"
 import getQuantile from "../methods/getQuantile.js"
-import rankQuery from "../methods/rankQuery.js"
+import ranksQuery from "../methods/ranksQuery.js"
 import quantilesQuery from "../methods/quantilesQuery.js"
+import binsQuery from "../methods/binsQuery.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -565,7 +566,7 @@ export default class SimpleDB {
         )
     }
 
-    async rank(
+    async ranks(
         table: string,
         values: string,
         newColumn: string,
@@ -577,11 +578,11 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\nrank()")
+        ;(options.debug || this.debug) && console.log("\nranks()")
         return await queryDB(
             this.connection,
             this.runQuery,
-            rankQuery(table, values, newColumn, options),
+            ranksQuery(table, values, newColumn, options),
             mergeOptions(this, { ...options, table })
         )
     }
@@ -603,6 +604,27 @@ export default class SimpleDB {
             this.connection,
             this.runQuery,
             quantilesQuery(table, values, nbQuantiles, newColumn, options),
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
+    async bins(
+        table: string,
+        values: string,
+        interval: number,
+        newColumn: string,
+        options: {
+            startValue?: number
+            returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\nbins()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            await binsQuery(this, table, values, interval, newColumn, options),
             mergeOptions(this, { ...options, table })
         )
     }

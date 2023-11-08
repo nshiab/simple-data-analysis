@@ -3,7 +3,7 @@ import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
 
 // Based on https://www.sqlshack.com/overview-of-sql-rank-functions/
 
-describe("rank", () => {
+describe("ranks", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
         simpleNodeDB = await new SimpleNodeDB().start()
@@ -17,7 +17,7 @@ describe("rank", () => {
             "normalRank",
             "test/data/files/dataRank.csv"
         )
-        const data = await simpleNodeDB.rank("normalRank", "Mark", "rank", {
+        const data = await simpleNodeDB.ranks("normalRank", "Mark", "rank", {
             returnDataFrom: "table",
         })
         assert.deepStrictEqual(data, [
@@ -34,7 +34,7 @@ describe("rank", () => {
     })
     it("should add a column with the rank and no gaps", async () => {
         await simpleNodeDB.loadData("denseRank", "test/data/files/dataRank.csv")
-        const data = await simpleNodeDB.rank("denseRank", "Mark", "rank", {
+        const data = await simpleNodeDB.ranks("denseRank", "Mark", "rank", {
             noGaps: true,
             returnDataFrom: "table",
         })
@@ -56,7 +56,7 @@ describe("rank", () => {
             "groupedRegularRank",
             "test/data/files/dataRank.csv"
         )
-        const data = await simpleNodeDB.rank(
+        const data = await simpleNodeDB.ranks(
             "groupedRegularRank",
             "Mark",
             "rank",
@@ -83,7 +83,7 @@ describe("rank", () => {
             "multipleGroupedRegularRank",
             "test/data/files/dataRank.csv"
         )
-        const data = await simpleNodeDB.rank(
+        const data = await simpleNodeDB.ranks(
             "multipleGroupedRegularRank",
             "Mark",
             "rank",
