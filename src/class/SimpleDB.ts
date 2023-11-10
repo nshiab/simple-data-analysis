@@ -477,6 +477,19 @@ export default class SimpleDB {
         )
     }
 
+    async removeRows(
+        table: string,
+        conditions: string,
+        options: {
+            returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\nremoveRows()")
+        return await this.filter(table, conditions, options)
+    }
+
     async removeTables(
         tables: string | string[],
         options: {
