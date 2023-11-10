@@ -47,6 +47,7 @@ import ranksQuery from "../methods/ranksQuery.js"
 import quantilesQuery from "../methods/quantilesQuery.js"
 import binsQuery from "../methods/binsQuery.js"
 import proportionsHorizontalQuery from "../methods/proportionsHorizontalQuery.js"
+import proportionsVerticalQuery from "../methods/proportionsVerticalQuery.js"
 
 export default class SimpleDB {
     debug: boolean
@@ -647,6 +648,27 @@ export default class SimpleDB {
             this.connection,
             this.runQuery,
             proportionsHorizontalQuery(table, columns, options),
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
+    async proportionsVertical(
+        table: string,
+        column: string,
+        options: {
+            categories?: string | string[]
+            suffix?: string
+            decimals?: number
+            returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\nproportionsVertical()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            proportionsVerticalQuery(table, column, options),
             mergeOptions(this, { ...options, table })
         )
     }
