@@ -61,6 +61,7 @@
         "@rollup/plugin-node-resolve": "^15.0.2",
         "@rollup/plugin-terser": "^0.4.1",
         "@rollup/plugin-typescript": "^11.1.0",
+        "@types/jsdom": "^21.1.5",
         "@types/mocha": "^10.0.0",
         "@typescript-eslint/eslint-plugin": "^6.0.0",
         "@typescript-eslint/parser": "^6.0.0",
@@ -77,8 +78,10 @@
     },
     "dependencies": {
         "@duckdb/duckdb-wasm": "^1.27.1-dev120.0",
+        "@observablehq/plot": "^0.6.11",
         "apache-arrow": "^13.0.0",
         "duckdb": "^0.8.1",
+        "jsdom": "^22.1.0",
         "web-worker": "^1.2.0"
     }
 }
