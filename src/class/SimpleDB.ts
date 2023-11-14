@@ -191,7 +191,7 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\ncloneTable")
+        ;(options.debug || this.debug) && console.log("\ncloneTable()")
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -209,7 +209,7 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\nselectColumns")
+        ;(options.debug || this.debug) && console.log("\nselectColumns()")
 
         return await queryDB(
             this.connection,
@@ -231,7 +231,7 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\nsample")
+        ;(options.debug || this.debug) && console.log("\nsample()")
 
         return await queryDB(
             this.connection,
@@ -266,7 +266,7 @@ export default class SimpleDB {
         )
     }
 
-    async stack(
+    async longer(
         table: string,
         columns: string[],
         columnsTo: string,
@@ -277,7 +277,7 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\nstack()")
+        ;(options.debug || this.debug) && console.log("\nlonger()")
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -290,7 +290,7 @@ export default class SimpleDB {
         )
     }
 
-    async expand(
+    async wider(
         table: string,
         columnsFrom: string,
         valuesFrom: string,
@@ -300,7 +300,7 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\nexpand()")
+        ;(options.debug || this.debug) && console.log("\nwider()")
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -353,7 +353,7 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\nreplaceStrings")
+        ;(options.debug || this.debug) && console.log("\nreplaceStrings()")
         options.entireString = options.entireString ?? false
         return await queryDB(
             this.connection,
@@ -383,7 +383,7 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\nfilter()")
+        ;(options.debug || this.debug) && console.log("\nconcatenate()")
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -1205,7 +1205,12 @@ export default class SimpleDB {
         )
     }
 
-    async done() {
+    async done(
+        options: {
+            debug?: boolean
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\ndone()")
         await (this.connection as AsyncDuckDBConnection)?.close()
         await (this.db as AsyncDuckDB)?.terminate()
         this.worker?.terminate()

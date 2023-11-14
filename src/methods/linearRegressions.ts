@@ -18,7 +18,7 @@ export default async function linearRegressions(
         returnDataFrom?: "query" | "table" | "none"
     } = {}
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\nlinearRegression()")
+    ;(options.debug || simpleDB.debug) && console.log("\nlinearRegressions()")
 
     options.decimals = options.decimals ?? 2
 

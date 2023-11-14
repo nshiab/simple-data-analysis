@@ -15,7 +15,7 @@ describe("stack", () => {
     })
 
     it("should tidy data by stacking mutiple columns", async () => {
-        const data = await simpleNodeDB.stack(
+        const data = await simpleNodeDB.longer(
             "dataUntidy",
             ["2015", "2016", "2017", "2018", "2019", "2020"],
             "year",

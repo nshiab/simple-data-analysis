@@ -12,12 +12,9 @@ describe("expand", () => {
     })
 
     it("should untidy data by expanding mutiple columns", async () => {
-        const data = await simpleNodeDB.expand(
-            "dataTidy",
-            "year",
-            "employees",
-            { returnDataFrom: "table" }
-        )
+        const data = await simpleNodeDB.wider("dataTidy", "year", "employees", {
+            returnDataFrom: "table",
+        })
 
         assert.deepStrictEqual(data, [
             {

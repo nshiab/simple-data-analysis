@@ -11,7 +11,7 @@ export default async function getStdDev(
         debug?: boolean
     } = {}
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\ngetSum()")
+    ;(options.debug || simpleDB.debug) && console.log("\ngetStdDev()")
 
     const queryResult = await queryDB(
         simpleDB.connection,

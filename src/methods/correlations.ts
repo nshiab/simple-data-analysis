@@ -19,7 +19,7 @@ export default async function correlations(
         returnDataFrom?: "query" | "table" | "none"
     } = {}
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\ncorrelation()")
+    ;(options.debug || simpleDB.debug) && console.log("\ncorrelations()")
 
     options.decimals = options.decimals ?? 2
 
