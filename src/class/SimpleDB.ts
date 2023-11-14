@@ -125,7 +125,7 @@ export default class SimpleDB {
     }
 
     /**
-     * This method creates a table and populates it with data structured as an array of objects.
+     * This method creates a table and populates it from data structured as an array of objects.
      *
      * Here's an example.
      *
@@ -135,6 +135,7 @@ export default class SimpleDB {
      * ```
      *
      * The last parameter is for options:
+     * - *replace*: Pass it as true if you want to replace an existing table. Default is false.
      * - *returnDataFrom*: pass "table" to retrieve the data in the table after the SQL query ran or "query" to retrieve values returned by the query. Default is "none".
      *
      * Here's an example with options.
@@ -149,6 +150,7 @@ export default class SimpleDB {
         table: string,
         arrayOfObjects: { [key: string]: unknown }[],
         options: {
+            replace?: boolean
             returnDataFrom?: "query" | "table" | "none"
             nbRowsToLog?: number
             debug?: boolean
@@ -159,7 +161,7 @@ export default class SimpleDB {
         return await queryDB(
             this.connection,
             this.runQuery,
-            loadArrayQuery(table, arrayOfObjects),
+            loadArrayQuery(table, arrayOfObjects, options),
             mergeOptions(this, { ...options, table })
         )
     }
@@ -170,7 +172,7 @@ export default class SimpleDB {
      * Here's an example.
      *
      * ```ts
-     * await simpleDB.loadArray("tableName", "https://some-website.com/some-data.csv")
+     * await simpleDB.loadData("tableName", "https://some-website.com/some-data.csv")
      * ```
      *
      * The last parameter is for options:
@@ -947,7 +949,7 @@ export default class SimpleDB {
         const updatedData = await queryDB(
             this.connection,
             this.runQuery,
-            loadArrayQuery(table, newData),
+            loadArrayQuery(table, newData, { replace: true }),
             mergeOptions(this, { ...options, table })
         )
 
