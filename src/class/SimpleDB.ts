@@ -49,6 +49,25 @@ import binsQuery from "../methods/binsQuery.js"
 import proportionsHorizontalQuery from "../methods/proportionsHorizontalQuery.js"
 import proportionsVerticalQuery from "../methods/proportionsVerticalQuery.js"
 
+/**
+ * This class is meant to be used in a web browser. Here's how to instantiate and start an instance of it.
+ *
+ * ```ts
+ * const sdb = await new SimpleDB().start()
+ * ```
+ *
+ * You can pass two options:
+ * - debug: when true, some information is logged, like the SQL queries. Default is false.
+ * - nbRowsToLog: the number of rows in the logged tables. Default is 10.
+ *
+ * Here's how to use the options.
+ *
+ * ```ts
+ * const simpleDB = await new SimpleDB({debug: true, nbRowsToLog: 5}).start()
+ * ```
+ *
+ */
+
 export default class SimpleDB {
     debug: boolean
     nbRowsToLog: number
@@ -68,8 +87,8 @@ export default class SimpleDB {
 
     constructor(
         options: {
-            nbRowsToLog?: number
             debug?: boolean
+            nbRowsToLog?: number
         } = {}
     ) {
         this.nbRowsToLog = options.nbRowsToLog ?? 10
@@ -92,6 +111,9 @@ export default class SimpleDB {
         }
     }
 
+    /**
+     * This method sets up DuckDB.
+     */
     async start() {
         this.debug && console.log("\nstart()")
         const duckDB = await getDuckDB()
@@ -102,6 +124,27 @@ export default class SimpleDB {
         return this
     }
 
+    /**
+     * This method creates a table and populates it with data structured as an array of objects.
+     *
+     * Here's an example.
+     *
+     * ```ts
+     * const data = [{key1: "a", key2: 1}, {key1: "b", key2: 2}]
+     * await simpleDB.loadArray("tableName", data)
+     * ```
+     *
+     * The last parameter is for options:
+     * - *returnDataFrom*: pass "table" to retrieve the data in the table after the SQL query ran or "query" to retrieve values returned by the query. Default is "none".
+     *
+     * Here's an example with options.
+     *
+     * ```ts
+     * const dataInTable = await simpleDB.loadArray("tableName", data, {returnDataFrom: "table"})
+     * console.log(dataInTable)
+     * // Logging => [{key1: "a", key2: 1}, {key1: "b", key2: 2}]
+     * ```
+     */
     async loadArray(
         table: string,
         arrayOfObjects: { [key: string]: unknown }[],
@@ -121,6 +164,31 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * This method creates a table and populates it with data from a CSV, JSON, or Parquet file referenced by a URL.
+     *
+     * Here's an example.
+     *
+     * ```ts
+     * await simpleDB.loadArray("tableName", "https://some-website.com/some-data.csv")
+     * ```
+     *
+     * The last parameter is for options:
+     * - *fileType*: the method looks at the file extension to decide how to load the data. But if needed, you can help it by specifying the file type. The choices are "csv", "dsv", "json", and "parquet".
+     * - *autoDetect*: the method tries to find the best way to load the data (what's the delimiter and data types for CSV/DSV files, for example). Default is true.
+     * - *header*: the method tries to find a header row. Default is true. This applies only to CSV files.
+     * - *delim*: the method tries to find the delimiter in CSV/DSV files, but you can help it by specifying the string. Default is ",".
+     * - *skip*: the number of lines to skip at the beginning of CSV/DSV files.
+     * - *returnDataFrom*: pass "table" to retrieve the data in the table after the SQL query ran or "query" to retrieve values returned by the query. Default is "none".
+     *
+     * Here's an example with options to load data from a text file.
+     *
+     * ```ts
+     * const data = await simpleDB.loadData("tableName", "https://some-website.com/some-data.txt", {fileType: "dsv", returnDataFrom: "table"})
+     * console.log(data)
+     * // The data would be logged as an array of objects
+     * ```
+     */
     async loadData(
         table: string,
         url: string,
