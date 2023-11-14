@@ -50,7 +50,7 @@ import proportionsHorizontalQuery from "../methods/proportionsHorizontalQuery.js
 import proportionsVerticalQuery from "../methods/proportionsVerticalQuery.js"
 
 /**
- * This class is meant to be used in a web browser. Here's how to instantiate and start an instance of it.
+ * Here's how to instantiate and start a SimpleDB instance.
  *
  * ```ts
  * const sdb = await new SimpleDB().start()
