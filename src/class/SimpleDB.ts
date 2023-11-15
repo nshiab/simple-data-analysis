@@ -694,11 +694,16 @@ export default class SimpleDB {
     }
 
     /**
-     * Filters rows from a table based on SQL conditions. Usually, we use double quotes (") for columns and simple quotes (') for strings. Numbers don't need to be wrapped. Using backticks (`) allows you to create a string with both " and ' in it.
+     * Filters rows from a table based on SQL conditions.
      *
      * ```ts
-     * // In table store, keep only rows with apple in the column fruit.
-     * await sdb.filter("store", `"fruit" = 'apple'`)
+     * // In table store, keep only rows where the fruit is not an apple.
+     * await sdb.filter("store", `"fruit" != 'apple'`)
+     *
+     * // More examples:
+     * await sdb.filter("store", `"price" > 100 AND "quantity" > 0`)
+     * await sdb.filter("inventory", `"category" = 'Electronics' OR "category" = 'Appliances'`)
+     * await sdb.filter("customers", `"lastPurchaseDate" >= '2023-01-01'`)
      * ```
      *
      * @param table - The name of the table from which rows will be filtered.
@@ -729,6 +734,31 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Rounds numeric values in specified columns of a table.
+     *
+     * ```ts
+     * // Round to the nearest integer.
+     * await sdb.round("tableA", "column1")
+     *
+     * // Round with a specific number of decimals.
+     * await sdb.round("tableA", "column1", {decimals: 2})
+     *
+     * // Round with a specific method. Other methods are "round" and "ceiling".
+     * await sdb.round("tableA", "column1", {method: "floor"})
+     *
+     * ```
+     *
+     * @param table - The name of the table where numeric values will be rounded.
+     * @param columns - Either a string or an array of strings specifying the columns containing numeric values to be rounded.
+     * @param options - An optional object with configuration options:
+     *   - decimals: The number of decimal places to round to. Defaults to 0.
+     *   - method: The rounding method to use ("round", "ceiling", or "floor"). Defaults to "round".
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
+
     async round(
         table: string,
         columns: string | string[],
@@ -749,6 +779,27 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Converts data types (JavaScript or SQL types) of specified columns in a table.
+     *
+     * ```ts
+     * // Convert columns to string and number
+     * await sdb.convert("tableA", {column1: "string", column2: "integer"})
+     * // Same thing
+     * await sdb.convert("tableA", {column1: "varchar", column2: "bigint"})
+     * // Convert a string to a date
+     * await sdb.convert("tableA", {column3: "datetime"}, {datetimeFormat: "%Y-%m-%d" })
+     * ```
+     *
+     * @param table - The name of the table where data types will be converted.
+     * @param types - An object mapping column names to the target data types for conversion.
+     * @param options - An optional object with configuration options:
+     *   - try: When true, the values that can't be converted will be replaced by NULL instead of throwing an error. Defaults to false.
+     *   - datetimeFormat: A string specifying the format for date and time conversions. The method uses strftime and strptime functions from DuckDB. For the format specifiers, see https://duckdb.org/docs/sql/functions/dateformat.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async convert(
         table: string,
         types: {
@@ -794,19 +845,17 @@ export default class SimpleDB {
         )
     }
 
-    async removeRows(
-        table: string,
-        conditions: string,
-        options: {
-            returnDataFrom?: "query" | "table" | "none"
-            debug?: boolean
-            nbRowsToLog?: number
-        } = {}
-    ) {
-        ;(options.debug || this.debug) && console.log("\nremoveRows()")
-        return await this.filter(table, conditions, options)
-    }
-
+    /**
+     * Removes one or more tables from the database.
+     *
+     * ```ts
+     * await sdb.removeTables(["table1", "table2"])
+     * ```
+     *
+     * @param tables - The name or an array of names of the tables to be removed.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
     async removeTables(
         tables: string | string[],
         options: {
@@ -825,6 +874,20 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Removes one or more columns from a table.
+     *
+     * ```ts
+     * await sdb.removeColumns("tableA", ["column1", "column2"])
+     * ```
+     *
+     * @param table - The name of the table from which columns will be removed.
+     * @param columns - The name or an array of names of the columns to be removed.
+     * @param options - An optional object with configuration options:
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async removeColumns(
         table: string,
         columns: string | string[],
@@ -846,6 +909,22 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Adds a new column to a table based on a type (JavaScript or SQL types) and a SQL definition.
+     *
+     * ```ts
+     * await sdb.addColumn("tableA", "column3", "float", `"column1" + "column2"`)
+     * ```
+     *
+     * @param table - The name of the table to which the new column will be added.
+     * @param column - The name of the new column to be added.
+     * @param type - The data type for the new column. JavaScript or SQL types.
+     * @param definition - SQL expression defining how the values should be computed for the new column.
+     * @param options - An optional object with configuration options:
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async addColumn(
         table: string,
         column: string,
@@ -879,6 +958,22 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Sorts the rows of a table based on specified column(s) and order(s).
+     * ```ts
+     * // Sort column1 ascendingly then column2 descendingly.
+     * await sdb.sort("tableA", {column1: "asc", column2: "desc"})
+     * // Same thing but taking French accent into account.
+     * await sdb.sort("tableA", {column1: "asc", column2: "desc"}, {lang: {column1: "fr"}})
+     * ```
+     * @param table - The name of the table to sort.
+     * @param order - An object mapping column names to the sorting order: "asc" for ascending or "desc" for descending.
+     * @param options - An optional object with configuration options:
+     *   - lang: An object mapping column names to language codes. See DuckDB Collations documentation for more: https://duckdb.org/docs/sql/expressions/collations.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async sort(
         table: string,
         order: { [key: string]: "asc" | "desc" },
@@ -898,6 +993,27 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Assigns ranks in a new column based on specified column values within a table.
+     *
+     * ```ts
+     * // Computing ranks in the new column rank from the column1 values.
+     * await sdb.ranks("tableA", "column1", "rank")
+     *
+     * * // Computing ranks in the new column rank from the column1 values. Using the values from column2 as categories.
+     * await sdb.ranks("tableA", "column1", "rank", {categories: "column2"})
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param values - The column containing values to be used for ranking.
+     * @param newColumn - The name of the new column where the ranks will be stored.
+     * @param options - An optional object with configuration options:
+     *   - categories: The column or columns that define categories for ranking.
+     *   - noGaps: A boolean indicating whether to assign ranks without gaps. Defaults to false.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async ranks(
         table: string,
         values: string,
@@ -919,6 +1035,26 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Assigns quantiles for specified column values within a table.
+     *
+     * ```ts
+     * // Assigning a quantile from 1 to 10 for each row in new column quantiles, based on values from column1.
+     * await sdb.quantiles("tableA", "column1", 10, "quantiles")
+     * // Same thing, except the values in column2 are used as categories.
+     * await sdb.quantiles("tableA", "column1", 10, "quantiles", {categories: "column2"})
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param values - The column containing values from which quantiles will be assigned.
+     * @param nbQuantiles - The number of quantiles.
+     * @param newColumn - The name of the new column where the assigned quantiles will be stored.
+     * @param options - An optional object with configuration options:
+     *   - categories: The column or columns that define categories for computing quantiles. This can be a single column name or an array of column names.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async quantiles(
         table: string,
         values: string,
@@ -940,6 +1076,29 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Assigns bins for specified column values within a table, based on a interval size.
+     *
+     * ```ts
+     * // Assigning a bin for each row in new column bins based on column1 values, with an interval of 10.
+     * await sdb.bins("tableA", "column1", 10, "bins")
+     * // If the minimum value in column1 is 5, the bins will follow this pattern: "[5-14]", "[15-24]", "[25-34]", etc.
+     *
+     * // Same thing, but with the bins starting at a specific value.
+     * await sdb.bins("tableA", "column1", 10, "bins", {startValue: 0})
+     * // The bins will follow this pattern: "[0-9]", "[10-19]", "[20-29]", etc.
+     * ```
+     *
+     * @param table - The name of the table for which bins will be computed.
+     * @param values - The column containing values from which bins will be computed.
+     * @param interval - The interval size for binning the values.
+     * @param newColumn - The name of the new column where the bins will be stored.
+     * @param options - An optional object with configuration options:
+     *   - startValue: The starting value for binning. Defaults to the minimum value in the specified column.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async bins(
         table: string,
         values: string,
@@ -961,6 +1120,52 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Computes proportions within a row for specified columns in a given table.
+     *
+     * For example, let's say this is tableA.
+     *
+     * | Year | Men | Women | NonBinary |
+     * | ---- | --- | ----- | ----------|
+     * |2021  | 564 | 685   | 145       |
+     * |2022  | 354 | 278   | 56        |
+     * |2023  | 856 | 321   | 221       |
+     *
+     * We compute the proportions of men, women, and non-binary on each row.
+     * ```ts
+     * await sdb.proportionsHorizontal("tableA", ["Men", "Women", "NonBinary"])
+     * ```
+     *
+     * The table now looks like this.
+     *
+     * | Year | Men | Women | NonBinary | MenPerc | WomenPerc | NonBinaryPerc |
+     * | ---- | --- | ----- | --------- | ------- | --------- | ------------- |
+     * |2021  | 564 | 685   | 145       | 0.4     | 0.49      | 0.10          |
+     * |2022  | 354 | 278   | 56        | 0.51    | 0.4       | 0.08          |
+     * |2023  | 856 | 321   | 221       | 0.61    | 0.23      | 0.16          |
+     *
+     * By default, the new columns have the suffix "Perc", but you use something else if you want.
+     * ```ts
+     * await sdb.proportionsHorizontal("tableA", ["Men", "Women", "NonBinary"], {suffix: "Prop"})
+     * ```
+     *
+     * Here's the result with a different suffix.
+     *
+     * | Year | Men | Women | NonBinary | MenProp | WomenProp | NonBinaryProp |
+     * | ---- | --- | ----- | --------- | ------- | --------- | ------------- |
+     * |2021  | 564 | 685   | 145       | 0.4     | 0.49      | 0.10          |
+     * |2022  | 354 | 278   | 56        | 0.51    | 0.4       | 0.08          |
+     * |2023  | 856 | 321   | 221       | 0.61    | 0.23      | 0.16          |
+     *
+     * @param table - The name of the table.
+     * @param columns - The columns for which proportions will be computed on each row.
+     * @param options - An optional object with configuration options:
+     *   - suffix: A string suffix to append to the names of the new columns storing the computed proportions. Defaults to "Perc".
+     *   - decimals: The number of decimal places to round the computed proportions. Defaults to 2.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async proportionsHorizontal(
         table: string,
         columns: string[],
@@ -982,6 +1187,27 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Computes proportions over a column values within a table.
+     *
+     * ```ts
+     * // This will add a column column1Perc with the result of each column1 value divided by the sum of all column1 values.
+     * await sdb.proportionsVertical("tableA", "column1")
+     *
+     * // Same thing, but with the suffix Prop instead of Perc. The new column with the proportions will be column1Prop. Also, the proportions will have 4 decimals instead of 2 (default).
+     * await sdb.proportionsVertical("tableA", "column1", {suffix: "Prop", decimals: 4})
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param column - The column containing values for which proportions will be computed. The proportions are calculated based on the sum of values in the specified column.
+     * @param options - An optional object with configuration options:
+     *   - categories: The column or columns that define categories for computing proportions. This can be a single column name or an array of column names.
+     *   - suffix: A string suffix to append to the names of the new columns storing the computed proportions. Defaults to "Perc".
+     *   - decimals: The number of decimal places to round the computed proportions. Defaults to 2.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async proportionsVertical(
         table: string,
         column: string,
