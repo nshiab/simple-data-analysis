@@ -582,10 +582,9 @@ export default class SimpleDB {
      *   - columns: Either a string or an array of strings specifying the columns to consider for missing values. By default, all columns are considered.
      *   - missingValues: An array of values to be treated as missing values. Defaults to ["undefined", "NaN", "null", ""].
      *   - invert: A boolean indicating whether to invert the condition, keeping only rows with missing values. Defaults to false.
-     *   - returnDataFrom: Specifies whether to return data from the query, table, or none. Defaults to "query".
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
-     * @returns A Promise that resolves to the result of the database query based on the specified options.
      */
     async removeMissing(
         table: string,
@@ -603,6 +602,26 @@ export default class SimpleDB {
         return await removeMissing(this, table, options)
     }
 
+    /**
+     * Replaces specified strings in the selected columns of a table.
+     *
+     *```ts
+     * // Replaces entire strings and substrings too.
+     * await sdb.replaceStrings("tableA", "column1", {"kilograms": "kg", liters: "l" })
+     *
+     * // Replaces only if matching entire string.
+     * await sdb.replaceStrings("tableA", "column1", {"kilograms": "kg", liters: "l" }, {entireString: true})
+     * ```
+     *
+     * @param table - The name of the table in which strings will be replaced.
+     * @param columns - Either a string or an array of strings specifying the columns where string replacements will occur.
+     * @param strings - An object mapping old strings to new strings.
+     * @param options - An optional object with configuration options:
+     *   - entireString: A boolean indicating whether the entire string must match for replacement. Defaults to false.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async replaceStrings(
         table: string,
         columns: string | string[],
@@ -633,6 +652,26 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Concatenates values from specified columns into a new column in a table.
+     *
+     * ```ts
+     * // Concatenates values from column1 and column2 into column3
+     * await sdb.concatenate("tableA", ["column1", "column2"], "column3")
+     *
+     * // Same thing, but the values will be separated by a dash
+     * await sdb.concatenate("tableA", ["column1", "column2"], "column3", {separator: "-"})
+     * ```
+     *
+     * @param table - The name of the table where concatenation will occur.
+     * @param columns - An array of column names from which values will be concatenated.
+     * @param newColumn - The name of the new column to store the concatenated values.
+     * @param options - An optional object with configuration options:
+     *   - separator: The string used to separate concatenated values. Defaults to an empty string.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async concatenate(
         table: string,
         columns: string[],
