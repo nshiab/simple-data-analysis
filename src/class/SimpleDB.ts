@@ -48,6 +48,7 @@ import quantilesQuery from "../methods/quantilesQuery.js"
 import binsQuery from "../methods/binsQuery.js"
 import proportionsHorizontalQuery from "../methods/proportionsHorizontalQuery.js"
 import proportionsVerticalQuery from "../methods/proportionsVerticalQuery.js"
+import { Data } from "@observablehq/plot"
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB,
@@ -1484,6 +1485,18 @@ export default class SimpleDB {
             }`,
             mergeOptions(this, { ...options, returnDataFrom: "query", table })
         )
+    }
+
+    async getChartData(
+        table: string,
+        options: {
+            condition?: string
+            debug?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\ngetChartData()")
+        return (await this.getData(table, options)) as Data
     }
 
     async logTable(
