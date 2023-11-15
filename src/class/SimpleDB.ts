@@ -50,22 +50,15 @@ import proportionsHorizontalQuery from "../methods/proportionsHorizontalQuery.js
 import proportionsVerticalQuery from "../methods/proportionsVerticalQuery.js"
 
 /**
+ * SimpleDB is a class that provides a simplified interface for working with DuckDB,
+ * a high-performance, in-memory analytical database. This class is meant to be used
+ * in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.
+ *
  * Here's how to instantiate and start a SimpleDB instance.
  *
  * ```ts
  * const sdb = await new SimpleDB().start()
  * ```
- *
- * You can pass two options:
- * - debug: when true, some information is logged, like the SQL queries. Default is false.
- * - nbRowsToLog: the number of rows in the logged tables. Default is 10.
- *
- * Here's how to use the options.
- *
- * ```ts
- * const simpleDB = await new SimpleDB({debug: true, nbRowsToLog: 5}).start()
- * ```
- *
  */
 
 export default class SimpleDB {
@@ -84,6 +77,19 @@ export default class SimpleDB {
           }[]
         | null
     >
+
+    /**
+     * Creates an instance of SimpleDB.
+     * @param options - An optional object with configuration options:
+     *   - debug: A flag indicating whether debugging information should be logged. Defaults to false.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to 10.
+     *
+     * After instantiating, you'll need to call the start method.
+     *
+     * ```ts
+     * const sdb = await new SimpleDB().start()
+     * ```
+     */
 
     constructor(
         options: {
@@ -112,7 +118,7 @@ export default class SimpleDB {
     }
 
     /**
-     * This method sets up DuckDB.
+     * Initializes DuckDB and establishes a connection to the database.
      */
     async start() {
         this.debug && console.log("\nstart()")
@@ -125,26 +131,20 @@ export default class SimpleDB {
     }
 
     /**
-     * This method creates a table and populates it from data structured as an array of objects.
-     *
-     * Here's an example.
+     * Creates a new table and loads an array of objects into it.
      *
      * ```ts
-     * const data = [{key1: "a", key2: 1}, {key1: "b", key2: 2}]
+     * const data = [{letter: "a", number: 1}, {letter: "b", number: 2}]
      * await simpleDB.loadArray("tableName", data)
      * ```
      *
-     * The last parameter is for options:
-     * - *replace*: Pass it as true if you want to replace an existing table. Default is false.
-     * - *returnDataFrom*: pass "table" to retrieve the data in the table after the SQL query ran or "query" to retrieve values returned by the query. Default is "none".
-     *
-     * Here's an example with options.
-     *
-     * ```ts
-     * const dataInTable = await simpleDB.loadArray("tableName", data, {returnDataFrom: "table"})
-     * console.log(dataInTable)
-     * // Logging => [{key1: "a", key2: 1}, {key1: "b", key2: 2}]
-     * ```
+     * @param table - The name of the table to be created.
+     * @param arrayOfObjects - An array of objects representing the data.
+     * @param options - An optional object with configuration options:
+     *   - replace: A boolean indicating whether to replace the table if it already exists. Defaults to false.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
      */
     async loadArray(
         table: string,
@@ -152,8 +152,8 @@ export default class SimpleDB {
         options: {
             replace?: boolean
             returnDataFrom?: "query" | "table" | "none"
-            nbRowsToLog?: number
             debug?: boolean
+            nbRowsToLog?: number
         } = {}
     ) {
         ;(options.debug || this.debug) && console.log("\nloadArray()")
@@ -167,29 +167,23 @@ export default class SimpleDB {
     }
 
     /**
-     * This method creates a table and populates it with data from a CSV, JSON, or Parquet file referenced by a URL.
-     *
-     * Here's an example.
+     * Creates a table and loads data from an external file into it.
      *
      * ```ts
      * await simpleDB.loadData("tableName", "https://some-website.com/some-data.csv")
      * ```
      *
-     * The last parameter is for options:
-     * - *fileType*: the method looks at the file extension to decide how to load the data. But if needed, you can help it by specifying the file type. The choices are "csv", "dsv", "json", and "parquet".
-     * - *autoDetect*: the method tries to find the best way to load the data (what's the delimiter and data types for CSV/DSV files, for example). Default is true.
-     * - *header*: the method tries to find a header row. Default is true. This applies only to CSV files.
-     * - *delim*: the method tries to find the delimiter in CSV/DSV files, but you can help it by specifying the string. Default is ",".
-     * - *skip*: the number of lines to skip at the beginning of CSV/DSV files.
-     * - *returnDataFrom*: pass "table" to retrieve the data in the table after the SQL query ran or "query" to retrieve values returned by the query. Default is "none".
-     *
-     * Here's an example with options to load data from a text file.
-     *
-     * ```ts
-     * const data = await simpleDB.loadData("tableName", "https://some-website.com/some-data.txt", {fileType: "dsv", returnDataFrom: "table"})
-     * console.log(data)
-     * // The data would be logged as an array of objects
-     * ```
+     * @param table - The name of the new table.
+     * @param url - The URL of the external file containing the data.
+     * @param options - An optional object with configuration options:
+     *   - fileType: The type of the external file (csv, dsv, json, parquet). Defaults to the file extension.
+     *   - autoDetect: A boolean indicating whether to automatically detect the data format. Defaults to true.
+     *   - header: A boolean indicating whether the file contains a header row. Applicable for CSV files. Defaults to true.
+     *   - delim: The delimiter used in the file. Applicable for DSV files. Defaults to ",".
+     *   - skip: The number of rows to skip at the beginning of the file. Defaults to 0.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
      */
     async loadData(
         table: string,
@@ -202,8 +196,8 @@ export default class SimpleDB {
             delim?: string
             skip?: number
             // others
-            debug?: boolean
             returnDataFrom?: "table" | "query" | "none"
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ): Promise<
@@ -215,6 +209,21 @@ export default class SimpleDB {
         return await loadDataBrowser(this, table, url, options)
     }
 
+    /**
+     * Inserts rows into a specified table.
+     *
+     * ```ts
+     * const rows = [ { letter: "a", number: 1 }, { letter: "b", number: 2 }]
+     * await sdb.insertRows("tableName", rows)
+     * ```
+     *
+     * @param table - The name of the table to insert rows into.
+     * @param rows - An array of objects representing the rows to be inserted into the table.
+     * @param options - An optional object with configuration options:
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async insertRows(
         table: string,
         rows: { [key: string]: unknown }[],
@@ -234,6 +243,21 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Inserts all rows from one table into another specified table.
+     *
+     * ```ts
+     * // Insert all rows from tableB into tableA.
+     * await sdb.insertTable("tableA", "tableB")
+     * ```
+     *
+     * @param table - The name of the table to insert rows into.
+     * @param tableToInsert - The name of the table from which rows will be inserted.
+     * @param options - An optional object with configuration options:
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async insertTable(
         table: string,
         tableToInsert: string,
@@ -252,6 +276,21 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Clones a table by creating a new table with the same structure and data.
+     *
+     * ```ts
+     * // tableA data is cloned into tableB.
+     * await sdb.cloneTable("tableA", "tableB")
+     * ```
+     *
+     * @param originalTable - The name of the table to be cloned.
+     * @param newTable - The name of the new table that will be created as a clone.
+     * @param options - An optional object with configuration options:
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async cloneTable(
         originalTable: string,
         newTable: string,
@@ -270,6 +309,20 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Selects specific columns in a table and removes the others.
+     *
+     * ```ts
+     * // Selecting only the columns firstName and lastName from tableA. All other columns in the table will be removed.
+     * await sdb.selectColumns("tableA", ["firstName", "lastName"])
+     * ```
+     * @param table - The name of the table from which columns will be selected.
+     * @param columns - Either a string (one column) or an array of strings (multiple columns) representing the columns to be selected.
+     * @param options - An optional object with configuration options:
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async selectColumns(
         table: string,
         columns: string | string[],
@@ -291,6 +344,25 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Selects random rows from a table and removes the others.
+     *
+     * ```ts
+     * // Selecting 100 random rows in tableA
+     * await sdb.sample("tableA", 100)
+     *
+     * // Selecting 10% of the rows randomly in tableB
+     * await sdb.sample("tableB", "10%")
+     * ```
+     *
+     * @param table - The name of the table from which rows will be sampled.
+     * @param quantity - The number of rows (1000 for example) or a string ("10%" for example) specifying the sampling size.
+     * @param options - An optional object with configuration options:
+     *   - seed: A number specifying the seed for repeatable sampling. For example, setting it to 1 will ensure that the random rows will be the same each time you run the method.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async sample(
         table: string,
         quantity: number | string,
@@ -522,8 +594,8 @@ export default class SimpleDB {
         options: {
             try?: boolean
             datetimeFormat?: string
-            debug?: boolean
             returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
@@ -763,8 +835,8 @@ export default class SimpleDB {
         outputTable: string,
         join: "inner" | "left" | "right" | "full",
         options: {
-            debug?: boolean
             returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
@@ -811,8 +883,8 @@ export default class SimpleDB {
                       | "var"
                   )[]
             decimals?: number
-            debug?: boolean
             returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
@@ -827,9 +899,9 @@ export default class SimpleDB {
             y?: string
             decimals?: number
             order?: "asc" | "desc"
+            returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
             nbRowsToLog?: number
-            returnDataFrom?: "query" | "table" | "none"
         } = {}
     ) {
         return await correlations(this, table, outputTable, options)
@@ -842,9 +914,9 @@ export default class SimpleDB {
             x?: string
             y?: string
             decimals?: number
+            returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
             nbRowsToLog?: number
-            returnDataFrom?: "query" | "table" | "none"
         } = {}
     ) {
         return await linearRegressions(this, table, outputTable, options)
@@ -855,9 +927,9 @@ export default class SimpleDB {
         column: string,
         options: {
             newColumn?: string
+            returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
             nbRowsToLog?: number
-            returnDataFrom?: "query" | "table" | "none"
         } = {}
     ) {
         ;(options.debug || this.debug) && console.log("\noutliersIQR()")
@@ -881,9 +953,9 @@ export default class SimpleDB {
         options: {
             newColumn?: string
             decimals?: number
+            returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
             nbRowsToLog?: number
-            returnDataFrom?: "query" | "table" | "none"
         } = {}
     ) {
         ;(options.debug || this.debug) && console.log("\nzScore()")
@@ -932,8 +1004,8 @@ export default class SimpleDB {
             [key: string]: number | string | Date | boolean | null
         }[],
         options: {
-            debug?: boolean
             returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
@@ -1259,9 +1331,8 @@ export default class SimpleDB {
     async logTable(
         table: string,
         options: {
-            debug?: boolean
-            returnData?: boolean
             nbRowsToLog?: number
+            debug?: boolean
         } = {}
     ) {
         ;(options.debug || this.debug) && console.log("\nlogTable()")
