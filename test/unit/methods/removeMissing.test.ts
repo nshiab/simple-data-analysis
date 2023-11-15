@@ -17,7 +17,6 @@ describe("removeMissing", () => {
 
         const data = await simpleNodeDB.removeMissing(
             "employeesForAllColumnsTest",
-            [],
             {
                 returnDataFrom: "table",
             }
@@ -31,7 +30,7 @@ describe("removeMissing", () => {
             "test/data/employees.json",
         ])
 
-        const data = await simpleNodeDB.removeMissing("employeesJSON", [], {
+        const data = await simpleNodeDB.removeMissing("employeesJSON", {
             returnDataFrom: "table",
         })
 
@@ -43,7 +42,7 @@ describe("removeMissing", () => {
             "test/data/files/dataWithMissingValues.json",
         ])
 
-        const data = await simpleNodeDB.removeMissing("missingValuesJSON", [], {
+        const data = await simpleNodeDB.removeMissing("missingValuesJSON", {
             returnDataFrom: "table",
         })
 
@@ -59,10 +58,10 @@ describe("removeMissing", () => {
 
         const data = await simpleNodeDB.removeMissing(
             "missingValuesJSONOtherMissingValues",
-            ["key3"],
             {
+                columns: "key3",
                 returnDataFrom: "table",
-                otherMissingValues: [0.5],
+                missingValues: [0.5],
             }
         )
 
@@ -79,8 +78,8 @@ describe("removeMissing", () => {
 
         const data = await simpleNodeDB.removeMissing(
             "employeesForOneSpecificColumnTest",
-            ["Name"],
             {
+                columns: ["Name"],
                 returnDataFrom: "table",
             }
         )
@@ -95,8 +94,8 @@ describe("removeMissing", () => {
 
         const data = await simpleNodeDB.removeMissing(
             "employeesForMultipleSpecificColumnTest",
-            ["Name", "Salary"],
             {
+                columns: ["Name", "Salary"],
                 returnDataFrom: "table",
             }
         )
@@ -109,14 +108,10 @@ describe("removeMissing", () => {
             "test/data/employees.csv",
         ])
 
-        const data = await simpleNodeDB.removeMissing(
-            "employeesInvertTest",
-            [],
-            {
-                returnDataFrom: "table",
-                invert: true,
-            }
-        )
+        const data = await simpleNodeDB.removeMissing("employeesInvertTest", {
+            returnDataFrom: "table",
+            invert: true,
+        })
 
         assert.deepStrictEqual(data, dataJustNulls)
     })
@@ -128,8 +123,8 @@ describe("removeMissing", () => {
 
         const data = await simpleNodeDB.removeMissing(
             "employeesInvertOneColumnTest",
-            ["Name"],
             {
+                columns: ["Name"],
                 returnDataFrom: "table",
                 invert: true,
             }

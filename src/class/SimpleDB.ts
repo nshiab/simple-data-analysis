@@ -389,6 +389,21 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Renames columns in a specified table.
+     *
+     * ```ts
+     * // Renaming "How old?" to "age" and "Man or woman?" to "sex" in tableA.
+     * await sdb.renameColumns("tableA", {"How old?" : "age", "Man or woman?": "sex"})
+     * ```
+     *
+     * @param table - The table in which columns will be renamed.
+     * @param names - An object mapping old column names to new column names.
+     * @param options - An optional object with configuration options:
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async renameColumns(
         table: string,
         names: { [key: string]: string },
@@ -408,6 +423,42 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Restructures a table by stacking values. Useful to tidy up data.
+     *
+     * As an example, let's use this as tableA. Let's say it shows the number of employees per year in different departments.
+     *
+     * | Department | 2021 | 2022 | 2023 |
+     * | ---------- | ---- | ---- | ---- |
+     * | Accounting | 10   | 9    | 15   |
+     * | Sales      | 52   | 75   | 98   |
+     *
+     * We restructure it by putting all years into a column *Year* and the employees counts into a column *Employees*.
+     *
+     * ```ts
+     * await sdb.longer("tableA", ["2021", "2022", "2023"], "year", "employees")
+     * ```
+     *
+     * Now, the table looks like this and is longer.
+     *
+     * | Department | Year | Employees |
+     * | ---------- | ---- | --------- |
+     * | Accounting | 2021 | 10        |
+     * | Accounting | 2022 | 9         |
+     * | Accounting | 2023 | 15        |
+     * | Sales      | 2021 | 52        |
+     * | Sales      | 2022 | 75        |
+     * | Sales      | 2023 | 98        |
+     *
+     * @param table - The name of the table to be restructured.
+     * @param columns - The column names (and associated values) that we want to stack.
+     * @param columnsTo - The new column in which the stacked columns' names will be put into.
+     * @param valuesTo - The new column in which the stacked columns' values will be put into.
+     * @param options - An optional object with configuration options:
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async longer(
         table: string,
         columns: string[],
@@ -432,6 +483,41 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Restructures a table by unstacking values.
+     *
+     * As an example, let's use this as tableA. Let's say it shows the number of employees per year in different departments.
+     *
+     * | Department | Year | Employees |
+     * | ---------- | ---- | --------- |
+     * | Accounting | 2021 | 10        |
+     * | Accounting | 2022 | 9         |
+     * | Accounting | 2023 | 15        |
+     * | Sales      | 2021 | 52        |
+     * | Sales      | 2022 | 75        |
+     * | Sales      | 2023 | 98        |
+     *
+     * We restructure it by making a new column for each year and with the associated employees counts as values.
+     *
+     * ```ts
+     * await sdb.longer("tableA", "Year", "Employees")
+     * ```
+     *
+     * Now, the table looks like this and is wider.
+     *
+     * | Department | 2021 | 2022 | 2023 |
+     * | ---------- | ---- | ---- | ---- |
+     * | Accounting | 10   | 9    | 15   |
+     * | Sales      | 52   | 75   | 98   |
+     *
+     * @param table - The name of the table to be restructured.
+     * @param columnsFrom - The column containing the values that will be transformed as columns.
+     * @param valuesFrom - The column containing values to be spread across the new columns.
+     * @param options - An optional object with configuration options:
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async wider(
         table: string,
         columnsFrom: string,
@@ -450,7 +536,19 @@ export default class SimpleDB {
             mergeOptions(this, { ...options, table })
         )
     }
-
+    /**
+     * Removes duplicate rows from a table, keeping only unique rows.
+     *
+     * ```ts
+     * await sdb.removeDuplicates("someTable")
+     * ```
+     *
+     * @param table - The name of the table from which duplicates will be removed.
+     * @param options - An optional object with configuration options:
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async removeDuplicates(
         table: string,
         options: {
@@ -468,20 +566,41 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Removes rows with missing values from a table. By default, missing values are NULL (as an SQL value), but also "null", "NaN" and "undefined" than might have been converted to strings before being loaded into the table. Empty strings ("") are also considered missing values.
+     *
+     * ```ts
+     * // Removes rows with missing values in any columns.
+     * await sdb.removeMissing("tableA")
+     *
+     * // Removes rows with missing values in specific columns.
+     * await sdb.removeMissing("tableA", { columns: ["firstName", "lastName"]})
+     * ```
+     *
+     * @param table - The name of the table from which rows with missing values will be removed.
+     * @param options - An optional object with configuration options:
+     *   - columns: Either a string or an array of strings specifying the columns to consider for missing values. By default, all columns are considered.
+     *   - missingValues: An array of values to be treated as missing values. Defaults to ["undefined", "NaN", "null", ""].
+     *   - invert: A boolean indicating whether to invert the condition, keeping only rows with missing values. Defaults to false.
+     *   - returnDataFrom: Specifies whether to return data from the query, table, or none. Defaults to "query".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     * @returns A Promise that resolves to the result of the database query based on the specified options.
+     */
     async removeMissing(
         table: string,
-        columns: string | string[] = [],
         options: {
-            otherMissingValues?: (string | number)[]
+            columns?: string | string[]
+            missingValues?: (string | number)[]
             invert?: boolean
             returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
             nbRowsToLog?: number
         } = {
-            otherMissingValues: ["undefined", "NaN", "null", ""],
+            missingValues: ["undefined", "NaN", "null", ""],
         }
     ) {
-        return await removeMissing(this, table, columns, options)
+        return await removeMissing(this, table, options)
     }
 
     async replaceStrings(

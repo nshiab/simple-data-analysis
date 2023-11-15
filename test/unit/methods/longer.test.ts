@@ -1,7 +1,7 @@
 import assert from "assert"
 import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
 
-describe("stack", () => {
+describe("longer", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
         simpleNodeDB = await new SimpleNodeDB().start()
