@@ -693,6 +693,22 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Filters rows from a table based on SQL conditions. Usually, we use double quotes (") for columns and simple quotes (') for strings. Numbers don't need to be wrapped. Using backticks (`) allows you to create a string with both " and ' in it.
+     *
+     * ```ts
+     * // In table store, keep only rows with apple in the column fruit.
+     * await sdb.filter("store", `"fruit" = 'apple'`)
+     * ```
+     *
+     * @param table - The name of the table from which rows will be filtered.
+     * @param conditions - The filtering conditions specified as a SQL WHERE clause.
+     * @param options - An optional object with configuration options:
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
+
     async filter(
         table: string,
         conditions: string,
