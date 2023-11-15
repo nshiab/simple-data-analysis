@@ -1,6 +1,6 @@
 import duckdb, { Connection, Database } from "duckdb"
 import { AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
-import { readdirSync, writeFileSync } from "fs"
+import { readdirSync } from "fs"
 import SimpleDB from "./SimpleDB.js"
 
 import mergeOptions from "../helpers/mergeOptions.js"
@@ -9,8 +9,6 @@ import queryDB from "../helpers/queryDB.js"
 import loadDataQuery from "../methods/loadDataQuery.js"
 import writeDataQuery from "../methods/writeDataQuery.js"
 import stringToArray from "../helpers/stringToArray.js"
-import { PlotOptions, plot } from "@observablehq/plot"
-import setJSDom from "../helpers/setJSDom.js"
 
 export default class SimpleNodeDB extends SimpleDB {
     constructor(
@@ -151,23 +149,6 @@ export default class SimpleNodeDB extends SimpleDB {
             writeDataQuery(table, file, options),
             mergeOptions(this, { ...options, table })
         )
-    }
-
-    async writeChart(
-        file: string,
-        plotOptions: PlotOptions,
-        options: {
-            debug?: boolean
-        } = {}
-    ) {
-        setJSDom()
-        ;(options.debug || this.debug) && console.log("\nwriteChart()")
-        const html = plot(plotOptions)
-        const cleanHtml = html.outerHTML.replace(
-            "<svg",
-            '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"'
-        )
-        writeFileSync(file, cleanHtml)
     }
 
     async done() {

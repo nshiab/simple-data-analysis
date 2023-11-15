@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync } from "fs"
 import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import writeChart from "../../../src/functions/writeChart.js"
 import { Data, dot } from "@observablehq/plot"
 
 const outputPath = "./test/output/"
@@ -25,7 +26,8 @@ describe("writeChart", () => {
 
     it("should write a chart with Observable Plot options", async () => {
         const data = (await simpleNodeDB.getData("employees")) as Data
-        await simpleNodeDB.writeChart(`${outputPath}chart.html`, {
+
+        writeChart(`${outputPath}chart.html`, {
             x: { type: "point" },
             marks: [
                 dot(data, {
