@@ -20,8 +20,8 @@ describe("join", () => {
             "dishes",
             "categories",
             "dishId",
-            "innerJoin",
             "inner",
+            "innerJoin",
             { returnDataFrom: "table" }
         )
 
@@ -47,8 +47,8 @@ describe("join", () => {
             "dishes",
             "categories",
             "dishId",
-            "leftJoin",
             "left",
+            "leftJoin",
             { returnDataFrom: "table" }
         )
 
@@ -80,8 +80,8 @@ describe("join", () => {
             "dishes",
             "categories",
             "dishId",
-            "rightJoin",
             "right",
+            "rightJoin",
             { returnDataFrom: "table" }
         )
 
@@ -109,8 +109,8 @@ describe("join", () => {
             "dishes",
             "categories",
             "dishId",
-            "fullJoin",
             "full",
+            "fullJoin",
             { returnDataFrom: "table" }
         )
 

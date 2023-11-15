@@ -2,8 +2,8 @@ export default function joinQuery(
     leftTable: string,
     rightTable: string,
     commonColumn: string,
-    outputTable: string,
-    join: "inner" | "left" | "right" | "full"
+    join: "inner" | "left" | "right" | "full",
+    outputTable: string
 ) {
     let query = `CREATE OR REPLACE TABLE ${outputTable} AS SELECT *`
     if (join === "inner") {

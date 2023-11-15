@@ -1229,12 +1229,30 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Merges the data of two tables based on a common column and put the result in a new table.
+     *
+     * ```ts
+     * // Do a left join of tableA (left) and tableB (right) based on the common column id. The result is put into tableC.
+     * await sdb.join("tableA", "tableB", "id", "left", "tableC",)
+     * ```
+     *
+     * @param leftTable - The name of the left table to be joined.
+     * @param rightTable - The name of the right table to be joined.
+     * @param commonColumn - The common column used for the join operation.
+     * @param join - The type of join operation to perform. Possible values are "inner", "left", "right", or "full".
+     * @param outputTable - The name of the new table that will store the result of the join operation.
+     * @param options - An optional object with configuration options:
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async join(
         leftTable: string,
         rightTable: string,
         commonColumn: string,
-        outputTable: string,
         join: "inner" | "left" | "right" | "full",
+        outputTable: string,
         options: {
             returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
@@ -1246,7 +1264,7 @@ export default class SimpleDB {
         return await queryDB(
             this.connection,
             this.runQuery,
-            joinQuery(leftTable, rightTable, commonColumn, outputTable, join),
+            joinQuery(leftTable, rightTable, commonColumn, join, outputTable),
             mergeOptions(this, {
                 ...options,
                 table: outputTable,
