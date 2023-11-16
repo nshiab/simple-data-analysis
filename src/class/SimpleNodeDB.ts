@@ -123,6 +123,8 @@ export default class SimpleNodeDB extends SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Importing data
      */
     async loadData(
         table: string,
@@ -185,6 +187,8 @@ export default class SimpleNodeDB extends SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Importing data
      */
     async loadDataFromDirectory(
         table: string,
@@ -236,6 +240,8 @@ export default class SimpleNodeDB extends SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * * @category Exporting data
      */
     async writeData(
         table: string,

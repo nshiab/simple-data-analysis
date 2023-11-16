@@ -151,6 +151,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Importing data
      */
     async loadArray(
         table: string,
@@ -190,6 +192,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Importing data
      */
     async loadData(
         table: string,
@@ -229,6 +233,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Importing data
      */
     async insertRows(
         table: string,
@@ -263,6 +269,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Importing data
      */
     async insertTable(
         table: string,
@@ -328,6 +336,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Selecting or filtering data
      */
     async selectColumns(
         table: string,
@@ -368,6 +378,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Selecting or filtering data
      */
     async sample(
         table: string,
@@ -396,6 +408,118 @@ export default class SimpleDB {
     }
 
     /**
+     * Removes duplicate rows from a table, keeping only unique rows.
+     *
+     * ```ts
+     * await sdb.removeDuplicates("tableA")
+     * ```
+     *
+     * @param table - The name of the table from which duplicates will be removed.
+     * @param options - An optional object with configuration options:
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Selecting or filtering data
+     */
+    async removeDuplicates(
+        table: string,
+        options: {
+            returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\nremoveDuplicates()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            `CREATE OR REPLACE TABLE ${table} AS SELECT DISTINCT * FROM ${table}`,
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
+    /**
+     * Removes rows with missing values from a table. By default, missing values are NULL (as an SQL value), but also "null", "NaN" and "undefined" than might have been converted to strings before being loaded into the table. Empty strings ("") are also considered missing values.
+     *
+     * ```ts
+     * // Removes rows with missing values in any columns.
+     * await sdb.removeMissing("tableA")
+     *
+     * // Removes rows with missing values in specific columns.
+     * await sdb.removeMissing("tableA", { columns: ["firstName", "lastName"]})
+     * ```
+     *
+     * @param table - The name of the table from which rows with missing values will be removed.
+     * @param options - An optional object with configuration options:
+     *   - columns: Either a string or an array of strings specifying the columns to consider for missing values. By default, all columns are considered.
+     *   - missingValues: An array of values to be treated as missing values. Defaults to ["undefined", "NaN", "null", ""].
+     *   - invert: A boolean indicating whether to invert the condition, keeping only rows with missing values. Defaults to false.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Selecting or filtering data
+     */
+    async removeMissing(
+        table: string,
+        options: {
+            columns?: string | string[]
+            missingValues?: (string | number)[]
+            invert?: boolean
+            returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
+            nbRowsToLog?: number
+        } = {
+            missingValues: ["undefined", "NaN", "null", ""],
+        }
+    ) {
+        return await removeMissing(this, table, options)
+    }
+
+    /**
+     * Filters rows from a table based on SQL conditions.
+     *
+     * ```ts
+     * // In table store, keep only rows where the fruit is not an apple.
+     * await sdb.filter("store", "fruit != 'apple'"")
+     *
+     * // More examples:
+     * await sdb.filter("store", "price > 100 AND quantity > 0")
+     * await sdb.filter("inventory", "category = 'Electronics' OR category = 'Appliances'")
+     * await sdb.filter("customers", "lastPurchaseDate >= '2023-01-01'")
+     * ```
+     *
+     * @param table - The name of the table from which rows will be filtered.
+     * @param conditions - The filtering conditions specified as a SQL WHERE clause.
+     * @param options - An optional object with configuration options:
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Selecting or filtering data
+     */
+    async filter(
+        table: string,
+        conditions: string,
+        options: {
+            returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\nfilter()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            `CREATE OR REPLACE TABLE ${table} AS SELECT *
+            FROM ${table}
+            WHERE ${conditions}`,
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
+    /**
      * Renames columns in a specified table.
      *
      * ```ts
@@ -409,6 +533,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Restructuring data
      */
     async renameColumns(
         table: string,
@@ -464,6 +590,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Restructuring data
      */
     async longer(
         table: string,
@@ -523,6 +651,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Restructuring data
      */
     async wider(
         table: string,
@@ -539,247 +669,6 @@ export default class SimpleDB {
             this.connection,
             this.runQuery,
             `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM (PIVOT ${table} ON "${columnsFrom}" USING FIRST("${valuesFrom}"))`,
-            mergeOptions(this, { ...options, table })
-        )
-    }
-    /**
-     * Removes duplicate rows from a table, keeping only unique rows.
-     *
-     * ```ts
-     * await sdb.removeDuplicates("tableA")
-     * ```
-     *
-     * @param table - The name of the table from which duplicates will be removed.
-     * @param options - An optional object with configuration options:
-     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
-     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
-     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
-     */
-    async removeDuplicates(
-        table: string,
-        options: {
-            returnDataFrom?: "query" | "table" | "none"
-            debug?: boolean
-            nbRowsToLog?: number
-        } = {}
-    ) {
-        ;(options.debug || this.debug) && console.log("\nremoveDuplicates()")
-        return await queryDB(
-            this.connection,
-            this.runQuery,
-            `CREATE OR REPLACE TABLE ${table} AS SELECT DISTINCT * FROM ${table}`,
-            mergeOptions(this, { ...options, table })
-        )
-    }
-
-    /**
-     * Removes rows with missing values from a table. By default, missing values are NULL (as an SQL value), but also "null", "NaN" and "undefined" than might have been converted to strings before being loaded into the table. Empty strings ("") are also considered missing values.
-     *
-     * ```ts
-     * // Removes rows with missing values in any columns.
-     * await sdb.removeMissing("tableA")
-     *
-     * // Removes rows with missing values in specific columns.
-     * await sdb.removeMissing("tableA", { columns: ["firstName", "lastName"]})
-     * ```
-     *
-     * @param table - The name of the table from which rows with missing values will be removed.
-     * @param options - An optional object with configuration options:
-     *   - columns: Either a string or an array of strings specifying the columns to consider for missing values. By default, all columns are considered.
-     *   - missingValues: An array of values to be treated as missing values. Defaults to ["undefined", "NaN", "null", ""].
-     *   - invert: A boolean indicating whether to invert the condition, keeping only rows with missing values. Defaults to false.
-     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
-     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
-     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
-     */
-    async removeMissing(
-        table: string,
-        options: {
-            columns?: string | string[]
-            missingValues?: (string | number)[]
-            invert?: boolean
-            returnDataFrom?: "query" | "table" | "none"
-            debug?: boolean
-            nbRowsToLog?: number
-        } = {
-            missingValues: ["undefined", "NaN", "null", ""],
-        }
-    ) {
-        return await removeMissing(this, table, options)
-    }
-
-    /**
-     * Replaces specified strings in the selected columns of a table.
-     *
-     *```ts
-     * // Replaces entire strings and substrings too.
-     * await sdb.replaceStrings("tableA", "column1", {"kilograms": "kg", liters: "l" })
-     *
-     * // Replaces only if matching entire string.
-     * await sdb.replaceStrings("tableA", "column1", {"kilograms": "kg", liters: "l" }, {entireString: true})
-     * ```
-     *
-     * @param table - The name of the table in which strings will be replaced.
-     * @param columns - Either a string or an array of strings specifying the columns where string replacements will occur.
-     * @param strings - An object mapping old strings to new strings.
-     * @param options - An optional object with configuration options:
-     *   - entireString: A boolean indicating whether the entire string must match for replacement. Defaults to false.
-     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
-     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
-     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
-     */
-    async replaceStrings(
-        table: string,
-        columns: string | string[],
-        strings: { [key: string]: string },
-        options: {
-            entireString?: boolean
-            returnDataFrom?: "query" | "table" | "none"
-            debug?: boolean
-            nbRowsToLog?: number
-        } = {}
-    ) {
-        ;(options.debug || this.debug) && console.log("\nreplaceStrings()")
-        options.entireString = options.entireString ?? false
-        return await queryDB(
-            this.connection,
-            this.runQuery,
-            replaceStringsQuery(
-                table,
-                stringToArray(columns),
-                Object.keys(strings),
-                Object.values(strings),
-                options
-            ),
-            mergeOptions(this, {
-                ...options,
-                table,
-            })
-        )
-    }
-
-    /**
-     * Concatenates values from specified columns into a new column in a table.
-     *
-     * ```ts
-     * // Concatenates values from column1 and column2 into column3
-     * await sdb.concatenate("tableA", ["column1", "column2"], "column3")
-     *
-     * // Same thing, but the values will be separated by a dash
-     * await sdb.concatenate("tableA", ["column1", "column2"], "column3", {separator: "-"})
-     * ```
-     *
-     * @param table - The name of the table where concatenation will occur.
-     * @param columns - An array of column names from which values will be concatenated.
-     * @param newColumn - The name of the new column to store the concatenated values.
-     * @param options - An optional object with configuration options:
-     *   - separator: The string used to separate concatenated values. Defaults to an empty string.
-     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
-     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
-     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
-     */
-    async concatenate(
-        table: string,
-        columns: string[],
-        newColumn: string,
-        options: {
-            separator?: string
-            returnDataFrom?: "query" | "table" | "none"
-            debug?: boolean
-            nbRowsToLog?: number
-        } = {}
-    ) {
-        ;(options.debug || this.debug) && console.log("\nconcatenate()")
-        return await queryDB(
-            this.connection,
-            this.runQuery,
-            concatenateQuery(table, columns, newColumn, options),
-            mergeOptions(this, { ...options, table })
-        )
-    }
-
-    /**
-     * Filters rows from a table based on SQL conditions.
-     *
-     * ```ts
-     * // In table store, keep only rows where the fruit is not an apple.
-     * await sdb.filter("store", "fruit != 'apple'"")
-     *
-     * // More examples:
-     * await sdb.filter("store", "price > 100 AND quantity > 0")
-     * await sdb.filter("inventory", "category = 'Electronics' OR category = 'Appliances'")
-     * await sdb.filter("customers", "lastPurchaseDate >= '2023-01-01'")
-     * ```
-     *
-     * @param table - The name of the table from which rows will be filtered.
-     * @param conditions - The filtering conditions specified as a SQL WHERE clause.
-     * @param options - An optional object with configuration options:
-     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
-     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
-     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
-     */
-
-    async filter(
-        table: string,
-        conditions: string,
-        options: {
-            returnDataFrom?: "query" | "table" | "none"
-            debug?: boolean
-            nbRowsToLog?: number
-        } = {}
-    ) {
-        ;(options.debug || this.debug) && console.log("\nfilter()")
-        return await queryDB(
-            this.connection,
-            this.runQuery,
-            `CREATE OR REPLACE TABLE ${table} AS SELECT *
-            FROM ${table}
-            WHERE ${conditions}`,
-            mergeOptions(this, { ...options, table })
-        )
-    }
-
-    /**
-     * Rounds numeric values in specified columns of a table.
-     *
-     * ```ts
-     * // Round to the nearest integer.
-     * await sdb.round("tableA", "column1")
-     *
-     * // Round with a specific number of decimal places.
-     * await sdb.round("tableA", "column1", {decimals: 2})
-     *
-     * // Round with a specific method. Other methods are "round" and "ceiling".
-     * await sdb.round("tableA", "column1", {method: "floor"})
-     *
-     * ```
-     *
-     * @param table - The name of the table where numeric values will be rounded.
-     * @param columns - Either a string or an array of strings specifying the columns containing numeric values to be rounded.
-     * @param options - An optional object with configuration options:
-     *   - decimals: The number of decimal places to round to. Defaults to 0.
-     *   - method: The rounding method to use ("round", "ceiling", or "floor"). Defaults to "round".
-     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
-     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
-     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
-     */
-
-    async round(
-        table: string,
-        columns: string | string[],
-        options: {
-            decimals?: number
-            method?: "round" | "ceiling" | "floor"
-            returnDataFrom?: "query" | "table" | "none"
-            debug?: boolean
-            nbRowsToLog?: number
-        } = {}
-    ) {
-        ;(options.debug || this.debug) && console.log("\nround()")
-        return await queryDB(
-            this.connection,
-            this.runQuery,
-            roundQuery(table, stringToArray(columns), options),
             mergeOptions(this, { ...options, table })
         )
     }
@@ -804,6 +693,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Restructuring data
      */
     async convert(
         table: string,
@@ -860,6 +751,8 @@ export default class SimpleDB {
      * @param tables - The name or an array of names of the tables to be removed.
      * @param options - An optional object with configuration options:
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Restructuring data
      */
     async removeTables(
         tables: string | string[],
@@ -892,6 +785,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Restructuring data
      */
     async removeColumns(
         table: string,
@@ -929,6 +824,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Restructuring data
      */
     async addColumn(
         table: string,
@@ -964,6 +861,241 @@ export default class SimpleDB {
     }
 
     /**
+     * Merges the data of two tables based on a common column and put the result in a new table.
+     *
+     * ```ts
+     * // Do a left join of tableA (left) and tableB (right) based on the common column id. The result is put into tableC.
+     * await sdb.join("tableA", "tableB", "id", "left", "tableC",)
+     * ```
+     *
+     * @param leftTable - The name of the left table to be joined.
+     * @param rightTable - The name of the right table to be joined.
+     * @param commonColumn - The common column used for the join operation.
+     * @param join - The type of join operation to perform. Possible values are "inner", "left", "right", or "full".
+     * @param outputTable - The name of the new table that will store the result of the join operation.
+     * @param options - An optional object with configuration options:
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Restructuring data
+     */
+    async join(
+        leftTable: string,
+        rightTable: string,
+        commonColumn: string,
+        join: "inner" | "left" | "right" | "full",
+        outputTable: string,
+        options: {
+            returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\njoin()")
+
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            joinQuery(leftTable, rightTable, commonColumn, join, outputTable),
+            mergeOptions(this, {
+                ...options,
+                table: outputTable,
+            })
+        )
+    }
+
+    /**
+     * Creates a new empty table with specified columns and data types.
+     * 
+     * ```ts
+     *  await sdb.createTable("employees", {
+        name: "string",
+        salary: "integer",
+        raise: "float",
+    })
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param types - An object specifying the columns and their data types.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     * 
+     * @category Restructuring data
+     */
+    async createTable(
+        table: string,
+        types: {
+            [key: string]:
+                | "integer"
+                | "float"
+                | "string"
+                | "date"
+                | "time"
+                | "datetime"
+                | "datetimeTz"
+                | "bigint"
+                | "double"
+                | "varchar"
+                | "timestamp"
+                | "timestamp with time zone"
+        },
+        options: {
+            debug?: boolean
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\ncreateTable()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            `CREATE TABLE ${table} (${Object.keys(types)
+                .map((d) => `"${d}" ${parseType(types[d])}`)
+                .join(", ")});`,
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
+    /**
+     * Replaces specified strings in the selected columns of a table.
+     *
+     *```ts
+     * // Replaces entire strings and substrings too.
+     * await sdb.replaceStrings("tableA", "column1", {"kilograms": "kg", liters: "l" })
+     *
+     * // Replaces only if matching entire string.
+     * await sdb.replaceStrings("tableA", "column1", {"kilograms": "kg", liters: "l" }, {entireString: true})
+     * ```
+     *
+     * @param table - The name of the table in which strings will be replaced.
+     * @param columns - Either a string or an array of strings specifying the columns where string replacements will occur.
+     * @param strings - An object mapping old strings to new strings.
+     * @param options - An optional object with configuration options:
+     *   - entireString: A boolean indicating whether the entire string must match for replacement. Defaults to false.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Updating data
+     */
+    async replaceStrings(
+        table: string,
+        columns: string | string[],
+        strings: { [key: string]: string },
+        options: {
+            entireString?: boolean
+            returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\nreplaceStrings()")
+        options.entireString = options.entireString ?? false
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            replaceStringsQuery(
+                table,
+                stringToArray(columns),
+                Object.keys(strings),
+                Object.values(strings),
+                options
+            ),
+            mergeOptions(this, {
+                ...options,
+                table,
+            })
+        )
+    }
+
+    /**
+     * Concatenates values from specified columns into a new column in a table.
+     *
+     * ```ts
+     * // Concatenates values from column1 and column2 into column3
+     * await sdb.concatenate("tableA", ["column1", "column2"], "column3")
+     *
+     * // Same thing, but the values will be separated by a dash
+     * await sdb.concatenate("tableA", ["column1", "column2"], "column3", {separator: "-"})
+     * ```
+     *
+     * @param table - The name of the table where concatenation will occur.
+     * @param columns - An array of column names from which values will be concatenated.
+     * @param newColumn - The name of the new column to store the concatenated values.
+     * @param options - An optional object with configuration options:
+     *   - separator: The string used to separate concatenated values. Defaults to an empty string.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Updating data
+     */
+    async concatenate(
+        table: string,
+        columns: string[],
+        newColumn: string,
+        options: {
+            separator?: string
+            returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\nconcatenate()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            concatenateQuery(table, columns, newColumn, options),
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
+    /**
+     * Rounds numeric values in specified columns of a table.
+     *
+     * ```ts
+     * // Round to the nearest integer.
+     * await sdb.round("tableA", "column1")
+     *
+     * // Round with a specific number of decimal places.
+     * await sdb.round("tableA", "column1", {decimals: 2})
+     *
+     * // Round with a specific method. Other methods are "round" and "ceiling".
+     * await sdb.round("tableA", "column1", {method: "floor"})
+     *
+     * ```
+     *
+     * @param table - The name of the table where numeric values will be rounded.
+     * @param columns - Either a string or an array of strings specifying the columns containing numeric values to be rounded.
+     * @param options - An optional object with configuration options:
+     *   - decimals: The number of decimal places to round to. Defaults to 0.
+     *   - method: The rounding method to use ("round", "ceiling", or "floor"). Defaults to "round".
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Updating data
+     */
+    async round(
+        table: string,
+        columns: string | string[],
+        options: {
+            decimals?: number
+            method?: "round" | "ceiling" | "floor"
+            returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
+            nbRowsToLog?: number
+        } = {}
+    ) {
+        ;(options.debug || this.debug) && console.log("\nround()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            roundQuery(table, stringToArray(columns), options),
+            mergeOptions(this, { ...options, table })
+        )
+    }
+
+    /**
      * Sorts the rows of a table based on specified column(s) and order(s).
      * ```ts
      * // Sort column1 ascendingly then column2 descendingly.
@@ -978,6 +1110,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Updating data
      */
     async sort(
         table: string,
@@ -1018,6 +1152,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Analyzing data
      */
     async ranks(
         table: string,
@@ -1059,6 +1195,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Analyzing data
      */
     async quantiles(
         table: string,
@@ -1103,6 +1241,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Analyzing data
      */
     async bins(
         table: string,
@@ -1170,6 +1310,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Analyzing data
      */
     async proportionsHorizontal(
         table: string,
@@ -1212,6 +1354,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Analyzing data
      */
     async proportionsVertical(
         table: string,
@@ -1231,49 +1375,6 @@ export default class SimpleDB {
             this.runQuery,
             proportionsVerticalQuery(table, column, options),
             mergeOptions(this, { ...options, table })
-        )
-    }
-
-    /**
-     * Merges the data of two tables based on a common column and put the result in a new table.
-     *
-     * ```ts
-     * // Do a left join of tableA (left) and tableB (right) based on the common column id. The result is put into tableC.
-     * await sdb.join("tableA", "tableB", "id", "left", "tableC",)
-     * ```
-     *
-     * @param leftTable - The name of the left table to be joined.
-     * @param rightTable - The name of the right table to be joined.
-     * @param commonColumn - The common column used for the join operation.
-     * @param join - The type of join operation to perform. Possible values are "inner", "left", "right", or "full".
-     * @param outputTable - The name of the new table that will store the result of the join operation.
-     * @param options - An optional object with configuration options:
-     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
-     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
-     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
-     */
-    async join(
-        leftTable: string,
-        rightTable: string,
-        commonColumn: string,
-        join: "inner" | "left" | "right" | "full",
-        outputTable: string,
-        options: {
-            returnDataFrom?: "query" | "table" | "none"
-            debug?: boolean
-            nbRowsToLog?: number
-        } = {}
-    ) {
-        ;(options.debug || this.debug) && console.log("\njoin()")
-
-        return await queryDB(
-            this.connection,
-            this.runQuery,
-            joinQuery(leftTable, rightTable, commonColumn, join, outputTable),
-            mergeOptions(this, {
-                ...options,
-                table: outputTable,
-            })
         )
     }
 
@@ -1307,6 +1408,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Analyzing data
      */
     async summarize(
         table: string,
@@ -1372,6 +1475,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Analyzing data
      */
     async correlations(
         table: string,
@@ -1414,6 +1519,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Analyzing data
      */
     async linearRegressions(
         table: string,
@@ -1448,6 +1555,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Analyzing data
      */
     async outliersIQR(
         table: string,
@@ -1492,6 +1601,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Analyzing data
      */
     async zScore(
         table: string,
@@ -1612,54 +1723,6 @@ export default class SimpleDB {
     }
 
     /**
-     * Creates a new empty table with specified columns and data types.
-     * 
-     * ```ts
-     *  await sdb.createTable("employees", {
-        name: "string",
-        salary: "integer",
-        raise: "float",
-    })
-     * ```
-     *
-     * @param table - The name of the table.
-     * @param types - An object specifying the columns and their data types.
-     * @param options - An optional object with configuration options:
-     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
-     */
-    async createTable(
-        table: string,
-        types: {
-            [key: string]:
-                | "integer"
-                | "float"
-                | "string"
-                | "date"
-                | "time"
-                | "datetime"
-                | "datetimeTz"
-                | "bigint"
-                | "double"
-                | "varchar"
-                | "timestamp"
-                | "timestamp with time zone"
-        },
-        options: {
-            debug?: boolean
-        } = {}
-    ) {
-        ;(options.debug || this.debug) && console.log("\ncreateTable()")
-        return await queryDB(
-            this.connection,
-            this.runQuery,
-            `CREATE TABLE ${table} (${Object.keys(types)
-                .map((d) => `"${d}" ${parseType(types[d])}`)
-                .join(", ")});`,
-            mergeOptions(this, { ...options, table })
-        )
-    }
-
-    /**
      * Returns the schema (column names and their data types) of a specified table.
      *
      * ```ts
@@ -1705,6 +1768,7 @@ export default class SimpleDB {
      * @param options - An optional object with configuration options:
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      */
+
     async getDescription(
         table: string,
         options: {
@@ -1894,6 +1958,8 @@ export default class SimpleDB {
      * @param options - An optional object with configuration options:
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Getting data
      */
     async getValues(
         table: string,
@@ -1917,6 +1983,8 @@ export default class SimpleDB {
      * @param column - The name of the column.
      * @param options - An optional object with configuration options:
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Getting data
      */
     async getMin(
         table: string,
@@ -1939,6 +2007,8 @@ export default class SimpleDB {
      * @param column - The name of the column.
      * @param options - An optional object with configuration options:
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Getting data
      */
     async getMax(
         table: string,
@@ -1962,6 +2032,8 @@ export default class SimpleDB {
      * @param options - An optional object with configuration options:
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - decimals: The number of decimal places to round the result to. All decimals are kept by default.
+     *
+     * @category Getting data
      */
     async getMean(
         table: string,
@@ -1986,6 +2058,8 @@ export default class SimpleDB {
      * @param options - An optional object with configuration options:
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - decimals: The number of decimal places to round the result to. All decimals are kept by default.
+     *
+     * @category Getting data
      */
     async getMedian(
         table: string,
@@ -2009,6 +2083,8 @@ export default class SimpleDB {
      * @param column - The name of the column.
      * @param options - An optional object with configuration options:
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Getting data
      */
     async getSum(
         table: string,
@@ -2032,6 +2108,8 @@ export default class SimpleDB {
      * @param options - An optional object with configuration options:
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - decimals: The number of decimal places to round the result to. All decimals are kept by default.
+     *
+     * @category Getting data
      */
     async getSkew(
         table: string,
@@ -2056,6 +2134,8 @@ export default class SimpleDB {
      * @param options - An optional object with configuration options:
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - decimals: The number of decimal places to round the result to. All decimals are kept by default.
+     *
+     * @category Getting data
      */
     async getStdDev(
         table: string,
@@ -2080,6 +2160,8 @@ export default class SimpleDB {
      * @param options - An optional object with configuration options:
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - decimals: The number of decimal places to round the result to. All decimals are kept by default.
+     *
+     * @category Getting data
      */
     async getVar(
         table: string,
@@ -2105,6 +2187,8 @@ export default class SimpleDB {
      * @param options - An optional object with configuration options:
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - decimals: The number of decimal places to round the result to. All decimals are kept by default.
+     *
+     * @category Getting data
      */
     async getQuantile(
         table: string,
@@ -2127,6 +2211,8 @@ export default class SimpleDB {
      * @param options - An optional object with configuration options:
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Getting data
      */
     async getUniques(
         table: string,
@@ -2154,6 +2240,8 @@ export default class SimpleDB {
      * @param options - An optional object with configuration options:
      *   - condition: The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Getting data
      */
     async getFirstRow(
         table: string,
@@ -2180,6 +2268,8 @@ export default class SimpleDB {
      * @param options - An optional object with configuration options:
      *   - condition: The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Getting data
      */
     async getLastRow(
         table: string,
@@ -2202,6 +2292,8 @@ export default class SimpleDB {
      * @param count - The number of rows to return.
      * @param options - An optional object with configuration options:
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Getting data
      */
     async getTop(
         table: string,
@@ -2229,6 +2321,8 @@ export default class SimpleDB {
      * @param options - An optional object with configuration options:
      *   - originalOrder: A boolean indicating whether the rows should be returned in their original order. Default is false, meaning the last row will be returned first.
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Getting data
      */
     async getBottom(
         table: string,
@@ -2257,6 +2351,8 @@ export default class SimpleDB {
      *   - condition: A SQL WHERE clause condition to filter the data. Defaults to no condition.
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Getting data
      */
     async getData(
         table: string,

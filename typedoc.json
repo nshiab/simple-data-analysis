@@ -1,4 +1,6 @@
 {
     "entryPoints": ["src/index.ts"],
-    "out": "docs"
+    "out": "docs",
+    "excludeNotDocumented": true,
+    "categoryOrder": ["*", "Other"]
 }
