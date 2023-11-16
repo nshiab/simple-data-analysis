@@ -1765,6 +1765,18 @@ export default class SimpleDB {
         return await getColumns(this, table, options)
     }
 
+    /**
+     * Returns true if a specified column exists in a given table and false if not.
+     *
+     * ```ts
+     * const hasColumnSalary = await sdb.hasColumn("employees", "salary")
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param column - The name of the column to check for existence.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
     async hasColumn(
         table: string,
         column: string,
