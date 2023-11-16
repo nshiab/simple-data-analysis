@@ -14,7 +14,7 @@ describe("correlations", () => {
         await simpleNodeDB.done()
     })
 
-    it("should give all correlations between numerical columns in the table", async () => {
+    it("should give all correlations between numeric columns in the table", async () => {
         const data = await simpleNodeDB.correlations(
             "someData",
             "allCorrelations",
@@ -28,7 +28,7 @@ describe("correlations", () => {
         ])
     })
 
-    it("should give all correlations between numerical columns in the table and sort the correlation values in ascending order", async () => {
+    it("should give all correlations between numeric columns in the table and sort the correlation values in ascending order", async () => {
         const data = await simpleNodeDB.correlations(
             "someData",
             "allCorrelations",
@@ -42,7 +42,7 @@ describe("correlations", () => {
         ])
     })
 
-    it("should give all correlations between numerical columns with a specific x column", async () => {
+    it("should give all correlations between numeric columns with a specific x column", async () => {
         const data = await simpleNodeDB.correlations(
             "someData",
             "allCorrelationsX",

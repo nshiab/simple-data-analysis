@@ -68,6 +68,9 @@ export default class SimpleDB {
     db!: AsyncDuckDB | Database
     connection!: AsyncDuckDBConnection | Connection
     worker!: Worker | null
+    /**
+     * For internal use. If you want to run a SQL query, use the customQuery method.
+     */
     runQuery!: (
         query: string,
         connection: AsyncDuckDBConnection | Connection,
@@ -741,7 +744,7 @@ export default class SimpleDB {
      * // Round to the nearest integer.
      * await sdb.round("tableA", "column1")
      *
-     * // Round with a specific number of decimals.
+     * // Round with a specific number of decimal places.
      * await sdb.round("tableA", "column1", {decimals: 2})
      *
      * // Round with a specific method. Other methods are "round" and "ceiling".
@@ -1272,6 +1275,37 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Creates a summary table based on specified values, categories, and summary operations.
+     *
+     * ```ts
+     * // Summarize all numeric columns with all available summary operations (count, min, max, avg, median, sum, skew, stdDev, and var) and put the result in tableB.
+     * await sdb.summarize("tableA", "tableB")
+     *
+     * // Summarize a specific column with all available summary operations. Values can be an array of column names, too.
+     * await sdb.summarize("tableA", "tableB", {values: "column1"})
+     *
+     * // Summarize a specific column with all available summary operations and use the values in another column as categories. Categories can be an array of column names, too.
+     * await sdb.summarize("tableA", "tableB", {values: "column1", categories: "column2"})
+     *
+     * // Summarize a specific column with a specific summary operation and use the values in another column as categories. Summaries can be an array of summary operations, too.
+     * await sdb.summarize("tableA", "tableB", {values: "column1", categories: "column2", summaries: "avg"})
+     *
+     * // Summarize and round values with a specific number of decimal places (default is 2).
+     * await sdb.summarize("tableA", "tableB", {values: "column1", categories: "column2", summaries: "avg", decimals: 4})
+     * ```
+     *
+     * @param table - The name of the table to be summarized.
+     * @param outputTable - The name of the new table that will store the result.
+     * @param options - An optional object with configuration options:
+     *   - values: The column or columns whose values will be summarized. This can be a single column name or an array of column names.
+     *   - categories: The column or columns that define categories for the summarization. This can be a single column name or an array of column names.
+     *   - summaries: The summary operations to be performed. This can be a single summary operation or an array of summary operations. Possible values are "count", "min", "max", "avg", "median", "sum", "skew", "stdDev", and "var".
+     *   - decimals: The number of decimal places to round the summarized values. Defaults to 2.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async summarize(
         table: string,
         outputTable: string,
@@ -1310,6 +1344,33 @@ export default class SimpleDB {
         return await summarize(this, table, outputTable, options)
     }
 
+    /**
+     * Calculates correlations between columns in a table.
+     *
+     * If no *x* and *y* columns are specified, the method computes the correlations of all numeric column *combinations*. It's important to note that correlation is symmetrical: the correlation of *x* over *y* is the same as *y* over *x*.
+     *
+     * ```ts
+     * // Compute all correlations between all numeric columns in tableA and put the results in tableB.
+     * await sdb.correlations("tableA", "tableB")
+     *
+     * // Compute all correlations between a specific x column and all other numeric columns.
+     * await sdb.correlations("tableA", "tableB", {x: "column1"})
+     *
+     * // Compute the correlations between a specific x and y columns.
+     * await sdb.correlations("tableA", "tableB", {x: "column1", y: "column2"})
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param outputTable - The name of the new table that will store the results.
+     * @param options - An optional object with configuration options:
+     *   - x: The column name for the x values. Default is all numeric columns.
+     *   - y: The column name for the y values. Default is all numeric columns.
+     *   - decimals: The number of decimal places to round the correlation values. Defaults to 2.
+     *   - order: The order of correlation values in the output table. Possible values are "asc" (ascending) or "desc" (descending). Defaults to "desc".
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async correlations(
         table: string,
         outputTable: string,
@@ -1326,6 +1387,32 @@ export default class SimpleDB {
         return await correlations(this, table, outputTable, options)
     }
 
+    /**
+     * Performs linear regression analysis and creates a table with regression results. The results include the slope, the y-intercept the R-squared.
+     *
+     * If no *x* and *y* columns are specified, the method computes the linear regression analysis of all numeric column *permutations*. It's important to note that linear regression analysis is asymmetrical: the linear regression of *x* over *y* is not the same as *y* over *x*.
+     *
+     * ```ts
+     * // Compute all linear regressions between all numeric columns in tableA and put the results in tableB.
+     * await sdb.linearRegressions("tableA", "tableB")
+     *
+     * // Compute all linear regressions between a specific x column and all other numeric columns.
+     * await sdb.linearRegressions("tableA", "tableB", {x: "column1"})
+     *
+     * // Compute the linear regression between a specific x and y columns.
+     * await sdb.linearRegressions("tableA", "tableB", {x: "column1", y: "column2"})
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param outputTable - The name of the new table that will store the linear regression results.
+     * @param options - An optional object with configuration options:
+     *   - x: The column name for the independent variable (x values) in the linear regression analysis.
+     *   - y: The column name for the dependent variable (y values) in the linear regression analysis.
+     *   - decimals: The number of decimal places to round the regression coefficients. Defaults to 2.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async linearRegressions(
         table: string,
         outputTable: string,
@@ -1341,18 +1428,36 @@ export default class SimpleDB {
         return await linearRegressions(this, table, outputTable, options)
     }
 
+    /**
+     * Identifies outliers using the Interquartile Range (IQR) method.
+     *
+     * ```ts
+     * // Looks for outliers in column age from table1. Creates a new column ageOutliers with TRUE or FALSE values. "Outliers" is the default suffix for the new column.
+     * await sdb.outliersIQR("table1", "age")
+     *
+     * // Same thing, but overrides the default suffix "Outliers". The new column with TRUE or FALSE values will be ageOut.
+     * await sdb.outliersIQR("table1", "age", {suffix: "Out"})
+     * ```
+     *
+     * @param table - The name of the table containing the column for outlier detection.
+     * @param column - The name of the column in which outliers will be identified.
+     * @param options - An optional object with configuration options:
+     *   - suffix: The suffix to be appended to the new column storing the outlier flags.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async outliersIQR(
         table: string,
         column: string,
         options: {
-            newColumn?: string
+            suffix?: string
             returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
         ;(options.debug || this.debug) && console.log("\noutliersIQR()")
-        options.newColumn = options.newColumn ?? "outliers"
         return await queryDB(
             this.connection,
             this.runQuery,
@@ -1366,11 +1471,31 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Calculates the Z-Score.
+     *
+     * ```ts
+     * // Calculates the Z-score for the values in column age and puts the results in a column ageZ. "Z" is the default suffix for the new column.
+     * await sdb.zScore("table1", "age")
+     *
+     * // Same thing but overrides the suffix value. Here, the new column with the Z-scores will be named ageSigma.
+     * await sdb.zScore("table1", "age", {suffix: "Sigma"})
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param column - The name of the column for which Z-Score will be calculated.
+     * @param options - An optional object with configuration options:
+     *   - suffix: An optional suffix to append to the new column name storing the Z-Score values.
+     *   - decimals: The number of decimal places to round the Z-Score values. Defaults to 2.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async zScore(
         table: string,
         column: string,
         options: {
-            newColumn?: string
+            suffix?: string
             decimals?: number
             returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
@@ -1378,7 +1503,6 @@ export default class SimpleDB {
         } = {}
     ) {
         ;(options.debug || this.debug) && console.log("\nzScore()")
-        options.newColumn = options.newColumn ?? "zScore"
         options.decimals = options.decimals ?? 2
         return await queryDB(
             this.connection,
@@ -1388,6 +1512,22 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Executes a custom SQL query, providing flexibility for advanced users.
+     *
+     * ```ts
+     * // You can use the returnDataFrom option to retrieve the data from the query, if needed. Default is "none".
+     * await sdb.customQuery( "SELECT * FROM employees WHERE Job = 'Clerk'", {returnDataFrom: "query"})
+     * ```
+     *
+     * @param query - The custom SQL query to be executed.
+     * @param options - An optional object with configuration options:
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - table: The name of the table associated with the query (if applicable). Needed when debug is true.
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async customQuery(
         query: string,
         options: {
@@ -1413,6 +1553,28 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Updates data in a table using a JavaScript function. The function
+     * takes the existing rows as an array of objects and must return them modified as an array of objects. This method provides a flexible way to update data, but it's slow.
+     *
+     * ```ts
+     * // Adds one to the values from column1 in tableA. If the values are not numbers, they are replaced by null.
+     * await sdb.updateWithJS("tableA", (rows) => {
+     *  const modifiedRows = rows.map(d => ({
+     *      ...d,
+     *      column1: typeof d.column1 === "number" ? d.column1 + 1 : null
+     *  }))
+     *  return modifiedRows
+     * })
+     * ```
+     *
+     * @param table - The name of the table to update.
+     * @param dataModifier - A function that takes the existing rows and returns modified rows using JavaScript logic. The original rows are objects in an array and the modified rows must be returned as an array of objects too.
+     * @param options - An optional object with configuration options:
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async updateWithJS(
         table: string,
         dataModifier: (
@@ -1447,6 +1609,22 @@ export default class SimpleDB {
         return updatedData
     }
 
+    /**
+     * Creates a new empty table with specified columns and data types.
+     * 
+     * ```ts
+     *  await simpleNodeDB.createTable("employees", {
+        name: "string",
+        salary: "integer",
+        raise: "float",
+    })
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param types - An object specifying the columns and their data types.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
     async createTable(
         table: string,
         types: {
@@ -1479,6 +1657,19 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Returns the schema (column names and their data types) of a specified table.
+     *
+     * ```ts
+     * const schema = await simpleNodeDB.getSchema("tableA")
+     * // Or if you just want to log it.
+     * await simpleNodeDB.getSchema("tableA", {debug: true})
+     * ```
+     *
+     * @param table - The name of the table for which to retrieve the schema.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
     async getSchema(
         table: string,
         options: {
@@ -1499,6 +1690,19 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Returns descriptive information about the columns of a specified table, including details like data types, number of null and distinct values. Best to look at with console.table.
+     *
+     * ```ts
+     * const description = await sdb.getDescription("tableA")
+     * // Or if you just want to log it.
+     * await simpleNodeDB.getDescription("tableA", {debug: true})
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
     async getDescription(
         table: string,
         options: {

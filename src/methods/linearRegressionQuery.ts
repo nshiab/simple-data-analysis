@@ -21,7 +21,7 @@ export default function linearRegressionQuery(
             options.decimals ?? 2
         }) AS slope, ROUND(REGR_INTERCEPT("${perm[1]}", "${perm[0]}"), ${
             options.decimals ?? 2
-        }) AS intercept, ROUND(REGR_R2("${perm[1]}", "${perm[0]}"), ${
+        }) AS yIntercept, ROUND(REGR_R2("${perm[1]}", "${perm[0]}"), ${
             options.decimals ?? 2
         }) as r2
         FROM ${table}`

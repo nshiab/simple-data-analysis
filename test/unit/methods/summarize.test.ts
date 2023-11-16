@@ -14,7 +14,7 @@ describe("summarize", () => {
         await simpleNodeDB.done()
     })
 
-    it("should summarize all numerical columns in a table", async () => {
+    it("should summarize all numeric columns in a table", async () => {
         const data = await simpleNodeDB.summarize(
             "dataSummarize",
             "dataSummarizeAll",
@@ -50,7 +50,7 @@ describe("summarize", () => {
             },
         ])
     })
-    it("should summarize specific numerical columns in a table", async () => {
+    it("should summarize specific numeric columns in a table", async () => {
         const data = await simpleNodeDB.summarize(
             "dataSummarize",
             "dataSummarizeOneValue",
@@ -75,7 +75,7 @@ describe("summarize", () => {
             },
         ])
     })
-    it("should summarize specific numerical columns in a table with a specific number of decimals", async () => {
+    it("should summarize specific numeric columns in a table with a specific number of decimals", async () => {
         const data = await simpleNodeDB.summarize(
             "dataSummarize",
             "dataSummarizeOneValueDecimals",
@@ -101,7 +101,7 @@ describe("summarize", () => {
             },
         ])
     })
-    it("should summarize all numerical columns in a table with a non numerical category", async () => {
+    it("should summarize all numeric columns in a table with a non numeric category", async () => {
         const data = await simpleNodeDB.summarize(
             "dataSummarize",
             "dataSummarizeNonNumericalCategory",
@@ -166,7 +166,7 @@ describe("summarize", () => {
             },
         ])
     })
-    it("should summarize all numerical columns in a table with a numerical category", async () => {
+    it("should summarize all numeric columns in a table with a numeric category", async () => {
         const data = await simpleNodeDB.summarize(
             "dataSummarize",
             "dataSummarizeNumericalCategory",
@@ -231,7 +231,7 @@ describe("summarize", () => {
             },
         ])
     })
-    it("should summarize all numerical columns in a table with specific summaries", async () => {
+    it("should summarize all numeric columns in a table with specific summaries", async () => {
         const data = await simpleNodeDB.summarize(
             "dataSummarize",
             "dataSummarizeAllSpecificSummaries",
@@ -246,7 +246,7 @@ describe("summarize", () => {
             { value: "key3", avg: 7.44, count: 4 },
         ])
     })
-    it("should summarize all numerical columns in a table with specific summaries and specific categories", async () => {
+    it("should summarize all numeric columns in a table with specific summaries and specific categories", async () => {
         const data = await simpleNodeDB.summarize(
             "dataSummarize",
             "dataSummarizeAllSpecificSummariesAndCategories",

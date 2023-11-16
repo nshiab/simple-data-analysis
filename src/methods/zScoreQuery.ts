@@ -2,7 +2,7 @@ export default function zScoreQuery(
     table: string,
     column: string,
     options: {
-        newColumn?: string
+        suffix?: string
         decimals?: number
     } = {}
 ) {
@@ -14,6 +14,6 @@ export default function zScoreQuery(
         /
         STDDEV("${column}") Over(),
         ${options.decimals ?? 2})
-        ) AS "${options.newColumn ?? "zScore"}",
+        ) AS "${column}${options.suffix ?? "Z"}",
     FROM ${table}`
 }

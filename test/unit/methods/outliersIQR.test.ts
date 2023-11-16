@@ -56,38 +56,6 @@ describe("outliersIQR", () => {
         })
 
         assert.deepStrictEqual(data, [
-            { name: "Chloe", age: 33, outliers: false },
-            { name: "Philip", age: 33, outliers: false },
-            { name: "Sonny", age: 57, outliers: true },
-            { name: "Frazer", age: 64, outliers: true },
-            { name: "Sarah", age: 64, outliers: true },
-            { name: "Frankie", age: 65, outliers: true },
-            { name: "Morgan", age: 33, outliers: false },
-            { name: "Jeremy", age: 34, outliers: false },
-            { name: "Claudia", age: 35, outliers: false },
-            { name: "Evangeline", age: 21, outliers: true },
-            { name: "Amelia", age: 29, outliers: false },
-            { name: "Marie", age: 30, outliers: false },
-            { name: "Kiara", age: 31, outliers: false },
-            { name: "Isobel", age: 31, outliers: false },
-            { name: "Genevieve", age: 32, outliers: false },
-            { name: "Jane", age: 32, outliers: false },
-        ])
-    })
-
-    it("should add an new column with its name based on options, while identifying outliers based on the IQR method with an even number of rows", async () => {
-        // comparing against https://dataschool.com/how-to-teach-people-sql/how-to-find-outliers-with-sql/
-
-        const data = await simpleNodeDB.outliersIQR(
-            "peopleDifferentName",
-            "age",
-            {
-                newColumn: "ageOutliers",
-                returnDataFrom: "table",
-            }
-        )
-
-        assert.deepStrictEqual(data, [
             { name: "Chloe", age: 33, ageOutliers: false },
             { name: "Philip", age: 33, ageOutliers: false },
             { name: "Sonny", age: 57, ageOutliers: true },
@@ -107,6 +75,38 @@ describe("outliersIQR", () => {
         ])
     })
 
+    it("should add an new column with its name based on options, while identifying outliers based on the IQR method with an even number of rows", async () => {
+        // comparing against https://dataschool.com/how-to-teach-people-sql/how-to-find-outliers-with-sql/
+
+        const data = await simpleNodeDB.outliersIQR(
+            "peopleDifferentName",
+            "age",
+            {
+                suffix: "Out",
+                returnDataFrom: "table",
+            }
+        )
+
+        assert.deepStrictEqual(data, [
+            { name: "Chloe", age: 33, ageOut: false },
+            { name: "Philip", age: 33, ageOut: false },
+            { name: "Sonny", age: 57, ageOut: true },
+            { name: "Frazer", age: 64, ageOut: true },
+            { name: "Sarah", age: 64, ageOut: true },
+            { name: "Frankie", age: 65, ageOut: true },
+            { name: "Morgan", age: 33, ageOut: false },
+            { name: "Jeremy", age: 34, ageOut: false },
+            { name: "Claudia", age: 35, ageOut: false },
+            { name: "Evangeline", age: 21, ageOut: true },
+            { name: "Amelia", age: 29, ageOut: false },
+            { name: "Marie", age: 30, ageOut: false },
+            { name: "Kiara", age: 31, ageOut: false },
+            { name: "Isobel", age: 31, ageOut: false },
+            { name: "Genevieve", age: 32, ageOut: false },
+            { name: "Jane", age: 32, ageOut: false },
+        ])
+    })
+
     it("should add an outliers column based on the IQR method with an even number of rows", async () => {
         // comparing against https://dataschool.com/how-to-teach-people-sql/how-to-find-outliers-with-sql/
 
@@ -115,23 +115,23 @@ describe("outliersIQR", () => {
         })
 
         assert.deepStrictEqual(data, [
-            { name: "Chloe", age: 33, outliers: false },
-            { name: "Philip", age: 33, outliers: false },
-            { name: "Sonny", age: 57, outliers: true },
-            { name: "Frazer", age: 64, outliers: true },
-            { name: "Sarah", age: 64, outliers: true },
-            { name: "Frankie", age: 65, outliers: true },
-            { name: "Morgan", age: 33, outliers: false },
-            { name: "Helen", age: 20, outliers: true },
-            { name: "Jeremy", age: 34, outliers: false },
-            { name: "Claudia", age: 35, outliers: false },
-            { name: "Evangeline", age: 21, outliers: true },
-            { name: "Amelia", age: 29, outliers: false },
-            { name: "Marie", age: 30, outliers: false },
-            { name: "Kiara", age: 31, outliers: false },
-            { name: "Isobel", age: 31, outliers: false },
-            { name: "Genevieve", age: 32, outliers: false },
-            { name: "Jane", age: 32, outliers: false },
+            { name: "Chloe", age: 33, ageOutliers: false },
+            { name: "Philip", age: 33, ageOutliers: false },
+            { name: "Sonny", age: 57, ageOutliers: true },
+            { name: "Frazer", age: 64, ageOutliers: true },
+            { name: "Sarah", age: 64, ageOutliers: true },
+            { name: "Frankie", age: 65, ageOutliers: true },
+            { name: "Morgan", age: 33, ageOutliers: false },
+            { name: "Helen", age: 20, ageOutliers: true },
+            { name: "Jeremy", age: 34, ageOutliers: false },
+            { name: "Claudia", age: 35, ageOutliers: false },
+            { name: "Evangeline", age: 21, ageOutliers: true },
+            { name: "Amelia", age: 29, ageOutliers: false },
+            { name: "Marie", age: 30, ageOutliers: false },
+            { name: "Kiara", age: 31, ageOutliers: false },
+            { name: "Isobel", age: 31, ageOutliers: false },
+            { name: "Genevieve", age: 32, ageOutliers: false },
+            { name: "Jane", age: 32, ageOutliers: false },
         ])
     })
 })
