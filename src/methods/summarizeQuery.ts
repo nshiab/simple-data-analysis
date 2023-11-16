@@ -7,7 +7,7 @@ export default function summarizeQuery(
         | "count"
         | "min"
         | "max"
-        | "avg"
+        | "mean"
         | "median"
         | "sum"
         | "skew"
@@ -20,7 +20,7 @@ export default function summarizeQuery(
         count: "COUNT",
         min: "MIN",
         max: "MAX",
-        avg: "AVG",
+        mean: "AVG",
         median: "MEDIAN",
         sum: "SUM",
         skew: "SKEWNESS",
@@ -33,7 +33,7 @@ export default function summarizeQuery(
             | "count"
             | "min"
             | "max"
-            | "avg"
+            | "mean"
             | "median"
             | "sum"
             | "skew"

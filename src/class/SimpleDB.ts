@@ -701,12 +701,12 @@ export default class SimpleDB {
      *
      * ```ts
      * // In table store, keep only rows where the fruit is not an apple.
-     * await sdb.filter("store", `"fruit" != 'apple'`)
+     * await sdb.filter("store", "fruit != 'apple'"")
      *
      * // More examples:
-     * await sdb.filter("store", `"price" > 100 AND "quantity" > 0`)
-     * await sdb.filter("inventory", `"category" = 'Electronics' OR "category" = 'Appliances'`)
-     * await sdb.filter("customers", `"lastPurchaseDate" >= '2023-01-01'`)
+     * await sdb.filter("store", "price > 100 AND quantity > 0")
+     * await sdb.filter("inventory", "category = 'Electronics' OR category = 'Appliances'")
+     * await sdb.filter("customers", "lastPurchaseDate >= '2023-01-01'")
      * ```
      *
      * @param table - The name of the table from which rows will be filtered.
@@ -916,7 +916,7 @@ export default class SimpleDB {
      * Adds a new column to a table based on a type (JavaScript or SQL types) and a SQL definition.
      *
      * ```ts
-     * await sdb.addColumn("tableA", "column3", "float", `"column1" + "column2"`)
+     * await sdb.addColumn("tableA", "column3", "float", "column1 + column2")
      * ```
      *
      * @param table - The name of the table to which the new column will be added.
@@ -1279,7 +1279,7 @@ export default class SimpleDB {
      * Creates a summary table based on specified values, categories, and summary operations.
      *
      * ```ts
-     * // Summarize all numeric columns with all available summary operations (count, min, max, avg, median, sum, skew, stdDev, and var) and put the result in tableB.
+     * // Summarize all numeric columns with all available summary operations (count, min, max, mean, median, sum, skew, stdDev, and var) and put the result in tableB.
      * await sdb.summarize("tableA", "tableB")
      *
      * // Summarize a specific column with all available summary operations. Values can be an array of column names, too.
@@ -1289,10 +1289,10 @@ export default class SimpleDB {
      * await sdb.summarize("tableA", "tableB", {values: "column1", categories: "column2"})
      *
      * // Summarize a specific column with a specific summary operation and use the values in another column as categories. Summaries can be an array of summary operations, too.
-     * await sdb.summarize("tableA", "tableB", {values: "column1", categories: "column2", summaries: "avg"})
+     * await sdb.summarize("tableA", "tableB", {values: "column1", categories: "column2", summaries: "mean"})
      *
      * // Summarize and round values with a specific number of decimal places (default is 2).
-     * await sdb.summarize("tableA", "tableB", {values: "column1", categories: "column2", summaries: "avg", decimals: 4})
+     * await sdb.summarize("tableA", "tableB", {values: "column1", categories: "column2", summaries: "mean", decimals: 4})
      * ```
      *
      * @param table - The name of the table to be summarized.
@@ -1300,7 +1300,7 @@ export default class SimpleDB {
      * @param options - An optional object with configuration options:
      *   - values: The column or columns whose values will be summarized. This can be a single column name or an array of column names.
      *   - categories: The column or columns that define categories for the summarization. This can be a single column name or an array of column names.
-     *   - summaries: The summary operations to be performed. This can be a single summary operation or an array of summary operations. Possible values are "count", "min", "max", "avg", "median", "sum", "skew", "stdDev", and "var".
+     *   - summaries: The summary operations to be performed. This can be a single summary operation or an array of summary operations. Possible values are "count", "min", "max", "mean", "median", "sum", "skew", "stdDev", and "var".
      *   - decimals: The number of decimal places to round the summarized values. Defaults to 2.
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
@@ -1317,7 +1317,7 @@ export default class SimpleDB {
                       | "count"
                       | "min"
                       | "max"
-                      | "avg"
+                      | "mean"
                       | "median"
                       | "sum"
                       | "skew"
@@ -1328,7 +1328,7 @@ export default class SimpleDB {
                       | "count"
                       | "min"
                       | "max"
-                      | "avg"
+                      | "mean"
                       | "median"
                       | "sum"
                       | "skew"
@@ -1754,7 +1754,6 @@ export default class SimpleDB {
      * @param table - The name of the table for which to retrieve column names.
      * @param options - An optional object with configuration options:
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
-     * @returns A Promise that resolves with an array of column names for the specified table.
      */
     async getColumns(
         table: string,
@@ -1784,9 +1783,23 @@ export default class SimpleDB {
             debug?: boolean
         } = {}
     ) {
+        ;(options.debug || this.debug) && console.log("\nhasColumn()")
         return (await getColumns(this, table, options)).includes(column)
     }
 
+    /**
+     * Returns the number of columns (width) in a table.
+     *
+     * ```ts
+     * const nbColumns = await sdb.getWidth("tableA")
+     * // Or if you just want to log it
+     * await sdb.getWidth("tableA", {debug: true})
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
     async getWidth(
         table: string,
         options: {
@@ -1797,6 +1810,19 @@ export default class SimpleDB {
         return (await getColumns(this, table, options)).length
     }
 
+    /**
+     * Returns the number of rows (length) in a table.
+     *
+     * ```ts
+     * const nbRows = await sdb.getLength("tableA")
+     * // Or if you just want to log it
+     * await sdb.getLength("tableA", {debug: true})
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
     async getLength(
         table: string,
         options: {
@@ -1806,19 +1832,45 @@ export default class SimpleDB {
         return await getLength(this, table, options)
     }
 
-    async dataPoints(
+    /**
+     * Returns the number of data points (cells/values) in a table.
+     *
+     * ```ts
+     * const nbDataPoints = await sdb.getValuesCount("tableA")
+     * // Or if you just want to log it
+     * await sdb.getValuesCount("tableA", {debug: true})
+     * ```
+     *
+     * @param table - The name of the table .
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
+    async getValuesCount(
         table: string,
         options: {
             debug?: boolean
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\ndataPoints()")
+        ;(options.debug || this.debug) && console.log("\ngetValuesCount()")
         return (
             (await this.getWidth(table, options)) *
             (await this.getLength(table, options))
         )
     }
 
+    /**
+     * Returns the data types of columns in a table.
+     *
+     * ```ts
+     * const dataTypes = await sdb.getTypes("tableA")
+     * // Or if you just want to log it
+     * await sdb.getTypes("tableA", {debug: true})
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
     async getTypes(
         table: string,
         options: {
@@ -1828,6 +1880,19 @@ export default class SimpleDB {
         return await getTypes(this, table, options)
     }
 
+    /**
+     * Returns the values of a specific column in a table.
+     *
+     * ```ts
+     * const values = await sdb.getValues("tableA", "column1")
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param column - The name of the column.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async getValues(
         table: string,
         column: string,
@@ -1839,6 +1904,18 @@ export default class SimpleDB {
         return await getValues(this, table, column, options)
     }
 
+    /**
+     * Returns the minimum value from a specific column in a table.
+     *
+     * ```ts
+     * const minimum = sdb.getMin("tableA", "column1")
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param column - The name of the column.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
     async getMin(
         table: string,
         column: string,
@@ -1849,6 +1926,18 @@ export default class SimpleDB {
         return await getMin(this, table, column, options)
     }
 
+    /**
+     * Returns the maximum value from a specific column in a table.
+     *
+     * ```ts
+     * const maximum = sdb.getMax("tableA", "column1")
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param column - The name of the column.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
     async getMax(
         table: string,
         column: string,
@@ -1859,6 +1948,19 @@ export default class SimpleDB {
         return await getMax(this, table, column, options)
     }
 
+    /**
+     * Returns the mean value from a specific column in a table.
+     *
+     * ```ts
+     * const mean = sdb.getMean("tableA", "column1")
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param column - The name of the column.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - decimals: The number of decimal places to round the result to. All decimals are kept by default.
+     */
     async getMean(
         table: string,
         column: string,
@@ -1870,6 +1972,19 @@ export default class SimpleDB {
         return await getMean(this, table, column, options)
     }
 
+    /**
+     * Returns the median value from a specific column in a table.
+     *
+     * ```ts
+     * const median = sdb.getMedian("tableA", "column1")
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param column - The name of the column.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - decimals: The number of decimal places to round the result to. All decimals are kept by default.
+     */
     async getMedian(
         table: string,
         column: string,
@@ -1881,6 +1996,18 @@ export default class SimpleDB {
         return await getMedian(this, table, column, options)
     }
 
+    /**
+     * Returns the sum of values from a specific column in a table.
+     *
+     * ```ts
+     * const sum = sdb.getSum("tableA", "column1")
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param column - The name of the column.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
     async getSum(
         table: string,
         column: string,
@@ -1891,6 +2018,19 @@ export default class SimpleDB {
         return await getSum(this, table, column, options)
     }
 
+    /**
+     * Returns the skewness of values from a specific column in a table.
+     *
+     * ```ts
+     * const skew = sdb.getSkew("tableA", "column1")
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param column - The name of the column.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - decimals: The number of decimal places to round the result to. All decimals are kept by default.
+     */
     async getSkew(
         table: string,
         column: string,
@@ -1902,6 +2042,19 @@ export default class SimpleDB {
         return await getSkew(this, table, column, options)
     }
 
+    /**
+     * Returns the standard deviation of values from a specific column in a table.
+     *
+     * ```ts
+     * const standardDeviation = sdb.getStdDev("tableA", "column1")
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param column - The name of the column.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - decimals: The number of decimal places to round the result to. All decimals are kept by default.
+     */
     async getStdDev(
         table: string,
         column: string,
@@ -1913,6 +2066,19 @@ export default class SimpleDB {
         return await getStdDev(this, table, column, options)
     }
 
+    /**
+     * Returns the variance of values from a specific column in a table.
+     *
+     * ```ts
+     * const variance = sdb.getVar("tableA", "column1")
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param column - The name of the column.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - decimals: The number of decimal places to round the result to. All decimals are kept by default.
+     */
     async getVar(
         table: string,
         column: string,
@@ -1924,6 +2090,20 @@ export default class SimpleDB {
         return await getVar(this, table, column, options)
     }
 
+    /**
+     * Returns the value of a specific quantile from the values in a given column of a table.
+     *
+     * ```ts
+     * const firstQuartile = sdb.getQuantile("tableA", "column1", 0.25)
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param column - The name of the column from which to calculate the quantile.
+     * @param quantile - The quantile (between 0 and 1) to calculate. For example, 0.25 for the first quartile.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - decimals: The number of decimal places to round the result to. All decimals are kept by default.
+     */
     async getQuantile(
         table: string,
         column: string,
@@ -1933,6 +2113,19 @@ export default class SimpleDB {
         return await getQuantile(this, table, column, quantile, options)
     }
 
+    /**
+     * Returns unique values from a specific column in a table.
+     *
+     * ```ts
+     * const uniques = await sdb.getUniques("tableA", "column1")
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param column - The name of the column from which to retrieve unique values.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async getUniques(
         table: string,
         column: string,
@@ -1944,6 +2137,22 @@ export default class SimpleDB {
         return await getUniques(this, table, column, options)
     }
 
+    /**
+     * Returns the first row from a table based on optional filtering conditions.
+     *
+     * ```ts
+     * // No condition.
+     * const firstRow = await sdb.getFirstRow("inventory")
+     *
+     * // With condition
+     * const firstRowBooks = await sdb.getFirstRow("inventory", {condition: "category = 'Book'"})
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param options - An optional object with configuration options:
+     *   - condition: The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
     async getFirstRow(
         table: string,
         options: {
@@ -1954,6 +2163,22 @@ export default class SimpleDB {
         return getFirstRow(this, table, options)
     }
 
+    /**
+     * Returns the last row from a table based on optional filtering conditions.
+     *
+     * ```ts
+     * // No condition.
+     * const lastRow = await sdb.getLastRow("inventory")
+     *
+     * // With condition
+     * const lastRowBooks = await sdb.getLastRow("inventory", {condition: "category = 'Book'"})
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param options - An optional object with configuration options:
+     *   - condition: The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
     async getLastRow(
         table: string,
         options: {
@@ -1964,6 +2189,18 @@ export default class SimpleDB {
         return getLastRow(this, table, options)
     }
 
+    /**
+     * Returns the top N rows from a table.
+     *
+     * ```ts
+     * const top10 = await sdb.getTop("tableA", 10)
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param count - The number of rows to return.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
     async getTop(
         table: string,
         count: number,
@@ -1974,6 +2211,23 @@ export default class SimpleDB {
         return await getTop(this, table, count, options)
     }
 
+    /**
+     * Returns the bottom N rows from a table. The last row will be returned first. To keep the original order of the data, use the originalOrder option.
+     *
+     * ```ts
+     * // Last row will be returned first.
+     * const bottom10 = await sdb.getBottom("tableA", 10)
+     *
+     * // Last row will be returned last.
+     * const bottom10 = await sdb.getBottom("tableA", 10, {originalOrder: true})
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param count - The number of rows to return.
+     * @param options - An optional object with configuration options:
+     *   - originalOrder: A boolean indicating whether the rows should be returned in their original order. Default is false, meaning the last row will be returned first.
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
     async getBottom(
         table: string,
         count: number,
@@ -1985,6 +2239,23 @@ export default class SimpleDB {
         return await getBottom(this, table, count, options)
     }
 
+    /**
+     * Returns the data from a specified table with an optional condition.
+     *
+     * ```ts
+     * // No condition. Returns all data.
+     * const data = await sdb.getData("inventory")
+     *
+     * // With condition
+     * const books = await sdb.getData("inventory", {condition: "category = 'Book'"})
+     * ```
+     *
+     * @param table - The name of the table from which to retrieve the data.
+     * @param options - An optional object with configuration options:
+     *   - condition: A SQL WHERE clause condition to filter the data. Defaults to no condition.
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async getData(
         table: string,
         options: {
@@ -2004,6 +2275,23 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Same as the getData method, but returns a Data type from Observable Plot. Used to pass the data directly to generate a chart without TypeScript warnings or errors.
+     *
+     * ```ts
+     * // No condition. Returns all data.
+     * const data = await sdb.getData("inventory")
+     *
+     * // With condition
+     * const books = await sdb.getData("inventory", {condition: "category = 'Book'"})
+     * ```
+     *
+     * @param table - The name of the table from which to retrieve the data.
+     * @param options - An optional object with configuration options:
+     *   - condition: A SQL WHERE clause condition to filter the data. Defaults to no condition.
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
     async getChartData(
         table: string,
         options: {
@@ -2016,6 +2304,18 @@ export default class SimpleDB {
         return (await this.getData(table, options)) as Data
     }
 
+    /**
+     * Logs a specified number of rows from a table. Default is 10 rows.
+     *
+     * ```ts
+     * await sdb.logTable("tableA");
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param options - An optional object with configuration options:
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
     async logTable(
         table: string,
         options: {
@@ -2034,6 +2334,16 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * Frees up memory. Closes the connection to the database and terminates associated resources.
+     *
+     * ```typescript
+     * await sdb.done();
+     * ```
+     *
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
     async done(
         options: {
             debug?: boolean

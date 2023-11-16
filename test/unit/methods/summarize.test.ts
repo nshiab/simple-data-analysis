@@ -29,7 +29,7 @@ describe("summarize", () => {
                 count: 4,
                 min: 1,
                 max: 22,
-                avg: 9,
+                mean: 9,
                 median: 6.5,
                 sum: 36,
                 skew: 0.97,
@@ -41,7 +41,7 @@ describe("summarize", () => {
                 count: 4,
                 min: 2.35,
                 max: 12.34,
-                avg: 7.44,
+                mean: 7.44,
                 median: 7.53,
                 sum: 29.75,
                 skew: -0.06,
@@ -66,7 +66,7 @@ describe("summarize", () => {
                 count: 4,
                 min: 1,
                 max: 22,
-                avg: 9,
+                mean: 9,
                 median: 6.5,
                 sum: 36,
                 skew: 0.97,
@@ -92,7 +92,7 @@ describe("summarize", () => {
                 count: 4,
                 min: 1,
                 max: 22,
-                avg: 9,
+                mean: 9,
                 median: 6.5,
                 sum: 36,
                 skew: 0.9669,
@@ -118,7 +118,7 @@ describe("summarize", () => {
                 count: 2,
                 min: 11,
                 max: 22,
-                avg: 16.5,
+                mean: 16.5,
                 median: 16.5,
                 sum: 33,
                 skew: null,
@@ -131,7 +131,7 @@ describe("summarize", () => {
                 count: 2,
                 min: 1,
                 max: 2,
-                avg: 1.5,
+                mean: 1.5,
                 median: 1.5,
                 sum: 3,
                 skew: null,
@@ -144,7 +144,7 @@ describe("summarize", () => {
                 count: 2,
                 min: 2.35,
                 max: 12.34,
-                avg: 7.34,
+                mean: 7.34,
                 median: 7.34,
                 sum: 14.69,
                 skew: null,
@@ -157,7 +157,7 @@ describe("summarize", () => {
                 count: 2,
                 min: 4.57,
                 max: 10.5,
-                avg: 7.53,
+                mean: 7.53,
                 median: 7.53,
                 sum: 15.07,
                 skew: null,
@@ -183,7 +183,7 @@ describe("summarize", () => {
                 count: 1,
                 min: 10.5,
                 max: 10.5,
-                avg: 10.5,
+                mean: 10.5,
                 median: 10.5,
                 sum: 10.5,
                 skew: null,
@@ -196,7 +196,7 @@ describe("summarize", () => {
                 count: 1,
                 min: 4.57,
                 max: 4.57,
-                avg: 4.57,
+                mean: 4.57,
                 median: 4.57,
                 sum: 4.57,
                 skew: null,
@@ -209,7 +209,7 @@ describe("summarize", () => {
                 count: 1,
                 min: 2.35,
                 max: 2.35,
-                avg: 2.35,
+                mean: 2.35,
                 median: 2.35,
                 sum: 2.35,
                 skew: null,
@@ -222,7 +222,7 @@ describe("summarize", () => {
                 count: 1,
                 min: 12.34,
                 max: 12.34,
-                avg: 12.34,
+                mean: 12.34,
                 median: 12.34,
                 sum: 12.34,
                 skew: null,
@@ -236,14 +236,14 @@ describe("summarize", () => {
             "dataSummarize",
             "dataSummarizeAllSpecificSummaries",
             {
-                summaries: ["avg", "count"],
+                summaries: ["mean", "count"],
                 returnDataFrom: "table",
             }
         )
 
         assert.deepStrictEqual(data, [
-            { value: "key2", avg: 9, count: 4 },
-            { value: "key3", avg: 7.44, count: 4 },
+            { value: "key2", mean: 9, count: 4 },
+            { value: "key3", mean: 7.44, count: 4 },
         ])
     })
     it("should summarize all numeric columns in a table with specific summaries and specific categories", async () => {
@@ -252,16 +252,16 @@ describe("summarize", () => {
             "dataSummarizeAllSpecificSummariesAndCategories",
             {
                 categories: "key1",
-                summaries: ["avg", "count"],
+                summaries: ["mean", "count"],
                 returnDataFrom: "table",
             }
         )
 
         assert.deepStrictEqual(data, [
-            { value: "key2", key1: "Fraise", avg: 16.5, count: 2 },
-            { value: "key2", key1: "Rubarbe", avg: 1.5, count: 2 },
-            { value: "key3", key1: "Fraise", avg: 7.34, count: 2 },
-            { value: "key3", key1: "Rubarbe", avg: 7.53, count: 2 },
+            { value: "key2", key1: "Fraise", mean: 16.5, count: 2 },
+            { value: "key2", key1: "Rubarbe", mean: 1.5, count: 2 },
+            { value: "key3", key1: "Fraise", mean: 7.34, count: 2 },
+            { value: "key3", key1: "Rubarbe", mean: 7.53, count: 2 },
         ])
     })
     it("should summarize specific columns in a table with specific summaries and specific categories", async () => {
@@ -271,13 +271,13 @@ describe("summarize", () => {
             {
                 values: "key2",
                 categories: "key1",
-                summaries: ["avg", "count"],
+                summaries: ["mean", "count"],
                 returnDataFrom: "table",
             }
         )
         assert.deepStrictEqual(data, [
-            { value: "key2", key1: "Fraise", avg: 16.5, count: 2 },
-            { value: "key2", key1: "Rubarbe", avg: 1.5, count: 2 },
+            { value: "key2", key1: "Fraise", mean: 16.5, count: 2 },
+            { value: "key2", key1: "Rubarbe", mean: 1.5, count: 2 },
         ])
     })
     it("should summarize with multiple categories", async () => {
@@ -287,16 +287,16 @@ describe("summarize", () => {
             {
                 values: "key3",
                 categories: ["key1", "key2"],
-                summaries: ["avg", "count"],
+                summaries: ["mean", "count"],
                 returnDataFrom: "table",
             }
         )
 
         assert.deepStrictEqual(data, [
-            { value: "key3", key1: "Fraise", key2: 11, avg: 2.35, count: 1 },
-            { value: "key3", key1: "Fraise", key2: 22, avg: 12.34, count: 1 },
-            { value: "key3", key1: "Rubarbe", key2: 1, avg: 10.5, count: 1 },
-            { value: "key3", key1: "Rubarbe", key2: 2, avg: 4.57, count: 1 },
+            { value: "key3", key1: "Fraise", key2: 11, mean: 2.35, count: 1 },
+            { value: "key3", key1: "Fraise", key2: 22, mean: 12.34, count: 1 },
+            { value: "key3", key1: "Rubarbe", key2: 1, mean: 10.5, count: 1 },
+            { value: "key3", key1: "Rubarbe", key2: 2, mean: 4.57, count: 1 },
         ])
     })
 })

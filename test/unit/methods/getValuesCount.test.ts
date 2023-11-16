@@ -1,7 +1,7 @@
 import assert from "assert"
 import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
 
-describe("dataPoints", () => {
+describe("getValuesCount", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
         simpleNodeDB = await new SimpleNodeDB().start()
@@ -12,6 +12,6 @@ describe("dataPoints", () => {
     })
 
     it("should return the number of data points", async () => {
-        assert.deepStrictEqual(await simpleNodeDB.dataPoints("data"), 8)
+        assert.deepStrictEqual(await simpleNodeDB.getValuesCount("data"), 8)
     })
 })
