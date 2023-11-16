@@ -27,7 +27,7 @@ describe("writeChart", () => {
     it("should write a chart with Observable Plot options", async () => {
         const data = await simpleNodeDB.getChartData("employees")
 
-        writeChart(`${outputPath}chart.html`, {
+        writeChart(`${outputPath}chart.svg`, {
             x: { type: "point" },
             marks: [
                 dot(data, {

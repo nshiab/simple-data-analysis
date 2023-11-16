@@ -19,16 +19,27 @@
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="writeChart"><span class="tsd-kind-call-signature">write<wbr/>Chart</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">file</span>, <span class="tsd-kind-parameter">plotOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#writeChart" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Writes a chart to an SVG or HTML file using the Observable Plot library. This is meant to be used with the SimpleNodeDB class. It uses jsdom to emulate web APIs.</p>
+<pre><code class="language-ts"><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">data</span><span class="hl-1"> = </span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-5">sdb</span><span class="hl-1">.</span><span class="hl-4">getChartData</span><span class="hl-1">(</span><span class="hl-6">&quot;tableA&quot;</span><span class="hl-1">)</span><br/><br/><span class="hl-4">writeChart</span><span class="hl-1">(</span><span class="hl-6">&quot;output/chart.svg&quot;</span><span class="hl-1">, {</span><br/><span class="hl-1"> </span><span class="hl-5">marks:</span><span class="hl-1"> [</span><br/><span class="hl-1">     </span><span class="hl-5">Plot</span><span class="hl-1">.</span><span class="hl-4">dot</span><span class="hl-1">(</span><span class="hl-5">data</span><span class="hl-1">, {</span><br/><span class="hl-1">         </span><span class="hl-5">x:</span><span class="hl-1"> </span><span class="hl-6">&quot;year&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">         </span><span class="hl-5">y:</span><span class="hl-1"> </span><span class="hl-6">&quot;price&quot;</span><br/><span class="hl-1">     })</span><br/><span class="hl-1"> ]</span><br/><span class="hl-1">})</span>
+</code><button>Copy</button></pre>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">file</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">file</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The path to the file.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">plotOptions</span>: <span class="tsd-signature-type ">PlotOptions</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
+<h5><span class="tsd-kind-parameter">plotOptions</span>: <span class="tsd-signature-type ">PlotOptions</span></h5>
+<div class="tsd-comment tsd-typography"><p>The Plot options for creating the chart.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/functions/writeChart.ts#L5">functions/writeChart.ts:5</a></li></ul></aside></li></ul></section></div>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/8307a5f/src/functions/writeChart.ts#L25">functions/writeChart.ts:25</a></li></ul></aside></li></ul></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
