@@ -24,9 +24,9 @@ export default function writeDataQuery(
         }
     } else if (fileExtension === "parquet") {
         if (options.compression) {
-            return `COPY ${table} to '${file}' (FORMAT PARQUET, COMPRESSION ZSTD);`
+            return `COPY ${table} TO '${file}' (FORMAT PARQUET, COMPRESSION ZSTD);`
         } else {
-            return `COPY ${table} to '${file}' (FORMAT PARQUET);`
+            return `COPY ${table} TO '${file}' (FORMAT PARQUET);`
         }
     } else {
         throw new Error(`Unknown extension ${fileExtension}`)

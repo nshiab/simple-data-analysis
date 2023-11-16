@@ -16,11 +16,11 @@
 <li><a href="SimpleNodeDB.html">SimpleNodeDB</a></li></ul>
 <h1>Class SimpleNodeDB</h1></div>
 <section class="tsd-panel tsd-comment">
-<div class="tsd-comment tsd-typography"><p>SimpleDB is a class that provides a simplified interface for working with DuckDB,
+<div class="tsd-comment tsd-typography"><p>SimpleNodeDB is a class that provides a simplified interface for working with DuckDB,
 a high-performance, in-memory analytical database. This class is meant to be used
-in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
-<p>Here&#39;s how to instantiate and start a SimpleDB instance.</p>
-<pre><code class="language-ts"><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">sdb</span><span class="hl-1"> = </span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-4">SimpleDB</span><span class="hl-1">().</span><span class="hl-4">start</span><span class="hl-1">()</span>
+with NodeJS and other runtimes. For web browsers, use SimpleDB.</p>
+<p>Here&#39;s how to instantiate and start a SimpleNodeDB instance.</p>
+<pre><code class="language-ts"><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">sdb</span><span class="hl-1"> = </span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-4">SimpleNodeDB</span><span class="hl-1">().</span><span class="hl-4">start</span><span class="hl-1">()</span>
 </code><button>Copy</button></pre>
 </div>
 <div class="tsd-comment tsd-typography"></div></section>
@@ -31,7 +31,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <ul class="tsd-hierarchy">
 <li><span class="target">SimpleNodeDB</span></li></ul></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleNodeDB.ts#L13">class/SimpleNodeDB.ts:13</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleNodeDB.ts#L25">class/SimpleNodeDB.ts:25</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -127,20 +127,33 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="constructor.new_SimpleNodeDB"><span class="tsd-kind-constructor-signature">new <wbr/>Simple<wbr/>NodeDB</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="SimpleNodeDB.html" class="tsd-signature-type tsd-kind-class">SimpleNodeDB</a><a href="#constructor.new_SimpleNodeDB" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Creates an instance of SimpleNodeDB.</p>
+<p>After instantiating, you need to call the start method.</p>
+<pre><code class="language-ts"><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">sdb</span><span class="hl-1"> = </span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-4">SimpleNodeDB</span><span class="hl-1">().</span><span class="hl-4">start</span><span class="hl-1">()</span>
+</code><button>Copy</button></pre>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
 <h5><span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">debug</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">nbRowsToLog</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></h5>
+<div class="tsd-comment tsd-typography"><p>An optional object with configuration options:</p>
+<ul>
+<li>debug: A flag indicating whether debugging information should be logged. Defaults to false.</li>
+<li>nbRowsToLog: The number of rows to log when debugging. Defaults to 10.</li>
+</ul>
+</div>
+<div class="tsd-comment tsd-typography"></div>
 <ul class="tsd-parameters">
 <li class="tsd-parameter">
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">debug</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5></li>
 <li class="tsd-parameter">
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">nb<wbr/>Rows<wbr/>To<wbr/>Log</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5></li></ul></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="SimpleNodeDB.html" class="tsd-signature-type tsd-kind-class">SimpleNodeDB</a></h4><aside class="tsd-sources">
+<h4 class="tsd-returns-title">Returns <a href="SimpleNodeDB.html" class="tsd-signature-type tsd-kind-class">SimpleNodeDB</a></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Overrides <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#constructor">constructor</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleNodeDB.ts#L14">class/SimpleNodeDB.ts:14</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleNodeDB.ts#L40">class/SimpleNodeDB.ts:40</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="connection" class="tsd-anchor"></a>
@@ -148,25 +161,25 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-signature"><span class="tsd-kind-property">connection</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">AsyncDuckDBConnection</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Connection</span></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#connection">connection</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L69">class/SimpleDB.ts:69</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L69">class/SimpleDB.ts:69</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="db" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>db</span><a href="#db" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">db</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">AsyncDuckDB</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Database</span></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#db">db</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L68">class/SimpleDB.ts:68</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L68">class/SimpleDB.ts:68</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="debug" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>debug</span><a href="#debug" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">debug</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#debug">debug</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L66">class/SimpleDB.ts:66</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L66">class/SimpleDB.ts:66</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="nbRowsToLog" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>nb<wbr/>Rows<wbr/>To<wbr/>Log</span><a href="#nbRowsToLog" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">nb<wbr/>Rows<wbr/>To<wbr/>Log</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#nbRowsToLog">nbRowsToLog</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L67">class/SimpleDB.ts:67</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L67">class/SimpleDB.ts:67</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="runQuery" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>run<wbr/>Query</span><a href="#runQuery" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">run<wbr/>Query</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">query</span>, <span class="tsd-kind-parameter">connection</span>, <span class="tsd-kind-parameter">returnDataFromQuery</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span>[<span class="tsd-kind-index-signature">key</span>: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Date</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span></div>
@@ -192,13 +205,13 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div></li></ul></li></ul></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#runQuery">runQuery</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L74">class/SimpleDB.ts:74</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L74">class/SimpleDB.ts:74</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="worker" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>worker</span><a href="#worker" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">worker</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Worker</span></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#worker">worker</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L70">class/SimpleDB.ts:70</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L70">class/SimpleDB.ts:70</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="addColumn" class="tsd-anchor"></a>
@@ -254,7 +267,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#addColumn">addColumn</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L931">class/SimpleDB.ts:931</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L933">class/SimpleDB.ts:933</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="bins" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>bins</span><a href="#bins" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -311,7 +324,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#bins">bins</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1105">class/SimpleDB.ts:1105</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1107">class/SimpleDB.ts:1107</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="cloneTable" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>clone<wbr/>Table</span><a href="#cloneTable" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -355,7 +368,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#cloneTable">cloneTable</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L298">class/SimpleDB.ts:298</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L300">class/SimpleDB.ts:300</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="concatenate" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>concatenate</span><a href="#concatenate" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -407,7 +420,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#concatenate">concatenate</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L679">class/SimpleDB.ts:679</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L681">class/SimpleDB.ts:681</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="convert" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>convert</span><a href="#convert" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -460,7 +473,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#convert">convert</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L806">class/SimpleDB.ts:806</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L808">class/SimpleDB.ts:808</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="correlations" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>correlations</span><a href="#correlations" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -517,7 +530,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#correlations">correlations</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1374">class/SimpleDB.ts:1374</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1376">class/SimpleDB.ts:1376</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="createTable" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>create<wbr/>Table</span><a href="#createTable" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -558,7 +571,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#createTable">createTable</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1628">class/SimpleDB.ts:1628</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1630">class/SimpleDB.ts:1630</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="customQuery" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>custom<wbr/>Query</span><a href="#customQuery" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -614,21 +627,35 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#customQuery">customQuery</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1531">class/SimpleDB.ts:1531</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1533">class/SimpleDB.ts:1533</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="done" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>done</span><a href="#done" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="done.done-1"><span class="tsd-kind-call-signature">done</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#done.done-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="done.done-1"><span class="tsd-kind-call-signature">done</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#done.done-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Frees up memory. Closes the connection to the database and terminates associated resources.</p>
+<div class="tsd-comment tsd-typography"><p>Frees up memory by closing down the database.</p>
 <pre><code class="language-typescript"><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-5">sdb</span><span class="hl-1">.</span><span class="hl-4">done</span><span class="hl-1">();</span>
 </code><button>Copy</button></pre>
 </div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">debug</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></h5>
+<div class="tsd-comment tsd-typography"><p>An optional object with configuration options:</p>
+<ul>
+<li>debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.</li>
+</ul>
+</div>
+<div class="tsd-comment tsd-typography"></div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">debug</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5></li></ul></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Overrides <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#done">done</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleNodeDB.ts#L154">class/SimpleNodeDB.ts:154</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleNodeDB.ts#L269">class/SimpleNodeDB.ts:269</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="filter" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>filter</span><a href="#filter" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -672,7 +699,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#filter">filter</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L720">class/SimpleDB.ts:720</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L722">class/SimpleDB.ts:722</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getBottom" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Bottom</span><a href="#getBottom" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -713,7 +740,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getBottom">getBottom</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L2231">class/SimpleDB.ts:2231</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L2233">class/SimpleDB.ts:2233</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getChartData" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Chart<wbr/>Data</span><a href="#getChartData" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -752,7 +779,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getChartData">getChartData</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L2295">class/SimpleDB.ts:2295</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L2297">class/SimpleDB.ts:2297</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getColumns" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Columns</span><a href="#getColumns" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -785,7 +812,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getColumns">getColumns</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1758">class/SimpleDB.ts:1758</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1760">class/SimpleDB.ts:1760</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getData" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Data</span><a href="#getData" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -824,7 +851,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getData">getData</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L2259">class/SimpleDB.ts:2259</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L2261">class/SimpleDB.ts:2261</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getDescription" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Description</span><a href="#getDescription" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -857,7 +884,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getDescription">getDescription</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1706">class/SimpleDB.ts:1706</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1708">class/SimpleDB.ts:1708</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getFirstRow" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>First<wbr/>Row</span><a href="#getFirstRow" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -893,7 +920,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getFirstRow">getFirstRow</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L2156">class/SimpleDB.ts:2156</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L2158">class/SimpleDB.ts:2158</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getLastRow" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Last<wbr/>Row</span><a href="#getLastRow" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -929,7 +956,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getLastRow">getLastRow</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L2182">class/SimpleDB.ts:2182</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L2184">class/SimpleDB.ts:2184</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getLength" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Length</span><a href="#getLength" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -962,7 +989,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getLength">getLength</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1826">class/SimpleDB.ts:1826</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1828">class/SimpleDB.ts:1828</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getMax" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Max</span><a href="#getMax" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1000,7 +1027,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getMax">getMax</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1941">class/SimpleDB.ts:1941</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1943">class/SimpleDB.ts:1943</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getMean" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Mean</span><a href="#getMean" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1041,7 +1068,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getMean">getMean</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1964">class/SimpleDB.ts:1964</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1966">class/SimpleDB.ts:1966</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getMedian" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Median</span><a href="#getMedian" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1082,7 +1109,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getMedian">getMedian</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1988">class/SimpleDB.ts:1988</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1990">class/SimpleDB.ts:1990</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getMin" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Min</span><a href="#getMin" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1120,7 +1147,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getMin">getMin</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1919">class/SimpleDB.ts:1919</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1921">class/SimpleDB.ts:1921</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getQuantile" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Quantile</span><a href="#getQuantile" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1166,7 +1193,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getQuantile">getQuantile</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L2107">class/SimpleDB.ts:2107</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L2109">class/SimpleDB.ts:2109</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getSchema" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Schema</span><a href="#getSchema" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1199,7 +1226,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getSchema">getSchema</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1673">class/SimpleDB.ts:1673</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1675">class/SimpleDB.ts:1675</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getSkew" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Skew</span><a href="#getSkew" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1240,7 +1267,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getSkew">getSkew</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L2034">class/SimpleDB.ts:2034</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L2036">class/SimpleDB.ts:2036</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getStdDev" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Std<wbr/>Dev</span><a href="#getStdDev" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1281,7 +1308,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getStdDev">getStdDev</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L2058">class/SimpleDB.ts:2058</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L2060">class/SimpleDB.ts:2060</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getSum" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Sum</span><a href="#getSum" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1319,7 +1346,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getSum">getSum</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L2011">class/SimpleDB.ts:2011</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L2013">class/SimpleDB.ts:2013</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getTables" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Tables</span><a href="#getTables" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1347,7 +1374,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getTables">getTables</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1723">class/SimpleDB.ts:1723</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1725">class/SimpleDB.ts:1725</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getTop" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Top</span><a href="#getTop" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1385,7 +1412,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getTop">getTop</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L2204">class/SimpleDB.ts:2204</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L2206">class/SimpleDB.ts:2206</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getTypes" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Types</span><a href="#getTypes" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1418,7 +1445,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getTypes">getTypes</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1874">class/SimpleDB.ts:1874</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1876">class/SimpleDB.ts:1876</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getUniques" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Uniques</span><a href="#getUniques" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1459,7 +1486,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getUniques">getUniques</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L2129">class/SimpleDB.ts:2129</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L2131">class/SimpleDB.ts:2131</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getValues" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Values</span><a href="#getValues" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1500,7 +1527,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getValues">getValues</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1896">class/SimpleDB.ts:1896</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1898">class/SimpleDB.ts:1898</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getValuesCount" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Values<wbr/>Count</span><a href="#getValuesCount" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1533,7 +1560,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getValuesCount">getValuesCount</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1848">class/SimpleDB.ts:1848</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1850">class/SimpleDB.ts:1850</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getVar" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Var</span><a href="#getVar" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1574,7 +1601,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getVar">getVar</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L2082">class/SimpleDB.ts:2082</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L2084">class/SimpleDB.ts:2084</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getWidth" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Width</span><a href="#getWidth" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1607,7 +1634,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#getWidth">getWidth</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1803">class/SimpleDB.ts:1803</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1805">class/SimpleDB.ts:1805</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="hasColumn" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>has<wbr/>Column</span><a href="#hasColumn" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1645,7 +1672,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#hasColumn">hasColumn</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1779">class/SimpleDB.ts:1779</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1781">class/SimpleDB.ts:1781</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="hasTable" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>has<wbr/>Table</span><a href="#hasTable" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1678,14 +1705,14 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#hasTable">hasTable</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1742">class/SimpleDB.ts:1742</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1744">class/SimpleDB.ts:1744</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="insertRows" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>insert<wbr/>Rows</span><a href="#insertRows" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
 <li class="tsd-signature tsd-anchor-link" id="insertRows.insertRows-1"><span class="tsd-kind-call-signature">insert<wbr/>Rows</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">table</span>, <span class="tsd-kind-parameter">rows</span>, <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span>[<span class="tsd-kind-index-signature">key</span>: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Date</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><a href="#insertRows.insertRows-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Inserts rows into a specified table.</p>
-<pre><code class="language-ts"><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">rows</span><span class="hl-1"> = [ { </span><span class="hl-5">letter:</span><span class="hl-1"> </span><span class="hl-6">&quot;a&quot;</span><span class="hl-1">, </span><span class="hl-5">number:</span><span class="hl-1"> </span><span class="hl-8">1</span><span class="hl-1"> }, { </span><span class="hl-5">letter:</span><span class="hl-1"> </span><span class="hl-6">&quot;b&quot;</span><span class="hl-1">, </span><span class="hl-5">number:</span><span class="hl-1"> </span><span class="hl-8">2</span><span class="hl-1"> }]</span><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-5">sdb</span><span class="hl-1">.</span><span class="hl-4">insertRows</span><span class="hl-1">(</span><span class="hl-6">&quot;tableName&quot;</span><span class="hl-1">, </span><span class="hl-5">rows</span><span class="hl-1">)</span>
+<pre><code class="language-ts"><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">rows</span><span class="hl-1"> = [ { </span><span class="hl-5">letter:</span><span class="hl-1"> </span><span class="hl-6">&quot;a&quot;</span><span class="hl-1">, </span><span class="hl-5">number:</span><span class="hl-1"> </span><span class="hl-8">1</span><span class="hl-1"> }, { </span><span class="hl-5">letter:</span><span class="hl-1"> </span><span class="hl-6">&quot;b&quot;</span><span class="hl-1">, </span><span class="hl-5">number:</span><span class="hl-1"> </span><span class="hl-8">2</span><span class="hl-1"> }]</span><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-5">sdb</span><span class="hl-1">.</span><span class="hl-4">insertRows</span><span class="hl-1">(</span><span class="hl-6">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-5">rows</span><span class="hl-1">)</span>
 </code><button>Copy</button></pre>
 </div>
 <div class="tsd-parameters">
@@ -1722,7 +1749,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#insertRows">insertRows</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L231">class/SimpleDB.ts:231</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L233">class/SimpleDB.ts:233</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="insertTable" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>insert<wbr/>Table</span><a href="#insertTable" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1766,7 +1793,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#insertTable">insertTable</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L265">class/SimpleDB.ts:265</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L267">class/SimpleDB.ts:267</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="join" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>join</span><a href="#join" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1825,7 +1852,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#join">join</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1253">class/SimpleDB.ts:1253</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1255">class/SimpleDB.ts:1255</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="linearRegressions" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>linear<wbr/>Regressions</span><a href="#linearRegressions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -1879,14 +1906,14 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#linearRegressions">linearRegressions</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1416">class/SimpleDB.ts:1416</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1418">class/SimpleDB.ts:1418</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="loadArray" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>load<wbr/>Array</span><a href="#loadArray" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
 <li class="tsd-signature tsd-anchor-link" id="loadArray.loadArray-1"><span class="tsd-kind-call-signature">load<wbr/>Array</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">table</span>, <span class="tsd-kind-parameter">arrayOfObjects</span>, <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span>[<span class="tsd-kind-index-signature">key</span>: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Date</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><a href="#loadArray.loadArray-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Creates a new table and loads an array of objects into it.</p>
-<pre><code class="language-ts"><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">data</span><span class="hl-1"> = [{</span><span class="hl-5">letter:</span><span class="hl-1"> </span><span class="hl-6">&quot;a&quot;</span><span class="hl-1">, </span><span class="hl-5">number:</span><span class="hl-1"> </span><span class="hl-8">1</span><span class="hl-1">}, {</span><span class="hl-5">letter:</span><span class="hl-1"> </span><span class="hl-6">&quot;b&quot;</span><span class="hl-1">, </span><span class="hl-5">number:</span><span class="hl-1"> </span><span class="hl-8">2</span><span class="hl-1">}]</span><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-5">simpleDB</span><span class="hl-1">.</span><span class="hl-4">loadArray</span><span class="hl-1">(</span><span class="hl-6">&quot;tableName&quot;</span><span class="hl-1">, </span><span class="hl-5">data</span><span class="hl-1">)</span>
+<pre><code class="language-ts"><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">data</span><span class="hl-1"> = [{</span><span class="hl-5">letter:</span><span class="hl-1"> </span><span class="hl-6">&quot;a&quot;</span><span class="hl-1">, </span><span class="hl-5">number:</span><span class="hl-1"> </span><span class="hl-8">1</span><span class="hl-1">}, {</span><span class="hl-5">letter:</span><span class="hl-1"> </span><span class="hl-6">&quot;b&quot;</span><span class="hl-1">, </span><span class="hl-5">number:</span><span class="hl-1"> </span><span class="hl-8">2</span><span class="hl-1">}]</span><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-5">simpleDB</span><span class="hl-1">.</span><span class="hl-4">loadArray</span><span class="hl-1">(</span><span class="hl-6">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-5">data</span><span class="hl-1">)</span>
 </code><button>Copy</button></pre>
 </div>
 <div class="tsd-parameters">
@@ -1926,14 +1953,14 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#loadArray">loadArray</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L153">class/SimpleDB.ts:153</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L155">class/SimpleDB.ts:155</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="loadData" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>load<wbr/>Data</span><a href="#loadData" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="loadData.loadData-1"><span class="tsd-kind-call-signature">load<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">table</span>, <span class="tsd-kind-parameter">files</span>, <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span>[<span class="tsd-kind-index-signature">key</span>: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Date</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><a href="#loadData.loadData-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Creates a table and loads data from an external file into it.</p>
-<pre><code class="language-ts"><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-5">simpleDB</span><span class="hl-1">.</span><span class="hl-4">loadData</span><span class="hl-1">(</span><span class="hl-6">&quot;tableName&quot;</span><span class="hl-1">, </span><span class="hl-6">&quot;https://some-website.com/some-data.csv&quot;</span><span class="hl-1">)</span>
+<div class="tsd-comment tsd-typography"><p>Creates a table and loads data from local or remote file(s) into it. CSV, JSON, and PARQUET files are accepted.</p>
+<pre><code class="language-ts"><span class="hl-7">// Load data from a local file into tableA</span><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-5">sdb</span><span class="hl-1">.</span><span class="hl-4">loadData</span><span class="hl-1">(</span><span class="hl-6">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-6">&quot;./some-data.csv&quot;</span><span class="hl-1">)</span><br/><br/><span class="hl-7">// Load data from multiple local files into tableB</span><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-5">sdb</span><span class="hl-1">.</span><span class="hl-4">loadData</span><span class="hl-1">(</span><span class="hl-6">&quot;tableB&quot;</span><span class="hl-1">, [</span><span class="hl-6">&quot;./some-data1.json&quot;</span><span class="hl-1">, </span><span class="hl-6">&quot;./some-data2.json&quot;</span><span class="hl-1">, </span><span class="hl-6">&quot;./some-data3.json&quot;</span><span class="hl-1">])</span><br/><br/><span class="hl-7">// Load data from a remote file into tableC</span><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-5">sdb</span><span class="hl-1">.</span><span class="hl-4">loadData</span><span class="hl-1">(</span><span class="hl-6">&quot;tableC&quot;</span><span class="hl-1">, </span><span class="hl-6">&quot;https://some-website.com/some-data.parquet&quot;</span><span class="hl-1">)</span><br/><br/><span class="hl-7">// Load data from multiple remote files into tableD</span><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-5">sdb</span><span class="hl-1">.</span><span class="hl-4">loadData</span><span class="hl-1">(</span><span class="hl-6">&quot;tableD&quot;</span><span class="hl-1">, [</span><span class="hl-6">&quot;https://some-website.com/some-data1.parquet&quot;</span><span class="hl-1">, </span><span class="hl-6">&quot;https://some-website.com/some-data2.parquet&quot;</span><span class="hl-1">, </span><span class="hl-6">&quot;https://some-website.com/some-data3.parquet&quot;</span><span class="hl-1">])</span>
 </code><button>Copy</button></pre>
 </div>
 <div class="tsd-parameters">
@@ -1941,23 +1968,29 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <ul class="tsd-parameter-list">
 <li>
 <h5><span class="tsd-kind-parameter">table</span>: <span class="tsd-signature-type">string</span></h5>
-<div class="tsd-comment tsd-typography"><p>The name of the new table.</p>
+<div class="tsd-comment tsd-typography"><p>The name of the table into which data will be loaded.</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></li>
 <li>
 <h5><span class="tsd-kind-parameter">files</span>: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
-<div class="tsd-comment tsd-typography"><p>The URL of the external file containing the data.</p>
+<div class="tsd-comment tsd-typography"><p>The path(s) or url(s) of file(s) containing the data to be loaded. CSV, JSON, and PARQUET files are accepted.</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">allText</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">autoDetect</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">columns</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{ </span><br/><span>        </span>[<span class="tsd-kind-index-signature">key</span>: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">debug</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">delim</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">fileName</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">fileType</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;csv&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;dsv&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;json&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;parquet&quot;</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">format</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;unstructured&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;newlineDelimited&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;array&quot;</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">header</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">nbRowsToLog</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">records</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">returnDataFrom</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;query&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;table&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;none&quot;</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">skip</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">unifyColumns</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></h5>
+<h5><span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">allText</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">autoDetect</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">columnTypes</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{ </span><br/><span>        </span>[<span class="tsd-kind-index-signature">key</span>: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">debug</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">delim</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">fileName</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">fileType</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;csv&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;dsv&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;json&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;parquet&quot;</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">header</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">jsonFormat</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;unstructured&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;newlineDelimited&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;array&quot;</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">nbRowsToLog</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">records</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">returnDataFrom</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;query&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;table&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;none&quot;</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">skip</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">unifyColumns</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></h5>
 <div class="tsd-comment tsd-typography"><p>An optional object with configuration options:</p>
 <ul>
-<li>fileType: The type of the external file (csv, dsv, json, parquet). Defaults to the file extension.</li>
+<li>fileType: The type of file to load (&quot;csv&quot;, &quot;dsv&quot;, &quot;json&quot;, &quot;parquet&quot;). Defaults to the first file extension.</li>
 <li>autoDetect: A boolean indicating whether to automatically detect the data format. Defaults to true.</li>
-<li>header: A boolean indicating whether the file contains a header row. Applicable for CSV files. Defaults to true.</li>
-<li>delim: The delimiter used in the file. Applicable for DSV files. Defaults to &quot;,&quot;.</li>
-<li>skip: The number of rows to skip at the beginning of the file. Defaults to 0.</li>
+<li>fileName: A boolean indicating whether to include the file name as a column in the loaded data. Defaults to false.</li>
+<li>unifyColumns: A boolean indicating whether to unify columns across multiple files, when the files structure is not the same. Defaults to false.</li>
+<li>columnTypes: An object mapping the column names with their expected types. By default, the types are inferred.</li>
+<li>header: A boolean indicating whether the file has a header. Applicable to CSV files. Defaults to true.</li>
+<li>allText: A boolean indicating whether all columns should be treated as text. Applicable to CSV files. Defaults to false.</li>
+<li>delim: The delimiter used in the file. Applicable to CSV and DSV files. By default, the delimiter is inferred.</li>
+<li>skip: The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to 0.</li>
+<li>jsonFormat: The format of the JSON file (&quot;unstructured&quot;, &quot;newlineDelimited&quot;, &quot;array&quot;). Applicable to JSON files. By default, the format is inferred.</li>
+<li>records: A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it&#39;s inferred.</li>
 <li>returnDataFrom: Specifies whether to return data from the &quot;query&quot;, &quot;table&quot;, or &quot;none&quot;. Defaults to &quot;none&quot;.</li>
 <li>debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.</li>
 <li>nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.</li>
@@ -1970,7 +2003,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <li class="tsd-parameter">
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">auto<wbr/>Detect</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">columns</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span>[<span class="tsd-kind-index-signature">key</span>: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h5>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">column<wbr/>Types</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span>[<span class="tsd-kind-index-signature">key</span>: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h5>
 <ul class="tsd-parameters">
 <li class="tsd-parameter-index-signature">
 <h5><span class="tsd-signature-symbol">[</span><span class="tsd-kind-parameter">key</span>: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">string</span></h5></li></ul></li>
@@ -1983,9 +2016,9 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <li class="tsd-parameter">
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">file<wbr/>Type</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;csv&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;dsv&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;json&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;parquet&quot;</span></h5></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">format</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;unstructured&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;newlineDelimited&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;array&quot;</span></h5></li>
-<li class="tsd-parameter">
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">header</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">json<wbr/>Format</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;unstructured&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;newlineDelimited&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;array&quot;</span></h5></li>
 <li class="tsd-parameter">
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">nb<wbr/>Rows<wbr/>To<wbr/>Log</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5></li>
 <li class="tsd-parameter">
@@ -2000,26 +2033,57 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Overrides <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#loadData">loadData</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleNodeDB.ts#L63">class/SimpleNodeDB.ts:63</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleNodeDB.ts#L127">class/SimpleNodeDB.ts:127</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="loadDataFromDirectory" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>load<wbr/>Data<wbr/>From<wbr/>Directory</span><a href="#loadDataFromDirectory" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="loadDataFromDirectory.loadDataFromDirectory-1"><span class="tsd-kind-call-signature">load<wbr/>Data<wbr/>From<wbr/>Directory</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">table</span>, <span class="tsd-kind-parameter">directory</span>, <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#loadDataFromDirectory.loadDataFromDirectory-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Creates a table and loads data from all files from a local directory. CSV, JSON, and PARQUET files are accepted.</p>
+<pre><code class="language-ts"><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-5">sdb</span><span class="hl-1">.</span><span class="hl-4">loadDataFromDirectory</span><span class="hl-1">(</span><span class="hl-6">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-6">&quot;./data/&quot;</span><span class="hl-1">)</span>
+</code><button>Copy</button></pre>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">table</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">table</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The name of the table into which data will be loaded.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">directory</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">directory</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The path of the directory containing the data files to be loaded. CSV, JSON, and PARQUET files are accepted.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">autoDetect</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">columns</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{ </span><br/><span>        </span>[<span class="tsd-kind-index-signature">key</span>: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">debug</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">delim</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">fileName</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">fileType</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;csv&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;dsv&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;json&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;parquet&quot;</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">format</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;unstructured&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;newlineDelimited&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;array&quot;</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">header</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">nbRowsToLog</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">records</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">returnDataFrom</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;query&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;table&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;none&quot;</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">skip</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">unifyColumns</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></h5>
+<h5><span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">allText</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">autoDetect</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">columnTypes</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{ </span><br/><span>        </span>[<span class="tsd-kind-index-signature">key</span>: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">debug</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">delim</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">fileName</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">fileType</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;csv&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;dsv&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;json&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;parquet&quot;</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">header</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">jsonFormat</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;unstructured&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;newlineDelimited&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;array&quot;</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">nbRowsToLog</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">records</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">returnDataFrom</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;query&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;table&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;none&quot;</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">skip</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">unifyColumns</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></h5>
+<div class="tsd-comment tsd-typography"><p>An optional object with configuration options:</p>
+<ul>
+<li>fileType: The type of file to load (&quot;csv&quot;, &quot;dsv&quot;, &quot;json&quot;, &quot;parquet&quot;). Defaults to the first file extension.</li>
+<li>autoDetect: A boolean indicating whether to automatically detect the data format. Defaults to true.</li>
+<li>fileName: A boolean indicating whether to include the file name as a column in the loaded data. Defaults to false.</li>
+<li>unifyColumns: A boolean indicating whether to unify columns across multiple files, when the files structure is not the same. Defaults to false.</li>
+<li>columnTypes: An object mapping the column names with their expected types. By default, the types are inferred.</li>
+<li>header: A boolean indicating whether the file has a header. Applicable to CSV files. Defaults to true.</li>
+<li>allText: A boolean indicating whether all columns should be treated as text. Applicable to CSV files. Defaults to false.</li>
+<li>delim: The delimiter used in the file. Applicable to CSV and DSV files. By default, the delimiter is inferred.</li>
+<li>skip: The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to 0.</li>
+<li>jsonFormat: The format of the JSON file (&quot;unstructured&quot;, &quot;newlineDelimited&quot;, &quot;array&quot;). Applicable to JSON files. By default, the format is inferred.</li>
+<li>records: A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it&#39;s inferred.</li>
+<li>returnDataFrom: Specifies whether to return data from the &quot;query&quot;, &quot;table&quot;, or &quot;none&quot;. Defaults to &quot;none&quot;.</li>
+<li>debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.</li>
+<li>nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.</li>
+</ul>
+</div>
+<div class="tsd-comment tsd-typography"></div>
 <ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">all<wbr/>Text</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5></li>
 <li class="tsd-parameter">
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">auto<wbr/>Detect</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">columns</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span>[<span class="tsd-kind-index-signature">key</span>: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h5>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">column<wbr/>Types</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span>[<span class="tsd-kind-index-signature">key</span>: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h5>
 <ul class="tsd-parameters">
 <li class="tsd-parameter-index-signature">
 <h5><span class="tsd-signature-symbol">[</span><span class="tsd-kind-parameter">key</span>: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">string</span></h5></li></ul></li>
@@ -2032,9 +2096,9 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <li class="tsd-parameter">
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">file<wbr/>Type</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;csv&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;dsv&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;json&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;parquet&quot;</span></h5></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">format</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;unstructured&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;newlineDelimited&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;array&quot;</span></h5></li>
-<li class="tsd-parameter">
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">header</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">json<wbr/>Format</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;unstructured&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;newlineDelimited&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;array&quot;</span></h5></li>
 <li class="tsd-parameter">
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">nb<wbr/>Rows<wbr/>To<wbr/>Log</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5></li>
 <li class="tsd-parameter">
@@ -2045,9 +2109,10 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">skip</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5></li>
 <li class="tsd-parameter">
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">unify<wbr/>Columns</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5></li></ul></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleNodeDB.ts#L100">class/SimpleNodeDB.ts:100</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleNodeDB.ts#L189">class/SimpleNodeDB.ts:189</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="logTable" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>log<wbr/>Table</span><a href="#logTable" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -2083,7 +2148,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#logTable">logTable</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L2319">class/SimpleDB.ts:2319</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L2321">class/SimpleDB.ts:2321</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="longer" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>longer</span><a href="#longer" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -2201,7 +2266,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#longer">longer</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L466">class/SimpleDB.ts:466</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L468">class/SimpleDB.ts:468</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="outliersIQR" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>outliersIQR</span><a href="#outliersIQR" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -2248,7 +2313,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#outliersIQR">outliersIQR</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1450">class/SimpleDB.ts:1450</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1452">class/SimpleDB.ts:1452</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="proportionsHorizontal" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>proportions<wbr/>Horizontal</span><a href="#proportionsHorizontal" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -2413,7 +2478,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#proportionsHorizontal">proportionsHorizontal</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1172">class/SimpleDB.ts:1172</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1174">class/SimpleDB.ts:1174</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="proportionsVertical" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>proportions<wbr/>Vertical</span><a href="#proportionsVertical" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -2466,7 +2531,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#proportionsVertical">proportionsVertical</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1214">class/SimpleDB.ts:1214</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1216">class/SimpleDB.ts:1216</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="quantiles" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>quantiles</span><a href="#quantiles" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -2523,7 +2588,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#quantiles">quantiles</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1061">class/SimpleDB.ts:1061</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1063">class/SimpleDB.ts:1063</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="ranks" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>ranks</span><a href="#ranks" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -2578,7 +2643,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#ranks">ranks</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1020">class/SimpleDB.ts:1020</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1022">class/SimpleDB.ts:1022</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="removeColumns" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>remove<wbr/>Columns</span><a href="#removeColumns" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -2622,14 +2687,14 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#removeColumns">removeColumns</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L894">class/SimpleDB.ts:894</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L896">class/SimpleDB.ts:896</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="removeDuplicates" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>remove<wbr/>Duplicates</span><a href="#removeDuplicates" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
 <li class="tsd-signature tsd-anchor-link" id="removeDuplicates.removeDuplicates-1"><span class="tsd-kind-call-signature">remove<wbr/>Duplicates</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">table</span>, <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span>[<span class="tsd-kind-index-signature">key</span>: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Date</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><a href="#removeDuplicates.removeDuplicates-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Removes duplicate rows from a table, keeping only unique rows.</p>
-<pre><code class="language-ts"><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-5">sdb</span><span class="hl-1">.</span><span class="hl-4">removeDuplicates</span><span class="hl-1">(</span><span class="hl-6">&quot;someTable&quot;</span><span class="hl-1">)</span>
+<pre><code class="language-ts"><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-5">sdb</span><span class="hl-1">.</span><span class="hl-4">removeDuplicates</span><span class="hl-1">(</span><span class="hl-6">&quot;tableA&quot;</span><span class="hl-1">)</span>
 </code><button>Copy</button></pre>
 </div>
 <div class="tsd-parameters">
@@ -2661,7 +2726,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#removeDuplicates">removeDuplicates</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L556">class/SimpleDB.ts:556</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L558">class/SimpleDB.ts:558</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="removeMissing" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>remove<wbr/>Missing</span><a href="#removeMissing" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -2709,7 +2774,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#removeMissing">removeMissing</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L593">class/SimpleDB.ts:593</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L595">class/SimpleDB.ts:595</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="removeTables" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>remove<wbr/>Tables</span><a href="#removeTables" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -2742,7 +2807,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#removeTables">removeTables</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L862">class/SimpleDB.ts:862</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L864">class/SimpleDB.ts:864</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="renameColumns" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>rename<wbr/>Columns</span><a href="#renameColumns" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -2789,7 +2854,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#renameColumns">renameColumns</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L411">class/SimpleDB.ts:411</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L413">class/SimpleDB.ts:413</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="replaceStrings" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>replace<wbr/>Strings</span><a href="#replaceStrings" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -2844,7 +2909,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#replaceStrings">replaceStrings</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L629">class/SimpleDB.ts:629</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L631">class/SimpleDB.ts:631</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="round" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>round</span><a href="#round" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -2894,7 +2959,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#round">round</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L765">class/SimpleDB.ts:765</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L767">class/SimpleDB.ts:767</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="sample" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>sample</span><a href="#sample" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -2941,7 +3006,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#sample">sample</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L370">class/SimpleDB.ts:370</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L372">class/SimpleDB.ts:372</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="selectColumns" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>select<wbr/>Columns</span><a href="#selectColumns" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -2985,7 +3050,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#selectColumns">selectColumns</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L330">class/SimpleDB.ts:330</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L332">class/SimpleDB.ts:332</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="sort" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>sort</span><a href="#sort" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -3038,19 +3103,19 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#sort">sort</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L980">class/SimpleDB.ts:980</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L982">class/SimpleDB.ts:982</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="start" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>start</span><a href="#start" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="start.start-1"><span class="tsd-kind-call-signature">start</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="SimpleNodeDB.html" class="tsd-signature-type tsd-kind-class">SimpleNodeDB</a><span class="tsd-signature-symbol">&gt;</span><a href="#start.start-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Initializes DuckDB and establishes a connection to the database.</p>
+<div class="tsd-comment tsd-typography"><p>Initializes DuckDB and establishes a connection to the database. Also installs the httpfs extension: <a href="https://duckdb.org/docs/extensions/httpfs.html">https://duckdb.org/docs/extensions/httpfs.html</a>.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="SimpleNodeDB.html" class="tsd-signature-type tsd-kind-class">SimpleNodeDB</a><span class="tsd-signature-symbol">&gt;</span></h4>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Overrides <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#start">start</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleNodeDB.ts#L55">class/SimpleNodeDB.ts:55</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleNodeDB.ts#L84">class/SimpleNodeDB.ts:84</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="summarize" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>summarize</span><a href="#summarize" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -3106,7 +3171,7 @@ in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.</p>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#summarize">summarize</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1309">class/SimpleDB.ts:1309</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1311">class/SimpleDB.ts:1311</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="updateWithJS" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>update<wbr/>WithJS</span><a href="#updateWithJS" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -3162,7 +3227,7 @@ takes the existing rows as an array of objects and must return them modified as 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#updateWithJS">updateWithJS</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1578">class/SimpleDB.ts:1578</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1580">class/SimpleDB.ts:1580</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="wider" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>wider</span><a href="#wider" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -3275,21 +3340,40 @@ takes the existing rows as an array of objects and must return them modified as 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#wider">wider</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L525">class/SimpleDB.ts:525</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L527">class/SimpleDB.ts:527</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="writeData" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>write<wbr/>Data</span><a href="#writeData" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="writeData.writeData-1"><span class="tsd-kind-call-signature">write<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">table</span>, <span class="tsd-kind-parameter">file</span>, <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#writeData.writeData-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Writes data from a table to a file.</p>
+<pre><code class="language-ts"><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-5">sdb</span><span class="hl-1">.</span><span class="hl-4">writeData</span><span class="hl-1">(</span><span class="hl-6">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-6">&quot;output/data.csv&quot;</span><span class="hl-1">);</span>
+</code><button>Copy</button></pre>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">table</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">table</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The name of the table from which data will be written.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">file</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">file</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The path to the file to which data will be written.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
 <h5><span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">compression</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">debug</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">nbRowsToLog</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">returnDataFrom</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;query&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;table&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;none&quot;</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></h5>
+<div class="tsd-comment tsd-typography"><p>An optional object with configuration options:</p>
+<ul>
+<li>compression: A boolean indicating whether to compress the output file. Defaults to false. If true, CSV and JSON files will be compressed with GZIP while PARQUET files will use ZSTD.</li>
+<li>returnDataFrom: Specifies whether to return data from the &quot;query&quot;, &quot;table&quot;, or &quot;none&quot;. Defaults to &quot;none&quot;.</li>
+<li>debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.</li>
+<li>nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.</li>
+</ul>
+</div>
+<div class="tsd-comment tsd-typography"></div>
 <ul class="tsd-parameters">
 <li class="tsd-parameter">
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">compression</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5></li>
@@ -3299,9 +3383,10 @@ takes the existing rows as an array of objects and must return them modified as 
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">nb<wbr/>Rows<wbr/>To<wbr/>Log</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5></li>
 <li class="tsd-parameter">
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">return<wbr/>Data<wbr/>From</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;query&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;table&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;none&quot;</span></h5></li></ul></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleNodeDB.ts#L135">class/SimpleNodeDB.ts:135</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleNodeDB.ts#L240">class/SimpleNodeDB.ts:240</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="zScore" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>z<wbr/>Score</span><a href="#zScore" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -3351,7 +3436,7 @@ takes the existing rows as an array of objects and must return them modified as 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from <a href="SimpleDB.html">SimpleDB</a>.<a href="SimpleDB.html#zScore">zScore</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/920ffee/src/class/SimpleDB.ts#L1494">class/SimpleDB.ts:1494</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/nshiab/simple-data-analysis.js/blob/9ecfeec/src/class/SimpleDB.ts#L1496">class/SimpleDB.ts:1496</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">

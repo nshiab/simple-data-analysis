@@ -8,14 +8,14 @@ export default function loadDataQuery(
         autoDetect?: boolean
         fileName?: boolean
         unifyColumns?: boolean
-        columns?: { [key: string]: string }
+        columnTypes?: { [key: string]: string }
         // csv options
         header?: boolean
         allText?: boolean
         delim?: string
         skip?: number
         // json options
-        format?: "unstructured" | "newlineDelimited" | "array"
+        jsonFormat?: "unstructured" | "newlineDelimited" | "array"
         records?: boolean
     } = {}
 ) {
@@ -27,8 +27,8 @@ export default function loadDataQuery(
         typeof options.autoDetect === "boolean"
             ? `, auto_detect=${String(options.autoDetect).toUpperCase()}`
             : ", auto_detect=TRUE"
-    const columns = options.columns
-        ? `, columns=${JSON.stringify(options.columns)}`
+    const columnTypes = options.columnTypes
+        ? `, columns=${JSON.stringify(options.columnTypes)}`
         : ""
     const fileName =
         typeof options.fileName === "boolean"
@@ -38,7 +38,7 @@ export default function loadDataQuery(
         typeof options.unifyColumns === "boolean"
             ? `, union_by_name='${String(options.unifyColumns).toUpperCase()}'`
             : ""
-    const generalOptions = `${autoDetect}${columns}${fileName}${unifyColumns}`
+    const generalOptions = `${autoDetect}${columnTypes}${fileName}${unifyColumns}`
 
     if (
         options.fileType === "csv" ||
@@ -66,13 +66,15 @@ export default function loadDataQuery(
         }
     } else if (options.fileType === "json" || fileExtension === "json") {
         if (!options.autoDetect) {
-            const format = options.format ? `, format='${options.format}'` : ""
+            const jsonFormat = options.jsonFormat
+                ? `, format='${options.jsonFormat}'`
+                : ""
             const records =
                 typeof options.records === "boolean"
                     ? `, records=${String(options.records).toUpperCase()}`
                     : ""
             return `CREATE TABLE ${table}
-            AS SELECT * FROM read_json_auto(${filesAsString}${generalOptions}${format}${records})`
+            AS SELECT * FROM read_json_auto(${filesAsString}${generalOptions}${jsonFormat}${records})`
         } else {
             return `CREATE TABLE ${table}
             AS SELECT * FROM read_json_auto(${filesAsString}${generalOptions})`

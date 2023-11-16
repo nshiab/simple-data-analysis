@@ -84,15 +84,17 @@ export default class SimpleDB {
 
     /**
      * Creates an instance of SimpleDB.
-     * @param options - An optional object with configuration options:
-     *   - debug: A flag indicating whether debugging information should be logged. Defaults to false.
-     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to 10.
      *
-     * After instantiating, you'll need to call the start method.
+     * After instantiating, you need to call the start method.
      *
      * ```ts
      * const sdb = await new SimpleDB().start()
      * ```
+     *
+     * @param options - An optional object with configuration options:
+     *   - debug: A flag indicating whether debugging information should be logged. Defaults to false.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to 10.
+     *
      */
 
     constructor(
@@ -139,7 +141,7 @@ export default class SimpleDB {
      *
      * ```ts
      * const data = [{letter: "a", number: 1}, {letter: "b", number: 2}]
-     * await simpleDB.loadArray("tableName", data)
+     * await simpleDB.loadArray("tableA", data)
      * ```
      *
      * @param table - The name of the table to be created.
@@ -174,11 +176,11 @@ export default class SimpleDB {
      * Creates a table and loads data from an external file into it.
      *
      * ```ts
-     * await simpleDB.loadData("tableName", "https://some-website.com/some-data.csv")
+     * await sdb.loadData("tableA", "https://some-website.com/some-data.csv")
      * ```
      *
      * @param table - The name of the new table.
-     * @param url - The URL of the external file containing the data.
+     * @param url - The URL of the external file containing the data. CSV, JSON, and PARQUET files are accepted.
      * @param options - An optional object with configuration options:
      *   - fileType: The type of the external file (csv, dsv, json, parquet). Defaults to the file extension.
      *   - autoDetect: A boolean indicating whether to automatically detect the data format. Defaults to true.
@@ -218,7 +220,7 @@ export default class SimpleDB {
      *
      * ```ts
      * const rows = [ { letter: "a", number: 1 }, { letter: "b", number: 2 }]
-     * await sdb.insertRows("tableName", rows)
+     * await sdb.insertRows("tableA", rows)
      * ```
      *
      * @param table - The name of the table to insert rows into.
@@ -544,7 +546,7 @@ export default class SimpleDB {
      * Removes duplicate rows from a table, keeping only unique rows.
      *
      * ```ts
-     * await sdb.removeDuplicates("someTable")
+     * await sdb.removeDuplicates("tableA")
      * ```
      *
      * @param table - The name of the table from which duplicates will be removed.
