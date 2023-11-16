@@ -1613,7 +1613,7 @@ export default class SimpleDB {
      * Creates a new empty table with specified columns and data types.
      * 
      * ```ts
-     *  await simpleNodeDB.createTable("employees", {
+     *  await sdb.createTable("employees", {
         name: "string",
         salary: "integer",
         raise: "float",
@@ -1661,9 +1661,9 @@ export default class SimpleDB {
      * Returns the schema (column names and their data types) of a specified table.
      *
      * ```ts
-     * const schema = await simpleNodeDB.getSchema("tableA")
+     * const schema = await sdb.getSchema("tableA")
      * // Or if you just want to log it.
-     * await simpleNodeDB.getSchema("tableA", {debug: true})
+     * await sdb.getSchema("tableA", {debug: true})
      * ```
      *
      * @param table - The name of the table for which to retrieve the schema.
@@ -1696,7 +1696,7 @@ export default class SimpleDB {
      * ```ts
      * const description = await sdb.getDescription("tableA")
      * // Or if you just want to log it.
-     * await simpleNodeDB.getDescription("tableA", {debug: true})
+     * await sdb.getDescription("tableA", {debug: true})
      * ```
      *
      * @param table - The name of the table.
@@ -1712,11 +1712,14 @@ export default class SimpleDB {
         return await getDescription(this, table, options)
     }
 
-    async hasTable(table: string, options: { debug?: boolean } = {}) {
-        ;(options.debug || this.debug) && console.log("\nhasTable()")
-        return (await this.getTables(options)).includes(table)
-    }
-
+    /**
+     * Returns the list of tables in the database.
+     * ```ts
+     * const tables = await sdb.getTables()
+     * ```
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
     async getTables(
         options: {
             debug?: boolean
@@ -1725,6 +1728,34 @@ export default class SimpleDB {
         return getTables(this, options)
     }
 
+    /**
+     * Returns true if a specified table exists in the database and false if not.
+     *
+     * ```ts
+     * const hasEmployees = await sdb.hasTable("employees")
+     * ```
+     *
+     * @param table - The name of the table to check for existence.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     */
+    async hasTable(table: string, options: { debug?: boolean } = {}) {
+        ;(options.debug || this.debug) && console.log("\nhasTable()")
+        return (await this.getTables(options)).includes(table)
+    }
+
+    /**
+     * Return the list of column names for a specified table in the database.
+     *
+     * ```ts
+     * const columns = await sdb.getColumns("dataCsv")
+     * ```
+     *
+     * @param table - The name of the table for which to retrieve column names.
+     * @param options - An optional object with configuration options:
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     * @returns A Promise that resolves with an array of column names for the specified table.
+     */
     async getColumns(
         table: string,
         options: {
@@ -1732,6 +1763,16 @@ export default class SimpleDB {
         } = {}
     ) {
         return await getColumns(this, table, options)
+    }
+
+    async hasColumn(
+        table: string,
+        column: string,
+        options: {
+            debug?: boolean
+        } = {}
+    ) {
+        return (await getColumns(this, table, options)).includes(column)
     }
 
     async getWidth(
