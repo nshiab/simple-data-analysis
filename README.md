@@ -16,6 +16,17 @@ The documentation is available [here](https://nshiab.github.io/simple-data-analy
 
 This project is related to [SDA-Flow](https://github.com/nshiab/simple-data-analysis-flow), which allows you to use the simple-data-analysis.js library without code. Test it here (still under heavy development and still running with v1.x): https://nshiab.github.io/simple-data-analysis-flow/.
 
+## About v2
+
+v2.0.0 is a complete rewrite of the library, with many breaking changes.
+
+The minified bundle for the web is two times smaller:
+
+-   v1.8.2 was ≈123kB
+-   v2.0.0 is ≈54.4kB
+
+v2.0.0 is almost X times more performant than the previous version and is now as fast as Python (with Pandas) and R scripts (with the tydiverse). Note that DuckDB, that powers SDA, can also be used with Python and R, but wasn't used for the performance test below. To see the code used for this benchmark, check this repo.
+
 ## Core principles
 
 Under the hood, SDA is based on [duckdb-node](https://github.com/duckdb/duckdb-node), [duckdb-wasm](https://github.com/duckdb/duckdb-wasm), and [Observable Plot](https://github.com/observablehq/plot). The focus is on providing code that is easy to use and understand, with a library that can be used both in the front-end (web browsers) and back-end (NodeJS and other runtimes).
@@ -32,6 +43,34 @@ For more about tidy data, you can read [this great article](https://cran.r-proje
 
 ## SDA in an HTML page
 
-If you want to add the library directly to your webpage, you can use the minified bundle from a npm-based CDN like jsDelivr and call sda.
+If you want to add the library directly to your webpage, you can use the minified bundle from a npm-based CDN like jsDelivr.
+
+SDA is only ≈50kB.
 
 Here's an example.
+
+```ts
+// Load the library in your browser.
+<script src="https://cdn.jsdelivr.net/npm/simple-data-analysis@latest">
+  // If you have a source map warning in the console,
+  // you can use src="https://cdn.jsdelivr.net/npm/simple-data-analysis@latest/dist/simple-data-analysis.min.js"
+</script>
+
+<script>
+  async function main() {
+    // We start a new instance of SimpleDB
+    const simpleDB = await new sda.SimpleDB().start();
+
+    // We load data from remote file.
+    await simpleDB.loadData(
+      "employees",
+      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/employees.csv"
+    );
+
+    // We log the data in the console.
+    await simpleDB.logTable("employees");
+  }
+
+  main();
+</script>
+```
