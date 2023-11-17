@@ -44,7 +44,7 @@
         "publish-patch": "npm run all-tests && npm version patch && npm run build && npm run update-doc && npm publish",
         "publish-minor": "npm run all-tests && npm version minor && npm run build && npm run update-doc && npm publish",
         "publish-major": "npm run all-tests && npm version major && npm run build && npm run update-doc && npm publish",
-        "publish-prerelease": "npm run all-tests && npm version prerelease --preid rc && npm publish --tag next",
+        "publish-prerelease": "npm run all-tests && npm version prerelease --preid rc && npm run build && npm run update-doc && npm publish --tag next",
         "lint": "eslint . --ext .ts",
         "format": "prettier --ignore-path .prettierignore --write './**/*.ts'",
         "check-format": "prettier --ignore-path .prettierignore --check './**/*.ts'"
