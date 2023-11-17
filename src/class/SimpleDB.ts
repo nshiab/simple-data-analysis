@@ -2421,12 +2421,27 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\nlogTable()")
         options.nbRowsToLog = options.nbRowsToLog ?? this.nbRowsToLog
+
+        console.log(`\ntable ${table}:`)
         const data = await this.runQuery(
             `SELECT * FROM ${table} LIMIT ${options.nbRowsToLog}`,
             this.connection,
             true
         )
         console.table(data)
+        const nbRows = await this.runQuery(
+            `SELECT COUNT(*) FROM ${table};`,
+            this.connection,
+            true
+        )
+        if (nbRows === null) {
+            throw new Error("nbRows is null")
+        }
+        console.log(
+            `${
+                nbRows[0]["count_star()"]
+            } rows in total ${`(nbRowsToLog: ${options.nbRowsToLog})`}`
+        )
     }
 
     /**
