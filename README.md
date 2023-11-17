@@ -16,10 +16,6 @@ The documentation is available [here](https://nshiab.github.io/simple-data-analy
 
 This project is related to [SDA-Flow](https://github.com/nshiab/simple-data-analysis-flow), which allows you to use the simple-data-analysis.js library without code. Test it here (still under heavy development): https://nshiab.github.io/simple-data-analysis-flow/.
 
-# Table of contents
-
-1. [Core principles](#core-principles)
-
 ## Core principles
 
 Under the hood, SDA is based on [duckdb-node](https://github.com/duckdb/duckdb-node), [duckdb-wasm](https://github.com/duckdb/duckdb-wasm), and [Observable Plot](https://github.com/observablehq/plot). The focus is on providing code that is easy to use and understand, with a library that can be used both in the front-end (web browsers) and back-end (NodeJS and other runtimes).
