@@ -25,6 +25,12 @@ export default async function loadDataBrowser(
 ) {
     ;(options.debug || simpleDB.debug) && console.log("\nloadData()")
 
+    if (simpleDB.db === undefined) {
+        throw new Error(
+            "No db. Have you run the start method? => await sdb.start()"
+        )
+    }
+
     let start
     if (options.debug || simpleDB.debug) {
         start = Date.now()

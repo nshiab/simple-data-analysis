@@ -14,7 +14,7 @@ We are always trying to improve it. Feel free to start a conversation or open an
 
 The documentation is available [here](https://nshiab.github.io/simple-data-analysis.js/). Demos with Observable notebooks can be found [here](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript).
 
-This project is related to [SDA-Flow](https://github.com/nshiab/simple-data-analysis-flow), which allows you to use the simple-data-analysis.js library without code. Test it here (still under heavy development): https://nshiab.github.io/simple-data-analysis-flow/.
+This project is related to [SDA-Flow](https://github.com/nshiab/simple-data-analysis-flow), which allows you to use the simple-data-analysis.js library without code. Test it here (still under heavy development and still running with v1.x): https://nshiab.github.io/simple-data-analysis-flow/.
 
 ## Core principles
 
@@ -29,3 +29,9 @@ The library expects **tabular data** and works best when the data is tidy:
 3. Every cell is a single value
 
 For more about tidy data, you can read [this great article](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html).
+
+## SDA in an HTML page
+
+If you want to add the library directly to your webpage, you can use the minified bundle from a npm-based CDN like jsDelivr and call sda.
+
+Here's an example.

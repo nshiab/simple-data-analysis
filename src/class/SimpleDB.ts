@@ -2420,14 +2420,13 @@ export default class SimpleDB {
         } = {}
     ) {
         ;(options.debug || this.debug) && console.log("\nlogTable()")
-        options.debug = options.debug ?? true
         options.nbRowsToLog = options.nbRowsToLog ?? this.nbRowsToLog
-        return await queryDB(
-            this.connection,
-            this.runQuery,
+        const data = await this.runQuery(
             `SELECT * FROM ${table} LIMIT ${options.nbRowsToLog}`,
-            mergeOptions(this, { ...options, table })
+            this.connection,
+            true
         )
+        console.table(data)
     }
 
     /**
