@@ -18,9 +18,17 @@ export default function proportionsVerticalQuery(
             ? ""
             : `PARTITION BY ${categories.map((d) => `"${d}"`).join(",")}`
 
-    const query = `CREATE OR REPLACE TABLE ${table} AS SELECT *, ROUND("${column}" / sum("${column}") OVER(${partition}), ${
+    let query = `CREATE OR REPLACE TABLE ${table} AS SELECT *, ROUND("${column}" / sum("${column}") OVER(${partition}), ${
         options.decimals ?? 2
     }) AS "${column}${options.suffix ?? "Perc"}" FROM ${table}`
+
+    if (categories.length > 0) {
+        query += ` ORDER BY ${categories
+            .map((d) => `"${d}"`)
+            .join(",")}, "${column}";`
+    } else {
+        query += ";"
+    }
 
     return query
 }

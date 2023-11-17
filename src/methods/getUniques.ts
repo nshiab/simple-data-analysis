@@ -16,7 +16,7 @@ export default async function getUniques(
     const queryResult = await queryDB(
         simpleDB.connection,
         simpleDB.runQuery,
-        `SELECT DISTINCT ${column} FROM ${table}`,
+        `SELECT DISTINCT ${column} FROM ${table} ORDER BY ${column}`,
         mergeOptions(simpleDB, {
             ...options,
             table,

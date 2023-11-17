@@ -6,7 +6,10 @@ export default async function queryDB(
     runQuery: (
         query: string,
         connection: AsyncDuckDBConnection | Connection,
-        returnDataFromQuery: boolean
+        returnDataFromQuery: boolean,
+        options: {
+            bigIntToInt: boolean
+        }
     ) => Promise<
         { [key: string]: number | string | Date | boolean | null }[] | null
     >,
@@ -15,14 +18,17 @@ export default async function queryDB(
         table: string | null
         nbRowsToLog: number
         returnDataFrom: "query" | "table" | "none"
-        returnedDataModifier?: (
-            rows: {
-                [key: string]: number | string | Date | boolean | null
-            }[]
-        ) => {
-            [key: string]: number | string | Date | boolean | null
-        }[]
         debug: boolean
+        returnedDataModifier:
+            | ((
+                  rows: {
+                      [key: string]: number | string | Date | boolean | null
+                  }[]
+              ) => {
+                  [key: string]: number | string | Date | boolean | null
+              }[])
+            | null
+        bigIntToInt: boolean
     }
 ): Promise<
     | {
@@ -30,6 +36,12 @@ export default async function queryDB(
       }[]
     | null
 > {
+    if (connection === undefined) {
+        throw new Error(
+            "No connection. Have you run the start method? => await new SimpleDB().start()"
+        )
+    }
+
     let start
     if (options.debug) {
         start = Date.now()
@@ -42,7 +54,7 @@ export default async function queryDB(
     let data = null
 
     if (options.debug) {
-        const queryResult = await runQuery(query, connection, true)
+        const queryResult = await runQuery(query, connection, true, options)
         console.log("\nquery result:")
         console.table(queryResult)
 
@@ -55,7 +67,8 @@ export default async function queryDB(
             data = await runQuery(
                 `SELECT * FROM ${options.table};`,
                 connection,
-                true
+                true,
+                options
             )
         } else if (options.returnDataFrom === "none") {
             // Nothing
@@ -65,18 +78,19 @@ export default async function queryDB(
             )
         }
     } else if (options.returnDataFrom === "none") {
-        await runQuery(query, connection, false)
+        await runQuery(query, connection, false, options)
     } else if (options.returnDataFrom === "query") {
-        data = await runQuery(query, connection, true)
+        data = await runQuery(query, connection, true, options)
     } else if (options.returnDataFrom === "table") {
         if (typeof options.table !== "string") {
             throw new Error("No options.table")
         }
-        await runQuery(query, connection, false)
+        await runQuery(query, connection, false, options)
         data = await runQuery(
             `SELECT * FROM ${options.table};`,
             connection,
-            true
+            true,
+            options
         )
     } else {
         throw new Error(
@@ -103,7 +117,8 @@ export default async function queryDB(
                 const nbRows = await runQuery(
                     `SELECT COUNT(*) FROM ${options.table};`,
                     connection,
-                    true
+                    true,
+                    options
                 )
                 if (nbRows === null) {
                     throw new Error("nbRows is null")

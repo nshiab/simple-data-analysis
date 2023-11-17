@@ -84,10 +84,10 @@ describe("proportionsVertical", () => {
         )
 
         assert.deepStrictEqual(data, [
-            { key1: "Rubarbe", key2: 1, key3: 10.5, key2Perc: 0.33 },
-            { key1: "Rubarbe", key2: 2, key3: 4.5657, key2Perc: 0.67 },
             { key1: "Fraise", key2: 11, key3: 2.345, key2Perc: 0.33 },
             { key1: "Fraise", key2: 22, key3: 12.3434, key2Perc: 0.67 },
+            { key1: "Rubarbe", key2: 1, key3: 10.5, key2Perc: 0.33 },
+            { key1: "Rubarbe", key2: 2, key3: 4.5657, key2Perc: 0.67 },
         ])
     })
 
@@ -105,10 +105,10 @@ describe("proportionsVertical", () => {
         )
 
         assert.deepStrictEqual(data, [
-            { key1: "Rubarbe", key2: 2, key3: 4.5657, key3Perc: 1 },
-            { key1: "Rubarbe", key2: 1, key3: 10.5, key3Perc: 1 },
-            { key1: "Fraise", key2: 22, key3: 12.3434, key3Perc: 1 },
             { key1: "Fraise", key2: 11, key3: 2.345, key3Perc: 1 },
+            { key1: "Fraise", key2: 22, key3: 12.3434, key3Perc: 1 },
+            { key1: "Rubarbe", key2: 1, key3: 10.5, key3Perc: 1 },
+            { key1: "Rubarbe", key2: 2, key3: 4.5657, key3Perc: 1 },
         ])
     })
 })

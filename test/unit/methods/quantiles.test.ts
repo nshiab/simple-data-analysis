@@ -52,15 +52,15 @@ describe("quantiles", () => {
         )
 
         assert.deepStrictEqual(data, [
-            { Name: "Olivia", Subject: "Science", Mark: 60, quantiles: 1 },
-            { Name: "Isabella", Subject: "Science", Mark: 70, quantiles: 1 },
-            { Name: "Lily", Subject: "Science", Mark: 80, quantiles: 2 },
-            { Name: "Isabella", Subject: "Maths", Mark: 50, quantiles: 1 },
-            { Name: "Olivia", Subject: "Maths", Mark: 55, quantiles: 1 },
-            { Name: "Lily", Subject: "Maths", Mark: 65, quantiles: 2 },
             { Name: "Lily", Subject: "English", Mark: 70, quantiles: 1 },
             { Name: "Olivia", Subject: "English", Mark: 89, quantiles: 1 },
             { Name: "Isabella", Subject: "English", Mark: 90, quantiles: 2 },
+            { Name: "Isabella", Subject: "Maths", Mark: 50, quantiles: 1 },
+            { Name: "Olivia", Subject: "Maths", Mark: 55, quantiles: 1 },
+            { Name: "Lily", Subject: "Maths", Mark: 65, quantiles: 2 },
+            { Name: "Olivia", Subject: "Science", Mark: 60, quantiles: 1 },
+            { Name: "Isabella", Subject: "Science", Mark: 70, quantiles: 1 },
+            { Name: "Lily", Subject: "Science", Mark: 80, quantiles: 2 },
         ])
     })
 })

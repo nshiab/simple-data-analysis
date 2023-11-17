@@ -190,6 +190,35 @@ describe("loadData", () => {
             },
         ])
     })
+    it("should load data from a json file and keep the bigint", async () => {
+        const simpleNodeDBBigInt = await new SimpleNodeDB({
+            bigIntToInt: false,
+        }).start()
+        await simpleNodeDBBigInt.loadData("dataJson", [
+            "test/data/files/data.json",
+        ])
+
+        const data = await simpleNodeDBBigInt.getData("dataJson")
+
+        assert.deepStrictEqual(data, [
+            {
+                key1: BigInt(1),
+                key2: "un",
+            },
+            {
+                key1: BigInt(2),
+                key2: "deux",
+            },
+            {
+                key1: BigInt(3),
+                key2: "trois",
+            },
+            {
+                key1: BigInt(4),
+                key2: "quatre",
+            },
+        ])
+    })
     it("should load data from a parquet file", async () => {
         await simpleNodeDB.loadData("dataParquet", [
             "test/data/files/data.parquet",

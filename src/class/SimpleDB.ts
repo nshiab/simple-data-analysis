@@ -16,7 +16,6 @@ import sortQuery from "../methods/sortQuery.js"
 import loadArrayQuery from "../methods/loadArrayQuery.js"
 import outliersIQRQuery from "../methods/outliersIQRQuery.js"
 import zScoreQuery from "../methods/zScoreQuery.js"
-import tableToArrayOfObjects from "../helpers/arraysToData.js"
 import parseType from "../helpers/parseTypes.js"
 import concatenateQuery from "../methods/concatenateQuery.js"
 import loadDataBrowser from "../methods/loadDataBrowser.js"
@@ -49,6 +48,7 @@ import binsQuery from "../methods/binsQuery.js"
 import proportionsHorizontalQuery from "../methods/proportionsHorizontalQuery.js"
 import proportionsVerticalQuery from "../methods/proportionsVerticalQuery.js"
 import { Data } from "@observablehq/plot"
+import runQueryBrowser from "../helpers/runQueryBrowser.js"
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB,
@@ -68,13 +68,18 @@ export default class SimpleDB {
     db!: AsyncDuckDB | Database
     connection!: AsyncDuckDBConnection | Connection
     worker!: Worker | null
+    bigIntToInt: boolean | undefined // For SimpleNodeDB
+
     /**
      * For internal use. If you want to run a SQL query, use the customQuery method.
      */
     runQuery!: (
         query: string,
         connection: AsyncDuckDBConnection | Connection,
-        returnDataFromQuery: boolean
+        returnDataFromQuery: boolean,
+        options?: {
+            bigIntToInt?: boolean
+        }
     ) => Promise<
         | {
               [key: string]: number | string | Date | boolean | null
@@ -106,31 +111,18 @@ export default class SimpleDB {
         this.nbRowsToLog = options.nbRowsToLog ?? 10
         this.debug = options.debug ?? false
         this.worker = null
-        this.runQuery = async function (
-            query: string,
-            connection: AsyncDuckDBConnection | Connection,
-            returnDataFromQuery: boolean
-        ) {
-            if (returnDataFromQuery) {
-                const data = await (connection as AsyncDuckDBConnection).query(
-                    query
-                )
-                return tableToArrayOfObjects(data)
-            } else {
-                await (connection as AsyncDuckDBConnection).query(query)
-                return null
-            }
-        }
+        this.runQuery = runQueryBrowser
     }
 
     /**
-     * Initializes DuckDB and establishes a connection to the database.
+     * Initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE.
      */
     async start() {
         this.debug && console.log("\nstart()")
         const duckDB = await getDuckDB()
         this.db = duckDB.db
         this.connection = await this.db.connect()
+        this.connection.query("PRAGMA default_collation=NOCASE;")
 
         this.worker = duckDB.worker
         return this
@@ -408,7 +400,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Removes duplicate rows from a table, keeping only unique rows.
+     * Removes duplicate rows from a table, keeping only unique rows. SQL itself does not guarantee any specific order when using DISTINCT. So the returned data is sorted by all columns from left to right.
      *
      * ```ts
      * await sdb.removeDuplicates("tableA")
@@ -434,7 +426,7 @@ export default class SimpleDB {
         return await queryDB(
             this.connection,
             this.runQuery,
-            `CREATE OR REPLACE TABLE ${table} AS SELECT DISTINCT * FROM ${table}`,
+            `CREATE OR REPLACE TABLE ${table} AS SELECT DISTINCT * FROM ${table} ORDER BY ALL;`,
             mergeOptions(this, { ...options, table })
         )
     }
@@ -665,10 +657,16 @@ export default class SimpleDB {
         } = {}
     ) {
         ;(options.debug || this.debug) && console.log("\nwider()")
+
+        const columns = await this.getColumns(table)
+
         return await queryDB(
             this.connection,
             this.runQuery,
-            `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM (PIVOT ${table} ON "${columnsFrom}" USING FIRST("${valuesFrom}"))`,
+            `CREATE OR REPLACE TABLE ${table} AS (SELECT * FROM (PIVOT ${table} ON "${columnsFrom}" USING FIRST("${valuesFrom}"))) ORDER BY ${columns
+                .filter((d) => ![columnsFrom, valuesFrom].includes(d))
+                .map((d) => `"${d}"`)
+                .join(", ")};`,
             mergeOptions(this, { ...options, table })
         )
     }

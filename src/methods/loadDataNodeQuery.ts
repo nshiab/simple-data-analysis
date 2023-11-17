@@ -1,6 +1,6 @@
 import getExtension from "../helpers/getExtension.js"
 
-export default function loadDataQuery(
+export default function loadDataNodeQuery(
     table: string,
     files: string[],
     options: {

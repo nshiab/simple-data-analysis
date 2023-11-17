@@ -1,14 +1,14 @@
-import duckdb, { Connection, Database } from "duckdb"
-import { AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
+import duckdb, { Database } from "duckdb"
 import { readdirSync } from "fs"
 import SimpleDB from "./SimpleDB.js"
 
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 
-import loadDataQuery from "../methods/loadDataQuery.js"
+import loadDataNodeQuery from "../methods/loadDataNodeQuery.js"
 import writeDataQuery from "../methods/writeDataQuery.js"
 import stringToArray from "../helpers/stringToArray.js"
+import runQueryNode from "../helpers/runQueryNode.js"
 
 /**
  * SimpleNodeDB is a class that provides a simplified interface for working with DuckDB,
@@ -35,56 +35,29 @@ export default class SimpleNodeDB extends SimpleDB {
      * @param options - An optional object with configuration options:
      *   - debug: A flag indicating whether debugging information should be logged. Defaults to false.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to 10.
+     *   - bigIntToInt: Default is true. When data is retrieved from the database as an array of objects, BIGINT values are automatically converted to integers, which are easier to work with in JavaScript. If you want actual bigint values, set this option to false.
      *
      */
     constructor(
         options: {
             nbRowsToLog?: number
             debug?: boolean
+            bigIntToInt?: boolean
         } = {}
     ) {
         super(options)
-        this.runQuery = function (
-            query: string,
-            connection: AsyncDuckDBConnection | Connection,
-            returnDataFromQuery: boolean
-        ) {
-            return new Promise((resolve) => {
-                if (returnDataFromQuery) {
-                    ;(connection as Connection).all(query, (err, res) => {
-                        if (err) {
-                            throw err
-                        }
-                        resolve(
-                            res as {
-                                [key: string]:
-                                    | number
-                                    | string
-                                    | Date
-                                    | boolean
-                                    | null
-                            }[]
-                        )
-                    })
-                } else {
-                    ;(connection as Connection).exec(query, (err) => {
-                        if (err) {
-                            throw err
-                        }
-                        resolve(null)
-                    })
-                }
-            })
-        }
+        this.bigIntToInt = options.bigIntToInt ?? true
+        this.runQuery = runQueryNode
     }
 
     /**
-     * Initializes DuckDB and establishes a connection to the database. Also installs the httpfs extension: https://duckdb.org/docs/extensions/httpfs.html.
+     * Initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE. Also installs the httpfs extension: https://duckdb.org/docs/extensions/httpfs.html.
      */
     async start() {
         this.debug && console.log("\nstart()")
         this.db = new duckdb.Database(":memory:")
-        this.db.exec("INSTALL httpfs")
+        this.db.exec("INSTALL httpfs;")
+        this.db.exec("PRAGMA default_collation=NOCASE;")
         this.connection = this.db.connect()
         return this
     }
@@ -158,7 +131,7 @@ export default class SimpleNodeDB extends SimpleDB {
         return await queryDB(
             this.connection,
             this.runQuery,
-            loadDataQuery(table, stringToArray(files), options),
+            loadDataNodeQuery(table, stringToArray(files), options),
             mergeOptions(this, { ...options, table })
         )
     }
@@ -221,7 +194,7 @@ export default class SimpleNodeDB extends SimpleDB {
         queryDB(
             this.connection,
             this.runQuery,
-            loadDataQuery(table, files, options),
+            loadDataNodeQuery(table, files, options),
             mergeOptions(this, { ...options, table })
         )
     }

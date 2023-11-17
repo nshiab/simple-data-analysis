@@ -67,15 +67,15 @@ describe("ranks", () => {
         )
 
         assert.deepStrictEqual(data, [
-            { Name: "Olivia", Subject: "Science", Mark: 60, rank: 1 },
-            { Name: "Isabella", Subject: "Science", Mark: 70, rank: 2 },
-            { Name: "Lily", Subject: "Science", Mark: 80, rank: 3 },
-            { Name: "Isabella", Subject: "Maths", Mark: 50, rank: 1 },
-            { Name: "Olivia", Subject: "Maths", Mark: 55, rank: 2 },
-            { Name: "Lily", Subject: "Maths", Mark: 65, rank: 3 },
             { Name: "Lily", Subject: "English", Mark: 70, rank: 1 },
             { Name: "Olivia", Subject: "English", Mark: 89, rank: 2 },
             { Name: "Isabella", Subject: "English", Mark: 90, rank: 3 },
+            { Name: "Isabella", Subject: "Maths", Mark: 50, rank: 1 },
+            { Name: "Olivia", Subject: "Maths", Mark: 55, rank: 2 },
+            { Name: "Lily", Subject: "Maths", Mark: 65, rank: 3 },
+            { Name: "Olivia", Subject: "Science", Mark: 60, rank: 1 },
+            { Name: "Isabella", Subject: "Science", Mark: 70, rank: 2 },
+            { Name: "Lily", Subject: "Science", Mark: 80, rank: 3 },
         ])
     })
     it("should add a column with the rank after grouping with multiple categories", async () => {
@@ -92,16 +92,17 @@ describe("ranks", () => {
                 returnDataFrom: "table",
             }
         )
+
         assert.deepStrictEqual(data, [
-            { Name: "Olivia", Subject: "Science", Mark: 60, rank: 1 },
             { Name: "Isabella", Subject: "English", Mark: 90, rank: 1 },
-            { Name: "Lily", Subject: "English", Mark: 70, rank: 1 },
-            { Name: "Olivia", Subject: "Maths", Mark: 55, rank: 1 },
-            { Name: "Olivia", Subject: "English", Mark: 89, rank: 1 },
             { Name: "Isabella", Subject: "Maths", Mark: 50, rank: 1 },
-            { Name: "Lily", Subject: "Maths", Mark: 65, rank: 1 },
             { Name: "Isabella", Subject: "Science", Mark: 70, rank: 1 },
+            { Name: "Lily", Subject: "English", Mark: 70, rank: 1 },
+            { Name: "Lily", Subject: "Maths", Mark: 65, rank: 1 },
             { Name: "Lily", Subject: "Science", Mark: 80, rank: 1 },
+            { Name: "Olivia", Subject: "English", Mark: 89, rank: 1 },
+            { Name: "Olivia", Subject: "Maths", Mark: 55, rank: 1 },
+            { Name: "Olivia", Subject: "Science", Mark: 60, rank: 1 },
         ])
     })
 })
