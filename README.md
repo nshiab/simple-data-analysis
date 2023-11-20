@@ -84,6 +84,10 @@ Here's an example.
 </script>
 ```
 
+## SDA with NodeJS and other runtimes
+
+## SDA with Observable notebooks
+
 ## SDA-Flow
 
 This project is related to [SDA-Flow](https://github.com/nshiab/simple-data-analysis-flow), which allows you to use the simple-data-analysis.js library without code. Test it here (still under heavy development and still running with v1.x): https://nshiab.github.io/simple-data-analysis-flow/.
