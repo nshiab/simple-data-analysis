@@ -13,7 +13,7 @@ import runQueryNode from "../helpers/runQueryNode.js"
 /**
  * SimpleNodeDB is a class that provides a simplified interface for working with DuckDB,
  * a high-performance, in-memory analytical database. This class is meant to be used
- * with NodeJS and other runtimes. For web browsers, use SimpleDB.
+ * with NodeJS and similar runtimes. For web browsers, use SimpleDB.
  *
  * Here's how to instantiate and start a SimpleNodeDB instance.
  *

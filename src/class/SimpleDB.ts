@@ -49,11 +49,12 @@ import proportionsHorizontalQuery from "../methods/proportionsHorizontalQuery.js
 import proportionsVerticalQuery from "../methods/proportionsVerticalQuery.js"
 import { Data } from "@observablehq/plot"
 import runQueryBrowser from "../helpers/runQueryBrowser.js"
+import trimQuery from "../methods/trimQuery.js"
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB,
  * a high-performance, in-memory analytical database. This class is meant to be used
- * in a web browser. For NodeJS and other runtimes, use SimpleNodeDB.
+ * in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB.
  *
  * Here's how to instantiate and start a SimpleDB instance.
  *
@@ -467,6 +468,40 @@ export default class SimpleDB {
         }
     ) {
         return await removeMissing(this, table, options)
+    }
+
+    /**
+     * Trims specified characters from the beginning, end, or both sides of string values.
+     *
+     * @param table - The name of the table.
+     * @param columns - The column or columns to trim.
+     * @param options - An optional object with configuration options:
+     *   - character: The string to trim. Defaults to whitespace.
+     *   - method: The trimming method, one of "leftTrim", "rightTrim", or "trim". Defaults to "trim".
+     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
+     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
+     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     */
+    async trim(
+        table: string,
+        columns: string | string[],
+        options: {
+            character?: string
+            method?: "leftTrim" | "rightTrim" | "trim"
+            returnDataFrom?: "query" | "table" | "none"
+            debug?: boolean
+            nbRowsToLog?: number
+        } = {
+            method: "trim",
+        }
+    ) {
+        ;(options.debug || this.debug) && console.log("\ntrim()")
+        return await queryDB(
+            this.connection,
+            this.runQuery,
+            trimQuery(table, stringToArray(columns), options),
+            mergeOptions(this, { ...options, table })
+        )
     }
 
     /**

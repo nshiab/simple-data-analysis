@@ -12,7 +12,7 @@ These project's goals are:
 
 -   To offer a high performance and convenient solution in JavaScript for data analysis. It's based on [DuckDB](https://duckdb.org/) and inspired by [Pandas](https://github.com/pandas-dev/pandas) (Python) and the [Tidyverse](https://www.tidyverse.org/) (R).
 
--   To standardize and accelerate frontend/backend workflows with a simple-to-use library working both in the browser and with NodeJS (and other runtimes).
+-   To standardize and accelerate frontend/backend workflows with a simple-to-use library working both in the browser and with NodeJS (and similar runtimes).
 
 -   To ease the way for non-coders (especially journalists and web developers) into the beautiful world of data analysis and data visualization in JavaScript.
 
@@ -24,9 +24,9 @@ Feel free to start a conversation or open an issue. Check [how you can contribut
 
 SDA is based on [duckdb-node](https://github.com/duckdb/duckdb-node) and [duckdb-wasm](https://github.com/duckdb/duckdb-wasm). DuckDB is a high-performance analytical database system. Under the hood, SDA sends SQL queries to be executed by DuckDB. You also have the flexibity of writing your own queries if you want to.
 
-To make charts on the Web, we enjoy using [Observable Plot](https://github.com/observablehq/plot). For NodeJS and other runtimes, the `writeChart` function is available. It emulates a browser with [jsdom](https://github.com/jsdom/jsdom) and accepts Plot options as a parameter to write a chart as a local file. Of course, you can use any other libraries to make charts if you want to.
+To make charts on the Web, we enjoy using [Observable Plot](https://github.com/observablehq/plot). For NodeJS and similar runtimes, the `writeChart` function is available. It emulates a browser with [jsdom](https://github.com/jsdom/jsdom) and accepts Plot options as a parameter to write a chart as a local file. Of course, you can use any other libraries to make charts if you want to.
 
-The focus is on providing code that is easy to use and understand, with a library that can be used both in the front-end (web browsers) and back-end (NodeJS and other runtimes).
+The focus is on providing code that is easy to use and understand, with a library that can be used both in the front-end (web browsers) and back-end (NodeJS and similar runtimes).
 
 ## About v2
 
@@ -84,7 +84,7 @@ Here's an example.
 </script>
 ```
 
-## SDA with NodeJS and other runtimes
+## SDA with NodeJS and similar runtimes
 
 ## SDA with Observable notebooks
 

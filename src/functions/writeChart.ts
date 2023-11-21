@@ -3,7 +3,7 @@ import setJSDom from "../helpers/setJSDom.js"
 import { writeFileSync } from "fs"
 
 /**
- * Writes a chart to an SVG or HTML file using the Observable Plot library. This is meant to be used with the SimpleNodeDB class. It uses jsdom to emulate web APIs.
+ * Writes a chart to an SVG or HTML file using the Observable Plot library. This is meant to be used with NodeJS or similar JavaScript runtimes. It uses jsdom to emulate web APIs.
  *
  * ```ts
  * const data = await sdb.getChartData("tableA")
