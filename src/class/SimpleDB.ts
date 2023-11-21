@@ -481,6 +481,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Updating data
      */
     async trim(
         table: string,
