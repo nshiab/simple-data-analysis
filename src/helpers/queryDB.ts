@@ -1,5 +1,6 @@
 import { AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
 import { Connection } from "duckdb"
+import { formatNumber } from "journalism"
 
 export default async function queryDB(
     connection: AsyncDuckDBConnection | Connection,
@@ -110,7 +111,7 @@ export default async function queryDB(
     if (options.debug) {
         if (Array.isArray(data)) {
             if (options.returnDataFrom === "query") {
-                console.log(`${data.length} rows in total`)
+                console.log(`${formatNumber(data.length)} rows in total`)
             } else if (typeof options.table === "string") {
                 console.log(`\ntable ${options.table}:`)
                 console.table(data)
@@ -124,7 +125,9 @@ export default async function queryDB(
                     throw new Error("nbRows is null")
                 }
                 console.log(
-                    `${nbRows[0]["count_star()"]} rows in total ${
+                    `${formatNumber(
+                        nbRows[0]["count_star()"] as number
+                    )} rows in total ${
                         options.returnDataFrom === "none"
                             ? ""
                             : `(nbRowsToLog: ${options.nbRowsToLog})`
