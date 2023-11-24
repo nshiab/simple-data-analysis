@@ -4,7 +4,7 @@ import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
 describe("linearRegressions", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
-        simpleNodeDB = await new SimpleNodeDB().start()
+        simpleNodeDB = new SimpleNodeDB()
         await simpleNodeDB.loadData(
             "someData",
             "test/data/files/dataCorrelations.json"

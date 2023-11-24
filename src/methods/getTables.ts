@@ -11,8 +11,7 @@ export default async function getTables(
     ;(options.debug || simpleDB.debug) && console.log("\ngetTables()")
 
     const queryResult = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         `SHOW TABLES`,
         mergeOptions(simpleDB, {
             ...options,

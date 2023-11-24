@@ -13,8 +13,7 @@ export default async function getMax(
     ;(options.debug || simpleDB.debug) && console.log("\ngetMax()")
 
     const queryResult = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         `SELECT MAX("${column}") AS valueForGetMax FROM ${table}`,
         mergeOptions(simpleDB, { ...options, table, returnDataFrom: "query" })
     )

@@ -14,8 +14,7 @@ export default async function getMedian(
     ;(options.debug || simpleDB.debug) && console.log("\ngetMedian()")
 
     const queryResult = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         typeof options.decimals === "number"
             ? `SELECT ROUND(MEDIAN("${column}"), ${options.decimals}) AS valueForGetMedian FROM ${table}`
             : `SELECT MEDIAN("${column}") AS valueForGetMedian FROM ${table}`,

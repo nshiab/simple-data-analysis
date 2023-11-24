@@ -12,7 +12,7 @@ describe("writeChart", () => {
             mkdirSync(outputPath)
         }
 
-        simpleNodeDB = await new SimpleNodeDB().start()
+        simpleNodeDB = new SimpleNodeDB()
         await simpleNodeDB.loadData("employees", "test/data/employees.csv")
         await simpleNodeDB.convert(
             "employees",

@@ -4,7 +4,7 @@ import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
 describe("hasColumn", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
-        simpleNodeDB = await new SimpleNodeDB().start()
+        simpleNodeDB = new SimpleNodeDB()
         await simpleNodeDB.loadData("dataCsv", ["test/data/files/data.csv"])
     })
     after(async function () {

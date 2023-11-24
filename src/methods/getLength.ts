@@ -12,8 +12,7 @@ export default async function getLength(
     ;(options.debug || simpleDB.debug) && console.log("\ngetLength()")
 
     const queryResult = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         `SELECT COUNT(*) FROM ${table}`,
         mergeOptions(simpleDB, { ...options, table, returnDataFrom: "query" })
     )

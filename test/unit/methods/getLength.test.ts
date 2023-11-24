@@ -4,7 +4,7 @@ import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
 describe("getLength", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
-        simpleNodeDB = await new SimpleNodeDB().start()
+        simpleNodeDB = new SimpleNodeDB()
         await simpleNodeDB.loadArray("age", [
             { name: "Evangeline", age: 21 },
             { name: "Amelia", age: 29 },

@@ -44,8 +44,7 @@ export default async function correlations(
     }
 
     return await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         correlationsQuery(table, outputTable, combinations, options),
         mergeOptions(simpleDB, { ...options, table: outputTable })
     )

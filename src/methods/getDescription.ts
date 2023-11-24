@@ -17,8 +17,7 @@ export default async function getDescription(
     const { query, extraData } = getDescriptionQuery(table, types)
 
     const queryResult = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         query,
         mergeOptions(simpleDB, {
             ...options,

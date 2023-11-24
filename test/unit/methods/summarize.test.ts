@@ -4,7 +4,7 @@ import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
 describe("summarize", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
-        simpleNodeDB = await new SimpleNodeDB().start()
+        simpleNodeDB = new SimpleNodeDB()
         await simpleNodeDB.loadData(
             "dataSummarize",
             "test/data/files/dataSummarize.json"

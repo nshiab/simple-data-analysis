@@ -68,7 +68,7 @@ Here's an example.
 <script>
   async function main() {
     // We start a new instance of SimpleDB
-    const simpleDB = await new sda.SimpleDB().start();
+    const simpleDB = await new sda.SimpleDB();
 
     // We load data from remote file.
     await simpleDB.loadData(

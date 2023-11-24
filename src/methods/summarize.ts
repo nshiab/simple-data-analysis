@@ -63,8 +63,7 @@ export default async function summarize(
     )
 
     return await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         summarizeQuery(
             table,
             outputTable,

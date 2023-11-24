@@ -13,8 +13,7 @@ export default async function getTop(
     ;(options.debug || simpleDB.debug) && console.log("\ngetTop()")
 
     const rows = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         `SELECT * FROM ${table} LIMIT ${count}`,
         mergeOptions(simpleDB, { ...options, table, returnDataFrom: "query" })
     )

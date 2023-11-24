@@ -1,19 +1,8 @@
-import { AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
-import { Connection } from "duckdb"
 import { formatNumber } from "journalism"
+import { SimpleDB } from "../indexWeb"
 
 export default async function queryDB(
-    connection: AsyncDuckDBConnection | Connection,
-    runQuery: (
-        query: string,
-        connection: AsyncDuckDBConnection | Connection,
-        returnDataFromQuery: boolean,
-        options: {
-            bigIntToInt: boolean
-        }
-    ) => Promise<
-        { [key: string]: number | string | Date | boolean | null }[] | null
-    >,
+    simpleDB: SimpleDB,
     query: string,
     options: {
         table: string | null
@@ -37,10 +26,8 @@ export default async function queryDB(
       }[]
     | null
 > {
-    if (connection === undefined) {
-        throw new Error(
-            "No connection. Have you run the start method? => await new SimpleDB().start()"
-        )
+    if (simpleDB.connection === undefined) {
+        await simpleDB.start()
     }
 
     let start
@@ -55,7 +42,12 @@ export default async function queryDB(
     let data = null
 
     if (options.debug) {
-        const queryResult = await runQuery(query, connection, true, options)
+        const queryResult = await simpleDB.runQuery(
+            query,
+            simpleDB.connection,
+            true,
+            options
+        )
         console.log("\nquery result:")
         console.table(queryResult)
 
@@ -65,9 +57,9 @@ export default async function queryDB(
             if (typeof options.table !== "string") {
                 throw new Error("No options.table")
             }
-            data = await runQuery(
+            data = await simpleDB.runQuery(
                 `SELECT * FROM ${options.table};`,
-                connection,
+                simpleDB.connection,
                 true,
                 options
             )
@@ -79,17 +71,22 @@ export default async function queryDB(
             )
         }
     } else if (options.returnDataFrom === "none") {
-        await runQuery(query, connection, false, options)
+        await simpleDB.runQuery(query, simpleDB.connection, false, options)
     } else if (options.returnDataFrom === "query") {
-        data = await runQuery(query, connection, true, options)
+        data = await simpleDB.runQuery(
+            query,
+            simpleDB.connection,
+            true,
+            options
+        )
     } else if (options.returnDataFrom === "table") {
         if (typeof options.table !== "string") {
             throw new Error("No options.table")
         }
-        await runQuery(query, connection, false, options)
-        data = await runQuery(
+        await simpleDB.runQuery(query, simpleDB.connection, false, options)
+        data = await simpleDB.runQuery(
             `SELECT * FROM ${options.table};`,
-            connection,
+            simpleDB.connection,
             true,
             options
         )
@@ -115,9 +112,9 @@ export default async function queryDB(
             } else if (typeof options.table === "string") {
                 console.log(`\ntable ${options.table}:`)
                 console.table(data)
-                const nbRows = await runQuery(
+                const nbRows = await simpleDB.runQuery(
                     `SELECT COUNT(*) FROM ${options.table};`,
-                    connection,
+                    simpleDB.connection,
                     true,
                     options
                 )

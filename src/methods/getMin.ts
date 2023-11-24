@@ -13,8 +13,7 @@ export default async function getMin(
     ;(options.debug || simpleDB.debug) && console.log("\ngetMin()")
 
     const queryResult = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         `SELECT MIN("${column}") AS valueForGetMin FROM ${table}`,
         mergeOptions(simpleDB, { ...options, table, returnDataFrom: "query" })
     )

@@ -12,8 +12,7 @@ export default async function getFirstRow(
 ) {
     ;(options.debug || simpleDB.debug) && console.log("\ngetFirstRow()")
     const queryResult = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         `SELECT * FROM ${table}${
             options.condition ? ` WHERE ${options.condition}` : ""
         } LIMIT 1`,

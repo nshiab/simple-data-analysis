@@ -10,7 +10,7 @@ describe("writeData", () => {
         if (!existsSync(output)) {
             mkdirSync(output)
         }
-        simpleNodeDB = await new SimpleNodeDB().start()
+        simpleNodeDB = new SimpleNodeDB()
     })
 
     const expectedData = [
@@ -29,7 +29,7 @@ describe("writeData", () => {
         await simpleNodeDB.writeData("testTable", `${output}test.csv`)
 
         // We test the content of the file
-        const csvDB = await new SimpleNodeDB().start()
+        const csvDB = new SimpleNodeDB()
         await csvDB.loadData("csv", [`${output}test.csv`])
         const data = await csvDB.getData("csv")
 
@@ -41,7 +41,7 @@ describe("writeData", () => {
         })
 
         // We test the content of the file
-        const csvDB = await new SimpleNodeDB().start()
+        const csvDB = new SimpleNodeDB()
         await csvDB.loadData("csv", [`${output}test.csv.gz`])
         const data = await csvDB.getData("csv")
 
@@ -51,7 +51,7 @@ describe("writeData", () => {
         await simpleNodeDB.writeData("testTable", `${output}test.json`)
 
         // We test the content of the file
-        const csvDB = await new SimpleNodeDB().start()
+        const csvDB = new SimpleNodeDB()
         await csvDB.loadData("json", [`${output}test.json`])
         const data = await csvDB.getData("json")
 
@@ -63,7 +63,7 @@ describe("writeData", () => {
         })
 
         // We test the content of the file
-        const csvDB = await new SimpleNodeDB().start()
+        const csvDB = new SimpleNodeDB()
         await csvDB.loadData("json", [`${output}test.json.gz`])
         const data = await csvDB.getData("json")
 
@@ -73,7 +73,7 @@ describe("writeData", () => {
         await simpleNodeDB.writeData("testTable", `${output}test.parquet`)
 
         // We test the content of the file
-        const csvDB = await new SimpleNodeDB().start()
+        const csvDB = new SimpleNodeDB()
         await csvDB.loadData("parquet", [`${output}test.parquet`])
         const data = await csvDB.getData("parquet")
 
@@ -87,7 +87,7 @@ describe("writeData", () => {
         )
 
         // We test the content of the file
-        const csvDB = await new SimpleNodeDB().start()
+        const csvDB = new SimpleNodeDB()
         await csvDB.loadData("parquet", [`${output}testCompressed.parquet`])
         const data = await csvDB.getData("parquet")
 

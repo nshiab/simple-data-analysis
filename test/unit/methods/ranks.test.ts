@@ -6,7 +6,7 @@ import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
 describe("ranks", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
-        simpleNodeDB = await new SimpleNodeDB().start()
+        simpleNodeDB = new SimpleNodeDB()
     })
     after(async function () {
         await simpleNodeDB.done()

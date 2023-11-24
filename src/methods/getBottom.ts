@@ -14,8 +14,7 @@ export default async function getBottom(
     ;(options.debug || simpleDB.debug) && console.log("\ngetBottom()")
 
     const queryResult = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         `WITH numberedRowsForGetBottom AS (
                 SELECT *, row_number() OVER () as rowNumberForGetBottom FROM ${table}
             )

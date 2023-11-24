@@ -14,8 +14,7 @@ export default async function getVar(
     ;(options.debug || simpleDB.debug) && console.log("\ngetVar()")
 
     const queryResult = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         typeof options.decimals === "number"
             ? `SELECT ROUND(VARIANCE("${column}"), ${options.decimals}) AS valueForGetVar FROM ${table}`
             : `SELECT VARIANCE("${column}") AS valueForGetVar FROM ${table}`,

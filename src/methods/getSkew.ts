@@ -14,8 +14,7 @@ export default async function getSkew(
     ;(options.debug || simpleDB.debug) && console.log("\ngetSkew()")
 
     const queryResult = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         typeof options.decimals === "number"
             ? `SELECT ROUND(SKEWNESS("${column}"), ${options.decimals}) AS valueForGetSkew FROM ${table}`
             : `SELECT SKEWNESS("${column}") AS valueForGetSkew FROM ${table}`,

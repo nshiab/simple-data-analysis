@@ -4,7 +4,7 @@ import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
 describe("loadData", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
-        simpleNodeDB = await new SimpleNodeDB().start()
+        simpleNodeDB = new SimpleNodeDB()
     })
     after(async function () {
         await simpleNodeDB.done()
@@ -191,9 +191,9 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a json file and keep the bigint", async () => {
-        const simpleNodeDBBigInt = await new SimpleNodeDB({
+        const simpleNodeDBBigInt = new SimpleNodeDB({
             bigIntToInt: false,
-        }).start()
+        })
         await simpleNodeDBBigInt.loadData("dataJson", [
             "test/data/files/data.json",
         ])

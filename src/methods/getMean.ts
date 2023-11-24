@@ -14,8 +14,7 @@ export default async function getMean(
     ;(options.debug || simpleDB.debug) && console.log("\ngetMean()")
 
     const queryResult = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         typeof options.decimals === "number"
             ? `SELECT ROUND(AVG("${column}"), ${options.decimals}) AS valueForGetMean FROM ${table}`
             : `SELECT AVG("${column}") AS valueForGetMean FROM ${table}`,

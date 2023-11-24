@@ -12,8 +12,7 @@ export default async function getTypes(
     ;(options.debug || simpleDB.debug) && console.log("\ngetTypes()")
 
     const types = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         `DESCRIBE ${table}`,
         mergeOptions(simpleDB, {
             ...options,

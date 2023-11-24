@@ -12,8 +12,7 @@ export default async function getLastRow(
 ) {
     ;(options.debug || simpleDB.debug) && console.log("\ngetLastRow()")
     const queryResult = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         `WITH numberedRowsForGetLastRow AS (
                 SELECT *, row_number() OVER () as rowNumberForGetLastRow FROM ${table}${
                     options.condition ? ` WHERE ${options.condition}` : ""

@@ -14,8 +14,7 @@ export default async function getValues(
     ;(options.debug || simpleDB.debug) && console.log("\ngetValues()")
 
     const queryResult = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         `SELECT ${column} FROM ${table}`,
         mergeOptions(simpleDB, {
             ...options,

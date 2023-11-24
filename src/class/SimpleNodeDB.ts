@@ -15,10 +15,10 @@ import runQueryNode from "../helpers/runQueryNode.js"
  * a high-performance, in-memory analytical database. This class is meant to be used
  * with NodeJS and similar runtimes. For web browsers, use SimpleDB.
  *
- * Here's how to instantiate and start a SimpleNodeDB instance.
+ * Here's how to instantiate a SimpleNodeDB instance.
  *
  * ```ts
- * const sdb = await new SimpleNodeDB().start()
+ * const sdb = new SimpleNodeDB()
  * ```
  */
 
@@ -26,10 +26,8 @@ export default class SimpleNodeDB extends SimpleDB {
     /**
      * Creates an instance of SimpleNodeDB.
      *
-     * After instantiating, you need to call the start method.
-     *
      * ```ts
-     * const sdb = await new SimpleNodeDB().start()
+     * const sdb = new SimpleNodeDB()
      * ```
      *
      * @param options - An optional object with configuration options:
@@ -51,7 +49,7 @@ export default class SimpleNodeDB extends SimpleDB {
     }
 
     /**
-     * Initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE. Also installs the httpfs extension: https://duckdb.org/docs/extensions/httpfs.html.
+     * Initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE. Also installs the httpfs extension: https://duckdb.org/docs/extensions/httpfs.html. It's called automatically with the first method you'll run.
      */
     async start() {
         this.debug && console.log("\nstart()")
@@ -129,8 +127,7 @@ export default class SimpleNodeDB extends SimpleDB {
     > {
         ;(options.debug || this.debug) && console.log("\nloadData()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             loadDataNodeQuery(table, stringToArray(files), options),
             mergeOptions(this, { ...options, table })
         )
@@ -192,8 +189,7 @@ export default class SimpleNodeDB extends SimpleDB {
             (file) => `${directory}${file}`
         )
         queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             loadDataNodeQuery(table, files, options),
             mergeOptions(this, { ...options, table })
         )
@@ -228,8 +224,7 @@ export default class SimpleNodeDB extends SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\nwriteData()")
         await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             writeDataQuery(table, file, options),
             mergeOptions(this, { ...options, table })
         )

@@ -46,8 +46,7 @@ export default async function linearRegressions(
     }
 
     return await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         linearRegressionQuery(table, outputTable, permutations, options),
         mergeOptions(simpleDB, { ...options, table: outputTable })
     )

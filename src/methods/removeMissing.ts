@@ -31,8 +31,7 @@ export default async function removeMissing(
     options.columns = stringToArray(options.columns ?? [])
 
     return await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         removeMissingQuery(
             table,
             allColumns,

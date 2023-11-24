@@ -57,10 +57,10 @@ import { formatNumber } from "journalism"
  * a high-performance, in-memory analytical database. This class is meant to be used
  * in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB.
  *
- * Here's how to instantiate and start a SimpleDB instance.
+ * Here's how to instantiate a SimpleDB instance.
  *
  * ```ts
- * const sdb = await new SimpleDB().start()
+ * const sdb = new SimpleDB()
  * ```
  */
 
@@ -92,10 +92,8 @@ export default class SimpleDB {
     /**
      * Creates an instance of SimpleDB.
      *
-     * After instantiating, you need to call the start method.
-     *
      * ```ts
-     * const sdb = await new SimpleDB().start()
+     * const sdb = new SimpleDB()
      * ```
      *
      * @param options - An optional object with configuration options:
@@ -117,7 +115,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE.
+     * Initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE. It's called automatically with the first method you'll run.
      */
     async start() {
         this.debug && console.log("\nstart()")
@@ -161,8 +159,7 @@ export default class SimpleDB {
         ;(options.debug || this.debug) && console.log("\nloadArray()")
 
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             loadArrayQuery(table, arrayOfObjects, options),
             mergeOptions(this, { ...options, table })
         )
@@ -242,8 +239,7 @@ export default class SimpleDB {
         ;(options.debug || this.debug) && console.log("\ninsertRows()")
 
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             insertRowsQuery(table, rows),
             mergeOptions(this, { ...options, table })
         )
@@ -277,8 +273,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\ninsertTable()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             `INSERT INTO ${table} SELECT * FROM ${tableToInsert}`,
             mergeOptions(this, { ...options, table })
         )
@@ -310,8 +305,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\ncloneTable()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             `CREATE OR REPLACE TABLE ${newTable} AS SELECT * FROM ${originalTable}`,
             mergeOptions(this, { ...options, table: newTable })
         )
@@ -345,8 +339,7 @@ export default class SimpleDB {
         ;(options.debug || this.debug) && console.log("\nselectColumns()")
 
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             `CREATE OR REPLACE TABLE ${table} AS SELECT ${stringToArray(columns)
                 .map((d) => `"${d}"`)
                 .join(", ")} FROM ${table}`,
@@ -388,8 +381,7 @@ export default class SimpleDB {
         ;(options.debug || this.debug) && console.log("\nsample()")
 
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ${table} USING SAMPLE RESERVOIR(${
                 typeof quantity === "number" ? `${quantity} ROWS` : quantity
             })${
@@ -426,8 +418,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\nremoveDuplicates()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             `CREATE OR REPLACE TABLE ${table} AS SELECT DISTINCT * FROM ${table} ORDER BY ALL;`,
             mergeOptions(this, { ...options, table })
         )
@@ -500,8 +491,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\ntrim()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             trimQuery(table, stringToArray(columns), options),
             mergeOptions(this, { ...options, table })
         )
@@ -540,8 +530,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\nfilter()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             `CREATE OR REPLACE TABLE ${table} AS SELECT *
             FROM ${table}
             WHERE ${conditions}`,
@@ -578,8 +567,7 @@ export default class SimpleDB {
         ;(options.debug || this.debug) && console.log("\nrenameColumns()")
 
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             renameColumnQuery(table, Object.keys(names), Object.values(names)),
             mergeOptions(this, { ...options, table })
         )
@@ -636,8 +624,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\nlonger()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM (UNPIVOT ${table}
         ON ${columns.map((d) => `"${d}"`).join(", ")}
         INTO
@@ -699,8 +686,7 @@ export default class SimpleDB {
         const columns = await this.getColumns(table)
 
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             `CREATE OR REPLACE TABLE ${table} AS (SELECT * FROM (PIVOT ${table} ON "${columnsFrom}" USING FIRST("${valuesFrom}"))) ORDER BY ${columns
                 .filter((d) => ![columnsFrom, valuesFrom].includes(d))
                 .map((d) => `"${d}"`)
@@ -763,8 +749,7 @@ export default class SimpleDB {
         const allColumns = Object.keys(allTypes)
 
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             convertQuery(
                 table,
                 Object.keys(types),
@@ -799,8 +784,7 @@ export default class SimpleDB {
         ;(options.debug || this.debug) && console.log("\nremoveTables()")
 
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             stringToArray(tables)
                 .map((d) => `DROP TABLE ${d};`)
                 .join("\n"),
@@ -836,8 +820,7 @@ export default class SimpleDB {
         ;(options.debug || this.debug) && console.log("\nremoveColumns()")
 
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             stringToArray(columns)
                 .map((d) => `ALTER TABLE ${table} DROP "${d}";`)
                 .join("\n"),
@@ -888,8 +871,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\naddColumn()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             `ALTER TABLE ${table} ADD "${column}" ${parseType(type)};
             UPDATE ${table} SET "${column}" = ${definition}`,
             mergeOptions(this, { ...options, table })
@@ -931,8 +913,7 @@ export default class SimpleDB {
         ;(options.debug || this.debug) && console.log("\njoin()")
 
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             joinQuery(leftTable, rightTable, commonColumn, join, outputTable),
             mergeOptions(this, {
                 ...options,
@@ -982,8 +963,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\ncreateTable()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             `CREATE TABLE ${table} (${Object.keys(types)
                 .map((d) => `"${d}" ${parseType(types[d])}`)
                 .join(", ")});`,
@@ -1027,8 +1007,7 @@ export default class SimpleDB {
         ;(options.debug || this.debug) && console.log("\nreplaceStrings()")
         options.entireString = options.entireString ?? false
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             replaceStringsQuery(
                 table,
                 stringToArray(columns),
@@ -1078,8 +1057,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\nconcatenate()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             concatenateQuery(table, columns, newColumn, options),
             mergeOptions(this, { ...options, table })
         )
@@ -1124,8 +1102,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\nround()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             roundQuery(table, stringToArray(columns), options),
             mergeOptions(this, { ...options, table })
         )
@@ -1161,8 +1138,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\nsort()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             sortQuery(table, order, options),
             mergeOptions(this, { ...options, table })
         )
@@ -1205,8 +1181,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\nranks()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             ranksQuery(table, values, newColumn, options),
             mergeOptions(this, { ...options, table })
         )
@@ -1248,8 +1223,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\nquantiles()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             quantilesQuery(table, values, nbQuantiles, newColumn, options),
             mergeOptions(this, { ...options, table })
         )
@@ -1294,8 +1268,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\nbins()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             await binsQuery(this, table, values, interval, newColumn, options),
             mergeOptions(this, { ...options, table })
         )
@@ -1363,8 +1336,7 @@ export default class SimpleDB {
         ;(options.debug || this.debug) &&
             console.log("\nproportionsHorizontal()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             proportionsHorizontalQuery(table, columns, options),
             mergeOptions(this, { ...options, table })
         )
@@ -1407,8 +1379,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\nproportionsVertical()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             proportionsVerticalQuery(table, column, options),
             mergeOptions(this, { ...options, table })
         )
@@ -1606,8 +1577,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\noutliersIQR()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             outliersIQRQuery(
                 table,
                 column,
@@ -1654,8 +1624,7 @@ export default class SimpleDB {
         ;(options.debug || this.debug) && console.log("\nzScore()")
         options.decimals = options.decimals ?? 2
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             zScoreQuery(table, column, options),
             mergeOptions(this, { ...options, table })
         )
@@ -1695,8 +1664,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\ncustomQuery()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             query,
             mergeOptions(this, { ...options, table: options.table ?? null })
         )
@@ -1749,8 +1717,7 @@ export default class SimpleDB {
         }
         const newData = dataModifier(oldData)
         const updatedData = await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             loadArrayQuery(table, newData, { replace: true }),
             mergeOptions(this, { ...options, table })
         )
@@ -1779,8 +1746,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\ngetSchema()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             `DESCRIBE ${table}`,
             mergeOptions(this, {
                 ...options,
@@ -2400,8 +2366,7 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\ngetData()")
         return await queryDB(
-            this.connection,
-            this.runQuery,
+            this,
             `SELECT * from ${table}${
                 options.condition ? ` WHERE ${options.condition}` : ""
             }`,

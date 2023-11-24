@@ -14,8 +14,7 @@ export default async function getStdDev(
     ;(options.debug || simpleDB.debug) && console.log("\ngetStdDev()")
 
     const queryResult = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         typeof options.decimals === "number"
             ? `SELECT ROUND(STDDEV("${column}"), ${options.decimals}) AS valueForGetStdDev FROM ${table}`
             : `SELECT STDDEV("${column}") AS valueForGetStdDev FROM ${table}`,

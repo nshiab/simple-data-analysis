@@ -12,8 +12,7 @@ export default async function getColumns(
     ;(options.debug || simpleDB.debug) && console.log("\ngetColumns()")
 
     const queryResult = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         `DESCRIBE ${table}`,
         mergeOptions(simpleDB, {
             ...options,

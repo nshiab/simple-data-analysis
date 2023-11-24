@@ -15,8 +15,7 @@ export default async function getQuantile(
     ;(options.debug || simpleDB.debug) && console.log("\ngetQuantile()")
 
     const queryResult = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         typeof options.decimals === "number"
             ? `SELECT ROUND(QUANTILE_CONT("${column}", ${quantile}), ${options.decimals}) AS valueForGetQuantile FROM ${table}`
             : `SELECT QUANTILE_CONT("${column}", ${quantile}) AS valueForGetQuantile FROM ${table}`,

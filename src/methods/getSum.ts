@@ -13,8 +13,7 @@ export default async function getSum(
     ;(options.debug || simpleDB.debug) && console.log("\ngetSum()")
 
     const queryResult = await queryDB(
-        simpleDB.connection,
-        simpleDB.runQuery,
+        simpleDB,
         `SELECT SUM("${column}") AS valueForGetSum FROM ${table}`,
         mergeOptions(simpleDB, { ...options, table, returnDataFrom: "query" })
     )
