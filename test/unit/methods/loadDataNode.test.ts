@@ -395,4 +395,33 @@ describe("loadData", () => {
             { key1: 11, key2: "onze", key3: "eleven" },
         ])
     })
+    it("should load data from a json file with specific types for each column", async () => {
+        await simpleNodeDB.loadData("dataJson", ["test/data/files/data.json"], {
+            columnTypes: {
+                key1: "VARCHAR",
+                key2: "VARCHAR",
+            },
+        })
+
+        const data = await simpleNodeDB.getData("dataJson")
+
+        assert.deepStrictEqual(data, [
+            {
+                key1: "1",
+                key2: "un",
+            },
+            {
+                key1: "2",
+                key2: "deux",
+            },
+            {
+                key1: "3",
+                key2: "trois",
+            },
+            {
+                key1: "4",
+                key2: "quatre",
+            },
+        ])
+    })
 })
