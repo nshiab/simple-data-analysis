@@ -2280,12 +2280,16 @@ export default class SimpleDB {
      * Returns the top N rows from a table.
      *
      * ```ts
-     * const top10 = await sdb.getTop("tableA", 10)
+     * const top10 = await sdb.getTop("inventory", 10)
+     *
+     * // With a condition
+     * const top10Books = await sdb.getTop("inventory", 10, {condition: `category = 'Books'` })
      * ```
      *
      * @param table - The name of the table.
      * @param count - The number of rows to return.
      * @param options - An optional object with configuration options:
+     *   - condition: The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *
      * @category Getting data
@@ -2294,6 +2298,7 @@ export default class SimpleDB {
         table: string,
         count: number,
         options: {
+            condition?: string
             debug?: boolean
         } = {}
     ) {
@@ -2305,16 +2310,20 @@ export default class SimpleDB {
      *
      * ```ts
      * // Last row will be returned first.
-     * const bottom10 = await sdb.getBottom("tableA", 10)
+     * const bottom10 = await sdb.getBottom("inventory", 10)
      *
      * // Last row will be returned last.
-     * const bottom10 = await sdb.getBottom("tableA", 10, {originalOrder: true})
+     * const bottom10 = await sdb.getBottom("inventory", 10, {originalOrder: true})
+     *
+     * // With a condition
+     * const bottom10Books = await sdb.getBottom("inventory", 10, {condition: `category = 'Books'` })
      * ```
      *
      * @param table - The name of the table.
      * @param count - The number of rows to return.
      * @param options - An optional object with configuration options:
      *   - originalOrder: A boolean indicating whether the rows should be returned in their original order. Default is false, meaning the last row will be returned first.
+     *   - condition: The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *
      * @category Getting data
@@ -2324,6 +2333,7 @@ export default class SimpleDB {
         count: number,
         options: {
             originalOrder?: boolean
+            condition?: string
             debug?: boolean
         } = {}
     ) {

@@ -8,6 +8,7 @@ export default async function getBottom(
     count: number,
     options: {
         originalOrder?: boolean
+        condition?: string
         debug?: boolean
     } = {}
 ) {
@@ -16,7 +17,9 @@ export default async function getBottom(
     const queryResult = await queryDB(
         simpleDB,
         `WITH numberedRowsForGetBottom AS (
-                SELECT *, row_number() OVER () as rowNumberForGetBottom FROM ${table}
+                SELECT *, row_number() OVER () as rowNumberForGetBottom FROM ${table}${
+                    options.condition ? ` WHERE ${options.condition}` : ""
+                }
             )
             SELECT * FROM numberedRowsForGetBottom ORDER BY rowNumberForGetBottom DESC LIMIT ${count};`,
         mergeOptions(simpleDB, { ...options, table, returnDataFrom: "query" })

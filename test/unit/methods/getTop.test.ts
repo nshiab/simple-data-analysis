@@ -40,4 +40,35 @@ describe("getTop", () => {
             },
         ])
     })
+    it("should return the top 3 with a condition", async () => {
+        const data = await simpleNodeDB.getTop("data", 3, {
+            condition: `Job = 'Programmer'`,
+        })
+        assert.deepStrictEqual(data, [
+            {
+                Name: "Hunold, Alexander",
+                "Hire date": "03-JAN-06",
+                Job: "Programmer",
+                Salary: "9000",
+                "Department or unit": "60",
+                "End-of_year-BONUS?": "23,01%",
+            },
+            {
+                Name: "Ernst, Bruce",
+                "Hire date": "21-MAY-07",
+                Job: "Programmer",
+                Salary: "6000",
+                "Department or unit": "60",
+                "End-of_year-BONUS?": "25,91%",
+            },
+            {
+                Name: "Austin, David",
+                "Hire date": "NaN",
+                Job: "Programmer",
+                Salary: "4800",
+                "Department or unit": "null",
+                "End-of_year-BONUS?": "6,89%",
+            },
+        ])
+    })
 })
