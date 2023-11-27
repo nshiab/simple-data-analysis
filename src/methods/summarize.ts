@@ -8,8 +8,8 @@ import summarizeQuery from "./summarizeQuery.js"
 export default async function summarize(
     simpleDB: SimpleDB,
     table: string,
-    outputTable: string,
     options: {
+        outputTable?: string
         values?: string | string[]
         categories?: string | string[]
         summaries?:
@@ -42,6 +42,8 @@ export default async function summarize(
     } = {}
 ) {
     ;(options.debug || simpleDB.debug) && console.log("\nsummarize()")
+
+    const outputTable = options.outputTable ?? table
 
     options.values = options.values ? stringToArray(options.values) : []
     options.categories = options.categories

@@ -1399,25 +1399,28 @@ export default class SimpleDB {
      * Creates a summary table based on specified values, categories, and summary operations.
      *
      * ```ts
-     * // Summarize all numeric columns with all available summary operations (count, min, max, mean, median, sum, skew, stdDev, and var) and put the result in tableB.
-     * await sdb.summarize("tableA", "tableB")
+     * // Summarize all numeric columns with all available summary operations (count, min, max, mean, median, sum, skew, stdDev, and var). Table tableA will be overwritten with the results.
+     * await sdb.summarize("tableA")
+     *
+     * // Same, but the results will be stored in tableB.
+     * await sdb.summarize("tableA", {outputTable: "tableB"})
      *
      * // Summarize a specific column with all available summary operations. Values can be an array of column names, too.
-     * await sdb.summarize("tableA", "tableB", {values: "column1"})
+     * await sdb.summarize("tableA", {values: "column1"})
      *
      * // Summarize a specific column with all available summary operations and use the values in another column as categories. Categories can be an array of column names, too.
-     * await sdb.summarize("tableA", "tableB", {values: "column1", categories: "column2"})
+     * await sdb.summarize("tableA", {values: "column1", categories: "column2"})
      *
      * // Summarize a specific column with a specific summary operation and use the values in another column as categories. Summaries can be an array of summary operations, too.
-     * await sdb.summarize("tableA", "tableB", {values: "column1", categories: "column2", summaries: "mean"})
+     * await sdb.summarize("tableA", {values: "column1", categories: "column2", summaries: "mean"})
      *
      * // Summarize and round values with a specific number of decimal places (default is 2).
-     * await sdb.summarize("tableA", "tableB", {values: "column1", categories: "column2", summaries: "mean", decimals: 4})
+     * await sdb.summarize("tableA", {values: "column1", categories: "column2", summaries: "mean", decimals: 4})
      * ```
      *
      * @param table - The name of the table to be summarized.
-     * @param outputTable - The name of the new table that will store the result.
      * @param options - An optional object with configuration options:
+     *   - outputTable: An option to store the results in a new table.
      *   - values: The column or columns whose values will be summarized. This can be a single column name or an array of column names.
      *   - categories: The column or columns that define categories for the summarization. This can be a single column name or an array of column names.
      *   - summaries: The summary operations to be performed. This can be a single summary operation or an array of summary operations. Possible values are "count", "min", "max", "mean", "median", "sum", "skew", "stdDev", and "var".
@@ -1430,8 +1433,8 @@ export default class SimpleDB {
      */
     async summarize(
         table: string,
-        outputTable: string,
         options: {
+            outputTable?: string
             values?: string | string[]
             categories?: string | string[]
             summaries?:
@@ -1463,7 +1466,7 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        return await summarize(this, table, outputTable, options)
+        return await summarize(this, table, options)
     }
 
     /**
