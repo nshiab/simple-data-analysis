@@ -30,6 +30,10 @@ export default async function loadDataBrowser(
         start = Date.now()
     }
 
+    if (await simpleDB.hasTable(table)) {
+        await simpleDB.removeTables(table)
+    }
+
     const fileExtension = getExtension(url)
     const filename = url.split("/")[url.split("/").length - 1]
 
@@ -45,6 +49,7 @@ export default async function loadDataBrowser(
             DuckDBDataProtocol.HTTP,
             false
         )
+
         await (simpleDB.connection as AsyncDuckDBConnection).insertCSVFromPath(
             filename,
             {
