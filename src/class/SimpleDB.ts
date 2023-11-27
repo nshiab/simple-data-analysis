@@ -51,6 +51,7 @@ import { Data } from "@observablehq/plot"
 import runQueryBrowser from "../helpers/runQueryBrowser.js"
 import trimQuery from "../methods/trimQuery.js"
 import addThousandSeparator from "../helpers/addThousandSeparator.js"
+import removeDuplicatesQuery from "../methods/removeDuplicatesQuery.js"
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB,
@@ -399,7 +400,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Removes duplicate rows from a table, keeping only unique rows. SQL itself does not guarantee any specific order when using DISTINCT. So the returned data is sorted by all columns from left to right.
+     * Removes duplicate rows from a table, keeping only unique rows. SQL itself does not guarantee any specific order when using DISTINCT. So the returned data is sorted by all columns from left to right by default.
      *
      * ```ts
      * await sdb.removeDuplicates("tableA")
@@ -407,6 +408,8 @@ export default class SimpleDB {
      *
      * @param table - The name of the table from which duplicates will be removed.
      * @param options - An optional object with configuration options:
+     *   - on: A column or multiple columns to consider to remove duplicates. The other columns in the table will not be considered to exclude duplicates.
+     *   - order: The sorting order for a column or multiple columns. Important when using the "on" option. The rows that are kept are the first rows encountered. Without an order option, the rows kept could be any row in the table.
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
@@ -416,6 +419,8 @@ export default class SimpleDB {
     async removeDuplicates(
         table: string,
         options: {
+            on?: string | string[]
+            order?: { [key: string]: "asc" | "desc" }
             returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
             nbRowsToLog?: number
@@ -424,7 +429,7 @@ export default class SimpleDB {
         ;(options.debug || this.debug) && console.log("\nremoveDuplicates()")
         return await queryDB(
             this,
-            `CREATE OR REPLACE TABLE ${table} AS SELECT DISTINCT * FROM ${table} ORDER BY ALL;`,
+            removeDuplicatesQuery(table, options),
             mergeOptions(this, { ...options, table })
         )
     }

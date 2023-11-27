@@ -420,4 +420,126 @@ describe("removeDuplicates", () => {
             },
         ])
     })
+
+    it("should remove duplicates from a table based on a specific column", async () => {
+        await simpleNodeDB.loadData("employeesSpecificColumn", [
+            "test/data/employees.csv",
+        ])
+
+        const noDuplicates = await simpleNodeDB.removeDuplicates(
+            "employeesSpecificColumn",
+            {
+                on: "Job",
+                order: { Name: "asc" },
+                returnDataFrom: "table",
+            }
+        )
+
+        assert.deepStrictEqual(noDuplicates, [
+            {
+                Name: "Atkinson, Mozhe",
+                "Hire date": "30-OCT-05",
+                Job: "Clerk",
+                Salary: "undefined",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "9,61%",
+            },
+            {
+                Name: "Austin, David",
+                "Hire date": "NaN",
+                Job: "Programmer",
+                Salary: "4800",
+                "Department or unit": "null",
+                "End-of_year-BONUS?": "6,89%",
+            },
+            {
+                Name: "Bissot, Laura",
+                "Hire date": "20-AUG-05",
+                Job: "undefined",
+                Salary: "3300",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "4,53%",
+            },
+            {
+                Name: "Chen, John",
+                "Hire date": "28-SEP-05",
+                Job: "Accountant",
+                Salary: "8200",
+                "Department or unit": "100",
+                "End-of_year-BONUS?": "9,31%",
+            },
+            {
+                Name: "De Haan, Lex",
+                "Hire date": "null",
+                Job: "Vice-president",
+                Salary: "17000",
+                "Department or unit": "90",
+                "End-of_year-BONUS?": "23,43%",
+            },
+            {
+                Name: "Fay, Pat",
+                "Hire date": "17-AUG-05",
+                Job: "Representative",
+                Salary: "6000",
+                "Department or unit": "20",
+                "End-of_year-BONUS?": "18,68%",
+            },
+            {
+                Name: "Fripp, Adam",
+                "Hire date": "10-APR-05",
+                Job: "Manager",
+                Salary: "8200",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "21%",
+            },
+            {
+                Name: "Gee, Ki",
+                "Hire date": "12-DEC-07",
+                Job: "NaN",
+                Salary: "2400",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "12,64%",
+            },
+            {
+                Name: "King, Steven",
+                "Hire date": null,
+                Job: "President",
+                Salary: "24000",
+                "Department or unit": "90",
+                "End-of_year-BONUS?": "2,46%",
+            },
+            {
+                Name: "Ladwig, Renske",
+                "Hire date": "14-JUL-03",
+                Job: null,
+                Salary: "3600",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "17,86%",
+            },
+            {
+                Name: "Mavris, Susan",
+                "Hire date": "07-JUN-02",
+                Job: "Salesperson",
+                Salary: "6500",
+                "Department or unit": "40",
+                "End-of_year-BONUS?": "23,47%",
+            },
+            {
+                Name: "Vollman, Shanta",
+                "Hire date": "10-OCT-05",
+                Job: "null",
+                Salary: "6500",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "3,45%",
+            },
+            {
+                Name: null,
+                "Hire date": "17-SEP-03",
+                Job: "Assistant",
+                Salary: "4400",
+                "Department or unit": "10",
+                "End-of_year-BONUS?": "17,51%",
+            },
+        ])
+    })
 })
