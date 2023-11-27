@@ -2422,13 +2422,15 @@ export default class SimpleDB {
         const data = await this.runQuery(
             `SELECT * FROM ${table} LIMIT ${options.nbRowsToLog}`,
             this.connection,
-            true
+            true,
+            { bigIntToInt: this.bigIntToInt }
         )
         console.table(data)
         const nbRows = await this.runQuery(
             `SELECT COUNT(*) FROM ${table};`,
             this.connection,
-            true
+            true,
+            { bigIntToInt: this.bigIntToInt }
         )
         if (nbRows === null) {
             throw new Error("nbRows is null")
