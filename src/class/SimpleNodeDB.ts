@@ -20,6 +20,8 @@ import runQueryNode from "../helpers/runQueryNode.js"
  * ```ts
  * const sdb = new SimpleNodeDB()
  * ```
+ *
+ * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE. Also installs the httpfs extension: https://duckdb.org/docs/extensions/httpfs.html.
  */
 
 export default class SimpleNodeDB extends SimpleDB {
@@ -29,6 +31,8 @@ export default class SimpleNodeDB extends SimpleDB {
      * ```ts
      * const sdb = new SimpleNodeDB()
      * ```
+     *
+     * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE. Also installs the httpfs extension: https://duckdb.org/docs/extensions/httpfs.html.
      *
      * @param options - An optional object with configuration options:
      *   - debug: A flag indicating whether debugging information should be logged. Defaults to false.

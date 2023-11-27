@@ -62,6 +62,9 @@ import addThousandSeparator from "../helpers/addThousandSeparator.js"
  * ```ts
  * const sdb = new SimpleDB()
  * ```
+ *
+ * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE.
+ *
  */
 
 export default class SimpleDB {
@@ -95,6 +98,8 @@ export default class SimpleDB {
      * ```ts
      * const sdb = new SimpleDB()
      * ```
+     *
+     * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE.
      *
      * @param options - An optional object with configuration options:
      *   - debug: A flag indicating whether debugging information should be logged. Defaults to false.
