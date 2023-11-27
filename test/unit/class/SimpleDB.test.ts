@@ -1,8 +1,8 @@
 import assert from "assert"
-import SimpleDB from "../../../src/class/SimpleDB.js"
+import SimpleDB from "../../../src/indexWeb.js"
 import { AsyncDuckDB, AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
 
-describe("SimpleDB", () => {
+describe("SimpleDB (web)", () => {
     const simpleDB = new SimpleDB()
     it("should instantiate a SimpleDB class", () => {
         assert.deepStrictEqual(simpleDB instanceof SimpleDB, true)

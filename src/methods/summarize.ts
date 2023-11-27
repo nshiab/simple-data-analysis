@@ -2,7 +2,7 @@ import keepNumericalColumns from "../helpers/keepNumericalColumns.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import stringToArray from "../helpers/stringToArray.js"
-import { SimpleDB } from "../indexWeb.js"
+import SimpleDB from "../indexWeb.js"
 import summarizeQuery from "./summarizeQuery.js"
 
 export default async function summarize(

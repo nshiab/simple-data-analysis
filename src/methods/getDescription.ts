@@ -1,6 +1,6 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import { SimpleDB } from "../indexWeb.js"
+import SimpleDB from "../indexWeb.js"
 import getDescriptionQuery from "./getDescriptionQuery.js"
 
 export default async function getDescription(

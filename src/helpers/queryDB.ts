@@ -1,4 +1,4 @@
-import { SimpleDB } from "../indexWeb"
+import SimpleDB from "../indexWeb"
 import addThousandSeparator from "./addThousandSeparator.js"
 
 export default async function queryDB(

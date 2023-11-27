@@ -1,4 +1,4 @@
-import { SimpleDB } from "../indexWeb"
+import SimpleDB from "../indexWeb"
 
 export default async function binsQuery(
     simpleDB: SimpleDB,

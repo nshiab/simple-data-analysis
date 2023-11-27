@@ -1,5 +1,5 @@
 import SimpleNodeDB from "../class/SimpleNodeDB"
-import { SimpleDB } from "../indexWeb"
+import SimpleDB from "../indexWeb"
 
 export default function mergeOptions(
     simpleDB: SimpleDB | SimpleNodeDB,

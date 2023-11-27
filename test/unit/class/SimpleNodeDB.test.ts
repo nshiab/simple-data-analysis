@@ -1,5 +1,5 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import { SimpleNodeDB } from "../../../src/index.js"
 import pkg from "duckdb"
 const { Database } = pkg
 

@@ -2,7 +2,7 @@ import getCombinations from "../helpers/getCombinations.js"
 import keepNumericalColumns from "../helpers/keepNumericalColumns.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import { SimpleDB } from "../indexWeb.js"
+import SimpleDB from "../indexWeb.js"
 import linearRegressionQuery from "./linearRegressionQuery.js"
 
 export default async function linearRegressions(
