@@ -1730,8 +1730,6 @@ export default class SimpleDB {
      *
      * ```ts
      * const schema = await sdb.getSchema("tableA")
-     * // Or if you just want to log it.
-     * await sdb.getSchema("tableA", {debug: true})
      * ```
      *
      * @param table - The name of the table for which to retrieve the schema.
@@ -1762,8 +1760,6 @@ export default class SimpleDB {
      *
      * ```ts
      * const description = await sdb.getDescription("tableA")
-     * // Or if you just want to log it.
-     * await sdb.getDescription("tableA", {debug: true})
      * ```
      *
      * @param table - The name of the table.
@@ -1860,8 +1856,6 @@ export default class SimpleDB {
      *
      * ```ts
      * const nbColumns = await sdb.getWidth("tableA")
-     * // Or if you just want to log it
-     * await sdb.getWidth("tableA", {debug: true})
      * ```
      *
      * @param table - The name of the table.
@@ -1883,8 +1877,6 @@ export default class SimpleDB {
      *
      * ```ts
      * const nbRows = await sdb.getLength("tableA")
-     * // Or if you just want to log it
-     * await sdb.getLength("tableA", {debug: true})
      * ```
      *
      * @param table - The name of the table.
@@ -1905,8 +1897,6 @@ export default class SimpleDB {
      *
      * ```ts
      * const nbDataPoints = await sdb.getValuesCount("tableA")
-     * // Or if you just want to log it
-     * await sdb.getValuesCount("tableA", {debug: true})
      * ```
      *
      * @param table - The name of the table .
@@ -1931,8 +1921,6 @@ export default class SimpleDB {
      *
      * ```ts
      * const dataTypes = await sdb.getTypes("tableA")
-     * // Or if you just want to log it
-     * await sdb.getTypes("tableA", {debug: true})
      * ```
      *
      * @param table - The name of the table.
