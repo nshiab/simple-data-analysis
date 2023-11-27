@@ -75,7 +75,7 @@ export default async function loadDataBrowser(
             false
         )
         await simpleDB.runQuery(
-            `CREATE TABLE ${table} AS SELECT * FROM parquet_scan('${filename}')`,
+            `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM parquet_scan('${filename}')`,
             simpleDB.connection,
             false
         )

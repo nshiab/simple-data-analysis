@@ -58,10 +58,10 @@ export default function loadDataNodeQuery(
             const delim = options.delim ? `, delim='${options.delim}'` : ""
             const skip = options.skip ? `, skip=${options.skip}` : ""
 
-            return `CREATE TABLE ${table}
+            return `CREATE OR REPLACE TABLE ${table}
             AS SELECT * FROM read_csv_auto(${filesAsString}${generalOptions}${header}${allText}${delim}${skip})`
         } else {
-            return `CREATE TABLE ${table}
+            return `CREATE OR REPLACE TABLE ${table}
             AS SELECT * FROM read_csv_auto(${filesAsString}${generalOptions}, header=TRUE)`
         }
     } else if (options.fileType === "json" || fileExtension === "json") {
@@ -73,14 +73,14 @@ export default function loadDataNodeQuery(
                 typeof options.records === "boolean"
                     ? `, records=${String(options.records).toUpperCase()}`
                     : ""
-            return `CREATE TABLE ${table}
+            return `CREATE OR REPLACE TABLE ${table}
             AS SELECT * FROM read_json_auto(${filesAsString}${generalOptions}${jsonFormat}${records})`
         } else {
-            return `CREATE TABLE ${table}
+            return `CREATE OR REPLACE TABLE ${table}
             AS SELECT * FROM read_json_auto(${filesAsString}${generalOptions})`
         }
     } else if (options.fileType === "parquet" || fileExtension === "parquet") {
-        return `CREATE TABLE ${table} AS SELECT * FROM read_parquet(${filesAsString}${fileName}${unifyColumns})`
+        return `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM read_parquet(${filesAsString}${fileName}${unifyColumns})`
     } else {
         throw new Error(
             `Unknown options.fileType ${options.fileType} or fileExtension ${fileExtension}`
