@@ -50,7 +50,7 @@ import proportionsVerticalQuery from "../methods/proportionsVerticalQuery.js"
 import { Data } from "@observablehq/plot"
 import runQueryBrowser from "../helpers/runQueryBrowser.js"
 import trimQuery from "../methods/trimQuery.js"
-import { formatNumber } from "journalism"
+import addThousandSeparator from "../helpers/addThousandSeparator.js"
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB,
@@ -2429,7 +2429,7 @@ export default class SimpleDB {
             throw new Error("nbRows is null")
         }
         console.log(
-            `${formatNumber(
+            `${addThousandSeparator(
                 nbRows[0]["count_star()"] as number
             )} rows in total ${`(nbRowsToLog: ${options.nbRowsToLog})`}`
         )

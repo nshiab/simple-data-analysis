@@ -1,5 +1,5 @@
-import { formatNumber } from "journalism"
 import { SimpleDB } from "../indexWeb"
+import addThousandSeparator from "./addThousandSeparator.js"
 
 export default async function queryDB(
     simpleDB: SimpleDB,
@@ -108,7 +108,9 @@ export default async function queryDB(
     if (options.debug) {
         if (Array.isArray(data)) {
             if (options.returnDataFrom === "query") {
-                console.log(`${formatNumber(data.length)} rows in total`)
+                console.log(
+                    `${addThousandSeparator(data.length)} rows in total`
+                )
             } else if (typeof options.table === "string") {
                 console.log(`\ntable ${options.table}:`)
                 console.table(data)
@@ -122,7 +124,7 @@ export default async function queryDB(
                     throw new Error("nbRows is null")
                 }
                 console.log(
-                    `${formatNumber(
+                    `${addThousandSeparator(
                         nbRows[0]["count_star()"] as number
                     )} rows in total ${
                         options.returnDataFrom === "none"
