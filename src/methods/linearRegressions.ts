@@ -8,11 +8,11 @@ import linearRegressionQuery from "./linearRegressionQuery.js"
 export default async function linearRegressions(
     simpleDB: SimpleDB,
     table: string,
-    outputTable: string,
     options: {
         x?: string
         y?: string
         decimals?: number
+        outputTable?: string
         debug?: boolean
         nbRowsToLog?: number
         returnDataFrom?: "query" | "table" | "none"
@@ -21,6 +21,8 @@ export default async function linearRegressions(
     ;(options.debug || simpleDB.debug) && console.log("\nlinearRegressions()")
 
     options.decimals = options.decimals ?? 2
+
+    const outputTable = options.outputTable ?? table
 
     const permutations: [string, string][] = []
     if (!options.x && !options.y) {
@@ -44,6 +46,9 @@ export default async function linearRegressions(
     } else {
         throw new Error("No combinations of x and y")
     }
+
+    ;(options.debug || simpleDB.debug) &&
+        console.log("permutations:", permutations)
 
     return await queryDB(
         simpleDB,

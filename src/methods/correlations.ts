@@ -8,12 +8,12 @@ import correlationsQuery from "./correlationsQuery.js"
 export default async function correlations(
     simpleDB: SimpleDB,
     table: string,
-    outputTable: string,
     options: {
         x?: string
         y?: string
         decimals?: number
         order?: "asc" | "desc"
+        outputTable?: string
         debug?: boolean
         nbRowsToLog?: number
         returnDataFrom?: "query" | "table" | "none"
@@ -22,6 +22,8 @@ export default async function correlations(
     ;(options.debug || simpleDB.debug) && console.log("\ncorrelations()")
 
     options.decimals = options.decimals ?? 2
+
+    const outputTable = options.outputTable ?? table
 
     let combinations: [string, string][] = []
     if (!options.x && !options.y) {
@@ -42,6 +44,9 @@ export default async function correlations(
     } else {
         throw new Error("No combinations of x and y")
     }
+
+    ;(options.debug || simpleDB.debug) &&
+        console.log("combinations:", combinations)
 
     return await queryDB(
         simpleDB,

@@ -1399,32 +1399,32 @@ export default class SimpleDB {
      * Creates a summary table based on specified values, categories, and summary operations.
      *
      * ```ts
-     * // Summarize all numeric columns with all available summary operations (count, min, max, mean, median, sum, skew, stdDev, and var). Table tableA will be overwritten with the results.
+     * // Summarizes all numeric columns with all available summary operations (count, min, max, mean, median, sum, skew, stdDev, and var). Table tableA will be overwritten with the results.
      * await sdb.summarize("tableA")
      *
      * // Same, but the results will be stored in tableB.
      * await sdb.summarize("tableA", {outputTable: "tableB"})
      *
-     * // Summarize a specific column with all available summary operations. Values can be an array of column names, too.
+     * // Summarizes a specific column with all available summary operations. Values can be an array of column names, too.
      * await sdb.summarize("tableA", {values: "column1"})
      *
-     * // Summarize a specific column with all available summary operations and use the values in another column as categories. Categories can be an array of column names, too.
+     * // Summarizes a specific column with all available summary operations and use the values in another column as categories. Categories can be an array of column names, too.
      * await sdb.summarize("tableA", {values: "column1", categories: "column2"})
      *
-     * // Summarize a specific column with a specific summary operation and use the values in another column as categories. Summaries can be an array of summary operations, too.
+     * // Summarizes a specific column with a specific summary operation and use the values in another column as categories. Summaries can be an array of summary operations, too.
      * await sdb.summarize("tableA", {values: "column1", categories: "column2", summaries: "mean"})
      *
-     * // Summarize and round values with a specific number of decimal places (default is 2).
+     * // Summarizes and round values with a specific number of decimal places (default is 2).
      * await sdb.summarize("tableA", {values: "column1", categories: "column2", summaries: "mean", decimals: 4})
      * ```
      *
      * @param table - The name of the table to be summarized.
      * @param options - An optional object with configuration options:
-     *   - outputTable: An option to store the results in a new table.
      *   - values: The column or columns whose values will be summarized. This can be a single column name or an array of column names.
      *   - categories: The column or columns that define categories for the summarization. This can be a single column name or an array of column names.
      *   - summaries: The summary operations to be performed. This can be a single summary operation or an array of summary operations. Possible values are "count", "min", "max", "mean", "median", "sum", "skew", "stdDev", and "var".
      *   - decimals: The number of decimal places to round the summarized values. Defaults to 2.
+     *   - outputTable: An option to store the results in a new table.
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
@@ -1434,7 +1434,6 @@ export default class SimpleDB {
     async summarize(
         table: string,
         options: {
-            outputTable?: string
             values?: string | string[]
             categories?: string | string[]
             summaries?:
@@ -1461,6 +1460,7 @@ export default class SimpleDB {
                       | "var"
                   )[]
             decimals?: number
+            outputTable?: string
             returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
             nbRowsToLog?: number
@@ -1475,23 +1475,26 @@ export default class SimpleDB {
      * If no *x* and *y* columns are specified, the method computes the correlations of all numeric column *combinations*. It's important to note that correlation is symmetrical: the correlation of *x* over *y* is the same as *y* over *x*.
      *
      * ```ts
-     * // Compute all correlations between all numeric columns in tableA and put the results in tableB.
-     * await sdb.correlations("tableA", "tableB")
+     * // Computes all correlations between all numeric columns in tableA and overwrite tableA with the results.
+     * await sdb.correlations("tableA")
      *
-     * // Compute all correlations between a specific x column and all other numeric columns.
-     * await sdb.correlations("tableA", "tableB", {x: "column1"})
+     * // Same but results are stored in tableB.
+     * await sdb.correlations("tableA", {outputTable: "tableB"})
      *
-     * // Compute the correlations between a specific x and y columns.
-     * await sdb.correlations("tableA", "tableB", {x: "column1", y: "column2"})
+     * // Computes all correlations between a specific x column and all other numeric columns.
+     * await sdb.correlations("tableA", {x: "column1"})
+     *
+     * // Computes the correlations between a specific x and y columns.
+     * await sdb.correlations("tableA", {x: "column1", y: "column2"})
      * ```
      *
      * @param table - The name of the table.
-     * @param outputTable - The name of the new table that will store the results.
      * @param options - An optional object with configuration options:
      *   - x: The column name for the x values. Default is all numeric columns.
      *   - y: The column name for the y values. Default is all numeric columns.
      *   - decimals: The number of decimal places to round the correlation values. Defaults to 2.
      *   - order: The order of correlation values in the output table. Possible values are "asc" (ascending) or "desc" (descending). Defaults to "desc".
+     *   - outputTable: An option to store the results in a new table.
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
@@ -1500,18 +1503,18 @@ export default class SimpleDB {
      */
     async correlations(
         table: string,
-        outputTable: string,
         options: {
             x?: string
             y?: string
             decimals?: number
             order?: "asc" | "desc"
+            outputTable?: string
             returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
-        return await correlations(this, table, outputTable, options)
+        return await correlations(this, table, options)
     }
 
     /**
@@ -1520,22 +1523,25 @@ export default class SimpleDB {
      * If no *x* and *y* columns are specified, the method computes the linear regression analysis of all numeric column *permutations*. It's important to note that linear regression analysis is asymmetrical: the linear regression of *x* over *y* is not the same as *y* over *x*.
      *
      * ```ts
-     * // Compute all linear regressions between all numeric columns in tableA and put the results in tableB.
-     * await sdb.linearRegressions("tableA", "tableB")
+     * // Computes all linear regressions between all numeric columns in tableA and overwrites tableA.
+     * await sdb.linearRegressions("tableA")
      *
-     * // Compute all linear regressions between a specific x column and all other numeric columns.
-     * await sdb.linearRegressions("tableA", "tableB", {x: "column1"})
+     * // Same but stores the results in tableB.
+     * await sdb.linearRegressions("tableA", {outputTable: "tableB"})
      *
-     * // Compute the linear regression between a specific x and y columns.
-     * await sdb.linearRegressions("tableA", "tableB", {x: "column1", y: "column2"})
+     * // Computes all linear regressions between a specific x column and all other numeric columns.
+     * await sdb.linearRegressions("tableA", {x: "column1"})
+     *
+     * // Computes the linear regression between a specific x and y columns.
+     * await sdb.linearRegressions("tableA", {x: "column1", y: "column2"})
      * ```
      *
      * @param table - The name of the table.
-     * @param outputTable - The name of the new table that will store the linear regression results.
      * @param options - An optional object with configuration options:
      *   - x: The column name for the independent variable (x values) in the linear regression analysis.
      *   - y: The column name for the dependent variable (y values) in the linear regression analysis.
      *   - decimals: The number of decimal places to round the regression coefficients. Defaults to 2.
+     *   - outputTable: An option to store the results in a new table.
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
@@ -1544,17 +1550,17 @@ export default class SimpleDB {
      */
     async linearRegressions(
         table: string,
-        outputTable: string,
         options: {
             x?: string
             y?: string
             decimals?: number
+            outputTable?: string
             returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
-        return await linearRegressions(this, table, outputTable, options)
+        return await linearRegressions(this, table, options)
     }
 
     /**
