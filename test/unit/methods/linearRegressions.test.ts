@@ -45,6 +45,113 @@ describe("linearRegressions", () => {
         ])
     })
 
+    it("should return the slope, yIntercept and coefficient of determination for all permutations of numeric columns for a specific category", async () => {
+        const data = await simpleNodeDB.linearRegressions("someData", {
+            categories: "key1",
+            outputTable: "linearRegressions",
+            returnDataFrom: "table",
+        })
+
+        assert.deepStrictEqual(data, [
+            {
+                key1: "Fraise",
+                x: "key2",
+                y: "key3",
+                slope: 0.91,
+                yIntercept: -7.65,
+                r2: 1,
+            },
+            {
+                key1: "Fraise",
+                x: "key2",
+                y: "key4",
+                slope: -0.82,
+                yIntercept: 19,
+                r2: 1,
+            },
+            {
+                key1: "Fraise",
+                x: "key3",
+                y: "key2",
+                slope: 1.1,
+                yIntercept: 8.42,
+                r2: 1,
+            },
+            {
+                key1: "Fraise",
+                x: "key3",
+                y: "key4",
+                slope: -0.9,
+                yIntercept: 12.11,
+                r2: 1,
+            },
+            {
+                key1: "Fraise",
+                x: "key4",
+                y: "key2",
+                slope: -1.22,
+                yIntercept: 23.22,
+                r2: 1,
+            },
+            {
+                key1: "Fraise",
+                x: "key4",
+                y: "key3",
+                slope: -1.11,
+                yIntercept: 13.45,
+                r2: 1,
+            },
+            {
+                key1: "Rubarbe",
+                x: "key2",
+                y: "key3",
+                slope: -5.93,
+                yIntercept: 16.43,
+                r2: 1,
+            },
+            {
+                key1: "Rubarbe",
+                x: "key2",
+                y: "key4",
+                slope: -2,
+                yIntercept: 7,
+                r2: 1,
+            },
+            {
+                key1: "Rubarbe",
+                x: "key3",
+                y: "key2",
+                slope: -0.17,
+                yIntercept: 2.77,
+                r2: 1,
+            },
+            {
+                key1: "Rubarbe",
+                x: "key3",
+                y: "key4",
+                slope: 0.34,
+                yIntercept: 1.46,
+                r2: 1,
+            },
+            {
+                key1: "Rubarbe",
+                x: "key4",
+                y: "key2",
+                slope: -0.5,
+                yIntercept: 3.5,
+                r2: 1,
+            },
+            {
+                key1: "Rubarbe",
+                x: "key4",
+                y: "key3",
+                slope: 2.97,
+                yIntercept: -4.34,
+                r2: 1,
+            },
+        ])
+    })
+
     it("should return the slope, yIntercept and coefficient of determination for all combination of a column x and other numeric columns", async () => {
         const data = await simpleNodeDB.linearRegressions("someData", {
             outputTable: "linearRegressions",

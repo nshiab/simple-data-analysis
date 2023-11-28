@@ -1489,6 +1489,7 @@ export default class SimpleDB {
      * @param options - An optional object with configuration options:
      *   - x: The column name for the x values. Default is all numeric columns.
      *   - y: The column name for the y values. Default is all numeric columns.
+     *   - categories: The column or columns that define categories. Correlation calculations will be run for each category.
      *   - decimals: The number of decimal places to round the correlation values. Defaults to 2.
      *   - order: The order of correlation values in the output table. Possible values are "asc" (ascending) or "desc" (descending). Defaults to "desc".
      *   - outputTable: An option to store the results in a new table.
@@ -1503,6 +1504,7 @@ export default class SimpleDB {
         options: {
             x?: string
             y?: string
+            categories?: string | string[]
             decimals?: number
             order?: "asc" | "desc"
             outputTable?: string
@@ -1537,6 +1539,7 @@ export default class SimpleDB {
      * @param options - An optional object with configuration options:
      *   - x: The column name for the independent variable (x values) in the linear regression analysis.
      *   - y: The column name for the dependent variable (y values) in the linear regression analysis.
+     *   - categories: The column or columns that define categories. Correlation calculations will be run for each category.
      *   - decimals: The number of decimal places to round the regression coefficients. Defaults to 2.
      *   - outputTable: An option to store the results in a new table.
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
@@ -1550,6 +1553,7 @@ export default class SimpleDB {
         options: {
             x?: string
             y?: string
+            categories?: string | string[]
             decimals?: number
             outputTable?: string
             returnDataFrom?: "query" | "table" | "none"

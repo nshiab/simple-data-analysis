@@ -11,6 +11,7 @@ export default async function correlations(
     options: {
         x?: string
         y?: string
+        categories?: string | string[]
         decimals?: number
         order?: "asc" | "desc"
         outputTable?: string

@@ -11,6 +11,7 @@ export default async function linearRegressions(
     options: {
         x?: string
         y?: string
+        categories?: string | string[]
         decimals?: number
         outputTable?: string
         debug?: boolean
