@@ -1,15 +1,13 @@
 export default function outliersIQRQuery(
     table: string,
     column: string,
-    parity: "even" | "odd",
-    options: {
-        suffix?: string
-    } = {}
+    newColumn: string,
+    parity: "even" | "odd"
 ) {
     const quantileFunc = parity === "even" ? "quantile_disc" : "quantile_cont"
 
     const query = `ALTER TABLE ${table}
-    ADD COLUMN "${column}${options.suffix ?? "Outliers"}" BOOLEAN;
+    ADD COLUMN "${newColumn}" BOOLEAN;
 
     WITH iqr AS (
         SELECT
@@ -21,7 +19,7 @@ export default function outliersIQRQuery(
         FROM ${table}
     )
     UPDATE ${table}
-    SET "${column}${options.suffix ?? "Outliers"}" = CASE
+    SET "${newColumn}" = CASE
         WHEN "${column}" > (SELECT highThreshold FROM iqr) OR "${column}" < (SELECT lowThreshold FROM iqr) THEN TRUE
         ELSE FALSE
     END;`

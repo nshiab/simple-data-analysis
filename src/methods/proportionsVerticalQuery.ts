@@ -3,9 +3,9 @@ import stringToArray from "../helpers/stringToArray.js"
 export default function proportionsVerticalQuery(
     table: string,
     column: string,
+    newColumn: string,
     options: {
         categories?: string | string[]
-        suffix?: string
         decimals?: number
     } = {}
 ) {
@@ -20,7 +20,7 @@ export default function proportionsVerticalQuery(
 
     let query = `CREATE OR REPLACE TABLE ${table} AS SELECT *, ROUND("${column}" / sum("${column}") OVER(${partition}), ${
         options.decimals ?? 2
-    }) AS "${column}${options.suffix ?? "Perc"}" FROM ${table}`
+    }) AS "${newColumn}" FROM ${table}`
 
     if (categories.length > 0) {
         query += ` ORDER BY ${categories

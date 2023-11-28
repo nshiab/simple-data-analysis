@@ -1356,18 +1356,15 @@ export default class SimpleDB {
      * Computes proportions over a column values within a table.
      *
      * ```ts
-     * // This will add a column column1Perc with the result of each column1 value divided by the sum of all column1 values.
-     * await sdb.proportionsVertical("tableA", "column1")
-     *
-     * // Same thing, but with the suffix Prop instead of Perc. The new column with the proportions will be column1Prop. Also, the proportions will have 4 decimals instead of 2 (default).
-     * await sdb.proportionsVertical("tableA", "column1", {suffix: "Prop", decimals: 4})
+     * // This will add a column perc with the result of each column1 value divided by the sum of all column1 values.
+     * await sdb.proportionsVertical("tableA", "column1", "perc")
      * ```
      *
      * @param table - The name of the table.
      * @param column - The column containing values for which proportions will be computed. The proportions are calculated based on the sum of values in the specified column.
+     * @param newColumn - The name of the new column where the bins will be stored.
      * @param options - An optional object with configuration options:
      *   - categories: The column or columns that define categories for computing proportions. This can be a single column name or an array of column names.
-     *   - suffix: A string suffix to append to the names of the new columns storing the computed proportions. Defaults to "Perc".
      *   - decimals: The number of decimal places to round the computed proportions. Defaults to 2.
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
@@ -1378,9 +1375,9 @@ export default class SimpleDB {
     async proportionsVertical(
         table: string,
         column: string,
+        newColumn: string,
         options: {
             categories?: string | string[]
-            suffix?: string
             decimals?: number
             returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
@@ -1390,7 +1387,7 @@ export default class SimpleDB {
         ;(options.debug || this.debug) && console.log("\nproportionsVertical()")
         return await queryDB(
             this,
-            proportionsVerticalQuery(table, column, options),
+            proportionsVerticalQuery(table, column, newColumn, options),
             mergeOptions(this, { ...options, table })
         )
     }
@@ -1567,17 +1564,14 @@ export default class SimpleDB {
      * Identifies outliers using the Interquartile Range (IQR) method.
      *
      * ```ts
-     * // Looks for outliers in column age from table1. Creates a new column ageOutliers with TRUE or FALSE values. "Outliers" is the default suffix for the new column.
-     * await sdb.outliersIQR("table1", "age")
-     *
-     * // Same thing, but overrides the default suffix "Outliers". The new column with TRUE or FALSE values will be ageOut.
-     * await sdb.outliersIQR("table1", "age", {suffix: "Out"})
+     * // Looks for outliers in column age from table1. Creates a new column outliers with TRUE or FALSE values.
+     * await sdb.outliersIQR("table1", "age", "outliers")
      * ```
      *
      * @param table - The name of the table containing the column for outlier detection.
      * @param column - The name of the column in which outliers will be identified.
+     * @param newColumn - The name of the new column where the bins will be stored.
      * @param options - An optional object with configuration options:
-     *   - suffix: The suffix to be appended to the new column storing the outlier flags.
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
@@ -1587,8 +1581,8 @@ export default class SimpleDB {
     async outliersIQR(
         table: string,
         column: string,
+        newColumn: string,
         options: {
-            suffix?: string
             returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
             nbRowsToLog?: number
@@ -1600,8 +1594,8 @@ export default class SimpleDB {
             outliersIQRQuery(
                 table,
                 column,
-                (await this.getLength(table)) % 2 === 0 ? "even" : "odd",
-                options
+                newColumn,
+                (await this.getLength(table)) % 2 === 0 ? "even" : "odd"
             ),
             mergeOptions(this, { ...options, table })
         )
@@ -1611,17 +1605,14 @@ export default class SimpleDB {
      * Calculates the Z-Score.
      *
      * ```ts
-     * // Calculates the Z-score for the values in column age and puts the results in a column ageZ. "Z" is the default suffix for the new column.
-     * await sdb.zScore("table1", "age")
-     *
-     * // Same thing but overrides the suffix value. Here, the new column with the Z-scores will be named ageSigma.
-     * await sdb.zScore("table1", "age", {suffix: "Sigma"})
+     * // Calculates the Z-score for the values in column age and puts the results in a column sigma.
+     * await sdb.zScore("table1", "age", "sigma")
      * ```
      *
      * @param table - The name of the table.
      * @param column - The name of the column for which Z-Score will be calculated.
+     * @param newColumn - The name of the new column where the bins will be stored.
      * @param options - An optional object with configuration options:
-     *   - suffix: An optional suffix to append to the new column name storing the Z-Score values.
      *   - decimals: The number of decimal places to round the Z-Score values. Defaults to 2.
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
@@ -1632,8 +1623,8 @@ export default class SimpleDB {
     async zScore(
         table: string,
         column: string,
+        newColumn: string,
         options: {
-            suffix?: string
             decimals?: number
             returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
@@ -1644,7 +1635,7 @@ export default class SimpleDB {
         options.decimals = options.decimals ?? 2
         return await queryDB(
             this,
-            zScoreQuery(table, column, options),
+            zScoreQuery(table, column, newColumn, options),
             mergeOptions(this, { ...options, table })
         )
     }

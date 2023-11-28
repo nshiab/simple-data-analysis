@@ -31,7 +31,7 @@ describe("zScore", () => {
     })
 
     it("should add a column with the zScore", async () => {
-        const data = await simpleNodeDB.zScore("people", "age", {
+        const data = await simpleNodeDB.zScore("people", "age", "ageZ", {
             returnDataFrom: "table",
         })
 
@@ -54,37 +54,16 @@ describe("zScore", () => {
             { name: "Jane", age: 32, ageZ: -0.48 },
         ])
     })
-    it("should add a column with the zScore in a column with a specific name", async () => {
-        const data = await simpleNodeDB.zScore("peopleDifferentName", "age", {
-            suffix: "Sigma",
-            returnDataFrom: "table",
-        })
-
-        assert.deepStrictEqual(data, [
-            { name: "Chloe", age: 33, ageSigma: -0.42 },
-            { name: "Philip", age: 33, ageSigma: -0.42 },
-            { name: "Sonny", age: 57, ageSigma: 1.25 },
-            { name: "Frazer", age: 64, ageSigma: 1.73 },
-            { name: "Sarah", age: 64, ageSigma: 1.73 },
-            { name: "Frankie", age: 65, ageSigma: 1.8 },
-            { name: "Morgan", age: 33, ageSigma: -0.42 },
-            { name: "Jeremy", age: 34, ageSigma: -0.35 },
-            { name: "Claudia", age: 35, ageSigma: -0.28 },
-            { name: "Evangeline", age: 21, ageSigma: -1.25 },
-            { name: "Amelia", age: 29, ageSigma: -0.69 },
-            { name: "Marie", age: 30, ageSigma: -0.62 },
-            { name: "Kiara", age: 31, ageSigma: -0.55 },
-            { name: "Isobel", age: 31, ageSigma: -0.55 },
-            { name: "Genevieve", age: 32, ageSigma: -0.48 },
-            { name: "Jane", age: 32, ageSigma: -0.48 },
-        ])
-    })
-    it("should add a column with the zScore in a column with a specific name and 3 decimals", async () => {
-        const data = await simpleNodeDB.zScore("peopleThreeDecimals", "age", {
-            suffix: "Sigma",
-            decimals: 3,
-            returnDataFrom: "table",
-        })
+    it("should add a column with the zScore rounded to 3 decimals", async () => {
+        const data = await simpleNodeDB.zScore(
+            "peopleThreeDecimals",
+            "age",
+            "ageSigma",
+            {
+                decimals: 3,
+                returnDataFrom: "table",
+            }
+        )
 
         assert.deepStrictEqual(data, [
             { name: "Chloe", age: 33, ageSigma: -0.415 },
