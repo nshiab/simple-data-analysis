@@ -12,20 +12,15 @@ describe("wider", () => {
     })
 
     it("should untidy data by expanding mutiple columns", async () => {
-        const data = await simpleNodeDB.wider("dataTidy", "year", "employees", {
-            returnDataFrom: "table",
-        })
+        await simpleNodeDB.wider("dataTidy", "year", "employees")
+
+        const data = await simpleNodeDB.sort(
+            "dataTidy",
+            { Department: "asc" },
+            { returnDataFrom: "table" }
+        )
 
         assert.deepStrictEqual(data, [
-            {
-                "2015": 1,
-                "2016": 2,
-                "2017": 5,
-                "2018": 2,
-                "2019": 2,
-                "2020": 3,
-                Department: "R&D",
-            },
             {
                 "2015": 10,
                 "2016": 9,
@@ -34,6 +29,15 @@ describe("wider", () => {
                 "2019": 25,
                 "2020": 32,
                 Department: "accounting",
+            },
+            {
+                "2015": 1,
+                "2016": 2,
+                "2017": 5,
+                "2018": 2,
+                "2019": 2,
+                "2020": 3,
+                Department: "R&D",
             },
             {
                 "2015": 2,

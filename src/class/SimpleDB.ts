@@ -47,7 +47,6 @@ import quantilesQuery from "../methods/quantilesQuery.js"
 import binsQuery from "../methods/binsQuery.js"
 import proportionsHorizontalQuery from "../methods/proportionsHorizontalQuery.js"
 import proportionsVerticalQuery from "../methods/proportionsVerticalQuery.js"
-import { Data } from "@observablehq/plot"
 import runQueryBrowser from "../helpers/runQueryBrowser.js"
 import trimQuery from "../methods/trimQuery.js"
 import addThousandSeparator from "../helpers/addThousandSeparator.js"
@@ -2380,35 +2379,6 @@ export default class SimpleDB {
             }`,
             mergeOptions(this, { ...options, returnDataFrom: "query", table })
         )
-    }
-
-    /**
-     * Same as the getData method, but returns a Data type from Observable Plot. Used to pass the data directly to generate a chart without TypeScript warnings or errors.
-     *
-     * ```ts
-     * // No condition. Returns all data.
-     * const data = await sdb.getData("inventory")
-     *
-     * // With condition
-     * const books = await sdb.getData("inventory", {condition: "category = 'Book'"})
-     * ```
-     *
-     * @param table - The name of the table from which to retrieve the data.
-     * @param options - An optional object with configuration options:
-     *   - condition: A SQL WHERE clause condition to filter the data. Defaults to no condition.
-     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
-     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
-     */
-    async getChartData(
-        table: string,
-        options: {
-            condition?: string
-            debug?: boolean
-            nbRowsToLog?: number
-        } = {}
-    ) {
-        ;(options.debug || this.debug) && console.log("\ngetChartData()")
-        return (await this.getData(table, options)) as Data
     }
 
     /**
