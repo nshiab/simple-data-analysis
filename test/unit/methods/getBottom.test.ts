@@ -5,7 +5,7 @@ describe("getBottom", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
         simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("data", ["test/data/employees.csv"])
+        await simpleNodeDB.loadData("data", ["test/data/files/employees.csv"])
     })
     after(async function () {
         await simpleNodeDB.done()

@@ -13,7 +13,7 @@ describe("cloneTable", () => {
     it("should clone a table", async () => {
         await simpleNodeDB.loadData(
             "dataCsvOriginal",
-            "test/data/employees.csv"
+            "test/data/files/employees.csv"
         )
 
         const data = await simpleNodeDB.cloneTable(

@@ -12,7 +12,7 @@ describe("selectColumns", () => {
 
     it("should return one column", async () => {
         await simpleNodeDB.loadData("employeesOneColumn", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.selectColumns(
@@ -77,7 +77,7 @@ describe("selectColumns", () => {
     })
     it("should return multiple columns", async () => {
         await simpleNodeDB.loadData("employeesMultipleColumns", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.selectColumns(

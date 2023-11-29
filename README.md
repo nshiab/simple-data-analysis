@@ -73,7 +73,7 @@ Here's an example.
     // We load data from remote file.
     await simpleDB.loadData(
       "employees",
-      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/employees.csv"
+      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/employees.csv"
     );
 
     // We log the data in the console.

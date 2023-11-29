@@ -11,8 +11,11 @@ describe("removeTables", () => {
     })
 
     it("should remove one table", async () => {
-        await simpleNodeDB.loadData("dataCsv", "test/data/employees.csv")
-        await simpleNodeDB.loadData("dataJson", "test/data/employees.json")
+        await simpleNodeDB.loadData("dataCsv", "test/data/files/employees.csv")
+        await simpleNodeDB.loadData(
+            "dataJson",
+            "test/data/files/employees.json"
+        )
 
         await simpleNodeDB.removeTables("dataJson")
 
@@ -21,7 +24,10 @@ describe("removeTables", () => {
     })
 
     it("should remove multiple tables", async () => {
-        await simpleNodeDB.loadData("dataJson", "test/data/employees.json")
+        await simpleNodeDB.loadData(
+            "dataJson",
+            "test/data/files/employees.json"
+        )
         await simpleNodeDB.removeTables(["dataJson", "dataCsv"])
 
         const tables = await simpleNodeDB.getTables()

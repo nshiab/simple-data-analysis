@@ -12,7 +12,7 @@ describe("removeMissing", () => {
 
     it("should return a table without any missing values", async () => {
         await simpleNodeDB.loadData("employeesForAllColumnsTest", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.removeMissing(
@@ -27,7 +27,7 @@ describe("removeMissing", () => {
 
     it("should return a table without any missing values even if there is a type JSON", async () => {
         await simpleNodeDB.loadData("employeesJSON", [
-            "test/data/employees.json",
+            "test/data/files/employees.json",
         ])
 
         const data = await simpleNodeDB.removeMissing("employeesJSON", {
@@ -73,7 +73,7 @@ describe("removeMissing", () => {
 
     it("should return a table without any missing values for a specific column", async () => {
         await simpleNodeDB.loadData("employeesForOneSpecificColumnTest", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.removeMissing(
@@ -89,7 +89,7 @@ describe("removeMissing", () => {
 
     it("should return a table without any missing values for multiple specific columns", async () => {
         await simpleNodeDB.loadData("employeesForMultipleSpecificColumnTest", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.removeMissing(
@@ -105,7 +105,7 @@ describe("removeMissing", () => {
 
     it("should return a table with null values in any columns", async () => {
         await simpleNodeDB.loadData("employeesInvertTest", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.removeMissing("employeesInvertTest", {
@@ -118,7 +118,7 @@ describe("removeMissing", () => {
 
     it("should return a table with null values in a specific column", async () => {
         await simpleNodeDB.loadData("employeesInvertOneColumnTest", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.removeMissing(

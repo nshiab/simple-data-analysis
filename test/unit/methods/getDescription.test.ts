@@ -11,7 +11,9 @@ describe("logDescription", () => {
     })
 
     it("should return the count of null values, non null values, and distinct values in each column of a table", async () => {
-        await simpleNodeDB.loadData("employees", ["test/data/employees.json"])
+        await simpleNodeDB.loadData("employees", [
+            "test/data/files/employees.json",
+        ])
 
         const description = await simpleNodeDB.getDescription("employees")
 

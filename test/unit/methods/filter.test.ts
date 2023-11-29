@@ -12,7 +12,7 @@ describe("filter", () => {
 
     it("should filter the rows based on one condition", async () => {
         await simpleNodeDB.loadData("employeesOneCondition", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.filter(
@@ -188,7 +188,7 @@ describe("filter", () => {
     })
     it("should filter the rows based on multiple conditions", async () => {
         await simpleNodeDB.loadData("employeesMultipleConditions", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.filter(

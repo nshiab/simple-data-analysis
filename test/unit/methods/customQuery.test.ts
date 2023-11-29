@@ -11,7 +11,9 @@ describe("customQuery", () => {
     })
 
     it("should return the columns of a table", async () => {
-        await simpleNodeDB.loadData("employees", ["test/data/employees.csv"])
+        await simpleNodeDB.loadData("employees", [
+            "test/data/files/employees.csv",
+        ])
 
         const data = await simpleNodeDB.customQuery(
             "SELECT * FROM employees WHERE Job = 'Clerk'",

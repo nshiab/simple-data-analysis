@@ -12,7 +12,7 @@ describe("replaceString", () => {
 
     it("should replace the text in one column", async () => {
         await simpleNodeDB.loadData("employeesOneColumn", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.replaceStrings(
@@ -436,7 +436,7 @@ describe("replaceString", () => {
 
     it("should replace substings in one column", async () => {
         await simpleNodeDB.loadData("employeesSubstring", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.replaceStrings(
@@ -860,7 +860,7 @@ describe("replaceString", () => {
 
     it("should replace entire strings in one column", async () => {
         await simpleNodeDB.loadData("employeesEntireString", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.replaceStrings(
@@ -1284,7 +1284,7 @@ describe("replaceString", () => {
 
     it("should replace multiple texts in one column", async () => {
         await simpleNodeDB.loadData("employeesOneColumnMultipleTexts", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.replaceStrings(
@@ -1708,7 +1708,7 @@ describe("replaceString", () => {
 
     it("should replace the text in multiple columns", async () => {
         await simpleNodeDB.loadData("employeesMultipleColumns", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.replaceStrings(
@@ -2132,7 +2132,7 @@ describe("replaceString", () => {
 
     it("should replace multiple texts in multiple columns", async () => {
         await simpleNodeDB.loadData("employeesMultipleColumnsMultipleTexts", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.replaceStrings(

@@ -13,7 +13,10 @@ describe("writeChart", () => {
         }
 
         simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("employees", "test/data/employees.csv")
+        await simpleNodeDB.loadData(
+            "employees",
+            "test/data/files/employees.csv"
+        )
         await simpleNodeDB.convert(
             "employees",
             { Salary: "bigint" },

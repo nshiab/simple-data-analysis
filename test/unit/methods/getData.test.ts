@@ -5,7 +5,9 @@ describe("getData", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
         simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("dataCsv", ["test/data/employees.csv"])
+        await simpleNodeDB.loadData("dataCsv", [
+            "test/data/files/employees.csv",
+        ])
     })
     after(async function () {
         await simpleNodeDB.done()

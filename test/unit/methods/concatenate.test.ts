@@ -5,7 +5,9 @@ describe("concatenate", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
         simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("employees", ["test/data/employees.json"])
+        await simpleNodeDB.loadData("employees", [
+            "test/data/files/employees.json",
+        ])
     })
     after(async function () {
         await simpleNodeDB.done()

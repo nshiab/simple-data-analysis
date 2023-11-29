@@ -11,7 +11,9 @@ describe("removeDuplicates", () => {
     })
 
     it("should remove duplicates from a table", async () => {
-        await simpleNodeDB.loadData("employees", ["test/data/employees.csv"])
+        await simpleNodeDB.loadData("employees", [
+            "test/data/files/employees.csv",
+        ])
 
         await simpleNodeDB.removeDuplicates("employees")
         const noDuplicates = await simpleNodeDB.sort(
@@ -426,7 +428,7 @@ describe("removeDuplicates", () => {
 
     it("should remove duplicates from a table based on a specific column", async () => {
         await simpleNodeDB.loadData("employeesSpecificColumn", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         await simpleNodeDB.removeDuplicates("employeesSpecificColumn", {

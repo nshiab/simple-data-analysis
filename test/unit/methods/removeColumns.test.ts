@@ -11,7 +11,7 @@ describe("removeColumns", () => {
     })
 
     it("should remove one column", async () => {
-        await simpleNodeDB.loadData("dataCsv", "test/data/employees.csv")
+        await simpleNodeDB.loadData("dataCsv", "test/data/files/employees.csv")
 
         const data = await simpleNodeDB.removeColumns("dataCsv", "Hire date", {
             returnDataFrom: "table",

@@ -12,7 +12,7 @@ describe("sample", () => {
 
     it("should return 5 random rows", async () => {
         await simpleNodeDB.loadData("employeesRandomRows", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.sample("employeesRandomRows", 5, {
@@ -24,7 +24,7 @@ describe("sample", () => {
 
     it("should return 20% random rows", async () => {
         await simpleNodeDB.loadData("employeesRandomRowsPerc", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.sample(
@@ -40,7 +40,7 @@ describe("sample", () => {
 
     it("should return the 5 same random rows based on seed", async () => {
         await simpleNodeDB.loadData("employeesRandomRowsSeed", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.sample("employeesRandomRowsSeed", 5, {
@@ -94,7 +94,7 @@ describe("sample", () => {
 
     it("should return the same 20% random rows based on a seed", async () => {
         await simpleNodeDB.loadData("employeesRandomRowsPercSeed", [
-            "test/data/employees.csv",
+            "test/data/files/employees.csv",
         ])
 
         const data = await simpleNodeDB.sample(
