@@ -1620,6 +1620,7 @@ export default class SimpleDB {
      * @param column - The name of the column for which Z-Score will be calculated.
      * @param newColumn - The name of the new column where the bins will be stored.
      * @param options - An optional object with configuration options:
+     *   - categories: The column or columns that define categories for zScores.
      *   - decimals: The number of decimal places to round the Z-Score values. Defaults to 2.
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
@@ -1632,6 +1633,7 @@ export default class SimpleDB {
         column: string,
         newColumn: string,
         options: {
+            categories?: string | string[]
             decimals?: number
             returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
