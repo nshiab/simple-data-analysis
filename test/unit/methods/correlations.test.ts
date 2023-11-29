@@ -47,27 +47,6 @@ describe("correlations", () => {
         ])
     })
 
-    // To redo
-    // it("should give all correlations between numeric columns in the table and with categories", async () => {
-    //     const data = await simpleNodeDB.correlations("someData", {
-    //         outputTable: "allCorrelations",
-    //         categories: "key1",
-    //         returnDataFrom: "table",
-    //         decimals: 1,
-    //     })
-
-    //     await simpleNodeDB.sort("allCorrelations", { corr: "desc" })
-
-    //     assert.deepStrictEqual(data, [
-    //         { key1: "Fraise", x: "key2", y: "key3", corr: 1 },
-    //         { key1: "Fraise", x: "key2", y: "key4", corr: -1 },
-    //         { key1: "Fraise", x: "key3", y: "key4", corr: -1 },
-    //         { key1: "Rubarbe", x: "key3", y: "key4", corr: 1 },
-    //         { key1: "Rubarbe", x: "key2", y: "key3", corr: -1 },
-    //         { key1: "Rubarbe", x: "key2", y: "key4", corr: -1 },
-    //     ])
-    // })
-
     it("should give all correlations between numeric columns with a specific x column", async () => {
         await simpleNodeDB.correlations("someData", {
             outputTable: "allCorrelationsX",
@@ -97,5 +76,37 @@ describe("correlations", () => {
         })
 
         assert.deepStrictEqual(data, [{ x: "key2", y: "key3", corr: 0.4 }])
+    })
+    it("should give the correlation between two specific columns and with a category", async () => {
+        await simpleNodeDB.loadData(
+            "temperatures",
+            "./test/data/files/dailyTemperatures.csv"
+        )
+        await simpleNodeDB.addColumn(
+            "temperatures",
+            "decade",
+            "integer",
+            "FLOOR(YEAR(time)/10)*10"
+        )
+        await simpleNodeDB.summarize("temperatures", {
+            values: "t",
+            categories: ["decade", "id"],
+            summaries: "mean",
+        })
+        await simpleNodeDB.correlations("temperatures", {
+            x: "decade",
+            y: "mean",
+            categories: "id",
+        })
+
+        await simpleNodeDB.sort("temperatures", { corr: "desc" })
+
+        const data = await simpleNodeDB.getData("temperatures")
+
+        assert.deepStrictEqual(data, [
+            { id: 6158355, x: "decade", y: "mean", corr: 0.96 },
+            { id: 1108380, x: "decade", y: "mean", corr: 0.95 },
+            { id: 7024745, x: "decade", y: "mean", corr: 0.91 },
+        ])
     })
 })

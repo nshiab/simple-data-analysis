@@ -48,119 +48,58 @@ describe("linearRegressions", () => {
     })
 
     // To redo with climate data
-    // it("should return the slope, yIntercept and coefficient of determination for all permutations of numeric columns for a specific category", async () => {
-    //     await simpleNodeDB.linearRegressions("someData", {
-    //         categories: "key1",
-    //         outputTable: "linearRegressions",
-    //         returnDataFrom: "table",
-    //     })
-    //     await simpleNodeDB.sort("linearRegressions", {
-    //         key1: "asc",
-    //         r2: "desc",
-    //         x: "asc",
-    //         y: "asc",
-    //     })
-    //     const data = await simpleNodeDB.getData("linearRegressions")
+    it("should return the slope, yIntercept and coefficient of determination for specific columns with a specific category", async () => {
+        await simpleNodeDB.loadData(
+            "temperatures",
+            "./test/data/files/dailyTemperatures.csv"
+        )
+        await simpleNodeDB.addColumn(
+            "temperatures",
+            "decade",
+            "integer",
+            "FLOOR(YEAR(time)/10)*10"
+        )
+        await simpleNodeDB.summarize("temperatures", {
+            values: "t",
+            categories: ["decade", "id"],
+            summaries: "mean",
+        })
+        await simpleNodeDB.linearRegressions("temperatures", {
+            x: "decade",
+            y: "mean",
+            categories: "id",
+        })
 
-    //     assert.deepStrictEqual(data, [
-    //         {
-    //             key1: "Fraise",
-    //             x: "key2",
-    //             y: "key3",
-    //             slope: 0.91,
-    //             yIntercept: -7.65,
-    //             r2: 1,
-    //         },
-    //         {
-    //             key1: "Fraise",
-    //             x: "key2",
-    //             y: "key4",
-    //             slope: -0.82,
-    //             yIntercept: 19,
-    //             r2: 1,
-    //         },
-    //         {
-    //             key1: "Fraise",
-    //             x: "key3",
-    //             y: "key2",
-    //             slope: 1.1,
-    //             yIntercept: 8.42,
-    //             r2: 1,
-    //         },
-    //         {
-    //             key1: "Fraise",
-    //             x: "key3",
-    //             y: "key4",
-    //             slope: -0.9,
-    //             yIntercept: 12.11,
-    //             r2: 1,
-    //         },
-    //         {
-    //             key1: "Fraise",
-    //             x: "key4",
-    //             y: "key2",
-    //             slope: -1.22,
-    //             yIntercept: 23.22,
-    //             r2: 1,
-    //         },
-    //         {
-    //             key1: "Fraise",
-    //             x: "key4",
-    //             y: "key3",
-    //             slope: -1.11,
-    //             yIntercept: 13.45,
-    //             r2: 1,
-    //         },
-    //         {
-    //             key1: "Rubarbe",
-    //             x: "key2",
-    //             y: "key3",
-    //             slope: -5.93,
-    //             yIntercept: 16.43,
-    //             r2: 1,
-    //         },
-    //         {
-    //             key1: "Rubarbe",
-    //             x: "key2",
-    //             y: "key4",
-    //             slope: -2,
-    //             yIntercept: 7,
-    //             r2: 1,
-    //         },
-    //         {
-    //             key1: "Rubarbe",
-    //             x: "key3",
-    //             y: "key2",
-    //             slope: -0.17,
-    //             yIntercept: 2.77,
-    //             r2: 1,
-    //         },
-    //         {
-    //             key1: "Rubarbe",
-    //             x: "key3",
-    //             y: "key4",
-    //             slope: 0.34,
-    //             yIntercept: 1.46,
-    //             r2: 1,
-    //         },
-    //         {
-    //             key1: "Rubarbe",
-    //             x: "key4",
-    //             y: "key2",
-    //             slope: -0.5,
-    //             yIntercept: 3.5,
-    //             r2: 1,
-    //         },
-    //         {
-    //             key1: "Rubarbe",
-    //             x: "key4",
-    //             y: "key3",
-    //             slope: 2.97,
-    //             yIntercept: -4.34,
-    //             r2: 1,
-    //         },
-    //     ])
-    // })
+        await simpleNodeDB.sort("temperatures", { r2: "desc" })
+        const data = await simpleNodeDB.getData("temperatures")
+
+        assert.deepStrictEqual(data, [
+            {
+                id: 6158355,
+                x: "decade",
+                y: "mean",
+                slope: 0.02,
+                yIntercept: -29.86,
+                r2: 0.92,
+            },
+            {
+                id: 1108380,
+                x: "decade",
+                y: "mean",
+                slope: 0.02,
+                yIntercept: -24.56,
+                r2: 0.9,
+            },
+            {
+                id: 7024745,
+                x: "decade",
+                y: "mean",
+                slope: 0.02,
+                yIntercept: -30.62,
+                r2: 0.83,
+            },
+        ])
+    })
 
     it("should return the slope, yIntercept and coefficient of determination for all combination of a column x and other numeric columns", async () => {
         await simpleNodeDB.linearRegressions("someData", {
