@@ -13,7 +13,6 @@ export default async function correlations(
         y?: string
         categories?: string | string[]
         decimals?: number
-        order?: "asc" | "desc"
         outputTable?: string
         debug?: boolean
         nbRowsToLog?: number

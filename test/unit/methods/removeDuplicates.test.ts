@@ -13,9 +13,12 @@ describe("removeDuplicates", () => {
     it("should remove duplicates from a table", async () => {
         await simpleNodeDB.loadData("employees", ["test/data/employees.csv"])
 
-        const noDuplicates = await simpleNodeDB.removeDuplicates("employees", {
-            returnDataFrom: "table",
-        })
+        await simpleNodeDB.removeDuplicates("employees")
+        const noDuplicates = await simpleNodeDB.sort(
+            "employees",
+            { Name: "asc" },
+            { returnDataFrom: "table" }
+        )
 
         assert.deepStrictEqual(noDuplicates, [
             {
@@ -426,32 +429,16 @@ describe("removeDuplicates", () => {
             "test/data/employees.csv",
         ])
 
-        const noDuplicates = await simpleNodeDB.removeDuplicates(
+        await simpleNodeDB.removeDuplicates("employeesSpecificColumn", {
+            on: "Job",
+        })
+        const noDuplicates = await simpleNodeDB.sort(
             "employeesSpecificColumn",
-            {
-                on: "Job",
-                order: { Name: "asc" },
-                returnDataFrom: "table",
-            }
+            { Name: "asc" },
+            { returnDataFrom: "table" }
         )
 
         assert.deepStrictEqual(noDuplicates, [
-            {
-                Name: "Atkinson, Mozhe",
-                "Hire date": "30-OCT-05",
-                Job: "Clerk",
-                Salary: "undefined",
-                "Department or unit": "50",
-                "End-of_year-BONUS?": "9,61%",
-            },
-            {
-                Name: "Austin, David",
-                "Hire date": "NaN",
-                Job: "Programmer",
-                Salary: "4800",
-                "Department or unit": "null",
-                "End-of_year-BONUS?": "6,89%",
-            },
             {
                 Name: "Bissot, Laura",
                 "Hire date": "20-AUG-05",
@@ -459,22 +446,6 @@ describe("removeDuplicates", () => {
                 Salary: "3300",
                 "Department or unit": "50",
                 "End-of_year-BONUS?": "4,53%",
-            },
-            {
-                Name: "Chen, John",
-                "Hire date": "28-SEP-05",
-                Job: "Accountant",
-                Salary: "8200",
-                "Department or unit": "100",
-                "End-of_year-BONUS?": "9,31%",
-            },
-            {
-                Name: "De Haan, Lex",
-                "Hire date": "null",
-                Job: "Vice-president",
-                Salary: "17000",
-                "Department or unit": "90",
-                "End-of_year-BONUS?": "23,43%",
             },
             {
                 Name: "Fay, Pat",
@@ -485,20 +456,20 @@ describe("removeDuplicates", () => {
                 "End-of_year-BONUS?": "18,68%",
             },
             {
-                Name: "Fripp, Adam",
-                "Hire date": "10-APR-05",
+                Name: "Hartstein, Michael",
+                "Hire date": "17-FEB-04",
                 Job: "Manager",
-                Salary: "8200",
-                "Department or unit": "50",
-                "End-of_year-BONUS?": "21%",
+                Salary: "13000",
+                "Department or unit": "20",
+                "End-of_year-BONUS?": "2,71%",
             },
             {
-                Name: "Gee, Ki",
-                "Hire date": "12-DEC-07",
-                Job: "NaN",
-                Salary: "2400",
-                "Department or unit": "50",
-                "End-of_year-BONUS?": "12,64%",
+                Name: "Hunold, Alexander",
+                "Hire date": "03-JAN-06",
+                Job: "Programmer",
+                Salary: "9000",
+                "Department or unit": "60",
+                "End-of_year-BONUS?": "23,01%",
             },
             {
                 Name: "King, Steven",
@@ -507,6 +478,14 @@ describe("removeDuplicates", () => {
                 Salary: "24000",
                 "Department or unit": "90",
                 "End-of_year-BONUS?": "2,46%",
+            },
+            {
+                Name: "Kochhar, Neena",
+                "Hire date": "21-SEP-05",
+                Job: "Vice-president",
+                Salary: "&6%",
+                "Department or unit": "90",
+                "End-of_year-BONUS?": "11,6%",
             },
             {
                 Name: "Ladwig, Renske",
@@ -523,6 +502,30 @@ describe("removeDuplicates", () => {
                 Salary: "6500",
                 "Department or unit": "40",
                 "End-of_year-BONUS?": "23,47%",
+            },
+            {
+                Name: "null",
+                "Hire date": "07-JUN-02",
+                Job: "Accountant",
+                Salary: "8300",
+                "Department or unit": "110",
+                "End-of_year-BONUS?": "15,7%",
+            },
+            {
+                Name: "OConnell, Donald",
+                "Hire date": "21-JUN-07",
+                Job: "Clerk",
+                Salary: "2600",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "1,94%",
+            },
+            {
+                Name: "Tobias, Sigal",
+                "Hire date": "24-JUL-05",
+                Job: "NaN",
+                Salary: "2800",
+                "Department or unit": null,
+                "End-of_year-BONUS?": "undefined",
             },
             {
                 Name: "Vollman, Shanta",

@@ -27,13 +27,6 @@ export default function zScoreQuery(
         ${options.decimals ?? 2})
         ) AS "${newColumn}",
     FROM ${table}
-    ${
-        categories.length > 0
-            ? `ORDER BY ${categories
-                  .map((d) => `${d} ASC`)
-                  .join(", ")}, "${newColumn}" ASC, "${column}" ASC`
-            : `ORDER BY "${newColumn}" ASC, "${column}" ASC`
-    }
     `
 
     return query

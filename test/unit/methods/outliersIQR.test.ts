@@ -70,10 +70,13 @@ describe("outliersIQR", () => {
     it("should add an outliers column based on the IQR method with an even number of rows", async () => {
         // comparing against https://dataschool.com/how-to-teach-people-sql/how-to-find-outliers-with-sql/
 
-        const data = await simpleNodeDB.outliersIQR(
+        await simpleNodeDB.outliersIQR("people", "age", "ageOutliers")
+        const data = await simpleNodeDB.sort(
             "people",
-            "age",
-            "ageOutliers",
+            {
+                ageOutliers: "desc",
+                age: "asc",
+            },
             {
                 returnDataFrom: "table",
             }
@@ -101,10 +104,14 @@ describe("outliersIQR", () => {
     it("should add an outliers column based on the IQR method with an even number of rows", async () => {
         // comparing against https://dataschool.com/how-to-teach-people-sql/how-to-find-outliers-with-sql/
 
-        const data = await simpleNodeDB.outliersIQR(
+        await simpleNodeDB.outliersIQR("peopleOdd", "age", "ageOutliers")
+
+        const data = await simpleNodeDB.sort(
             "peopleOdd",
-            "age",
-            "ageOutliers",
+            {
+                ageOutliers: "desc",
+                age: "asc",
+            },
             {
                 returnDataFrom: "table",
             }
@@ -131,12 +138,17 @@ describe("outliersIQR", () => {
         ])
     })
     it("should add an outliers column based on the IQR method with an even number of rows and with a category", async () => {
-        const data = await simpleNodeDB.outliersIQR(
+        await simpleNodeDB.outliersIQR("peopleGender", "age", "ageOutliers", {
+            categories: "gender",
+        })
+        const data = await simpleNodeDB.sort(
             "peopleGender",
-            "age",
-            "ageOutliers",
             {
-                categories: "gender",
+                gender: "asc",
+                ageOutliers: "desc",
+                age: "asc",
+            },
+            {
                 returnDataFrom: "table",
             }
         )

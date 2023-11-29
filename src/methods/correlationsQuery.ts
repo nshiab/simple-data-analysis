@@ -7,7 +7,6 @@ export default function correlationsQuery(
     options: {
         categories?: string | string[]
         decimals?: number
-        order?: "asc" | "desc"
     }
 ) {
     const categories = options.categories
@@ -36,12 +35,6 @@ export default function correlationsQuery(
             comb[1]
         }"), ${options.decimals ?? 2}) as corr FROM ${table}${groupBy}`
     }
-
-    query += `\nORDER BY ${
-        categories.length > 0
-            ? `${categories.map((d) => `"${d}" ASC`).join(",")}, `
-            : ""
-    }corr ${options.order?.toUpperCase() ?? "DESC"}, "x" ASC, "y" ASC`
 
     return query
 }

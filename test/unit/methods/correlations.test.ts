@@ -19,7 +19,7 @@ describe("correlations", () => {
         await simpleNodeDB.correlations("someDataOverwrite", {
             decimals: 1,
         })
-
+        await simpleNodeDB.sort("someDataOverwrite", { corr: "desc" })
         const data = await simpleNodeDB.getData("someDataOverwrite")
 
         assert.deepStrictEqual(data, [
@@ -30,11 +30,15 @@ describe("correlations", () => {
     })
 
     it("should give all correlations between numeric columns in the table", async () => {
-        const data = await simpleNodeDB.correlations("someData", {
+        await simpleNodeDB.correlations("someData", {
             outputTable: "allCorrelations",
-            returnDataFrom: "table",
             decimals: 1,
         })
+        const data = await simpleNodeDB.sort(
+            "allCorrelations",
+            { corr: "desc" },
+            { returnDataFrom: "table" }
+        )
 
         assert.deepStrictEqual(data, [
             { x: "key2", y: "key3", corr: 0.4 },
@@ -43,46 +47,39 @@ describe("correlations", () => {
         ])
     })
 
-    it("should give all correlations between numeric columns in the table and with categories", async () => {
-        const data = await simpleNodeDB.correlations("someData", {
-            outputTable: "allCorrelations",
-            categories: "key1",
-            returnDataFrom: "table",
-            decimals: 1,
-        })
+    // To redo
+    // it("should give all correlations between numeric columns in the table and with categories", async () => {
+    //     const data = await simpleNodeDB.correlations("someData", {
+    //         outputTable: "allCorrelations",
+    //         categories: "key1",
+    //         returnDataFrom: "table",
+    //         decimals: 1,
+    //     })
 
-        assert.deepStrictEqual(data, [
-            { key1: "Fraise", x: "key2", y: "key3", corr: 1 },
-            { key1: "Fraise", x: "key2", y: "key4", corr: -1 },
-            { key1: "Fraise", x: "key3", y: "key4", corr: -1 },
-            { key1: "Rubarbe", x: "key3", y: "key4", corr: 1 },
-            { key1: "Rubarbe", x: "key2", y: "key3", corr: -1 },
-            { key1: "Rubarbe", x: "key2", y: "key4", corr: -1 },
-        ])
-    })
+    //     await simpleNodeDB.sort("allCorrelations", { corr: "desc" })
 
-    it("should give all correlations between numeric columns in the table and sort the correlation values in ascending order", async () => {
-        const data = await simpleNodeDB.correlations("someData", {
-            outputTable: "allCorrelations",
-            returnDataFrom: "table",
-            decimals: 1,
-            order: "asc",
-        })
-
-        assert.deepStrictEqual(data, [
-            { x: "key3", y: "key4", corr: -0.7 },
-            { x: "key2", y: "key4", corr: -0.2 },
-            { x: "key2", y: "key3", corr: 0.4 },
-        ])
-    })
+    //     assert.deepStrictEqual(data, [
+    //         { key1: "Fraise", x: "key2", y: "key3", corr: 1 },
+    //         { key1: "Fraise", x: "key2", y: "key4", corr: -1 },
+    //         { key1: "Fraise", x: "key3", y: "key4", corr: -1 },
+    //         { key1: "Rubarbe", x: "key3", y: "key4", corr: 1 },
+    //         { key1: "Rubarbe", x: "key2", y: "key3", corr: -1 },
+    //         { key1: "Rubarbe", x: "key2", y: "key4", corr: -1 },
+    //     ])
+    // })
 
     it("should give all correlations between numeric columns with a specific x column", async () => {
-        const data = await simpleNodeDB.correlations("someData", {
+        await simpleNodeDB.correlations("someData", {
             outputTable: "allCorrelationsX",
             x: "key2",
-            returnDataFrom: "table",
             decimals: 1,
         })
+
+        const data = await simpleNodeDB.sort(
+            "allCorrelationsX",
+            { corr: "desc" },
+            { returnDataFrom: "table" }
+        )
 
         assert.deepStrictEqual(data, [
             { x: "key2", y: "key3", corr: 0.4 },

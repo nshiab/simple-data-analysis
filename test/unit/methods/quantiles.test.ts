@@ -40,7 +40,7 @@ describe("quantiles", () => {
             "quantilesGrouped",
             "test/data/files/dataRank.csv"
         )
-        const data = await simpleNodeDB.quantiles(
+        await simpleNodeDB.quantiles(
             "quantilesGrouped",
             "Mark",
             2,
@@ -49,6 +49,15 @@ describe("quantiles", () => {
                 categories: "Subject",
                 returnDataFrom: "table",
             }
+        )
+
+        const data = await simpleNodeDB.sort(
+            "quantilesGrouped",
+            {
+                Subject: "asc",
+                Mark: "asc",
+            },
+            { returnDataFrom: "table" }
         )
 
         assert.deepStrictEqual(data, [

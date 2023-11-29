@@ -21,16 +21,10 @@ export default function rankQuery(
             ? ""
             : `PARTITION BY ${categories.map((d) => `"${d}"`).join(",")} `
 
-    let query = `CREATE OR REPLACE TABLE ${table} AS SELECT *, ${
+    const query = `CREATE OR REPLACE TABLE ${table} AS SELECT *, ${
         options.noGaps ? "dense_rank()" : "rank()"
     } OVER (${partition}ORDER BY "${values}") AS "${newColumn}",
     FROM ${table}`
-
-    if (categories.length > 0) {
-        query += ` ORDER BY ${categories.map((d) => `"${d}"`).join(", ")}`
-    } else {
-        query += ";"
-    }
 
     return query
 }

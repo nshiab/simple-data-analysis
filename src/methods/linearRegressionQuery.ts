@@ -43,11 +43,5 @@ export default function linearRegressionQuery(
         FROM ${table}${groupBy}`
     }
 
-    query += `\nORDER BY  ${
-        categories.length > 0
-            ? `${categories.map((d) => `"${d}" ASC`).join(",")}, `
-            : ""
-    }r2 DESC, x ASC, y ASC`
-
     return query
 }

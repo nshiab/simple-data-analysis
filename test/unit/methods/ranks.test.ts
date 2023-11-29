@@ -56,14 +56,16 @@ describe("ranks", () => {
             "groupedRegularRank",
             "test/data/files/dataRank.csv"
         )
-        const data = await simpleNodeDB.ranks(
+        await simpleNodeDB.ranks("groupedRegularRank", "Mark", "rank", {
+            categories: "Subject",
+        })
+        const data = await simpleNodeDB.sort(
             "groupedRegularRank",
-            "Mark",
-            "rank",
             {
-                categories: "Subject",
-                returnDataFrom: "table",
-            }
+                Subject: "asc",
+                Mark: "asc",
+            },
+            { returnDataFrom: "table" }
         )
 
         assert.deepStrictEqual(data, [
@@ -83,14 +85,18 @@ describe("ranks", () => {
             "multipleGroupedRegularRank",
             "test/data/files/dataRank.csv"
         )
-        const data = await simpleNodeDB.ranks(
+        await simpleNodeDB.ranks("multipleGroupedRegularRank", "Mark", "rank", {
+            categories: ["Name", "Subject"],
+        })
+
+        const data = await simpleNodeDB.sort(
             "multipleGroupedRegularRank",
-            "Mark",
-            "rank",
             {
-                categories: ["Name", "Subject"],
-                returnDataFrom: "table",
-            }
+                Name: "asc",
+                Subject: "asc",
+                Mark: "asc",
+            },
+            { returnDataFrom: "table" }
         )
 
         assert.deepStrictEqual(data, [

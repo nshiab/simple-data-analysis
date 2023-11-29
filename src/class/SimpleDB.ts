@@ -400,7 +400,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Removes duplicate rows from a table, keeping only unique rows. SQL itself does not guarantee any specific order when using DISTINCT. So the returned data is sorted by all columns from left to right by default.
+     * Removes duplicate rows from a table, keeping only unique rows. Note that SQL itself does not guarantee any specific order when using DISTINCT. So the data might be returned in a different order.
      *
      * ```ts
      * await sdb.removeDuplicates("tableA")
@@ -409,7 +409,6 @@ export default class SimpleDB {
      * @param table - The name of the table from which duplicates will be removed.
      * @param options - An optional object with configuration options:
      *   - on: A column or multiple columns to consider to remove duplicates. The other columns in the table will not be considered to exclude duplicates.
-     *   - order: The sorting order for a column or multiple columns. Important when using the "on" option. The rows that are kept are the first rows encountered. Without an order option, the rows kept could be any row in the table.
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
@@ -420,7 +419,6 @@ export default class SimpleDB {
         table: string,
         options: {
             on?: string | string[]
-            order?: { [key: string]: "asc" | "desc" }
             returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
             nbRowsToLog?: number
@@ -693,14 +691,9 @@ export default class SimpleDB {
     ) {
         ;(options.debug || this.debug) && console.log("\nwider()")
 
-        const columns = await this.getColumns(table)
-
         return await queryDB(
             this,
-            `CREATE OR REPLACE TABLE ${table} AS (SELECT * FROM (PIVOT ${table} ON "${columnsFrom}" USING FIRST("${valuesFrom}"))) ORDER BY ${columns
-                .filter((d) => ![columnsFrom, valuesFrom].includes(d))
-                .map((d) => `"${d}"`)
-                .join(", ")};`,
+            `CREATE OR REPLACE TABLE ${table} AS (SELECT * FROM (PIVOT ${table} ON "${columnsFrom}" USING FIRST("${valuesFrom}")));`,
             mergeOptions(this, { ...options, table })
         )
     }
@@ -1491,7 +1484,6 @@ export default class SimpleDB {
      *   - y: The column name for the y values. Default is all numeric columns.
      *   - categories: The column or columns that define categories. Correlation calculations will be run for each category.
      *   - decimals: The number of decimal places to round the correlation values. Defaults to 2.
-     *   - order: The order of correlation values in the output table. Possible values are "asc" (ascending) or "desc" (descending). Defaults to "desc".
      *   - outputTable: An option to store the results in a new table.
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
@@ -1506,7 +1498,6 @@ export default class SimpleDB {
             y?: string
             categories?: string | string[]
             decimals?: number
-            order?: "asc" | "desc"
             outputTable?: string
             returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
@@ -2209,7 +2200,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Returns unique values from a specific column in a table.
+     * Returns unique values from a specific column in a table. For convenience, it returns the value ascendingly.
      *
      * ```ts
      * const uniques = await sdb.getUniques("tableA", "column1")

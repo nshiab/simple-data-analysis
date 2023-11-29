@@ -43,13 +43,6 @@ export default function outliersIQRQuery(
     CREATE OR REPLACE TABLE ${table} AS
     SELECT *
     FROM ${table}
-    ${
-        categories.length > 0
-            ? `ORDER BY ${categories
-                  .map((d) => `${d} ASC`)
-                  .join(", ")}, "${newColumn}" DESC, "${column}" ASC`
-            : `ORDER BY "${newColumn}" DESC, "${column}" ASC`
-    }
     `
 
     return query

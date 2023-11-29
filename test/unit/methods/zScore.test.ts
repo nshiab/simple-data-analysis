@@ -49,9 +49,13 @@ describe("zScore", () => {
     })
 
     it("should add a column with the zScore", async () => {
-        const data = await simpleNodeDB.zScore("people", "age", "ageZ", {
-            returnDataFrom: "table",
-        })
+        await simpleNodeDB.zScore("people", "age", "ageZ")
+
+        const data = await simpleNodeDB.sort(
+            "people",
+            { ageZ: "asc" },
+            { returnDataFrom: "table" }
+        )
 
         assert.deepStrictEqual(data, [
             { name: "Evangeline", age: 21, ageZ: -1.25 },
@@ -74,14 +78,14 @@ describe("zScore", () => {
     })
 
     it("should add a column with the zScore rounded to 3 decimals", async () => {
-        const data = await simpleNodeDB.zScore(
+        await simpleNodeDB.zScore("peopleThreeDecimals", "age", "ageSigma", {
+            decimals: 3,
+        })
+
+        const data = await simpleNodeDB.sort(
             "peopleThreeDecimals",
-            "age",
-            "ageSigma",
-            {
-                decimals: 3,
-                returnDataFrom: "table",
-            }
+            { ageSigma: "asc" },
+            { returnDataFrom: "table" }
         )
 
         assert.deepStrictEqual(data, [
@@ -104,15 +108,15 @@ describe("zScore", () => {
         ])
     })
     it("should add a column with the zScore rounded to 3 decimals and with a category", async () => {
-        const data = await simpleNodeDB.zScore(
+        await simpleNodeDB.zScore("peopleGender", "age", "ageSigma", {
+            categories: "gender",
+            decimals: 3,
+        })
+
+        const data = await simpleNodeDB.sort(
             "peopleGender",
-            "age",
-            "ageSigma",
-            {
-                categories: "gender",
-                decimals: 3,
-                returnDataFrom: "table",
-            }
+            { gender: "asc", ageSigma: "asc" },
+            { returnDataFrom: "table" }
         )
 
         assert.deepStrictEqual(data, [
