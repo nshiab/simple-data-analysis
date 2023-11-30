@@ -1,9 +1,0 @@
-import assert from "assert"
-import checkEnvironment from "../../../src/helpers/checkEnvironment.js"
-
-describe("checkEnvironment", function () {
-    it("should return the environment", function () {
-        const env = checkEnvironment()
-        assert.deepStrictEqual(env, "nodejs")
-    })
-})

@@ -1,0 +1,22 @@
+[
+    {
+        "key1": 1,
+        "key2": null,
+        "key3": 0.5
+    },
+    {
+        "key1": null,
+        "key2": "deux",
+        "key3": 12
+    },
+    {
+        "key1": 3,
+        "key2": "trois",
+        "key3": null
+    },
+    {
+        "key1": 4,
+        "key2": "quatre",
+        "key3": 11545.12
+    }
+]

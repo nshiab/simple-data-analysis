@@ -1,0 +1,6 @@
+[
+    { "key1": "Rubarbe", "key2": 1, "key3": 10.5, "key4": 5 },
+    { "key1": "Fraise", "key2": 11, "key3": 2.345, "key4": 10 },
+    { "key1": "Rubarbe", "key2": 2, "key3": 4.5657, "key4": 3 },
+    { "key1": "Fraise", "key2": 22, "key3": 12.3434, "key4": 1 }
+]
