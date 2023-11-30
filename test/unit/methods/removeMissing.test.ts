@@ -15,12 +15,8 @@ describe("removeMissing", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.removeMissing(
-            "employeesForAllColumnsTest",
-            {
-                returnDataFrom: "table",
-            }
-        )
+        await simpleNodeDB.removeMissing("employeesForAllColumnsTest")
+        const data = await simpleNodeDB.getData("employeesForAllColumnsTest")
 
         assert.deepStrictEqual(data, dataNoNulls)
     })
@@ -30,9 +26,8 @@ describe("removeMissing", () => {
             "test/data/files/employees.json",
         ])
 
-        const data = await simpleNodeDB.removeMissing("employeesJSON", {
-            returnDataFrom: "table",
-        })
+        await simpleNodeDB.removeMissing("employeesJSON")
+        const data = await simpleNodeDB.getData("employeesJSON")
 
         assert.deepStrictEqual(data, dataNoNullsJSON)
     })
@@ -42,9 +37,9 @@ describe("removeMissing", () => {
             "test/data/files/dataWithMissingValues.json",
         ])
 
-        const data = await simpleNodeDB.removeMissing("missingValuesJSON", {
-            returnDataFrom: "table",
-        })
+        await simpleNodeDB.removeMissing("missingValuesJSON")
+
+        const data = await simpleNodeDB.getData("missingValuesJSON")
 
         assert.deepStrictEqual(data, [
             { key1: 4, key2: "quatre", key3: 11545.12 },
@@ -56,13 +51,15 @@ describe("removeMissing", () => {
             "test/data/files/dataWithMissingValues.json",
         ])
 
-        const data = await simpleNodeDB.removeMissing(
+        await simpleNodeDB.removeMissing(
             "missingValuesJSONOtherMissingValues",
             {
                 columns: "key3",
-                returnDataFrom: "table",
                 missingValues: [0.5],
             }
+        )
+        const data = await simpleNodeDB.getData(
+            "missingValuesJSONOtherMissingValues"
         )
 
         assert.deepStrictEqual(data, [
@@ -76,12 +73,11 @@ describe("removeMissing", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.removeMissing(
-            "employeesForOneSpecificColumnTest",
-            {
-                columns: ["Name"],
-                returnDataFrom: "table",
-            }
+        await simpleNodeDB.removeMissing("employeesForOneSpecificColumnTest", {
+            columns: ["Name"],
+        })
+        const data = await simpleNodeDB.getData(
+            "employeesForOneSpecificColumnTest"
         )
 
         assert.deepStrictEqual(data, dataNoNullsName)
@@ -92,12 +88,15 @@ describe("removeMissing", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.removeMissing(
+        await simpleNodeDB.removeMissing(
             "employeesForMultipleSpecificColumnTest",
             {
                 columns: ["Name", "Salary"],
-                returnDataFrom: "table",
             }
+        )
+
+        const data = await simpleNodeDB.getData(
+            "employeesForMultipleSpecificColumnTest"
         )
 
         assert.deepStrictEqual(data, dataNoNullsMultipleColumns)
@@ -108,10 +107,11 @@ describe("removeMissing", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.removeMissing("employeesInvertTest", {
-            returnDataFrom: "table",
+        await simpleNodeDB.removeMissing("employeesInvertTest", {
             invert: true,
         })
+
+        const data = await simpleNodeDB.getData("employeesInvertTest")
 
         assert.deepStrictEqual(data, dataJustNulls)
     })
@@ -121,14 +121,12 @@ describe("removeMissing", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.removeMissing(
-            "employeesInvertOneColumnTest",
-            {
-                columns: ["Name"],
-                returnDataFrom: "table",
-                invert: true,
-            }
-        )
+        await simpleNodeDB.removeMissing("employeesInvertOneColumnTest", {
+            columns: ["Name"],
+            invert: true,
+        })
+
+        const data = await simpleNodeDB.getData("employeesInvertOneColumnTest")
 
         assert.deepStrictEqual(data, dataNullsInName)
     })

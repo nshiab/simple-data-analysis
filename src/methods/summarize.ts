@@ -36,12 +36,9 @@ export default async function summarize(
                   | "var"
               )[]
         decimals?: number
-        debug?: boolean
-        returnDataFrom?: "query" | "table" | "none"
-        nbRowsToLog?: number
     } = {}
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\nsummarize()")
+    simpleDB.debug && console.log("\nsummarize()")
 
     const outputTable = options.outputTable ?? table
 
@@ -74,6 +71,6 @@ export default async function summarize(
             options.summaries,
             options
         ),
-        mergeOptions(simpleDB, { ...options, table: outputTable })
+        mergeOptions(simpleDB, { table: outputTable })
     )
 }

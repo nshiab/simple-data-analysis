@@ -15,11 +15,10 @@ describe("renameColumns", () => {
             "test/data/files/data.json",
         ])
 
-        const data = await simpleNodeDB.renameColumns(
-            "dataJSONOneColumn",
-            { key1: "A" },
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.renameColumns("dataJSONOneColumn", {
+            key1: "A",
+        })
+        const data = await simpleNodeDB.getData("dataJSONOneColumn")
 
         assert.deepStrictEqual(data, [
             { A: 1, key2: "un" },
@@ -34,11 +33,11 @@ describe("renameColumns", () => {
             "test/data/files/data.json",
         ])
 
-        const data = await simpleNodeDB.renameColumns(
-            "dataJSONMultipleColumns",
-            { key1: "A", key2: "B" },
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.renameColumns("dataJSONMultipleColumns", {
+            key1: "A",
+            key2: "B",
+        })
+        const data = await simpleNodeDB.getData("dataJSONMultipleColumns")
 
         assert.deepStrictEqual(data, [
             { A: 1, B: "un" },

@@ -15,20 +15,15 @@ describe("updateWithJS", () => {
     })
 
     it("should update the data from the table with a javascript function and reinsert it into the table", async () => {
-        const data = await simpleNodeDB.updateWithJS(
-            "employees",
-            (rows) => {
-                const modifiedRows = rows.map((d) => ({
-                    Name:
-                        typeof d.Name === "string"
-                            ? d.Name.slice(0, 4)
-                            : d.Name,
-                }))
+        await simpleNodeDB.updateWithJS("employees", (rows) => {
+            const modifiedRows = rows.map((d) => ({
+                Name: typeof d.Name === "string" ? d.Name.slice(0, 4) : d.Name,
+            }))
 
-                return modifiedRows
-            },
-            { returnDataFrom: "table" }
-        )
+            return modifiedRows
+        })
+
+        const data = await simpleNodeDB.getData("employees")
 
         assert.deepStrictEqual(data, [
             { Name: "OCon" },

@@ -5,17 +5,14 @@ import SimpleDB from "../indexWeb.js"
 export default async function getMax(
     simpleDB: SimpleDB,
     table: string,
-    column: string,
-    options: {
-        debug?: boolean
-    } = {}
+    column: string
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\ngetMax()")
+    simpleDB.debug && console.log("\ngetMax()")
 
     const queryResult = await queryDB(
         simpleDB,
         `SELECT MAX("${column}") AS valueForGetMax FROM ${table}`,
-        mergeOptions(simpleDB, { ...options, table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
     )
 
     if (!queryResult) {

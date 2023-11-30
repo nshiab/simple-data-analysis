@@ -61,7 +61,6 @@ export default class SimpleNodeDB extends SimpleDB {
         this.db.exec("INSTALL httpfs;")
         this.db.exec("PRAGMA default_collation=NOCASE;")
         this.connection = this.db.connect()
-        return this
     }
 
     /**
@@ -95,9 +94,6 @@ export default class SimpleNodeDB extends SimpleDB {
      *   - skip: The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to 0.
      *   - jsonFormat: The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
      *   - records: A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
-     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
-     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
-     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
      *
      * @category Importing data
      */
@@ -118,22 +114,13 @@ export default class SimpleNodeDB extends SimpleDB {
             // json options
             jsonFormat?: "unstructured" | "newlineDelimited" | "array"
             records?: boolean
-            // others
-            returnDataFrom?: "query" | "table" | "none"
-            debug?: boolean
-            nbRowsToLog?: number
         } = {}
-    ): Promise<
-        | {
-              [key: string]: string | number | boolean | Date | null
-          }[]
-        | null
-    > {
-        ;(options.debug || this.debug) && console.log("\nloadData()")
-        return await queryDB(
+    ) {
+        this.debug && console.log("\nloadData()")
+        await queryDB(
             this,
             loadDataNodeQuery(table, stringToArray(files), options),
-            mergeOptions(this, { ...options, table })
+            mergeOptions(this, { table })
         )
     }
 
@@ -158,9 +145,6 @@ export default class SimpleNodeDB extends SimpleDB {
      *   - skip: The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to 0.
      *   - jsonFormat: The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
      *   - records: A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
-     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
-     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
-     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
      *
      * @category Importing data
      */
@@ -181,21 +165,16 @@ export default class SimpleNodeDB extends SimpleDB {
             // json options
             jsonFormat?: "unstructured" | "newlineDelimited" | "array"
             records?: boolean
-            // others
-            returnDataFrom?: "query" | "table" | "none"
-            debug?: boolean
-            nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.debug || this.debug) &&
-            console.log("\nloadDataFromDirectory()")
+        this.debug && console.log("\nloadDataFromDirectory()")
         const files = readdirSync(directory).map(
             (file) => `${directory}${file}`
         )
-        queryDB(
+        await queryDB(
             this,
             loadDataNodeQuery(table, files, options),
-            mergeOptions(this, { ...options, table })
+            mergeOptions(this, { table })
         )
     }
 
@@ -210,9 +189,6 @@ export default class SimpleNodeDB extends SimpleDB {
      * @param file - The path to the file to which data will be written.
      * @param options - An optional object with configuration options:
      *   - compression: A boolean indicating whether to compress the output file. Defaults to false. If true, CSV and JSON files will be compressed with GZIP while PARQUET files will use ZSTD.
-     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
-     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
-     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
      *
      * * @category Exporting data
      */
@@ -221,16 +197,13 @@ export default class SimpleNodeDB extends SimpleDB {
         file: string,
         options: {
             compression?: boolean
-            returnDataFrom?: "query" | "table" | "none"
-            debug?: boolean
-            nbRowsToLog?: number
         } = {}
     ) {
-        ;(options.debug || this.debug) && console.log("\nwriteData()")
+        this.debug && console.log("\nwriteData()")
         await queryDB(
             this,
             writeDataQuery(table, file, options),
-            mergeOptions(this, { ...options, table })
+            mergeOptions(this, { table })
         )
     }
 
@@ -240,16 +213,9 @@ export default class SimpleNodeDB extends SimpleDB {
      * ```typescript
      * await sdb.done();
      * ```
-     *
-     * @param options - An optional object with configuration options:
-     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      */
-    async done(
-        options: {
-            debug?: boolean
-        } = {}
-    ) {
-        ;(options.debug || this.debug) && console.log("\ndone()")
+    async done() {
+        this.debug && console.log("\ndone()")
         ;(this.db as Database).close()
     }
 }

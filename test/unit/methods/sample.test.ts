@@ -15,9 +15,9 @@ describe("sample", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.sample("employeesRandomRows", 5, {
-            returnDataFrom: "table",
-        })
+        await simpleNodeDB.sample("employeesRandomRows", 5)
+
+        const data = await simpleNodeDB.getData("employeesRandomRows")
 
         assert.deepStrictEqual(data?.length, 5)
     })
@@ -27,13 +27,8 @@ describe("sample", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.sample(
-            "employeesRandomRowsPerc",
-            "20%",
-            {
-                returnDataFrom: "table",
-            }
-        )
+        await simpleNodeDB.sample("employeesRandomRowsPerc", "20%")
+        const data = await simpleNodeDB.getData("employeesRandomRowsPerc")
 
         assert.deepStrictEqual(data?.length, 10)
     })
@@ -43,10 +38,10 @@ describe("sample", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.sample("employeesRandomRowsSeed", 5, {
-            returnDataFrom: "table",
+        await simpleNodeDB.sample("employeesRandomRowsSeed", 5, {
             seed: 10,
         })
+        const data = await simpleNodeDB.getData("employeesRandomRowsSeed")
 
         assert.deepStrictEqual(data, [
             {
@@ -97,14 +92,11 @@ describe("sample", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.sample(
-            "employeesRandomRowsPercSeed",
-            "20%",
-            {
-                seed: 1,
-                returnDataFrom: "table",
-            }
-        )
+        await simpleNodeDB.sample("employeesRandomRowsPercSeed", "20%", {
+            seed: 1,
+        })
+
+        const data = await simpleNodeDB.getData("employeesRandomRowsPercSeed")
 
         assert.deepStrictEqual(data, [
             {

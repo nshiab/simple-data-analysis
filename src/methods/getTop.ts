@@ -8,10 +8,9 @@ export default async function getTop(
     count: number,
     options: {
         condition?: string
-        debug?: boolean
     } = {}
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\ngetTop()")
+    simpleDB.debug && console.log("\ngetTop()")
 
     const rows = await queryDB(
         simpleDB,

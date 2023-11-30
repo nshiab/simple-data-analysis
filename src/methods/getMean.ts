@@ -8,17 +8,16 @@ export default async function getMean(
     column: string,
     options: {
         decimals?: number
-        debug?: boolean
     } = {}
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\ngetMean()")
+    simpleDB.debug && console.log("\ngetMean()")
 
     const queryResult = await queryDB(
         simpleDB,
         typeof options.decimals === "number"
             ? `SELECT ROUND(AVG("${column}"), ${options.decimals}) AS valueForGetMean FROM ${table}`
             : `SELECT AVG("${column}") AS valueForGetMean FROM ${table}`,
-        mergeOptions(simpleDB, { ...options, table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
     )
 
     if (!queryResult) {

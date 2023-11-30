@@ -71,16 +71,11 @@ describe("outliersIQR", () => {
         // comparing against https://dataschool.com/how-to-teach-people-sql/how-to-find-outliers-with-sql/
 
         await simpleNodeDB.outliersIQR("people", "age", "ageOutliers")
-        const data = await simpleNodeDB.sort(
-            "people",
-            {
-                ageOutliers: "desc",
-                age: "asc",
-            },
-            {
-                returnDataFrom: "table",
-            }
-        )
+        await simpleNodeDB.sort("people", {
+            ageOutliers: "desc",
+            age: "asc",
+        })
+        const data = await simpleNodeDB.getData("people")
 
         assert.deepStrictEqual(data, [
             { name: "Evangeline", age: 21, ageOutliers: true },
@@ -106,16 +101,11 @@ describe("outliersIQR", () => {
 
         await simpleNodeDB.outliersIQR("peopleOdd", "age", "ageOutliers")
 
-        const data = await simpleNodeDB.sort(
-            "peopleOdd",
-            {
-                ageOutliers: "desc",
-                age: "asc",
-            },
-            {
-                returnDataFrom: "table",
-            }
-        )
+        await simpleNodeDB.sort("peopleOdd", {
+            ageOutliers: "desc",
+            age: "asc",
+        })
+        const data = await simpleNodeDB.getData("peopleOdd")
 
         assert.deepStrictEqual(data, [
             { name: "Helen", age: 20, ageOutliers: true },
@@ -141,17 +131,12 @@ describe("outliersIQR", () => {
         await simpleNodeDB.outliersIQR("peopleGender", "age", "ageOutliers", {
             categories: "gender",
         })
-        const data = await simpleNodeDB.sort(
-            "peopleGender",
-            {
-                gender: "asc",
-                ageOutliers: "desc",
-                age: "asc",
-            },
-            {
-                returnDataFrom: "table",
-            }
-        )
+        await simpleNodeDB.sort("peopleGender", {
+            gender: "asc",
+            ageOutliers: "desc",
+            age: "asc",
+        })
+        const data = await simpleNodeDB.getData("peopleGender")
 
         assert.deepStrictEqual(data, [
             { name: "Philip", age: 125, gender: "Man", ageOutliers: true },

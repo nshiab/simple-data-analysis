@@ -15,13 +15,8 @@ describe("filter", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.filter(
-            "employeesOneCondition",
-            `"Job" = 'Clerk'`,
-            {
-                returnDataFrom: "table",
-            }
-        )
+        await simpleNodeDB.filter("employeesOneCondition", `"Job" = 'Clerk'`)
+        const data = await simpleNodeDB.getData("employeesOneCondition")
 
         assert.deepStrictEqual(data, [
             {
@@ -191,13 +186,11 @@ describe("filter", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.filter(
+        await simpleNodeDB.filter(
             "employeesMultipleConditions",
-            `"Job" = 'Clerk' AND "Department or unit" != '50'`,
-            {
-                returnDataFrom: "table",
-            }
+            `"Job" = 'Clerk' AND "Department or unit" != '50'`
         )
+        const data = await simpleNodeDB.getData("employeesMultipleConditions")
 
         assert.deepStrictEqual(data, [
             {

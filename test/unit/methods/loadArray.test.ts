@@ -38,11 +38,9 @@ describe("loadArray", () => {
     })
 
     it("should load an array of objects into a table", async () => {
-        const data = await simpleNodeDB.loadArray(
-            "arrayOfObjects",
-            arrayOfObjects,
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.loadArray("arrayOfObjects", arrayOfObjects)
+
+        const data = await simpleNodeDB.getData("arrayOfObjects")
 
         assert.deepStrictEqual(data, [
             { key1: 1, key2: "un", key3: new Date("2010-01-01"), key4: true },

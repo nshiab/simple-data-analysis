@@ -9,10 +9,9 @@ export default async function getQuantile(
     quantile: number,
     options: {
         decimals?: number
-        debug?: boolean
     } = {}
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\ngetQuantile()")
+    simpleDB.debug && console.log("\ngetQuantile()")
 
     const queryResult = await queryDB(
         simpleDB,

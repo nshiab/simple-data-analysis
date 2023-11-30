@@ -14,11 +14,8 @@ describe("wider", () => {
     it("should untidy data by expanding mutiple columns", async () => {
         await simpleNodeDB.wider("dataTidy", "year", "employees")
 
-        const data = await simpleNodeDB.sort(
-            "dataTidy",
-            { Department: "asc" },
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.sort("dataTidy", { Department: "asc" })
+        const data = await simpleNodeDB.getData("dataTidy")
 
         assert.deepStrictEqual(data, [
             {

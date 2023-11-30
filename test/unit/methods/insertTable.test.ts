@@ -14,10 +14,8 @@ describe("insertTable", () => {
         await simpleNodeDB.loadData("dataJSON1", "test/data/files/data.json")
         await simpleNodeDB.loadData("dataJSON2", "test/data/files/data.json")
 
-        const data = await simpleNodeDB.insertTable("dataJSON1", "dataJSON2", {
-            returnDataFrom: "table",
-        })
-
+        await simpleNodeDB.insertTable("dataJSON1", "dataJSON2")
+        const data = await simpleNodeDB.getData("dataJSON1")
         assert.deepStrictEqual(data, [
             { key1: 1, key2: "un" },
             { key1: 2, key2: "deux" },

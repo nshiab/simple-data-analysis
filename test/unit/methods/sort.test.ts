@@ -12,13 +12,9 @@ describe("sort", () => {
     })
 
     it("should sort one number column ascendingly", async () => {
-        const data = await simpleNodeDB.sort(
-            "dataSort",
-            { key1: "asc" },
-            {
-                returnDataFrom: "table",
-            }
-        )
+        await simpleNodeDB.sort("dataSort", { key1: "asc" })
+
+        const data = await simpleNodeDB.getData("dataSort")
 
         assert.deepStrictEqual(data, [
             { key1: 1, key2: "Roi", key3: "A" },
@@ -31,13 +27,8 @@ describe("sort", () => {
     })
 
     it("should sort one number column descendingly", async () => {
-        const data = await simpleNodeDB.sort(
-            "dataSort",
-            { key1: "desc" },
-            {
-                returnDataFrom: "table",
-            }
-        )
+        await simpleNodeDB.sort("dataSort", { key1: "desc" })
+        const data = await simpleNodeDB.getData("dataSort")
 
         assert.deepStrictEqual(data, [
             { key1: 900, key2: "Zéphir", key3: "A" },
@@ -50,14 +41,14 @@ describe("sort", () => {
     })
 
     it("should sort one text column ascendingly with a specific language", async () => {
-        const data = await simpleNodeDB.sort(
+        await simpleNodeDB.sort(
             "dataSort",
             { key2: "asc" },
             {
                 lang: { key2: "fr" },
-                returnDataFrom: "table",
             }
         )
+        const data = await simpleNodeDB.getData("dataSort")
         assert.deepStrictEqual(data, [
             { key1: 5, key2: "À l'ouest", key3: "A" },
             { key1: 2, key2: "Alambic", key3: "B" },
@@ -68,14 +59,14 @@ describe("sort", () => {
         ])
     })
     it("should sort one text column descendingly with a specific language", async () => {
-        const data = await simpleNodeDB.sort(
+        await simpleNodeDB.sort(
             "dataSort",
             { key2: "desc" },
             {
                 lang: { key2: "fr" },
-                returnDataFrom: "table",
             }
         )
+        const data = await simpleNodeDB.getData("dataSort")
 
         assert.deepStrictEqual(data, [
             { key1: 900, key2: "Zéphir", key3: "A" },
@@ -87,14 +78,14 @@ describe("sort", () => {
         ])
     })
     it("should sort mutiple columns ascendingly or descendingly with a specific language", async () => {
-        const data = await simpleNodeDB.sort(
+        await simpleNodeDB.sort(
             "dataSort",
             { key3: "asc", key1: "desc" },
             {
                 lang: { key2: "fr" },
-                returnDataFrom: "table",
             }
         )
+        const data = await simpleNodeDB.getData("dataSort")
 
         assert.deepStrictEqual(data, [
             { key1: 900, key2: "Zéphir", key3: "A" },

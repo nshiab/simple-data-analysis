@@ -11,12 +11,9 @@ export default async function removeMissing(
         columns?: string | string[]
         missingValues?: (string | number)[]
         invert?: boolean
-        returnDataFrom?: "query" | "table" | "none"
-        debug?: boolean
-        nbRowsToLog?: number
     } = {}
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\nremoveMissing()")
+    simpleDB.debug && console.log("\nremoveMissing()")
 
     const types = await simpleDB.getTypes(table)
     const allColumns = Object.keys(types)
@@ -30,7 +27,7 @@ export default async function removeMissing(
 
     options.columns = stringToArray(options.columns ?? [])
 
-    return await queryDB(
+    await queryDB(
         simpleDB,
         removeMissingQuery(
             table,
@@ -39,6 +36,6 @@ export default async function removeMissing(
             options.columns.length === 0 ? allColumns : options.columns,
             options
         ),
-        mergeOptions(simpleDB, { ...options, table })
+        mergeOptions(simpleDB, { table })
     )
 }

@@ -5,17 +5,14 @@ import SimpleDB from "../indexWeb.js"
 export default async function getMin(
     simpleDB: SimpleDB,
     table: string,
-    column: string,
-    options: {
-        debug?: boolean
-    } = {}
+    column: string
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\ngetMin()")
+    simpleDB.debug && console.log("\ngetMin()")
 
     const queryResult = await queryDB(
         simpleDB,
         `SELECT MIN("${column}") AS valueForGetMin FROM ${table}`,
-        mergeOptions(simpleDB, { ...options, table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
     )
 
     if (!queryResult) {

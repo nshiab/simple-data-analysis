@@ -17,9 +17,8 @@ describe("ranks", () => {
             "normalRank",
             "test/data/files/dataRank.csv"
         )
-        const data = await simpleNodeDB.ranks("normalRank", "Mark", "rank", {
-            returnDataFrom: "table",
-        })
+        await simpleNodeDB.ranks("normalRank", "Mark", "rank")
+        const data = await simpleNodeDB.getData("normalRank")
         assert.deepStrictEqual(data, [
             { Name: "Isabella", Subject: "Maths", Mark: 50, rank: 1 },
             { Name: "Olivia", Subject: "Maths", Mark: 55, rank: 2 },
@@ -34,10 +33,10 @@ describe("ranks", () => {
     })
     it("should add a column with the rank and no gaps", async () => {
         await simpleNodeDB.loadData("denseRank", "test/data/files/dataRank.csv")
-        const data = await simpleNodeDB.ranks("denseRank", "Mark", "rank", {
+        await simpleNodeDB.ranks("denseRank", "Mark", "rank", {
             noGaps: true,
-            returnDataFrom: "table",
         })
+        const data = await simpleNodeDB.getData("denseRank")
 
         assert.deepStrictEqual(data, [
             { Name: "Isabella", Subject: "Maths", Mark: 50, rank: 1 },
@@ -59,15 +58,11 @@ describe("ranks", () => {
         await simpleNodeDB.ranks("groupedRegularRank", "Mark", "rank", {
             categories: "Subject",
         })
-        const data = await simpleNodeDB.sort(
-            "groupedRegularRank",
-            {
-                Subject: "asc",
-                Mark: "asc",
-            },
-            { returnDataFrom: "table" }
-        )
-
+        await simpleNodeDB.sort("groupedRegularRank", {
+            Subject: "asc",
+            Mark: "asc",
+        })
+        const data = await simpleNodeDB.getData("groupedRegularRank")
         assert.deepStrictEqual(data, [
             { Name: "Lily", Subject: "English", Mark: 70, rank: 1 },
             { Name: "Olivia", Subject: "English", Mark: 89, rank: 2 },
@@ -89,15 +84,13 @@ describe("ranks", () => {
             categories: ["Name", "Subject"],
         })
 
-        const data = await simpleNodeDB.sort(
-            "multipleGroupedRegularRank",
-            {
-                Name: "asc",
-                Subject: "asc",
-                Mark: "asc",
-            },
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.sort("multipleGroupedRegularRank", {
+            Name: "asc",
+            Subject: "asc",
+            Mark: "asc",
+        })
+
+        const data = await simpleNodeDB.getData("multipleGroupedRegularRank")
 
         assert.deepStrictEqual(data, [
             { Name: "Isabella", Subject: "English", Mark: 90, rank: 1 },

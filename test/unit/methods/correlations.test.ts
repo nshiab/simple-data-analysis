@@ -34,11 +34,8 @@ describe("correlations", () => {
             outputTable: "allCorrelations",
             decimals: 1,
         })
-        const data = await simpleNodeDB.sort(
-            "allCorrelations",
-            { corr: "desc" },
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.sort("allCorrelations", { corr: "desc" })
+        const data = await simpleNodeDB.getData("allCorrelations")
 
         assert.deepStrictEqual(data, [
             { x: "key2", y: "key3", corr: 0.4 },
@@ -54,11 +51,9 @@ describe("correlations", () => {
             decimals: 1,
         })
 
-        const data = await simpleNodeDB.sort(
-            "allCorrelationsX",
-            { corr: "desc" },
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.sort("allCorrelationsX", { corr: "desc" })
+
+        const data = await simpleNodeDB.getData("allCorrelationsX")
 
         assert.deepStrictEqual(data, [
             { x: "key2", y: "key3", corr: 0.4 },
@@ -67,13 +62,14 @@ describe("correlations", () => {
     })
 
     it("should give the correlation between two specific columns", async () => {
-        const data = await simpleNodeDB.correlations("someData", {
+        await simpleNodeDB.correlations("someData", {
             outputTable: "allCorrelationsX",
             x: "key2",
             y: "key3",
-            returnDataFrom: "table",
             decimals: 1,
         })
+
+        const data = await simpleNodeDB.getData("allCorrelationsX")
 
         assert.deepStrictEqual(data, [{ x: "key2", y: "key3", corr: 0.4 }])
     })

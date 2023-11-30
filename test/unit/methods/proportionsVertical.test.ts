@@ -14,14 +14,12 @@ describe("proportionsVertical", () => {
         await simpleNodeDB.loadData("proportions", [
             "test/data/files/dataSummarize.json",
         ])
-        const data = await simpleNodeDB.proportionsVertical(
+        await simpleNodeDB.proportionsVertical(
             "proportions",
             "key2",
-            "key2Perc",
-            {
-                returnDataFrom: "table",
-            }
+            "key2Perc"
         )
+        const data = await simpleNodeDB.getData("proportions")
 
         assert.deepStrictEqual(data, [
             { key1: "Rubarbe", key2: 1, key3: 10.5, key2Perc: 0.03 },
@@ -34,15 +32,15 @@ describe("proportionsVertical", () => {
         await simpleNodeDB.loadData("proportionsSuffixDecimals", [
             "test/data/files/dataSummarize.json",
         ])
-        const data = await simpleNodeDB.proportionsVertical(
+        await simpleNodeDB.proportionsVertical(
             "proportionsSuffixDecimals",
             "key2",
             "key2Prop",
             {
                 decimals: 4,
-                returnDataFrom: "table",
             }
         )
+        const data = await simpleNodeDB.getData("proportionsSuffixDecimals")
 
         assert.deepStrictEqual(data, [
             { key1: "Rubarbe", key2: 1, key3: 10.5, key2Prop: 0.0278 },
@@ -63,14 +61,11 @@ describe("proportionsVertical", () => {
                 categories: "key1",
             }
         )
-        const data = await simpleNodeDB.sort(
-            "proportionsCategory",
-            {
-                key1: "asc",
-                key2Perc: "asc",
-            },
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.sort("proportionsCategory", {
+            key1: "asc",
+            key2Perc: "asc",
+        })
+        const data = await simpleNodeDB.getData("proportionsCategory")
 
         assert.deepStrictEqual(data, [
             { key1: "Fraise", key2: 11, key3: 2.345, key2Perc: 0.33 },
@@ -92,15 +87,12 @@ describe("proportionsVertical", () => {
                 categories: ["key1", "key2"],
             }
         )
-        const data = await simpleNodeDB.sort(
-            "proportionsCategories",
-            {
-                key1: "asc",
-                key2: "asc",
-                key3Perc: "asc",
-            },
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.sort("proportionsCategories", {
+            key1: "asc",
+            key2: "asc",
+            key3Perc: "asc",
+        })
+        const data = await simpleNodeDB.getData("proportionsCategories")
 
         assert.deepStrictEqual(data, [
             { key1: "Fraise", key2: 11, key3: 2.345, key3Perc: 1 },

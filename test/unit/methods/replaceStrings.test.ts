@@ -15,12 +15,13 @@ describe("replaceString", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.replaceStrings(
+        await simpleNodeDB.replaceStrings(
             "employeesOneColumn",
             ["Name", "End-of_year-BONUS?"],
-            { "%": "" },
-            { returnDataFrom: "table" }
+            { "%": "" }
         )
+
+        const data = await simpleNodeDB.getData("employeesOneColumn")
 
         assert.deepStrictEqual(data, [
             {
@@ -439,12 +440,13 @@ describe("replaceString", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.replaceStrings(
+        await simpleNodeDB.replaceStrings(
             "employeesSubstring",
             ["Name", "End-of_year-BONUS?"],
-            { a: "@" },
-            { returnDataFrom: "table" }
+            { a: "@" }
         )
+
+        const data = await simpleNodeDB.getData("employeesSubstring")
 
         assert.deepStrictEqual(data, [
             {
@@ -863,12 +865,14 @@ describe("replaceString", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.replaceStrings(
+        await simpleNodeDB.replaceStrings(
             "employeesEntireString",
             ["Name", "End-of_year-BONUS?"],
             { "Grant, Douglas": "BOSS" },
-            { returnDataFrom: "table", entireString: true }
+            { entireString: true }
         )
+
+        const data = await simpleNodeDB.getData("employeesEntireString")
 
         assert.deepStrictEqual(data, [
             {
@@ -1287,11 +1291,14 @@ describe("replaceString", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.replaceStrings(
+        await simpleNodeDB.replaceStrings(
             "employeesOneColumnMultipleTexts",
             ["End-of_year-BONUS?"],
-            { "%": "", ",": "." },
-            { returnDataFrom: "table" }
+            { "%": "", ",": "." }
+        )
+
+        const data = await simpleNodeDB.getData(
+            "employeesOneColumnMultipleTexts"
         )
 
         assert.deepStrictEqual(data, [
@@ -1711,12 +1718,13 @@ describe("replaceString", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.replaceStrings(
+        await simpleNodeDB.replaceStrings(
             "employeesMultipleColumns",
             ["Name", "End-of_year-BONUS?"],
-            { ",": " => " },
-            { returnDataFrom: "table" }
+            { ",": " => " }
         )
+
+        const data = await simpleNodeDB.getData("employeesMultipleColumns")
 
         assert.deepStrictEqual(data, [
             {
@@ -2135,11 +2143,14 @@ describe("replaceString", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.replaceStrings(
+        await simpleNodeDB.replaceStrings(
             "employeesMultipleColumnsMultipleTexts",
             ["Name", "End-of_year-BONUS?"],
-            { "%": "", ",": "." },
-            { returnDataFrom: "table" }
+            { "%": "", ",": "." }
+        )
+
+        const data = await simpleNodeDB.getData(
+            "employeesMultipleColumnsMultipleTexts"
         )
 
         assert.deepStrictEqual(data, [

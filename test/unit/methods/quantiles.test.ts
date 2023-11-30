@@ -12,15 +12,8 @@ describe("quantiles", () => {
 
     it("should add a column with the quantiles", async () => {
         await simpleNodeDB.loadData("quantiles", "test/data/files/dataRank.csv")
-        const data = await simpleNodeDB.quantiles(
-            "quantiles",
-            "Mark",
-            4,
-            "quantiles",
-            {
-                returnDataFrom: "table",
-            }
-        )
+        await simpleNodeDB.quantiles("quantiles", "Mark", 4, "quantiles")
+        const data = await simpleNodeDB.getData("quantiles")
 
         assert.deepStrictEqual(data, [
             { Name: "Isabella", Subject: "Maths", Mark: 50, quantiles: 1 },
@@ -47,18 +40,15 @@ describe("quantiles", () => {
             "quantiles",
             {
                 categories: "Subject",
-                returnDataFrom: "table",
             }
         )
 
-        const data = await simpleNodeDB.sort(
-            "quantilesGrouped",
-            {
-                Subject: "asc",
-                Mark: "asc",
-            },
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.sort("quantilesGrouped", {
+            Subject: "asc",
+            Mark: "asc",
+        })
+
+        const data = await simpleNodeDB.getData("quantilesGrouped")
 
         assert.deepStrictEqual(data, [
             { Name: "Lily", Subject: "English", Mark: 70, quantiles: 1 },

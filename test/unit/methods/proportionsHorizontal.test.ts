@@ -14,13 +14,12 @@ describe("proportionsHorizontal", () => {
         await simpleNodeDB.loadData("proportions", [
             "test/data/files/dataProportions.json",
         ])
-        const data = await simpleNodeDB.proportionsHorizontal(
-            "proportions",
-            ["key1", "key2", "key3"],
-            {
-                returnDataFrom: "table",
-            }
-        )
+        await simpleNodeDB.proportionsHorizontal("proportions", [
+            "key1",
+            "key2",
+            "key3",
+        ])
+        const data = await simpleNodeDB.getData("proportions")
 
         assert.deepStrictEqual(data, [
             {
@@ -54,14 +53,14 @@ describe("proportionsHorizontal", () => {
         await simpleNodeDB.loadData("proportionsSuffix", [
             "test/data/files/dataProportions.json",
         ])
-        const data = await simpleNodeDB.proportionsHorizontal(
+        await simpleNodeDB.proportionsHorizontal(
             "proportionsSuffix",
             ["key1", "key2", "key3"],
             {
                 suffix: "Prop",
-                returnDataFrom: "table",
             }
         )
+        const data = await simpleNodeDB.getData("proportionsSuffix")
 
         assert.deepStrictEqual(data, [
             {
@@ -95,15 +94,15 @@ describe("proportionsHorizontal", () => {
         await simpleNodeDB.loadData("proportionsSuffixDecimals", [
             "test/data/files/dataProportions.json",
         ])
-        const data = await simpleNodeDB.proportionsHorizontal(
+        await simpleNodeDB.proportionsHorizontal(
             "proportionsSuffixDecimals",
             ["key1", "key2", "key3"],
             {
                 suffix: "Prop",
                 decimals: 4,
-                returnDataFrom: "table",
             }
         )
+        const data = await simpleNodeDB.getData("proportionsSuffixDecimals")
 
         assert.deepStrictEqual(data, [
             {

@@ -14,12 +14,9 @@ export default async function correlations(
         categories?: string | string[]
         decimals?: number
         outputTable?: string
-        debug?: boolean
-        nbRowsToLog?: number
-        returnDataFrom?: "query" | "table" | "none"
     } = {}
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\ncorrelations()")
+    simpleDB.debug && console.log("\ncorrelations()")
 
     options.decimals = options.decimals ?? 2
 
@@ -45,12 +42,11 @@ export default async function correlations(
         throw new Error("No combinations of x and y")
     }
 
-    ;(options.debug || simpleDB.debug) &&
-        console.log("combinations:", combinations)
+    simpleDB.debug && console.log("combinations:", combinations)
 
-    return await queryDB(
+    await queryDB(
         simpleDB,
         correlationsQuery(table, outputTable, combinations, options),
-        mergeOptions(simpleDB, { ...options, table: outputTable })
+        mergeOptions(simpleDB, { table: outputTable })
     )
 }

@@ -5,17 +5,14 @@ import SimpleDB from "../indexWeb.js"
 export default async function getSum(
     simpleDB: SimpleDB,
     table: string,
-    column: string,
-    options: {
-        debug?: boolean
-    } = {}
+    column: string
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\ngetSum()")
+    simpleDB.debug && console.log("\ngetSum()")
 
     const queryResult = await queryDB(
         simpleDB,
         `SELECT SUM("${column}") AS valueForGetSum FROM ${table}`,
-        mergeOptions(simpleDB, { ...options, table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
     )
 
     if (!queryResult) {

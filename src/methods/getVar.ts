@@ -8,10 +8,9 @@ export default async function getVar(
     column: string,
     options: {
         decimals?: number
-        debug?: boolean
     } = {}
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\ngetVar()")
+    simpleDB.debug && console.log("\ngetVar()")
 
     const queryResult = await queryDB(
         simpleDB,

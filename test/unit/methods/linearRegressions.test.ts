@@ -115,24 +115,24 @@ describe("linearRegressions", () => {
         ])
     })
     it("should return the slope, yIntercept and coefficient of determination for two specific columns", async () => {
-        const data = await simpleNodeDB.linearRegressions("someData", {
+        await simpleNodeDB.linearRegressions("someData", {
             outputTable: "linearRegressions",
             x: "key2",
             y: "key3",
-            returnDataFrom: "table",
         })
+        const data = await simpleNodeDB.getData("linearRegressions")
         assert.deepStrictEqual(data, [
             { x: "key2", y: "key3", slope: 0.17, yIntercept: 5.89, r2: 0.13 },
         ])
     })
     it("should return the slope, yIntercept and coefficient of determination for two specific columns, with a specific number of decimals", async () => {
-        const data = await simpleNodeDB.linearRegressions("someData", {
+        await simpleNodeDB.linearRegressions("someData", {
             outputTable: "linearRegressions",
             x: "key2",
             y: "key3",
             decimals: 5,
-            returnDataFrom: "table",
         })
+        const data = await simpleNodeDB.getData("linearRegressions")
         assert.deepStrictEqual(data, [
             {
                 x: "key2",

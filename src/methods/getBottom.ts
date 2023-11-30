@@ -9,10 +9,9 @@ export default async function getBottom(
     options: {
         originalOrder?: boolean
         condition?: string
-        debug?: boolean
     } = {}
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\ngetBottom()")
+    simpleDB.debug && console.log("\ngetBottom()")
 
     const queryResult = await queryDB(
         simpleDB,

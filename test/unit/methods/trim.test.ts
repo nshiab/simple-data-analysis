@@ -15,9 +15,8 @@ describe("trim", () => {
             "test/data/files/dataTrim.json",
         ])
 
-        const data = await simpleNodeDB.trim("dataTrim", "key1", {
-            returnDataFrom: "table",
-        })
+        await simpleNodeDB.trim("dataTrim", "key1")
+        const data = await simpleNodeDB.getData("dataTrim")
 
         assert.deepStrictEqual(data, [
             { key1: "a", key2: " !@a!@" },
@@ -31,13 +30,9 @@ describe("trim", () => {
             "test/data/files/dataTrim.json",
         ])
 
-        const data = await simpleNodeDB.trim(
-            "dataTrimMultipleColumns",
-            ["key1", "key2"],
-            {
-                returnDataFrom: "table",
-            }
-        )
+        await simpleNodeDB.trim("dataTrimMultipleColumns", ["key1", "key2"])
+
+        const data = await simpleNodeDB.getData("dataTrimMultipleColumns")
 
         assert.deepStrictEqual(data, [
             { key1: "a", key2: "!@a!@" },
@@ -51,10 +46,10 @@ describe("trim", () => {
             "test/data/files/dataTrim.json",
         ])
 
-        const data = await simpleNodeDB.trim("dataTrimLeft", "key1", {
+        await simpleNodeDB.trim("dataTrimLeft", "key1", {
             method: "leftTrim",
-            returnDataFrom: "table",
         })
+        const data = await simpleNodeDB.getData("dataTrimLeft")
 
         assert.deepStrictEqual(data, [
             { key1: "a  ", key2: " !@a!@" },
@@ -68,10 +63,10 @@ describe("trim", () => {
             "test/data/files/dataTrim.json",
         ])
 
-        const data = await simpleNodeDB.trim("dataTrimRight", "key1", {
+        await simpleNodeDB.trim("dataTrimRight", "key1", {
             method: "rightTrim",
-            returnDataFrom: "table",
         })
+        const data = await simpleNodeDB.getData("dataTrimRight")
 
         assert.deepStrictEqual(data, [
             { key1: "  a", key2: " !@a!@" },
@@ -85,11 +80,11 @@ describe("trim", () => {
             "test/data/files/dataTrim.json",
         ])
 
-        const data = await simpleNodeDB.trim("dataTrimSpecial", "key2", {
+        await simpleNodeDB.trim("dataTrimSpecial", "key2", {
             method: "rightTrim",
             character: "!@",
-            returnDataFrom: "table",
         })
+        const data = await simpleNodeDB.getData("dataTrimSpecial")
 
         assert.deepStrictEqual(data, [
             { key1: "  a  ", key2: " !@a" },

@@ -8,10 +8,9 @@ export default async function getMedian(
     column: string,
     options: {
         decimals?: number
-        debug?: boolean
     } = {}
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\ngetMedian()")
+    simpleDB.debug && console.log("\ngetMedian()")
 
     const queryResult = await queryDB(
         simpleDB,

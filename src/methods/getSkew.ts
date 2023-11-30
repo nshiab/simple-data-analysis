@@ -8,10 +8,9 @@ export default async function getSkew(
     column: string,
     options: {
         decimals?: number
-        debug?: boolean
     } = {}
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\ngetSkew()")
+    simpleDB.debug && console.log("\ngetSkew()")
 
     const queryResult = await queryDB(
         simpleDB,

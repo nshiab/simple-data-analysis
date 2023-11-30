@@ -13,14 +13,12 @@ describe("insertRows", () => {
     it("add rows in a table", async () => {
         await simpleNodeDB.loadData("dataCsv", "test/data/files/data.json")
 
-        const data = await simpleNodeDB.insertRows(
-            "dataCsv",
-            [
-                { key1: 5, key2: "cinq" },
-                { key1: 6, key2: "six" },
-            ],
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.insertRows("dataCsv", [
+            { key1: 5, key2: "cinq" },
+            { key1: 6, key2: "six" },
+        ])
+
+        const data = await simpleNodeDB.getData("dataCsv")
 
         assert.deepStrictEqual(data, [
             { key1: 1, key2: "un" },

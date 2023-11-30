@@ -16,13 +16,8 @@ describe("cloneTable", () => {
             "test/data/files/employees.csv"
         )
 
-        const data = await simpleNodeDB.cloneTable(
-            "dataCsvOriginal",
-            "dataCsvCloned",
-            {
-                returnDataFrom: "table",
-            }
-        )
+        await simpleNodeDB.cloneTable("dataCsvOriginal", "dataCsvCloned")
+        const data = await simpleNodeDB.getData("dataCsvCloned")
         assert.deepStrictEqual(data, fullData)
     })
 

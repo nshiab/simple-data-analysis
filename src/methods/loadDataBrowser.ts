@@ -17,16 +17,12 @@ export default async function loadDataBrowser(
         header?: boolean
         delim?: string
         skip?: number
-        // others
-        debug?: boolean
-        returnDataFrom?: "table" | "query" | "none"
-        nbRowsToLog?: number
     } = {}
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\nloadData()")
+    simpleDB.debug && console.log("\nloadData()")
 
     let start
-    if (options.debug || simpleDB.debug) {
+    if (simpleDB.debug) {
         start = Date.now()
     }
 
@@ -93,18 +89,5 @@ export default async function loadDataBrowser(
     if (start) {
         const end = Date.now()
         console.log(`Done in ${end - start} ms`)
-    }
-
-    if (
-        options.returnDataFrom === "table" ||
-        options.returnDataFrom === "query"
-    ) {
-        return await simpleDB.runQuery(
-            `SELECT * FROM ${table}`,
-            simpleDB.connection,
-            true
-        )
-    } else {
-        return null
     }
 }

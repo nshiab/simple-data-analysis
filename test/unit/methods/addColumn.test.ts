@@ -14,15 +14,14 @@ describe("addColumn", () => {
     })
 
     it("should return a column with new computed values", async () => {
-        const data = await simpleNodeDB.addColumn(
+        await simpleNodeDB.addColumn(
             "dataSummarize",
             "multiply",
             "double",
-            `key2 * key3`,
-            {
-                returnDataFrom: "table",
-            }
+            `key2 * key3`
         )
+
+        const data = await simpleNodeDB.getData("dataSummarize")
 
         assert.deepStrictEqual(data, [
             { key1: "Rubarbe", key2: 1, key3: 10.5, multiply: 10.5 },

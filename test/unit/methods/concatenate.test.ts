@@ -14,14 +14,12 @@ describe("concatenate", () => {
     })
 
     it("should concatenate multiple columns in a new one", async () => {
-        const data = await simpleNodeDB.concatenate(
+        await simpleNodeDB.concatenate(
             "employees",
             ["Name", "Job"],
-            "concatenated",
-            {
-                returnDataFrom: "table",
-            }
+            "concatenated"
         )
+        const data = await simpleNodeDB.getData("employees")
         assert.deepStrictEqual(
             [
                 {
@@ -489,15 +487,15 @@ describe("concatenate", () => {
     })
 
     it("should concatenate multiple columns in a new one with a separator", async () => {
-        const data = await simpleNodeDB.concatenate(
+        await simpleNodeDB.concatenate(
             "employees",
             ["Name", "Job"],
             "concatenatedWithSeparator",
             {
                 separator: "-",
-                returnDataFrom: "table",
             }
         )
+        const data = await simpleNodeDB.getData("employees")
 
         assert.deepStrictEqual(
             [

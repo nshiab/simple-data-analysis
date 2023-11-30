@@ -15,11 +15,8 @@ describe("convert", () => {
             "test/data/files/dataJustNumbers.csv",
         ])
 
-        const data = await simpleNodeDB.convert(
-            "dataJustNumbers",
-            { key1: "string" },
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.convert("dataJustNumbers", { key1: "string" })
+        const data = await simpleNodeDB.getData("dataJustNumbers")
 
         assert.deepStrictEqual(data, [
             { key1: "1.3", key2: 2 },
@@ -36,11 +33,12 @@ describe("convert", () => {
             { allText: true }
         )
 
-        const data = await simpleNodeDB.convert(
+        await simpleNodeDB.convert(
             "dataMixedTypes",
             { key1: "integer" },
-            { returnDataFrom: "table", try: true }
+            { try: true }
         )
+        const data = await simpleNodeDB.getData("dataMixedTypes")
 
         assert.deepStrictEqual(data, [
             { key1: 1, key2: "2" },
@@ -51,11 +49,8 @@ describe("convert", () => {
     })
 
     it("should convert string to float", async () => {
-        const data = await simpleNodeDB.convert(
-            "dataJustNumbers",
-            { key1: "float" },
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.convert("dataJustNumbers", { key1: "float" })
+        const data = await simpleNodeDB.getData("dataJustNumbers")
 
         assert.deepStrictEqual(data, [
             { key1: 1.3, key2: 2 },
@@ -68,11 +63,8 @@ describe("convert", () => {
     it("should convert string to integer", async () => {
         await simpleNodeDB.convert("dataJustNumbers", { key2: "string" })
 
-        const data = await simpleNodeDB.convert(
-            "dataJustNumbers",
-            { key2: "integer" },
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.convert("dataJustNumbers", { key2: "integer" })
+        const data = await simpleNodeDB.getData("dataJustNumbers")
 
         assert.deepStrictEqual(data, [
             { key1: 1.3, key2: 2 },
@@ -85,11 +77,11 @@ describe("convert", () => {
     it("should convert multiple columns in multiple types", async () => {
         await simpleNodeDB.convert("dataJustNumbers", { key1: "string" })
 
-        const data = await simpleNodeDB.convert(
-            "dataJustNumbers",
-            { key1: "float", key2: "string" },
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.convert("dataJustNumbers", {
+            key1: "float",
+            key2: "string",
+        })
+        const data = await simpleNodeDB.getData("dataJustNumbers")
 
         assert.deepStrictEqual(data, [
             { key1: 1.3, key2: "2" },
@@ -106,11 +98,13 @@ describe("convert", () => {
             { allText: true }
         )
 
-        const data = await simpleNodeDB.convert(
-            "dataDates",
-            { date: "date", datetime: "datetime", datetimeWithMs: "datetime" },
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.convert("dataDates", {
+            date: "date",
+            datetime: "datetime",
+            datetimeWithMs: "datetime",
+        })
+
+        const data = await simpleNodeDB.getData("dataDates")
 
         assert.deepStrictEqual(data, [
             {
@@ -149,11 +143,10 @@ describe("convert", () => {
     })
 
     it("should convert time string to date", async () => {
-        await simpleNodeDB.convert(
-            "dataDates",
-            { time: "time", timeMs: "time" },
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.convert("dataDates", {
+            time: "time",
+            timeMs: "time",
+        })
 
         const types = await simpleNodeDB.getTypes("dataDates")
 
@@ -168,14 +161,14 @@ describe("convert", () => {
     })
 
     it("should convert date and time from string to date with a specific format", async () => {
-        const data = await simpleNodeDB.convert(
+        await simpleNodeDB.convert(
             "dataDates",
             { weirdDatetime: "time" },
             {
-                returnDataFrom: "table",
                 datetimeFormat: "%Y/%m/%d_%Hh_%Mmin_%Ssec",
             }
         )
+        const data = await simpleNodeDB.getData("dataDates")
 
         assert.deepStrictEqual(data, [
             {
@@ -214,7 +207,7 @@ describe("convert", () => {
     })
 
     it("should convert dates to strings", async () => {
-        const data = await simpleNodeDB.convert(
+        await simpleNodeDB.convert(
             "dataDates",
             {
                 date: "string",
@@ -223,10 +216,10 @@ describe("convert", () => {
                 weirdDatetime: "string",
             },
             {
-                returnDataFrom: "table",
                 datetimeFormat: "%Y/%m/%d_%Hh_%Mmin_%Ssec",
             }
         )
+        const data = await simpleNodeDB.getData("dataDates")
 
         assert.deepStrictEqual(data, [
             {
@@ -272,7 +265,7 @@ describe("convert", () => {
             weirdDatetime: "datetime",
         })
 
-        const data = await simpleNodeDB.convert(
+        await simpleNodeDB.convert(
             "dataDates",
             {
                 date: "date",
@@ -281,10 +274,10 @@ describe("convert", () => {
                 weirdDatetime: "datetime",
             },
             {
-                returnDataFrom: "table",
                 datetimeFormat: "%Y/%m/%d_%Hh_%Mmin_%Ssec",
             }
         )
+        const data = await simpleNodeDB.getData("dataDates")
 
         assert.deepStrictEqual(data, [
             {

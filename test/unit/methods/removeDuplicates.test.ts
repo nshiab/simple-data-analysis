@@ -16,11 +16,8 @@ describe("removeDuplicates", () => {
         ])
 
         await simpleNodeDB.removeDuplicates("employees")
-        const noDuplicates = await simpleNodeDB.sort(
-            "employees",
-            { Name: "asc" },
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.sort("employees", { Name: "asc" })
+        const noDuplicates = await simpleNodeDB.getData("employees")
 
         assert.deepStrictEqual(noDuplicates, [
             {
@@ -434,10 +431,9 @@ describe("removeDuplicates", () => {
         await simpleNodeDB.removeDuplicates("employeesSpecificColumn", {
             on: "Job",
         })
-        const noDuplicates = await simpleNodeDB.sort(
-            "employeesSpecificColumn",
-            { Name: "asc" },
-            { returnDataFrom: "table" }
+        await simpleNodeDB.sort("employeesSpecificColumn", { Name: "asc" })
+        const noDuplicates = await simpleNodeDB.getData(
+            "employeesSpecificColumn"
         )
 
         assert.deepStrictEqual(noDuplicates, [

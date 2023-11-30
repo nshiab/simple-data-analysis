@@ -8,10 +8,9 @@ export default async function getStdDev(
     column: string,
     options: {
         decimals?: number
-        debug?: boolean
     } = {}
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\ngetStdDev()")
+    simpleDB.debug && console.log("\ngetStdDev()")
 
     const queryResult = await queryDB(
         simpleDB,

@@ -5,19 +5,14 @@ import SimpleDB from "../indexWeb.js"
 export default async function getValues(
     simpleDB: SimpleDB,
     table: string,
-    column: string,
-    options: {
-        debug?: boolean
-        nbRowsToLog?: number
-    } = {}
+    column: string
 ) {
-    ;(options.debug || simpleDB.debug) && console.log("\ngetValues()")
+    simpleDB.debug && console.log("\ngetValues()")
 
     const queryResult = await queryDB(
         simpleDB,
         `SELECT ${column} FROM ${table}`,
         mergeOptions(simpleDB, {
-            ...options,
             table,
             returnDataFrom: "query",
         })
@@ -28,7 +23,7 @@ export default async function getValues(
 
     const values = queryResult.map((d) => d[column])
 
-    ;(options.debug || simpleDB.debug) && console.log("\nvalues:", values)
+    simpleDB.debug && console.log("\nvalues:", values)
 
     return values
 }

@@ -16,14 +16,15 @@ describe("join", () => {
     })
 
     it("should put the result of an inner join into a new table", async () => {
-        const data = await simpleNodeDB.join(
+        await simpleNodeDB.join(
             "dishes",
             "categories",
             "dishId",
             "inner",
-            "innerJoin",
-            { returnDataFrom: "table" }
+            "innerJoin"
         )
+
+        const data = await simpleNodeDB.getData("innerJoin")
 
         assert.deepStrictEqual(data, [
             {
@@ -43,14 +44,15 @@ describe("join", () => {
     })
 
     it("should put the result of a left join into a new table", async () => {
-        const data = await simpleNodeDB.join(
+        await simpleNodeDB.join(
             "dishes",
             "categories",
             "dishId",
             "left",
-            "leftJoin",
-            { returnDataFrom: "table" }
+            "leftJoin"
         )
+
+        const data = await simpleNodeDB.getData("leftJoin")
 
         assert.deepStrictEqual(data, [
             {
@@ -76,14 +78,15 @@ describe("join", () => {
         ])
     })
     it("should put the result of a right join into a new table", async () => {
-        const data = await simpleNodeDB.join(
+        await simpleNodeDB.join(
             "dishes",
             "categories",
             "dishId",
             "right",
-            "rightJoin",
-            { returnDataFrom: "table" }
+            "rightJoin"
         )
+
+        const data = await simpleNodeDB.getData("rightJoin")
 
         assert.deepStrictEqual(data, [
             {
@@ -105,14 +108,15 @@ describe("join", () => {
         ])
     })
     it("should put the result of a full join into a new table", async () => {
-        const data = await simpleNodeDB.join(
+        await simpleNodeDB.join(
             "dishes",
             "categories",
             "dishId",
             "full",
-            "fullJoin",
-            { returnDataFrom: "table" }
+            "fullJoin"
         )
+
+        const data = await simpleNodeDB.getData("fullJoin")
 
         assert.deepStrictEqual(data, [
             {

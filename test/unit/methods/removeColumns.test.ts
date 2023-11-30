@@ -13,9 +13,8 @@ describe("removeColumns", () => {
     it("should remove one column", async () => {
         await simpleNodeDB.loadData("dataCsv", "test/data/files/employees.csv")
 
-        const data = await simpleNodeDB.removeColumns("dataCsv", "Hire date", {
-            returnDataFrom: "table",
-        })
+        await simpleNodeDB.removeColumns("dataCsv", "Hire date")
+        const data = await simpleNodeDB.getData("dataCsv")
 
         assert.deepStrictEqual(data, [
             {
@@ -379,13 +378,8 @@ describe("removeColumns", () => {
     })
 
     it("should remove multiple columns", async () => {
-        const data = await simpleNodeDB.removeColumns(
-            "dataCsv",
-            ["Job", "Salary"],
-            {
-                returnDataFrom: "table",
-            }
-        )
+        await simpleNodeDB.removeColumns("dataCsv", ["Job", "Salary"])
+        const data = await simpleNodeDB.getData("dataCsv")
 
         assert.deepStrictEqual(data, [
             {

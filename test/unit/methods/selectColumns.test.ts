@@ -15,11 +15,8 @@ describe("selectColumns", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.selectColumns(
-            "employeesOneColumn",
-            "Name",
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.selectColumns("employeesOneColumn", "Name")
+        const data = await simpleNodeDB.getData("employeesOneColumn")
 
         assert.deepStrictEqual(data, [
             { Name: "OConnell, Donald" },
@@ -80,11 +77,11 @@ describe("selectColumns", () => {
             "test/data/files/employees.csv",
         ])
 
-        const data = await simpleNodeDB.selectColumns(
-            "employeesMultipleColumns",
-            ["Name", "Salary"],
-            { returnDataFrom: "table" }
-        )
+        await simpleNodeDB.selectColumns("employeesMultipleColumns", [
+            "Name",
+            "Salary",
+        ])
+        const data = await simpleNodeDB.getData("employeesMultipleColumns")
 
         assert.deepStrictEqual(data, [
             { Name: "OConnell, Donald", Salary: "2600" },

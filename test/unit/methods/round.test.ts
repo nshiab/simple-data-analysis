@@ -15,9 +15,9 @@ describe("round", () => {
             "test/data/files/dataManyDecimals.csv",
         ])
 
-        const data = await simpleNodeDB.round("dataInteger", ["key1"], {
-            returnDataFrom: "table",
-        })
+        await simpleNodeDB.round("dataInteger", ["key1"])
+
+        const data = await simpleNodeDB.getData("dataInteger")
 
         assert.deepStrictEqual(data, [
             { key1: 1 },
@@ -31,10 +31,10 @@ describe("round", () => {
             "test/data/files/dataManyDecimals.csv",
         ])
 
-        const data = await simpleNodeDB.round("dataDecimals", ["key1"], {
+        await simpleNodeDB.round("dataDecimals", ["key1"], {
             decimals: 3,
-            returnDataFrom: "table",
         })
+        const data = await simpleNodeDB.getData("dataDecimals")
 
         assert.deepStrictEqual(data, [
             { key1: 1.044 },
@@ -48,10 +48,11 @@ describe("round", () => {
             "test/data/files/dataManyDecimals.csv",
         ])
 
-        const data = await simpleNodeDB.round("dataFloor", ["key1"], {
+        await simpleNodeDB.round("dataFloor", ["key1"], {
             method: "floor",
-            returnDataFrom: "table",
         })
+
+        const data = await simpleNodeDB.getData("dataFloor")
 
         assert.deepStrictEqual(data, [
             { key1: 1 },
@@ -65,10 +66,10 @@ describe("round", () => {
             "test/data/files/dataManyDecimals.csv",
         ])
 
-        const data = await simpleNodeDB.round("dataCeil", ["key1"], {
+        await simpleNodeDB.round("dataCeil", ["key1"], {
             method: "ceiling",
-            returnDataFrom: "table",
         })
+        const data = await simpleNodeDB.getData("dataCeil")
 
         assert.deepStrictEqual(data, [
             { key1: 2 },
