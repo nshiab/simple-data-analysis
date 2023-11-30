@@ -1,12 +1,16 @@
 # Simple data analysis (SDA) in JavaScript
 
-This repository is maintained by [Nael Shiab](http://naelshiab.com/), computational journalist and senior data producer at [CBC/Radio-Canada](https://cbc.radio-canada.ca/).
+This repository is maintained by [Nael Shiab](http://naelshiab.com/), computational journalist and senior data producer for [CBC News](https://www.cbc.ca/news).
 
 To install with NPM:
 
 ```
 npm i simple-data-analysis
 ```
+
+The documentation is available [here](https://nshiab.github.io/simple-data-analysis/).
+
+## Core principles
 
 These project's goals are:
 
@@ -17,8 +21,6 @@ These project's goals are:
 -   To ease the way for non-coders (especially journalists and web developers) into the beautiful world of data analysis and data visualization in JavaScript.
 
 SDA is based on [duckdb-node](https://github.com/duckdb/duckdb-node) and [duckdb-wasm](https://github.com/duckdb/duckdb-wasm). DuckDB is a high-performance analytical database system. Under the hood, SDA sends SQL queries to be executed by DuckDB. You also have the flexibility of writing your own queries if you want to.
-
-The documentation is available [here](https://nshiab.github.io/simple-data-analysis/).
 
 Feel free to start a conversation or open an issue. Check how you can [contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
 
