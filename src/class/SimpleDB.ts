@@ -100,8 +100,10 @@ export default class SimpleDB {
      * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE.
      *
      * @param options - An optional object with configuration options:
-     *   - debug: A flag indicating whether debugging information should be logged. Defaults to false.
-     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to 10.
+     *   @param options.debug - A flag indicating whether debugging information should be logged. Defaults to false.
+     *   @param options.nbRowsToLog - The number of rows to log when debugging. Defaults to 10.
+     *
+     * @category Constructor
      *
      */
 
@@ -166,11 +168,11 @@ export default class SimpleDB {
      * @param table - The name of the new table.
      * @param url - The URL of the external file containing the data. CSV, JSON, and PARQUET files are accepted.
      * @param options - An optional object with configuration options:
-     *   - fileType: The type of the external file (csv, dsv, json, parquet). Defaults to the file extension.
-     *   - autoDetect: A boolean indicating whether to automatically detect the data format. Defaults to true.
-     *   - header: A boolean indicating whether the file contains a header row. Applicable for CSV files. Defaults to true.
-     *   - delim: The delimiter used in the file. Applicable for DSV files. Defaults to ",".
-     *   - skip: The number of rows to skip at the beginning of the file. Defaults to 0.
+     *   @param options.fileType - The type of the external file. Defaults to the file extension.
+     *   @param options.autoDetect - A boolean indicating whether to automatically detect the data format. Defaults to true.
+     *   @param options.header - A boolean indicating whether the file contains a header row. Applicable for CSV files. Defaults to true.
+     *   @param options.delim - The delimiter used in the file. Applicable for DSV files. Defaults to ",".
+     *   @param options.skip - The number of rows to skip at the beginning of the file. Defaults to 0.
      *
      * @category Importing data
      */
@@ -292,7 +294,7 @@ export default class SimpleDB {
      * @param table - The name of the table from which rows will be sampled.
      * @param quantity - The number of rows (1000 for example) or a string ("10%" for example) specifying the sampling size.
      * @param options - An optional object with configuration options:
-     *   - seed: A number specifying the seed for repeatable sampling. For example, setting it to 1 will ensure random rows will be the same each time you run the method.
+     *   @param options.seed - A number specifying the seed for repeatable sampling. For example, setting it to 1 will ensure random rows will be the same each time you run the method.
      *
      * @category Selecting or filtering data
      */
@@ -327,7 +329,7 @@ export default class SimpleDB {
      *
      * @param table - The name of the table from which duplicates will be removed.
      * @param options - An optional object with configuration options:
-     *   - on: A column or multiple columns to consider to remove duplicates. The other columns in the table will not be considered to exclude duplicates.
+     *   @param options.on - A column or multiple columns to consider to remove duplicates. The other columns in the table will not be considered to exclude duplicates.
      *
      * @category Selecting or filtering data
      */
@@ -358,9 +360,9 @@ export default class SimpleDB {
      *
      * @param table - The name of the table from which rows with missing values will be removed.
      * @param options - An optional object with configuration options:
-     *   - columns: Either a string or an array of strings specifying the columns to consider for missing values. By default, all columns are considered.
-     *   - missingValues: An array of values to be treated as missing values. Defaults to ["undefined", "NaN", "null", ""].
-     *   - invert: A boolean indicating whether to invert the condition, keeping only rows with missing values. Defaults to false.
+     *   @param options.columns - Either a string or an array of strings specifying the columns to consider for missing values. By default, all columns are considered.
+     *   @param options.missingValues - An array of values to be treated as missing values. Defaults to ["undefined", "NaN", "null", ""].
+     *   @param options.invert - A boolean indicating whether to invert the condition, keeping only rows with missing values. Defaults to false.
      *
      * @category Selecting or filtering data
      */
@@ -391,8 +393,8 @@ export default class SimpleDB {
      * @param table - The name of the table.
      * @param columns - The column or columns to trim.
      * @param options - An optional object with configuration options:
-     *   - character: The string to trim. Defaults to whitespace.
-     *   - method: The trimming method, one of "leftTrim", "rightTrim", or "trim". Defaults to "trim".
+     *   @param options.character - The string to trim. Defaults to whitespace.
+     *   @param options.method - The trimming method.
      *
      * @category Updating data
      */
@@ -402,11 +404,10 @@ export default class SimpleDB {
         options: {
             character?: string
             method?: "leftTrim" | "rightTrim" | "trim"
-        } = {
-            method: "trim",
-        }
+        } = {}
     ) {
         this.debug && console.log("\ntrim()")
+        options.method = options.method ?? "trim"
         await queryDB(
             this,
             trimQuery(table, stringToArray(columns), options),
@@ -576,8 +577,8 @@ export default class SimpleDB {
      * @param table - The name of the table where data types will be converted.
      * @param types - An object mapping column names to the target data types for conversion.
      * @param options - An optional object with configuration options:
-     *   - try: When true, the values that can't be converted will be replaced by NULL instead of throwing an error. Defaults to false.
-     *   - datetimeFormat: A string specifying the format for date and time conversions. The method uses strftime and strptime functions from DuckDB. For the format specifiers, see https://duckdb.org/docs/sql/functions/dateformat.
+     *   @param options.try - When true, the values that can't be converted will be replaced by NULL instead of throwing an error. Defaults to false.
+     *   @param options.datetimeFormat - A string specifying the format for date and time conversions. The method uses strftime and strptime functions from DuckDB. For the format specifiers, see https://duckdb.org/docs/sql/functions/dateformat.
      *
      * @category Restructuring data
      */
@@ -801,7 +802,7 @@ export default class SimpleDB {
      * @param columns - Either a string or an array of strings specifying the columns where string replacements will occur.
      * @param strings - An object mapping old strings to new strings.
      * @param options - An optional object with configuration options:
-     *   - entireString: A boolean indicating whether the entire string must match for replacement. Defaults to false.
+     *   @param options.entireString - A boolean indicating whether the entire string must match for replacement. Defaults to false.
      *
      * @category Updating data
      */
@@ -845,7 +846,7 @@ export default class SimpleDB {
      * @param columns - An array of column names from which values will be concatenated.
      * @param newColumn - The name of the new column to store the concatenated values.
      * @param options - An optional object with configuration options:
-     *   - separator: The string used to separate concatenated values. Defaults to an empty string.
+     *   @param options.separator - The string used to separate concatenated values. Defaults to an empty string.
      *
      * @category Updating data
      */
@@ -882,8 +883,8 @@ export default class SimpleDB {
      * @param table - The name of the table where numeric values will be rounded.
      * @param columns - Either a string or an array of strings specifying the columns containing numeric values to be rounded.
      * @param options - An optional object with configuration options:
-     *   - decimals: The number of decimal places to round to. Defaults to 0.
-     *   - method: The rounding method to use ("round", "ceiling", or "floor"). Defaults to "round".
+     *   @param options.decimals - The number of decimal places to round to. Defaults to 0.
+     *   @param options.method - The rounding method to use. Defaults to "round".
      *
      * @category Updating data
      */
@@ -905,16 +906,18 @@ export default class SimpleDB {
 
     /**
      * Sorts the rows of a table based on specified column(s) and order(s).
+     *
      * ```ts
-     * // Sort column1 ascendingly then column2 descendingly.
+     * // Sorts column1 ascendingly then column2 descendingly.
      * await sdb.sort("tableA", {column1: "asc", column2: "desc"})
+     *
      * // Same thing but taking French accent into account.
      * await sdb.sort("tableA", {column1: "asc", column2: "desc"}, {lang: {column1: "fr"}})
      * ```
      * @param table - The name of the table to sort.
      * @param order - An object mapping column names to the sorting order: "asc" for ascending or "desc" for descending.
      * @param options - An optional object with configuration options:
-     *   - lang: An object mapping column names to language codes. See DuckDB Collations documentation for more: https://duckdb.org/docs/sql/expressions/collations.
+     *    @param options.lang - An object mapping column names to language codes. See DuckDB Collations documentation for more: https://duckdb.org/docs/sql/expressions/collations.
      *
      * @category Updating data
      */
@@ -937,10 +940,10 @@ export default class SimpleDB {
      * Assigns ranks in a new column based on specified column values within a table.
      *
      * ```ts
-     * // Computing ranks in the new column rank from the column1 values.
+     * // Computes ranks in the new column rank from the column1 values.
      * await sdb.ranks("tableA", "column1", "rank")
      *
-     * * // Computing ranks in the new column rank from the column1 values. Using the values from column2 as categories.
+     * // Computing ranks in the new column rank from the column1 values. Using the values from column2 as categories.
      * await sdb.ranks("tableA", "column1", "rank", {categories: "column2"})
      * ```
      *
@@ -948,8 +951,8 @@ export default class SimpleDB {
      * @param values - The column containing values to be used for ranking.
      * @param newColumn - The name of the new column where the ranks will be stored.
      * @param options - An optional object with configuration options:
-     *   - categories: The column or columns that define categories for ranking.
-     *   - noGaps: A boolean indicating whether to assign ranks without gaps. Defaults to false.
+     *   @param options.categories - The column or columns that define categories for ranking.
+     *   @param options.noGaps - A boolean indicating whether to assign ranks without gaps. Defaults to false.
      *
      * @category Analyzing data
      */
@@ -974,8 +977,9 @@ export default class SimpleDB {
      * Assigns quantiles for specified column values within a table.
      *
      * ```ts
-     * // Assigning a quantile from 1 to 10 for each row in new column quantiles, based on values from column1.
+     * // Assigns a quantile from 1 to 10 for each row in new column quantiles, based on values from column1.
      * await sdb.quantiles("tableA", "column1", 10, "quantiles")
+     *
      * // Same thing, except the values in column2 are used as categories.
      * await sdb.quantiles("tableA", "column1", 10, "quantiles", {categories: "column2"})
      * ```
@@ -985,7 +989,7 @@ export default class SimpleDB {
      * @param nbQuantiles - The number of quantiles.
      * @param newColumn - The name of the new column where the assigned quantiles will be stored.
      * @param options - An optional object with configuration options:
-     *   - categories: The column or columns that define categories for computing quantiles. This can be a single column name or an array of column names.
+     *   @param options.categories - The column or columns that define categories for computing quantiles. This can be a single column name or an array of column names.
      *
      * @category Analyzing data
      */
@@ -1007,10 +1011,10 @@ export default class SimpleDB {
     }
 
     /**
-     * Assigns bins for specified column values within a table, based on a interval size.
+     * Assigns bins for specified column values within a table, based on an interval size.
      *
      * ```ts
-     * // Assigning a bin for each row in new column bins based on column1 values, with an interval of 10.
+     * // Assigns a bin for each row in new column bins based on column1 values, with an interval of 10.
      * await sdb.bins("tableA", "column1", 10, "bins")
      * // If the minimum value in column1 is 5, the bins will follow this pattern: "[5-14]", "[15-24]", "[25-34]", etc.
      *
@@ -1024,7 +1028,7 @@ export default class SimpleDB {
      * @param interval - The interval size for binning the values.
      * @param newColumn - The name of the new column where the bins will be stored.
      * @param options - An optional object with configuration options:
-     *   - startValue: The starting value for binning. Defaults to the minimum value in the specified column.
+     *   @param options.startValue The starting value for binning. Defaults to the minimum value in the specified column.
      *
      * @category Analyzing data
      */
@@ -1085,8 +1089,8 @@ export default class SimpleDB {
      * @param table - The name of the table.
      * @param columns - The columns for which proportions will be computed on each row.
      * @param options - An optional object with configuration options:
-     *   - suffix: A string suffix to append to the names of the new columns storing the computed proportions. Defaults to "Perc".
-     *   - decimals: The number of decimal places to round the computed proportions. Defaults to 2.
+     *   @param options.suffix - A string suffix to append to the names of the new columns storing the computed proportions. Defaults to "Perc".
+     *   @param options.decimals - The number of decimal places to round the computed proportions. Defaults to 2.
      *
      * @category Analyzing data
      */
@@ -1107,7 +1111,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Computes proportions over a column values within a table.
+     * Computes proportions over a column's values within a table.
      *
      * ```ts
      * // This will add a column perc with the result of each column1 value divided by the sum of all column1 values.
@@ -1116,10 +1120,10 @@ export default class SimpleDB {
      *
      * @param table - The name of the table.
      * @param column - The column containing values for which proportions will be computed. The proportions are calculated based on the sum of values in the specified column.
-     * @param newColumn - The name of the new column where the bins will be stored.
+     * @param newColumn - The name of the new column where the proportions will be stored.
      * @param options - An optional object with configuration options:
-     *   - categories: The column or columns that define categories for computing proportions. This can be a single column name or an array of column names.
-     *   - decimals: The number of decimal places to round the computed proportions. Defaults to 2.
+     *   @param options.categories - The column or columns that define categories for computing proportions. This can be a single column name or an array of column names.
+     *   @param options.decimals - The number of decimal places to round the computed proportions. Defaults to 2.
      *
      * @category Analyzing data
      */
@@ -1144,7 +1148,7 @@ export default class SimpleDB {
      * Creates a summary table based on specified values, categories, and summary operations.
      *
      * ```ts
-     * // Summarizes all numeric columns with all available summary operations (count, min, max, mean, median, sum, skew, stdDev, and var). Table tableA will be overwritten with the results.
+     * // Summarizes all numeric columns with all available summary operations. Table tableA will be overwritten with the results.
      * await sdb.summarize("tableA")
      *
      * // Same, but the results will be stored in tableB.
@@ -1165,11 +1169,11 @@ export default class SimpleDB {
      *
      * @param table - The name of the table to be summarized.
      * @param options - An optional object with configuration options:
-     *   - values: The column or columns whose values will be summarized. This can be a single column name or an array of column names.
-     *   - categories: The column or columns that define categories for the summarization. This can be a single column name or an array of column names.
-     *   - summaries: The summary operations to be performed. This can be a single summary operation or an array of summary operations. Possible values are "count", "min", "max", "mean", "median", "sum", "skew", "stdDev", and "var".
-     *   - decimals: The number of decimal places to round the summarized values. Defaults to 2.
-     *   - outputTable: An option to store the results in a new table.
+     *   @param options.values - The column or columns whose values will be summarized. This can be a single column name or an array of column names.
+     *   @param options.categories - The column or columns that define categories for the summarization. This can be a single column name or an array of column names.
+     *   @param options.summaries - The summary operations to be performed. This can be a single summary operation or an array of summary operations.
+     *   @param options.decimals - The number of decimal places to round the summarized values. Defaults to 2.
+     *   @param options.outputTable - An option to store the results in a new table.
      *
      * @category Analyzing data
      */
@@ -1211,7 +1215,7 @@ export default class SimpleDB {
     /**
      * Calculates correlations between columns in a table.
      *
-     * If no *x* and *y* columns are specified, the method computes the correlations of all numeric column *combinations*. It's important to note that correlation is symmetrical: the correlation of *x* over *y* is the same as *y* over *x*.
+     * If no *x* and *y* columns are specified, the method computes the correlations of all numeric columns *combinations*. It's important to note that correlation is symmetrical: the correlation of *x* over *y* is the same as *y* over *x*.
      *
      * ```ts
      * // Computes all correlations between all numeric columns in tableA and overwrite tableA with the results.
@@ -1229,11 +1233,11 @@ export default class SimpleDB {
      *
      * @param table - The name of the table.
      * @param options - An optional object with configuration options:
-     *   - x: The column name for the x values. Default is all numeric columns.
-     *   - y: The column name for the y values. Default is all numeric columns.
-     *   - categories: The column or columns that define categories. Correlation calculations will be run for each category.
-     *   - decimals: The number of decimal places to round the correlation values. Defaults to 2.
-     *   - outputTable: An option to store the results in a new table.
+     *   @param options.x - The column name for the x values. Default is all numeric columns.
+     *   @param options.y - The column name for the y values. Default is all numeric columns.
+     *   @param options.categories - The column or columns that define categories. Correlation calculations will be run for each category.
+     *   @param options.decimals - The number of decimal places to round the correlation values. Defaults to 2.
+     *   @param options.outputTable - An option to store the results in a new table.
      *
      * @category Analyzing data
      */
@@ -1253,7 +1257,7 @@ export default class SimpleDB {
     /**
      * Performs linear regression analysis and creates a table with regression results. The results include the slope, the y-intercept the R-squared.
      *
-     * If no *x* and *y* columns are specified, the method computes the linear regression analysis of all numeric column *permutations*. It's important to note that linear regression analysis is asymmetrical: the linear regression of *x* over *y* is not the same as *y* over *x*.
+     * If no *x* and *y* columns are specified, the method computes the linear regression analysis of all numeric columns *permutations*. It's important to note that linear regression analysis is asymmetrical: the linear regression of *x* over *y* is not the same as *y* over *x*.
      *
      * ```ts
      * // Computes all linear regressions between all numeric columns in tableA and overwrites tableA.
@@ -1271,10 +1275,10 @@ export default class SimpleDB {
      *
      * @param table - The name of the table.
      * @param options - An optional object with configuration options:
-     *   - x: The column name for the independent variable (x values) in the linear regression analysis.
-     *   - y: The column name for the dependent variable (y values) in the linear regression analysis.
-     *   - categories: The column or columns that define categories. Correlation calculations will be run for each category.
-     *   - decimals: The number of decimal places to round the regression coefficients. Defaults to 2.
+     *   @param options.x - The column name for the independent variable (x values) in the linear regression analysis.
+     *   @param options.y - The column name for the dependent variable (y values) in the linear regression analysis.
+     *   @param options.categories - The column or columns that define categories. Correlation calculations will be run for each category.
+     *   @param options.decimals - The number of decimal places to round the regression coefficients. Defaults to 2.
      *
      * @category Analyzing data
      */
@@ -1303,7 +1307,7 @@ export default class SimpleDB {
      * @param column - The name of the column in which outliers will be identified.
      * @param newColumn - The name of the new column where the bins will be stored.
      * @param options - An optional object with configuration options:
-     *   - categories: The column or columns that define categories for outliers.
+     *   @param options.categories - The column or columns that define categories for outliers.
      *
      * @category Analyzing data
      */
@@ -1330,10 +1334,10 @@ export default class SimpleDB {
     }
 
     /**
-     * Calculates the Z-Score.
+     * Computes the Z-score.
      *
      * ```ts
-     * // Calculates the Z-score for the values in column age and puts the results in a column sigma.
+     * // Calculates the Z-score for the values in column age and puts the results in column sigma.
      * await sdb.zScore("table1", "age", "sigma")
      * ```
      *
@@ -1341,8 +1345,8 @@ export default class SimpleDB {
      * @param column - The name of the column for which Z-Score will be calculated.
      * @param newColumn - The name of the new column where the bins will be stored.
      * @param options - An optional object with configuration options:
-     *   - categories: The column or columns that define categories for zScores.
-     *   - decimals: The number of decimal places to round the Z-Score values. Defaults to 2.
+     *   @param options.categories - The column or columns that define categories for zScores.
+     *   @param options.decimals - The number of decimal places to round the Z-score values. Defaults to 2.
      *
      * @category Analyzing data
      */
@@ -1368,14 +1372,14 @@ export default class SimpleDB {
      * Executes a custom SQL query, providing flexibility for advanced users.
      *
      * ```ts
-     * // You can use the returnDataFrom option to retrieve the data from the query, if needed. Default is "none".
+     * // You can use the returnDataFrom option to retrieve the data from the query, if needed.
      * await sdb.customQuery( "SELECT * FROM employees WHERE Job = 'Clerk'", {returnDataFrom: "query"})
      * ```
      *
      * @param query - The custom SQL query to be executed.
      * @param options - An optional object with configuration options:
-     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
-     *   - table: The name of the table associated with the query (if applicable). Needed when debug is true.
+     *   @param options.returnDataFrom - Specifies whether to return data from the "query" or not. Defaults to "none".
+     *   @param options.table - The name of the table associated with the query (if applicable). Needed when debug is true.
      */
     async customQuery(
         query: string,
@@ -1475,7 +1479,8 @@ export default class SimpleDB {
     }
 
     /**
-     * Returns the list of tables in the database.
+     * Returns the list of tables.
+     *
      * ```ts
      * const tables = await sdb.getTables()
      * ```
@@ -1485,7 +1490,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Returns true if a specified table exists in the database and false if not.
+     * Returns true if a specified table exists and false if not.
      *
      * ```ts
      * const hasEmployees = await sdb.hasTable("employees")
@@ -1499,7 +1504,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Return the list of column names for a specified table in the database.
+     * Return the list of column names for a specified table.
      *
      * ```ts
      * const columns = await sdb.getColumns("dataCsv")
@@ -1637,8 +1642,8 @@ export default class SimpleDB {
      *
      * @param table - The name of the table.
      * @param column - The name of the column.
-     * @param options - An optional object with configuration options:e.
-     *   - decimals: The number of decimal places to round the result to. All decimals are kept by default.
+     * @param options - An optional object with configuration options:
+     *   @param options.decimals - The number of decimal places to round the result to. All decimals are kept by default.
      *
      * @category Getting data
      */
@@ -1662,7 +1667,7 @@ export default class SimpleDB {
      * @param table - The name of the table.
      * @param column - The name of the column.
      * @param options - An optional object with configuration options:
-     *   - decimals: The number of decimal places to round the result to. All decimals are kept by default.
+     *   @param options.decimals - The number of decimal places to round the result to. All decimals are kept by default.
      *
      * @category Getting data
      */
@@ -1702,7 +1707,7 @@ export default class SimpleDB {
      * @param table - The name of the table.
      * @param column - The name of the column.
      * @param options - An optional object with configuration options:
-     *   - decimals: The number of decimal places to round the result to. All decimals are kept by default.
+     *   @param options.decimals - The number of decimal places to round the result to. All decimals are kept by default.
      *
      * @category Getting data
      */
@@ -1726,7 +1731,7 @@ export default class SimpleDB {
      * @param table - The name of the table.
      * @param column - The name of the column.
      * @param options - An optional object with configuration options:
-     *   - decimals: The number of decimal places to round the result to. All decimals are kept by default.
+     *   @param options.decimals - The number of decimal places to round the result to. All decimals are kept by default.
      *
      * @category Getting data
      */
@@ -1750,7 +1755,7 @@ export default class SimpleDB {
      * @param table - The name of the table.
      * @param column - The name of the column.
      * @param options - An optional object with configuration options:
-     *   - decimals: The number of decimal places to round the result to. All decimals are kept by default.
+     *   @param options.decimals - The number of decimal places to round the result to. All decimals are kept by default.
      *
      * @category Getting data
      */
@@ -1775,7 +1780,7 @@ export default class SimpleDB {
      * @param column - The name of the column from which to calculate the quantile.
      * @param quantile - The quantile (between 0 and 1) to calculate. For example, 0.25 for the first quartile.
      * @param options - An optional object with configuration options:
-     *   - decimals: The number of decimal places to round the result to. All decimals are kept by default.
+     *   @param options.decimals - The number of decimal places to round the result to. All decimals are kept by default.
      *
      * @category Getting data
      */
@@ -1817,7 +1822,7 @@ export default class SimpleDB {
      *
      * @param table - The name of the table.
      * @param options - An optional object with configuration options:
-     *   - condition: The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
+     *    @param options.condition - The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
      *
      * @category Getting data
      */
@@ -1843,7 +1848,7 @@ export default class SimpleDB {
      *
      * @param table - The name of the table.
      * @param options - An optional object with configuration options:
-     *   - condition: The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
+     *   @param options.condition - The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
      *
      * @category Getting data
      */
@@ -1851,14 +1856,13 @@ export default class SimpleDB {
         table: string,
         options: {
             condition?: string
-            debug?: boolean
         } = {}
     ) {
         return getLastRow(this, table, options)
     }
 
     /**
-     * Returns the top N rows from a table.
+     * Returns the top n rows from a table.
      *
      * ```ts
      * const top10 = await sdb.getTop("inventory", 10)
@@ -1870,7 +1874,7 @@ export default class SimpleDB {
      * @param table - The name of the table.
      * @param count - The number of rows to return.
      * @param options - An optional object with configuration options:
-     *   - condition: The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
+     *   @param options.condition - The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
      *
      * @category Getting data
      */
@@ -1885,7 +1889,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Returns the bottom N rows from a table. The last row will be returned first. To keep the original order of the data, use the originalOrder option.
+     * Returns the bottom n rows from a table. The last row will be returned first. To keep the original order of the data, use the originalOrder option.
      *
      * ```ts
      * // Last row will be returned first.
@@ -1901,8 +1905,8 @@ export default class SimpleDB {
      * @param table - The name of the table.
      * @param count - The number of rows to return.
      * @param options - An optional object with configuration options:
-     *   - originalOrder: A boolean indicating whether the rows should be returned in their original order. Default is false, meaning the last row will be returned first.
-     *   - condition: The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
+     *   @param options.originalOrder - A boolean indicating whether the rows should be returned in their original order. Default is false, meaning the last row will be returned first.
+     *   @param options.condition - The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
      *
      * @category Getting data
      */
@@ -1930,7 +1934,7 @@ export default class SimpleDB {
      *
      * @param table - The name of the table from which to retrieve the data.
      * @param options - An optional object with configuration options:
-     *   - condition: A SQL WHERE clause condition to filter the data. Defaults to no condition.
+     *   @param options.condition - A SQL WHERE clause condition to filter the data. Defaults to no condition.
      *
      * @category Getting data
      */
@@ -1954,12 +1958,16 @@ export default class SimpleDB {
      * Logs a specified number of rows from a table. Default is 10 rows.
      *
      * ```ts
+     * // Logs first 10 rows
      * await sdb.logTable("tableA");
+     *
+     * // Logs first 100 rows
+     * await sdb.logTable("tableA", {nbRowsToLog: 100});
      * ```
      *
      * @param table - The name of the table.
      * @param options - An optional object with configuration options:
-     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *   @param options.nbRowsToLog - The number of rows to log when debugging. Defaults to 10 or the value set in the SimpleDB instance.
      */
     async logTable(
         table: string,
