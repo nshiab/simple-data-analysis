@@ -31,7 +31,7 @@ export default [
         input: "src/indexWeb.ts",
         output: {
             file: `dist/${meta.name}.min.js`,
-            name: "sda",
+            name: "SimpleDB",
             format: "umd",
             indent: false,
             extend: true,
