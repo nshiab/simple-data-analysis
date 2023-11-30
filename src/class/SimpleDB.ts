@@ -1386,7 +1386,7 @@ export default class SimpleDB {
     async customQuery(
         query: string,
         options: {
-            returnDataFrom?: "query" | "table" | "none"
+            returnDataFrom?: "query" | "none"
             table?: string
         } = {}
     ) {

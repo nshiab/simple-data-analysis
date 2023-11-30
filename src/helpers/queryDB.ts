@@ -7,17 +7,8 @@ export default async function queryDB(
     options: {
         table: string | null
         nbRowsToLog: number
-        returnDataFrom: "query" | "table" | "none"
+        returnDataFrom: "query" | "none"
         debug: boolean
-        returnedDataModifier:
-            | ((
-                  rows: {
-                      [key: string]: number | string | Date | boolean | null
-                  }[]
-              ) => {
-                  [key: string]: number | string | Date | boolean | null
-              }[])
-            | null
         bigIntToInt: boolean
     }
 ): Promise<
@@ -53,16 +44,6 @@ export default async function queryDB(
 
         if (options.returnDataFrom === "query") {
             data = queryResult
-        } else if (options.returnDataFrom === "table") {
-            if (typeof options.table !== "string") {
-                throw new Error("No options.table")
-            }
-            data = await simpleDB.runQuery(
-                `SELECT * FROM ${options.table};`,
-                simpleDB.connection,
-                true,
-                options
-            )
         } else if (options.returnDataFrom === "none") {
             // Nothing
         } else {
@@ -79,30 +60,10 @@ export default async function queryDB(
             true,
             options
         )
-    } else if (options.returnDataFrom === "table") {
-        if (typeof options.table !== "string") {
-            throw new Error("No options.table")
-        }
-        await simpleDB.runQuery(query, simpleDB.connection, false, options)
-        data = await simpleDB.runQuery(
-            `SELECT * FROM ${options.table};`,
-            simpleDB.connection,
-            true,
-            options
-        )
     } else {
         throw new Error(
             `Unknown ${options.returnDataFrom} options.returnDataFrom`
         )
-    }
-
-    if (options.returnedDataModifier) {
-        if (data === null) {
-            throw new Error(
-                "Data is null. Use option returnedDataModifier with 'query' or 'table'."
-            )
-        }
-        data = options.returnedDataModifier(data)
     }
 
     if (options.debug) {
@@ -143,10 +104,7 @@ export default async function queryDB(
         }
     }
 
-    if (
-        options.returnDataFrom === "table" ||
-        options.returnDataFrom === "query"
-    ) {
+    if (options.returnDataFrom === "query") {
         if (data === null) {
             throw new Error("data is null")
         }

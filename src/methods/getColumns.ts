@@ -11,7 +11,6 @@ export default async function getColumns(simpleDB: SimpleDB, table: string) {
         mergeOptions(simpleDB, {
             table,
             returnDataFrom: "query",
-            returnedDataModifier: (rows) => rows,
         })
     )
 
