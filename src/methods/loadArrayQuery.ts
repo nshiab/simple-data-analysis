@@ -1,11 +1,8 @@
 export default function loadArrayQuery(
     table: string,
-    arrayOfObjects: { [key: string]: unknown }[],
-    options: { replace?: boolean } = {}
+    arrayOfObjects: { [key: string]: unknown }[]
 ) {
-    let query = `${
-        options.replace ? "CREATE OR REPLACE" : "CREATE"
-    } TABLE ${table}`
+    let query = `CREATE OR REPLACE TABLE ${table}`
 
     const columns = Object.keys(arrayOfObjects[0])
     const values = Object.values(arrayOfObjects[0])

@@ -53,9 +53,7 @@ import addThousandSeparator from "../helpers/addThousandSeparator.js"
 import removeDuplicatesQuery from "../methods/removeDuplicatesQuery.js"
 
 /**
- * SimpleDB is a class that provides a simplified interface for working with DuckDB,
- * a high-performance, in-memory analytical database. This class is meant to be used
- * in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB.
+ * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB.
  *
  * Here's how to instantiate a SimpleDB instance.
  *
@@ -134,7 +132,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Creates a new table and loads an array of objects into it.
+     * Creates or replaces a table and loads an array of objects into it.
      *
      * ```ts
      * const data = [{letter: "a", number: 1}, {letter: "b", number: 2}]
@@ -144,7 +142,6 @@ export default class SimpleDB {
      * @param table - The name of the table to be created.
      * @param arrayOfObjects - An array of objects representing the data.
      * @param options - An optional object with configuration options:
-     *   - replace: A boolean indicating whether to replace the table if it already exists. Defaults to false.
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
@@ -155,7 +152,6 @@ export default class SimpleDB {
         table: string,
         arrayOfObjects: { [key: string]: unknown }[],
         options: {
-            replace?: boolean
             returnDataFrom?: "query" | "table" | "none"
             debug?: boolean
             nbRowsToLog?: number
@@ -165,13 +161,13 @@ export default class SimpleDB {
 
         return await queryDB(
             this,
-            loadArrayQuery(table, arrayOfObjects, options),
+            loadArrayQuery(table, arrayOfObjects),
             mergeOptions(this, { ...options, table })
         )
     }
 
     /**
-     * Creates a table and loads data from an external file into it.
+     * Creates or replaces a table and loads data from an external file into it.
      *
      * ```ts
      * await sdb.loadData("tableA", "https://some-website.com/some-data.csv")
@@ -216,7 +212,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Inserts rows into a specified table.
+     * Inserts rows formatted as an array of objects into an existing table.
      *
      * ```ts
      * const rows = [ { letter: "a", number: 1 }, { letter: "b", number: 2 }]
@@ -251,7 +247,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Inserts all rows from one table into another specified table.
+     * Inserts all rows from one table into another existing table.
      *
      * ```ts
      * // Insert all rows from tableB into tableA.
@@ -285,7 +281,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Clones a table by creating a new table with the same structure and data.
+     * Clones an existing table by creating or replacing a table with the same structure and data.
      *
      * ```ts
      * // tableA data is cloned into tableB.
@@ -356,17 +352,17 @@ export default class SimpleDB {
      * Selects random rows from a table and removes the others.
      *
      * ```ts
-     * // Selecting 100 random rows in tableA
+     * // Selects 100 random rows in tableA
      * await sdb.sample("tableA", 100)
      *
-     * // Selecting 10% of the rows randomly in tableB
+     * // Selects 10% of the rows randomly in tableB
      * await sdb.sample("tableB", "10%")
      * ```
      *
      * @param table - The name of the table from which rows will be sampled.
      * @param quantity - The number of rows (1000 for example) or a string ("10%" for example) specifying the sampling size.
      * @param options - An optional object with configuration options:
-     *   - seed: A number specifying the seed for repeatable sampling. For example, setting it to 1 will ensure that the random rows will be the same each time you run the method.
+     *   - seed: A number specifying the seed for repeatable sampling. For example, setting it to 1 will ensure random rows will be the same each time you run the method.
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
@@ -399,7 +395,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Removes duplicate rows from a table, keeping only unique rows. Note that SQL itself does not guarantee any specific order when using DISTINCT. So the data might be returned in a different order.
+     * Removes duplicate rows from a table, keeping unique rows. Note that SQL does not guarantee any specific order when using DISTINCT. So the data might be returned in a different order than the original.
      *
      * ```ts
      * await sdb.removeDuplicates("tableA")
@@ -432,7 +428,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Removes rows with missing values from a table. By default, missing values are NULL (as an SQL value), but also "null", "NaN" and "undefined" than might have been converted to strings before being loaded into the table. Empty strings ("") are also considered missing values.
+     * Removes rows with missing values from a table. By default, missing values are NULL (as an SQL value), but also "null", "NaN" and "undefined" that might have been converted to strings before being loaded into the table. Empty strings "" are also considered missing values.
      *
      * ```ts
      * // Removes rows with missing values in any columns.
@@ -472,6 +468,14 @@ export default class SimpleDB {
     /**
      * Trims specified characters from the beginning, end, or both sides of string values.
      *
+     * ```ts
+     * // Trims values in column1
+     * await sdb.trim("tableA", "column1")
+     *
+     * // Trims values in column2, columns3, and column4
+     * await sdb.trim("tableA", ["column2", "column3", "column4"])
+     * ```
+     *
      * @param table - The name of the table.
      * @param columns - The column or columns to trim.
      * @param options - An optional object with configuration options:
@@ -509,7 +513,7 @@ export default class SimpleDB {
      *
      * ```ts
      * // In table store, keep only rows where the fruit is not an apple.
-     * await sdb.filter("store", "fruit != 'apple'"")
+     * await sdb.filter("store", "fruit != 'apple'")
      *
      * // More examples:
      * await sdb.filter("store", "price > 100 AND quantity > 0")
@@ -669,7 +673,7 @@ export default class SimpleDB {
      * | Sales      | 52   | 75   | 98   |
      *
      * @param table - The name of the table to be restructured.
-     * @param columnsFrom - The column containing the values that will be transformed as columns.
+     * @param columnsFrom - The column containing the values that will be transformed into columns.
      * @param valuesFrom - The column containing values to be spread across the new columns.
      * @param options - An optional object with configuration options:
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
@@ -701,11 +705,13 @@ export default class SimpleDB {
      * Converts data types (JavaScript or SQL types) of specified columns in a table.
      *
      * ```ts
-     * // Convert columns to string and number
+     * // Converts column1 to string and column2 to integer
      * await sdb.convert("tableA", {column1: "string", column2: "integer"})
-     * // Same thing
+     *
+     * // Same thing but with SQL types
      * await sdb.convert("tableA", {column1: "varchar", column2: "bigint"})
-     * // Convert a string to a date
+     *
+     * // Converts a string to a date
      * await sdb.convert("tableA", {column3: "datetime"}, {datetimeFormat: "%Y-%m-%d" })
      * ```
      *
@@ -834,6 +840,7 @@ export default class SimpleDB {
      * Adds a new column to a table based on a type (JavaScript or SQL types) and a SQL definition.
      *
      * ```ts
+     * // Adds column3 to tableA. The column's values are floats (equivalent to DOUBLE in SQL) and are the results of the sum of values from column1 and column2.
      * await sdb.addColumn("tableA", "column3", "float", "column1 + column2")
      * ```
      *
@@ -881,7 +888,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Merges the data of two tables based on a common column and put the result in a new table.
+     * Merges the data of two tables based on a common column and puts the result in a new table.
      *
      * ```ts
      * // Do a left join of tableA (left) and tableB (right) based on the common column id. The result is put into tableC.
@@ -925,7 +932,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Creates a new empty table with specified columns and data types.
+     * Creates a new empty table with specified columns and data types (JavaScript or SQL). If the table already exists, it will be overwritten.
      * 
      * ```ts
      *  await sdb.createTable("employees", {
@@ -936,7 +943,7 @@ export default class SimpleDB {
      * ```
      *
      * @param table - The name of the table.
-     * @param types - An object specifying the columns and their data types.
+     * @param types - An object specifying the columns and their data types (JavaScript or SQL).
      * @param options - An optional object with configuration options:
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      * 
@@ -966,7 +973,7 @@ export default class SimpleDB {
         ;(options.debug || this.debug) && console.log("\ncreateTable()")
         return await queryDB(
             this,
-            `CREATE TABLE ${table} (${Object.keys(types)
+            `CREATE OR REPLACE TABLE ${table} (${Object.keys(types)
                 .map((d) => `"${d}" ${parseType(types[d])}`)
                 .join(", ")});`,
             mergeOptions(this, { ...options, table })
@@ -1069,15 +1076,14 @@ export default class SimpleDB {
      * Rounds numeric values in specified columns of a table.
      *
      * ```ts
-     * // Round to the nearest integer.
+     * // Rounds column1's values to the nearest integer.
      * await sdb.round("tableA", "column1")
      *
-     * // Round with a specific number of decimal places.
+     * // Rounds column1's values with a specific number of decimal places.
      * await sdb.round("tableA", "column1", {decimals: 2})
      *
-     * // Round with a specific method. Other methods are "round" and "ceiling".
+     * // Rounds column1's values with a specific method. Available methods are "round", "floor" and "ceiling".
      * await sdb.round("tableA", "column1", {method: "floor"})
-     *
      * ```
      *
      * @param table - The name of the table where numeric values will be rounded.
@@ -1700,6 +1706,8 @@ export default class SimpleDB {
      *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
      *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
+     *
+     * @category Updating data
      */
     async updateWithJS(
         table: string,
@@ -1727,7 +1735,7 @@ export default class SimpleDB {
         const newData = dataModifier(oldData)
         const updatedData = await queryDB(
             this,
-            loadArrayQuery(table, newData, { replace: true }),
+            loadArrayQuery(table, newData),
             mergeOptions(this, { ...options, table })
         )
 
