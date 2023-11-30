@@ -10,84 +10,245 @@ npm i simple-data-analysis
 
 These project's goals are:
 
--   To offer a high performance and convenient solution in JavaScript for data analysis. It's based on [DuckDB](https://duckdb.org/) and inspired by [Pandas](https://github.com/pandas-dev/pandas) (Python) and the [Tidyverse](https://www.tidyverse.org/) (R).
+-   To offer a high-performance and convenient solution in JavaScript for data analysis. It's based on [DuckDB](https://duckdb.org/) and inspired by [Pandas](https://github.com/pandas-dev/pandas) (Python) and the [Tidyverse](https://www.tidyverse.org/) (R).
 
 -   To standardize and accelerate frontend/backend workflows with a simple-to-use library working both in the browser and with NodeJS (and similar runtimes).
 
 -   To ease the way for non-coders (especially journalists and web developers) into the beautiful world of data analysis and data visualization in JavaScript.
 
-The documentation is available [here](https://nshiab.github.io/simple-data-analysis.js/). Examples with Observable notebooks can be found [here](https://observablehq.com/@nshiab/simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript).
+SDA is based on [duckdb-node](https://github.com/duckdb/duckdb-node) and [duckdb-wasm](https://github.com/duckdb/duckdb-wasm). DuckDB is a high-performance analytical database system. Under the hood, SDA sends SQL queries to be executed by DuckDB. You also have the flexibility of writing your own queries if you want to.
 
-Feel free to start a conversation or open an issue. Check [how you can contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
+The documentation is available [here](https://nshiab.github.io/simple-data-analysis/).
 
-## Core principles
-
-SDA is based on [duckdb-node](https://github.com/duckdb/duckdb-node) and [duckdb-wasm](https://github.com/duckdb/duckdb-wasm). DuckDB is a high-performance analytical database system. Under the hood, SDA sends SQL queries to be executed by DuckDB. You also have the flexibity of writing your own queries if you want to.
-
-To make charts on the Web, we enjoy using [Observable Plot](https://github.com/observablehq/plot). For NodeJS and similar runtimes, the `writeChart` function is available. It emulates a browser with [jsdom](https://github.com/jsdom/jsdom) and accepts Plot options as a parameter to write a chart as a local file. Of course, you can use any other libraries to make charts if you want to.
-
-The focus is on providing code that is easy to use and understand, with a library that can be used both in the front-end (web browsers) and back-end (NodeJS and similar runtimes).
+Feel free to start a conversation or open an issue. Check how you can [contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
 
 ## About v2
 
-v2.0.0 is a complete rewrite of the library, with many breaking changes.
+Because v1.x.x versions weren't based on DuckDB, v2.0.1 is a complete rewrite of the library with many breaking changes.
 
-The minified bundle is two times smaller, when gzipped and delivered with a CDN like [jsDelivr](https://www.jsdelivr.com/package/npm/simple-data-analysis):
+To test and compare the performance of **simple-data-analysis@2.0.1**, we calculated the average temperature per decade and city with the daily temperatures from the [Adjusted and Homogenized Canadian Climate Data](https://api.weather.gc.ca/collections/ahccd-annual). See [this repository](https://github.com/nshiab/simple-data-analysis-benchmarks) for the code.
 
--   v1.8.2 was ≈ 123kB
--   v2.0.0 is ≈ 54kB
+We ran the same calculations with **simple-data-analysis@1.8.1** (both NodeJS and Bun), **Pandas** (Python), and the **Tidyverse** (R).
 
-v2.0.0 is X times faster than v1.8.2. Performance is now comparable to Pandas (Python) and Tidyverse packages (R).
+In each script, we:
 
-Here's how much time it took to open a X GB CSV file with daily temperatures for XXX cities in Canada, compute the average temperature per decade and export a CSV file again. The scripts used in this very basic test could be found here (ADD REPO) and were run 10 times on a 2021 MacBook Pro, with an M1 Pro chip and 16GB of memory.
+1. Loaded a CSV file (_Importing_)
+2. Selected four columns, removed rows with missing temperature, converted date strings to date and temperature strings to float (_Cleaning_)
+3. Added a new column _decade_ and calculated the decade (_Modifying_)
+4. Calculated the average temperature per decade and city (_Summarizing_)
+5. Wrote the cleaned-up data that we computed the averages from in a new CSV file (_Writing_)
 
--   Node vX.X.X and SDA v1.8.2 : xx sec
--   Bun vX.X.X and SDA v1.8.2 : xx sec
--   Node vX.X.X and v2.0.0 : xx sec
--   Bun vX.X.X and v2.0.0 : xx sec
--   Python vX.X.X and Pandas vX.X.X
--   R vX.X.X and Tidyverse vX.X.X
+Each script has been run ten times on a MacBook Pro (Apple M1 Pro / 16 GB), and the durations have been averaged.
 
-Note that DuckDB, that powers SDA, can also be used with [Python](https://duckdb.org/docs/api/python/overview.html) and [R](https://duckdb.org/docs/api/r). But it wasn't the purpose of this test.
+The charts displayed below come from this [Observable notebook](https://observablehq.com/@nshiab/simple-data-analysis-benchmarks).
+
+### Small file
+
+With _ahccd-samples.csv_:
+
+-   74.7 MB
+-   19 cities
+-   20 columns
+-   971,804 rows
+-   19,436,080 data points
+
+As we can see, **simple-data-analysis@1.8.1** was the slowest, but **simple-data-analysis@2.0.1** is now the fastest.
+
+![A chart showing the processing duration of multiple scripts in various languages](./assets/small-file.png)
+
+### Big file
+
+With _ahccd.csv_:
+
+-   1.7 G
+-   773 cities
+-   20 columns
+-   22,051,025 rows
+-   441,020,500 data points
+
+The file was too big for **simple-data-analysis@1.8.1**, so it's not included here.
+
+Again, **simple-data-analysis@2.0.1** is now the fastest option.
+
+![A chart showing the processing duration of multiple scripts in various languages](./assets/big-file.png)
+
+Note that DuckDB, which powers SDA, can also be used with [Python](https://duckdb.org/docs/api/python/overview.html) and [R](https://duckdb.org/docs/api/r).
 
 ## SDA in an HTML page
 
 If you want to add the library directly to your webpage, you can use the minified bundle from a npm-based CDN like jsDelivr.
 
-SDA is only ≈50kB.
-
-Here's an example.
+Here's some code that you can copy an paste into an HTML file.
 
 ```ts
-// Load the library in your browser.
-<script src="https://cdn.jsdelivr.net/npm/simple-data-analysis@latest">
-  // If you have a source map warning in the console,
-  // you can use src="https://cdn.jsdelivr.net/npm/simple-data-analysis@latest/dist/simple-data-analysis.min.js"
-</script>
-
+<!-- We load the library -->
+<script src="https://cdn.jsdelivr.net/npm/simple-data-analysis@latest"></script>
 <script>
   async function main() {
     // We start a new instance of SimpleDB
-    const simpleDB = await new sda.SimpleDB();
+    const sdb = new SimpleDB();
 
-    // We load data from remote file.
-    await simpleDB.loadData(
-      "employees",
-      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/employees.csv"
+    // We load daily temperatures for three cities.
+    // We put the data in the table dailyTemperatures.
+    await sdb.loadData(
+      "dailyTemperatures",
+      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/dailyTemperatures.csv"
     );
 
-    // We log the data in the console.
-    await simpleDB.logTable("employees");
+    // We compute the decade from each date
+    // and put the result in the decade column.
+    await sdb.addColumn(
+      "dailyTemperatures",
+      "decade",
+      "integer",
+      "FLOOR(YEAR(time)/10)*10"
+    );
+
+    // We summarize the data by computing
+    // the average dailyTemperature
+    // per decade and per city.
+    await sdb.summarize("dailyTemperatures", {
+      values: "t",
+      categories: ["decade", "id"],
+      summaries: "mean",
+    });
+
+    // We run linear regressions
+    // to check for trends.
+    await sdb.linearRegressions("dailyTemperatures", {
+      x: "decade",
+      y: "mean",
+      categories: "id",
+      decimals: 4,
+    });
+
+    // The dailyTemperature table does not have
+    // the name of the cities, just the ids.
+    // We load another file with the names
+    // in the table cities.
+    await sdb.loadData(
+      "cities",
+      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/cities.csv"
+    );
+
+    // We join the two tables based
+    // on the ids and put the joined rows
+    // in the table results.
+    await sdb.join("dailyTemperatures", "cities", "id", "left", "results");
+
+    // We select the columns of interest
+    // in the table results.
+    await sdb.selectColumns("results", ["city", "slope", "yIntercept", "r2"]);
+
+    // We log the results table.
+    await sdb.logTable("results");
   }
 
   main();
 </script>
 ```
 
+And here's the table you'll see in your browser's console tab.
+
+![The console tab in Google Chrome showing the result of simple-data-analysis computations.](./assets/browser-console.png)
+
 ## SDA with NodeJS and similar runtimes
 
-## SDA with Observable notebooks
+First, ensure that you have [NodeJS v20 or higher](https://nodejs.org/en/) installed.
 
-## SDA-Flow
+Then you'll need to run this command to install the library in your code repository.
 
-This project is related to [SDA-Flow](https://github.com/nshiab/simple-data-analysis-flow), which allows you to use the simple-data-analysis.js library without code. Test it here (still under heavy development and still running with v1.x): https://nshiab.github.io/simple-data-analysis-flow/.
+```bash
+npm install simple-data-analysis
+```
+
+A _package.json_ file should have been created. Open it and add or change the type to "module".
+
+```json
+{
+    "type": "module",
+    "dependencies": {
+        "simple-data-analysis": "^2.0.1"
+    }
+}
+```
+
+Here's some code you can copy and paste into a JavaScript file. It's the same as the one you would run in a browser, except we use the _SimpleNodeDB_ class.
+
+This class has more methods available to load data from local files and write data to files.
+
+```ts
+import { SimpleNodeDB } from "simple-data-analysis"
+
+async function main() {
+    // We start a new instance of SimpleNodeDB
+    const sdb = new SimpleNodeDB()
+
+    // We load daily temperatures for three cities.
+    // We put the data in the table dailyTemperatures.
+    await sdb.loadData(
+        "dailyTemperatures",
+        "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/dailyTemperatures.csv"
+    )
+
+    // We compute the decade from each date
+    // and put the result in the decade column.
+    await sdb.addColumn(
+        "dailyTemperatures",
+        "decade",
+        "integer",
+        "FLOOR(YEAR(time)/10)*10"
+    )
+
+    // We summarize the data by computing
+    // the average dailyTemperature
+    // per decade and per city.
+    await sdb.summarize("dailyTemperatures", {
+        values: "t",
+        categories: ["decade", "id"],
+        summaries: "mean",
+    })
+
+    // We run linear regressions
+    // to check for trends.
+    await sdb.linearRegressions("dailyTemperatures", {
+        x: "decade",
+        y: "mean",
+        categories: "id",
+        decimals: 4,
+    })
+
+    // The dailyTemperature table does not have
+    // the name of the cities, just the ids.
+    // We load another file with the names
+    // in the table cities.
+    await sdb.loadData(
+        "cities",
+        "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/cities.csv"
+    )
+
+    // We join the two tables based
+    // on the ids and put the joined rows
+    // in the table results.
+    await sdb.join("dailyTemperatures", "cities", "id", "left", "results")
+
+    // We select the columns of interest
+    // in the table results.
+    await sdb.selectColumns("results", ["city", "slope", "yIntercept", "r2"])
+
+    // We log the results table.
+    await sdb.logTable("results")
+}
+
+main()
+```
+
+Here's the command to run the file. Change _index.js_ to your actual file.
+
+```bash
+node index.js
+```
+
+And here's what you should see in your console.
+
+![The console tab in Google Chrome showing the result of simple-data-analysis computations.](./assets/nodejs-console.png)

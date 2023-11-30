@@ -39,7 +39,7 @@
         "build": "rm -rf dist && npx tsc && npx rollup --config",
         "all-tests": "npm run format && npm run test && npm run lint && npm run build",
         "rollup": "rollup --config",
-        "doc": "typedoc --name Simple-data-analysis --includeVersion --readme README.md --out docs src/index.ts",
+        "doc": "typedoc --name Simple-data-analysis --includeVersion --readme README.md --out docs src/index.ts && cp -r ./assets ./docs",
         "update-doc": "npm run doc && git add -A && git commit -m 'Updating doc' && git push",
         "publish-patch": "npm run all-tests && npm version patch && npm run build && npm run update-doc && npm publish",
         "publish-minor": "npm run all-tests && npm version minor && npm run build && npm run update-doc && npm publish",
@@ -50,7 +50,7 @@
         "check-format": "prettier --ignore-path .prettierignore --check './**/*.ts'"
     },
     "engines": {
-        "node": ">=18.0"
+        "node": ">=20.0"
     },
     "bugs": {
         "url": "https://github.com/nshiab/simple-data-analysis.js/issues"
