@@ -1087,9 +1087,6 @@ export default class SimpleDB {
      * @param options - An optional object with configuration options:
      *   - suffix: A string suffix to append to the names of the new columns storing the computed proportions. Defaults to "Perc".
      *   - decimals: The number of decimal places to round the computed proportions. Defaults to 2.
-     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
-     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
-     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
      *
      * @category Analyzing data
      */
@@ -1105,7 +1102,7 @@ export default class SimpleDB {
         await queryDB(
             this,
             proportionsHorizontalQuery(table, columns, options),
-            mergeOptions(this, { ...options, table })
+            mergeOptions(this, { table })
         )
     }
 
@@ -1123,9 +1120,6 @@ export default class SimpleDB {
      * @param options - An optional object with configuration options:
      *   - categories: The column or columns that define categories for computing proportions. This can be a single column name or an array of column names.
      *   - decimals: The number of decimal places to round the computed proportions. Defaults to 2.
-     *   - returnDataFrom: Specifies whether to return data from the "query", "table", or "none". Defaults to "none".
-     *   - debug: A boolean indicating whether debugging information should be logged. Defaults to the value set in the SimpleDB instance.
-     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to the value set in the SimpleDB instance.
      *
      * @category Analyzing data
      */
@@ -1952,7 +1946,7 @@ export default class SimpleDB {
             `SELECT * from ${table}${
                 options.condition ? ` WHERE ${options.condition}` : ""
             }`,
-            mergeOptions(this, { ...options, returnDataFrom: "query", table })
+            mergeOptions(this, { returnDataFrom: "query", table })
         )
     }
 

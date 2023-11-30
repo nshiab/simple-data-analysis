@@ -18,7 +18,7 @@ export default async function getQuantile(
         typeof options.decimals === "number"
             ? `SELECT ROUND(QUANTILE_CONT("${column}", ${quantile}), ${options.decimals}) AS valueForGetQuantile FROM ${table}`
             : `SELECT QUANTILE_CONT("${column}", ${quantile}) AS valueForGetQuantile FROM ${table}`,
-        mergeOptions(simpleDB, { ...options, table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
     )
 
     if (!queryResult) {

@@ -17,7 +17,7 @@ export default async function getMedian(
         typeof options.decimals === "number"
             ? `SELECT ROUND(MEDIAN("${column}"), ${options.decimals}) AS valueForGetMedian FROM ${table}`
             : `SELECT MEDIAN("${column}") AS valueForGetMedian FROM ${table}`,
-        mergeOptions(simpleDB, { ...options, table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
     )
 
     if (!queryResult) {

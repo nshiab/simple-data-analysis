@@ -17,7 +17,7 @@ export default async function getTop(
         `SELECT * FROM ${table}${
             options.condition ? ` WHERE ${options.condition}` : ""
         } LIMIT ${count}`,
-        mergeOptions(simpleDB, { ...options, table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
     )
 
     if (!rows) {

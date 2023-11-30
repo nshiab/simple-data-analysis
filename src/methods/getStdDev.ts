@@ -17,7 +17,7 @@ export default async function getStdDev(
         typeof options.decimals === "number"
             ? `SELECT ROUND(STDDEV("${column}"), ${options.decimals}) AS valueForGetStdDev FROM ${table}`
             : `SELECT STDDEV("${column}") AS valueForGetStdDev FROM ${table}`,
-        mergeOptions(simpleDB, { ...options, table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
     )
 
     if (!queryResult) {

@@ -7,9 +7,6 @@ export default function rankQuery(
     options: {
         categories?: string | string[]
         noGaps?: boolean
-        returnDataFrom?: "query" | "table" | "none"
-        debug?: boolean
-        nbRowsToLog?: number
     } = {}
 ) {
     const categories = options.categories

@@ -17,7 +17,7 @@ export default async function getVar(
         typeof options.decimals === "number"
             ? `SELECT ROUND(VARIANCE("${column}"), ${options.decimals}) AS valueForGetVar FROM ${table}`
             : `SELECT VARIANCE("${column}") AS valueForGetVar FROM ${table}`,
-        mergeOptions(simpleDB, { ...options, table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
     )
 
     if (!queryResult) {

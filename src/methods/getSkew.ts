@@ -17,7 +17,7 @@ export default async function getSkew(
         typeof options.decimals === "number"
             ? `SELECT ROUND(SKEWNESS("${column}"), ${options.decimals}) AS valueForGetSkew FROM ${table}`
             : `SELECT SKEWNESS("${column}") AS valueForGetSkew FROM ${table}`,
-        mergeOptions(simpleDB, { ...options, table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
     )
 
     if (!queryResult) {
