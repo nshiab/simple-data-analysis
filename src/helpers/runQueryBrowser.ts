@@ -1,6 +1,7 @@
 import { AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
 import { Connection } from "duckdb"
 import tableToArrayOfObjects from "./arraysToData.js"
+import { Table } from "apache-arrow"
 
 export default async function runQueryBrowser(
     query: string,
@@ -14,7 +15,8 @@ export default async function runQueryBrowser(
 > {
     if (returnDataFromQuery) {
         const data = await (connection as AsyncDuckDBConnection).query(query)
-        return tableToArrayOfObjects(data)
+        // Weird
+        return tableToArrayOfObjects(data as unknown as Table)
     } else {
         await (connection as AsyncDuckDBConnection).query(query)
         return null
