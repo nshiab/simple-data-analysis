@@ -8,6 +8,7 @@ export default async function getValues(
     column: string
 ) {
     simpleDB.debug && console.log("\ngetValues()")
+    simpleDB.debug && console.log("parameters:", { table, column })
 
     const queryResult = await queryDB(
         simpleDB,

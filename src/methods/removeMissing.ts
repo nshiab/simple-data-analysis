@@ -14,6 +14,13 @@ export default async function removeMissing(
     } = {}
 ) {
     simpleDB.debug && console.log("\nremoveMissing()")
+    options.missingValues = options.missingValues ?? [
+        "undefined",
+        "NaN",
+        "null",
+        "",
+    ]
+    simpleDB.debug && console.log("parameters:", { table, options })
 
     const types = await simpleDB.getTypes(table)
     const allColumns = Object.keys(types)

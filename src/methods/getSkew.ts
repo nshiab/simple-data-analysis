@@ -11,6 +11,7 @@ export default async function getSkew(
     } = {}
 ) {
     simpleDB.debug && console.log("\ngetSkew()")
+    simpleDB.debug && console.log("parameters:", { table, column, options })
 
     const queryResult = await queryDB(
         simpleDB,

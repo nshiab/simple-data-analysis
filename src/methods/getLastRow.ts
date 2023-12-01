@@ -10,6 +10,8 @@ export default async function getLastRow(
     } = {}
 ) {
     simpleDB.debug && console.log("\ngetLastRow()")
+    simpleDB.debug && console.log("parameters:", { table, options })
+
     const queryResult = await queryDB(
         simpleDB,
         `WITH numberedRowsForGetLastRow AS (

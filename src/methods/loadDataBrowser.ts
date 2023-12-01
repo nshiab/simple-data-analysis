@@ -20,6 +20,7 @@ export default async function loadDataBrowser(
     } = {}
 ) {
     simpleDB.debug && console.log("\nloadData()")
+    simpleDB.debug && console.log("parameters:", { table, url, options })
 
     let start
     if (simpleDB.debug) {

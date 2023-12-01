@@ -11,6 +11,7 @@ export default async function getMedian(
     } = {}
 ) {
     simpleDB.debug && console.log("\ngetMedian()")
+    simpleDB.debug && console.log("parameters:", { table, column, options })
 
     const queryResult = await queryDB(
         simpleDB,

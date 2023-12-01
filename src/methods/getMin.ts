@@ -8,6 +8,7 @@ export default async function getMin(
     column: string
 ) {
     simpleDB.debug && console.log("\ngetMin()")
+    simpleDB.debug && console.log("parameters:", { table, column })
 
     const queryResult = await queryDB(
         simpleDB,

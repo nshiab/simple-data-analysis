@@ -12,6 +12,8 @@ export default async function getQuantile(
     } = {}
 ) {
     simpleDB.debug && console.log("\ngetQuantile()")
+    simpleDB.debug &&
+        console.log("parameters:", { table, column, quantile, options })
 
     const queryResult = await queryDB(
         simpleDB,

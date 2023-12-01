@@ -4,6 +4,7 @@ import SimpleDB from "../indexWeb.js"
 
 export default async function getLength(simpleDB: SimpleDB, table: string) {
     simpleDB.debug && console.log("\ngetLength()")
+    simpleDB.debug && console.log("parameters:", { table })
 
     const queryResult = await queryDB(
         simpleDB,

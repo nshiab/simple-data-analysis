@@ -8,6 +8,7 @@ export default async function getSum(
     column: string
 ) {
     simpleDB.debug && console.log("\ngetSum()")
+    simpleDB.debug && console.log("parameters:", { table, column })
 
     const queryResult = await queryDB(
         simpleDB,

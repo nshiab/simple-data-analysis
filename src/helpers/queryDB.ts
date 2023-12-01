@@ -26,7 +26,6 @@ export default async function queryDB(
         start = Date.now()
     }
     if (options.debug) {
-        console.log(options)
         console.log(query)
     }
 
@@ -67,35 +66,35 @@ export default async function queryDB(
     }
 
     if (options.debug) {
-        if (Array.isArray(data)) {
-            if (options.returnDataFrom === "query") {
-                console.log(
-                    `${addThousandSeparator(data.length)} rows in total`
-                )
-            } else if (typeof options.table === "string") {
-                console.log(`\ntable ${options.table}:`)
-                console.table(data)
-                const nbRows = await simpleDB.runQuery(
-                    `SELECT COUNT(*) FROM ${options.table};`,
-                    simpleDB.connection,
-                    true,
-                    options
-                )
-                if (nbRows === null) {
-                    throw new Error("nbRows is null")
-                }
-                console.log(
-                    `${addThousandSeparator(
-                        nbRows[0]["count_star()"] as number
-                    )} rows in total ${
-                        options.returnDataFrom === "none"
-                            ? ""
-                            : `(nbRowsToLog: ${options.nbRowsToLog})`
-                    }`
-                )
+        if (typeof options.table === "string") {
+            console.log(`\ntable ${options.table}:`)
+            const tableToLog = await simpleDB.runQuery(
+                `SELECT * FROM ${options.table} LIMIT ${options.nbRowsToLog}`,
+                simpleDB.connection,
+                true,
+                options
+            )
+            console.table(tableToLog)
+            const nbRows = await simpleDB.runQuery(
+                `SELECT COUNT(*) FROM ${options.table};`,
+                simpleDB.connection,
+                true,
+                options
+            )
+            if (nbRows === null) {
+                throw new Error("nbRows is null")
             }
+            console.log(
+                `${addThousandSeparator(
+                    nbRows[0]["count_star()"] as number
+                )} rows in total ${
+                    options.returnDataFrom === "none"
+                        ? ""
+                        : `(nbRowsToLog: ${options.nbRowsToLog})`
+                }`
+            )
         } else {
-            console.log("data:", data)
+            console.log("\nNo options.table. Not logging table.")
         }
 
         if (start) {

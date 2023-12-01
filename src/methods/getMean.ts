@@ -11,6 +11,7 @@ export default async function getMean(
     } = {}
 ) {
     simpleDB.debug && console.log("\ngetMean()")
+    simpleDB.debug && console.log("parameters:", { table, column, options })
 
     const queryResult = await queryDB(
         simpleDB,

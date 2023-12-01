@@ -11,6 +11,7 @@ export default async function getVar(
     } = {}
 ) {
     simpleDB.debug && console.log("\ngetVar()")
+    simpleDB.debug && console.log("parameters:", { table, column, options })
 
     const queryResult = await queryDB(
         simpleDB,

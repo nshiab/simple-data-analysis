@@ -61,6 +61,12 @@ export default async function summarize(
         (d) => !options.categories?.includes(d)
     )
 
+    simpleDB.debug &&
+        console.log("parameters:", {
+            table,
+            options,
+        })
+
     return await queryDB(
         simpleDB,
         summarizeQuery(

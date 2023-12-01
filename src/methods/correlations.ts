@@ -42,6 +42,12 @@ export default async function correlations(
         throw new Error("No combinations of x and y")
     }
 
+    simpleDB.debug &&
+        console.log("parameters:", {
+            table,
+            options,
+        })
+
     simpleDB.debug && console.log("combinations:", combinations)
 
     await queryDB(

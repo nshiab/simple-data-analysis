@@ -11,6 +11,7 @@ export default async function getStdDev(
     } = {}
 ) {
     simpleDB.debug && console.log("\ngetStdDev()")
+    simpleDB.debug && console.log("parameters:", { table, column, options })
 
     const queryResult = await queryDB(
         simpleDB,

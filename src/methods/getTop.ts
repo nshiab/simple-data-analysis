@@ -11,6 +11,7 @@ export default async function getTop(
     } = {}
 ) {
     simpleDB.debug && console.log("\ngetTop()")
+    simpleDB.debug && console.log("parameters:", { table, count, options })
 
     const rows = await queryDB(
         simpleDB,

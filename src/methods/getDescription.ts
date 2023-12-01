@@ -8,6 +8,7 @@ export default async function getDescription(
     table: string
 ) {
     simpleDB.debug && console.log("\ngetDescription()")
+    simpleDB.debug && console.log("parameters:", { table })
 
     const types = await simpleDB.getTypes(table)
 

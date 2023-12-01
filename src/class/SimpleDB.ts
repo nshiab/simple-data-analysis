@@ -113,6 +113,7 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
+        options.debug && console.log("\nnew SimpleDB()")
         this.nbRowsToLog = options.nbRowsToLog ?? 10
         this.debug = options.debug ?? false
         this.worker = null
@@ -123,12 +124,11 @@ export default class SimpleDB {
      * Initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE. It's called automatically with the first method you'll run.
      */
     async start() {
-        this.debug && console.log("\nstart()")
+        this.debug && console.log("\nstart()\n")
         const duckDB = await getDuckDB()
         this.db = duckDB.db
         this.connection = await this.db.connect()
         this.connection.query("PRAGMA default_collation=NOCASE;")
-
         this.worker = duckDB.worker
     }
 
@@ -150,7 +150,7 @@ export default class SimpleDB {
         arrayOfObjects: { [key: string]: unknown }[]
     ) {
         this.debug && console.log("\nloadArray()")
-
+        this.debug && console.log("parameters:", { table, arrayOfObjects })
         await queryDB(
             this,
             loadArrayQuery(table, arrayOfObjects),
@@ -206,7 +206,7 @@ export default class SimpleDB {
      */
     async insertRows(table: string, rows: { [key: string]: unknown }[]) {
         this.debug && console.log("\ninsertRows()")
-
+        this.debug && console.log("parameters:", { table, rows })
         await queryDB(
             this,
             insertRowsQuery(table, rows),
@@ -229,6 +229,7 @@ export default class SimpleDB {
      */
     async insertTable(table: string, tableToInsert: string) {
         this.debug && console.log("\ninsertTable()")
+        this.debug && console.log("parameters:", { table, tableToInsert })
         await queryDB(
             this,
             `INSERT INTO ${table} SELECT * FROM ${tableToInsert}`,
@@ -249,6 +250,7 @@ export default class SimpleDB {
      */
     async cloneTable(originalTable: string, newTable: string) {
         this.debug && console.log("\ncloneTable()")
+        this.debug && console.log("parameters:", { originalTable, newTable })
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE ${newTable} AS SELECT * FROM ${originalTable}`,
@@ -270,7 +272,7 @@ export default class SimpleDB {
      */
     async selectColumns(table: string, columns: string | string[]) {
         this.debug && console.log("\nselectColumns()")
-
+        this.debug && console.log("parameters:", { table, columns })
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE ${table} AS SELECT ${stringToArray(columns)
@@ -306,7 +308,7 @@ export default class SimpleDB {
         } = {}
     ) {
         this.debug && console.log("\nsample()")
-
+        this.debug && console.log("parameters:", { table, quantity, options })
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ${table} USING SAMPLE RESERVOIR(${
@@ -340,6 +342,7 @@ export default class SimpleDB {
         } = {}
     ) {
         this.debug && console.log("\nremoveDuplicates()")
+        this.debug && console.log("parameters:", { table, options })
         await queryDB(
             this,
             removeDuplicatesQuery(table, options),
@@ -372,9 +375,7 @@ export default class SimpleDB {
             columns?: string | string[]
             missingValues?: (string | number)[]
             invert?: boolean
-        } = {
-            missingValues: ["undefined", "NaN", "null", ""],
-        }
+        } = {}
     ) {
         await removeMissing(this, table, options)
     }
@@ -408,6 +409,7 @@ export default class SimpleDB {
     ) {
         this.debug && console.log("\ntrim()")
         options.method = options.method ?? "trim"
+        this.debug && console.log("parameters:", { table, columns, options })
         await queryDB(
             this,
             trimQuery(table, stringToArray(columns), options),
@@ -435,6 +437,7 @@ export default class SimpleDB {
      */
     async filter(table: string, conditions: string) {
         this.debug && console.log("\nfilter()")
+        this.debug && console.log("parameters:", { table, conditions })
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE ${table} AS SELECT *
@@ -459,6 +462,7 @@ export default class SimpleDB {
      */
     async renameColumns(table: string, names: { [key: string]: string }) {
         this.debug && console.log("\nrenameColumns()")
+        this.debug && console.log("parameters:", { table, names })
         await queryDB(
             this,
             renameColumnQuery(table, Object.keys(names), Object.values(names)),
@@ -507,6 +511,8 @@ export default class SimpleDB {
         valuesTo: string
     ) {
         this.debug && console.log("\nlonger()")
+        this.debug &&
+            console.log("parameters:", { table, columns, columnsTo, valuesTo })
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM (UNPIVOT ${table}
@@ -553,6 +559,8 @@ export default class SimpleDB {
      */
     async wider(table: string, columnsFrom: string, valuesFrom: string) {
         this.debug && console.log("\nwider()")
+        this.debug &&
+            console.log("parameters:", { table, columnsFrom, valuesFrom })
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE ${table} AS (SELECT * FROM (PIVOT ${table} ON "${columnsFrom}" USING FIRST("${valuesFrom}")));`,
@@ -605,6 +613,7 @@ export default class SimpleDB {
         } = {}
     ) {
         this.debug && console.log("\nconvert()")
+        this.debug && console.log("parameters:", { table, types, options })
 
         const allTypes = await this.getTypes(table)
         const allColumns = Object.keys(allTypes)
@@ -636,6 +645,7 @@ export default class SimpleDB {
      */
     async removeTables(tables: string | string[]) {
         this.debug && console.log("\nremoveTables()")
+        this.debug && console.log("parameters:", { tables })
         await queryDB(
             this,
             stringToArray(tables)
@@ -659,6 +669,7 @@ export default class SimpleDB {
      */
     async removeColumns(table: string, columns: string | string[]) {
         this.debug && console.log("\nremoveColumns()")
+        this.debug && console.log("parameters:", { table, columns })
         await queryDB(
             this,
             stringToArray(columns)
@@ -702,6 +713,8 @@ export default class SimpleDB {
         definition: string
     ) {
         this.debug && console.log("\naddColumn()")
+        this.debug &&
+            console.log("parameters:", { table, column, type, definition })
         await queryDB(
             this,
             `ALTER TABLE ${table} ADD "${column}" ${parseType(type)};
@@ -734,6 +747,14 @@ export default class SimpleDB {
         outputTable: string
     ) {
         this.debug && console.log("\njoin()")
+        this.debug &&
+            console.log("parameters:", {
+                leftTable,
+                rightTable,
+                commonColumn,
+                join,
+                outputTable,
+            })
         await queryDB(
             this,
             joinQuery(leftTable, rightTable, commonColumn, join, outputTable),
@@ -778,6 +799,7 @@ export default class SimpleDB {
         }
     ) {
         this.debug && console.log("\ncreateTable()")
+        this.debug && console.log("parameters:", { table, types })
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE ${table} (${Object.keys(types)
@@ -816,6 +838,8 @@ export default class SimpleDB {
     ) {
         this.debug && console.log("\nreplaceStrings()")
         options.entireString = options.entireString ?? false
+        this.debug &&
+            console.log("parameters:", { table, columns, strings, options })
         await queryDB(
             this,
             replaceStringsQuery(
@@ -859,6 +883,8 @@ export default class SimpleDB {
         } = {}
     ) {
         this.debug && console.log("\nconcatenate()")
+        this.debug &&
+            console.log("parameters:", { table, columns, newColumn, options })
         await queryDB(
             this,
             concatenateQuery(table, columns, newColumn, options),
@@ -897,6 +923,7 @@ export default class SimpleDB {
         } = {}
     ) {
         this.debug && console.log("\nround()")
+        this.debug && console.log("parameters:", { table, columns, options })
         await queryDB(
             this,
             roundQuery(table, stringToArray(columns), options),
@@ -929,6 +956,7 @@ export default class SimpleDB {
         } = {}
     ) {
         this.debug && console.log("\nsort()")
+        this.debug && console.log("parameters:", { table, order, options })
         await queryDB(
             this,
             sortQuery(table, order, options),
@@ -966,6 +994,8 @@ export default class SimpleDB {
         } = {}
     ) {
         this.debug && console.log("\nranks()")
+        this.debug &&
+            console.log("parameters:", { table, values, newColumn, options })
         await queryDB(
             this,
             ranksQuery(table, values, newColumn, options),
@@ -1003,6 +1033,14 @@ export default class SimpleDB {
         } = {}
     ) {
         this.debug && console.log("\nquantiles()")
+        this.debug &&
+            console.log("parameters:", {
+                table,
+                values,
+                nbQuantiles,
+                newColumn,
+                options,
+            })
         await queryDB(
             this,
             quantilesQuery(table, values, nbQuantiles, newColumn, options),
@@ -1042,6 +1080,14 @@ export default class SimpleDB {
         } = {}
     ) {
         this.debug && console.log("\nbins()")
+        this.debug &&
+            console.log("parameters:", {
+                table,
+                values,
+                interval,
+                newColumn,
+                options,
+            })
         await queryDB(
             this,
             await binsQuery(this, table, values, interval, newColumn, options),
@@ -1103,6 +1149,12 @@ export default class SimpleDB {
         } = {}
     ) {
         this.debug && console.log("\nproportionsHorizontal()")
+        this.debug &&
+            console.log("parameters:", {
+                table,
+                columns,
+                options,
+            })
         await queryDB(
             this,
             proportionsHorizontalQuery(table, columns, options),
@@ -1137,6 +1189,12 @@ export default class SimpleDB {
         } = {}
     ) {
         this.debug && console.log("\nproportionsVertical()")
+        this.debug &&
+            console.log("parameters:", {
+                table,
+                column,
+                options,
+            })
         await queryDB(
             this,
             proportionsVerticalQuery(table, column, newColumn, options),
@@ -1320,6 +1378,8 @@ export default class SimpleDB {
         } = {}
     ) {
         this.debug && console.log("\noutliersIQR()")
+        this.debug &&
+            console.log("parameters:", { table, column, newColumn, options })
         await queryDB(
             this,
             outliersIQRQuery(
@@ -1361,6 +1421,8 @@ export default class SimpleDB {
     ) {
         this.debug && console.log("\nzScore()")
         options.decimals = options.decimals ?? 2
+        this.debug &&
+            console.log("parameters:", { table, column, newColumn, options })
         await queryDB(
             this,
             zScoreQuery(table, column, newColumn, options),
@@ -1389,6 +1451,7 @@ export default class SimpleDB {
         } = {}
     ) {
         this.debug && console.log("\ncustomQuery()")
+        this.debug && console.log("parameters:", { query, options })
         return await queryDB(
             this,
             query,
@@ -1430,6 +1493,9 @@ export default class SimpleDB {
         }[]
     ) {
         this.debug && console.log("\nupdateWithJS()")
+        this.debug &&
+            console.log("parameters:", { table, dataModifier: dataModifier })
+
         const oldData = await this.getData(table)
         if (!oldData) {
             throw new Error("No data from getData.")
@@ -1453,6 +1519,7 @@ export default class SimpleDB {
      */
     async getSchema(table: string) {
         this.debug && console.log("\ngetSchema()")
+        this.debug && console.log("parameters:", { table })
         return await queryDB(
             this,
             `DESCRIBE ${table}`,
@@ -1500,6 +1567,7 @@ export default class SimpleDB {
      */
     async hasTable(table: string) {
         this.debug && console.log("\nhasTable()")
+        this.debug && console.log("parameters:", { table })
         return (await this.getTables()).includes(table)
     }
 
@@ -1528,6 +1596,7 @@ export default class SimpleDB {
      */
     async hasColumn(table: string, column: string) {
         this.debug && console.log("\nhasColumn()")
+        this.debug && console.log("parameters:", { table, column })
         return (await getColumns(this, table)).includes(column)
     }
 
@@ -1542,6 +1611,7 @@ export default class SimpleDB {
      */
     async getWidth(table: string) {
         this.debug && console.log("\ngetWidth()")
+        this.debug && console.log("parameters:", { table })
         return (await getColumns(this, table)).length
     }
 
@@ -1569,6 +1639,7 @@ export default class SimpleDB {
      */
     async getValuesCount(table: string) {
         this.debug && console.log("\ngetValuesCount()")
+        this.debug && console.log("parameters:", { table })
         return (await this.getWidth(table)) * (await this.getLength(table))
     }
 
@@ -1945,6 +2016,7 @@ export default class SimpleDB {
         } = {}
     ) {
         this.debug && console.log("\ngetData()")
+        this.debug && console.log("parameters:", { table, options })
         return await queryDB(
             this,
             `SELECT * from ${table}${
@@ -1977,6 +2049,7 @@ export default class SimpleDB {
     ) {
         this.debug && console.log("\nlogTable()")
         options.nbRowsToLog = options.nbRowsToLog ?? this.nbRowsToLog
+        this.debug && console.log("parameters:", { table, options })
 
         console.log(`\ntable ${table}:`)
         const data = await this.runQuery(

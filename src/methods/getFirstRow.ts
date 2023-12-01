@@ -10,6 +10,8 @@ export default async function getFirstRow(
     } = {}
 ) {
     simpleDB.debug && console.log("\ngetFirstRow()")
+    simpleDB.debug && console.log("parameters:", { table, options })
+
     const queryResult = await queryDB(
         simpleDB,
         `SELECT * FROM ${table}${

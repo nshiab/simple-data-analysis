@@ -8,6 +8,7 @@ export default async function getUniques(
     column: string
 ) {
     simpleDB.debug && console.log("\ngetUniques()")
+    simpleDB.debug && console.log("parameters:", { table, column })
 
     const queryResult = await queryDB(
         simpleDB,

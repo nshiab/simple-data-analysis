@@ -8,6 +8,7 @@ export default async function getMax(
     column: string
 ) {
     simpleDB.debug && console.log("\ngetMax()")
+    simpleDB.debug && console.log("parameters:", { table, column })
 
     const queryResult = await queryDB(
         simpleDB,

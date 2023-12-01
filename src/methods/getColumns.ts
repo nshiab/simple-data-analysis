@@ -4,6 +4,7 @@ import SimpleDB from "../indexWeb.js"
 
 export default async function getColumns(simpleDB: SimpleDB, table: string) {
     simpleDB.debug && console.log("\ngetColumns()")
+    simpleDB.debug && console.log("parameters:", { table })
 
     const queryResult = await queryDB(
         simpleDB,

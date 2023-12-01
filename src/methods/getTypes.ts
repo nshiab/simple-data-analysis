@@ -4,6 +4,7 @@ import SimpleDB from "../indexWeb.js"
 
 export default async function getTypes(simpleDB: SimpleDB, table: string) {
     simpleDB.debug && console.log("\ngetTypes()")
+    simpleDB.debug && console.log("parameters:", { table })
 
     const types = await queryDB(
         simpleDB,
