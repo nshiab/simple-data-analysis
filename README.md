@@ -144,6 +144,9 @@ Here's some code that you can copy an paste into an HTML file.
 
     // We log the results table.
     await sdb.logTable("results");
+
+    // We store the data in a variable.
+    const results = await sdb.getData("results")
   }
 
   main();
@@ -240,6 +243,9 @@ async function main() {
 
     // We log the results table.
     await sdb.logTable("results")
+
+    // We store the data in a variable.
+    const results = await sdb.getData("results")
 }
 
 main()
