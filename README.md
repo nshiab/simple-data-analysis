@@ -62,7 +62,7 @@ As we can see, **simple-data-analysis@1.8.1** was the slowest, but **simple-data
 
 With _ahccd.csv_:
 
--   1.7 G
+-   1.7 GB
 -   773 cities
 -   20 columns
 -   22,051,025 rows
