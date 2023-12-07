@@ -1,5 +1,5 @@
 import assert from "assert"
-import SimpleDB from "../../../src/indexWeb.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 import { AsyncDuckDB, AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
 
 describe("SimpleDB (web)", () => {

@@ -4,7 +4,7 @@ import {
     DuckDBDataProtocol,
 } from "@duckdb/duckdb-wasm"
 import getExtension from "../helpers/getExtension.js"
-import SimpleDB from "../indexWeb.js"
+import SimpleDB from "../class/SimpleDB.js"
 
 export default async function loadDataBrowser(
     simpleDB: SimpleDB,

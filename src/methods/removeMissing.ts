@@ -1,7 +1,7 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import stringToArray from "../helpers/stringToArray.js"
-import SimpleDB from "../indexWeb.js"
+import SimpleDB from "../class/SimpleDB.js"
 import removeMissingQuery from "./removeMissingQuery.js"
 
 export default async function removeMissing(

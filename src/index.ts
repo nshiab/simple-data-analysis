@@ -1,4 +1,2 @@
-import SimpleDB from "./class/SimpleDB.js"
-import SimpleNodeDB from "./class/SimpleNodeDB.js"
-
-export { SimpleDB, SimpleNodeDB }
+export { default as SimpleDB } from "./class/SimpleDB.js"
+export { default as SimpleNodeDB } from "./class/SimpleNodeDB.js"

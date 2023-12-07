@@ -2,10 +2,10 @@
     "name": "simple-data-analysis",
     "version": "2.0.2",
     "description": "Easy-to-use and high-performance JavaScript library for data analysis.",
-    "homepage": "https://github.com/nshiab/simple-data-analysis.js#readme",
+    "homepage": "https://github.com/nshiab/simple-data-analysis#readme",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/nshiab/simple-data-analysis.js.git"
+        "url": "git+https://github.com/nshiab/simple-data-analysis.git"
     },
     "keywords": [
         "data",
@@ -54,7 +54,7 @@
         "node": ">=20.0"
     },
     "bugs": {
-        "url": "https://github.com/nshiab/simple-data-analysis.js/issues"
+        "url": "https://github.com/nshiab/simple-data-analysis/issues"
     },
     "devDependencies": {
         "@rollup/plugin-commonjs": "^25.0.2",
