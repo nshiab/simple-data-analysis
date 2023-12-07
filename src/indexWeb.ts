@@ -1,1 +1,3 @@
-export { default as SimpleDB } from "./class/SimpleDB.js"
+import SimpleDB from "./class/SimpleDB.js"
+
+export default SimpleDB
