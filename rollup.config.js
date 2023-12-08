@@ -20,7 +20,7 @@ export default [
         input: "src/bundle.ts",
         output: {
             file: `dist/${meta.name}.min.js`,
-            name: "SimpleDB",
+            name: "sda",
             format: "umd",
             indent: false,
             extend: true,
