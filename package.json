@@ -26,6 +26,8 @@
         "src/"
     ],
     "main": "./dist/index.js",
+    "module": "./dist/bundle.js",
+    "browser": "./dist/bundle.js",
     "jsdelivr": "./dist/simple-data-analysis.min.js",
     "unpkg": "./dist/simple-data-analysis.min.js",
     "exports": {
