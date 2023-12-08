@@ -1,6 +1,6 @@
 {
     "name": "simple-data-analysis",
-    "version": "2.0.4",
+    "version": "2.0.5",
     "description": "Easy-to-use and high-performance JavaScript library for data analysis.",
     "homepage": "https://github.com/nshiab/simple-data-analysis#readme",
     "repository": {
@@ -8,10 +8,11 @@
         "url": "git+https://github.com/nshiab/simple-data-analysis.git"
     },
     "keywords": [
+        "simple-data-analysis",
         "data",
         "analysis",
-        "visualization",
         "nodejs",
+        "typescript",
         "javascript"
     ],
     "license": "MIT",
@@ -25,14 +26,15 @@
         "dist/",
         "src/"
     ],
-    "module": "dist/index.js",
-    "main": "dist/index.js",
-    "jsdelivr": "dist/simple-data-analysis.min.js",
-    "unpkg": "dist/simple-data-analysis.min.js",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "browser": "./dist/bundle.js",
+    "jsdelivr": "./dist/simple-data-analysis.min.js",
+    "unpkg": "./dist/simple-data-analysis.min.js",
     "exports": {
-        "iife": "./dist/simple-data-analysis.min.js",
+        "umd": "./dist/simple-data-analysis.min.js",
         "node": "./dist/index.js",
-        "default": "./dist/indexWeb.js"
+        "default": "./dist/bundle.js"
     },
     "scripts": {
         "test": "mocha \"test/unit/**/*.test.ts\"",
@@ -57,7 +59,7 @@
         "url": "https://github.com/nshiab/simple-data-analysis/issues"
     },
     "devDependencies": {
-        "@rollup/plugin-commonjs": "^25.0.2",
+        "@rollup/plugin-commonjs": "^25.0.7",
         "@rollup/plugin-node-resolve": "^15.0.2",
         "@rollup/plugin-terser": "^0.4.1",
         "@rollup/plugin-typescript": "^11.1.0",
