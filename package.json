@@ -27,13 +27,14 @@
         "src/"
     ],
     "main": "./dist/index.js",
-    "module": "./dist/bundle.js",
+    "module": "./dist/index.js",
     "browser": "./dist/bundle.js",
     "jsdelivr": "./dist/simple-data-analysis.min.js",
     "unpkg": "./dist/simple-data-analysis.min.js",
     "exports": {
         "umd": "./dist/simple-data-analysis.min.js",
-        "default": "./dist/index.js"
+        "node": "./dist/index.js",
+        "default": "./dist/bundle.js"
     },
     "scripts": {
         "test": "mocha \"test/unit/**/*.test.ts\"",
