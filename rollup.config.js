@@ -15,20 +15,9 @@ const copyright = readFileSync("./LICENSE", "utf-8")
 
 const banner = `// ${meta.homepage} v${meta.version} Copyright ${copyright}`
 
-const commonPlugins = [
-    nodePolyfills(),
-    typescript(),
-    commonjs(),
-    resolve({
-        jsnext: true,
-        main: true,
-        browser: true,
-    }),
-]
-
 export default [
     {
-        input: "src/indexWeb.ts",
+        input: "src/bundle.ts",
         output: {
             file: `dist/${meta.name}.min.js`,
             name: "SimpleDB",
@@ -37,10 +26,12 @@ export default [
             extend: true,
             banner: banner,
             sourcemap: true,
-            // inlineDynamicImports: true,
         },
         plugins: [
-            ...commonPlugins,
+            nodePolyfills(),
+            typescript(),
+            commonjs(),
+            resolve({ browser: true }),
             terser({
                 output: {
                     preamble: banner,

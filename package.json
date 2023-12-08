@@ -10,8 +10,8 @@
     "keywords": [
         "data",
         "analysis",
-        "visualization",
         "nodejs",
+        "typescript",
         "javascript"
     ],
     "license": "MIT",
@@ -25,14 +25,12 @@
         "dist/",
         "src/"
     ],
-    "module": "dist/index.js",
-    "main": "dist/index.js",
-    "jsdelivr": "dist/simple-data-analysis.min.js",
-    "unpkg": "dist/simple-data-analysis.min.js",
+    "main": "./dist/index.js",
+    "jsdelivr": "./dist/simple-data-analysis.min.js",
+    "unpkg": "./dist/simple-data-analysis.min.js",
     "exports": {
-        "iife": "./dist/simple-data-analysis.min.js",
-        "node": "./dist/index.js",
-        "default": "./dist/indexWeb.js"
+        "umd": "./dist/simple-data-analysis.min.js",
+        "default": "./dist/index.js"
     },
     "scripts": {
         "test": "mocha \"test/unit/**/*.test.ts\"",
@@ -57,7 +55,7 @@
         "url": "https://github.com/nshiab/simple-data-analysis/issues"
     },
     "devDependencies": {
-        "@rollup/plugin-commonjs": "^25.0.2",
+        "@rollup/plugin-commonjs": "^25.0.7",
         "@rollup/plugin-node-resolve": "^15.0.2",
         "@rollup/plugin-terser": "^0.4.1",
         "@rollup/plugin-typescript": "^11.1.0",
