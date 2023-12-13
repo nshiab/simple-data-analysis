@@ -92,6 +92,7 @@ export default class SimpleNodeDB extends SimpleDB {
      *   - allText: A boolean indicating whether all columns should be treated as text. Applicable to CSV files. Defaults to false.
      *   - delim: The delimiter used in the file. Applicable to CSV and DSV files. By default, the delimiter is inferred.
      *   - skip: The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to 0.
+     *   - skip: The compression type. Applicable to CSV files. Defaults to none.
      *   - jsonFormat: The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
      *   - records: A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
      *
@@ -111,6 +112,7 @@ export default class SimpleNodeDB extends SimpleDB {
             allText?: boolean
             delim?: string
             skip?: number
+            compression?: "none" | "gzip" | "zstd"
             // json options
             jsonFormat?: "unstructured" | "newlineDelimited" | "array"
             records?: boolean
