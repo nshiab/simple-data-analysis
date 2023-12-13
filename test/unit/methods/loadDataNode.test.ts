@@ -22,6 +22,20 @@ describe("loadData", () => {
             { key1: "brioche", key2: "croissant" },
         ])
     })
+    it("should load data from a compressed csv file", async () => {
+        await simpleNodeDB.loadData("dataCsvCompressed", [
+            "test/data/files/data.csv.gz",
+        ])
+
+        const data = await simpleNodeDB.getData("dataCsvCompressed")
+
+        assert.deepStrictEqual(data, [
+            { key1: "1", key2: "2" },
+            { key1: "3", key2: "coucou" },
+            { key1: "8", key2: "10" },
+            { key1: "brioche", key2: "croissant" },
+        ])
+    })
     it("should load data with dates", async () => {
         await simpleNodeDB.loadData("dataDates", [
             "test/data/files/dataDates.csv",
@@ -158,6 +172,25 @@ describe("loadData", () => {
         })
 
         const data = await simpleNodeDB.getData("dataTxt")
+
+        assert.deepStrictEqual(data, [
+            { key1: "1", key2: "2" },
+            { key1: "3", key2: "coucou" },
+            { key1: "8", key2: "10" },
+            { key1: "brioche", key2: "croissant" },
+        ])
+    })
+    it("should load data from a compressed txt file", async () => {
+        await simpleNodeDB.loadData(
+            "dataTxtCompressed",
+            ["test/data/files/dataCsvCompressed.txt"],
+            {
+                fileType: "csv",
+                compression: "gzip",
+            }
+        )
+
+        const data = await simpleNodeDB.getData("dataTxtCompressed")
 
         assert.deepStrictEqual(data, [
             { key1: "1", key2: "2" },

@@ -14,6 +14,7 @@ export default function loadDataNodeQuery(
         allText?: boolean
         delim?: string
         skip?: number
+        compression?: "none" | "gzip" | "zstd"
         // json options
         jsonFormat?: "unstructured" | "newlineDelimited" | "array"
         records?: boolean
@@ -46,39 +47,32 @@ export default function loadDataNodeQuery(
         options.fileType === "dsv" ||
         typeof options.delim === "string"
     ) {
-        if (!options.autoDetect) {
-            const header =
-                typeof options.header === "boolean"
-                    ? `, header=${String(options.header).toUpperCase()}`
-                    : ", header=TRUE"
-            const allText =
-                typeof options.allText === "boolean"
-                    ? `, all_varchar=${String(options.allText).toUpperCase()}`
-                    : ""
-            const delim = options.delim ? `, delim='${options.delim}'` : ""
-            const skip = options.skip ? `, skip=${options.skip}` : ""
-
-            return `CREATE OR REPLACE TABLE ${table}
-            AS SELECT * FROM read_csv_auto(${filesAsString}${generalOptions}${header}${allText}${delim}${skip})`
-        } else {
-            return `CREATE OR REPLACE TABLE ${table}
-            AS SELECT * FROM read_csv_auto(${filesAsString}${generalOptions}, header=TRUE)`
-        }
-    } else if (options.fileType === "json" || fileExtension === "json") {
-        if (!options.autoDetect) {
-            const jsonFormat = options.jsonFormat
-                ? `, format='${options.jsonFormat}'`
+        const header =
+            typeof options.header === "boolean"
+                ? `, header=${String(options.header).toUpperCase()}`
+                : ", header=TRUE"
+        const allText =
+            typeof options.allText === "boolean"
+                ? `, all_varchar=${String(options.allText).toUpperCase()}`
                 : ""
-            const records =
-                typeof options.records === "boolean"
-                    ? `, records=${String(options.records).toUpperCase()}`
-                    : ""
-            return `CREATE OR REPLACE TABLE ${table}
+        const delim = options.delim ? `, delim='${options.delim}'` : ""
+        const skip = options.skip ? `, skip=${options.skip}` : ""
+        const compression = options.compression
+            ? `, compression=${options.compression}`
+            : ""
+
+        return `CREATE OR REPLACE TABLE ${table}
+            AS SELECT * FROM read_csv_auto(${filesAsString}${generalOptions}${header}${allText}${delim}${skip}${compression})`
+    } else if (options.fileType === "json" || fileExtension === "json") {
+        const jsonFormat = options.jsonFormat
+            ? `, format='${options.jsonFormat}'`
+            : ""
+        const records =
+            typeof options.records === "boolean"
+                ? `, records=${String(options.records).toUpperCase()}`
+                : ""
+        return `CREATE OR REPLACE TABLE ${table}
             AS SELECT * FROM read_json_auto(${filesAsString}${generalOptions}${jsonFormat}${records})`
-        } else {
-            return `CREATE OR REPLACE TABLE ${table}
-            AS SELECT * FROM read_json_auto(${filesAsString}${generalOptions})`
-        }
     } else if (options.fileType === "parquet" || fileExtension === "parquet") {
         return `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM read_parquet(${filesAsString}${fileName}${unifyColumns})`
     } else {
