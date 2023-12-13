@@ -563,7 +563,7 @@ export default class SimpleDB {
             console.log("parameters:", { table, columnsFrom, valuesFrom })
         await queryDB(
             this,
-            `CREATE OR REPLACE TABLE ${table} AS (SELECT * FROM (PIVOT ${table} ON "${columnsFrom}" USING FIRST("${valuesFrom}")));`,
+            `CREATE OR REPLACE TABLE ${table} AS (SELECT * FROM (PIVOT ${table} ON "${columnsFrom}" USING SUM("${valuesFrom}")));`,
             mergeOptions(this, { table })
         )
     }
