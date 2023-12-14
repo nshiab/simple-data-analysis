@@ -9,7 +9,7 @@ export default function loadArrayQuery(
     const columnsWithTypes = []
 
     for (let i = 0; i < columns.length; i++) {
-        columnsWithTypes.push(`${columns[i]} ${getType(values[i])}`)
+        columnsWithTypes.push(`"${columns[i]}" ${getType(values[i])}`)
     }
 
     query += `(${columnsWithTypes.join(", ")});\nINSERT INTO ${table} VALUES`
