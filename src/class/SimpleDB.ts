@@ -72,6 +72,7 @@ export default class SimpleDB {
     connection!: AsyncDuckDBConnection | Connection
     worker!: Worker | null
     bigIntToInt: boolean | undefined // For SimpleNodeDB
+    loadSpatial: boolean | undefined // For SimpleGeoDB
 
     /**
      * For internal use. If you want to run a SQL query, use the customQuery method.
@@ -82,6 +83,7 @@ export default class SimpleDB {
         returnDataFromQuery: boolean,
         options?: {
             bigIntToInt?: boolean
+            loadSpatial?: boolean
         }
     ) => Promise<
         | {
@@ -2023,6 +2025,22 @@ export default class SimpleDB {
                 options.condition ? ` WHERE ${options.condition}` : ""
             }`,
             mergeOptions(this, { returnDataFrom: "query", table })
+        )
+    }
+
+    /**
+     * Returns the DuckDB extensions.
+     *
+     * ```ts
+     * const extensions = await sdb.getExtensions()
+     * ```
+     */
+    async getExtensions() {
+        this.debug && console.log("\ngetExtensions")
+        return await queryDB(
+            this,
+            `FROM duckdb_extensions();`,
+            mergeOptions(this, { returnDataFrom: "query", table: null })
         )
     }
 
