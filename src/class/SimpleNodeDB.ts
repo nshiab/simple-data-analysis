@@ -63,7 +63,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
         this.db = new duckdb.Database(":memory:")
         this.db.exec("PRAGMA default_collation=NOCASE;")
         if (this.spatial) {
-            this.db.exec("LOAD spatial;")
+            this.db.exec("INSTALL spatial; LOAD spatial;")
         }
         this.connection = this.db.connect()
     }
