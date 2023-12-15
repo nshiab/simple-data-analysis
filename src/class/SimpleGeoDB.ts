@@ -161,6 +161,20 @@ export default class SimpleGeoDB extends SimpleDB {
         )
     }
 
+    /**
+     * Computes the intersection of geometries.
+     *
+     * ```ts
+     * // Computes the intersection of geometries in geomA and geomB columns from table tableGeo and puts the new geometries in column inter.
+     * await sdb.intersection("tableGeo", ["geomA", "geomB"], "inter")
+     * ```
+     *
+     * @param table - The name of the table storing the geospatial data.
+     * @param columns - The names of the two columns storing the geometries.
+     * @param newColumn - The name of the new column storing the computed intersections.
+     *
+     * @category Geospatial
+     */
     async intersection(
         table: string,
         columns: [string, string],
