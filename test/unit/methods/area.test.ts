@@ -28,73 +28,70 @@ describe("area", () => {
             "nameFrench",
             "area",
         ])
+        await simpleNodeDB.round("geoData", "area")
         const data = await simpleNodeDB.getData("geodata")
 
         assert.deepStrictEqual(data, [
             {
                 nameEnglish: "Newfoundland and Labrador",
                 nameFrench: "Terre-Neuve-et-Labrador",
-                area: 397993584863.36475,
+                area: 397993584863,
             },
             {
                 nameEnglish: "Prince Edward Island",
                 nameFrench: "Île-du-Prince-Édouard",
-                area: 6054304068.637537,
+                area: 6054304069,
             },
             {
                 nameEnglish: "Nova Scotia",
                 nameFrench: "Nouvelle-Écosse",
-                area: 58911632890.1254,
+                area: 58911632890,
             },
             {
                 nameEnglish: "New Brunswick",
                 nameFrench: "Nouveau-Brunswick",
-                area: 74400254882.6454,
+                area: 74400254883,
             },
             {
                 nameEnglish: "Quebec",
                 nameFrench: "Québec",
-                area: 1474790458653.9138,
+                area: 1474790458654,
             },
             {
                 nameEnglish: "Ontario",
                 nameFrench: "Ontario",
-                area: 973669312293.2623,
+                area: 973669312293,
             },
             {
                 nameEnglish: "Manitoba",
                 nameFrench: "Manitoba",
-                area: 627551804386.3534,
+                area: 627551804386,
             },
             {
                 nameEnglish: "Saskatchewan",
                 nameFrench: "Saskatchewan",
-                area: 632530143909.3735,
+                area: 632530143909,
             },
             {
                 nameEnglish: "Alberta",
                 nameFrench: "Alberta",
-                area: 639689656247.384,
+                area: 639689656247,
             },
             {
                 nameEnglish: "British Columbia",
                 nameFrench: "Colombie-Britannique",
-                area: 907899872957.4146,
+                area: 907899872957,
             },
-            {
-                nameEnglish: "Yukon",
-                nameFrench: "Yukon",
-                area: 455413471710.14825,
-            },
+            { nameEnglish: "Yukon", nameFrench: "Yukon", area: 455413471710 },
             {
                 nameEnglish: "Northwest Territories",
                 nameFrench: "Territoires du Nord-Ouest",
-                area: 1274701572598.9072,
+                area: 1274701572599,
             },
             {
                 nameEnglish: "Nunavut",
                 nameFrench: "Nunavut",
-                area: 2008939671560.4343,
+                area: 2008939671560,
             },
         ])
     })
