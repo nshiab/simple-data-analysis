@@ -1,3 +1,5 @@
+import parseValue from "../helpers/parseValue.js"
+
 export default function insertRowsQuery(
     table: string,
     rows: { [key: string]: unknown }[]
@@ -11,9 +13,7 @@ export default function insertRowsQuery(
 
     for (const row of rows) {
         const values = Object.values(row)
-        query += `\n(${values
-            .map((d) => (typeof d === "string" ? `'${d}'` : d))
-            .join(", ")}),`
+        query += `\n(${values.map((d) => parseValue(d)).join(", ")}),`
     }
 
     return query.slice(0, query.length - 1)

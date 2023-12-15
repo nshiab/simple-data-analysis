@@ -52,6 +52,7 @@ import trimQuery from "../methods/trimQuery.js"
 import addThousandSeparator from "../helpers/addThousandSeparator.js"
 import removeDuplicatesQuery from "../methods/removeDuplicatesQuery.js"
 import logData from "../helpers/logData.js"
+import replaceNullsQuery from "../methods/replaceNullsQuery.js"
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB.
@@ -879,6 +880,36 @@ export default class SimpleDB {
                 Object.values(strings),
                 options
             ),
+            mergeOptions(this, {
+                table,
+            })
+        )
+    }
+
+    /**
+     * Replaces null values in the selected columns of a table.
+     *
+     *```ts
+     * // Replace null values by 0.
+     * await sdb.replaceNulls("tableA", "column1", 0)
+     * ```
+     *
+     * @param table - The name of the table in which strings will be replaced.
+     * @param columns - Either a string or an array of strings specifying the columns where string replacements will occur.
+     * @param value - The value to replace the null values.
+     *
+     * @category Updating data
+     */
+    async replaceNulls(
+        table: string,
+        columns: string | string[],
+        value: number | string | Date | boolean
+    ) {
+        this.debug && console.log("\replaceNulls()")
+        this.debug && console.log("parameters:", { table, columns, value })
+        await queryDB(
+            this,
+            replaceNullsQuery(table, stringToArray(columns), value),
             mergeOptions(this, {
                 table,
             })

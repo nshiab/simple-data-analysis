@@ -1,3 +1,5 @@
+import parseValue from "../helpers/parseValue.js"
+
 export default function loadArrayQuery(
     table: string,
     arrayOfObjects: { [key: string]: unknown }[]
@@ -38,21 +40,5 @@ function getType(value: unknown) {
         throw new Error(
             `Unkown type ${typeof value} for ${value}. Using first item in array to set the column types.`
         )
-    }
-}
-
-function parseValue(value: unknown) {
-    if (Number.isNaN(value) || value === undefined || value === null) {
-        return "NULL"
-    } else if (value instanceof Date) {
-        return `'${value.toISOString()}'`
-    } else if (typeof value === "string") {
-        return `'${value}'`
-    } else if (typeof value === "boolean") {
-        return value
-    } else if (typeof value === "number") {
-        return value
-    } else {
-        throw new Error(`Unkown type ${typeof value} of ${value}`)
     }
 }
