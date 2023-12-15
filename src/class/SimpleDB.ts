@@ -726,6 +726,33 @@ export default class SimpleDB {
     }
 
     /**
+     * Performs a cross join operation between tables returning all pairs of rows.
+     *
+     * ```ts
+     * await crossJoin("tableA", "tableB", "outputTable");
+     * ```
+     *
+     * @param leftTable - The name of the left table.
+     * @param rightTable - The name of the right table.
+     * @param outputTable - The name of the output table where the new rows will be stored.
+     *
+     * @category Restructuring data
+     */
+    async crossJoin(
+        leftTable: string,
+        rightTable: string,
+        outputTable: string
+    ) {
+        this.debug && console.log("\ncrossJoin()")
+        this.debug && console.log("parameters:", { leftTable, rightTable })
+        await queryDB(
+            this,
+            `CREATE OR REPLACE TABLE "${outputTable}" AS SELECT "${leftTable}".*, "${rightTable}".* FROM "${leftTable}" CROSS JOIN "${rightTable}";`,
+            mergeOptions(this, { table: outputTable })
+        )
+    }
+
+    /**
      * Merges the data of two tables based on a common column and puts the result in a new table.
      *
      * ```ts
