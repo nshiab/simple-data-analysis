@@ -51,6 +51,7 @@ import runQueryBrowser from "../helpers/runQueryBrowser.js"
 import trimQuery from "../methods/trimQuery.js"
 import addThousandSeparator from "../helpers/addThousandSeparator.js"
 import removeDuplicatesQuery from "../methods/removeDuplicatesQuery.js"
+import logData from "../helpers/logData.js"
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB.
@@ -72,6 +73,7 @@ export default class SimpleDB {
     connection!: AsyncDuckDBConnection | Connection
     worker!: Worker | null
     bigIntToInt: boolean | undefined // For SimpleNodeDB
+    spatial: boolean | undefined // For SimpleGeoDB
 
     /**
      * For internal use. If you want to run a SQL query, use the customQuery method.
@@ -82,6 +84,7 @@ export default class SimpleDB {
         returnDataFromQuery: boolean,
         options?: {
             bigIntToInt?: boolean
+            spatial?: boolean
         }
     ) => Promise<
         | {
@@ -720,6 +723,33 @@ export default class SimpleDB {
             `ALTER TABLE ${table} ADD "${column}" ${parseType(type)};
             UPDATE ${table} SET "${column}" = ${definition}`,
             mergeOptions(this, { table })
+        )
+    }
+
+    /**
+     * Performs a cross join operation between two tables returning all pairs of rows.
+     *
+     * ```ts
+     * await crossJoin("tableA", "tableB", "outputTable");
+     * ```
+     *
+     * @param leftTable - The name of the left table.
+     * @param rightTable - The name of the right table.
+     * @param outputTable - The name of the output table where the new rows will be stored.
+     *
+     * @category Restructuring data
+     */
+    async crossJoin(
+        leftTable: string,
+        rightTable: string,
+        outputTable: string
+    ) {
+        this.debug && console.log("\ncrossJoin()")
+        this.debug && console.log("parameters:", { leftTable, rightTable })
+        await queryDB(
+            this,
+            `CREATE OR REPLACE TABLE "${outputTable}" AS SELECT "${leftTable}".*, "${rightTable}".* FROM "${leftTable}" CROSS JOIN "${rightTable}";`,
+            mergeOptions(this, { table: outputTable })
         )
     }
 
@@ -2027,6 +2057,22 @@ export default class SimpleDB {
     }
 
     /**
+     * Returns the DuckDB extensions.
+     *
+     * ```ts
+     * const extensions = await sdb.getExtensions()
+     * ```
+     */
+    async getExtensions() {
+        this.debug && console.log("\ngetExtensions")
+        return await queryDB(
+            this,
+            `FROM duckdb_extensions();`,
+            mergeOptions(this, { returnDataFrom: "query", table: null })
+        )
+    }
+
+    /**
      * Logs a specified number of rows from a table. Default is 10 rows.
      *
      * ```ts
@@ -2058,7 +2104,7 @@ export default class SimpleDB {
             true,
             { bigIntToInt: this.bigIntToInt }
         )
-        console.table(data)
+        logData(data)
         const nbRows = await this.runQuery(
             `SELECT COUNT(*) FROM ${table};`,
             this.connection,

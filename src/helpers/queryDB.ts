@@ -1,5 +1,6 @@
 import SimpleDB from "../class/SimpleDB.js"
 import addThousandSeparator from "./addThousandSeparator.js"
+import logData from "./logData.js"
 
 export default async function queryDB(
     simpleDB: SimpleDB,
@@ -39,7 +40,7 @@ export default async function queryDB(
             options
         )
         console.log("\nquery result:")
-        console.table(queryResult)
+        logData(queryResult)
 
         if (options.returnDataFrom === "query") {
             data = queryResult
@@ -74,7 +75,7 @@ export default async function queryDB(
                 true,
                 options
             )
-            console.table(tableToLog)
+            logData(tableToLog)
             const nbRows = await simpleDB.runQuery(
                 `SELECT COUNT(*) FROM ${options.table};`,
                 simpleDB.connection,
