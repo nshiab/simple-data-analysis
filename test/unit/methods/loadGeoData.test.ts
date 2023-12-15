@@ -10,10 +10,10 @@ describe("loadGeoData", () => {
         await simpleNodeDB.done()
     })
 
-    it("should load geo data from a geojson file", async () => {
+    it("should load a geojson file", async () => {
         await simpleNodeDB.loadGeoData(
             "geoJsonData",
-            "test/geoData/files/CanadianProvincesAndTerritories.geojson"
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
 
         const types = await simpleNodeDB.getTypes("geoJsonData")

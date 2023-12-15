@@ -59,6 +59,7 @@ export default class SimpleGeoDB extends SimpleDB {
      */
     async loadGeoData(table: string, file: string) {
         this.debug && console.log("\nloadGeoData()")
+        this.debug && console.log("parameters:", { table, file })
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ST_Read('${file}');`,
@@ -67,19 +68,44 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
-     * Flips the coordinates of a geometry. Useful for some geojson files which have lat and lon inverted.
+     * Checks if a geometry is valid. (Not tested)
+     *
+     * ```ts
+     * // Checks if the geometries in column geom from table tableGeo are valid and returns a boolean in column isValid.
+     * await sdb.isValidGeo("tableGeo", "geom", "isValid")
+     * ```
+     *
+     * @param table - The name of the table storing the geospatial data.
+     * @param column - The name of the column storing the geometries.
+     * @param newColumn - The name of the new column storing the results.
+     *
+     * @category Geospatial
+     */
+    async isValidGeo(table: string, column: string, newColumn: string) {
+        this.debug && console.log("\nisValidGeo()")
+        this.debug && console.log("parameters:", { table, column })
+        await queryDB(
+            this,
+            `ALTER TABLE ${table} ADD COLUMN "${newColumn}" BOOLEAN; UPDATE ${table} SET "${newColumn}" = ST_IsValid("${column}")`,
+            mergeOptions(this, { table })
+        )
+    }
+
+    /**
+     * Flips the coordinates of a geometry. Useful for some geojson files which have lat and lon inverted. (Not tested)
      *
      * ```ts
      * await sdb.flipCoordinates("tableGeo", "geom")
      * ```
      *
      * @param table - The name of the table storing the geospatial data.
-     * @param - The name of the column storing the geometries.
+     * @param column - The name of the column storing the geometries.
      *
      * @category Geospatial
      */
     async flipCoordinates(table: string, column: string) {
         this.debug && console.log("\nflipCoordinates")
+        this.debug && console.log("parameters:", { table, column })
         await queryDB(
             this,
             `UPDATE ${table} SET "${column}" = ST_FlipCoordinates("${column}")`,
@@ -102,6 +128,7 @@ export default class SimpleGeoDB extends SimpleDB {
      */
     async reproject(table: string, column: string, from: string, to: string) {
         this.debug && console.log("\nreproject()")
+        this.debug && console.log("parameters:", { table, column, from, to })
         await queryDB(
             this,
             `
@@ -126,9 +153,29 @@ export default class SimpleGeoDB extends SimpleDB {
      */
     async area(table: string, column: string, newColumn: string) {
         this.debug && console.log("\narea()")
+        this.debug && console.log("parameters:", { table, column, newColumn })
         await queryDB(
             this,
             `ALTER TABLE ${table} ADD "${newColumn}" DOUBLE; UPDATE ${table} SET "${newColumn}" =  ST_Area("${column}");`,
+            mergeOptions(this, { table })
+        )
+    }
+
+    async intersection(
+        table: string,
+        columns: [string, string],
+        newColumn: string
+    ) {
+        this.debug && console.log("\nintersection()")
+        this.debug && console.log("parameters:", { table, columns, newColumn })
+        if (columns.length !== 2) {
+            throw new Error(
+                `The columns parameters must be an array with two strings. For example: ["geomA", "geomB"].`
+            )
+        }
+        await queryDB(
+            this,
+            `ALTER TABLE ${table} ADD "${newColumn}" GEOMETRY; UPDATE ${table} SET "${newColumn}" = ST_Intersection("${columns[0]}", "${columns[1]}")`,
             mergeOptions(this, { table })
         )
     }

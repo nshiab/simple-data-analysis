@@ -5,10 +5,11 @@ describe("reproject", () => {
     before(async function () {
         simpleNodeDB = new SimpleNodeDB({ spatial: true })
         await simpleNodeDB.loadGeoData(
-            "geoData",
-            "test/geoData/files/CanadianProvincesAndTerritories.geojson"
+            "geodata",
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await simpleNodeDB.flipCoordinates("geoData", "geom")
+        // Hmmmm... Why?
+        await simpleNodeDB.flipCoordinates("geodata", "geom")
     })
     after(async function () {
         await simpleNodeDB.done()
@@ -16,7 +17,7 @@ describe("reproject", () => {
 
     it("should convert from one projection to another one", async () => {
         await simpleNodeDB.reproject(
-            "geoData",
+            "geodata",
             "geom",
             "EPSG:4326",
             "EPSG:3347"

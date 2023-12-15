@@ -5,8 +5,8 @@ describe("flipCoordinates", () => {
     before(async function () {
         simpleNodeDB = new SimpleNodeDB({ spatial: true })
         await simpleNodeDB.loadGeoData(
-            "geoData",
-            "test/geoData/files/CanadianProvincesAndTerritories.geojson"
+            "geodata",
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
     })
     after(async function () {
@@ -14,7 +14,7 @@ describe("flipCoordinates", () => {
     })
 
     it("should flip the coordinates", async () => {
-        await simpleNodeDB.flipCoordinates("geoData", "geom")
+        await simpleNodeDB.flipCoordinates("geodata", "geom")
 
         // Not sure how to test
     })

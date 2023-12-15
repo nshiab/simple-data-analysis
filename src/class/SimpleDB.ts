@@ -51,6 +51,7 @@ import runQueryBrowser from "../helpers/runQueryBrowser.js"
 import trimQuery from "../methods/trimQuery.js"
 import addThousandSeparator from "../helpers/addThousandSeparator.js"
 import removeDuplicatesQuery from "../methods/removeDuplicatesQuery.js"
+import logData from "../helpers/logData.js"
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB.
@@ -726,7 +727,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Performs a cross join operation between tables returning all pairs of rows.
+     * Performs a cross join operation between two tables returning all pairs of rows.
      *
      * ```ts
      * await crossJoin("tableA", "tableB", "outputTable");
@@ -2103,7 +2104,7 @@ export default class SimpleDB {
             true,
             { bigIntToInt: this.bigIntToInt }
         )
-        console.table(data)
+        logData(data)
         const nbRows = await this.runQuery(
             `SELECT COUNT(*) FROM ${table};`,
             this.connection,
