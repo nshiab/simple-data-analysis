@@ -4,7 +4,7 @@ import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
 describe("loadGeoData", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ loadSpatial: true })
+        simpleNodeDB = new SimpleNodeDB({ spatial: true })
     })
     after(async function () {
         await simpleNodeDB.done()

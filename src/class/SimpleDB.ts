@@ -72,7 +72,7 @@ export default class SimpleDB {
     connection!: AsyncDuckDBConnection | Connection
     worker!: Worker | null
     bigIntToInt: boolean | undefined // For SimpleNodeDB
-    loadSpatial: boolean | undefined // For SimpleGeoDB
+    spatial: boolean | undefined // For SimpleGeoDB
 
     /**
      * For internal use. If you want to run a SQL query, use the customQuery method.
@@ -83,7 +83,7 @@ export default class SimpleDB {
         returnDataFromQuery: boolean,
         options?: {
             bigIntToInt?: boolean
-            loadSpatial?: boolean
+            spatial?: boolean
         }
     ) => Promise<
         | {

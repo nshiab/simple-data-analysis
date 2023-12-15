@@ -6,7 +6,7 @@ import SimpleDB from "./SimpleDB.js"
 /**
  * !!! UNDER HEAVY DEVELOPMENT !!!
  *
- * SimpleGeoDB extends the SimpleDB class by adding methods for geospatial analysis. This class provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB with the loadSpatial option set to true.
+ * SimpleGeoDB extends the SimpleDB class by adding methods for geospatial analysis. This class provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB with the spatial option set to true.
  *
  * Here's how to instantiate a SimpleGeoDB instance.
  *
@@ -42,6 +42,19 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
+     * Creates or replaces a table and loads geospatial data from an external file into it.
+     *
+     * ```ts
+     * // With a URL
+     * await sdb.loadGeoData("tableGeo", "https://some-website.com/some-data.geojson")
+     *
+     * // With a local file
+     * await sdb.loadGeoData("tableGeo", "./some-data.geojson")
+     * ```
+     *
+     * @param table - The name of the new table.
+     * @param file - The URL or path to the external file containing the geospatial data.
+     *
      * @category Geospatial
      */
     async loadGeoData(table: string, file: string) {
@@ -54,6 +67,15 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
+     * Flips the coordinates of a geometry. Useful for some geojson files which have lat and lon inverted.
+     *
+     * ```ts
+     * await sdb.flipCoordinates("tableGeo", "geom")
+     * ```
+     *
+     * @param table - The name of the table storing the geospatial data.
+     * @param - The name of the column storing the geometries.
+     *
      * @category Geospatial
      */
     async flipCoordinates(table: string, column: string) {
@@ -66,6 +88,16 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
+     * Reprojects the data from one Spatial Reference System (SRS) to another.
+     *
+     * ```ts
+     * // From EPSG:4326 (also called WGS84, with lat and lon in degrees) to EPSG:3347 (also called NAD83/Statistics Canada Lambert with coordinates in meters)
+     * await sdb.reproject("tableGeo", "geom", "EPSG:4326", "EPSG:3347")
+     * ```
+     * @param table - The name of the table storing the geospatial data.
+     * @param column - The name of the column storing the geometries.
+     * @param from - The original SRS.
+     * @param to - The target SRS.
      * @category Geospatial
      */
     async reproject(table: string, column: string, from: string, to: string) {
@@ -79,6 +111,17 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
+     * Computes the area of geometries. The values are returned in the SRS unit.
+     *
+     * ```ts
+     * // Computes the area of the geometries in the column geom from the table tableGeo, and returns the results in the column area.
+     * await sdb.area("tableGeo", "geom", "area")
+     * ```
+     *
+     * @param table - The name of the table storing the geospatial data.
+     * @param column - The name of the column storing the geometries.
+     * @param newColumn - The name of the new column storing the computed areas.
+     *
      * @category Geospatial
      */
     async area(table: string, column: string, newColumn: string) {

@@ -3,7 +3,7 @@ import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
 describe("flipCoordinates", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ loadSpatial: true })
+        simpleNodeDB = new SimpleNodeDB({ spatial: true })
         await simpleNodeDB.loadGeoData(
             "geoData",
             "test/geoData/files/CanadianProvincesAndTerritories.geojson"

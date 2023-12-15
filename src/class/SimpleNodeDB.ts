@@ -38,7 +38,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
      *   - debug: A flag indicating whether debugging information should be logged. Defaults to false.
      *   - nbRowsToLog: The number of rows to log when debugging. Defaults to 10.
      *   - bigIntToInt: Default is true. When data is retrieved from the database as an array of objects, BIGINT values are automatically converted to integers, which are easier to work with in JavaScript. If you want actual bigint values, set this option to false.
-     *   - loadSpatial: Default is false. If true, the spatial](https://duckdb.org/docs/extensions/spatial) extension will be loaded, which allows geospatial analysis.
+     *   - spatial: Default is false. If true, the spatial](https://duckdb.org/docs/extensions/spatial) extension will be loaded, which allows geospatial analysis.
      *
      */
     constructor(
@@ -46,12 +46,12 @@ export default class SimpleNodeDB extends SimpleGeoDB {
             nbRowsToLog?: number
             debug?: boolean
             bigIntToInt?: boolean
-            loadSpatial?: boolean
+            spatial?: boolean
         } = {}
     ) {
         super(options)
         this.bigIntToInt = options.bigIntToInt ?? true
-        this.loadSpatial = options.loadSpatial ?? false
+        this.spatial = options.spatial ?? false
         this.runQuery = runQueryNode
     }
 
@@ -62,7 +62,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
         this.debug && console.log("\nstart()")
         this.db = new duckdb.Database(":memory:")
         this.db.exec("PRAGMA default_collation=NOCASE;")
-        if (this.loadSpatial) {
+        if (this.spatial) {
             this.db.exec("LOAD spatial;")
         }
         this.connection = this.db.connect()
