@@ -755,7 +755,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Merges the data of two tables based on a common column and puts the result in a new table.
+     * Merges the data of two tables based on a common column and puts the result in a new table. Might create a .tmp folder, so make sure to add .tmp to your gitignore.
      *
      * ```ts
      * // Do a left join of tableA (left) and tableB (right) based on the common column id. The result is put into tableC.
