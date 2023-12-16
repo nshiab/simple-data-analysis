@@ -3,3 +3,4 @@ dist/
 test/output/
 .DS_Store
 bundleSizeMin.html
+.tmp

@@ -728,7 +728,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Performs a cross join operation between two tables returning all pairs of rows.
+     * Performs a cross join operation between two tables returning all pairs of rows. Might create a .tmp folder, so make sure to add .tmp to your gitignore.
      *
      * ```ts
      * await crossJoin("tableA", "tableB", "outputTable");
