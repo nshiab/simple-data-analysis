@@ -457,4 +457,43 @@ describe("loadData", () => {
             },
         ])
     })
+    it("should load data from a xlsx file", async () => {
+        await simpleNodeDB.loadData("dataXlsxOneSheet", [
+            "test/data/files/populations-one-sheet.xlsx",
+        ])
+        const data = await simpleNodeDB.getData("dataXlsxOneSheet")
+
+        assert.deepStrictEqual(data, [
+            { Country: "Canada", "Population (million)": 38 },
+            { Country: "US", "Population (million)": 332 },
+            { Country: "France", "Population (million)": 68 },
+        ])
+    })
+    it("should load data from a specific sheet in an xlsx file", async () => {
+        await simpleNodeDB.loadData(
+            "dataXlsxTwoSheets",
+            "test/data/files/populations-two-sheets.xlsx",
+            { sheet: "provinces" }
+        )
+        const data = await simpleNodeDB.getData("dataXlsxTwoSheets")
+
+        assert.deepStrictEqual(data, [
+            { Provinces: "Quebec", "Population (million)": 8 },
+            { Provinces: "Ontario", "Population (million)": 15 },
+            { Provinces: "British Columbia", "Population (million)": 5 },
+        ])
+    })
+    it("should load data from a xlsx file even if spatial is true", async () => {
+        const sdb = new SimpleNodeDB({ spatial: true })
+        await sdb.loadData("dataXlsxOneSheet", [
+            "test/data/files/populations-one-sheet.xlsx",
+        ])
+        const data = await sdb.getData("dataXlsxOneSheet")
+
+        assert.deepStrictEqual(data, [
+            { Country: "Canada", "Population (million)": 38 },
+            { Country: "US", "Population (million)": 332 },
+            { Country: "France", "Population (million)": 68 },
+        ])
+    })
 })
