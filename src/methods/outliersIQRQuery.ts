@@ -40,9 +40,6 @@ export default function outliersIQRQuery(
         WHEN "${column}" > (SELECT highThreshold FROM iqr ${where}) OR "${column}" < (SELECT lowThreshold FROM iqr ${where}) THEN TRUE
         ELSE FALSE
     END;
-    CREATE OR REPLACE TABLE ${table} AS
-    SELECT *
-    FROM ${table}
     `
 
     return query
