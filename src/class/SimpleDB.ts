@@ -421,7 +421,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Filters rows from a table based on SQL conditions.
+     * Filters rows from a table based on SQL conditions. Note that it's often faster to use the removeRows method.
      *
      * ```ts
      * // In table store, keep only rows where the fruit is not an apple.
