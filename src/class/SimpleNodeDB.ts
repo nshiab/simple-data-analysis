@@ -22,6 +22,9 @@ import runQueryNode from "../helpers/runQueryNode.js"
  * ```
  *
  * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE and optionally loads the [spatial](https://duckdb.org/docs/extensions/spatial) extension.
+ *
+ * With very expensive computations, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
+ *
  */
 
 export default class SimpleNodeDB extends SimpleGeoDB {
