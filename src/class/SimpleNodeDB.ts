@@ -126,6 +126,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
         } = {}
     ) {
         this.debug && console.log("\nloadData()")
+        this.debug && console.log("parameters:", { table, files, options })
         await queryDB(
             this,
             loadDataNodeQuery(table, stringToArray(files), options),
@@ -177,6 +178,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
         } = {}
     ) {
         this.debug && console.log("\nloadDataFromDirectory()")
+        this.debug && console.log("parameters:", { table, directory, options })
         const files = readdirSync(directory).map(
             (file) => `${directory}${file}`
         )
@@ -209,6 +211,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
         } = {}
     ) {
         this.debug && console.log("\nwriteData()")
+        this.debug && console.log("parameters:", { table, file, options })
         await queryDB(
             this,
             writeDataQuery(table, file, options),
