@@ -241,7 +241,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Clones an existing table by creating or replacing a table with the same structure and data.
+     * Clones an existing table by creating or replacing a table with the same structure and data. This can be very slow with big tables.
      *
      * ```ts
      * // tableA data is cloned into tableB.
