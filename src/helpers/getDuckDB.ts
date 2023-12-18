@@ -1,5 +1,3 @@
-// From https://github.com/ryan-williams/next-duckdb-parquet-demo/blob/main/src/parquet.ts
-
 import * as duckdb from "@duckdb/duckdb-wasm"
 import { AsyncDuckDB, DuckDBBundle } from "@duckdb/duckdb-wasm"
 import Worker from "web-worker"

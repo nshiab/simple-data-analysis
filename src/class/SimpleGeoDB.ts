@@ -4,8 +4,6 @@ import queryDB from "../helpers/queryDB.js"
 import SimpleDB from "./SimpleDB.js"
 
 /**
- * !!! UNDER HEAVY DEVELOPMENT !!!
- *
  * SimpleGeoDB extends the SimpleDB class by adding methods for geospatial analysis. This class provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB with the spatial option set to true.
  *
  * Here's how to instantiate a SimpleGeoDB instance.
@@ -14,7 +12,7 @@ import SimpleDB from "./SimpleDB.js"
  * const sdb = new SimpleGeoDB()
  * ```
  *
- * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE and loads the [spatial](https://duckdb.org/docs/extensions/spatial) extension.
+ * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It loads the [spatial](https://duckdb.org/docs/extensions/spatial) extension.
  *
  */
 export default class SimpleGeoDB extends SimpleDB {
@@ -66,7 +64,7 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
-     * Checks if a geometry is valid. (Not tested)
+     * Checks if a geometry is valid.
      *
      * ```ts
      * // Checks if the geometries in column geom from table tableGeo are valid and returns a boolean in column isValid.
@@ -90,7 +88,7 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
-     * Flips the coordinates of a geometry. Useful for some geojson files which have lat and lon inverted. (Not tested)
+     * Flips the coordinates of a geometry. Useful for some geojson files which have lat and lon inverted.
      *
      * ```ts
      * await sdb.flipCoordinates("tableGeo", "geom")

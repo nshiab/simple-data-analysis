@@ -10,7 +10,7 @@ describe("isValidGeo", () => {
         await simpleNodeDB.done()
     })
 
-    it("should check if geometries are valid", async () => {
+    it("should find that geometries are valid", async () => {
         await simpleNodeDB.loadGeoData(
             "geodata",
             "test/geodata/files/CanadianProvincesAndTerritories.json"
@@ -23,7 +23,6 @@ describe("isValidGeo", () => {
         ])
         const data = await simpleNodeDB.getData("geoData")
 
-        // Not very useful.
         assert.deepStrictEqual(data, [
             {
                 nameEnglish: "Newfoundland and Labrador",
@@ -67,5 +66,17 @@ describe("isValidGeo", () => {
             },
             { nameEnglish: "Nunavut", nameFrench: "Nunavut", isValid: true },
         ])
+    })
+    it("should find that geometries are not valid", async () => {
+        // From https://github.com/chrieke/geojson-invalid-geometry
+        await simpleNodeDB.loadGeoData(
+            "geodata",
+            "test/geodata/files/invalid.geojson"
+        )
+        await simpleNodeDB.isValidGeo("geoData", "geom", "isValid")
+        await simpleNodeDB.selectColumns("geoData", "isValid")
+        const data = await simpleNodeDB.getData("geoData")
+
+        assert.deepStrictEqual(data, [{ isValid: false }])
     })
 })

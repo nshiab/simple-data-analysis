@@ -21,7 +21,7 @@ import runQueryNode from "../helpers/runQueryNode.js"
  * const sdb = new SimpleNodeDB()
  * ```
  *
- * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE and optionally loads the [spatial](https://duckdb.org/docs/extensions/spatial) extension.
+ * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It optionally loads the [spatial](https://duckdb.org/docs/extensions/spatial) extension.
  *
  * With very expensive computations, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
  *
@@ -35,7 +35,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
      * const sdb = new SimpleNodeDB()
      * ```
      *
-     * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE and optionally loads the [spatial](https://duckdb.org/docs/extensions/spatial) extension.
+     * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It optionally loads the [spatial](https://duckdb.org/docs/extensions/spatial) extension.
      *
      * @param options - An optional object with configuration options:
      *   - debug: A flag indicating whether debugging information should be logged. Defaults to false.

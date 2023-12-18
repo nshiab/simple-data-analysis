@@ -63,7 +63,7 @@ import replaceNullsQuery from "../methods/replaceNullsQuery.js"
  * const sdb = new SimpleDB()
  * ```
  *
- * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE.
+ * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database.
  *
  */
 
@@ -101,7 +101,7 @@ export default class SimpleDB {
      * const sdb = new SimpleDB()
      * ```
      *
-     * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE.
+     * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database.
      *
      * @param options - An optional object with configuration options:
      *   @param options.debug - A flag indicating whether debugging information should be logged. Defaults to false.
