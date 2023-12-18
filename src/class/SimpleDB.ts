@@ -326,6 +326,29 @@ export default class SimpleDB {
     }
 
     /**
+     * Selects only the first n rows from a table and removes the others.
+     *
+     * ```ts
+     * // Selects the first 100 rows from tableA.
+     * await sdb.selectRows("tableA", 100)
+     * ```
+     *
+     * @param table - The name of the table from which rows will be selected.
+     * @param count - The number of rows.
+     *
+     * @category Selecting or filtering data
+     */
+    async selectRows(table: string, count: number | string) {
+        this.debug && console.log("\nsample()")
+        this.debug && console.log("parameters:", { table, count })
+        await queryDB(
+            this,
+            `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ${table} LIMIT ${count};`,
+            mergeOptions(this, { table })
+        )
+    }
+
+    /**
      * Removes duplicate rows from a table, keeping unique rows. Note that SQL does not guarantee any specific order when using DISTINCT. So the data might be returned in a different order than the original.
      *
      * ```ts
