@@ -4,7 +4,7 @@ export default function loadDataNodeQuery(
     table: string,
     files: string[],
     options: {
-        fileType?: "csv" | "dsv" | "json" | "parquet"
+        fileType?: "csv" | "dsv" | "json" | "parquet" | "excel"
         autoDetect?: boolean
         fileName?: boolean
         unifyColumns?: boolean
@@ -18,6 +18,8 @@ export default function loadDataNodeQuery(
         // json options
         jsonFormat?: "unstructured" | "newlineDelimited" | "array"
         records?: boolean
+        // excel options
+        sheet?: string
     } = {}
 ) {
     const fileExtension = getExtension(files[0])
@@ -62,7 +64,7 @@ export default function loadDataNodeQuery(
             : ""
 
         return `CREATE OR REPLACE TABLE ${table}
-            AS SELECT * FROM read_csv_auto(${filesAsString}${generalOptions}${header}${allText}${delim}${skip}${compression})`
+            AS SELECT * FROM read_csv_auto(${filesAsString}${generalOptions}${header}${allText}${delim}${skip}${compression});`
     } else if (options.fileType === "json" || fileExtension === "json") {
         const jsonFormat = options.jsonFormat
             ? `, format='${options.jsonFormat}'`
@@ -72,9 +74,20 @@ export default function loadDataNodeQuery(
                 ? `, records=${String(options.records).toUpperCase()}`
                 : ""
         return `CREATE OR REPLACE TABLE ${table}
-            AS SELECT * FROM read_json_auto(${filesAsString}${generalOptions}${jsonFormat}${records})`
+            AS SELECT * FROM read_json_auto(${filesAsString}${generalOptions}${jsonFormat}${records});`
     } else if (options.fileType === "parquet" || fileExtension === "parquet") {
-        return `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM read_parquet(${filesAsString}${fileName}${unifyColumns})`
+        return `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM read_parquet(${filesAsString}${fileName}${unifyColumns});`
+    } else if (options.fileType === "excel" || fileExtension === "xlsx") {
+        if (files.length > 1) {
+            throw new Error(
+                "For excel files or files with extension .xlsx, you can pass only one file at the time."
+            )
+        }
+        return `INSTALL spatial;
+        LOAD spatial;
+        CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ST_Read('${
+            files[0]
+        }'${options.sheet ? `, layer='${options.sheet}'` : ""});`
     } else {
         throw new Error(
             `Unknown options.fileType ${options.fileType} or fileExtension ${fileExtension}`

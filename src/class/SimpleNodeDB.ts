@@ -102,6 +102,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
      *   - compression: The compression type. Applicable to CSV files. Defaults to none.
      *   - jsonFormat: The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
      *   - records: A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
+     *   - sheet: A string indicating a specific sheet to import. Applicable to Excel files. By default, the first sheet is imported.
      *
      * @category Importing data
      */
@@ -109,7 +110,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
         table: string,
         files: string | string[],
         options: {
-            fileType?: "csv" | "dsv" | "json" | "parquet"
+            fileType?: "csv" | "dsv" | "json" | "parquet" | "excel"
             autoDetect?: boolean
             fileName?: boolean
             unifyColumns?: boolean
@@ -123,6 +124,8 @@ export default class SimpleNodeDB extends SimpleGeoDB {
             // json options
             jsonFormat?: "unstructured" | "newlineDelimited" | "array"
             records?: boolean
+            // excel options
+            sheet?: string
         } = {}
     ) {
         this.debug && console.log("\nloadData()")
