@@ -1,3 +1,4 @@
+import assert from "assert"
 import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
 
 describe("flipCoordinates", () => {
@@ -6,7 +7,7 @@ describe("flipCoordinates", () => {
         simpleNodeDB = new SimpleNodeDB({ spatial: true })
         await simpleNodeDB.loadGeoData(
             "geodata",
-            "test/geodata/files/CanadianProvincesAndTerritories.json"
+            "test/geodata/files/point.json"
         )
     })
     after(async function () {
@@ -15,7 +16,13 @@ describe("flipCoordinates", () => {
 
     it("should flip the coordinates", async () => {
         await simpleNodeDB.flipCoordinates("geodata", "geom")
+        const data = await simpleNodeDB.customQuery(
+            `SELECT ST_AsText(geom) as geomText FROM geoData;`,
+            { returnDataFrom: "query" }
+        )
 
-        // Not sure how to test
+        assert.deepStrictEqual(data, [
+            { geomText: "POINT (45.51412791316409 -73.62315106245389)" },
+        ])
     })
 })
