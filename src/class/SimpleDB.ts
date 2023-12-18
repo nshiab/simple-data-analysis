@@ -451,6 +451,29 @@ export default class SimpleDB {
     }
 
     /**
+     * Removes rows from a table based on SQL conditions.
+     *
+     * ```ts
+     * // In table store, remove rows where the fruit is an apple.
+     * await sdb.removeRows("store", "fruit = 'apple'")
+     * ```
+     *
+     * @param table - The name of the table from which rows will be removed.
+     * @param conditions - The filtering conditions specified as a SQL WHERE clause.
+     *
+     * @category Selecting or filtering data
+     */
+    async removeRows(table: string, conditions: string) {
+        this.debug && console.log("\nremoveRows()")
+        this.debug && console.log("parameters:", { table, conditions })
+        await queryDB(
+            this,
+            `DELETE FROM ${table} WHERE ${conditions}`,
+            mergeOptions(this, { table })
+        )
+    }
+
+    /**
      * Renames columns in a specified table.
      *
      * ```ts
