@@ -59,12 +59,11 @@ export default class SimpleNodeDB extends SimpleGeoDB {
     }
 
     /**
-     * Initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE. Also installs the [httpfs](https://duckdb.org/docs/extensions/httpfs.html) and [spatial](https://duckdb.org/docs/extensions/spatial) extensions. It's called automatically with the first method you'll run.
+     * Initializes DuckDB and establishes a connection to the database. It also installs the [spatial](https://duckdb.org/docs/extensions/spatial) extensions. It's called automatically with the first method you'll run.
      */
     async start() {
         this.debug && console.log("\nstart()")
         this.db = new duckdb.Database(":memory:")
-        this.db.exec("PRAGMA default_collation=NOCASE;")
         if (this.spatial) {
             this.db.exec("INSTALL spatial; LOAD spatial;")
         }

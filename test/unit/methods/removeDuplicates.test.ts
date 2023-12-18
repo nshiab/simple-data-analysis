@@ -277,14 +277,6 @@ describe("removeDuplicates", () => {
                 "End-of_year-BONUS?": "18,7%",
             },
             {
-                Name: "null",
-                "Hire date": "07-JUN-02",
-                Job: "Accountant",
-                Salary: "8300",
-                "Department or unit": "110",
-                "End-of_year-BONUS?": "15,7%",
-            },
-            {
                 Name: "OConnell, Donald",
                 "Hire date": "21-JUN-07",
                 Job: "Clerk",
@@ -381,14 +373,6 @@ describe("removeDuplicates", () => {
                 "End-of_year-BONUS?": "undefined",
             },
             {
-                Name: "undefined",
-                "Hire date": "14-JUN-04",
-                Job: "Clerk",
-                Salary: "3300",
-                "Department or unit": "50",
-                "End-of_year-BONUS?": "18,54%",
-            },
-            {
                 Name: "Urman, Jose Manuel",
                 "Hire date": "07-MAR-06",
                 Job: "Accountant",
@@ -411,6 +395,22 @@ describe("removeDuplicates", () => {
                 Salary: "8000",
                 "Department or unit": "50",
                 "End-of_year-BONUS?": "25,17%",
+            },
+            {
+                Name: "null",
+                "Hire date": "07-JUN-02",
+                Job: "Accountant",
+                Salary: "8300",
+                "Department or unit": "110",
+                "End-of_year-BONUS?": "15,7%",
+            },
+            {
+                Name: "undefined",
+                "Hire date": "14-JUN-04",
+                Job: "Clerk",
+                Salary: "3300",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "18,54%",
             },
             {
                 Name: null,
@@ -502,14 +502,6 @@ describe("removeDuplicates", () => {
                 "End-of_year-BONUS?": "23,47%",
             },
             {
-                Name: "null",
-                "Hire date": "07-JUN-02",
-                Job: "Accountant",
-                Salary: "8300",
-                "Department or unit": "110",
-                "End-of_year-BONUS?": "15,7%",
-            },
-            {
                 Name: "OConnell, Donald",
                 "Hire date": "21-JUN-07",
                 Job: "Clerk",
@@ -532,6 +524,14 @@ describe("removeDuplicates", () => {
                 Salary: "6500",
                 "Department or unit": "50",
                 "End-of_year-BONUS?": "3,45%",
+            },
+            {
+                Name: "null",
+                "Hire date": "07-JUN-02",
+                Job: "Accountant",
+                Salary: "8300",
+                "Department or unit": "110",
+                "End-of_year-BONUS?": "15,7%",
             },
             {
                 Name: null,

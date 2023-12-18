@@ -18,6 +18,7 @@ export default async function runQueryNode(
         if (returnDataFromQuery) {
             ;(connection as Connection).all(query, (err, res) => {
                 if (err) {
+                    console.log("query causing error =>", query)
                     throw err
                 }
 
@@ -42,6 +43,7 @@ export default async function runQueryNode(
         } else {
             ;(connection as Connection).exec(query, (err) => {
                 if (err) {
+                    console.log("query causing error =>", query)
                     throw err
                 }
                 resolve(null)

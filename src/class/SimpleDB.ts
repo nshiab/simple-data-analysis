@@ -125,14 +125,13 @@ export default class SimpleDB {
     }
 
     /**
-     * Initializes DuckDB and establishes a connection to the database. It sets the default_collation to NOCASE. It's called automatically with the first method you'll run.
+     * Initializes DuckDB and establishes a connection to the database. It's called automatically with the first method you'll run.
      */
     async start() {
         this.debug && console.log("\nstart()\n")
         const duckDB = await getDuckDB()
         this.db = duckDB.db
         this.connection = await this.db.connect()
-        this.connection.query("PRAGMA default_collation=NOCASE;")
         this.worker = duckDB.worker
     }
 
@@ -567,7 +566,7 @@ export default class SimpleDB {
             console.log("parameters:", { table, columnsFrom, valuesFrom })
         await queryDB(
             this,
-            `CREATE OR REPLACE TABLE ${table} AS (SELECT * FROM (PIVOT ${table} ON "${columnsFrom}" USING SUM("${valuesFrom}")));`,
+            `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM (PIVOT ${table} ON "${columnsFrom}" USING sum("${valuesFrom}"));`,
             mergeOptions(this, { table })
         )
     }
