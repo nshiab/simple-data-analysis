@@ -23,6 +23,7 @@ export default function convertQuery(
     },
     options: { datetimeFormat?: string; try?: boolean }
 ) {
+    // Possible with update/set? Tried and couldn't make it work...
     let query = `CREATE OR REPLACE TABLE ${table} AS SELECT`
 
     const cast = options.try ? "TRY_CAST" : "CAST"
