@@ -326,24 +326,43 @@ export default class SimpleDB {
     }
 
     /**
-     * Selects only the first n rows from a table and removes the others.
+     * Selects n rows from a table. An offset and outputTable options are available.
      *
      * ```ts
      * // Selects the first 100 rows from tableA.
      * await sdb.selectRows("tableA", 100)
+     *
+     * // Selects 100 rows from tableA, after skipping the first 100 rows.
+     * await sdb.selectRows("tableA", 100, {offset: 100})
+     *
+     * // Selects 100 rows from tableA and stores them in tableB.
+     * await sdb.selectRows("tableA", 100, {outputTable: "tableB"})
      * ```
      *
      * @param table - The name of the table from which rows will be selected.
      * @param count - The number of rows.
+     * @param options - An optional object with configuration options:
+     *   @param options.offset - The number of rows to skip before selecting. Defaults to 0.
+     *   @param options.outputTable - The name of the table that will be created or replaced and where the new rows will be stored. By default, the original table is overwritten.
      *
      * @category Selecting or filtering data
      */
-    async selectRows(table: string, count: number | string) {
+    async selectRows(
+        table: string,
+        count: number | string,
+        options: { offset?: number; outputTable?: string } = {}
+    ) {
         this.debug && console.log("\nsample()")
-        this.debug && console.log("parameters:", { table, count })
+        this.debug && console.log("parameters:", { table, count, options })
         await queryDB(
             this,
-            `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ${table} LIMIT ${count};`,
+            `CREATE OR REPLACE TABLE ${
+                options.outputTable ?? table
+            } AS SELECT * FROM ${table} LIMIT ${count}${
+                typeof options.offset === "number"
+                    ? ` OFFSET ${options.offset}`
+                    : ""
+            };`,
             mergeOptions(this, { table })
         )
     }
