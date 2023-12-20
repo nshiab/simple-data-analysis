@@ -78,83 +78,84 @@ Note that DuckDB, which powers SDA, can also be used with [Python](https://duckd
 
 ## SDA in an HTML page
 
-If you want to add the library directly to your webpage, you can use the minified bundle from a npm-based CDN like jsDelivr.
+If you want to add the library directly to your webpage, you can use a npm-based CDN like jsDelivr.
 
 Here's some code that you can copy an paste into an HTML file.
 
-```ts
+```html
 <script type="module">
+    // We import the SimpleDB class from the esm bundle.
+    import { SimpleDB } from "https://cdn.jsdelivr.net/npm/simple-data-analysis/+esm"
 
- // We load the library, which will available as the variable sda.
-  import "https://cdn.jsdelivr.net/npm/simple-data-analysis@latest";
+    async function main() {
+        // We start a new instance of SimpleDB
+        const sdb = new SimpleDB()
 
-  async function main() {
-    // We start a new instance of SimpleDB
-    const sdb = new sda.SimpleDB();
+        // We load daily temperatures for three cities.
+        // We put the data in the table dailyTemperatures.
+        await sdb.loadData(
+            "dailyTemperatures",
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/dailyTemperatures.csv"
+        )
 
-    // We load daily temperatures for three cities.
-    // We put the data in the table dailyTemperatures.
-    await sdb.loadData(
-      "dailyTemperatures",
-      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/dailyTemperatures.csv"
-    );
+        // We compute the decade from each date
+        // and put the result in the decade column.
+        await sdb.addColumn(
+            "dailyTemperatures",
+            "decade",
+            "integer",
+            "FLOOR(YEAR(time)/10)*10"
+        )
 
-    // We compute the decade from each date
-    // and put the result in the decade column.
-    // The calculations are written in SQL,
-    // but you can also use updateWithJS to
-    // use JavaScript.
-    await sdb.addColumn(
-      "dailyTemperatures",
-      "decade",
-      "integer",
-      "FLOOR(YEAR(time)/10)*10"
-    );
+        // We summarize the data by computing
+        // the average dailyTemperature
+        // per decade and per city.
+        await sdb.summarize("dailyTemperatures", {
+            values: "t",
+            categories: ["decade", "id"],
+            summaries: "mean",
+        })
 
-    // We summarize the data by computing
-    // the average dailyTemperature
-    // per decade and per city.
-    await sdb.summarize("dailyTemperatures", {
-      values: "t",
-      categories: ["decade", "id"],
-      summaries: "mean",
-    });
+        // We run linear regressions
+        // to check for trends.
+        await sdb.linearRegressions("dailyTemperatures", {
+            x: "decade",
+            y: "mean",
+            categories: "id",
+            decimals: 4,
+        })
 
-    // We run linear regressions
-    // to check for trends.
-    await sdb.linearRegressions("dailyTemperatures", {
-      x: "decade",
-      y: "mean",
-      categories: "id",
-      decimals: 4,
-    });
+        // The dailyTemperature table does not have
+        // the name of the cities, just the ids.
+        // We load another file with the names
+        // in the table cities.
+        await sdb.loadData(
+            "cities",
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/cities.csv"
+        )
 
-    // The dailyTemperature table does not have
-    // the name of the cities, just the ids.
-    // We load another file with the names
-    // in the table cities.
-    await sdb.loadData(
-      "cities",
-      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/cities.csv"
-    );
+        // We join the two tables based
+        // on the ids and put the joined rows
+        // in the table results.
+        await sdb.join("dailyTemperatures", "cities", "id", "left", "results")
 
-    // We join the two tables based
-    // on the ids and put the joined rows
-    // in the table results.
-    await sdb.join("dailyTemperatures", "cities", "id", "left", "results");
+        // We select the columns of interest
+        // in the table results.
+        await sdb.selectColumns("results", [
+            "city",
+            "slope",
+            "yIntercept",
+            "r2",
+        ])
 
-    // We select the columns of interest
-    // in the table results.
-    await sdb.selectColumns("results", ["city", "slope", "yIntercept", "r2"]);
+        // We log the results table.
+        await sdb.logTable("results")
 
-    // We log the results table.
-    await sdb.logTable("results");
+        // We store the data in a variable.
+        const results = await sdb.getData("results")
+    }
 
-    // We store the data in a variable.
-    const results = await sdb.getData("results")
-  }
-
-  main();
+    main()
 </script>
 ```
 
