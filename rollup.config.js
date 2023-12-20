@@ -19,6 +19,32 @@ export default [
     {
         input: "src/bundle.ts",
         output: {
+            file: `dist/${meta.name}.js`,
+            name: "sda",
+            format: "umd",
+            indent: false,
+            extend: true,
+            banner: banner,
+            sourcemap: true,
+        },
+        plugins: [
+            nodePolyfills(),
+            typescript(),
+            commonjs(),
+            resolve({ browser: true }),
+        ],
+        onwarn(message, warn) {
+            if (
+                message.code === "CIRCULAR_DEPENDENCY" ||
+                message.code === "THIS_IS_UNDEFINED"
+            )
+                return
+            warn(message)
+        },
+    },
+    {
+        input: "src/bundle.ts",
+        output: {
             file: `dist/${meta.name}.min.js`,
             name: "sda",
             format: "umd",
@@ -40,6 +66,32 @@ export default [
             visualizer(() => {
                 return { gzipSize: true, filename: "bundleSizeMin.html" }
             }),
+        ],
+        onwarn(message, warn) {
+            if (
+                message.code === "CIRCULAR_DEPENDENCY" ||
+                message.code === "THIS_IS_UNDEFINED"
+            )
+                return
+            warn(message)
+        },
+    },
+    {
+        input: "src/bundle.ts",
+        output: {
+            file: `dist/${meta.name}.mjs`,
+            name: "sda",
+            format: "esm",
+            indent: false,
+            extend: true,
+            banner: banner,
+            sourcemap: true,
+        },
+        plugins: [
+            nodePolyfills(),
+            typescript(),
+            commonjs(),
+            resolve({ browser: true }),
         ],
         onwarn(message, warn) {
             if (
