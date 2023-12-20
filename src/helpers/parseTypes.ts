@@ -2,6 +2,7 @@ export default function parseType(
     type:
         | "integer"
         | "float"
+        | "number"
         | "string"
         | "date"
         | "time"
@@ -12,19 +13,19 @@ export default function parseType(
         | "varchar"
         | "timestamp"
         | "timestamp with time zone"
+        | "boolean"
 ) {
-    if (type === "integer") {
+    const typeLowerCase = type.toLowerCase()
+    if (typeLowerCase === "integer") {
         return "BIGINT"
-    } else if (type === "float") {
+    } else if (typeLowerCase === "float" || typeLowerCase === "number") {
         return "DOUBLE"
-    } else if (type === "string") {
+    } else if (typeLowerCase === "string") {
         return "VARCHAR"
-    } else if (type === "datetime") {
+    } else if (typeLowerCase === "datetime") {
         return "TIMESTAMP"
-    } else if (type === "datetimeTz") {
+    } else if (typeLowerCase === "datetimeTz") {
         return "TIMESTAMP WITH TIME ZONE"
-    } else if (type === "time") {
-        return "TIME"
     } else if (
         [
             "date",
@@ -34,6 +35,7 @@ export default function parseType(
             "varchar",
             "timestamp",
             "timestamp with time zone",
+            "boolean",
         ].includes(type)
     ) {
         return type.toUpperCase()
