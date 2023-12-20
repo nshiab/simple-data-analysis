@@ -58,7 +58,7 @@ describe("batch", () => {
             "employeesBatch",
             "test/data/files/employees.json"
         )
-        const run = async (sdb: SimpleDB, originalTable: string) => {
+        const run = async (sdb: SimpleNodeDB, originalTable: string) => {
             await sdb.convert(
                 originalTable,
                 { Salary: "number" },

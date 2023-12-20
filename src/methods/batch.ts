@@ -1,9 +1,9 @@
-import { SimpleDB } from "../bundle"
+import SimpleNodeDB from "../class/SimpleNodeDB"
 
 export default async function batch(
-    simpleDB: SimpleDB,
+    simpleDB: SimpleNodeDB,
     run: (
-        simpleDB: SimpleDB,
+        simpleDB: SimpleNodeDB,
         originalTable: string,
         outputTable?: string
     ) => Promise<void>,
