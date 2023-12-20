@@ -10,6 +10,7 @@ import writeDataQuery from "../methods/writeDataQuery.js"
 import stringToArray from "../helpers/stringToArray.js"
 import runQueryNode from "../helpers/runQueryNode.js"
 import batch from "../methods/batch.js"
+import loadArrayNode from "../methods/loadArrayNode.js"
 
 /**
  * SimpleNodeDB is a class that provides a simplified interface for working with DuckDB,
@@ -69,6 +70,26 @@ export default class SimpleNodeDB extends SimpleGeoDB {
             this.db.exec("INSTALL spatial; LOAD spatial;")
         }
         this.connection = this.db.connect()
+    }
+
+    /**
+     * Creates or replaces a table and loads an array of objects into it.
+     *
+     * ```ts
+     * const data = [{letter: "a", number: 1}, {letter: "b", number: 2}]
+     * await simpleDB.loadArray("tableA", data)
+     * ```
+     *
+     * @param table - The name of the table to be created.
+     * @param arrayOfObjects - An array of objects representing the data.
+     *
+     * @category Importing data
+     */
+    async loadArray(
+        table: string,
+        arrayOfObjects: { [key: string]: unknown }[]
+    ) {
+        await loadArrayNode(this, table, arrayOfObjects)
     }
 
     /**
