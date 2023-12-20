@@ -53,6 +53,7 @@ import addThousandSeparator from "../helpers/addThousandSeparator.js"
 import removeDuplicatesQuery from "../methods/removeDuplicatesQuery.js"
 import logData from "../helpers/logData.js"
 import replaceNullsQuery from "../methods/replaceNullsQuery.js"
+import batch from "../methods/batch.js"
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB.
@@ -352,7 +353,7 @@ export default class SimpleDB {
         count: number | string,
         options: { offset?: number; outputTable?: string } = {}
     ) {
-        this.debug && console.log("\nsample()")
+        this.debug && console.log("\nselectRows()")
         this.debug && console.log("parameters:", { table, count, options })
         await queryDB(
             this,
@@ -363,7 +364,7 @@ export default class SimpleDB {
                     ? ` OFFSET ${options.offset}`
                     : ""
             };`,
-            mergeOptions(this, { table })
+            mergeOptions(this, { table: options.outputTable ?? table })
         )
     }
 
@@ -2220,6 +2221,22 @@ export default class SimpleDB {
                 nbRows[0]["count_star()"] as number
             )} rows in total ${`(nbRowsToLog: ${options.nbRowsToLog})`}`
         )
+    }
+
+    async batch(
+        run: (
+            simpleDB: SimpleDB,
+            originalTable: string,
+            outputTable?: string
+        ) => Promise<void>,
+        originalTable: string,
+        options: {
+            outputTable?: string
+            batchSize?: number
+            logBatchNumber?: boolean
+        } = {}
+    ) {
+        await batch(this, run, originalTable, options)
     }
 
     /**
