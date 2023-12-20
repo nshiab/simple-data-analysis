@@ -6,6 +6,7 @@ export default function convertQuery(
     columnsTypes: (
         | "integer"
         | "float"
+        | "number"
         | "string"
         | "date"
         | "time"
@@ -16,6 +17,7 @@ export default function convertQuery(
         | "varchar"
         | "timestamp"
         | "timestamp with time zone"
+        | "boolean"
     )[],
     allColumns: string[],
     allTypes: {

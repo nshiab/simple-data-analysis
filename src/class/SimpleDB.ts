@@ -645,6 +645,7 @@ export default class SimpleDB {
             [key: string]:
                 | "integer"
                 | "float"
+                | "number"
                 | "string"
                 | "date"
                 | "time"
@@ -655,6 +656,7 @@ export default class SimpleDB {
                 | "varchar"
                 | "timestamp"
                 | "timestamp with time zone"
+                | "boolean"
         },
         options: {
             try?: boolean
@@ -749,6 +751,7 @@ export default class SimpleDB {
         type:
             | "integer"
             | "float"
+            | "number"
             | "string"
             | "date"
             | "time"
@@ -758,7 +761,8 @@ export default class SimpleDB {
             | "double"
             | "varchar"
             | "timestamp"
-            | "timestamp with time zone",
+            | "timestamp with time zone"
+            | "boolean",
         definition: string
     ) {
         this.debug && console.log("\naddColumn()")
@@ -862,6 +866,7 @@ export default class SimpleDB {
             [key: string]:
                 | "integer"
                 | "float"
+                | "number"
                 | "string"
                 | "date"
                 | "time"
@@ -872,6 +877,7 @@ export default class SimpleDB {
                 | "varchar"
                 | "timestamp"
                 | "timestamp with time zone"
+                | "boolean"
         }
     ) {
         this.debug && console.log("\ncreateTable()")

@@ -314,4 +314,26 @@ describe("convert", () => {
             },
         ])
     })
+    it("should convert numbers to booleans", async () => {
+        await simpleNodeDB.loadArray("numbersToBooleans", [
+            { key1: 0 },
+            { key1: 1 },
+        ])
+
+        await simpleNodeDB.convert("numbersToBooleans", { key1: "boolean" })
+        const data = await simpleNodeDB.getData("numbersToBooleans")
+
+        assert.deepStrictEqual(data, [{ key1: false }, { key1: true }])
+    })
+    it("should convert booleans to numbers", async () => {
+        await simpleNodeDB.loadArray("booleansToNumbers", [
+            { key1: false },
+            { key1: true },
+        ])
+
+        await simpleNodeDB.convert("booleansToNumbers", { key1: "number" })
+        const data = await simpleNodeDB.getData("booleansToNumbers")
+
+        assert.deepStrictEqual(data, [{ key1: 0 }, { key1: 1 }])
+    })
 })
