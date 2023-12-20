@@ -2223,6 +2223,38 @@ export default class SimpleDB {
         )
     }
 
+    /**
+     * A method to perform computations on small batches instead of all of the data at once. Useful with big join operations.
+     *
+     * ```ts
+     * // The computation we want to run. A third parameter outputTable is optional.
+     * const run = async (sdb: SimpleDB, originalTable: string) => {
+            await sdb.convert(
+                originalTable,
+                { salary: "number" },
+            )
+            await sdb.addColumn(
+                originalTable,
+                "salaryMultipliedBy2",
+                "number",
+                `Salary * 2`
+            )
+        }
+     * // Running it batch after batch.
+     * await simpleNodeDB.batch(run, "tableA", {
+            batchSize: 5,
+        })
+     * ```
+     *
+     * @param run - The function to be executed in batches.
+     * @param originalTable - The name of the original table to be processed.
+     * @param options - An optional object with configuration options:
+     *   @param options.outputTable - The name of the output table where results will be stored. By default, the original table will be overwritten.
+     *   @param options.batchSize - The number of items to process in each batch. Default is 10.
+     *   @param options.logBatchNumber - A boolean indicating whether to log the batch number. Default is false.
+     *
+     * @category Updating data
+     */
     async batch(
         run: (
             simpleDB: SimpleDB,
