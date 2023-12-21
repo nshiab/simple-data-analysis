@@ -1,4 +1,6 @@
+import getFirstNonNullOrUndefinedValues from "../helpers/getFirstNonNullOrUndefinedValues.js"
 import parseValue from "../helpers/parseValue.js"
+import getType from "./getType.js"
 
 export default function loadArrayQuery(
     table: string,
@@ -7,7 +9,7 @@ export default function loadArrayQuery(
     let query = `CREATE OR REPLACE TABLE ${table}`
 
     const columns = Object.keys(arrayOfObjects[0])
-    const values = Object.values(arrayOfObjects[0])
+    const values = getFirstNonNullOrUndefinedValues(arrayOfObjects)
     const columnsWithTypes = []
 
     for (let i = 0; i < columns.length; i++) {
@@ -23,22 +25,4 @@ export default function loadArrayQuery(
     }
 
     return query
-}
-
-function getType(value: unknown) {
-    if (value instanceof Date) {
-        return "TIMESTAMP"
-    } else if (typeof value === "bigint" || Number.isInteger(value)) {
-        return "BIGINT"
-    } else if (typeof value === "number") {
-        return "DOUBLE"
-    } else if (typeof value === "string") {
-        return "VARCHAR"
-    } else if (typeof value === "boolean") {
-        return "BOOLEAN"
-    } else {
-        throw new Error(
-            `Unkown type ${typeof value} for ${value}. Using first item in array to set the column types.`
-        )
-    }
 }

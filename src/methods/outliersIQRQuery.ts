@@ -24,7 +24,6 @@ export default function outliersIQRQuery(
 
     const query = `ALTER TABLE ${table}
     ADD COLUMN "${newColumn}" BOOLEAN;
-
     WITH iqr AS (
         SELECT${categories.length > 0 ? `\n${categories},` : ""}
             ${quantileFunc}("${column}", 0.25) as q1,
