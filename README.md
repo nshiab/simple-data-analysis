@@ -306,7 +306,7 @@ A _package.json_ file should have been created. Open it and add or change the ty
 
 Here's some code you can copy and paste into a JavaScript file. It's the same as the one you would run in a browser, except we use the _SimpleNodeDB_ class.
 
-This class has more methods available to load data from local files and write data to files. Check the [SimpleNodeDB class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleNodeDB.html).
+This class has more methods available to load data from local files and write data to files. Check the [SimpleNodeDB class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleNodeDB.html). Its geospatial capabilities are under development. Check the [loadGeoData](https://nshiab.github.io/simple-data-analysis/classes/SimpleGeoDB.html#loadGeoData), [area](https://nshiab.github.io/simple-data-analysis/classes/SimpleGeoDB.html#area), and [intersection](https://nshiab.github.io/simple-data-analysis/classes/SimpleGeoDB.html#intersection) methods for more information.
 
 ```ts
 import { SimpleNodeDB } from "simple-data-analysis"
