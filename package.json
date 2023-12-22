@@ -13,7 +13,8 @@
         "analysis",
         "nodejs",
         "typescript",
-        "javascript"
+        "javascript",
+        "duckdb"
     ],
     "license": "MIT",
     "author": {

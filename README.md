@@ -20,7 +20,9 @@ These project's goals are:
 
 -   To ease the way for non-coders (especially journalists and web developers) into the beautiful world of data analysis and data visualization in JavaScript.
 
-SDA is based on [duckdb-node](https://github.com/duckdb/duckdb-node) and [duckdb-wasm](https://github.com/duckdb/duckdb-wasm). DuckDB is a high-performance analytical database system. Under the hood, SDA sends SQL queries to be executed by DuckDB. You also have the flexibility of writing your own queries if you want to.
+SDA is based on [duckdb-node](https://github.com/duckdb/duckdb-node) and [duckdb-wasm](https://github.com/duckdb/duckdb-wasm). DuckDB is a high-performance analytical database system. Under the hood, SDA sends SQL queries to be executed by DuckDB.
+
+You also have the flexibility of writing your own queries if you want to (check the [customQuery method](https://nshiab.github.io/simple-data-analysis/classes/SimpleDB.html#customQuery)) or to use JavaScript to process your data (check the [updateWithJS method](https://nshiab.github.io/simple-data-analysis/classes/SimpleDB.html#updateWithJS)).
 
 Feel free to start a conversation or open an issue. Check how you can [contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
 
@@ -76,6 +78,10 @@ Again, **simple-data-analysis@2.0.1** is now the fastest option.
 
 Note that DuckDB, which powers SDA, can also be used with [Python](https://duckdb.org/docs/api/python/overview.html) and [R](https://duckdb.org/docs/api/r).
 
+## SDA in an Observable notebook
+
+Observable notebooks are great for data analysis in JavaScript. This [example](https://observablehq.com/@nshiab/hello-simple-data-analysis) shows you how to use simple-data-analysis in one of them.
+
 ## SDA in an HTML page
 
 If you want to add the library directly to your webpage, you can use a npm-based CDN like jsDelivr.
@@ -104,7 +110,7 @@ Here's some code that you can copy an paste into an HTML file. For more methods,
             "dailyTemperatures",
             "decade",
             "integer",
-            "FLOOR(YEAR(time)/10)*10"
+            "FLOOR(YEAR(time)/10)*10" // This is SQL
         )
 
         // We summarize the data by computing
@@ -212,7 +218,7 @@ const Main = () => {
                 "dailyTemperatures",
                 "decade",
                 "integer",
-                "FLOOR(YEAR(time)/10)*10"
+                "FLOOR(YEAR(time)/10)*10" // This is SQL
             )
 
             // We summarize the data by computing
@@ -331,7 +337,7 @@ async function main() {
         "dailyTemperatures",
         "decade",
         "integer",
-        "FLOOR(YEAR(time)/10)*10"
+        "FLOOR(YEAR(time)/10)*10" // This is SQL
     )
 
     // We summarize the data by computing
