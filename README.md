@@ -76,6 +76,10 @@ Again, **simple-data-analysis@2.0.1** is now the fastest option.
 
 Note that DuckDB, which powers SDA, can also be used with [Python](https://duckdb.org/docs/api/python/overview.html) and [R](https://duckdb.org/docs/api/r).
 
+## SDA in an Observable notebook
+
+Observable notebooks are great for data analysis in JavaScript. This [example](https://observablehq.com/@nshiab/hello-simple-data-analysis) shows you how to use simple-data-analysis in one of them.
+
 ## SDA in an HTML page
 
 If you want to add the library directly to your webpage, you can use a npm-based CDN like jsDelivr.
