@@ -80,7 +80,7 @@ Note that DuckDB, which powers SDA, can also be used with [Python](https://duckd
 
 If you want to add the library directly to your webpage, you can use a npm-based CDN like jsDelivr.
 
-Here's some code that you can copy an paste into an HTML file.
+Here's some code that you can copy an paste into an HTML file. For more methods, check the [SimpleDB class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleDB.html).
 
 ```html
 <script type="module">
@@ -173,7 +173,7 @@ Then you'll need to run this command to install the library in your code reposit
 npm install simple-data-analysis
 ```
 
-And here's an example with React and TypeScript.
+And here's an example with React and TypeScript. For more methods, check the [SimpleDB class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleDB.html).
 
 ```tsx
 import { useEffect, useState } from "react"
@@ -306,7 +306,7 @@ A _package.json_ file should have been created. Open it and add or change the ty
 
 Here's some code you can copy and paste into a JavaScript file. It's the same as the one you would run in a browser, except we use the _SimpleNodeDB_ class.
 
-This class has more methods available to load data from local files and write data to files.
+This class has more methods available to load data from local files and write data to files. Check the [SimpleNodeDB class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleNodeDB.html). Its geospatial capabilities are under development. Check the [loadGeoData](https://nshiab.github.io/simple-data-analysis/classes/SimpleGeoDB.html#loadGeoData), [area](https://nshiab.github.io/simple-data-analysis/classes/SimpleGeoDB.html#area), and [intersection](https://nshiab.github.io/simple-data-analysis/classes/SimpleGeoDB.html#intersection) methods for more information.
 
 ```ts
 import { SimpleNodeDB } from "simple-data-analysis"
@@ -389,3 +389,5 @@ node index.js
 And here's what you should see in your console.
 
 ![The console tab in Google Chrome showing the result of simple-data-analysis computations.](./assets/nodejs-console.png)
+
+If you want to generate and save charts, check the [journalism library](https://github.com/nshiab/journalism), more specifically the [savePlotChart function](https://nshiab.github.io/journalism/functions/savePlotChart.html).
