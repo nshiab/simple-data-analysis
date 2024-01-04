@@ -1,7 +1,7 @@
 import assert from "assert"
 import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
 
-describe("update", () => {
+describe("updateColumn", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
         simpleNodeDB = new SimpleNodeDB()
