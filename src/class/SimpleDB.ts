@@ -262,6 +262,27 @@ export default class SimpleDB {
     }
 
     /**
+     * Renames an existing table.
+     *
+     * ```ts
+     * // tableA data is renamed tableB.
+     * await sdb.renameTable("tableA", "tableB")
+     * ```
+     *
+     * @param originalTable - The original name.
+     * @param newTable - The new name.
+     */
+    async renameTable(originalTable: string, newTable: string) {
+        this.debug && console.log("\nrenameTable()")
+        this.debug && console.log("parameters:", { originalTable, newTable })
+        await queryDB(
+            this,
+            `ALTER TABLE ${originalTable} RENAME TO ${newTable}`,
+            mergeOptions(this, { table: newTable })
+        )
+    }
+
+    /**
      * Selects specific columns in a table and removes the others.
      *
      * ```ts
