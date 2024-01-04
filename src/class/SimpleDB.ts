@@ -1063,6 +1063,28 @@ export default class SimpleDB {
     }
 
     /**
+     * Updates values in a specified column in a given table.
+     *
+     * ```ts
+     * await sdb.updateColumn("tableA", "column1", `LEFT(column2)`)
+     * ```
+     * @param table - The name of the table.
+     * @param column - The name of the column to be updated.
+     * @param definition - The SQL expression to set the new values in the column.
+     *
+     * @category Updating data
+     */
+    async updateColumn(table: string, column: string, definition: string) {
+        this.debug && console.log("\nupdateColumn()")
+        this.debug && console.log("parameters:", { table, column, definition })
+        await queryDB(
+            this,
+            `UPDATE ${table} SET "${column}" = ${definition}`,
+            mergeOptions(this, { table })
+        )
+    }
+
+    /**
      * Sorts the rows of a table based on specified column(s) and order(s).
      *
      * ```ts
