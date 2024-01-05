@@ -33,6 +33,19 @@ describe("cloneTable", () => {
 
         assert.deepStrictEqual(original, cloned)
     })
+
+    it("should clone a table with a condition", async () => {
+        await simpleNodeDB.loadData(
+            "dataCsvOriginal",
+            "test/data/files/employees.csv"
+        )
+
+        await simpleNodeDB.cloneTable("dataCsvOriginal", "dataCsvCloned", {
+            condition: `Job = 'Manager'`,
+        })
+        const data = await simpleNodeDB.getData("dataCsvCloned")
+        assert.deepStrictEqual(data, managers)
+    })
 })
 
 const fullData = [
@@ -443,5 +456,72 @@ const fullData = [
         Salary: "2500",
         "Department or unit": "50",
         "End-of_year-BONUS?": "16,19%",
+    },
+]
+
+const managers = [
+    {
+        Name: "Hartstein, Michael",
+        "Hire date": "17-FEB-04",
+        Job: "Manager",
+        Salary: "13000",
+        "Department or unit": "20",
+        "End-of_year-BONUS?": "2,71%",
+    },
+    {
+        Name: "Higgins, Shelley",
+        "Hire date": "07-JUN-02",
+        Job: "Manager",
+        Salary: "12008",
+        "Department or unit": "110",
+        "End-of_year-BONUS?": "17,09%",
+    },
+    {
+        Name: "Greenberg, Nancy",
+        "Hire date": "17-AUG-02",
+        Job: "Manager",
+        Salary: "12008",
+        "Department or unit": "100",
+        "End-of_year-BONUS?": "74,69%",
+    },
+    {
+        Name: "Raphaely, Den",
+        "Hire date": "07-DEC-02",
+        Job: "Manager",
+        Salary: "11000",
+        "Department or unit": "30",
+        "End-of_year-BONUS?": "3,35%",
+    },
+    {
+        Name: "Weiss, Matthew",
+        "Hire date": "18-JUL-04",
+        Job: "Manager",
+        Salary: "8000",
+        "Department or unit": "50",
+        "End-of_year-BONUS?": "25,17%",
+    },
+    {
+        Name: "Fripp, Adam",
+        "Hire date": "10-APR-05",
+        Job: "Manager",
+        Salary: "8200",
+        "Department or unit": "50",
+        "End-of_year-BONUS?": "21%",
+    },
+    {
+        Name: "Kaufling, Payam",
+        "Hire date": "01-MAY-03",
+        Job: "Manager",
+        Salary: "7900",
+        "Department or unit": "undefined",
+        "End-of_year-BONUS?": "21,33%",
+    },
+    {
+        Name: "Mourgos, Kevin",
+        "Hire date": "undefined",
+        Job: "Manager",
+        Salary: "5800",
+        "Department or unit": "50",
+        "End-of_year-BONUS?": "19,07%",
     },
 ]

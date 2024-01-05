@@ -241,22 +241,36 @@ export default class SimpleDB {
     }
 
     /**
-     * Clones an existing table by creating or replacing a table with the same structure and data. This can be very slow with big tables.
+     * Clones an existing table by creating or replacing a table with the same structure and data. The data can be optionally filtered. This can be very slow with big tables.
      *
      * ```ts
      * // tableA data is cloned into tableB.
      * await sdb.cloneTable("tableA", "tableB")
+     *
+     * // tableA data is cloned into tableB. Only rows with values greater than 10 in column1 are kept.
+     * await sdb.cloneTable("tableA", "tableB", {condition: `column1 > 10`})
      * ```
      *
      * @param originalTable - The name of the table to be cloned.
      * @param newTable - The name of the new table that will be created as a clone.
+     * @param options - An optional object with configuration options:
+     *   @param options.condition - A SQL WHERE clause condition to filter the data. Defaults to no condition.
      */
-    async cloneTable(originalTable: string, newTable: string) {
+    async cloneTable(
+        originalTable: string,
+        newTable: string,
+        options: {
+            condition?: string
+        } = {}
+    ) {
         this.debug && console.log("\ncloneTable()")
-        this.debug && console.log("parameters:", { originalTable, newTable })
+        this.debug &&
+            console.log("parameters:", { originalTable, newTable, options })
         await queryDB(
             this,
-            `CREATE OR REPLACE TABLE ${newTable} AS SELECT * FROM ${originalTable}`,
+            `CREATE OR REPLACE TABLE ${newTable} AS SELECT * FROM ${originalTable}${
+                options.condition ? ` WHERE ${options.condition}` : ""
+            }`,
             mergeOptions(this, { table: newTable })
         )
     }
