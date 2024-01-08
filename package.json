@@ -54,7 +54,7 @@
         "check-format": "prettier --ignore-path .prettierignore --check './**/*.ts'"
     },
     "engines": {
-        "node": ">=20.0"
+        "node": ">=18.0"
     },
     "bugs": {
         "url": "https://github.com/nshiab/simple-data-analysis/issues"

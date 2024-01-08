@@ -171,7 +171,7 @@ And here's the table you'll see in your browser's console tab.
 
 ## SDA with React
 
-First, ensure that you have [NodeJS v20 or higher](https://nodejs.org/en/) installed.
+First, ensure that you have [NodeJS v18 or higher](https://nodejs.org/en/) installed.
 
 Then you'll need to run this command to install the library in your code repository.
 
