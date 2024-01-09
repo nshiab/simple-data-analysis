@@ -3,15 +3,14 @@ import queryDB from "../helpers/queryDB.js"
 import SimpleDB from "../class/SimpleDB.js"
 
 export default async function getTypes(simpleDB: SimpleDB, table: string) {
-    simpleDB.debug && console.log("\ngetTypes()")
-    simpleDB.debug && console.log("parameters:", { table })
-
     const types = await queryDB(
         simpleDB,
         `DESCRIBE ${table}`,
         mergeOptions(simpleDB, {
             table,
             returnDataFrom: "query",
+            method: "getTypes()",
+            parameters: { table },
         })
     )
 
@@ -24,7 +23,7 @@ export default async function getTypes(simpleDB: SimpleDB, table: string) {
         }
     }
 
-    simpleDB.debug && console.log("\ntypes:", typesObj)
+    simpleDB.debug && console.log("types:", typesObj)
 
     return typesObj
 }

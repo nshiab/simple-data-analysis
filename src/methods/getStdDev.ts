@@ -10,20 +10,24 @@ export default async function getStdDev(
         decimals?: number
     } = {}
 ) {
-    simpleDB.debug && console.log("\ngetStdDev()")
-    simpleDB.debug && console.log("parameters:", { table, column, options })
-
     const queryResult = await queryDB(
         simpleDB,
         typeof options.decimals === "number"
             ? `SELECT ROUND(STDDEV("${column}"), ${options.decimals}) AS valueForGetStdDev FROM ${table}`
             : `SELECT STDDEV("${column}") AS valueForGetStdDev FROM ${table}`,
-        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, {
+            table,
+            returnDataFrom: "query",
+            method: "getStdDev()",
+            parameters: { table, column, options },
+        })
     )
 
     if (!queryResult) {
         throw new Error("No queryResults")
     }
 
-    return queryResult[0].valueForGetStdDev
+    const result = queryResult[0].valueForGetStdDev
+    simpleDB.debug && console.log("Standard deviation:", result)
+    return result
 }

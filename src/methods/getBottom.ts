@@ -11,9 +11,6 @@ export default async function getBottom(
         condition?: string
     } = {}
 ) {
-    simpleDB.debug && console.log("\ngetBottom()")
-    simpleDB.debug && console.log("parameters:", { table, count, options })
-
     const queryResult = await queryDB(
         simpleDB,
         `WITH numberedRowsForGetBottom AS (
@@ -22,17 +19,26 @@ export default async function getBottom(
                 }
             )
             SELECT * FROM numberedRowsForGetBottom ORDER BY rowNumberForGetBottom DESC LIMIT ${count};`,
-        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, {
+            table,
+            returnDataFrom: "query",
+            method: "getBottom()",
+            parameters: { table, count, options },
+        })
     )
 
     if (!queryResult) {
         throw new Error("No queryResult")
     }
 
-    const rows = queryResult.map((d) => {
+    const rowsRaw = queryResult.map((d) => {
         delete d.rowNumberForGetBottom
         return d
     })
+    const rows = options.originalOrder ? rowsRaw.reverse() : rowsRaw
 
-    return options.originalOrder ? rows.reverse() : rows
+    simpleDB.debug && console.log("Bottom rows:")
+    simpleDB.debug && console.table(rows)
+
+    return rows
 }

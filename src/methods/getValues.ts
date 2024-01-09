@@ -7,15 +7,14 @@ export default async function getValues(
     table: string,
     column: string
 ) {
-    simpleDB.debug && console.log("\ngetValues()")
-    simpleDB.debug && console.log("parameters:", { table, column })
-
     const queryResult = await queryDB(
         simpleDB,
         `SELECT ${column} FROM ${table}`,
         mergeOptions(simpleDB, {
             table,
             returnDataFrom: "query",
+            method: "getValues()",
+            parameters: { table, column },
         })
     )
     if (!queryResult) {
@@ -24,7 +23,7 @@ export default async function getValues(
 
     const values = queryResult.map((d) => d[column])
 
-    simpleDB.debug && console.log("\nvalues:", values)
+    simpleDB.debug && console.log("values:", values)
 
     return values
 }

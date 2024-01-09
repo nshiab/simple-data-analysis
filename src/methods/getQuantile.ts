@@ -11,21 +11,24 @@ export default async function getQuantile(
         decimals?: number
     } = {}
 ) {
-    simpleDB.debug && console.log("\ngetQuantile()")
-    simpleDB.debug &&
-        console.log("parameters:", { table, column, quantile, options })
-
     const queryResult = await queryDB(
         simpleDB,
         typeof options.decimals === "number"
             ? `SELECT ROUND(QUANTILE_CONT("${column}", ${quantile}), ${options.decimals}) AS valueForGetQuantile FROM ${table}`
             : `SELECT QUANTILE_CONT("${column}", ${quantile}) AS valueForGetQuantile FROM ${table}`,
-        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, {
+            table,
+            returnDataFrom: "query",
+            method: "getQuantile()",
+            parameters: { table, column, quantile, options },
+        })
     )
 
     if (!queryResult) {
         throw new Error("No queryResults")
     }
 
-    return queryResult[0].valueForGetQuantile
+    const result = queryResult[0].valueForGetQuantile
+    simpleDB.debug && console.log("quantile:", result)
+    return result
 }

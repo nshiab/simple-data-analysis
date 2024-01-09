@@ -9,19 +9,25 @@ export default async function getFirstRow(
         condition?: string
     } = {}
 ) {
-    simpleDB.debug && console.log("\ngetFirstRow()")
-    simpleDB.debug && console.log("parameters:", { table, options })
-
     const queryResult = await queryDB(
         simpleDB,
         `SELECT * FROM ${table}${
             options.condition ? ` WHERE ${options.condition}` : ""
         } LIMIT 1`,
-        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, {
+            table,
+            returnDataFrom: "query",
+            method: "getFirstRow()",
+            parameters: { table, options },
+        })
     )
     if (!queryResult) {
         throw new Error("No queryResult")
     }
 
-    return queryResult[0]
+    const result = queryResult[0]
+
+    simpleDB.debug && console.log("first row:", result)
+
+    return result
 }

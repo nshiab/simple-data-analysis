@@ -7,6 +7,8 @@ export default async function queryDB(
     query: string,
     options: {
         table: string | null
+        method: string | null
+        parameters: { [key: string]: unknown } | null
         nbRowsToLog: number
         returnDataFrom: "query" | "none"
         debug: boolean
@@ -24,10 +26,10 @@ export default async function queryDB(
 
     let start
     if (options.debug) {
-        start = Date.now()
-    }
-    if (options.debug) {
+        console.log("\n" + options.method)
+        console.log("parameters:", options.parameters)
         console.log(query)
+        start = Date.now()
     }
 
     let data = null

@@ -16,8 +16,6 @@ export default async function linearRegressions(
         outputTable?: string
     } = {}
 ) {
-    simpleDB.debug && console.log("\nlinearRegressions()")
-
     options.decimals = options.decimals ?? 2
 
     const outputTable = options.outputTable ?? table
@@ -45,17 +43,17 @@ export default async function linearRegressions(
         throw new Error("No combinations of x and y")
     }
 
-    simpleDB.debug &&
-        console.log("parameters:", {
-            table,
-            options,
-        })
-
-    simpleDB.debug && console.log("permutations:", permutations)
-
     await queryDB(
         simpleDB,
         linearRegressionQuery(table, outputTable, permutations, options),
-        mergeOptions(simpleDB, { table: outputTable })
+        mergeOptions(simpleDB, {
+            table: outputTable,
+            method: "linearRegressions()",
+            parameters: {
+                table,
+                options,
+                "permutations (computed)": permutations,
+            },
+        })
     )
 }

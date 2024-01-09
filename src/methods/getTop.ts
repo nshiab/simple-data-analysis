@@ -10,20 +10,25 @@ export default async function getTop(
         condition?: string
     } = {}
 ) {
-    simpleDB.debug && console.log("\ngetTop()")
-    simpleDB.debug && console.log("parameters:", { table, count, options })
-
     const rows = await queryDB(
         simpleDB,
         `SELECT * FROM ${table}${
             options.condition ? ` WHERE ${options.condition}` : ""
         } LIMIT ${count}`,
-        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, {
+            table,
+            returnDataFrom: "query",
+            method: "getTop()",
+            parameters: { table, count, options },
+        })
     )
 
     if (!rows) {
         throw new Error("no rows")
     }
+
+    simpleDB.debug && console.log("Top rows:")
+    simpleDB.debug && console.table(rows)
 
     return rows
 }

@@ -54,12 +54,14 @@ export default class SimpleGeoDB extends SimpleDB {
      * @category Geospatial
      */
     async loadGeoData(table: string, file: string) {
-        this.debug && console.log("\nloadGeoData()")
-        this.debug && console.log("parameters:", { table, file })
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ST_Read('${file}');`,
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "loadGeoData()",
+                parameters: { table, file },
+            })
         )
     }
 
@@ -78,12 +80,14 @@ export default class SimpleGeoDB extends SimpleDB {
      * @category Geospatial
      */
     async isValidGeo(table: string, column: string, newColumn: string) {
-        this.debug && console.log("\nisValidGeo()")
-        this.debug && console.log("parameters:", { table, column })
         await queryDB(
             this,
             `ALTER TABLE ${table} ADD COLUMN "${newColumn}" BOOLEAN; UPDATE ${table} SET "${newColumn}" = ST_IsValid("${column}")`,
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "isValidGeo()",
+                parameters: { table, column },
+            })
         )
     }
 
@@ -100,12 +104,14 @@ export default class SimpleGeoDB extends SimpleDB {
      * @category Geospatial
      */
     async flipCoordinates(table: string, column: string) {
-        this.debug && console.log("\nflipCoordinates")
-        this.debug && console.log("parameters:", { table, column })
         await queryDB(
             this,
             `UPDATE ${table} SET "${column}" = ST_FlipCoordinates("${column}")`,
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "flipCoordinates()",
+                parameters: { table, column },
+            })
         )
     }
 
@@ -123,13 +129,14 @@ export default class SimpleGeoDB extends SimpleDB {
      * @category Geospatial
      */
     async reproject(table: string, column: string, from: string, to: string) {
-        this.debug && console.log("\nreproject()")
-        this.debug && console.log("parameters:", { table, column, from, to })
         await queryDB(
             this,
-            `
-        UPDATE ${table} SET "${column}" = ST_Transform("${column}", '${from}', '${to}')`,
-            mergeOptions(this, { table })
+            `UPDATE ${table} SET "${column}" = ST_Transform("${column}", '${from}', '${to}')`,
+            mergeOptions(this, {
+                table,
+                method: "reproject()",
+                parameters: { table, column, from, to },
+            })
         )
     }
 
@@ -148,12 +155,14 @@ export default class SimpleGeoDB extends SimpleDB {
      * @category Geospatial
      */
     async area(table: string, column: string, newColumn: string) {
-        this.debug && console.log("\narea()")
-        this.debug && console.log("parameters:", { table, column, newColumn })
         await queryDB(
             this,
             `ALTER TABLE ${table} ADD "${newColumn}" DOUBLE; UPDATE ${table} SET "${newColumn}" =  ST_Area("${column}");`,
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "area()",
+                parameters: { table, column, newColumn },
+            })
         )
     }
 
@@ -176,8 +185,6 @@ export default class SimpleGeoDB extends SimpleDB {
         columns: [string, string],
         newColumn: string
     ) {
-        this.debug && console.log("\nintersection()")
-        this.debug && console.log("parameters:", { table, columns, newColumn })
         if (columns.length !== 2) {
             throw new Error(
                 `The columns parameters must be an array with two strings. For example: ["geomA", "geomB"].`
@@ -186,7 +193,11 @@ export default class SimpleGeoDB extends SimpleDB {
         await queryDB(
             this,
             `ALTER TABLE ${table} ADD "${newColumn}" GEOMETRY; UPDATE ${table} SET "${newColumn}" = ST_Intersection("${columns[0]}", "${columns[1]}")`,
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "intersection()",
+                parameters: { table, columns, newColumn },
+            })
         )
     }
 }

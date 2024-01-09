@@ -10,20 +10,25 @@ export default async function getMedian(
         decimals?: number
     } = {}
 ) {
-    simpleDB.debug && console.log("\ngetMedian()")
-    simpleDB.debug && console.log("parameters:", { table, column, options })
-
     const queryResult = await queryDB(
         simpleDB,
         typeof options.decimals === "number"
             ? `SELECT ROUND(MEDIAN("${column}"), ${options.decimals}) AS valueForGetMedian FROM ${table}`
             : `SELECT MEDIAN("${column}") AS valueForGetMedian FROM ${table}`,
-        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, {
+            table,
+            returnDataFrom: "query",
+            method: "getMedian()",
+            parameters: { table, column, options },
+        })
     )
 
     if (!queryResult) {
         throw new Error("No queryResults")
     }
+    const result = queryResult[0].valueForGetMedian
 
-    return queryResult[0].valueForGetMedian
+    simpleDB.debug && console.log("median:", result)
+
+    return result
 }

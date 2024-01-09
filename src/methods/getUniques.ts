@@ -7,15 +7,14 @@ export default async function getUniques(
     table: string,
     column: string
 ) {
-    simpleDB.debug && console.log("\ngetUniques()")
-    simpleDB.debug && console.log("parameters:", { table, column })
-
     const queryResult = await queryDB(
         simpleDB,
         `SELECT DISTINCT ${column} FROM ${table} ORDER BY ${column} ASC`,
         mergeOptions(simpleDB, {
             table,
             returnDataFrom: "query",
+            method: "getUniques()",
+            parameters: { table, column },
         })
     )
 
@@ -25,7 +24,7 @@ export default async function getUniques(
 
     const uniques = queryResult.map((d) => d[column])
 
-    simpleDB.debug && console.log("\nuniques:", uniques)
+    simpleDB.debug && console.log("uniques:", uniques)
 
     return uniques
 }

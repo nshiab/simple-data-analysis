@@ -7,9 +7,6 @@ export default async function getDescription(
     simpleDB: SimpleDB,
     table: string
 ) {
-    simpleDB.debug && console.log("\ngetDescription()")
-    simpleDB.debug && console.log("parameters:", { table })
-
     const types = await simpleDB.getTypes(table)
 
     const { query, extraData } = getDescriptionQuery(table, types)
@@ -19,6 +16,8 @@ export default async function getDescription(
         query,
         mergeOptions(simpleDB, {
             table,
+            method: "getDescription()",
+            parameters: { table },
             nbRowsToLog: Infinity,
             returnDataFrom: "query",
         })
@@ -39,7 +38,7 @@ export default async function getDescription(
             : []
     )
 
-    simpleDB.debug && console.log("\ndescription:", description)
+    simpleDB.debug && console.log("description:", description)
 
     return description
 }
