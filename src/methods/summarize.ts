@@ -38,8 +38,6 @@ export default async function summarize(
         decimals?: number
     } = {}
 ) {
-    simpleDB.debug && console.log("\nsummarize()")
-
     const outputTable = options.outputTable ?? table
 
     options.values = options.values ? stringToArray(options.values) : []
@@ -61,12 +59,6 @@ export default async function summarize(
         (d) => !options.categories?.includes(d)
     )
 
-    simpleDB.debug &&
-        console.log("parameters:", {
-            table,
-            options,
-        })
-
     return await queryDB(
         simpleDB,
         summarizeQuery(
@@ -78,6 +70,13 @@ export default async function summarize(
             options.summaries,
             options
         ),
-        mergeOptions(simpleDB, { table: outputTable })
+        mergeOptions(simpleDB, {
+            table: outputTable,
+            method: "summarize()",
+            parameters: {
+                table,
+                options,
+            },
+        })
     )
 }

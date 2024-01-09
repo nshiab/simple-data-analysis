@@ -134,7 +134,11 @@ export default class SimpleNodeDB extends SimpleGeoDB {
         await queryDB(
             this,
             loadDataNodeQuery(table, stringToArray(files), options),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "loadData()",
+                parameters: { table, files, options },
+            })
         )
     }
 
@@ -181,15 +185,17 @@ export default class SimpleNodeDB extends SimpleGeoDB {
             records?: boolean
         } = {}
     ) {
-        this.debug && console.log("\nloadDataFromDirectory()")
-        this.debug && console.log("parameters:", { table, directory, options })
         const files = readdirSync(directory).map(
             (file) => `${directory}${file}`
         )
         await queryDB(
             this,
             loadDataNodeQuery(table, files, options),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "loadDataFromDirectory",
+                parameters: { table, directory, options },
+            })
         )
     }
 
@@ -214,12 +220,14 @@ export default class SimpleNodeDB extends SimpleGeoDB {
             compression?: boolean
         } = {}
     ) {
-        this.debug && console.log("\nwriteData()")
-        this.debug && console.log("parameters:", { table, file, options })
         await queryDB(
             this,
             writeDataQuery(table, file, options),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "writeData()",
+                parameters: { table, file, options },
+            })
         )
     }
 

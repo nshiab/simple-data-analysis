@@ -83,7 +83,10 @@ export default class SimpleDB {
         query: string,
         connection: AsyncDuckDBConnection | Connection,
         returnDataFromQuery: boolean,
-        options?: {
+        options: {
+            debug: boolean
+            method: string | null
+            parameters: { [key: string]: unknown } | null
             bigIntToInt?: boolean
             spatial?: boolean
         }
@@ -152,12 +155,14 @@ export default class SimpleDB {
         table: string,
         arrayOfObjects: { [key: string]: unknown }[]
     ) {
-        this.debug && console.log("\nloadArray()")
-        this.debug && console.log("parameters:", { table, arrayOfObjects })
         await queryDB(
             this,
             loadArrayQuery(table, arrayOfObjects),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "loadArray()",
+                parameters: { table, arrayOfObjects },
+            })
         )
     }
 
@@ -208,12 +213,14 @@ export default class SimpleDB {
      * @category Importing data
      */
     async insertRows(table: string, rows: { [key: string]: unknown }[]) {
-        this.debug && console.log("\ninsertRows()")
-        this.debug && console.log("parameters:", { table, rows })
         await queryDB(
             this,
             insertRowsQuery(table, rows),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "insertRows()",
+                parameters: { table, rows },
+            })
         )
     }
 
@@ -231,12 +238,14 @@ export default class SimpleDB {
      * @category Importing data
      */
     async insertTable(table: string, tableToInsert: string) {
-        this.debug && console.log("\ninsertTable()")
-        this.debug && console.log("parameters:", { table, tableToInsert })
         await queryDB(
             this,
             `INSERT INTO ${table} SELECT * FROM ${tableToInsert}`,
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "insertTable()",
+                parameters: { table, tableToInsert },
+            })
         )
     }
 
@@ -263,15 +272,16 @@ export default class SimpleDB {
             condition?: string
         } = {}
     ) {
-        this.debug && console.log("\ncloneTable()")
-        this.debug &&
-            console.log("parameters:", { originalTable, newTable, options })
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE ${newTable} AS SELECT * FROM ${originalTable}${
                 options.condition ? ` WHERE ${options.condition}` : ""
             }`,
-            mergeOptions(this, { table: newTable })
+            mergeOptions(this, {
+                table: newTable,
+                method: "cloneTable()",
+                parameters: { originalTable, newTable, options },
+            })
         )
     }
 
@@ -287,12 +297,14 @@ export default class SimpleDB {
      * @param newTable - The new name.
      */
     async renameTable(originalTable: string, newTable: string) {
-        this.debug && console.log("\nrenameTable()")
-        this.debug && console.log("parameters:", { originalTable, newTable })
         await queryDB(
             this,
             `ALTER TABLE ${originalTable} RENAME TO ${newTable}`,
-            mergeOptions(this, { table: newTable })
+            mergeOptions(this, {
+                table: newTable,
+                method: "renameTable()",
+                parameters: { originalTable, newTable },
+            })
         )
     }
 
@@ -309,14 +321,16 @@ export default class SimpleDB {
      * @category Selecting or filtering data
      */
     async selectColumns(table: string, columns: string | string[]) {
-        this.debug && console.log("\nselectColumns()")
-        this.debug && console.log("parameters:", { table, columns })
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE ${table} AS SELECT ${stringToArray(columns)
                 .map((d) => `"${d}"`)
                 .join(", ")} FROM ${table}`,
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "selectColumns()",
+                parameters: { table, columns },
+            })
         )
     }
 
@@ -345,8 +359,6 @@ export default class SimpleDB {
             seed?: number
         } = {}
     ) {
-        this.debug && console.log("\nsample()")
-        this.debug && console.log("parameters:", { table, quantity, options })
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ${table} USING SAMPLE RESERVOIR(${
@@ -356,7 +368,11 @@ export default class SimpleDB {
                     ? ` REPEATABLE(${options.seed})`
                     : ""
             }`,
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "sample()",
+                parameters: { table, quantity, options },
+            })
         )
     }
 
@@ -387,8 +403,6 @@ export default class SimpleDB {
         count: number | string,
         options: { offset?: number; outputTable?: string } = {}
     ) {
-        this.debug && console.log("\nselectRows()")
-        this.debug && console.log("parameters:", { table, count, options })
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE ${
@@ -398,7 +412,11 @@ export default class SimpleDB {
                     ? ` OFFSET ${options.offset}`
                     : ""
             };`,
-            mergeOptions(this, { table: options.outputTable ?? table })
+            mergeOptions(this, {
+                table: options.outputTable ?? table,
+                method: "selectRows",
+                parameters: { table, count, options },
+            })
         )
     }
 
@@ -421,12 +439,14 @@ export default class SimpleDB {
             on?: string | string[]
         } = {}
     ) {
-        this.debug && console.log("\nremoveDuplicates()")
-        this.debug && console.log("parameters:", { table, options })
         await queryDB(
             this,
             removeDuplicatesQuery(table, options),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "removeDuplicates()",
+                parameters: { table, options },
+            })
         )
     }
 
@@ -487,13 +507,15 @@ export default class SimpleDB {
             method?: "leftTrim" | "rightTrim" | "trim"
         } = {}
     ) {
-        this.debug && console.log("\ntrim()")
         options.method = options.method ?? "trim"
-        this.debug && console.log("parameters:", { table, columns, options })
         await queryDB(
             this,
             trimQuery(table, stringToArray(columns), options),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "trim()",
+                parameters: { table, columns, options },
+            })
         )
     }
 
@@ -516,14 +538,16 @@ export default class SimpleDB {
      * @category Selecting or filtering data
      */
     async filter(table: string, conditions: string) {
-        this.debug && console.log("\nfilter()")
-        this.debug && console.log("parameters:", { table, conditions })
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE ${table} AS SELECT *
             FROM ${table}
             WHERE ${conditions}`,
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "filter()",
+                parameters: { table, conditions },
+            })
         )
     }
 
@@ -541,12 +565,14 @@ export default class SimpleDB {
      * @category Selecting or filtering data
      */
     async removeRows(table: string, conditions: string) {
-        this.debug && console.log("\nremoveRows()")
-        this.debug && console.log("parameters:", { table, conditions })
         await queryDB(
             this,
             `DELETE FROM ${table} WHERE ${conditions}`,
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "removeRows()",
+                parameters: { table, conditions },
+            })
         )
     }
 
@@ -564,12 +590,14 @@ export default class SimpleDB {
      * @category Restructuring data
      */
     async renameColumns(table: string, names: { [key: string]: string }) {
-        this.debug && console.log("\nrenameColumns()")
-        this.debug && console.log("parameters:", { table, names })
         await queryDB(
             this,
             renameColumnQuery(table, Object.keys(names), Object.values(names)),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "renameColumns()",
+                parameters: { table, names },
+            })
         )
     }
 
@@ -613,9 +641,6 @@ export default class SimpleDB {
         columnsTo: string,
         valuesTo: string
     ) {
-        this.debug && console.log("\nlonger()")
-        this.debug &&
-            console.log("parameters:", { table, columns, columnsTo, valuesTo })
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM (UNPIVOT ${table}
@@ -623,7 +648,11 @@ export default class SimpleDB {
         INTO
             NAME ${columnsTo}
             VALUE ${valuesTo})`,
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "longer()",
+                parameters: { table, columns, columnsTo, valuesTo },
+            })
         )
     }
 
@@ -661,13 +690,14 @@ export default class SimpleDB {
      * @category Restructuring data
      */
     async wider(table: string, columnsFrom: string, valuesFrom: string) {
-        this.debug && console.log("\nwider()")
-        this.debug &&
-            console.log("parameters:", { table, columnsFrom, valuesFrom })
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM (PIVOT ${table} ON "${columnsFrom}" USING sum("${valuesFrom}"));`,
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "wider()",
+                parameters: { table, columnsFrom, valuesFrom },
+            })
         )
     }
 
@@ -717,9 +747,6 @@ export default class SimpleDB {
             datetimeFormat?: string
         } = {}
     ) {
-        this.debug && console.log("\nconvert()")
-        this.debug && console.log("parameters:", { table, types, options })
-
         const allTypes = await this.getTypes(table)
         const allColumns = Object.keys(allTypes)
 
@@ -733,7 +760,11 @@ export default class SimpleDB {
                 allTypes,
                 options
             ),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "convert()",
+                parameters: { table, types, options },
+            })
         )
     }
 
@@ -749,14 +780,16 @@ export default class SimpleDB {
      * @category Restructuring data
      */
     async removeTables(tables: string | string[]) {
-        this.debug && console.log("\nremoveTables()")
-        this.debug && console.log("parameters:", { tables })
         await queryDB(
             this,
             stringToArray(tables)
                 .map((d) => `DROP TABLE ${d};`)
                 .join("\n"),
-            mergeOptions(this, { table: null })
+            mergeOptions(this, {
+                table: null,
+                method: "removeTables()",
+                parameters: { tables },
+            })
         )
     }
 
@@ -773,14 +806,16 @@ export default class SimpleDB {
      * @category Restructuring data
      */
     async removeColumns(table: string, columns: string | string[]) {
-        this.debug && console.log("\nremoveColumns()")
-        this.debug && console.log("parameters:", { table, columns })
         await queryDB(
             this,
             stringToArray(columns)
                 .map((d) => `ALTER TABLE ${table} DROP "${d}";`)
                 .join("\n"),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "removeColumns()",
+                parameters: { table, columns },
+            })
         )
     }
 
@@ -819,14 +854,15 @@ export default class SimpleDB {
             | "boolean",
         definition: string
     ) {
-        this.debug && console.log("\naddColumn()")
-        this.debug &&
-            console.log("parameters:", { table, column, type, definition })
         await queryDB(
             this,
             `ALTER TABLE ${table} ADD "${column}" ${parseType(type)};
             UPDATE ${table} SET "${column}" = ${definition}`,
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "addColumn()",
+                parameters: { table, column, type, definition },
+            })
         )
     }
 
@@ -848,12 +884,14 @@ export default class SimpleDB {
         rightTable: string,
         outputTable: string
     ) {
-        this.debug && console.log("\ncrossJoin()")
-        this.debug && console.log("parameters:", { leftTable, rightTable })
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE "${outputTable}" AS SELECT "${leftTable}".*, "${rightTable}".* FROM "${leftTable}" CROSS JOIN "${rightTable}";`,
-            mergeOptions(this, { table: outputTable })
+            mergeOptions(this, {
+                table: outputTable,
+                method: "crossJoin()",
+                parameters: { leftTable, rightTable, outputTable },
+            })
         )
     }
 
@@ -880,20 +918,19 @@ export default class SimpleDB {
         join: "inner" | "left" | "right" | "full",
         outputTable: string
     ) {
-        this.debug && console.log("\njoin()")
-        this.debug &&
-            console.log("parameters:", {
-                leftTable,
-                rightTable,
-                commonColumn,
-                join,
-                outputTable,
-            })
         await queryDB(
             this,
             joinQuery(leftTable, rightTable, commonColumn, join, outputTable),
             mergeOptions(this, {
                 table: outputTable,
+                method: "join()",
+                parameters: {
+                    leftTable,
+                    rightTable,
+                    commonColumn,
+                    join,
+                    outputTable,
+                },
             })
         )
     }
@@ -934,14 +971,16 @@ export default class SimpleDB {
                 | "boolean"
         }
     ) {
-        this.debug && console.log("\ncreateTable()")
-        this.debug && console.log("parameters:", { table, types })
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE ${table} (${Object.keys(types)
                 .map((d) => `"${d}" ${parseType(types[d])}`)
                 .join(", ")});`,
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "createTable()",
+                parameters: { table, types },
+            })
         )
     }
 
@@ -972,10 +1011,7 @@ export default class SimpleDB {
             entireString?: boolean
         } = {}
     ) {
-        this.debug && console.log("\nreplaceStrings()")
         options.entireString = options.entireString ?? false
-        this.debug &&
-            console.log("parameters:", { table, columns, strings, options })
         await queryDB(
             this,
             replaceStringsQuery(
@@ -987,6 +1023,8 @@ export default class SimpleDB {
             ),
             mergeOptions(this, {
                 table,
+                method: "replaceStrings()",
+                parameters: { table, columns, strings, options },
             })
         )
     }
@@ -1010,13 +1048,13 @@ export default class SimpleDB {
         columns: string | string[],
         value: number | string | Date | boolean
     ) {
-        this.debug && console.log("\replaceNulls()")
-        this.debug && console.log("parameters:", { table, columns, value })
         await queryDB(
             this,
             replaceNullsQuery(table, stringToArray(columns), value),
             mergeOptions(this, {
                 table,
+                method: "replaceNulls()",
+                parameters: { table, columns, value },
             })
         )
     }
@@ -1048,13 +1086,14 @@ export default class SimpleDB {
             separator?: string
         } = {}
     ) {
-        this.debug && console.log("\nconcatenate()")
-        this.debug &&
-            console.log("parameters:", { table, columns, newColumn, options })
         await queryDB(
             this,
             concatenateQuery(table, columns, newColumn, options),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "concatenate()",
+                parameters: { table, columns, newColumn, options },
+            })
         )
     }
 
@@ -1088,12 +1127,14 @@ export default class SimpleDB {
             method?: "round" | "ceiling" | "floor"
         } = {}
     ) {
-        this.debug && console.log("\nround()")
-        this.debug && console.log("parameters:", { table, columns, options })
         await queryDB(
             this,
             roundQuery(table, stringToArray(columns), options),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "round()",
+                parameters: { table, columns, options },
+            })
         )
     }
 
@@ -1110,12 +1151,14 @@ export default class SimpleDB {
      * @category Updating data
      */
     async updateColumn(table: string, column: string, definition: string) {
-        this.debug && console.log("\nupdateColumn()")
-        this.debug && console.log("parameters:", { table, column, definition })
         await queryDB(
             this,
             `UPDATE ${table} SET "${column}" = ${definition}`,
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "updateColumn()",
+                parameters: { table, column, definition },
+            })
         )
     }
 
@@ -1143,12 +1186,14 @@ export default class SimpleDB {
             lang?: { [key: string]: string }
         } = {}
     ) {
-        this.debug && console.log("\nsort()")
-        this.debug && console.log("parameters:", { table, order, options })
         await queryDB(
             this,
             sortQuery(table, order, options),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "sort()",
+                parameters: { table, order, options },
+            })
         )
     }
 
@@ -1181,13 +1226,14 @@ export default class SimpleDB {
             noGaps?: boolean
         } = {}
     ) {
-        this.debug && console.log("\nranks()")
-        this.debug &&
-            console.log("parameters:", { table, values, newColumn, options })
         await queryDB(
             this,
             ranksQuery(table, values, newColumn, options),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "ranks()",
+                parameters: { table, values, newColumn, options },
+            })
         )
     }
 
@@ -1220,19 +1266,20 @@ export default class SimpleDB {
             categories?: string | string[]
         } = {}
     ) {
-        this.debug && console.log("\nquantiles()")
-        this.debug &&
-            console.log("parameters:", {
-                table,
-                values,
-                nbQuantiles,
-                newColumn,
-                options,
-            })
         await queryDB(
             this,
             quantilesQuery(table, values, nbQuantiles, newColumn, options),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "quantiles()",
+                parameters: {
+                    table,
+                    values,
+                    nbQuantiles,
+                    newColumn,
+                    options,
+                },
+            })
         )
     }
 
@@ -1267,19 +1314,20 @@ export default class SimpleDB {
             startValue?: number
         } = {}
     ) {
-        this.debug && console.log("\nbins()")
-        this.debug &&
-            console.log("parameters:", {
-                table,
-                values,
-                interval,
-                newColumn,
-                options,
-            })
         await queryDB(
             this,
             await binsQuery(this, table, values, interval, newColumn, options),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "bins()",
+                parameters: {
+                    table,
+                    values,
+                    interval,
+                    newColumn,
+                    options,
+                },
+            })
         )
     }
 
@@ -1336,17 +1384,18 @@ export default class SimpleDB {
             decimals?: number
         } = {}
     ) {
-        this.debug && console.log("\nproportionsHorizontal()")
-        this.debug &&
-            console.log("parameters:", {
-                table,
-                columns,
-                options,
-            })
         await queryDB(
             this,
             proportionsHorizontalQuery(table, columns, options),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "proportionsHorizontal()",
+                parameters: {
+                    table,
+                    columns,
+                    options,
+                },
+            })
         )
     }
 
@@ -1376,17 +1425,19 @@ export default class SimpleDB {
             decimals?: number
         } = {}
     ) {
-        this.debug && console.log("\nproportionsVertical()")
-        this.debug &&
-            console.log("parameters:", {
-                table,
-                column,
-                options,
-            })
         await queryDB(
             this,
             proportionsVerticalQuery(table, column, newColumn, options),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "proportionsVertical()",
+                parameters: {
+                    table,
+                    column,
+                    newColumn,
+                    options,
+                },
+            })
         )
     }
 
@@ -1565,9 +1616,6 @@ export default class SimpleDB {
             categories?: string | string[]
         } = {}
     ) {
-        this.debug && console.log("\noutliersIQR()")
-        this.debug &&
-            console.log("parameters:", { table, column, newColumn, options })
         await queryDB(
             this,
             outliersIQRQuery(
@@ -1577,7 +1625,11 @@ export default class SimpleDB {
                 (await this.getLength(table)) % 2 === 0 ? "even" : "odd",
                 options
             ),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "outliersIQR()",
+                parameters: { table, column, newColumn, options },
+            })
         )
     }
 
@@ -1607,14 +1659,15 @@ export default class SimpleDB {
             decimals?: number
         } = {}
     ) {
-        this.debug && console.log("\nzScore()")
         options.decimals = options.decimals ?? 2
-        this.debug &&
-            console.log("parameters:", { table, column, newColumn, options })
         await queryDB(
             this,
             zScoreQuery(table, column, newColumn, options),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "zScore()",
+                parameters: { table, column, newColumn, options },
+            })
         )
     }
 
@@ -1638,14 +1691,14 @@ export default class SimpleDB {
             table?: string
         } = {}
     ) {
-        this.debug && console.log("\ncustomQuery()")
-        this.debug && console.log("parameters:", { query, options })
         return await queryDB(
             this,
             query,
             mergeOptions(this, {
                 returnDataFrom: options.returnDataFrom,
                 table: options.table ?? null,
+                method: "customQuery()",
+                parameters: { query, options },
             })
         )
     }
@@ -1680,10 +1733,6 @@ export default class SimpleDB {
             [key: string]: number | string | Date | boolean | null
         }[]
     ) {
-        this.debug && console.log("\nupdateWithJS()")
-        this.debug &&
-            console.log("parameters:", { table, dataModifier: dataModifier })
-
         const oldData = await this.getData(table)
         if (!oldData) {
             throw new Error("No data from getData.")
@@ -1692,7 +1741,11 @@ export default class SimpleDB {
         await queryDB(
             this,
             loadArrayQuery(table, newData),
-            mergeOptions(this, { table })
+            mergeOptions(this, {
+                table,
+                method: "updateWithJS()",
+                parameters: { table, dataModifier: dataModifier },
+            })
         )
     }
 
@@ -1706,8 +1759,6 @@ export default class SimpleDB {
      * @param table - The name of the table for which to retrieve the schema.
      */
     async getSchema(table: string) {
-        this.debug && console.log("\ngetSchema()")
-        this.debug && console.log("parameters:", { table })
         return await queryDB(
             this,
             `DESCRIBE ${table}`,
@@ -1715,6 +1766,8 @@ export default class SimpleDB {
                 returnDataFrom: "query",
                 nbRowsToLog: Infinity,
                 table,
+                method: "getSchema()",
+                parameters: { table },
             })
         )
     }
@@ -1756,7 +1809,9 @@ export default class SimpleDB {
     async hasTable(table: string) {
         this.debug && console.log("\nhasTable()")
         this.debug && console.log("parameters:", { table })
-        return (await this.getTables()).includes(table)
+        const result = (await this.getTables()).includes(table)
+        this.debug && console.log("hasTable:", result)
+        return result
     }
 
     /**
@@ -1785,7 +1840,9 @@ export default class SimpleDB {
     async hasColumn(table: string, column: string) {
         this.debug && console.log("\nhasColumn()")
         this.debug && console.log("parameters:", { table, column })
-        return (await getColumns(this, table)).includes(column)
+        const result = (await getColumns(this, table)).includes(column)
+        this.debug && console.log("hasColumn:", result)
+        return result
     }
 
     /**
@@ -1800,7 +1857,9 @@ export default class SimpleDB {
     async getWidth(table: string) {
         this.debug && console.log("\ngetWidth()")
         this.debug && console.log("parameters:", { table })
-        return (await getColumns(this, table)).length
+        const result = (await getColumns(this, table)).length
+        this.debug && console.log("width:", result)
+        return result
     }
 
     /**
@@ -1828,7 +1887,10 @@ export default class SimpleDB {
     async getValuesCount(table: string) {
         this.debug && console.log("\ngetValuesCount()")
         this.debug && console.log("parameters:", { table })
-        return (await this.getWidth(table)) * (await this.getLength(table))
+        const result =
+            (await this.getWidth(table)) * (await this.getLength(table))
+        this.debug && console.log("values count:", result)
+        return result
     }
 
     /**
@@ -2203,14 +2265,17 @@ export default class SimpleDB {
             condition?: string
         } = {}
     ) {
-        this.debug && console.log("\ngetData()")
-        this.debug && console.log("parameters:", { table, options })
         return await queryDB(
             this,
             `SELECT * from ${table}${
                 options.condition ? ` WHERE ${options.condition}` : ""
             }`,
-            mergeOptions(this, { returnDataFrom: "query", table })
+            mergeOptions(this, {
+                returnDataFrom: "query",
+                table,
+                method: "getData()",
+                parameters: { table, options },
+            })
         )
     }
 
@@ -2222,11 +2287,15 @@ export default class SimpleDB {
      * ```
      */
     async getExtensions() {
-        this.debug && console.log("\ngetExtensions")
         return await queryDB(
             this,
             `FROM duckdb_extensions();`,
-            mergeOptions(this, { returnDataFrom: "query", table: null })
+            mergeOptions(this, {
+                returnDataFrom: "query",
+                table: null,
+                method: "getExtensions()",
+                parameters: {},
+            })
         )
     }
 
@@ -2260,14 +2329,24 @@ export default class SimpleDB {
             `SELECT * FROM ${table} LIMIT ${options.nbRowsToLog}`,
             this.connection,
             true,
-            { bigIntToInt: this.bigIntToInt }
+            {
+                debug: this.debug,
+                method: null,
+                parameters: null,
+                bigIntToInt: this.bigIntToInt,
+            }
         )
         logData(data)
         const nbRows = await this.runQuery(
             `SELECT COUNT(*) FROM ${table};`,
             this.connection,
             true,
-            { bigIntToInt: this.bigIntToInt }
+            {
+                debug: this.debug,
+                method: null,
+                parameters: null,
+                bigIntToInt: this.bigIntToInt,
+            }
         )
         if (nbRows === null) {
             throw new Error("nbRows is null")

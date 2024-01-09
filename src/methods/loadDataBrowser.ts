@@ -5,6 +5,7 @@ import {
 } from "@duckdb/duckdb-wasm"
 import getExtension from "../helpers/getExtension.js"
 import SimpleDB from "../class/SimpleDB.js"
+import mergeOptions from "../helpers/mergeOptions.js"
 
 export default async function loadDataBrowser(
     simpleDB: SimpleDB,
@@ -79,7 +80,12 @@ export default async function loadDataBrowser(
         await simpleDB.runQuery(
             `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM parquet_scan('${filename}')`,
             simpleDB.connection,
-            false
+            false,
+            mergeOptions(simpleDB, {
+                table: null,
+                method: null,
+                parameters: null,
+            })
         )
     } else {
         throw new Error(
@@ -90,5 +96,9 @@ export default async function loadDataBrowser(
     if (start) {
         const end = Date.now()
         console.log(`Done in ${end - start} ms`)
+    }
+
+    if (simpleDB.debug) {
+        await simpleDB.logTable(table)
     }
 }

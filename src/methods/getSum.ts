@@ -7,18 +7,24 @@ export default async function getSum(
     table: string,
     column: string
 ) {
-    simpleDB.debug && console.log("\ngetSum()")
-    simpleDB.debug && console.log("parameters:", { table, column })
-
     const queryResult = await queryDB(
         simpleDB,
         `SELECT SUM("${column}") AS valueForGetSum FROM ${table}`,
-        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, {
+            table,
+            returnDataFrom: "query",
+            method: "getSum()",
+            parameters: { table, column },
+        })
     )
 
     if (!queryResult) {
         throw new Error("No queryResults")
     }
 
-    return queryResult[0].valueForGetSum
+    const result = queryResult[0].valueForGetSum
+
+    simpleDB.debug && console.log("sum:", result)
+
+    return result
 }

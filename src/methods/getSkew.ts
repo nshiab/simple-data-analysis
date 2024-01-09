@@ -10,20 +10,24 @@ export default async function getSkew(
         decimals?: number
     } = {}
 ) {
-    simpleDB.debug && console.log("\ngetSkew()")
-    simpleDB.debug && console.log("parameters:", { table, column, options })
-
     const queryResult = await queryDB(
         simpleDB,
         typeof options.decimals === "number"
             ? `SELECT ROUND(SKEWNESS("${column}"), ${options.decimals}) AS valueForGetSkew FROM ${table}`
             : `SELECT SKEWNESS("${column}") AS valueForGetSkew FROM ${table}`,
-        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, {
+            table,
+            returnDataFrom: "query",
+            method: "getSkew()",
+            parameters: { table, column, options },
+        })
     )
 
     if (!queryResult) {
         throw new Error("No queryResults")
     }
 
-    return queryResult[0].valueForGetSkew
+    const result = queryResult[0].valueForGetSkew
+    simpleDB.debug && console.log("skew:", result)
+    return result
 }

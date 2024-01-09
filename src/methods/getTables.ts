@@ -3,14 +3,14 @@ import queryDB from "../helpers/queryDB.js"
 import SimpleDB from "../class/SimpleDB.js"
 
 export default async function getTables(simpleDB: SimpleDB) {
-    simpleDB.debug && console.log("\ngetTables()")
-
     const queryResult = await queryDB(
         simpleDB,
         `SHOW TABLES`,
         mergeOptions(simpleDB, {
             returnDataFrom: "query",
             table: null,
+            method: "getTables",
+            parameters: {},
         })
     )
 
@@ -20,7 +20,7 @@ export default async function getTables(simpleDB: SimpleDB) {
 
     const tables = queryResult.map((d) => d.name) as string[]
 
-    simpleDB.debug && console.log("\ntables:", tables)
+    simpleDB.debug && console.log("tables:", tables)
 
     return tables
 }

@@ -13,14 +13,12 @@ export default async function removeMissing(
         invert?: boolean
     } = {}
 ) {
-    simpleDB.debug && console.log("\nremoveMissing()")
     options.missingValues = options.missingValues ?? [
         "undefined",
         "NaN",
         "null",
         "",
     ]
-    simpleDB.debug && console.log("parameters:", { table, options })
 
     const types = await simpleDB.getTypes(table)
     const allColumns = Object.keys(types)
@@ -43,6 +41,10 @@ export default async function removeMissing(
             options.columns.length === 0 ? allColumns : options.columns,
             options
         ),
-        mergeOptions(simpleDB, { table })
+        mergeOptions(simpleDB, {
+            table,
+            method: "removeMissing()",
+            parameters: { table, options },
+        })
     )
 }

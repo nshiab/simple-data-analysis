@@ -10,20 +10,24 @@ export default async function getVar(
         decimals?: number
     } = {}
 ) {
-    simpleDB.debug && console.log("\ngetVar()")
-    simpleDB.debug && console.log("parameters:", { table, column, options })
-
     const queryResult = await queryDB(
         simpleDB,
         typeof options.decimals === "number"
             ? `SELECT ROUND(VARIANCE("${column}"), ${options.decimals}) AS valueForGetVar FROM ${table}`
             : `SELECT VARIANCE("${column}") AS valueForGetVar FROM ${table}`,
-        mergeOptions(simpleDB, { table, returnDataFrom: "query" })
+        mergeOptions(simpleDB, {
+            table,
+            returnDataFrom: "query",
+            method: "getVar()",
+            parameters: { table, column, options },
+        })
     )
 
     if (!queryResult) {
         throw new Error("No queryResults")
     }
 
-    return queryResult[0].valueForGetVar
+    const result = queryResult[0].valueForGetVar
+    simpleDB.debug && console.log("variance:", result)
+    return result
 }

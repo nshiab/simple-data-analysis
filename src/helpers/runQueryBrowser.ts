@@ -6,7 +6,13 @@ import { Table } from "apache-arrow"
 export default async function runQueryBrowser(
     query: string,
     connection: AsyncDuckDBConnection | Connection,
-    returnDataFromQuery: boolean
+    returnDataFromQuery: boolean,
+    options: {
+        debug: boolean
+        method: string | null
+        parameters: { [key: string]: unknown } | null
+        bigIntToInt?: boolean
+    }
 ): Promise<
     | {
           [key: string]: number | string | Date | boolean | null
@@ -25,7 +31,11 @@ export default async function runQueryBrowser(
             return null
         }
     } catch (err) {
-        console.log("SDA: query causing error =>", query)
+        if (options.debug === false) {
+            console.log("SDA: method causing error =>", options.method)
+            console.log("parameters:", options.parameters)
+            console.log("query:", query)
+        }
         throw err
     }
 }

@@ -5,7 +5,10 @@ export default async function runQueryNode(
     query: string,
     connection: AsyncDuckDBConnection | Connection,
     returnDataFromQuery: boolean,
-    options?: {
+    options: {
+        debug: boolean
+        method: string | null
+        parameters: { [key: string]: unknown } | null
         bigIntToInt?: boolean
     }
 ): Promise<
@@ -18,7 +21,15 @@ export default async function runQueryNode(
         if (returnDataFromQuery) {
             ;(connection as Connection).all(query, (err, res) => {
                 if (err) {
-                    console.log("SDA: query causing error =>", query)
+                    if (options.debug === false) {
+                        console.log(
+                            "SDA: method causing error =>",
+                            options.method
+                        )
+                        console.log("parameters:", options.parameters)
+                        console.log("query:", query)
+                    }
+
                     throw err
                 }
 
@@ -43,7 +54,14 @@ export default async function runQueryNode(
         } else {
             ;(connection as Connection).exec(query, (err) => {
                 if (err) {
-                    console.log("SDA: query causing error =>", query)
+                    if (options.debug === false) {
+                        console.log(
+                            "SDA: method causing error =>",
+                            options.method
+                        )
+                        console.log("parameters:", options.parameters)
+                        console.log("query:", query)
+                    }
                     throw err
                 }
                 resolve(null)
