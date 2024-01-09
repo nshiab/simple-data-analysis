@@ -13,12 +13,19 @@ export default async function runQueryBrowser(
       }[]
     | null
 > {
-    if (returnDataFromQuery) {
-        const data = await (connection as AsyncDuckDBConnection).query(query)
-        // Weird
-        return tableToArrayOfObjects(data as unknown as Table)
-    } else {
-        await (connection as AsyncDuckDBConnection).query(query)
-        return null
+    try {
+        if (returnDataFromQuery) {
+            const data = await (connection as AsyncDuckDBConnection).query(
+                query
+            )
+            // Weird
+            return tableToArrayOfObjects(data as unknown as Table)
+        } else {
+            await (connection as AsyncDuckDBConnection).query(query)
+            return null
+        }
+    } catch (err) {
+        console.log("SDA: query causing error =>", query)
+        throw err
     }
 }

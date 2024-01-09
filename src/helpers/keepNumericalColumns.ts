@@ -8,5 +8,8 @@ export default function keepNumericalColumns(types: { [key: string]: string }) {
             columns.push(col)
         }
     }
+    if (columns.length === 0) {
+        throw new Error("No numerical columns")
+    }
     return columns
 }

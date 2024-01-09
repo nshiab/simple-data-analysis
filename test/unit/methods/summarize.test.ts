@@ -16,7 +16,7 @@ describe("summarize", () => {
 
     it("should summarize all numeric columns in a table and overwrite the column", async () => {
         await simpleNodeDB.cloneTable("dataSummarize", "dataSummarizeClone")
-        await simpleNodeDB.summarize("dataSummarizeClone")
+        await simpleNodeDB.summarize("dataSummarizeClone", { decimals: 2 })
         const data = await simpleNodeDB.getData("dataSummarizeClone")
 
         assert.deepStrictEqual(data, [
@@ -49,6 +49,7 @@ describe("summarize", () => {
 
     it("should summarize all numeric columns in a table", async () => {
         await simpleNodeDB.summarize("dataSummarize", {
+            decimals: 2,
             outputTable: "dataSummarizeAll",
         })
         const data = await simpleNodeDB.getData("dataSummarizeAll")
@@ -82,6 +83,7 @@ describe("summarize", () => {
     })
     it("should summarize specific numeric columns in a table", async () => {
         await simpleNodeDB.summarize("dataSummarize", {
+            decimals: 2,
             outputTable: "dataSummarizeOneValue",
             values: "key2",
         })
@@ -127,6 +129,7 @@ describe("summarize", () => {
     })
     it("should summarize all numeric columns in a table with a non numeric category", async () => {
         await simpleNodeDB.summarize("dataSummarize", {
+            decimals: 2,
             outputTable: "dataSummarizeNonNumericalCategory",
             categories: "key1",
         })
@@ -192,6 +195,7 @@ describe("summarize", () => {
     })
     it("should summarize all numeric columns in a table with a numeric category", async () => {
         await simpleNodeDB.summarize("dataSummarize", {
+            decimals: 2,
             outputTable: "dataSummarizeNumericalCategory",
             categories: "key2",
         })
@@ -256,6 +260,7 @@ describe("summarize", () => {
     })
     it("should summarize all numeric columns in a table with specific summaries", async () => {
         await simpleNodeDB.summarize("dataSummarize", {
+            decimals: 2,
             outputTable: "dataSummarizeAllSpecificSummaries",
             summaries: ["mean", "count"],
         })
@@ -270,6 +275,7 @@ describe("summarize", () => {
     })
     it("should summarize all numeric columns in a table with specific summaries and specific categories", async () => {
         await simpleNodeDB.summarize("dataSummarize", {
+            decimals: 2,
             outputTable: "dataSummarizeAllSpecificSummariesAndCategories",
             categories: "key1",
             summaries: ["mean", "count"],
@@ -302,6 +308,7 @@ describe("summarize", () => {
     })
     it("should summarize with multiple categories", async () => {
         await simpleNodeDB.summarize("dataSummarize", {
+            decimals: 2,
             outputTable: "dataSummarizeMultipleCategories",
             values: "key3",
             categories: ["key1", "key2"],
@@ -316,6 +323,31 @@ describe("summarize", () => {
             { value: "key3", key1: "Fraise", key2: 22, mean: 12.34, count: 1 },
             { value: "key3", key1: "Rubarbe", key2: 1, mean: 10.5, count: 1 },
             { value: "key3", key1: "Rubarbe", key2: 2, mean: 4.57, count: 1 },
+        ])
+    })
+    it("should summarize with dates", async () => {
+        await simpleNodeDB.loadArray("dates", [
+            { keyA: new Date("2023-01-01") },
+            { keyA: new Date("2022-01-01") },
+            { keyA: new Date("2021-01-01") },
+        ])
+
+        await simpleNodeDB.summarize("dates")
+        const data = await simpleNodeDB.getData("dates")
+
+        assert.deepStrictEqual(data, [
+            {
+                value: "keyA",
+                count: 3,
+                min: new Date("2021-01-01"),
+                max: new Date("2023-01-01"),
+                mean: null,
+                median: new Date("2022-01-01"),
+                sum: null,
+                skew: null,
+                stdDev: null,
+                var: null,
+            },
         ])
     })
 })
