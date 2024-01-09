@@ -1,9 +1,9 @@
-import keepNumericalColumns from "../helpers/keepNumericalColumns.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import stringToArray from "../helpers/stringToArray.js"
 import SimpleDB from "../class/SimpleDB.js"
 import summarizeQuery from "./summarizeQuery.js"
+import keepNumericalAndDatesColumns from "../helpers/keepNumericalAndDatesColumns.js"
 
 export default async function summarize(
     simpleDB: SimpleDB,
@@ -51,12 +51,12 @@ export default async function summarize(
     } else if (typeof options.summaries === "string") {
         options.summaries = [options.summaries]
     }
-    options.decimals = options.decimals ?? 2
 
+    const types = await simpleDB.getTypes(table)
     if (options.values.length === 0) {
-        const types = await simpleDB.getTypes(table)
-        options.values = keepNumericalColumns(types)
+        options.values = keepNumericalAndDatesColumns(types)
     }
+
     options.values = options.values.filter(
         (d) => !options.categories?.includes(d)
     )
@@ -71,6 +71,7 @@ export default async function summarize(
         simpleDB,
         summarizeQuery(
             table,
+            types,
             outputTable,
             options.values,
             options.categories,

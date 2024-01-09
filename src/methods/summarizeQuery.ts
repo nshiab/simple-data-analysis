@@ -1,5 +1,8 @@
 export default function summarizeQuery(
     table: string,
+    types: {
+        [key: string]: string
+    },
     outputTable: string,
     values: string[],
     categories: string[],
@@ -55,12 +58,25 @@ export default function summarizeQuery(
             categories.length > 0
                 ? `, ${categories.map((d) => `"${d}"`).join(", ")}`
                 : ""
-        },${summaries.map(
-            (d) =>
-                `\nROUND(${aggregates[d]}("${value}"), ${
-                    options.decimals ?? 2
-                }) AS '${d}'`
-        )}\nFROM ${table}`
+        },${summaries.map((summary) => {
+            if (
+                [
+                    "DATE",
+                    "TIME",
+                    "TIMESTAMP",
+                    "TIMESTAMP WITH TIME ZONE",
+                ].includes(types[value]) &&
+                ["AVG", "SUM", "SKEWNESS", "STDDEV", "VARIANCE"].includes(
+                    aggregates[summary]
+                )
+            ) {
+                return `\nNULL AS '${summary}'`
+            } else {
+                return typeof options.decimals === "number"
+                    ? `\nROUND(${aggregates[summary]}("${value}"), ${options.decimals}) AS '${summary}'`
+                    : `\n${aggregates[summary]}("${value}") AS '${summary}'`
+            }
+        })}\nFROM ${table}`
         if (categories.length > 0) {
             query += `\nGROUP BY ${categories.map((d) => `"${d}"`).join(", ")}`
         }

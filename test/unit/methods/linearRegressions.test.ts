@@ -79,7 +79,7 @@ describe("linearRegressions", () => {
                 x: "decade",
                 y: "mean",
                 slope: 0.02,
-                yIntercept: -29.86,
+                yIntercept: -29.85,
                 r2: 0.92,
             },
             {
@@ -87,7 +87,7 @@ describe("linearRegressions", () => {
                 x: "decade",
                 y: "mean",
                 slope: 0.02,
-                yIntercept: -24.56,
+                yIntercept: -24.53,
                 r2: 0.9,
             },
             {
@@ -95,7 +95,7 @@ describe("linearRegressions", () => {
                 x: "decade",
                 y: "mean",
                 slope: 0.02,
-                yIntercept: -30.62,
+                yIntercept: -30.57,
                 r2: 0.83,
             },
         ])

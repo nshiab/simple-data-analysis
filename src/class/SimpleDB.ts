@@ -1409,7 +1409,7 @@ export default class SimpleDB {
      * // Summarizes a specific column with a specific summary operation and use the values in another column as categories. Summaries can be an array of summary operations, too.
      * await sdb.summarize("tableA", {values: "column1", categories: "column2", summaries: "mean"})
      *
-     * // Summarizes and round values with a specific number of decimal places (default is 2).
+     * // Summarizes and round values with a specific number of decimal places.
      * await sdb.summarize("tableA", {values: "column1", categories: "column2", summaries: "mean", decimals: 4})
      * ```
      *
@@ -1418,7 +1418,7 @@ export default class SimpleDB {
      *   @param options.values - The column or columns whose values will be summarized. This can be a single column name or an array of column names.
      *   @param options.categories - The column or columns that define categories for the summarization. This can be a single column name or an array of column names.
      *   @param options.summaries - The summary operations to be performed. This can be a single summary operation or an array of summary operations.
-     *   @param options.decimals - The number of decimal places to round the summarized values. Defaults to 2.
+     *   @param options.decimals - The number of decimal places to round the summarized values.
      *   @param options.outputTable - An option to store the results in a new table.
      *
      * @category Analyzing data
@@ -1459,7 +1459,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Calculates correlations between columns in a table.
+     * Calculates correlations between columns in a table. Results are rounded with two decimals by default.
      *
      * If no *x* and *y* columns are specified, the method computes the correlations of all numeric columns *combinations*. It's important to note that correlation is symmetrical: the correlation of *x* over *y* is the same as *y* over *x*.
      *
@@ -1501,7 +1501,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Performs linear regression analysis and creates a table with regression results. The results include the slope, the y-intercept the R-squared.
+     * Performs linear regression analysis and creates a table with regression results. The results include the slope, the y-intercept the R-squared. Results are rounded with two decimals by default.
      *
      * If no *x* and *y* columns are specified, the method computes the linear regression analysis of all numeric columns *permutations*. It's important to note that linear regression analysis is asymmetrical: the linear regression of *x* over *y* is not the same as *y* over *x*.
      *
