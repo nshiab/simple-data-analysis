@@ -207,18 +207,12 @@ describe("convert", () => {
     })
 
     it("should convert dates to strings", async () => {
-        await simpleNodeDB.convert(
-            "dataDates",
-            {
-                date: "string",
-                datetime: "string",
-                datetimeWithMs: "string",
-                weirdDatetime: "string",
-            },
-            {
-                datetimeFormat: "%Y/%m/%d_%Hh_%Mmin_%Ssec",
-            }
-        )
+        await simpleNodeDB.convert("dataDates", {
+            date: "string",
+            datetime: "string",
+            datetimeWithMs: "string",
+            weirdDatetime: "string",
+        })
         const data = await simpleNodeDB.getData("dataDates")
 
         assert.deepStrictEqual(data, [
@@ -258,26 +252,24 @@ describe("convert", () => {
     })
 
     it("should convert dates to strings with a specific format", async () => {
-        await simpleNodeDB.convert("dataDates", {
-            date: "datetime",
-            datetime: "datetime",
-            datetimeWithMs: "datetime",
-            weirdDatetime: "datetime",
-        })
+        await simpleNodeDB.loadData("dataDatesToBeStringWithSpecificFormat", [
+            "test/data/files/dataDates.csv",
+        ])
 
         await simpleNodeDB.convert(
-            "dataDates",
+            "dataDatesToBeStringWithSpecificFormat",
             {
-                date: "date",
-                datetime: "datetime",
-                datetimeWithMs: "datetime",
-                weirdDatetime: "datetime",
+                date: "string",
+                datetime: "string",
+                datetimeWithMs: "string",
             },
             {
                 datetimeFormat: "%Y/%m/%d_%Hh_%Mmin_%Ssec",
             }
         )
-        const data = await simpleNodeDB.getData("dataDates")
+        const data = await simpleNodeDB.getData(
+            "dataDatesToBeStringWithSpecificFormat"
+        )
 
         assert.deepStrictEqual(data, [
             {
