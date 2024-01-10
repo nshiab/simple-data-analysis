@@ -13,7 +13,7 @@ import roundQuery from "../methods/roundQuery.js"
 import joinQuery from "../methods/joinQuery.js"
 import insertRowsQuery from "../methods/insertRowsQuery.js"
 import sortQuery from "../methods/sortQuery.js"
-import loadArrayQuery from "../methods/loadArrayQuery.js"
+import loadArrayQueryBrowser from "../methods/loadArrayQueryBrowser.js"
 import outliersIQRQuery from "../methods/outliersIQRQuery.js"
 import zScoreQuery from "../methods/zScoreQuery.js"
 import parseType from "../helpers/parseTypes.js"
@@ -157,7 +157,7 @@ export default class SimpleDB {
     ) {
         await queryDB(
             this,
-            loadArrayQuery(table, arrayOfObjects),
+            loadArrayQueryBrowser(table, arrayOfObjects),
             mergeOptions(this, {
                 table,
                 method: "loadArray()",
@@ -1733,20 +1733,15 @@ export default class SimpleDB {
             [key: string]: number | string | Date | boolean | null
         }[]
     ) {
+        this.debug && console.log("\nupdateWithJS()")
+        this.debug &&
+            console.log("parameters:", { table, dataModifier: dataModifier })
         const oldData = await this.getData(table)
         if (!oldData) {
             throw new Error("No data from getData.")
         }
         const newData = dataModifier(oldData)
-        await queryDB(
-            this,
-            loadArrayQuery(table, newData),
-            mergeOptions(this, {
-                table,
-                method: "updateWithJS()",
-                parameters: { table, dataModifier: dataModifier },
-            })
-        )
+        await this.loadArray(table, newData)
     }
 
     /**

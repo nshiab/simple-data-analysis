@@ -2,7 +2,7 @@ import getFirstNonNullOrUndefinedValues from "../helpers/getFirstNonNullOrUndefi
 import parseValue from "../helpers/parseValue.js"
 import getType from "./getType.js"
 
-export default function loadArrayQuery(
+export default function loadArrayQueryBrowser(
     table: string,
     arrayOfObjects: { [key: string]: unknown }[]
 ) {
