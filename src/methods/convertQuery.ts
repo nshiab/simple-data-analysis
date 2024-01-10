@@ -25,7 +25,6 @@ export default function convertQuery(
     },
     options: { datetimeFormat?: string; try?: boolean }
 ) {
-    // Possible with update/set? Tried and couldn't make it work...
     let query = `CREATE OR REPLACE TABLE ${table} AS SELECT`
 
     const cast = options.try ? "TRY_CAST" : "CAST"
@@ -43,9 +42,9 @@ export default function convertQuery(
                 currentType === "VARCHAR" &&
                 (expectedType.includes("TIME") || expectedType.includes("DATE"))
             const dateToString =
-                (currentType.toLowerCase().includes("date") ||
-                    currentType.toLowerCase().includes("time")) &&
-                (expectedType.includes("TIME") || expectedType.includes("DATE"))
+                (currentType.includes("DATE") ||
+                    currentType.includes("TIME")) &&
+                expectedType === "VARCHAR"
 
             if (datetimeFormatExist && stringToDate) {
                 query += ` strptime("${column}", '${options.datetimeFormat}') AS "${column}",`
