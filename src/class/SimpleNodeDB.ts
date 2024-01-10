@@ -1,4 +1,4 @@
-import duckdb, { Database } from "duckdb"
+import duckdb, { Connection, Database } from "duckdb"
 import { readdirSync } from "fs"
 import SimpleGeoDB from "./SimpleGeoDB.js"
 
@@ -10,6 +10,7 @@ import writeDataQuery from "../methods/writeDataQuery.js"
 import stringToArray from "../helpers/stringToArray.js"
 import runQueryNode from "../helpers/runQueryNode.js"
 import batch from "../methods/batch.js"
+import { tableFromJSON, tableToIPC } from "apache-arrow"
 
 /**
  * SimpleNodeDB is a class that provides a simplified interface for working with DuckDB,
@@ -60,7 +61,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
     }
 
     /**
-     * Initializes DuckDB and establishes a connection to the database. It also installs the [spatial](https://duckdb.org/docs/extensions/spatial) extensions. It's called automatically with the first method you'll run.
+     * Initializes DuckDB and establishes a connection to the database. It also optionnaly installs the [spatial](https://duckdb.org/docs/extensions/spatial) extensions. It's called automatically with the first method you'll run.
      */
     async start() {
         this.debug && console.log("\nstart()")
@@ -69,6 +70,43 @@ export default class SimpleNodeDB extends SimpleGeoDB {
             this.db.exec("INSTALL spatial; LOAD spatial;")
         }
         this.connection = this.db.connect()
+    }
+
+    /**
+     * Creates or replaces a table and loads an array of objects into it.
+     *
+     * ```ts
+     * const data = [{letter: "a", number: 1}, {letter: "b", number: 2}]
+     * await simpleDB.loadArray("tableA", data)
+     * ```
+     *
+     * @param table - The name of the table to be created.
+     * @param arrayOfObjects - An array of objects representing the data.
+     *
+     * @category Importing data
+     */
+    async loadArray(
+        table: string,
+        arrayOfObjects: { [key: string]: unknown }[]
+    ) {
+        this.debug && console.log("\nloadArray()")
+        this.debug && console.log("parameters:", { table, arrayOfObjects })
+
+        const arrowTable = tableFromJSON(arrayOfObjects)
+        if (this.connection === undefined) {
+            await this.start()
+        }
+        ;(this.connection as Connection).register_buffer(
+            `tableAsView`,
+            [tableToIPC(arrowTable)],
+            true
+        )
+        await this.customQuery(
+            `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM tableAsView;
+            DROP VIEW tableAsView;`
+        )
+
+        this.debug && (await this.logTable(table))
     }
 
     /**
