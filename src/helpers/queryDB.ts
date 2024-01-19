@@ -42,7 +42,15 @@ export default async function queryDB(
             options
         )
         console.log("\nquery result:")
-        logData(queryResult)
+        if (
+            Array.isArray(queryResult) &&
+            queryResult.length > options.nbRowsToLog
+        ) {
+            logData(queryResult.slice(0, options.nbRowsToLog))
+            console.log(`nbRowsToLog: ${options.nbRowsToLog}`)
+        } else {
+            logData(queryResult)
+        }
 
         if (options.returnDataFrom === "query") {
             data = queryResult
