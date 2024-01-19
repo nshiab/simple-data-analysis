@@ -224,7 +224,8 @@ export default class SimpleNodeDB extends SimpleGeoDB {
         } = {}
     ) {
         const files = readdirSync(directory).map(
-            (file) => `${directory}${file}`
+            (file) =>
+                `${directory.slice(-1) === "/" ? directory : directory + "/"}${file}`
         )
         await queryDB(
             this,
