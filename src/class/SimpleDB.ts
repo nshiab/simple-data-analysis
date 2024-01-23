@@ -225,26 +225,33 @@ export default class SimpleDB {
     }
 
     /**
-     * Inserts all rows from one table into another existing table.
+     * Inserts all rows from one table (or multiple tables) into another existing table.
      *
      * ```ts
      * // Insert all rows from tableB into tableA.
      * await sdb.insertTable("tableA", "tableB")
+     * // Insert all rows from tableB and tableC into tableA.
+     * await sdb.insertTable("tableA", ["tableB", "tableC"])
      * ```
      *
      * @param table - The name of the table to insert rows into.
-     * @param tableToInsert - The name of the table from which rows will be inserted.
+     * @param tablesToInsert - The name of the table(s) from which rows will be inserted.
      *
      * @category Importing data
      */
-    async insertTable(table: string, tableToInsert: string) {
+    async insertTables(table: string, tablesToInsert: string | string[]) {
         await queryDB(
             this,
-            `INSERT INTO ${table} SELECT * FROM ${tableToInsert}`,
+            stringToArray(tablesToInsert)
+                .map(
+                    (tableToInsert) =>
+                        `INSERT INTO ${table} SELECT * FROM ${tableToInsert};`
+                )
+                .join("\n"),
             mergeOptions(this, {
                 table,
                 method: "insertTable()",
-                parameters: { table, tableToInsert },
+                parameters: { table, tablesToInsert },
             })
         )
     }

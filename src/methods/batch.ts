@@ -59,12 +59,12 @@ export default async function batch(
             firstRun = false
         } else {
             if (hasBatchOuputTableTemp) {
-                await simpleDB.insertTable(
+                await simpleDB.insertTables(
                     "batchFinalTable",
                     "batchOuputTableTemp"
                 )
             } else {
-                await simpleDB.insertTable(
+                await simpleDB.insertTables(
                     "batchFinalTable",
                     "batchOriginalTableTemp"
                 )
