@@ -458,7 +458,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Removes rows with missing values from a table. By default, missing values are NULL (as an SQL value), but also "null", "NaN" and "undefined" that might have been converted to strings before being loaded into the table. Empty strings "" are also considered missing values.
+     * Removes rows with missing values from a table. By default, missing values are NULL (as an SQL value), but also "NULL", "null", "NaN" and "undefined" that might have been converted to strings before being loaded into the table. Empty strings "" are also considered missing values.
      *
      * ```ts
      * // Removes rows with missing values in any columns.
@@ -471,7 +471,7 @@ export default class SimpleDB {
      * @param table - The name of the table from which rows with missing values will be removed.
      * @param options - An optional object with configuration options:
      *   @param options.columns - Either a string or an array of strings specifying the columns to consider for missing values. By default, all columns are considered.
-     *   @param options.missingValues - An array of values to be treated as missing values. Defaults to ["undefined", "NaN", "null", ""].
+     *   @param options.missingValues - An array of values to be treated as missing values. Defaults to ["undefined", "NaN", "null", "NULL", ""].
      *   @param options.invert - A boolean indicating whether to invert the condition, keeping only rows with missing values. Defaults to false.
      *
      * @category Selecting or filtering data
