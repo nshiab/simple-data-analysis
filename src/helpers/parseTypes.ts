@@ -24,7 +24,7 @@ export default function parseType(
         return "VARCHAR"
     } else if (typeLowerCase === "datetime") {
         return "TIMESTAMP"
-    } else if (typeLowerCase === "datetimeTz") {
+    } else if (typeLowerCase === "datetimetz") {
         return "TIMESTAMP WITH TIME ZONE"
     } else if (
         [
