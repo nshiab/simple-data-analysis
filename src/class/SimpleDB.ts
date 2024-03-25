@@ -164,7 +164,13 @@ export default class SimpleDB {
             mergeOptions(this, {
                 table,
                 method: "loadArray()",
-                parameters: { table, arrayOfObjects },
+                parameters: {
+                    table,
+                    arrayOfObjects:
+                        arrayOfObjects.length > 5
+                            ? `${JSON.stringify(arrayOfObjects.slice(0, 5))} (just showing the first 5 items)`
+                            : arrayOfObjects,
+                },
             })
         )
     }
