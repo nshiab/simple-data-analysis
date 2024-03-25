@@ -31,7 +31,7 @@ describe("loadArray", () => {
     ]
 
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ debug: true })
+        simpleNodeDB = new SimpleNodeDB()
     })
     after(async function () {
         await simpleNodeDB.done()
