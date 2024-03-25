@@ -119,8 +119,8 @@ export default class SimpleGeoDB extends SimpleDB {
      * Reprojects the data from one Spatial Reference System (SRS) to another.
      *
      * ```ts
-     * // From EPSG:4326 (also called WGS84, with lat and lon in degrees) to EPSG:3347 (also called NAD83/Statistics Canada Lambert with coordinates in meters)
-     * await sdb.reproject("tableGeo", "geom", "EPSG:4326", "EPSG:3347")
+     * // From EPSG:3347 (also called NAD83/Statistics Canada Lambert with coordinates in meters) to EPSG:4326 (also called WGS84, with lat and lon in degrees)
+     * await sdb.reproject("tableGeo", "geom", "EPSG:3347", "EPSG:4326")
      * ```
      * @param table - The name of the table storing the geospatial data.
      * @param column - The name of the column storing the geometries.
