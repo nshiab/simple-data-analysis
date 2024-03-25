@@ -11,6 +11,7 @@ import stringToArray from "../helpers/stringToArray.js"
 import runQueryNode from "../helpers/runQueryNode.js"
 import batch from "../methods/batch.js"
 import { tableFromJSON, tableToIPC } from "apache-arrow"
+import writeGeoDataQuery from "../methods/writeGeoDataQuery.js"
 
 /**
  * SimpleNodeDB is a class that provides a simplified interface for working with DuckDB,
@@ -274,6 +275,30 @@ export default class SimpleNodeDB extends SimpleGeoDB {
                 table,
                 method: "writeData()",
                 parameters: { table, file, options },
+            })
+        )
+    }
+
+    /**
+     * Writes geospatial data from a table to a file.
+     *
+     * ```ts
+     * await sdb.writeGeoata("tableA", "output/data.geojson");
+     * ```
+     *
+     * @param table - The name of the table from which data will be written.
+     * @param file - The path to the file to which data will be written.
+     *
+     * * @category Exporting data
+     */
+    async writeGeoData(table: string, file: string) {
+        await queryDB(
+            this,
+            writeGeoDataQuery(table, file),
+            mergeOptions(this, {
+                table,
+                method: "writeGeoData()",
+                parameters: { table, file },
             })
         )
     }
