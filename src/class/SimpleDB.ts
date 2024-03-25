@@ -53,6 +53,8 @@ import addThousandSeparator from "../helpers/addThousandSeparator.js"
 import removeDuplicatesQuery from "../methods/removeDuplicatesQuery.js"
 import logData from "../helpers/logData.js"
 import replaceNullsQuery from "../methods/replaceNullsQuery.js"
+import lowerQuery from "../methods/lowerQuery.js"
+import upperQuery from "../methods/upperQuery.js"
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB.
@@ -1032,6 +1034,62 @@ export default class SimpleDB {
                 table,
                 method: "replaceStrings()",
                 parameters: { table, columns, strings, options },
+            })
+        )
+    }
+
+    /**
+     * Formats strings to lowercase.
+     *
+     *```ts
+     * // Just in one column.
+     * await sdb.lower("tableA", "column1")
+     *
+     * // In multiple columns
+     * await sdb.lower("tableA", ["column1", "column2"])
+     * ```
+     *
+     * @param table - The name of the table in which strings will be formatted to lowercase.
+     * @param columns - Either a string or an array of strings specifying the columns to be updated.
+     *
+     * @category Updating data
+     */
+    async lower(table: string, columns: string | string[]) {
+        await queryDB(
+            this,
+            lowerQuery(table, stringToArray(columns)),
+            mergeOptions(this, {
+                table,
+                method: "lower()",
+                parameters: { table, columns },
+            })
+        )
+    }
+
+    /**
+     * Formats strings to uppercase.
+     *
+     *```ts
+     * // Just in one column.
+     * await sdb.upper("tableA", "column1")
+     *
+     * // In multiple columns
+     * await sdb.upper("tableA", ["column1", "column2"])
+     * ```
+     *
+     * @param table - The name of the table in which strings will be formatted to uppercase.
+     * @param columns - Either a string or an array of strings specifying the columns to be updated.
+     *
+     * @category Updating data
+     */
+    async upper(table: string, columns: string | string[]) {
+        await queryDB(
+            this,
+            upperQuery(table, stringToArray(columns)),
+            mergeOptions(this, {
+                table,
+                method: "lower()",
+                parameters: { table, columns },
             })
         )
     }
