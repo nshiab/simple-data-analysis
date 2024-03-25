@@ -20,7 +20,7 @@ export default function logData(
                     [key: string]: string | number | boolean | Date | null
                 } = {}
                 for (const key of keys) {
-                    if (Buffer.isBuffer(data[i][key])) {
+                    if (Buffer && Buffer.isBuffer(data[i][key])) {
                         newItem[key] = "<Buffer>"
                     } else {
                         newItem[key] = data[i][key]
