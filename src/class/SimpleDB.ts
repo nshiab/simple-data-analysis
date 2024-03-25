@@ -311,6 +311,8 @@ export default class SimpleDB {
      * @param table - The table in which the cloning should happen.
      * @param originalColumn - The original column.
      * @param newColumn - The name of the cloned column.
+     *
+     * @category Restructuring data
      */
     async cloneColumn(
         table: string,
