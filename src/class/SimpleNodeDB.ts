@@ -96,10 +96,18 @@ export default class SimpleNodeDB extends SimpleGeoDB {
         if (this.connection === undefined) {
             await this.start()
         }
+
+        await this.customQuery("INSTALL arrow; LOAD arrow;")
         ;(this.connection as Connection).register_buffer(
             `tableAsView`,
             [tableToIPC(arrowTable)],
-            true
+            true,
+            (err) => {
+                if (err) {
+                    console.log(err)
+                    return
+                }
+            }
         )
         await this.customQuery(
             `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM tableAsView;

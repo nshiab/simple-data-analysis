@@ -132,16 +132,16 @@ describe("join", () => {
                 country: "Mexico",
                 category: "Dessert",
             },
+            { dishId: null, name: null, country: null, category: "Main" },
+            { dishId: null, name: null, country: null, category: "Main" },
+            { dishId: null, name: null, country: null, category: "Dessert" },
+            { dishId: 5, name: "Mochi", country: "Japan", category: null },
             {
                 dishId: 4,
                 name: "Couscous",
                 country: "Morrocco",
                 category: null,
             },
-            { dishId: 5, name: "Mochi", country: "Japan", category: null },
-            { dishId: null, name: null, country: null, category: "Dessert" },
-            { dishId: null, name: null, country: null, category: "Main" },
-            { dishId: null, name: null, country: null, category: "Main" },
         ])
     })
 })
