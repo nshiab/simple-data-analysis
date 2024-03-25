@@ -24,4 +24,18 @@ describe("loadGeoData", () => {
             geom: "GEOMETRY",
         })
     })
+    it("should load a shapefile file", async () => {
+        await simpleNodeDB.loadGeoData(
+            "shapefileData",
+            "test/geodata/files/CanadianProvincesAndTerritories.shp.zip"
+        )
+
+        const types = await simpleNodeDB.getTypes("shapefileData")
+
+        assert.deepStrictEqual(types, {
+            nameEnglis: "VARCHAR",
+            nameFrench: "VARCHAR",
+            geom: "GEOMETRY",
+        })
+    })
 })
