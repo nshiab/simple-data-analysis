@@ -45,7 +45,7 @@ If you have any questions at any step, leave a comment on the relevant issue.
 
 ## Final test
 
-When all the steps above are dealt with, it's time for the final test, which runs all tests but also formats your files, runs a linter and builds the library.
+When all the steps above are dealt with, it's time for the final test, which runs all tests but also formats your files, runs a linter, builds the library and the docs (in a test folder).
 
 ```bash
 npm run all-tests

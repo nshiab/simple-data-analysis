@@ -91,7 +91,14 @@ export default class SimpleNodeDB extends SimpleGeoDB {
         arrayOfObjects: { [key: string]: unknown }[]
     ) {
         this.debug && console.log("\nloadArray()")
-        this.debug && console.log("parameters:", { table, arrayOfObjects })
+        this.debug &&
+            console.log("parameters:", {
+                table,
+                arrayOfObjects:
+                    arrayOfObjects.length > 5
+                        ? `${JSON.stringify(arrayOfObjects.slice(0, 2))} (just showing the first 5 items)`
+                        : arrayOfObjects,
+            })
 
         const arrowTable = tableFromJSON(arrayOfObjects)
         if (this.connection === undefined) {
