@@ -55,6 +55,7 @@ import logData from "../helpers/logData.js"
 import replaceNullsQuery from "../methods/replaceNullsQuery.js"
 import lowerQuery from "../methods/lowerQuery.js"
 import upperQuery from "../methods/upperQuery.js"
+import cloneColumnQuery from "../methods/cloneColumn.js"
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB.
@@ -290,6 +291,35 @@ export default class SimpleDB {
                 table: newTable,
                 method: "cloneTable()",
                 parameters: { originalTable, newTable, options },
+            })
+        )
+    }
+
+    /**
+     * Clones a column in a given table.
+     *
+     * ```ts
+     * // Clones column1 as column2 from tableA
+     * await sdb.cloneColumn("tableA", "column1", "column2")
+     * ```
+     * @param table - The table in which the cloning should happen.
+     * @param originalColumn - The original column.
+     * @param newColumn - The name of the cloned column.
+     */
+    async cloneColumn(
+        table: string,
+        originalColumn: string,
+        newColumn: string
+    ) {
+        const types = await this.getTypes(table)
+
+        await queryDB(
+            this,
+            cloneColumnQuery(table, originalColumn, newColumn, types),
+            mergeOptions(this, {
+                table: table,
+                method: "cloneColumn()",
+                parameters: { table, originalColumn, newColumn },
             })
         )
     }
