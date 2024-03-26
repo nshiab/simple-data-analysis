@@ -23,6 +23,7 @@ export default class SimpleGeoDB extends SimpleDB {
         } = {}
     ) {
         super(options)
+        this.spatial = true
     }
 
     /**
@@ -54,6 +55,13 @@ export default class SimpleGeoDB extends SimpleDB {
      * @category Geospatial
      */
     async loadGeoData(table: string, file: string) {
+        if (this.spatial === false) {
+            // Just for SimpleNodeDB
+            throw new Error(
+                "You must instanciate with spatial set to true => new SimpleNodeDB({spatial: true})"
+            )
+        }
+
         await queryDB(
             this,
             `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ST_Read('${file}');`,
