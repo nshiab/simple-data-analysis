@@ -24,7 +24,7 @@ describe("intersection", () => {
         await simpleNodeDB.area("pol", "geom", "polArea")
         await simpleNodeDB.renameColumns("pol", { geom: "pol" })
 
-        await simpleNodeDB.crossJoin("prov", "pol", "joined")
+        await simpleNodeDB.crossJoin("prov", "pol", { outputTable: "joined" })
         await simpleNodeDB.intersection("joined", ["pol", "prov"], "intersec")
         await simpleNodeDB.area("joined", "intersec", "intersecArea")
         await simpleNodeDB.addColumn(

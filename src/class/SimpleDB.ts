@@ -917,66 +917,96 @@ export default class SimpleDB {
      * Performs a cross join operation between two tables returning all pairs of rows. With SimpleNodeDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
      *
      * ```ts
-     * await crossJoin("tableA", "tableB", "outputTable");
+     * // By default, the leftTable (tableA here) will be overwritten with the result.
+     * await crossJoin("tableA", "tableB");
+     *
+     * // But you can put the result into another table if needed.
+     * await crossJoin("tableA", "tableB", { outputTable: "tableC" });
      * ```
      *
      * @param leftTable - The name of the left table.
      * @param rightTable - The name of the right table.
-     * @param outputTable - The name of the output table where the new rows will be stored.
+     * @param options - An optional object with configuration options:
+     *   @param options.outputTable - The name of the table that will be created or replaced with the result of the cross join.
      *
      * @category Restructuring data
      */
     async crossJoin(
         leftTable: string,
         rightTable: string,
-        outputTable: string
+        options: {
+            outputTable?: string
+        } = {}
     ) {
         await queryDB(
             this,
-            `CREATE OR REPLACE TABLE "${outputTable}" AS SELECT "${leftTable}".*, "${rightTable}".* FROM "${leftTable}" CROSS JOIN "${rightTable}";`,
+            `CREATE OR REPLACE TABLE "${options.outputTable ?? leftTable}" AS SELECT "${leftTable}".*, "${rightTable}".* FROM "${leftTable}" CROSS JOIN "${rightTable}";`,
             mergeOptions(this, {
-                table: outputTable,
+                table: options.outputTable ?? leftTable,
                 method: "crossJoin()",
-                parameters: { leftTable, rightTable, outputTable },
+                parameters: { leftTable, rightTable, options },
             })
         )
     }
 
     /**
-     * Merges the data of two tables based on a common column and puts the result in a new table. With SimpleNodeDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
+     * Merges the data of two tables based on a common column. With SimpleNodeDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
      *
      * ```ts
-     * // Do a left join of tableA (left) and tableB (right) based on the common column id. The result is put into tableC.
-     * await sdb.join("tableA", "tableB", "id", "left", "tableC",)
+     * // By default, the method automatically looks for a common column in the two tables and does a left join of tableA (left) and tableB (right). The leftTable (tableA here) will be overwritten with the result.
+     * await sdb.join("tableA", "tableB")
+     *
+     * // You can change the common column, the join type, and the output table in options.
+     * await sdb.join("tableA", "tableB", { commonColumn: 'id', type: 'inner', outputTable: 'tableC' })
      * ```
      *
      * @param leftTable - The name of the left table to be joined.
      * @param rightTable - The name of the right table to be joined.
-     * @param commonColumn - The common column used for the join operation.
-     * @param join - The type of join operation to perform. Possible values are "inner", "left", "right", or "full".
-     * @param outputTable - The name of the new table that will store the result of the join operation.
+     * @param options - An optional object with configuration options:
+     *   @param options.commonColumn - The common column used for the join operation. By default, the method automatically searches for a column name that exists in both tables.
+     *   @param options.type - The type of join operation to perform. Possible values are "inner", "left", "right", or "full". Default is "left".
+     *   @param options.outputTable - The name of the new table that will store the result of the join operation. Default is the leftTable.
      *
      * @category Restructuring data
      */
     async join(
         leftTable: string,
         rightTable: string,
-        commonColumn: string,
-        join: "inner" | "left" | "right" | "full",
-        outputTable: string
+        options: {
+            commonColumn?: string
+            type?: "inner" | "left" | "right" | "full"
+            outputTable?: string
+        } = {}
     ) {
+        let commonColumn
+        if (options.commonColumn) {
+            commonColumn = options.commonColumn
+        } else {
+            const leftTableColumns = await this.getColumns(leftTable)
+            const rightTableColumns = await this.getColumns(rightTable)
+            commonColumn = leftTableColumns.find((d) =>
+                rightTableColumns.includes(d)
+            )
+            if (commonColumn === undefined) {
+                throw new Error("No common column")
+            }
+        }
         await queryDB(
             this,
-            joinQuery(leftTable, rightTable, commonColumn, join, outputTable),
+            joinQuery(
+                leftTable,
+                rightTable,
+                commonColumn,
+                options.type ?? "left",
+                options.outputTable ?? leftTable
+            ),
             mergeOptions(this, {
-                table: outputTable,
+                table: options.outputTable ?? leftTable,
                 method: "join()",
                 parameters: {
                     leftTable,
                     rightTable,
-                    commonColumn,
-                    join,
-                    outputTable,
+                    options,
                 },
             })
         )
