@@ -210,7 +210,7 @@ export default class SimpleGeoDB extends SimpleDB {
      * ```
      *
      * @param table - The name of the table storing the geospatial data.
-     * @param column - The names of the column storing the geometries.
+     * @param column - The name of the column storing the geometries.
      *
      * @category Geospatial
      */
