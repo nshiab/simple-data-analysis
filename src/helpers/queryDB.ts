@@ -24,6 +24,14 @@ export default async function queryDB(
         await simpleDB.start()
     }
 
+    query = query
+        .replace(/ && /g, " AND ")
+        .replace(/ & /g, " AND ")
+        .replace(/ \|\| /g, " OR ")
+        .replace(/ \| /g, " OR ")
+        .replace(/ === /g, " = ")
+        .replace(/ == /g, " = ")
+
     let start
     if (options.debug) {
         console.log("\n" + options.method)

@@ -183,4 +183,178 @@ describe("customQuery", () => {
             },
         ])
     })
+    it("should work with ==", async () => {
+        await simpleNodeDB.loadData("employees", [
+            "test/data/files/employees.csv",
+        ])
+
+        const data = await simpleNodeDB.customQuery(
+            "SELECT * FROM employees WHERE Name == 'Patel, Joshua'",
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [
+            {
+                Name: "Patel, Joshua",
+                "Hire date": "06-APR-06",
+                Job: "Clerk",
+                Salary: "2500",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "16,19%",
+            },
+        ])
+    })
+    it("should work with ===", async () => {
+        await simpleNodeDB.loadData("employees", [
+            "test/data/files/employees.csv",
+        ])
+
+        const data = await simpleNodeDB.customQuery(
+            "SELECT * FROM employees WHERE Name === 'Patel, Joshua'",
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [
+            {
+                Name: "Patel, Joshua",
+                "Hire date": "06-APR-06",
+                Job: "Clerk",
+                Salary: "2500",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "16,19%",
+            },
+        ])
+    })
+    it("should work with &", async () => {
+        await simpleNodeDB.loadData("employees", [
+            "test/data/files/employees.csv",
+        ])
+
+        const data = await simpleNodeDB.customQuery(
+            "SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500'",
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [
+            {
+                Name: "Colmenares, Karen",
+                "Hire date": "10-AUG-07",
+                Job: "Clerk",
+                Salary: "2500",
+                "Department or unit": "30",
+                "End-of_year-BONUS?": "15,8%",
+            },
+            {
+                Name: "Marlow, James",
+                "Hire date": "16-FEB-05",
+                Job: "Clerk",
+                Salary: "2500",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "15,74%",
+            },
+            {
+                Name: "Patel, Joshua",
+                "Hire date": "06-APR-06",
+                Job: "Clerk",
+                Salary: "2500",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "16,19%",
+            },
+        ])
+    })
+    it("should work with &&", async () => {
+        await simpleNodeDB.loadData("employees", [
+            "test/data/files/employees.csv",
+        ])
+
+        const data = await simpleNodeDB.customQuery(
+            `SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500' && "Department or unit" = '30'`,
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [
+            {
+                Name: "Colmenares, Karen",
+                "Hire date": "10-AUG-07",
+                Job: "Clerk",
+                Salary: "2500",
+                "Department or unit": "30",
+                "End-of_year-BONUS?": "15,8%",
+            },
+        ])
+    })
+    it("should work with |", async () => {
+        await simpleNodeDB.loadData("employees", [
+            "test/data/files/employees.csv",
+        ])
+
+        const data = await simpleNodeDB.customQuery(
+            `SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500' && ("Department or unit" = '30' | "Department or unit" = '50')`,
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [
+            {
+                Name: "Colmenares, Karen",
+                "Hire date": "10-AUG-07",
+                Job: "Clerk",
+                Salary: "2500",
+                "Department or unit": "30",
+                "End-of_year-BONUS?": "15,8%",
+            },
+            {
+                Name: "Marlow, James",
+                "Hire date": "16-FEB-05",
+                Job: "Clerk",
+                Salary: "2500",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "15,74%",
+            },
+            {
+                Name: "Patel, Joshua",
+                "Hire date": "06-APR-06",
+                Job: "Clerk",
+                Salary: "2500",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "16,19%",
+            },
+        ])
+    })
+    it("should work with ||", async () => {
+        await simpleNodeDB.loadData("employees", [
+            "test/data/files/employees.csv",
+        ])
+
+        const data = await simpleNodeDB.customQuery(
+            `SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500' && ("Department or unit" = '30' || "Department or unit" = '50')`,
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [
+            {
+                Name: "Colmenares, Karen",
+                "Hire date": "10-AUG-07",
+                Job: "Clerk",
+                Salary: "2500",
+                "Department or unit": "30",
+                "End-of_year-BONUS?": "15,8%",
+            },
+            {
+                Name: "Marlow, James",
+                "Hire date": "16-FEB-05",
+                Job: "Clerk",
+                Salary: "2500",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "15,74%",
+            },
+            {
+                Name: "Patel, Joshua",
+                "Hire date": "06-APR-06",
+                Job: "Clerk",
+                Salary: "2500",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "16,19%",
+            },
+        ])
+    })
 })
