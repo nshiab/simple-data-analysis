@@ -29,4 +29,4 @@ jobs:
             - run: npm run check-format
             - run: npm run lint
             - run: npm run test
-            - run: npm run test-build
+            - run: npm run build

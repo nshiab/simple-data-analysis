@@ -39,9 +39,8 @@
     },
     "scripts": {
         "test": "mocha \"test/unit/**/*.test.ts\"",
-        "test-build": "npx tsc && npx rollup --config",
         "build": "rm -rf dist && npx tsc && npx rollup --config",
-        "all-tests": "npm run format && npm run test && npm run lint && npm run test-build && npm run test-doc",
+        "all-tests": "npm run format && npm run test && npm run lint && npm run build && npm run test-doc",
         "rollup": "rollup --config",
         "doc": "typedoc --name Simple-data-analysis --includeVersion --readme README.md --out docs src/index.ts && cp -r ./assets ./docs",
         "test-doc": "typedoc --name Simple-data-analysis --includeVersion --readme README.md --out ./test-docs src/index.ts && cp -r ./assets ./test-docs",
@@ -49,7 +48,7 @@
         "publish-patch": "npm run all-tests && npm version patch && npm run update-doc && npm publish",
         "publish-minor": "npm run all-tests && npm version minor && npm run update-doc && npm publish",
         "publish-major": "npm run all-tests && npm version major && npm run update-doc && npm publish",
-        "publish-prerelease": "npm run all-tests && npm version prerelease --preid rc && npm run build && npm run update-doc && npm publish --tag next",
+        "publish-prerelease": "npm run all-tests && npm version prerelease --preid rc && npm run update-doc && npm publish --tag next",
         "lint": "eslint . --ext .ts",
         "format": "prettier --ignore-path .prettierignore --write './**/*.ts'",
         "check-format": "prettier --ignore-path .prettierignore --check './**/*.ts'"
