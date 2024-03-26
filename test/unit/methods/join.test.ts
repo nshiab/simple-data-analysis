@@ -16,13 +16,11 @@ describe("join", () => {
     })
 
     it("should put the result of an inner join into a new table", async () => {
-        await simpleNodeDB.join(
-            "dishes",
-            "categories",
-            "dishId",
-            "inner",
-            "innerJoin"
-        )
+        await simpleNodeDB.join("dishes", "categories", {
+            commonColumn: "dishId",
+            type: "inner",
+            outputTable: "innerJoin",
+        })
 
         const data = await simpleNodeDB.getData("innerJoin")
 
@@ -42,15 +40,12 @@ describe("join", () => {
             },
         ])
     })
-
     it("should put the result of a left join into a new table", async () => {
-        await simpleNodeDB.join(
-            "dishes",
-            "categories",
-            "dishId",
-            "left",
-            "leftJoin"
-        )
+        await simpleNodeDB.join("dishes", "categories", {
+            commonColumn: "dishId",
+            type: "left",
+            outputTable: "leftJoin",
+        })
 
         const data = await simpleNodeDB.getData("leftJoin")
 
@@ -78,13 +73,11 @@ describe("join", () => {
         ])
     })
     it("should put the result of a right join into a new table", async () => {
-        await simpleNodeDB.join(
-            "dishes",
-            "categories",
-            "dishId",
-            "right",
-            "rightJoin"
-        )
+        await simpleNodeDB.join("dishes", "categories", {
+            commonColumn: "dishId",
+            type: "right",
+            outputTable: "rightJoin",
+        })
 
         const data = await simpleNodeDB.getData("rightJoin")
 
@@ -108,13 +101,11 @@ describe("join", () => {
         ])
     })
     it("should put the result of a full join into a new table", async () => {
-        await simpleNodeDB.join(
-            "dishes",
-            "categories",
-            "dishId",
-            "full",
-            "fullJoin"
-        )
+        await simpleNodeDB.join("dishes", "categories", {
+            commonColumn: "dishId",
+            type: "full",
+            outputTable: "fullJoin",
+        })
 
         const data = await simpleNodeDB.getData("fullJoin")
 
@@ -142,6 +133,34 @@ describe("join", () => {
                 country: "Morrocco",
                 category: null,
             },
+        ])
+    })
+    it("should automatically find a common column, make left join and put the result into leftTable", async () => {
+        await simpleNodeDB.join("dishes", "categories")
+
+        const data = await simpleNodeDB.getData("dishes")
+
+        assert.deepStrictEqual(data, [
+            {
+                dishId: 1,
+                name: "Crème brûlée",
+                country: "France",
+                category: "Dessert",
+            },
+            { dishId: 2, name: "Pizza", country: "Italy", category: "Main" },
+            {
+                dishId: 3,
+                name: "Churros",
+                country: "Mexico",
+                category: "Dessert",
+            },
+            {
+                dishId: 4,
+                name: "Couscous",
+                country: "Morrocco",
+                category: null,
+            },
+            { dishId: 5, name: "Mochi", country: "Japan", category: null },
         ])
     })
 })

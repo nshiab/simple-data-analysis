@@ -86,7 +86,7 @@ Observable notebooks are great for data analysis in JavaScript. This [example](h
 
 If you want to add the library directly to your webpage, you can use a npm-based CDN like jsDelivr.
 
-Here's some code that you can copy an paste into an HTML file. For more methods, check the [SimpleDB class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleDB.html).
+Here's some code that you can copy and paste into an HTML file. For more methods, check the [SimpleDB class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleDB.html).
 
 ```html
 <script type="module">
@@ -140,14 +140,15 @@ Here's some code that you can copy an paste into an HTML file. For more methods,
             "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/cities.csv"
         )
 
-        // We join the two tables based
-        // on the ids and put the joined rows
-        // in the table results.
-        await sdb.join("dailyTemperatures", "cities", "id", "left", "results")
+        // We join the two tables. By default,
+        // join searches for a common column
+        // and does a left join. The result is stored in
+        // the left table (dailyTemperatures here).
+        await sdb.join("dailyTemperatures", "cities")
 
         // We select the columns of interest
-        // in the table results.
-        await sdb.selectColumns("results", [
+        // after the join operation.
+        await sdb.selectColumns("dailyTemperatures", [
             "city",
             "slope",
             "yIntercept",
@@ -155,10 +156,10 @@ Here's some code that you can copy an paste into an HTML file. For more methods,
         ])
 
         // We log the results table.
-        await sdb.logTable("results")
+        await sdb.logTable("dailyTemperatures")
 
         // We store the data in a variable.
-        const results = await sdb.getData("results")
+        const results = await sdb.getData("dailyTemperatures")
     }
 
     main()
@@ -248,20 +249,15 @@ const Main = () => {
                 "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/cities.csv"
             )
 
-            // We join the two tables based
-            // on the ids and put the joined rows
-            // in the table results.
-            await sdb.join(
-                "dailyTemperatures",
-                "cities",
-                "id",
-                "left",
-                "results"
-            )
+            // We join the two tables. By default,
+            // join searches for a common column
+            // and does a left join. The result is stored in
+            // the left table (dailyTemperatures here).
+            await sdb.join("dailyTemperatures", "cities")
 
             // We select the columns of interest
-            // in the table results.
-            await sdb.selectColumns("results", [
+            // after the join operation.
+            await sdb.selectColumns("dailyTemperatures", [
                 "city",
                 "slope",
                 "yIntercept",
@@ -269,10 +265,10 @@ const Main = () => {
             ])
 
             // We log the results table.
-            await sdb.logTable("results")
+            await sdb.logTable("dailyTemperatures")
 
             // We can store the results in our state.
-            setResults(await sdb.getData("results"))
+            setResults(await sdb.getData("dailyTemperatures"))
         }
 
         // We call the async function inside the useEffect hook.
@@ -305,7 +301,7 @@ A _package.json_ file should have been created. Open it and add or change the ty
 {
     "type": "module",
     "dependencies": {
-        "simple-data-analysis": "^2.0.1"
+        "simple-data-analysis": "^2.5.0"
     }
 }
 ```
@@ -367,20 +363,26 @@ async function main() {
         "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/cities.csv"
     )
 
-    // We join the two tables based
-    // on the ids and put the joined rows
-    // in the table results.
-    await sdb.join("dailyTemperatures", "cities", "id", "left", "results")
+    // We join the two tables. By default,
+    // join searches for a common column
+    // and does a left join. The result is stored in
+    // the left table (dailyTemperatures here).
+    await sdb.join("dailyTemperatures", "cities")
 
     // We select the columns of interest
-    // in the table results.
-    await sdb.selectColumns("results", ["city", "slope", "yIntercept", "r2"])
+    // after the join operation.
+    await sdb.selectColumns("dailyTemperatures", [
+        "city",
+        "slope",
+        "yIntercept",
+        "r2",
+    ])
 
     // We log the results table.
-    await sdb.logTable("results")
+    await sdb.logTable("dailyTemperatures")
 
     // We store the data in a variable.
-    const results = await sdb.getData("results")
+    const results = await sdb.getData("dailyTemperatures")
 }
 
 main()
