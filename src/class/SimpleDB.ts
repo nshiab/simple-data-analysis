@@ -1163,6 +1163,90 @@ export default class SimpleDB {
     }
 
     /**
+     * Splits strings along a separator and replaces the values with a substring at a specified index (starting at 0). If the index is outside the bounds of the list, return an empty string.
+     *
+     *```ts
+     * // Splits on commas and replaces values with the second substring.
+     * await sdb.splitExtract("tableA", "column1", ",", 1)
+     * ```
+     *
+     * @param table - The name of the table
+     * @param column - The name of the column storing the strings
+     * @param separator - The substring to use as a separator
+     * @param index - The index of the substring to replace values
+     *
+     * @category Updating data
+     */
+    async splitExtract(
+        table: string,
+        column: string,
+        separator: string,
+        index: number
+    ) {
+        await queryDB(
+            this,
+            `UPDATE ${table} SET "${column}" = SPLIT_PART("${column}", '${separator}', ${index + 1})`,
+            mergeOptions(this, {
+                table,
+                method: "splitExtract()",
+                parameters: { table, column, separator, index },
+            })
+        )
+    }
+
+    /**
+     * Extracts a specific number of characters, starting from the left.
+     *
+     *```ts
+     * // Strings in column1 of tableA will be replaced by the first two characters of each string.
+     * await sdb.left("tableA", "column1", 2)
+     * ```
+     *
+     * @param table - The name of the table
+     * @param column - The name of the column storing the strings
+     * @param numberOfCharacters - The number of characters, starting from the left
+     *
+     * @category Updating data
+     */
+    async left(table: string, column: string, numberOfCharacters: number) {
+        await queryDB(
+            this,
+            `UPDATE ${table} SET "${column}" = LEFT("${column}", ${numberOfCharacters})`,
+            mergeOptions(this, {
+                table,
+                method: "left()",
+                parameters: { table, column, numberOfCharacters },
+            })
+        )
+    }
+
+    /**
+     * Extracts a specific number of characters, starting from the right.
+     *
+     *```ts
+     * // Strings in column1 of tableA will be replaced by the last two characters of each string.
+     * await sdb.right("tableA", "column1", 2)
+     * ```
+     *
+     * @param table - The name of the table
+     * @param column - The name of the column storing the strings
+     * @param numberOfCharacters - The number of characters, starting from the right
+     *
+     * @category Updating data
+     */
+    async right(table: string, column: string, numberOfCharacters: number) {
+        await queryDB(
+            this,
+            `UPDATE ${table} SET "${column}" = RIGHT("${column}", ${numberOfCharacters})`,
+            mergeOptions(this, {
+                table,
+                method: "right()",
+                parameters: { table, column, numberOfCharacters },
+            })
+        )
+    }
+
+    /**
      * Replaces null values in the selected columns of a table.
      *
      *```ts
