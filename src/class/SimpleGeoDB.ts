@@ -200,4 +200,29 @@ export default class SimpleGeoDB extends SimpleDB {
             })
         )
     }
+
+    /**
+     * Simplifies the geometries while preserving their topology. The simplification occurs on an object-by-object basis.
+     *
+     * ```ts
+     * // Simplifies with a tolerance of 0.1.
+     * await sdb.simplify("tableGeo", "geomA", 0.1)
+     * ```
+     *
+     * @param table - The name of the table storing the geospatial data.
+     * @param column - The names of the column storing the geometries.
+     *
+     * @category Geospatial
+     */
+    async simplify(table: string, column: string, tolerance: number) {
+        await queryDB(
+            this,
+            `UPDATE ${table} SET "${column}" = ST_SimplifyPreserveTopology("${column}", ${tolerance})`,
+            mergeOptions(this, {
+                table,
+                method: "simplify()",
+                parameters: { table, column, tolerance },
+            })
+        )
+    }
 }
