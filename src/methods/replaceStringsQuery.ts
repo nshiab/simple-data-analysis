@@ -7,6 +7,9 @@ export default function replaceStringsQuery(
 ) {
     let query = ""
 
+    oldTexts = oldTexts.map((d) => d.replace(/'/g, "''"))
+    newTexts = newTexts.map((d) => d.replace(/'/g, "''"))
+
     for (const column of columns) {
         for (let i = 0; i < oldTexts.length; i++) {
             if (options.entireString) {
