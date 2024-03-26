@@ -917,27 +917,34 @@ export default class SimpleDB {
      * Performs a cross join operation between two tables returning all pairs of rows. With SimpleNodeDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
      *
      * ```ts
-     * await crossJoin("tableA", "tableB", "outputTable");
+     * // By default, the leftTable (tableA here) will be overwritten with the result.
+     * await crossJoin("tableA", "tableB");
+     *
+     * // But you can put the result into another table if needed.
+     * await crossJoin("tableA", "tableB", { outputTable: "tableC" });
      * ```
      *
      * @param leftTable - The name of the left table.
      * @param rightTable - The name of the right table.
-     * @param outputTable - The name of the output table where the new rows will be stored.
+     * @param options - An optional object with configuration options:
+     *   @param options.outputTable - The name of the table that will be created or replaced with the result of the cross join.
      *
      * @category Restructuring data
      */
     async crossJoin(
         leftTable: string,
         rightTable: string,
-        outputTable: string
+        options: {
+            outputTable?: string
+        } = {}
     ) {
         await queryDB(
             this,
-            `CREATE OR REPLACE TABLE "${outputTable}" AS SELECT "${leftTable}".*, "${rightTable}".* FROM "${leftTable}" CROSS JOIN "${rightTable}";`,
+            `CREATE OR REPLACE TABLE "${options.outputTable ?? leftTable}" AS SELECT "${leftTable}".*, "${rightTable}".* FROM "${leftTable}" CROSS JOIN "${rightTable}";`,
             mergeOptions(this, {
-                table: outputTable,
+                table: options.outputTable ?? leftTable,
                 method: "crossJoin()",
-                parameters: { leftTable, rightTable, outputTable },
+                parameters: { leftTable, rightTable, options },
             })
         )
     }
