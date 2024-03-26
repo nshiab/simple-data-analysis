@@ -205,7 +205,7 @@ export default class SimpleGeoDB extends SimpleDB {
      * Simplifies the geometries while preserving their topology. The simplification occurs on an object-by-object basis.
      *
      * ```ts
-     * // Simplifies with a tolerance of 0.1.
+     * // Simplifies with a tolerance of 0.1. A higher tolerance results in a more significant simplification.
      * await sdb.simplify("tableGeo", "geomA", 0.1)
      * ```
      *

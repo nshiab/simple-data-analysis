@@ -1,10 +1,17 @@
+import { existsSync, mkdirSync } from "fs"
 import assert from "assert"
 import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
 import { readFileSync } from "fs"
 
 describe("simplify", () => {
+    const output = "./test/output/"
+
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
+        if (!existsSync(output)) {
+            mkdirSync(output)
+        }
+
         simpleNodeDB = new SimpleNodeDB({ spatial: true })
         await simpleNodeDB.loadGeoData(
             "geodata",
