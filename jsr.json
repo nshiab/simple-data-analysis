@@ -4,6 +4,7 @@
     "exports": "./src/index.ts",
     "publish": {
         "exclude": [
+            "assets",
             "test",
             "docs",
             ".github",
@@ -16,7 +17,8 @@
             "package.json",
             "rollup.config.js",
             "tsconfig.json",
-            "typedoc.json"
+            "typedoc.json",
+            "jsr.json"
         ]
     }
 }
