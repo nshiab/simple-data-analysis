@@ -1,5 +1,9 @@
 {
     "name": "@nshiab/simple-data-analysis",
     "version": "2.5.0",
-    "exports": "./src/index.ts"
+    "exports": "./src/index.ts",
+    "publish": {
+        "include": ["src"],
+        "exclude": ["src/test"]
+    }
 }

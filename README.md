@@ -10,6 +10,8 @@ npm i simple-data-analysis
 
 The documentation is available [here](https://nshiab.github.io/simple-data-analysis/).
 
+The library is also published on [jsr.io](https://jsr.io/@nshiab/simple-data-analysis).
+
 ## Core principles
 
 These project's goals are:
