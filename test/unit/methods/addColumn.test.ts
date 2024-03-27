@@ -80,7 +80,7 @@ describe("addColumn", () => {
     it("should return a column with geometry", async () => {
         await simpleNodeDB.loadGeoData(
             "geo",
-            "test/geoData/files/polygons.geojson"
+            "test/geodata/files/polygons.geojson"
         )
 
         await simpleNodeDB.addColumn(
