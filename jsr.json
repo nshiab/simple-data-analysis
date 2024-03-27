@@ -13,12 +13,9 @@
             ".mocharc.json",
             ".prettierignore",
             ".prettierrc",
-            "package-lock.json",
-            "package.json",
             "rollup.config.js",
             "tsconfig.json",
-            "typedoc.json",
-            "jsr.json"
+            "typedoc.json"
         ]
     }
 }
