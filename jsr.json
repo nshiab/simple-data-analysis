@@ -3,7 +3,20 @@
     "version": "2.6.0",
     "exports": "./src/index.ts",
     "publish": {
-        "include": ["src"],
-        "exclude": ["src/test"]
+        "exclude": [
+            "test",
+            "docs",
+            ".github",
+            ".eslintignore",
+            ".eslintrc.cjs",
+            ".mocharc.json",
+            ".prettierignore",
+            ".prettierrc",
+            "package-lock.json",
+            "package.json",
+            "rollup.config.js",
+            "tsconfig.json",
+            "typedoc.json"
+        ]
     }
 }
