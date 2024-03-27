@@ -233,4 +233,30 @@ export default class SimpleGeoDB extends SimpleDB {
             })
         )
     }
+
+    /**
+     * Computes the centroid of geometries. The values are returned in the SRS unit.
+     *
+     * ```ts
+     * // Computes the centroid of the geometries in the column geom from the table tableGeo, and returns the results in the column centroid.
+     * await sdb.centroid("tableGeo", "geom", "centroid")
+     * ```
+     *
+     * @param table - The name of the table storing the geospatial data.
+     * @param column - The name of the column storing the geometries.
+     * @param newColumn - The name of the new column storing the centroids.
+     *
+     * @category Geospatial
+     */
+    async centroid(table: string, column: string, newColumn: string) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${table} ADD "${newColumn}" GEOMETRY; UPDATE ${table} SET "${newColumn}" =  ST_Centroid("${column}");`,
+            mergeOptions(this, {
+                table,
+                method: "centroid()",
+                parameters: { table, column, newColumn },
+            })
+        )
+    }
 }
