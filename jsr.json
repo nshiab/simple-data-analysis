@@ -3,7 +3,7 @@
     "version": "2.5.0",
     "exports": "./src/index.ts",
     "publish": {
-        "include": ["src"],
+        "include": ["src", "assets"],
         "exclude": ["src/test"]
     }
 }
