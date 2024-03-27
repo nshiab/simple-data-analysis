@@ -1,10 +1,11 @@
 import assert from "assert"
 import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import { readFileSync } from "fs"
 
 describe("addColumn", () => {
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        simpleNodeDB = new SimpleNodeDB({ spatial: true })
         await simpleNodeDB.loadData("dataSummarize", [
             "test/data/files/dataSummarize.json",
         ])
@@ -70,5 +71,50 @@ describe("addColumn", () => {
                 key2GreaterThanTen: true,
             },
         ])
+    })
+    it("should return a column with geometry", async () => {
+        await simpleNodeDB.loadGeoData(
+            "geo",
+            "test/geoData/files/polygons.geojson"
+        )
+
+        await simpleNodeDB.addColumn(
+            "geo",
+            "centroid",
+            "geometry",
+            `ST_Centroid(geom)`
+        )
+        await simpleNodeDB.selectColumns("geo", ["name", "centroid"])
+        await simpleNodeDB.writeGeoData(
+            "geo",
+            "test/output/addColumTest.geojson"
+        )
+
+        const data = JSON.parse(
+            readFileSync("test/output/addColumTest.geojson", "utf-8")
+        )
+
+        assert.deepStrictEqual(data, {
+            type: "FeatureCollection",
+            name: "addColumTest",
+            features: [
+                {
+                    type: "Feature",
+                    properties: { name: "polygonA" },
+                    geometry: {
+                        type: "Point",
+                        coordinates: [-78.404315186235195, 47.992857929155612],
+                    },
+                },
+                {
+                    type: "Feature",
+                    properties: { name: "polygonB" },
+                    geometry: {
+                        type: "Point",
+                        coordinates: [-109.102836190004638, 57.31925822683683],
+                    },
+                },
+            ],
+        })
     })
 })

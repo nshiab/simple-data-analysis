@@ -954,7 +954,8 @@ export default class SimpleDB {
             | "varchar"
             | "timestamp"
             | "timestamp with time zone"
-            | "boolean",
+            | "boolean"
+            | "geometry",
         definition: string
     ) {
         await queryDB(
@@ -1102,6 +1103,7 @@ export default class SimpleDB {
                 | "timestamp"
                 | "timestamp with time zone"
                 | "boolean"
+                | "geometry"
         }
     ) {
         await queryDB(
