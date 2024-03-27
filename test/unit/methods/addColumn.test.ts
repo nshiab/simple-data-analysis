@@ -1,10 +1,15 @@
 import assert from "assert"
 import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
-import { readFileSync } from "fs"
+import { existsSync, mkdirSync, readFileSync } from "fs"
 
 describe("addColumn", () => {
+    const output = "./test/output/"
+
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
+        if (!existsSync(output)) {
+            mkdirSync(output)
+        }
         simpleNodeDB = new SimpleNodeDB({ spatial: true })
         await simpleNodeDB.loadData("dataSummarize", [
             "test/data/files/dataSummarize.json",
@@ -85,13 +90,10 @@ describe("addColumn", () => {
             `ST_Centroid(geom)`
         )
         await simpleNodeDB.selectColumns("geo", ["name", "centroid"])
-        await simpleNodeDB.writeGeoData(
-            "geo",
-            "test/output/addColumTest.geojson"
-        )
+        await simpleNodeDB.writeGeoData("geo", `${output}/addColumTest.geojson`)
 
         const data = JSON.parse(
-            readFileSync("test/output/addColumTest.geojson", "utf-8")
+            readFileSync(`${output}/addColumTest.geojson`, "utf-8")
         )
 
         assert.deepStrictEqual(data, {

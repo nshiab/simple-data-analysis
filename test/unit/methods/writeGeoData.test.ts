@@ -1,7 +1,6 @@
-import { existsSync, mkdirSync } from "fs"
+import { existsSync, mkdirSync, readFileSync } from "fs"
 import assert from "assert"
 import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
-import { readFileSync } from "fs"
 
 describe("writeData", () => {
     const output = "./test/output/"
