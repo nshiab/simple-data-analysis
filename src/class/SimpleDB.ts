@@ -59,6 +59,7 @@ import cloneColumnQuery from "../methods/cloneColumn.js"
 import keepQuery from "../methods/keepQuery.js"
 import removeQuery from "../methods/removeQuery.js"
 import normalizeQuery from "../methods/normalizeQuery.js"
+import rollingQuery from "../methods/rollingQuery.js"
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB.
@@ -1125,13 +1126,13 @@ export default class SimpleDB {
      *
      *```ts
      * // Replaces entire strings and substrings too.
-     * await sdb.replaceStrings("tableA", "column1", {"kilograms": "kg", liters: "l" })
+     * await sdb.replace("tableA", "column1", {"kilograms": "kg", liters: "l" })
      *
      * // Replaces only if matching entire string.
-     * await sdb.replaceStrings("tableA", "column1", {"kilograms": "kg", liters: "l" }, {entireString: true})
+     * await sdb.replace("tableA", "column1", {"kilograms": "kg", liters: "l" }, {entireString: true})
      *
      * // Replaces using a regular expression. Any sequence of one or more digits would be replaced by a hyphen.
-     * await sdb.replaceStrings("tableA", "column1", {"\d+": "-" }, {regex: true})
+     * await sdb.replace("tableA", "column1", {"\d+": "-" }, {regex: true})
      * ```
      *
      * @param table - The name of the table in which strings will be replaced.
@@ -1793,6 +1794,69 @@ export default class SimpleDB {
         } = {}
     ) {
         await summarize(this, table, options)
+    }
+
+    /**
+     * Computes rolling aggregations, like a rolling average.
+     *
+     * ```ts
+     * // 7-day rolling average of values in column1 with the 3 preceding and 3 following rows. The results will be stored in the new rollingAvg column.
+     * await sdb.rolling("tableA", "column1", "rollingAvg", "mean", 3, 3)
+     *
+     * // Same thing but with a count. The top three and bottom three rows will have a count of less than 7.
+     * await sdb.rolling("tableA", "column1", "countAggregatedRows", "count", 3, 3)
+     * ```
+     *
+     * @param table - The name of the table
+     * @param column - The name of the column storing the values to be aggregated
+     * @param newColumn - The name of the new column in which the computed values will be stored
+     * @param summary - How to aggregate the values
+     * @param preceding - How many preceding rows to include
+     * @param following - How many following rows to include
+     * @param options - An optional object with configuration options:
+     *   @param options.categories - The category or categories to be used for the aggragation.
+     *   @param options.decimals - The number of decimal places to round the summarized values. Defaults to 2.
+     *
+     * @category Analyzing data
+     */
+    async rolling(
+        table: string,
+        column: string,
+        newColumn: string,
+        summary: "count" | "min" | "max" | "mean" | "median" | "sum",
+        preceding: number,
+        following: number,
+        options: {
+            categories?: string | string[]
+            decimals?: number
+        } = {}
+    ) {
+        options.decimals = options.decimals ?? 2
+        await queryDB(
+            this,
+            rollingQuery(
+                table,
+                column,
+                newColumn,
+                summary,
+                preceding,
+                following,
+                options
+            ),
+            mergeOptions(this, {
+                table,
+                method: "rolling()",
+                parameters: {
+                    table,
+                    column,
+                    newColumn,
+                    summary,
+                    preceding,
+                    following,
+                    options,
+                },
+            })
+        )
     }
 
     /**
