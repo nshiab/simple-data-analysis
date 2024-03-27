@@ -29,5 +29,5 @@ export default async function getSkew(
 
     const result = queryResult[0].valueForGetSkew
     simpleDB.debug && console.log("skew:", result)
-    return result
+    return result as number
 }

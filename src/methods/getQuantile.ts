@@ -30,5 +30,5 @@ export default async function getQuantile(
 
     const result = queryResult[0].valueForGetQuantile
     simpleDB.debug && console.log("quantile:", result)
-    return result
+    return result as number
 }

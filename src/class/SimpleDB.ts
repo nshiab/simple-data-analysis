@@ -1962,7 +1962,12 @@ export default class SimpleDB {
             returnDataFrom?: "query" | "none"
             table?: string
         } = {}
-    ) {
+    ): Promise<
+        | {
+              [key: string]: string | number | boolean | Date | null
+          }[]
+        | null
+    > {
         return await queryDB(
             this,
             query,
@@ -2025,8 +2030,12 @@ export default class SimpleDB {
      *
      * @param table - The name of the table for which to retrieve the schema.
      */
-    async getSchema(table: string) {
-        return await queryDB(
+    async getSchema(table: string): Promise<
+        {
+            [key: string]: string | null
+        }[]
+    > {
+        return (await queryDB(
             this,
             `DESCRIBE ${table}`,
             mergeOptions(this, {
@@ -2036,7 +2045,9 @@ export default class SimpleDB {
                 method: "getSchema()",
                 parameters: { table },
             })
-        )
+        )) as {
+            [key: string]: string | null
+        }[]
     }
 
     /**
@@ -2049,7 +2060,11 @@ export default class SimpleDB {
      * @param table - The name of the table.
      */
 
-    async getDescription(table: string) {
+    async getDescription(table: string): Promise<
+        {
+            [key: string]: unknown
+        }[]
+    > {
         return await getDescription(this, table)
     }
 
@@ -2060,7 +2075,7 @@ export default class SimpleDB {
      * const tables = await sdb.getTables()
      * ```
      */
-    async getTables() {
+    async getTables(): Promise<string[]> {
         return getTables(this)
     }
 
@@ -2073,7 +2088,7 @@ export default class SimpleDB {
      *
      * @param table - The name of the table to check for existence.
      */
-    async hasTable(table: string) {
+    async hasTable(table: string): Promise<boolean> {
         this.debug && console.log("\nhasTable()")
         this.debug && console.log("parameters:", { table })
         const result = (await this.getTables()).includes(table)
@@ -2090,7 +2105,7 @@ export default class SimpleDB {
      *
      * @param table - The name of the table for which to retrieve column names.
      */
-    async getColumns(table: string) {
+    async getColumns(table: string): Promise<string[]> {
         return await getColumns(this, table)
     }
 
@@ -2104,7 +2119,7 @@ export default class SimpleDB {
      * @param table - The name of the table.
      * @param column - The name of the column to check for existence.
      */
-    async hasColumn(table: string, column: string) {
+    async hasColumn(table: string, column: string): Promise<boolean> {
         this.debug && console.log("\nhasColumn()")
         this.debug && console.log("parameters:", { table, column })
         const result = (await getColumns(this, table)).includes(column)
@@ -2121,7 +2136,7 @@ export default class SimpleDB {
      *
      * @param table - The name of the table.
      */
-    async getWidth(table: string) {
+    async getWidth(table: string): Promise<number> {
         this.debug && console.log("\ngetWidth()")
         this.debug && console.log("parameters:", { table })
         const result = (await getColumns(this, table)).length
@@ -2138,7 +2153,7 @@ export default class SimpleDB {
      *
      * @param table - The name of the table.
      */
-    async getLength(table: string) {
+    async getLength(table: string): Promise<number> {
         return await getLength(this, table)
     }
 
@@ -2151,7 +2166,7 @@ export default class SimpleDB {
      *
      * @param table - The name of the table .
      */
-    async getValuesCount(table: string) {
+    async getValuesCount(table: string): Promise<number> {
         this.debug && console.log("\ngetValuesCount()")
         this.debug && console.log("parameters:", { table })
         const result =
@@ -2169,7 +2184,9 @@ export default class SimpleDB {
      *
      * @param table - The name of the table.
      */
-    async getTypes(table: string) {
+    async getTypes(table: string): Promise<{
+        [key: string]: string
+    }> {
         return await getTypes(this, table)
     }
 
@@ -2185,7 +2202,10 @@ export default class SimpleDB {
      *
      * @category Getting data
      */
-    async getValues(table: string, column: string) {
+    async getValues(
+        table: string,
+        column: string
+    ): Promise<(string | number | boolean | Date | null)[]> {
         return await getValues(this, table, column)
     }
 
@@ -2201,7 +2221,10 @@ export default class SimpleDB {
      *
      * @category Getting data
      */
-    async getMin(table: string, column: string) {
+    async getMin(
+        table: string,
+        column: string
+    ): Promise<string | number | boolean | Date | null> {
         return await getMin(this, table, column)
     }
 
@@ -2217,7 +2240,10 @@ export default class SimpleDB {
      *
      * @category Getting data
      */
-    async getMax(table: string, column: string) {
+    async getMax(
+        table: string,
+        column: string
+    ): Promise<string | number | boolean | Date | null> {
         return await getMax(this, table, column)
     }
 
@@ -2241,7 +2267,7 @@ export default class SimpleDB {
         options: {
             decimals?: number
         } = {}
-    ) {
+    ): Promise<number> {
         return await getMean(this, table, column, options)
     }
 
@@ -2265,7 +2291,7 @@ export default class SimpleDB {
         options: {
             decimals?: number
         } = {}
-    ) {
+    ): Promise<number> {
         return await getMedian(this, table, column, options)
     }
 
@@ -2281,7 +2307,7 @@ export default class SimpleDB {
      *
      * @category Getting data
      */
-    async getSum(table: string, column: string) {
+    async getSum(table: string, column: string): Promise<number> {
         return await getSum(this, table, column)
     }
 
@@ -2305,7 +2331,7 @@ export default class SimpleDB {
         options: {
             decimals?: number
         } = {}
-    ) {
+    ): Promise<number> {
         return await getSkew(this, table, column, options)
     }
 
@@ -2329,7 +2355,7 @@ export default class SimpleDB {
         options: {
             decimals?: number
         } = {}
-    ) {
+    ): Promise<number> {
         return await getStdDev(this, table, column, options)
     }
 
@@ -2353,7 +2379,7 @@ export default class SimpleDB {
         options: {
             decimals?: number
         } = {}
-    ) {
+    ): Promise<number> {
         return await getVar(this, table, column, options)
     }
 
@@ -2377,7 +2403,7 @@ export default class SimpleDB {
         column: string,
         quantile: number,
         options: { decimals?: number } = {}
-    ) {
+    ): Promise<number> {
         return await getQuantile(this, table, column, quantile, options)
     }
 
@@ -2393,7 +2419,10 @@ export default class SimpleDB {
      *
      * @category Getting data
      */
-    async getUniques(table: string, column: string) {
+    async getUniques(
+        table: string,
+        column: string
+    ): Promise<(string | number | boolean | Date | null)[]> {
         return await getUniques(this, table, column)
     }
 
@@ -2419,7 +2448,9 @@ export default class SimpleDB {
         options: {
             condition?: string
         } = {}
-    ) {
+    ): Promise<{
+        [key: string]: string | number | boolean | Date | null
+    }> {
         return getFirstRow(this, table, options)
     }
 
@@ -2445,7 +2476,9 @@ export default class SimpleDB {
         options: {
             condition?: string
         } = {}
-    ) {
+    ): Promise<{
+        [key: string]: string | number | boolean | Date | null
+    }> {
         return getLastRow(this, table, options)
     }
 
@@ -2472,7 +2505,11 @@ export default class SimpleDB {
         options: {
             condition?: string
         } = {}
-    ) {
+    ): Promise<
+        {
+            [key: string]: string | number | boolean | Date | null
+        }[]
+    > {
         return await getTop(this, table, count, options)
     }
 
@@ -2505,7 +2542,11 @@ export default class SimpleDB {
             originalOrder?: boolean
             condition?: string
         } = {}
-    ) {
+    ): Promise<
+        {
+            [key: string]: string | number | boolean | Date | null
+        }[]
+    > {
         return await getBottom(this, table, count, options)
     }
 
@@ -2531,8 +2572,12 @@ export default class SimpleDB {
         options: {
             condition?: string
         } = {}
-    ) {
-        return await queryDB(
+    ): Promise<
+        {
+            [key: string]: string | number | boolean | Date | null
+        }[]
+    > {
+        return (await queryDB(
             this,
             `SELECT * from ${table}${
                 options.condition ? ` WHERE ${options.condition}` : ""
@@ -2543,7 +2588,9 @@ export default class SimpleDB {
                 method: "getData()",
                 parameters: { table, options },
             })
-        )
+        )) as {
+            [key: string]: string | number | boolean | Date | null
+        }[]
     }
 
     /**
@@ -2553,8 +2600,12 @@ export default class SimpleDB {
      * const extensions = await sdb.getExtensions()
      * ```
      */
-    async getExtensions() {
-        return await queryDB(
+    async getExtensions(): Promise<
+        {
+            [key: string]: string | number | boolean | Date | null
+        }[]
+    > {
+        return (await queryDB(
             this,
             `FROM duckdb_extensions();`,
             mergeOptions(this, {
@@ -2563,7 +2614,9 @@ export default class SimpleDB {
                 method: "getExtensions()",
                 parameters: {},
             })
-        )
+        )) as {
+            [key: string]: string | number | boolean | Date | null
+        }[]
     }
 
     /**

@@ -29,5 +29,5 @@ export default async function getStdDev(
 
     const result = queryResult[0].valueForGetStdDev
     simpleDB.debug && console.log("Standard deviation:", result)
-    return result
+    return result as number
 }

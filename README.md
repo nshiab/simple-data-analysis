@@ -192,9 +192,10 @@ import { SimpleDB } from "simple-data-analysis"
 
 const Main = () => {
     // A state to store the results.
-    const [results, setResults] = useState<
-        { [key: string]: string | number | boolean | Date | null }[] | null
-    >(null)
+    const [results, setResults] =
+        useState<{ [key: string]: string | number | boolean | Date | null }[]>(
+            null
+        )
 
     // You can use sda inside a useEffect.
     useEffect(() => {

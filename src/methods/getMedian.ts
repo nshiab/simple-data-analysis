@@ -30,5 +30,5 @@ export default async function getMedian(
 
     simpleDB.debug && console.log("median:", result)
 
-    return result
+    return result as number
 }

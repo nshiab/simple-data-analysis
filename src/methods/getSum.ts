@@ -26,5 +26,5 @@ export default async function getSum(
 
     simpleDB.debug && console.log("sum:", result)
 
-    return result
+    return result as number
 }

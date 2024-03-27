@@ -31,5 +31,5 @@ export default async function getMean(
 
     simpleDB.debug && console.log("mean:", result)
 
-    return result
+    return result as number
 }

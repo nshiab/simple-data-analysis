@@ -29,5 +29,5 @@ export default async function getVar(
 
     const result = queryResult[0].valueForGetVar
     simpleDB.debug && console.log("variance:", result)
-    return result
+    return result as number
 }
