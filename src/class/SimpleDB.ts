@@ -7,7 +7,7 @@ import stringToArray from "../helpers/stringToArray.js"
 
 import getDescription from "../methods/getDescription.js"
 import renameColumnQuery from "../methods/renameColumnQuery.js"
-import replaceStringsQuery from "../methods/replaceStringsQuery.js"
+import replaceQuery from "../methods/replaceQuery.js"
 import convertQuery from "../methods/convertQuery.js"
 import roundQuery from "../methods/roundQuery.js"
 import joinQuery from "../methods/joinQuery.js"
@@ -1138,7 +1138,7 @@ export default class SimpleDB {
      *   @param options.regex - A boolean indicating the use of regular expressions for a global replace. See the [RE2 docs](https://github.com/google/re2/wiki/Syntax) for the syntax. Defaults to false.
      * @category Updating data
      */
-    async replaceStrings(
+    async replace(
         table: string,
         columns: string | string[],
         strings: { [key: string]: string },
@@ -1156,7 +1156,7 @@ export default class SimpleDB {
         }
         await queryDB(
             this,
-            replaceStringsQuery(
+            replaceQuery(
                 table,
                 stringToArray(columns),
                 Object.keys(strings),
@@ -1165,7 +1165,7 @@ export default class SimpleDB {
             ),
             mergeOptions(this, {
                 table,
-                method: "replaceStrings()",
+                method: "replace()",
                 parameters: { table, columns, strings, options },
             })
         )
