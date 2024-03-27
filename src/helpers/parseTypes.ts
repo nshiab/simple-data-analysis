@@ -14,6 +14,7 @@ export default function parseType(
         | "timestamp"
         | "timestamp with time zone"
         | "boolean"
+        | "geometry"
 ) {
     const typeLowerCase = type.toLowerCase()
     if (typeLowerCase === "integer") {
@@ -36,6 +37,7 @@ export default function parseType(
             "timestamp",
             "timestamp with time zone",
             "boolean",
+            "geometry",
         ].includes(type)
     ) {
         return type.toUpperCase()
