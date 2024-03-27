@@ -4,7 +4,6 @@
     "exports": "./src/index.ts",
     "publish": {
         "exclude": [
-            "assets",
             "test",
             "docs",
             ".github",
