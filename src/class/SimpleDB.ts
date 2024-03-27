@@ -1797,14 +1797,11 @@ export default class SimpleDB {
     }
 
     /**
-     * Computes rolling aggregations, like a rolling average.
+     * Computes rolling aggregations, like a rolling average. For rows without enough preceding or following rows, returns NULL. For this method to work properly, don't forget to sort your data first.
      *
      * ```ts
-     * // 7-day rolling average of values in column1 with the 3 preceding and 3 following rows. The results will be stored in the new rollingAvg column.
+     * // 7-day rolling average of values in column1 with the 3 preceding and 3 following rows.
      * await sdb.rolling("tableA", "column1", "rollingAvg", "mean", 3, 3)
-     *
-     * // Same thing but with a count. The top three and bottom three rows will have a count of less than 7.
-     * await sdb.rolling("tableA", "column1", "countAggregatedRows", "count", 3, 3)
      * ```
      *
      * @param table - The name of the table
@@ -1816,14 +1813,13 @@ export default class SimpleDB {
      * @param options - An optional object with configuration options:
      *   @param options.categories - The category or categories to be used for the aggragation.
      *   @param options.decimals - The number of decimal places to round the summarized values. Defaults to 2.
-     *
      * @category Analyzing data
      */
     async rolling(
         table: string,
         column: string,
         newColumn: string,
-        summary: "count" | "min" | "max" | "mean" | "median" | "sum",
+        summary: "min" | "max" | "mean" | "median" | "sum",
         preceding: number,
         following: number,
         options: {
