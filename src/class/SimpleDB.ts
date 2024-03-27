@@ -58,6 +58,7 @@ import upperQuery from "../methods/upperQuery.js"
 import cloneColumnQuery from "../methods/cloneColumn.js"
 import keepQuery from "../methods/keepQuery.js"
 import removeQuery from "../methods/removeQuery.js"
+import normalizeQuery from "../methods/normalizeQuery.js"
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB.
@@ -1949,6 +1950,44 @@ export default class SimpleDB {
                 table,
                 method: "zScore()",
                 parameters: { table, column, newColumn, options },
+            })
+        )
+    }
+
+    /**
+     * Normalizes the values in a column using min-max normalization.
+     *
+     * ```ts
+     * // Normalizes the values in the column1 from tableA.
+     * await sdb.normalize("tableA", "column1")
+     * ```
+     *
+     * @param table - The name of the table.
+     * @param column - The name of the column in which values will be normalized.
+     * @param newColumn - The name of the new column where normalized values will be stored.
+     * @param options - An optional object with configuration options:
+     *   @param options.categories - The column or columns that define categories for the normalization.
+     *   @param options.decimals - The number of decimal places to round the normalized values. Defaults to 2.
+     *
+     * @category Analyzing data
+     */
+    async normalize(
+        table: string,
+        column: string,
+        newColumn: string,
+        options: {
+            categories?: string | string[]
+            decimals?: number
+        } = {}
+    ) {
+        options.decimals = options.decimals ?? 2
+        await queryDB(
+            this,
+            normalizeQuery(table, column, newColumn, options),
+            mergeOptions(this, {
+                table,
+                method: "zScore()",
+                parameters: { table, column, options },
             })
         )
     }
