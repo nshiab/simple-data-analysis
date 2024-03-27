@@ -1125,6 +1125,9 @@ export default class SimpleDB {
      *
      * // Replaces only if matching entire string.
      * await sdb.replaceStrings("tableA", "column1", {"kilograms": "kg", liters: "l" }, {entireString: true})
+     *
+     * // Replaces using a regular expression. Any sequence of one or more digits would be replaced by a hyphen.
+     * await sdb.replaceStrings("tableA", "column1", {"\d+": "-" }, {regex: true})
      * ```
      *
      * @param table - The name of the table in which strings will be replaced.
@@ -1132,7 +1135,7 @@ export default class SimpleDB {
      * @param strings - An object mapping old strings to new strings.
      * @param options - An optional object with configuration options:
      *   @param options.entireString - A boolean indicating whether the entire string must match for replacement. Defaults to false.
-     *
+     *   @param options.regex - A boolean indicating the use of regular expressions for a global replace. See the [RE2 docs](https://github.com/google/re2/wiki/Syntax) for the syntax. Defaults to false.
      * @category Updating data
      */
     async replaceStrings(
@@ -1141,9 +1144,16 @@ export default class SimpleDB {
         strings: { [key: string]: string },
         options: {
             entireString?: boolean
+            regex?: boolean
         } = {}
     ) {
         options.entireString = options.entireString ?? false
+        options.regex = options.regex ?? false
+        if (options.entireString === true && options.regex === true) {
+            throw new Error(
+                "You can't have entireString to true and regex to true at the same time. Pick one."
+            )
+        }
         await queryDB(
             this,
             replaceStringsQuery(
