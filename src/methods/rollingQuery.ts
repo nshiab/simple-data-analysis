@@ -1,0 +1,38 @@
+import stringToArray from "../helpers/stringToArray.js"
+
+export default function rollingQuery(
+    table: string,
+    column: string,
+    newColumn: string,
+    summary: "count" | "min" | "max" | "mean" | "median" | "sum",
+    preceding: number,
+    following: number,
+    options: {
+        categories?: string | string[]
+        decimals?: number
+    } = {}
+) {
+    const aggregates: { [key: string]: string } = {
+        count: "COUNT",
+        min: "MIN",
+        max: "MAX",
+        mean: "AVG",
+        median: "MEDIAN",
+        sum: "SUM",
+    }
+
+    const categories = options.categories
+        ? stringToArray(options.categories)
+        : []
+    const partition =
+        categories.length > 0
+            ? `PARTITION BY ${categories.map((d) => `"${d}"`).join(", ")}`
+            : ""
+
+    const query = `CREATE OR REPLACE TABLE ${table} AS SELECT *,
+    ROUND(${aggregates[summary]}(${column}) OVER (${partition}
+        ROWS BETWEEN ${preceding} PRECEDING AND ${following} FOLLOWING), ${options.decimals}) AS ${newColumn}
+        FROM ${table}`
+
+    return query
+}
