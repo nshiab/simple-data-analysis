@@ -1,4 +1,4 @@
-export default function replaceStringsQuery(
+export default function replaceQuery(
     table: string,
     columns: string[],
     oldTexts: string[],

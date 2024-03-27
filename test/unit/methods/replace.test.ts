@@ -15,7 +15,7 @@ describe("replaceString", () => {
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.replaceStrings(
+        await simpleNodeDB.replace(
             "employeesOneColumn",
             ["Name", "End-of_year-BONUS?"],
             { "%": "" }
@@ -440,7 +440,7 @@ describe("replaceString", () => {
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.replaceStrings(
+        await simpleNodeDB.replace(
             "employeesSubstring",
             ["Name", "End-of_year-BONUS?"],
             { a: "@" }
@@ -865,7 +865,7 @@ describe("replaceString", () => {
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.replaceStrings(
+        await simpleNodeDB.replace(
             "employeesEntireString",
             ["Name", "End-of_year-BONUS?"],
             { "Grant, Douglas": "BOSS" },
@@ -1291,7 +1291,7 @@ describe("replaceString", () => {
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.replaceStrings(
+        await simpleNodeDB.replace(
             "employeesOneColumnMultipleTexts",
             ["End-of_year-BONUS?"],
             { "%": "", ",": "." }
@@ -1718,7 +1718,7 @@ describe("replaceString", () => {
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.replaceStrings(
+        await simpleNodeDB.replace(
             "employeesMultipleColumns",
             ["Name", "End-of_year-BONUS?"],
             { ",": " => " }
@@ -2143,7 +2143,7 @@ describe("replaceString", () => {
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.replaceStrings(
+        await simpleNodeDB.replace(
             "employeesMultipleColumnsMultipleTexts",
             ["Name", "End-of_year-BONUS?"],
             { "%": "", ",": "." }
@@ -2569,7 +2569,7 @@ describe("replaceString", () => {
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.replaceStrings(
+        await simpleNodeDB.replace(
             "employeesMultipleColumnsSingleQuote",
             ["Name"],
             { ",": "'" }
@@ -2995,7 +2995,7 @@ describe("replaceString", () => {
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.replaceStrings(
+        await simpleNodeDB.replace(
             "employeesMultipleColumnsRegex",
             "Hire date",
             { "\\d+": "-" },
