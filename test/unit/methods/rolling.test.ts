@@ -113,35 +113,35 @@ describe("rolling", () => {
     })
     it("should compute a rolling max with 0 preceding and 3 following, and a category", async () => {
         await simpleNodeDB.loadArray("data", [
-            { group: "a", value: 52 },
-            { group: "a", value: 76 },
-            { group: "a", value: 36 },
-            { group: "a", value: 95 },
-            { group: "a", value: 40 },
-            { group: "b", value: 19 },
-            { group: "b", value: 63 },
-            { group: "b", value: 4 },
-            { group: "b", value: 83 },
-            { group: "b", value: 41 },
+            { index: 1, group: "a", value: 52 },
+            { index: 2, group: "a", value: 76 },
+            { index: 3, group: "a", value: 36 },
+            { index: 4, group: "a", value: 95 },
+            { index: 5, group: "a", value: 40 },
+            { index: 6, group: "b", value: 19 },
+            { index: 7, group: "b", value: 63 },
+            { index: 8, group: "b", value: 4 },
+            { index: 9, group: "b", value: 83 },
+            { index: 10, group: "b", value: 41 },
         ])
 
         await simpleNodeDB.rolling("data", "value", "rollingMax", "max", 0, 3, {
             categories: "group",
         })
-
+        await simpleNodeDB.sort("data", { index: "asc" })
         const data = await simpleNodeDB.getData("data")
 
         assert.deepStrictEqual(data, [
-            { group: "b", value: 19, rollingMax: 83 },
-            { group: "b", value: 63, rollingMax: 83 },
-            { group: "b", value: 4, rollingMax: null },
-            { group: "b", value: 83, rollingMax: null },
-            { group: "b", value: 41, rollingMax: null },
-            { group: "a", value: 52, rollingMax: 95 },
-            { group: "a", value: 76, rollingMax: 95 },
-            { group: "a", value: 36, rollingMax: null },
-            { group: "a", value: 95, rollingMax: null },
-            { group: "a", value: 40, rollingMax: null },
+            { index: 1, group: "a", value: 52, rollingMax: 95 },
+            { index: 2, group: "a", value: 76, rollingMax: 95 },
+            { index: 3, group: "a", value: 36, rollingMax: null },
+            { index: 4, group: "a", value: 95, rollingMax: null },
+            { index: 5, group: "a", value: 40, rollingMax: null },
+            { index: 6, group: "b", value: 19, rollingMax: 83 },
+            { index: 7, group: "b", value: 63, rollingMax: 83 },
+            { index: 8, group: "b", value: 4, rollingMax: null },
+            { index: 9, group: "b", value: 83, rollingMax: null },
+            { index: 10, group: "b", value: 41, rollingMax: null },
         ])
     })
 })
