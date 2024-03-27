@@ -746,11 +746,12 @@ export default class SimpleDB {
     ) {
         await queryDB(
             this,
-            `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM (UNPIVOT ${table}
-        ON ${columns.map((d) => `"${d}"`).join(", ")}
-        INTO
-            NAME ${columnsTo}
-            VALUE ${valuesTo})`,
+            `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM (
+                FROM "${table}" UNPIVOT INCLUDE NULLS (
+                "${valuesTo}"
+                for "${columnsTo}" in (${columns.map((d) => `"${d}"`).join(", ")})
+                )
+            )`,
             mergeOptions(this, {
                 table,
                 method: "longer()",
