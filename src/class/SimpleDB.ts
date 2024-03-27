@@ -56,6 +56,8 @@ import replaceNullsQuery from "../methods/replaceNullsQuery.js"
 import lowerQuery from "../methods/lowerQuery.js"
 import upperQuery from "../methods/upperQuery.js"
 import cloneColumnQuery from "../methods/cloneColumn.js"
+import keepQuery from "../methods/keepQuery.js"
+import removeQuery from "../methods/removeQuery.js"
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB.
@@ -594,6 +596,59 @@ export default class SimpleDB {
                 table,
                 method: "filter()",
                 parameters: { table, conditions },
+            })
+        )
+    }
+
+    /**
+     * Keeps rows with specific values in specific columns.
+     *
+     * ```ts
+     * // In table employees, keep only rows where the job is accountant or developer and where the city is Montreal.
+     * await sdb.keep("employees", { job: [ "accountant", "developer" ], city: [ "Montreal" ] })
+     * ```
+     *
+     * @param table - The name of the table
+     * @param columnsAndValues - An object with the columns (keys) and the values to be kept (values as arrays)
+     *
+     * @category Selecting or filtering data
+     */
+    async keep(table: string, columnsAndValues: { [key: string]: unknown[] }) {
+        await queryDB(
+            this,
+            keepQuery(table, columnsAndValues),
+            mergeOptions(this, {
+                table,
+                method: "keep()",
+                parameters: { table, columnsAndValues },
+            })
+        )
+    }
+
+    /**
+     * Remove rows with specific values in specific columns.
+     *
+     * ```ts
+     * // In table employees, remove rows where the job is accountant or developer and where the city is Montreal.
+     * await sdb.remove("employees", { job: [ "accountant", "developer" ], city: [ "Montreal" ] })
+     * ```
+     *
+     * @param table - The name of the table
+     * @param columnsAndValues - An object with the columns (keys) and the values to be removed (values as arrays)
+     *
+     * @category Selecting or filtering data
+     */
+    async remove(
+        table: string,
+        columnsAndValues: { [key: string]: unknown[] }
+    ) {
+        await queryDB(
+            this,
+            removeQuery(table, columnsAndValues),
+            mergeOptions(this, {
+                table,
+                method: "remove()",
+                parameters: { table, columnsAndValues },
             })
         )
     }
