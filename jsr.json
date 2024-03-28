@@ -3,6 +3,7 @@
     "version": "2.7.1",
     "exports": "./src/index.ts",
     "publish": {
+        "include": ["dist"],
         "exclude": [
             "test",
             "docs",
