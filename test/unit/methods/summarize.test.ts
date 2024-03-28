@@ -16,6 +16,39 @@ describe("summarize", () => {
 
     it("should summarize all numeric columns in a table and overwrite the column", async () => {
         await simpleNodeDB.cloneTable("dataSummarize", "dataSummarizeClone")
+        await simpleNodeDB.summarize("dataSummarizeClone")
+        const data = await simpleNodeDB.getData("dataSummarizeClone")
+
+        assert.deepStrictEqual(data, [
+            {
+                value: "key2",
+                count: 4,
+                min: 1,
+                max: 22,
+                mean: 9,
+                median: 6.5,
+                sum: 36,
+                skew: 0.9668861556278396,
+                stdDev: 9.763879010584539,
+                var: 95.33333333333333,
+            },
+            {
+                value: "key3",
+                count: 4,
+                min: 2.345,
+                max: 12.3434,
+                mean: 7.438525,
+                median: 7.53285,
+                sum: 29.7541,
+                skew: -0.057065942564767755,
+                stdDev: 4.747895967250477,
+                var: 22.542516115833337,
+            },
+        ])
+    })
+
+    it("should summarize all numeric columns in a table and overwrite the column with 2 decimals", async () => {
+        await simpleNodeDB.cloneTable("dataSummarize", "dataSummarizeClone")
         await simpleNodeDB.summarize("dataSummarizeClone", { decimals: 2 })
         const data = await simpleNodeDB.getData("dataSummarizeClone")
 

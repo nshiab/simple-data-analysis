@@ -18,8 +18,6 @@ export default async function correlations(
 ) {
     simpleDB.debug && console.log("\ncorrelations()")
 
-    options.decimals = options.decimals ?? 2
-
     const outputTable = options.outputTable ?? table
 
     let combinations: [string, string][] = []

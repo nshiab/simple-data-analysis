@@ -1659,7 +1659,7 @@ export default class SimpleDB {
      * @param columns - The columns for which proportions will be computed on each row.
      * @param options - An optional object with configuration options:
      *   @param options.suffix - A string suffix to append to the names of the new columns storing the computed proportions. Defaults to "Perc".
-     *   @param options.decimals - The number of decimal places to round the computed proportions. Defaults to 2.
+     *   @param options.decimals - The number of decimal places to round the computed proportions.
      *
      * @category Analyzing data
      */
@@ -1699,7 +1699,7 @@ export default class SimpleDB {
      * @param newColumn - The name of the new column where the proportions will be stored.
      * @param options - An optional object with configuration options:
      *   @param options.categories - The column or columns that define categories for computing proportions. This can be a single column name or an array of column names.
-     *   @param options.decimals - The number of decimal places to round the computed proportions. Defaults to 2.
+     *   @param options.decimals - The number of decimal places to round the computed proportions.
      *
      * @category Analyzing data
      */
@@ -1812,7 +1812,7 @@ export default class SimpleDB {
      * @param following - How many following rows to include
      * @param options - An optional object with configuration options:
      *   @param options.categories - The category or categories to be used for the aggragation.
-     *   @param options.decimals - The number of decimal places to round the summarized values. Defaults to 2.
+     *   @param options.decimals - The number of decimal places to round the summarized values.
      * @category Analyzing data
      */
     async rolling(
@@ -1827,7 +1827,6 @@ export default class SimpleDB {
             decimals?: number
         } = {}
     ) {
-        options.decimals = options.decimals ?? 2
         await queryDB(
             this,
             rollingQuery(
@@ -1856,7 +1855,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Calculates correlations between columns in a table. Results are rounded with two decimals by default.
+     * Calculates correlations between columns in a table.
      *
      * If no *x* and *y* columns are specified, the method computes the correlations of all numeric columns *combinations*. It's important to note that correlation is symmetrical: the correlation of *x* over *y* is the same as *y* over *x*.
      *
@@ -1879,7 +1878,7 @@ export default class SimpleDB {
      *   @param options.x - The column name for the x values. Default is all numeric columns.
      *   @param options.y - The column name for the y values. Default is all numeric columns.
      *   @param options.categories - The column or columns that define categories. Correlation calculations will be run for each category.
-     *   @param options.decimals - The number of decimal places to round the correlation values. Defaults to 2.
+     *   @param options.decimals - The number of decimal places to round the correlation values.
      *   @param options.outputTable - An option to store the results in a new table.
      *
      * @category Analyzing data
@@ -1898,7 +1897,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Performs linear regression analysis and creates a table with regression results. The results include the slope, the y-intercept the R-squared. Results are rounded with two decimals by default.
+     * Performs linear regression analysis and creates a table with regression results. The results include the slope, the y-intercept the R-squared.
      *
      * If no *x* and *y* columns are specified, the method computes the linear regression analysis of all numeric columns *permutations*. It's important to note that linear regression analysis is asymmetrical: the linear regression of *x* over *y* is not the same as *y* over *x*.
      *
@@ -1921,7 +1920,7 @@ export default class SimpleDB {
      *   @param options.x - The column name for the independent variable (x values) in the linear regression analysis.
      *   @param options.y - The column name for the dependent variable (y values) in the linear regression analysis.
      *   @param options.categories - The column or columns that define categories. Correlation calculations will be run for each category.
-     *   @param options.decimals - The number of decimal places to round the regression coefficients. Defaults to 2.
+     *   @param options.decimals - The number of decimal places to round the regression coefficients.
      *
      * @category Analyzing data
      */
@@ -1992,7 +1991,7 @@ export default class SimpleDB {
      * @param newColumn - The name of the new column where the bins will be stored.
      * @param options - An optional object with configuration options:
      *   @param options.categories - The column or columns that define categories for zScores.
-     *   @param options.decimals - The number of decimal places to round the Z-score values. Defaults to 2.
+     *   @param options.decimals - The number of decimal places to round the Z-score values.
      *
      * @category Analyzing data
      */
@@ -2005,7 +2004,6 @@ export default class SimpleDB {
             decimals?: number
         } = {}
     ) {
-        options.decimals = options.decimals ?? 2
         await queryDB(
             this,
             zScoreQuery(table, column, newColumn, options),
@@ -2030,7 +2028,7 @@ export default class SimpleDB {
      * @param newColumn - The name of the new column where normalized values will be stored.
      * @param options - An optional object with configuration options:
      *   @param options.categories - The column or columns that define categories for the normalization.
-     *   @param options.decimals - The number of decimal places to round the normalized values. Defaults to 2.
+     *   @param options.decimals - The number of decimal places to round the normalized values.
      *
      * @category Analyzing data
      */
@@ -2043,7 +2041,6 @@ export default class SimpleDB {
             decimals?: number
         } = {}
     ) {
-        options.decimals = options.decimals ?? 2
         await queryDB(
             this,
             normalizeQuery(table, column, newColumn, options),
@@ -2369,7 +2366,7 @@ export default class SimpleDB {
      * @param table - The name of the table.
      * @param column - The name of the column.
      * @param options - An optional object with configuration options:
-     *   @param options.decimals - The number of decimal places to round the result to. All decimals are kept by default.
+     *   @param options.decimals - The number of decimal places to round the result to.
      *
      * @category Getting data
      */
@@ -2393,7 +2390,7 @@ export default class SimpleDB {
      * @param table - The name of the table.
      * @param column - The name of the column.
      * @param options - An optional object with configuration options:
-     *   @param options.decimals - The number of decimal places to round the result to. All decimals are kept by default.
+     *   @param options.decimals - The number of decimal places to round the result to.
      *
      * @category Getting data
      */
@@ -2433,7 +2430,7 @@ export default class SimpleDB {
      * @param table - The name of the table.
      * @param column - The name of the column.
      * @param options - An optional object with configuration options:
-     *   @param options.decimals - The number of decimal places to round the result to. All decimals are kept by default.
+     *   @param options.decimals - The number of decimal places to round the result to.
      *
      * @category Getting data
      */
@@ -2457,7 +2454,7 @@ export default class SimpleDB {
      * @param table - The name of the table.
      * @param column - The name of the column.
      * @param options - An optional object with configuration options:
-     *   @param options.decimals - The number of decimal places to round the result to. All decimals are kept by default.
+     *   @param options.decimals - The number of decimal places to round the result to.
      *
      * @category Getting data
      */
@@ -2481,7 +2478,7 @@ export default class SimpleDB {
      * @param table - The name of the table.
      * @param column - The name of the column.
      * @param options - An optional object with configuration options:
-     *   @param options.decimals - The number of decimal places to round the result to. All decimals are kept by default.
+     *   @param options.decimals - The number of decimal places to round the result to.
      *
      * @category Getting data
      */
@@ -2506,7 +2503,7 @@ export default class SimpleDB {
      * @param column - The name of the column from which to calculate the quantile.
      * @param quantile - The quantile (between 0 and 1) to calculate. For example, 0.25 for the first quartile.
      * @param options - An optional object with configuration options:
-     *   @param options.decimals - The number of decimal places to round the result to. All decimals are kept by default.
+     *   @param options.decimals - The number of decimal places to round the result to.
      *
      * @category Getting data
      */

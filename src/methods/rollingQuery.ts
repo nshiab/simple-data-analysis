@@ -29,9 +29,11 @@ export default function rollingQuery(
             ? `PARTITION BY ${categories.map((d) => `"${d}"`).join(", ")}`
             : ""
 
+    const tempQuery = `${aggregates[summary]}(${column}) OVER (${partition}
+                ROWS BETWEEN ${preceding} PRECEDING AND ${following} FOLLOWING)`
+
     const query = `CREATE OR REPLACE TABLE ${table} AS SELECT *,
-    ROUND(${aggregates[summary]}(${column}) OVER (${partition}
-        ROWS BETWEEN ${preceding} PRECEDING AND ${following} FOLLOWING), ${options.decimals}) AS ${newColumn},
+    ${typeof options.decimals === "number" ? `ROUND(${tempQuery}, ${options.decimals})` : tempQuery} AS ${newColumn},
         COUNT(${column}) OVER (${partition}
             ROWS BETWEEN ${preceding} PRECEDING AND ${following} FOLLOWING) as tempCountForRolling
         FROM ${table};
