@@ -213,12 +213,13 @@ export default class SimpleGeoDB extends SimpleDB {
      * Simplifies the geometries while preserving their topology. The simplification occurs on an object-by-object basis.
      *
      * ```ts
-     * // Simplifies with a tolerance of 0.1. A higher tolerance results in a more significant simplification.
+     * // Simplifies with a tolerance of 0.1.
      * await sdb.simplify("tableGeo", "geomA", 0.1)
      * ```
      *
      * @param table - The name of the table storing the geospatial data.
      * @param column - The name of the column storing the geometries.
+     * @param tolerance - A number used for the simplification. A higher tolerance results in a more significant simplification.
      *
      * @category Geospatial
      */
