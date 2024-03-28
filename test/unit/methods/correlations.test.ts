@@ -16,6 +16,20 @@ describe("correlations", () => {
 
     it("should give all correlations between numeric columns in the table and overwrite the current table", async () => {
         await simpleNodeDB.cloneTable("someData", "someDataOverwrite")
+        await simpleNodeDB.correlations("someDataOverwrite")
+        await simpleNodeDB.sort("someDataOverwrite", { corr: "desc" })
+
+        const data = await simpleNodeDB.getData("someDataOverwrite")
+
+        assert.deepStrictEqual(data, [
+            { x: "key2", y: "key3", corr: 0.3537284140407263 },
+            { x: "key2", y: "key4", corr: -0.24750187590322287 },
+            { x: "key3", y: "key4", corr: -0.715142020143122 },
+        ])
+    })
+
+    it("should give all correlations between numeric columns in the table and overwrite the current table, with one decimal", async () => {
+        await simpleNodeDB.cloneTable("someData", "someDataOverwrite")
         await simpleNodeDB.correlations("someDataOverwrite", {
             decimals: 1,
         })
@@ -93,6 +107,7 @@ describe("correlations", () => {
             x: "decade",
             y: "mean",
             categories: "id",
+            decimals: 2,
         })
 
         await simpleNodeDB.sort("temperatures", { corr: "desc" })

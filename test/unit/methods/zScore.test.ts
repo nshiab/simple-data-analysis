@@ -23,6 +23,7 @@ describe("zScore", () => {
             { name: "Genevieve", age: 32 },
             { name: "Jane", age: 32 },
         ])
+        await simpleNodeDB.cloneTable("people", "peopleTwoDecimals")
         await simpleNodeDB.cloneTable("people", "peopleDifferentName")
         await simpleNodeDB.cloneTable("people", "peopleThreeDecimals")
         await simpleNodeDB.loadArray("peopleGender", [
@@ -54,6 +55,35 @@ describe("zScore", () => {
         await simpleNodeDB.sort("people", { ageZ: "asc" })
 
         const data = await simpleNodeDB.getData("people")
+
+        assert.deepStrictEqual(data, [
+            { name: "Evangeline", age: 21, ageZ: -1.2460801157839236 },
+            { name: "Amelia", age: 29, ageZ: -0.6922667309910687 },
+            { name: "Marie", age: 30, ageZ: -0.6230400578919618 },
+            { name: "Kiara", age: 31, ageZ: -0.5538133847928549 },
+            { name: "Isobel", age: 31, ageZ: -0.5538133847928549 },
+            { name: "Genevieve", age: 32, ageZ: -0.48458671169374806 },
+            { name: "Jane", age: 32, ageZ: -0.48458671169374806 },
+            { name: "Chloe", age: 33, ageZ: -0.4153600385946412 },
+            { name: "Philip", age: 33, ageZ: -0.4153600385946412 },
+            { name: "Morgan", age: 33, ageZ: -0.4153600385946412 },
+            { name: "Jeremy", age: 34, ageZ: -0.34613336549553436 },
+            { name: "Claudia", age: 35, ageZ: -0.27690669239642746 },
+            { name: "Sonny", age: 57, ageZ: 1.2460801157839236 },
+            { name: "Frazer", age: 64, ageZ: 1.7306668274776718 },
+            { name: "Sarah", age: 64, ageZ: 1.7306668274776718 },
+            { name: "Frankie", age: 65, ageZ: 1.7998935005767784 },
+        ])
+    })
+
+    it("should add a column with the zScore with 2 decimals", async () => {
+        await simpleNodeDB.zScore("peopleTwoDecimals", "age", "ageZ", {
+            decimals: 2,
+        })
+
+        await simpleNodeDB.sort("peopleTwoDecimals", { ageZ: "asc" })
+
+        const data = await simpleNodeDB.getData("peopleTwoDecimals")
 
         assert.deepStrictEqual(data, [
             { name: "Evangeline", age: 21, ageZ: -1.25 },

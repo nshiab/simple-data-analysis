@@ -27,13 +27,15 @@ export default function correlationsQuery(
         } else {
             query += "\nUNION"
         }
+        const tempQuery =
+            typeof options.decimals === "number"
+                ? `ROUND(corr("${comb[0]}", "${comb[1]}"), ${options.decimals})`
+                : `corr("${comb[0]}", "${comb[1]}")`
         query += `\nSELECT ${
             categories.length > 0
                 ? `${categories.map((d) => `"${d}"`).join(",")}, `
                 : ""
-        }'${comb[0]}' AS x, '${comb[1]}' AS y, ROUND(corr("${comb[0]}", "${
-            comb[1]
-        }"), ${options.decimals ?? 2}) as corr FROM ${table}${groupBy}`
+        }'${comb[0]}' AS x, '${comb[1]}' AS y, ${tempQuery}  as corr FROM ${table}${groupBy}`
     }
 
     return query

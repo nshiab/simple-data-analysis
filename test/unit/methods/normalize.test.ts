@@ -9,7 +9,6 @@ describe("normalize", () => {
     after(async function () {
         await simpleNodeDB.done()
     })
-
     it("should normalize values in a column", async () => {
         await simpleNodeDB.loadData(
             "data",
@@ -17,6 +16,36 @@ describe("normalize", () => {
         )
 
         await simpleNodeDB.normalize("data", "key2", "normalized")
+        await simpleNodeDB.sort("data", { normalized: "asc" })
+
+        const data = await simpleNodeDB.getData("data")
+
+        assert.deepStrictEqual(data, [
+            { key1: "Rubarbe", key2: 1, key3: 10.5, normalized: 0 },
+            {
+                key1: "Rubarbe",
+                key2: 2,
+                key3: 4.5657,
+                normalized: 0.047619047619047616,
+            },
+            {
+                key1: "Fraise",
+                key2: 11,
+                key3: 2.345,
+                normalized: 0.47619047619047616,
+            },
+            { key1: "Fraise", key2: 22, key3: 12.3434, normalized: 1 },
+        ])
+    })
+    it("should normalize values in a column with two decimals", async () => {
+        await simpleNodeDB.loadData(
+            "data",
+            "test/data/files/dataSummarize.json"
+        )
+
+        await simpleNodeDB.normalize("data", "key2", "normalized", {
+            decimals: 2,
+        })
         await simpleNodeDB.sort("data", { normalized: "asc" })
 
         const data = await simpleNodeDB.getData("data")

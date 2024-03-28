@@ -16,8 +16,6 @@ export default async function linearRegressions(
         outputTable?: string
     } = {}
 ) {
-    options.decimals = options.decimals ?? 2
-
     const outputTable = options.outputTable ?? table
 
     const permutations: [string, string][] = []

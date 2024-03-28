@@ -9,11 +9,15 @@ export default function proportionsHorizontalQuery(
     let query = `CREATE OR REPLACE TABLE ${table} AS SELECT *,`
 
     for (const col of columns) {
-        query += ` ROUND("${col}" / (${columns
+        const tempQuery = `"${col}" / (${columns
             .map((d) => `"${d}"`)
-            .join(" + ")}), ${options.decimals ?? 2}) AS "${col}${
-            options.suffix ?? "Perc"
-        }",`
+            .join(" + ")})`
+        if (typeof options.decimals === "number") {
+            query += ` ROUND(${tempQuery}, ${options.decimals})`
+        } else {
+            query += ` ${tempQuery}`
+        }
+        query += ` AS "${col}${options.suffix ?? "Perc"}",`
     }
 
     query += `FROM ${table}`

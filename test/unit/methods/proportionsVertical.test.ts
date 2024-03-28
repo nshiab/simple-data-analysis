@@ -22,10 +22,30 @@ describe("proportionsVertical", () => {
         const data = await simpleNodeDB.getData("proportions")
 
         assert.deepStrictEqual(data, [
-            { key1: "Rubarbe", key2: 1, key3: 10.5, key2Perc: 0.03 },
-            { key1: "Fraise", key2: 11, key3: 2.345, key2Perc: 0.31 },
-            { key1: "Rubarbe", key2: 2, key3: 4.5657, key2Perc: 0.06 },
-            { key1: "Fraise", key2: 22, key3: 12.3434, key2Perc: 0.61 },
+            {
+                key1: "Rubarbe",
+                key2: 1,
+                key3: 10.5,
+                key2Perc: 0.027777777777777776,
+            },
+            {
+                key1: "Fraise",
+                key2: 11,
+                key3: 2.345,
+                key2Perc: 0.3055555555555556,
+            },
+            {
+                key1: "Rubarbe",
+                key2: 2,
+                key3: 4.5657,
+                key2Perc: 0.05555555555555555,
+            },
+            {
+                key1: "Fraise",
+                key2: 22,
+                key3: 12.3434,
+                key2Perc: 0.6111111111111112,
+            },
         ])
     })
     it("should return the vertical proportions in a new column and a specific number of decimals", async () => {
@@ -68,10 +88,30 @@ describe("proportionsVertical", () => {
         const data = await simpleNodeDB.getData("proportionsCategory")
 
         assert.deepStrictEqual(data, [
-            { key1: "Fraise", key2: 11, key3: 2.345, key2Perc: 0.33 },
-            { key1: "Fraise", key2: 22, key3: 12.3434, key2Perc: 0.67 },
-            { key1: "Rubarbe", key2: 1, key3: 10.5, key2Perc: 0.33 },
-            { key1: "Rubarbe", key2: 2, key3: 4.5657, key2Perc: 0.67 },
+            {
+                key1: "Fraise",
+                key2: 11,
+                key3: 2.345,
+                key2Perc: 0.3333333333333333,
+            },
+            {
+                key1: "Fraise",
+                key2: 22,
+                key3: 12.3434,
+                key2Perc: 0.6666666666666666,
+            },
+            {
+                key1: "Rubarbe",
+                key2: 1,
+                key3: 10.5,
+                key2Perc: 0.3333333333333333,
+            },
+            {
+                key1: "Rubarbe",
+                key2: 2,
+                key3: 4.5657,
+                key2Perc: 0.6666666666666666,
+            },
         ])
     })
 

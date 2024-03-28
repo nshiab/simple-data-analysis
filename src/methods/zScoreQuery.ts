@@ -17,14 +17,18 @@ export default function zScoreQuery(
             ? `PARTITION BY ${categories.map((d) => `"${d}"`).join(", ")}`
             : ""
 
+    const tempQuery = `("${column}"-AVG("${column}") OVER(${partition}))
+            /
+            STDDEV("${column}") OVER(${partition})`
     const query = `
     CREATE OR REPLACE TABLE ${table} AS
     SELECT *, (
-        ROUND(
-        ("${column}"-AVG("${column}") OVER(${partition}))
-        /
-        STDDEV("${column}") OVER(${partition}),
-        ${options.decimals ?? 2})
+        ${
+            typeof options.decimals === "number"
+                ? `ROUND(${tempQuery}, ${options.decimals})`
+                : tempQuery
+        }
+        
         ) AS "${newColumn}",
     FROM ${table}
     `

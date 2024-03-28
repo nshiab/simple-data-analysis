@@ -13,10 +13,61 @@ describe("linearRegressions", () => {
     after(async function () {
         await simpleNodeDB.done()
     })
-
     it("should return the slope, yIntercept and coefficient of determination for all permutations of numeric columns and overwrite the current table with the results", async () => {
         await simpleNodeDB.cloneTable("someData", "someDataCloned")
         await simpleNodeDB.linearRegressions("someDataCloned")
+        await simpleNodeDB.sort("someDataCloned", { r2: "desc", x: "asc" })
+        const data = await simpleNodeDB.getData("someDataCloned")
+
+        assert.deepStrictEqual(data, [
+            {
+                x: "key3",
+                y: "key4",
+                slope: -0.5817374126568399,
+                yIntercept: 9.07726828748322,
+                r2: 0.5114281089743855,
+            },
+            {
+                x: "key4",
+                y: "key3",
+                slope: -0.8791391061452515,
+                yIntercept: 11.614435754189945,
+                r2: 0.5114281089743855,
+            },
+            {
+                x: "key3",
+                y: "key2",
+                slope: 0.7274298891809314,
+                yIntercept: 3.588994583580412,
+                r2: 0.1251237908997675,
+            },
+            {
+                x: "key2",
+                y: "key3",
+                slope: 0.17200804195804198,
+                yIntercept: 5.890452622377623,
+                r2: 0.12512379089976747,
+            },
+            {
+                x: "key2",
+                y: "key4",
+                slope: -0.0979020979020979,
+                yIntercept: 5.631118881118881,
+                r2: 0.06125717857561433,
+            },
+            {
+                x: "key4",
+                y: "key2",
+                slope: -0.6256983240223464,
+                yIntercept: 11.972067039106145,
+                r2: 0.06125717857561433,
+            },
+        ])
+    })
+
+    it("should return the slope, yIntercept and coefficient of determination for all permutations of numeric columns and overwrite the current table with the results, with 2 decimals", async () => {
+        await simpleNodeDB.cloneTable("someData", "someDataCloned")
+        await simpleNodeDB.linearRegressions("someDataCloned", { decimals: 2 })
         await simpleNodeDB.sort("someDataCloned", { r2: "desc", x: "asc" })
         const data = await simpleNodeDB.getData("someDataCloned")
 
@@ -33,6 +84,7 @@ describe("linearRegressions", () => {
     it("should return the slope, yIntercept and coefficient of determination for all permutations of numeric columns", async () => {
         await simpleNodeDB.linearRegressions("someData", {
             outputTable: "linearRegressions",
+            decimals: 2,
         })
         await simpleNodeDB.sort("linearRegressions", { r2: "desc", x: "asc" })
         const data = await simpleNodeDB.getData("linearRegressions")
@@ -68,6 +120,7 @@ describe("linearRegressions", () => {
             x: "decade",
             y: "mean",
             categories: "id",
+            decimals: 2,
         })
 
         await simpleNodeDB.sort("temperatures", { r2: "desc" })
@@ -105,6 +158,7 @@ describe("linearRegressions", () => {
         await simpleNodeDB.linearRegressions("someData", {
             outputTable: "linearRegressions",
             x: "key2",
+            decimals: 2,
         })
         await simpleNodeDB.sort("linearRegressions", { r2: "desc" })
         const data = await simpleNodeDB.getData("linearRegressions")
@@ -119,6 +173,7 @@ describe("linearRegressions", () => {
             outputTable: "linearRegressions",
             x: "key2",
             y: "key3",
+            decimals: 2,
         })
         const data = await simpleNodeDB.getData("linearRegressions")
         assert.deepStrictEqual(data, [
