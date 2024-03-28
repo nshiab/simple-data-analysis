@@ -1,6 +1,6 @@
 {
     "name": "@nshiab/simple-data-analysis",
-    "version": "2.7.1",
+    "version": "2.7.2",
     "exports": "./src/index.ts",
     "publish": {
         "include": ["dist"],
