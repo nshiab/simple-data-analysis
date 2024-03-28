@@ -10,7 +10,7 @@ npm i simple-data-analysis
 
 The documentation is available [here](https://nshiab.github.io/simple-data-analysis/).
 
-The library is also published on [jsr.io](https://jsr.io/@nshiab/simple-data-analysis).
+The library is tested for NodeJS. Please reach out if you want to make it work with Bun and Deno! :)
 
 ## Core principles
 
