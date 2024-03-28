@@ -82,6 +82,6 @@
         "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
         "apache-arrow": "^15.0.2",
         "duckdb": "^0.10.1",
-        "web-worker": "^1.2.0"
+        "web-worker": "1.2.0"
     }
 }
