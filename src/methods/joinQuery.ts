@@ -19,6 +19,7 @@ export default function joinQuery(
     }
 
     query += ` ON (${leftTable}."${commonColumn}" = ${rightTable}."${commonColumn}");\n`
-    query += `ALTER TABLE ${outputTable} DROP COLUMN "${commonColumn}_1";`
+    // Idealy, we would remove the column here. But not always the same things depending on nodeJS or web assembly version.
+    // query += `ALTER TABLE ${outputTable} DROP COLUMN "${commonColumn}_1";`
     return query
 }

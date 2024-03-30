@@ -20,7 +20,11 @@ export default function logData(
                     [key: string]: string | number | boolean | Date | null
                 } = {}
                 for (const key of keys) {
-                    if (Buffer && Buffer.isBuffer(data[i][key])) {
+                    // No window means NodeJS
+                    if (
+                        typeof window === "undefined" &&
+                        Buffer.isBuffer(data[i][key])
+                    ) {
                         newItem[key] = "<Buffer>"
                     } else {
                         newItem[key] = data[i][key]
