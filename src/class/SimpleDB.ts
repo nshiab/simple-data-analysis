@@ -1037,7 +1037,7 @@ export default class SimpleDB {
             outputTable?: string
         } = {}
     ) {
-        let commonColumn
+        let commonColumn: string | undefined
         if (options.commonColumn) {
             commonColumn = options.commonColumn
         } else {
@@ -1050,6 +1050,7 @@ export default class SimpleDB {
                 throw new Error("No common column")
             }
         }
+        const outputTable = options.outputTable ?? leftTable
         await queryDB(
             this,
             joinQuery(
@@ -1057,10 +1058,10 @@ export default class SimpleDB {
                 rightTable,
                 commonColumn,
                 options.type ?? "left",
-                options.outputTable ?? leftTable
+                outputTable
             ),
             mergeOptions(this, {
-                table: options.outputTable ?? leftTable,
+                table: outputTable,
                 method: "join()",
                 parameters: {
                     leftTable,
@@ -1069,6 +1070,14 @@ export default class SimpleDB {
                 },
             })
         )
+        // Need to remove the extra column common column. Ideally, this would happen in the query. :1 is with web assembly version. _1 is with nodejs version. At some point, both will be the same.
+        const columns = await this.getColumns(outputTable)
+        const extraCommonColumn = columns.find(
+            (d) => d === `${commonColumn}_1` || d === `${commonColumn}:1`
+        )
+        if (extraCommonColumn !== undefined) {
+            await this.removeColumns(outputTable, extraCommonColumn)
+        }
     }
 
     /**
