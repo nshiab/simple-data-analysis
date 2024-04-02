@@ -10,6 +10,9 @@ import SimpleDB from "./SimpleDB.js"
  *
  * ```ts
  * const sdb = new SimpleGeoDB()
+ *
+ * // Same thing but will log useful information in the console. The first 20 rows of tables will be logged.
+ * const sdb = new SimpleDB({ debug: true, nbRowsToLog: 20})
  * ```
  *
  * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It loads the [spatial](https://duckdb.org/docs/extensions/spatial) extension.
