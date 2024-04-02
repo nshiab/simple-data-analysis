@@ -22,6 +22,9 @@ import writeGeoDataQuery from "../methods/writeGeoDataQuery.js"
  *
  * ```ts
  * const sdb = new SimpleNodeDB()
+ *
+ * // Same thing but will log useful information in the terminal. The first 20 rows of tables will be logged. Also installs the spatial extension for geospatial analysis.
+ * const sdb = new SimpleDB({ debug: true, nbRowsToLog: 20, spatial: true})
  * ```
  *
  * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It optionally loads the [spatial](https://duckdb.org/docs/extensions/spatial) extension.
@@ -31,22 +34,6 @@ import writeGeoDataQuery from "../methods/writeGeoDataQuery.js"
  */
 
 export default class SimpleNodeDB extends SimpleGeoDB {
-    /**
-     * Creates an instance of SimpleNodeDB.
-     *
-     * ```ts
-     * const sdb = new SimpleNodeDB()
-     * ```
-     *
-     * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It optionally loads the [spatial](https://duckdb.org/docs/extensions/spatial) extension.
-     *
-     * @param options - An optional object with configuration options:
-     *   - debug: A flag indicating whether debugging information should be logged. Defaults to false.
-     *   - nbRowsToLog: The number of rows to log when debugging. Defaults to 10.
-     *   - bigIntToInt: Default is true. When data is retrieved from the database as an array of objects, BIGINT values are automatically converted to integers, which are easier to work with in JavaScript. If you want actual bigint values, set this option to false.
-     *   - spatial: Default is false. If true, the spatial](https://duckdb.org/docs/extensions/spatial) extension will be loaded, which allows geospatial analysis.
-     *
-     */
     constructor(
         options: {
             nbRowsToLog?: number
@@ -62,7 +49,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
     }
 
     /**
-     * Initializes DuckDB and establishes a connection to the database. It also optionnaly installs the [spatial](https://duckdb.org/docs/extensions/spatial) extensions. It's called automatically with the first method you'll run.
+     * Initializes DuckDB and establishes a connection to the database. It also optionnaly installs the [spatial](https://duckdb.org/docs/extensions/spatial) extension. It's called automatically with the first method you'll run.
      */
     async start() {
         this.debug && console.log("\nstart()")
@@ -145,19 +132,19 @@ export default class SimpleNodeDB extends SimpleGeoDB {
      * @param table - The name of the table into which data will be loaded.
      * @param files - The path(s) or url(s) of file(s) containing the data to be loaded. CSV, JSON, and PARQUET files are accepted.
      * @param options - An optional object with configuration options:
-     *   - fileType: The type of file to load ("csv", "dsv", "json", "parquet"). Defaults to the first file extension.
-     *   - autoDetect: A boolean indicating whether to automatically detect the data format. Defaults to true.
-     *   - fileName: A boolean indicating whether to include the file name as a column in the loaded data. Defaults to false.
-     *   - unifyColumns: A boolean indicating whether to unify columns across multiple files, when the files structure is not the same. Defaults to false.
-     *   - columnTypes: An object mapping the column names with their expected types. By default, the types are inferred.
-     *   - header: A boolean indicating whether the file has a header. Applicable to CSV files. Defaults to true.
-     *   - allText: A boolean indicating whether all columns should be treated as text. Applicable to CSV files. Defaults to false.
-     *   - delim: The delimiter used in the file. Applicable to CSV and DSV files. By default, the delimiter is inferred.
-     *   - skip: The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to 0.
-     *   - compression: The compression type. Applicable to CSV files. Defaults to none.
-     *   - jsonFormat: The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
-     *   - records: A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
-     *   - sheet: A string indicating a specific sheet to import. Applicable to Excel files. By default, the first sheet is imported.
+     *   @param options.fileType - The type of file to load ("csv", "dsv", "json", "parquet"). Defaults to the first file extension.
+     *   @param options.autoDetect - A boolean indicating whether to automatically detect the data format. Defaults to true.
+     *   @param options.fileName - A boolean indicating whether to include the file name as a column in the loaded data. Defaults to false.
+     *   @param options.unifyColumns - A boolean indicating whether to unify columns across multiple files, when the files structure is not the same. Defaults to false.
+     *   @param options.columnTypes - An object mapping the column names with their expected types. By default, the types are inferred.
+     *   @param options.header - A boolean indicating whether the file has a header. Applicable to CSV files. Defaults to true.
+     *   @param options.allText - A boolean indicating whether all columns should be treated as text. Applicable to CSV files. Defaults to false.
+     *   @param options.delim - The delimiter used in the file. Applicable to CSV and DSV files. By default, the delimiter is inferred.
+     *   @param options.skip - The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to 0.
+     *   @param options.compression - The compression type. Applicable to CSV files. Defaults to none.
+     *   @param options.jsonFormat - The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
+     *   @param options.records - A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
+     *   @param options.sheet - A string indicating a specific sheet to import. Applicable to Excel files. By default, the first sheet is imported.
      *
      * @category Importing data
      */
@@ -183,8 +170,6 @@ export default class SimpleNodeDB extends SimpleGeoDB {
             sheet?: string
         } = {}
     ) {
-        this.debug && console.log("\nloadData()")
-        this.debug && console.log("parameters:", { table, files, options })
         await queryDB(
             this,
             loadDataNodeQuery(table, stringToArray(files), options),
@@ -206,17 +191,17 @@ export default class SimpleNodeDB extends SimpleGeoDB {
      * @param table - The name of the table into which data will be loaded.
      * @param directory - The path of the directory containing the data files to be loaded. CSV, JSON, and PARQUET files are accepted.
      * @param options - An optional object with configuration options:
-     *   - fileType: The type of file to load ("csv", "dsv", "json", "parquet"). Defaults to the first file extension.
-     *   - autoDetect: A boolean indicating whether to automatically detect the data format. Defaults to true.
-     *   - fileName: A boolean indicating whether to include the file name as a column in the loaded data. Defaults to false.
-     *   - unifyColumns: A boolean indicating whether to unify columns across multiple files, when the files structure is not the same. Defaults to false.
-     *   - columnTypes: An object mapping the column names with their expected types. By default, the types are inferred.
-     *   - header: A boolean indicating whether the file has a header. Applicable to CSV files. Defaults to true.
-     *   - allText: A boolean indicating whether all columns should be treated as text. Applicable to CSV files. Defaults to false.
-     *   - delim: The delimiter used in the file. Applicable to CSV and DSV files. By default, the delimiter is inferred.
-     *   - skip: The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to 0.
-     *   - jsonFormat: The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
-     *   - records: A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
+     *   @param options.fileType - The type of file to load ("csv", "dsv", "json", "parquet"). Defaults to the first file extension.
+     *   @param options.autoDetect - A boolean indicating whether to automatically detect the data format. Defaults to true.
+     *   @param options.fileName - A boolean indicating whether to include the file name as a column in the loaded data. Defaults to false.
+     *   @param options.unifyColumns - A boolean indicating whether to unify columns across multiple files, when the files structure is not the same. Defaults to false.
+     *   @param options.columnTypes - An object mapping the column names with their expected types. By default, the types are inferred.
+     *   @param options.header - A boolean indicating whether the file has a header. Applicable to CSV files. Defaults to true.
+     *   @param options.allText - A boolean indicating whether all columns should be treated as text. Applicable to CSV files. Defaults to false.
+     *   @param options.delim - The delimiter used in the file. Applicable to CSV and DSV files. By default, the delimiter is inferred.
+     *   @param options.skip - The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to 0.
+     *   @param options.jsonFormat - The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
+     *   @param options.records - A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
      *
      * @category Importing data
      */

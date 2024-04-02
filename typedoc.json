@@ -2,5 +2,5 @@
     "entryPoints": ["src/index.ts"],
     "out": "docs",
     "excludeNotDocumented": true,
-    "categoryOrder": ["Constructor", "*", "Other"]
+    "categoryOrder": ["Constructor", "Properties", "*", "Other"]
 }

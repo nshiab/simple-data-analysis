@@ -68,6 +68,9 @@ import rollingQuery from "../methods/rollingQuery.js"
  *
  * ```ts
  * const sdb = new SimpleDB()
+ *
+ * // Same thing but will log useful information in the console. The first 20 rows of tables will be logged.
+ * const sdb = new SimpleDB({ debug: true, nbRowsToLog: 20})
  * ```
  *
  * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database.
@@ -75,16 +78,22 @@ import rollingQuery from "../methods/rollingQuery.js"
  */
 
 export default class SimpleDB {
+    /** A flag indicating whether debugging information should be logged. Defaults to false. @category Properties */
     debug: boolean
+    /** The number of rows to log when debugging. Defaults to 10. @category Properties */
     nbRowsToLog: number
+    /** A DuckDB database. @category Properties */
     db!: AsyncDuckDB | Database
+    /** A connection to a DuckDB database. @category Properties */
     connection!: AsyncDuckDBConnection | Connection
+    /** A worker to make DuckDB work. @category Properties */
     worker!: Worker | null
+    /** A flag for SimpleNodeDB. Default is true. When data is retrieved from the database as an array of objects, BIGINT values are automatically converted to integers, which are easier to work with in JavaScript. If you want actual bigint values, set this option to false. @category Properties */
     bigIntToInt: boolean | undefined // For SimpleNodeDB
-    spatial: boolean | undefined // For SimpleGeoDB
-
+    /** A flag to install the [the spatial](https://duckdb.org/docs/extensions/spatial) extension. Default is false. If true, extension will be loaded, which allows geospatial analysis. @category Properties */
+    spatial: boolean | undefined
     /**
-     * For internal use. If you want to run a SQL query, use the customQuery method.
+     * For internal use only. If you want to run a SQL query, use the customQuery method. @category Properties
      */
     runQuery!: (
         query: string,
@@ -103,23 +112,6 @@ export default class SimpleDB {
           }[]
         | null
     >
-
-    /**
-     * Creates an instance of SimpleDB.
-     *
-     * ```ts
-     * const sdb = new SimpleDB()
-     * ```
-     *
-     * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database.
-     *
-     * @param options - An optional object with configuration options:
-     *   @param options.debug - A flag indicating whether debugging information should be logged. Defaults to false.
-     *   @param options.nbRowsToLog - The number of rows to log when debugging. Defaults to 10.
-     *
-     * @category Constructor
-     *
-     */
 
     constructor(
         options: {
