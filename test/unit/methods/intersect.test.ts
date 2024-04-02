@@ -95,4 +95,49 @@ describe("intersect", () => {
             { nameEnglish: "Nunavut", name: "polygonB", intersec: true },
         ])
     })
+    it("should check if geometries intersect and the returned booleans could be used to filter", async () => {
+        await simpleNodeDB.loadGeoData(
+            "prov",
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
+        )
+        await simpleNodeDB.renameColumns("prov", { geom: "prov" })
+
+        await simpleNodeDB.loadGeoData(
+            "pol",
+            "test/geodata/files/polygons.geojson"
+        )
+        await simpleNodeDB.renameColumns("pol", { geom: "pol" })
+
+        await simpleNodeDB.crossJoin("prov", "pol", { outputTable: "joined" })
+        await simpleNodeDB.intersect("joined", ["pol", "prov"], "intersec")
+
+        await simpleNodeDB.selectColumns("joined", [
+            "nameEnglish",
+            "name",
+            "intersec",
+        ])
+
+        await simpleNodeDB.filter("joined", "intersec = TRUE")
+
+        const data = await simpleNodeDB.getData("joined")
+
+        assert.deepStrictEqual(data, [
+            { nameEnglish: "Quebec", name: "polygonA", intersec: true },
+            { nameEnglish: "Ontario", name: "polygonA", intersec: true },
+            { nameEnglish: "Manitoba", name: "polygonB", intersec: true },
+            { nameEnglish: "Saskatchewan", name: "polygonB", intersec: true },
+            { nameEnglish: "Alberta", name: "polygonB", intersec: true },
+            {
+                nameEnglish: "British Columbia",
+                name: "polygonB",
+                intersec: true,
+            },
+            {
+                nameEnglish: "Northwest Territories",
+                name: "polygonB",
+                intersec: true,
+            },
+            { nameEnglish: "Nunavut", name: "polygonB", intersec: true },
+        ])
+    })
 })
