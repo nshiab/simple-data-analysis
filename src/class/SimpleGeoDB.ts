@@ -213,7 +213,7 @@ export default class SimpleGeoDB extends SimpleDB {
      * Returns true if two geometries intersect.
      *
      * ```ts
-     * // Checks if geometries in geomA and in geomB intersect and return true or false in new column intersect.
+     * // Checks if geometries in geomA and in geomB intersect and return true or false in new column inter.
      * await sdb.intersect("tableGeo", ["geomA", "geomB"], "inter")
      * ```
      *
