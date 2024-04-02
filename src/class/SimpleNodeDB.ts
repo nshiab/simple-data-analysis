@@ -295,17 +295,23 @@ export default class SimpleNodeDB extends SimpleGeoDB {
      *
      * @param table - The name of the table from which data will be written.
      * @param file - The path to the file to which data will be written.
+     * @param options - An optional object with configuration options:
+     *   @param options.precision - Maximum number of figures after decimal separator to write in coordinates.
      *
      * * @category Exporting data
      */
-    async writeGeoData(table: string, file: string) {
+    async writeGeoData(
+        table: string,
+        file: string,
+        options: { precision?: number } = {}
+    ) {
         await queryDB(
             this,
-            writeGeoDataQuery(table, file),
+            writeGeoDataQuery(table, file, options),
             mergeOptions(this, {
                 table,
                 method: "writeGeoData()",
-                parameters: { table, file },
+                parameters: { table, file, options },
             })
         )
     }
