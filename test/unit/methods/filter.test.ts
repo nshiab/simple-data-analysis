@@ -243,4 +243,14 @@ describe("filter", () => {
             },
         ])
     })
+    it("should filter the rows based on booleans", async () => {
+        await simpleNodeDB.loadArray("tableWithBooleans", [
+            { name: "Nael", value: true },
+            { name: "Graeme", value: false },
+        ])
+        await simpleNodeDB.filter("tableWithBooleans", `value = TRUE`)
+        const data = await simpleNodeDB.getData("tableWithBooleans")
+
+        assert.deepStrictEqual(data, [{ name: "Nael", value: true }])
+    })
 })

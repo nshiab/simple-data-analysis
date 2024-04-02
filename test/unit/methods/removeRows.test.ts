@@ -574,4 +574,14 @@ describe("removeRows", () => {
             },
         ])
     })
+    it("should remove the rows based on booleans", async () => {
+        await simpleNodeDB.loadArray("tableWithBooleans", [
+            { name: "Nael", value: true },
+            { name: "Graeme", value: false },
+        ])
+        await simpleNodeDB.removeRows("tableWithBooleans", `value = TRUE`)
+        const data = await simpleNodeDB.getData("tableWithBooleans")
+
+        assert.deepStrictEqual(data, [{ name: "Graeme", value: false }])
+    })
 })
