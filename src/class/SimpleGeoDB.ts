@@ -210,6 +210,41 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
+     * Returns true if two geometries intersect.
+     *
+     * ```ts
+     * // Checks if geometries in geomA and in geomB intersect and return true or false in new column intersect.
+     * await sdb.intersect("tableGeo", ["geomA", "geomB"], "inter")
+     * ```
+     *
+     * @param table - The name of the table storing the geospatial data.
+     * @param columns - The names of the two columns storing the geometries.
+     * @param newColumn - The name of the new column with true or false values.
+     *
+     * @category Geospatial
+     */
+    async intersect(
+        table: string,
+        columns: [string, string],
+        newColumn: string
+    ) {
+        if (columns.length !== 2) {
+            throw new Error(
+                `The columns parameters must be an array with two strings. For example: ["geomA", "geomB"].`
+            )
+        }
+        await queryDB(
+            this,
+            `ALTER TABLE ${table} ADD "${newColumn}" BOOLEAN; UPDATE ${table} SET "${newColumn}" = ST_Intersects("${columns[0]}", "${columns[1]}")`,
+            mergeOptions(this, {
+                table,
+                method: "intersect()",
+                parameters: { table, columns, newColumn },
+            })
+        )
+    }
+
+    /**
      * Simplifies the geometries while preserving their topology. The simplification occurs on an object-by-object basis.
      *
      * ```ts
