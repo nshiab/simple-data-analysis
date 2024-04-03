@@ -925,7 +925,7 @@ export default class SimpleDB {
      * ```
      *
      * @param table - The name of the table to which the new column will be added.
-     * @param column - The name of the new column to be added.
+     * @param newColumn - The name of the new column to be added.
      * @param type - The data type for the new column. JavaScript or SQL types.
      * @param definition - SQL expression defining how the values should be computed for the new column.
      *
@@ -933,7 +933,7 @@ export default class SimpleDB {
      */
     async addColumn(
         table: string,
-        column: string,
+        newColumn: string,
         type:
             | "integer"
             | "float"
@@ -954,12 +954,37 @@ export default class SimpleDB {
     ) {
         await queryDB(
             this,
-            `ALTER TABLE ${table} ADD "${column}" ${parseType(type)};
-            UPDATE ${table} SET "${column}" = ${definition}`,
+            `ALTER TABLE ${table} ADD "${newColumn}" ${parseType(type)};
+            UPDATE ${table} SET "${newColumn}" = ${definition}`,
             mergeOptions(this, {
                 table,
                 method: "addColumn()",
-                parameters: { table, column, type, definition },
+                parameters: { table, newColumn, type, definition },
+            })
+        )
+    }
+
+    /**
+     * Adds a new column to a table with the row number.
+     *
+     * ```ts
+     * // Adds the row number in new column rowNumber.
+     * await sdb.addRowNumber("tableA", "rowNumber")
+     * ```
+     *
+     * @param table - The name of the table
+     * @param newColumn - The name of the new column storing the row number
+     *
+     * @category Restructuring data
+     */
+    async addRowNumber(table: string, newColumn: string) {
+        await queryDB(
+            this,
+            `CREATE OR REPLACE TABLE ${table} AS SELECT *, ROW_NUMBER() OVER() AS "${newColumn}" FROM ${table}`,
+            mergeOptions(this, {
+                table,
+                method: "addRowNumber()",
+                parameters: { table, newColumn },
             })
         )
     }
