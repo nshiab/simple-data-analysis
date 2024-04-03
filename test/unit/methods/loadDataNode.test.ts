@@ -22,6 +22,18 @@ describe("loadData", () => {
             { key1: "brioche", key2: "croissant" },
         ])
     })
+    it("should load data from a csv file with a limit", async () => {
+        await simpleNodeDB.loadData("dataCsv", ["test/data/files/data.csv"], {
+            limit: 2,
+        })
+
+        const data = await simpleNodeDB.getData("dataCsv")
+
+        assert.deepStrictEqual(data, [
+            { key1: "1", key2: "2" },
+            { key1: "3", key2: "coucou" },
+        ])
+    })
     it("should load data from a compressed csv file", async () => {
         await simpleNodeDB.loadData("dataCsvCompressed", [
             "test/data/files/data.csv.gz",
@@ -223,6 +235,24 @@ describe("loadData", () => {
             },
         ])
     })
+    it("should load data from a json file with a limit", async () => {
+        await simpleNodeDB.loadData("dataJson", ["test/data/files/data.json"], {
+            limit: 2,
+        })
+
+        const data = await simpleNodeDB.getData("dataJson")
+
+        assert.deepStrictEqual(data, [
+            {
+                key1: 1,
+                key2: "un",
+            },
+            {
+                key1: 2,
+                key2: "deux",
+            },
+        ])
+    })
     it("should load data from a json file and keep the bigint", async () => {
         const simpleNodeDBBigInt = new SimpleNodeDB({
             bigIntToInt: false,
@@ -275,6 +305,26 @@ describe("loadData", () => {
             {
                 key1: 3,
                 key2: "quatre",
+            },
+        ])
+    })
+    it("should load data from a parquet file", async () => {
+        await simpleNodeDB.loadData(
+            "dataParquet",
+            ["test/data/files/data.parquet"],
+            { limit: 2 }
+        )
+
+        const data = await simpleNodeDB.getData("dataParquet")
+
+        assert.deepStrictEqual(data, [
+            {
+                key1: 1,
+                key2: "un",
+            },
+            {
+                key1: 3,
+                key2: "deux",
             },
         ])
     })
@@ -467,6 +517,19 @@ describe("loadData", () => {
             { Country: "Canada", "Population (million)": 38 },
             { Country: "US", "Population (million)": 332 },
             { Country: "France", "Population (million)": 68 },
+        ])
+    })
+    it("should load data from a xlsx file with a limit", async () => {
+        await simpleNodeDB.loadData(
+            "dataXlsxOneSheet",
+            ["test/data/files/populations-one-sheet.xlsx"],
+            { limit: 2 }
+        )
+        const data = await simpleNodeDB.getData("dataXlsxOneSheet")
+
+        assert.deepStrictEqual(data, [
+            { Country: "Canada", "Population (million)": 38 },
+            { Country: "US", "Population (million)": 332 },
         ])
     })
     it("should load data from a specific sheet in an xlsx file", async () => {
