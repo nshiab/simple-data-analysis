@@ -134,6 +134,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
      * @param options - An optional object with configuration options:
      *   @param options.fileType - The type of file to load ("csv", "dsv", "json", "parquet"). Defaults to the first file extension.
      *   @param options.autoDetect - A boolean indicating whether to automatically detect the data format. Defaults to true.
+     *   @param options.limit - A number indicating the number of rows to load. Defaults to all rows.
      *   @param options.fileName - A boolean indicating whether to include the file name as a column in the loaded data. Defaults to false.
      *   @param options.unifyColumns - A boolean indicating whether to unify columns across multiple files, when the files structure is not the same. Defaults to false.
      *   @param options.columnTypes - An object mapping the column names with their expected types. By default, the types are inferred.
@@ -154,6 +155,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
         options: {
             fileType?: "csv" | "dsv" | "json" | "parquet" | "excel"
             autoDetect?: boolean
+            limit?: number
             fileName?: boolean
             unifyColumns?: boolean
             columnTypes?: { [key: string]: string }
