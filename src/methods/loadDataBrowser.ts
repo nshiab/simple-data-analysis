@@ -6,6 +6,7 @@ import {
 import getExtension from "../helpers/getExtension.js"
 import SimpleDB from "../class/SimpleDB.js"
 import mergeOptions from "../helpers/mergeOptions.js"
+import formatDuration from "../helpers/formatDuration.js"
 
 export default async function loadDataBrowser(
     simpleDB: SimpleDB,
@@ -95,7 +96,7 @@ export default async function loadDataBrowser(
 
     if (start) {
         const end = Date.now()
-        console.log(`Done in ${end - start} ms`)
+        console.log(`Done in ${formatDuration(start, end)}`)
     }
 
     if (simpleDB.debug) {

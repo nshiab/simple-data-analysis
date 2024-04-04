@@ -1,4 +1,5 @@
 import SimpleNodeDB from "../class/SimpleNodeDB"
+import formatDuration from "../helpers/formatDuration.js"
 
 export default async function batch(
     simpleDB: SimpleNodeDB,
@@ -34,6 +35,10 @@ export default async function batch(
     let firstRun = true
     let hasBatchOuputTableTemp = false
     for (let i = 0; i < originalTableLength; i += batchSize) {
+        let startBatch
+        if (simpleDB.debug || options.logBatchNumber) {
+            startBatch = Date.now()
+        }
         await simpleDB.selectRows(originalTable, batchSize, {
             offset: i,
             outputTable: "batchOriginalTableTemp",
@@ -71,12 +76,12 @@ export default async function batch(
             }
         }
 
-        if (start) {
+        if (startBatch) {
             const now = Date.now()
             console.log(
                 `batch => ${i}-${
                     i + batchSize
-                } out of ${originalTableLength} / Done in ${now - start} ms`
+                } out of ${originalTableLength} / Done in ${formatDuration(startBatch, now)}`
             )
         }
     }
@@ -102,6 +107,6 @@ export default async function batch(
 
     if (start) {
         const end = Date.now()
-        console.log(`\nBatch done in ${end - start} ms`)
+        console.log(`\nBatch done in ${formatDuration(start, end)}`)
     }
 }
