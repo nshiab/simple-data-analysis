@@ -78,6 +78,8 @@ While **simple-data-analysis@2.0.1** was already fast, **simple-data-analysis@2.
 
 ![A chart showing the processing duration of multiple scripts in various languages](./assets/big-file.png)
 
+We also tried the One Billion Row Challenge, which involves computing the min, mean, and max temperature for hundreds of cities in a 1,000,000,000 rows CSV file. And we were impressed by the [results](https://www.linkedin.com/feed/update/urn:li:activity:7181389160753102849/)! For more, check this [repo](https://github.com/nshiab/1brc) forked from this [one](https://github.com/gunnarmorling/1brc). The JavaScript code is [here](https://github.com/nshiab/1brc/blob/main/index.js).
+
 Note that DuckDB, which powers SDA, can also be used with [Python](https://duckdb.org/docs/api/python/overview.html) and [R](https://duckdb.org/docs/api/r).
 
 ## SDA in an Observable notebook
