@@ -507,11 +507,26 @@ describe("loadData", () => {
             },
         ])
     })
+    // Doesn't work
+    // it("should load data from a xlsx url", async () => {
+    //     const sdb = new SimpleNodeDB()
+    //     await sdb.loadData("dataXlsxOneSheetUrl", [
+    //         "https://github.com/nshiab/simple-data-analysis/raw/main/test/data/files/populations-one-sheet.xlsx",
+    //     ])
+    //     const data = await sdb.getData("dataXlsxOneSheetUrl")
+
+    //     assert.deepStrictEqual(data, [
+    //         { Country: "Canada", "Population (million)": 38 },
+    //         { Country: "US", "Population (million)": 332 },
+    //         { Country: "France", "Population (million)": 68 },
+    //     ])
+    // })
     it("should load data from a xlsx file", async () => {
-        await simpleNodeDB.loadData("dataXlsxOneSheet", [
+        const sdb = new SimpleNodeDB()
+        await sdb.loadData("dataXlsxOneSheet", [
             "test/data/files/populations-one-sheet.xlsx",
         ])
-        const data = await simpleNodeDB.getData("dataXlsxOneSheet")
+        const data = await sdb.getData("dataXlsxOneSheet")
 
         assert.deepStrictEqual(data, [
             { Country: "Canada", "Population (million)": 38 },
@@ -520,12 +535,13 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a xlsx file with a limit", async () => {
-        await simpleNodeDB.loadData(
+        const sdb = new SimpleNodeDB()
+        await sdb.loadData(
             "dataXlsxOneSheet",
             ["test/data/files/populations-one-sheet.xlsx"],
             { limit: 2 }
         )
-        const data = await simpleNodeDB.getData("dataXlsxOneSheet")
+        const data = await sdb.getData("dataXlsxOneSheet")
 
         assert.deepStrictEqual(data, [
             { Country: "Canada", "Population (million)": 38 },
@@ -533,12 +549,13 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a specific sheet in an xlsx file", async () => {
-        await simpleNodeDB.loadData(
+        const sdb = new SimpleNodeDB()
+        await sdb.loadData(
             "dataXlsxTwoSheets",
             "test/data/files/populations-two-sheets.xlsx",
             { sheet: "provinces" }
         )
-        const data = await simpleNodeDB.getData("dataXlsxTwoSheets")
+        const data = await sdb.getData("dataXlsxTwoSheets")
 
         assert.deepStrictEqual(data, [
             { Provinces: "Quebec", "Population (million)": 8 },
