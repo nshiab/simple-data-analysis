@@ -37,7 +37,7 @@ export default class SimpleGeoDB extends SimpleDB {
         const duckDB = await getDuckDB()
         this.db = duckDB.db
         this.connection = await this.db.connect()
-        this.connection.query("INSTALL spatial; LOAD spatial;") // Not working?
+        this.connection.query("INSTALL spatial; LOAD spatial;")
         this.worker = duckDB.worker
     }
 

@@ -87,8 +87,13 @@ export default function loadDataNodeQuery(
                 "For excel files or files with extension .xlsx, you can pass only one file at the time."
             )
         }
-        return `INSTALL spatial;
-        LOAD spatial;
+        if (files[0].startsWith("http")) {
+            throw new Error(
+                "You can't load an Excel file from a URL. You need to download it first. You can use the downloadFile function from https://github.com/nshiab/journalism."
+            )
+        }
+
+        return `INSTALL spatial; LOAD spatial;
         CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ST_Read('${
             files[0]
         }'${options.sheet ? `, layer='${options.sheet}'` : ""})${limit};`
