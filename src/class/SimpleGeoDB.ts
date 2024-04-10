@@ -248,6 +248,37 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
+     * Returns true if all points of a geometry lies inside another geometry.
+     *
+     * ```ts
+     * // Checks if geometries in column geomA are inside geometries in column geomB and return true or false in new column isInside.
+     * await sdb.inside("tableGeo", ["geomA", "geomB"], "isInside")
+     * ```
+     *
+     * @param table - The name of the table storing the geospatial data.
+     * @param columns - The names of the two columns storing the geometries. The first column holds the geometries that will be tested for containment. The second column stores the geometries to be tested as containers.
+     * @param newColumn - The name of the new column with true or false values.
+     *
+     * @category Geospatial
+     */
+    async inside(table: string, columns: [string, string], newColumn: string) {
+        if (columns.length !== 2) {
+            throw new Error(
+                `The columns parameters must be an array with two strings. For example: ["geomA", "geomB"].`
+            )
+        }
+        await queryDB(
+            this,
+            `ALTER TABLE ${table} ADD "${newColumn}" BOOLEAN; UPDATE ${table} SET "${newColumn}" = ST_Covers("${columns[1]}", "${columns[0]}")`,
+            mergeOptions(this, {
+                table,
+                method: "inside()",
+                parameters: { table, columns, newColumn },
+            })
+        )
+    }
+
+    /**
      * Simplifies the geometries while preserving their topology. The simplification occurs on an object-by-object basis.
      *
      * ```ts
