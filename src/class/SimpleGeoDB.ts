@@ -279,6 +279,38 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
+     * Extracts the latitude and longitude of points.
+     *
+     * ```ts
+     * // Extracts the latitude and longitude of points from the points in the "geom" column from "tableGeo" and put them in the columns "lat" and "lon"
+     * await sdb.latLon("tableGeo", "geom", ["lat", "lon"])
+     * ```
+     *
+     * @param table - The name of the table storing the geospatial data.
+     * @param column - The name of the table storing the points.
+     * @param newColumns - The names the columns storing the latitude and the longitude, in this order.
+     *
+     * @category Geospatial
+     */
+    async latLon(table: string, column: string, newColumns: [string, string]) {
+        if (newColumns.length !== 2) {
+            throw new Error(
+                `The newColumns parameters must be an array with two strings. For example: ["lat", "lon"].`
+            )
+        }
+        await queryDB(
+            this,
+            `ALTER TABLE ${table} ADD "${newColumns[0]}" DOUBLE; UPDATE ${table} SET "${newColumns[0]}" = ST_Y("${column}");
+             ALTER TABLE ${table} ADD "${newColumns[1]}" DOUBLE; UPDATE ${table} SET "${newColumns[1]}" = ST_X("${column}");`,
+            mergeOptions(this, {
+                table,
+                method: "inside()",
+                parameters: { table, column, newColumns },
+            })
+        )
+    }
+
+    /**
      * Simplifies the geometries while preserving their topology. The simplification occurs on an object-by-object basis.
      *
      * ```ts
