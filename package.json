@@ -33,8 +33,10 @@
     "jsdelivr": "./dist/simple-data-analysis.min.js",
     "unpkg": "./dist/simple-data-analysis.min.js",
     "exports": {
-        "umd": "./dist/simple-data-analysis.min.js",
+        "bun": "./src/index.ts",
         "node": "./dist/index.js",
+        "browser": "./dist/bundle.js",
+        "umd": "./dist/simple-data-analysis.min.js",
         "default": "./dist/bundle.js"
     },
     "scripts": {
