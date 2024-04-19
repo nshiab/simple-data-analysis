@@ -55,7 +55,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
         this.debug && console.log("\nstart()")
         this.db = new duckdb.Database(":memory:")
         if (this.spatial) {
-            this.db.exec("INSTALL spatial; LOAD spatial;")
+            this.db.exec("INSTALL spatial; LOAD spatial; LOAD httpfs;")
         }
         this.connection = this.db.connect()
     }

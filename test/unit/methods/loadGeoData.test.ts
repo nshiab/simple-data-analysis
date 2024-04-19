@@ -24,6 +24,20 @@ describe("loadGeoData", () => {
             geom: "GEOMETRY",
         })
     })
+    it("should load a geojson file from a URL", async () => {
+        await simpleNodeDB.loadGeoData(
+            "geoJsonData",
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json"
+        )
+
+        const types = await simpleNodeDB.getTypes("geoJsonData")
+
+        assert.deepStrictEqual(types, {
+            nameEnglish: "VARCHAR",
+            nameFrench: "VARCHAR",
+            geom: "GEOMETRY",
+        })
+    })
     it("should load a shapefile file", async () => {
         await simpleNodeDB.loadGeoData(
             "shapefileData",
