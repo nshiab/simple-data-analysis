@@ -1795,6 +1795,7 @@ export default class SimpleDB {
             summaries?:
                 | (
                       | "count"
+                      | "countUnique"
                       | "min"
                       | "max"
                       | "mean"
@@ -1806,6 +1807,7 @@ export default class SimpleDB {
                   )
                 | (
                       | "count"
+                      | "countUnique"
                       | "min"
                       | "max"
                       | "mean"
