@@ -33,11 +33,11 @@
     "jsdelivr": "./dist/simple-data-analysis.min.js",
     "unpkg": "./dist/simple-data-analysis.min.js",
     "exports": {
-        "bun": "./src/index.ts",
+        "bun": "./src/index.js",
         "node": "./dist/index.js",
         "browser": "./dist/bundle.js",
         "umd": "./dist/simple-data-analysis.min.js",
-        "default": "./dist/bundle.js"
+        "default": "./src/index.js"
     },
     "scripts": {
         "test": "mocha \"test/unit/**/*.test.ts\"",
