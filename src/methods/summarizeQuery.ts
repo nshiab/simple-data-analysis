@@ -8,6 +8,7 @@ export default function summarizeQuery(
     categories: string[],
     summaries: (
         | "count"
+        | "countUnique"
         | "min"
         | "max"
         | "mean"
@@ -20,20 +21,22 @@ export default function summarizeQuery(
     options: { decimals?: number } = {}
 ) {
     const aggregates: { [key: string]: string } = {
-        count: "COUNT",
-        min: "MIN",
-        max: "MAX",
-        mean: "AVG",
-        median: "MEDIAN",
-        sum: "SUM",
-        skew: "SKEWNESS",
-        stdDev: "STDDEV",
-        var: "VARIANCE",
+        count: "COUNT(",
+        countUnique: "COUNT(DISTINCT",
+        min: "MIN(",
+        max: "MAX(",
+        mean: "AVG(",
+        median: "MEDIAN(",
+        sum: "SUM(",
+        skew: "SKEWNESS(",
+        stdDev: "STDDEV(",
+        var: "VARIANCE(",
     }
 
     if (summaries.length === 0) {
         summaries = Object.keys(aggregates) as (
             | "count"
+            | "countUnique"
             | "min"
             | "max"
             | "mean"
@@ -60,21 +63,42 @@ export default function summarizeQuery(
                 : ""
         },${summaries.map((summary) => {
             if (
+                types[value] === "VARCHAR" &&
+                [
+                    "MIN(",
+                    "MAX(",
+                    "AVG(",
+                    "MEDIAN(",
+                    "SUM(",
+                    "SKEWNESS(",
+                    "STDDEV(",
+                    "VARIANCE(",
+                ].includes(aggregates[summary])
+            ) {
+                return `\nNULL AS '${summary}'`
+            } else if (
                 [
                     "DATE",
                     "TIME",
                     "TIMESTAMP",
                     "TIMESTAMP WITH TIME ZONE",
                 ].includes(types[value]) &&
-                ["AVG", "SUM", "SKEWNESS", "STDDEV", "VARIANCE"].includes(
+                ["AVG(", "SUM(", "SKEWNESS(", "STDDEV(", "VARIANCE("].includes(
                     aggregates[summary]
                 )
             ) {
                 return `\nNULL AS '${summary}'`
             } else {
-                return typeof options.decimals === "number"
-                    ? `\nROUND(${aggregates[summary]}("${value}"), ${options.decimals}) AS '${summary}'`
-                    : `\n${aggregates[summary]}("${value}") AS '${summary}'`
+                return typeof options.decimals === "number" &&
+                    ![
+                        "VARCHAR",
+                        "DATE",
+                        "TIME",
+                        "TIMESTAMP",
+                        "TIMESTAMP WITH TIME ZONE",
+                    ].includes(types[value])
+                    ? `\nROUND(${aggregates[summary]}"${value}"), ${options.decimals}) AS '${summary}'`
+                    : `\n${aggregates[summary]}"${value}") AS '${summary}'`
             }
         })}\nFROM ${table}`
         if (categories.length > 0) {
