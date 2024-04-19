@@ -35,6 +35,7 @@
     "exports": {
         "bun": "./src/index.ts",
         "node": "./dist/index.js",
+        "browser": "./dist/bundle.js",
         "umd": "./dist/simple-data-analysis.min.js",
         "default": "./dist/bundle.js"
     },
