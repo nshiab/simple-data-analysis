@@ -3,7 +3,6 @@ import queryDB from "../helpers/queryDB.js"
 import stringToArray from "../helpers/stringToArray.js"
 import SimpleDB from "../class/SimpleDB.js"
 import summarizeQuery from "./summarizeQuery.js"
-import keepNumericalAndDatesColumns from "../helpers/keepNumericalAndDatesColumns.js"
 
 export default async function summarize(
     simpleDB: SimpleDB,
@@ -15,6 +14,7 @@ export default async function summarize(
         summaries?:
             | (
                   | "count"
+                  | "countUnique"
                   | "min"
                   | "max"
                   | "mean"
@@ -26,6 +26,7 @@ export default async function summarize(
               )
             | (
                   | "count"
+                  | "countUnique"
                   | "min"
                   | "max"
                   | "mean"
@@ -52,7 +53,7 @@ export default async function summarize(
 
     const types = await simpleDB.getTypes(table)
     if (options.values.length === 0) {
-        options.values = keepNumericalAndDatesColumns(types)
+        options.values = Object.keys(types)
     }
 
     options.values = options.values.filter(
