@@ -67,22 +67,22 @@
         "@rollup/plugin-terser": "^0.4.1",
         "@rollup/plugin-typescript": "^11.1.0",
         "@types/mocha": "^10.0.0",
-        "@typescript-eslint/eslint-plugin": "^7.7.1",
-        "@typescript-eslint/parser": "^7.7.1",
-        "eslint": "^9.1.1",
+        "@typescript-eslint/eslint-plugin": "^7.3.1",
+        "@typescript-eslint/parser": "^7.3.1",
+        "eslint": "^8.39.0",
         "eslint-config-prettier": "^9.0.0",
         "mocha": "^10.0.0",
         "prettier": "^3.0.0",
-        "rollup": "^4.16.4",
+        "rollup": "^4.6.0",
         "rollup-plugin-polyfill-node": "^0.13.0",
         "rollup-plugin-visualizer": "^5.6.0",
         "ts-node": "^10.7.0",
         "typedoc": "^0.25.1",
-        "typescript": "^5.4.5"
+        "typescript": "^5.2.2"
     },
     "dependencies": {
         "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
-        "apache-arrow": "^16.0.0",
+        "apache-arrow": "^15.0.2",
         "duckdb": "^0.10.1"
     }
 }
