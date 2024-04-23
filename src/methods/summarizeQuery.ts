@@ -81,6 +81,7 @@ export default function summarizeQuery(
                     "DATE",
                     "TIME",
                     "TIMESTAMP",
+                    "TIMESTAMP_MS",
                     "TIMESTAMP WITH TIME ZONE",
                 ].includes(types[value]) &&
                 ["AVG(", "SUM(", "SKEWNESS(", "STDDEV(", "VARIANCE("].includes(
