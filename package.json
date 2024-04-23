@@ -1,6 +1,6 @@
 {
     "name": "simple-data-analysis",
-    "version": "2.13.1",
+    "version": "2.13.2-rc.0",
     "description": "Easy-to-use and high-performance JavaScript library for data analysis.",
     "homepage": "https://github.com/nshiab/simple-data-analysis#readme",
     "repository": {
@@ -51,7 +51,7 @@
         "publish-minor": "npm run all-tests && npm version minor && npm run update-doc && npm publish",
         "publish-major": "npm run all-tests && npm version major && npm run update-doc && npm publish",
         "publish-prerelease": "npm run all-tests && npm version prerelease --preid rc && npm run update-doc && npm publish --tag next",
-        "lint": "eslint . --ext .ts",
+        "lint": "ESLINT_USE_FLAT_CONFIG=false eslint . --ext .ts",
         "format": "prettier --ignore-path .prettierignore --write './**/*.ts'",
         "check-format": "prettier --ignore-path .prettierignore --check './**/*.ts'"
     },
@@ -83,7 +83,6 @@
     "dependencies": {
         "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
         "apache-arrow": "^15.0.2",
-        "duckdb": "^0.10.1",
-        "web-worker": "1.2.0"
+        "duckdb": "^0.10.1"
     }
 }
