@@ -1,12 +1,13 @@
-export default function joinQuery(
+export default function joinGeoQuery(
     leftTable: string,
+    columnLeftTable: string,
+    method: "intersect" | "inside",
     rightTable: string,
-    commonColumn: string,
+    columnRightTable: string,
     join: "inner" | "left" | "right" | "full",
     outputTable: string
 ) {
     let query = `CREATE OR REPLACE TABLE ${outputTable} AS SELECT *`
-
     if (join === "inner") {
         query += ` FROM ${leftTable} JOIN ${rightTable}`
     } else if (join === "left") {
@@ -19,8 +20,14 @@ export default function joinQuery(
         throw new Error(`Unknown ${join} join.`)
     }
 
-    query += ` ON (${leftTable}."${commonColumn}" = ${rightTable}."${commonColumn}");\n`
-    // Idealy, we would remove the column here. But not always the same things depending on nodeJS or web assembly version.
-    // query += `ALTER TABLE ${outputTable} DROP COLUMN "${commonColumn}_1";`
+    if (method === "intersect") {
+        query += ` ON ST_Intersects(${leftTable}."${columnLeftTable}", ${rightTable}."${columnRightTable}");`
+    } else if (method === "inside") {
+        // Order is important
+        query += ` ON ST_Covers(${rightTable}."${columnRightTable}", ${leftTable}."${columnLeftTable}");`
+    } else {
+        throw new Error(`Unknown ${method} method`)
+    }
+
     return query
 }
