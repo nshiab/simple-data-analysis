@@ -93,4 +93,66 @@ describe("joinGeo", () => {
             { name: "pointB", polygonName: null },
         ])
     })
+    it("should return all intersections and all rows from leftTable when doing a left join", async () => {
+        await simpleNodeDB.loadGeoData(
+            "data",
+            "test/geodata/files/polygonsWithinPolygons.json"
+        )
+
+        await simpleNodeDB.cloneTable("data", "polygons", {
+            condition: `name NOT NULL`,
+        })
+        await simpleNodeDB.removeColumns("polygons", "container")
+        await simpleNodeDB.cloneTable("data", "containers", {
+            condition: `container NOT NULL`,
+        })
+        await simpleNodeDB.removeColumns("containers", "name")
+
+        await simpleNodeDB.joinGeo("polygons", "intersect", "containers", {
+            outputTable: "joined",
+        })
+        await simpleNodeDB.selectColumns("joined", ["name", "container"])
+        await simpleNodeDB.sort("joined", { name: "asc" })
+        const data = await simpleNodeDB.getData("joined")
+
+        assert.deepStrictEqual(data, [
+            { name: "A", container: null },
+            { name: "B", container: "A" },
+            { name: "B", container: "B" },
+            { name: "C", container: "A" },
+            { name: "C", container: "B" },
+            { name: "D", container: "A" },
+        ])
+    })
+    it("should return all intersections - and just intersections - when doing an inner join", async () => {
+        await simpleNodeDB.loadGeoData(
+            "data",
+            "test/geodata/files/polygonsWithinPolygons.json"
+        )
+
+        await simpleNodeDB.cloneTable("data", "polygons", {
+            condition: `name NOT NULL`,
+        })
+        await simpleNodeDB.removeColumns("polygons", "container")
+        await simpleNodeDB.cloneTable("data", "containers", {
+            condition: `container NOT NULL`,
+        })
+        await simpleNodeDB.removeColumns("containers", "name")
+
+        await simpleNodeDB.joinGeo("polygons", "intersect", "containers", {
+            outputTable: "joined",
+            type: "inner",
+        })
+        await simpleNodeDB.selectColumns("joined", ["name", "container"])
+        await simpleNodeDB.sort("joined", { name: "asc" })
+        const data = await simpleNodeDB.getData("joined")
+
+        assert.deepStrictEqual(data, [
+            { name: "B", container: "A" },
+            { name: "B", container: "B" },
+            { name: "C", container: "A" },
+            { name: "C", container: "B" },
+            { name: "D", container: "A" },
+        ])
+    })
 })
