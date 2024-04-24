@@ -1,6 +1,7 @@
 import getDuckDB from "../helpers/getDuckDB.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
+import joinGeo from "../methods/joinGeo.js"
 import SimpleDB from "./SimpleDB.js"
 
 /**
@@ -175,6 +176,44 @@ export default class SimpleGeoDB extends SimpleDB {
                 parameters: { table, column, newColumn },
             })
         )
+    }
+
+    /**
+     * Merges the data of two tables based on a spatial join. With SimpleNodeDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
+     *
+     * ```ts
+     * // Merges data of tableA and tableB based on geometries that intersect in tableA and tableB. By default, the method looks for columns named 'geom' storing the geometries in the tables, does a left join and overwrites leftTable (tableA) with the results. The method also appends the name of the table to the 'geom' columns in the returned data.
+     * await sdb.joinGeo("tableA", "intersect", "tableB",)
+     *
+     * // Same thing but with specific column names storing geometries, a specific join type, and returning the results in a new table.
+     * await sdb.joinGeo("tableA", "intersect", "tableB", {geoColumnLeft: "geometriesA", geoColumnRight: "geometriesB", type: "inner", outputTable: "tableC"})
+     *
+     * // Merges data based on geometries in table A that are inside geometries in table B. The table order is important.
+     * await sdb.joinGeo("tableA", "inside", "tableB")
+     * ```
+     * @param leftTable - The name of the left table to be joined.
+     * @param method - The method for the spatial join.
+     * @param rightTable - The name of the right table to be joined.
+     * @param options - An optional object with configuration options:
+     *   @param options.columnLeftTable - The column storing the geometries in leftTable. It's 'geom' by default.
+     *   @param options.columnRightTable - The column storing the geometries in rightTable. It's 'geom' by default.
+     *   @param options.type - The type of join operation to perform. For some methods (like 'inside'), the table order is important.
+     *   @param options.outputTable - The name of the new table that will store the result of the join operation. Default is the leftTable.
+     *
+     * @category Geospatial
+     */
+    async joinGeo(
+        leftTable: string,
+        method: "intersect" | "inside",
+        rightTable: string,
+        options: {
+            columnLeftTable?: string
+            columnRightTable?: string
+            type?: "inner" | "left" | "right" | "full"
+            outputTable?: string
+        } = {}
+    ) {
+        await joinGeo(this, leftTable, method, rightTable, options)
     }
 
     /**
