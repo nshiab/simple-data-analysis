@@ -17,55 +17,59 @@ export default async function runQueryNode(
       }[]
     | null
 > {
-    return new Promise((resolve) => {
+    try {
         if (returnDataFromQuery) {
-            ;(connection as Connection).all(query, (err, res) => {
-                if (err) {
-                    if (options.debug === false) {
-                        console.log(
-                            "SDA: method causing error =>",
-                            options.method
-                        )
-                        console.log("parameters:", options.parameters)
-                        console.log("query:", query)
+            const res = await new Promise<
+                | {
+                      [key: string]: number | string | Date | boolean | null
+                  }[]
+                | null
+            >((resolve, reject) => {
+                ;(connection as Connection).all(query, (err, result) => {
+                    if (err) {
+                        reject(err)
+                    } else {
+                        resolve(result)
                     }
+                })
+            })
 
-                    throw err
-                }
-
-                if (options?.bigIntToInt === true && res.length > 0) {
-                    // Converting bigint to int. Maybe an option instead of doing it all the time.
-                    const keys = Object.keys(res[0])
-                    for (let i = 0; i < res.length; i++) {
-                        for (const key of keys) {
-                            if (typeof res[i][key] === "bigint") {
-                                res[i][key] = Number(res[i][key])
-                            }
+            if (
+                Array.isArray(res) &&
+                res.length > 0 &&
+                options?.bigIntToInt === true
+            ) {
+                // Converting bigint to int. Maybe an option instead of doing it all the time.
+                const keys = Object.keys(res[0])
+                for (let i = 0; i < res.length; i++) {
+                    for (const key of keys) {
+                        if (typeof res[i][key] === "bigint") {
+                            res[i][key] = Number(res[i][key])
                         }
                     }
                 }
+            }
 
-                resolve(
-                    res as {
-                        [key: string]: number | string | Date | boolean | null
-                    }[]
-                )
-            })
+            return res
         } else {
-            ;(connection as Connection).exec(query, (err) => {
-                if (err) {
-                    if (options.debug === false) {
-                        console.log(
-                            "SDA: method causing error =>",
-                            options.method
-                        )
-                        console.log("parameters:", options.parameters)
-                        console.log("query:", query)
+            await new Promise<void>((resolve, reject) => {
+                ;(connection as Connection).exec(query, (err) => {
+                    if (err) {
+                        reject(err)
+                    } else {
+                        resolve()
                     }
-                    throw err
-                }
-                resolve(null)
+                })
             })
+            return null
         }
-    })
+    } catch (error) {
+        console.warn(error)
+        if (options.debug === false) {
+            console.log("SDA: method causing error =>", options.method)
+            console.log("parameters:", options.parameters)
+            console.log("query:", query)
+        }
+        return null
+    }
 }
