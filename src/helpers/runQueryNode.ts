@@ -17,7 +17,7 @@ export default async function runQueryNode(
       }[]
     | null
 > {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         if (returnDataFromQuery) {
             ;(connection as Connection).all(query, (err, res) => {
                 if (err) {
@@ -30,7 +30,7 @@ export default async function runQueryNode(
                         console.log("query:", query)
                     }
 
-                    reject(err)
+                    throw err
                 }
 
                 if (options?.bigIntToInt === true && res.length > 0) {
@@ -62,7 +62,7 @@ export default async function runQueryNode(
                         console.log("parameters:", options.parameters)
                         console.log("query:", query)
                     }
-                    reject(err)
+                    throw err
                 }
                 resolve(null)
             })
