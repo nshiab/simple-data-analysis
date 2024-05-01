@@ -990,7 +990,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Performs a cross join operation between two tables returning all pairs of rows. With SimpleNodeDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
+     * Performs a cross join operation between two tables returning all pairs of rows. Note that the returned data is not guaranteed to be in the same order as the original tables. With SimpleNodeDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
      *
      * ```ts
      * // By default, the leftTable (tableA here) will be overwritten with the result.
@@ -1026,7 +1026,7 @@ export default class SimpleDB {
     }
 
     /**
-     * Merges the data of two tables based on a common column. With SimpleNodeDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
+     * Merges the data of two tables based on a common column. Note that the returned data is not guaranteed to be in the same order as the original tables. With SimpleNodeDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
      *
      * ```ts
      * // By default, the method automatically looks for a common column in the two tables and does a left join of tableA (left) and tableB (right). The leftTable (tableA here) will be overwritten with the result.
