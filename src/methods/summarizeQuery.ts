@@ -9,6 +9,7 @@ export default function summarizeQuery(
     summaries: (
         | "count"
         | "countUnique"
+        | "countNull"
         | "min"
         | "max"
         | "mean"
@@ -21,8 +22,9 @@ export default function summarizeQuery(
     options: { decimals?: number } = {}
 ) {
     const aggregates: { [key: string]: string } = {
-        count: "COUNT(",
+        count: "count", // specific implementation
         countUnique: "COUNT(DISTINCT",
+        countNull: "countNull", // Specific implementation
         min: "MIN(",
         max: "MAX(",
         mean: "AVG(",
@@ -37,6 +39,7 @@ export default function summarizeQuery(
         summaries = Object.keys(aggregates) as (
             | "count"
             | "countUnique"
+            | "countNull"
             | "min"
             | "max"
             | "mean"
@@ -89,6 +92,10 @@ export default function summarizeQuery(
                 )
             ) {
                 return `\nNULL AS '${summary}'`
+            } else if (summary === "count") {
+                return `COUNT(*) as count`
+            } else if (summary === "countNull") {
+                return `COUNT(CASE WHEN "${value}" IS NULL THEN 1 END) as countNull`
             } else {
                 return typeof options.decimals === "number" &&
                     ![
