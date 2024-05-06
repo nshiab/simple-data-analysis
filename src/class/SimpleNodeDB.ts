@@ -195,6 +195,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
      * @param options - An optional object with configuration options:
      *   @param options.fileType - The type of file to load ("csv", "dsv", "json", "parquet"). Defaults to the first file extension.
      *   @param options.autoDetect - A boolean indicating whether to automatically detect the data format. Defaults to true.
+     *   @param options.limit - A number indicating the number of rows to load. Defaults to all rows.
      *   @param options.fileName - A boolean indicating whether to include the file name as a column in the loaded data. Defaults to false.
      *   @param options.unifyColumns - A boolean indicating whether to unify columns across multiple files, when the files structure is not the same. Defaults to false.
      *   @param options.columnTypes - An object mapping the column names with their expected types. By default, the types are inferred.
@@ -202,8 +203,10 @@ export default class SimpleNodeDB extends SimpleGeoDB {
      *   @param options.allText - A boolean indicating whether all columns should be treated as text. Applicable to CSV files. Defaults to false.
      *   @param options.delim - The delimiter used in the file. Applicable to CSV and DSV files. By default, the delimiter is inferred.
      *   @param options.skip - The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to 0.
+     *   @param options.compression - The compression type. Applicable to CSV files. Defaults to none.
      *   @param options.jsonFormat - The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
      *   @param options.records - A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
+     *   @param options.sheet - A string indicating a specific sheet to import. Applicable to Excel files. By default, the first sheet is imported.
      *
      * @category Importing data
      */
@@ -211,8 +214,9 @@ export default class SimpleNodeDB extends SimpleGeoDB {
         table: string,
         directory: string,
         options: {
-            fileType?: "csv" | "dsv" | "json" | "parquet"
+            fileType?: "csv" | "dsv" | "json" | "parquet" | "excel"
             autoDetect?: boolean
+            limit?: number
             fileName?: boolean
             unifyColumns?: boolean
             columnTypes?: { [key: string]: string }
@@ -221,9 +225,12 @@ export default class SimpleNodeDB extends SimpleGeoDB {
             allText?: boolean
             delim?: string
             skip?: number
+            compression?: "none" | "gzip" | "zstd"
             // json options
             jsonFormat?: "unstructured" | "newlineDelimited" | "array"
             records?: boolean
+            // excel options
+            sheet?: string
         } = {}
     ) {
         const files = readdirSync(directory).map(
