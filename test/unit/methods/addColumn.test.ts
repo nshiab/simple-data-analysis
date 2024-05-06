@@ -34,6 +34,8 @@ describe("addColumn", () => {
             { key1: "Fraise", key2: 11, key3: 2.345, multiply: 25.795 },
             { key1: "Rubarbe", key2: 2, key3: 4.5657, multiply: 9.1314 },
             { key1: "Fraise", key2: 22, key3: 12.3434, multiply: 271.5548 },
+            { key1: "Banane", key2: null, key3: null, multiply: null },
+            { key1: "Banane", key2: null, key3: null, multiply: null },
         ])
     })
     it("should return a column with booleans", async () => {
@@ -74,6 +76,20 @@ describe("addColumn", () => {
                 key3: 12.3434,
                 multiply: 271.5548,
                 key2GreaterThanTen: true,
+            },
+            {
+                key1: "Banane",
+                key2: null,
+                key3: null,
+                multiply: null,
+                key2GreaterThanTen: null,
+            },
+            {
+                key1: "Banane",
+                key2: null,
+                key3: null,
+                multiply: null,
+                key2GreaterThanTen: null,
             },
         ])
     })
