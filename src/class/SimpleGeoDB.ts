@@ -179,7 +179,7 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
-     * Merges the data of two tables based on a spatial join. With SimpleNodeDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
+     * Merges the data of two tables based on a spatial join. Note that the returned data is not guaranteed to be in the same order as the original tables. With SimpleNodeDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
      *
      * ```ts
      * // Merges data of tableA and tableB based on geometries that intersect in tableA and tableB. By default, the method looks for columns named 'geom' storing the geometries in the tables, does a left join and overwrites leftTable (tableA) with the results. The method also appends the name of the table to the 'geom' columns in the returned data.
