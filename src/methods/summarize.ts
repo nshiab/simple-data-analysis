@@ -15,6 +15,7 @@ export default async function summarize(
             | (
                   | "count"
                   | "countUnique"
+                  | "countNull"
                   | "min"
                   | "max"
                   | "mean"
@@ -27,6 +28,7 @@ export default async function summarize(
             | (
                   | "count"
                   | "countUnique"
+                  | "countNull"
                   | "min"
                   | "max"
                   | "mean"

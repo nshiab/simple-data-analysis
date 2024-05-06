@@ -46,6 +46,18 @@ describe("proportionsVertical", () => {
                 key3: 12.3434,
                 key2Perc: 0.6111111111111112,
             },
+            {
+                key1: "Banane",
+                key2: null,
+                key3: null,
+                key2Perc: null,
+            },
+            {
+                key1: "Banane",
+                key2: null,
+                key3: null,
+                key2Perc: null,
+            },
         ])
     })
     it("should return the vertical proportions in a new column and a specific number of decimals", async () => {
@@ -67,6 +79,18 @@ describe("proportionsVertical", () => {
             { key1: "Fraise", key2: 11, key3: 2.345, key2Prop: 0.3056 },
             { key1: "Rubarbe", key2: 2, key3: 4.5657, key2Prop: 0.0556 },
             { key1: "Fraise", key2: 22, key3: 12.3434, key2Prop: 0.6111 },
+            {
+                key1: "Banane",
+                key2: null,
+                key3: null,
+                key2Prop: null,
+            },
+            {
+                key1: "Banane",
+                key2: null,
+                key3: null,
+                key2Prop: null,
+            },
         ])
     })
     it("should return the vertical proportions in a new column with a category", async () => {
@@ -88,6 +112,18 @@ describe("proportionsVertical", () => {
         const data = await simpleNodeDB.getData("proportionsCategory")
 
         assert.deepStrictEqual(data, [
+            {
+                key1: "Banane",
+                key2: null,
+                key3: null,
+                key2Perc: null,
+            },
+            {
+                key1: "Banane",
+                key2: null,
+                key3: null,
+                key2Perc: null,
+            },
             {
                 key1: "Fraise",
                 key2: 11,
@@ -135,6 +171,18 @@ describe("proportionsVertical", () => {
         const data = await simpleNodeDB.getData("proportionsCategories")
 
         assert.deepStrictEqual(data, [
+            {
+                key1: "Banane",
+                key2: null,
+                key3: null,
+                key3Perc: null,
+            },
+            {
+                key1: "Banane",
+                key2: null,
+                key3: null,
+                key3Perc: null,
+            },
             { key1: "Fraise", key2: 11, key3: 2.345, key3Perc: 1 },
             { key1: "Fraise", key2: 22, key3: 12.3434, key3Perc: 1 },
             { key1: "Rubarbe", key2: 1, key3: 10.5, key3Perc: 1 },

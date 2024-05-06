@@ -22,8 +22,9 @@ describe("summarize", () => {
         assert.deepStrictEqual(data, [
             {
                 value: "key1",
-                count: 4,
-                countUnique: 2,
+                count: 6,
+                countUnique: 3,
+                countNull: 0,
                 min: null,
                 max: null,
                 mean: null,
@@ -35,8 +36,9 @@ describe("summarize", () => {
             },
             {
                 value: "key2",
-                count: 4,
+                count: 6,
                 countUnique: 4,
+                countNull: 2,
                 min: 1,
                 max: 22,
                 mean: 9,
@@ -48,8 +50,9 @@ describe("summarize", () => {
             },
             {
                 value: "key3",
-                count: 4,
+                count: 6,
                 countUnique: 4,
+                countNull: 2,
                 min: 2.345,
                 max: 12.3434,
                 mean: 7.438525,
@@ -70,8 +73,9 @@ describe("summarize", () => {
         assert.deepStrictEqual(data, [
             {
                 value: "key1",
-                count: 4,
-                countUnique: 2,
+                count: 6,
+                countUnique: 3,
+                countNull: 0,
                 min: null,
                 max: null,
                 mean: null,
@@ -83,8 +87,9 @@ describe("summarize", () => {
             },
             {
                 value: "key2",
-                count: 4,
+                count: 6,
                 countUnique: 4,
+                countNull: 2,
                 min: 1,
                 max: 22,
                 mean: 9,
@@ -96,8 +101,9 @@ describe("summarize", () => {
             },
             {
                 value: "key3",
-                count: 4,
+                count: 6,
                 countUnique: 4,
+                countNull: 2,
                 min: 2.35,
                 max: 12.34,
                 mean: 7.44,
@@ -120,8 +126,9 @@ describe("summarize", () => {
         assert.deepStrictEqual(data, [
             {
                 value: "key1",
-                count: 4,
-                countUnique: 2,
+                count: 6,
+                countUnique: 3,
+                countNull: 0,
                 min: null,
                 max: null,
                 mean: null,
@@ -133,8 +140,9 @@ describe("summarize", () => {
             },
             {
                 value: "key2",
-                count: 4,
+                count: 6,
                 countUnique: 4,
+                countNull: 2,
                 min: 1,
                 max: 22,
                 mean: 9,
@@ -146,8 +154,9 @@ describe("summarize", () => {
             },
             {
                 value: "key3",
-                count: 4,
+                count: 6,
                 countUnique: 4,
+                countNull: 2,
                 min: 2.35,
                 max: 12.34,
                 mean: 7.44,
@@ -171,8 +180,9 @@ describe("summarize", () => {
         assert.deepStrictEqual(data, [
             {
                 value: "key2",
-                count: 4,
+                count: 6,
                 countUnique: 4,
+                countNull: 2,
                 min: 1,
                 max: 22,
                 mean: 9,
@@ -196,8 +206,9 @@ describe("summarize", () => {
         assert.deepStrictEqual(data, [
             {
                 value: "key2",
-                count: 4,
+                count: 6,
                 countUnique: 4,
+                countNull: 2,
                 min: 1,
                 max: 22,
                 mean: 9,
@@ -224,9 +235,25 @@ describe("summarize", () => {
         assert.deepStrictEqual(data, [
             {
                 value: "key2",
+                key1: "Banane",
+                count: 2,
+                countUnique: 0,
+                countNull: 2,
+                min: null,
+                max: null,
+                mean: null,
+                median: null,
+                sum: null,
+                skew: null,
+                stdDev: null,
+                var: null,
+            },
+            {
+                value: "key2",
                 key1: "Fraise",
                 count: 2,
                 countUnique: 2,
+                countNull: 0,
                 min: 11,
                 max: 22,
                 mean: 16.5,
@@ -241,6 +268,7 @@ describe("summarize", () => {
                 key1: "Rubarbe",
                 count: 2,
                 countUnique: 2,
+                countNull: 0,
                 min: 1,
                 max: 2,
                 mean: 1.5,
@@ -252,9 +280,25 @@ describe("summarize", () => {
             },
             {
                 value: "key3",
+                key1: "Banane",
+                count: 2,
+                countUnique: 0,
+                countNull: 2,
+                min: null,
+                max: null,
+                mean: null,
+                median: null,
+                sum: null,
+                skew: null,
+                stdDev: null,
+                var: null,
+            },
+            {
+                value: "key3",
                 key1: "Fraise",
                 count: 2,
                 countUnique: 2,
+                countNull: 0,
                 min: 2.35,
                 max: 12.34,
                 mean: 7.34,
@@ -269,6 +313,7 @@ describe("summarize", () => {
                 key1: "Rubarbe",
                 count: 2,
                 countUnique: 2,
+                countNull: 0,
                 min: 4.57,
                 max: 10.5,
                 mean: 7.53,
@@ -297,6 +342,7 @@ describe("summarize", () => {
                 key2: 1,
                 count: 1,
                 countUnique: 1,
+                countNull: 0,
                 min: null,
                 max: null,
                 mean: null,
@@ -311,6 +357,7 @@ describe("summarize", () => {
                 key2: 2,
                 count: 1,
                 countUnique: 1,
+                countNull: 0,
                 min: null,
                 max: null,
                 mean: null,
@@ -325,6 +372,7 @@ describe("summarize", () => {
                 key2: 11,
                 count: 1,
                 countUnique: 1,
+                countNull: 0,
                 min: null,
                 max: null,
                 mean: null,
@@ -339,6 +387,22 @@ describe("summarize", () => {
                 key2: 22,
                 count: 1,
                 countUnique: 1,
+                countNull: 0,
+                min: null,
+                max: null,
+                mean: null,
+                median: null,
+                sum: null,
+                skew: null,
+                stdDev: null,
+                var: null,
+            },
+            {
+                value: "key1",
+                key2: null,
+                count: 2,
+                countUnique: 1,
+                countNull: 0,
                 min: null,
                 max: null,
                 mean: null,
@@ -353,6 +417,7 @@ describe("summarize", () => {
                 key2: 1,
                 count: 1,
                 countUnique: 1,
+                countNull: 0,
                 min: 10.5,
                 max: 10.5,
                 mean: 10.5,
@@ -367,6 +432,7 @@ describe("summarize", () => {
                 key2: 2,
                 count: 1,
                 countUnique: 1,
+                countNull: 0,
                 min: 4.57,
                 max: 4.57,
                 mean: 4.57,
@@ -381,6 +447,7 @@ describe("summarize", () => {
                 key2: 11,
                 count: 1,
                 countUnique: 1,
+                countNull: 0,
                 min: 2.35,
                 max: 2.35,
                 mean: 2.35,
@@ -395,11 +462,27 @@ describe("summarize", () => {
                 key2: 22,
                 count: 1,
                 countUnique: 1,
+                countNull: 0,
                 min: 12.34,
                 max: 12.34,
                 mean: 12.34,
                 median: 12.34,
                 sum: 12.34,
+                skew: null,
+                stdDev: null,
+                var: null,
+            },
+            {
+                value: "key3",
+                key2: null,
+                count: 2,
+                countUnique: 0,
+                countNull: 2,
+                min: null,
+                max: null,
+                mean: null,
+                median: null,
+                sum: null,
                 skew: null,
                 stdDev: null,
                 var: null,
@@ -418,9 +501,9 @@ describe("summarize", () => {
         )
 
         assert.deepStrictEqual(data, [
-            { value: "key1", mean: null, count: 4 },
-            { value: "key2", mean: 9, count: 4 },
-            { value: "key3", mean: 7.44, count: 4 },
+            { value: "key1", mean: null, count: 6 },
+            { value: "key2", mean: 9, count: 6 },
+            { value: "key3", mean: 7.44, count: 6 },
         ])
     })
 
@@ -436,8 +519,10 @@ describe("summarize", () => {
         )
 
         assert.deepStrictEqual(data, [
+            { value: "key2", key1: "Banane", mean: null, count: 2 },
             { value: "key2", key1: "Fraise", mean: 16.5, count: 2 },
             { value: "key2", key1: "Rubarbe", mean: 1.5, count: 2 },
+            { value: "key3", key1: "Banane", mean: null, count: 2 },
             { value: "key3", key1: "Fraise", mean: 7.34, count: 2 },
             { value: "key3", key1: "Rubarbe", mean: 7.53, count: 2 },
         ])
@@ -453,7 +538,9 @@ describe("summarize", () => {
         const data = await simpleNodeDB.getData(
             "dataSummarizeAllSpecificValuesSummariesAndCategories"
         )
+
         assert.deepStrictEqual(data, [
+            { value: "key2", key1: "Banane", mean: null, count: 2 },
             { value: "key2", key1: "Fraise", mean: 16.5, count: 2 },
             { value: "key2", key1: "Rubarbe", mean: 1.5, count: 2 },
         ])
@@ -472,6 +559,7 @@ describe("summarize", () => {
         )
 
         assert.deepStrictEqual(data, [
+            { value: "key3", key1: "Banane", key2: null, mean: null, count: 2 },
             { value: "key3", key1: "Fraise", key2: 11, mean: 2.35, count: 1 },
             { value: "key3", key1: "Fraise", key2: 22, mean: 12.34, count: 1 },
             { value: "key3", key1: "Rubarbe", key2: 1, mean: 10.5, count: 1 },
@@ -483,7 +571,9 @@ describe("summarize", () => {
         await simpleNodeDB.loadArray("dates", [
             { keyA: new Date("2023-01-01") },
             { keyA: new Date("2022-01-01") },
+            { keyA: new Date("2022-01-01") },
             { keyA: new Date("2021-01-01") },
+            { keyA: null },
         ])
 
         await simpleNodeDB.summarize("dates")
@@ -492,8 +582,9 @@ describe("summarize", () => {
         assert.deepStrictEqual(data, [
             {
                 value: "keyA",
-                count: 3,
+                count: 5,
                 countUnique: 3,
+                countNull: 1,
                 min: new Date("2021-01-01"),
                 max: new Date("2023-01-01"),
                 mean: null,
