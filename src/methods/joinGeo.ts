@@ -16,23 +16,23 @@ export default async function joinGeo(
         outputTable?: string
     } = {}
 ) {
-    let columnLeftTable = options.columnLeftTable ?? "geom"
-    let columnRightTable = options.columnRightTable ?? "geom"
+    const columnLeftTable = options.columnLeftTable ?? "geom"
+    const columnRightTable = options.columnRightTable ?? "geom"
+    let columnLeftTableForQuery = columnLeftTable
+    let columnRightTableForQuery = columnRightTable
 
+    // We change the column names for geometries
     if (columnLeftTable === columnRightTable) {
-        const newColumnLeftTable = `${columnLeftTable}${capitalize(leftTable)}`
-        const newColumnRightTable = `${columnRightTable}${capitalize(rightTable)}`
+        columnLeftTableForQuery = `${columnLeftTable}${capitalize(leftTable)}`
+        columnRightTableForQuery = `${columnRightTable}${capitalize(rightTable)}`
 
         const leftObj: { [key: string]: string } = {}
-        leftObj[columnLeftTable] = newColumnLeftTable
+        leftObj[columnLeftTable] = columnLeftTableForQuery
         await simpleDB.renameColumns(leftTable, leftObj)
 
         const rightObj: { [key: string]: string } = {}
-        rightObj[columnRightTable] = newColumnRightTable
+        rightObj[columnRightTable] = columnRightTableForQuery
         await simpleDB.renameColumns(rightTable, rightObj)
-
-        columnLeftTable = newColumnLeftTable
-        columnRightTable = newColumnRightTable
     }
 
     const type = options.type ?? "left"
@@ -42,10 +42,10 @@ export default async function joinGeo(
         simpleDB,
         joinGeoQuery(
             leftTable,
-            columnLeftTable,
+            columnLeftTableForQuery,
             method,
             rightTable,
-            columnRightTable,
+            columnRightTableForQuery,
             type,
             outputTable
         ),
@@ -60,4 +60,15 @@ export default async function joinGeo(
             },
         })
     )
+
+    // We bring back the column names for geometries
+    if (columnLeftTable === columnRightTable) {
+        const leftObj: { [key: string]: string } = {}
+        leftObj[columnLeftTableForQuery] = columnLeftTable
+        await simpleDB.renameColumns(leftTable, leftObj)
+
+        const rightObj: { [key: string]: string } = {}
+        rightObj[columnRightTableForQuery] = columnRightTable
+        await simpleDB.renameColumns(rightTable, rightObj)
+    }
 }

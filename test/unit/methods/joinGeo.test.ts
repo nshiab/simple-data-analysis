@@ -39,6 +39,34 @@ describe("joinGeo", () => {
             { nameEnglish: "Yukon", name: null },
         ])
     })
+    it("should do a left spatial join the intersect method without changing the name of the original tables", async () => {
+        await simpleNodeDB.loadGeoData(
+            "prov",
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
+        )
+        await simpleNodeDB.loadGeoData(
+            "pol",
+            "test/geodata/files/polygons.geojson"
+        )
+        await simpleNodeDB.joinGeo("prov", "intersect", "pol")
+
+        const columnsLeftTable = await simpleNodeDB.getColumns("prov")
+        const columnsRightTable = await simpleNodeDB.getColumns("pol")
+
+        assert.deepStrictEqual(
+            { columnsLeftTable, columnsRightTable },
+            {
+                columnsLeftTable: [
+                    "nameEnglish",
+                    "nameFrench",
+                    "geom",
+                    "name",
+                    "geomPol",
+                ],
+                columnsRightTable: ["name", "geom"],
+            }
+        )
+    })
     it("should do a left spatial join the intersect method with specific options", async () => {
         await simpleNodeDB.loadGeoData(
             "prov",
