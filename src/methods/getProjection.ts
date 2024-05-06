@@ -22,5 +22,5 @@ export default async function getProjection(simpleDB: SimpleDB, file: string) {
 
     simpleDB.debug && console.log("projection:", result)
 
-    return result as { name: string; code: string }
+    return result as { name: string; code: string; proj4: string }
 }
