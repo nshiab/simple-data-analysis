@@ -62,4 +62,19 @@ describe("loadDataFromDirectory", () => {
             { key1: 11, key2: "onze", key3: "eleven" },
         ])
     })
+    it("should load data from a directory with a limit option", async () => {
+        await simpleNodeDB.loadDataFromDirectory(
+            "directory",
+            "test/data/directory/",
+            { unifyColumns: true, limit: 3 }
+        )
+
+        const data = await simpleNodeDB.getData("directory")
+
+        assert.deepStrictEqual(data, [
+            { key1: 1, key2: "un", key3: null },
+            { key1: 2, key2: "deux", key3: null },
+            { key1: 3, key2: "trois", key3: null },
+        ])
+    })
 })
