@@ -1,6 +1,7 @@
 import getDuckDB from "../helpers/getDuckDB.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
+import getProjection from "../methods/getProjection.js"
 import joinGeo from "../methods/joinGeo.js"
 import SimpleDB from "./SimpleDB.js"
 
@@ -136,8 +137,8 @@ export default class SimpleGeoDB extends SimpleDB {
      * ```
      * @param table - The name of the table storing the geospatial data.
      * @param column - The name of the column storing the geometries.
-     * @param from - The original SRS.
-     * @param to - The target SRS.
+     * @param from - The original CRS.
+     * @param to - The target CRS.
      * @category Geospatial
      */
     async reproject(table: string, column: string, from: string, to: string) {
@@ -434,5 +435,24 @@ export default class SimpleGeoDB extends SimpleDB {
                 parameters: { table, column, newColumn },
             })
         )
+    }
+
+    /**
+     * Returns the projection of a geospatial data file.
+     *
+     * ```ts
+     * await sdb.getProjection("./some-data.shp")
+     * // Returns something like
+     * // {
+     * //    name: 'WGS 84',
+     * //    code: 'ESPG:4326',
+     * //    proj4: '+proj=longlat +datum=WGS84 +no_defs'
+     * // }
+     * ```
+     *
+     * @category Geospatial
+     */
+    async getProjection(file: string) {
+        return await getProjection(this, file)
     }
 }
