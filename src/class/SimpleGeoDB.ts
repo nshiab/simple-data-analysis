@@ -79,6 +79,32 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
+     * Creates point geometries from longitude a latitude columns.
+     *
+     * ```ts
+     * // Uses the columns "lat" and "lon" from "tableA" to create point geometries in column "geom"
+     * await sdb.points("tableA", "lat", "lon", "geom")
+     * ```
+     * @category Geospatial
+     */
+    async points(
+        table: string,
+        columnLon: string,
+        columnLat: string,
+        newColumn: string
+    ) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${table} ADD COLUMN "${newColumn}" GEOMETRY; UPDATE ${table} SET "${newColumn}" = ST_Point2D("${columnLon}", "${columnLat}")`,
+            mergeOptions(this, {
+                table,
+                method: "points()",
+                parameters: { table, columnLat, columnLon, newColumn },
+            })
+        )
+    }
+
+    /**
      * Checks if a geometry is valid.
      *
      * ```ts
@@ -379,7 +405,7 @@ export default class SimpleGeoDB extends SimpleDB {
              ALTER TABLE ${table} ADD "${newColumns[1]}" DOUBLE; UPDATE ${table} SET "${newColumns[1]}" = ST_X("${column}");`,
             mergeOptions(this, {
                 table,
-                method: "inside()",
+                method: "latLon()",
                 parameters: { table, column, newColumns },
             })
         )

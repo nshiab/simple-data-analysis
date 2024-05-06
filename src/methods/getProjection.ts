@@ -8,7 +8,7 @@ export default async function getProjection(simpleDB: SimpleDB, file: string) {
         `SELECT layers[1].geometry_fields[1].crs.name as name, CONCAT(layers[1].geometry_fields[1].crs.auth_name, ':', layers[1].geometry_fields[1].crs.auth_code) as code, layers[1].geometry_fields[1].crs.proj4 as proj4 FROM st_read_meta('${file}')`,
         mergeOptions(simpleDB, {
             table: null,
-            method: file,
+            method: "getProjection()",
             parameters: { file },
             returnDataFrom: "query",
         })
