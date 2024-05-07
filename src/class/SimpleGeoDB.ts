@@ -503,6 +503,7 @@ export default class SimpleGeoDB extends SimpleDB {
      * // {
      * //    name: 'WGS 84',
      * //    code: 'ESPG:4326',
+     * //    unit: 'degree',
      * //    proj4: '+proj=longlat +datum=WGS84 +no_defs'
      * // }
      * ```
