@@ -8,9 +8,15 @@ To install with NPM:
 npm i simple-data-analysis
 ```
 
+With Bun:
+
+```
+bun add simple-data-analysis
+```
+
 The documentation is available [here](https://nshiab.github.io/simple-data-analysis/).
 
-The library is tested for NodeJS. Please reach out if you want to make it work with Bun and Deno! :)
+Tests are run for NodeJS and Bun. Deno is coming! :)
 
 ## Core principles
 
