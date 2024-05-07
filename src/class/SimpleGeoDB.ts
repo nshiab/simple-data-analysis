@@ -495,6 +495,38 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
+     * Computes the distance between geometries. The values are returned in the SRS unit.
+     *
+     * ```ts
+     * // Computes the distance between geometries in columns geomA and geomB. The distance is returned in the new column "distance".
+     * await sdb.distance("tableGeo", "geomA", "geomB", "distance")
+     * ```
+     *
+     * @param table - The name of the table storing the geospatial data.
+     * @param column1 - The name of a column storing geometries.
+     * @param column2 - The name of a column storing geometries.
+     * @param newColumn - The name of the new column storing the centroids.
+     *
+     * @category Geospatial
+     */
+    async distance(
+        table: string,
+        column1: string,
+        column2: string,
+        newColumn: string
+    ) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${table} ADD "${newColumn}" DOUBLE; UPDATE ${table} SET "${newColumn}" =  ST_Distance("${column1}", "${column2}");`,
+            mergeOptions(this, {
+                table,
+                method: "distance()",
+                parameters: { table, column1, column2, newColumn },
+            })
+        )
+    }
+
+    /**
      * Returns the projection of a geospatial data file.
      *
      * ```ts
@@ -503,6 +535,7 @@ export default class SimpleGeoDB extends SimpleDB {
      * // {
      * //    name: 'WGS 84',
      * //    code: 'ESPG:4326',
+     * //    unit: 'degree',
      * //    proj4: '+proj=longlat +datum=WGS84 +no_defs'
      * // }
      * ```
