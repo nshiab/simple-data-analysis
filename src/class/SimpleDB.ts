@@ -329,6 +329,35 @@ export default class SimpleDB {
     }
 
     /**
+     * Clones a column in a given table and offsets the values down by one row. The last row will have a NULL value.
+     *
+     * ```ts
+     * // Clones column1 as column2 from tableA and offsets values by 1. So value of column1/row1 will be in column2/row2, column1/row2 will be in column2/row3, etc.
+     * await sdb.cloneColumnWithOffset("tableA", "column1", "column2")
+     * ```
+     * @param table - The table in which the cloning should happen.
+     * @param originalColumn - The original column.
+     * @param newColumn - The name of the cloned column.
+     *
+     * @category Restructuring data
+     */
+    async cloneColumnWithOffset(
+        table: string,
+        originalColumn: string,
+        newColumn: string
+    ) {
+        await queryDB(
+            this,
+            `CREATE OR REPLACE TABLE ${table} AS SELECT *, LEAD("${originalColumn}") OVER() AS "${newColumn}" FROM ${table}`,
+            mergeOptions(this, {
+                table,
+                method: "cloneColumnWithOffset()",
+                parameters: { table, originalColumn, newColumn },
+            })
+        )
+    }
+
+    /**
      * Renames an existing table.
      *
      * ```ts
