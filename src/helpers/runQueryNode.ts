@@ -70,6 +70,6 @@ export default async function runQueryNode(
             console.log("parameters:", options.parameters)
             console.log("query:", query)
         }
-        return null
+        throw error
     }
 }

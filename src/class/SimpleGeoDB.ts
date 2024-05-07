@@ -163,8 +163,8 @@ export default class SimpleGeoDB extends SimpleDB {
      * ```
      * @param table - The name of the table storing the geospatial data.
      * @param column - The name of the column storing the geometries.
-     * @param from - The original CRS.
-     * @param to - The target CRS.
+     * @param from - The original SRS.
+     * @param to - The target SRS.
      * @category Geospatial
      */
     async reproject(table: string, column: string, from: string, to: string) {
@@ -201,6 +201,37 @@ export default class SimpleGeoDB extends SimpleDB {
                 table,
                 method: "area()",
                 parameters: { table, column, newColumn },
+            })
+        )
+    }
+
+    /**
+     * Computes a buffer around geometries based on a specified distance. The distance is in the SRS unit.
+     *
+     * ```ts
+     * // Creates new geomeotries from the geometries in column geom with a buffer of 1 and puts the results in column buffer.
+     * await sdb.buffer("tableGeo", "geom", "buffer", 1)
+     * ```
+     * @param table - The name of the table storing the geospatial data.
+     * @param column - The name of the column storing the geometries.
+     * @param newColumn - The name of the new column to store the buffered geometries.
+     * @param distance - The distance for the buffer, in SRS unit.
+     *
+     * @category Geospatial
+     */
+    async buffer(
+        table: string,
+        column: string,
+        newColumn: string,
+        distance: number
+    ) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${table} ADD "${newColumn}" GEOMETRY; UPDATE ${table} SET "${newColumn}" =  ST_Buffer("${column}", ${distance});`,
+            mergeOptions(this, {
+                table,
+                method: "buffer()",
+                parameters: { table, column, newColumn, distance },
             })
         )
     }
