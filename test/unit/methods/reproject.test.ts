@@ -1,15 +1,20 @@
+import assert from "assert"
 import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import { existsSync, mkdirSync, readFileSync } from "fs"
 
 describe("reproject", () => {
+    const output = "./test/output/"
+
     let simpleNodeDB: SimpleNodeDB
     before(async function () {
+        if (!existsSync(output)) {
+            mkdirSync(output)
+        }
         simpleNodeDB = new SimpleNodeDB({ spatial: true })
         await simpleNodeDB.loadGeoData(
             "geodata",
-            "test/geodata/files/CanadianProvincesAndTerritories.json"
+            "test/geodata/files/point.json"
         )
-        // Hmmmm... Why?
-        await simpleNodeDB.flipCoordinates("geodata", "geom")
     })
     after(async function () {
         await simpleNodeDB.done()
@@ -23,6 +28,35 @@ describe("reproject", () => {
             "EPSG:3347"
         )
 
-        // Not sure how to test.
+        await simpleNodeDB.reproject(
+            "geodata",
+            "geom",
+            "EPSG:3347",
+            "EPSG:4326"
+        )
+
+        await simpleNodeDB.writeGeoData(
+            "geodata",
+            `${output}points-reprojected.geojson`
+        )
+
+        const data = JSON.parse(
+            readFileSync(`${output}points-reprojected.geojson`, "utf-8")
+        )
+
+        assert.deepStrictEqual(data, {
+            type: "FeatureCollection",
+            name: "points-reprojected",
+            features: [
+                {
+                    type: "Feature",
+                    properties: {},
+                    geometry: {
+                        type: "Point",
+                        coordinates: [-73.623151062453886, 45.514127913164081],
+                    },
+                },
+            ],
+        })
     })
 })
