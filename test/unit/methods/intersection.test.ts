@@ -24,16 +24,18 @@ describe("intersection", () => {
         )
         await simpleNodeDB.flipCoordinates("pol", "geom")
         await simpleNodeDB.area("pol", "geom", "polArea")
+        await simpleNodeDB.round("pol", "polArea")
         await simpleNodeDB.renameColumns("pol", { geom: "pol" })
 
         await simpleNodeDB.crossJoin("prov", "pol", { outputTable: "joined" })
         await simpleNodeDB.intersection("joined", ["pol", "prov"], "intersec")
         await simpleNodeDB.area("joined", "intersec", "intersecArea")
+        await simpleNodeDB.round("joined", "intersecArea")
         await simpleNodeDB.addColumn(
             "joined",
             "intersecPerc",
             "double",
-            `intersecArea/polArea`
+            `ROUND(intersecArea/polArea, 4)`
         )
 
         await simpleNodeDB.selectColumns("joined", [
@@ -56,16 +58,8 @@ describe("intersection", () => {
             },
             { nameEnglish: "Nova Scotia", name: "polygonA", intersecPerc: 0 },
             { nameEnglish: "New Brunswick", name: "polygonA", intersecPerc: 0 },
-            {
-                nameEnglish: "Quebec",
-                name: "polygonA",
-                intersecPerc: 0.6448239635042313,
-            },
-            {
-                nameEnglish: "Ontario",
-                name: "polygonA",
-                intersecPerc: 0.3319604587606646,
-            },
+            { nameEnglish: "Quebec", name: "polygonA", intersecPerc: 0.6448 },
+            { nameEnglish: "Ontario", name: "polygonA", intersecPerc: 0.332 },
             { nameEnglish: "Manitoba", name: "polygonA", intersecPerc: 0 },
             { nameEnglish: "Saskatchewan", name: "polygonA", intersecPerc: 0 },
             { nameEnglish: "Alberta", name: "polygonA", intersecPerc: 0 },
@@ -95,37 +89,25 @@ describe("intersection", () => {
             { nameEnglish: "New Brunswick", name: "polygonB", intersecPerc: 0 },
             { nameEnglish: "Quebec", name: "polygonB", intersecPerc: 0 },
             { nameEnglish: "Ontario", name: "polygonB", intersecPerc: 0 },
-            {
-                nameEnglish: "Manitoba",
-                name: "polygonB",
-                intersecPerc: 0.1429911966346303,
-            },
+            { nameEnglish: "Manitoba", name: "polygonB", intersecPerc: 0.143 },
             {
                 nameEnglish: "Saskatchewan",
                 name: "polygonB",
-                intersecPerc: 0.2939506678232289,
+                intersecPerc: 0.294,
             },
-            {
-                nameEnglish: "Alberta",
-                name: "polygonB",
-                intersecPerc: 0.299169187961885,
-            },
+            { nameEnglish: "Alberta", name: "polygonB", intersecPerc: 0.2992 },
             {
                 nameEnglish: "British Columbia",
                 name: "polygonB",
-                intersecPerc: 0.040389250666719306,
+                intersecPerc: 0.0404,
             },
             { nameEnglish: "Yukon", name: "polygonB", intersecPerc: 0 },
             {
                 nameEnglish: "Northwest Territories",
                 name: "polygonB",
-                intersecPerc: 0.17956826516012744,
+                intersecPerc: 0.1796,
             },
-            {
-                nameEnglish: "Nunavut",
-                name: "polygonB",
-                intersecPerc: 0.036643788275493624,
-            },
+            { nameEnglish: "Nunavut", name: "polygonB", intersecPerc: 0.0366 },
         ])
     })
 })
