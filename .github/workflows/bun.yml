@@ -15,4 +15,5 @@ jobs:
             - uses: oven-sh/setup-bun@v1
               with:
                   bun-version: latest
-            - run: npm run test-bun
+            - run: bun install
+            - run: bun run test-bun
