@@ -15,12 +15,14 @@ describe("intersection", () => {
             "prov",
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
+        await simpleNodeDB.flipCoordinates("prov", "geom")
         await simpleNodeDB.renameColumns("prov", { geom: "prov" })
 
         await simpleNodeDB.loadGeoData(
             "pol",
             "test/geodata/files/polygons.geojson"
         )
+        await simpleNodeDB.flipCoordinates("pol", "geom")
         await simpleNodeDB.area("pol", "geom", "polArea")
         await simpleNodeDB.renameColumns("pol", { geom: "pol" })
 
@@ -57,12 +59,12 @@ describe("intersection", () => {
             {
                 nameEnglish: "Quebec",
                 name: "polygonA",
-                intersecPerc: 0.6448396390192459,
+                intersecPerc: 0.6448239635042313,
             },
             {
                 nameEnglish: "Ontario",
                 name: "polygonA",
-                intersecPerc: 0.32678862799543357,
+                intersecPerc: 0.3319604587606646,
             },
             { nameEnglish: "Manitoba", name: "polygonA", intersecPerc: 0 },
             { nameEnglish: "Saskatchewan", name: "polygonA", intersecPerc: 0 },
@@ -96,33 +98,33 @@ describe("intersection", () => {
             {
                 nameEnglish: "Manitoba",
                 name: "polygonB",
-                intersecPerc: 0.14191861280470988,
+                intersecPerc: 0.1429911966346303,
             },
             {
                 nameEnglish: "Saskatchewan",
                 name: "polygonB",
-                intersecPerc: 0.2886282528721128,
+                intersecPerc: 0.2939506678232289,
             },
             {
                 nameEnglish: "Alberta",
                 name: "polygonB",
-                intersecPerc: 0.30078511847011186,
+                intersecPerc: 0.299169187961885,
             },
             {
                 nameEnglish: "British Columbia",
                 name: "polygonB",
-                intersecPerc: 0.04166074734207729,
+                intersecPerc: 0.040389250666719306,
             },
             { nameEnglish: "Yukon", name: "polygonB", intersecPerc: 0 },
             {
                 nameEnglish: "Northwest Territories",
                 name: "polygonB",
-                intersecPerc: 0.1852777973273539,
+                intersecPerc: 0.17956826516012744,
             },
             {
                 nameEnglish: "Nunavut",
                 name: "polygonB",
-                intersecPerc: 0.04172947118363386,
+                intersecPerc: 0.036643788275493624,
             },
         ])
     })
