@@ -206,7 +206,7 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
-     * Computes a buffer around a geometry based on a specified distance. The distance is in the SRS unit.
+     * Computes a buffer around geometries based on a specified distance. The distance is in the SRS unit.
      *
      * ```ts
      * // Creates new geomeotries from the geometries in column geom with a buffer of 1 and puts the results in column buffer.
