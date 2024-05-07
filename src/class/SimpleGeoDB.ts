@@ -505,17 +505,22 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
-     * Computes the distance between geometries. The values are returned in the SRS unit.
+     * Computes the distance between geometries in meters or optionally kilometers using an ellipsoidal model of the earth's surface. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      *
      * ```ts
      * // Computes the distance between geometries in columns geomA and geomB. The distance is returned in the new column "distance".
      * await sdb.distance("tableGeo", "geomA", "geomB", "distance")
+     *
+     * // Same but in kilometers instead of meters.
+     * await sdb.distance("tableGeo", "geomA", "geomB", "distance", { unit: "km"})
      * ```
      *
      * @param table - The name of the table storing the geospatial data.
      * @param column1 - The name of a column storing geometries.
      * @param column2 - The name of a column storing geometries.
      * @param newColumn - The name of the new column storing the centroids.
+     * @param options - An optional object with configuration options:
+     *   @param options.unit - The area can be returned as meters or kilometers.
      *
      * @category Geospatial
      */
@@ -523,11 +528,12 @@ export default class SimpleGeoDB extends SimpleDB {
         table: string,
         column1: string,
         column2: string,
-        newColumn: string
+        newColumn: string,
+        options: { unit?: "m" | "km" } = {}
     ) {
         await queryDB(
             this,
-            `ALTER TABLE ${table} ADD "${newColumn}" DOUBLE; UPDATE ${table} SET "${newColumn}" =  ST_Distance("${column1}", "${column2}");`,
+            `ALTER TABLE ${table} ADD "${newColumn}" DOUBLE; UPDATE ${table} SET "${newColumn}" =  ST_Distance_Spheroid("${column1}", "${column2}") ${options.unit === "km" ? "/ 1000" : ""};`,
             mergeOptions(this, {
                 table,
                 method: "distance()",
