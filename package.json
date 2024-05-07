@@ -40,9 +40,10 @@
         "default": "./dist/index.js"
     },
     "scripts": {
-        "test": "mocha \"test/unit/**/*.test.ts\"",
+        "test": "npx mocha \"test/unit/**/*.test.ts\"",
+        "test-bun": "bunx mocha \"test/unit/**/*.test.ts\"",
         "build": "rm -rf dist && npx tsc && npx rollup --config",
-        "all-tests": "npm run format && npm run lint && npm run test && npm run build && npm run test-doc",
+        "all-tests": "npm run format && npm run lint && npm run test && npm run build && npm run test-doc && bun upgrade && bun run test-bun",
         "rollup": "rollup --config",
         "doc": "typedoc --name Simple-data-analysis --includeVersion --readme README.md --out docs src/index.ts && cp -r ./assets ./docs",
         "test-doc": "typedoc --name Simple-data-analysis --includeVersion --readme README.md --out ./test-docs src/index.ts && cp -r ./assets ./test-docs",
