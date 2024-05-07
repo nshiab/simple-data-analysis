@@ -5,7 +5,7 @@ import commonjs from "@rollup/plugin-commonjs"
 import typescript from "@rollup/plugin-typescript"
 import { visualizer } from "rollup-plugin-visualizer"
 import nodePolyfills from "rollup-plugin-polyfill-node"
-import meta from "./package.json" assert { type: "json" }
+import meta from "./package.json" with { type: "json" }
 
 const copyright = readFileSync("./LICENSE", "utf-8")
     .split(/\n/g)
