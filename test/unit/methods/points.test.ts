@@ -33,8 +33,6 @@ describe("points", () => {
             readFileSync(`${output}/pointsTest.geojson`, "utf-8")
         )
 
-        console.log(data)
-
         assert.deepStrictEqual(data, {
             type: "FeatureCollection",
             name: "pointsTest",
