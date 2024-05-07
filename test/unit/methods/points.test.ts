@@ -9,7 +9,7 @@ describe("points", () => {
         if (!existsSync(output)) {
             mkdirSync(output)
         }
-        simpleNodeDB = new SimpleNodeDB({ spatial: true, debug: true })
+        simpleNodeDB = new SimpleNodeDB({ spatial: true })
     })
     after(async function () {
         await simpleNodeDB.done()
