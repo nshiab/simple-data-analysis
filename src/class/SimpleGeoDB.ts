@@ -180,23 +180,33 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
-     * Computes the area of geometries. The values are returned in the SRS unit.
+     * Computes the area of geometries in square meters or optionally square kilometers. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      *
      * ```ts
      * // Computes the area of the geometries in the column geom from the table tableGeo, and returns the results in the column area.
+     * await sdb.area("tableGeo", "geom", "area")
+     *
+     * * // Computes the area of the geometries in the column geom from the table tableGeo, and returns the results in the column area.
      * await sdb.area("tableGeo", "geom", "area")
      * ```
      *
      * @param table - The name of the table storing the geospatial data.
      * @param column - The name of the column storing the geometries.
      * @param newColumn - The name of the new column storing the computed areas.
+     * @param options - An optional object with configuration options:
+     *   @param options.unit - The area can be returned as square meters or square kilometers.
      *
      * @category Geospatial
      */
-    async area(table: string, column: string, newColumn: string) {
+    async area(
+        table: string,
+        column: string,
+        newColumn: string,
+        options: { unit?: "m2" | "km2" } = {}
+    ) {
         await queryDB(
             this,
-            `ALTER TABLE ${table} ADD "${newColumn}" DOUBLE; UPDATE ${table} SET "${newColumn}" =  ST_Area("${column}");`,
+            `ALTER TABLE ${table} ADD "${newColumn}" DOUBLE; UPDATE ${table} SET "${newColumn}" =  ST_Area_Spheroid("${column}") ${options.unit === "km2" ? "/ 1000000" : ""};`,
             mergeOptions(this, {
                 table,
                 method: "area()",
