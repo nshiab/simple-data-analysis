@@ -186,8 +186,8 @@ export default class SimpleGeoDB extends SimpleDB {
      * // Computes the area of the geometries in the column geom from the table tableGeo, and returns the results in the column area.
      * await sdb.area("tableGeo", "geom", "area")
      *
-     * * // Computes the area of the geometries in the column geom from the table tableGeo, and returns the results in the column area.
-     * await sdb.area("tableGeo", "geom", "area")
+     * * // Same things but in square kilometers
+     * await sdb.area("tableGeo", "geom", "area", { unit: "km2"})
      * ```
      *
      * @param table - The name of the table storing the geospatial data.
