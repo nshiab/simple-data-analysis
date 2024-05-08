@@ -1,0 +1,38 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "toronto"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-79.29, 43.77]
+            },
+            "id": 0
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "montreal"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-73.86, 45.35]
+            },
+            "id": 1
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "vancouver"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-122.96, 49.07]
+            },
+            "id": 2
+        }
+    ]
+}

@@ -1,6 +1,7 @@
 import getDuckDB from "../helpers/getDuckDB.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
+import distanceQuery from "../methods/distanceQuery.js"
 import getProjection from "../methods/getProjection.js"
 import joinGeo from "../methods/joinGeo.js"
 import SimpleDB from "./SimpleDB.js"
@@ -505,14 +506,20 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
-     * Computes the distance between geometries in meters or optionally kilometers using an ellipsoidal model of the earth's surface. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
+     * Computes the distance between geometries. By default, it uses the SRS unit. You can pass "spheroid" or "haversine" as options.method to get results in meters or optionally kilometers. If you do use these methods, the input geometry must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      *
      * ```ts
-     * // Computes the distance between geometries in columns geomA and geomB. The distance is returned in the new column "distance".
+     * // Computes the distance between geometries in columns geomA and geomB. The distance is returned in the new column "distance" in the SRS unit.
      * await sdb.distance("tableGeo", "geomA", "geomB", "distance")
      *
-     * // Same but in kilometers instead of meters.
-     * await sdb.distance("tableGeo", "geomA", "geomB", "distance", { unit: "km"})
+     * // Same but using the haversine distance. The distance is returned in meters by default.
+     * await sdb.distance("tableGeo", "geomA", "geomB", "distance", { method: "haversine")
+     *
+     * // Same but the distance is returned in kilometers.
+     * await sdb.distance("tableGeo", "geomA", "geomB", "distance", { method: "haversine", unit: "km"})
+     *
+     * // Same but using an ellipsoidal model of the earth's surface. It's the most accurate but the slowest. By default, the distance is returned in meters and optionally as kilometers.
+     * await sdb.distance("tableGeo", "geomA", "geomB", "distance", { method: "spheroid", unit: "km"})
      * ```
      *
      * @param table - The name of the table storing the geospatial data.
@@ -520,7 +527,8 @@ export default class SimpleGeoDB extends SimpleDB {
      * @param column2 - The name of a column storing geometries.
      * @param newColumn - The name of the new column storing the centroids.
      * @param options - An optional object with configuration options:
-     *   @param options.unit - The area can be returned as meters or kilometers.
+     *   @param options.method - The method to be used for the distance calculations. "srs" returns the values in the SRS unit. "spheroid" and "haversine" return the values in meters by default.
+     *   @param options.unit - If the method is "spheroid" or "haversine", you can choose between meters or kilometers. It's meters by default.
      *
      * @category Geospatial
      */
@@ -529,11 +537,14 @@ export default class SimpleGeoDB extends SimpleDB {
         column1: string,
         column2: string,
         newColumn: string,
-        options: { unit?: "m" | "km" } = {}
+        options: {
+            unit?: "m" | "km"
+            method?: "srs" | "haversine" | "spheroid"
+        } = {}
     ) {
         await queryDB(
             this,
-            `ALTER TABLE ${table} ADD "${newColumn}" DOUBLE; UPDATE ${table} SET "${newColumn}" =  ST_Distance_Spheroid("${column1}", "${column2}") ${options.unit === "km" ? "/ 1000" : ""};`,
+            distanceQuery(table, column1, column2, newColumn, options),
             mergeOptions(this, {
                 table,
                 method: "distance()",
