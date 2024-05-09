@@ -31,7 +31,7 @@ describe("writeGeoData", () => {
         assert.deepStrictEqual(writtenData, originalData)
     })
 
-    it("should write geojson file", async () => {
+    it("should write geojson file with coordinates rounded to 3 decimals", async () => {
         const originalFile = "test/geodata/files/polygons.geojson"
 
         await simpleNodeDB.loadGeoData("data", originalFile)
