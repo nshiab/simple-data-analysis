@@ -106,11 +106,11 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
-     * Checks if a geometry is valid.
+     * Adds a column with TRUE/FALSE values depending on the validity of geometries.
      *
      * ```ts
-     * // Checks if the geometries in column geom from table tableGeo are valid and returns a boolean in column isValid.
-     * await sdb.isValidGeo("tableGeo", "geom", "isValid")
+     * // Checks if the geometries in column geom from table tableGeo are valid and returns a boolean in column valid.
+     * await sdb.isValidGeo("tableGeo", "geom", "valid")
      * ```
      *
      * @param table - The name of the table storing the geospatial data.
@@ -126,6 +126,32 @@ export default class SimpleGeoDB extends SimpleDB {
             mergeOptions(this, {
                 table,
                 method: "isValidGeo()",
+                parameters: { table, column },
+            })
+        )
+    }
+
+    /**
+     * Adds a column with TRUE if the geometry is closed and FALSE if it's open.
+     *
+     * ```ts
+     * // Checks if the geometries in column geom from table tableGeo are closed and returns a boolean in column closed.
+     * await sdb.isClosedGeo("tableGeo", "geom", "closed")
+     * ```
+     *
+     * @param table - The name of the table storing the geospatial data.
+     * @param column - The name of the column storing the geometries.
+     * @param newColumn - The name of the new column storing the results.
+     *
+     * @category Geospatial
+     */
+    async isClosedGeo(table: string, column: string, newColumn: string) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${table} ADD COLUMN "${newColumn}" BOOLEAN; UPDATE ${table} SET "${newColumn}" = ST_IsClosed("${column}")`,
+            mergeOptions(this, {
+                table,
+                method: "isClosedGeo()",
                 parameters: { table, column },
             })
         )
