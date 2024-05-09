@@ -1,6 +1,7 @@
 import getDuckDB from "../helpers/getDuckDB.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
+import aggregateGeoQuery from "../methods/aggregateGeoQuery.js"
 import distanceQuery from "../methods/distanceQuery.js"
 import getProjection from "../methods/getProjection.js"
 import joinGeo from "../methods/joinGeo.js"
@@ -600,6 +601,43 @@ export default class SimpleGeoDB extends SimpleDB {
                 table,
                 method: "unnestGeo()",
                 parameters: { table, column },
+            })
+        )
+    }
+
+    /**
+     * Aggregates geometries. (Just union as method for now. Intersection will be added soon.)
+     *
+     * ```ts
+     * // Returns the union of all geometries in the column geom.
+     * await sdb.aggregateGeo("tableGeo", "geom", "union")
+     *
+     * // Same thing but for each value in the column country.
+     * await sdb.aggregateGeo("tableGeo", "geom", "union", { categories: "country" })
+     * ```
+     *
+     * @param table - The name of the table storing the geospatial data.
+     * @param column - The name of the column storing geometries.
+     * @param method - The method to use for the aggregation.
+     * @param options - An optional object with configuration options:
+     *   @param options.categories - The column or columns that define categories for the aggragation. This can be a single column name or an array of column names.
+     *   @param options.outputTable - An option to store the results in a new table.
+     *
+     * @category Geospatial
+     */
+    async aggregateGeo(
+        table: string,
+        column: string,
+        method: "union",
+        options: { categories?: string | string[]; outputTable?: string } = {}
+    ) {
+        await queryDB(
+            this,
+            aggregateGeoQuery(table, column, method, options),
+            mergeOptions(this, {
+                table,
+                method: "aggregateGeo()",
+                parameters: { table, column, method, options },
             })
         )
     }

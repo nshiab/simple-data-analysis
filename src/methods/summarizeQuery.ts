@@ -93,9 +93,9 @@ export default function summarizeQuery(
             ) {
                 return `\nNULL AS '${summary}'`
             } else if (summary === "count") {
-                return `COUNT(*) as count`
+                return `\nCOUNT(*) as count`
             } else if (summary === "countNull") {
-                return `COUNT(CASE WHEN "${value}" IS NULL THEN 1 END) as countNull`
+                return `\nCOUNT(CASE WHEN "${value}" IS NULL THEN 1 END) as countNull`
             } else {
                 return typeof options.decimals === "number" &&
                     ![
