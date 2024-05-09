@@ -605,6 +605,31 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
+     * Transforms closed lines into polygons.
+     *
+     * ```ts
+     * // Transforms geometries in the column "geom" into polygons.
+     * await sdb.linesToPolygons("tableGeo", "geom")
+     * ```
+     *
+     * @param table - The name of the table storing the geospatial data.
+     * @param column - The name of a column storing geometries.
+     *
+     * @category Geospatial
+     */
+    async linesToPolygons(table: string, column: string) {
+        await queryDB(
+            this,
+            `CREATE OR REPLACE TABLE ${table} AS SELECT * EXCLUDE("${column}"), ST_MakePolygon("${column}") as "${column}" FROM ${table};`,
+            mergeOptions(this, {
+                table,
+                method: "linesToPolygons()",
+                parameters: { table, column },
+            })
+        )
+    }
+
+    /**
      * Returns the projection of a geospatial data file.
      *
      * ```ts
