@@ -252,4 +252,63 @@ describe("aggregateGeo", () => {
             ],
         })
     })
+    it("should do an intersection of geometries based on categories and return the results in a new table", async () => {
+        await simpleNodeDB.loadGeoData(
+            "geodata",
+            "test/geodata/files/polygonsGroups.json"
+        )
+        await simpleNodeDB.aggregateGeo("geodata", "geom", "intersection", {
+            categories: "group",
+            outputTable: "intersectionOnCategoriesOutputTable",
+        })
+        await simpleNodeDB.writeGeoData(
+            "intersectionOnCategoriesOutputTable",
+            `${output}intersectionOnCategoriesOutputTable.geojson`
+        )
+        const data = JSON.parse(
+            readFileSync(
+                `${output}intersectionOnCategoriesOutputTable.geojson`,
+                "utf-8"
+            )
+        )
+
+        assert.deepStrictEqual(data, {
+            type: "FeatureCollection",
+            name: "intersectionOnCategoriesOutputTable",
+            features: [
+                {
+                    type: "Feature",
+                    properties: { group: "A" },
+                    geometry: {
+                        type: "Polygon",
+                        coordinates: [
+                            [
+                                [-76.591213170324082, 44.640243763343193],
+                                [-77.463304504859636, 48.962716321923438],
+                                [-74.923278826453114, 48.176612923828372],
+                                [-75.860620031220733, 44.537223459668695],
+                                [-76.591213170324082, 44.640243763343193],
+                            ],
+                        ],
+                    },
+                },
+                {
+                    type: "Feature",
+                    properties: { group: "B" },
+                    geometry: {
+                        type: "Polygon",
+                        coordinates: [
+                            [
+                                [-75.990492852836411, 43.484681104234824],
+                                [-72.677307066699754, 45.292024513171143],
+                                [-71.823928295776525, 43.779296602998272],
+                                [-74.018589910420204, 41.676093293085508],
+                                [-75.990492852836411, 43.484681104234824],
+                            ],
+                        ],
+                    },
+                },
+            ],
+        })
+    })
 })

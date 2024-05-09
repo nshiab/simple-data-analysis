@@ -606,7 +606,7 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
-     * Aggregates geometries. (Just union as method for now. Intersection will be added soon.)
+     * Aggregates geometries.
      *
      * ```ts
      * // Returns the union of all geometries in the column geom.
@@ -614,6 +614,9 @@ export default class SimpleGeoDB extends SimpleDB {
      *
      * // Same thing but for each value in the column country.
      * await sdb.aggregateGeo("tableGeo", "geom", "union", { categories: "country" })
+     *
+     * // Same thing but for intersection.
+     * await sdb.aggregateGeo("tableGeo", "geom", "intersection", { categories: "country" })
      * ```
      *
      * @param table - The name of the table storing the geospatial data.
@@ -628,7 +631,7 @@ export default class SimpleGeoDB extends SimpleDB {
     async aggregateGeo(
         table: string,
         column: string,
-        method: "union",
+        method: "union" | "intersection",
         options: { categories?: string | string[]; outputTable?: string } = {}
     ) {
         await queryDB(

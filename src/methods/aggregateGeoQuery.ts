@@ -3,7 +3,7 @@ import stringToArray from "../helpers/stringToArray.js"
 export default function aggregateGeoQuery(
     table: string,
     column: string,
-    method: "union",
+    method: "union" | "intersection",
     options: { categories?: string | string[]; outputTable?: string } = {}
 ) {
     const categoriesOptions = options.categories ?? []
@@ -18,6 +18,8 @@ export default function aggregateGeoQuery(
 
     if (method === "union") {
         query += ` ST_Union_Agg("${column}") AS "${column}"`
+    } else if (method === "intersection") {
+        query += ` ST_Intersection_Agg("${column}") AS "${column}"`
     } else {
         throw new Error(`Unkown method ${method}`)
     }
