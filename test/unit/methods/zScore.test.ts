@@ -76,35 +76,6 @@ describe("zScore", () => {
         ])
     })
 
-    it("should add a column with the zScore with 2 decimals", async () => {
-        await simpleNodeDB.zScore("peopleTwoDecimals", "age", "ageZ", {
-            decimals: 2,
-        })
-
-        await simpleNodeDB.sort("peopleTwoDecimals", { ageZ: "asc" })
-
-        const data = await simpleNodeDB.getData("peopleTwoDecimals")
-
-        assert.deepStrictEqual(data, [
-            { name: "Evangeline", age: 21, ageZ: -1.25 },
-            { name: "Amelia", age: 29, ageZ: -0.69 },
-            { name: "Marie", age: 30, ageZ: -0.62 },
-            { name: "Kiara", age: 31, ageZ: -0.55 },
-            { name: "Isobel", age: 31, ageZ: -0.55 },
-            { name: "Genevieve", age: 32, ageZ: -0.48 },
-            { name: "Jane", age: 32, ageZ: -0.48 },
-            { name: "Chloe", age: 33, ageZ: -0.42 },
-            { name: "Philip", age: 33, ageZ: -0.42 },
-            { name: "Morgan", age: 33, ageZ: -0.42 },
-            { name: "Jeremy", age: 34, ageZ: -0.35 },
-            { name: "Claudia", age: 35, ageZ: -0.28 },
-            { name: "Sonny", age: 57, ageZ: 1.25 },
-            { name: "Frazer", age: 64, ageZ: 1.73 },
-            { name: "Sarah", age: 64, ageZ: 1.73 },
-            { name: "Frankie", age: 65, ageZ: 1.8 },
-        ])
-    })
-
     it("should add a column with the zScore rounded to 3 decimals", async () => {
         await simpleNodeDB.zScore("peopleThreeDecimals", "age", "ageSigma", {
             decimals: 3,

@@ -554,6 +554,31 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
+     * Unnests geometries recursively.
+     *
+     * ```ts
+     * // Unnests geometries in the column "geom" and returns the same table with unnested items.
+     * await sdb.unnestGeo("tableGeo", "geom")
+     * ```
+     *
+     * @param table - The name of the table storing the geospatial data.
+     * @param column - The name of a column storing geometries.
+     *
+     * @category Geospatial
+     */
+    async unnestGeo(table: string, column: string) {
+        await queryDB(
+            this,
+            `CREATE OR REPLACE TABLE ${table} AS SELECT * EXCLUDE("${column}"), UNNEST(ST_Dump("${column}"), recursive := TRUE) FROM ${table}; ALTER TABLE ${table} DROP COLUMN path;`,
+            mergeOptions(this, {
+                table,
+                method: "unnestGeo()",
+                parameters: { table, column },
+            })
+        )
+    }
+
+    /**
      * Returns the projection of a geospatial data file.
      *
      * ```ts
