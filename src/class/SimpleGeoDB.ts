@@ -541,6 +541,37 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
+     * Computes the union of geometries.
+     *
+     * ```ts
+     * // Computes the union of geometries in geomA and geomB columns from table tableGeo and puts the new geometries in column union.
+     * await sdb.union("tableGeo", ["geomA", "geomB"], "union")
+     * ```
+     *
+     * @param table - The name of the table storing the geospatial data.
+     * @param columns - The names of the two columns storing the geometries.
+     * @param newColumn - The name of the new column storing the computed unions.
+     *
+     * @category Geospatial
+     */
+    async union(table: string, columns: [string, string], newColumn: string) {
+        if (columns.length !== 2) {
+            throw new Error(
+                `The columns parameters must be an array with two strings. For example: ["geomA", "geomB"].`
+            )
+        }
+        await queryDB(
+            this,
+            `ALTER TABLE ${table} ADD "${newColumn}" GEOMETRY; UPDATE ${table} SET "${newColumn}" = ST_Union("${columns[0]}", "${columns[1]}")`,
+            mergeOptions(this, {
+                table,
+                method: "union()",
+                parameters: { table, columns, newColumn },
+            })
+        )
+    }
+
+    /**
      * Returns true if all points of a geometry lies inside another geometry.
      *
      * ```ts
