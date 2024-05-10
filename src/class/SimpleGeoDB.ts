@@ -159,6 +159,32 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
+     * Adds a column with the geometry type.
+     *
+     * ```ts
+     * // Returns the geometry type in column type.
+     * await sdb.typeGeo("tableGeo", "geom", "type")
+     * ```
+     *
+     * @param table - The name of the table storing the geospatial data.
+     * @param column - The name of the column storing the geometries.
+     * @param newColumn - The name of the new column storing the results.
+     *
+     * @category Geospatial
+     */
+    async typeGeo(table: string, column: string, newColumn: string) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${table} ADD COLUMN "${newColumn}" VARCHAR; UPDATE ${table} SET "${newColumn}" = ST_GeometryType("${column}")`,
+            mergeOptions(this, {
+                table,
+                method: "typeGeo()",
+                parameters: { table, column, newColumn },
+            })
+        )
+    }
+
+    /**
      * Flips the coordinates of a geometry. Useful for some geojson files which have lat and lon inverted.
      *
      * ```ts
