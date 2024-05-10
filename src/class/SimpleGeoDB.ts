@@ -185,7 +185,7 @@ export default class SimpleGeoDB extends SimpleDB {
     }
 
     /**
-     * Flips the coordinates of a geometry. Useful for some geojson files which have lat and lon inverted.
+     * Flips the coordinates of geometries. Useful for some geojson files which have lat and lon inverted.
      *
      * ```ts
      * await sdb.flipCoordinates("tableGeo", "geom")
@@ -204,6 +204,31 @@ export default class SimpleGeoDB extends SimpleDB {
                 table,
                 method: "flipCoordinates()",
                 parameters: { table, column },
+            })
+        )
+    }
+
+    /**
+     * Reduce the precision of geometries.
+     *
+     * ```ts
+     * // Reduce the precision to 3 decimals.
+     * await sdb.reducePrecision("tableGeo", "geom", 3)
+     * ```
+     *
+     * @param table - The name of the table storing the geospatial data.
+     * @param column - The name of the column storing the geometries.
+     *
+     * @category Geospatial
+     */
+    async reducePrecision(table: string, column: string, decimals: number) {
+        await queryDB(
+            this,
+            `UPDATE ${table} SET "${column}" = ST_ReducePrecision("${column}", ${1 / Math.pow(10, decimals)})`,
+            mergeOptions(this, {
+                table,
+                method: "reducePrecision()",
+                parameters: { table, column, decimals },
             })
         )
     }
