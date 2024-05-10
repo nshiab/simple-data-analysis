@@ -127,7 +127,7 @@ export default class SimpleGeoDB extends SimpleDB {
             mergeOptions(this, {
                 table,
                 method: "isValidGeo()",
-                parameters: { table, column },
+                parameters: { table, column, newColumn },
             })
         )
     }
@@ -153,7 +153,7 @@ export default class SimpleGeoDB extends SimpleDB {
             mergeOptions(this, {
                 table,
                 method: "isClosedGeo()",
-                parameters: { table, column },
+                parameters: { table, column, newColumn },
             })
         )
     }
@@ -214,7 +214,7 @@ export default class SimpleGeoDB extends SimpleDB {
      * // Computes the area of the geometries in the column geom from the table tableGeo, and returns the results in the column area.
      * await sdb.area("tableGeo", "geom", "area")
      *
-     * * // Same things but in square kilometers
+     * // Same things but in square kilometers
      * await sdb.area("tableGeo", "geom", "area", { unit: "km2"})
      * ```
      *
@@ -238,7 +238,43 @@ export default class SimpleGeoDB extends SimpleDB {
             mergeOptions(this, {
                 table,
                 method: "area()",
-                parameters: { table, column, newColumn },
+                parameters: { table, column, newColumn, options },
+            })
+        )
+    }
+
+    /**
+     * Computes the length of line geometries in meters or optionally kilometers. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
+     *
+     * ```ts
+     * // Computes the length of the geometries in the column geom from the table tableGeo, and returns the results in the column length.
+     * await sdb.length("tableGeo", "geom", "length")
+     *
+     * // Same things but in kilometers.
+     * await sdb.length("tableGeo", "geom", "length", { unit: "km"})
+     * ```
+     *
+     * @param table - The name of the table storing the geospatial data.
+     * @param column - The name of the column storing the geometries.
+     * @param newColumn - The name of the new column storing the computed lengths.
+     * @param options - An optional object with configuration options:
+     *   @param options.unit - The length can be returned as meters or kilometers.
+     *
+     * @category Geospatial
+     */
+    async length(
+        table: string,
+        column: string,
+        newColumn: string,
+        options: { unit?: "m" | "km" } = {}
+    ) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${table} ADD "${newColumn}" DOUBLE; UPDATE ${table} SET "${newColumn}" =  ST_Length_Spheroid("${column}") ${options.unit === "km" ? "/ 1000" : ""};`,
+            mergeOptions(this, {
+                table,
+                method: "length()",
+                parameters: { table, column, newColumn, options },
             })
         )
     }
