@@ -3,6 +3,7 @@ import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import aggregateGeoQuery from "../methods/aggregateGeoQuery.js"
 import distanceQuery from "../methods/distanceQuery.js"
+import getGeoData from "../methods/getGeoData.js"
 import getProjection from "../methods/getProjection.js"
 import joinGeo from "../methods/joinGeo.js"
 import SimpleDB from "./SimpleDB.js"
@@ -822,6 +823,20 @@ export default class SimpleGeoDB extends SimpleDB {
                 parameters: { table, column },
             })
         )
+    }
+
+    /**
+     * Returns the data as a geojson.
+     *
+     * ```ts
+     * // The colum geom will be used for the features geometries. The other columns in the table will be stored as properties.
+     * const geojson = await sdb.getGeoData("tableGeo", "geom")
+     * ```
+     *
+     * @category Geospatial
+     */
+    async getGeoData(table: string, column: string) {
+        return await getGeoData(this, table, column)
     }
 
     /**
