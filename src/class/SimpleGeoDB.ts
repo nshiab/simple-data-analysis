@@ -833,6 +833,9 @@ export default class SimpleGeoDB extends SimpleDB {
      * const geojson = await sdb.getGeoData("tableGeo", "geom")
      * ```
      *
+     * @param table - The name of the table storing the geospatial data.
+     * @param column - The name of a column storing geometries.
+     *
      * @category Geospatial
      */
     async getGeoData(table: string, column: string) {
@@ -852,6 +855,8 @@ export default class SimpleGeoDB extends SimpleDB {
      * //    proj4: '+proj=longlat +datum=WGS84 +no_defs'
      * // }
      * ```
+     *
+     * @param file - The file storing the geospatial data.
      *
      * @category Geospatial
      */
