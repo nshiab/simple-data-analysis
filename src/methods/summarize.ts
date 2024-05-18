@@ -1,11 +1,11 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import stringToArray from "../helpers/stringToArray.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 import summarizeQuery from "./summarizeQuery.js"
 
 export default async function summarize(
-    simpleDB: SimpleDB,
+    SimpleWebDB: SimpleWebDB,
     table: string,
     options: {
         outputTable?: string
@@ -53,7 +53,7 @@ export default async function summarize(
         options.summaries = [options.summaries]
     }
 
-    const types = await simpleDB.getTypes(table)
+    const types = await SimpleWebDB.getTypes(table)
     if (options.values.length === 0) {
         options.values = Object.keys(types)
     }
@@ -63,7 +63,7 @@ export default async function summarize(
     )
 
     return await queryDB(
-        simpleDB,
+        SimpleWebDB,
         summarizeQuery(
             table,
             types,
@@ -73,7 +73,7 @@ export default async function summarize(
             options.summaries,
             options
         ),
-        mergeOptions(simpleDB, {
+        mergeOptions(SimpleWebDB, {
             table: outputTable,
             method: "summarize()",
             parameters: {

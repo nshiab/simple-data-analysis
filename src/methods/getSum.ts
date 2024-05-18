@@ -1,16 +1,16 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 
 export default async function getSum(
-    simpleDB: SimpleDB,
+    SimpleWebDB: SimpleWebDB,
     table: string,
     column: string
 ) {
     const queryResult = await queryDB(
-        simpleDB,
+        SimpleWebDB,
         `SELECT SUM("${column}") AS valueForGetSum FROM ${table}`,
-        mergeOptions(simpleDB, {
+        mergeOptions(SimpleWebDB, {
             table,
             returnDataFrom: "query",
             method: "getSum()",
@@ -24,7 +24,7 @@ export default async function getSum(
 
     const result = queryResult[0].valueForGetSum
 
-    simpleDB.debug && console.log("sum:", result)
+    SimpleWebDB.debug && console.log("sum:", result)
 
     return result as number
 }

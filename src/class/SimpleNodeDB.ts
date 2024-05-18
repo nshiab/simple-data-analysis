@@ -16,7 +16,7 @@ import writeGeoDataQuery from "../methods/writeGeoDataQuery.js"
 /**
  * SimpleNodeDB is a class that provides a simplified interface for working with DuckDB,
  * a high-performance, in-memory analytical database. This class is meant to be used
- * with NodeJS and similar runtimes. For web browsers, use SimpleDB.
+ * with NodeJS and similar runtimes. For web browsers, use SimpleWebDB.
  *
  * Here's how to instantiate a SimpleNodeDB instance.
  *
@@ -24,7 +24,7 @@ import writeGeoDataQuery from "../methods/writeGeoDataQuery.js"
  * const sdb = new SimpleNodeDB()
  *
  * // Same thing but will log useful information in the terminal. The first 20 rows of tables will be logged. Also installs the spatial extension for geospatial analysis.
- * const sdb = new SimpleDB({ debug: true, nbRowsToLog: 20, spatial: true})
+ * const sdb = new SimpleWebDB({ debug: true, nbRowsToLog: 20, spatial: true})
  * ```
  *
  * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It optionally loads the [spatial](https://duckdb.org/docs/extensions/spatial) extension.
@@ -65,7 +65,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
      *
      * ```ts
      * const data = [{letter: "a", number: 1}, {letter: "b", number: 2}]
-     * await simpleDB.loadArray("tableA", data)
+     * await SimpleWebDB.loadArray("tableA", data)
      * ```
      *
      * @param table - The name of the table to be created.
@@ -315,7 +315,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
      *
      * ```ts
      * // The computation we want to run. A third parameter outputTable is optional.
-     * const run = async (sdb: SimpleDB, originalTable: string) => {
+     * const run = async (sdb: SimpleWebDB, originalTable: string) => {
             await sdb.convert(
                 originalTable,
                 { salary: "number" },
@@ -344,7 +344,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
      */
     async batch(
         run: (
-            simpleDB: SimpleNodeDB,
+            SimpleWebDB: SimpleNodeDB,
             originalTable: string,
             outputTable?: string
         ) => Promise<void>,

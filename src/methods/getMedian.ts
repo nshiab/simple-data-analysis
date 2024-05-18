@@ -1,9 +1,9 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 
 export default async function getMedian(
-    simpleDB: SimpleDB,
+    SimpleWebDB: SimpleWebDB,
     table: string,
     column: string,
     options: {
@@ -11,11 +11,11 @@ export default async function getMedian(
     } = {}
 ) {
     const queryResult = await queryDB(
-        simpleDB,
+        SimpleWebDB,
         typeof options.decimals === "number"
             ? `SELECT ROUND(MEDIAN("${column}"), ${options.decimals}) AS valueForGetMedian FROM ${table}`
             : `SELECT MEDIAN("${column}") AS valueForGetMedian FROM ${table}`,
-        mergeOptions(simpleDB, {
+        mergeOptions(SimpleWebDB, {
             table,
             returnDataFrom: "query",
             method: "getMedian()",
@@ -28,7 +28,7 @@ export default async function getMedian(
     }
     const result = queryResult[0].valueForGetMedian
 
-    simpleDB.debug && console.log("median:", result)
+    SimpleWebDB.debug && console.log("median:", result)
 
     return result as number
 }

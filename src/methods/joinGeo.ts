@@ -1,11 +1,11 @@
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 import capitalize from "../helpers/capitalize.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import joinGeoQuery from "./joinGeoQuery.js"
 
 export default async function joinGeo(
-    simpleDB: SimpleDB,
+    SimpleWebDB: SimpleWebDB,
     leftTable: string,
     method: "intersect" | "inside",
     rightTable: string,
@@ -28,18 +28,18 @@ export default async function joinGeo(
 
         const leftObj: { [key: string]: string } = {}
         leftObj[columnLeftTable] = columnLeftTableForQuery
-        await simpleDB.renameColumns(leftTable, leftObj)
+        await SimpleWebDB.renameColumns(leftTable, leftObj)
 
         const rightObj: { [key: string]: string } = {}
         rightObj[columnRightTable] = columnRightTableForQuery
-        await simpleDB.renameColumns(rightTable, rightObj)
+        await SimpleWebDB.renameColumns(rightTable, rightObj)
     }
 
     const type = options.type ?? "left"
     const outputTable = options.outputTable ?? leftTable
 
     await queryDB(
-        simpleDB,
+        SimpleWebDB,
         joinGeoQuery(
             leftTable,
             columnLeftTableForQuery,
@@ -49,7 +49,7 @@ export default async function joinGeo(
             type,
             outputTable
         ),
-        mergeOptions(simpleDB, {
+        mergeOptions(SimpleWebDB, {
             table: outputTable,
             method: "joinGeo()",
             parameters: {
@@ -65,10 +65,10 @@ export default async function joinGeo(
     if (columnLeftTable === columnRightTable) {
         const leftObj: { [key: string]: string } = {}
         leftObj[columnLeftTableForQuery] = columnLeftTable
-        await simpleDB.renameColumns(leftTable, leftObj)
+        await SimpleWebDB.renameColumns(leftTable, leftObj)
 
         const rightObj: { [key: string]: string } = {}
         rightObj[columnRightTableForQuery] = columnRightTable
-        await simpleDB.renameColumns(rightTable, rightObj)
+        await SimpleWebDB.renameColumns(rightTable, rightObj)
     }
 }

@@ -2,11 +2,11 @@ import getCombinations from "../helpers/getCombinations.js"
 import keepNumericalColumns from "../helpers/keepNumericalColumns.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 import correlationsQuery from "./correlationsQuery.js"
 
 export default async function correlations(
-    simpleDB: SimpleDB,
+    SimpleWebDB: SimpleWebDB,
     table: string,
     options: {
         x?: string
@@ -16,17 +16,17 @@ export default async function correlations(
         outputTable?: string
     } = {}
 ) {
-    simpleDB.debug && console.log("\ncorrelations()")
+    SimpleWebDB.debug && console.log("\ncorrelations()")
 
     const outputTable = options.outputTable ?? table
 
     let combinations: [string, string][] = []
     if (!options.x && !options.y) {
-        const types = await simpleDB.getTypes(table)
+        const types = await SimpleWebDB.getTypes(table)
         const columns = keepNumericalColumns(types)
         combinations = getCombinations(columns, 2)
     } else if (options.x && !options.y) {
-        const types = await simpleDB.getTypes(table)
+        const types = await SimpleWebDB.getTypes(table)
         const columns = keepNumericalColumns(types)
         combinations = []
         for (const col of columns) {
@@ -41,9 +41,9 @@ export default async function correlations(
     }
 
     await queryDB(
-        simpleDB,
+        SimpleWebDB,
         correlationsQuery(table, outputTable, combinations, options),
-        mergeOptions(simpleDB, {
+        mergeOptions(SimpleWebDB, {
             table: outputTable,
             method: "correlations()",
             parameters: {

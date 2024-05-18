@@ -4,12 +4,12 @@ import {
     DuckDBDataProtocol,
 } from "@duckdb/duckdb-wasm"
 import getExtension from "../helpers/getExtension.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import formatDuration from "../helpers/formatDuration.js"
 
 export default async function loadDataBrowser(
-    simpleDB: SimpleDB,
+    SimpleWebDB: SimpleWebDB,
     table: string,
     url: string,
     options: {
@@ -21,16 +21,16 @@ export default async function loadDataBrowser(
         skip?: number
     } = {}
 ) {
-    simpleDB.debug && console.log("\nloadData()")
-    simpleDB.debug && console.log("parameters:", { table, url, options })
+    SimpleWebDB.debug && console.log("\nloadData()")
+    SimpleWebDB.debug && console.log("parameters:", { table, url, options })
 
     let start
-    if (simpleDB.debug) {
+    if (SimpleWebDB.debug) {
         start = Date.now()
     }
 
-    if (await simpleDB.hasTable(table)) {
-        await simpleDB.removeTables(table)
+    if (await SimpleWebDB.hasTable(table)) {
+        await SimpleWebDB.removeTables(table)
     }
 
     const fileExtension = getExtension(url)
@@ -42,47 +42,45 @@ export default async function loadDataBrowser(
         options.fileType === "dsv" ||
         typeof options.delim === "string"
     ) {
-        await (simpleDB.db as AsyncDuckDB).registerFileURL(
+        await (SimpleWebDB.db as AsyncDuckDB).registerFileURL(
             filename,
             url,
             DuckDBDataProtocol.HTTP,
             false
         )
 
-        await (simpleDB.connection as AsyncDuckDBConnection).insertCSVFromPath(
-            filename,
-            {
-                name: table,
-                detect: options.autoDetect ?? true,
-                header: options.header ?? true,
-                delimiter: options.delim ?? ",",
-                skip: options.skip,
-            }
-        )
+        await (
+            SimpleWebDB.connection as AsyncDuckDBConnection
+        ).insertCSVFromPath(filename, {
+            name: table,
+            detect: options.autoDetect ?? true,
+            header: options.header ?? true,
+            delimiter: options.delim ?? ",",
+            skip: options.skip,
+        })
     } else if (options.fileType === "json" || fileExtension === "json") {
         const res = await fetch(url)
-        await (simpleDB.db as AsyncDuckDB).registerFileText(
+        await (SimpleWebDB.db as AsyncDuckDB).registerFileText(
             filename,
             await res.text()
         )
-        await (simpleDB.connection as AsyncDuckDBConnection).insertJSONFromPath(
-            filename,
-            {
-                name: table,
-            }
-        )
+        await (
+            SimpleWebDB.connection as AsyncDuckDBConnection
+        ).insertJSONFromPath(filename, {
+            name: table,
+        })
     } else if (options.fileType === "parquet" || fileExtension === "parquet") {
-        await (simpleDB.db as AsyncDuckDB).registerFileURL(
+        await (SimpleWebDB.db as AsyncDuckDB).registerFileURL(
             filename,
             url,
             DuckDBDataProtocol.HTTP,
             false
         )
-        await simpleDB.runQuery(
+        await SimpleWebDB.runQuery(
             `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM parquet_scan('${filename}')`,
-            simpleDB.connection,
+            SimpleWebDB.connection,
             false,
-            mergeOptions(simpleDB, {
+            mergeOptions(SimpleWebDB, {
                 table: null,
                 method: null,
                 parameters: null,
@@ -99,7 +97,7 @@ export default async function loadDataBrowser(
         console.log(`Done in ${formatDuration(start, end)}`)
     }
 
-    if (simpleDB.debug) {
-        await simpleDB.logTable(table)
+    if (SimpleWebDB.debug) {
+        await SimpleWebDB.logTable(table)
     }
 }

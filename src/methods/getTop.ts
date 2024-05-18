@@ -1,9 +1,9 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 
 export default async function getTop(
-    simpleDB: SimpleDB,
+    SimpleWebDB: SimpleWebDB,
     table: string,
     count: number,
     options: {
@@ -11,11 +11,11 @@ export default async function getTop(
     } = {}
 ) {
     const rows = await queryDB(
-        simpleDB,
+        SimpleWebDB,
         `SELECT * FROM ${table}${
             options.condition ? ` WHERE ${options.condition}` : ""
         } LIMIT ${count}`,
-        mergeOptions(simpleDB, {
+        mergeOptions(SimpleWebDB, {
             table,
             returnDataFrom: "query",
             method: "getTop()",
@@ -27,8 +27,8 @@ export default async function getTop(
         throw new Error("no rows")
     }
 
-    simpleDB.debug && console.log("Top rows:")
-    simpleDB.debug && console.table(rows)
+    SimpleWebDB.debug && console.log("Top rows:")
+    SimpleWebDB.debug && console.table(rows)
 
     return rows
 }

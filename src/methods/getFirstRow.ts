@@ -1,20 +1,20 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 
 export default async function getFirstRow(
-    simpleDB: SimpleDB,
+    SimpleWebDB: SimpleWebDB,
     table: string,
     options: {
         condition?: string
     } = {}
 ) {
     const queryResult = await queryDB(
-        simpleDB,
+        SimpleWebDB,
         `SELECT * FROM ${table}${
             options.condition ? ` WHERE ${options.condition}` : ""
         } LIMIT 1`,
-        mergeOptions(simpleDB, {
+        mergeOptions(SimpleWebDB, {
             table,
             returnDataFrom: "query",
             method: "getFirstRow()",
@@ -27,7 +27,7 @@ export default async function getFirstRow(
 
     const result = queryResult[0]
 
-    simpleDB.debug && console.log("first row:", result)
+    SimpleWebDB.debug && console.log("first row:", result)
 
     return result
 }

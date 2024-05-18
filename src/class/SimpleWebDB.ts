@@ -62,22 +62,22 @@ import normalizeQuery from "../methods/normalizeQuery.js"
 import rollingQuery from "../methods/rollingQuery.js"
 
 /**
- * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB.
+ * SimpleWebDB is a class that provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB.
  *
- * Here's how to instantiate a SimpleDB instance.
+ * Here's how to instantiate a SimpleWebDB instance.
  *
  * ```ts
- * const sdb = new SimpleDB()
+ * const sdb = new SimpleWebDB()
  *
  * // Same thing but will log useful information in the console. The first 20 rows of tables will be logged.
- * const sdb = new SimpleDB({ debug: true, nbRowsToLog: 20})
+ * const sdb = new SimpleWebDB({ debug: true, nbRowsToLog: 20})
  * ```
  *
  * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database.
  *
  */
 
-export default class SimpleDB {
+export default class SimpleWebDB {
     /** A flag indicating whether debugging information should be logged. Defaults to false. @category Properties */
     debug: boolean
     /** The number of rows to log when debugging. Defaults to 10. @category Properties */
@@ -119,7 +119,7 @@ export default class SimpleDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        options.debug && console.log("\nnew SimpleDB()")
+        options.debug && console.log("\nnew SimpleWebDB()")
         this.nbRowsToLog = options.nbRowsToLog ?? 10
         this.debug = options.debug ?? false
         this.worker = null
@@ -142,7 +142,7 @@ export default class SimpleDB {
      *
      * ```ts
      * const data = [{letter: "a", number: 1}, {letter: "b", number: 2}]
-     * await simpleDB.loadArray("tableA", data)
+     * await SimpleWebDB.loadArray("tableA", data)
      * ```
      *
      * @param table - The name of the table to be created.
@@ -2798,7 +2798,7 @@ export default class SimpleDB {
      *
      * @param table - The name of the table.
      * @param options - An optional object with configuration options:
-     *   @param options.nbRowsToLog - The number of rows to log when debugging. Defaults to 10 or the value set in the SimpleDB instance.
+     *   @param options.nbRowsToLog - The number of rows to log when debugging. Defaults to 10 or the value set in the SimpleWebDB instance.
      */
     async logTable(
         table: string,

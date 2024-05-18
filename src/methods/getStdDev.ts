@@ -1,9 +1,9 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 
 export default async function getStdDev(
-    simpleDB: SimpleDB,
+    SimpleWebDB: SimpleWebDB,
     table: string,
     column: string,
     options: {
@@ -11,11 +11,11 @@ export default async function getStdDev(
     } = {}
 ) {
     const queryResult = await queryDB(
-        simpleDB,
+        SimpleWebDB,
         typeof options.decimals === "number"
             ? `SELECT ROUND(STDDEV("${column}"), ${options.decimals}) AS valueForGetStdDev FROM ${table}`
             : `SELECT STDDEV("${column}") AS valueForGetStdDev FROM ${table}`,
-        mergeOptions(simpleDB, {
+        mergeOptions(SimpleWebDB, {
             table,
             returnDataFrom: "query",
             method: "getStdDev()",
@@ -28,6 +28,6 @@ export default async function getStdDev(
     }
 
     const result = queryResult[0].valueForGetStdDev
-    simpleDB.debug && console.log("Standard deviation:", result)
+    SimpleWebDB.debug && console.log("Standard deviation:", result)
     return result as number
 }

@@ -1,16 +1,16 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 
 export default async function getMin(
-    simpleDB: SimpleDB,
+    SimpleWebDB: SimpleWebDB,
     table: string,
     column: string
 ) {
     const queryResult = await queryDB(
-        simpleDB,
+        SimpleWebDB,
         `SELECT MIN("${column}") AS valueForGetMin FROM ${table}`,
-        mergeOptions(simpleDB, {
+        mergeOptions(SimpleWebDB, {
             table,
             returnDataFrom: "query",
             method: "getMin()",
@@ -23,7 +23,7 @@ export default async function getMin(
     }
     const result = queryResult[0].valueForGetMin
 
-    simpleDB.debug && console.log("min:", result)
+    SimpleWebDB.debug && console.log("min:", result)
 
     return result
 }

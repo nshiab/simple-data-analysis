@@ -1,12 +1,12 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 
-export default async function getTables(simpleDB: SimpleDB) {
+export default async function getTables(SimpleWebDB: SimpleWebDB) {
     const queryResult = await queryDB(
-        simpleDB,
+        SimpleWebDB,
         `SHOW TABLES`,
-        mergeOptions(simpleDB, {
+        mergeOptions(SimpleWebDB, {
             returnDataFrom: "query",
             table: null,
             method: "getTables",
@@ -20,7 +20,7 @@ export default async function getTables(simpleDB: SimpleDB) {
 
     const tables = queryResult.map((d) => d.name) as string[]
 
-    simpleDB.debug && console.log("tables:", tables)
+    SimpleWebDB.debug && console.log("tables:", tables)
 
     return tables
 }

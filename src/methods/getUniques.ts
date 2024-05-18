@@ -1,16 +1,16 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 
 export default async function getUniques(
-    simpleDB: SimpleDB,
+    SimpleWebDB: SimpleWebDB,
     table: string,
     column: string
 ) {
     const queryResult = await queryDB(
-        simpleDB,
+        SimpleWebDB,
         `SELECT DISTINCT "${column}" FROM ${table} ORDER BY ${column} ASC`,
-        mergeOptions(simpleDB, {
+        mergeOptions(SimpleWebDB, {
             table,
             returnDataFrom: "query",
             method: "getUniques()",
@@ -24,7 +24,7 @@ export default async function getUniques(
 
     const uniques = queryResult.map((d) => d[column])
 
-    simpleDB.debug && console.log("uniques:", uniques)
+    SimpleWebDB.debug && console.log("uniques:", uniques)
 
     return uniques
 }

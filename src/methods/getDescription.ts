@@ -1,20 +1,20 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 import getDescriptionQuery from "./getDescriptionQuery.js"
 
 export default async function getDescription(
-    simpleDB: SimpleDB,
+    SimpleWebDB: SimpleWebDB,
     table: string
 ) {
-    const types = await simpleDB.getTypes(table)
+    const types = await SimpleWebDB.getTypes(table)
 
     const { query, extraData } = getDescriptionQuery(table, types)
 
     const queryResult = await queryDB(
-        simpleDB,
+        SimpleWebDB,
         query,
-        mergeOptions(simpleDB, {
+        mergeOptions(SimpleWebDB, {
             table,
             method: "getDescription()",
             parameters: { table },
@@ -38,7 +38,7 @@ export default async function getDescription(
             : []
     )
 
-    simpleDB.debug && console.log("description:", description)
+    SimpleWebDB.debug && console.log("description:", description)
 
     return description
 }

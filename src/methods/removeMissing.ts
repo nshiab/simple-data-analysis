@@ -1,11 +1,11 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import stringToArray from "../helpers/stringToArray.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 import removeMissingQuery from "./removeMissingQuery.js"
 
 export default async function removeMissing(
-    simpleDB: SimpleDB,
+    SimpleWebDB: SimpleWebDB,
     table: string,
     options: {
         columns?: string | string[]
@@ -21,13 +21,13 @@ export default async function removeMissing(
         "",
     ]
 
-    const types = await simpleDB.getTypes(table)
+    const types = await SimpleWebDB.getTypes(table)
     const allColumns = Object.keys(types)
 
     options.columns = stringToArray(options.columns ?? [])
 
     await queryDB(
-        simpleDB,
+        SimpleWebDB,
         removeMissingQuery(
             table,
             allColumns,
@@ -35,7 +35,7 @@ export default async function removeMissing(
             options.columns.length === 0 ? allColumns : options.columns,
             options
         ),
-        mergeOptions(simpleDB, {
+        mergeOptions(SimpleWebDB, {
             table,
             method: "removeMissing()",
             parameters: { table, options },

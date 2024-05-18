@@ -1,10 +1,10 @@
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 import addThousandSeparator from "./addThousandSeparator.js"
 import formatDuration from "./formatDuration.js"
 import logData from "./logData.js"
 
 export default async function queryDB(
-    simpleDB: SimpleDB,
+    SimpleWebDB: SimpleWebDB,
     query: string,
     options: {
         table: string | null
@@ -21,8 +21,8 @@ export default async function queryDB(
       }[]
     | null
 > {
-    if (simpleDB.connection === undefined) {
-        await simpleDB.start()
+    if (SimpleWebDB.connection === undefined) {
+        await SimpleWebDB.start()
     }
 
     query = query
@@ -44,9 +44,9 @@ export default async function queryDB(
     let data = null
 
     if (options.debug) {
-        const queryResult = await simpleDB.runQuery(
+        const queryResult = await SimpleWebDB.runQuery(
             query,
-            simpleDB.connection,
+            SimpleWebDB.connection,
             true,
             options
         )
@@ -71,11 +71,16 @@ export default async function queryDB(
             )
         }
     } else if (options.returnDataFrom === "none") {
-        await simpleDB.runQuery(query, simpleDB.connection, false, options)
-    } else if (options.returnDataFrom === "query") {
-        data = await simpleDB.runQuery(
+        await SimpleWebDB.runQuery(
             query,
-            simpleDB.connection,
+            SimpleWebDB.connection,
+            false,
+            options
+        )
+    } else if (options.returnDataFrom === "query") {
+        data = await SimpleWebDB.runQuery(
+            query,
+            SimpleWebDB.connection,
             true,
             options
         )
@@ -88,16 +93,16 @@ export default async function queryDB(
     if (options.debug) {
         if (typeof options.table === "string") {
             console.log(`\ntable ${options.table}:`)
-            const tableToLog = await simpleDB.runQuery(
+            const tableToLog = await SimpleWebDB.runQuery(
                 `SELECT * FROM ${options.table} LIMIT ${options.nbRowsToLog}`,
-                simpleDB.connection,
+                SimpleWebDB.connection,
                 true,
                 options
             )
             logData(tableToLog)
-            const nbRows = await simpleDB.runQuery(
+            const nbRows = await SimpleWebDB.runQuery(
                 `SELECT COUNT(*) FROM ${options.table};`,
-                simpleDB.connection,
+                SimpleWebDB.connection,
                 true,
                 options
             )

@@ -2,11 +2,11 @@ import getCombinations from "../helpers/getCombinations.js"
 import keepNumericalColumns from "../helpers/keepNumericalColumns.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 import linearRegressionQuery from "./linearRegressionQuery.js"
 
 export default async function linearRegressions(
-    simpleDB: SimpleDB,
+    SimpleWebDB: SimpleWebDB,
     table: string,
     options: {
         x?: string
@@ -20,7 +20,7 @@ export default async function linearRegressions(
 
     const permutations: [string, string][] = []
     if (!options.x && !options.y) {
-        const types = await simpleDB.getTypes(table)
+        const types = await SimpleWebDB.getTypes(table)
         const columns = keepNumericalColumns(types)
         const combinations = getCombinations(columns, 2)
         for (const c of combinations) {
@@ -28,7 +28,7 @@ export default async function linearRegressions(
             permutations.push([c[1], c[0]])
         }
     } else if (options.x && !options.y) {
-        const types = await simpleDB.getTypes(table)
+        const types = await SimpleWebDB.getTypes(table)
         const columns = keepNumericalColumns(types)
         for (const col of columns) {
             if (col !== options.x) {
@@ -42,9 +42,9 @@ export default async function linearRegressions(
     }
 
     await queryDB(
-        simpleDB,
+        SimpleWebDB,
         linearRegressionQuery(table, outputTable, permutations, options),
-        mergeOptions(simpleDB, {
+        mergeOptions(SimpleWebDB, {
             table: outputTable,
             method: "linearRegressions()",
             parameters: {

@@ -1,9 +1,9 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 
 export default async function getSkew(
-    simpleDB: SimpleDB,
+    SimpleWebDB: SimpleWebDB,
     table: string,
     column: string,
     options: {
@@ -11,11 +11,11 @@ export default async function getSkew(
     } = {}
 ) {
     const queryResult = await queryDB(
-        simpleDB,
+        SimpleWebDB,
         typeof options.decimals === "number"
             ? `SELECT ROUND(SKEWNESS("${column}"), ${options.decimals}) AS valueForGetSkew FROM ${table}`
             : `SELECT SKEWNESS("${column}") AS valueForGetSkew FROM ${table}`,
-        mergeOptions(simpleDB, {
+        mergeOptions(SimpleWebDB, {
             table,
             returnDataFrom: "query",
             method: "getSkew()",
@@ -28,6 +28,6 @@ export default async function getSkew(
     }
 
     const result = queryResult[0].valueForGetSkew
-    simpleDB.debug && console.log("skew:", result)
+    SimpleWebDB.debug && console.log("skew:", result)
     return result as number
 }

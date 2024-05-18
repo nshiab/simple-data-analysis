@@ -2,9 +2,9 @@ import SimpleNodeDB from "../class/SimpleNodeDB"
 import formatDuration from "../helpers/formatDuration.js"
 
 export default async function batch(
-    simpleDB: SimpleNodeDB,
+    SimpleWebDB: SimpleNodeDB,
     run: (
-        simpleDB: SimpleNodeDB,
+        SimpleWebDB: SimpleNodeDB,
         originalTable: string,
         outputTable?: string
     ) => Promise<void>,
@@ -15,9 +15,9 @@ export default async function batch(
         logBatchNumber?: boolean
     } = {}
 ) {
-    simpleDB.debug && console.log("\nbatch()")
+    SimpleWebDB.debug && console.log("\nbatch()")
     options.batchSize = options.batchSize ?? 10
-    simpleDB.debug &&
+    SimpleWebDB.debug &&
         console.log("parameters:", {
             run,
             originalTable,
@@ -25,38 +25,38 @@ export default async function batch(
         })
 
     let start
-    if (simpleDB.debug || options.logBatchNumber) {
+    if (SimpleWebDB.debug || options.logBatchNumber) {
         start = Date.now()
     }
 
     const batchSize = options.batchSize
-    const originalTableLength = await simpleDB.getLength(originalTable)
+    const originalTableLength = await SimpleWebDB.getLength(originalTable)
 
     let firstRun = true
     let hasBatchOuputTableTemp = false
     for (let i = 0; i < originalTableLength; i += batchSize) {
         let startBatch
-        if (simpleDB.debug || options.logBatchNumber) {
+        if (SimpleWebDB.debug || options.logBatchNumber) {
             startBatch = Date.now()
         }
-        await simpleDB.selectRows(originalTable, batchSize, {
+        await SimpleWebDB.selectRows(originalTable, batchSize, {
             offset: i,
             outputTable: "batchOriginalTableTemp",
         })
 
-        await run(simpleDB, "batchOriginalTableTemp", "batchOuputTableTemp")
+        await run(SimpleWebDB, "batchOriginalTableTemp", "batchOuputTableTemp")
 
         if (firstRun) {
-            hasBatchOuputTableTemp = await simpleDB.hasTable(
+            hasBatchOuputTableTemp = await SimpleWebDB.hasTable(
                 "batchOuputTableTemp"
             )
             if (hasBatchOuputTableTemp) {
-                await simpleDB.cloneTable(
+                await SimpleWebDB.cloneTable(
                     "batchOuputTableTemp",
                     "batchFinalTable"
                 )
             } else {
-                await simpleDB.cloneTable(
+                await SimpleWebDB.cloneTable(
                     "batchOriginalTableTemp",
                     "batchFinalTable"
                 )
@@ -64,12 +64,12 @@ export default async function batch(
             firstRun = false
         } else {
             if (hasBatchOuputTableTemp) {
-                await simpleDB.insertTables(
+                await SimpleWebDB.insertTables(
                     "batchFinalTable",
                     "batchOuputTableTemp"
                 )
             } else {
-                await simpleDB.insertTables(
+                await SimpleWebDB.insertTables(
                     "batchFinalTable",
                     "batchOriginalTableTemp"
                 )
@@ -87,20 +87,20 @@ export default async function batch(
     }
 
     if (hasBatchOuputTableTemp) {
-        await simpleDB.removeTables([
+        await SimpleWebDB.removeTables([
             "batchOriginalTableTemp",
             "batchOuputTableTemp",
         ])
     } else {
-        await simpleDB.removeTables(["batchOriginalTableTemp"])
+        await SimpleWebDB.removeTables(["batchOriginalTableTemp"])
     }
     if (options.outputTable) {
-        await simpleDB.customQuery(
+        await SimpleWebDB.customQuery(
             `ALTER TABLE batchFinalTable RENAME TO ${options.outputTable}`
         )
     } else {
-        await simpleDB.removeTables(originalTable)
-        await simpleDB.customQuery(
+        await SimpleWebDB.removeTables(originalTable)
+        await SimpleWebDB.customQuery(
             `ALTER TABLE batchFinalTable RENAME TO ${originalTable}`
         )
     }

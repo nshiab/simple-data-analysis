@@ -1,9 +1,9 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 
 export default async function getBottom(
-    simpleDB: SimpleDB,
+    SimpleWebDB: SimpleWebDB,
     table: string,
     count: number,
     options: {
@@ -12,14 +12,14 @@ export default async function getBottom(
     } = {}
 ) {
     const queryResult = await queryDB(
-        simpleDB,
+        SimpleWebDB,
         `WITH numberedRowsForGetBottom AS (
                 SELECT *, row_number() OVER () as rowNumberForGetBottom FROM ${table}${
                     options.condition ? ` WHERE ${options.condition}` : ""
                 }
             )
             SELECT * FROM numberedRowsForGetBottom ORDER BY rowNumberForGetBottom DESC LIMIT ${count};`,
-        mergeOptions(simpleDB, {
+        mergeOptions(SimpleWebDB, {
             table,
             returnDataFrom: "query",
             method: "getBottom()",
@@ -37,8 +37,8 @@ export default async function getBottom(
     })
     const rows = options.originalOrder ? rowsRaw.reverse() : rowsRaw
 
-    simpleDB.debug && console.log("Bottom rows:")
-    simpleDB.debug && console.table(rows)
+    SimpleWebDB.debug && console.log("Bottom rows:")
+    SimpleWebDB.debug && console.table(rows)
 
     return rows
 }

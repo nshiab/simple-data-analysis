@@ -1,6 +1,6 @@
 import assert from "assert"
 import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
-import SimpleDB from "../../../src/class/SimpleDB.js"
+import SimpleWebDB from "../../../src/class/SimpleWebDB.js"
 
 describe("batch", () => {
     let simpleNodeDB: SimpleNodeDB
@@ -16,7 +16,7 @@ describe("batch", () => {
             "employeesBatch",
             "test/data/files/employees.json"
         )
-        const run = async (sdb: SimpleDB, originalTable: string) => {
+        const run = async (sdb: SimpleWebDB, originalTable: string) => {
             await sdb.convert(
                 originalTable,
                 { Salary: "number" },
@@ -102,7 +102,7 @@ describe("batch", () => {
             "employeesBatch",
             "test/data/files/employees.json"
         )
-        const run = async (sdb: SimpleDB, originalTable: string) => {
+        const run = async (sdb: SimpleWebDB, originalTable: string) => {
             await sdb.convert(
                 originalTable,
                 { Salary: "number" },

@@ -1,7 +1,7 @@
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebDB from "../class/SimpleWebDB.js"
 
 export default async function binsQuery(
-    simpleDB: SimpleDB,
+    SimpleWebDB: SimpleWebDB,
     table: string,
     values: string,
     interval: number,
@@ -10,7 +10,7 @@ export default async function binsQuery(
         startValue?: number
     } = {}
 ) {
-    const minValue = await simpleDB.getMin(table, values)
+    const minValue = await SimpleWebDB.getMin(table, values)
     if (typeof minValue !== "number") {
         throw new Error(`minValue of ${values} is not a number`)
     }
@@ -27,7 +27,7 @@ export default async function binsQuery(
         startValue = minValue
     }
 
-    const maxValue = await simpleDB.getMax(table, values)
+    const maxValue = await SimpleWebDB.getMax(table, values)
     if (typeof maxValue !== "number") {
         throw new Error(`maxValue of ${values} is not a number`)
     }

@@ -6,10 +6,10 @@ import distanceQuery from "../methods/distanceQuery.js"
 import getGeoData from "../methods/getGeoData.js"
 import getProjection from "../methods/getProjection.js"
 import joinGeo from "../methods/joinGeo.js"
-import SimpleDB from "./SimpleDB.js"
+import SimpleWebDB from "./SimpleWebDB.js"
 
 /**
- * SimpleGeoDB extends the SimpleDB class by adding methods for geospatial analysis. This class provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB with the spatial option set to true.
+ * SimpleGeoDB extends the SimpleWebDB class by adding methods for geospatial analysis. This class provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB with the spatial option set to true.
  *
  * Here's how to instantiate a SimpleGeoDB instance.
  *
@@ -17,13 +17,13 @@ import SimpleDB from "./SimpleDB.js"
  * const sdb = new SimpleGeoDB()
  *
  * // Same thing but will log useful information in the console. The first 20 rows of tables will be logged.
- * const sdb = new SimpleDB({ debug: true, nbRowsToLog: 20})
+ * const sdb = new SimpleWebDB({ debug: true, nbRowsToLog: 20})
  * ```
  *
  * The start() method will be called internally automatically with the first method you'll run. It initializes DuckDB and establishes a connection to the database. It loads the [spatial](https://duckdb.org/docs/extensions/spatial) extension.
  *
  */
-export default class SimpleGeoDB extends SimpleDB {
+export default class SimpleGeoDB extends SimpleWebDB {
     constructor(
         options: {
             debug?: boolean

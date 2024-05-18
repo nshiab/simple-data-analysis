@@ -30,7 +30,7 @@ These project's goals are:
 
 SDA is based on [duckdb-node](https://github.com/duckdb/duckdb-node) and [duckdb-wasm](https://github.com/duckdb/duckdb-wasm). DuckDB is a high-performance analytical database system. Under the hood, SDA sends SQL queries to be executed by DuckDB.
 
-You also have the flexibility of writing your own queries if you want to (check the [customQuery method](https://nshiab.github.io/simple-data-analysis/classes/SimpleDB.html#customQuery)) or to use JavaScript to process your data (check the [updateWithJS method](https://nshiab.github.io/simple-data-analysis/classes/SimpleDB.html#updateWithJS)).
+You also have the flexibility of writing your own queries if you want to (check the [customQuery method](https://nshiab.github.io/simple-data-analysis/classes/SimpleWebDB.html#customQuery)) or to use JavaScript to process your data (check the [updateWithJS method](https://nshiab.github.io/simple-data-analysis/classes/SimpleWebDB.html#updateWithJS)).
 
 Feel free to start a conversation or open an issue. Check how you can [contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
 
@@ -96,16 +96,16 @@ Observable notebooks are great for data analysis in JavaScript. This [example](h
 
 If you want to add the library directly to your webpage, you can use a npm-based CDN like jsDelivr.
 
-Here's some code that you can copy and paste into an HTML file. For more methods, check the [SimpleDB class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleDB.html).
+Here's some code that you can copy and paste into an HTML file. For more methods, check the [SimpleWebDB class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleWebDB.html).
 
 ```html
 <script type="module">
-    // We import the SimpleDB class from the esm bundle.
-    import { SimpleDB } from "https://cdn.jsdelivr.net/npm/simple-data-analysis/+esm"
+    // We import the SimpleWebDB class from the esm bundle.
+    import { SimpleWebDB } from "https://cdn.jsdelivr.net/npm/simple-data-analysis/+esm"
 
     async function main() {
-        // We start a new instance of SimpleDB
-        const sdb = new SimpleDB()
+        // We start a new instance of SimpleWebDB
+        const sdb = new SimpleWebDB()
 
         // We load daily temperatures for three cities.
         // We put the data in the table dailyTemperatures.
@@ -190,13 +190,13 @@ Then you'll need to run this command to install the library in your code reposit
 npm install simple-data-analysis
 ```
 
-And here's an example with React and TypeScript. For more methods, check the [SimpleDB class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleDB.html).
+And here's an example with React and TypeScript. For more methods, check the [SimpleWebDB class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleWebDB.html).
 
 ```tsx
 import { useEffect, useState } from "react"
 
-// We import the SimpleDB class.
-import { SimpleDB } from "simple-data-analysis"
+// We import the SimpleWebDB class.
+import { SimpleWebDB } from "simple-data-analysis"
 
 const Main = () => {
     // A state to store the results.
@@ -207,12 +207,12 @@ const Main = () => {
 
     // You can use sda inside a useEffect.
     useEffect(() => {
-        // Because SimpleDB uses promises,
+        // Because SimpleWebDB uses promises,
         // we need to declare an async function
         // in the useEffect hook.
         async function sdaMagic() {
-            // We start a new instance of SimpleDB.
-            const sdb = new SimpleDB()
+            // We start a new instance of SimpleWebDB.
+            const sdb = new SimpleWebDB()
 
             // We load daily temperatures for three cities.
             // We put the data in the table dailyTemperatures.
