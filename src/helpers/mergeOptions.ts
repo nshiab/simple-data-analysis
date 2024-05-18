@@ -1,8 +1,8 @@
-import SimpleNodeDB from "../class/SimpleNodeDB"
+import SimpleDB from "../class/SimpleDB"
 import SimpleWebDB from "../class/SimpleWebDB.js"
 
 export default function mergeOptions(
-    SimpleWebDB: SimpleWebDB | SimpleNodeDB,
+    SimpleWebDB: SimpleWebDB | SimpleDB,
     options: {
         table: string | null
         method: string | null

@@ -1,49 +1,43 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("cloneTable", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should clone a table", async () => {
-        await simpleNodeDB.loadData(
-            "dataCsvOriginal",
-            "test/data/files/employees.csv"
-        )
+        await sdb.loadData("dataCsvOriginal", "test/data/files/employees.csv")
 
-        await simpleNodeDB.cloneTable("dataCsvOriginal", "dataCsvCloned")
-        const data = await simpleNodeDB.getData("dataCsvCloned")
+        await sdb.cloneTable("dataCsvOriginal", "dataCsvCloned")
+        const data = await sdb.getData("dataCsvCloned")
         assert.deepStrictEqual(data, fullData)
     })
 
     it("should keep the original table intact", async () => {
-        const data = await simpleNodeDB.getData("dataCsvOriginal")
+        const data = await sdb.getData("dataCsvOriginal")
 
         assert.deepStrictEqual(data, fullData)
     })
 
     it("should have the same data in the original table and in the cloned table", async () => {
-        const original = await simpleNodeDB.getData("dataCsvOriginal")
-        const cloned = await simpleNodeDB.getData("dataCsvCloned")
+        const original = await sdb.getData("dataCsvOriginal")
+        const cloned = await sdb.getData("dataCsvCloned")
 
         assert.deepStrictEqual(original, cloned)
     })
 
     it("should clone a table with a condition", async () => {
-        await simpleNodeDB.loadData(
-            "dataCsvOriginal",
-            "test/data/files/employees.csv"
-        )
+        await sdb.loadData("dataCsvOriginal", "test/data/files/employees.csv")
 
-        await simpleNodeDB.cloneTable("dataCsvOriginal", "dataCsvCloned", {
+        await sdb.cloneTable("dataCsvOriginal", "dataCsvCloned", {
             condition: `Job = 'Manager'`,
         })
-        const data = await simpleNodeDB.getData("dataCsvCloned")
+        const data = await sdb.getData("dataCsvCloned")
         assert.deepStrictEqual(data, managers)
     })
 })

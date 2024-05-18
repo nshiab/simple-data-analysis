@@ -1,23 +1,23 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("getLastRow", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("data", ["test/data/files/data.json"])
+        sdb = new SimpleDB()
+        await sdb.loadData("data", ["test/data/files/data.json"])
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return the last row", async () => {
-        const data = await simpleNodeDB.getLastRow("data")
+        const data = await sdb.getLastRow("data")
         assert.deepStrictEqual(data, { key1: 4, key2: "quatre" })
     })
 
     it("should return the last row found based on a condition", async () => {
-        const data = await simpleNodeDB.getLastRow("data", {
+        const data = await sdb.getLastRow("data", {
             condition: `key2 = 'trois'`,
         })
         assert.deepStrictEqual(data, { key1: 3, key2: "trois" })

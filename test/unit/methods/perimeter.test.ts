@@ -1,25 +1,25 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("perimeter", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB({ spatial: true })
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should calculate the perimeter of geometries in meters", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "geodata",
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await simpleNodeDB.flipCoordinates("geodata", "geom")
-        await simpleNodeDB.perimeter("geodata", "geom", "perim")
-        await simpleNodeDB.round("geodata", "perim")
-        await simpleNodeDB.selectColumns("geodata", ["nameEnglish", "perim"])
-        const data = await simpleNodeDB.getData("geodata")
+        await sdb.flipCoordinates("geodata", "geom")
+        await sdb.perimeter("geodata", "geom", "perim")
+        await sdb.round("geodata", "perim")
+        await sdb.selectColumns("geodata", ["nameEnglish", "perim"])
+        const data = await sdb.getData("geodata")
 
         assert.deepStrictEqual(data, [
             { nameEnglish: "Newfoundland and Labrador", perim: 6924550 },
@@ -38,15 +38,15 @@ describe("perimeter", () => {
         ])
     })
     it("should calculate the perimeter of geometries in kilometers", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "geodata",
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await simpleNodeDB.flipCoordinates("geodata", "geom")
-        await simpleNodeDB.perimeter("geodata", "geom", "perim", { unit: "km" })
-        await simpleNodeDB.round("geodata", "perim")
-        await simpleNodeDB.selectColumns("geodata", ["nameEnglish", "perim"])
-        const data = await simpleNodeDB.getData("geodata")
+        await sdb.flipCoordinates("geodata", "geom")
+        await sdb.perimeter("geodata", "geom", "perim", { unit: "km" })
+        await sdb.round("geodata", "perim")
+        await sdb.selectColumns("geodata", ["nameEnglish", "perim"])
+        const data = await sdb.getData("geodata")
 
         assert.deepStrictEqual(data, [
             { nameEnglish: "Newfoundland and Labrador", perim: 6925 },

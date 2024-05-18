@@ -1,24 +1,24 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("insertRows", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("add rows in a table", async () => {
-        await simpleNodeDB.loadData("dataCsv", "test/data/files/data.json")
+        await sdb.loadData("dataCsv", "test/data/files/data.json")
 
-        await simpleNodeDB.insertRows("dataCsv", [
+        await sdb.insertRows("dataCsv", [
             { key1: 5, key2: "cinq" },
             { key1: 6, key2: "six" },
         ])
 
-        const data = await simpleNodeDB.getData("dataCsv")
+        const data = await sdb.getData("dataCsv")
 
         assert.deepStrictEqual(data, [
             { key1: 1, key2: "un" },

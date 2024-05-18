@@ -1,38 +1,32 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("length", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB({ spatial: true })
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should calculate the length of geometries in meters", async () => {
-        await simpleNodeDB.loadGeoData(
-            "geodata",
-            "test/geodata/files/line.json"
-        )
-        await simpleNodeDB.flipCoordinates("geodata", "geom")
-        await simpleNodeDB.length("geodata", "geom", "length")
-        await simpleNodeDB.round("geodata", "length")
-        await simpleNodeDB.selectColumns("geodata", "length")
-        const data = await simpleNodeDB.getData("geodata")
+        await sdb.loadGeoData("geodata", "test/geodata/files/line.json")
+        await sdb.flipCoordinates("geodata", "geom")
+        await sdb.length("geodata", "geom", "length")
+        await sdb.round("geodata", "length")
+        await sdb.selectColumns("geodata", "length")
+        const data = await sdb.getData("geodata")
 
         assert.deepStrictEqual(data, [{ length: 70175 }])
     })
     it("should calculate the length of geometries in kilometers", async () => {
-        await simpleNodeDB.loadGeoData(
-            "geodata",
-            "test/geodata/files/line.json"
-        )
-        await simpleNodeDB.flipCoordinates("geodata", "geom")
-        await simpleNodeDB.length("geodata", "geom", "length", { unit: "km" })
-        await simpleNodeDB.round("geodata", "length")
-        await simpleNodeDB.selectColumns("geodata", "length")
-        const data = await simpleNodeDB.getData("geodata")
+        await sdb.loadGeoData("geodata", "test/geodata/files/line.json")
+        await sdb.flipCoordinates("geodata", "geom")
+        await sdb.length("geodata", "geom", "length", { unit: "km" })
+        await sdb.round("geodata", "length")
+        await sdb.selectColumns("geodata", "length")
+        const data = await sdb.getData("geodata")
 
         assert.deepStrictEqual(data, [{ length: 70 }])
     })

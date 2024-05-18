@@ -1,28 +1,25 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("longer", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should tidy data by stacking mutiple columns", async () => {
-        await simpleNodeDB.loadData(
-            "dataUntidy",
-            "test/data/files/dataUntidy.json"
-        )
-        await simpleNodeDB.longer(
+        await sdb.loadData("dataUntidy", "test/data/files/dataUntidy.json")
+        await sdb.longer(
             "dataUntidy",
             ["2015", "2016", "2017", "2018", "2019", "2020"],
             "year",
             "employees"
         )
 
-        const data = await simpleNodeDB.getData("dataUntidy")
+        const data = await sdb.getData("dataUntidy")
         assert.deepStrictEqual(data, [
             { Department: "accounting", year: "2015", employees: 10 },
             { Department: "accounting", year: "2016", employees: 9 },
@@ -45,18 +42,18 @@ describe("longer", () => {
         ])
     })
     it("should tidy data by stacking mutiple columns and by including null values", async () => {
-        await simpleNodeDB.loadData(
+        await sdb.loadData(
             "dataUntidyWithNulls",
             "test/data/files/dataUntidyWithNulls.json"
         )
-        await simpleNodeDB.longer(
+        await sdb.longer(
             "dataUntidyWithNulls",
             ["2015", "2016", "2017", "2018", "2019", "2020"],
             "year",
             "employees"
         )
 
-        const data = await simpleNodeDB.getData("dataUntidyWithNulls")
+        const data = await sdb.getData("dataUntidyWithNulls")
 
         assert.deepStrictEqual(data, [
             { Department: "accounting", year: "2015", employees: null },

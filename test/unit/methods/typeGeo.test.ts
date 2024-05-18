@@ -1,23 +1,23 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("typeGeo", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB({ spatial: true })
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return the geometry types in a new column", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "geodata",
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await simpleNodeDB.typeGeo("geodata", "geom", "type")
-        await simpleNodeDB.selectColumns("geodata", ["nameEnglish", "type"])
-        const data = await simpleNodeDB.getData("geodata")
+        await sdb.typeGeo("geodata", "geom", "type")
+        await sdb.selectColumns("geodata", ["nameEnglish", "type"])
+        const data = await sdb.getData("geodata")
 
         assert.deepStrictEqual(data, [
             { nameEnglish: "Newfoundland and Labrador", type: "MULTIPOLYGON" },

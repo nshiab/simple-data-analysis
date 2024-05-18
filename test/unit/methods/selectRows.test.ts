@@ -1,23 +1,21 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("selectRows", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return the first 5 rows", async () => {
-        await simpleNodeDB.loadData("employees", [
-            "test/data/files/employees.csv",
-        ])
+        await sdb.loadData("employees", ["test/data/files/employees.csv"])
 
-        await simpleNodeDB.selectRows("employees", 5)
+        await sdb.selectRows("employees", 5)
 
-        const data = await simpleNodeDB.getData("employees")
+        const data = await sdb.getData("employees")
 
         assert.deepStrictEqual(data, [
             {
@@ -63,13 +61,11 @@ describe("selectRows", () => {
         ])
     })
     it("should return the first 5 rows, with an offset of 5", async () => {
-        await simpleNodeDB.loadData("employees", [
-            "test/data/files/employees.csv",
-        ])
+        await sdb.loadData("employees", ["test/data/files/employees.csv"])
 
-        await simpleNodeDB.selectRows("employees", 5, { offset: 5 })
+        await sdb.selectRows("employees", 5, { offset: 5 })
 
-        const data = await simpleNodeDB.getData("employees")
+        const data = await sdb.getData("employees")
 
         assert.deepStrictEqual(data, [
             {
@@ -115,15 +111,13 @@ describe("selectRows", () => {
         ])
     })
     it("should return the first 5 rows and output the results to a new table", async () => {
-        await simpleNodeDB.loadData("employees", [
-            "test/data/files/employees.csv",
-        ])
+        await sdb.loadData("employees", ["test/data/files/employees.csv"])
 
-        await simpleNodeDB.selectRows("employees", 5, {
+        await sdb.selectRows("employees", 5, {
             outputTable: "top5Employees",
         })
 
-        const data = await simpleNodeDB.getData("top5Employees")
+        const data = await sdb.getData("top5Employees")
 
         assert.deepStrictEqual(data, [
             {
@@ -169,16 +163,14 @@ describe("selectRows", () => {
         ])
     })
     it("should return the first 5 rows with an offset of 5 and output the results to a new table", async () => {
-        await simpleNodeDB.loadData("employees", [
-            "test/data/files/employees.csv",
-        ])
+        await sdb.loadData("employees", ["test/data/files/employees.csv"])
 
-        await simpleNodeDB.selectRows("employees", 5, {
+        await sdb.selectRows("employees", 5, {
             offset: 5,
             outputTable: "top5offset",
         })
 
-        const data = await simpleNodeDB.getData("top5offset")
+        const data = await sdb.getData("top5offset")
 
         assert.deepStrictEqual(data, [
             {

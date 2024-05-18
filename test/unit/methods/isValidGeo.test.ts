@@ -1,27 +1,27 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("isValidGeo", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB({ spatial: true })
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should find that geometries are valid", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "geodata",
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await simpleNodeDB.isValidGeo("geoData", "geom", "isValid")
-        await simpleNodeDB.selectColumns("geoData", [
+        await sdb.isValidGeo("geoData", "geom", "isValid")
+        await sdb.selectColumns("geoData", [
             "nameEnglish",
             "nameFrench",
             "isValid",
         ])
-        const data = await simpleNodeDB.getData("geoData")
+        const data = await sdb.getData("geoData")
 
         assert.deepStrictEqual(data, [
             {
@@ -69,13 +69,10 @@ describe("isValidGeo", () => {
     })
     it("should find that geometries are not valid", async () => {
         // From https://github.com/chrieke/geojson-invalid-geometry
-        await simpleNodeDB.loadGeoData(
-            "geodata",
-            "test/geodata/files/invalid.geojson"
-        )
-        await simpleNodeDB.isValidGeo("geoData", "geom", "isValid")
-        await simpleNodeDB.selectColumns("geoData", "isValid")
-        const data = await simpleNodeDB.getData("geoData")
+        await sdb.loadGeoData("geodata", "test/geodata/files/invalid.geojson")
+        await sdb.isValidGeo("geoData", "geom", "isValid")
+        await sdb.selectColumns("geoData", "isValid")
+        const data = await sdb.getData("geoData")
 
         assert.deepStrictEqual(data, [{ isValid: false }])
     })

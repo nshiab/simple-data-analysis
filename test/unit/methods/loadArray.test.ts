@@ -1,8 +1,8 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("loadArray", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     const arrayOfObjects = [
         {
             key1: 1,
@@ -31,16 +31,16 @@ describe("loadArray", () => {
     ]
 
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should load an array of objects into a table", async () => {
-        await simpleNodeDB.loadArray("arrayOfObjects", arrayOfObjects)
+        await sdb.loadArray("arrayOfObjects", arrayOfObjects)
 
-        const data = await simpleNodeDB.getData("arrayOfObjects")
+        const data = await sdb.getData("arrayOfObjects")
 
         assert.deepStrictEqual(data, [
             { key1: 1, key2: "un", key3: new Date("2010-01-01"), key4: true },

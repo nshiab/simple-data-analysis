@@ -1,25 +1,23 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("remove", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should remove specific rows", async () => {
-        await simpleNodeDB.loadData("employees", [
-            "test/data/files/employees.csv",
-        ])
+        await sdb.loadData("employees", ["test/data/files/employees.csv"])
 
-        await simpleNodeDB.remove("employees", {
+        await sdb.remove("employees", {
             Job: ["Clerk"],
             "Department or unit": ["50", "30"],
         })
-        const data = await simpleNodeDB.getData("employees")
+        const data = await sdb.getData("employees")
 
         assert.deepStrictEqual(data, [
             {

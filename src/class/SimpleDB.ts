@@ -14,14 +14,14 @@ import { tableFromJSON, tableToIPC } from "apache-arrow"
 import writeGeoDataQuery from "../methods/writeGeoDataQuery.js"
 
 /**
- * SimpleNodeDB is a class that provides a simplified interface for working with DuckDB,
+ * SimpleDB is a class that provides a simplified interface for working with DuckDB,
  * a high-performance, in-memory analytical database. This class is meant to be used
  * with NodeJS and similar runtimes. For web browsers, use SimpleWebDB.
  *
- * Here's how to instantiate a SimpleNodeDB instance.
+ * Here's how to instantiate a SimpleDB instance.
  *
  * ```ts
- * const sdb = new SimpleNodeDB()
+ * const sdb = new SimpleDB()
  *
  * // Same thing but will log useful information in the terminal. The first 20 rows of tables will be logged. Also installs the spatial extension for geospatial analysis.
  * const sdb = new SimpleWebDB({ debug: true, nbRowsToLog: 20, spatial: true})
@@ -33,7 +33,7 @@ import writeGeoDataQuery from "../methods/writeGeoDataQuery.js"
  *
  */
 
-export default class SimpleNodeDB extends SimpleGeoDB {
+export default class SimpleDB extends SimpleGeoDB {
     constructor(
         options: {
             nbRowsToLog?: number
@@ -328,7 +328,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
             )
         }
      * // Running it batch after batch.
-     * await simpleNodeDB.batch(run, "tableA", {
+     * await sdb.batch(run, "tableA", {
             batchSize: 5,
         })
      * ```
@@ -344,7 +344,7 @@ export default class SimpleNodeDB extends SimpleGeoDB {
      */
     async batch(
         run: (
-            SimpleWebDB: SimpleNodeDB,
+            SimpleWebDB: SimpleDB,
             originalTable: string,
             outputTable?: string
         ) => Promise<void>,

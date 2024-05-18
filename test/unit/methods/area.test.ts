@@ -1,29 +1,29 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("area", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB({ spatial: true })
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should calculate the area of geometries in square meters", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "geodata",
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await simpleNodeDB.flipCoordinates("geodata", "geom")
-        await simpleNodeDB.area("geodata", "geom", "area")
-        await simpleNodeDB.selectColumns("geodata", [
+        await sdb.flipCoordinates("geodata", "geom")
+        await sdb.area("geodata", "geom", "area")
+        await sdb.selectColumns("geodata", [
             "nameEnglish",
             "nameFrench",
             "area",
         ])
-        await simpleNodeDB.round("geoData", "area")
-        const data = await simpleNodeDB.getData("geodata")
+        await sdb.round("geoData", "area")
+        const data = await sdb.getData("geodata")
 
         assert.deepStrictEqual(data, [
             {
@@ -90,19 +90,19 @@ describe("area", () => {
         ])
     })
     it("should calculate the area of geometries in square kilometers", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "geodata",
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await simpleNodeDB.flipCoordinates("geodata", "geom")
-        await simpleNodeDB.area("geodata", "geom", "area", { unit: "km2" })
-        await simpleNodeDB.selectColumns("geodata", [
+        await sdb.flipCoordinates("geodata", "geom")
+        await sdb.area("geodata", "geom", "area", { unit: "km2" })
+        await sdb.selectColumns("geodata", [
             "nameEnglish",
             "nameFrench",
             "area",
         ])
-        await simpleNodeDB.round("geoData", "area")
-        const data = await simpleNodeDB.getData("geodata")
+        await sdb.round("geoData", "area")
+        const data = await sdb.getData("geodata")
 
         assert.deepStrictEqual(data, [
             {

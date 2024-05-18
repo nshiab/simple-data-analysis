@@ -1,19 +1,19 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("bins", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should add a column with the bins and an interval of 10", async () => {
-        await simpleNodeDB.loadData("bins", "test/data/files/dataRank.csv")
-        await simpleNodeDB.bins("bins", "Mark", 10, "bins")
-        const data = await simpleNodeDB.getData("bins")
+        await sdb.loadData("bins", "test/data/files/dataRank.csv")
+        await sdb.bins("bins", "Mark", 10, "bins")
+        const data = await sdb.getData("bins")
 
         assert.deepStrictEqual(data, [
             { Name: "Lily", Subject: "Maths", Mark: 65, bins: "[60-69]" },
@@ -28,11 +28,11 @@ describe("bins", () => {
         ])
     })
     it("should add a column with the bins and an interval of 10 and 45 as start value", async () => {
-        await simpleNodeDB.loadData("binStart", "test/data/files/dataRank.csv")
-        await simpleNodeDB.bins("binStart", "Mark", 10, "bins", {
+        await sdb.loadData("binStart", "test/data/files/dataRank.csv")
+        await sdb.bins("binStart", "Mark", 10, "bins", {
             startValue: 45,
         })
-        const data = await simpleNodeDB.getData("binStart")
+        const data = await sdb.getData("binStart")
 
         assert.deepStrictEqual(data, [
             { Name: "Lily", Subject: "Maths", Mark: 65, bins: "[65-74]" },
@@ -47,9 +47,9 @@ describe("bins", () => {
         ])
     })
     it("should add a column with the bins and an interval of 0.5", async () => {
-        await simpleNodeDB.loadData("bin_5", "test/data/files/dataRank.csv")
-        await simpleNodeDB.bins("bin_5", "Mark", 0.5, "bins")
-        const data = await simpleNodeDB.getData("bin_5")
+        await sdb.loadData("bin_5", "test/data/files/dataRank.csv")
+        await sdb.bins("bin_5", "Mark", 0.5, "bins")
+        const data = await sdb.getData("bin_5")
 
         assert.deepStrictEqual(data, [
             { Name: "Lily", Subject: "Maths", Mark: 65, bins: "[65-65.4]" },

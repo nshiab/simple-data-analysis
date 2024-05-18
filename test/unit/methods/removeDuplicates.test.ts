@@ -1,23 +1,21 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("removeDuplicates", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should remove duplicates from a table", async () => {
-        await simpleNodeDB.loadData("employees", [
-            "test/data/files/employees.csv",
-        ])
+        await sdb.loadData("employees", ["test/data/files/employees.csv"])
 
-        await simpleNodeDB.removeDuplicates("employees")
-        await simpleNodeDB.sort("employees", { Name: "asc" })
-        const noDuplicates = await simpleNodeDB.getData("employees")
+        await sdb.removeDuplicates("employees")
+        await sdb.sort("employees", { Name: "asc" })
+        const noDuplicates = await sdb.getData("employees")
 
         assert.deepStrictEqual(noDuplicates, [
             {
@@ -424,17 +422,15 @@ describe("removeDuplicates", () => {
     })
 
     it("should remove duplicates from a table based on a specific column", async () => {
-        await simpleNodeDB.loadData("employeesSpecificColumn", [
+        await sdb.loadData("employeesSpecificColumn", [
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.removeDuplicates("employeesSpecificColumn", {
+        await sdb.removeDuplicates("employeesSpecificColumn", {
             on: "Job",
         })
-        await simpleNodeDB.sort("employeesSpecificColumn", { Name: "asc" })
-        const noDuplicates = await simpleNodeDB.getData(
-            "employeesSpecificColumn"
-        )
+        await sdb.sort("employeesSpecificColumn", { Name: "asc" })
+        const noDuplicates = await sdb.getData("employeesSpecificColumn")
 
         assert.deepStrictEqual(noDuplicates, [
             {

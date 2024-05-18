@@ -1,45 +1,43 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("removeMissing", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return a table without any missing values", async () => {
-        await simpleNodeDB.loadData("employeesForAllColumnsTest", [
+        await sdb.loadData("employeesForAllColumnsTest", [
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.removeMissing("employeesForAllColumnsTest")
-        const data = await simpleNodeDB.getData("employeesForAllColumnsTest")
+        await sdb.removeMissing("employeesForAllColumnsTest")
+        const data = await sdb.getData("employeesForAllColumnsTest")
 
         assert.deepStrictEqual(data, dataNoNulls)
     })
 
     it("should return a table without any missing values even if there is a type JSON", async () => {
-        await simpleNodeDB.loadData("employeesJSON", [
-            "test/data/files/employees.json",
-        ])
+        await sdb.loadData("employeesJSON", ["test/data/files/employees.json"])
 
-        await simpleNodeDB.removeMissing("employeesJSON")
-        const data = await simpleNodeDB.getData("employeesJSON")
+        await sdb.removeMissing("employeesJSON")
+        const data = await sdb.getData("employeesJSON")
 
         assert.deepStrictEqual(data, dataNoNullsJSON)
     })
 
     it("should return a table without any missing values even if there is a type associated with numbers", async () => {
-        await simpleNodeDB.loadData("missingValuesJSON", [
+        await sdb.loadData("missingValuesJSON", [
             "test/data/files/dataWithMissingValues.json",
         ])
 
-        await simpleNodeDB.removeMissing("missingValuesJSON")
+        await sdb.removeMissing("missingValuesJSON")
 
-        const data = await simpleNodeDB.getData("missingValuesJSON")
+        const data = await sdb.getData("missingValuesJSON")
 
         assert.deepStrictEqual(data, [
             { key1: 4, key2: "quatre", key3: 11545.12 },
@@ -47,20 +45,15 @@ describe("removeMissing", () => {
     })
 
     it("should return a table without any missing values even if there is a type associated with numbers and otherMissingValues as number", async () => {
-        await simpleNodeDB.loadData("missingValuesJSONOtherMissingValues", [
+        await sdb.loadData("missingValuesJSONOtherMissingValues", [
             "test/data/files/dataWithMissingValues.json",
         ])
 
-        await simpleNodeDB.removeMissing(
-            "missingValuesJSONOtherMissingValues",
-            {
-                columns: "key3",
-                missingValues: [0.5],
-            }
-        )
-        const data = await simpleNodeDB.getData(
-            "missingValuesJSONOtherMissingValues"
-        )
+        await sdb.removeMissing("missingValuesJSONOtherMissingValues", {
+            columns: "key3",
+            missingValues: [0.5],
+        })
+        const data = await sdb.getData("missingValuesJSONOtherMissingValues")
 
         assert.deepStrictEqual(data, [
             { key1: null, key2: "deux", key3: 12 },
@@ -69,65 +62,58 @@ describe("removeMissing", () => {
     })
 
     it("should return a table without any missing values for a specific column", async () => {
-        await simpleNodeDB.loadData("employeesForOneSpecificColumnTest", [
+        await sdb.loadData("employeesForOneSpecificColumnTest", [
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.removeMissing("employeesForOneSpecificColumnTest", {
+        await sdb.removeMissing("employeesForOneSpecificColumnTest", {
             columns: ["Name"],
         })
-        const data = await simpleNodeDB.getData(
-            "employeesForOneSpecificColumnTest"
-        )
+        const data = await sdb.getData("employeesForOneSpecificColumnTest")
 
         assert.deepStrictEqual(data, dataNoNullsName)
     })
 
     it("should return a table without any missing values for multiple specific columns", async () => {
-        await simpleNodeDB.loadData("employeesForMultipleSpecificColumnTest", [
+        await sdb.loadData("employeesForMultipleSpecificColumnTest", [
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.removeMissing(
-            "employeesForMultipleSpecificColumnTest",
-            {
-                columns: ["Name", "Salary"],
-            }
-        )
+        await sdb.removeMissing("employeesForMultipleSpecificColumnTest", {
+            columns: ["Name", "Salary"],
+        })
 
-        const data = await simpleNodeDB.getData(
-            "employeesForMultipleSpecificColumnTest"
-        )
+        const data = await sdb.getData("employeesForMultipleSpecificColumnTest")
 
         assert.deepStrictEqual(data, dataNoNullsMultipleColumns)
     })
 
     it("should return a table with null values in any columns", async () => {
-        await simpleNodeDB.loadData("employeesInvertTest", [
+        await sdb.loadData("employeesInvertTest", [
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.removeMissing("employeesInvertTest", {
+        await sdb.removeMissing("employeesInvertTest", {
             invert: true,
         })
-        await simpleNodeDB.sort("employeesInvertTest", { Name: "asc" })
+        await sdb.sort("employeesInvertTest", { Name: "asc" })
 
-        const data = await simpleNodeDB.getData("employeesInvertTest")
+        const data = await sdb.getData("employeesInvertTest")
 
         assert.deepStrictEqual(data, dataJustNulls)
     })
 
     it("should return a table with null values in a specific column", async () => {
-        await simpleNodeDB.loadData("employeesInvertOneColumnTest", [
+        await sdb.loadData("employeesInvertOneColumnTest", [
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.removeMissing("employeesInvertOneColumnTest", {
+        await sdb.removeMissing("employeesInvertOneColumnTest", {
             columns: ["Name"],
             invert: true,
         })
 
-        const data = await simpleNodeDB.getData("employeesInvertOneColumnTest")
+        const data = await sdb.getData("employeesInvertOneColumnTest")
 
         assert.deepStrictEqual(data, dataNullsInName)
     })

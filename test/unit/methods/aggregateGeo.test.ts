@@ -1,32 +1,32 @@
 import assert from "assert"
 import { existsSync, mkdirSync, readFileSync } from "fs"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("aggregateGeo", () => {
     const output = "./test/output/"
 
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
         if (!existsSync(output)) {
             mkdirSync(output)
         }
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
-        await simpleNodeDB.loadGeoData(
+        sdb = new SimpleDB({ spatial: true })
+        await sdb.loadGeoData(
             "geodata",
             "test/geodata/files/polygonsGroups.json"
         )
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should do an union of all geometries and overwrite the table", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "geodataOverwrite",
             "test/geodata/files/polygonsGroups.json"
         )
-        await simpleNodeDB.aggregateGeo("geodataOverwrite", "geom", "union")
-        await simpleNodeDB.writeGeoData(
+        await sdb.aggregateGeo("geodataOverwrite", "geom", "union")
+        await sdb.writeGeoData(
             "geodataOverwrite",
             `${output}aggregatedAllUnion.geojson`
         )
@@ -68,14 +68,14 @@ describe("aggregateGeo", () => {
         })
     })
     it("should do an union of all geometries and return the results in a new the table", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "geodata",
             "test/geodata/files/polygonsGroups.json"
         )
-        await simpleNodeDB.aggregateGeo("geodata", "geom", "union", {
+        await sdb.aggregateGeo("geodata", "geom", "union", {
             outputTable: "unionAll",
         })
-        await simpleNodeDB.writeGeoData(
+        await sdb.writeGeoData(
             "unionAll",
             `${output}outputTableUnionAll.geojson`
         )
@@ -117,17 +117,14 @@ describe("aggregateGeo", () => {
         })
     })
     it("should do an union of geometries based on categories", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "geodata",
             "test/geodata/files/polygonsGroups.json"
         )
-        await simpleNodeDB.aggregateGeo("geodata", "geom", "union", {
+        await sdb.aggregateGeo("geodata", "geom", "union", {
             categories: "group",
         })
-        await simpleNodeDB.writeGeoData(
-            "geodata",
-            `${output}unionOnCategories.geojson`
-        )
+        await sdb.writeGeoData("geodata", `${output}unionOnCategories.geojson`)
         const data = JSON.parse(
             readFileSync(`${output}unionOnCategories.geojson`, "utf-8")
         )
@@ -183,15 +180,15 @@ describe("aggregateGeo", () => {
         })
     })
     it("should do an union of geometries based on categories and return the results in a new table", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "geodata",
             "test/geodata/files/polygonsGroups.json"
         )
-        await simpleNodeDB.aggregateGeo("geodata", "geom", "union", {
+        await sdb.aggregateGeo("geodata", "geom", "union", {
             categories: "group",
             outputTable: "unionOnCategoriesOutputTable",
         })
-        await simpleNodeDB.writeGeoData(
+        await sdb.writeGeoData(
             "unionOnCategoriesOutputTable",
             `${output}unionOnCategoriesOutputTable.geojson`
         )
@@ -253,15 +250,15 @@ describe("aggregateGeo", () => {
         })
     })
     it("should do an intersection of geometries based on categories and return the results in a new table", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "geodata",
             "test/geodata/files/polygonsGroups.json"
         )
-        await simpleNodeDB.aggregateGeo("geodata", "geom", "intersection", {
+        await sdb.aggregateGeo("geodata", "geom", "intersection", {
             categories: "group",
             outputTable: "intersectionOnCategoriesOutputTable",
         })
-        await simpleNodeDB.writeGeoData(
+        await sdb.writeGeoData(
             "intersectionOnCategoriesOutputTable",
             `${output}intersectionOnCategoriesOutputTable.geojson`
         )

@@ -1,23 +1,23 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("createTable", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB({ spatial: true })
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should create a new table", async () => {
-        await simpleNodeDB.createTable("employees", {
+        await sdb.createTable("employees", {
             name: "string",
             salary: "integer",
             raise: "float",
         })
 
-        const schema = await simpleNodeDB.getSchema("employees")
+        const schema = await sdb.getSchema("employees")
 
         assert.deepStrictEqual(schema, [
             {
@@ -47,14 +47,14 @@ describe("createTable", () => {
         ])
     })
     it("should create a new table with a geometry type", async () => {
-        await simpleNodeDB.createTable("employees", {
+        await sdb.createTable("employees", {
             name: "string",
             salary: "integer",
             raise: "float",
             geom: "geometry",
         })
 
-        const schema = await simpleNodeDB.getSchema("employees")
+        const schema = await sdb.getSchema("employees")
 
         assert.deepStrictEqual(schema, [
             {

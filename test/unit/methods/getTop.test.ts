@@ -1,18 +1,18 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("getTop", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("data", ["test/data/files/employees.csv"])
+        sdb = new SimpleDB()
+        await sdb.loadData("data", ["test/data/files/employees.csv"])
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return the top 3", async () => {
-        const data = await simpleNodeDB.getTop("data", 3)
+        const data = await sdb.getTop("data", 3)
         assert.deepStrictEqual(data, [
             {
                 Name: "OConnell, Donald",
@@ -41,7 +41,7 @@ describe("getTop", () => {
         ])
     })
     it("should return the top 3 with a condition", async () => {
-        const data = await simpleNodeDB.getTop("data", 3, {
+        const data = await sdb.getTop("data", 3, {
             condition: `Job = 'Programmer'`,
         })
         assert.deepStrictEqual(data, [

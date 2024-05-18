@@ -1,20 +1,20 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("removeColumns", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should remove one column", async () => {
-        await simpleNodeDB.loadData("dataCsv", "test/data/files/employees.csv")
+        await sdb.loadData("dataCsv", "test/data/files/employees.csv")
 
-        await simpleNodeDB.removeColumns("dataCsv", "Hire date")
-        const data = await simpleNodeDB.getData("dataCsv")
+        await sdb.removeColumns("dataCsv", "Hire date")
+        const data = await sdb.getData("dataCsv")
 
         assert.deepStrictEqual(data, [
             {
@@ -378,8 +378,8 @@ describe("removeColumns", () => {
     })
 
     it("should remove multiple columns", async () => {
-        await simpleNodeDB.removeColumns("dataCsv", ["Job", "Salary"])
-        const data = await simpleNodeDB.getData("dataCsv")
+        await sdb.removeColumns("dataCsv", ["Job", "Salary"])
+        const data = await sdb.getData("dataCsv")
 
         assert.deepStrictEqual(data, [
             {

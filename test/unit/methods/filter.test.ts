@@ -1,22 +1,22 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("filter", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should filter the rows based on one condition", async () => {
-        await simpleNodeDB.loadData("employeesOneCondition", [
+        await sdb.loadData("employeesOneCondition", [
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.filter("employeesOneCondition", `"Job" = 'Clerk'`)
-        const data = await simpleNodeDB.getData("employeesOneCondition")
+        await sdb.filter("employeesOneCondition", `"Job" = 'Clerk'`)
+        const data = await sdb.getData("employeesOneCondition")
 
         assert.deepStrictEqual(data, [
             {
@@ -182,15 +182,15 @@ describe("filter", () => {
         ])
     })
     it("should filter the rows based on multiple conditions", async () => {
-        await simpleNodeDB.loadData("employeesMultipleConditions", [
+        await sdb.loadData("employeesMultipleConditions", [
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.filter(
+        await sdb.filter(
             "employeesMultipleConditions",
             `"Job" = 'Clerk' AND "Department or unit" != '50'`
         )
-        const data = await simpleNodeDB.getData("employeesMultipleConditions")
+        const data = await sdb.getData("employeesMultipleConditions")
 
         assert.deepStrictEqual(data, [
             {
@@ -244,12 +244,12 @@ describe("filter", () => {
         ])
     })
     it("should filter the rows based on booleans", async () => {
-        await simpleNodeDB.loadArray("tableWithBooleans", [
+        await sdb.loadArray("tableWithBooleans", [
             { name: "Nael", value: true },
             { name: "Graeme", value: false },
         ])
-        await simpleNodeDB.filter("tableWithBooleans", `value = TRUE`)
-        const data = await simpleNodeDB.getData("tableWithBooleans")
+        await sdb.filter("tableWithBooleans", `value = TRUE`)
+        const data = await sdb.getData("tableWithBooleans")
 
         assert.deepStrictEqual(data, [{ name: "Nael", value: true }])
     })

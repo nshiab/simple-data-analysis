@@ -1,33 +1,33 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 import { existsSync, mkdirSync, readFileSync } from "fs"
 
 describe("addColumn", () => {
     const output = "./test/output/"
 
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
         if (!existsSync(output)) {
             mkdirSync(output)
         }
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
-        await simpleNodeDB.loadData("dataSummarize", [
+        sdb = new SimpleDB({ spatial: true })
+        await sdb.loadData("dataSummarize", [
             "test/data/files/dataSummarize.json",
         ])
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return a column with new computed values", async () => {
-        await simpleNodeDB.addColumn(
+        await sdb.addColumn(
             "dataSummarize",
             "multiply",
             "double",
             `key2 * key3`
         )
 
-        const data = await simpleNodeDB.getData("dataSummarize")
+        const data = await sdb.getData("dataSummarize")
 
         assert.deepStrictEqual(data, [
             { key1: "Rubarbe", key2: 1, key3: 10.5, multiply: 10.5 },
@@ -39,14 +39,14 @@ describe("addColumn", () => {
         ])
     })
     it("should return a column with booleans", async () => {
-        await simpleNodeDB.addColumn(
+        await sdb.addColumn(
             "dataSummarize",
             "key2GreaterThanTen",
             "boolean",
             `key2 > 10`
         )
 
-        const data = await simpleNodeDB.getData("dataSummarize")
+        const data = await sdb.getData("dataSummarize")
 
         assert.deepStrictEqual(data, [
             {
@@ -94,19 +94,11 @@ describe("addColumn", () => {
         ])
     })
     it("should return a column with geometry", async () => {
-        await simpleNodeDB.loadGeoData(
-            "geo",
-            "test/geodata/files/polygons.geojson"
-        )
+        await sdb.loadGeoData("geo", "test/geodata/files/polygons.geojson")
 
-        await simpleNodeDB.addColumn(
-            "geo",
-            "centroid",
-            "geometry",
-            `ST_Centroid(geom)`
-        )
-        await simpleNodeDB.selectColumns("geo", ["name", "centroid"])
-        await simpleNodeDB.writeGeoData("geo", `${output}/addColumTest.geojson`)
+        await sdb.addColumn("geo", "centroid", "geometry", `ST_Centroid(geom)`)
+        await sdb.selectColumns("geo", ["name", "centroid"])
+        await sdb.writeGeoData("geo", `${output}/addColumTest.geojson`)
 
         const data = JSON.parse(
             readFileSync(`${output}/addColumTest.geojson`, "utf-8")

@@ -1,34 +1,31 @@
 import { existsSync, mkdirSync, readFileSync } from "fs"
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("union", () => {
     const output = "./test/output/"
 
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
         if (!existsSync(output)) {
             mkdirSync(output)
         }
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB({ spatial: true })
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should compute the union of geometries", async () => {
-        await simpleNodeDB.loadGeoData(
-            "poly",
-            "test/geodata/files/polygonsGroups.json"
-        )
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData("poly", "test/geodata/files/polygonsGroups.json")
+        await sdb.loadGeoData(
             "circle",
             "test/geodata/files/circleOverlapPolygonsGroups.json"
         )
-        await simpleNodeDB.crossJoin("poly", "circle")
-        await simpleNodeDB.union("poly", ["geom", "geom_1"], "union")
-        await simpleNodeDB.selectColumns("poly", "union")
-        await simpleNodeDB.writeGeoData("poly", `${output}union.geojson`, {
+        await sdb.crossJoin("poly", "circle")
+        await sdb.union("poly", ["geom", "geom_1"], "union")
+        await sdb.selectColumns("poly", "union")
+        await sdb.writeGeoData("poly", `${output}union.geojson`, {
             precision: 2,
         })
 

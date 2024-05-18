@@ -1,24 +1,24 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("splitExtract", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should extract a substring based on a separator and substring", async () => {
-        await simpleNodeDB.loadArray("data", [
+        await sdb.loadArray("data", [
             { name: "Shiab, Nael" },
             { name: "Bruce, Graeme" },
         ])
 
-        await simpleNodeDB.splitExtract("data", "name", ",", 0)
+        await sdb.splitExtract("data", "name", ",", 0)
 
-        const data = await simpleNodeDB.getData("data")
+        const data = await sdb.getData("data")
 
         assert.deepStrictEqual(data, [{ name: "Shiab" }, { name: "Bruce" }])
     })

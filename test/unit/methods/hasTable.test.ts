@@ -1,22 +1,20 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("hasTable", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("employees", [
-            "test/data/files/employees.json",
-        ])
+        sdb = new SimpleDB()
+        await sdb.loadData("employees", ["test/data/files/employees.json"])
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return true because the table is in the db", async () => {
-        assert.deepStrictEqual(await simpleNodeDB.hasTable("employees"), true)
+        assert.deepStrictEqual(await sdb.hasTable("employees"), true)
     })
     it("should return false because the table is not in the db", async () => {
-        assert.deepStrictEqual(await simpleNodeDB.hasTable("donut"), false)
+        assert.deepStrictEqual(await sdb.hasTable("donut"), false)
     })
 })

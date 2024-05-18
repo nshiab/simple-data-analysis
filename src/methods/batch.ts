@@ -1,10 +1,10 @@
-import SimpleNodeDB from "../class/SimpleNodeDB"
+import SimpleDB from "../class/SimpleDB"
 import formatDuration from "../helpers/formatDuration.js"
 
 export default async function batch(
-    SimpleWebDB: SimpleNodeDB,
+    SimpleWebDB: SimpleDB,
     run: (
-        SimpleWebDB: SimpleNodeDB,
+        SimpleWebDB: SimpleDB,
         originalTable: string,
         outputTable?: string
     ) => Promise<void>,

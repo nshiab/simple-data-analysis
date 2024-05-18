@@ -1,25 +1,21 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("proportionsHorizontal", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return the horizontal proportions in new columns", async () => {
-        await simpleNodeDB.loadData("proportions", [
+        await sdb.loadData("proportions", [
             "test/data/files/dataProportions.json",
         ])
-        await simpleNodeDB.proportionsHorizontal("proportions", [
-            "key1",
-            "key2",
-            "key3",
-        ])
-        const data = await simpleNodeDB.getData("proportions")
+        await sdb.proportionsHorizontal("proportions", ["key1", "key2", "key3"])
+        const data = await sdb.getData("proportions")
 
         assert.deepStrictEqual(data, [
             {
@@ -50,17 +46,17 @@ describe("proportionsHorizontal", () => {
     })
 
     it("should return the horizontal proportions in new columns with a specific suffix", async () => {
-        await simpleNodeDB.loadData("proportionsSuffix", [
+        await sdb.loadData("proportionsSuffix", [
             "test/data/files/dataProportions.json",
         ])
-        await simpleNodeDB.proportionsHorizontal(
+        await sdb.proportionsHorizontal(
             "proportionsSuffix",
             ["key1", "key2", "key3"],
             {
                 suffix: "Prop",
             }
         )
-        const data = await simpleNodeDB.getData("proportionsSuffix")
+        const data = await sdb.getData("proportionsSuffix")
 
         assert.deepStrictEqual(data, [
             {
@@ -91,10 +87,10 @@ describe("proportionsHorizontal", () => {
     })
 
     it("should return the horizontal proportions in new columns with a specific suffix and 4 decimals", async () => {
-        await simpleNodeDB.loadData("proportionsSuffixDecimals", [
+        await sdb.loadData("proportionsSuffixDecimals", [
             "test/data/files/dataProportions.json",
         ])
-        await simpleNodeDB.proportionsHorizontal(
+        await sdb.proportionsHorizontal(
             "proportionsSuffixDecimals",
             ["key1", "key2", "key3"],
             {
@@ -102,7 +98,7 @@ describe("proportionsHorizontal", () => {
                 decimals: 4,
             }
         )
-        const data = await simpleNodeDB.getData("proportionsSuffixDecimals")
+        const data = await sdb.getData("proportionsSuffixDecimals")
 
         assert.deepStrictEqual(data, [
             {

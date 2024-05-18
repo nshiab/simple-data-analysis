@@ -62,7 +62,7 @@ import normalizeQuery from "../methods/normalizeQuery.js"
 import rollingQuery from "../methods/rollingQuery.js"
 
 /**
- * SimpleWebDB is a class that provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB.
+ * SimpleWebDB is a class that provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleDB.
  *
  * Here's how to instantiate a SimpleWebDB instance.
  *
@@ -88,8 +88,8 @@ export default class SimpleWebDB {
     connection!: AsyncDuckDBConnection | Connection
     /** A worker to make DuckDB work. @category Properties */
     worker!: Worker | null
-    /** A flag for SimpleNodeDB. Default is true. When data is retrieved from the database as an array of objects, BIGINT values are automatically converted to integers, which are easier to work with in JavaScript. If you want actual bigint values, set this option to false. @category Properties */
-    bigIntToInt: boolean | undefined // For SimpleNodeDB
+    /** A flag for SimpleDB. Default is true. When data is retrieved from the database as an array of objects, BIGINT values are automatically converted to integers, which are easier to work with in JavaScript. If you want actual bigint values, set this option to false. @category Properties */
+    bigIntToInt: boolean | undefined // For SimpleDB
     /** A flag to install the [the spatial](https://duckdb.org/docs/extensions/spatial) extension. Default is false. If true, extension will be loaded, which allows geospatial analysis. @category Properties */
     spatial: boolean | undefined
     /**
@@ -1019,7 +1019,7 @@ export default class SimpleWebDB {
     }
 
     /**
-     * Performs a cross join operation between two tables returning all pairs of rows. Note that the returned data is not guaranteed to be in the same order as the original tables. With SimpleNodeDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
+     * Performs a cross join operation between two tables returning all pairs of rows. Note that the returned data is not guaranteed to be in the same order as the original tables. With SimpleDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
      *
      * ```ts
      * // By default, the leftTable (tableA here) will be overwritten with the result.
@@ -1055,7 +1055,7 @@ export default class SimpleWebDB {
     }
 
     /**
-     * Merges the data of two tables based on a common column. Note that the returned data is not guaranteed to be in the same order as the original tables. With SimpleNodeDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
+     * Merges the data of two tables based on a common column. Note that the returned data is not guaranteed to be in the same order as the original tables. With SimpleDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
      *
      * ```ts
      * // By default, the method automatically looks for a common column in the two tables and does a left join of tableA (left) and tableB (right). The leftTable (tableA here) will be overwritten with the result.

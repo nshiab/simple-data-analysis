@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta http-equiv="x-ua-compatible" content="IE=edge" />
-        <title>SimpleNodeDB | Simple-data-analysis - v2.22.0</title>
+        <title>SimpleDB | Simple-data-analysis - v2.22.0</title>
         <meta
             name="description"
             content="Documentation for Simple-data-analysis"
@@ -92,24 +92,23 @@
                         <li>
                             <a href="../modules.html">Simple-data-analysis</a>
                         </li>
-                        <li><a href="SimpleNodeDB.html">SimpleNodeDB</a></li>
+                        <li><a href="SimpleDB.html">SimpleDB</a></li>
                     </ul>
-                    <h1>Class SimpleNodeDB</h1>
+                    <h1>Class SimpleDB</h1>
                 </div>
                 <section class="tsd-panel tsd-comment">
                     <div class="tsd-comment tsd-typography">
                         <p>
-                            SimpleNodeDB is a class that provides a simplified
+                            SimpleDB is a class that provides a simplified
                             interface for working with DuckDB, a
                             high-performance, in-memory analytical database.
                             This class is meant to be used with NodeJS and
                             similar runtimes. For web browsers, use SimpleWebDB.
                         </p>
                         <p>
-                            Here&#39;s how to instantiate a SimpleNodeDB
-                            instance.
+                            Here&#39;s how to instantiate a SimpleDB instance.
                         </p>
-                        <pre><code class="language-ts"><span class="hl-10">const</span><span class="hl-1"> </span><span class="hl-12">sdb</span><span class="hl-1"> = </span><span class="hl-10">new</span><span class="hl-1"> </span><span class="hl-11">SimpleNodeDB</span><span class="hl-1">()</span><br/><br/><span class="hl-7">// Same thing but will log useful information in the terminal. The first 20 rows of tables will be logged. Also installs the spatial extension for geospatial analysis.</span><br/><span class="hl-10">const</span><span class="hl-1"> </span><span class="hl-12">sdb</span><span class="hl-1"> = </span><span class="hl-10">new</span><span class="hl-1"> </span><span class="hl-11">SimpleWebDB</span><span class="hl-1">({ </span><span class="hl-0">debug:</span><span class="hl-1"> </span><span class="hl-10">true</span><span class="hl-1">, </span><span class="hl-0">nbRowsToLog:</span><span class="hl-1"> </span><span class="hl-13">20</span><span class="hl-1">, </span><span class="hl-0">spatial:</span><span class="hl-1"> </span><span class="hl-10">true</span><span class="hl-1">})</span>
+                        <pre><code class="language-ts"><span class="hl-10">const</span><span class="hl-1"> </span><span class="hl-12">sdb</span><span class="hl-1"> = </span><span class="hl-10">new</span><span class="hl-1"> </span><span class="hl-11">SimpleDB</span><span class="hl-1">()</span><br/><br/><span class="hl-7">// Same thing but will log useful information in the terminal. The first 20 rows of tables will be logged. Also installs the spatial extension for geospatial analysis.</span><br/><span class="hl-10">const</span><span class="hl-1"> </span><span class="hl-12">sdb</span><span class="hl-1"> = </span><span class="hl-10">new</span><span class="hl-1"> </span><span class="hl-11">SimpleWebDB</span><span class="hl-1">({ </span><span class="hl-0">debug:</span><span class="hl-1"> </span><span class="hl-10">true</span><span class="hl-1">, </span><span class="hl-0">nbRowsToLog:</span><span class="hl-1"> </span><span class="hl-13">20</span><span class="hl-1">, </span><span class="hl-0">spatial:</span><span class="hl-1"> </span><span class="hl-10">true</span><span class="hl-1">})</span>
 </code><button>Copy</button></pre>
                         <p>
                             The start() method will be called internally
@@ -133,7 +132,7 @@
                     <h4>
                         Hierarchy (<a
                             class="link"
-                            href="../hierarchy.html#SimpleNodeDB"
+                            href="../hierarchy.html#SimpleDB"
                             >view full</a
                         >)
                     </h4>
@@ -146,7 +145,7 @@
                             >
                             <ul class="tsd-hierarchy">
                                 <li>
-                                    <span class="target">SimpleNodeDB</span>
+                                    <span class="target">SimpleDB</span>
                                 </li>
                             </ul>
                         </li>
@@ -157,8 +156,8 @@
                         <li>
                             Defined in
                             <a
-                                href="https://github.com/nshiab/simple-data-analysis.js/blob/473c447252a7d2c8e562cdcee3094a508831591f/src/class/SimpleNodeDB.ts#L36"
-                                >class/SimpleNodeDB.ts:36</a
+                                href="https://github.com/nshiab/simple-data-analysis.js/blob/473c447252a7d2c8e562cdcee3094a508831591f/src/class/SimpleDB.ts#L36"
+                                >class/SimpleDB.ts:36</a
                             >
                         </li>
                     </ul>
@@ -198,7 +197,7 @@
                                     </h3>
                                     <div class="tsd-index-list">
                                         <a
-                                            href="SimpleNodeDB.html#bigIntToInt"
+                                            href="SimpleDB.html#bigIntToInt"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -212,7 +211,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#connection"
+                                            href="SimpleDB.html#connection"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -224,7 +223,7 @@
                                             ><span>connection</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#db"
+                                            href="SimpleDB.html#db"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -236,7 +235,7 @@
                                             ><span>db</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#debug"
+                                            href="SimpleDB.html#debug"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -248,7 +247,7 @@
                                             ><span>debug</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#nbRowsToLog"
+                                            href="SimpleDB.html#nbRowsToLog"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -262,7 +261,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#runQuery"
+                                            href="SimpleDB.html#runQuery"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -274,7 +273,7 @@
                                             ><span>run<wbr />Query</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#spatial"
+                                            href="SimpleDB.html#spatial"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -286,7 +285,7 @@
                                             ><span>spatial</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#worker"
+                                            href="SimpleDB.html#worker"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -305,7 +304,7 @@
                                     </h3>
                                     <div class="tsd-index-list">
                                         <a
-                                            href="SimpleNodeDB.html#bins"
+                                            href="SimpleDB.html#bins"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -317,7 +316,7 @@
                                             ><span>bins</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#correlations"
+                                            href="SimpleDB.html#correlations"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -329,7 +328,7 @@
                                             ><span>correlations</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#linearRegressions"
+                                            href="SimpleDB.html#linearRegressions"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -343,7 +342,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#normalize"
+                                            href="SimpleDB.html#normalize"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -355,7 +354,7 @@
                                             ><span>normalize</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#outliersIQR"
+                                            href="SimpleDB.html#outliersIQR"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -367,7 +366,7 @@
                                             ><span>outliersIQR</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#proportionsHorizontal"
+                                            href="SimpleDB.html#proportionsHorizontal"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -381,7 +380,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#proportionsVertical"
+                                            href="SimpleDB.html#proportionsVertical"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -395,7 +394,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#quantiles"
+                                            href="SimpleDB.html#quantiles"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -407,7 +406,7 @@
                                             ><span>quantiles</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#ranks"
+                                            href="SimpleDB.html#ranks"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -419,7 +418,7 @@
                                             ><span>ranks</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#rolling"
+                                            href="SimpleDB.html#rolling"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -431,7 +430,7 @@
                                             ><span>rolling</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#summarize"
+                                            href="SimpleDB.html#summarize"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -443,7 +442,7 @@
                                             ><span>summarize</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#zScore"
+                                            href="SimpleDB.html#zScore"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -462,7 +461,7 @@
                                     </h3>
                                     <div class="tsd-index-list">
                                         <a
-                                            href="SimpleNodeDB.html#writeData"
+                                            href="SimpleDB.html#writeData"
                                             class="tsd-index-link"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -474,7 +473,7 @@
                                             ><span>write<wbr />Data</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#writeGeoData"
+                                            href="SimpleDB.html#writeGeoData"
                                             class="tsd-index-link"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -495,7 +494,7 @@
                                     </h3>
                                     <div class="tsd-index-list">
                                         <a
-                                            href="SimpleNodeDB.html#aggregateGeo"
+                                            href="SimpleDB.html#aggregateGeo"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -507,7 +506,7 @@
                                             ><span>aggregate<wbr />Geo</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#area"
+                                            href="SimpleDB.html#area"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -519,7 +518,7 @@
                                             ><span>area</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#buffer"
+                                            href="SimpleDB.html#buffer"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -531,7 +530,7 @@
                                             ><span>buffer</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#centroid"
+                                            href="SimpleDB.html#centroid"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -543,7 +542,7 @@
                                             ><span>centroid</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#distance"
+                                            href="SimpleDB.html#distance"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -555,7 +554,7 @@
                                             ><span>distance</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#flipCoordinates"
+                                            href="SimpleDB.html#flipCoordinates"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -569,7 +568,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getGeoData"
+                                            href="SimpleDB.html#getGeoData"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -583,7 +582,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getProjection"
+                                            href="SimpleDB.html#getProjection"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -597,7 +596,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#inside"
+                                            href="SimpleDB.html#inside"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -609,7 +608,7 @@
                                             ><span>inside</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#intersect"
+                                            href="SimpleDB.html#intersect"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -621,7 +620,7 @@
                                             ><span>intersect</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#intersection"
+                                            href="SimpleDB.html#intersection"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -633,7 +632,7 @@
                                             ><span>intersection</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#isClosedGeo"
+                                            href="SimpleDB.html#isClosedGeo"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -647,7 +646,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#isValidGeo"
+                                            href="SimpleDB.html#isValidGeo"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -661,7 +660,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#joinGeo"
+                                            href="SimpleDB.html#joinGeo"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -673,7 +672,7 @@
                                             ><span>join<wbr />Geo</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#latLon"
+                                            href="SimpleDB.html#latLon"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -685,7 +684,7 @@
                                             ><span>lat<wbr />Lon</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#length"
+                                            href="SimpleDB.html#length"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -697,7 +696,7 @@
                                             ><span>length</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#linesToPolygons"
+                                            href="SimpleDB.html#linesToPolygons"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -711,7 +710,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#loadGeoData"
+                                            href="SimpleDB.html#loadGeoData"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -725,7 +724,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#perimeter"
+                                            href="SimpleDB.html#perimeter"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -737,7 +736,7 @@
                                             ><span>perimeter</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#points"
+                                            href="SimpleDB.html#points"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -749,7 +748,7 @@
                                             ><span>points</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#reducePrecision"
+                                            href="SimpleDB.html#reducePrecision"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -763,7 +762,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#removeIntersection"
+                                            href="SimpleDB.html#removeIntersection"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -777,7 +776,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#reproject"
+                                            href="SimpleDB.html#reproject"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -789,7 +788,7 @@
                                             ><span>reproject</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#simplify"
+                                            href="SimpleDB.html#simplify"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -801,7 +800,7 @@
                                             ><span>simplify</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#typeGeo"
+                                            href="SimpleDB.html#typeGeo"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -813,7 +812,7 @@
                                             ><span>type<wbr />Geo</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#union"
+                                            href="SimpleDB.html#union"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -825,7 +824,7 @@
                                             ><span>union</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#unnestGeo"
+                                            href="SimpleDB.html#unnestGeo"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -844,7 +843,7 @@
                                     </h3>
                                     <div class="tsd-index-list">
                                         <a
-                                            href="SimpleNodeDB.html#getBottom"
+                                            href="SimpleDB.html#getBottom"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -856,7 +855,7 @@
                                             ><span>get<wbr />Bottom</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getData"
+                                            href="SimpleDB.html#getData"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -868,7 +867,7 @@
                                             ><span>get<wbr />Data</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getFirstRow"
+                                            href="SimpleDB.html#getFirstRow"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -882,7 +881,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getLastRow"
+                                            href="SimpleDB.html#getLastRow"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -896,7 +895,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getMax"
+                                            href="SimpleDB.html#getMax"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -908,7 +907,7 @@
                                             ><span>get<wbr />Max</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getMean"
+                                            href="SimpleDB.html#getMean"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -920,7 +919,7 @@
                                             ><span>get<wbr />Mean</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getMedian"
+                                            href="SimpleDB.html#getMedian"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -932,7 +931,7 @@
                                             ><span>get<wbr />Median</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getMin"
+                                            href="SimpleDB.html#getMin"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -944,7 +943,7 @@
                                             ><span>get<wbr />Min</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getQuantile"
+                                            href="SimpleDB.html#getQuantile"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -956,7 +955,7 @@
                                             ><span>get<wbr />Quantile</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getSkew"
+                                            href="SimpleDB.html#getSkew"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -968,7 +967,7 @@
                                             ><span>get<wbr />Skew</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getStdDev"
+                                            href="SimpleDB.html#getStdDev"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -982,7 +981,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getSum"
+                                            href="SimpleDB.html#getSum"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -994,7 +993,7 @@
                                             ><span>get<wbr />Sum</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getTop"
+                                            href="SimpleDB.html#getTop"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1006,7 +1005,7 @@
                                             ><span>get<wbr />Top</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getUniques"
+                                            href="SimpleDB.html#getUniques"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1018,7 +1017,7 @@
                                             ><span>get<wbr />Uniques</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getValues"
+                                            href="SimpleDB.html#getValues"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1030,7 +1029,7 @@
                                             ><span>get<wbr />Values</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getVar"
+                                            href="SimpleDB.html#getVar"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1049,7 +1048,7 @@
                                     </h3>
                                     <div class="tsd-index-list">
                                         <a
-                                            href="SimpleNodeDB.html#insertRows"
+                                            href="SimpleDB.html#insertRows"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1061,7 +1060,7 @@
                                             ><span>insert<wbr />Rows</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#insertTables"
+                                            href="SimpleDB.html#insertTables"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1073,7 +1072,7 @@
                                             ><span>insert<wbr />Tables</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#loadArray"
+                                            href="SimpleDB.html#loadArray"
                                             class="tsd-index-link"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1085,7 +1084,7 @@
                                             ><span>load<wbr />Array</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#loadData"
+                                            href="SimpleDB.html#loadData"
                                             class="tsd-index-link"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1097,7 +1096,7 @@
                                             ><span>load<wbr />Data</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#loadDataFromDirectory"
+                                            href="SimpleDB.html#loadDataFromDirectory"
                                             class="tsd-index-link"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1118,7 +1117,7 @@
                                     </h3>
                                     <div class="tsd-index-list">
                                         <a
-                                            href="SimpleNodeDB.html#addColumn"
+                                            href="SimpleDB.html#addColumn"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1130,7 +1129,7 @@
                                             ><span>add<wbr />Column</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#addRowNumber"
+                                            href="SimpleDB.html#addRowNumber"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1144,7 +1143,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#cloneColumn"
+                                            href="SimpleDB.html#cloneColumn"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1156,7 +1155,7 @@
                                             ><span>clone<wbr />Column</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#cloneColumnWithOffset"
+                                            href="SimpleDB.html#cloneColumnWithOffset"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1170,7 +1169,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#convert"
+                                            href="SimpleDB.html#convert"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1182,7 +1181,7 @@
                                             ><span>convert</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#createTable"
+                                            href="SimpleDB.html#createTable"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1194,7 +1193,7 @@
                                             ><span>create<wbr />Table</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#crossJoin"
+                                            href="SimpleDB.html#crossJoin"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1206,7 +1205,7 @@
                                             ><span>cross<wbr />Join</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#join"
+                                            href="SimpleDB.html#join"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1218,7 +1217,7 @@
                                             ><span>join</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#longer"
+                                            href="SimpleDB.html#longer"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1230,7 +1229,7 @@
                                             ><span>longer</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#removeColumns"
+                                            href="SimpleDB.html#removeColumns"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1244,7 +1243,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#removeTables"
+                                            href="SimpleDB.html#removeTables"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1256,7 +1255,7 @@
                                             ><span>remove<wbr />Tables</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#renameColumns"
+                                            href="SimpleDB.html#renameColumns"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1270,7 +1269,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#wider"
+                                            href="SimpleDB.html#wider"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1289,7 +1288,7 @@
                                     </h3>
                                     <div class="tsd-index-list">
                                         <a
-                                            href="SimpleNodeDB.html#filter"
+                                            href="SimpleDB.html#filter"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1301,7 +1300,7 @@
                                             ><span>filter</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#keep"
+                                            href="SimpleDB.html#keep"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1313,7 +1312,7 @@
                                             ><span>keep</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#remove"
+                                            href="SimpleDB.html#remove"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1325,7 +1324,7 @@
                                             ><span>remove</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#removeDuplicates"
+                                            href="SimpleDB.html#removeDuplicates"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1339,7 +1338,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#removeMissing"
+                                            href="SimpleDB.html#removeMissing"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1353,7 +1352,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#removeRows"
+                                            href="SimpleDB.html#removeRows"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1365,7 +1364,7 @@
                                             ><span>remove<wbr />Rows</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#sample"
+                                            href="SimpleDB.html#sample"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1377,7 +1376,7 @@
                                             ><span>sample</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#selectColumns"
+                                            href="SimpleDB.html#selectColumns"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1391,7 +1390,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#selectRows"
+                                            href="SimpleDB.html#selectRows"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1410,7 +1409,7 @@
                                     </h3>
                                     <div class="tsd-index-list">
                                         <a
-                                            href="SimpleNodeDB.html#batch"
+                                            href="SimpleDB.html#batch"
                                             class="tsd-index-link"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1422,7 +1421,7 @@
                                             ><span>batch</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#concatenate"
+                                            href="SimpleDB.html#concatenate"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1434,7 +1433,7 @@
                                             ><span>concatenate</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#left"
+                                            href="SimpleDB.html#left"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1446,7 +1445,7 @@
                                             ><span>left</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#lower"
+                                            href="SimpleDB.html#lower"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1458,7 +1457,7 @@
                                             ><span>lower</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#replace"
+                                            href="SimpleDB.html#replace"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1470,7 +1469,7 @@
                                             ><span>replace</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#replaceNulls"
+                                            href="SimpleDB.html#replaceNulls"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1482,7 +1481,7 @@
                                             ><span>replace<wbr />Nulls</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#right"
+                                            href="SimpleDB.html#right"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1494,7 +1493,7 @@
                                             ><span>right</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#round"
+                                            href="SimpleDB.html#round"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1506,7 +1505,7 @@
                                             ><span>round</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#sort"
+                                            href="SimpleDB.html#sort"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1518,7 +1517,7 @@
                                             ><span>sort</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#splitExtract"
+                                            href="SimpleDB.html#splitExtract"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1530,7 +1529,7 @@
                                             ><span>split<wbr />Extract</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#trim"
+                                            href="SimpleDB.html#trim"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1542,7 +1541,7 @@
                                             ><span>trim</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#updateColumn"
+                                            href="SimpleDB.html#updateColumn"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1554,7 +1553,7 @@
                                             ><span>update<wbr />Column</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#updateWithJS"
+                                            href="SimpleDB.html#updateWithJS"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1566,7 +1565,7 @@
                                             ><span>update<wbr />WithJS</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#upper"
+                                            href="SimpleDB.html#upper"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1583,7 +1582,7 @@
                                     <h3 class="tsd-index-heading">Other</h3>
                                     <div class="tsd-index-list">
                                         <a
-                                            href="SimpleNodeDB.html#cloneTable"
+                                            href="SimpleDB.html#cloneTable"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1595,7 +1594,7 @@
                                             ><span>clone<wbr />Table</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#customQuery"
+                                            href="SimpleDB.html#customQuery"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1607,7 +1606,7 @@
                                             ><span>custom<wbr />Query</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#done"
+                                            href="SimpleDB.html#done"
                                             class="tsd-index-link"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1619,7 +1618,7 @@
                                             ><span>done</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getColumns"
+                                            href="SimpleDB.html#getColumns"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1631,7 +1630,7 @@
                                             ><span>get<wbr />Columns</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getDescription"
+                                            href="SimpleDB.html#getDescription"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1645,7 +1644,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getExtensions"
+                                            href="SimpleDB.html#getExtensions"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1659,7 +1658,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getLength"
+                                            href="SimpleDB.html#getLength"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1671,7 +1670,7 @@
                                             ><span>get<wbr />Length</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getSchema"
+                                            href="SimpleDB.html#getSchema"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1683,7 +1682,7 @@
                                             ><span>get<wbr />Schema</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getTables"
+                                            href="SimpleDB.html#getTables"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1695,7 +1694,7 @@
                                             ><span>get<wbr />Tables</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getTypes"
+                                            href="SimpleDB.html#getTypes"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1707,7 +1706,7 @@
                                             ><span>get<wbr />Types</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getValuesCount"
+                                            href="SimpleDB.html#getValuesCount"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1721,7 +1720,7 @@
                                             ></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#getWidth"
+                                            href="SimpleDB.html#getWidth"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1733,7 +1732,7 @@
                                             ><span>get<wbr />Width</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#hasColumn"
+                                            href="SimpleDB.html#hasColumn"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1745,7 +1744,7 @@
                                             ><span>has<wbr />Column</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#hasTable"
+                                            href="SimpleDB.html#hasTable"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1757,7 +1756,7 @@
                                             ><span>has<wbr />Table</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#logTable"
+                                            href="SimpleDB.html#logTable"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1769,7 +1768,7 @@
                                             ><span>log<wbr />Table</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#renameTable"
+                                            href="SimpleDB.html#renameTable"
                                             class="tsd-index-link tsd-is-inherited"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1781,7 +1780,7 @@
                                             ><span>rename<wbr />Table</span></a
                                         >
                                         <a
-                                            href="SimpleNodeDB.html#start"
+                                            href="SimpleDB.html#start"
                                             class="tsd-index-link"
                                             ><svg
                                                 class="tsd-kind-icon"
@@ -1824,9 +1823,9 @@
                         </div>
                         <div class="tsd-comment tsd-typography">
                             <p>
-                                A flag for SimpleNodeDB. Default is true. When
-                                data is retrieved from the database as an array
-                                of objects, BIGINT values are automatically
+                                A flag for SimpleDB. Default is true. When data
+                                is retrieved from the database as an array of
+                                objects, BIGINT values are automatically
                                 converted to integers, which are easier to work
                                 with in JavaScript. If you want actual bigint
                                 values, set this option to false.
@@ -7113,8 +7112,8 @@
                                         <li>
                                             Defined in
                                             <a
-                                                href="https://github.com/nshiab/simple-data-analysis.js/blob/473c447252a7d2c8e562cdcee3094a508831591f/src/class/SimpleNodeDB.ts#L265"
-                                                >class/SimpleNodeDB.ts:265</a
+                                                href="https://github.com/nshiab/simple-data-analysis.js/blob/473c447252a7d2c8e562cdcee3094a508831591f/src/class/SimpleDB.ts#L265"
+                                                >class/SimpleDB.ts:265</a
                                             >
                                         </li>
                                     </ul>
@@ -7321,8 +7320,8 @@
                                         <li>
                                             Defined in
                                             <a
-                                                href="https://github.com/nshiab/simple-data-analysis.js/blob/473c447252a7d2c8e562cdcee3094a508831591f/src/class/SimpleNodeDB.ts#L297"
-                                                >class/SimpleNodeDB.ts:297</a
+                                                href="https://github.com/nshiab/simple-data-analysis.js/blob/473c447252a7d2c8e562cdcee3094a508831591f/src/class/SimpleDB.ts#L297"
+                                                >class/SimpleDB.ts:297</a
                                             >
                                         </li>
                                     </ul>
@@ -9963,8 +9962,8 @@
                                         spatial join. Note that the returned
                                         data is not guaranteed to be in the same
                                         order as the original tables. With
-                                        SimpleNodeDB, it might create a .tmp
-                                        folder, so make sure to add .tmp to your
+                                        SimpleDB, it might create a .tmp folder,
+                                        so make sure to add .tmp to your
                                         gitignore.
                                     </p>
                                     <pre><code class="language-ts"><span class="hl-7">// Merges data of tableA and tableB based on geometries that intersect in tableA and tableB. By default, the method looks for columns named &#39;geom&#39; storing the geometries in the tables, does a left join and overwrites leftTable (tableA) with the results. The method also appends the name of the table to the &#39;geom&#39; columns in the returned data.</span><br/><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-0">sdb</span><span class="hl-1">.</span><span class="hl-11">joinGeo</span><span class="hl-1">(</span><span class="hl-9">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;intersect&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;tableB&quot;</span><span class="hl-1">,)</span><br/><br/><span class="hl-7">// Same thing but with specific column names storing geometries, a specific join type, and returning the results in a new table.</span><br/><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-0">sdb</span><span class="hl-1">.</span><span class="hl-11">joinGeo</span><span class="hl-1">(</span><span class="hl-9">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;intersect&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;tableB&quot;</span><span class="hl-1">, {</span><span class="hl-0">geoColumnLeft:</span><span class="hl-1"> </span><span class="hl-9">&quot;geometriesA&quot;</span><span class="hl-1">, </span><span class="hl-0">geoColumnRight:</span><span class="hl-1"> </span><span class="hl-9">&quot;geometriesB&quot;</span><span class="hl-1">, </span><span class="hl-0">type:</span><span class="hl-1"> </span><span class="hl-9">&quot;inner&quot;</span><span class="hl-1">, </span><span class="hl-0">outputTable:</span><span class="hl-1"> </span><span class="hl-9">&quot;tableC&quot;</span><span class="hl-1">})</span><br/><br/><span class="hl-7">// Merges data based on geometries in table A that are inside geometries in table B. The table order is important.</span><br/><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-0">sdb</span><span class="hl-1">.</span><span class="hl-11">joinGeo</span><span class="hl-1">(</span><span class="hl-9">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;inside&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;tableB&quot;</span><span class="hl-1">)</span>
@@ -16242,8 +16241,8 @@
                                         <li>
                                             Defined in
                                             <a
-                                                href="https://github.com/nshiab/simple-data-analysis.js/blob/473c447252a7d2c8e562cdcee3094a508831591f/src/class/SimpleNodeDB.ts#L76"
-                                                >class/SimpleNodeDB.ts:76</a
+                                                href="https://github.com/nshiab/simple-data-analysis.js/blob/473c447252a7d2c8e562cdcee3094a508831591f/src/class/SimpleDB.ts#L76"
+                                                >class/SimpleDB.ts:76</a
                                             >
                                         </li>
                                     </ul>
@@ -17233,8 +17232,8 @@
                                         <li>
                                             Defined in
                                             <a
-                                                href="https://github.com/nshiab/simple-data-analysis.js/blob/473c447252a7d2c8e562cdcee3094a508831591f/src/class/SimpleNodeDB.ts#L152"
-                                                >class/SimpleNodeDB.ts:152</a
+                                                href="https://github.com/nshiab/simple-data-analysis.js/blob/473c447252a7d2c8e562cdcee3094a508831591f/src/class/SimpleDB.ts#L152"
+                                                >class/SimpleDB.ts:152</a
                                             >
                                         </li>
                                     </ul>
@@ -18208,8 +18207,8 @@
                                         <li>
                                             Defined in
                                             <a
-                                                href="https://github.com/nshiab/simple-data-analysis.js/blob/473c447252a7d2c8e562cdcee3094a508831591f/src/class/SimpleNodeDB.ts#L213"
-                                                >class/SimpleNodeDB.ts:213</a
+                                                href="https://github.com/nshiab/simple-data-analysis.js/blob/473c447252a7d2c8e562cdcee3094a508831591f/src/class/SimpleDB.ts#L213"
+                                                >class/SimpleDB.ts:213</a
                                             >
                                         </li>
                                     </ul>
@@ -19881,9 +19880,9 @@
                                         two tables returning all pairs of rows.
                                         Note that the returned data is not
                                         guaranteed to be in the same order as
-                                        the original tables. With SimpleNodeDB,
-                                        it might create a .tmp folder, so make
-                                        sure to add .tmp to your gitignore.
+                                        the original tables. With SimpleDB, it
+                                        might create a .tmp folder, so make sure
+                                        to add .tmp to your gitignore.
                                     </p>
                                     <pre><code class="language-ts"><span class="hl-7">// By default, the leftTable (tableA here) will be overwritten with the result.</span><br/><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-11">crossJoin</span><span class="hl-1">(</span><span class="hl-9">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;tableB&quot;</span><span class="hl-1">);</span><br/><br/><span class="hl-7">// But you can put the result into another table if needed.</span><br/><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-11">crossJoin</span><span class="hl-1">(</span><span class="hl-9">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;tableB&quot;</span><span class="hl-1">, { </span><span class="hl-0">outputTable:</span><span class="hl-1"> </span><span class="hl-9">&quot;tableC&quot;</span><span class="hl-1"> });</span>
 </code><button>Copy</button></pre>
@@ -20098,8 +20097,8 @@
                                         common column. Note that the returned
                                         data is not guaranteed to be in the same
                                         order as the original tables. With
-                                        SimpleNodeDB, it might create a .tmp
-                                        folder, so make sure to add .tmp to your
+                                        SimpleDB, it might create a .tmp folder,
+                                        so make sure to add .tmp to your
                                         gitignore.
                                     </p>
                                     <pre><code class="language-ts"><span class="hl-7">// By default, the method automatically looks for a common column in the two tables and does a left join of tableA (left) and tableB (right). The leftTable (tableA here) will be overwritten with the result.</span><br/><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-0">sdb</span><span class="hl-1">.</span><span class="hl-11">join</span><span class="hl-1">(</span><span class="hl-9">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;tableB&quot;</span><span class="hl-1">)</span><br/><br/><span class="hl-7">// You can change the common column, the join type, and the output table in options.</span><br/><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-0">sdb</span><span class="hl-1">.</span><span class="hl-11">join</span><span class="hl-1">(</span><span class="hl-9">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;tableB&quot;</span><span class="hl-1">, { </span><span class="hl-0">commonColumn:</span><span class="hl-1"> </span><span class="hl-9">&#39;id&#39;</span><span class="hl-1">, </span><span class="hl-0">type:</span><span class="hl-1"> </span><span class="hl-9">&#39;inner&#39;</span><span class="hl-1">, </span><span class="hl-0">outputTable:</span><span class="hl-1"> </span><span class="hl-9">&#39;tableC&#39;</span><span class="hl-1"> })</span>
@@ -23255,7 +23254,7 @@
                                         at once. Useful with big join
                                         operations.
                                     </p>
-                                    <pre><code class="language-ts"><span class="hl-7">// The computation we want to run. A third parameter outputTable is optional.</span><br/><span class="hl-10">const</span><span class="hl-1"> </span><span class="hl-11">run</span><span class="hl-1"> = </span><span class="hl-10">async</span><span class="hl-1"> (</span><span class="hl-0">sdb</span><span class="hl-1">: </span><span class="hl-14">SimpleWebDB</span><span class="hl-1">, </span><span class="hl-0">originalTable</span><span class="hl-1">: </span><span class="hl-14">string</span><span class="hl-1">) </span><span class="hl-10">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">       </span><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-0">sdb</span><span class="hl-1">.</span><span class="hl-11">convert</span><span class="hl-1">(</span><br/><span class="hl-1">           </span><span class="hl-0">originalTable</span><span class="hl-1">,</span><br/><span class="hl-1">           { </span><span class="hl-0">salary:</span><span class="hl-1"> </span><span class="hl-9">&quot;number&quot;</span><span class="hl-1"> },</span><br/><span class="hl-1">       )</span><br/><span class="hl-1">       </span><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-0">sdb</span><span class="hl-1">.</span><span class="hl-11">addColumn</span><span class="hl-1">(</span><br/><span class="hl-1">           </span><span class="hl-0">originalTable</span><span class="hl-1">,</span><br/><span class="hl-1">           </span><span class="hl-9">&quot;salaryMultipliedBy2&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">           </span><span class="hl-9">&quot;number&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">           </span><span class="hl-9">`Salary * 2`</span><br/><span class="hl-1">       )</span><br/><span class="hl-1">   }</span><br/><span class="hl-7">// Running it batch after batch.</span><br/><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-0">simpleNodeDB</span><span class="hl-1">.</span><span class="hl-11">batch</span><span class="hl-1">(</span><span class="hl-0">run</span><span class="hl-1">, </span><span class="hl-9">&quot;tableA&quot;</span><span class="hl-1">, {</span><br/><span class="hl-1">       </span><span class="hl-0">batchSize:</span><span class="hl-1"> </span><span class="hl-13">5</span><span class="hl-1">,</span><br/><span class="hl-1">   })</span>
+                                    <pre><code class="language-ts"><span class="hl-7">// The computation we want to run. A third parameter outputTable is optional.</span><br/><span class="hl-10">const</span><span class="hl-1"> </span><span class="hl-11">run</span><span class="hl-1"> = </span><span class="hl-10">async</span><span class="hl-1"> (</span><span class="hl-0">sdb</span><span class="hl-1">: </span><span class="hl-14">SimpleWebDB</span><span class="hl-1">, </span><span class="hl-0">originalTable</span><span class="hl-1">: </span><span class="hl-14">string</span><span class="hl-1">) </span><span class="hl-10">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">       </span><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-0">sdb</span><span class="hl-1">.</span><span class="hl-11">convert</span><span class="hl-1">(</span><br/><span class="hl-1">           </span><span class="hl-0">originalTable</span><span class="hl-1">,</span><br/><span class="hl-1">           { </span><span class="hl-0">salary:</span><span class="hl-1"> </span><span class="hl-9">&quot;number&quot;</span><span class="hl-1"> },</span><br/><span class="hl-1">       )</span><br/><span class="hl-1">       </span><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-0">sdb</span><span class="hl-1">.</span><span class="hl-11">addColumn</span><span class="hl-1">(</span><br/><span class="hl-1">           </span><span class="hl-0">originalTable</span><span class="hl-1">,</span><br/><span class="hl-1">           </span><span class="hl-9">&quot;salaryMultipliedBy2&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">           </span><span class="hl-9">&quot;number&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">           </span><span class="hl-9">`Salary * 2`</span><br/><span class="hl-1">       )</span><br/><span class="hl-1">   }</span><br/><span class="hl-7">// Running it batch after batch.</span><br/><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-0">sdb</span><span class="hl-1">.</span><span class="hl-11">batch</span><span class="hl-1">(</span><span class="hl-0">run</span><span class="hl-1">, </span><span class="hl-9">&quot;tableA&quot;</span><span class="hl-1">, {</span><br/><span class="hl-1">       </span><span class="hl-0">batchSize:</span><span class="hl-1"> </span><span class="hl-13">5</span><span class="hl-1">,</span><br/><span class="hl-1">   })</span>
 </code><button>Copy</button></pre>
                                 </div>
                                 <div class="tsd-parameters">
@@ -23388,9 +23387,9 @@
                                                                                 >SimpleWebDB</span
                                                                             >:
                                                                             <a
-                                                                                href="SimpleNodeDB.html"
+                                                                                href="SimpleDB.html"
                                                                                 class="tsd-signature-type tsd-kind-class"
-                                                                                >SimpleNodeDB</a
+                                                                                >SimpleDB</a
                                                                             ></span
                                                                         >
                                                                     </li>
@@ -23651,8 +23650,8 @@
                                         <li>
                                             Defined in
                                             <a
-                                                href="https://github.com/nshiab/simple-data-analysis.js/blob/473c447252a7d2c8e562cdcee3094a508831591f/src/class/SimpleNodeDB.ts#L345"
-                                                >class/SimpleNodeDB.ts:345</a
+                                                href="https://github.com/nshiab/simple-data-analysis.js/blob/473c447252a7d2c8e562cdcee3094a508831591f/src/class/SimpleDB.ts#L345"
+                                                >class/SimpleDB.ts:345</a
                                             >
                                         </li>
                                     </ul>
@@ -27312,8 +27311,8 @@
                                         <li>
                                             Defined in
                                             <a
-                                                href="https://github.com/nshiab/simple-data-analysis.js/blob/473c447252a7d2c8e562cdcee3094a508831591f/src/class/SimpleNodeDB.ts#L368"
-                                                >class/SimpleNodeDB.ts:368</a
+                                                href="https://github.com/nshiab/simple-data-analysis.js/blob/473c447252a7d2c8e562cdcee3094a508831591f/src/class/SimpleDB.ts#L368"
+                                                >class/SimpleDB.ts:368</a
                                             >
                                         </li>
                                     </ul>
@@ -29029,8 +29028,8 @@
                                         <li>
                                             Defined in
                                             <a
-                                                href="https://github.com/nshiab/simple-data-analysis.js/blob/473c447252a7d2c8e562cdcee3094a508831591f/src/class/SimpleNodeDB.ts#L54"
-                                                >class/SimpleNodeDB.ts:54</a
+                                                href="https://github.com/nshiab/simple-data-analysis.js/blob/473c447252a7d2c8e562cdcee3094a508831591f/src/class/SimpleDB.ts#L54"
+                                                >class/SimpleDB.ts:54</a
                                             >
                                         </li>
                                     </ul>

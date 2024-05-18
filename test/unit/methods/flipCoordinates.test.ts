@@ -1,22 +1,19 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("flipCoordinates", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
-        await simpleNodeDB.loadGeoData(
-            "geodata",
-            "test/geodata/files/point.json"
-        )
+        sdb = new SimpleDB({ spatial: true })
+        await sdb.loadGeoData("geodata", "test/geodata/files/point.json")
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should flip the coordinates", async () => {
-        await simpleNodeDB.flipCoordinates("geodata", "geom")
-        const data = await simpleNodeDB.customQuery(
+        await sdb.flipCoordinates("geodata", "geom")
+        const data = await sdb.customQuery(
             `SELECT ST_AsText(geom) as geomText FROM geoData;`,
             { returnDataFrom: "query" }
         )

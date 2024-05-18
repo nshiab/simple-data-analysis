@@ -1,22 +1,22 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("loadGeoData", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB({ spatial: true })
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should load a geojson file", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "geoJsonData",
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
 
-        const types = await simpleNodeDB.getTypes("geoJsonData")
+        const types = await sdb.getTypes("geoJsonData")
 
         assert.deepStrictEqual(types, {
             nameEnglish: "VARCHAR",
@@ -25,12 +25,12 @@ describe("loadGeoData", () => {
         })
     })
     it("should load a geojson file from a URL", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "geoJsonData",
             "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json"
         )
 
-        const types = await simpleNodeDB.getTypes("geoJsonData")
+        const types = await sdb.getTypes("geoJsonData")
 
         assert.deepStrictEqual(types, {
             nameEnglish: "VARCHAR",
@@ -39,12 +39,12 @@ describe("loadGeoData", () => {
         })
     })
     it("should load a shapefile file", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "shapefileData",
             "test/geodata/files/CanadianProvincesAndTerritories.shp.zip"
         )
 
-        const types = await simpleNodeDB.getTypes("shapefileData")
+        const types = await sdb.getTypes("shapefileData")
 
         assert.deepStrictEqual(types, {
             nameEnglis: "VARCHAR",

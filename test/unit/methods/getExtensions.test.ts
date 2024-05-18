@@ -1,16 +1,16 @@
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("getExtensions", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return the DuckDB extensions", async () => {
-        await simpleNodeDB.getExtensions()
+        await sdb.getExtensions()
 
         // Not sure how to test. Different depending on the environment?
     })

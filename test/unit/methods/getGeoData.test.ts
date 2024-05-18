@@ -1,21 +1,18 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("getGeoData", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB({ spatial: true })
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return geospatial data as a geojson", async () => {
-        await simpleNodeDB.loadGeoData(
-            "geoData",
-            "test/geodata/files/polygons.geojson"
-        )
-        const geoData = await simpleNodeDB.getGeoData("geoData", "geom")
+        await sdb.loadGeoData("geoData", "test/geodata/files/polygons.geojson")
+        const geoData = await sdb.getGeoData("geoData", "geom")
 
         assert.deepStrictEqual(geoData, {
             type: "FeatureCollection",

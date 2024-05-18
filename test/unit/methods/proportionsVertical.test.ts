@@ -1,25 +1,21 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("proportionsVertical", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return the vertical proportions in a new column", async () => {
-        await simpleNodeDB.loadData("proportions", [
+        await sdb.loadData("proportions", [
             "test/data/files/dataSummarize.json",
         ])
-        await simpleNodeDB.proportionsVertical(
-            "proportions",
-            "key2",
-            "key2Perc"
-        )
-        const data = await simpleNodeDB.getData("proportions")
+        await sdb.proportionsVertical("proportions", "key2", "key2Perc")
+        const data = await sdb.getData("proportions")
 
         assert.deepStrictEqual(data, [
             {
@@ -61,10 +57,10 @@ describe("proportionsVertical", () => {
         ])
     })
     it("should return the vertical proportions in a new column and a specific number of decimals", async () => {
-        await simpleNodeDB.loadData("proportionsSuffixDecimals", [
+        await sdb.loadData("proportionsSuffixDecimals", [
             "test/data/files/dataSummarize.json",
         ])
-        await simpleNodeDB.proportionsVertical(
+        await sdb.proportionsVertical(
             "proportionsSuffixDecimals",
             "key2",
             "key2Prop",
@@ -72,7 +68,7 @@ describe("proportionsVertical", () => {
                 decimals: 4,
             }
         )
-        const data = await simpleNodeDB.getData("proportionsSuffixDecimals")
+        const data = await sdb.getData("proportionsSuffixDecimals")
 
         assert.deepStrictEqual(data, [
             { key1: "Rubarbe", key2: 1, key3: 10.5, key2Prop: 0.0278 },
@@ -94,10 +90,10 @@ describe("proportionsVertical", () => {
         ])
     })
     it("should return the vertical proportions in a new column with a category", async () => {
-        await simpleNodeDB.loadData("proportionsCategory", [
+        await sdb.loadData("proportionsCategory", [
             "test/data/files/dataSummarize.json",
         ])
-        await simpleNodeDB.proportionsVertical(
+        await sdb.proportionsVertical(
             "proportionsCategory",
             "key2",
             "key2Perc",
@@ -105,11 +101,11 @@ describe("proportionsVertical", () => {
                 categories: "key1",
             }
         )
-        await simpleNodeDB.sort("proportionsCategory", {
+        await sdb.sort("proportionsCategory", {
             key1: "asc",
             key2Perc: "asc",
         })
-        const data = await simpleNodeDB.getData("proportionsCategory")
+        const data = await sdb.getData("proportionsCategory")
 
         assert.deepStrictEqual(data, [
             {
@@ -152,10 +148,10 @@ describe("proportionsVertical", () => {
     })
 
     it("should return the vertical proportions in a new column with multiple categories", async () => {
-        await simpleNodeDB.loadData("proportionsCategories", [
+        await sdb.loadData("proportionsCategories", [
             "test/data/files/dataSummarize.json",
         ])
-        await simpleNodeDB.proportionsVertical(
+        await sdb.proportionsVertical(
             "proportionsCategories",
             "key3",
             "key3Perc",
@@ -163,12 +159,12 @@ describe("proportionsVertical", () => {
                 categories: ["key1", "key2"],
             }
         )
-        await simpleNodeDB.sort("proportionsCategories", {
+        await sdb.sort("proportionsCategories", {
             key1: "asc",
             key2: "asc",
             key3Perc: "asc",
         })
-        const data = await simpleNodeDB.getData("proportionsCategories")
+        const data = await sdb.getData("proportionsCategories")
 
         assert.deepStrictEqual(data, [
             {

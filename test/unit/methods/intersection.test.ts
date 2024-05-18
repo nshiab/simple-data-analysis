@@ -1,49 +1,46 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("intersection", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB({ spatial: true })
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should compute the intersection of geometries", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "prov",
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await simpleNodeDB.flipCoordinates("prov", "geom")
-        await simpleNodeDB.renameColumns("prov", { geom: "prov" })
+        await sdb.flipCoordinates("prov", "geom")
+        await sdb.renameColumns("prov", { geom: "prov" })
 
-        await simpleNodeDB.loadGeoData(
-            "pol",
-            "test/geodata/files/polygons.geojson"
-        )
-        await simpleNodeDB.flipCoordinates("pol", "geom")
-        await simpleNodeDB.area("pol", "geom", "polArea")
-        await simpleNodeDB.round("pol", "polArea")
-        await simpleNodeDB.renameColumns("pol", { geom: "pol" })
+        await sdb.loadGeoData("pol", "test/geodata/files/polygons.geojson")
+        await sdb.flipCoordinates("pol", "geom")
+        await sdb.area("pol", "geom", "polArea")
+        await sdb.round("pol", "polArea")
+        await sdb.renameColumns("pol", { geom: "pol" })
 
-        await simpleNodeDB.crossJoin("prov", "pol", { outputTable: "joined" })
-        await simpleNodeDB.intersection("joined", ["pol", "prov"], "intersec")
-        await simpleNodeDB.area("joined", "intersec", "intersecArea")
-        await simpleNodeDB.round("joined", "intersecArea")
-        await simpleNodeDB.addColumn(
+        await sdb.crossJoin("prov", "pol", { outputTable: "joined" })
+        await sdb.intersection("joined", ["pol", "prov"], "intersec")
+        await sdb.area("joined", "intersec", "intersecArea")
+        await sdb.round("joined", "intersecArea")
+        await sdb.addColumn(
             "joined",
             "intersecPerc",
             "double",
             `ROUND(intersecArea/polArea, 4)`
         )
 
-        await simpleNodeDB.selectColumns("joined", [
+        await sdb.selectColumns("joined", [
             "nameEnglish",
             "name",
             "intersecPerc",
         ])
-        const data = await simpleNodeDB.getData("joined")
+        const data = await sdb.getData("joined")
 
         assert.deepStrictEqual(data, [
             {

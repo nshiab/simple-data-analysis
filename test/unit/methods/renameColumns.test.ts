@@ -1,24 +1,22 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("renameColumns", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should change the name of one column", async () => {
-        await simpleNodeDB.loadData("dataJSONOneColumn", [
-            "test/data/files/data.json",
-        ])
+        await sdb.loadData("dataJSONOneColumn", ["test/data/files/data.json"])
 
-        await simpleNodeDB.renameColumns("dataJSONOneColumn", {
+        await sdb.renameColumns("dataJSONOneColumn", {
             key1: "A",
         })
-        const data = await simpleNodeDB.getData("dataJSONOneColumn")
+        const data = await sdb.getData("dataJSONOneColumn")
 
         assert.deepStrictEqual(data, [
             { A: 1, key2: "un" },
@@ -29,15 +27,15 @@ describe("renameColumns", () => {
     })
 
     it("should change the name of multiple columns", async () => {
-        await simpleNodeDB.loadData("dataJSONMultipleColumns", [
+        await sdb.loadData("dataJSONMultipleColumns", [
             "test/data/files/data.json",
         ])
 
-        await simpleNodeDB.renameColumns("dataJSONMultipleColumns", {
+        await sdb.renameColumns("dataJSONMultipleColumns", {
             key1: "A",
             key2: "B",
         })
-        const data = await simpleNodeDB.getData("dataJSONMultipleColumns")
+        const data = await sdb.getData("dataJSONMultipleColumns")
 
         assert.deepStrictEqual(data, [
             { A: 1, B: "un" },

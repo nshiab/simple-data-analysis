@@ -1,25 +1,25 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("getStdDev", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("data", ["test/data/files/data.json"])
+        sdb = new SimpleDB()
+        await sdb.loadData("data", ["test/data/files/data.json"])
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return the standard deviation", async () => {
         assert.deepStrictEqual(
-            await simpleNodeDB.getStdDev("data", "key1"),
+            await sdb.getStdDev("data", "key1"),
             1.2909944487358056
         )
     })
     it("should return the standard deviation rounded", async () => {
         assert.deepStrictEqual(
-            await simpleNodeDB.getStdDev("data", "key1", { decimals: 3 }),
+            await sdb.getStdDev("data", "key1", { decimals: 3 }),
             1.291
         )
     })

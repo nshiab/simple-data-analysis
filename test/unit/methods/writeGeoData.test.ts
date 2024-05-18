@@ -1,26 +1,26 @@
 import { existsSync, mkdirSync, readFileSync } from "fs"
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("writeGeoData", () => {
     const output = "./test/output/"
 
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
         if (!existsSync(output)) {
             mkdirSync(output)
         }
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB({ spatial: true })
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should write geojson file", async () => {
         const originalFile = "test/geodata/files/polygons.geojson"
 
-        await simpleNodeDB.loadGeoData("data", originalFile)
-        await simpleNodeDB.writeGeoData("data", `${output}data.geojson`)
+        await sdb.loadGeoData("data", originalFile)
+        await sdb.writeGeoData("data", `${output}data.geojson`)
 
         const originalData = JSON.parse(readFileSync(originalFile, "utf-8"))
         originalData.name = "data"
@@ -34,14 +34,10 @@ describe("writeGeoData", () => {
     it("should write geojson file with coordinates rounded to 3 decimals", async () => {
         const originalFile = "test/geodata/files/polygons.geojson"
 
-        await simpleNodeDB.loadGeoData("data", originalFile)
-        await simpleNodeDB.writeGeoData(
-            "data",
-            `${output}dataPrecision.geojson`,
-            {
-                precision: 3,
-            }
-        )
+        await sdb.loadGeoData("data", originalFile)
+        await sdb.writeGeoData("data", `${output}dataPrecision.geojson`, {
+            precision: 3,
+        })
 
         const writtenData = JSON.parse(
             readFileSync(`${output}dataPrecision.geojson`, "utf-8")

@@ -1,25 +1,25 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("removeRows", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should remove rows based on one condition", async () => {
-        await simpleNodeDB.loadData("employeesOneCondition", [
+        await sdb.loadData("employeesOneCondition", [
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.removeRows(
+        await sdb.removeRows(
             "employeesOneCondition",
             `"Department or unit" = '50'`
         )
-        const data = await simpleNodeDB.getData("employeesOneCondition")
+        const data = await sdb.getData("employeesOneCondition")
 
         assert.deepStrictEqual(data, [
             {
@@ -265,15 +265,15 @@ describe("removeRows", () => {
         ])
     })
     it("should remove rows based on multiple conditions", async () => {
-        await simpleNodeDB.loadData("employeesMultipleConditions", [
+        await sdb.loadData("employeesMultipleConditions", [
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.removeRows(
+        await sdb.removeRows(
             "employeesMultipleConditions",
             `"Job" = 'Clerk' AND "Department or unit" = '50'`
         )
-        const data = await simpleNodeDB.getData("employeesMultipleConditions")
+        const data = await sdb.getData("employeesMultipleConditions")
 
         assert.deepStrictEqual(data, [
             {
@@ -575,12 +575,12 @@ describe("removeRows", () => {
         ])
     })
     it("should remove the rows based on booleans", async () => {
-        await simpleNodeDB.loadArray("tableWithBooleans", [
+        await sdb.loadArray("tableWithBooleans", [
             { name: "Nael", value: true },
             { name: "Graeme", value: false },
         ])
-        await simpleNodeDB.removeRows("tableWithBooleans", `value = TRUE`)
-        const data = await simpleNodeDB.getData("tableWithBooleans")
+        await sdb.removeRows("tableWithBooleans", `value = TRUE`)
+        const data = await sdb.getData("tableWithBooleans")
 
         assert.deepStrictEqual(data, [{ name: "Graeme", value: false }])
     })

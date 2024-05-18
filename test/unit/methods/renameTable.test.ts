@@ -1,20 +1,20 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("renameTable", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("cities", ["test/data/files/cities.csv"])
+        sdb = new SimpleDB()
+        await sdb.loadData("cities", ["test/data/files/cities.csv"])
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should rename a table", async () => {
-        await simpleNodeDB.renameTable("cities", "canadianCities")
+        await sdb.renameTable("cities", "canadianCities")
 
-        const data = await simpleNodeDB.getData("canadianCities")
+        const data = await sdb.getData("canadianCities")
 
         assert.deepStrictEqual(data, [
             { id: 1108380, city: "VANCOUVER" },

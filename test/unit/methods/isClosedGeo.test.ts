@@ -1,24 +1,24 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("isClosedGeo", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB({ spatial: true })
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should add a new column with TRUE when geometries are closed", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "geodata",
             "test/geodata/files/earthquake.geojson"
         )
-        await simpleNodeDB.unnestGeo("geodata", "geom")
-        await simpleNodeDB.isClosedGeo("geodata", "geom", "closed")
-        await simpleNodeDB.selectColumns("geodata", ["value", "closed"])
-        const data = await simpleNodeDB.getData("geoData")
+        await sdb.unnestGeo("geodata", "geom")
+        await sdb.isClosedGeo("geodata", "geom", "closed")
+        await sdb.selectColumns("geodata", ["value", "closed"])
+        const data = await sdb.getData("geoData")
 
         assert.deepStrictEqual(data, [
             { value: 1.5, closed: false },

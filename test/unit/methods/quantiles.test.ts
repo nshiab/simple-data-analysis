@@ -1,19 +1,19 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("quantiles", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should add a column with the quantiles", async () => {
-        await simpleNodeDB.loadData("quantiles", "test/data/files/dataRank.csv")
-        await simpleNodeDB.quantiles("quantiles", "Mark", 4, "quantiles")
-        const data = await simpleNodeDB.getData("quantiles")
+        await sdb.loadData("quantiles", "test/data/files/dataRank.csv")
+        await sdb.quantiles("quantiles", "Mark", 4, "quantiles")
+        const data = await sdb.getData("quantiles")
 
         assert.deepStrictEqual(data, [
             { Name: "Isabella", Subject: "Maths", Mark: 50, quantiles: 1 },
@@ -29,26 +29,17 @@ describe("quantiles", () => {
     })
 
     it("should add a column with the quantiles after grouping", async () => {
-        await simpleNodeDB.loadData(
-            "quantilesGrouped",
-            "test/data/files/dataRank.csv"
-        )
-        await simpleNodeDB.quantiles(
-            "quantilesGrouped",
-            "Mark",
-            2,
-            "quantiles",
-            {
-                categories: "Subject",
-            }
-        )
+        await sdb.loadData("quantilesGrouped", "test/data/files/dataRank.csv")
+        await sdb.quantiles("quantilesGrouped", "Mark", 2, "quantiles", {
+            categories: "Subject",
+        })
 
-        await simpleNodeDB.sort("quantilesGrouped", {
+        await sdb.sort("quantilesGrouped", {
             Subject: "asc",
             Mark: "asc",
         })
 
-        const data = await simpleNodeDB.getData("quantilesGrouped")
+        const data = await sdb.getData("quantilesGrouped")
 
         assert.deepStrictEqual(data, [
             { Name: "Lily", Subject: "English", Mark: 70, quantiles: 1 },

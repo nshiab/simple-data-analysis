@@ -1,19 +1,19 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 import pkg from "duckdb"
 const { Database } = pkg
 
-describe("SimpleNodeDB", () => {
-    const simpleNodeDB = new SimpleNodeDB()
-    it("should instantiate a SimpleNodeDB class", () => {
-        assert.deepStrictEqual(simpleNodeDB instanceof SimpleNodeDB, true)
+describe("SimpleDB", () => {
+    const sdb = new SimpleDB()
+    it("should instantiate a SimpleDB class", () => {
+        assert.deepStrictEqual(sdb instanceof SimpleDB, true)
     })
 
     it("should start and instantiate a db", async () => {
-        await simpleNodeDB.start()
-        assert.deepStrictEqual(simpleNodeDB.db instanceof Database, true)
+        await sdb.start()
+        assert.deepStrictEqual(sdb.db instanceof Database, true)
     })
     it("should close the db", async () => {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 })

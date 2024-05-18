@@ -1,34 +1,31 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("getQuantile", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("data", ["test/data/files/data.json"])
+        sdb = new SimpleDB()
+        await sdb.loadData("data", ["test/data/files/data.json"])
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return a quantile", async () => {
         assert.deepStrictEqual(
-            await simpleNodeDB.getQuantile("data", "key1", 0.25),
+            await sdb.getQuantile("data", "key1", 0.25),
             1.75
         )
     })
     it("should return a quantile rounded", async () => {
         assert.deepStrictEqual(
-            await simpleNodeDB.getQuantile("data", "key1", 0.25, {
+            await sdb.getQuantile("data", "key1", 0.25, {
                 decimals: 1,
             }),
             1.8
         )
     })
     it("should return the median with a quantile of 0.5", async () => {
-        assert.deepStrictEqual(
-            await simpleNodeDB.getQuantile("data", "key1", 0.5),
-            2.5
-        )
+        assert.deepStrictEqual(await sdb.getQuantile("data", "key1", 0.5), 2.5)
     })
 })

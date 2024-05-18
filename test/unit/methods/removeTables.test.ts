@@ -1,36 +1,30 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("removeTables", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should remove one table", async () => {
-        await simpleNodeDB.loadData("dataCsv", "test/data/files/employees.csv")
-        await simpleNodeDB.loadData(
-            "dataJson",
-            "test/data/files/employees.json"
-        )
+        await sdb.loadData("dataCsv", "test/data/files/employees.csv")
+        await sdb.loadData("dataJson", "test/data/files/employees.json")
 
-        await simpleNodeDB.removeTables("dataJson")
+        await sdb.removeTables("dataJson")
 
-        const tables = await simpleNodeDB.getTables()
+        const tables = await sdb.getTables()
         assert.deepStrictEqual(tables, ["dataCsv"])
     })
 
     it("should remove multiple tables", async () => {
-        await simpleNodeDB.loadData(
-            "dataJson",
-            "test/data/files/employees.json"
-        )
-        await simpleNodeDB.removeTables(["dataJson", "dataCsv"])
+        await sdb.loadData("dataJson", "test/data/files/employees.json")
+        await sdb.removeTables(["dataJson", "dataCsv"])
 
-        const tables = await simpleNodeDB.getTables()
+        const tables = await sdb.getTables()
 
         assert.deepStrictEqual(tables, [])
     })

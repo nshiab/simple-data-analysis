@@ -1,21 +1,19 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("customQuery", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return the columns of a table", async () => {
-        await simpleNodeDB.loadData("employees", [
-            "test/data/files/employees.csv",
-        ])
+        await sdb.loadData("employees", ["test/data/files/employees.csv"])
 
-        const data = await simpleNodeDB.customQuery(
+        const data = await sdb.customQuery(
             "SELECT * FROM employees WHERE Job = 'Clerk'",
             { returnDataFrom: "query" }
         )
@@ -184,11 +182,9 @@ describe("customQuery", () => {
         ])
     })
     it("should work with ==", async () => {
-        await simpleNodeDB.loadData("employees", [
-            "test/data/files/employees.csv",
-        ])
+        await sdb.loadData("employees", ["test/data/files/employees.csv"])
 
-        const data = await simpleNodeDB.customQuery(
+        const data = await sdb.customQuery(
             "SELECT * FROM employees WHERE Name == 'Patel, Joshua'",
             { returnDataFrom: "query" }
         )
@@ -205,11 +201,9 @@ describe("customQuery", () => {
         ])
     })
     it("should work with ===", async () => {
-        await simpleNodeDB.loadData("employees", [
-            "test/data/files/employees.csv",
-        ])
+        await sdb.loadData("employees", ["test/data/files/employees.csv"])
 
-        const data = await simpleNodeDB.customQuery(
+        const data = await sdb.customQuery(
             "SELECT * FROM employees WHERE Name === 'Patel, Joshua'",
             { returnDataFrom: "query" }
         )
@@ -226,11 +220,9 @@ describe("customQuery", () => {
         ])
     })
     it("should work with &", async () => {
-        await simpleNodeDB.loadData("employees", [
-            "test/data/files/employees.csv",
-        ])
+        await sdb.loadData("employees", ["test/data/files/employees.csv"])
 
-        const data = await simpleNodeDB.customQuery(
+        const data = await sdb.customQuery(
             "SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500'",
             { returnDataFrom: "query" }
         )
@@ -263,11 +255,9 @@ describe("customQuery", () => {
         ])
     })
     it("should work with &&", async () => {
-        await simpleNodeDB.loadData("employees", [
-            "test/data/files/employees.csv",
-        ])
+        await sdb.loadData("employees", ["test/data/files/employees.csv"])
 
-        const data = await simpleNodeDB.customQuery(
+        const data = await sdb.customQuery(
             `SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500' && "Department or unit" = '30'`,
             { returnDataFrom: "query" }
         )
@@ -284,11 +274,9 @@ describe("customQuery", () => {
         ])
     })
     it("should work with |", async () => {
-        await simpleNodeDB.loadData("employees", [
-            "test/data/files/employees.csv",
-        ])
+        await sdb.loadData("employees", ["test/data/files/employees.csv"])
 
-        const data = await simpleNodeDB.customQuery(
+        const data = await sdb.customQuery(
             `SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500' && ("Department or unit" = '30' | "Department or unit" = '50')`,
             { returnDataFrom: "query" }
         )
@@ -321,11 +309,9 @@ describe("customQuery", () => {
         ])
     })
     it("should work with ||", async () => {
-        await simpleNodeDB.loadData("employees", [
-            "test/data/files/employees.csv",
-        ])
+        await sdb.loadData("employees", ["test/data/files/employees.csv"])
 
-        const data = await simpleNodeDB.customQuery(
+        const data = await sdb.customQuery(
             `SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500' && ("Department or unit" = '30' || "Department or unit" = '50')`,
             { returnDataFrom: "query" }
         )

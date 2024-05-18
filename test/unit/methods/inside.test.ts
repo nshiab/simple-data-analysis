@@ -1,45 +1,34 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("inside", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB({ spatial: true })
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should check if geometries are inside other geometries", async () => {
-        await simpleNodeDB.loadGeoData(
-            "points",
-            "test/geodata/files/pointsInside.json"
-        )
-        await simpleNodeDB.renameColumns("points", {
+        await sdb.loadGeoData("points", "test/geodata/files/pointsInside.json")
+        await sdb.renameColumns("points", {
             name: "points",
             geom: "geomPoints",
         })
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "polygon",
             "test/geodata/files/polygonInside.json"
         )
-        await simpleNodeDB.renameColumns("polygon", {
+        await sdb.renameColumns("polygon", {
             name: "polygon",
             geom: "geomPolygon",
         })
-        await simpleNodeDB.crossJoin("points", "polygon")
-        await simpleNodeDB.inside(
-            "points",
-            ["geomPoints", "geomPolygon"],
-            "isInside"
-        )
+        await sdb.crossJoin("points", "polygon")
+        await sdb.inside("points", ["geomPoints", "geomPolygon"], "isInside")
 
-        await simpleNodeDB.selectColumns("points", [
-            "points",
-            "polygon",
-            "isInside",
-        ])
-        const data = await simpleNodeDB.getData("points")
+        await sdb.selectColumns("points", ["points", "polygon", "isInside"])
+        const data = await sdb.getData("points")
 
         assert.deepStrictEqual(data, [
             { points: "pointA", polygon: "container", isInside: false },

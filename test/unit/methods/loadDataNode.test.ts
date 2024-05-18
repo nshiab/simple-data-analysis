@@ -1,19 +1,19 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("loadData", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should load data from a csv file", async () => {
-        await simpleNodeDB.loadData("dataCsv", ["test/data/files/data.csv"])
+        await sdb.loadData("dataCsv", ["test/data/files/data.csv"])
 
-        const data = await simpleNodeDB.getData("dataCsv")
+        const data = await sdb.getData("dataCsv")
 
         assert.deepStrictEqual(data, [
             { key1: "1", key2: "2" },
@@ -23,11 +23,11 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a csv file with a limit", async () => {
-        await simpleNodeDB.loadData("dataCsv", ["test/data/files/data.csv"], {
+        await sdb.loadData("dataCsv", ["test/data/files/data.csv"], {
             limit: 2,
         })
 
-        const data = await simpleNodeDB.getData("dataCsv")
+        const data = await sdb.getData("dataCsv")
 
         assert.deepStrictEqual(data, [
             { key1: "1", key2: "2" },
@@ -35,11 +35,9 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a compressed csv file", async () => {
-        await simpleNodeDB.loadData("dataCsvCompressed", [
-            "test/data/files/data.csv.gz",
-        ])
+        await sdb.loadData("dataCsvCompressed", ["test/data/files/data.csv.gz"])
 
-        const data = await simpleNodeDB.getData("dataCsvCompressed")
+        const data = await sdb.getData("dataCsvCompressed")
 
         assert.deepStrictEqual(data, [
             { key1: "1", key2: "2" },
@@ -49,11 +47,9 @@ describe("loadData", () => {
         ])
     })
     it("should load data with dates", async () => {
-        await simpleNodeDB.loadData("dataDates", [
-            "test/data/files/dataDates.csv",
-        ])
+        await sdb.loadData("dataDates", ["test/data/files/dataDates.csv"])
 
-        const data = await simpleNodeDB.getData("dataDates")
+        const data = await sdb.getData("dataDates")
 
         assert.deepStrictEqual(data, [
             {
@@ -91,13 +87,11 @@ describe("loadData", () => {
         ])
     })
     it("should load data while keeping everything as text", async () => {
-        await simpleNodeDB.loadData(
-            "dataDatesText",
-            ["test/data/files/dataDates.csv"],
-            { allText: true }
-        )
+        await sdb.loadData("dataDatesText", ["test/data/files/dataDates.csv"], {
+            allText: true,
+        })
 
-        const data = await simpleNodeDB.getData("dataDatesText")
+        const data = await sdb.getData("dataDatesText")
 
         assert.deepStrictEqual(data, [
             {
@@ -135,11 +129,11 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a fetched csv file", async () => {
-        await simpleNodeDB.loadData("dataFetchCsv", [
+        await sdb.loadData("dataFetchCsv", [
             "https://raw.githubusercontent.com/nshiab/simple-data-analysis.js/main/test/data/files/data.csv",
         ])
 
-        const data = await simpleNodeDB.getData("dataFetchCsv")
+        const data = await sdb.getData("dataFetchCsv")
 
         assert.deepStrictEqual(data, [
             { key1: "1", key2: "2" },
@@ -149,14 +143,14 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a csv file after skypping some lines at the top", async () => {
-        await simpleNodeDB.loadData(
+        await sdb.loadData(
             "dataCsvSkip",
             ["test/data/files/dataExtraLines.csv"],
             {
                 skip: 2,
             }
         )
-        const data = await simpleNodeDB.getData("dataCsvSkip")
+        const data = await sdb.getData("dataCsvSkip")
         assert.deepStrictEqual(data, [
             { key1: "1", key2: "2" },
             { key1: "3", key2: "coucou" },
@@ -165,11 +159,11 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a tsv file", async () => {
-        await simpleNodeDB.loadData("dataTsv", ["test/data/files/data.tsv"], {
+        await sdb.loadData("dataTsv", ["test/data/files/data.tsv"], {
             fileType: "dsv",
         })
 
-        const data = await simpleNodeDB.getData("dataTsv")
+        const data = await sdb.getData("dataTsv")
 
         assert.deepStrictEqual(data, [
             { key1: "1", key2: "2" },
@@ -179,11 +173,11 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a txt file", async () => {
-        await simpleNodeDB.loadData("dataTxt", ["test/data/files/data.txt"], {
+        await sdb.loadData("dataTxt", ["test/data/files/data.txt"], {
             fileType: "dsv",
         })
 
-        const data = await simpleNodeDB.getData("dataTxt")
+        const data = await sdb.getData("dataTxt")
 
         assert.deepStrictEqual(data, [
             { key1: "1", key2: "2" },
@@ -193,7 +187,7 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a compressed txt file", async () => {
-        await simpleNodeDB.loadData(
+        await sdb.loadData(
             "dataTxtCompressed",
             ["test/data/files/dataCsvCompressed.txt"],
             {
@@ -202,7 +196,7 @@ describe("loadData", () => {
             }
         )
 
-        const data = await simpleNodeDB.getData("dataTxtCompressed")
+        const data = await sdb.getData("dataTxtCompressed")
 
         assert.deepStrictEqual(data, [
             { key1: "1", key2: "2" },
@@ -212,9 +206,9 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a json file", async () => {
-        await simpleNodeDB.loadData("dataJson", ["test/data/files/data.json"])
+        await sdb.loadData("dataJson", ["test/data/files/data.json"])
 
-        const data = await simpleNodeDB.getData("dataJson")
+        const data = await sdb.getData("dataJson")
 
         assert.deepStrictEqual(data, [
             {
@@ -236,11 +230,11 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a json file with a limit", async () => {
-        await simpleNodeDB.loadData("dataJson", ["test/data/files/data.json"], {
+        await sdb.loadData("dataJson", ["test/data/files/data.json"], {
             limit: 2,
         })
 
-        const data = await simpleNodeDB.getData("dataJson")
+        const data = await sdb.getData("dataJson")
 
         assert.deepStrictEqual(data, [
             {
@@ -254,14 +248,12 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a json file and keep the bigint", async () => {
-        const simpleNodeDBBigInt = new SimpleNodeDB({
+        const sdbBigInt = new SimpleDB({
             bigIntToInt: false,
         })
-        await simpleNodeDBBigInt.loadData("dataJson", [
-            "test/data/files/data.json",
-        ])
+        await sdbBigInt.loadData("dataJson", ["test/data/files/data.json"])
 
-        const data = await simpleNodeDBBigInt.getData("dataJson")
+        const data = await sdbBigInt.getData("dataJson")
 
         assert.deepStrictEqual(data, [
             {
@@ -283,11 +275,9 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a parquet file", async () => {
-        await simpleNodeDB.loadData("dataParquet", [
-            "test/data/files/data.parquet",
-        ])
+        await sdb.loadData("dataParquet", ["test/data/files/data.parquet"])
 
-        const data = await simpleNodeDB.getData("dataParquet")
+        const data = await sdb.getData("dataParquet")
 
         assert.deepStrictEqual(data, [
             {
@@ -309,13 +299,11 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a parquet file", async () => {
-        await simpleNodeDB.loadData(
-            "dataParquet",
-            ["test/data/files/data.parquet"],
-            { limit: 2 }
-        )
+        await sdb.loadData("dataParquet", ["test/data/files/data.parquet"], {
+            limit: 2,
+        })
 
-        const data = await simpleNodeDB.getData("dataParquet")
+        const data = await sdb.getData("dataParquet")
 
         assert.deepStrictEqual(data, [
             {
@@ -329,11 +317,11 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a compressed parquet file", async () => {
-        await simpleNodeDB.loadData("dataParquetCompressed", [
+        await sdb.loadData("dataParquetCompressed", [
             "test/data/files/data.parquet",
         ])
 
-        const data = await simpleNodeDB.getData("dataParquetCompressed")
+        const data = await sdb.getData("dataParquetCompressed")
 
         assert.deepStrictEqual(data, [
             {
@@ -355,13 +343,13 @@ describe("loadData", () => {
         ])
     })
     it("should load data from multiple files", async () => {
-        await simpleNodeDB.loadData("multipleFiles", [
+        await sdb.loadData("multipleFiles", [
             "test/data/directory/data1.csv",
             "test/data/directory/data2.csv",
             "test/data/directory/data3.csv",
         ])
 
-        const data = await simpleNodeDB.getData("multipleFiles")
+        const data = await sdb.getData("multipleFiles")
 
         assert.deepStrictEqual(data, [
             { key1: 1, key2: "un" },
@@ -378,7 +366,7 @@ describe("loadData", () => {
         ])
     })
     it("should load data from multiple files and add a column with the file name.", async () => {
-        await simpleNodeDB.loadData(
+        await sdb.loadData(
             "multipleFilesFileName",
             [
                 "test/data/directory/data1.csv",
@@ -388,7 +376,7 @@ describe("loadData", () => {
             { fileName: true }
         )
 
-        const data = await simpleNodeDB.getData("multipleFilesFileName")
+        const data = await sdb.getData("multipleFilesFileName")
 
         assert.deepStrictEqual(data, [
             {
@@ -449,7 +437,7 @@ describe("loadData", () => {
         ])
     })
     it("should load data from multiple files and unify the columns.", async () => {
-        await simpleNodeDB.loadData(
+        await sdb.loadData(
             "multipleFilesColumns",
             [
                 "test/data/directory/data1.csv",
@@ -460,7 +448,7 @@ describe("loadData", () => {
             { unifyColumns: true }
         )
 
-        const data = await simpleNodeDB.getData("multipleFilesColumns")
+        const data = await sdb.getData("multipleFilesColumns")
         assert.deepStrictEqual(data, [
             { key1: 1, key2: "un", key3: null },
             { key1: 2, key2: "deux", key3: null },
@@ -479,14 +467,14 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a json file with specific types for each column", async () => {
-        await simpleNodeDB.loadData("dataJson", ["test/data/files/data.json"], {
+        await sdb.loadData("dataJson", ["test/data/files/data.json"], {
             columnTypes: {
                 key1: "VARCHAR",
                 key2: "VARCHAR",
             },
         })
 
-        const data = await simpleNodeDB.getData("dataJson")
+        const data = await sdb.getData("dataJson")
 
         assert.deepStrictEqual(data, [
             {
@@ -509,7 +497,7 @@ describe("loadData", () => {
     })
     // Doesn't work
     // it("should load data from a xlsx url", async () => {
-    //     const sdb = new SimpleNodeDB()
+    //     const sdb = new SimpleDB()
     //     await sdb.loadData("dataXlsxOneSheetUrl", [
     //         "https://github.com/nshiab/simple-data-analysis/raw/main/test/data/files/populations-one-sheet.xlsx",
     //     ])
@@ -522,7 +510,7 @@ describe("loadData", () => {
     //     ])
     // })
     it("should load data from a xlsx file", async () => {
-        const sdb = new SimpleNodeDB()
+        const sdb = new SimpleDB()
         await sdb.loadData("dataXlsxOneSheet", [
             "test/data/files/populations-one-sheet.xlsx",
         ])
@@ -535,7 +523,7 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a xlsx file with a limit", async () => {
-        const sdb = new SimpleNodeDB()
+        const sdb = new SimpleDB()
         await sdb.loadData(
             "dataXlsxOneSheet",
             ["test/data/files/populations-one-sheet.xlsx"],
@@ -549,7 +537,7 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a specific sheet in an xlsx file", async () => {
-        const sdb = new SimpleNodeDB()
+        const sdb = new SimpleDB()
         await sdb.loadData(
             "dataXlsxTwoSheets",
             "test/data/files/populations-two-sheets.xlsx",
@@ -564,7 +552,7 @@ describe("loadData", () => {
         ])
     })
     it("should load data from a xlsx file even if spatial is true", async () => {
-        const sdb = new SimpleNodeDB({ spatial: true })
+        const sdb = new SimpleDB({ spatial: true })
         await sdb.loadData("dataXlsxOneSheet", [
             "test/data/files/populations-one-sheet.xlsx",
         ])

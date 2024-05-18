@@ -1,30 +1,30 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("crossJoin", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return all pairs of rows", async () => {
-        await simpleNodeDB.loadArray("numbers", [
+        await sdb.loadArray("numbers", [
             { key1: 1 },
             { key1: 2 },
             { key1: 3 },
             { key1: 4 },
         ])
-        await simpleNodeDB.loadArray("letters", [
+        await sdb.loadArray("letters", [
             { key2: "a" },
             { key2: "b" },
             { key2: "c" },
             { key2: "d" },
         ])
-        await simpleNodeDB.crossJoin("numbers", "letters")
-        const data = await simpleNodeDB.getData("numbers")
+        await sdb.crossJoin("numbers", "letters")
+        const data = await sdb.getData("numbers")
         assert.deepStrictEqual(data, [
             { key1: 1, key2: "a" },
             { key1: 1, key2: "b" },
@@ -45,22 +45,22 @@ describe("crossJoin", () => {
         ])
     })
     it("should return all pairs of rows in a new table", async () => {
-        await simpleNodeDB.loadArray("numbers", [
+        await sdb.loadArray("numbers", [
             { key1: 1 },
             { key1: 2 },
             { key1: 3 },
             { key1: 4 },
         ])
-        await simpleNodeDB.loadArray("letters", [
+        await sdb.loadArray("letters", [
             { key2: "a" },
             { key2: "b" },
             { key2: "c" },
             { key2: "d" },
         ])
-        await simpleNodeDB.crossJoin("numbers", "letters", {
+        await sdb.crossJoin("numbers", "letters", {
             outputTable: "joined",
         })
-        const data = await simpleNodeDB.getData("joined")
+        const data = await sdb.getData("joined")
         assert.deepStrictEqual(data, [
             { key1: 1, key2: "a" },
             { key1: 1, key2: "b" },

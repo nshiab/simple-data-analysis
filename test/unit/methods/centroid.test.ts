@@ -1,34 +1,31 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 import { existsSync, mkdirSync, readFileSync } from "fs"
 
 describe("centroid", () => {
     const output = "./test/output/"
 
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
         if (!existsSync(output)) {
             mkdirSync(output)
         }
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
-        await simpleNodeDB.loadGeoData(
+        sdb = new SimpleDB({ spatial: true })
+        await sdb.loadGeoData(
             "geodata",
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should computes the centroids", async () => {
-        await simpleNodeDB.centroid("geodata", "geom", "centroid")
+        await sdb.centroid("geodata", "geom", "centroid")
 
-        await simpleNodeDB.selectColumns("geodata", ["nameEnglish", "centroid"])
+        await sdb.selectColumns("geodata", ["nameEnglish", "centroid"])
 
-        await simpleNodeDB.writeGeoData(
-            "geodata",
-            `${output}/centroidTest.geojson`
-        )
+        await sdb.writeGeoData("geodata", `${output}/centroidTest.geojson`)
 
         const data = JSON.parse(
             readFileSync(`${output}/centroidTest.geojson`, "utf-8")

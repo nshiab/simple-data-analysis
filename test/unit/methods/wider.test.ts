@@ -1,21 +1,21 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("wider", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("dataTidy", "test/data/files/dataTidy.json")
+        sdb = new SimpleDB()
+        await sdb.loadData("dataTidy", "test/data/files/dataTidy.json")
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should untidy data by expanding mutiple columns", async () => {
-        await simpleNodeDB.wider("dataTidy", "year", "employees")
+        await sdb.wider("dataTidy", "year", "employees")
 
-        await simpleNodeDB.sort("dataTidy", { Department: "asc" })
-        const data = await simpleNodeDB.getData("dataTidy")
+        await sdb.sort("dataTidy", { Department: "asc" })
+        const data = await sdb.getData("dataTidy")
 
         assert.deepStrictEqual(data, [
             {

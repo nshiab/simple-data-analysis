@@ -1,24 +1,21 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("getUniques", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return the unique values of a column", async () => {
-        await simpleNodeDB.loadData("dataDuplicatesCsv", [
+        await sdb.loadData("dataDuplicatesCsv", [
             "test/data/files/dataDuplicates.csv",
         ])
 
-        const uniques = await simpleNodeDB.getUniques(
-            "dataDuplicatesCsv",
-            "key1"
-        )
+        const uniques = await sdb.getUniques("dataDuplicatesCsv", "key1")
 
         assert.deepStrictEqual(uniques, ["1", "3", "8", "brioche"])
     })

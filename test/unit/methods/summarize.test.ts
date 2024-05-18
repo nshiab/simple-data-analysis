@@ -1,23 +1,23 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("summarize", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData(
+        sdb = new SimpleDB()
+        await sdb.loadData(
             "dataSummarize",
             "test/data/files/dataSummarize.json"
         )
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should summarize all numeric columns in a table and overwrite the table", async () => {
-        await simpleNodeDB.cloneTable("dataSummarize", "dataSummarizeClone")
-        await simpleNodeDB.summarize("dataSummarizeClone")
-        const data = await simpleNodeDB.getData("dataSummarizeClone")
+        await sdb.cloneTable("dataSummarize", "dataSummarizeClone")
+        await sdb.summarize("dataSummarizeClone")
+        const data = await sdb.getData("dataSummarizeClone")
 
         assert.deepStrictEqual(data, [
             {
@@ -66,9 +66,9 @@ describe("summarize", () => {
     })
 
     it("should summarize with 2 decimals all columns in a table and overwrite the table", async () => {
-        await simpleNodeDB.cloneTable("dataSummarize", "dataSummarizeClone")
-        await simpleNodeDB.summarize("dataSummarizeClone", { decimals: 2 })
-        const data = await simpleNodeDB.getData("dataSummarizeClone")
+        await sdb.cloneTable("dataSummarize", "dataSummarizeClone")
+        await sdb.summarize("dataSummarizeClone", { decimals: 2 })
+        const data = await sdb.getData("dataSummarizeClone")
 
         assert.deepStrictEqual(data, [
             {
@@ -117,11 +117,11 @@ describe("summarize", () => {
     })
 
     it("should summarize all columns in a table and output the results in another table", async () => {
-        await simpleNodeDB.summarize("dataSummarize", {
+        await sdb.summarize("dataSummarize", {
             decimals: 2,
             outputTable: "dataSummarizeAll",
         })
-        const data = await simpleNodeDB.getData("dataSummarizeAll")
+        const data = await sdb.getData("dataSummarizeAll")
 
         assert.deepStrictEqual(data, [
             {
@@ -170,12 +170,12 @@ describe("summarize", () => {
     })
 
     it("should summarize specific columns in a table", async () => {
-        await simpleNodeDB.summarize("dataSummarize", {
+        await sdb.summarize("dataSummarize", {
             decimals: 2,
             outputTable: "dataSummarizeOneValue",
             values: "key2",
         })
-        const data = await simpleNodeDB.getData("dataSummarizeOneValue")
+        const data = await sdb.getData("dataSummarizeOneValue")
 
         assert.deepStrictEqual(data, [
             {
@@ -196,12 +196,12 @@ describe("summarize", () => {
     })
 
     it("should summarize specific columns in a table with a specific number of decimals", async () => {
-        await simpleNodeDB.summarize("dataSummarize", {
+        await sdb.summarize("dataSummarize", {
             outputTable: "dataSummarizeOneValueDecimals",
             values: "key2",
             decimals: 4,
         })
-        const data = await simpleNodeDB.getData("dataSummarizeOneValueDecimals")
+        const data = await sdb.getData("dataSummarizeOneValueDecimals")
 
         assert.deepStrictEqual(data, [
             {
@@ -222,15 +222,13 @@ describe("summarize", () => {
     })
 
     it("should summarize all columns in a table with a non numeric category", async () => {
-        await simpleNodeDB.summarize("dataSummarize", {
+        await sdb.summarize("dataSummarize", {
             decimals: 2,
             outputTable: "dataSummarizeNonNumericalCategory",
             categories: "key1",
         })
 
-        const data = await simpleNodeDB.getData(
-            "dataSummarizeNonNumericalCategory"
-        )
+        const data = await sdb.getData("dataSummarizeNonNumericalCategory")
 
         assert.deepStrictEqual(data, [
             {
@@ -327,14 +325,12 @@ describe("summarize", () => {
     })
 
     it("should summarize all columns in a table with a numeric category", async () => {
-        await simpleNodeDB.summarize("dataSummarize", {
+        await sdb.summarize("dataSummarize", {
             decimals: 2,
             outputTable: "dataSummarizeNumericalCategory",
             categories: "key2",
         })
-        const data = await simpleNodeDB.getData(
-            "dataSummarizeNumericalCategory"
-        )
+        const data = await sdb.getData("dataSummarizeNumericalCategory")
 
         assert.deepStrictEqual(data, [
             {
@@ -491,14 +487,12 @@ describe("summarize", () => {
     })
 
     it("should summarize all columns in a table with specific summaries", async () => {
-        await simpleNodeDB.summarize("dataSummarize", {
+        await sdb.summarize("dataSummarize", {
             decimals: 2,
             outputTable: "dataSummarizeAllSpecificSummaries",
             summaries: ["mean", "count"],
         })
-        const data = await simpleNodeDB.getData(
-            "dataSummarizeAllSpecificSummaries"
-        )
+        const data = await sdb.getData("dataSummarizeAllSpecificSummaries")
 
         assert.deepStrictEqual(data, [
             { value: "key1", mean: null, count: 6 },
@@ -508,13 +502,13 @@ describe("summarize", () => {
     })
 
     it("should summarize all columns in a table with specific summaries and specific categories", async () => {
-        await simpleNodeDB.summarize("dataSummarize", {
+        await sdb.summarize("dataSummarize", {
             decimals: 2,
             outputTable: "dataSummarizeAllSpecificSummariesAndCategories",
             categories: "key1",
             summaries: ["mean", "count"],
         })
-        const data = await simpleNodeDB.getData(
+        const data = await sdb.getData(
             "dataSummarizeAllSpecificSummariesAndCategories"
         )
 
@@ -529,13 +523,13 @@ describe("summarize", () => {
     })
 
     it("should summarize specific columns in a table with specific summaries and specific categories", async () => {
-        await simpleNodeDB.summarize("dataSummarize", {
+        await sdb.summarize("dataSummarize", {
             outputTable: "dataSummarizeAllSpecificValuesSummariesAndCategories",
             values: "key2",
             categories: "key1",
             summaries: ["mean", "count"],
         })
-        const data = await simpleNodeDB.getData(
+        const data = await sdb.getData(
             "dataSummarizeAllSpecificValuesSummariesAndCategories"
         )
 
@@ -547,16 +541,14 @@ describe("summarize", () => {
     })
 
     it("should summarize with multiple categories", async () => {
-        await simpleNodeDB.summarize("dataSummarize", {
+        await sdb.summarize("dataSummarize", {
             decimals: 2,
             outputTable: "dataSummarizeMultipleCategories",
             values: "key3",
             categories: ["key1", "key2"],
             summaries: ["mean", "count"],
         })
-        const data = await simpleNodeDB.getData(
-            "dataSummarizeMultipleCategories"
-        )
+        const data = await sdb.getData("dataSummarizeMultipleCategories")
 
         assert.deepStrictEqual(data, [
             { value: "key3", key1: "Banane", key2: null, mean: null, count: 2 },
@@ -568,7 +560,7 @@ describe("summarize", () => {
     })
 
     it("should summarize with dates", async () => {
-        await simpleNodeDB.loadArray("dates", [
+        await sdb.loadArray("dates", [
             { keyA: new Date("2023-01-01") },
             { keyA: new Date("2022-01-01") },
             { keyA: new Date("2022-01-01") },
@@ -576,8 +568,8 @@ describe("summarize", () => {
             { keyA: null },
         ])
 
-        await simpleNodeDB.summarize("dates")
-        const data = await simpleNodeDB.getData("dates")
+        await sdb.summarize("dates")
+        const data = await sdb.getData("dates")
 
         assert.deepStrictEqual(data, [
             {

@@ -104,8 +104,8 @@
                             a simplified interface for working with DuckDB, a
                             high-performance in-memory analytical database. This
                             class is meant to be used in a web browser. For
-                            NodeJS and similar runtimes, use SimpleNodeDB with
-                            the spatial option set to true.
+                            NodeJS and similar runtimes, use SimpleDB with the
+                            spatial option set to true.
                         </p>
                         <p>
                             Here&#39;s how to instantiate a SimpleGeoDB
@@ -147,9 +147,9 @@
                                     <ul class="tsd-hierarchy">
                                         <li>
                                             <a
-                                                href="SimpleNodeDB.html"
+                                                href="SimpleDB.html"
                                                 class="tsd-signature-type tsd-kind-class"
-                                                >SimpleNodeDB</a
+                                                >SimpleDB</a
                                             >
                                         </li>
                                     </ul>
@@ -1771,9 +1771,9 @@
                         </div>
                         <div class="tsd-comment tsd-typography">
                             <p>
-                                A flag for SimpleNodeDB. Default is true. When
-                                data is retrieved from the database as an array
-                                of objects, BIGINT values are automatically
+                                A flag for SimpleDB. Default is true. When data
+                                is retrieved from the database as an array of
+                                objects, BIGINT values are automatically
                                 converted to integers, which are easier to work
                                 with in JavaScript. If you want actual bigint
                                 values, set this option to false.
@@ -9388,8 +9388,8 @@
                                         spatial join. Note that the returned
                                         data is not guaranteed to be in the same
                                         order as the original tables. With
-                                        SimpleNodeDB, it might create a .tmp
-                                        folder, so make sure to add .tmp to your
+                                        SimpleDB, it might create a .tmp folder,
+                                        so make sure to add .tmp to your
                                         gitignore.
                                     </p>
                                     <pre><code class="language-ts"><span class="hl-7">// Merges data of tableA and tableB based on geometries that intersect in tableA and tableB. By default, the method looks for columns named &#39;geom&#39; storing the geometries in the tables, does a left join and overwrites leftTable (tableA) with the results. The method also appends the name of the table to the &#39;geom&#39; columns in the returned data.</span><br/><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-0">sdb</span><span class="hl-1">.</span><span class="hl-11">joinGeo</span><span class="hl-1">(</span><span class="hl-9">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;intersect&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;tableB&quot;</span><span class="hl-1">,)</span><br/><br/><span class="hl-7">// Same thing but with specific column names storing geometries, a specific join type, and returning the results in a new table.</span><br/><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-0">sdb</span><span class="hl-1">.</span><span class="hl-11">joinGeo</span><span class="hl-1">(</span><span class="hl-9">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;intersect&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;tableB&quot;</span><span class="hl-1">, {</span><span class="hl-0">geoColumnLeft:</span><span class="hl-1"> </span><span class="hl-9">&quot;geometriesA&quot;</span><span class="hl-1">, </span><span class="hl-0">geoColumnRight:</span><span class="hl-1"> </span><span class="hl-9">&quot;geometriesB&quot;</span><span class="hl-1">, </span><span class="hl-0">type:</span><span class="hl-1"> </span><span class="hl-9">&quot;inner&quot;</span><span class="hl-1">, </span><span class="hl-0">outputTable:</span><span class="hl-1"> </span><span class="hl-9">&quot;tableC&quot;</span><span class="hl-1">})</span><br/><br/><span class="hl-7">// Merges data based on geometries in table A that are inside geometries in table B. The table order is important.</span><br/><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-0">sdb</span><span class="hl-1">.</span><span class="hl-11">joinGeo</span><span class="hl-1">(</span><span class="hl-9">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;inside&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;tableB&quot;</span><span class="hl-1">)</span>
@@ -17656,9 +17656,9 @@
                                         two tables returning all pairs of rows.
                                         Note that the returned data is not
                                         guaranteed to be in the same order as
-                                        the original tables. With SimpleNodeDB,
-                                        it might create a .tmp folder, so make
-                                        sure to add .tmp to your gitignore.
+                                        the original tables. With SimpleDB, it
+                                        might create a .tmp folder, so make sure
+                                        to add .tmp to your gitignore.
                                     </p>
                                     <pre><code class="language-ts"><span class="hl-7">// By default, the leftTable (tableA here) will be overwritten with the result.</span><br/><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-11">crossJoin</span><span class="hl-1">(</span><span class="hl-9">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;tableB&quot;</span><span class="hl-1">);</span><br/><br/><span class="hl-7">// But you can put the result into another table if needed.</span><br/><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-11">crossJoin</span><span class="hl-1">(</span><span class="hl-9">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;tableB&quot;</span><span class="hl-1">, { </span><span class="hl-0">outputTable:</span><span class="hl-1"> </span><span class="hl-9">&quot;tableC&quot;</span><span class="hl-1"> });</span>
 </code><button>Copy</button></pre>
@@ -17873,8 +17873,8 @@
                                         common column. Note that the returned
                                         data is not guaranteed to be in the same
                                         order as the original tables. With
-                                        SimpleNodeDB, it might create a .tmp
-                                        folder, so make sure to add .tmp to your
+                                        SimpleDB, it might create a .tmp folder,
+                                        so make sure to add .tmp to your
                                         gitignore.
                                     </p>
                                     <pre><code class="language-ts"><span class="hl-7">// By default, the method automatically looks for a common column in the two tables and does a left join of tableA (left) and tableB (right). The leftTable (tableA here) will be overwritten with the result.</span><br/><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-0">sdb</span><span class="hl-1">.</span><span class="hl-11">join</span><span class="hl-1">(</span><span class="hl-9">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;tableB&quot;</span><span class="hl-1">)</span><br/><br/><span class="hl-7">// You can change the common column, the join type, and the output table in options.</span><br/><span class="hl-8">await</span><span class="hl-1"> </span><span class="hl-0">sdb</span><span class="hl-1">.</span><span class="hl-11">join</span><span class="hl-1">(</span><span class="hl-9">&quot;tableA&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;tableB&quot;</span><span class="hl-1">, { </span><span class="hl-0">commonColumn:</span><span class="hl-1"> </span><span class="hl-9">&#39;id&#39;</span><span class="hl-1">, </span><span class="hl-0">type:</span><span class="hl-1"> </span><span class="hl-9">&#39;inner&#39;</span><span class="hl-1">, </span><span class="hl-0">outputTable:</span><span class="hl-1"> </span><span class="hl-9">&#39;tableC&#39;</span><span class="hl-1"> })</span>

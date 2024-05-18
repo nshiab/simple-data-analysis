@@ -1,31 +1,28 @@
 import assert from "assert"
 import { existsSync, mkdirSync, readFileSync } from "fs"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("linesTopolygons", () => {
     const output = "./test/output/"
 
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
         if (!existsSync(output)) {
             mkdirSync(output)
         }
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB({ spatial: true })
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should unnest geometries", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "geodata",
             "test/geodata/files/closedLines.geojson"
         )
-        await simpleNodeDB.linesToPolygons("geodata", "geom")
-        await simpleNodeDB.writeGeoData(
-            "geodata",
-            `${output}linesFromPolygons.geojson`
-        )
+        await sdb.linesToPolygons("geodata", "geom")
+        await sdb.writeGeoData("geodata", `${output}linesFromPolygons.geojson`)
 
         const data = JSON.parse(
             readFileSync(`${output}linesFromPolygons.geojson`, "utf-8")

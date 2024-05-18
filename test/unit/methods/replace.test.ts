@@ -1,27 +1,27 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("replace", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should replace the text in one column", async () => {
-        await simpleNodeDB.loadData("employeesOneColumn", [
+        await sdb.loadData("employeesOneColumn", [
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.replace(
+        await sdb.replace(
             "employeesOneColumn",
             ["Name", "End-of_year-BONUS?"],
             { "%": "" }
         )
 
-        const data = await simpleNodeDB.getData("employeesOneColumn")
+        const data = await sdb.getData("employeesOneColumn")
 
         assert.deepStrictEqual(data, [
             {
@@ -436,17 +436,17 @@ describe("replace", () => {
     })
 
     it("should replace substings in one column", async () => {
-        await simpleNodeDB.loadData("employeesSubstring", [
+        await sdb.loadData("employeesSubstring", [
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.replace(
+        await sdb.replace(
             "employeesSubstring",
             ["Name", "End-of_year-BONUS?"],
             { a: "@" }
         )
 
-        const data = await simpleNodeDB.getData("employeesSubstring")
+        const data = await sdb.getData("employeesSubstring")
 
         assert.deepStrictEqual(data, [
             {
@@ -861,18 +861,18 @@ describe("replace", () => {
     })
 
     it("should replace entire strings in one column", async () => {
-        await simpleNodeDB.loadData("employeesEntireString", [
+        await sdb.loadData("employeesEntireString", [
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.replace(
+        await sdb.replace(
             "employeesEntireString",
             ["Name", "End-of_year-BONUS?"],
             { "Grant, Douglas": "BOSS" },
             { entireString: true }
         )
 
-        const data = await simpleNodeDB.getData("employeesEntireString")
+        const data = await sdb.getData("employeesEntireString")
 
         assert.deepStrictEqual(data, [
             {
@@ -1287,19 +1287,17 @@ describe("replace", () => {
     })
 
     it("should replace multiple texts in one column", async () => {
-        await simpleNodeDB.loadData("employeesOneColumnMultipleTexts", [
+        await sdb.loadData("employeesOneColumnMultipleTexts", [
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.replace(
+        await sdb.replace(
             "employeesOneColumnMultipleTexts",
             ["End-of_year-BONUS?"],
             { "%": "", ",": "." }
         )
 
-        const data = await simpleNodeDB.getData(
-            "employeesOneColumnMultipleTexts"
-        )
+        const data = await sdb.getData("employeesOneColumnMultipleTexts")
 
         assert.deepStrictEqual(data, [
             {
@@ -1714,17 +1712,17 @@ describe("replace", () => {
     })
 
     it("should replace the text in multiple columns", async () => {
-        await simpleNodeDB.loadData("employeesMultipleColumns", [
+        await sdb.loadData("employeesMultipleColumns", [
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.replace(
+        await sdb.replace(
             "employeesMultipleColumns",
             ["Name", "End-of_year-BONUS?"],
             { ",": " => " }
         )
 
-        const data = await simpleNodeDB.getData("employeesMultipleColumns")
+        const data = await sdb.getData("employeesMultipleColumns")
 
         assert.deepStrictEqual(data, [
             {
@@ -2139,19 +2137,17 @@ describe("replace", () => {
     })
 
     it("should replace multiple texts in multiple columns", async () => {
-        await simpleNodeDB.loadData("employeesMultipleColumnsMultipleTexts", [
+        await sdb.loadData("employeesMultipleColumnsMultipleTexts", [
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.replace(
+        await sdb.replace(
             "employeesMultipleColumnsMultipleTexts",
             ["Name", "End-of_year-BONUS?"],
             { "%": "", ",": "." }
         )
 
-        const data = await simpleNodeDB.getData(
-            "employeesMultipleColumnsMultipleTexts"
-        )
+        const data = await sdb.getData("employeesMultipleColumnsMultipleTexts")
 
         assert.deepStrictEqual(data, [
             {
@@ -2565,19 +2561,15 @@ describe("replace", () => {
         ])
     })
     it("should work with ' without throwing an error", async () => {
-        await simpleNodeDB.loadData("employeesMultipleColumnsSingleQuote", [
+        await sdb.loadData("employeesMultipleColumnsSingleQuote", [
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.replace(
-            "employeesMultipleColumnsSingleQuote",
-            ["Name"],
-            { ",": "'" }
-        )
+        await sdb.replace("employeesMultipleColumnsSingleQuote", ["Name"], {
+            ",": "'",
+        })
 
-        const data = await simpleNodeDB.getData(
-            "employeesMultipleColumnsSingleQuote"
-        )
+        const data = await sdb.getData("employeesMultipleColumnsSingleQuote")
 
         assert.deepStrictEqual(data, [
             {
@@ -2991,18 +2983,18 @@ describe("replace", () => {
         ])
     })
     it("should use a regular expression", async () => {
-        await simpleNodeDB.loadData("employeesMultipleColumnsRegex", [
+        await sdb.loadData("employeesMultipleColumnsRegex", [
             "test/data/files/employees.csv",
         ])
 
-        await simpleNodeDB.replace(
+        await sdb.replace(
             "employeesMultipleColumnsRegex",
             "Hire date",
             { "\\d+": "-" },
             { regex: true }
         )
 
-        const data = await simpleNodeDB.getData("employeesMultipleColumnsRegex")
+        const data = await sdb.getData("employeesMultipleColumnsRegex")
 
         assert.deepStrictEqual(data, [
             {

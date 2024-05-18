@@ -9,7 +9,7 @@ import joinGeo from "../methods/joinGeo.js"
 import SimpleWebDB from "./SimpleWebDB.js"
 
 /**
- * SimpleGeoDB extends the SimpleWebDB class by adding methods for geospatial analysis. This class provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleNodeDB with the spatial option set to true.
+ * SimpleGeoDB extends the SimpleWebDB class by adding methods for geospatial analysis. This class provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleDB with the spatial option set to true.
  *
  * Here's how to instantiate a SimpleGeoDB instance.
  *
@@ -64,9 +64,9 @@ export default class SimpleGeoDB extends SimpleWebDB {
      */
     async loadGeoData(table: string, file: string) {
         if (this.spatial === false) {
-            // Just for SimpleNodeDB
+            // Just for SimpleDB
             throw new Error(
-                "You must instanciate with spatial set to true => new SimpleNodeDB({spatial: true})"
+                "You must instanciate with spatial set to true => new SimpleDB({spatial: true})"
             )
         }
 
@@ -399,7 +399,7 @@ export default class SimpleGeoDB extends SimpleWebDB {
     }
 
     /**
-     * Merges the data of two tables based on a spatial join. Note that the returned data is not guaranteed to be in the same order as the original tables. With SimpleNodeDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
+     * Merges the data of two tables based on a spatial join. Note that the returned data is not guaranteed to be in the same order as the original tables. With SimpleDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
      *
      * ```ts
      * // Merges data of tableA and tableB based on geometries that intersect in tableA and tableB. By default, the method looks for columns named 'geom' storing the geometries in the tables, does a left join and overwrites leftTable (tableA) with the results. The method also appends the name of the table to the 'geom' columns in the returned data.

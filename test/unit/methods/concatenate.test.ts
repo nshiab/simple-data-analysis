@@ -1,25 +1,19 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("concatenate", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("employees", [
-            "test/data/files/employees.json",
-        ])
+        sdb = new SimpleDB()
+        await sdb.loadData("employees", ["test/data/files/employees.json"])
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should concatenate multiple columns in a new one", async () => {
-        await simpleNodeDB.concatenate(
-            "employees",
-            ["Name", "Job"],
-            "concatenated"
-        )
-        const data = await simpleNodeDB.getData("employees")
+        await sdb.concatenate("employees", ["Name", "Job"], "concatenated")
+        const data = await sdb.getData("employees")
         assert.deepStrictEqual(
             [
                 {
@@ -487,7 +481,7 @@ describe("concatenate", () => {
     })
 
     it("should concatenate multiple columns in a new one with a separator", async () => {
-        await simpleNodeDB.concatenate(
+        await sdb.concatenate(
             "employees",
             ["Name", "Job"],
             "concatenatedWithSeparator",
@@ -495,7 +489,7 @@ describe("concatenate", () => {
                 separator: "-",
             }
         )
-        const data = await simpleNodeDB.getData("employees")
+        const data = await sdb.getData("employees")
 
         assert.deepStrictEqual(
             [

@@ -1,25 +1,25 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("getVar", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("data", ["test/data/files/data.json"])
+        sdb = new SimpleDB()
+        await sdb.loadData("data", ["test/data/files/data.json"])
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return the variance", async () => {
         assert.deepStrictEqual(
-            await simpleNodeDB.getVar("data", "key1"),
+            await sdb.getVar("data", "key1"),
             1.6666666666666667
         )
     })
     it("should return the variance rounded", async () => {
         assert.deepStrictEqual(
-            await simpleNodeDB.getVar("data", "key1", { decimals: 6 }),
+            await sdb.getVar("data", "key1", { decimals: 6 }),
             1.666667
         )
     })

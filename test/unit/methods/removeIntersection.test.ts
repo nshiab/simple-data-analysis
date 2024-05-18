@@ -1,47 +1,44 @@
 import { existsSync, mkdirSync, readFileSync } from "fs"
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("removeIntersection", () => {
     const output = "./test/output/"
 
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
         if (!existsSync(output)) {
             mkdirSync(output)
         }
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB({ spatial: true })
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should remove the small circle from the big circle", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "smallCircle",
             "test/geodata/files/smallCircle.json"
         )
-        await simpleNodeDB.renameColumns("smallCircle", {
+        await sdb.renameColumns("smallCircle", {
             geom: "smallCircleGeom",
         })
 
-        await simpleNodeDB.loadGeoData(
-            "bigCircle",
-            "test/geodata/files/bigCircle.json"
-        )
-        await simpleNodeDB.renameColumns("bigCircle", { geom: "bigCircleGeom" })
+        await sdb.loadGeoData("bigCircle", "test/geodata/files/bigCircle.json")
+        await sdb.renameColumns("bigCircle", { geom: "bigCircleGeom" })
 
-        await simpleNodeDB.crossJoin("smallCircle", "bigCircle", {
+        await sdb.crossJoin("smallCircle", "bigCircle", {
             outputTable: "joined",
         })
-        await simpleNodeDB.removeIntersection(
+        await sdb.removeIntersection(
             "joined",
             ["bigCircleGeom", "smallCircleGeom"],
             "bigCircleWithHole"
         )
 
-        await simpleNodeDB.selectColumns("joined", "bigCircleWithHole")
-        await simpleNodeDB.writeGeoData(
+        await sdb.selectColumns("joined", "bigCircleWithHole")
+        await sdb.writeGeoData(
             "joined",
             "test/output/bigCircleWithHole.geojson"
         )

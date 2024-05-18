@@ -1,32 +1,26 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 import { existsSync, mkdirSync, readFileSync } from "fs"
 
 describe("buffer", () => {
     const output = "./test/output/"
 
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
         if (!existsSync(output)) {
             mkdirSync(output)
         }
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB({ spatial: true })
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should create a buffer from points", async () => {
-        await simpleNodeDB.loadGeoData(
-            "points",
-            "test/geodata/files/point.json"
-        )
-        await simpleNodeDB.buffer("points", "geom", "buffer", 1)
-        await simpleNodeDB.selectColumns("points", "buffer")
-        await simpleNodeDB.writeGeoData(
-            "points",
-            `${output}pointsBuffer.geojson`
-        )
+        await sdb.loadGeoData("points", "test/geodata/files/point.json")
+        await sdb.buffer("points", "geom", "buffer", 1)
+        await sdb.selectColumns("points", "buffer")
+        await sdb.writeGeoData("points", `${output}pointsBuffer.geojson`)
 
         const data = JSON.parse(
             readFileSync(`${output}pointsBuffer.geojson`, "utf-8")
@@ -84,27 +78,20 @@ describe("buffer", () => {
         })
     })
     it("should create a buffer from polygons", async () => {
-        await simpleNodeDB.loadGeoData(
+        await sdb.loadGeoData(
             "polygons",
             "test/geodata/files/canada-not-4326.shp.zip"
         )
-        await simpleNodeDB.buffer("polygons", "geom", "buffer", 100_000)
-        await simpleNodeDB.selectColumns("polygons", "buffer")
-        const projection = await simpleNodeDB.getProjection(
+        await sdb.buffer("polygons", "geom", "buffer", 100_000)
+        await sdb.selectColumns("polygons", "buffer")
+        const projection = await sdb.getProjection(
             "test/geodata/files/canada-not-4326.shp.zip"
         )
-        await simpleNodeDB.reproject(
-            "polygons",
-            "buffer",
-            projection.code,
-            "EPSG:4326"
-        )
-        await simpleNodeDB.flipCoordinates("polygons", "buffer")
-        await simpleNodeDB.writeGeoData(
-            "polygons",
-            `${output}polygonsBuffer.geojson`,
-            { precision: 2 }
-        )
+        await sdb.reproject("polygons", "buffer", projection.code, "EPSG:4326")
+        await sdb.flipCoordinates("polygons", "buffer")
+        await sdb.writeGeoData("polygons", `${output}polygonsBuffer.geojson`, {
+            precision: 2,
+        })
 
         const data = JSON.parse(
             readFileSync(`${output}polygonsBuffer.geojson`, "utf-8")

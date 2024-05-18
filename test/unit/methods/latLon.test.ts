@@ -1,24 +1,21 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("latLon", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB({ spatial: true })
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should extract the lat and lon of points", async () => {
-        await simpleNodeDB.loadGeoData(
-            "points",
-            "test/geodata/files/pointsInside.json"
-        )
-        await simpleNodeDB.latLon("points", "geom", ["lat", "lon"])
-        await simpleNodeDB.removeColumns("points", "geom")
+        await sdb.loadGeoData("points", "test/geodata/files/pointsInside.json")
+        await sdb.latLon("points", "geom", ["lat", "lon"])
+        await sdb.removeColumns("points", "geom")
 
-        const data = await simpleNodeDB.getData("points")
+        const data = await sdb.getData("points")
 
         assert.deepStrictEqual(data, [
             {

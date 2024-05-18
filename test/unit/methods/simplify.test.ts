@@ -1,30 +1,30 @@
 import { existsSync, mkdirSync, readFileSync } from "fs"
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("simplify", () => {
     const output = "./test/output/"
 
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
         if (!existsSync(output)) {
             mkdirSync(output)
         }
 
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
-        await simpleNodeDB.loadGeoData(
+        sdb = new SimpleDB({ spatial: true })
+        await sdb.loadGeoData(
             "geodata",
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should simplify the geometries", async () => {
-        await simpleNodeDB.simplify("geodata", "geom", 0.5)
+        await sdb.simplify("geodata", "geom", 0.5)
 
-        await simpleNodeDB.writeGeoData(
+        await sdb.writeGeoData(
             "geoData",
             "./test/output/simplifiedCanadianProvincesAndTerritories.geojson"
         )

@@ -1,30 +1,26 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("cloneColumnWithOffset", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should clone a column", async () => {
-        await simpleNodeDB.loadArray("data", [
+        await sdb.loadArray("data", [
             { firstName: "nael", lastName: "shiab" },
             { firstName: "graeme", lastName: "bruce" },
             { firstName: "wendy", lastName: "martinez" },
             { firstName: "andrew", lastName: "ryan" },
         ])
 
-        await simpleNodeDB.cloneColumnWithOffset(
-            "data",
-            "firstName",
-            "nextFirstName"
-        )
+        await sdb.cloneColumnWithOffset("data", "firstName", "nextFirstName")
 
-        const data = await simpleNodeDB.getData("data")
+        const data = await sdb.getData("data")
 
         assert.deepStrictEqual(data, [
             { firstName: "nael", lastName: "shiab", nextFirstName: "graeme" },
