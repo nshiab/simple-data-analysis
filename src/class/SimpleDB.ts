@@ -88,6 +88,7 @@ export default class SimpleDB extends SimpleGeoDB {
             })
 
         const arrowTable = tableFromJSON(arrayOfObjects)
+        // Not need anymore with Table
         if (this.connection === undefined) {
             await this.start()
         }

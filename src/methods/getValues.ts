@@ -1,20 +1,19 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleWebDB from "../class/SimpleWebDB.js"
+import SimpleWebTable from "../class/SimpleWebTable.js"
 
 export default async function getValues(
-    SimpleWebDB: SimpleWebDB,
-    table: string,
+    simpleWebTable: SimpleWebTable,
     column: string
 ) {
     const queryResult = await queryDB(
-        SimpleWebDB,
-        `SELECT "${column}" FROM ${table}`,
-        mergeOptions(SimpleWebDB, {
-            table,
+        simpleWebTable,
+        `SELECT "${column}" FROM ${simpleWebTable.name}`,
+        mergeOptions(simpleWebTable, {
+            table: simpleWebTable.name,
             returnDataFrom: "query",
             method: "getValues()",
-            parameters: { table, column },
+            parameters: { column },
         })
     )
     if (!queryResult) {
@@ -23,7 +22,16 @@ export default async function getValues(
 
     const values = queryResult.map((d) => d[column])
 
-    SimpleWebDB.debug && console.log("values:", values)
+    simpleWebTable.debug &&
+        console.log(
+            "values:",
+            values.length > 5
+                ? JSON.stringify(values.slice(0, 5)).replace(
+                      "]",
+                      "...] (showing first 5 values)"
+                  )
+                : values
+        )
 
     return values
 }

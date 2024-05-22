@@ -1,10 +1,9 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleWebDB from "../class/SimpleWebDB.js"
+import SimpleWebTable from "../class/SimpleWebTable.js"
 
 export default async function getQuantile(
-    SimpleWebDB: SimpleWebDB,
-    table: string,
+    simpleWebTable: SimpleWebTable,
     column: string,
     quantile: number,
     options: {
@@ -12,15 +11,15 @@ export default async function getQuantile(
     } = {}
 ) {
     const queryResult = await queryDB(
-        SimpleWebDB,
+        simpleWebTable,
         typeof options.decimals === "number"
-            ? `SELECT ROUND(QUANTILE_CONT("${column}", ${quantile}), ${options.decimals}) AS valueForGetQuantile FROM ${table}`
-            : `SELECT QUANTILE_CONT("${column}", ${quantile}) AS valueForGetQuantile FROM ${table}`,
-        mergeOptions(SimpleWebDB, {
-            table,
+            ? `SELECT ROUND(QUANTILE_CONT("${column}", ${quantile}), ${options.decimals}) AS valueForGetQuantile FROM ${simpleWebTable.name}`
+            : `SELECT QUANTILE_CONT("${column}", ${quantile}) AS valueForGetQuantile FROM ${simpleWebTable.name}`,
+        mergeOptions(simpleWebTable, {
+            table: simpleWebTable.name,
             returnDataFrom: "query",
             method: "getQuantile()",
-            parameters: { table, column, quantile, options },
+            parameters: { column, quantile, options },
         })
     )
 
@@ -29,6 +28,6 @@ export default async function getQuantile(
     }
 
     const result = queryResult[0].valueForGetQuantile
-    SimpleWebDB.debug && console.log("quantile:", result)
+    simpleWebTable.debug && console.log("quantile:", result)
     return result as number
 }

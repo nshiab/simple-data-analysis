@@ -4,12 +4,12 @@ import {
     DuckDBDataProtocol,
 } from "@duckdb/duckdb-wasm"
 import getExtension from "../helpers/getExtension.js"
-import SimpleWebDB from "../class/SimpleWebDB.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import formatDuration from "../helpers/formatDuration.js"
+import SimpleWebTable from "../class/SimpleWebTable.js"
 
 export default async function loadDataBrowser(
-    SimpleWebDB: SimpleWebDB,
+    simpleWebTable: SimpleWebTable,
     table: string,
     url: string,
     options: {
@@ -21,16 +21,16 @@ export default async function loadDataBrowser(
         skip?: number
     } = {}
 ) {
-    SimpleWebDB.debug && console.log("\nloadData()")
-    SimpleWebDB.debug && console.log("parameters:", { table, url, options })
+    simpleWebTable.debug && console.log("\nloadData()")
+    simpleWebTable.debug && console.log("parameters:", { table, url, options })
 
     let start
-    if (SimpleWebDB.debug) {
+    if (simpleWebTable.debug) {
         start = Date.now()
     }
 
-    if (await SimpleWebDB.hasTable(table)) {
-        await SimpleWebDB.removeTables(table)
+    if (await simpleWebTable.hasTable(table)) {
+        await simpleWebTable.removeTables(table)
     }
 
     const fileExtension = getExtension(url)
@@ -42,7 +42,7 @@ export default async function loadDataBrowser(
         options.fileType === "dsv" ||
         typeof options.delim === "string"
     ) {
-        await (SimpleWebDB.db as AsyncDuckDB).registerFileURL(
+        await (simpleWebTable.db as AsyncDuckDB).registerFileURL(
             filename,
             url,
             DuckDBDataProtocol.HTTP,
@@ -50,7 +50,7 @@ export default async function loadDataBrowser(
         )
 
         await (
-            SimpleWebDB.connection as AsyncDuckDBConnection
+            simpleWebTable.connection as AsyncDuckDBConnection
         ).insertCSVFromPath(filename, {
             name: table,
             detect: options.autoDetect ?? true,
@@ -60,27 +60,27 @@ export default async function loadDataBrowser(
         })
     } else if (options.fileType === "json" || fileExtension === "json") {
         const res = await fetch(url)
-        await (SimpleWebDB.db as AsyncDuckDB).registerFileText(
+        await (simpleWebTable.db as AsyncDuckDB).registerFileText(
             filename,
             await res.text()
         )
         await (
-            SimpleWebDB.connection as AsyncDuckDBConnection
+            simpleWebTable.connection as AsyncDuckDBConnection
         ).insertJSONFromPath(filename, {
             name: table,
         })
     } else if (options.fileType === "parquet" || fileExtension === "parquet") {
-        await (SimpleWebDB.db as AsyncDuckDB).registerFileURL(
+        await (simpleWebTable.db as AsyncDuckDB).registerFileURL(
             filename,
             url,
             DuckDBDataProtocol.HTTP,
             false
         )
-        await SimpleWebDB.runQuery(
+        await simpleWebTable.runQuery(
             `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM parquet_scan('${filename}')`,
-            SimpleWebDB.connection,
+            simpleWebTable.connection,
             false,
-            mergeOptions(SimpleWebDB, {
+            mergeOptions(simpleWebTable, {
                 table: null,
                 method: null,
                 parameters: null,
@@ -97,7 +97,7 @@ export default async function loadDataBrowser(
         console.log(`Done in ${formatDuration(start, end)}`)
     }
 
-    if (SimpleWebDB.debug) {
-        await SimpleWebDB.logTable(table)
+    if (simpleWebTable.debug) {
+        await simpleWebTable.logTable(table)
     }
 }

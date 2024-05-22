@@ -1,19 +1,16 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleWebDB from "../class/SimpleWebDB.js"
+import SimpleWebTable from "../class/SimpleWebTable.js"
 
-export default async function getLength(
-    SimpleWebDB: SimpleWebDB,
-    table: string
-) {
+export default async function getNbRows(simpleWebTable: SimpleWebTable) {
     const queryResult = await queryDB(
-        SimpleWebDB,
-        `SELECT COUNT(*) FROM ${table}`,
-        mergeOptions(SimpleWebDB, {
-            table,
+        simpleWebTable,
+        `SELECT COUNT(*) FROM ${simpleWebTable.name}`,
+        mergeOptions(simpleWebTable, {
+            table: simpleWebTable.name,
             returnDataFrom: "query",
             method: "getLength()",
-            parameters: { table },
+            parameters: {},
         })
     )
 
@@ -22,7 +19,7 @@ export default async function getLength(
     }
     const length = queryResult[0]["count_star()"] as number
 
-    SimpleWebDB.debug && console.log("length:", length)
+    simpleWebTable.debug && console.log("length:", length)
 
     return length
 }

@@ -2,12 +2,11 @@ import getCombinations from "../helpers/getCombinations.js"
 import keepNumericalColumns from "../helpers/keepNumericalColumns.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleWebDB from "../class/SimpleWebDB.js"
 import correlationsQuery from "./correlationsQuery.js"
+import SimpleWebTable from "../class/SimpleWebTable.js"
 
 export default async function correlations(
-    SimpleWebDB: SimpleWebDB,
-    table: string,
+    simpleWebTable: SimpleWebTable,
     options: {
         x?: string
         y?: string
@@ -16,17 +15,17 @@ export default async function correlations(
         outputTable?: string
     } = {}
 ) {
-    SimpleWebDB.debug && console.log("\ncorrelations()")
+    simpleWebTable.debug && console.log("\ncorrelations()")
 
-    const outputTable = options.outputTable ?? table
+    const outputTable = options.outputTable ?? simpleWebTable.name
 
     let combinations: [string, string][] = []
     if (!options.x && !options.y) {
-        const types = await SimpleWebDB.getTypes(table)
+        const types = await simpleWebTable.getTypes()
         const columns = keepNumericalColumns(types)
         combinations = getCombinations(columns, 2)
     } else if (options.x && !options.y) {
-        const types = await SimpleWebDB.getTypes(table)
+        const types = await simpleWebTable.getTypes()
         const columns = keepNumericalColumns(types)
         combinations = []
         for (const col of columns) {
@@ -41,13 +40,17 @@ export default async function correlations(
     }
 
     await queryDB(
-        SimpleWebDB,
-        correlationsQuery(table, outputTable, combinations, options),
-        mergeOptions(SimpleWebDB, {
+        simpleWebTable,
+        correlationsQuery(
+            simpleWebTable.name,
+            outputTable,
+            combinations,
+            options
+        ),
+        mergeOptions(simpleWebTable, {
             table: outputTable,
             method: "correlations()",
             parameters: {
-                table,
                 options,
                 "combinations (computed)": combinations,
             },

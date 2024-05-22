@@ -3,7 +3,7 @@ import { Connection } from "duckdb"
 import tableToArrayOfObjects from "./arraysToData.js"
 import { Table } from "apache-arrow"
 
-export default async function runQueryBrowser(
+export default async function runQueryWeb(
     query: string,
     connection: AsyncDuckDBConnection | Connection,
     returnDataFromQuery: boolean,

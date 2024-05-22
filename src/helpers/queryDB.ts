@@ -21,6 +21,7 @@ export default async function queryDB(
       }[]
     | null
 > {
+    // Not need anymore with Table.
     if (SimpleWebDB.connection === undefined) {
         await SimpleWebDB.start()
     }
