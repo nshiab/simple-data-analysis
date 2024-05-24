@@ -1,19 +1,18 @@
-import SimpleWebDB from "../class/SimpleWebDB.js"
+import SimpleWebTable from "../class/SimpleWebTable.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 
 export default async function getGeoData(
-    SimpleWebDB: SimpleWebDB,
-    table: string,
+    simpleWebTable: SimpleWebTable,
     column: string
 ) {
     const queryResult = await queryDB(
-        SimpleWebDB,
-        `SELECT * EXCLUDE "${column}", ST_AsGeoJSON("${column}") as geoJsonFragment from ${table};`,
-        mergeOptions(SimpleWebDB, {
+        simpleWebTable,
+        `SELECT * EXCLUDE "${column}", ST_AsGeoJSON("${column}") as geoJsonFragment from ${simpleWebTable.name};`,
+        mergeOptions(simpleWebTable, {
             table: null,
             method: "getGeoData()",
-            parameters: { table, column },
+            parameters: { column },
             returnDataFrom: "query",
         })
     )

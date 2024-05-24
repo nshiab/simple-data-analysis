@@ -54,7 +54,12 @@ import keepQuery from "../methods/keepQuery.js"
 import removeQuery from "../methods/removeQuery.js"
 import normalizeQuery from "../methods/normalizeQuery.js"
 import rollingQuery from "../methods/rollingQuery.js"
-import loadArrayQueryWeb from "../methods/loadArrayQueryWeb"
+import loadArrayQueryWeb from "../methods/loadArrayQueryWeb.js"
+import joinGeo from "../methods/joinGeo.js"
+import distanceQuery from "../methods/distanceQuery.js"
+import aggregateGeoQuery from "../methods/aggregateGeoQuery.js"
+import getGeoData from "../methods/getGeoData.js"
+import getProjection from "../methods/getProjection.js"
 
 /**
  * SimpleWebTable is a class representing a table in a SimpleWebDB. It needs a name and a connection. To create one, it's best to instantiate a SimpleWebDB first.
@@ -978,7 +983,7 @@ export default class SimpleWebTable extends SimpleWebDB {
     }
 
     /**
-     * Performs a cross join operation between this table and another table, returning all pairs of rows. This table is considered the left table. Note that the returned rows are not guaranteed to be in the same order. With SimpleDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
+     * Performs a cross join operation between this table and another table, returning all pairs of rows. This table is considered the left table. Note that the returned rows are not guaranteed to be in the same order. It might create a .tmp folder, so make sure to add .tmp to your gitignore.
      *
      * @example Basic usage
      * ```ts
@@ -1019,7 +1024,7 @@ export default class SimpleWebTable extends SimpleWebDB {
     }
 
     /**
-     * Merges the data of this table with another table based on a common column. This table is considered the left table. Note that the returned data is not guaranteed to be in the same order as the original tables. With SimpleDB, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
+     * Merges the data of this table with another table based on a common column. This table is considered the left table. Note that the returned data is not guaranteed to be in the same order as the original tables. It might create a .tmp folder, so make sure to add .tmp to your gitignore.
      *
      * @example Basic usage
      * ```ts
@@ -2736,6 +2741,789 @@ export default class SimpleWebTable extends SimpleWebDB {
             [key: string]: string | number | boolean | Date | null
         }[]
     }
+
+    // GEOSPATIAL
+
+    /**
+     * Loads geospatial data from an external file.
+     *
+     * @example Basic usage with URL
+     * ```ts
+     * await table.loadGeoData("https://some-website.com/some-data.geojson")
+     * ```
+     *
+     * @example Basic usage with local file
+     * ```ts
+     * await table.loadGeoData("./some-data.geojson")
+     * ```
+     *
+     * @param file - The URL or path to the external file containing the geospatial data.
+     *
+     * @category Geospatial
+     */
+    async loadGeoData(file: string) {
+        await queryDB(
+            this,
+            `INSTALL spatial; LOAD spatial;
+            CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM ST_Read('${file}');`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "loadGeoData()",
+                parameters: { file },
+            })
+        )
+    }
+
+    /**
+     * Creates point geometries from longitude a latitude columns.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Uses the columns "lat" and "lon" to create point geometries in column "geom"
+     * await table.points("lat", "lon", "geom")
+     * ```
+     *
+     * @param columnLon - The name of the column storing the longitude.
+     * @param columnLat - The name of the column storing the latitude.
+     * @param newColumn - The name of the new column storing the point geometries.
+     *
+     * @category Geospatial
+     */
+    async points(columnLon: string, columnLat: string, newColumn: string) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${this.name} ADD COLUMN "${newColumn}" GEOMETRY; UPDATE ${this.name} SET "${newColumn}" = ST_Point2D("${columnLon}", "${columnLat}")`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "points()",
+                parameters: { columnLat, columnLon, newColumn },
+            })
+        )
+    }
+
+    /**
+     * Adds a column with TRUE/FALSE values depending on the validity of geometries.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Checks if the geometries in column geom are valid and returns a boolean in column valid.
+     * await table.isValidGeo("geom", "valid")
+     * ```
+     *
+     * @param column - The name of the column storing the geometries.
+     * @param newColumn - The name of the new column storing the results.
+     *
+     * @category Geospatial
+     */
+    async isValidGeo(column: string, newColumn: string) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${this.name} ADD COLUMN "${newColumn}" BOOLEAN; UPDATE ${this.name} SET "${newColumn}" = ST_IsValid("${column}")`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "isValidGeo()",
+                parameters: { column, newColumn },
+            })
+        )
+    }
+
+    /**
+     * Adds a column with TRUE if the geometry is closed and FALSE if it's open.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Checks if the geometries in column geom are closed and returns a boolean in column closed.
+     * await table.isClosedGeo("geom", "closed")
+     * ```
+     *
+     * @param column - The name of the column storing the geometries.
+     * @param newColumn - The name of the new column storing the results.
+     *
+     * @category Geospatial
+     */
+    async isClosedGeo(column: string, newColumn: string) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${this.name} ADD COLUMN "${newColumn}" BOOLEAN; UPDATE ${this.name} SET "${newColumn}" = ST_IsClosed("${column}")`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "isClosedGeo()",
+                parameters: { column, newColumn },
+            })
+        )
+    }
+
+    /**
+     * Adds a column with the geometry type.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Returns the geometry type in column type.
+     * await table.typeGeo("geom", "type")
+     * ```
+     *
+     * @param column - The name of the column storing the geometries.
+     * @param newColumn - The name of the new column storing the results.
+     *
+     * @category Geospatial
+     */
+    async typeGeo(column: string, newColumn: string) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${this.name} ADD COLUMN "${newColumn}" VARCHAR; UPDATE ${this.name} SET "${newColumn}" = ST_GeometryType("${column}")`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "typeGeo()",
+                parameters: { column, newColumn },
+            })
+        )
+    }
+
+    /**
+     * Flips the coordinates of geometries. Useful for some geojson files which have lat and lon inverted.
+     *
+     * @example Basic usage
+     * ```ts
+     * await table.flipCoordinates("geom")
+     * ```
+     *
+     * @param column - The name of the column storing the geometries.
+     *
+     * @category Geospatial
+     */
+    async flipCoordinates(column: string) {
+        await queryDB(
+            this,
+            `UPDATE ${this.name} SET "${column}" = ST_FlipCoordinates("${column}")`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "flipCoordinates()",
+                parameters: { column },
+            })
+        )
+    }
+
+    /**
+     * Reduce the precision of geometries.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Reduce the precision to 3 decimals.
+     * await table.reducePrecision("geom", 3)
+     * ```
+     *
+     * @param column - The name of the column storing the geometries.
+     *
+     * @category Geospatial
+     */
+    async reducePrecision(column: string, decimals: number) {
+        await queryDB(
+            this,
+            `UPDATE ${this.name} SET "${column}" = ST_ReducePrecision("${column}", ${1 / Math.pow(10, decimals)})`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "reducePrecision()",
+                parameters: { column, decimals },
+            })
+        )
+    }
+
+    /**
+     * Reprojects the data from one Spatial Reference System (SRS) to another.
+     *
+     * @example Basic usage
+     * ```ts
+     * // From EPSG:3347 (also called NAD83/Statistics Canada Lambert with coordinates in meters) to EPSG:4326 (also called WGS84, with lat and lon in degrees)
+     * await table.reproject("geom", "EPSG:3347", "EPSG:4326")
+     * ```
+     *
+     * @param column - The name of the column storing the geometries.
+     * @param from - The original SRS.
+     * @param to - The target SRS.
+     *
+     * @category Geospatial
+     */
+    async reproject(column: string, from: string, to: string) {
+        await queryDB(
+            this,
+            `UPDATE ${this.name} SET "${column}" = ST_Transform("${column}", '${from}', '${to}')`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "reproject()",
+                parameters: { column, from, to },
+            })
+        )
+    }
+
+    /**
+     * Computes the area of geometries in square meters or optionally square kilometers. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Computes the area of the geometries in the column geom and returns the results in the column area.
+     * await table.area("geom", "area")
+     * ```
+     *
+     * @example With a different unit
+     * ```ts
+     * // Same things but in square kilometers.
+     * await table.area("geom", "area", { unit: "km2" })
+     * ```
+     *
+     * @param column - The name of the column storing the geometries.
+     * @param newColumn - The name of the new column storing the computed areas.
+     * @param options - An optional object with configuration options:
+     *   @param options.unit - The area can be returned as square meters or square kilometers.
+     *
+     * @category Geospatial
+     */
+    async area(
+        column: string,
+        newColumn: string,
+        options: { unit?: "m2" | "km2" } = {}
+    ) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${this.name} ADD "${newColumn}" DOUBLE; UPDATE ${this.name} SET "${newColumn}" =  ST_Area_Spheroid("${column}") ${options.unit === "km2" ? "/ 1000000" : ""};`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "area()",
+                parameters: { column, newColumn, options },
+            })
+        )
+    }
+
+    /**
+     * Computes the length of line geometries in meters or optionally kilometers. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Computes the length of the geometries in the column geom and returns the results in the column length.
+     * await table.length("geom", "length")
+     * ```
+     *
+     * @example With a different unit
+     * ```ts
+     * // Same things but in kilometers.
+     * await table.length("geom", "length", { unit: "km" })
+     * ```
+     *
+     * @param column - The name of the column storing the geometries.
+     * @param newColumn - The name of the new column storing the computed lengths.
+     * @param options - An optional object with configuration options:
+     *   @param options.unit - The length can be returned as meters or kilometers.
+     *
+     * @category Geospatial
+     */
+    async length(
+        column: string,
+        newColumn: string,
+        options: { unit?: "m" | "km" } = {}
+    ) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${this.name} ADD "${newColumn}" DOUBLE; UPDATE ${this.name} SET "${newColumn}" =  ST_Length_Spheroid("${column}") ${options.unit === "km" ? "/ 1000" : ""};`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "length()",
+                parameters: { column, newColumn, options },
+            })
+        )
+    }
+
+    /**
+     * Computes the perimeter of polygon geometries in meters or optionally kilometers. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Computes the perimeter of the geometries in the column geom, and returns the results in the column perim.
+     * await table.perimeter("geom", "perim")
+     * ```
+     *
+     * @example With a different unit
+     * ```ts
+     * // Same things but in kilometers.
+     * await table.perimeter("geom", "perim", { unit: "km" })
+     * ```
+     *
+     * @param column - The name of the column storing the geometries.
+     * @param newColumn - The name of the new column storing the computed perimeters.
+     * @param options - An optional object with configuration options:
+     *   @param options.unit - The perimeter can be returned as meters or kilometers.
+     *
+     * @category Geospatial
+     */
+    async perimeter(
+        column: string,
+        newColumn: string,
+        options: { unit?: "m" | "km" } = {}
+    ) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${this.name} ADD "${newColumn}" DOUBLE; UPDATE ${this.name} SET "${newColumn}" =  ST_Perimeter_Spheroid("${column}") ${options.unit === "km" ? "/ 1000" : ""};`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "perimeter()",
+                parameters: { column, newColumn, options },
+            })
+        )
+    }
+
+    /**
+     * Computes a buffer around geometries based on a specified distance. The distance is in the SRS unit.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Creates new geomeotries from the geometries in column geom with a buffer of 1 and puts the results in column buffer.
+     * await table.buffer("geom", "buffer", 1)
+     * ```
+     *
+     * @param column - The name of the column storing the geometries.
+     * @param newColumn - The name of the new column to store the buffered geometries.
+     * @param distance - The distance for the buffer, in SRS unit.
+     *
+     * @category Geospatial
+     */
+    async buffer(column: string, newColumn: string, distance: number) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${this.name} ADD "${newColumn}" GEOMETRY; UPDATE ${this.name} SET "${newColumn}" =  ST_Buffer("${column}", ${distance});`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "buffer()",
+                parameters: { column, newColumn, distance },
+            })
+        )
+    }
+
+    /**
+     * Merges the data of the table with another table based on a spatial join. Note that the returned data is not guaranteed to be in the same order as the original tables.
+     *
+     * By default, the method looks for columns named 'geom' storing the geometries in the two tables, does a left join and overwrites leftTable (the current table) with the results. The method also appends the name of the table to the 'geom' columns in the returned data.
+     *
+     * It might create a .tmp folder, so make sure to add .tmp to your gitignore.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Merges data of tableA and tableB based on geometries that intersect. tableA is overwritten with the result.
+     * await tableA.joinGeo("intersect", tableB)
+     *
+     * // Merges data of tableA and tableB based on geometries that in tableA that are inside geometries in tableB. tableA is overwritten with the result.
+     * await tableA.joinGeo("inside", tableB)
+     * ```
+     *
+     * @example With options
+     * ```ts
+     * // Same thing but with specific column names storing geometries, a specific join type, and returning the results in a new table.
+     * const tableC = await tableA.joinGeo("intersect", tableB, { geoColumnLeft: "geometriesA", geoColumnRight: "geometriesB", type: "inner", outputTable: "tableC" })
+     * ```
+     *
+     * @param method - The method for the spatial join.
+     * @param rightTable - The right table to be joined.
+     * @param options - An optional object with configuration options:
+     *   @param options.columnLeftTable - The column storing the geometries in leftTable. It's 'geom' by default.
+     *   @param options.columnRightTable - The column storing the geometries in rightTable. It's 'geom' by default.
+     *   @param options.type - The type of join operation to perform. For some methods (like 'inside'), the table order is important.
+     *   @param options.outputTable - The name of the new table that will store the result of the join operation. Default is the leftTable.
+     *
+     * @category Geospatial
+     */
+    async joinGeo(
+        method: "intersect" | "inside",
+        rightTable: SimpleWebTable,
+        options: {
+            columnLeftTable?: string
+            columnRightTable?: string
+            type?: "inner" | "left" | "right" | "full"
+            outputTable?: string
+        } = {}
+    ) {
+        await joinGeo(this, method, rightTable, options)
+        if (typeof options.outputTable === "string") {
+            return await this.sdb.newTable(options.outputTable)
+        }
+    }
+
+    /**
+     * Computes the intersection of geometries.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Computes the intersection of geometries in geomA and geomB columns and puts the new geometries in column inter.
+     * await table.intersection("geomA", "geomB", "inter")
+     * ```
+     * @param column1 - The names of a column storing geometries.
+     * @param column2 - The name of a column storing  geometries.
+     * @param newColumn - The name of the new column storing the computed intersections.
+     *
+     * @category Geospatial
+     */
+    async intersection(column1: string, column2: string, newColumn: string) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${this.name} ADD "${newColumn}" GEOMETRY; UPDATE ${this.name} SET "${newColumn}" = ST_Intersection("${column1}", "${column2}")`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "intersection()",
+                parameters: { column1, column2, newColumn },
+            })
+        )
+    }
+
+    /**
+     * Removes the intersection of two geometries.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Removes the intersection of geomA and geomB from geomA and returns the results in the new column noIntersection. The column order is important.
+     * await table.removeIntersection("geomA", "geomB", "noIntersection")
+     * ```
+     *
+     * @param column1 - The names of a column storing geometries. These are the reference geometries that will be returned without the intersection.
+     * @param column2 - The name of a column storing  geometries. These are the geometries used to compute the intersection.
+     * @param newColumn - The name of the new column storing the new geometries.
+     *
+     * @category Geospatial
+     */
+    async removeIntersection(
+        column1: string,
+        column2: string,
+        newColumn: string
+    ) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${this.name} ADD "${newColumn}" GEOMETRY; UPDATE ${this.name} SET "${newColumn}" = ST_Difference("${column1}", "${column2}")`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "removeIntersection()",
+                parameters: { column1, column2, newColumn },
+            })
+        )
+    }
+
+    /**
+     * Returns true if two geometries intersect.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Checks if geometries in geomA and in geomB intersect and return true or false in new column inter.
+     * await table.intersect("geomA", "geomB", "inter")
+     * ```
+     *
+     * @param column1 - The names of a column storing geometries.
+     * @param column2 - The name of a column storing  geometries.
+     * @param newColumn - The name of the new column with true or false values.
+     *
+     * @category Geospatial
+     */
+    async intersect(column1: string, column2: string, newColumn: string) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${this.name} ADD "${newColumn}" BOOLEAN; UPDATE ${this.name} SET "${newColumn}" = ST_Intersects("${column1}", "${column2}")`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "intersect()",
+                parameters: { column1, column2, newColumn },
+            })
+        )
+    }
+
+    /**
+     * Computes the union of geometries.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Computes the union of geometries in geomA and geomB columns and puts the new geometries in column union.
+     * await tabele.union("geomA", "geomB", "union")
+     * ```
+     *
+     * @param column1 - The names of a column storing geometries.
+     * @param column2 - The name of a column storing  geometries.
+     * @param newColumn - The name of the new column storing the computed unions.
+     *
+     * @category Geospatial
+     */
+    async union(column1: string, column2: string, newColumn: string) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${this.name} ADD "${newColumn}" GEOMETRY; UPDATE ${this.name} SET "${newColumn}" = ST_Union("${column1}", "${column2}")`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "union()",
+                parameters: { column1, column2, newColumn },
+            })
+        )
+    }
+
+    /**
+     * Extracts the latitude and longitude of points.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Extracts the latitude and longitude of points from the points in the "geom" column and put them in the columns "lat" and "lon".
+     * await table.latLon("geom", "lat", "lon")
+     * ```
+     *
+     * @param column - The name of the table storing the points.
+     * @param columnLon - The name of the column storing the extracted longitude.
+     * @param columnLat - The name of the column storing the extracted latitude.
+     *
+     * @category Geospatial
+     */
+    async latLon(column: string, columnLon: string, columnLat: string) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${this.name} ADD "${columnLon}" DOUBLE; UPDATE ${this.name} SET "${columnLon}" = ST_Y("${column}");
+             ALTER TABLE ${this.name} ADD "${columnLat}" DOUBLE; UPDATE ${this.name} SET "${columnLat}" = ST_X("${column}");`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "latLon()",
+                parameters: { column, columnLon, columnLat },
+            })
+        )
+    }
+
+    /**
+     * Simplifies the geometries while preserving their topology. The simplification occurs on an object-by-object basis.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Simplifies with a tolerance of 0.1.
+     * await table.simplify("geomA", 0.1)
+     * ```
+     *
+     * @param column - The name of the column storing the geometries.
+     * @param tolerance - A number used for the simplification. A higher tolerance results in a more significant simplification.
+     *
+     * @category Geospatial
+     */
+    async simplify(column: string, tolerance: number) {
+        await queryDB(
+            this,
+            `UPDATE ${this.name} SET "${column}" = ST_SimplifyPreserveTopology("${column}", ${tolerance})`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "simplify()",
+                parameters: { column, tolerance },
+            })
+        )
+    }
+
+    /**
+     * Computes the centroid of geometries. The values are returned in the SRS unit.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Computes the centroid of the geometries in the column geom and returns the results in the column centroid.
+     * await table.centroid("geom", "centroid")
+     * ```
+     *
+     * @param column - The name of the column storing the geometries.
+     * @param newColumn - The name of the new column storing the centroids.
+     *
+     * @category Geospatial
+     */
+    async centroid(column: string, newColumn: string) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${this.name} ADD "${newColumn}" GEOMETRY; UPDATE ${this.name} SET "${newColumn}" =  ST_Centroid("${column}");`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "centroid()",
+                parameters: { column, newColumn },
+            })
+        )
+    }
+
+    /**
+     * Computes the distance between geometries. By default, it uses the SRS unit. You can pass "spheroid" or "haversine" as options.method to get results in meters or optionally kilometers. If you do use these methods, the input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
+     *
+     * @example Basic usage (SRS unit)
+     * ```ts
+     * // Computes the distance between geometries in columns geomA and geomB. The distance is returned in the new column "distance" in the SRS unit.
+     * await table.distance("geomA", "geomB", "distance")
+     * ```
+     *
+     * @example Haversine (meters)
+     * ```ts
+     * // Same but using the haversine distance. The distance is returned in meters by default. The input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
+     * await table.distance("geomA", "geomB", "distance", { method: "haversine" })
+     * ```
+     *
+     * @example Haversine (kilometers)
+     * ```
+     * // Same but the distance is returned in kilometers. The input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
+     * await table.distance("geomA", "geomB", "distance", { method: "haversine", unit: "km" })
+     * ```
+     *
+     * @example Spheroid (meters and optionally kilometers)
+     * ```ts
+     * // Same but using an ellipsoidal model of the earth's surface. It's the most accurate but the slowest. By default, the distance is returned in meters and optionally as kilometers. The input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
+     * await table.distance("geomA", "geomB", "distance", { method: "spheroid", unit: "km" })
+     * ```
+     *
+     * @param column1 - The name of a column storing geometries.
+     * @param column2 - The name of a column storing geometries.
+     * @param newColumn - The name of the new column storing the centroids.
+     * @param options - An optional object with configuration options:
+     *   @param options.method - The method to be used for the distance calculations. "srs" returns the values in the SRS unit. "spheroid" and "haversine" return the values in meters by default and need the input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order..
+     *   @param options.unit - If the method is "spheroid" or "haversine", you can choose between meters or kilometers. It's meters by default.
+     *
+     * @category Geospatial
+     */
+    async distance(
+        column1: string,
+        column2: string,
+        newColumn: string,
+        options: {
+            unit?: "m" | "km"
+            method?: "srs" | "haversine" | "spheroid"
+        } = {}
+    ) {
+        await queryDB(
+            this,
+            distanceQuery(this.name, column1, column2, newColumn, options),
+            mergeOptions(this, {
+                table: this.name,
+                method: "distance()",
+                parameters: { column1, column2, newColumn },
+            })
+        )
+    }
+
+    /**
+     * Unnests geometries recursively.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Unnests geometries in the column "geom" and returns the same table with unnested items.
+     * await table.unnestGeo("geom")
+     * ```
+     *
+     * @param column - The name of a column storing geometries.
+     *
+     * @category Geospatial
+     */
+    async unnestGeo(column: string) {
+        await queryDB(
+            this,
+            `CREATE OR REPLACE TABLE ${this.name} AS SELECT * EXCLUDE("${column}"), UNNEST(ST_Dump("${column}"), recursive := TRUE) FROM ${this.name}; ALTER TABLE ${this.name} DROP COLUMN path;`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "unnestGeo()",
+                parameters: { column },
+            })
+        )
+    }
+
+    /**
+     * Aggregates geometries.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Returns the union of all geometries in the column geom.
+     * await table.aggregateGeo("geom", "union")
+     *
+     * // Same thing but for intersection.
+     * await table.aggregateGeo("geom", "intersection")
+     * ```
+     *
+     * @example With categories
+     * ```ts
+     * // Returns the union of all geometries in the column geom and uses the values in the column country as categories.
+     * await sdb.aggregateGeo("geom", "union", { categories: "country" })
+     * ```
+     *
+     * @param column - The name of the column storing geometries.
+     * @param method - The method to use for the aggregation.
+     * @param options - An optional object with configuration options:
+     *   @param options.categories - The column or columns that define categories for the aggragation. This can be a single column name or an array of column names.
+     *   @param options.outputTable - An option to store the results in a new table.
+     *
+     * @category Geospatial
+     */
+    async aggregateGeo(
+        column: string,
+        method: "union" | "intersection",
+        options: { categories?: string | string[]; outputTable?: string } = {}
+    ) {
+        await queryDB(
+            this,
+            aggregateGeoQuery(this.name, column, method, options),
+            mergeOptions(this, {
+                table: this.name,
+                method: "aggregateGeo()",
+                parameters: { column, method, options },
+            })
+        )
+    }
+
+    /**
+     * Transforms closed lines into polygons.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Transforms geometries in the column "geom" into polygons.
+     * await table.linesToPolygons("geom")
+     * ```
+     *
+     * @param column - The name of a column storing geometries.
+     *
+     * @category Geospatial
+     */
+    async linesToPolygons(column: string) {
+        await queryDB(
+            this,
+            `CREATE OR REPLACE TABLE ${this.name} AS SELECT * EXCLUDE("${column}"), ST_MakePolygon("${column}") as "${column}" FROM ${this.name};`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "linesToPolygons()",
+                parameters: { column },
+            })
+        )
+    }
+
+    /**
+     * Returns the data as a geojson.
+     *
+     * @example Basic usage
+     * ```ts
+     * // The colum geom will be used for the features geometries. The other columns in the table will be stored as properties.
+     * const geojson = await table.getGeoData("geom")
+     * ```
+     *
+     * @param column - The name of a column storing geometries.
+     *
+     * @category Geospatial
+     */
+    async getGeoData(column: string) {
+        return await getGeoData(this, column)
+    }
+
+    /**
+     * Returns the projection of a geospatial data file.
+     *
+     * @example Basic usage
+     * ```ts
+     * await table.getProjection("./some-data.shp")
+     * // Returns something like
+     * // {
+     * //    name: 'WGS 84',
+     * //    code: 'ESPG:4326',
+     * //    unit: 'degree',
+     * //    proj4: '+proj=longlat +datum=WGS84 +no_defs'
+     * // }
+     * ```
+     *
+     * @param file - The file storing the geospatial data.
+     *
+     * @category Geospatial
+     */
+    async getProjection(file: string) {
+        return await getProjection(this, file)
+    }
+
+    // OTHERS
 
     /**
      * Logs a specified number of rows. Default is 10 rows.

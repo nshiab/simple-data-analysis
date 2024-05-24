@@ -58,7 +58,6 @@ export default class SimpleWebDB {
             method: string | null
             parameters: { [key: string]: unknown } | null
             bigIntToInt?: boolean
-            spatial?: boolean
         }
     ) => Promise<
         | {
@@ -165,6 +164,28 @@ export default class SimpleWebDB {
         }
 
         return table
+    }
+
+    /**
+     * Remove a table from the database. Invoking methods on this table will throw and error.
+     *
+     * @example Basic usage
+     * ```ts
+     * await table.removeTable("tableA")
+     * ```
+     *
+     * @category Restructuring data
+     */
+    async removeTable(table: string) {
+        await queryDB(
+            this,
+            `DROP TABLE ${table};`,
+            mergeOptions(this, {
+                table: null,
+                method: "removeTable()",
+                parameters: {},
+            })
+        )
     }
 
     /**

@@ -1,14 +1,13 @@
-import SimpleWebDB from "../class/SimpleWebDB.js"
+import SimpleWebTable from "../class/SimpleWebTable.js"
 import capitalize from "../helpers/capitalize.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import joinGeoQuery from "./joinGeoQuery.js"
 
 export default async function joinGeo(
-    SimpleWebDB: SimpleWebDB,
-    leftTable: string,
+    leftTable: SimpleWebTable,
     method: "intersect" | "inside",
-    rightTable: string,
+    rightTable: SimpleWebTable,
     options: {
         columnLeftTable?: string
         columnRightTable?: string
@@ -23,39 +22,39 @@ export default async function joinGeo(
 
     // We change the column names for geometries
     if (columnLeftTable === columnRightTable) {
-        columnLeftTableForQuery = `${columnLeftTable}${capitalize(leftTable)}`
-        columnRightTableForQuery = `${columnRightTable}${capitalize(rightTable)}`
+        columnLeftTableForQuery = `${columnLeftTable}${capitalize(leftTable.name)}`
+        columnRightTableForQuery = `${columnRightTable}${capitalize(rightTable.name)}`
 
         const leftObj: { [key: string]: string } = {}
         leftObj[columnLeftTable] = columnLeftTableForQuery
-        await SimpleWebDB.renameColumns(leftTable, leftObj)
+        await leftTable.renameColumns(leftObj)
 
         const rightObj: { [key: string]: string } = {}
         rightObj[columnRightTable] = columnRightTableForQuery
-        await SimpleWebDB.renameColumns(rightTable, rightObj)
+        await rightTable.renameColumns(rightObj)
     }
 
     const type = options.type ?? "left"
-    const outputTable = options.outputTable ?? leftTable
+    const outputTable = options.outputTable ?? leftTable.name
 
     await queryDB(
-        SimpleWebDB,
+        leftTable,
         joinGeoQuery(
-            leftTable,
+            leftTable.name,
             columnLeftTableForQuery,
             method,
-            rightTable,
+            rightTable.name,
             columnRightTableForQuery,
             type,
             outputTable
         ),
-        mergeOptions(SimpleWebDB, {
+        mergeOptions(leftTable, {
             table: outputTable,
             method: "joinGeo()",
             parameters: {
-                leftTable,
+                leftTable: leftTable.name,
                 method,
-                rightTable,
+                rightTable: rightTable.name,
                 options,
             },
         })
@@ -65,10 +64,10 @@ export default async function joinGeo(
     if (columnLeftTable === columnRightTable) {
         const leftObj: { [key: string]: string } = {}
         leftObj[columnLeftTableForQuery] = columnLeftTable
-        await SimpleWebDB.renameColumns(leftTable, leftObj)
+        await leftTable.renameColumns(leftObj)
 
         const rightObj: { [key: string]: string } = {}
         rightObj[columnRightTableForQuery] = columnRightTable
-        await SimpleWebDB.renameColumns(rightTable, rightObj)
+        await rightTable.renameColumns(rightObj)
     }
 }

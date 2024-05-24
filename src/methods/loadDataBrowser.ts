@@ -29,8 +29,8 @@ export default async function loadDataBrowser(
         start = Date.now()
     }
 
-    if (await simpleWebTable.hasTable(table)) {
-        await simpleWebTable.removeTables(table)
+    if (await simpleWebTable.sdb.hasTable(table)) {
+        await simpleWebTable.sdb.removeTable(table)
     }
 
     const fileExtension = getExtension(url)
@@ -98,6 +98,6 @@ export default async function loadDataBrowser(
     }
 
     if (simpleWebTable.debug) {
-        await simpleWebTable.logTable(table)
+        await simpleWebTable.logTable()
     }
 }
