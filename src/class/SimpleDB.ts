@@ -52,6 +52,8 @@ export default class SimpleDB extends SimpleWebDB {
 
     /**
      * Initializes DuckDB and establishes a connection to the database. For internal use only.
+     *
+     * @category Internal
      */
     async start() {
         if (this.db === undefined || this.connection === undefined) {
@@ -83,6 +85,8 @@ export default class SimpleDB extends SimpleWebDB {
      * @param name - The name of the new table
      * @param options - An optional object with configuration options:
      *   @param options.types - An object specifying the columns and  their data types (JavaScript or SQL).
+     *
+     * @category DB methods
      */
     async newTable(
         name: string,
@@ -137,10 +141,13 @@ export default class SimpleDB extends SimpleWebDB {
 
     /**
      * Frees up memory by closing down the database.
+     *
      * @example Basic usage
      * ```typescript
      * await sdb.done();
      * ```
+     *
+     * @category DB methods
      */
     async done() {
         this.debug && console.log("\ndone()")

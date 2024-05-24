@@ -98,7 +98,7 @@ import getProjection from "../methods/getProjection.js"
 export default class SimpleWebTable extends SimpleWebDB {
     /** Name of the table in the database. @category Properties */
     name: string
-    /** The SimpleWebDB that created this table. */
+    /** The SimpleWebDB that created this table. @category Properties */
     sdb: SimpleWebDB
 
     constructor(
@@ -424,6 +424,7 @@ export default class SimpleWebTable extends SimpleWebDB {
      * ```ts
      * // Selects 100 rows after skipping the first 100 rows.
      * await table.selectRows(100, { offset: 100 })
+     * ```
      *
      * @example Into a new table
      * ```ts
@@ -1798,9 +1799,10 @@ export default class SimpleWebTable extends SimpleWebDB {
      * ```ts
      * // Summarizes a specific column with a specific summary operation and use the values in another column as categories. Summaries can be an array of summary operations, too.
      * await tableA.summarize({ values: "column1", categories: "column2", summaries: "mean" })
+     * ```
      *
      * @example Rounding aggregated values
-     * ```
+     * ```ts
      * // Summarizes and round values with a specific number of decimal places.
      * await tableA.summarize({ values: "column1", categories: "column2", summaries: "mean", decimals: 4 })
      * ```
@@ -1947,7 +1949,7 @@ export default class SimpleWebTable extends SimpleWebDB {
      * ```ts
      * // Same but results are stored in tableB.
      * const tableB = await table.correlations({ outputTable: "tableB" })
-     * ````
+     * ```
      *
      * @param options - An optional object with configuration options:
      *   @param options.x - The column name for the x values. Default is all numeric columns.
@@ -2589,6 +2591,7 @@ export default class SimpleWebTable extends SimpleWebDB {
      * ```
      *
      * @example With condition
+     * ```ts
      * // Returns the first row with category being 'Book'.
      * const firstRowBooks = await table.getFirstRow({ condition: `category = 'Book'` })
      * ```

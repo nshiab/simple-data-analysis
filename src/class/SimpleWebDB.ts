@@ -87,6 +87,8 @@ export default class SimpleWebDB {
 
     /**
      * Initializes DuckDB and establishes a connection to the database. For internal use only.
+     *
+     * @category Internal
      */
     async start() {
         if (this.db === undefined || this.connection === undefined) {
@@ -120,6 +122,8 @@ export default class SimpleWebDB {
      * @param name - The name of the new table
      * @param options - An optional object with configuration options:
      *   @param options.types - An object specifying the columns and  their data types (JavaScript or SQL).
+     *
+     * @category DB methods
      */
     async newTable(
         name: string,
@@ -180,6 +184,8 @@ export default class SimpleWebDB {
      * ```ts
      * await table.removeTable("tableA")
      * ```
+     *
+     * @category DB methods
      */
     async removeTable(table: string) {
         await queryDB(
@@ -200,6 +206,8 @@ export default class SimpleWebDB {
      * ```ts
      * const tables = await sdb.getTables()
      * ```
+     *
+     * @category DB methods
      */
     async getTables(): Promise<string[]> {
         return getTables(this)
@@ -214,6 +222,8 @@ export default class SimpleWebDB {
      * ```
      *
      * @param table - The name of the table to check for existence.
+     *
+     * @category DB methods
      */
     async hasTable(table: string): Promise<boolean> {
         this.debug && console.log("\nhasTable()")
@@ -229,6 +239,8 @@ export default class SimpleWebDB {
      * ```ts
      * const extensions = await sdb.getExtensions()
      * ```
+     *
+     * @category DB methods
      */
     async getExtensions(): Promise<
         {
@@ -262,6 +274,8 @@ export default class SimpleWebDB {
      * @param options - An optional object with configuration options:
      *   @param options.returnDataFrom - Specifies whether to return data from the "query" or not. Defaults to "none".
      *   @param options.table - The name of the table associated with the query (if applicable). Needed when debug is true.
+     *
+     * @category DB methods
      */
     async customQuery(
         query: string,
@@ -294,6 +308,8 @@ export default class SimpleWebDB {
      * ```typescript
      * await sdb.done();
      * ```
+     *
+     * @category DB methods
      */
     async done() {
         this.debug && console.log("\ndone()")

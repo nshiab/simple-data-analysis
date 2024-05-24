@@ -39,7 +39,7 @@ import SimpleDB from "./SimpleDB.js"
  * ```
  */
 export default class SimpleTable extends SimpleWebTable {
-    /** The SimpleDB that created this table. */
+    /** The SimpleDB that created this table. @category Properties */
     sdb: SimpleDB
     constructor(
         name: string,
@@ -101,6 +101,8 @@ export default class SimpleTable extends SimpleWebTable {
 
     /**
      * This method is just for the web. For NodeJS and other runtimes, use loadData.
+     *
+     * @category Importing data
      */
     async fetchData() {
         throw new Error(

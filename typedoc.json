@@ -2,5 +2,12 @@
     "entryPoints": ["src/index.ts"],
     "out": "docs",
     "excludeNotDocumented": true,
-    "categoryOrder": ["Constructor", "Properties", "*", "Other"]
+    "categoryOrder": [
+        "Constructor",
+        "Properties",
+        "*",
+        "Other",
+        "DB methods",
+        "Internal"
+    ]
 }
