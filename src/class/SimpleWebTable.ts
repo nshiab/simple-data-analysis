@@ -98,7 +98,7 @@ import getProjection from "../methods/getProjection.js"
 export default class SimpleWebTable extends SimpleWebDB {
     /** Name of the table in the database. @category Properties */
     name: string
-    /** The database */
+    /** The SimpleWebDB that created this table. */
     sdb: SimpleWebDB
 
     constructor(
@@ -1111,6 +1111,10 @@ export default class SimpleWebTable extends SimpleWebDB {
         )
         if (extraCommonColumn !== undefined) {
             await outputTable.removeColumns(extraCommonColumn)
+        }
+
+        if (typeof options.outputTable === "string") {
+            return outputTable
         }
     }
 

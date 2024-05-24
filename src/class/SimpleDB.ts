@@ -82,7 +82,7 @@ export default class SimpleDB extends SimpleWebDB {
      * ```
      * @param name - The name of the new table
      * @param options - An optional object with configuration options:
-     *   @param types - An object specifying the columns and  their data types (JavaScript or SQL).
+     *   @param options.types - An object specifying the columns and  their data types (JavaScript or SQL).
      */
     async newTable(
         name: string,
@@ -106,17 +106,13 @@ export default class SimpleDB extends SimpleWebDB {
                     | "geometry"
             }
         } = {}
-    ) {
+    ): Promise<SimpleTable> {
         this.debug && console.log("\nnewTable()")
 
         await this.start()
         if (await this.hasTable(name)) {
             throw new Error(`Table ${name} already exists.`)
         }
-        const table = new SimpleTable(name, this, {
-            debug: this.debug,
-            nbRowsToLog: this.nbRowsToLog,
-        })
 
         const types = options.types
         if (types !== undefined) {
@@ -133,7 +129,10 @@ export default class SimpleDB extends SimpleWebDB {
             )
         }
 
-        return table
+        return new SimpleTable(name, this, {
+            debug: this.debug,
+            nbRowsToLog: this.nbRowsToLog,
+        })
     }
 
     /**

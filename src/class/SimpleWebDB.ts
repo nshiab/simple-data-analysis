@@ -119,7 +119,7 @@ export default class SimpleWebDB {
      * ```
      * @param name - The name of the new table
      * @param options - An optional object with configuration options:
-     *   @param types - An object specifying the columns and  their data types (JavaScript or SQL).
+     *   @param options.types - An object specifying the columns and  their data types (JavaScript or SQL).
      */
     async newTable(
         name: string,
