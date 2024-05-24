@@ -1,4 +1,4 @@
-import SimpleWebDB from "./SimpleWebDB"
+import SimpleWebDB from "./SimpleWebDB.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import stringToArray from "../helpers/stringToArray.js"
@@ -14,7 +14,7 @@ import outliersIQRQuery from "../methods/outliersIQRQuery.js"
 import zScoreQuery from "../methods/zScoreQuery.js"
 import parseType from "../helpers/parseTypes.js"
 import concatenateQuery from "../methods/concatenateQuery.js"
-import loadDataBrowser from "../methods/loadDataBrowser.js"
+import fetchDataBrowser from "../methods/fetchDataBrowser.js"
 import removeMissing from "../methods/removeMissing.js"
 import summarize from "../methods/summarize.js"
 import correlations from "../methods/correlations.js"
@@ -62,7 +62,7 @@ import getGeoData from "../methods/getGeoData.js"
 import getProjection from "../methods/getProjection.js"
 
 /**
- * SimpleWebTable is a class representing a table in a SimpleWebDB. It needs a name and a connection. To create one, it's best to instantiate a SimpleWebDB first.
+ * SimpleWebTable is a class representing a table in a SimpleWebDB. To create one, it's best to instantiate a SimpleWebDB first.
  *
  * @example Basic usage
  * ```ts
@@ -75,12 +75,24 @@ import getProjection from "../methods/getProjection.js"
  * // You can now invoke methods on the table.
  * await employees.loadData("./employees.csv")
  * await employees.logTable()
+ *
+ * // Removing the table.
+ * await employees.removeTable()
+ *
+ * // Removing the DB to free up memory.
+ * await sdb.done()
  * ```
  *
- * @example Instanciating with options
+ * @example Instanciating with types
  * ```ts
- * // Creating a database with options. Debug information will be logged each time a method is invoked. The first 20 rows of tables will be logged (default is 10).
- * const sdb = new SimpleWebDB({ debug: true, nbRowsToLog: 20})
+ * // You can also create a new table with specific types.
+ * await sdb.newTable("employees", {
+ *   types: {
+ *     name: "string",
+ *     salary: "integer",
+ *     raise: "float",
+ *   }
+ * })
  * ```
  */
 export default class SimpleWebTable extends SimpleWebDB {
@@ -134,11 +146,11 @@ export default class SimpleWebTable extends SimpleWebDB {
     }
 
     /**
-     * Loads data from an external file into the table.
+     * Fetch data from an url into the table. This method is just for the web. For NodeJS and other runtimes, use loadData.
      *
      * @example Basic usage
      * ```ts
-     * await table.loadData("https://some-website.com/some-data.csv")
+     * await table.fetchData("https://some-website.com/some-data.csv")
      * ```
      *
      * @param url - The URL of the external file containing the data. CSV, JSON, and PARQUET files are accepted.
@@ -151,7 +163,7 @@ export default class SimpleWebTable extends SimpleWebDB {
      *
      * @category Importing data
      */
-    async loadData(
+    async fetchData(
         url: string,
         options: {
             fileType?: "csv" | "dsv" | "json" | "parquet"
@@ -162,7 +174,7 @@ export default class SimpleWebTable extends SimpleWebDB {
             skip?: number
         } = {}
     ) {
-        await loadDataBrowser(this, this.name, url, options)
+        await fetchDataBrowser(this, this.name, url, options)
     }
 
     /**

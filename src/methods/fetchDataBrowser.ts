@@ -8,7 +8,7 @@ import mergeOptions from "../helpers/mergeOptions.js"
 import formatDuration from "../helpers/formatDuration.js"
 import SimpleWebTable from "../class/SimpleWebTable.js"
 
-export default async function loadDataBrowser(
+export default async function fetchDataBrowser(
     simpleWebTable: SimpleWebTable,
     table: string,
     url: string,

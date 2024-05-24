@@ -24,12 +24,18 @@ import SimpleWebTable from "./SimpleWebTable.js"
  * // You can now invoke methods on the table.
  * await employees.loadData("./employees.csv")
  * await employees.logTable()
+ *
+ * // Removing the table.
+ * await employees.removeTable()
+ *
+ * // Removing the DB to free up memory.
+ * await sdb.done()
  * ```
  *
  * @example Instanciating with options
  * ```ts
  * // Creating a database with options. Debug information will be logged each time a method is invoked. The first 20 rows of tables will be logged (default is 10).
- * const sdb = new SimpleWebDB({ debug: true, nbRowsToLog: 20})
+ * const sdb = new SimpleWebDB({ debug: true, nbRowsToLog: 20 })
  * ```
  */
 export default class SimpleWebDB {
@@ -96,12 +102,14 @@ export default class SimpleWebDB {
      *
      * @example Basic usage
      * ```ts
-     * await sdb.newTable("employees")
+     * // This returns a new SimpleWebTable
+     * const employees = await sdb.newTable("employees")
      * ```
-     * 
+     *
      * @example With columns and types
      * ```ts
-     * await sdb.newTable("employees", {
+     * // You can create a table with specific types.
+     * const employees = await sdb.newTable("employees", {
      *   types: {
      *     name: "string",
      *     salary: "integer",
@@ -112,7 +120,6 @@ export default class SimpleWebDB {
      * @param name - The name of the new table
      * @param options - An optional object with configuration options:
      *   @param types - An object specifying the columns and  their data types (JavaScript or SQL).
-     
      */
     async newTable(
         name: string,
@@ -173,8 +180,6 @@ export default class SimpleWebDB {
      * ```ts
      * await table.removeTable("tableA")
      * ```
-     *
-     * @category Restructuring data
      */
     async removeTable(table: string) {
         await queryDB(
