@@ -45,6 +45,7 @@ export default class SimpleDB extends SimpleWebDB {
             bigIntToInt?: boolean
         } = {}
     ) {
+        options.debug && console.log("\nnew SimpleDB()")
         super(options)
         this.bigIntToInt = options.bigIntToInt ?? true
         this.runQuery = runQueryNode

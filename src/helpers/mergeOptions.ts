@@ -1,8 +1,7 @@
-import SimpleDB from "../class/SimpleDB"
-import SimpleWebDB from "../class/SimpleWebDB.js"
+import Simple from "../class/Simple"
 
 export default function mergeOptions(
-    SimpleWebDB: SimpleWebDB | SimpleDB,
+    simple: Simple,
     options: {
         table: string | null
         method: string | null
@@ -24,9 +23,9 @@ export default function mergeOptions(
         table: options.table,
         method: options.method,
         parameters: options.parameters,
-        nbRowsToLog: options.nbRowsToLog ?? SimpleWebDB.nbRowsToLog,
+        nbRowsToLog: options.nbRowsToLog ?? simple.nbRowsToLog,
         returnDataFrom: options.returnDataFrom ?? "none",
-        debug: options.debug ?? SimpleWebDB.debug,
-        bigIntToInt: SimpleWebDB.bigIntToInt ?? false,
+        debug: options.debug ?? simple.debug,
+        bigIntToInt: simple.bigIntToInt ?? false,
     }
 }

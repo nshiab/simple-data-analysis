@@ -60,6 +60,8 @@ import distanceQuery from "../methods/distanceQuery.js"
 import aggregateGeoQuery from "../methods/aggregateGeoQuery.js"
 import getGeoData from "../methods/getGeoData.js"
 import getProjection from "../methods/getProjection.js"
+import Simple from "./Simple.js"
+import runQueryWeb from "../helpers/runQueryWeb.js"
 
 /**
  * SimpleWebTable is a class representing a table in a SimpleWebDB. To create one, it's best to instantiate a SimpleWebDB first.
@@ -95,7 +97,7 @@ import getProjection from "../methods/getProjection.js"
  * })
  * ```
  */
-export default class SimpleWebTable extends SimpleWebDB {
+export default class SimpleWebTable extends Simple {
     /** Name of the table in the database. @category Properties */
     name: string
     /** The SimpleWebDB that created this table. @category Properties */
@@ -109,7 +111,8 @@ export default class SimpleWebTable extends SimpleWebDB {
             nbRowsToLog?: number
         } = {}
     ) {
-        super(options)
+        options.debug && console.log("\nnew SimpleWebTable()")
+        super(runQueryWeb, options)
         this.name = name
         this.sdb = simpleWebDB
         this.connection = this.sdb.connection
@@ -3543,6 +3546,45 @@ export default class SimpleWebTable extends SimpleWebDB {
     }
 
     // OTHERS
+
+    /**
+     * Executes a custom SQL query, providing flexibility for advanced users.
+     *
+     * @example Basic usage
+     * ```ts
+     * // You can use the returnDataFrom option to retrieve the data from the query, if needed.
+     * await table.customQuery("SELECT * FROM employees WHERE Job = 'Clerk'", { returnDataFrom: "query" })
+     * ```
+     *
+     * @param query - The custom SQL query to be executed.
+     * @param options - An optional object with configuration options:
+     *   @param options.returnDataFrom - Specifies whether to return data from the "query" or not. Defaults to "none".
+     *   @param options.table - The name of the table associated with the query (if applicable). Needed when debug is true.
+     *
+     */
+    async customQuery(
+        query: string,
+        options: {
+            returnDataFrom?: "query" | "none"
+            table?: string
+        } = {}
+    ): Promise<
+        | {
+              [key: string]: string | number | boolean | Date | null
+          }[]
+        | null
+    > {
+        return await queryDB(
+            this,
+            query,
+            mergeOptions(this, {
+                returnDataFrom: options.returnDataFrom,
+                table: options.table ?? null,
+                method: "customQuery()",
+                parameters: { query, options },
+            })
+        )
+    }
 
     /**
      * Logs a specified number of rows. Default is 10 rows.

@@ -41,6 +41,7 @@ import SimpleDB from "./SimpleDB.js"
 export default class SimpleTable extends SimpleWebTable {
     /** The SimpleDB that created this table. @category Properties */
     sdb: SimpleDB
+
     constructor(
         name: string,
         simpleDB: SimpleDB,
@@ -79,7 +80,7 @@ export default class SimpleTable extends SimpleWebTable {
 
         const arrowTable = tableFromJSON(arrayOfObjects)
 
-        await this.customQuery("INSTALL arrow; LOAD arrow;")
+        await this.sdb.customQuery("INSTALL arrow; LOAD arrow;")
         ;(this.connection as Connection).register_buffer(
             `tableAsView`,
             [tableToIPC(arrowTable)],
@@ -91,7 +92,7 @@ export default class SimpleTable extends SimpleWebTable {
                 }
             }
         )
-        await this.customQuery(
+        await this.sdb.customQuery(
             `CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM tableAsView;
             DROP VIEW tableAsView;`
         )
