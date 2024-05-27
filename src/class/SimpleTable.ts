@@ -88,7 +88,7 @@ export default class SimpleTable extends SimpleWebTable {
         }
     }
     async crossJoin(
-        rightTable: SimpleWebTable,
+        rightTable: SimpleTable,
         options: {
             outputTable?: string
         } = {}
@@ -109,7 +109,7 @@ export default class SimpleTable extends SimpleWebTable {
         }
     }
     async join(
-        rightTable: SimpleWebTable,
+        rightTable: SimpleTable,
         options: {
             commonColumn?: string
             type?: "inner" | "left" | "right" | "full"
@@ -198,7 +198,7 @@ export default class SimpleTable extends SimpleWebTable {
     }
     async joinGeo(
         method: "intersect" | "inside",
-        rightTable: SimpleWebTable,
+        rightTable: SimpleTable,
         options: {
             columnLeftTable?: string
             columnRightTable?: string

@@ -24,4 +24,14 @@ describe("SimpleTable", () => {
             true
         )
     })
+    it("should create a new SimpleTable with geometrye in types", async () => {
+        const table = await sdb.newTable("data", {
+            types: { name: "string", age: "number", city: "geometry" },
+        })
+        const tables = await sdb.getTables()
+        assert.deepStrictEqual(
+            table instanceof SimpleTable && tables.includes("data"),
+            true
+        )
+    })
 })

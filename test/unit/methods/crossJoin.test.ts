@@ -11,20 +11,22 @@ describe("crossJoin", () => {
     })
 
     it("should return all pairs of rows", async () => {
-        await sdb.loadArray("numbers", [
+        const numbers = await sdb.newTable("numbers")
+        await numbers.loadArray([
             { key1: 1 },
             { key1: 2 },
             { key1: 3 },
             { key1: 4 },
         ])
-        await sdb.loadArray("letters", [
+        const letters = await sdb.newTable("letters")
+        await letters.loadArray([
             { key2: "a" },
             { key2: "b" },
             { key2: "c" },
             { key2: "d" },
         ])
-        await sdb.crossJoin("numbers", "letters")
-        const data = await sdb.getData("numbers")
+        await numbers.crossJoin(letters)
+        const data = await numbers.getData()
         assert.deepStrictEqual(data, [
             { key1: 1, key2: "a" },
             { key1: 1, key2: "b" },
@@ -45,22 +47,24 @@ describe("crossJoin", () => {
         ])
     })
     it("should return all pairs of rows in a new table", async () => {
-        await sdb.loadArray("numbers", [
+        const numbers = await sdb.newTable("numbers")
+        await numbers.loadArray([
             { key1: 1 },
             { key1: 2 },
             { key1: 3 },
             { key1: 4 },
         ])
-        await sdb.loadArray("letters", [
+        const letters = await sdb.newTable("letters")
+        await letters.loadArray([
             { key2: "a" },
             { key2: "b" },
             { key2: "c" },
             { key2: "d" },
         ])
-        await sdb.crossJoin("numbers", "letters", {
+        const joined = await numbers.crossJoin(letters, {
             outputTable: "joined",
         })
-        const data = await sdb.getData("joined")
+        const data = await joined.getData()
         assert.deepStrictEqual(data, [
             { key1: 1, key2: "a" },
             { key1: 1, key2: "b" },

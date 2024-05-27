@@ -118,9 +118,17 @@ export default class SimpleDB extends SimpleWebDB {
 
         const types = options.types
         if (types !== undefined) {
+            let spatial = ""
+            if (
+                Object.values(types)
+                    .map((d) => d.toLowerCase())
+                    .includes("geometry")
+            ) {
+                spatial = "INSTALL spatial; LOAD spatial;\n"
+            }
             await queryDB(
                 this,
-                `CREATE OR REPLACE TABLE ${name} (${Object.keys(types)
+                `${spatial}CREATE OR REPLACE TABLE ${name} (${Object.keys(types)
                     .map((d) => `"${d}" ${parseType(types[d])}`)
                     .join(", ")});`,
                 mergeOptions(this, {
