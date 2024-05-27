@@ -18,6 +18,7 @@ import summarize from "../methods/summarize.js"
 import correlations from "../methods/correlations.js"
 import linearRegressions from "../methods/linearRegressions.js"
 import joinGeo from "../methods/joinGeo.js"
+import cloneQuery from "../methods/cloneQuery.js"
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. To create one, it's best to instantiate a SimpleDB first.
@@ -67,6 +68,26 @@ export default class SimpleTable extends SimpleWebTable {
     }
 
     // TO RETURN THE RIGHT TYPES
+    async cloneTable(
+        newTable: string,
+        options: {
+            condition?: string
+        } = {}
+    ) {
+        const clonedTable = await this.sdb.newTable(newTable)
+
+        await queryDB(
+            this,
+            cloneQuery(this.name, newTable, options),
+            mergeOptions(this, {
+                table: newTable,
+                method: "cloneTable()",
+                parameters: { newTable, options },
+            })
+        )
+
+        return clonedTable
+    }
     async selectRows(
         count: number | string,
         options: { offset?: number; outputTable?: string } = {}

@@ -64,6 +64,7 @@ import runQueryWeb from "../helpers/runQueryWeb.js"
 import selectRowsQuery from "../methods/selectRowsQuery.js"
 import crossJoinQuery from "../methods/crossJoinQuery.js"
 import join from "../methods/join.js"
+import cloneQuery from "../methods/cloneQuery.js"
 
 /**
  * SimpleWebTable is a class representing a table in a SimpleWebDB. To create one, it's best to instantiate a SimpleWebDB first.
@@ -272,9 +273,7 @@ export default class SimpleWebTable extends Simple {
 
         await queryDB(
             this,
-            `CREATE OR REPLACE TABLE ${newTable} AS SELECT * FROM ${this.name}${
-                options.condition ? ` WHERE ${options.condition}` : ""
-            }`,
+            cloneQuery(this.name, newTable, options),
             mergeOptions(this, {
                 table: newTable,
                 method: "cloneTable()",
