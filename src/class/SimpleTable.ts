@@ -252,40 +252,6 @@ export default class SimpleTable extends SimpleWebTable {
         )
     }
 
-    // For types
-    async cloneTable(
-        newTable: string,
-        options?: { condition?: string | undefined }
-    ): Promise<SimpleTable> {
-        return this.cloneTable(newTable, options)
-    }
-    async correlations(options?: {
-        x?: string | undefined
-        y?: string | undefined
-        categories?: string | string[] | undefined
-        decimals?: number | undefined
-        outputTable?: string | undefined
-    }): Promise<SimpleTable | undefined> {
-        return this.correlations(options)
-    }
-    async crossJoin(
-        rightTable: SimpleWebTable,
-        options?: { outputTable?: string | undefined }
-    ): Promise<SimpleTable | undefined> {
-        return this.crossJoin(rightTable, options)
-    }
-    async joinGeo(
-        method: "intersect" | "inside",
-        rightTable: SimpleWebTable,
-        options?: {
-            columnLeftTable?: string | undefined
-            columnRightTable?: string | undefined
-            type?: "inner" | "left" | "right" | "full" | undefined
-            outputTable?: string | undefined
-        }
-    ): Promise<SimpleTable | undefined> {
-        return this.joinGeo(method, rightTable, options)
-    }
     async newTable(
         name: string,
         options?: {
@@ -312,57 +278,6 @@ export default class SimpleTable extends SimpleWebTable {
         }
     ): Promise<SimpleTable> {
         return this.newTable(name, options)
-    }
-    async selectRows(
-        count: string | number,
-        options?: {
-            offset?: number | undefined
-            outputTable?: string | undefined
-        }
-    ): Promise<SimpleTable | undefined> {
-        return this.selectRows(count, options)
-    }
-    async summarize(options?: {
-        values?: string | string[] | undefined
-        categories?: string | string[] | undefined
-        summaries?:
-            | "count"
-            | "countUnique"
-            | "min"
-            | "max"
-            | "mean"
-            | "median"
-            | "sum"
-            | "skew"
-            | "stdDev"
-            | "var"
-            | (
-                  | "count"
-                  | "countUnique"
-                  | "min"
-                  | "max"
-                  | "mean"
-                  | "median"
-                  | "sum"
-                  | "skew"
-                  | "stdDev"
-                  | "var"
-              )[]
-            | undefined
-        decimals?: number | undefined
-        outputTable?: string | undefined
-    }): Promise<SimpleTable | undefined> {
-        return this.summarize(options)
-    }
-    async join(
-        rightTable: SimpleWebTable,
-        options?: {
-            commonColumn?: string | undefined
-            type?: "inner" | "left" | "right" | "full" | undefined
-            outputTable?: string | undefined
-        }
-    ): Promise<SimpleTable | undefined> {
-        return this.join(rightTable, options)
     }
 
     /**

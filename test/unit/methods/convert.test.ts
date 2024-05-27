@@ -11,12 +11,11 @@ describe("convert", () => {
     })
 
     it("should convert numbers to string", async () => {
-        await sdb.loadData("dataJustNumbers", [
-            "test/data/files/dataJustNumbers.csv",
-        ])
+        const table = await sdb.newTable("data")
+        await table.loadData(["test/data/files/dataJustNumbers.csv"])
 
-        await sdb.convert("dataJustNumbers", { key1: "string" })
-        const data = await sdb.getData("dataJustNumbers")
+        await table.convert({ key1: "string" })
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: "1.3", key2: 2 },
@@ -27,12 +26,13 @@ describe("convert", () => {
     })
 
     it("should try to convert string to number", async () => {
-        await sdb.loadData("dataMixedTypes", ["test/data/files/data.csv"], {
+        const table = await sdb.newTable("data")
+        await table.loadData(["test/data/files/data.csv"], {
             allText: true,
         })
 
-        await sdb.convert("dataMixedTypes", { key1: "integer" }, { try: true })
-        const data = await sdb.getData("dataMixedTypes")
+        await table.convert({ key1: "integer" }, { try: true })
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: 1, key2: "2" },
@@ -43,8 +43,12 @@ describe("convert", () => {
     })
 
     it("should convert string to float", async () => {
-        await sdb.convert("dataJustNumbers", { key1: "float" })
-        const data = await sdb.getData("dataJustNumbers")
+        const table = await sdb.newTable("data")
+        await table.loadData(["test/data/files/dataJustNumbers.csv"])
+        await table.convert({ key1: "string" }) // tested above
+
+        await table.convert({ key1: "float" })
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: 1.3, key2: 2 },
@@ -55,10 +59,12 @@ describe("convert", () => {
     })
 
     it("should convert string to integer", async () => {
-        await sdb.convert("dataJustNumbers", { key2: "string" })
+        const table = await sdb.newTable("data")
+        await table.loadData(["test/data/files/dataJustNumbers.csv"])
+        await table.convert({ key2: "string" }) // tested above
 
-        await sdb.convert("dataJustNumbers", { key2: "integer" })
-        const data = await sdb.getData("dataJustNumbers")
+        await table.convert({ key2: "integer" })
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: 1.3, key2: 2 },
@@ -69,13 +75,15 @@ describe("convert", () => {
     })
 
     it("should convert multiple columns in multiple types", async () => {
-        await sdb.convert("dataJustNumbers", { key1: "string" })
+        const table = await sdb.newTable("data")
+        await table.loadData(["test/data/files/dataJustNumbers.csv"])
+        await table.convert({ key1: "string" })
 
-        await sdb.convert("dataJustNumbers", {
+        await table.convert({
             key1: "float",
             key2: "string",
         })
-        const data = await sdb.getData("dataJustNumbers")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: 1.3, key2: "2" },
@@ -86,17 +94,18 @@ describe("convert", () => {
     })
 
     it("should convert date string to date", async () => {
-        await sdb.loadData("dataDates", ["test/data/files/dataDates.csv"], {
+        const table = await sdb.newTable("data")
+        await table.loadData("test/data/files/dataDates.csv", {
             allText: true,
         })
 
-        await sdb.convert("dataDates", {
+        await table.convert({
             date: "date",
             datetime: "datetime",
             datetimeWithMs: "datetime",
         })
 
-        const data = await sdb.getData("dataDates")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -134,13 +143,21 @@ describe("convert", () => {
         ])
     })
 
-    it("should convert time string to date", async () => {
-        await sdb.convert("dataDates", {
+    it("should convert date and time strings to dates", async () => {
+        const table = await sdb.newTable("data")
+        await table.loadData("test/data/files/dataDates.csv", {
+            allText: true,
+        })
+
+        await table.convert({
+            date: "date",
+            datetime: "datetime",
+            datetimeWithMs: "datetime",
             time: "time",
             timeMs: "time",
         })
 
-        const types = await sdb.getTypes("dataDates")
+        const types = await table.getTypes()
 
         assert.deepStrictEqual(types, {
             date: "DATE",
@@ -153,59 +170,65 @@ describe("convert", () => {
     })
 
     it("should convert date and time from string to date with a specific format", async () => {
-        await sdb.convert(
-            "dataDates",
+        const table = await sdb.newTable("data")
+        await table.loadData("test/data/files/dataDates.csv", {
+            allText: true,
+        })
+
+        await table.convert(
             { weirdDatetime: "time" },
             {
                 datetimeFormat: "%Y/%m/%d_%Hh_%Mmin_%Ssec",
             }
         )
-        const data = await sdb.getData("dataDates")
+        await table.selectColumns("weirdDatetime")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             {
-                date: new Date("2010-01-01T00:00:00.000Z"),
-                datetime: new Date("2010-01-01T14:01:12.000Z"),
-                datetimeWithMs: new Date("2010-01-01T14:12:12.014Z"),
-                time: "14:12:12",
-                timeMs: "14:12:12.014",
                 weirdDatetime: new Date("2010-01-01T14:01:12.000Z"),
             },
             {
-                date: new Date("2010-01-02T00:00:00.000Z"),
-                datetime: new Date("2010-01-02T01:12:54.000Z"),
-                datetimeWithMs: new Date("2010-01-02T01:12:54.955Z"),
-                time: "01:12:54",
-                timeMs: "01:12:54.955",
                 weirdDatetime: new Date("2010-01-02T01:12:54.000Z"),
             },
             {
-                date: new Date("2010-01-03T00:00:00.000Z"),
-                datetime: new Date("2010-01-03T02:25:01.000Z"),
-                datetimeWithMs: new Date("2010-01-03T02:25:01.111Z"),
-                time: "02:25:01",
-                timeMs: "02:25:01.111",
                 weirdDatetime: new Date("2010-01-03T02:25:54.000Z"),
             },
             {
-                date: new Date("2010-01-04T00:00:00.000Z"),
-                datetime: new Date("2010-01-04T23:25:15.000Z"),
-                datetimeWithMs: new Date("2010-01-04T12:01:15.123Z"),
-                time: "12:01:15",
-                timeMs: "12:01:15.123",
                 weirdDatetime: new Date("2010-01-04T23:25:15.000Z"),
             },
         ])
     })
 
     it("should convert dates to strings", async () => {
-        await sdb.convert("dataDates", {
+        const table = await sdb.newTable("data")
+        await table.loadData("test/data/files/dataDates.csv", {
+            allText: true,
+        })
+
+        await table.convert({
+            date: "date",
+            datetime: "datetime",
+            datetimeWithMs: "datetime",
+            time: "time",
+            timeMs: "time",
+        })
+        await table.convert(
+            { weirdDatetime: "time" },
+            {
+                datetimeFormat: "%Y/%m/%d_%Hh_%Mmin_%Ssec",
+            }
+        ) // tested above
+
+        await table.convert({
             date: "string",
             datetime: "string",
             datetimeWithMs: "string",
+            time: "string",
+            timeMs: "string",
             weirdDatetime: "string",
         })
-        const data = await sdb.getData("dataDates")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -244,12 +267,10 @@ describe("convert", () => {
     })
 
     it("should convert dates to strings with a specific format", async () => {
-        await sdb.loadData("dataDatesToBeStringWithSpecificFormat", [
-            "test/data/files/dataDates.csv",
-        ])
+        const table = await sdb.newTable("data")
+        await table.loadData("test/data/files/dataDates.csv")
 
-        await sdb.convert(
-            "dataDatesToBeStringWithSpecificFormat",
+        await table.convert(
             {
                 date: "string",
                 datetime: "string",
@@ -259,7 +280,7 @@ describe("convert", () => {
                 datetimeFormat: "%Y/%m/%d_%Hh_%Mmin_%Ssec",
             }
         )
-        const data = await sdb.getData("dataDatesToBeStringWithSpecificFormat")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -296,22 +317,23 @@ describe("convert", () => {
             },
         ])
     })
-    it("should convert numbers to booleans", async () => {
-        await sdb.loadArray("numbersToBooleans", [{ key1: 0 }, { key1: 1 }])
 
-        await sdb.convert("numbersToBooleans", { key1: "boolean" })
-        const data = await sdb.getData("numbersToBooleans")
+    it("should convert numbers to booleans", async () => {
+        const table = await sdb.newTable("data")
+        await table.loadArray([{ key1: 0 }, { key1: 1 }])
+
+        await table.convert({ key1: "boolean" })
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [{ key1: false }, { key1: true }])
     })
-    it("should convert booleans to numbers", async () => {
-        await sdb.loadArray("booleansToNumbers", [
-            { key1: false },
-            { key1: true },
-        ])
 
-        await sdb.convert("booleansToNumbers", { key1: "number" })
-        const data = await sdb.getData("booleansToNumbers")
+    it("should convert booleans to numbers", async () => {
+        const table = await sdb.newTable("data")
+        await table.loadArray([{ key1: false }, { key1: true }])
+
+        await table.convert({ key1: "number" })
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [{ key1: 0 }, { key1: 1 }])
     })

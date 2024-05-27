@@ -11,16 +11,17 @@ describe("cloneColumnWithOffset", () => {
     })
 
     it("should clone a column", async () => {
-        await sdb.loadArray("data", [
+        const table = await sdb.newTable("data")
+        await table.loadArray([
             { firstName: "nael", lastName: "shiab" },
             { firstName: "graeme", lastName: "bruce" },
             { firstName: "wendy", lastName: "martinez" },
             { firstName: "andrew", lastName: "ryan" },
         ])
 
-        await sdb.cloneColumnWithOffset("data", "firstName", "nextFirstName")
+        await table.cloneColumnWithOffset("firstName", "nextFirstName")
 
-        const data = await sdb.getData("data")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { firstName: "nael", lastName: "shiab", nextFirstName: "graeme" },
