@@ -9,6 +9,7 @@ import queryDB from "../helpers/queryDB.js"
 import writeDataQuery from "../methods/writeDataQuery.js"
 import writeGeoDataQuery from "../methods/writeGeoDataQuery.js"
 import SimpleDB from "./SimpleDB.js"
+import runQueryNode from "../helpers/runQueryNode.js"
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. To create one, it's best to instantiate a SimpleDB first.
@@ -48,10 +49,13 @@ export default class SimpleTable extends SimpleWebTable {
         options: {
             debug?: boolean
             nbRowsToLog?: number
+            bigIntToInt?: boolean
         } = {}
     ) {
         super(name, simpleDB, options)
         this.sdb = simpleDB
+        this.bigIntToInt = options.bigIntToInt ?? true
+        this.runQuery = runQueryNode
     }
 
     /**

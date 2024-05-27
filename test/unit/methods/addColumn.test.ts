@@ -1,33 +1,28 @@
 import assert from "assert"
 import SimpleDB from "../../../src/class/SimpleDB.js"
-import { existsSync, mkdirSync, readFileSync } from "fs"
+import { existsSync, mkdirSync } from "fs"
+import SimpleTable from "../../../src/class/SimpleTable.js"
 
 describe("addColumn", () => {
     const output = "./test/output/"
 
     let sdb: SimpleDB
+    let table: SimpleTable
     before(async function () {
         if (!existsSync(output)) {
             mkdirSync(output)
         }
-        sdb = new SimpleDB({ spatial: true })
-        await sdb.loadData("dataSummarize", [
-            "test/data/files/dataSummarize.json",
-        ])
+        sdb = new SimpleDB()
+        table = await sdb.newTable("data")
     })
     after(async function () {
         await sdb.done()
     })
 
     it("should return a column with new computed values", async () => {
-        await sdb.addColumn(
-            "dataSummarize",
-            "multiply",
-            "double",
-            `key2 * key3`
-        )
-
-        const data = await sdb.getData("dataSummarize")
+        await table.loadData(["test/data/files/dataSummarize.json"])
+        await table.addColumn("multiply", "double", `key2 * key3`)
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: "Rubarbe", key2: 1, key3: 10.5, multiply: 10.5 },
@@ -39,14 +34,9 @@ describe("addColumn", () => {
         ])
     })
     it("should return a column with booleans", async () => {
-        await sdb.addColumn(
-            "dataSummarize",
-            "key2GreaterThanTen",
-            "boolean",
-            `key2 > 10`
-        )
+        await table.addColumn("key2GreaterThanTen", "boolean", `key2 > 10`)
 
-        const data = await sdb.getData("dataSummarize")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -94,19 +84,15 @@ describe("addColumn", () => {
         ])
     })
     it("should return a column with geometry", async () => {
-        await sdb.loadGeoData("geo", "test/geodata/files/polygons.geojson")
+        const geo = await sdb.newTable("geo")
+        await geo.loadGeoData("test/geodata/files/polygons.geojson")
 
-        await sdb.addColumn("geo", "centroid", "geometry", `ST_Centroid(geom)`)
-        await sdb.selectColumns("geo", ["name", "centroid"])
-        await sdb.writeGeoData("geo", `${output}/addColumTest.geojson`)
-
-        const data = JSON.parse(
-            readFileSync(`${output}/addColumTest.geojson`, "utf-8")
-        )
+        await geo.addColumn("centroid", "geometry", `ST_Centroid(geom)`)
+        await geo.selectColumns(["name", "centroid"])
+        const data = await geo.getGeoData("centroid")
 
         assert.deepStrictEqual(data, {
             type: "FeatureCollection",
-            name: "addColumTest",
             features: [
                 {
                     type: "Feature",
