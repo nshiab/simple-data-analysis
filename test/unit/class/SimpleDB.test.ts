@@ -20,6 +20,13 @@ describe("SimpleDB", () => {
         await sdb.start()
         assert.deepStrictEqual(sdb.connection instanceof Connection, true)
     })
+    it("should run a custom query and return the result", async () => {
+        const result = await sdb.customQuery(`select 42 as result`, {
+            returnDataFrom: "query",
+        })
+        assert.deepStrictEqual(result, [{ result: 42 }])
+    })
+
     it("should close the db", async () => {
         await sdb.done()
         // How to test?

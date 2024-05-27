@@ -10,10 +10,11 @@ describe("customQuery", () => {
         await sdb.done()
     })
 
-    it("should return the columns of a table", async () => {
-        await sdb.loadData("employees", ["test/data/files/employees.csv"])
+    it("should return the results of a custom query", async () => {
+        const table = await sdb.newTable("employees")
+        await table.loadData(["test/data/files/employees.csv"])
 
-        const data = await sdb.customQuery(
+        const data = await table.customQuery(
             "SELECT * FROM employees WHERE Job = 'Clerk'",
             { returnDataFrom: "query" }
         )
@@ -182,9 +183,10 @@ describe("customQuery", () => {
         ])
     })
     it("should work with ==", async () => {
-        await sdb.loadData("employees", ["test/data/files/employees.csv"])
+        const table = await sdb.newTable("employees")
+        await table.loadData("test/data/files/employees.csv")
 
-        const data = await sdb.customQuery(
+        const data = await table.customQuery(
             "SELECT * FROM employees WHERE Name == 'Patel, Joshua'",
             { returnDataFrom: "query" }
         )
@@ -201,9 +203,10 @@ describe("customQuery", () => {
         ])
     })
     it("should work with ===", async () => {
-        await sdb.loadData("employees", ["test/data/files/employees.csv"])
+        const table = await sdb.newTable("employees")
+        await table.loadData("test/data/files/employees.csv")
 
-        const data = await sdb.customQuery(
+        const data = await table.customQuery(
             "SELECT * FROM employees WHERE Name === 'Patel, Joshua'",
             { returnDataFrom: "query" }
         )
@@ -220,9 +223,10 @@ describe("customQuery", () => {
         ])
     })
     it("should work with &", async () => {
-        await sdb.loadData("employees", ["test/data/files/employees.csv"])
+        const table = await sdb.newTable("employees")
+        await table.loadData("test/data/files/employees.csv")
 
-        const data = await sdb.customQuery(
+        const data = await table.customQuery(
             "SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500'",
             { returnDataFrom: "query" }
         )
@@ -255,9 +259,10 @@ describe("customQuery", () => {
         ])
     })
     it("should work with &&", async () => {
-        await sdb.loadData("employees", ["test/data/files/employees.csv"])
+        const table = await sdb.newTable("employees")
+        await table.loadData("test/data/files/employees.csv")
 
-        const data = await sdb.customQuery(
+        const data = await table.customQuery(
             `SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500' && "Department or unit" = '30'`,
             { returnDataFrom: "query" }
         )
@@ -274,9 +279,10 @@ describe("customQuery", () => {
         ])
     })
     it("should work with |", async () => {
-        await sdb.loadData("employees", ["test/data/files/employees.csv"])
+        const table = await sdb.newTable("employees")
+        await table.loadData("test/data/files/employees.csv")
 
-        const data = await sdb.customQuery(
+        const data = await table.customQuery(
             `SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500' && ("Department or unit" = '30' | "Department or unit" = '50')`,
             { returnDataFrom: "query" }
         )
@@ -309,9 +315,10 @@ describe("customQuery", () => {
         ])
     })
     it("should work with ||", async () => {
-        await sdb.loadData("employees", ["test/data/files/employees.csv"])
+        const table = await sdb.newTable("employees")
+        await table.loadData("test/data/files/employees.csv")
 
-        const data = await sdb.customQuery(
+        const data = await table.customQuery(
             `SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500' && ("Department or unit" = '30' || "Department or unit" = '50')`,
             { returnDataFrom: "query" }
         )
