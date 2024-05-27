@@ -86,7 +86,7 @@ import getProjection from "../methods/getProjection.js"
  * @example Instanciating with types
  * ```ts
  * // You can also create a new table with specific types.
- * await sdb.newTable("employees", {
+ * const employees = await sdb.newTable("employees", {
  *   types: {
  *     name: "string",
  *     salary: "integer",
@@ -773,7 +773,7 @@ export default class SimpleWebTable extends SimpleWebDB {
      *
      * @example Basic usage
      * ```ts
-     * await sdb.longer("Year", "Employees")
+     * await table.longer("Year", "Employees")
      * ```
      *
      * Now, the table looks like this and is wider.
@@ -806,22 +806,22 @@ export default class SimpleWebTable extends SimpleWebDB {
      * @example Basic usage with JavaScript types
      * ```ts
      * // Converts column1 to string and column2 to integer
-     * await sdb.convert({ column1: "string", column2: "integer" })
+     * await table.convert({ column1: "string", column2: "integer" })
      * ```
      *
      * @example With SQL types
      * ```ts
      * // Converts column1 to VARCHAR and column2 to BIGINT
-     * await sdb.convert({ column1: "varchar", column2: "bigint" })
+     * await table.convert({ column1: "varchar", column2: "bigint" })
      * ```
      *
      * @example With dates
      * ```ts
      * // Converts strings in a specific format to dates
-     * await sdb.convert({ column3: "datetime"}, { datetimeFormat: "%Y-%m-%d" })
+     * await table.convert({ column3: "datetime"}, { datetimeFormat: "%Y-%m-%d" })
      *
      * // Converts dates to strings with a specific format.
-     * await sdb.convert({ column3: "datetime" }, { datetimeFormat: "%Y-%m-%d" })
+     * await table.convert({ column3: "datetime" }, { datetimeFormat: "%Y-%m-%d" })
      * ```
      *
      * @param types - An object mapping column names to the target data types for conversion.
@@ -1995,7 +1995,7 @@ export default class SimpleWebTable extends SimpleWebDB {
      * @example Specific x and y columns
      * ```ts
      * // Computes the linear regression between a specific x and y columns.
-     * await sdb.linearRegressions({ x: "column1", y: "column2" })
+     * await table.linearRegressions({ x: "column1", y: "column2" })
      * ```
      *
      * @example Returning results in a new table
@@ -3450,7 +3450,7 @@ export default class SimpleWebTable extends SimpleWebDB {
      * @example With categories
      * ```ts
      * // Returns the union of all geometries in the column geom and uses the values in the column country as categories.
-     * await sdb.aggregateGeo("geom", "union", { categories: "country" })
+     * await table.aggregateGeo("geom", "union", { categories: "country" })
      * ```
      *
      * @param column - The name of the column storing geometries.

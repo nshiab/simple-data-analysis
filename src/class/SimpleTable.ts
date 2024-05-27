@@ -35,7 +35,7 @@ import SimpleDB from "./SimpleDB.js"
  * @example Instanciating with types
  * ```ts
  * // You can also create a new table with specific types.
- * await sdb.newTable("employees", { types: { name: "string", salary: "integer", raise: "float" }})
+ * const employees = await sdb.newTable("employees", { types: { name: "string", salary: "integer", raise: "float" }})
  * ```
  */
 export default class SimpleTable extends SimpleWebTable {
