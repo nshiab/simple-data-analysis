@@ -1,6 +1,6 @@
 import assert from "assert"
 import SimpleDB from "../../../src/class/SimpleDB.js"
-import { existsSync, mkdirSync, readFileSync } from "fs"
+import { existsSync, mkdirSync } from "fs"
 
 describe("centroid", () => {
     const output = "./test/output/"
@@ -10,30 +10,25 @@ describe("centroid", () => {
         if (!existsSync(output)) {
             mkdirSync(output)
         }
-        sdb = new SimpleDB({ spatial: true })
-        await sdb.loadGeoData(
-            "geodata",
-            "test/geodata/files/CanadianProvincesAndTerritories.json"
-        )
+        sdb = new SimpleDB()
     })
     after(async function () {
         await sdb.done()
     })
 
     it("should computes the centroids", async () => {
-        await sdb.centroid("geodata", "geom", "centroid")
-
-        await sdb.selectColumns("geodata", ["nameEnglish", "centroid"])
-
-        await sdb.writeGeoData("geodata", `${output}/centroidTest.geojson`)
-
-        const data = JSON.parse(
-            readFileSync(`${output}/centroidTest.geojson`, "utf-8")
+        const table = await sdb.newTable("geodata")
+        await table.loadGeoData(
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
+        await table.centroid("geom", "centroid")
+
+        await table.selectColumns(["nameEnglish", "centroid"])
+
+        const data = await table.getGeoData("centroid")
 
         assert.deepStrictEqual(data, {
             type: "FeatureCollection",
-            name: "centroidTest",
             features: [
                 {
                     type: "Feature",

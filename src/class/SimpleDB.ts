@@ -115,9 +115,6 @@ export default class SimpleDB extends SimpleWebDB {
         this.debug && console.log("\nnewTable()")
 
         await this.start()
-        if (await this.hasTable(name)) {
-            throw new Error(`Table ${name} already exists.`)
-        }
 
         const types = options.types
         if (types !== undefined) {

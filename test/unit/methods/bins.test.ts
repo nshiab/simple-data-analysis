@@ -11,9 +11,10 @@ describe("bins", () => {
     })
 
     it("should add a column with the bins and an interval of 10", async () => {
-        await sdb.loadData("bins", "test/data/files/dataRank.csv")
-        await sdb.bins("bins", "Mark", 10, "bins")
-        const data = await sdb.getData("bins")
+        const table = await sdb.newTable("data")
+        await table.loadData("test/data/files/dataRank.csv")
+        await table.bins("Mark", 10, "bins")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { Name: "Lily", Subject: "Maths", Mark: 65, bins: "[60-69]" },
@@ -28,11 +29,12 @@ describe("bins", () => {
         ])
     })
     it("should add a column with the bins and an interval of 10 and 45 as start value", async () => {
-        await sdb.loadData("binStart", "test/data/files/dataRank.csv")
-        await sdb.bins("binStart", "Mark", 10, "bins", {
+        const table = await sdb.newTable("data")
+        await table.loadData("test/data/files/dataRank.csv")
+        await table.bins("Mark", 10, "bins", {
             startValue: 45,
         })
-        const data = await sdb.getData("binStart")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { Name: "Lily", Subject: "Maths", Mark: 65, bins: "[65-74]" },
@@ -47,9 +49,10 @@ describe("bins", () => {
         ])
     })
     it("should add a column with the bins and an interval of 0.5", async () => {
-        await sdb.loadData("bin_5", "test/data/files/dataRank.csv")
-        await sdb.bins("bin_5", "Mark", 0.5, "bins")
-        const data = await sdb.getData("bin_5")
+        const table = await sdb.newTable("data")
+        await table.loadData("test/data/files/dataRank.csv")
+        await table.bins("Mark", 0.5, "bins")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { Name: "Lily", Subject: "Maths", Mark: 65, bins: "[65-65.4]" },

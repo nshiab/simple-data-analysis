@@ -11,13 +11,14 @@ describe("addRowNumber", () => {
     })
 
     it("should return a column with the row number", async () => {
-        await sdb.loadArray("data", [
+        const table = await sdb.newTable("data")
+        await table.loadArray([
             { first: "Nael", last: "Shiab" },
             { first: "Graeme", last: "Bruce" },
         ])
-        await sdb.addRowNumber("data", "rowNumber")
+        await table.addRowNumber("rowNumber")
 
-        const data = await sdb.getData("data")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { first: "Nael", last: "Shiab", rowNumber: 1 },

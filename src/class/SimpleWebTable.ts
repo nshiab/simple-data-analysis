@@ -986,14 +986,14 @@ export default class SimpleWebTable extends Simple {
      *
      * @category Restructuring data
      */
-    async addRowNumber(table: string, newColumn: string) {
+    async addRowNumber(newColumn: string) {
         await queryDB(
             this,
-            `CREATE OR REPLACE TABLE ${table} AS SELECT *, ROW_NUMBER() OVER() AS "${newColumn}" FROM ${table}`,
+            `CREATE OR REPLACE TABLE ${this.name} AS SELECT *, ROW_NUMBER() OVER() AS "${newColumn}" FROM ${this.name}`,
             mergeOptions(this, {
-                table,
+                table: this.name,
                 method: "addRowNumber()",
-                parameters: { table, newColumn },
+                parameters: { newColumn },
             })
         )
     }
@@ -3478,6 +3478,11 @@ export default class SimpleWebTable extends Simple {
                 parameters: { column, method, options },
             })
         )
+        if (typeof options.outputTable === "string") {
+            return await this.sdb.newTable(options.outputTable)
+        } else {
+            return this
+        }
     }
 
     /**

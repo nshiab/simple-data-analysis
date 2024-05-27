@@ -115,9 +115,7 @@ export default class SimpleWebDB extends Simple {
         this.debug && console.log("\nnewTable()")
 
         await this.start()
-        if (await this.hasTable(name)) {
-            throw new Error(`Table ${name} already exists.`)
-        }
+
         const table = new SimpleWebTable(name, this, {
             debug: this.debug,
             nbRowsToLog: this.nbRowsToLog,

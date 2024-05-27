@@ -11,11 +11,12 @@ describe("cloneColumn", () => {
     })
 
     it("should clone a column", async () => {
-        await sdb.loadArray("data", [{ firstName: "nael", lastName: "shiab" }])
+        const table = await sdb.newTable("data")
+        await table.loadArray([{ firstName: "nael", lastName: "shiab" }])
 
-        await sdb.cloneColumn("data", "firstName", "firstNameCloned")
+        await table.cloneColumn("firstName", "firstNameCloned")
 
-        const data = await sdb.getData("data")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { firstName: "nael", lastName: "shiab", firstNameCloned: "nael" },
