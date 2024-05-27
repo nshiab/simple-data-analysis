@@ -7,7 +7,6 @@ import renameColumnQuery from "../methods/renameColumnQuery.js"
 import replaceQuery from "../methods/replaceQuery.js"
 import convertQuery from "../methods/convertQuery.js"
 import roundQuery from "../methods/roundQuery.js"
-import joinQuery from "../methods/joinQuery.js"
 import insertRowsQuery from "../methods/insertRowsQuery.js"
 import sortQuery from "../methods/sortQuery.js"
 import outliersIQRQuery from "../methods/outliersIQRQuery.js"
@@ -62,6 +61,9 @@ import getGeoData from "../methods/getGeoData.js"
 import getProjection from "../methods/getProjection.js"
 import Simple from "./Simple.js"
 import runQueryWeb from "../helpers/runQueryWeb.js"
+import selectRowsQuery from "../methods/selectRowsQuery.js"
+import crossJoinQuery from "../methods/crossJoinQuery.js"
+import join from "../methods/join.js"
 
 /**
  * SimpleWebTable is a class representing a table in a SimpleWebDB. To create one, it's best to instantiate a SimpleWebDB first.
@@ -448,13 +450,7 @@ export default class SimpleWebTable extends Simple {
     ) {
         await queryDB(
             this,
-            `CREATE OR REPLACE TABLE ${
-                options.outputTable ?? this.name
-            } AS SELECT * FROM ${this.name} LIMIT ${count}${
-                typeof options.offset === "number"
-                    ? ` OFFSET ${options.offset}`
-                    : ""
-            };`,
+            selectRowsQuery(this.name, count, options),
             mergeOptions(this, {
                 table: options.outputTable ?? this.name,
                 method: "selectRows",
@@ -464,6 +460,8 @@ export default class SimpleWebTable extends Simple {
 
         if (typeof options.outputTable === "string") {
             return await this.sdb.newTable(options.outputTable)
+        } else {
+            return this
         }
     }
 
@@ -1027,7 +1025,7 @@ export default class SimpleWebTable extends Simple {
     ) {
         await queryDB(
             this,
-            `CREATE OR REPLACE TABLE "${options.outputTable ?? this.name}" AS SELECT "${this.name}".*, "${rightTable.name}".* FROM "${this.name}" CROSS JOIN "${rightTable.name}";`,
+            crossJoinQuery(this.name, rightTable.name, options),
             mergeOptions(this, {
                 table: options.outputTable ?? this.name,
                 method: "crossJoin()",
@@ -1036,6 +1034,8 @@ export default class SimpleWebTable extends Simple {
         )
         if (typeof options.outputTable === "string") {
             return await this.sdb.newTable(options.outputTable)
+        } else {
+            return this
         }
     }
 
@@ -1070,55 +1070,12 @@ export default class SimpleWebTable extends Simple {
             outputTable?: string
         } = {}
     ) {
-        let commonColumn: string | undefined
-        if (options.commonColumn) {
-            commonColumn = options.commonColumn
-        } else {
-            const leftTableColumns = await this.getColumns()
-            const rightTableColumns = await rightTable.getColumns()
-            commonColumn = leftTableColumns.find((d) =>
-                rightTableColumns.includes(d)
-            )
-            if (commonColumn === undefined) {
-                throw new Error("No common column")
-            }
-        }
-
-        await queryDB(
-            this,
-            joinQuery(
-                this.name,
-                rightTable.name,
-                commonColumn,
-                options.type ?? "left",
-                options.outputTable ?? this.name
-            ),
-            mergeOptions(this, {
-                table: options.outputTable ?? this.name,
-                method: "join()",
-                parameters: {
-                    rightTable,
-                    options,
-                },
-            })
-        )
-
-        const outputTable =
-            typeof options.outputTable === "string"
-                ? await this.sdb.newTable(options.outputTable)
-                : this
-
-        // Need to remove the extra column common column. Ideally, this would happen in the query. :1 is with web assembly version. _1 is with nodejs version. At some point, both will be the same.
-        const columns = await outputTable.getColumns()
-        const extraCommonColumn = columns.find(
-            (d) => d === `${commonColumn}_1` || d === `${commonColumn}:1`
-        )
-        if (extraCommonColumn !== undefined) {
-            await outputTable.removeColumns(extraCommonColumn)
-        }
+        await join(this, rightTable, options)
 
         if (typeof options.outputTable === "string") {
-            return outputTable
+            return await this.sdb.newTable(options.outputTable)
+        } else {
+            return this
         }
     }
 
@@ -1855,6 +1812,8 @@ export default class SimpleWebTable extends Simple {
         await summarize(this, options)
         if (typeof options.outputTable === "string") {
             return await this.sdb.newTable(options.outputTable)
+        } else {
+            return this
         }
     }
 
@@ -1975,6 +1934,8 @@ export default class SimpleWebTable extends Simple {
         await correlations(this, options)
         if (typeof options.outputTable === "string") {
             return await this.sdb.newTable(options.outputTable)
+        } else {
+            return this
         }
     }
 
@@ -2025,6 +1986,11 @@ export default class SimpleWebTable extends Simple {
         } = {}
     ) {
         await linearRegressions(this, options)
+        if (typeof options.outputTable === "string") {
+            return this.sdb.newTable(options.outputTable)
+        } else {
+            return this
+        }
     }
 
     /**
@@ -3163,6 +3129,8 @@ export default class SimpleWebTable extends Simple {
         await joinGeo(this, method, rightTable, options)
         if (typeof options.outputTable === "string") {
             return await this.sdb.newTable(options.outputTable)
+        } else {
+            return this
         }
     }
 
@@ -3454,6 +3422,12 @@ export default class SimpleWebTable extends Simple {
      * ```ts
      * // Returns the union of all geometries in the column geom and uses the values in the column country as categories.
      * await table.aggregateGeo("geom", "union", { categories: "country" })
+     * ```
+     *
+     * @example Returning results in a new table
+     * ```ts
+     * // Same thing but results a return in tableA
+     * const tableA = await table.aggregateGeo("geom", "union", { categories: "country", outputTable: "tableA" })
      * ```
      *
      * @param column - The name of the column storing geometries.

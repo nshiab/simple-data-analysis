@@ -10,6 +10,14 @@ import writeDataQuery from "../methods/writeDataQuery.js"
 import writeGeoDataQuery from "../methods/writeGeoDataQuery.js"
 import SimpleDB from "./SimpleDB.js"
 import runQueryNode from "../helpers/runQueryNode.js"
+import aggregateGeoQuery from "../methods/aggregateGeoQuery.js"
+import selectRowsQuery from "../methods/selectRowsQuery.js"
+import crossJoinQuery from "../methods/crossJoinQuery.js"
+import join from "../methods/join.js"
+import summarize from "../methods/summarize.js"
+import correlations from "../methods/correlations.js"
+import linearRegressions from "../methods/linearRegressions.js"
+import joinGeo from "../methods/joinGeo.js"
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. To create one, it's best to instantiate a SimpleDB first.
@@ -56,6 +64,174 @@ export default class SimpleTable extends SimpleWebTable {
         this.sdb = simpleDB
         this.bigIntToInt = options.bigIntToInt ?? true
         this.runQuery = runQueryNode
+    }
+
+    // TO RETURN THE RIGHT TYPES
+    async selectRows(
+        count: number | string,
+        options: { offset?: number; outputTable?: string } = {}
+    ) {
+        await queryDB(
+            this,
+            selectRowsQuery(this.name, count, options),
+            mergeOptions(this, {
+                table: options.outputTable ?? this.name,
+                method: "selectRows",
+                parameters: { count, options },
+            })
+        )
+
+        if (typeof options.outputTable === "string") {
+            return await this.sdb.newTable(options.outputTable)
+        } else {
+            return this
+        }
+    }
+    async crossJoin(
+        rightTable: SimpleWebTable,
+        options: {
+            outputTable?: string
+        } = {}
+    ) {
+        await queryDB(
+            this,
+            crossJoinQuery(this.name, rightTable.name, options),
+            mergeOptions(this, {
+                table: options.outputTable ?? this.name,
+                method: "crossJoin()",
+                parameters: { rightTable, options },
+            })
+        )
+        if (typeof options.outputTable === "string") {
+            return await this.sdb.newTable(options.outputTable)
+        } else {
+            return this
+        }
+    }
+    async join(
+        rightTable: SimpleWebTable,
+        options: {
+            commonColumn?: string
+            type?: "inner" | "left" | "right" | "full"
+            outputTable?: string
+        } = {}
+    ) {
+        await join(this, rightTable, options)
+
+        if (typeof options.outputTable === "string") {
+            return await this.sdb.newTable(options.outputTable)
+        } else {
+            return this
+        }
+    }
+    async summarize(
+        options: {
+            values?: string | string[]
+            categories?: string | string[]
+            summaries?:
+                | (
+                      | "count"
+                      | "countUnique"
+                      | "min"
+                      | "max"
+                      | "mean"
+                      | "median"
+                      | "sum"
+                      | "skew"
+                      | "stdDev"
+                      | "var"
+                  )
+                | (
+                      | "count"
+                      | "countUnique"
+                      | "min"
+                      | "max"
+                      | "mean"
+                      | "median"
+                      | "sum"
+                      | "skew"
+                      | "stdDev"
+                      | "var"
+                  )[]
+            decimals?: number
+            outputTable?: string
+        } = {}
+    ) {
+        await summarize(this, options)
+        if (typeof options.outputTable === "string") {
+            return await this.sdb.newTable(options.outputTable)
+        } else {
+            return this
+        }
+    }
+    async correlations(
+        options: {
+            x?: string
+            y?: string
+            categories?: string | string[]
+            decimals?: number
+            outputTable?: string
+        } = {}
+    ) {
+        await correlations(this, options)
+        if (typeof options.outputTable === "string") {
+            return await this.sdb.newTable(options.outputTable)
+        } else {
+            return this
+        }
+    }
+    async linearRegressions(
+        options: {
+            x?: string
+            y?: string
+            categories?: string | string[]
+            decimals?: number
+            outputTable?: string
+        } = {}
+    ) {
+        await linearRegressions(this, options)
+        if (typeof options.outputTable === "string") {
+            return this.sdb.newTable(options.outputTable)
+        } else {
+            return this
+        }
+    }
+    async joinGeo(
+        method: "intersect" | "inside",
+        rightTable: SimpleWebTable,
+        options: {
+            columnLeftTable?: string
+            columnRightTable?: string
+            type?: "inner" | "left" | "right" | "full"
+            outputTable?: string
+        } = {}
+    ) {
+        await joinGeo(this, method, rightTable, options)
+        if (typeof options.outputTable === "string") {
+            return await this.sdb.newTable(options.outputTable)
+        } else {
+            return this
+        }
+    }
+    async aggregateGeo(
+        column: string,
+        method: "union" | "intersection",
+        options: { categories?: string | string[]; outputTable?: string } = {}
+    ) {
+        await queryDB(
+            this,
+            aggregateGeoQuery(this.name, column, method, options),
+            mergeOptions(this, {
+                table: this.name,
+                method: "aggregateGeo()",
+                parameters: { column, method, options },
+            })
+        )
+        if (typeof options.outputTable === "string") {
+            return await this.sdb.newTable(options.outputTable)
+        } else {
+            return this
+        }
     }
 
     /**
