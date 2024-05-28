@@ -11,7 +11,7 @@ describe("filter", () => {
     })
 
     it("should filter the rows based on one condition", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData(["test/data/files/employees.csv"])
 
         await table.filter(`"Job" = 'Clerk'`)
@@ -181,7 +181,7 @@ describe("filter", () => {
         ])
     })
     it("should filter the rows based on multiple conditions", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData(["test/data/files/employees.csv"])
         await table.filter(`"Job" = 'Clerk' AND "Department or unit" != '50'`)
         const data = await table.getData()
@@ -238,7 +238,7 @@ describe("filter", () => {
         ])
     })
     it("should filter the rows based on booleans", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadArray([
             { name: "Nael", value: true },
             { name: "Graeme", value: false },

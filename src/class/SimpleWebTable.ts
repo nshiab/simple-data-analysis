@@ -75,7 +75,7 @@ import cloneQuery from "../methods/cloneQuery.js"
  * const sdb = new SimpleWebDB()
  *
  * // Making a new table. This returns a SimpleWebTable.
- * const employees = await sdb.newTable("employees")
+ * const employees = sdb.newTable("employees")
  *
  * // You can now invoke methods on the table.
  * await employees.loadData("./employees.csv")
@@ -91,7 +91,7 @@ import cloneQuery from "../methods/cloneQuery.js"
  * @example Instanciating with types
  * ```ts
  * // You can also create a new table with specific types.
- * const employees = await sdb.newTable("employees", {
+ * const employees = sdb.newTable("employees", {
  *   types: {
  *     name: "string",
  *     salary: "integer",
@@ -119,6 +119,63 @@ export default class SimpleWebTable extends Simple {
         this.name = name
         this.sdb = simpleWebDB
         this.connection = this.sdb.connection
+    }
+
+    /** Set the types in the table.
+     *
+     * @example Basic usage
+     * ```ts
+     *  await table.setTypes({
+     *     name: "string",
+     *     salary: "integer",
+     *     raise: "float",
+     * })
+     * ```
+     *
+     * @param types - An object specifying the columns and their data types (JavaScript or SQL).
+     *
+     */
+    async setTypes(types: {
+        [key: string]:
+            | "integer"
+            | "float"
+            | "number"
+            | "string"
+            | "date"
+            | "time"
+            | "datetime"
+            | "datetimeTz"
+            | "bigint"
+            | "double"
+            | "varchar"
+            | "timestamp"
+            | "timestamp with time zone"
+            | "boolean"
+            | "geometry"
+    }) {
+        this.debug && console.log("\nsetTypes()")
+
+        let spatial = ""
+        if (
+            Object.values(types)
+                .map((d) => d.toLowerCase())
+                .includes("geometry")
+        ) {
+            spatial = "INSTALL spatial; LOAD spatial;\n"
+        }
+        await queryDB(
+            this,
+            `${spatial}CREATE OR REPLACE TABLE ${this.name} (${Object.keys(
+                types
+            )
+                .map((d) => `"${d}" ${parseType(types[d])}`)
+                .join(", ")});`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "setTypes()",
+                parameters: { types },
+            })
+        )
     }
 
     /**

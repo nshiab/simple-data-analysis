@@ -11,27 +11,7 @@ describe("SimpleTable", () => {
         await sdb.done()
     })
     it("should create a new SimpleTable", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         assert.deepStrictEqual(table instanceof SimpleTable, true)
-    })
-    it("should create a new SimpleTable with types", async () => {
-        const table = await sdb.newTable("data", {
-            types: { name: "string", age: "number" },
-        })
-        const tables = await sdb.getTables()
-        assert.deepStrictEqual(
-            table instanceof SimpleTable && tables.includes("data"),
-            true
-        )
-    })
-    it("should create a new SimpleTable with geometrye in types", async () => {
-        const table = await sdb.newTable("data", {
-            types: { name: "string", age: "number", city: "geometry" },
-        })
-        const tables = await sdb.getTables()
-        assert.deepStrictEqual(
-            table instanceof SimpleTable && tables.includes("data"),
-            true
-        )
     })
 })

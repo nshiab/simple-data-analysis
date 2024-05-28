@@ -11,7 +11,7 @@ describe("convert", () => {
     })
 
     it("should convert numbers to string", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData(["test/data/files/dataJustNumbers.csv"])
 
         await table.convert({ key1: "string" })
@@ -26,7 +26,7 @@ describe("convert", () => {
     })
 
     it("should try to convert string to number", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData(["test/data/files/data.csv"], {
             allText: true,
         })
@@ -43,7 +43,7 @@ describe("convert", () => {
     })
 
     it("should convert string to float", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData(["test/data/files/dataJustNumbers.csv"])
         await table.convert({ key1: "string" }) // tested above
 
@@ -59,7 +59,7 @@ describe("convert", () => {
     })
 
     it("should convert string to integer", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData(["test/data/files/dataJustNumbers.csv"])
         await table.convert({ key2: "string" }) // tested above
 
@@ -75,7 +75,7 @@ describe("convert", () => {
     })
 
     it("should convert multiple columns in multiple types", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData(["test/data/files/dataJustNumbers.csv"])
         await table.convert({ key1: "string" })
 
@@ -94,7 +94,7 @@ describe("convert", () => {
     })
 
     it("should convert date string to date", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/dataDates.csv", {
             allText: true,
         })
@@ -144,7 +144,7 @@ describe("convert", () => {
     })
 
     it("should convert date and time strings to dates", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/dataDates.csv", {
             allText: true,
         })
@@ -170,7 +170,7 @@ describe("convert", () => {
     })
 
     it("should convert date and time from string to date with a specific format", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/dataDates.csv", {
             allText: true,
         })
@@ -201,7 +201,7 @@ describe("convert", () => {
     })
 
     it("should convert dates to strings", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/dataDates.csv", {
             allText: true,
         })
@@ -267,7 +267,7 @@ describe("convert", () => {
     })
 
     it("should convert dates to strings with a specific format", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/dataDates.csv")
 
         await table.convert(
@@ -319,7 +319,7 @@ describe("convert", () => {
     })
 
     it("should convert numbers to booleans", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadArray([{ key1: 0 }, { key1: 1 }])
 
         await table.convert({ key1: "boolean" })
@@ -329,7 +329,7 @@ describe("convert", () => {
     })
 
     it("should convert booleans to numbers", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadArray([{ key1: false }, { key1: true }])
 
         await table.convert({ key1: "number" })

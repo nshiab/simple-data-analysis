@@ -2,9 +2,6 @@ import duckdb, { Database } from "duckdb"
 import runQueryNode from "../helpers/runQueryNode.js"
 import SimpleWebDB from "./SimpleWebDB.js"
 import SimpleTable from "./SimpleTable.js"
-import queryDB from "../helpers/queryDB.js"
-import mergeOptions from "../helpers/mergeOptions.js"
-import parseType from "../helpers/parseTypes.js"
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance, in-memory analytical database. This class is meant to be used with NodeJS and similar runtimes. For web browsers, use SimpleWebDB.
@@ -19,7 +16,7 @@ import parseType from "../helpers/parseTypes.js"
  * const sdb = new SimpleDB()
  *
  * // Creating a new table.
- * const employees = await sdb.newTable("employees")
+ * const employees = sdb.newTable("employees")
  *
  * // You can now invoke methods on the table.
  * await employees.loadData("./employees.csv")
@@ -64,80 +61,20 @@ export default class SimpleDB extends SimpleWebDB {
         }
     }
 
-    /** Creates a table. Table names must be unique.
+    /** Creates a table.
      *
      * @example Basic usage
      * ```ts
      * // This returns a new SimpleTable
-     * const employees = await sdb.newTable("employees")
+     * const employees = sdb.newTable("employees")
      * ```
      *
-     * @example With columns and types
-     * ```ts
-     * // You can create a table with specific types.
-     * const employees = await sdb.newTable("employees", {
-     *   types: {
-     *     name: "string",
-     *     salary: "integer",
-     *     raise: "float",
-     *   }
-     * })
-     * ```
      * @param name - The name of the new table
-     * @param options - An optional object with configuration options:
-     *   @param options.types - An object specifying the columns and  their data types (JavaScript or SQL).
      *
      * @category DB methods
      */
-    async newTable(
-        name: string,
-        options: {
-            types?: {
-                [key: string]:
-                    | "integer"
-                    | "float"
-                    | "number"
-                    | "string"
-                    | "date"
-                    | "time"
-                    | "datetime"
-                    | "datetimeTz"
-                    | "bigint"
-                    | "double"
-                    | "varchar"
-                    | "timestamp"
-                    | "timestamp with time zone"
-                    | "boolean"
-                    | "geometry"
-            }
-        } = {}
-    ): Promise<SimpleTable> {
+    newTable(name: string): SimpleTable {
         this.debug && console.log("\nnewTable()")
-
-        await this.start()
-
-        const types = options.types
-        if (types !== undefined) {
-            let spatial = ""
-            if (
-                Object.values(types)
-                    .map((d) => d.toLowerCase())
-                    .includes("geometry")
-            ) {
-                spatial = "INSTALL spatial; LOAD spatial;\n"
-            }
-            await queryDB(
-                this,
-                `${spatial}CREATE OR REPLACE TABLE ${name} (${Object.keys(types)
-                    .map((d) => `"${d}" ${parseType(types[d])}`)
-                    .join(", ")});`,
-                mergeOptions(this, {
-                    table: name,
-                    method: "newTable() with options",
-                    parameters: { options },
-                })
-            )
-        }
 
         return new SimpleTable(name, this, {
             debug: this.debug,

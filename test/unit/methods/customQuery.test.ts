@@ -11,7 +11,7 @@ describe("customQuery", () => {
     })
 
     it("should return the results of a custom query", async () => {
-        const table = await sdb.newTable("employees")
+        const table = sdb.newTable("employees")
         await table.loadData(["test/data/files/employees.csv"])
 
         const data = await table.customQuery(
@@ -183,7 +183,7 @@ describe("customQuery", () => {
         ])
     })
     it("should work with ==", async () => {
-        const table = await sdb.newTable("employees")
+        const table = sdb.newTable("employees")
         await table.loadData("test/data/files/employees.csv")
 
         const data = await table.customQuery(
@@ -203,7 +203,7 @@ describe("customQuery", () => {
         ])
     })
     it("should work with ===", async () => {
-        const table = await sdb.newTable("employees")
+        const table = sdb.newTable("employees")
         await table.loadData("test/data/files/employees.csv")
 
         const data = await table.customQuery(
@@ -223,7 +223,7 @@ describe("customQuery", () => {
         ])
     })
     it("should work with &", async () => {
-        const table = await sdb.newTable("employees")
+        const table = sdb.newTable("employees")
         await table.loadData("test/data/files/employees.csv")
 
         const data = await table.customQuery(
@@ -259,7 +259,7 @@ describe("customQuery", () => {
         ])
     })
     it("should work with &&", async () => {
-        const table = await sdb.newTable("employees")
+        const table = sdb.newTable("employees")
         await table.loadData("test/data/files/employees.csv")
 
         const data = await table.customQuery(
@@ -279,7 +279,7 @@ describe("customQuery", () => {
         ])
     })
     it("should work with |", async () => {
-        const table = await sdb.newTable("employees")
+        const table = sdb.newTable("employees")
         await table.loadData("test/data/files/employees.csv")
 
         const data = await table.customQuery(
@@ -315,7 +315,7 @@ describe("customQuery", () => {
         ])
     })
     it("should work with ||", async () => {
-        const table = await sdb.newTable("employees")
+        const table = sdb.newTable("employees")
         await table.loadData("test/data/files/employees.csv")
 
         const data = await table.customQuery(

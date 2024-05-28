@@ -11,7 +11,7 @@ describe("flipCoordinates", () => {
     })
 
     it("should flip the coordinates", async () => {
-        const table = await sdb.newTable("geoData")
+        const table = sdb.newTable("geoData")
         await table.loadGeoData("test/geodata/files/point.json")
         await table.flipCoordinates("geom")
         const data = await table.customQuery(

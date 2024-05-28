@@ -11,7 +11,7 @@ describe("correlations", () => {
     })
 
     it("should give all correlations between numeric columns in the table and overwrite the current table", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/dataCorrelations.json")
         await table.correlations()
         await table.sort({ corr: "desc" })
@@ -26,7 +26,7 @@ describe("correlations", () => {
     })
 
     it("should give all correlations between numeric columns in the table and overwrite the current table, with one decimal", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/dataCorrelations.json")
         await table.correlations({
             decimals: 1,
@@ -42,7 +42,7 @@ describe("correlations", () => {
     })
 
     it("should give all correlations between numeric columns in the table", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/dataCorrelations.json")
         const newTable = await table.correlations({
             outputTable: "allCorrelations",
@@ -59,7 +59,7 @@ describe("correlations", () => {
     })
 
     it("should give all correlations between numeric columns with a specific x column", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/dataCorrelations.json")
         const newTable = await table.correlations({
             outputTable: "allCorrelationsX",
@@ -78,7 +78,7 @@ describe("correlations", () => {
     })
 
     it("should give the correlation between two specific columns", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/dataCorrelations.json")
         const newTable = await table.correlations({
             outputTable: "allCorrelationsX",
@@ -93,7 +93,7 @@ describe("correlations", () => {
     })
 
     it("should give the correlation between two specific columns and with a category", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("./test/data/files/dailyTemperatures.csv")
         await table.addColumn("decade", "integer", "FLOOR(YEAR(time)/10)*10")
         await table.summarize({

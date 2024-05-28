@@ -11,7 +11,7 @@ describe("cloneColumnWithOffset", () => {
     })
 
     it("should clone a column", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadArray([
             { firstName: "nael", lastName: "shiab" },
             { firstName: "graeme", lastName: "bruce" },

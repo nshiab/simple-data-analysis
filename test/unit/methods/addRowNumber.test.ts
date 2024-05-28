@@ -11,7 +11,7 @@ describe("addRowNumber", () => {
     })
 
     it("should return a column with the row number", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadArray([
             { first: "Nael", last: "Shiab" },
             { first: "Graeme", last: "Bruce" },

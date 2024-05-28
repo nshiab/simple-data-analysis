@@ -11,7 +11,7 @@ describe("getNbRows", () => {
     })
 
     it("should return the number of a rows in a table", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadArray([
             { name: "Evangeline", age: 21 },
             { name: "Amelia", age: 29 },
@@ -35,7 +35,7 @@ describe("getNbRows", () => {
         assert.deepStrictEqual(length, 16)
     })
     it("should return the number of a rows in a table with nul values", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadArray([
             { name: "Evangeline", age: 21 },
             { name: "Amelia", age: 29 },

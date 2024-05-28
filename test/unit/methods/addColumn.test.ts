@@ -13,7 +13,7 @@ describe("addColumn", () => {
             mkdirSync(output)
         }
         sdb = new SimpleDB()
-        table = await sdb.newTable("data")
+        table = sdb.newTable("data")
     })
     after(async function () {
         await sdb.done()
@@ -84,7 +84,7 @@ describe("addColumn", () => {
         ])
     })
     it("should return a column with geometry", async () => {
-        const geo = await sdb.newTable("geo")
+        const geo = sdb.newTable("geo")
         await geo.loadGeoData("test/geodata/files/polygons.geojson")
 
         await geo.addColumn("centroid", "geometry", `ST_Centroid(geom)`)

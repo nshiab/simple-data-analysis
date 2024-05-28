@@ -3,7 +3,6 @@ import getDuckDB from "../helpers/getDuckDB.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import runQueryWeb from "../helpers/runQueryWeb.js"
-import parseType from "../helpers/parseTypes.js"
 import getTables from "../methods/getTables.js"
 import SimpleWebTable from "./SimpleWebTable.js"
 import Simple from "./Simple.js"
@@ -19,7 +18,7 @@ import Simple from "./Simple.js"
  * const sdb = new SimpleWebDB()
  *
  * // Creating a new table.
- * const employees = await sdb.newTable("employees")
+ * const employees = sdb.newTable("employees")
  *
  * // You can now invoke methods on the table.
  * await employees.loadData("./employees.csv")
@@ -64,79 +63,25 @@ export default class SimpleWebDB extends Simple {
         }
     }
 
-    /** Creates a table. Table names must be unique.
+    /** Creates a table.
      *
      * @example Basic usage
      * ```ts
      * // This returns a new SimpleWebTable
-     * const employees = await sdb.newTable("employees")
+     * const employees = sdb.newTable("employees")
      * ```
      *
-     * @example With columns and types
-     * ```ts
-     * // You can create a table with specific types.
-     * const employees = await sdb.newTable("employees", {
-     *   types: {
-     *     name: "string",
-     *     salary: "integer",
-     *     raise: "float",
-     *   }
-     * })
-     * ```
      * @param name - The name of the new table
-     * @param options - An optional object with configuration options:
-     *   @param options.types - An object specifying the columns and  their data types (JavaScript or SQL).
      *
      * @category DB methods
      */
-    async newTable(
-        name: string,
-        options: {
-            types?: {
-                [key: string]:
-                    | "integer"
-                    | "float"
-                    | "number"
-                    | "string"
-                    | "date"
-                    | "time"
-                    | "datetime"
-                    | "datetimeTz"
-                    | "bigint"
-                    | "double"
-                    | "varchar"
-                    | "timestamp"
-                    | "timestamp with time zone"
-                    | "boolean"
-                    | "geometry"
-            }
-        } = {}
-    ) {
+    newTable(name: string) {
         this.debug && console.log("\nnewTable()")
 
-        await this.start()
-
-        const table = new SimpleWebTable(name, this, {
+        return new SimpleWebTable(name, this, {
             debug: this.debug,
             nbRowsToLog: this.nbRowsToLog,
         })
-
-        const types = options.types
-        if (types !== undefined) {
-            await queryDB(
-                this,
-                `CREATE OR REPLACE TABLE ${name} (${Object.keys(types)
-                    .map((d) => `"${d}" ${parseType(types[d])}`)
-                    .join(", ")});`,
-                mergeOptions(this, {
-                    table: name,
-                    method: "newTable() with options",
-                    parameters: { options },
-                })
-            )
-        }
-
-        return table
     }
 
     /**

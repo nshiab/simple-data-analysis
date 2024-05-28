@@ -11,7 +11,7 @@ describe("logDescription", () => {
     })
 
     it("should return the count of null values, non null values, and distinct values in each column of a table", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/employees.json")
 
         const description = await table.getDescription()

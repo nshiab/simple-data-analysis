@@ -11,14 +11,14 @@ describe("crossJoin", () => {
     })
 
     it("should return all pairs of rows", async () => {
-        const numbers = await sdb.newTable("numbers")
+        const numbers = sdb.newTable("numbers")
         await numbers.loadArray([
             { key1: 1 },
             { key1: 2 },
             { key1: 3 },
             { key1: 4 },
         ])
-        const letters = await sdb.newTable("letters")
+        const letters = sdb.newTable("letters")
         await letters.loadArray([
             { key2: "a" },
             { key2: "b" },
@@ -47,14 +47,14 @@ describe("crossJoin", () => {
         ])
     })
     it("should return all pairs of rows in a new table", async () => {
-        const numbers = await sdb.newTable("numbers")
+        const numbers = sdb.newTable("numbers")
         await numbers.loadArray([
             { key1: 1 },
             { key1: 2 },
             { key1: 3 },
             { key1: 4 },
         ])
-        const letters = await sdb.newTable("letters")
+        const letters = sdb.newTable("letters")
         await letters.loadArray([
             { key2: "a" },
             { key2: "b" },

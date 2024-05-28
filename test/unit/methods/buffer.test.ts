@@ -17,7 +17,7 @@ describe("buffer", () => {
     })
 
     it("should create a buffer from points", async () => {
-        const table = await sdb.newTable("geodata")
+        const table = sdb.newTable("geodata")
         await table.loadGeoData("test/geodata/files/point.json")
         await table.buffer("geom", "buffer", 1)
         await table.selectColumns("buffer")
@@ -75,7 +75,7 @@ describe("buffer", () => {
         })
     })
     it("should create a buffer from polygons", async () => {
-        const table = await sdb.newTable("geodata")
+        const table = sdb.newTable("geodata")
         await table.loadGeoData("test/geodata/files/canada-not-4326.shp.zip")
         await table.buffer("geom", "buffer", 100_000)
         await table.selectColumns("buffer")

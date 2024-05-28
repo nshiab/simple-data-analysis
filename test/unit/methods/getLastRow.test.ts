@@ -11,14 +11,14 @@ describe("getLastRow", () => {
     })
 
     it("should return the last row", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/data.json")
         const data = await table.getLastRow()
         assert.deepStrictEqual(data, { key1: 4, key2: "quatre" })
     })
 
     it("should return the last row found based on a condition", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/data.json")
         const data = await table.getLastRow({
             condition: `key2 = 'trois'`,

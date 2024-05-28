@@ -29,7 +29,7 @@ import cloneQuery from "../methods/cloneQuery.js"
  * const sdb = new SimpleDB()
  *
  * // Making a new table. This returns a SimpleTable.
- * const employees = await sdb.newTable("employees")
+ * const employees = sdb.newTable("employees")
  *
  * // You can now invoke methods on the table.
  * await employees.loadData("./employees.csv")
@@ -45,7 +45,7 @@ import cloneQuery from "../methods/cloneQuery.js"
  * @example Instanciating with types
  * ```ts
  * // You can also create a new table with specific types.
- * const employees = await sdb.newTable("employees", { types: { name: "string", salary: "integer", raise: "float" }})
+ * const employees = sdb.newTable("employees", { types: { name: "string", salary: "integer", raise: "float" }})
  * ```
  */
 export default class SimpleTable extends SimpleWebTable {

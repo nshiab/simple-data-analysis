@@ -11,7 +11,7 @@ describe("getData", () => {
     })
 
     it("should return the whole data from a table", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/employees.csv")
         const data = await table.getData()
 
@@ -428,7 +428,7 @@ describe("getData", () => {
     })
 
     it("should return data from a table based on a condition", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/employees.csv")
         const data = await table.getData({
             condition: "Job = 'Programmer'",

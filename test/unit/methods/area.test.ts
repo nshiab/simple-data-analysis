@@ -11,7 +11,7 @@ describe("area", () => {
     })
 
     it("should calculate the area of geometries in square meters", async () => {
-        const table = await sdb.newTable("geodata")
+        const table = sdb.newTable("geodata")
         await table.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
@@ -86,7 +86,7 @@ describe("area", () => {
         ])
     })
     it("should calculate the area of geometries in square kilometers", async () => {
-        const table = await sdb.newTable("geodata")
+        const table = sdb.newTable("geodata")
         await table.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )

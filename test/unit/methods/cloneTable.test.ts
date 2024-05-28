@@ -10,7 +10,7 @@ describe("cloneTable", () => {
     }[]
     before(async function () {
         sdb = new SimpleDB()
-        originalTable = await sdb.newTable("original")
+        originalTable = sdb.newTable("original")
         await originalTable.loadData("test/data/files/employees.csv")
         originalData = await originalTable.getData()
     })
@@ -19,14 +19,14 @@ describe("cloneTable", () => {
     })
 
     it("should clone a table", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/employees.csv")
         const clone = await table.cloneTable("clone")
 
         assert.deepStrictEqual(await table.getData(), await clone.getData())
     })
     it("should keep the original table intact", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/employees.csv")
         const clone = await table.cloneTable("clone")
         await clone.addColumn("test", "number", "2")
@@ -34,7 +34,7 @@ describe("cloneTable", () => {
         assert.deepStrictEqual(await table.getData(), originalData)
     })
     it("should clone a table with a condition", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/employees.csv")
         const clone = await table.cloneTable("clone", {
             condition: `Job = 'Manager'`,

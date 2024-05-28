@@ -11,7 +11,7 @@ describe("getGeoData", () => {
     })
 
     it("should return geospatial data as a geojson", async () => {
-        const table = await sdb.newTable("geoData")
+        const table = sdb.newTable("geoData")
         await table.loadGeoData("test/geodata/files/polygons.geojson")
         const geoData = await table.getGeoData("geom")
 

@@ -7,7 +7,7 @@ describe("concatenate", () => {
     let table: SimpleTable
     before(async function () {
         sdb = new SimpleDB()
-        table = await sdb.newTable("employees")
+        table = sdb.newTable("employees")
     })
     after(async function () {
         await sdb.done()

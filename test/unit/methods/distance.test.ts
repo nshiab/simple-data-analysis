@@ -11,7 +11,7 @@ describe("distance", () => {
     })
 
     it("should calculate the distance between points with the SRS unit", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadGeoData("test/geodata/files/coordinates.geojson")
         const clone = await table.cloneTable("dataClone")
         await table.crossJoin(clone)
@@ -34,9 +34,9 @@ describe("distance", () => {
         ])
     })
     it("should calculate the distance between points and lines in the SRS unit", async () => {
-        const points = await sdb.newTable("points")
+        const points = sdb.newTable("points")
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
-        const line = await sdb.newTable("line")
+        const line = sdb.newTable("line")
         await line.loadGeoData("test/geodata/files/line.json")
         await points.crossJoin(line)
         await points.distance("geom", "geom_1", "dist")
@@ -52,9 +52,9 @@ describe("distance", () => {
         ])
     })
     it("should calculate the distance between points and polygons in the SRS unit", async () => {
-        const points = await sdb.newTable("points")
+        const points = sdb.newTable("points")
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
-        const polygon = await sdb.newTable("polygon")
+        const polygon = sdb.newTable("polygon")
         await polygon.loadGeoData("test/geodata/files/polygon.json")
         await points.crossJoin(polygon)
         await points.distance("geom", "geom_1", "dist")
@@ -70,7 +70,7 @@ describe("distance", () => {
         ])
     })
     it("should calculate the distance between points with the haversine method in meters", async () => {
-        const points = await sdb.newTable("points")
+        const points = sdb.newTable("points")
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
         await points.flipCoordinates("geom")
         const pointsCloned = await points.cloneTable("pointsCloned")
@@ -96,7 +96,7 @@ describe("distance", () => {
         ])
     })
     it("should calculate the distance between points with the haversine method in km", async () => {
-        const points = await sdb.newTable("points")
+        const points = sdb.newTable("points")
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
         await points.flipCoordinates("geom")
         const pointsCloned = await points.cloneTable("pointsCloned")
@@ -123,7 +123,7 @@ describe("distance", () => {
         ])
     })
     it("should calculate the distance between points with the spheroid method in m", async () => {
-        const points = await sdb.newTable("points")
+        const points = sdb.newTable("points")
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
         await points.flipCoordinates("geom")
         const pointsCloned = await points.cloneTable("pointsCloned")
@@ -149,7 +149,7 @@ describe("distance", () => {
         ])
     })
     it("should calculate the distance between points with the spheroid method in km", async () => {
-        const points = await sdb.newTable("points")
+        const points = sdb.newTable("points")
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
         await points.flipCoordinates("geom")
         const pointsCloned = await points.cloneTable("pointsCloned")

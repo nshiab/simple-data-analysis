@@ -1,10 +1,10 @@
-import Simple from "../class/Simple.js"
+import { SimpleWebDB, SimpleWebTable } from "../bundle.js"
 import addThousandSeparator from "./addThousandSeparator.js"
 import formatDuration from "./formatDuration.js"
 import logData from "./logData.js"
 
 export default async function queryDB(
-    simple: Simple,
+    simple: SimpleWebTable | SimpleWebDB,
     query: string,
     options: {
         table: string | null
@@ -21,6 +21,16 @@ export default async function queryDB(
       }[]
     | null
 > {
+    if (simple instanceof SimpleWebDB && simple.connection === undefined) {
+        await simple.start()
+    } else if (
+        simple instanceof SimpleWebTable &&
+        simple.sdb.connection === undefined
+    ) {
+        await simple.sdb.start()
+        simple.connection = simple.sdb.connection
+    }
+
     query = query
         .replace(/ && /g, " AND ")
         .replace(/ & /g, " AND ")

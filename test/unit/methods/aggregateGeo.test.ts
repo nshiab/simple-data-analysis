@@ -17,7 +17,7 @@ describe("aggregateGeo", () => {
     })
 
     it("should do an union of all geometries and overwrite the table", async () => {
-        const table = await sdb.newTable("geodata")
+        const table = sdb.newTable("geodata")
         await table.loadGeoData("test/geodata/files/polygonsGroups.json")
         await table.aggregateGeo("geom", "union")
 
@@ -56,7 +56,7 @@ describe("aggregateGeo", () => {
         })
     })
     it("should do an union of all geometries and return the results in a new the table", async () => {
-        const table = await sdb.newTable("geodata")
+        const table = sdb.newTable("geodata")
         await table.loadGeoData("test/geodata/files/polygonsGroups.json")
         const newTable = await table.aggregateGeo("geom", "union", {
             outputTable: "newGeoData",
@@ -97,7 +97,7 @@ describe("aggregateGeo", () => {
         })
     })
     // it("should do an union of geometries based on categories", async () => {
-    //     const table = await sdb.newTable("geoCategories")
+    //     const table = sdb.newTable("geoCategories")
     //     await table.loadGeoData("test/geodata/files/polygonsGroups.json")
     //     await table.aggregateGeo("geom", "union", {
     //         categories: "group",
@@ -155,7 +155,7 @@ describe("aggregateGeo", () => {
     //     })
     // })
     // it("should do an union of geometries based on categories and return the results in a new table", async () => {
-    //     const table = await sdb.newTable("geoCategoriesAndNewTable")
+    //     const table = sdb.newTable("geoCategoriesAndNewTable")
     //     await table.loadGeoData("test/geodata/files/polygonsGroups.json")
     //     const newTable = await table.aggregateGeo("geom", "union", {
     //         categories: "group",
@@ -215,7 +215,7 @@ describe("aggregateGeo", () => {
     //     })
     // })
     // it("should do an intersection of geometries based on categories and return the results in a new table", async () => {
-    //     const table = await sdb.newTable("geoCategoriesAndNewTableIntersection")
+    //     const table = sdb.newTable("geoCategoriesAndNewTableIntersection")
     //     await table.loadGeoData("test/geodata/files/polygonsGroups.json")
     //     const newTable = await table.aggregateGeo("geom", "intersection", {
     //         categories: "group",

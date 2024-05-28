@@ -11,7 +11,7 @@ describe("getColumns", () => {
     })
 
     it("should return the columns of a table", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/data.csv")
 
         const columns = await table.getColumns()

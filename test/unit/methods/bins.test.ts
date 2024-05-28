@@ -11,7 +11,7 @@ describe("bins", () => {
     })
 
     it("should add a column with the bins and an interval of 10", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/dataRank.csv")
         await table.bins("Mark", 10, "bins")
         const data = await table.getData()
@@ -29,7 +29,7 @@ describe("bins", () => {
         ])
     })
     it("should add a column with the bins and an interval of 10 and 45 as start value", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/dataRank.csv")
         await table.bins("Mark", 10, "bins", {
             startValue: 45,
@@ -49,7 +49,7 @@ describe("bins", () => {
         ])
     })
     it("should add a column with the bins and an interval of 0.5", async () => {
-        const table = await sdb.newTable("data")
+        const table = sdb.newTable("data")
         await table.loadData("test/data/files/dataRank.csv")
         await table.bins("Mark", 0.5, "bins")
         const data = await table.getData()

@@ -17,7 +17,7 @@ describe("centroid", () => {
     })
 
     it("should computes the centroids", async () => {
-        const table = await sdb.newTable("geodata")
+        const table = sdb.newTable("geodata")
         await table.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
