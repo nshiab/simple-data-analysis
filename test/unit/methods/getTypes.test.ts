@@ -11,9 +11,10 @@ describe("getTypes", () => {
     })
 
     it("should return the types of a table", async () => {
-        await sdb.loadData("dataCsv", ["test/data/files/data.csv"])
+        const table = sdb.newTable("data")
+        await table.loadData(["test/data/files/data.csv"])
 
-        const types = await sdb.getTypes("dataCsv")
+        const types = await table.getTypes()
 
         assert.deepStrictEqual(types, { key1: "VARCHAR", key2: "VARCHAR" })
     })

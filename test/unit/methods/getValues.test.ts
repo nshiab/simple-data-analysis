@@ -11,9 +11,10 @@ describe("getValues", () => {
     })
 
     it("should return the values of a column", async () => {
-        await sdb.loadData("dataCsv", ["test/data/files/data.csv"])
+        const table = sdb.newTable("data")
+        await table.loadData(["test/data/files/data.csv"])
 
-        const values = await sdb.getValues("dataCsv", "key1")
+        const values = await table.getValues("key1")
 
         assert.deepStrictEqual(values, ["1", "3", "8", "brioche"])
     })

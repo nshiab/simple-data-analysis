@@ -5,21 +5,21 @@ describe("getVar", () => {
     let sdb: SimpleDB
     before(async function () {
         sdb = new SimpleDB()
-        await sdb.loadData("data", ["test/data/files/data.json"])
     })
     after(async function () {
         await sdb.done()
     })
 
     it("should return the variance", async () => {
-        assert.deepStrictEqual(
-            await sdb.getVar("data", "key1"),
-            1.6666666666666667
-        )
+        const table = sdb.newTable("data")
+        await table.loadData(["test/data/files/data.json"])
+        assert.deepStrictEqual(await table.getVar("key1"), 1.6666666666666667)
     })
     it("should return the variance rounded", async () => {
+        const table = sdb.newTable("data")
+        await table.loadData(["test/data/files/data.json"])
         assert.deepStrictEqual(
-            await sdb.getVar("data", "key1", { decimals: 6 }),
+            await table.getVar("key1", { decimals: 6 }),
             1.666667
         )
     })

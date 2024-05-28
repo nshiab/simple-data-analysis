@@ -1,17 +1,18 @@
 import assert from "assert"
 import SimpleDB from "../../../src/class/SimpleDB.js"
 
-describe("getWidth", () => {
+describe("getNbColumns", () => {
     let sdb: SimpleDB
     before(async function () {
         sdb = new SimpleDB()
-        await sdb.loadData("employees", ["test/data/files/employees.json"])
     })
     after(async function () {
         await sdb.done()
     })
 
     it("should return the number of columns", async () => {
-        assert.deepStrictEqual(await sdb.getWidth("employees"), 6)
+        const table = sdb.newTable("data")
+        await table.loadData(["test/data/files/employees.json"])
+        assert.deepStrictEqual(await table.getNbColumns(), 6)
     })
 })

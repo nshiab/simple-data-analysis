@@ -5,14 +5,15 @@ describe("getTop", () => {
     let sdb: SimpleDB
     before(async function () {
         sdb = new SimpleDB()
-        await sdb.loadData("data", ["test/data/files/employees.csv"])
     })
     after(async function () {
         await sdb.done()
     })
 
     it("should return the top 3", async () => {
-        const data = await sdb.getTop("data", 3)
+        const table = sdb.newTable("data")
+        await table.loadData(["test/data/files/employees.csv"])
+        const data = await table.getTop(3)
         assert.deepStrictEqual(data, [
             {
                 Name: "OConnell, Donald",
@@ -41,7 +42,9 @@ describe("getTop", () => {
         ])
     })
     it("should return the top 3 with a condition", async () => {
-        const data = await sdb.getTop("data", 3, {
+        const table = sdb.newTable("data")
+        await table.loadData(["test/data/files/employees.csv"])
+        const data = await table.getTop(3, {
             condition: `Job = 'Programmer'`,
         })
         assert.deepStrictEqual(data, [
