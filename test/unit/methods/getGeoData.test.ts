@@ -4,15 +4,16 @@ import SimpleDB from "../../../src/class/SimpleDB.js"
 describe("getGeoData", () => {
     let sdb: SimpleDB
     before(async function () {
-        sdb = new SimpleDB({ spatial: true })
+        sdb = new SimpleDB()
     })
     after(async function () {
         await sdb.done()
     })
 
     it("should return geospatial data as a geojson", async () => {
-        await sdb.loadGeoData("geoData", "test/geodata/files/polygons.geojson")
-        const geoData = await sdb.getGeoData("geoData", "geom")
+        const table = await sdb.newTable("geoData")
+        await table.loadGeoData("test/geodata/files/polygons.geojson")
+        const geoData = await table.getGeoData("geom")
 
         assert.deepStrictEqual(geoData, {
             type: "FeatureCollection",

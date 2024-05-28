@@ -5,14 +5,15 @@ describe("getBottom", () => {
     let sdb: SimpleDB
     before(async function () {
         sdb = new SimpleDB()
-        await sdb.loadData("data", ["test/data/files/employees.csv"])
     })
     after(async function () {
         await sdb.done()
     })
 
     it("should return the bottom 3", async () => {
-        const data = await sdb.getBottom("data", 3)
+        const table = await sdb.newTable("data")
+        await table.loadData("test/data/files/employees.csv")
+        const data = await table.getBottom(3)
         assert.deepStrictEqual(data, [
             {
                 Name: "Patel, Joshua",
@@ -41,7 +42,9 @@ describe("getBottom", () => {
         ])
     })
     it("should return the bottom 3 with the original order", async () => {
-        const data = await sdb.getBottom("data", 3, {
+        const table = await sdb.newTable("data")
+        await table.loadData("test/data/files/employees.csv")
+        const data = await table.getBottom(3, {
             originalOrder: true,
         })
         assert.deepStrictEqual(data, [
@@ -72,7 +75,9 @@ describe("getBottom", () => {
         ])
     })
     it("should return the bottom 3 with a condition", async () => {
-        const data = await sdb.getBottom("data", 3, {
+        const table = await sdb.newTable("data")
+        await table.loadData("test/data/files/employees.csv")
+        const data = await table.getBottom(3, {
             condition: `Job = 'Programmer'`,
         })
         assert.deepStrictEqual(data, [
@@ -103,7 +108,9 @@ describe("getBottom", () => {
         ])
     })
     it("should return the bottom 3 with a condition with original order", async () => {
-        const data = await sdb.getBottom("data", 3, {
+        const table = await sdb.newTable("data")
+        await table.loadData("test/data/files/employees.csv")
+        const data = await table.getBottom(3, {
             condition: `Job = 'Programmer'`,
             originalOrder: true,
         })

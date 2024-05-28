@@ -5,14 +5,15 @@ describe("getData", () => {
     let sdb: SimpleDB
     before(async function () {
         sdb = new SimpleDB()
-        await sdb.loadData("dataCsv", ["test/data/files/employees.csv"])
     })
     after(async function () {
         await sdb.done()
     })
 
     it("should return the whole data from a table", async () => {
-        const data = await sdb.getData("dataCsv")
+        const table = await sdb.newTable("data")
+        await table.loadData("test/data/files/employees.csv")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -427,7 +428,9 @@ describe("getData", () => {
     })
 
     it("should return data from a table based on a condition", async () => {
-        const data = await sdb.getData("dataCsv", {
+        const table = await sdb.newTable("data")
+        await table.loadData("test/data/files/employees.csv")
+        const data = await table.getData({
             condition: "Job = 'Programmer'",
         })
 

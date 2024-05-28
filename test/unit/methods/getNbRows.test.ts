@@ -1,11 +1,18 @@
 import assert from "assert"
 import SimpleDB from "../../../src/class/SimpleDB.js"
 
-describe("getLength", () => {
+describe("getNbRows", () => {
     let sdb: SimpleDB
     before(async function () {
         sdb = new SimpleDB()
-        await sdb.loadArray("age", [
+    })
+    after(async function () {
+        await sdb.done()
+    })
+
+    it("should return the number of a rows in a table", async () => {
+        const table = await sdb.newTable("data")
+        await table.loadArray([
             { name: "Evangeline", age: 21 },
             { name: "Amelia", age: 29 },
             { name: "Marie", age: 30 },
@@ -23,7 +30,13 @@ describe("getLength", () => {
             { name: "Sarah", age: 64 },
             { name: "Frankie", age: 65 },
         ])
-        await sdb.loadArray("ageWithNull", [
+        const length = await table.getNbRows()
+
+        assert.deepStrictEqual(length, 16)
+    })
+    it("should return the number of a rows in a table with nul values", async () => {
+        const table = await sdb.newTable("data")
+        await table.loadArray([
             { name: "Evangeline", age: 21 },
             { name: "Amelia", age: 29 },
             { name: "Marie", age: 30 },
@@ -41,18 +54,7 @@ describe("getLength", () => {
             { name: "Sarah", age: 64 },
             { name: "Frankie", age: 65 },
         ])
-    })
-    after(async function () {
-        await sdb.done()
-    })
-
-    it("should return the number of a rows in a table", async () => {
-        const length = await sdb.getLength("age")
-
-        assert.deepStrictEqual(length, 16)
-    })
-    it("should return the number of a rows in a table with nul values", async () => {
-        const length = await sdb.getLength("ageWithNull")
+        const length = await table.getNbRows()
 
         assert.deepStrictEqual(length, 16)
     })

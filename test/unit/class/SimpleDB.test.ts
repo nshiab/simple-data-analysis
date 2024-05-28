@@ -26,7 +26,10 @@ describe("SimpleDB", () => {
         })
         assert.deepStrictEqual(result, [{ result: 42 }])
     })
-
+    it("should return the DuckDB extensions", async () => {
+        await sdb.getExtensions()
+        // Not sure how to test. Different depending on the environment?
+    })
     it("should close the db", async () => {
         await sdb.done()
         // How to test?

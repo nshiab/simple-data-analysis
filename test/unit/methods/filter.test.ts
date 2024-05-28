@@ -11,12 +11,11 @@ describe("filter", () => {
     })
 
     it("should filter the rows based on one condition", async () => {
-        await sdb.loadData("employeesOneCondition", [
-            "test/data/files/employees.csv",
-        ])
+        const table = await sdb.newTable("data")
+        await table.loadData(["test/data/files/employees.csv"])
 
-        await sdb.filter("employeesOneCondition", `"Job" = 'Clerk'`)
-        const data = await sdb.getData("employeesOneCondition")
+        await table.filter(`"Job" = 'Clerk'`)
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -182,15 +181,10 @@ describe("filter", () => {
         ])
     })
     it("should filter the rows based on multiple conditions", async () => {
-        await sdb.loadData("employeesMultipleConditions", [
-            "test/data/files/employees.csv",
-        ])
-
-        await sdb.filter(
-            "employeesMultipleConditions",
-            `"Job" = 'Clerk' AND "Department or unit" != '50'`
-        )
-        const data = await sdb.getData("employeesMultipleConditions")
+        const table = await sdb.newTable("data")
+        await table.loadData(["test/data/files/employees.csv"])
+        await table.filter(`"Job" = 'Clerk' AND "Department or unit" != '50'`)
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -244,12 +238,13 @@ describe("filter", () => {
         ])
     })
     it("should filter the rows based on booleans", async () => {
-        await sdb.loadArray("tableWithBooleans", [
+        const table = await sdb.newTable("data")
+        await table.loadArray([
             { name: "Nael", value: true },
             { name: "Graeme", value: false },
         ])
-        await sdb.filter("tableWithBooleans", `value = TRUE`)
-        const data = await sdb.getData("tableWithBooleans")
+        await table.filter(`value = TRUE`)
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [{ name: "Nael", value: true }])
     })
