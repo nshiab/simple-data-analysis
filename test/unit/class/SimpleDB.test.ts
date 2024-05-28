@@ -26,6 +26,19 @@ describe("SimpleDB", () => {
         })
         assert.deepStrictEqual(result, [{ result: 42 }])
     })
+    it("should return tables", async () => {
+        const tableJSON = sdb.newTable("tableJSON")
+        await tableJSON.loadData(["test/data/files/data.json"])
+        const tableCSV = sdb.newTable("tableCSV")
+        await tableCSV.loadData(["test/data/files/data.csv"])
+
+        const tables = await sdb.getTables()
+
+        assert.deepStrictEqual(
+            tables.sort((a, b) => (a > b ? 1 : -1)),
+            ["tableCSV", "tableJSON"]
+        )
+    })
     it("should return the DuckDB extensions", async () => {
         await sdb.getExtensions()
         // Not sure how to test. Different depending on the environment?

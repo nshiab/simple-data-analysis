@@ -6,9 +6,12 @@ export default async function getProjection(
     simpleWebTable: SimpleWebTable,
     file: string
 ) {
+    // Load spatial may not be necessary if we change how this works
     const queryResult = await queryDB(
         simpleWebTable,
-        `SELECT layers[1].geometry_fields[1].crs.name as name, CONCAT(layers[1].geometry_fields[1].crs.auth_name, ':', layers[1].geometry_fields[1].crs.auth_code) as code, layers[1].geometry_fields[1].crs.projjson as unit, layers[1].geometry_fields[1].crs.proj4 as proj4 FROM st_read_meta('${file}')`,
+        `INSTALL spatial;
+        LOAD spatial;
+        SELECT layers[1].geometry_fields[1].crs.name as name, CONCAT(layers[1].geometry_fields[1].crs.auth_name, ':', layers[1].geometry_fields[1].crs.auth_code) as code, layers[1].geometry_fields[1].crs.projjson as unit, layers[1].geometry_fields[1].crs.proj4 as proj4 FROM st_read_meta('${file}')`,
         mergeOptions(simpleWebTable, {
             table: null,
             method: "getProjection()",

@@ -11,9 +11,10 @@ describe("logSchema", () => {
     })
 
     it("should return the schema of a table", async () => {
-        await sdb.loadData("dataJson", ["test/data/files/data.json"])
+        const table = sdb.newTable("data")
+        await table.loadData(["test/data/files/data.json"])
 
-        const schema = await sdb.getSchema("dataJson")
+        const schema = await table.getSchema()
         assert.deepStrictEqual(schema, [
             {
                 column_name: "key1",

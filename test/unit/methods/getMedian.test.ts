@@ -5,18 +5,21 @@ describe("getMedian", () => {
     let sdb: SimpleDB
     before(async function () {
         sdb = new SimpleDB()
-        await sdb.loadData("data", ["test/data/files/data.json"])
     })
     after(async function () {
         await sdb.done()
     })
 
     it("should return the median value", async () => {
-        assert.deepStrictEqual(await sdb.getMedian("data", "key1"), 2.5)
+        const table = sdb.newTable("data")
+        await table.loadData("test/data/files/data.json")
+        assert.deepStrictEqual(await table.getMedian("key1"), 2.5)
     })
     it("should return the median value rounded", async () => {
+        const table = sdb.newTable("data")
+        await table.loadData("test/data/files/data.json")
         assert.deepStrictEqual(
-            await sdb.getMedian("data", "key1", { decimals: 0 }),
+            await table.getMedian("key1", { decimals: 0 }),
             3
         )
     })
