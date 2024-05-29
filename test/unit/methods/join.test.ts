@@ -5,21 +5,24 @@ describe("join", () => {
     let sdb: SimpleDB
     before(async function () {
         sdb = new SimpleDB()
-        await sdb.loadData("dishes", "test/data/joins/dishes.csv")
-        await sdb.loadData("categories", "test/data/joins/categories.csv")
     })
     after(async function () {
         await sdb.done()
     })
 
     it("should put the result of an inner join into a new table", async () => {
-        await sdb.join("dishes", "categories", {
+        const dishes = sdb.newTable("dishes")
+        await dishes.loadData("test/data/joins/dishes.csv")
+        const categories = sdb.newTable("categories")
+        await categories.loadData("test/data/joins/categories.csv")
+
+        const joined = await dishes.join(categories, {
             commonColumn: "dishId",
             type: "inner",
             outputTable: "innerJoin",
         })
 
-        const data = await sdb.getData("innerJoin")
+        const data = await joined.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -38,13 +41,18 @@ describe("join", () => {
         ])
     })
     it("should put the result of a left join into a new table", async () => {
-        await sdb.join("dishes", "categories", {
+        const dishes = sdb.newTable("dishes")
+        await dishes.loadData("test/data/joins/dishes.csv")
+        const categories = sdb.newTable("categories")
+        await categories.loadData("test/data/joins/categories.csv")
+
+        const joined = await dishes.join(categories, {
             commonColumn: "dishId",
             type: "left",
             outputTable: "leftJoin",
         })
 
-        const data = await sdb.getData("leftJoin")
+        const data = await joined.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -70,13 +78,18 @@ describe("join", () => {
         ])
     })
     it("should put the result of a right join into a new table", async () => {
-        await sdb.join("dishes", "categories", {
+        const dishes = sdb.newTable("dishes")
+        await dishes.loadData("test/data/joins/dishes.csv")
+        const categories = sdb.newTable("categories")
+        await categories.loadData("test/data/joins/categories.csv")
+
+        const joined = await dishes.join(categories, {
             commonColumn: "dishId",
             type: "right",
             outputTable: "rightJoin",
         })
 
-        const data = await sdb.getData("rightJoin")
+        const data = await joined.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -98,13 +111,18 @@ describe("join", () => {
         ])
     })
     it("should put the result of a full join into a new table", async () => {
-        await sdb.join("dishes", "categories", {
+        const dishes = sdb.newTable("dishes")
+        await dishes.loadData("test/data/joins/dishes.csv")
+        const categories = sdb.newTable("categories")
+        await categories.loadData("test/data/joins/categories.csv")
+
+        const joined = await dishes.join(categories, {
             commonColumn: "dishId",
             type: "full",
             outputTable: "fullJoin",
         })
 
-        const data = await sdb.getData("fullJoin")
+        const data = await joined.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -133,9 +151,14 @@ describe("join", () => {
         ])
     })
     it("should automatically find a common column, make left join and put the result into leftTable", async () => {
-        await sdb.join("dishes", "categories")
+        const dishes = sdb.newTable("dishes")
+        await dishes.loadData("test/data/joins/dishes.csv")
+        const categories = sdb.newTable("categories")
+        await categories.loadData("test/data/joins/categories.csv")
 
-        const data = await sdb.getData("dishes")
+        await dishes.join(categories)
+
+        const data = await dishes.getData()
 
         assert.deepStrictEqual(data, [
             {

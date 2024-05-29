@@ -11,14 +11,15 @@ describe("insertRows", () => {
     })
 
     it("add rows in a table", async () => {
-        await sdb.loadData("dataCsv", "test/data/files/data.json")
+        const table = sdb.newTable("data")
+        await table.loadData("test/data/files/data.json")
 
-        await sdb.insertRows("dataCsv", [
+        await table.insertRows([
             { key1: 5, key2: "cinq" },
             { key1: 6, key2: "six" },
         ])
 
-        const data = await sdb.getData("dataCsv")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: 1, key2: "un" },

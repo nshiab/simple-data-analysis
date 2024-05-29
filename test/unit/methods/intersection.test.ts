@@ -4,43 +4,39 @@ import SimpleDB from "../../../src/class/SimpleDB.js"
 describe("intersection", () => {
     let sdb: SimpleDB
     before(async function () {
-        sdb = new SimpleDB({ spatial: true })
+        sdb = new SimpleDB()
     })
     after(async function () {
         await sdb.done()
     })
 
     it("should compute the intersection of geometries", async () => {
-        await sdb.loadGeoData(
-            "prov",
+        const prov = sdb.newTable("prov")
+        await prov.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await sdb.flipCoordinates("prov", "geom")
-        await sdb.renameColumns("prov", { geom: "prov" })
+        await prov.flipCoordinates("geom")
+        await prov.renameColumns({ geom: "prov" })
 
-        await sdb.loadGeoData("pol", "test/geodata/files/polygons.geojson")
-        await sdb.flipCoordinates("pol", "geom")
-        await sdb.area("pol", "geom", "polArea")
-        await sdb.round("pol", "polArea")
-        await sdb.renameColumns("pol", { geom: "pol" })
+        const poly = sdb.newTable("poly")
+        await poly.loadGeoData("test/geodata/files/polygons.geojson")
+        await poly.flipCoordinates("geom")
+        await poly.area("geom", "polArea")
+        await poly.round("polArea")
+        await poly.renameColumns({ geom: "pol" })
 
-        await sdb.crossJoin("prov", "pol", { outputTable: "joined" })
-        await sdb.intersection("joined", ["pol", "prov"], "intersec")
-        await sdb.area("joined", "intersec", "intersecArea")
-        await sdb.round("joined", "intersecArea")
-        await sdb.addColumn(
-            "joined",
+        const joined = await prov.crossJoin(poly, { outputTable: "joined" })
+        await joined.intersection("pol", "prov", "intersec")
+        await joined.area("intersec", "intersecArea")
+        await joined.round("intersecArea")
+        await joined.addColumn(
             "intersecPerc",
             "double",
             `ROUND(intersecArea/polArea, 4)`
         )
 
-        await sdb.selectColumns("joined", [
-            "nameEnglish",
-            "name",
-            "intersecPerc",
-        ])
-        const data = await sdb.getData("joined")
+        await joined.selectColumns(["nameEnglish", "name", "intersecPerc"])
+        const data = await joined.getData()
 
         assert.deepStrictEqual(data, [
             {

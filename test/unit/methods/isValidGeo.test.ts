@@ -4,24 +4,20 @@ import SimpleDB from "../../../src/class/SimpleDB.js"
 describe("isValidGeo", () => {
     let sdb: SimpleDB
     before(async function () {
-        sdb = new SimpleDB({ spatial: true })
+        sdb = new SimpleDB()
     })
     after(async function () {
         await sdb.done()
     })
 
     it("should find that geometries are valid", async () => {
-        await sdb.loadGeoData(
-            "geodata",
+        const table = sdb.newTable("geodata")
+        await table.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await sdb.isValidGeo("geoData", "geom", "isValid")
-        await sdb.selectColumns("geoData", [
-            "nameEnglish",
-            "nameFrench",
-            "isValid",
-        ])
-        const data = await sdb.getData("geoData")
+        await table.isValidGeo("geom", "isValid")
+        await table.selectColumns(["nameEnglish", "nameFrench", "isValid"])
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -69,10 +65,11 @@ describe("isValidGeo", () => {
     })
     it("should find that geometries are not valid", async () => {
         // From https://github.com/chrieke/geojson-invalid-geometry
-        await sdb.loadGeoData("geodata", "test/geodata/files/invalid.geojson")
-        await sdb.isValidGeo("geoData", "geom", "isValid")
-        await sdb.selectColumns("geoData", "isValid")
-        const data = await sdb.getData("geoData")
+        const table = sdb.newTable("geodata")
+        await table.loadGeoData("test/geodata/files/invalid.geojson")
+        await table.isValidGeo("geom", "isValid")
+        await table.selectColumns("isValid")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [{ isValid: false }])
     })

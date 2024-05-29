@@ -284,18 +284,22 @@ export default class SimpleWebTable extends Simple {
      *
      * @category Importing data
      */
-    async insertTables(tablesToInsert: string | string[]) {
+    async insertTables(tablesToInsert: SimpleWebTable | SimpleWebTable[]) {
+        const array = Array.isArray(tablesToInsert)
+            ? tablesToInsert
+            : [tablesToInsert]
         await queryDB(
             this,
-            stringToArray(tablesToInsert)
+
+            array
                 .map(
                     (tableToInsert) =>
-                        `INSERT INTO ${this.name} SELECT * FROM ${tableToInsert};`
+                        `INSERT INTO ${this.name} SELECT * FROM ${tableToInsert.name};`
                 )
                 .join("\n"),
             mergeOptions(this, {
                 table: this.name,
-                method: "insertTable()",
+                method: "insertTables()",
                 parameters: { tablesToInsert },
             })
         )
@@ -420,6 +424,19 @@ export default class SimpleWebTable extends Simple {
                 parameters: { columns },
             })
         )
+    }
+
+    /**
+     * Returns TRUE if the table has the column and FALSE otherwise.
+     *
+     * @example Basic usage
+     * ```ts
+     * const bool = await table.hasColum("name")
+     * ```
+     */
+    async hasColumn(column: string) {
+        const columns = await this.getColumns()
+        return columns.includes(column)
     }
 
     /**
@@ -3269,6 +3286,33 @@ export default class SimpleWebTable extends Simple {
             mergeOptions(this, {
                 table: this.name,
                 method: "intersect()",
+                parameters: { column1, column2, newColumn },
+            })
+        )
+    }
+
+    /**
+     * Returns true if all points of a geometry lies inside another geometry.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Checks if geometries in column geomA are inside geometries in column geomB and return true or false in new column isInside.
+     * await table.inside("geomA", "geomB", "isInside")
+     * ```
+     *
+     * @param column1 - The first column holds the geometries that will be tested for containment.
+     * @param column2 - The second column stores the geometries to be tested as containers.
+     * @param newColumn - The name of the new column with true or false values.
+     *
+     * @category Geospatial
+     */
+    async inside(column1: string, column2: string, newColumn: string) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${this.name} ADD "${newColumn}" BOOLEAN; UPDATE ${this.name} SET "${newColumn}" = ST_Covers("${column2}", "${column1}")`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "inside()",
                 parameters: { column1, column2, newColumn },
             })
         )

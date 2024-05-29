@@ -4,31 +4,33 @@ import SimpleDB from "../../../src/class/SimpleDB.js"
 describe("inside", () => {
     let sdb: SimpleDB
     before(async function () {
-        sdb = new SimpleDB({ spatial: true })
+        sdb = new SimpleDB()
     })
     after(async function () {
         await sdb.done()
     })
 
     it("should check if geometries are inside other geometries", async () => {
-        await sdb.loadGeoData("points", "test/geodata/files/pointsInside.json")
-        await sdb.renameColumns("points", {
+        const points = sdb.newTable("points")
+        await points.loadGeoData("test/geodata/files/pointsInside.json")
+        await points.renameColumns({
             name: "points",
             geom: "geomPoints",
         })
-        await sdb.loadGeoData(
-            "polygon",
-            "test/geodata/files/polygonInside.json"
-        )
-        await sdb.renameColumns("polygon", {
+
+        const polygon = sdb.newTable("polygon")
+        await polygon.loadGeoData("test/geodata/files/polygonInside.json")
+        await polygon.renameColumns({
             name: "polygon",
             geom: "geomPolygon",
         })
-        await sdb.crossJoin("points", "polygon")
-        await sdb.inside("points", ["geomPoints", "geomPolygon"], "isInside")
 
-        await sdb.selectColumns("points", ["points", "polygon", "isInside"])
-        const data = await sdb.getData("points")
+        await points.crossJoin(polygon)
+        await points.inside("geomPoints", "geomPolygon", "isInside")
+        await points.selectColumns(["points", "polygon", "isInside"])
+        await points.sort({ points: "asc" })
+
+        const data = await points.getData()
 
         assert.deepStrictEqual(data, [
             { points: "pointA", polygon: "container", isInside: false },

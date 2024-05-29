@@ -39,6 +39,18 @@ describe("SimpleDB", () => {
             ["tableCSV", "tableJSON"]
         )
     })
+    it("should check a return true when a table exists", async () => {
+        const tableJSON = sdb.newTable("tableJSON")
+        await tableJSON.loadData(["test/data/files/data.json"])
+
+        assert.deepStrictEqual(await sdb.hasTable("tableJSON"), true)
+    })
+    it("should check a return false when a table doesn't exist", async () => {
+        const tableJSON = sdb.newTable("tableJSON")
+        await tableJSON.loadData(["test/data/files/data.json"])
+
+        assert.deepStrictEqual(await sdb.hasTable("tableX"), false)
+    })
     it("should return the DuckDB extensions", async () => {
         await sdb.getExtensions()
         // Not sure how to test. Different depending on the environment?
