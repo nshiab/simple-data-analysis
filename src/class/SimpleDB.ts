@@ -94,6 +94,7 @@ export default class SimpleDB extends SimpleWebDB {
             table = new SimpleTable(`table${this.tableIncrement}`, this, {
                 debug: this.debug,
                 nbRowsToLog: this.nbRowsToLog,
+                bigIntToInt: this.bigIntToInt,
             })
             table.defaultTableName = true
             this.tableIncrement += 1

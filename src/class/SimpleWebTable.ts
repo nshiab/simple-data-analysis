@@ -2918,7 +2918,7 @@ export default class SimpleWebTable extends Simple {
     async loadGeoData(file: string) {
         await queryDB(
             this,
-            `INSTALL spatial; LOAD spatial;
+            `INSTALL spatial; LOAD spatial; LOAD https;
             CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM ST_Read('${file}');`,
             mergeOptions(this, {
                 table: this.name,

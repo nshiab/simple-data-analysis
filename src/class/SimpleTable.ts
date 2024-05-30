@@ -330,6 +330,7 @@ export default class SimpleTable extends SimpleWebTable {
         const arrowTable = tableFromJSON(arrayOfObjects)
 
         await this.sdb.customQuery("INSTALL arrow; LOAD arrow;")
+        this.connection = this.sdb.connection
         ;(this.connection as Connection).register_buffer(
             `tableAsView`,
             [tableToIPC(arrowTable)],

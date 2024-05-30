@@ -41,6 +41,7 @@ export default async function queryDB(
         .replace(/ \| /g, " OR ")
         .replace(/ === /g, " = ")
         .replace(/ == /g, " = ")
+        .replace(/ !== /g, " != ")
 
     let start
     if (options.debug) {

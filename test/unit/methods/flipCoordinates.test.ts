@@ -14,7 +14,7 @@ describe("flipCoordinates", () => {
         const table = sdb.newTable("geoData")
         await table.loadGeoData("test/geodata/files/point.json")
         await table.flipCoordinates("geom")
-        const data = await table.customQuery(
+        const data = await sdb.customQuery(
             `SELECT ST_AsText(geom) as geomText FROM geoData;`,
             { returnDataFrom: "query" }
         )

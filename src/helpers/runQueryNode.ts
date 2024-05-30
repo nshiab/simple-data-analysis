@@ -39,7 +39,6 @@ export default async function runQueryNode(
                 res.length > 0 &&
                 options?.bigIntToInt === true
             ) {
-                // Converting bigint to int. Maybe an option instead of doing it all the time.
                 const keys = Object.keys(res[0])
                 for (let i = 0; i < res.length; i++) {
                     for (const key of keys) {

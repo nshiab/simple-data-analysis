@@ -1,7 +1,7 @@
 import assert from "assert"
 import SimpleDB from "../../../src/class/SimpleDB.js"
 
-describe("customQuery", () => {
+describe("customQuery (SimpleDB)", () => {
     let sdb: SimpleDB
     before(async function () {
         sdb = new SimpleDB()
@@ -14,7 +14,7 @@ describe("customQuery", () => {
         const table = sdb.newTable("employees")
         await table.loadData(["test/data/files/employees.csv"])
 
-        const data = await table.customQuery(
+        const data = await sdb.customQuery(
             "SELECT * FROM employees WHERE Job = 'Clerk'",
             { returnDataFrom: "query" }
         )
@@ -186,7 +186,7 @@ describe("customQuery", () => {
         const table = sdb.newTable("employees")
         await table.loadData("test/data/files/employees.csv")
 
-        const data = await table.customQuery(
+        const data = await sdb.customQuery(
             "SELECT * FROM employees WHERE Name == 'Patel, Joshua'",
             { returnDataFrom: "query" }
         )
@@ -206,7 +206,7 @@ describe("customQuery", () => {
         const table = sdb.newTable("employees")
         await table.loadData("test/data/files/employees.csv")
 
-        const data = await table.customQuery(
+        const data = await sdb.customQuery(
             "SELECT * FROM employees WHERE Name === 'Patel, Joshua'",
             { returnDataFrom: "query" }
         )
@@ -226,7 +226,7 @@ describe("customQuery", () => {
         const table = sdb.newTable("employees")
         await table.loadData("test/data/files/employees.csv")
 
-        const data = await table.customQuery(
+        const data = await sdb.customQuery(
             "SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500'",
             { returnDataFrom: "query" }
         )
@@ -262,7 +262,7 @@ describe("customQuery", () => {
         const table = sdb.newTable("employees")
         await table.loadData("test/data/files/employees.csv")
 
-        const data = await table.customQuery(
+        const data = await sdb.customQuery(
             `SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500' && "Department or unit" = '30'`,
             { returnDataFrom: "query" }
         )
@@ -282,7 +282,7 @@ describe("customQuery", () => {
         const table = sdb.newTable("employees")
         await table.loadData("test/data/files/employees.csv")
 
-        const data = await table.customQuery(
+        const data = await sdb.customQuery(
             `SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500' && ("Department or unit" = '30' | "Department or unit" = '50')`,
             { returnDataFrom: "query" }
         )
@@ -318,7 +318,7 @@ describe("customQuery", () => {
         const table = sdb.newTable("employees")
         await table.loadData("test/data/files/employees.csv")
 
-        const data = await table.customQuery(
+        const data = await sdb.customQuery(
             `SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500' && ("Department or unit" = '30' || "Department or unit" = '50')`,
             { returnDataFrom: "query" }
         )
@@ -347,6 +347,82 @@ describe("customQuery", () => {
                 Salary: "2500",
                 "Department or unit": "50",
                 "End-of_year-BONUS?": "16,19%",
+            },
+        ])
+    })
+    it("should work with !==", async () => {
+        const table = sdb.newTable("employees")
+        await table.loadData("test/data/files/employees.csv")
+
+        const data = await sdb.customQuery(
+            `SELECT * FROM employees WHERE Job !== 'Clerk' && Job !== 'Assistant' && Job !== 'Accountant' && Job !== 'Salesperson' && Job !== 'Programmer' && Job !== 'Manager'`,
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [
+            {
+                Name: "Fay, Pat",
+                "Hire date": "17-AUG-05",
+                Job: "Representative",
+                Salary: "6000",
+                "Department or unit": "20",
+                "End-of_year-BONUS?": "18,68%",
+            },
+            {
+                Name: "King, Steven",
+                "Hire date": null,
+                Job: "President",
+                Salary: "24000",
+                "Department or unit": "90",
+                "End-of_year-BONUS?": "2,46%",
+            },
+            {
+                Name: "Kochhar, Neena",
+                "Hire date": "21-SEP-05",
+                Job: "Vice-president",
+                Salary: "&6%",
+                "Department or unit": "90",
+                "End-of_year-BONUS?": "11,6%",
+            },
+            {
+                Name: "De Haan, Lex",
+                "Hire date": "null",
+                Job: "Vice-president",
+                Salary: "17000",
+                "Department or unit": "90",
+                "End-of_year-BONUS?": "23,43%",
+            },
+            {
+                Name: "Tobias, Sigal",
+                "Hire date": "24-JUL-05",
+                Job: "NaN",
+                Salary: "2800",
+                "Department or unit": null,
+                "End-of_year-BONUS?": "undefined",
+            },
+            {
+                Name: "Vollman, Shanta",
+                "Hire date": "10-OCT-05",
+                Job: "null",
+                Salary: "6500",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "3,45%",
+            },
+            {
+                Name: "Bissot, Laura",
+                "Hire date": "20-AUG-05",
+                Job: "undefined",
+                Salary: "3300",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "4,53%",
+            },
+            {
+                Name: "Gee, Ki",
+                "Hire date": "12-DEC-07",
+                Job: "NaN",
+                Salary: "2400",
+                "Department or unit": "50",
+                "End-of_year-BONUS?": "12,64%",
             },
         ])
     })
