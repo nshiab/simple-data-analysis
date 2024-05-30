@@ -310,35 +310,48 @@ export default class SimpleWebTable extends Simple {
      *
      * @example Basic usage
      * ```ts
-     * // Creating tableB as a clone of this table.
-     * const newTable = await table.cloneTable("tableB")
+     * // Creating tableB as a clone of tableA.
+     * // By default, tables are automatically named table1, table2, etc, in the DB.
+     * const tableB = await tableA.cloneTable()
+     * ```
+     *
+     * @example With a specific name
+     * ```ts
+     * // You can also give a specific name to the cloned table in the DB.
+     * const tableB = await tableA.cloneTable({ outputTable: "tableB" })
      * ```
      *
      * @example Cloning with condition
      * ```ts
-     * // Creating tableB as a clone of this table. Only rows with values greater than 10 in column1 are cloned.
-     * const newTable = await table.cloneTable("tableB", { condition: `column1 > 10` })
+     * // Creating tableB as a clone of tableA. Only rows with values greater than 10 in column1 are cloned.
+     * const tableB = await tableA.cloneTable({ condition: `column1 > 10` })
      * ```
      *
-     * @param newTable - The name of the new table that will be created as a clone.
      * @param options - An optional object with configuration options:
+     *   @param options.outputTable - The name of the new table that will be created as a clone.
      *   @param options.condition - A SQL WHERE clause condition to filter the data. Defaults to no condition.
      */
     async cloneTable(
-        newTable: string,
         options: {
+            outputTable?: string
             condition?: string
         } = {}
     ) {
-        const clonedTable = await this.sdb.newTable(newTable)
+        let clonedTable: SimpleWebTable
+        if (typeof options.outputTable === "string") {
+            clonedTable = this.sdb.newTable(options.outputTable)
+        } else {
+            clonedTable = this.sdb.newTable(`table${this.tableIncrement}`)
+            this.tableIncrement += 1
+        }
 
         await queryDB(
             this,
-            cloneQuery(this.name, newTable, options),
+            cloneQuery(this.name, clonedTable.name, options),
             mergeOptions(this, {
-                table: newTable,
+                table: clonedTable.name,
                 method: "cloneTable()",
-                parameters: { newTable, options },
+                parameters: { options },
             })
         )
 
@@ -532,7 +545,7 @@ export default class SimpleWebTable extends Simple {
         )
 
         if (typeof options.outputTable === "string") {
-            return await this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable)
         } else {
             return this
         }
@@ -1106,7 +1119,7 @@ export default class SimpleWebTable extends Simple {
             })
         )
         if (typeof options.outputTable === "string") {
-            return await this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable)
         } else {
             return this
         }
@@ -1146,7 +1159,7 @@ export default class SimpleWebTable extends Simple {
         await join(this, rightTable, options)
 
         if (typeof options.outputTable === "string") {
-            return await this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable)
         } else {
             return this
         }
@@ -1884,7 +1897,7 @@ export default class SimpleWebTable extends Simple {
     ) {
         await summarize(this, options)
         if (typeof options.outputTable === "string") {
-            return await this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable)
         } else {
             return this
         }
@@ -2006,7 +2019,7 @@ export default class SimpleWebTable extends Simple {
     ) {
         await correlations(this, options)
         if (typeof options.outputTable === "string") {
-            return await this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable)
         } else {
             return this
         }
@@ -3167,16 +3180,16 @@ export default class SimpleWebTable extends Simple {
      * @example Basic usage
      * ```ts
      * // Merges data of tableA and tableB based on geometries that intersect. tableA is overwritten with the result.
-     * await tableA.joinGeo("intersect", tableB)
+     * await tableA.joinGeo(tableB, "intersect")
      *
      * // Merges data of tableA and tableB based on geometries that in tableA that are inside geometries in tableB. tableA is overwritten with the result.
-     * await tableA.joinGeo("inside", tableB)
+     * await tableA.joinGeo(tableB, "inside" )
      * ```
      *
      * @example With options
      * ```ts
      * // Same thing but with specific column names storing geometries, a specific join type, and returning the results in a new table.
-     * const tableC = await tableA.joinGeo("intersect", tableB, { geoColumnLeft: "geometriesA", geoColumnRight: "geometriesB", type: "inner", outputTable: "tableC" })
+     * const tableC = await tableA.joinGeo(tableB, "intersect", { geoColumnLeft: "geometriesA", geoColumnRight: "geometriesB", type: "inner", outputTable: "tableC" })
      * ```
      *
      * @param method - The method for the spatial join.
@@ -3190,8 +3203,8 @@ export default class SimpleWebTable extends Simple {
      * @category Geospatial
      */
     async joinGeo(
-        method: "intersect" | "inside",
         rightTable: SimpleWebTable,
+        method: "intersect" | "inside",
         options: {
             columnLeftTable?: string
             columnRightTable?: string
@@ -3201,7 +3214,7 @@ export default class SimpleWebTable extends Simple {
     ) {
         await joinGeo(this, method, rightTable, options)
         if (typeof options.outputTable === "string") {
-            return await this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable)
         } else {
             return this
         }
@@ -3553,7 +3566,7 @@ export default class SimpleWebTable extends Simple {
             })
         )
         if (typeof options.outputTable === "string") {
-            return await this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable)
         } else {
             return this
         }

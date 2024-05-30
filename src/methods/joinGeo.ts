@@ -22,16 +22,19 @@ export default async function joinGeo(
 
     // We change the column names for geometries
     if (columnLeftTable === columnRightTable) {
-        columnLeftTableForQuery = `${columnLeftTable}${capitalize(leftTable.name)}`
-        columnRightTableForQuery = `${columnRightTable}${capitalize(rightTable.name)}`
+        if (!leftTable.defaultTableName) {
+            columnLeftTableForQuery = `${columnLeftTable}${capitalize(leftTable.name)}`
+            const leftObj: { [key: string]: string } = {}
+            leftObj[columnLeftTable] = columnLeftTableForQuery
+            await leftTable.renameColumns(leftObj)
+        }
 
-        const leftObj: { [key: string]: string } = {}
-        leftObj[columnLeftTable] = columnLeftTableForQuery
-        await leftTable.renameColumns(leftObj)
-
-        const rightObj: { [key: string]: string } = {}
-        rightObj[columnRightTable] = columnRightTableForQuery
-        await rightTable.renameColumns(rightObj)
+        if (!rightTable.defaultTableName) {
+            columnRightTableForQuery = `${columnRightTable}${capitalize(rightTable.name)}`
+            const rightObj: { [key: string]: string } = {}
+            rightObj[columnRightTable] = columnRightTableForQuery
+            await rightTable.renameColumns(rightObj)
+        }
     }
 
     const type = options.type ?? "left"
@@ -62,12 +65,16 @@ export default async function joinGeo(
 
     // We bring back the column names for geometries
     if (columnLeftTable === columnRightTable) {
-        const leftObj: { [key: string]: string } = {}
-        leftObj[columnLeftTableForQuery] = columnLeftTable
-        await leftTable.renameColumns(leftObj)
+        if (!leftTable.defaultTableName) {
+            const leftObj: { [key: string]: string } = {}
+            leftObj[columnLeftTableForQuery] = columnLeftTable
+            await leftTable.renameColumns(leftObj)
+        }
 
-        const rightObj: { [key: string]: string } = {}
-        rightObj[columnRightTableForQuery] = columnRightTable
-        await rightTable.renameColumns(rightObj)
+        if (!rightTable.defaultTableName) {
+            const rightObj: { [key: string]: string } = {}
+            rightObj[columnRightTableForQuery] = columnRightTable
+            await rightTable.renameColumns(rightObj)
+        }
     }
 }

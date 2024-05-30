@@ -30,7 +30,7 @@ export default async function fetchDataBrowser(
     }
 
     if (await simpleWebTable.sdb.hasTable(table)) {
-        await simpleWebTable.sdb.removeTable(table)
+        await simpleWebTable.sdb.customQuery(`DROP TABLE ${table};`)
     }
 
     const fileExtension = getExtension(url)

@@ -69,20 +69,26 @@ export default class SimpleTable extends SimpleWebTable {
 
     // TO RETURN THE RIGHT TYPES
     async cloneTable(
-        newTable: string,
         options: {
+            outputTable?: string
             condition?: string
         } = {}
     ) {
-        const clonedTable = await this.sdb.newTable(newTable)
+        let clonedTable: SimpleTable
+        if (typeof options.outputTable === "string") {
+            clonedTable = this.sdb.newTable(options.outputTable)
+        } else {
+            clonedTable = this.sdb.newTable(`table${this.tableIncrement}`)
+            this.tableIncrement += 1
+        }
 
         await queryDB(
             this,
-            cloneQuery(this.name, newTable, options),
+            cloneQuery(this.name, clonedTable.name, options),
             mergeOptions(this, {
-                table: newTable,
+                table: clonedTable.name,
                 method: "cloneTable()",
-                parameters: { newTable, options },
+                parameters: { options },
             })
         )
 
@@ -103,7 +109,7 @@ export default class SimpleTable extends SimpleWebTable {
         )
 
         if (typeof options.outputTable === "string") {
-            return await this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable)
         } else {
             return this
         }
@@ -124,7 +130,7 @@ export default class SimpleTable extends SimpleWebTable {
             })
         )
         if (typeof options.outputTable === "string") {
-            return await this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable)
         } else {
             return this
         }
@@ -140,7 +146,7 @@ export default class SimpleTable extends SimpleWebTable {
         await join(this, rightTable, options)
 
         if (typeof options.outputTable === "string") {
-            return await this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable)
         } else {
             return this
         }
@@ -180,7 +186,7 @@ export default class SimpleTable extends SimpleWebTable {
     ) {
         await summarize(this, options)
         if (typeof options.outputTable === "string") {
-            return await this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable)
         } else {
             return this
         }
@@ -196,7 +202,7 @@ export default class SimpleTable extends SimpleWebTable {
     ) {
         await correlations(this, options)
         if (typeof options.outputTable === "string") {
-            return await this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable)
         } else {
             return this
         }
@@ -218,8 +224,8 @@ export default class SimpleTable extends SimpleWebTable {
         }
     }
     async joinGeo(
-        method: "intersect" | "inside",
         rightTable: SimpleTable,
+        method: "intersect" | "inside",
         options: {
             columnLeftTable?: string
             columnRightTable?: string
@@ -229,7 +235,7 @@ export default class SimpleTable extends SimpleWebTable {
     ) {
         await joinGeo(this, method, rightTable, options)
         if (typeof options.outputTable === "string") {
-            return await this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable)
         } else {
             return this
         }
@@ -249,7 +255,7 @@ export default class SimpleTable extends SimpleWebTable {
             })
         )
         if (typeof options.outputTable === "string") {
-            return await this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable)
         } else {
             return this
         }

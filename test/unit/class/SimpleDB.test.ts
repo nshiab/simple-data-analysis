@@ -26,6 +26,57 @@ describe("SimpleDB", () => {
         })
         assert.deepStrictEqual(result, [{ result: 42 }])
     })
+    it("should create tables without names", async () => {
+        const table1 = sdb.newTable()
+        await table1.loadData(["test/data/files/data.json"])
+        const table2 = sdb.newTable()
+        await table2.loadData(["test/data/files/data.json"])
+
+        const tables = await sdb.getTables()
+
+        assert.deepStrictEqual(
+            tables.sort((a, b) => (a > b ? 1 : -1)),
+            ["table1", "table2"]
+        )
+    })
+    it("should create tables with names", async () => {
+        const table = sdb.newTable("tableWithName")
+        await table.loadData(["test/data/files/data.json"])
+
+        const tables = await sdb.getTables()
+
+        assert.deepStrictEqual(
+            tables.sort((a, b) => (a > b ? 1 : -1)),
+            ["table1", "table2", "tableWithName"]
+        )
+    })
+    it("should remove one table", async () => {
+        // Overwriting tables above to have them stored in variables
+        const table1 = sdb.newTable("table1")
+        await table1.loadData(["test/data/files/data.json"])
+
+        await sdb.removeTables(table1)
+
+        const tables = await sdb.getTables()
+
+        assert.deepStrictEqual(
+            tables.sort((a, b) => (a > b ? 1 : -1)),
+            ["table2", "tableWithName"]
+        )
+    })
+    it("should remove multiple tables", async () => {
+        // Overwriting tables above to have them stored in variables
+        const table2 = sdb.newTable("table2")
+        await table2.loadData(["test/data/files/data.json"])
+        const tableWithName = sdb.newTable("tableWithName")
+        await tableWithName.loadData(["test/data/files/data.json"])
+
+        await sdb.removeTables([table2, tableWithName])
+
+        const tables = await sdb.getTables()
+
+        assert.deepStrictEqual(tables, [])
+    })
     it("should return tables", async () => {
         const tableJSON = sdb.newTable("tableJSON")
         await tableJSON.loadData(["test/data/files/data.json"])

@@ -14,7 +14,10 @@ export default class Simple {
     worker!: Worker | null
     /** A flag for SimpleDB. Default is true. When data is retrieved from the database as an array of objects, BIGINT values are automatically converted to integers, which are easier to work with in JavaScript. If you want actual bigint values, set this option to false. @category Properties */
     bigIntToInt: boolean | undefined
-
+    /** A number used when creating new tables. @category Properties */
+    tableIncrement: number
+    /** A flag to know if the name of the table has been attributed by default. @category Properties */
+    defaultTableName: boolean
     /**
      * For internal use only. If you want to run a SQL query, use the customQuery method. @category Properties
      */
@@ -60,6 +63,8 @@ export default class Simple {
         this.nbRowsToLog = options.nbRowsToLog ?? 10
         this.debug = options.debug ?? false
         this.worker = null
+        this.tableIncrement = 1
+        this.defaultTableName = false
         this.runQuery = runQuery
     }
 }

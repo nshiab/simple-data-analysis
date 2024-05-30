@@ -4,22 +4,24 @@ import SimpleDB from "../../../src/class/SimpleDB.js"
 describe("joinGeo", () => {
     let sdb: SimpleDB
     before(async function () {
-        sdb = new SimpleDB({ spatial: true })
+        sdb = new SimpleDB()
     })
     after(async function () {
         await sdb.done()
     })
 
     it("should do a left spatial join the intersect method", async () => {
-        await sdb.loadGeoData(
-            "prov",
+        const prov = sdb.newTable()
+        await prov.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await sdb.loadGeoData("pol", "test/geodata/files/polygons.geojson")
-        await sdb.joinGeo("prov", "intersect", "pol")
-        await sdb.selectColumns("prov", ["nameEnglish", "name"])
+        const poly = sdb.newTable()
+        await poly.loadGeoData("test/geodata/files/polygons.geojson")
 
-        const data = await sdb.getData("prov")
+        await prov.joinGeo(poly, "intersect")
+        await prov.selectColumns(["nameEnglish", "name"])
+
+        const data = await prov.getData()
         assert.deepStrictEqual(data, [
             { nameEnglish: "Quebec", name: "polygonA" },
             { nameEnglish: "Ontario", name: "polygonA" },
@@ -36,16 +38,58 @@ describe("joinGeo", () => {
             { nameEnglish: "Yukon", name: null },
         ])
     })
-    it("should do a left spatial join the intersect method without changing the name of the original tables", async () => {
-        await sdb.loadGeoData(
-            "prov",
+    it("should do a left spatial join the intersect method with tables with default names", async () => {
+        const prov = sdb.newTable()
+        await prov.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await sdb.loadGeoData("pol", "test/geodata/files/polygons.geojson")
-        await sdb.joinGeo("prov", "intersect", "pol")
+        const poly = sdb.newTable()
+        await poly.loadGeoData("test/geodata/files/polygons.geojson")
 
-        const columnsLeftTable = await sdb.getColumns("prov")
-        const columnsRightTable = await sdb.getColumns("pol")
+        await prov.joinGeo(poly, "intersect")
+
+        const columnsLeftTable = await prov.getColumns()
+
+        assert.deepStrictEqual(columnsLeftTable, [
+            "nameEnglish",
+            "nameFrench",
+            "geom",
+            "name",
+            "geom_1",
+        ])
+    })
+    it("should do a left spatial join the intersect method with tables with specific names", async () => {
+        const prov = sdb.newTable("prov")
+        await prov.loadGeoData(
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
+        )
+        const poly = sdb.newTable("poly")
+        await poly.loadGeoData("test/geodata/files/polygons.geojson")
+
+        await prov.joinGeo(poly, "intersect")
+
+        const columnsLeftTable = await prov.getColumns()
+
+        assert.deepStrictEqual(columnsLeftTable, [
+            "nameEnglish",
+            "nameFrench",
+            "geom",
+            "name",
+            "geomPoly",
+        ])
+    })
+    it("should do a left spatial join the intersect method without changing the name of the original tables", async () => {
+        const prov = sdb.newTable()
+        await prov.loadGeoData(
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
+        )
+        const poly = sdb.newTable()
+        await poly.loadGeoData("test/geodata/files/polygons.geojson")
+
+        await prov.joinGeo(poly, "intersect")
+
+        const columnsLeftTable = await prov.getColumns()
+        const columnsRightTable = await poly.getColumns()
 
         assert.deepStrictEqual(
             { columnsLeftTable, columnsRightTable },
@@ -55,30 +99,32 @@ describe("joinGeo", () => {
                     "nameFrench",
                     "geom",
                     "name",
-                    "geomPol",
+                    "geom_1",
                 ],
                 columnsRightTable: ["name", "geom"],
             }
         )
     })
     it("should do a left spatial join the intersect method with specific options", async () => {
-        await sdb.loadGeoData(
-            "prov",
+        const prov = sdb.newTable()
+        await prov.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await sdb.renameColumns("prov", { geom: "geomProvince" })
-        await sdb.loadGeoData("pol", "test/geodata/files/polygons.geojson")
-        await sdb.renameColumns("pol", { geom: "geomPolygon" })
+        await prov.renameColumns({ geom: "geomProvince" })
+        const poly = sdb.newTable()
+        await poly.loadGeoData("test/geodata/files/polygons.geojson")
+        await poly.renameColumns({ geom: "geomPolygon" })
 
-        await sdb.joinGeo("prov", "intersect", "pol", {
+        const joined = await prov.joinGeo(poly, "intersect", {
             columnLeftTable: "geomProvince",
             columnRightTable: "geomPolygon",
             type: "inner",
             outputTable: "joined",
         })
-        await sdb.selectColumns("joined", ["nameEnglish", "name"])
+        await joined.selectColumns(["nameEnglish", "name"])
 
-        const data = await sdb.getData("joined")
+        const data = await joined.getData()
+
         assert.deepStrictEqual(data, [
             { nameEnglish: "Quebec", name: "polygonA" },
             { nameEnglish: "Ontario", name: "polygonA" },
@@ -91,16 +137,17 @@ describe("joinGeo", () => {
         ])
     })
     it("should do a left spatial join the inside method", async () => {
-        await sdb.loadGeoData("points", "test/geodata/files/pointsInside.json")
-        await sdb.loadGeoData(
-            "polygon",
-            "test/geodata/files/polygonInside.json"
-        )
-        await sdb.renameColumns("polygon", { name: "polygonName" })
-        await sdb.joinGeo("points", "inside", "polygon")
-        await sdb.selectColumns("points", ["name", "polygonName"])
+        const points = sdb.newTable()
+        await points.loadGeoData("test/geodata/files/pointsInside.json")
 
-        const data = await sdb.getData("points")
+        const poly = sdb.newTable()
+        await poly.loadGeoData("test/geodata/files/polygonInside.json")
+        await poly.renameColumns({ name: "polygonName" })
+
+        await points.joinGeo(poly, "inside")
+        await points.selectColumns(["name", "polygonName"])
+
+        const data = await points.getData()
 
         assert.deepStrictEqual(data, [
             { name: "pointC", polygonName: "container" },
@@ -110,26 +157,31 @@ describe("joinGeo", () => {
         ])
     })
     it("should return all intersections and all rows from leftTable when doing a left join", async () => {
-        await sdb.loadGeoData(
-            "data",
+        const polygonsWithin = sdb.newTable()
+        await polygonsWithin.loadGeoData(
             "test/geodata/files/polygonsWithinPolygons.json"
         )
 
-        await sdb.cloneTable("data", "polygons", {
+        const polygonsWithinNotNull = await polygonsWithin.cloneTable({
             condition: `name NOT NULL`,
         })
-        await sdb.removeColumns("polygons", "container")
-        await sdb.cloneTable("data", "containers", {
+        await polygonsWithinNotNull.removeColumns("container")
+
+        const containers = await polygonsWithin.cloneTable({
             condition: `container NOT NULL`,
         })
-        await sdb.removeColumns("containers", "name")
+        await containers.removeColumns("name")
 
-        await sdb.joinGeo("polygons", "intersect", "containers", {
-            outputTable: "joined",
-        })
-        await sdb.selectColumns("joined", ["name", "container"])
-        await sdb.sort("joined", { name: "asc" })
-        const data = await sdb.getData("joined")
+        const joined = await polygonsWithinNotNull.joinGeo(
+            containers,
+            "intersect",
+            {
+                outputTable: "joined",
+            }
+        )
+        await joined.selectColumns(["name", "container"])
+        await joined.sort({ name: "asc" })
+        const data = await joined.getData()
 
         assert.deepStrictEqual(data, [
             { name: "A", container: null },
@@ -141,27 +193,32 @@ describe("joinGeo", () => {
         ])
     })
     it("should return all intersections - and just intersections - when doing an inner join", async () => {
-        await sdb.loadGeoData(
-            "data",
+        const polygonsWithin = sdb.newTable()
+        await polygonsWithin.loadGeoData(
             "test/geodata/files/polygonsWithinPolygons.json"
         )
 
-        await sdb.cloneTable("data", "polygons", {
+        const polygonsWithinNotNull = await polygonsWithin.cloneTable({
             condition: `name NOT NULL`,
         })
-        await sdb.removeColumns("polygons", "container")
-        await sdb.cloneTable("data", "containers", {
+        await polygonsWithinNotNull.removeColumns("container")
+
+        const containers = await polygonsWithin.cloneTable({
             condition: `container NOT NULL`,
         })
-        await sdb.removeColumns("containers", "name")
+        await containers.removeColumns("name")
 
-        await sdb.joinGeo("polygons", "intersect", "containers", {
-            outputTable: "joined",
-            type: "inner",
-        })
-        await sdb.selectColumns("joined", ["name", "container"])
-        await sdb.sort("joined", { name: "asc" })
-        const data = await sdb.getData("joined")
+        const joined = await polygonsWithinNotNull.joinGeo(
+            containers,
+            "intersect",
+            {
+                outputTable: "joined",
+                type: "inner",
+            }
+        )
+        await joined.selectColumns(["name", "container"])
+        await joined.sort({ name: "asc" })
+        const data = await joined.getData()
 
         assert.deepStrictEqual(data, [
             { name: "B", container: "A" },

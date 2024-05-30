@@ -63,11 +63,18 @@ export default class SimpleWebDB extends Simple {
         }
     }
 
-    /** Creates a table.
+    /** Creates a table in the DB.
      *
      * @example Basic usage
      * ```ts
      * // This returns a new SimpleWebTable
+     * const employees = sdb.newTable()
+     * ```
+     *
+     * @example With a specific name
+     * ```ts
+     * // By default, tables will be named table1, table2, etc.
+     * // But you can also give them specific names.
      * const employees = sdb.newTable("employees")
      * ```
      *
@@ -75,29 +82,51 @@ export default class SimpleWebDB extends Simple {
      *
      * @category DB methods
      */
-    newTable(name: string) {
+    newTable(name?: string) {
         this.debug && console.log("\nnewTable()")
 
-        return new SimpleWebTable(name, this, {
-            debug: this.debug,
-            nbRowsToLog: this.nbRowsToLog,
-        })
+        let table
+        if (typeof name === "string") {
+            table = new SimpleWebTable(name, this, {
+                debug: this.debug,
+                nbRowsToLog: this.nbRowsToLog,
+            })
+            table.defaultTableName = false
+        } else {
+            table = new SimpleWebTable(`table${this.tableIncrement}`, this, {
+                debug: this.debug,
+                nbRowsToLog: this.nbRowsToLog,
+            })
+            table.defaultTableName = true
+            this.tableIncrement += 1
+        }
+
+        return table
     }
 
     /**
-     * Remove a table from the database. Invoking methods on this table will throw and error.
+     * Remove a table or multiple tables from the database. Invoking methods on the tables will throw and error.
      *
      * @example Basic usage
      * ```ts
-     * await table.removeTable("tableA")
+     * await table.removeTables(tableA)
      * ```
+     *
+     * @example Multiple tables
+     * ```ts
+     * await table.removeTables([tableA, tableB])
+     * ```
+     *
+     * @param tables - The tables to be removed
      *
      * @category DB methods
      */
-    async removeTable(table: string) {
+    async removeTables(tables: SimpleWebTable | SimpleWebTable[]) {
+        const tablesToBeRemoved = Array.isArray(tables) ? tables : [tables]
+
         await queryDB(
             this,
-            `DROP TABLE ${table};`,
+            tablesToBeRemoved.map((d) => `DROP TABLE ${d.name};`).join("\n"),
             mergeOptions(this, {
                 table: null,
                 method: "removeTable()",

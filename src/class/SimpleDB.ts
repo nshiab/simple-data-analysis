@@ -61,11 +61,18 @@ export default class SimpleDB extends SimpleWebDB {
         }
     }
 
-    /** Creates a table.
+    /** Creates a table in the DB.
      *
      * @example Basic usage
      * ```ts
      * // This returns a new SimpleTable
+     * const employees = sdb.newTable()
+     * ```
+     *
+     * @example With a specific name
+     * ```ts
+     * // By default, tables will be named table1, table2, etc.
+     * // But you can also give them specific names.
      * const employees = sdb.newTable("employees")
      * ```
      *
@@ -73,13 +80,26 @@ export default class SimpleDB extends SimpleWebDB {
      *
      * @category DB methods
      */
-    newTable(name: string): SimpleTable {
+    newTable(name?: string): SimpleTable {
         this.debug && console.log("\nnewTable()")
 
-        return new SimpleTable(name, this, {
-            debug: this.debug,
-            nbRowsToLog: this.nbRowsToLog,
-        })
+        let table
+        if (typeof name === "string") {
+            table = new SimpleTable(name, this, {
+                debug: this.debug,
+                nbRowsToLog: this.nbRowsToLog,
+            })
+            table.defaultTableName = false
+        } else {
+            table = new SimpleTable(`table${this.tableIncrement}`, this, {
+                debug: this.debug,
+                nbRowsToLog: this.nbRowsToLog,
+            })
+            table.defaultTableName = true
+            this.tableIncrement += 1
+        }
+
+        return table
     }
 
     /**
