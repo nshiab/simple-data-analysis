@@ -2876,14 +2876,13 @@ export default class SimpleWebTable extends Simple {
      * // Uses the columns "lat" and "lon" to create point geometries in column "geom"
      * await table.points("lat", "lon", "geom")
      * ```
-     *
-     * @param columnLon - The name of the column storing the longitude.
      * @param columnLat - The name of the column storing the latitude.
+     * @param columnLon - The name of the column storing the longitude.
      * @param newColumn - The name of the new column storing the point geometries.
      *
      * @category Geospatial
      */
-    async points(columnLon: string, columnLat: string, newColumn: string) {
+    async points(columnLat: string, columnLon: string, newColumn: string) {
         await queryDB(
             this,
             `ALTER TABLE ${this.name} ADD COLUMN ${newColumn} GEOMETRY; UPDATE ${this.name} SET ${newColumn} = ST_Point2D(${columnLon}, ${columnLat})`,
@@ -3388,16 +3387,16 @@ export default class SimpleWebTable extends Simple {
      * ```
      *
      * @param column - The name of the table storing the points.
-     * @param columnLon - The name of the column storing the extracted longitude.
      * @param columnLat - The name of the column storing the extracted latitude.
+     * @param columnLon - The name of the column storing the extracted longitude.
      *
      * @category Geospatial
      */
-    async latLon(column: string, columnLon: string, columnLat: string) {
+    async latLon(column: string, columnLat: string, columnLon: string) {
         await queryDB(
             this,
-            `ALTER TABLE ${this.name} ADD ${columnLon} DOUBLE; UPDATE ${this.name} SET ${columnLon} = ST_Y(${column});
-             ALTER TABLE ${this.name} ADD ${columnLat} DOUBLE; UPDATE ${this.name} SET ${columnLat} = ST_X(${column});`,
+            `ALTER TABLE ${this.name} ADD ${columnLat} DOUBLE; UPDATE ${this.name} SET ${columnLat} = ST_Y(${column});
+             ALTER TABLE ${this.name} ADD ${columnLon} DOUBLE; UPDATE ${this.name} SET ${columnLon} = ST_X(${column});`,
             mergeOptions(this, {
                 table: this.name,
                 method: "latLon()",
