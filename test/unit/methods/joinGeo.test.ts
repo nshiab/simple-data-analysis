@@ -38,6 +38,69 @@ describe("joinGeo", () => {
             { nameEnglish: "Yukon", name: null },
         ])
     })
+    it("should do a left spatial join the intersect method and output the results to a new table", async () => {
+        const prov = sdb.newTable()
+        await prov.loadGeoData(
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
+        )
+        const poly = sdb.newTable()
+        await poly.loadGeoData("test/geodata/files/polygons.geojson")
+
+        const table = await prov.joinGeo(poly, "intersect", {
+            outputTable: true,
+        })
+        await table.selectColumns(["nameEnglish", "name"])
+
+        const data = await table.getData()
+        assert.deepStrictEqual(data, [
+            { nameEnglish: "Quebec", name: "polygonA" },
+            { nameEnglish: "Ontario", name: "polygonA" },
+            { nameEnglish: "Manitoba", name: "polygonB" },
+            { nameEnglish: "Saskatchewan", name: "polygonB" },
+            { nameEnglish: "Alberta", name: "polygonB" },
+            { nameEnglish: "British Columbia", name: "polygonB" },
+            { nameEnglish: "Northwest Territories", name: "polygonB" },
+            { nameEnglish: "Nunavut", name: "polygonB" },
+            { nameEnglish: "Newfoundland and Labrador", name: null },
+            { nameEnglish: "Prince Edward Island", name: null },
+            { nameEnglish: "Nova Scotia", name: null },
+            { nameEnglish: "New Brunswick", name: null },
+            { nameEnglish: "Yukon", name: null },
+        ])
+    })
+    it("should do a left spatial join the intersect method and output the results to a new table with a specific name", async () => {
+        const prov = sdb.newTable()
+        await prov.loadGeoData(
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
+        )
+        const poly = sdb.newTable()
+        await poly.loadGeoData("test/geodata/files/polygons.geojson")
+
+        await prov.joinGeo(poly, "intersect", {
+            outputTable: "specificTable",
+        })
+
+        const data = await sdb.customQuery(
+            "select nameEnglish, name from specificTable",
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [
+            { nameEnglish: "Quebec", name: "polygonA" },
+            { nameEnglish: "Ontario", name: "polygonA" },
+            { nameEnglish: "Manitoba", name: "polygonB" },
+            { nameEnglish: "Saskatchewan", name: "polygonB" },
+            { nameEnglish: "Alberta", name: "polygonB" },
+            { nameEnglish: "British Columbia", name: "polygonB" },
+            { nameEnglish: "Northwest Territories", name: "polygonB" },
+            { nameEnglish: "Nunavut", name: "polygonB" },
+            { nameEnglish: "Newfoundland and Labrador", name: null },
+            { nameEnglish: "Prince Edward Island", name: null },
+            { nameEnglish: "Nova Scotia", name: null },
+            { nameEnglish: "New Brunswick", name: null },
+            { nameEnglish: "Yukon", name: null },
+        ])
+    })
     it("should do a left spatial join the intersect method with tables with default names", async () => {
         const prov = sdb.newTable()
         await prov.loadGeoData(
@@ -101,6 +164,28 @@ describe("joinGeo", () => {
                     "name",
                     "geom_1",
                 ],
+                columnsRightTable: ["name", "geom"],
+            }
+        )
+    })
+    it("should do a left spatial join the intersect method without changing the name of the original tables with an outputTable option", async () => {
+        const prov = sdb.newTable()
+        await prov.loadGeoData(
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
+        )
+
+        const poly = sdb.newTable()
+        await poly.loadGeoData("test/geodata/files/polygons.geojson")
+
+        await prov.joinGeo(poly, "intersect", { outputTable: true })
+
+        const columnsLeftTable = await prov.getColumns()
+        const columnsRightTable = await poly.getColumns()
+
+        assert.deepStrictEqual(
+            { columnsLeftTable, columnsRightTable },
+            {
+                columnsLeftTable: ["nameEnglish", "nameFrench", "geom"],
                 columnsRightTable: ["name", "geom"],
             }
         )

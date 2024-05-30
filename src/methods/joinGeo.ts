@@ -12,7 +12,7 @@ export default async function joinGeo(
         columnLeftTable?: string
         columnRightTable?: string
         type?: "inner" | "left" | "right" | "full"
-        outputTable?: string
+        outputTable?: string | boolean
     } = {}
 ) {
     const columnLeftTable = options.columnLeftTable ?? "geom"
@@ -38,7 +38,10 @@ export default async function joinGeo(
     }
 
     const type = options.type ?? "left"
-    const outputTable = options.outputTable ?? leftTable.name
+    const outputTable =
+        typeof options.outputTable === "string"
+            ? options.outputTable
+            : leftTable.name
 
     await queryDB(
         leftTable,

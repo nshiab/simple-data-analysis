@@ -12,12 +12,15 @@ export default async function correlations(
         y?: string
         categories?: string | string[]
         decimals?: number
-        outputTable?: string
+        outputTable?: string | boolean
     } = {}
 ) {
     simpleWebTable.debug && console.log("\ncorrelations()")
 
-    const outputTable = options.outputTable ?? simpleWebTable.name
+    const outputTable =
+        typeof options.outputTable === "string"
+            ? options.outputTable
+            : simpleWebTable.name
 
     let combinations: [string, string][] = []
     if (!options.x && !options.y) {

@@ -96,13 +96,20 @@ export default class SimpleTable extends SimpleWebTable {
     }
     async selectRows(
         count: number | string,
-        options: { offset?: number; outputTable?: string } = {}
+        options: { offset?: number; outputTable?: string | boolean } = {}
     ) {
+        if (options.outputTable === true) {
+            options.outputTable = `table${this.sdb.tableIncrement}`
+            this.sdb.tableIncrement += 1
+        }
         await queryDB(
             this,
             selectRowsQuery(this.name, count, options),
             mergeOptions(this, {
-                table: options.outputTable ?? this.name,
+                table:
+                    typeof options.outputTable === "string"
+                        ? options.outputTable
+                        : this.name,
                 method: "selectRows",
                 parameters: { count, options },
             })
@@ -117,14 +124,21 @@ export default class SimpleTable extends SimpleWebTable {
     async crossJoin(
         rightTable: SimpleTable,
         options: {
-            outputTable?: string
+            outputTable?: string | boolean
         } = {}
     ) {
+        if (options.outputTable === true) {
+            options.outputTable = `table${this.sdb.tableIncrement}`
+            this.sdb.tableIncrement += 1
+        }
         await queryDB(
             this,
             crossJoinQuery(this.name, rightTable.name, options),
             mergeOptions(this, {
-                table: options.outputTable ?? this.name,
+                table:
+                    typeof options.outputTable === "string"
+                        ? options.outputTable
+                        : this.name,
                 method: "crossJoin()",
                 parameters: { rightTable, options },
             })
@@ -135,22 +149,7 @@ export default class SimpleTable extends SimpleWebTable {
             return this
         }
     }
-    async join(
-        rightTable: SimpleTable,
-        options: {
-            commonColumn?: string
-            type?: "inner" | "left" | "right" | "full"
-            outputTable?: string
-        } = {}
-    ) {
-        await join(this, rightTable, options)
 
-        if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable)
-        } else {
-            return this
-        }
-    }
     async summarize(
         options: {
             values?: string | string[]
@@ -181,10 +180,34 @@ export default class SimpleTable extends SimpleWebTable {
                       | "var"
                   )[]
             decimals?: number
-            outputTable?: string
+            outputTable?: string | boolean
         } = {}
     ) {
+        if (options.outputTable === true) {
+            options.outputTable = `table${this.sdb.tableIncrement}`
+            this.sdb.tableIncrement += 1
+        }
         await summarize(this, options)
+        if (typeof options.outputTable === "string") {
+            return this.sdb.newTable(options.outputTable)
+        } else {
+            return this
+        }
+    }
+    async join(
+        rightTable: SimpleTable,
+        options: {
+            commonColumn?: string
+            type?: "inner" | "left" | "right" | "full"
+            outputTable?: string | boolean
+        } = {}
+    ) {
+        if (options.outputTable === true) {
+            options.outputTable = `table${this.sdb.tableIncrement}`
+            this.sdb.tableIncrement += 1
+        }
+        await join(this, rightTable, options)
+
         if (typeof options.outputTable === "string") {
             return this.sdb.newTable(options.outputTable)
         } else {
@@ -197,9 +220,13 @@ export default class SimpleTable extends SimpleWebTable {
             y?: string
             categories?: string | string[]
             decimals?: number
-            outputTable?: string
+            outputTable?: string | boolean
         } = {}
     ) {
+        if (options.outputTable === true) {
+            options.outputTable = `table${this.sdb.tableIncrement}`
+            this.sdb.tableIncrement += 1
+        }
         await correlations(this, options)
         if (typeof options.outputTable === "string") {
             return this.sdb.newTable(options.outputTable)
@@ -213,9 +240,13 @@ export default class SimpleTable extends SimpleWebTable {
             y?: string
             categories?: string | string[]
             decimals?: number
-            outputTable?: string
+            outputTable?: string | boolean
         } = {}
     ) {
+        if (options.outputTable === true) {
+            options.outputTable = `table${this.sdb.tableIncrement}`
+            this.sdb.tableIncrement += 1
+        }
         await linearRegressions(this, options)
         if (typeof options.outputTable === "string") {
             return this.sdb.newTable(options.outputTable)
@@ -230,9 +261,13 @@ export default class SimpleTable extends SimpleWebTable {
             columnLeftTable?: string
             columnRightTable?: string
             type?: "inner" | "left" | "right" | "full"
-            outputTable?: string
+            outputTable?: string | boolean
         } = {}
     ) {
+        if (options.outputTable === true) {
+            options.outputTable = `table${this.sdb.tableIncrement}`
+            this.sdb.tableIncrement += 1
+        }
         await joinGeo(this, method, rightTable, options)
         if (typeof options.outputTable === "string") {
             return this.sdb.newTable(options.outputTable)
@@ -243,8 +278,15 @@ export default class SimpleTable extends SimpleWebTable {
     async aggregateGeo(
         column: string,
         method: "union" | "intersection",
-        options: { categories?: string | string[]; outputTable?: string } = {}
+        options: {
+            categories?: string | string[]
+            outputTable?: string | boolean
+        } = {}
     ) {
+        if (options.outputTable === true) {
+            options.outputTable = `table${this.sdb.tableIncrement}`
+            this.sdb.tableIncrement += 1
+        }
         await queryDB(
             this,
             aggregateGeoQuery(this.name, column, method, options),
@@ -287,7 +329,7 @@ export default class SimpleTable extends SimpleWebTable {
 
         const arrowTable = tableFromJSON(arrayOfObjects)
 
-        await this.customQuery("INSTALL arrow; LOAD arrow;")
+        await this.sdb.customQuery("INSTALL arrow; LOAD arrow;")
         ;(this.connection as Connection).register_buffer(
             `tableAsView`,
             [tableToIPC(arrowTable)],
@@ -299,7 +341,7 @@ export default class SimpleTable extends SimpleWebTable {
             }
         )
 
-        await this.customQuery(
+        await this.sdb.customQuery(
             `CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM tableAsView;
             DROP VIEW tableAsView;`
         )

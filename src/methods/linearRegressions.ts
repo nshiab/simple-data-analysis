@@ -12,10 +12,13 @@ export default async function linearRegressions(
         y?: string
         categories?: string | string[]
         decimals?: number
-        outputTable?: string
+        outputTable?: string | boolean
     } = {}
 ) {
-    const outputTable = options.outputTable ?? simpleWebTable.name
+    const outputTable =
+        typeof options.outputTable === "string"
+            ? options.outputTable
+            : simpleWebTable.name
 
     const permutations: [string, string][] = []
     if (!options.x && !options.y) {

@@ -9,7 +9,7 @@ export default async function join(
     options: {
         commonColumn?: string
         type?: "inner" | "left" | "right" | "full"
-        outputTable?: string
+        outputTable?: string | boolean
     } = {}
 ) {
     let commonColumn: string | undefined
@@ -33,10 +33,15 @@ export default async function join(
             rightTable.name,
             commonColumn,
             options.type ?? "left",
-            options.outputTable ?? leftTable.name
+            typeof options.outputTable === "string"
+                ? options.outputTable
+                : leftTable.name
         ),
         mergeOptions(leftTable, {
-            table: options.outputTable ?? leftTable.name,
+            table:
+                typeof options.outputTable === "string"
+                    ? options.outputTable
+                    : leftTable.name,
             method: "join()",
             parameters: {
                 rightTable,
@@ -47,7 +52,7 @@ export default async function join(
 
     const outputTable =
         typeof options.outputTable === "string"
-            ? await leftTable.sdb.newTable(options.outputTable)
+            ? leftTable.sdb.newTable(options.outputTable)
             : leftTable
 
     // Need to remove the extra column common column. Ideally, this would happen in the query. :1 is with web assembly version. _1 is with nodejs version. At some point, both will be the same.

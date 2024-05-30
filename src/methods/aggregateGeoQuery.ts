@@ -4,7 +4,10 @@ export default function aggregateGeoQuery(
     table: string,
     column: string,
     method: "union" | "intersection",
-    options: { categories?: string | string[]; outputTable?: string } = {}
+    options: {
+        categories?: string | string[]
+        outputTable?: string | boolean
+    } = {}
 ) {
     const categoriesOptions = options.categories ?? []
     const categories = stringToArray(categoriesOptions)

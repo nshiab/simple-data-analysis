@@ -7,7 +7,7 @@ import SimpleWebTable from "../class/SimpleWebTable.js"
 export default async function summarize(
     simpleWebTable: SimpleWebTable,
     options: {
-        outputTable?: string
+        outputTable?: string | boolean
         values?: string | string[]
         categories?: string | string[]
         summaries?:
@@ -40,7 +40,10 @@ export default async function summarize(
         decimals?: number
     } = {}
 ) {
-    const outputTable = options.outputTable ?? simpleWebTable.name
+    const outputTable =
+        typeof options.outputTable === "string"
+            ? options.outputTable
+            : simpleWebTable.name
 
     options.values = options.values ? stringToArray(options.values) : []
     options.categories = options.categories

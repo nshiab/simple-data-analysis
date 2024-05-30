@@ -328,7 +328,7 @@ export default class SimpleWebTable extends Simple {
      * ```
      *
      * @param options - An optional object with configuration options:
-     *   @param options.outputTable - The name of the new table that will be created as a clone.
+     *   @param options.outputTable - The name in the DB of the new table that will be created as a clone.
      *   @param options.condition - A SQL WHERE clause condition to filter the data. Defaults to no condition.
      */
     async cloneTable(
@@ -520,25 +520,38 @@ export default class SimpleWebTable extends Simple {
      * @example Into a new table
      * ```ts
      * // Selects 100 rows and stores them in a new table.
+     * const tableB = await tableA.selectRows(100, { outputTable: true })
+     * ```
+     *
+     * @example Into a new table with a specific name in the DB
+     * ```ts
+     * // Selects 100 rows and stores them in a new table.
      * const tableB = await tableA.selectRows(100, { outputTable: "tableB" })
      * ```
      *
      * @param count - The number of rows.
      * @param options - An optional object with configuration options:
      *   @param options.offset - The number of rows to skip before selecting. Defaults to 0.
-     *   @param options.outputTable - The name of a new table that will be returned.
+     *   @param options.outputTable - To return a new table.
      *
      * @category Selecting or filtering data
      */
     async selectRows(
         count: number | string,
-        options: { offset?: number; outputTable?: string } = {}
+        options: { offset?: number; outputTable?: string | boolean } = {}
     ) {
+        if (options.outputTable === true) {
+            options.outputTable = `table${this.sdb.tableIncrement}`
+            this.sdb.tableIncrement += 1
+        }
         await queryDB(
             this,
             selectRowsQuery(this.name, count, options),
             mergeOptions(this, {
-                table: options.outputTable ?? this.name,
+                table:
+                    typeof options.outputTable === "string"
+                        ? options.outputTable
+                        : this.name,
                 method: "selectRows",
                 parameters: { count, options },
             })
@@ -1114,26 +1127,39 @@ export default class SimpleWebTable extends Simple {
      * @example Results in a new table
      * ```ts
      * // Returns the resuts in a newTable
+     * const tableC = await tableA.crossJoin(tableB, { outputTable: true });
+     * ```
+     *
+     * @example Results in a new table with a specific name in the DB
+     * ```ts
+     * // Returns the resuts in a newTable
      * const tableC = await tableA.crossJoin(tableB, { outputTable: "tableC" });
      * ```
      *
      * @param rightTable - The right table.
      * @param options - An optional object with configuration options:
-     *   @param options.outputTable - The name of the table that will be created or replaced with the result of the cross join.
+     *   @param options.outputTable - To return a new table with the results.
      *
      * @category Restructuring data
      */
     async crossJoin(
         rightTable: SimpleWebTable,
         options: {
-            outputTable?: string
+            outputTable?: string | boolean
         } = {}
     ) {
+        if (options.outputTable === true) {
+            options.outputTable = `table${this.sdb.tableIncrement}`
+            this.sdb.tableIncrement += 1
+        }
         await queryDB(
             this,
             crossJoinQuery(this.name, rightTable.name, options),
             mergeOptions(this, {
-                table: options.outputTable ?? this.name,
+                table:
+                    typeof options.outputTable === "string"
+                        ? options.outputTable
+                        : this.name,
                 method: "crossJoin()",
                 parameters: { rightTable, options },
             })
@@ -1157,14 +1183,14 @@ export default class SimpleWebTable extends Simple {
      * @example With options
      * ```ts
      * // You can change the common column, the join type, and the output table in options.
-     * const tableC = await tableA.join("tableB", { commonColumn: 'id', type: 'inner', outputTable: 'tableC' })
+     * const tableC = await tableA.join("tableB", { commonColumn: 'id', type: 'inner', outputTable: true })
      * ```
      *
      * @param rightTable - The right table to be joined.
      * @param options - An optional object with configuration options:
      *   @param options.commonColumn - The common column used for the join operation. By default, the method automatically searches for a column name that exists in both tables.
      *   @param options.type - The type of join operation to perform. Possible values are "inner", "left", "right", or "full". Default is "left".
-     *   @param options.outputTable - The name of the new table that will store the result of the join operation. Default is the leftTable.
+     *   @param options.outputTable - To return the results in a new table.
      *
      * @category Restructuring data
      */
@@ -1173,9 +1199,13 @@ export default class SimpleWebTable extends Simple {
         options: {
             commonColumn?: string
             type?: "inner" | "left" | "right" | "full"
-            outputTable?: string
+            outputTable?: string | boolean
         } = {}
     ) {
+        if (options.outputTable === true) {
+            options.outputTable = `table${this.sdb.tableIncrement}`
+            this.sdb.tableIncrement += 1
+        }
         await join(this, rightTable, options)
 
         if (typeof options.outputTable === "string") {
@@ -1839,7 +1869,13 @@ export default class SimpleWebTable extends Simple {
      *
      * @example Results in a new table
      * ```ts
-     * // Same, but the results will be stored in tableB.
+     * // Same, but the results will be stored in variable tableB.
+     * const tableB = await tableA.summarize({ outputTable: true })
+     * ```
+     *
+     * @example Results in a new table with a specific name in the DB
+     * ```ts
+     * // Same, but the results will be stored in variable tableB and in tableB in the DB.
      * const tableB = await tableA.summarize({ outputTable: "tableB" })
      * ```
      *
@@ -1912,9 +1948,13 @@ export default class SimpleWebTable extends Simple {
                       | "var"
                   )[]
             decimals?: number
-            outputTable?: string
+            outputTable?: string | boolean
         } = {}
     ) {
+        if (options.outputTable === true) {
+            options.outputTable = `table${this.sdb.tableIncrement}`
+            this.sdb.tableIncrement += 1
+        }
         await summarize(this, options)
         if (typeof options.outputTable === "string") {
             return this.sdb.newTable(options.outputTable)
@@ -2016,6 +2056,12 @@ export default class SimpleWebTable extends Simple {
      * @example Returning results in a new table
      * ```ts
      * // Same but results are stored in tableB.
+     * const tableB = await table.correlations({ outputTable: true })
+     * ```
+     *
+     * @example Returning results in a new table with a specific name in the DB
+     * ```ts
+     * // Same but results are stored in tableB.
      * const tableB = await table.correlations({ outputTable: "tableB" })
      * ```
      *
@@ -2034,9 +2080,13 @@ export default class SimpleWebTable extends Simple {
             y?: string
             categories?: string | string[]
             decimals?: number
-            outputTable?: string
+            outputTable?: string | boolean
         } = {}
     ) {
+        if (options.outputTable === true) {
+            options.outputTable = `table${this.sdb.tableIncrement}`
+            this.sdb.tableIncrement += 1
+        }
         await correlations(this, options)
         if (typeof options.outputTable === "string") {
             return this.sdb.newTable(options.outputTable)
@@ -2071,7 +2121,13 @@ export default class SimpleWebTable extends Simple {
      * @example Returning results in a new table
      * ```ts
      * // Same but stores the results in tableB.
-     * await table.linearRegressions({ outputTable: "tableB" })
+     * const newTable = await table.linearRegressions({ outputTable: true })
+     * ```
+     *
+     * @example Returning results in a new table with a specific name in the DB
+     * ```ts
+     * // Same but stores the results in tableB.
+     * const tableB = await table.linearRegressions({ outputTable: "tableB" })
      * ```
      *
      * @param options - An optional object with configuration options:
@@ -2088,9 +2144,13 @@ export default class SimpleWebTable extends Simple {
             y?: string
             categories?: string | string[]
             decimals?: number
-            outputTable?: string
+            outputTable?: string | true
         } = {}
     ) {
+        if (options.outputTable === true) {
+            options.outputTable = `table${this.sdb.tableIncrement}`
+            this.sdb.tableIncrement += 1
+        }
         await linearRegressions(this, options)
         if (typeof options.outputTable === "string") {
             return this.sdb.newTable(options.outputTable)
@@ -3208,7 +3268,7 @@ export default class SimpleWebTable extends Simple {
      * @example With options
      * ```ts
      * // Same thing but with specific column names storing geometries, a specific join type, and returning the results in a new table.
-     * const tableC = await tableA.joinGeo(tableB, "intersect", { geoColumnLeft: "geometriesA", geoColumnRight: "geometriesB", type: "inner", outputTable: "tableC" })
+     * const tableC = await tableA.joinGeo(tableB, "intersect", { geoColumnLeft: "geometriesA", geoColumnRight: "geometriesB", type: "inner", outputTable: true })
      * ```
      *
      * @param method - The method for the spatial join.
@@ -3217,7 +3277,7 @@ export default class SimpleWebTable extends Simple {
      *   @param options.columnLeftTable - The column storing the geometries in leftTable. It's 'geom' by default.
      *   @param options.columnRightTable - The column storing the geometries in rightTable. It's 'geom' by default.
      *   @param options.type - The type of join operation to perform. For some methods (like 'inside'), the table order is important.
-     *   @param options.outputTable - The name of the new table that will store the result of the join operation. Default is the leftTable.
+     *   @param options.outputTable - An option to store the results in a new table.
      *
      * @category Geospatial
      */
@@ -3228,9 +3288,13 @@ export default class SimpleWebTable extends Simple {
             columnLeftTable?: string
             columnRightTable?: string
             type?: "inner" | "left" | "right" | "full"
-            outputTable?: string
+            outputTable?: string | boolean
         } = {}
     ) {
+        if (options.outputTable === true) {
+            options.outputTable = `table${this.sdb.tableIncrement}`
+            this.sdb.tableIncrement += 1
+        }
         await joinGeo(this, method, rightTable, options)
         if (typeof options.outputTable === "string") {
             return this.sdb.newTable(options.outputTable)
@@ -3559,6 +3623,12 @@ export default class SimpleWebTable extends Simple {
      * @example Returning results in a new table
      * ```ts
      * // Same thing but results a return in tableA
+     * const tableA = await table.aggregateGeo("geom", "union", { categories: "country", outputTable: true })
+     * ```
+     *
+     * @example Returning results in a new table with a specific name in the DB
+     * ```ts
+     * // Same thing but results a return in tableA
      * const tableA = await table.aggregateGeo("geom", "union", { categories: "country", outputTable: "tableA" })
      * ```
      *
@@ -3573,8 +3643,15 @@ export default class SimpleWebTable extends Simple {
     async aggregateGeo(
         column: string,
         method: "union" | "intersection",
-        options: { categories?: string | string[]; outputTable?: string } = {}
+        options: {
+            categories?: string | string[]
+            outputTable?: string | boolean
+        } = {}
     ) {
+        if (options.outputTable === true) {
+            options.outputTable = `table${this.sdb.tableIncrement}`
+            this.sdb.tableIncrement += 1
+        }
         await queryDB(
             this,
             aggregateGeoQuery(this.name, column, method, options),
@@ -3657,45 +3734,6 @@ export default class SimpleWebTable extends Simple {
     }
 
     // OTHERS
-
-    /**
-     * Executes a custom SQL query, providing flexibility for advanced users.
-     *
-     * @example Basic usage
-     * ```ts
-     * // You can use the returnDataFrom option to retrieve the data from the query, if needed.
-     * await table.customQuery("SELECT * FROM employees WHERE Job = 'Clerk'", { returnDataFrom: "query" })
-     * ```
-     *
-     * @param query - The custom SQL query to be executed.
-     * @param options - An optional object with configuration options:
-     *   @param options.returnDataFrom - Specifies whether to return data from the "query" or not. Defaults to "none".
-     *   @param options.table - The name of the table associated with the query (if applicable). Needed when debug is true.
-     *
-     */
-    async customQuery(
-        query: string,
-        options: {
-            returnDataFrom?: "query" | "none"
-            table?: string
-        } = {}
-    ): Promise<
-        | {
-              [key: string]: string | number | boolean | Date | null
-          }[]
-        | null
-    > {
-        return await queryDB(
-            this,
-            query,
-            mergeOptions(this, {
-                returnDataFrom: options.returnDataFrom,
-                table: options.table ?? null,
-                method: "customQuery()",
-                parameters: { query, options },
-            })
-        )
-    }
 
     /**
      * Logs a specified number of rows. Default is 10 rows.

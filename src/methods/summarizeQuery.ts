@@ -105,8 +105,8 @@ export default function summarizeQuery(
                         "TIMESTAMP",
                         "TIMESTAMP WITH TIME ZONE",
                     ].includes(types[value])
-                    ? `\nROUND(${aggregates[summary]}${value}), ${options.decimals}) AS '${summary}'`
-                    : `\n${aggregates[summary]}${value}) AS '${summary}'`
+                    ? `\nROUND(${aggregates[summary]} ${value}), ${options.decimals}) AS '${summary}'`
+                    : `\n${aggregates[summary]} ${value}) AS '${summary}'`
             }
         })}\nFROM ${table}`
         if (categories.length > 0) {
