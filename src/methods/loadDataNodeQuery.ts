@@ -88,7 +88,7 @@ export default function loadDataNodeQuery(
             )
         }
 
-        return `INSTALL spatial; LOAD spatial; LOAD https;
+        return `INSTALL spatial; LOAD spatial; INSTALL https; LOAD https;
         CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ST_Read('${
             files[0]
         }'${options.sheet ? `, layer='${options.sheet}'` : ""})${limit};`
