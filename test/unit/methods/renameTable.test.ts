@@ -1,25 +1,22 @@
-// import assert from "assert"
-// import SimpleDB from "../../../src/class/SimpleDB.js"
+import assert from "assert"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
-// describe("renameTable", () => {
-//     let sdb: SimpleDB
-//     before(async function () {
-//         sdb = new SimpleDB()
-//         await sdb.loadData("cities", ["test/data/files/cities.csv"])
-//     })
-//     after(async function () {
-//         await sdb.done()
-//     })
+describe("renameTable", () => {
+    let sdb: SimpleDB
+    before(async function () {
+        sdb = new SimpleDB()
+    })
+    after(async function () {
+        await sdb.done()
+    })
 
-//     it("should rename a table", async () => {
-//         await sdb.renameTable("cities", "canadianCities")
+    it("should rename a table", async () => {
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/cities.csv"])
+        await table.renameTable("canadianCities")
 
-//         const data = await sdb.getData("canadianCities")
+        const tables = await sdb.getTables()
 
-//         assert.deepStrictEqual(data, [
-//             { id: 1108380, city: "VANCOUVER" },
-//             { id: 6158355, city: "TORONTO" },
-//             { id: 7024745, city: "MONTREAL" },
-//         ])
-//     })
-// })
+        assert.deepStrictEqual(tables, ["canadianCities"])
+    })
+})

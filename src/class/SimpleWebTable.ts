@@ -121,6 +121,28 @@ export default class SimpleWebTable extends Simple {
         this.connection = this.sdb.connection
     }
 
+    /** Rename the table.
+     *
+     * @example Basic usage
+     * ```ts
+     * await table.renameTable("newName")
+     * ```
+     * @param name - New name for the table
+     */
+    async renameTable(name: string) {
+        await queryDB(
+            this,
+            `ALTER TABLE ${this.name} RENAME TO ${name};`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "renameTable()",
+                parameters: { name },
+            })
+        )
+
+        this.name = name
+    }
+
     /** Set the types in the table.
      *
      * @example Basic usage
@@ -153,8 +175,6 @@ export default class SimpleWebTable extends Simple {
             | "boolean"
             | "geometry"
     }) {
-        this.debug && console.log("\nsetTypes()")
-
         let spatial = ""
         if (
             Object.values(types)
@@ -3694,19 +3714,45 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
-     * Returns the data as a geojson.
+     * Returns the data as a geojson. If the table has more than one column storing geometries, you must specify which column should be used.
      *
      * @example Basic usage
      * ```ts
-     * // The colum geom will be used for the features geometries. The other columns in the table will be stored as properties.
-     * const geojson = await table.getGeoData("geom")
+     * // By default, the method will look for the column storing the geometries. The other columns in the table will be stored as properties.
+     * const geojson = await table.getGeoData()
+     * ```
+     *
+     * @example Specific geometry column
+     * ```ts
+     * // If the table has more than one column storing geometries, you must specify which column should be used. All the other columns in the table will be stored as properties.
+     * const geojson = await table.getGeoData("geometries")
      * ```
      *
      * @param column - The name of a column storing geometries.
      *
      * @category Geospatial
      */
-    async getGeoData(column: string) {
+    async getGeoData(column?: string) {
+        if (column === undefined) {
+            const types = await this.getTypes()
+            const geometries = Object.values(types).filter(
+                (d) => d.toLowerCase() === "geometry"
+            )
+            if (geometries.length === 0) {
+                throw new Error("No column storing geometries")
+            } else if (geometries.length > 1) {
+                throw new Error(
+                    "More than one column storing geometries. You must specify which one to use."
+                )
+            } else {
+                column = Object.keys(types).find(
+                    (d) => types[d].toLowerCase() === "geometry"
+                )
+            }
+        }
+        if (typeof column !== "string") {
+            throw new Error("No column")
+        }
         return await getGeoData(this, column)
     }
 

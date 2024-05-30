@@ -1,201 +1,203 @@
-// import assert from "assert"
-// import SimpleDB from "../../../src/class/SimpleDB.js"
+import assert from "assert"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
-// describe("remove", () => {
-//     let sdb: SimpleDB
-//     before(async function () {
-//         sdb = new SimpleDB()
-//     })
-//     after(async function () {
-//         await sdb.done()
-//     })
+describe("remove", () => {
+    let sdb: SimpleDB
+    before(async function () {
+        sdb = new SimpleDB()
+    })
+    after(async function () {
+        await sdb.done()
+    })
 
-//     it("should remove specific rows", async () => {
-//         await sdb.loadData("employees", ["test/data/files/employees.csv"])
+    it("should remove specific rows", async () => {
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/employees.csv"])
+        await table.cleanColumnNames()
 
-//         await sdb.remove("employees", {
-//             Job: ["Clerk"],
-//             "Department or unit": ["50", "30"],
-//         })
-//         const data = await sdb.getData("employees")
+        await table.remove({
+            job: ["Clerk"],
+            departmentOrUnit: ["50", "30"],
+        })
+        const data = await table.getData()
 
-//         assert.deepStrictEqual(data, [
-//             {
-//                 Name: null,
-//                 "Hire date": "17-SEP-03",
-//                 Job: "Assistant",
-//                 Salary: "4400",
-//                 "Department or unit": "10",
-//                 "End-of_year-BONUS?": "17,51%",
-//             },
-//             {
-//                 Name: "Hartstein, Michael",
-//                 "Hire date": "17-FEB-04",
-//                 Job: "Manager",
-//                 Salary: "13000",
-//                 "Department or unit": "20",
-//                 "End-of_year-BONUS?": "2,71%",
-//             },
-//             {
-//                 Name: "Fay, Pat",
-//                 "Hire date": "17-AUG-05",
-//                 Job: "Representative",
-//                 Salary: "6000",
-//                 "Department or unit": "20",
-//                 "End-of_year-BONUS?": "18,68%",
-//             },
-//             {
-//                 Name: "Mavris, Susan",
-//                 "Hire date": "07-JUN-02",
-//                 Job: "Salesperson",
-//                 Salary: "6500",
-//                 "Department or unit": "40",
-//                 "End-of_year-BONUS?": "23,47%",
-//             },
-//             {
-//                 Name: "NaN",
-//                 "Hire date": "07-JUN-02",
-//                 Job: "Salesperson",
-//                 Salary: "10000",
-//                 "Department or unit": "xyz",
-//                 "End-of_year-BONUS?": "17,63%",
-//             },
-//             {
-//                 Name: "Higgins, Shelley",
-//                 "Hire date": "07-JUN-02",
-//                 Job: "Manager",
-//                 Salary: "12008",
-//                 "Department or unit": "110",
-//                 "End-of_year-BONUS?": "17,09%",
-//             },
-//             {
-//                 Name: "null",
-//                 "Hire date": "07-JUN-02",
-//                 Job: "Accountant",
-//                 Salary: "8300",
-//                 "Department or unit": "110",
-//                 "End-of_year-BONUS?": "15,7%",
-//             },
-//             {
-//                 Name: "King, Steven",
-//                 "Hire date": null,
-//                 Job: "President",
-//                 Salary: "24000",
-//                 "Department or unit": "90",
-//                 "End-of_year-BONUS?": "2,46%",
-//             },
-//             {
-//                 Name: "Kochhar, Neena",
-//                 "Hire date": "21-SEP-05",
-//                 Job: "Vice-president",
-//                 Salary: "&6%",
-//                 "Department or unit": "90",
-//                 "End-of_year-BONUS?": "11,6%",
-//             },
-//             {
-//                 Name: "De Haan, Lex",
-//                 "Hire date": "null",
-//                 Job: "Vice-president",
-//                 Salary: "17000",
-//                 "Department or unit": "90",
-//                 "End-of_year-BONUS?": "23,43%",
-//             },
-//             {
-//                 Name: "Hunold, Alexander",
-//                 "Hire date": "03-JAN-06",
-//                 Job: "Programmer",
-//                 Salary: "9000",
-//                 "Department or unit": "60",
-//                 "End-of_year-BONUS?": "23,01%",
-//             },
-//             {
-//                 Name: "Ernst, Bruce",
-//                 "Hire date": "21-MAY-07",
-//                 Job: "Programmer",
-//                 Salary: "6000",
-//                 "Department or unit": "60",
-//                 "End-of_year-BONUS?": "25,91%",
-//             },
-//             {
-//                 Name: "Austin, David",
-//                 "Hire date": "NaN",
-//                 Job: "Programmer",
-//                 Salary: "4800",
-//                 "Department or unit": "null",
-//                 "End-of_year-BONUS?": "6,89%",
-//             },
-//             {
-//                 Name: "Pataballa, Valli",
-//                 "Hire date": "abc",
-//                 Job: "Programmer",
-//                 Salary: null,
-//                 "Department or unit": "60",
-//                 "End-of_year-BONUS?": "1,62%",
-//             },
-//             {
-//                 Name: "Lorentz, Diana",
-//                 "Hire date": "07-ARB-07",
-//                 Job: "Programmer",
-//                 Salary: "4200",
-//                 "Department or unit": "60",
-//                 "End-of_year-BONUS?": "13,17%",
-//             },
-//             {
-//                 Name: "Greenberg, Nancy",
-//                 "Hire date": "17-AUG-02",
-//                 Job: "Manager",
-//                 Salary: "12008",
-//                 "Department or unit": "100",
-//                 "End-of_year-BONUS?": "74,69%",
-//             },
-//             {
-//                 Name: "Faviet, Daniel",
-//                 "Hire date": "16-AUG-02",
-//                 Job: "Accountant",
-//                 Salary: "9000",
-//                 "Department or unit": "100",
-//                 "End-of_year-BONUS?": "2,92%",
-//             },
-//             {
-//                 Name: "Chen, John",
-//                 "Hire date": "28-SEP-05",
-//                 Job: "Accountant",
-//                 Salary: "8200",
-//                 "Department or unit": "100",
-//                 "End-of_year-BONUS?": "9,31%",
-//             },
-//             {
-//                 Name: "Sciarra, Ismael",
-//                 "Hire date": "30-SEP-05",
-//                 Job: "Accountant",
-//                 Salary: "7700",
-//                 "Department or unit": "100",
-//                 "End-of_year-BONUS?": "13,18%",
-//             },
-//             {
-//                 Name: "Urman, Jose Manuel",
-//                 "Hire date": "07-MAR-06",
-//                 Job: "Accountant",
-//                 Salary: "7800",
-//                 "Department or unit": "100",
-//                 "End-of_year-BONUS?": "1,33%",
-//             },
-//             {
-//                 Name: "Popp, Luis",
-//                 "Hire date": "07-DEC-07",
-//                 Job: "Accountant",
-//                 Salary: "6900",
-//                 "Department or unit": "100",
-//                 "End-of_year-BONUS?": "2,98%",
-//             },
-//             {
-//                 Name: "Kaufling, Payam",
-//                 "Hire date": "01-MAY-03",
-//                 Job: "Manager",
-//                 Salary: "7900",
-//                 "Department or unit": "undefined",
-//                 "End-of_year-BONUS?": "21,33%",
-//             },
-//         ])
-//     })
-// })
+        assert.deepStrictEqual(data, [
+            {
+                name: null,
+                hireDate: "17-SEP-03",
+                job: "Assistant",
+                salary: "4400",
+                departmentOrUnit: "10",
+                endOfYearBonus: "17,51%",
+            },
+            {
+                name: "Hartstein, Michael",
+                hireDate: "17-FEB-04",
+                job: "Manager",
+                salary: "13000",
+                departmentOrUnit: "20",
+                endOfYearBonus: "2,71%",
+            },
+            {
+                name: "Fay, Pat",
+                hireDate: "17-AUG-05",
+                job: "Representative",
+                salary: "6000",
+                departmentOrUnit: "20",
+                endOfYearBonus: "18,68%",
+            },
+            {
+                name: "Mavris, Susan",
+                hireDate: "07-JUN-02",
+                job: "Salesperson",
+                salary: "6500",
+                departmentOrUnit: "40",
+                endOfYearBonus: "23,47%",
+            },
+            {
+                name: "NaN",
+                hireDate: "07-JUN-02",
+                job: "Salesperson",
+                salary: "10000",
+                departmentOrUnit: "xyz",
+                endOfYearBonus: "17,63%",
+            },
+            {
+                name: "Higgins, Shelley",
+                hireDate: "07-JUN-02",
+                job: "Manager",
+                salary: "12008",
+                departmentOrUnit: "110",
+                endOfYearBonus: "17,09%",
+            },
+            {
+                name: "null",
+                hireDate: "07-JUN-02",
+                job: "Accountant",
+                salary: "8300",
+                departmentOrUnit: "110",
+                endOfYearBonus: "15,7%",
+            },
+            {
+                name: "King, Steven",
+                hireDate: null,
+                job: "President",
+                salary: "24000",
+                departmentOrUnit: "90",
+                endOfYearBonus: "2,46%",
+            },
+            {
+                name: "Kochhar, Neena",
+                hireDate: "21-SEP-05",
+                job: "Vice-president",
+                salary: "&6%",
+                departmentOrUnit: "90",
+                endOfYearBonus: "11,6%",
+            },
+            {
+                name: "De Haan, Lex",
+                hireDate: "null",
+                job: "Vice-president",
+                salary: "17000",
+                departmentOrUnit: "90",
+                endOfYearBonus: "23,43%",
+            },
+            {
+                name: "Hunold, Alexander",
+                hireDate: "03-JAN-06",
+                job: "Programmer",
+                salary: "9000",
+                departmentOrUnit: "60",
+                endOfYearBonus: "23,01%",
+            },
+            {
+                name: "Ernst, Bruce",
+                hireDate: "21-MAY-07",
+                job: "Programmer",
+                salary: "6000",
+                departmentOrUnit: "60",
+                endOfYearBonus: "25,91%",
+            },
+            {
+                name: "Austin, David",
+                hireDate: "NaN",
+                job: "Programmer",
+                salary: "4800",
+                departmentOrUnit: "null",
+                endOfYearBonus: "6,89%",
+            },
+            {
+                name: "Pataballa, Valli",
+                hireDate: "abc",
+                job: "Programmer",
+                salary: null,
+                departmentOrUnit: "60",
+                endOfYearBonus: "1,62%",
+            },
+            {
+                name: "Lorentz, Diana",
+                hireDate: "07-ARB-07",
+                job: "Programmer",
+                salary: "4200",
+                departmentOrUnit: "60",
+                endOfYearBonus: "13,17%",
+            },
+            {
+                name: "Greenberg, Nancy",
+                hireDate: "17-AUG-02",
+                job: "Manager",
+                salary: "12008",
+                departmentOrUnit: "100",
+                endOfYearBonus: "74,69%",
+            },
+            {
+                name: "Faviet, Daniel",
+                hireDate: "16-AUG-02",
+                job: "Accountant",
+                salary: "9000",
+                departmentOrUnit: "100",
+                endOfYearBonus: "2,92%",
+            },
+            {
+                name: "Chen, John",
+                hireDate: "28-SEP-05",
+                job: "Accountant",
+                salary: "8200",
+                departmentOrUnit: "100",
+                endOfYearBonus: "9,31%",
+            },
+            {
+                name: "Sciarra, Ismael",
+                hireDate: "30-SEP-05",
+                job: "Accountant",
+                salary: "7700",
+                departmentOrUnit: "100",
+                endOfYearBonus: "13,18%",
+            },
+            {
+                name: "Urman, Jose Manuel",
+                hireDate: "07-MAR-06",
+                job: "Accountant",
+                salary: "7800",
+                departmentOrUnit: "100",
+                endOfYearBonus: "1,33%",
+            },
+            {
+                name: "Popp, Luis",
+                hireDate: "07-DEC-07",
+                job: "Accountant",
+                salary: "6900",
+                departmentOrUnit: "100",
+                endOfYearBonus: "2,98%",
+            },
+            {
+                name: "Kaufling, Payam",
+                hireDate: "01-MAY-03",
+                job: "Manager",
+                salary: "7900",
+                departmentOrUnit: "undefined",
+                endOfYearBonus: "21,33%",
+            },
+        ])
+    })
+})
