@@ -8,7 +8,7 @@ export default function replaceNullsQuery(
     let query = ""
     const valueParsed = parseValue(value)
     for (const column of columns) {
-        query += `UPDATE ${table} SET "${column}" = ${valueParsed} WHERE "${column}" IS NULL;`
+        query += `UPDATE ${table} SET ${column} = ${valueParsed} WHERE ${column} IS NULL;`
     }
 
     return query

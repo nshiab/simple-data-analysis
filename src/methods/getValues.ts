@@ -8,7 +8,7 @@ export default async function getValues(
 ) {
     const queryResult = await queryDB(
         simpleWebTable,
-        `SELECT "${column}" FROM ${simpleWebTable.name}`,
+        `SELECT ${column} FROM ${simpleWebTable.name}`,
         mergeOptions(simpleWebTable, {
             table: simpleWebTable.name,
             returnDataFrom: "query",

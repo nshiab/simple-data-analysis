@@ -10,7 +10,7 @@ export default function keepQuery(
     const conditions = []
     for (const column of columns) {
         conditions.push(
-            ` "${column}" IN (${columnsAndValues[column].map((d) => parseValue(d)).join(", ")})`
+            ` ${column} IN (${columnsAndValues[column].map((d) => parseValue(d)).join(", ")})`
         )
     }
 

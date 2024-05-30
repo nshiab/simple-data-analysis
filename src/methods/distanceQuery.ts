@@ -23,14 +23,14 @@ export default function distanceQuery(
         }
     }
 
-    let query = `ALTER TABLE ${table} ADD "${newColumn}" DOUBLE; UPDATE ${table} SET "${newColumn}" = `
+    let query = `ALTER TABLE ${table} ADD ${newColumn} DOUBLE; UPDATE ${table} SET ${newColumn} = `
 
     if (options.method === "srs") {
-        query += `ST_Distance("${column1}", "${column2}")`
+        query += `ST_Distance(${column1}, ${column2})`
     } else if (options.method === "haversine") {
-        query += `ST_Distance_Sphere("${column1}", "${column2}") ${options.unit === "km" ? "/ 1000" : ""};`
+        query += `ST_Distance_Sphere(${column1}, ${column2}) ${options.unit === "km" ? "/ 1000" : ""};`
     } else if (options.method === "spheroid") {
-        query += `ST_Distance_Spheroid("${column1}", "${column2}") ${options.unit === "km" ? "/ 1000" : ""};`
+        query += `ST_Distance_Spheroid(${column1}, ${column2}) ${options.unit === "km" ? "/ 1000" : ""};`
     } else {
         throw new Error(
             `Uknown method ${options.method}. Choose between 'srs', 'haversine' and 'spheroid'.`

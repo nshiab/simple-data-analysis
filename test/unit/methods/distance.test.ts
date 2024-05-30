@@ -13,7 +13,7 @@ describe("distance", () => {
     it("should calculate the distance between points with the SRS unit", async () => {
         const table = sdb.newTable("data")
         await table.loadGeoData("test/geodata/files/coordinates.geojson")
-        const clone = await table.cloneTable("dataClone")
+        const clone = await table.cloneTable()
         await table.crossJoin(clone)
         await table.distance("geom", "geom_1", "dist")
         await table.selectColumns(["name", "name_1", "dist"])
@@ -73,7 +73,7 @@ describe("distance", () => {
         const points = sdb.newTable("points")
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
         await points.flipCoordinates("geom")
-        const pointsCloned = await points.cloneTable("pointsCloned")
+        const pointsCloned = await points.cloneTable()
         await points.crossJoin(pointsCloned)
         await points.distance("geom", "geom_1", "dist", {
             method: "haversine",
@@ -99,7 +99,7 @@ describe("distance", () => {
         const points = sdb.newTable("points")
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
         await points.flipCoordinates("geom")
-        const pointsCloned = await points.cloneTable("pointsCloned")
+        const pointsCloned = await points.cloneTable()
         await points.crossJoin(pointsCloned)
         await points.distance("geom", "geom_1", "dist", {
             method: "haversine",
@@ -126,7 +126,7 @@ describe("distance", () => {
         const points = sdb.newTable("points")
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
         await points.flipCoordinates("geom")
-        const pointsCloned = await points.cloneTable("pointsCloned")
+        const pointsCloned = await points.cloneTable()
         await points.crossJoin(pointsCloned)
         await points.distance("geom", "geom_1", "dist", {
             method: "spheroid",
@@ -152,7 +152,7 @@ describe("distance", () => {
         const points = sdb.newTable("points")
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
         await points.flipCoordinates("geom")
-        const pointsCloned = await points.cloneTable("pointsCloned")
+        const pointsCloned = await points.cloneTable()
         await points.crossJoin(pointsCloned)
         await points.distance("geom", "geom_1", "dist", {
             method: "spheroid",

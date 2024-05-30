@@ -30,6 +30,9 @@ export default async function queryDB(
         await simple.sdb.start()
         simple.connection = simple.sdb.connection
     }
+    if (simple.connection === undefined) {
+        throw new Error("simple.connection is undefined")
+    }
 
     query = query
         .replace(/ && /g, " AND ")

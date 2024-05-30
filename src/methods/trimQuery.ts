@@ -12,15 +12,15 @@ export default function trimQuery(
 
     if (method === "trim") {
         for (const column of columns) {
-            query += `\nUPDATE ${table} SET "${column}" = TRIM("${column}"${specialCharacter});`
+            query += `\nUPDATE ${table} SET ${column} = TRIM(${column}${specialCharacter});`
         }
     } else if (method === "leftTrim") {
         for (const column of columns) {
-            query += `\nUPDATE ${table} SET "${column}" = LTRIM("${column}"${specialCharacter});`
+            query += `\nUPDATE ${table} SET ${column} = LTRIM(${column}${specialCharacter});`
         }
     } else if (method === "rightTrim") {
         for (const column of columns) {
-            query += `\nUPDATE ${table} SET "${column}" = RTRIM("${column}"${specialCharacter});`
+            query += `\nUPDATE ${table} SET ${column} = RTRIM(${column}${specialCharacter});`
         }
     } else {
         throw new Error(`Unknown method ${options.method}`)

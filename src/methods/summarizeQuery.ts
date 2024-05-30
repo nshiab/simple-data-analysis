@@ -62,7 +62,7 @@ export default function summarizeQuery(
         }
         query += `\nSELECT '${value}' AS 'value'${
             categories.length > 0
-                ? `, ${categories.map((d) => `"${d}"`).join(", ")}`
+                ? `, ${categories.map((d) => `${d}`).join(", ")}`
                 : ""
         },${summaries.map((summary) => {
             if (
@@ -95,7 +95,7 @@ export default function summarizeQuery(
             } else if (summary === "count") {
                 return `\nCOUNT(*) as count`
             } else if (summary === "countNull") {
-                return `\nCOUNT(CASE WHEN "${value}" IS NULL THEN 1 END) as countNull`
+                return `\nCOUNT(CASE WHEN ${value} IS NULL THEN 1 END) as countNull`
             } else {
                 return typeof options.decimals === "number" &&
                     ![
@@ -105,17 +105,17 @@ export default function summarizeQuery(
                         "TIMESTAMP",
                         "TIMESTAMP WITH TIME ZONE",
                     ].includes(types[value])
-                    ? `\nROUND(${aggregates[summary]}"${value}"), ${options.decimals}) AS '${summary}'`
-                    : `\n${aggregates[summary]}"${value}") AS '${summary}'`
+                    ? `\nROUND(${aggregates[summary]}${value}), ${options.decimals}) AS '${summary}'`
+                    : `\n${aggregates[summary]}${value}) AS '${summary}'`
             }
         })}\nFROM ${table}`
         if (categories.length > 0) {
-            query += `\nGROUP BY ${categories.map((d) => `"${d}"`).join(", ")}`
+            query += `\nGROUP BY ${categories.map((d) => `${d}`).join(", ")}`
         }
     }
 
     query += `\nORDER BY ${["value", ...categories]
-        .map((d) => `"${d}" ASC`)
+        .map((d) => `${d} ASC`)
         .join(", ")}`
 
     return query

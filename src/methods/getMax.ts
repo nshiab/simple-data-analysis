@@ -8,7 +8,7 @@ export default async function getMax(
 ) {
     const queryResult = await queryDB(
         simpleWebTable,
-        `SELECT MAX("${column}") AS valueForGetMax FROM ${simpleWebTable.name}`,
+        `SELECT MAX(${column}) AS valueForGetMax FROM ${simpleWebTable.name}`,
         mergeOptions(simpleWebTable, {
             table: simpleWebTable.name,
             returnDataFrom: "query",

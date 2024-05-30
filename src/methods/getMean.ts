@@ -12,8 +12,8 @@ export default async function getMean(
     const queryResult = await queryDB(
         simpleWebDB,
         typeof options.decimals === "number"
-            ? `SELECT ROUND(AVG("${column}"), ${options.decimals}) AS valueForGetMean FROM ${simpleWebDB.name}`
-            : `SELECT AVG("${column}") AS valueForGetMean FROM ${simpleWebDB.name}`,
+            ? `SELECT ROUND(AVG(${column}), ${options.decimals}) AS valueForGetMean FROM ${simpleWebDB.name}`
+            : `SELECT AVG(${column}) AS valueForGetMean FROM ${simpleWebDB.name}`,
         mergeOptions(simpleWebDB, {
             table: simpleWebDB.name,
             returnDataFrom: "query",

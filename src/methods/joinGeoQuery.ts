@@ -21,10 +21,10 @@ export default function joinGeoQuery(
     }
 
     if (method === "intersect") {
-        query += ` ON ST_Intersects(${leftTable}."${columnLeftTable}", ${rightTable}."${columnRightTable}");`
+        query += ` ON ST_Intersects(${leftTable}.${columnLeftTable}, ${rightTable}.${columnRightTable});`
     } else if (method === "inside") {
         // Order is important
-        query += ` ON ST_Covers(${rightTable}."${columnRightTable}", ${leftTable}."${columnLeftTable}");`
+        query += ` ON ST_Covers(${rightTable}.${columnRightTable}, ${leftTable}.${columnLeftTable});`
     } else {
         throw new Error(`Unknown ${method} method`)
     }

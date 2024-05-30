@@ -32,7 +32,7 @@ export default function convertQuery(
     for (const column of allColumns) {
         const indexOf = columns.indexOf(column)
         if (indexOf === -1) {
-            query += ` "${column}",`
+            query += ` ${column},`
         } else {
             const expectedType = parseType(columnsTypes[indexOf])
             const currentType = allTypes[column]
@@ -47,13 +47,13 @@ export default function convertQuery(
                 expectedType === "VARCHAR"
 
             if (datetimeFormatExist && stringToDate) {
-                query += ` strptime("${column}", '${options.datetimeFormat}') AS "${column}",`
+                query += ` strptime(${column}, '${options.datetimeFormat}') AS ${column},`
             } else if (datetimeFormatExist && dateToString) {
-                query += ` strftime("${column}", '${options.datetimeFormat}') AS "${column}",`
+                query += ` strftime(${column}, '${options.datetimeFormat}') AS ${column},`
             } else {
-                query += ` ${cast}("${columns[indexOf]}" AS ${parseType(
+                query += ` ${cast}(${columns[indexOf]} AS ${parseType(
                     columnsTypes[indexOf]
-                )}) AS "${columns[indexOf]}",`
+                )}) AS ${columns[indexOf]},`
             }
         }
     }

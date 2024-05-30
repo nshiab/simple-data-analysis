@@ -44,7 +44,6 @@ export default class SimpleWebDB extends Simple {
             nbRowsToLog?: number
         } = {}
     ) {
-        options.debug && console.log("\nnew SimpleWebDB()")
         super(runQueryWeb, options)
     }
 
@@ -83,7 +82,7 @@ export default class SimpleWebDB extends Simple {
      * @category DB methods
      */
     newTable(name?: string) {
-        this.debug && console.log("\nnewTable()")
+        this.debug && console.log("\nnewWebTable()")
 
         let table
         if (typeof name === "string") {
@@ -249,8 +248,14 @@ export default class SimpleWebDB extends Simple {
      */
     async done() {
         this.debug && console.log("\ndone()")
-        await (this.connection as AsyncDuckDBConnection)?.close()
-        await (this.db as AsyncDuckDB)?.terminate()
-        this.worker?.terminate()
+        if (this.connection instanceof AsyncDuckDBConnection) {
+            await this.connection.close()
+        }
+        if (this.db instanceof AsyncDuckDB) {
+            await this.db.terminate()
+        }
+        if (this.worker instanceof Worker) {
+            this.worker.terminate()
+        }
     }
 }

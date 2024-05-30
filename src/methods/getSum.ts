@@ -8,7 +8,7 @@ export default async function getSum(
 ) {
     const queryResult = await queryDB(
         simpleWebTable,
-        `SELECT SUM("${column}") AS valueForGetSum FROM ${simpleWebTable.name}`,
+        `SELECT SUM(${column}) AS valueForGetSum FROM ${simpleWebTable.name}`,
         mergeOptions(simpleWebTable, {
             table: simpleWebTable.name,
             returnDataFrom: "query",

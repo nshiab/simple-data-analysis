@@ -5,5 +5,5 @@ export default function crossJoinQuery(
         outputTable?: string
     } = {}
 ) {
-    return `CREATE OR REPLACE TABLE "${options.outputTable ?? table}" AS SELECT "${table}".*, "${rightTable}".* FROM "${table}" CROSS JOIN "${rightTable}";`
+    return `CREATE OR REPLACE TABLE ${options.outputTable ?? table} AS SELECT ${table}.*, ${rightTable}.* FROM ${table} CROSS JOIN ${rightTable};`
 }

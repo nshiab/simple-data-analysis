@@ -8,7 +8,7 @@ export default async function getGeoData(
 ) {
     const queryResult = await queryDB(
         simpleWebTable,
-        `SELECT * EXCLUDE "${column}", ST_AsGeoJSON("${column}") as geoJsonFragment from ${simpleWebTable.name};`,
+        `SELECT * EXCLUDE ${column}, ST_AsGeoJSON(${column}) as geoJsonFragment from ${simpleWebTable.name};`,
         mergeOptions(simpleWebTable, {
             table: null,
             method: "getGeoData()",

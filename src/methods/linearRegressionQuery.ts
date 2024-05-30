@@ -18,7 +18,7 @@ export default function linearRegressionQuery(
     const groupBy =
         categories.length === 0
             ? ""
-            : ` GROUP BY ${categories.map((d) => `"${d}"`).join(",")}`
+            : ` GROUP BY ${categories.map((d) => `${d}`).join(",")}`
 
     let firstValue = true
     for (const perm of permutations) {
@@ -32,18 +32,18 @@ export default function linearRegressionQuery(
         let tempIntercept
         let tempR2
         if (typeof options.decimals === "number") {
-            tempSlop = `ROUND(REGR_SLOPE("${perm[1]}", "${perm[0]}"), ${options.decimals})`
-            tempIntercept = `ROUND(REGR_INTERCEPT("${perm[1]}", "${perm[0]}"), ${options.decimals})`
-            tempR2 = `ROUND(REGR_R2("${perm[1]}", "${perm[0]}"), ${options.decimals})`
+            tempSlop = `ROUND(REGR_SLOPE(${perm[1]}, ${perm[0]}), ${options.decimals})`
+            tempIntercept = `ROUND(REGR_INTERCEPT(${perm[1]}, ${perm[0]}), ${options.decimals})`
+            tempR2 = `ROUND(REGR_R2(${perm[1]}, ${perm[0]}), ${options.decimals})`
         } else {
-            tempSlop = `REGR_SLOPE("${perm[1]}", "${perm[0]}")`
-            tempIntercept = `REGR_INTERCEPT("${perm[1]}", "${perm[0]}")`
-            tempR2 = `REGR_R2("${perm[1]}", "${perm[0]}")`
+            tempSlop = `REGR_SLOPE(${perm[1]}, ${perm[0]})`
+            tempIntercept = `REGR_INTERCEPT(${perm[1]}, ${perm[0]})`
+            tempR2 = `REGR_R2(${perm[1]}, ${perm[0]})`
         }
 
         query += `\nSELECT ${
             categories.length > 0
-                ? `${categories.map((d) => `"${d}"`).join(",")}, `
+                ? `${categories.map((d) => `${d}`).join(",")}, `
                 : ""
         }'${perm[0]}' AS x, '${perm[1]}' AS y, ${tempSlop} AS slope, ${tempIntercept} AS yIntercept, ${tempR2} as r2
         FROM ${table}${groupBy}`

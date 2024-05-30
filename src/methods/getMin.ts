@@ -8,7 +8,7 @@ export default async function getMin(
 ) {
     const queryResult = await queryDB(
         simpleWebTable,
-        `SELECT MIN("${column}") AS valueForGetMin FROM ${simpleWebTable.name}`,
+        `SELECT MIN(${column}) AS valueForGetMin FROM ${simpleWebTable.name}`,
         mergeOptions(simpleWebTable, {
             table: simpleWebTable.name,
             returnDataFrom: "query",

@@ -10,11 +10,11 @@ export default function sortQuery(
 
     for (const column of Object.keys(order)) {
         if (options.lang && options.lang[column]) {
-            query += `\n"${column}" COLLATE ${options.lang[column]} ${order[
+            query += `\n${column} COLLATE ${options.lang[column]} ${order[
                 column
             ].toUpperCase()},`
         } else {
-            query += `\n"${column}" ${order[column].toUpperCase()},`
+            query += `\n${column} ${order[column].toUpperCase()},`
         }
     }
 
