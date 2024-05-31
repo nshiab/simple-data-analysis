@@ -35,18 +35,10 @@ import cloneQuery from "../methods/cloneQuery.js"
  * await employees.loadData("./employees.csv")
  * await employees.logTable()
  *
- * // Removing the table.
- * await employees.removeTable()
- *
  * // Removing the DB to free up memory.
  * await sdb.done()
  * ```
  *
- * @example Instanciating with types
- * ```ts
- * // You can also create a new table with specific types.
- * const employees = sdb.newTable("employees", { types: { name: "string", salary: "integer", raise: "float" }})
- * ```
  */
 export default class SimpleTable extends SimpleWebTable {
     /** The SimpleDB that created this table. @category Properties */

@@ -82,24 +82,10 @@ import toCamelCase from "../helpers/toCamelCase.js"
  * await employees.loadData("./employees.csv")
  * await employees.logTable()
  *
- * // Removing the table.
- * await employees.removeTable()
- *
  * // Removing the DB to free up memory.
  * await sdb.done()
  * ```
  *
- * @example Instanciating with types
- * ```ts
- * // You can also create a new table with specific types.
- * const employees = sdb.newTable("employees", {
- *   types: {
- *     name: "string",
- *     salary: "integer",
- *     raise: "float",
- *   }
- * })
- * ```
  */
 export default class SimpleWebTable extends Simple {
     /** Name of the table in the database. @category Properties */
