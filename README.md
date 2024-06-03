@@ -62,7 +62,7 @@ With _ahccd-samples.csv_:
 -   971,804 rows
 -   19,436,080 data points
 
-**simple-data-analysis@1.8.1** was the slowest, but **simple-data-analysis@2.x.x** versions are now the fastest.
+**simple-data-analysis@3.0.0** is the fastest.
 
 ![A chart showing the processing duration of multiple scripts in various languages](./assets/small-file.png)
 
@@ -76,9 +76,7 @@ With _ahccd.csv_:
 -   22,051,025 rows
 -   441,020,500 data points
 
-The file was too big for **simple-data-analysis@1.8.1**, so it's not included here.
-
-While **simple-data-analysis@2.0.1** was already fast, **simple-data-analysis@2.7.3** shines even more with big files.
+**simple-data-analysis@3.0.0** is the fastest here as well.
 
 ![A chart showing the processing duration of multiple scripts in various languages](./assets/big-file.png)
 
