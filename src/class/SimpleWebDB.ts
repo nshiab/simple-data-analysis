@@ -100,6 +100,11 @@ export default class SimpleWebDB extends Simple {
             this.tableIncrement += 1
         }
 
+        this.debug &&
+            console.log(
+                `${table.name} has been created ${table.defaultTableName ? "(name automatically attributed)" : ""}`
+            )
+
         return table
     }
 
