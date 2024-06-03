@@ -69,7 +69,7 @@ import toCamelCase from "../helpers/toCamelCase.js"
 import findGeoColumn from "../helpers/findGeoColumn.js"
 
 /**
- * SimpleWebTable is a class representing a table in a SimpleWebDB. To create one, it's best to instantiate a SimpleWebDB first.
+ * SimpleWebTable is a class representing a table in a SimpleWebDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleWebDB first.
  *
  * @example Basic usage
  * ```ts
@@ -77,7 +77,7 @@ import findGeoColumn from "../helpers/findGeoColumn.js"
  * const sdb = new SimpleWebDB()
  *
  * // Making a new table. This returns a SimpleWebTable.
- * const employees = sdb.newTable("employees")
+ * const employees = sdb.newTable()
  *
  * // You can now invoke methods on the table.
  * await employees.loadData("./employees.csv")
@@ -85,6 +85,13 @@ import findGeoColumn from "../helpers/findGeoColumn.js"
  *
  * // Removing the DB to free up memory.
  * await sdb.done()
+ * ```
+ *
+ * @example Geospatial data
+ * ```ts
+ * const boundaries = sdb.newTable()
+ * // To load geospatial data, use .loadGeoData instead of .loadData
+ * await boundaries.loadGeoData("./boundaries.geojson")
  * ```
  *
  */

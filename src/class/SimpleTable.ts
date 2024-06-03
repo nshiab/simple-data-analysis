@@ -23,7 +23,7 @@ import shouldFlipBeforeExport from "../helpers/shouldFlipBeforeExport.js"
 import findGeoColumn from "../helpers/findGeoColumn.js"
 
 /**
- * SimpleTable is a class representing a table in a SimpleDB. To create one, it's best to instantiate a SimpleDB first.
+ * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
  *
  * @example Basic usage
  * ```ts
@@ -31,7 +31,7 @@ import findGeoColumn from "../helpers/findGeoColumn.js"
  * const sdb = new SimpleDB()
  *
  * // Making a new table. This returns a SimpleTable.
- * const employees = sdb.newTable("employees")
+ * const employees = sdb.newTable()
  *
  * // You can now invoke methods on the table.
  * await employees.loadData("./employees.csv")
@@ -41,6 +41,12 @@ import findGeoColumn from "../helpers/findGeoColumn.js"
  * await sdb.done()
  * ```
  *
+ * @example Geospatial data
+ * ```ts
+ * // To load geospatial data, use .loadGeoData instead of .loadData
+ * const boundaries = sdb.newTable()
+ * await boundaries.loadGeoData("./boundaries.geojson")
+ * ```
  */
 export default class SimpleTable extends SimpleWebTable {
     /** The SimpleDB that created this table. @category Properties */
