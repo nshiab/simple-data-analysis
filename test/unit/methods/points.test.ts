@@ -12,7 +12,7 @@ describe("points", () => {
 
     it("should create points", async () => {
         const table = sdb.newTable()
-        await table.loadGeoData("test/geodata/files/coordinates.csv")
+        await table.loadData("test/geodata/files/coordinates.csv")
         await table.convert({ lat: "double", lon: "double" })
         await table.points("lat", "lon", "geom")
 

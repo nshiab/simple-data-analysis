@@ -52,4 +52,18 @@ describe("loadGeoData", () => {
             geom: "GEOMETRY",
         })
     })
+    it("should load a geojson file and convert it to WGS84", async () => {
+        const table = sdb.newTable()
+        await table.loadGeoData("test/geodata/files/point.json", {
+            toWGS84: true,
+        })
+        await table.latLon("geom", "lat", "lon")
+        await table.selectColumns(["lat", "lon"])
+
+        const data = await table.getData()
+
+        assert.deepStrictEqual(data, [
+            { lat: 45.51412791316409, lon: -73.62315106245389 },
+        ])
+    })
 })

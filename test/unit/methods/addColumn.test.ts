@@ -96,19 +96,19 @@ describe("addColumn", () => {
             features: [
                 {
                     type: "Feature",
-                    properties: { name: "polygonA" },
                     geometry: {
                         type: "Point",
-                        coordinates: [-78.404315186235195, 47.992857929155612],
+                        coordinates: [-78.40431518960061, 47.9928579141529],
                     },
+                    properties: { name: "polygonA" },
                 },
                 {
                     type: "Feature",
-                    properties: { name: "polygonB" },
                     geometry: {
                         type: "Point",
-                        coordinates: [-109.102836190004638, 57.31925822683683],
+                        coordinates: [-109.10283617191051, 57.319258201410996],
                     },
+                    properties: { name: "polygonB" },
                 },
             ],
         })

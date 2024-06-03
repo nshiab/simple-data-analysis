@@ -66,6 +66,7 @@ import crossJoinQuery from "../methods/crossJoinQuery.js"
 import join from "../methods/join.js"
 import cloneQuery from "../methods/cloneQuery.js"
 import toCamelCase from "../helpers/toCamelCase.js"
+import findGeoColumn from "../helpers/findGeoColumn.js"
 
 /**
  * SimpleWebTable is a class representing a table in a SimpleWebDB. To create one, it's best to instantiate a SimpleWebDB first.
@@ -2917,14 +2918,21 @@ export default class SimpleWebTable extends Simple {
      * await table.loadGeoData("./some-data.geojson")
      * ```
      *
+     * @example Reprojecting to WGS84 with [latitude, longitude] axis order
+     * ```ts
+     * await table.loadGeoData("./some-data.geojson", { toWGS84: true })
+     * ```
+     *
      * @param file - The URL or path to the external file containing the geospatial data.
+     * @param options - An optional object with configuration options:
+     *   @param options.toWGS84 - If true, the method will look for the original projection in the file and convert the data to the WGS84 projection with [latitude, longitude] axis order.
      *
      * @category Geospatial
      */
-    async loadGeoData(file: string) {
+    async loadGeoData(file: string, options: { toWGS84?: boolean } = {}) {
         await queryDB(
             this,
-            `INSTALL spatial; LOAD spatial; INSTALL https; LOAD https;
+            `INSTALL spatial; LOAD spatial;${file.toLowerCase().includes("http") ? " INSTALL https; LOAD https;" : ""}
             CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM ST_Read('${file}');`,
             mergeOptions(this, {
                 table: this.name,
@@ -2932,6 +2940,12 @@ export default class SimpleWebTable extends Simple {
                 parameters: { file },
             })
         )
+        const projection = await getProjection(this.sdb, file)
+        this.proj4 = projection.proj4
+        if (options.toWGS84) {
+            await this.reproject("geom", "WGS84")
+            this.proj4 = "WGS84"
+        }
     }
 
     /**
@@ -2951,7 +2965,8 @@ export default class SimpleWebTable extends Simple {
     async points(columnLat: string, columnLon: string, newColumn: string) {
         await queryDB(
             this,
-            `ALTER TABLE ${this.name} ADD COLUMN ${newColumn} GEOMETRY; UPDATE ${this.name} SET ${newColumn} = ST_Point2D(${columnLon}, ${columnLat})`,
+            `INSTALL spatial; LOAD spatial;
+            ALTER TABLE ${this.name} ADD COLUMN ${newColumn} GEOMETRY; UPDATE ${this.name} SET ${newColumn} = ST_Point2D(${columnLon}, ${columnLat})`,
             mergeOptions(this, {
                 table: this.name,
                 method: "points()",
@@ -3039,7 +3054,7 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
-     * Flips the coordinates of geometries. Useful for some geojson files which have lat and lon inverted.
+     * Flips the coordinates of geometries.
      *
      * @example Basic usage
      * ```ts
@@ -3088,30 +3103,30 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
-     * Reprojects the data from one Spatial Reference System (SRS) to another.
+     * Reprojects the data to another Spatial Reference System (SRS).
      *
      * @example Basic usage
      * ```ts
-     * // From EPSG:3347 (also called NAD83/Statistics Canada Lambert with coordinates in meters) to EPSG:4326 (also called WGS84, with lat and lon in degrees)
-     * await table.reproject("geom", "EPSG:3347", "EPSG:4326")
+     * // To EPSG:3347 (also called NAD83/Statistics Canada Lambert with coordinates in meters)
+     * await table.reproject("geom", "EPSG:3347")
      * ```
      *
      * @param column - The name of the column storing the geometries.
-     * @param from - The original SRS.
      * @param to - The target SRS.
      *
      * @category Geospatial
      */
-    async reproject(column: string, from: string, to: string) {
+    async reproject(column: string, to: string) {
         await queryDB(
             this,
-            `UPDATE ${this.name} SET ${column} = ST_Transform(${column}, '${from}', '${to}')`,
+            `UPDATE ${this.name} SET ${column} = ST_Transform(${column}, '${this.proj4}', '${to}')`,
             mergeOptions(this, {
                 table: this.name,
                 method: "reproject()",
-                parameters: { column, from, to },
+                parameters: { column, to },
             })
         )
+        this.proj4 = to
     }
 
     /**
@@ -3448,7 +3463,7 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
-     * Extracts the latitude and longitude of points.
+     * Extracts the latitude and longitude of points. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      *
      * @example Basic usage
      * ```ts
@@ -3465,8 +3480,8 @@ export default class SimpleWebTable extends Simple {
     async latLon(column: string, columnLat: string, columnLon: string) {
         await queryDB(
             this,
-            `ALTER TABLE ${this.name} ADD ${columnLat} DOUBLE; UPDATE ${this.name} SET ${columnLat} = ST_Y(${column});
-             ALTER TABLE ${this.name} ADD ${columnLon} DOUBLE; UPDATE ${this.name} SET ${columnLon} = ST_X(${column});`,
+            `ALTER TABLE ${this.name} ADD ${columnLat} DOUBLE; UPDATE ${this.name} SET ${columnLat} = ST_X(${column});
+             ALTER TABLE ${this.name} ADD ${columnLon} DOUBLE; UPDATE ${this.name} SET ${columnLon} = ST_Y(${column});`,
             mergeOptions(this, {
                 table: this.name,
                 method: "latLon()",
@@ -3700,7 +3715,7 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
-     * Returns the data as a geojson. If the table has more than one column storing geometries, you must specify which column should be used.
+     * Returns the data as a geojson. If the table has more than one column storing geometries, you must specify which column should be used. If the projection is WGS84 or ESPG:4326 ([latitude, longitude] axis order), the coordinates will be flipped to follow the RFC7946 standard ([longitude, latitude] axis order).
      *
      * @example Basic usage
      * ```ts
@@ -3720,49 +3735,10 @@ export default class SimpleWebTable extends Simple {
      */
     async getGeoData(column?: string) {
         if (column === undefined) {
-            const types = await this.getTypes()
-            const geometries = Object.values(types).filter(
-                (d) => d.toLowerCase() === "geometry"
-            )
-            if (geometries.length === 0) {
-                throw new Error("No column storing geometries")
-            } else if (geometries.length > 1) {
-                throw new Error(
-                    "More than one column storing geometries. You must specify which one to use."
-                )
-            } else {
-                column = Object.keys(types).find(
-                    (d) => types[d].toLowerCase() === "geometry"
-                )
-            }
+            column = await findGeoColumn(this)
         }
-        if (typeof column !== "string") {
-            throw new Error("No column")
-        }
-        return await getGeoData(this, column)
-    }
 
-    /**
-     * Returns the projection of a geospatial data file.
-     *
-     * @example Basic usage
-     * ```ts
-     * await table.getProjection("./some-data.shp")
-     * // Returns something like
-     * // {
-     * //    name: 'WGS 84',
-     * //    code: 'ESPG:4326',
-     * //    unit: 'degree',
-     * //    proj4: '+proj=longlat +datum=WGS84 +no_defs'
-     * // }
-     * ```
-     *
-     * @param file - The file storing the geospatial data.
-     *
-     * @category Geospatial
-     */
-    async getProjection(file: string) {
-        return await getProjection(this, file)
+        return await getGeoData(this, column)
     }
 
     // OTHERS

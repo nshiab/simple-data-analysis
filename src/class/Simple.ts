@@ -18,6 +18,8 @@ export default class Simple {
     tableIncrement: number
     /** A flag to know if the name of the table has been attributed by default. @category Properties */
     defaultTableName: boolean
+    /** The projection of the geospatial data, if any. @category Properties */
+    proj4: string | null
     /**
      * For internal use only. If you want to run a SQL query, use the customQuery method. @category Properties
      */
@@ -65,6 +67,7 @@ export default class Simple {
         this.worker = null
         this.tableIncrement = 1
         this.defaultTableName = false
+        this.proj4 = null
         this.runQuery = runQuery
     }
 }

@@ -1,5 +1,6 @@
 import assert from "assert"
 import SimpleDB from "../../../src/class/SimpleDB.js"
+import getProjection from "../../../src/methods/getProjection.js"
 
 describe("getProjection", () => {
     let sdb: SimpleDB
@@ -11,8 +12,8 @@ describe("getProjection", () => {
     })
 
     it("should retrieve the projection of a json file", async () => {
-        const table = sdb.newTable("geodata")
-        const proj = await table.getProjection(
+        const proj = await getProjection(
+            sdb,
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
         assert.deepStrictEqual(proj, {
@@ -23,8 +24,8 @@ describe("getProjection", () => {
         })
     })
     it("should retrieve the projection of a zipped shapefile", async () => {
-        const table = sdb.newTable("geodata")
-        const proj = await table.getProjection(
+        const proj = await getProjection(
+            sdb,
             "test/geodata/files/canada-not-4326.shp.zip"
         )
         assert.deepStrictEqual(proj, {

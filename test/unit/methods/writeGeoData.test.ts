@@ -24,9 +24,22 @@ describe("writeGeoData", () => {
         await table.writeGeoData(`${output}data.geojson`)
 
         const originalData = JSON.parse(readFileSync(originalFile, "utf-8"))
-        originalData.name = "data"
         const writtenData = JSON.parse(
             readFileSync(`${output}data.geojson`, "utf-8")
+        )
+
+        assert.deepStrictEqual(writtenData, originalData)
+    })
+    it("should write geojson file that has been converted to WGS84", async () => {
+        const originalFile = "test/geodata/files/polygons.geojson"
+
+        const table = sdb.newTable()
+        await table.loadGeoData(originalFile, { toWGS84: true })
+        await table.writeGeoData(`${output}dataWithOptionsToWGS84.geojson`)
+
+        const originalData = JSON.parse(readFileSync(originalFile, "utf-8"))
+        const writtenData = JSON.parse(
+            readFileSync(`${output}dataWithOptionsToWGS84.geojson`, "utf-8")
         )
 
         assert.deepStrictEqual(writtenData, originalData)
@@ -47,7 +60,6 @@ describe("writeGeoData", () => {
 
         assert.deepStrictEqual(writtenData, {
             type: "FeatureCollection",
-            name: "dataPrecision",
             features: [
                 {
                     type: "Feature",

@@ -1,14 +1,21 @@
 import SimpleWebTable from "../class/SimpleWebTable.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
+import shouldFlipBeforeExport from "../helpers/shouldFlipBeforeExport.js"
 
 export default async function getGeoData(
     simpleWebTable: SimpleWebTable,
     column: string
 ) {
+    let query = ""
+    if (shouldFlipBeforeExport(simpleWebTable)) {
+        query = `SELECT * EXCLUDE ${column}, ST_AsGeoJSON(ST_FlipCoordinates(${column})) as geoJsonFragment from ${simpleWebTable.name};`
+    } else {
+        query = `SELECT * EXCLUDE ${column}, ST_AsGeoJSON(${column}) as geoJsonFragment from ${simpleWebTable.name};`
+    }
     const queryResult = await queryDB(
         simpleWebTable,
-        `SELECT * EXCLUDE ${column}, ST_AsGeoJSON(${column}) as geoJsonFragment from ${simpleWebTable.name};`,
+        query,
         mergeOptions(simpleWebTable, {
             table: null,
             method: "getGeoData()",

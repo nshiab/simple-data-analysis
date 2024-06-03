@@ -19,6 +19,8 @@ import correlations from "../methods/correlations.js"
 import linearRegressions from "../methods/linearRegressions.js"
 import joinGeo from "../methods/joinGeo.js"
 import cloneQuery from "../methods/cloneQuery.js"
+import shouldFlipBeforeExport from "../helpers/shouldFlipBeforeExport.js"
+import findGeoColumn from "../helpers/findGeoColumn.js"
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. To create one, it's best to instantiate a SimpleDB first.
@@ -550,7 +552,7 @@ export default class SimpleTable extends SimpleWebTable {
     }
 
     /**
-     * Writes geospatial data to a file.
+     * Writes geospatial data to a file. For .geojson files, if the projection is WGS84 or ESPG:4326 ([latitude, longitude] axis order), the coordinates will be flipped to follow the RFC7946 standard ([longitude, latitude] axis order).
      *
      * @example Basic usage
      * ```ts
@@ -564,14 +566,30 @@ export default class SimpleTable extends SimpleWebTable {
      * * @category Exporting data
      */
     async writeGeoData(file: string, options: { precision?: number } = {}) {
-        await queryDB(
-            this,
-            writeGeoDataQuery(this.name, file, options),
-            mergeOptions(this, {
-                table: this.name,
-                method: "writeGeoData()",
-                parameters: { file, options },
-            })
-        )
+        const flip = shouldFlipBeforeExport(this)
+        if (flip) {
+            const columnToFlip = await findGeoColumn(this)
+            await this.flipCoordinates(columnToFlip)
+            await queryDB(
+                this,
+                writeGeoDataQuery(this.name, file, options),
+                mergeOptions(this, {
+                    table: this.name,
+                    method: "writeGeoData()",
+                    parameters: { file, options },
+                })
+            )
+            await this.flipCoordinates(columnToFlip)
+        } else {
+            await queryDB(
+                this,
+                writeGeoDataQuery(this.name, file, options),
+                mergeOptions(this, {
+                    table: this.name,
+                    method: "writeGeoData()",
+                    parameters: { file, options },
+                })
+            )
+        }
     }
 }

@@ -10,7 +10,7 @@ describe("getGeoData", () => {
         await sdb.done()
     })
 
-    it("should return geospatial data as a geojson", async () => {
+    it("should find the column with geometries and return geospatial data as a geojson", async () => {
         const table = sdb.newTable("geoData")
         await table.loadGeoData("test/geodata/files/polygons.geojson")
         await table.renameColumns({ geom: "newGeom" })
@@ -21,42 +21,42 @@ describe("getGeoData", () => {
             features: [
                 {
                     type: "Feature",
+                    properties: { name: "polygonA" },
                     geometry: {
                         type: "Polygon",
                         coordinates: [
                             [
-                                [-80.59257436471684, 50.34475712255144],
-                                [-81.46830362263165, 44.96388502050658],
-                                [-75.09077319336622, 46.96898493017997],
-                                [-75.56015128267195, 50.14747359410518],
-                                [-80.59257436471684, 50.34475712255144],
+                                [-80.5925744, 50.3447571],
+                                [-81.4683036, 44.963885],
+                                [-75.0907732, 46.9689849],
+                                [-75.5601513, 50.1474736],
+                                [-80.5925744, 50.3447571],
                             ],
                         ],
                     },
-                    properties: { name: "polygonA" },
                 },
                 {
                     type: "Feature",
+                    properties: { name: "polygonB" },
                     geometry: {
                         type: "Polygon",
                         coordinates: [
                             [
-                                [-121.9581024428179, 62.01105774612549],
-                                [-122.30178667612884, 56.046480093823135],
-                                [-112.2459009294211, 51.56850436985184],
-                                [-104.83848404963159, 51.43356573562798],
-                                [-96.84201249303278, 53.44208011203946],
-                                [-98.04910119595648, 62.4259071421684],
-                                [-121.9581024428179, 62.01105774612549],
+                                [-121.9581024, 62.0110577],
+                                [-122.3017867, 56.0464801],
+                                [-112.2459009, 51.5685044],
+                                [-104.838484, 51.4335657],
+                                [-96.8420125, 53.4420801],
+                                [-98.0491012, 62.4259071],
+                                [-121.9581024, 62.0110577],
                             ],
                         ],
                     },
-                    properties: { name: "polygonB" },
                 },
             ],
         })
     })
-    it("should return geospatial data as a geojson", async () => {
+    it("should return geospatial data as a geojson with a specific geometry column", async () => {
         const table = sdb.newTable("geoData")
         await table.loadGeoData("test/geodata/files/polygons.geojson")
         await table.renameColumns({ geom: "newGeom" })
@@ -67,37 +67,37 @@ describe("getGeoData", () => {
             features: [
                 {
                     type: "Feature",
+                    properties: { name: "polygonA" },
                     geometry: {
                         type: "Polygon",
                         coordinates: [
                             [
-                                [-80.59257436471684, 50.34475712255144],
-                                [-81.46830362263165, 44.96388502050658],
-                                [-75.09077319336622, 46.96898493017997],
-                                [-75.56015128267195, 50.14747359410518],
-                                [-80.59257436471684, 50.34475712255144],
+                                [-80.5925744, 50.3447571],
+                                [-81.4683036, 44.963885],
+                                [-75.0907732, 46.9689849],
+                                [-75.5601513, 50.1474736],
+                                [-80.5925744, 50.3447571],
                             ],
                         ],
                     },
-                    properties: { name: "polygonA" },
                 },
                 {
                     type: "Feature",
+                    properties: { name: "polygonB" },
                     geometry: {
                         type: "Polygon",
                         coordinates: [
                             [
-                                [-121.9581024428179, 62.01105774612549],
-                                [-122.30178667612884, 56.046480093823135],
-                                [-112.2459009294211, 51.56850436985184],
-                                [-104.83848404963159, 51.43356573562798],
-                                [-96.84201249303278, 53.44208011203946],
-                                [-98.04910119595648, 62.4259071421684],
-                                [-121.9581024428179, 62.01105774612549],
+                                [-121.9581024, 62.0110577],
+                                [-122.3017867, 56.0464801],
+                                [-112.2459009, 51.5685044],
+                                [-104.838484, 51.4335657],
+                                [-96.8420125, 53.4420801],
+                                [-98.0491012, 62.4259071],
+                                [-121.9581024, 62.0110577],
                             ],
                         ],
                     },
-                    properties: { name: "polygonB" },
                 },
             ],
         })
