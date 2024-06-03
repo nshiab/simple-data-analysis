@@ -22,11 +22,11 @@ Tests are run for NodeJS and Bun. Deno is coming! :)
 
 These project's goals are:
 
--   To offer a high-performance and convenient solution in JavaScript for data analysis. It's based on [DuckDB](https://duckdb.org/) and inspired by [Pandas](https://github.com/pandas-dev/pandas) (Python) and the [Tidyverse](https://www.tidyverse.org/) (R).
+-   To offer a high-performance library in JavaScript for data analysis. It's based on [DuckDB](https://duckdb.org/) and inspired by [Pandas](https://github.com/pandas-dev/pandas) (Python) and the [Tidyverse](https://www.tidyverse.org/) (R).
 
--   To standardize and accelerate frontend/backend workflows with a simple-to-use library working both in the browser and with NodeJS (and similar runtimes).
+-   To provide an easy-to-use library working in the browser and with NodeJS (and similar runtimes).
 
--   To ease the way for non-coders (especially journalists and web developers) into the beautiful world of data analysis and data visualization in JavaScript.
+-   To ease the way for non-coders (especially journalists and web developers) into the beautiful world of data analysis.
 
 SDA is based on [duckdb-node](https://github.com/duckdb/duckdb-node) and [duckdb-wasm](https://github.com/duckdb/duckdb-wasm). DuckDB is a high-performance analytical database system. Under the hood, SDA sends SQL queries to be executed by DuckDB.
 
@@ -34,13 +34,11 @@ You also have the flexibility of writing your own queries if you want to (check 
 
 Feel free to start a conversation or open an issue. Check how you can [contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
 
-## About v2
+## Performance
 
-Because v1.x.x versions weren't based on DuckDB, v2.x.x is a complete rewrite of the library with many breaking changes.
+To test and compare the performance of the library, we calculated the average temperature per decade and city with the daily temperatures from the [Adjusted and Homogenized Canadian Climate Data](https://api.weather.gc.ca/collections/ahccd-annual). See [this repository](https://github.com/nshiab/simple-data-analysis-benchmarks) for the code.
 
-To test and compare the performance of **simple-data-analysis@2.x.x**, we calculated the average temperature per decade and city with the daily temperatures from the [Adjusted and Homogenized Canadian Climate Data](https://api.weather.gc.ca/collections/ahccd-annual). See [this repository](https://github.com/nshiab/simple-data-analysis-benchmarks) for the code.
-
-We ran the same calculations with **simple-data-analysis@1.8.1** (both NodeJS and Bun), **simple-data-analysis@2.0.1** (NodeJS), **simple-data-analysis@2.7.3** (NodeJS), **Pandas (Python)**, and the **tidyverse (R)**.
+We ran the same calculations with **simple-data-analysis@3.0.0** (both NodeJS and Bun), **Pandas (Python)**, and the **tidyverse (R)**.
 
 In each script, we:
 
