@@ -2960,7 +2960,9 @@ export default class SimpleWebTable extends Simple {
         try {
             this.projection = await getProjection(this.sdb, file)
         } catch (error) {
-            console.warn(error)
+            console.warn(
+                "fetchGeoData couldn't determine the projection of the geospatial data."
+            )
         }
         if (options.toWGS84) {
             await this.reproject("geom", "WGS84", options)
