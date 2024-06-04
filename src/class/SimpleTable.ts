@@ -259,8 +259,8 @@ export default class SimpleTable extends SimpleWebTable {
         rightTable: SimpleTable,
         method: "intersect" | "inside",
         options: {
-            columnLeftTable?: string
-            columnRightTable?: string
+            leftTableColumn?: string
+            rightTableColumn?: string
             type?: "inner" | "left" | "right" | "full"
             outputTable?: string | boolean
         } = {}

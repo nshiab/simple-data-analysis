@@ -1,5 +1,6 @@
 import SimpleWebTable from "../class/SimpleWebTable.js"
 import capitalize from "../helpers/capitalize.js"
+import findGeoColumn from "../helpers/findGeoColumn.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import joinGeoQuery from "./joinGeoQuery.js"
@@ -15,8 +16,10 @@ export default async function joinGeo(
         outputTable?: string | boolean
     } = {}
 ) {
-    const columnLeftTable = options.columnLeftTable ?? "geom"
-    const columnRightTable = options.columnRightTable ?? "geom"
+    const columnLeftTable =
+        options.columnLeftTable ?? (await findGeoColumn(leftTable))
+    const columnRightTable =
+        options.columnRightTable ?? (await findGeoColumn(rightTable))
     let columnLeftTableForQuery = columnLeftTable
     let columnRightTableForQuery = columnRightTable
 

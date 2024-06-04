@@ -201,8 +201,8 @@ describe("joinGeo", () => {
         await poly.renameColumns({ geom: "geomPolygon" })
 
         const joined = await prov.joinGeo(poly, "intersect", {
-            columnLeftTable: "geomProvince",
-            columnRightTable: "geomPolygon",
+            leftTableColumn: "geomProvince",
+            rightTableColumn: "geomPolygon",
             type: "inner",
             outputTable: "joined",
         })

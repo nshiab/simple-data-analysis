@@ -3336,7 +3336,7 @@ export default class SimpleWebTable extends Simple {
     /**
      * Merges the data of the table with another table based on a spatial join. Note that the returned data is not guaranteed to be in the same order as the original tables.
      *
-     * By default, the method looks for columns named 'geom' storing the geometries in the two tables, does a left join and overwrites leftTable (the current table) with the results. The method also appends the name of the table to the 'geom' columns in the returned data.
+     * By default, the method looks for a column storing the geometries in each table, does a left join and overwrites leftTable (the current table) with the results. The method also appends the name of the table to the columns storing the geometries if they have the same name in both tables.
      *
      * It might create a .tmp folder, so make sure to add .tmp to your gitignore.
      *
@@ -3346,20 +3346,20 @@ export default class SimpleWebTable extends Simple {
      * await tableA.joinGeo(tableB, "intersect")
      *
      * // Merges data of tableA and tableB based on geometries that in tableA that are inside geometries in tableB. tableA is overwritten with the result.
-     * await tableA.joinGeo(tableB, "inside" )
+     * await tableA.joinGeo(tableB, "inside")
      * ```
      *
      * @example With options
      * ```ts
      * // Same thing but with specific column names storing geometries, a specific join type, and returning the results in a new table.
-     * const tableC = await tableA.joinGeo(tableB, "intersect", { geoColumnLeft: "geometriesA", geoColumnRight: "geometriesB", type: "inner", outputTable: true })
+     * const tableC = await tableA.joinGeo(tableB, "intersect", { leftTableColumn: "geometriesA", rightTableColumn: "geometriesB", type: "inner", outputTable: true })
      * ```
      *
      * @param method - The method for the spatial join.
      * @param rightTable - The right table to be joined.
      * @param options - An optional object with configuration options:
-     *   @param options.columnLeftTable - The column storing the geometries in leftTable. It's 'geom' by default.
-     *   @param options.columnRightTable - The column storing the geometries in rightTable. It's 'geom' by default.
+     *   @param options.leftTableColumn - The column storing the geometries in leftTable. The method tries to find one by default.
+     *   @param options.rightTableColumn - The column storing the geometries in rightTable. The method tries to find one by default.
      *   @param options.type - The type of join operation to perform. For some methods (like 'inside'), the table order is important.
      *   @param options.outputTable - An option to store the results in a new table.
      *
@@ -3369,8 +3369,8 @@ export default class SimpleWebTable extends Simple {
         rightTable: SimpleWebTable,
         method: "intersect" | "inside",
         options: {
-            columnLeftTable?: string
-            columnRightTable?: string
+            leftTableColumn?: string
+            rightTableColumn?: string
             type?: "inner" | "left" | "right" | "full"
             outputTable?: string | boolean
         } = {}
