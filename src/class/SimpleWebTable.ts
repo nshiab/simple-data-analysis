@@ -3833,37 +3833,41 @@ export default class SimpleWebTable extends Simple {
         options.nbRowsToLog = options.nbRowsToLog ?? this.nbRowsToLog
         this.debug && console.log("parameters:", { options })
 
-        console.log(`\ntable ${this.name}:`)
-        const data = await this.runQuery(
-            `SELECT * FROM ${this.name} LIMIT ${options.nbRowsToLog}`,
-            this.connection,
-            true,
-            {
-                debug: this.debug,
-                method: null,
-                parameters: null,
-                bigIntToInt: this.bigIntToInt,
+        if (this.connection === undefined) {
+            console.log(`\ntable ${this.name}: no data`)
+        } else {
+            console.log(`\ntable ${this.name}:`)
+            const data = await this.runQuery(
+                `SELECT * FROM ${this.name} LIMIT ${options.nbRowsToLog}`,
+                this.connection,
+                true,
+                {
+                    debug: this.debug,
+                    method: null,
+                    parameters: null,
+                    bigIntToInt: this.bigIntToInt,
+                }
+            )
+            logData(data)
+            const nbRows = await this.runQuery(
+                `SELECT COUNT(*) FROM ${this.name};`,
+                this.connection,
+                true,
+                {
+                    debug: this.debug,
+                    method: null,
+                    parameters: null,
+                    bigIntToInt: this.bigIntToInt,
+                }
+            )
+            if (nbRows === null) {
+                throw new Error("nbRows is null")
             }
-        )
-        logData(data)
-        const nbRows = await this.runQuery(
-            `SELECT COUNT(*) FROM ${this.name};`,
-            this.connection,
-            true,
-            {
-                debug: this.debug,
-                method: null,
-                parameters: null,
-                bigIntToInt: this.bigIntToInt,
-            }
-        )
-        if (nbRows === null) {
-            throw new Error("nbRows is null")
+            console.log(
+                `${addThousandSeparator(
+                    nbRows[0]["count_star()"] as number
+                )} rows in total ${`(nbRowsToLog: ${options.nbRowsToLog})`}`
+            )
         }
-        console.log(
-            `${addThousandSeparator(
-                nbRows[0]["count_star()"] as number
-            )} rows in total ${`(nbRowsToLog: ${options.nbRowsToLog})`}`
-        )
     }
 }

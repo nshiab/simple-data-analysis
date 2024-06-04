@@ -90,7 +90,7 @@ Note that DuckDB, which powers SDA, can also be used with [Python](https://duckd
 
 Observable notebooks are great for data analysis in JavaScript. This [example](https://observablehq.com/@nshiab/hello-simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript) shows you how to use simple-data-analysis in one of them.
 
-Check this other notebook too if you are interested in the library geospatial capabilities.
+Check this other notebook if you are interested in the library geospatial capabilities.
 
 ## SDA in an HTML page
 
