@@ -21,6 +21,7 @@ import joinGeo from "../methods/joinGeo.js"
 import cloneQuery from "../methods/cloneQuery.js"
 import shouldFlipBeforeExport from "../helpers/shouldFlipBeforeExport.js"
 import findGeoColumn from "../helpers/findGeoColumn.js"
+import getProjection from "../methods/getProjection.js"
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
@@ -496,6 +497,60 @@ export default class SimpleTable extends SimpleWebTable {
                 parameters: { directory, options },
             })
         )
+    }
+
+    /**
+     * This method is just for the web. For NodeJS and other runtimes, use loadGeoData.
+     *
+     * @category Importing data
+     */
+    async fetchGeoData() {
+        throw new Error(
+            "This method is just for the web. For NodeJS and other runtimes, use loadGeoData."
+        )
+    }
+
+    /**
+     * Loads geospatial data from an external file.
+     *
+     * @example Basic usage with URL
+     * ```ts
+     * await table.loadGeoData("https://some-website.com/some-data.geojson")
+     * ```
+     *
+     * @example Basic usage with local file
+     * ```ts
+     * await table.loadGeoData("./some-data.geojson")
+     * ```
+     *
+     * @example Reprojecting to WGS84 with [latitude, longitude] axis order
+     * ```ts
+     * await table.loadGeoData("./some-data.geojson", { toWGS84: true })
+     * ```
+     *
+     * @param file - The URL or path to the external file containing the geospatial data.
+     * @param options - An optional object with configuration options:
+     *   @param options.toWGS84 - If true, the method will look for the original projection in the file and convert the data to the WGS84 projection with [latitude, longitude] axis order.
+     *
+     * @category Geospatial
+     */
+    async loadGeoData(file: string, options: { toWGS84?: boolean } = {}) {
+        await queryDB(
+            this,
+            `INSTALL spatial; LOAD spatial;${file.toLowerCase().includes("http") ? " INSTALL https; LOAD https;" : ""}
+            CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM ST_Read('${file}');`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "loadGeoData()",
+                parameters: { file },
+            })
+        )
+        const projection = await getProjection(this.sdb, file)
+        this.proj4 = projection.proj4
+        if (options.toWGS84) {
+            await this.reproject("geom", "WGS84")
+            this.proj4 = "WGS84"
+        }
     }
 
     async newTable(

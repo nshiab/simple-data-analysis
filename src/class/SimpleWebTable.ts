@@ -80,7 +80,7 @@ import findGeoColumn from "../helpers/findGeoColumn.js"
  * const employees = sdb.newTable()
  *
  * // You can now invoke methods on the table.
- * await employees.loadData("./employees.csv")
+ * await employees.fetchData("./employees.csv")
  * await employees.logTable()
  *
  * // Removing the DB to free up memory.
@@ -90,8 +90,8 @@ import findGeoColumn from "../helpers/findGeoColumn.js"
  * @example Geospatial data
  * ```ts
  * const boundaries = sdb.newTable()
- * // To load geospatial data, use .loadGeoData instead of .loadData
- * await boundaries.loadGeoData("./boundaries.geojson")
+ * // To load geospatial data, use .fetchGeoData instead of .loadData
+ * await boundaries.fetchGeoData("./boundaries.geojson")
  * ```
  *
  */
@@ -2918,17 +2918,17 @@ export default class SimpleWebTable extends Simple {
      *
      * @example Basic usage with URL
      * ```ts
-     * await table.loadGeoData("https://some-website.com/some-data.geojson")
+     * await table.fetchGeoData("https://some-website.com/some-data.geojson")
      * ```
      *
      * @example Basic usage with local file
      * ```ts
-     * await table.loadGeoData("./some-data.geojson")
+     * await table.fetchGeoData("./some-data.geojson")
      * ```
      *
      * @example Reprojecting to WGS84 with [latitude, longitude] axis order
      * ```ts
-     * await table.loadGeoData("./some-data.geojson", { toWGS84: true })
+     * await table.fetchGeoData("./some-data.geojson", { toWGS84: true })
      * ```
      *
      * @param file - The URL or path to the external file containing the geospatial data.
@@ -2937,14 +2937,14 @@ export default class SimpleWebTable extends Simple {
      *
      * @category Geospatial
      */
-    async loadGeoData(file: string, options: { toWGS84?: boolean } = {}) {
+    async fetchGeoData(file: string, options: { toWGS84?: boolean } = {}) {
         await queryDB(
             this,
             `INSTALL spatial; LOAD spatial;${file.toLowerCase().includes("http") ? " INSTALL https; LOAD https;" : ""}
             CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM ST_Read('${file}');`,
             mergeOptions(this, {
                 table: this.name,
-                method: "loadGeoData()",
+                method: "fetchGeoData()",
                 parameters: { file },
             })
         )
