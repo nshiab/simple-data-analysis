@@ -112,6 +112,7 @@ export default class SimpleWebTable extends Simple {
         super(runQueryWeb, options)
         this.name = name
         this.sdb = simpleWebDB
+        this.db = simpleWebDB.db
         this.connection = this.sdb.connection
     }
 

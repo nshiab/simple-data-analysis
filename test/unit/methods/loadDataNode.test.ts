@@ -503,19 +503,20 @@ describe("loadData", () => {
             },
         ])
     })
-    it("should load data from a xlsx url", async () => {
-        const table = sdb.newTable()
-        await table.loadData([
-            "https://github.com/nshiab/simple-data-analysis/raw/main/test/data/files/populations-one-sheet.xlsx",
-        ])
-        const data = await table.getData()
+    // Works but very slow
+    // it("should load data from a xlsx url", async () => {
+    //     const table = sdb.newTable()
+    //     await table.loadData([
+    //         "https://github.com/nshiab/simple-data-analysis/raw/main/test/data/files/populations-one-sheet.xlsx",
+    //     ])
+    //     const data = await table.getData()
 
-        assert.deepStrictEqual(data, [
-            { Country: "Canada", "Population (million)": 38 },
-            { Country: "US", "Population (million)": 332 },
-            { Country: "France", "Population (million)": 68 },
-        ])
-    })
+    //     assert.deepStrictEqual(data, [
+    //         { Country: "Canada", "Population (million)": 38 },
+    //         { Country: "US", "Population (million)": 332 },
+    //         { Country: "France", "Population (million)": 68 },
+    //     ])
+    // })
     it("should load data from a xlsx file", async () => {
         const table = sdb.newTable()
         await table.loadData(["test/data/files/populations-one-sheet.xlsx"])

@@ -28,6 +28,7 @@ export default async function queryDB(
         simple.sdb.connection === undefined
     ) {
         await simple.sdb.start()
+        simple.db = simple.sdb.db
         simple.connection = simple.sdb.connection
     }
     if (simple.connection === undefined) {
