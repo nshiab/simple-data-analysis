@@ -38,6 +38,7 @@ export default async function summarize(
                   | "var"
               )[]
         decimals?: number
+        toMs?: boolean
     } = {}
 ) {
     const outputTable =
@@ -58,6 +59,18 @@ export default async function summarize(
     const types = await simpleWebTable.getTypes()
     if (options.values.length === 0) {
         options.values = Object.keys(types)
+    }
+    if (options.toMs) {
+        const toMsObj: {
+            [key: string]: "bigint"
+        } = {}
+        for (const key of Object.keys(types)) {
+            if (types[key].includes("TIME") || types[key].includes("DATE")) {
+                toMsObj[key] = "bigint"
+                types[key] = "BIGINT"
+            }
+        }
+        await simpleWebTable.convert(toMsObj)
     }
 
     options.values = options.values.filter(

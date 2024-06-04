@@ -337,4 +337,124 @@ describe("convert", () => {
 
         assert.deepStrictEqual(data, [{ key1: 0 }, { key1: 1 }])
     })
+    it("should convert dates and times to numbers (ms)", async () => {
+        const table = sdb.newTable("data")
+        await table.loadData("test/data/files/dataDates.csv")
+
+        await table.convert({
+            time: "time",
+            timeMs: "time",
+        })
+
+        await table.convert({
+            date: "number",
+            datetime: "number",
+            datetimeWithMs: "number",
+            time: "number",
+            timeMs: "number",
+        })
+        await table.selectColumns([
+            "date",
+            "datetime",
+            "datetimeWithMs",
+            "time",
+            "timeMs",
+        ])
+
+        const data = await table.getData()
+        assert.deepStrictEqual(data, [
+            {
+                date: 1262304000000,
+                datetime: 1262354472000,
+                datetimeWithMs: 1262355132014,
+                time: 51132000,
+                timeMs: 51132014,
+            },
+            {
+                date: 1262390400000,
+                datetime: 1262394774000,
+                datetimeWithMs: 1262394774955,
+                time: 4374000,
+                timeMs: 4374955,
+            },
+            {
+                date: 1262476800000,
+                datetime: 1262485501000,
+                datetimeWithMs: 1262485501111,
+                time: 8701000,
+                timeMs: 8701111,
+            },
+            {
+                date: 1262563200000,
+                datetime: 1262647515000,
+                datetimeWithMs: 1262606475123,
+                time: 43275000,
+                timeMs: 43275123,
+            },
+        ])
+    })
+    it("should convert numbers (ms) to dates and time", async () => {
+        const table = sdb.newTable("data")
+        await table.loadData("test/data/files/dataDates.csv")
+
+        await table.convert({
+            time: "time",
+            timeMs: "time",
+        })
+        await table.convert({
+            date: "number",
+            datetime: "number",
+            datetimeWithMs: "number",
+            time: "number",
+            timeMs: "number",
+        })
+        await table.convert({
+            date: "date",
+            datetime: "datetime",
+            datetimeWithMs: "datetime",
+            time: "time",
+            timeMs: "time",
+        })
+
+        await table.selectColumns([
+            "date",
+            "datetime",
+            "datetimeWithMs",
+            "time",
+            "timeMs",
+        ])
+
+        const data = await table.getData()
+
+        assert.deepStrictEqual(data, [
+            {
+                date: new Date("2010-01-01T00:00:00.000Z"),
+                datetime: new Date("2010-01-01T14:01:12.000Z"),
+                datetimeWithMs: new Date("2010-01-01T14:12:12.014Z"),
+                time: "14:12:12",
+                timeMs: "14:12:12.014",
+            },
+            {
+                date: new Date("2010-01-02T00:00:00.000Z"),
+                datetime: new Date("2010-01-02T01:12:54.000Z"),
+                datetimeWithMs: new Date("2010-01-02T01:12:54.955Z"),
+                time: "01:12:54",
+                timeMs: "01:12:54.955",
+            },
+            {
+                date: new Date("2010-01-03T00:00:00.000Z"),
+                datetime: new Date("2010-01-03T02:25:01.000Z"),
+                datetimeWithMs: new Date("2010-01-03T02:25:01.111Z"),
+                time: "02:25:01",
+                timeMs: "02:25:01.111",
+            },
+            {
+                date: new Date("2010-01-04T00:00:00.000Z"),
+                datetime: new Date("2010-01-04T23:25:15.000Z"),
+                datetimeWithMs: new Date("2010-01-04T12:01:15.123Z"),
+                time: "12:01:15",
+                timeMs: "12:01:15.123",
+            },
+        ])
+    })
 })

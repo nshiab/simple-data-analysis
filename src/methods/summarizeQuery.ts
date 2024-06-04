@@ -21,9 +21,29 @@ export default function summarizeQuery(
     )[],
     options: { decimals?: number } = {}
 ) {
+    const typesOfValues = values.map((d) => types[d])
+
+    const doubleAndDate =
+        Object.values(typesOfValues).includes("DOUBLE") &&
+        Object.values(typesOfValues).filter((d) =>
+            [
+                "DATE",
+                "TIME",
+                "TIMESTAMP",
+                "TIMESTAMP_MS",
+                "TIMESTAMP WITH TIME ZONE",
+            ].includes(d)
+        ).length >= 1
+
+    if (doubleAndDate) {
+        throw new Error(
+            "You are trying to summarize numbers and timestamps/dates/times. You can specify values in the options (just numbers or just timestamps/dates/times) or convert your timestamps/dates/times to the number of ms since 1970-01-01 00:00:00 by passing the option { toMs: true }."
+        )
+    }
+
     const aggregates: { [key: string]: string } = {
         count: "count", // specific implementation
-        countUnique: "COUNT(DISTINCT",
+        countUnique: "COUNT(DISTINCT ",
         countNull: "countNull", // Specific implementation
         min: "MIN(",
         max: "MAX(",
@@ -67,8 +87,7 @@ export default function summarizeQuery(
         },${summaries.map((summary) => {
             if (types[value] === "GEOMETRY") {
                 return `\nNULL AS '${summary}'`
-            }
-            if (
+            } else if (
                 types[value] === "VARCHAR" &&
                 [
                     "MIN(",
@@ -108,8 +127,8 @@ export default function summarizeQuery(
                         "TIMESTAMP",
                         "TIMESTAMP WITH TIME ZONE",
                     ].includes(types[value])
-                    ? `\nROUND(${aggregates[summary]} ${value}), ${options.decimals}) AS '${summary}'`
-                    : `\n${aggregates[summary]} ${value}) AS '${summary}'`
+                    ? `\nROUND(${aggregates[summary]}${value}), ${options.decimals}) AS '${summary}'`
+                    : `\n${aggregates[summary]}${value}) AS '${summary}'`
             }
         })}\nFROM ${table}`
         if (categories.length > 0) {

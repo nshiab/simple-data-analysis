@@ -182,6 +182,7 @@ export default class SimpleTable extends SimpleWebTable {
                   )[]
             decimals?: number
             outputTable?: string | boolean
+            toMs?: boolean
         } = {}
     ) {
         if (options.outputTable === true) {

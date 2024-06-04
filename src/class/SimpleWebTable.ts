@@ -936,7 +936,11 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
-     * Converts data types (JavaScript or SQL types) of specified columns. The date format specifiers can be found [here](https://duckdb.org/docs/sql/functions/dateformat).
+     * Converts data types (JavaScript or SQL types) of specified columns.
+     *
+     * If you convert timestamps, dates, or times to strings, you need to pass [format specifiers](https://duckdb.org/docs/sql/functions/dateformat) as datetimeFormat option. Same to convert strings to timestamps, dates or times.
+     *
+     * If you convert timestamps, dates, or times to numbers, the result will be the number of milliseconds since 1970-01-01 00:00:00. If you convert numbers to timestamps, dates, or times, the same logic applies.
      *
      * @example Basic usage with JavaScript types
      * ```ts
@@ -1924,12 +1928,19 @@ export default class SimpleWebTable extends Simple {
      * await tableA.summarize({ values: "column1", categories: "column2", summaries: "mean", decimals: 4 })
      * ```
      *
+     * @example Converting timestamps, dates, or times, to milliseconds.
+     * ```ts
+     * // You can't summarize numbers and dates at the same time because your values must be of the same type (strings don't count). The option toMs converts timestamps, dates, and times to numbers (milliseconds).
+     * await tableA.summarize({ values: ["column1", "column2"], toMs: true })
+     * ```
+     *
      * @param options - An optional object with configuration options:
      *   @param options.values - The column or columns whose values will be summarized. This can be a single column name or an array of column names.
      *   @param options.categories - The column or columns that define categories for the summarization. This can be a single column name or an array of column names.
      *   @param options.summaries - The summary operations to be performed. This can be a single summary operation or an array of summary operations.
      *   @param options.decimals - The number of decimal places to round the summarized values.
      *   @param options.outputTable - An option to store the results in a new table.
+     *   @param options.toMs - An option to convert timestamps, dates, and times to milliseconds before summarizing.
      *
      * @category Analyzing data
      */
@@ -1964,6 +1975,7 @@ export default class SimpleWebTable extends Simple {
                   )[]
             decimals?: number
             outputTable?: string | boolean
+            toMs?: boolean
         } = {}
     ) {
         if (options.outputTable === true) {

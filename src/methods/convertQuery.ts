@@ -45,11 +45,36 @@ export default function convertQuery(
                 (currentType.includes("DATE") ||
                     currentType.includes("TIME")) &&
                 expectedType === "VARCHAR"
+            const timeToMs =
+                currentType.includes("TIME") &&
+                ["DOUBLE", "BIGINT"].includes(expectedType)
+            const dateToMs =
+                currentType.includes("DATE") &&
+                ["DOUBLE", "BIGINT"].includes(expectedType)
+            const msToTime =
+                ["DOUBLE", "BIGINT"].includes(currentType) &&
+                expectedType === "TIME"
+            const msToDate =
+                ["DOUBLE", "BIGINT"].includes(currentType) &&
+                expectedType.includes("DATE")
+            const msToTimestamp =
+                ["DOUBLE", "BIGINT"].includes(currentType) &&
+                expectedType.includes("TIMESTAMP")
 
             if (datetimeFormatExist && stringToDate) {
                 query += ` strptime(${column}, '${options.datetimeFormat}') AS ${column},`
             } else if (datetimeFormatExist && dateToString) {
                 query += ` strftime(${column}, '${options.datetimeFormat}') AS ${column},`
+            } else if (timeToMs) {
+                query += ` date_part('epoch', ${column}) * 1000 AS ${column},`
+            } else if (dateToMs) {
+                query += ` epoch(${column}) * 1000 AS ${column},`
+            } else if (msToTime) {
+                query += ` TIME '00:00:00' + to_milliseconds(${column}) AS ${column},`
+            } else if (msToDate) {
+                query += ` DATE '1970-01-01' + to_milliseconds(${column}) AS ${column},`
+            } else if (msToTimestamp) {
+                query += ` TIMESTAMP '1970-01-01 00:00:00' + to_milliseconds(${column}) AS ${column},`
             } else {
                 query += ` ${cast}(${columns[indexOf]} AS ${parseType(
                     columnsTypes[indexOf]
@@ -58,6 +83,7 @@ export default function convertQuery(
         }
     }
 
+    query = query.slice(0, query.length - 1)
     query += ` FROM ${table}`
 
     return query
