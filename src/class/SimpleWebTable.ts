@@ -90,7 +90,7 @@ import findGeoColumn from "../helpers/findGeoColumn.js"
  * @example Geospatial data
  * ```ts
  * const boundaries = sdb.newTable()
- * // To load geospatial data, use .fetchGeoData instead of .loadData
+ * // To load geospatial data, use .fetchGeoData instead of .fetchData
  * await boundaries.fetchGeoData("./boundaries.geojson")
  * ```
  *
