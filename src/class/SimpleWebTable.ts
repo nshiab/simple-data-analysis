@@ -58,7 +58,7 @@ import joinGeo from "../methods/joinGeo.js"
 import distanceQuery from "../methods/distanceQuery.js"
 import aggregateGeoQuery from "../methods/aggregateGeoQuery.js"
 import getGeoData from "../methods/getGeoData.js"
-import getProjection from "../methods/getProjection.js"
+import getProjection from "../helpers/getProjection.js"
 import Simple from "./Simple.js"
 import runQueryWeb from "../helpers/runQueryWeb.js"
 import selectRowsQuery from "../methods/selectRowsQuery.js"
@@ -2931,13 +2931,22 @@ export default class SimpleWebTable extends Simple {
      * await table.fetchGeoData("./some-data.geojson", { toWGS84: true })
      * ```
      *
+     * @example Reprojecting to WGS84 with [latitude, longitude] axis order from a specific projection
+     * ```ts
+     * await table.fetchGeoData("./some-data.geojson", { toWGS84: true })
+     * ```
+     *
      * @param file - The URL or path to the external file containing the geospatial data.
      * @param options - An optional object with configuration options:
      *   @param options.toWGS84 - If true, the method will look for the original projection in the file and convert the data to the WGS84 projection with [latitude, longitude] axis order.
+     *   @param options.from - An option to pass the original projection, if the method is not able to find it.
      *
      * @category Geospatial
      */
-    async fetchGeoData(file: string, options: { toWGS84?: boolean } = {}) {
+    async fetchGeoData(
+        file: string,
+        options: { toWGS84?: boolean; from?: string } = {}
+    ) {
         await queryDB(
             this,
             `INSTALL spatial; LOAD spatial;${file.toLowerCase().includes("http") ? " INSTALL https; LOAD https;" : ""}
@@ -2948,11 +2957,19 @@ export default class SimpleWebTable extends Simple {
                 parameters: { file },
             })
         )
-        const projection = await getProjection(this.sdb, file)
-        this.proj4 = projection.proj4
+        try {
+            this.projection = await getProjection(this.sdb, file)
+        } catch (error) {
+            console.warn(error)
+        }
         if (options.toWGS84) {
-            await this.reproject("geom", "WGS84")
-            this.proj4 = "WGS84"
+            await this.reproject("geom", "WGS84", options)
+            this.projection = {
+                name: "WGS 84",
+                code: "EPSG:4326",
+                unit: "degree",
+                proj4: "+proj=latlong +datum=WGS84 +no_defs",
+            }
         }
     }
 
@@ -3116,25 +3133,61 @@ export default class SimpleWebTable extends Simple {
      * @example Basic usage
      * ```ts
      * // To EPSG:3347 (also called NAD83/Statistics Canada Lambert with coordinates in meters)
+     * // By default, the method tries to find out the original projection.
      * await table.reproject("geom", "EPSG:3347")
+     * ```
+     *
+     * @example Specifying the original projection
+     * ```ts
+     * // If the method can't find out the original projection, you must provide one.
+     * await table.reproject("geom", "EPSG:3347", { from: "EPSG:4326" })
      * ```
      *
      * @param column - The name of the column storing the geometries.
      * @param to - The target SRS.
+     * @param options - An optional object with configuration options:
+     *   @param options.from - By default, the method tries to find out the original projection. If the method is not able to, you must provide one with this option.
      *
      * @category Geospatial
      */
-    async reproject(column: string, to: string) {
+    async reproject(
+        column: string,
+        to: string,
+        options: { from?: string } = {}
+    ) {
+        if (
+            typeof this.projection?.proj4 !== "string" &&
+            typeof options.from !== "string"
+        ) {
+            throw new Error(
+                "Method reproject can't determine the original projection. Use the option 'from' to provide one."
+            )
+        }
+
         await queryDB(
             this,
-            `UPDATE ${this.name} SET ${column} = ST_Transform(${column}, '${this.proj4}', '${to}')`,
+            `UPDATE ${this.name} SET ${column} = ST_Transform(${column}, '${options.from ?? this.projection?.proj4}', '${to}')`,
             mergeOptions(this, {
                 table: this.name,
                 method: "reproject()",
                 parameters: { column, to },
             })
         )
-        this.proj4 = to
+        this.projection = ["EPSG:4326", "WGS84", "WGS 84"].includes(
+            to.toUpperCase()
+        )
+            ? {
+                  name: "WGS 84",
+                  code: "EPSG:4326",
+                  unit: "degree",
+                  proj4: "+proj=latlong +datum=WGS84 +no_defs",
+              }
+            : {
+                  name: "",
+                  code: to,
+                  unit: "",
+                  proj4: "",
+              }
     }
 
     /**

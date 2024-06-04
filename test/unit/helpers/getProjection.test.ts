@@ -1,6 +1,6 @@
 import assert from "assert"
 import SimpleDB from "../../../src/class/SimpleDB.js"
-import getProjection from "../../../src/methods/getProjection.js"
+import getProjection from "../../../src/helpers/getProjection.js"
 
 describe("getProjection", () => {
     let sdb: SimpleDB

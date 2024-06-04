@@ -21,7 +21,7 @@ import joinGeo from "../methods/joinGeo.js"
 import cloneQuery from "../methods/cloneQuery.js"
 import shouldFlipBeforeExport from "../helpers/shouldFlipBeforeExport.js"
 import findGeoColumn from "../helpers/findGeoColumn.js"
-import getProjection from "../methods/getProjection.js"
+import getProjection from "../helpers/getProjection.js"
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
@@ -545,11 +545,15 @@ export default class SimpleTable extends SimpleWebTable {
                 parameters: { file },
             })
         )
-        const projection = await getProjection(this.sdb, file)
-        this.proj4 = projection.proj4
+        this.projection = await getProjection(this.sdb, file)
         if (options.toWGS84) {
             await this.reproject("geom", "WGS84")
-            this.proj4 = "WGS84"
+            this.projection = {
+                name: "WGS 84",
+                code: "EPSG:4326",
+                unit: "degree",
+                proj4: "+proj=latlong +datum=WGS84 +no_defs",
+            }
         }
     }
 

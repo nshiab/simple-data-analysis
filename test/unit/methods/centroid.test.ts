@@ -1,15 +1,9 @@
 import assert from "assert"
 import SimpleDB from "../../../src/class/SimpleDB.js"
-import { existsSync, mkdirSync } from "fs"
 
 describe("centroid", () => {
-    const output = "./test/output/"
-
     let sdb: SimpleDB
     before(async function () {
-        if (!existsSync(output)) {
-            mkdirSync(output)
-        }
         sdb = new SimpleDB()
     })
     after(async function () {
