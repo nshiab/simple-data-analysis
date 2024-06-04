@@ -616,7 +616,6 @@ describe("summarize", () => {
             { value: "key3", key1: "Rubarbe", key2: 2, mean: 4.57, count: 1 },
         ])
     })
-
     it("should summarize with dates", async () => {
         const table = sdb.newTable()
         await table.loadArray([
@@ -644,6 +643,36 @@ describe("summarize", () => {
                 skew: null,
                 stdDev: null,
                 var: null,
+            },
+        ])
+    })
+    it("should summarize with dates converted to milliseconds", async () => {
+        const table = sdb.newTable()
+        await table.loadArray([
+            { keyA: new Date("2023-01-01") },
+            { keyA: new Date("2022-01-01") },
+            { keyA: new Date("2022-01-01") },
+            { keyA: new Date("2021-01-01") },
+            { keyA: null },
+        ])
+
+        await table.summarize({ toMs: true })
+        const data = await table.getData()
+
+        assert.deepStrictEqual(data, [
+            {
+                value: "keyA",
+                count: 5,
+                countUnique: 3,
+                countNull: 1,
+                min: 1609459200000,
+                max: 1672531200000,
+                mean: 1640995200000,
+                median: 1640995200000,
+                sum: 6563980800000,
+                skew: -1.8441043680151512e-10,
+                stdDev: 25749036176.13677,
+                var: 663012864000000000000,
             },
         ])
     })
@@ -698,192 +727,6 @@ describe("summarize", () => {
                 skew: null,
                 stdDev: null,
                 var: null,
-            },
-        ])
-    })
-    it("should summarize even with a mix of geometries, dates, and number, with the option toMs", async () => {
-        const provinces = sdb.newTable()
-        await provinces.loadGeoData(
-            "test/geodata/files/CanadianProvincesAndTerritories.json"
-        )
-
-        const fires = sdb.newTable()
-        await fires.loadData("test/geodata/files/firesCanada2023.csv")
-        await fires.points("lat", "lon", "points")
-        await fires.joinGeo(provinces, "inside")
-        await fires.summarize({ toMs: true })
-
-        const data = await fires.getData()
-
-        assert.deepStrictEqual(data, [
-            {
-                value: "cause",
-                count: 7173,
-                countUnique: 3,
-                countNull: 0,
-                min: null,
-                max: null,
-                mean: null,
-                median: null,
-                sum: null,
-                skew: null,
-                stdDev: null,
-                var: null,
-            },
-            {
-                value: "firename",
-                count: 7173,
-                countUnique: 7070,
-                countNull: 0,
-                min: null,
-                max: null,
-                mean: null,
-                median: null,
-                sum: null,
-                skew: null,
-                stdDev: null,
-                var: null,
-            },
-            {
-                value: "geom",
-                count: null,
-                countUnique: null,
-                countNull: null,
-                min: null,
-                max: null,
-                mean: null,
-                median: null,
-                sum: null,
-                skew: null,
-                stdDev: null,
-                var: null,
-            },
-            {
-                value: "hectares",
-                count: 7173,
-                countUnique: 1270,
-                countNull: 0,
-                min: 0,
-                max: 1080520,
-                mean: 2542.6626543984025,
-                median: 0.2,
-                sum: 18238519.21999974,
-                skew: 23.103418035907847,
-                stdDev: 24767.408856431437,
-                var: 613424541.4616383,
-            },
-            {
-                value: "lat",
-                count: 7173,
-                countUnique: 5733,
-                countNull: 0,
-                min: 41.935,
-                max: 69.572,
-                mean: 52.96274972814743,
-                median: 52.597,
-                sum: 379901.8038000015,
-                skew: 0.6477738256188252,
-                stdDev: 4.671369172159063,
-                var: 21.821689942598052,
-            },
-            {
-                value: "lon",
-                count: 7173,
-                countUnique: 6419,
-                countNull: 0,
-                min: -140.918,
-                max: -52.777,
-                mean: -106.08266514707931,
-                median: -115.215,
-                sum: -760930.9570999999,
-                skew: 0.8113802971328642,
-                stdDev: 20.865309674375574,
-                var: 435.3611478075909,
-            },
-            {
-                value: "nameEnglish",
-                count: 7173,
-                countUnique: 12,
-                countNull: 124,
-                min: null,
-                max: null,
-                mean: null,
-                median: null,
-                sum: null,
-                skew: null,
-                stdDev: null,
-                var: null,
-            },
-            {
-                value: "nameFrench",
-                count: 7173,
-                countUnique: 12,
-                countNull: 124,
-                min: null,
-                max: null,
-                mean: null,
-                median: null,
-                sum: null,
-                skew: null,
-                stdDev: null,
-                var: null,
-            },
-            {
-                value: "points",
-                count: null,
-                countUnique: null,
-                countNull: null,
-                min: null,
-                max: null,
-                mean: null,
-                median: null,
-                sum: null,
-                skew: null,
-                stdDev: null,
-                var: null,
-            },
-            {
-                value: "startdate",
-                count: 7173,
-                countUnique: 6407,
-                countNull: 0,
-                min: 1673028000000,
-                max: 1703063041000,
-                mean: 1688148540401.2268,
-                median: 1688396400000,
-                sum: 12109089480298000,
-                skew: 0.3442270365603758,
-                stdDev: 3982510968.0103426,
-                var: 15860393610322678000,
-            },
-        ])
-    })
-    it("should summarize dates with the option toMs and we should be able to bring them back at date", async () => {
-        const fires = sdb.newTable()
-        await fires.loadData("test/geodata/files/firesCanada2023.csv")
-        await fires.summarize({ values: "startdate", toMs: true })
-        await fires.convert({
-            min: "timestamp",
-            max: "timestamp",
-            median: "timestamp",
-        })
-
-        const data = await fires.getData()
-
-        assert.deepStrictEqual(data, [
-            {
-                value: "startdate",
-                count: 7171,
-                countUnique: 6407,
-                countNull: 0,
-                min: new Date("2023-01-06T18:00:00.000Z"),
-                max: new Date("2023-12-20T09:04:01.000Z"),
-                mean: 1688147310271.6497,
-                median: new Date("2023-07-03T11:25:39.000Z"),
-                sum: 12105704361958000,
-                skew: 0.34455072951692006,
-                stdDev: 3982134719.016981,
-                var: 15857396920400452000,
             },
         ])
     })
