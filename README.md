@@ -1,6 +1,8 @@
 # Simple data analysis (SDA) in JavaScript
 
-This repository is maintained by [Nael Shiab](http://naelshiab.com/), computational journalist and senior data producer for [CBC News](https://www.cbc.ca/news).
+SDA is an easy-to-use and high-performance JavaScript library for data analysis. You can use it with tabular and geospatial data.
+
+The library is maintained by [Nael Shiab](http://naelshiab.com/), computational journalist and senior data producer for [CBC News](https://www.cbc.ca/news).
 
 To install with NPM:
 
@@ -86,7 +88,9 @@ Note that DuckDB, which powers SDA, can also be used with [Python](https://duckd
 
 ## SDA in an Observable notebook
 
-Observable notebooks are great for data analysis in JavaScript. This [example](https://observablehq.com/@nshiab/hello-simple-data-analysis) shows you how to use simple-data-analysis in one of them.
+Observable notebooks are great for data analysis in JavaScript. This [example](https://observablehq.com/@nshiab/hello-simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript) shows you how to use simple-data-analysis in one of them.
+
+Check this other notebook too if you are interested in the library geospatial capabilities.
 
 ## SDA in an HTML page
 
