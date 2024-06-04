@@ -61,7 +61,6 @@ describe("summarize", () => {
             },
         ])
     })
-
     it("should summarize with 2 decimals all columns in a table and overwrite the table", async () => {
         const table = sdb.newTable()
         await table.loadData("test/data/files/dataSummarize.json")
@@ -647,5 +646,64 @@ describe("summarize", () => {
                 var: null,
             },
         ])
+    })
+    it("should summarize even with geometries", async () => {
+        const provinces = sdb.newTable()
+        await provinces.loadGeoData(
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
+        )
+
+        await provinces.logTable()
+
+        const fires = sdb.newTable()
+        await fires.loadData("test/geodata/files/firesCanada2023.csv")
+        await fires.points("lat", "lon", "points")
+        await fires.joinGeo(provinces, "inside")
+        await fires.summarize()
+
+        // assert.deepStrictEqual(data, [
+        //     {
+        //         value: "key1",
+        //         count: 6,
+        //         countUnique: 3,
+        //         countNull: 0,
+        //         min: null,
+        //         max: null,
+        //         mean: null,
+        //         median: null,
+        //         sum: null,
+        //         skew: null,
+        //         stdDev: null,
+        //         var: null,
+        //     },
+        //     {
+        //         value: "key2",
+        //         count: 6,
+        //         countUnique: 4,
+        //         countNull: 2,
+        //         min: 1,
+        //         max: 22,
+        //         mean: 9,
+        //         median: 6.5,
+        //         sum: 36,
+        //         skew: 0.9668861556278396,
+        //         stdDev: 9.763879010584539,
+        //         var: 95.33333333333333,
+        //     },
+        //     {
+        //         value: "key3",
+        //         count: 6,
+        //         countUnique: 4,
+        //         countNull: 2,
+        //         min: 2.345,
+        //         max: 12.3434,
+        //         mean: 7.438525,
+        //         median: 7.53285,
+        //         sum: 29.7541,
+        //         skew: -0.057065942564767755,
+        //         stdDev: 4.747895967250477,
+        //         var: 22.542516115833337,
+        //     },
+        // ])
     })
 })
