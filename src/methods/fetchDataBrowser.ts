@@ -29,6 +29,12 @@ export default async function fetchDataBrowser(
         start = Date.now()
     }
 
+    if (simpleWebTable.db === undefined) {
+        await simpleWebTable.sdb.start()
+        simpleWebTable.db = simpleWebTable.sdb.db
+        simpleWebTable.connection = simpleWebTable.sdb.connection
+    }
+
     if (await simpleWebTable.sdb.hasTable(table)) {
         await simpleWebTable.sdb.customQuery(`DROP TABLE ${table};`)
     }
