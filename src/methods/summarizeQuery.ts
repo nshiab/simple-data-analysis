@@ -65,6 +65,9 @@ export default function summarizeQuery(
                 ? `, ${categories.map((d) => `${d}`).join(", ")}`
                 : ""
         },${summaries.map((summary) => {
+            if (types[value] === "GEOMETRY") {
+                return `\nNULL AS '${summary}'`
+            }
             if (
                 types[value] === "VARCHAR" &&
                 [
