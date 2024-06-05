@@ -2969,11 +2969,9 @@ export default class SimpleWebTable extends Simple {
                 parameters: { file },
             })
         )
-        try {
-            this.projection = await getProjection(this.sdb, file)
-        } catch (error) {
-            // Nothing for now
-        }
+
+        this.projection = await getProjection(this.sdb, file).catch(() => null)
+
         if (options.toWGS84) {
             await this.reproject("geom", "WGS84", options)
             this.projection = {
