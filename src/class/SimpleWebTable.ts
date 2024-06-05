@@ -3790,6 +3790,43 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
+     * Get the bounding box of geometries in [minX, minY, maxX, maxY] order. By default, the method will try find the column with the geometries, but can also specify one.
+     *
+     * @example Basic usage
+     * ```ts
+     * const bbox = await table.getBoundingBox()
+     * ```
+     *
+     * @example Specific column storing geometries
+     * ```ts
+     * const bbox = await table.getBoundingBox("geometries")
+     * ```
+     *
+     * @param column - The name of a column storing geometries.
+     *
+     * @category Geospatial
+     */
+    async getBoundingBox(column?: string) {
+        const col = column ?? (await findGeoColumn(this))
+        const result = (await queryDB(
+            this,
+            `SELECT
+                MIN(ST_XMin(${col})) AS minX,
+                MIN(ST_YMin(${col})) AS minY,
+                MAX(ST_XMax(${col})) AS maxX,
+                MAX(ST_YMax(${col})) AS maxY,
+            from ${this.name};`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "getBoundingBox()",
+                parameters: { column },
+                returnDataFrom: "query",
+            })
+        )) as { minX: number; minY: number; maxX: number; maxY: number }[]
+        return [result[0].minX, result[0].minY, result[0].maxX, result[0].maxY]
+    }
+
+    /**
      * Returns the data as a geojson. If the table has more than one column storing geometries, you must specify which column should be used. If the projection is WGS84 or ESPG:4326 ([latitude, longitude] axis order), the coordinates will be flipped to follow the RFC7946 standard ([longitude, latitude] axis order).
      *
      * @example Basic usage
