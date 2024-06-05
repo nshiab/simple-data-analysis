@@ -60,6 +60,7 @@ export default class SimpleWebDB extends Simple {
             this.connection = await this.db.connect()
             this.worker = duckDB.worker
         }
+        return this
     }
 
     /** Creates a table in the DB.

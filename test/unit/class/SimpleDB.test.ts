@@ -16,6 +16,10 @@ describe("SimpleDB", () => {
         await sdb.start()
         assert.deepStrictEqual(sdb.db instanceof Database, true)
     })
+    it("should start and return an instance of SimpleDB", async () => {
+        const returned = await sdb.start()
+        assert.deepStrictEqual(returned instanceof SimpleDB, true)
+    })
     it("should start and instantiate a connection", async () => {
         await sdb.start()
         assert.deepStrictEqual(sdb.connection instanceof Connection, true)

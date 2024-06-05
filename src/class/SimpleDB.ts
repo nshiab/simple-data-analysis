@@ -59,6 +59,7 @@ export default class SimpleDB extends SimpleWebDB {
             this.db = new Database(":memory:")
             this.connection = this.db.connect()
         }
+        return this
     }
 
     /** Creates a table in the DB.
