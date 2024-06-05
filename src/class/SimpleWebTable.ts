@@ -58,7 +58,6 @@ import joinGeo from "../methods/joinGeo.js"
 import distanceQuery from "../methods/distanceQuery.js"
 import aggregateGeoQuery from "../methods/aggregateGeoQuery.js"
 import getGeoData from "../methods/getGeoData.js"
-import getProjection from "../helpers/getProjection.js"
 import Simple from "./Simple.js"
 import runQueryWeb from "../helpers/runQueryWeb.js"
 import selectRowsQuery from "../methods/selectRowsQuery.js"
@@ -67,6 +66,8 @@ import join from "../methods/join.js"
 import cloneQuery from "../methods/cloneQuery.js"
 import toCamelCase from "../helpers/toCamelCase.js"
 import findGeoColumn from "../helpers/findGeoColumn.js"
+// Not working for now
+// import getProjection from "../helpers/getProjection.js"
 
 /**
  * SimpleWebTable is a class representing a table in a SimpleWebDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleWebDB first.
@@ -2970,7 +2971,8 @@ export default class SimpleWebTable extends Simple {
             })
         )
 
-        this.projection = await getProjection(this.sdb, file).catch(() => null)
+        // Not working for now.
+        // this.projection = await getProjection(this.sdb, file)
 
         if (options.toWGS84) {
             await this.reproject("geom", "WGS84", options)
