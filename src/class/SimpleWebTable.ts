@@ -2945,7 +2945,7 @@ export default class SimpleWebTable extends Simple {
      *
      * @example Reprojecting to WGS84 with [latitude, longitude] axis order from a specific projection
      * ```ts
-     * await table.fetchGeoData("./some-data.geojson", { toWGS84: true })
+     * await table.fetchGeoData("./some-data.geojson", { toWGS84: true, from: "EPSG:3347" })
      * ```
      *
      * @param file - The URL or path to the external file containing the geospatial data.
@@ -2972,9 +2972,7 @@ export default class SimpleWebTable extends Simple {
         try {
             this.projection = await getProjection(this.sdb, file)
         } catch (error) {
-            console.warn(
-                "fetchGeoData couldn't determine the projection of the geospatial data."
-            )
+            // Nothing for now
         }
         if (options.toWGS84) {
             await this.reproject("geom", "WGS84", options)
@@ -3827,7 +3825,7 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
-     * Returns the data as a geojson. If the table has more than one column storing geometries, you must specify which column should be used. If the projection is WGS84 or ESPG:4326 ([latitude, longitude] axis order), the coordinates will be flipped to follow the RFC7946 standard ([longitude, latitude] axis order).
+     * Returns the data as a geojson. If the table has more than one column storing geometries, you must specify which column should be used. If the projection is WGS84 or EPSG:4326 ([latitude, longitude] axis order), the coordinates will be flipped to follow the RFC7946 standard ([longitude, latitude] axis order).
      *
      * @example Basic usage
      * ```ts

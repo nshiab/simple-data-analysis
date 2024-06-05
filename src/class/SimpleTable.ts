@@ -618,7 +618,7 @@ export default class SimpleTable extends SimpleWebTable {
     }
 
     /**
-     * Writes geospatial data to a file. For .geojson files, if the projection is WGS84 or ESPG:4326 ([latitude, longitude] axis order), the coordinates will be flipped to follow the RFC7946 standard ([longitude, latitude] axis order).
+     * Writes geospatial data to a file. For .geojson files, if the projection is WGS84 or EPSG:4326 ([latitude, longitude] axis order), the coordinates will be flipped to follow the RFC7946 standard ([longitude, latitude] axis order).
      *
      * @example Basic usage
      * ```ts

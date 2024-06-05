@@ -17,7 +17,7 @@ If you want to solve the problem yourself, explain what you have in mind and how
 
 ## Do your magic
 
-Clone or fork the repository, create a new branch, and have fun!
+Clone or fork the repository, create a new branch from your issue if relevant, and have fun!
 
 The suggested workflow is to create tests in `test/unit/` with the expected outputs and to add or modify classes and methods in `src/`.
 
@@ -59,9 +59,7 @@ It's now time to share your wonderful work!
 
 First, you need to make sure that your code is up-to-date. Some changes could have been pushed to the main branch while you worked on your things.
 
-Pull the main branch latest version and merge it to your branch. If you have conflicts, adapt your code to fix them.
-
-Don't forget to commit and push your changes.
+Pull the main branch latest version and merge it to your work. If you have conflicts, adapt your code to fix them.
 
 And, now create a pull request! Explain what you did in your code and what issue you solved.
 
