@@ -3039,6 +3039,30 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
+     * Attempts to make an invalid geometry valid without removing any vertices.
+     *
+     * @example Basic usage
+     * ```ts
+     * await table.fixGeo("geom")
+     * ```
+     *
+     * @param colum - The name of the column storing the geometries.
+     *
+     * @category Geospatial
+     */
+    async fixGeo(column: string) {
+        await queryDB(
+            this,
+            `UPDATE ${this.name} SET ${column} = ST_MakeValid(${column})`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "fixGeo()",
+                parameters: { column },
+            })
+        )
+    }
+
+    /**
      * Adds a column with TRUE if the geometry is closed and FALSE if it's open.
      *
      * @example Basic usage
