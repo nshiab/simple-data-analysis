@@ -3066,7 +3066,7 @@ export default class SimpleWebTable extends Simple {
      * await table.fixGeo("geom")
      * ```
      *
-     * @param colum - The name of the column storing the geometries.
+     * @param column - The name of the column storing the geometries.
      *
      * @category Geospatial
      */
