@@ -11,10 +11,19 @@
         "simple-data-analysis",
         "data",
         "analysis",
+        "data-analysis",
+        "geo",
+        "geospatial",
+        "spatial",
+        "node",
         "nodejs",
+        "bun",
+        "bun.js",
+        "browser",
         "typescript",
         "javascript",
-        "duckdb"
+        "duckdb",
+        "sql"
     ],
     "license": "MIT",
     "author": {
