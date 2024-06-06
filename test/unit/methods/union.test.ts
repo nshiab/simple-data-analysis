@@ -21,7 +21,7 @@ describe("union", () => {
         await poly.crossJoin(circle)
         await poly.union("geom", "geom_1", "result")
         await poly.selectColumns("result")
-        await poly.reducePrecision("result", 2)
+        await poly.reducePrecision(2)
 
         const data = await poly.getGeoData()
 

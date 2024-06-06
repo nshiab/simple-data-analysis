@@ -21,13 +21,13 @@ describe("intersection", () => {
         const poly = sdb.newTable("poly")
         await poly.loadGeoData("test/geodata/files/polygons.geojson")
         await poly.flipCoordinates("geom")
-        await poly.area("geom", "polArea")
+        await poly.area("polArea")
         await poly.round("polArea")
         await poly.renameColumns({ geom: "pol" })
 
         const joined = await prov.crossJoin(poly, { outputTable: "joined" })
         await joined.intersection("pol", "prov", "intersec")
-        await joined.area("intersec", "intersecArea")
+        await joined.area("intersecArea", { column: "intersec" })
         await joined.round("intersecArea")
         await joined.addColumn(
             "intersecPerc",
