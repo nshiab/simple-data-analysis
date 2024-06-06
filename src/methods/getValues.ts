@@ -26,10 +26,8 @@ export default async function getValues(
         console.log(
             "values:",
             values.length > 5
-                ? JSON.stringify(values.slice(0, 5)).replace(
-                      "]",
-                      "...] (showing first 5 values)"
-                  )
+                ? JSON.stringify(values.slice(0, 5)) +
+                      " (showing first 5 values)"
                 : values
         )
 
