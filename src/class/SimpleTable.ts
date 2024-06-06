@@ -278,13 +278,18 @@ export default class SimpleTable extends SimpleWebTable {
         }
     }
     async aggregateGeo(
-        column: string,
         method: "union" | "intersection",
         options: {
+            column?: string
             categories?: string | string[]
             outputTable?: string | boolean
         } = {}
     ) {
+        const column =
+            typeof options.column === "string"
+                ? options.column
+                : await findGeoColumn(this)
+
         if (options.outputTable === true) {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
@@ -548,7 +553,7 @@ export default class SimpleTable extends SimpleWebTable {
         )
         this.projection = await getProjection(this.sdb, file)
         if (options.toWGS84) {
-            await this.reproject("geom", "WGS84")
+            await this.reproject("WGS84", { column: "geom" }) // geom is default for column storing geometries
             this.projection = {
                 name: "WGS 84",
                 code: "EPSG:4326",

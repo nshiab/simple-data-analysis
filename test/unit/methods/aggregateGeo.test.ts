@@ -19,7 +19,46 @@ describe("aggregateGeo", () => {
     it("should do an union of all geometries and overwrite the table", async () => {
         const table = sdb.newTable("geodata")
         await table.loadGeoData("test/geodata/files/polygonsGroups.json")
-        await table.aggregateGeo("geom", "union")
+        await table.aggregateGeo("union")
+
+        const data = await table.getGeoData("geom")
+
+        assert.deepStrictEqual(data, {
+            type: "FeatureCollection",
+            features: [
+                {
+                    type: "Feature",
+                    properties: {},
+                    geometry: {
+                        type: "Polygon",
+                        coordinates: [
+                            [
+                                [-64.09300368099305, 47.825124834841631],
+                                [-66.736875473272391, 44.853788962049634],
+                                [-65.253122495609162, 44.318971411012456],
+                                [-66.376323831080256, 38.660069743624263],
+                                [-71.303090219871734, 39.185494219538867],
+                                [-74.018589910420204, 41.676093293085508],
+                                [-76.541543038114668, 39.258279387964052],
+                                [-81.909368104075739, 41.783280176925302],
+                                [-80.412353942191345, 43.435441649151073],
+                                [-84.424887247393613, 44.568200476215395],
+                                [-82.838935674453282, 50.62640104969924],
+                                [-77.463304504859636, 48.962716321923438],
+                                [-77.569639609504264, 49.489760398201213],
+                                [-72.876925668627152, 52.492872979444854],
+                                [-64.09300368099305, 47.825124834841631],
+                            ],
+                        ],
+                    },
+                },
+            ],
+        })
+    })
+    it("should do an union of all geometries from a specific column and overwrite the table", async () => {
+        const table = sdb.newTable("geodata")
+        await table.loadGeoData("test/geodata/files/polygonsGroups.json")
+        await table.aggregateGeo("union", { column: "geom" })
 
         const data = await table.getGeoData("geom")
 
@@ -58,7 +97,7 @@ describe("aggregateGeo", () => {
     it("should do an union of all geometries and return the results in a new table", async () => {
         const table = sdb.newTable("geodata")
         await table.loadGeoData("test/geodata/files/polygonsGroups.json")
-        const newTable = await table.aggregateGeo("geom", "union", {
+        const newTable = await table.aggregateGeo("union", {
             outputTable: true,
         })
 
@@ -99,7 +138,7 @@ describe("aggregateGeo", () => {
     it("should do an union of all geometries and return the results in a new table with a specific name in the DB", async () => {
         const table = sdb.newTable("geodata")
         await table.loadGeoData("test/geodata/files/polygonsGroups.json")
-        const newTable = await table.aggregateGeo("geom", "union", {
+        const newTable = await table.aggregateGeo("union", {
             outputTable: "specificTable",
         })
 
@@ -140,7 +179,7 @@ describe("aggregateGeo", () => {
     it("should do an union of geometries based on categories", async () => {
         const table = sdb.newTable("geoCategories")
         await table.loadGeoData("test/geodata/files/polygonsGroups.json")
-        await table.aggregateGeo("geom", "union", {
+        await table.aggregateGeo("union", {
             categories: "groups",
         })
         const data = await table.getGeoData("geom")
@@ -197,7 +236,7 @@ describe("aggregateGeo", () => {
     it("should do an union of geometries based on categories and return the results in a new table", async () => {
         const table = sdb.newTable("geoCategoriesAndNewTable")
         await table.loadGeoData("test/geodata/files/polygonsGroups.json")
-        const newTable = await table.aggregateGeo("geom", "union", {
+        const newTable = await table.aggregateGeo("union", {
             categories: "groups",
             outputTable: true,
         })
@@ -256,7 +295,7 @@ describe("aggregateGeo", () => {
     it("should do an intersection of geometries based on categories and return the results in a new table", async () => {
         const table = sdb.newTable("geoCategoriesAndNewTableIntersection")
         await table.loadGeoData("test/geodata/files/polygonsGroups.json")
-        const newTable = await table.aggregateGeo("geom", "intersection", {
+        const newTable = await table.aggregateGeo("intersection", {
             categories: "groups",
             outputTable: true,
         })
@@ -304,7 +343,7 @@ describe("aggregateGeo", () => {
     it("should do an intersection of geometries based on categories and return the results in a new table with a specific name in the DB", async () => {
         const table = sdb.newTable("geoCategoriesAndNewTableIntersection")
         await table.loadGeoData("test/geodata/files/polygonsGroups.json")
-        const newTable = await table.aggregateGeo("geom", "intersection", {
+        const newTable = await table.aggregateGeo("intersection", {
             categories: "groups",
             outputTable: "specificTable",
         })

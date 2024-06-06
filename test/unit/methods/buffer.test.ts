@@ -19,7 +19,65 @@ describe("buffer", () => {
     it("should create a buffer from points", async () => {
         const table = sdb.newTable("geodata")
         await table.loadGeoData("test/geodata/files/point.json")
-        await table.buffer("geom", "buffer", 1)
+        await table.buffer("buffer", 1)
+        await table.selectColumns("buffer")
+
+        const data = await table.getGeoData("buffer")
+
+        assert.deepStrictEqual(data, {
+            type: "FeatureCollection",
+            features: [
+                {
+                    type: "Feature",
+                    properties: {},
+                    geometry: {
+                        type: "Polygon",
+                        coordinates: [
+                            [
+                                [-72.623151062453886, 45.514127913164089],
+                                [-72.642365782050661, 45.319037591147961],
+                                [-72.699271529942592, 45.131444480798997],
+                                [-72.791681450151344, 44.958557680144487],
+                                [-72.916044281267332, 44.807021131977542],
+                                [-73.067580829434277, 44.68265830086154],
+                                [-73.240467630088801, 44.590248380652802],
+                                [-73.428060740437758, 44.533342632760856],
+                                [-73.623151062453886, 44.514127913164089],
+                                [-73.818241384470014, 44.533342632760856],
+                                [-74.00583449481897, 44.590248380652802],
+                                [-74.178721295473494, 44.68265830086154],
+                                [-74.330257843640439, 44.807021131977542],
+                                [-74.454620674756427, 44.958557680144487],
+                                [-74.547030594965179, 45.131444480798997],
+                                [-74.603936342857111, 45.319037591147961],
+                                [-74.623151062453886, 45.514127913164089],
+                                [-74.603936342857111, 45.709218235180217],
+                                [-74.547030594965179, 45.89681134552918],
+                                [-74.454620674756427, 46.06969814618369],
+                                [-74.330257843640439, 46.221234694350635],
+                                [-74.178721295473494, 46.345597525466637],
+                                [-74.00583449481897, 46.438007445675375],
+                                [-73.818241384470014, 46.494913193567321],
+                                [-73.623151062453886, 46.514127913164089],
+                                [-73.428060740437758, 46.494913193567321],
+                                [-73.240467630088801, 46.438007445675375],
+                                [-73.067580829434277, 46.345597525466637],
+                                [-72.916044281267332, 46.221234694350635],
+                                [-72.791681450151344, 46.06969814618369],
+                                [-72.699271529942592, 45.89681134552918],
+                                [-72.642365782050661, 45.709218235180217],
+                                [-72.623151062453886, 45.514127913164089],
+                            ],
+                        ],
+                    },
+                },
+            ],
+        })
+    })
+    it("should create a buffer from points in a specific column", async () => {
+        const table = sdb.newTable("geodata")
+        await table.loadGeoData("test/geodata/files/point.json")
+        await table.buffer("buffer", 1, { column: "geom" })
         await table.selectColumns("buffer")
 
         const data = await table.getGeoData("buffer")
@@ -77,10 +135,10 @@ describe("buffer", () => {
     it("should create a buffer from polygons", async () => {
         const table = sdb.newTable("geodata")
         await table.loadGeoData("test/geodata/files/canada-not-4326.shp.zip")
-        await table.buffer("geom", "buffer", 100_000)
+        await table.buffer("buffer", 100_000)
         await table.selectColumns("buffer")
-        await table.reproject("buffer", "EPSG:4326")
-        await table.reducePrecision("buffer", 2)
+        await table.reproject("EPSG:4326")
+        await table.reducePrecision(2)
 
         const data = await table.getGeoData("buffer")
 

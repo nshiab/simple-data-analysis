@@ -20,7 +20,7 @@ The documentation is available [here](https://nshiab.github.io/simple-data-analy
 
 Tests are run for NodeJS and Bun. Deno is coming! :)
 
-You might also find the [journalism library](https://github.com/nshiab/journalism) and the [Code Like a Journalist](https://github.com/nshiab/code-like-a-journalist) course interesting.
+You might also find the [journalism library](https://github.com/nshiab/journalism) and [Code Like a Journalist](https://github.com/nshiab/code-like-a-journalist) interesting.
 
 ## Core principles
 
@@ -64,7 +64,7 @@ With _ahccd-samples.csv_:
 -   971,804 rows
 -   19,436,080 data points
 
-**simple-data-analysis@3.0.0** is the fastest.
+**simple-data-analysis@3.0.0** is the fastest, but if we skip writing the CSV file, the **tidyverse** shows impressive speed with small files.
 
 ![A chart showing the processing duration of multiple scripts in various languages](./assets/small-file.png)
 
@@ -78,7 +78,7 @@ With _ahccd.csv_:
 -   22,051,025 rows
 -   441,020,500 data points
 
-**simple-data-analysis@3.0.0** is the fastest here as well.
+Thanks to DuckDB, **simple-data-analysis@3.0.0** really shines with big files. It's the fastest option.
 
 ![A chart showing the processing duration of multiple scripts in various languages](./assets/big-file.png)
 
@@ -164,7 +164,7 @@ You could also use a framework or a bundler. Install the library with npm (`npm 
         // We log the results. By default, the method
         // logs the first 10 rows, but there are 13
         // provinces and territories in Canada.
-        await firesInsideProvinces.logTable({ nbRowsToLog: 13 })
+        await firesInsideProvinces.logTable(13)
 
         // We can also retrieve the data as an array of objects.
         const data = await firesInsideProvinces.getData()
@@ -265,7 +265,7 @@ await firesInsideProvinces.sort({ burntArea: "desc" })
 // We log the results. By default, the method
 // logs the first 10 rows, but there are 13
 // provinces and territories in Canada.
-await firesInsideProvinces.logTable({ nbRowsToLog: 13 })
+await firesInsideProvinces.logTable(13)
 ```
 
 And here's what you should see in your console.

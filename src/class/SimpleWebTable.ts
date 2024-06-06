@@ -2958,7 +2958,7 @@ export default class SimpleWebTable extends Simple {
      */
     async fetchGeoData(
         file: string,
-        options: { toWGS84?: boolean; from?: string } = {}
+        options: { toWGS84?: boolean; from?: string; column?: string } = {}
     ) {
         await queryDB(
             this,
@@ -2975,7 +2975,7 @@ export default class SimpleWebTable extends Simple {
         // this.projection = await getProjection(this.sdb, file)
 
         if (options.toWGS84) {
-            await this.reproject("geom", "WGS84", options)
+            await this.reproject("WGS84", { ...options, column: "geom" }) // column storing geometries is geom by default
             this.projection = {
                 name: "WGS 84",
                 code: "EPSG:4326",
@@ -3017,16 +3017,29 @@ export default class SimpleWebTable extends Simple {
      *
      * @example Basic usage
      * ```ts
-     * // Checks if the geometries in column geom are valid and returns a boolean in column valid.
-     * await table.isValidGeo("geom", "valid")
+     * // Checks if the geometries are valid and returns a boolean in column valid.
+     * // By default, the method will look for the column storing the geometries.
+     * await table.isValidGeo("valid")
      * ```
      *
-     * @param column - The name of the column storing the geometries.
+     * @example Specific column storing geometries
+     * ```ts
+     * // If the table has more than one column storing geometries, you must specify which column should be used.
+     * await table.isValidGeo("valid", { column: "geom" })
+     * ```
+     *
      * @param newColumn - The name of the new column storing the results.
+     * @param options - An optional object with configuration options:
+     *   @param options.column - The column storing geometries.
      *
      * @category Geospatial
      */
-    async isValidGeo(column: string, newColumn: string) {
+    async isValidGeo(newColumn: string, options: { column?: string } = {}) {
+        const column =
+            typeof options.column === "string"
+                ? options.column
+                : await findGeoColumn(this)
+
         await queryDB(
             this,
             `ALTER TABLE ${this.name} ADD COLUMN ${newColumn} BOOLEAN; UPDATE ${this.name} SET ${newColumn} = ST_IsValid(${column})`,
@@ -3043,6 +3056,13 @@ export default class SimpleWebTable extends Simple {
      *
      * @example Basic usage
      * ```ts
+     * // By default, the method will look for the column storing the geometries.
+     * await table.fixGeo()
+     * ```
+     *
+     * @example Specific column storing geometries
+     * ```ts
+     * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.fixGeo("geom")
      * ```
      *
@@ -3050,10 +3070,11 @@ export default class SimpleWebTable extends Simple {
      *
      * @category Geospatial
      */
-    async fixGeo(column: string) {
+    async fixGeo(column?: string) {
+        const col = column ?? (await findGeoColumn(this))
         await queryDB(
             this,
-            `UPDATE ${this.name} SET ${column} = ST_MakeValid(${column})`,
+            `UPDATE ${this.name} SET ${col} = ST_MakeValid(${col})`,
             mergeOptions(this, {
                 table: this.name,
                 method: "fixGeo()",
@@ -3067,16 +3088,29 @@ export default class SimpleWebTable extends Simple {
      *
      * @example Basic usage
      * ```ts
-     * // Checks if the geometries in column geom are closed and returns a boolean in column closed.
-     * await table.isClosedGeo("geom", "closed")
+     * // Checks if the geometries are closed and returns a boolean in column closed.
+     * // By default, the method will look for the column storing the geometries.
+     * await table.isClosedGeo("closed")
      * ```
      *
-     * @param column - The name of the column storing the geometries.
+     * @example Specific column storing geometries
+     * ```ts
+     * // If the table has more than one column storing geometries, you must specify which column should be used.
+     * await table.isClosedGeo("closed", { column: "geom" })
+     * ```
+     *
      * @param newColumn - The name of the new column storing the results.
+     * @param options - An optional object with configuration options:
+     *   @param options.column - The column storing geometries.
      *
      * @category Geospatial
      */
-    async isClosedGeo(column: string, newColumn: string) {
+    async isClosedGeo(newColumn: string, options: { column?: string } = {}) {
+        const column =
+            typeof options.column === "string"
+                ? options.column
+                : await findGeoColumn(this)
+
         await queryDB(
             this,
             `ALTER TABLE ${this.name} ADD COLUMN ${newColumn} BOOLEAN; UPDATE ${this.name} SET ${newColumn} = ST_IsClosed(${column})`,
@@ -3094,15 +3128,27 @@ export default class SimpleWebTable extends Simple {
      * @example Basic usage
      * ```ts
      * // Returns the geometry type in column type.
-     * await table.typeGeo("geom", "type")
+     * // By default, the method will look for the column storing the geometries.
+     * await table.typeGeo("type")
      * ```
      *
-     * @param column - The name of the column storing the geometries.
+     * @example Specific column storing geometries
+     * ```ts
+     * // If the table has more than one column storing geometries, you must specify which column should be used.
+     * await table.typeGeo("type", { column: "geom" })
+     * ```
+     *
      * @param newColumn - The name of the new column storing the results.
+     * @param options - An optional object with configuration options:
+     *   @param options.column - The column storing geometries.
      *
      * @category Geospatial
      */
-    async typeGeo(column: string, newColumn: string) {
+    async typeGeo(newColumn: string, options: { column?: string } = {}) {
+        const column =
+            typeof options.column === "string"
+                ? options.column
+                : await findGeoColumn(this)
         await queryDB(
             this,
             `ALTER TABLE ${this.name} ADD COLUMN ${newColumn} VARCHAR; UPDATE ${this.name} SET ${newColumn} = ST_GeometryType(${column})`,
@@ -3119,17 +3165,20 @@ export default class SimpleWebTable extends Simple {
      *
      * @example Basic usage
      * ```ts
-     * await table.flipCoordinates("geom")
+     * // By default, the method will look for the column storing the geometries.
+     * await table.flipCoordinates()
      * ```
      *
      * @param column - The name of the column storing the geometries.
      *
      * @category Geospatial
      */
-    async flipCoordinates(column: string) {
+    async flipCoordinates(column?: string) {
+        const col = column ?? (await findGeoColumn(this))
+
         await queryDB(
             this,
-            `UPDATE ${this.name} SET ${column} = ST_FlipCoordinates(${column})`,
+            `UPDATE ${this.name} SET ${col} = ST_FlipCoordinates(${col})`,
             mergeOptions(this, {
                 table: this.name,
                 method: "flipCoordinates()",
@@ -3144,14 +3193,28 @@ export default class SimpleWebTable extends Simple {
      * @example Basic usage
      * ```ts
      * // Reduce the precision to 3 decimals.
-     * await table.reducePrecision("geom", 3)
+     * // By default, the method will look for the column storing the geometries.
+     * await table.reducePrecision(3)
      * ```
      *
-     * @param column - The name of the column storing the geometries.
+     * @example Specific column storing geometries
+     * ```ts
+     * // If the table has more than one column storing geometries, you must specify which column should be used.
+     * await table.reducePrecision(3, { column : "geom" })
+     * ```
+     *
+     * @param decimals - The number of decimal places to keep in the coordinates.
+     * @param options - An optional object with configuration options:
+     *   @param options.column - The column storing geometries.
      *
      * @category Geospatial
      */
-    async reducePrecision(column: string, decimals: number) {
+    async reducePrecision(decimals: number, options: { column?: string } = {}) {
+        const column =
+            typeof options.column === "string"
+                ? options.column
+                : await findGeoColumn(this)
+
         await queryDB(
             this,
             `UPDATE ${this.name} SET ${column} = ST_ReducePrecision(${column}, ${1 / Math.pow(10, decimals)})`,
@@ -3169,28 +3232,38 @@ export default class SimpleWebTable extends Simple {
      * @example Basic usage
      * ```ts
      * // To EPSG:3347 (also called NAD83/Statistics Canada Lambert with coordinates in meters)
-     * // By default, the method tries to find out the original projection.
-     * await table.reproject("geom", "EPSG:3347")
+     * // By default, the method tries to find out the original projection and the column storing geometries.
+     * await table.reproject("EPSG:3347")
      * ```
      *
      * @example Specifying the original projection
      * ```ts
      * // If the method can't find out the original projection, you must provide one.
-     * await table.reproject("geom", "EPSG:3347", { from: "EPSG:4326" })
+     * await table.reproject("EPSG:3347", { from: "EPSG:4326" })
      * ```
      *
-     * @param column - The name of the column storing the geometries.
+     * @example Specifying the geometries column
+     * ```ts
+     * // If the table has more than one column storing geometries, you must specify which column should be used.
+     * await table.reproject("EPSG:3347", { column: "geom", from: "EPSG:4326" })
+     * ```
+     *
      * @param to - The target SRS.
      * @param options - An optional object with configuration options:
      *   @param options.from - By default, the method tries to find out the original projection. If the method is not able to, you must provide one with this option.
+     *   @param options.column - The column storing geometries.
      *
      * @category Geospatial
      */
     async reproject(
-        column: string,
         to: string,
-        options: { from?: string } = {}
+        options: { from?: string; column?: string } = {}
     ) {
+        const column =
+            typeof options.column === "string"
+                ? options.column
+                : await findGeoColumn(this)
+
         if (
             typeof this.projection?.proj4 !== "string" &&
             typeof options.from !== "string"
@@ -3231,28 +3304,39 @@ export default class SimpleWebTable extends Simple {
      *
      * @example Basic usage
      * ```ts
-     * // Computes the area of the geometries in the column geom and returns the results in the column area.
-     * await table.area("geom", "area")
+     * // Computes the area of the geometries and returns the results in the column area.
+     * // By default, the method will look for the column storing the geometries.
+     * await table.area("area")
      * ```
      *
      * @example With a different unit
      * ```ts
      * // Same things but in square kilometers.
-     * await table.area("geom", "area", { unit: "km2" })
+     * await table.area("area", { unit: "km2" })
      * ```
      *
-     * @param column - The name of the column storing the geometries.
+     * @example Specific column storing geometries
+     * ```ts
+     * // If the table has more than one column storing geometries, you must specify which column should be used.
+     * await table.area("area", { column: "geom", unit: "km2" })
+     * ```
+     *
      * @param newColumn - The name of the new column storing the computed areas.
      * @param options - An optional object with configuration options:
      *   @param options.unit - The area can be returned as square meters or square kilometers.
+     *   @param options.column - The column storing geometries.
      *
      * @category Geospatial
      */
     async area(
-        column: string,
         newColumn: string,
-        options: { unit?: "m2" | "km2" } = {}
+        options: { unit?: "m2" | "km2"; column?: string } = {}
     ) {
+        const column =
+            typeof options.column === "string"
+                ? options.column
+                : await findGeoColumn(this)
+
         await queryDB(
             this,
             `ALTER TABLE ${this.name} ADD ${newColumn} DOUBLE; UPDATE ${this.name} SET ${newColumn} =  ST_Area_Spheroid(${column}) ${options.unit === "km2" ? "/ 1000000" : ""};`,
@@ -3269,28 +3353,38 @@ export default class SimpleWebTable extends Simple {
      *
      * @example Basic usage
      * ```ts
-     * // Computes the length of the geometries in the column geom and returns the results in the column length.
-     * await table.length("geom", "length")
+     * // Computes the length of the geometries and returns the results in the column length.
+     * // By default, the method will look for the column storing the geometries.
+     * await table.length("length")
      * ```
      *
      * @example With a different unit
      * ```ts
      * // Same things but in kilometers.
-     * await table.length("geom", "length", { unit: "km" })
+     * await table.length("length", { unit: "km" })
      * ```
      *
-     * @param column - The name of the column storing the geometries.
+     * @example Specific column storing geometries
+     * ```ts
+     * // If the table has more than one column storing geometries, you must specify which column should be used.
+     * await table.length("length", { column: "geom", unit: "km" })
+     * ```
+     *
      * @param newColumn - The name of the new column storing the computed lengths.
      * @param options - An optional object with configuration options:
      *   @param options.unit - The length can be returned as meters or kilometers.
-     *
+     *   @param options.column - The column storing geometries.
      * @category Geospatial
      */
     async length(
-        column: string,
         newColumn: string,
-        options: { unit?: "m" | "km" } = {}
+        options: { unit?: "m" | "km"; column?: string } = {}
     ) {
+        const column =
+            typeof options.column === "string"
+                ? options.column
+                : await findGeoColumn(this)
+
         await queryDB(
             this,
             `ALTER TABLE ${this.name} ADD ${newColumn} DOUBLE; UPDATE ${this.name} SET ${newColumn} =  ST_Length_Spheroid(${column}) ${options.unit === "km" ? "/ 1000" : ""};`,
@@ -3307,28 +3401,39 @@ export default class SimpleWebTable extends Simple {
      *
      * @example Basic usage
      * ```ts
-     * // Computes the perimeter of the geometries in the column geom, and returns the results in the column perim.
-     * await table.perimeter("geom", "perim")
+     * // Computes the perimeter of the geometries and returns the results in the column perim.
+     * // By default, the method will look for the column storing the geometries.
+     * await table.perimeter("perim")
      * ```
      *
      * @example With a different unit
      * ```ts
      * // Same things but in kilometers.
-     * await table.perimeter("geom", "perim", { unit: "km" })
+     * await table.perimeter("perim", { unit: "km" })
      * ```
      *
-     * @param column - The name of the column storing the geometries.
+     * @example Specific column storing geometries
+     * ```ts
+     * // If the table has more than one column storing geometries, you must specify which column should be used.
+     * await table.perimeter("perim", { unit: "km" })
+     * ```
+     *
      * @param newColumn - The name of the new column storing the computed perimeters.
      * @param options - An optional object with configuration options:
      *   @param options.unit - The perimeter can be returned as meters or kilometers.
+     *   @param options.column - The column storing geometries.
      *
      * @category Geospatial
      */
     async perimeter(
-        column: string,
         newColumn: string,
-        options: { unit?: "m" | "km" } = {}
+        options: { unit?: "m" | "km"; column?: string } = {}
     ) {
+        const column =
+            typeof options.column === "string"
+                ? options.column
+                : await findGeoColumn(this)
+
         await queryDB(
             this,
             `ALTER TABLE ${this.name} ADD ${newColumn} DOUBLE; UPDATE ${this.name} SET ${newColumn} =  ST_Perimeter_Spheroid(${column}) ${options.unit === "km" ? "/ 1000" : ""};`,
@@ -3345,17 +3450,34 @@ export default class SimpleWebTable extends Simple {
      *
      * @example Basic usage
      * ```ts
-     * // Creates new geomeotries from the geometries in column geom with a buffer of 1 and puts the results in column buffer.
-     * await table.buffer("geom", "buffer", 1)
+     * // Creates new geomeotries from the geometries with a buffer of 1 and puts the results in column buffer.
+     * // By default, the method will look for the column storing the geometries.
+     * await table.buffer("buffer", 1)
      * ```
      *
-     * @param column - The name of the column storing the geometries.
+     * @example Specific column storing geometries
+     * ```ts
+     * // If the table has more than one column storing geometries, you must specify which column should be used.
+     * await table.buffer("buffer", 1, { column: "geom" })
+     * ```
+     *
      * @param newColumn - The name of the new column to store the buffered geometries.
      * @param distance - The distance for the buffer, in SRS unit.
+     * @param options - An optional object with configuration options:
+     *   @param options.column - The column storing geometries.
      *
      * @category Geospatial
      */
-    async buffer(column: string, newColumn: string, distance: number) {
+    async buffer(
+        newColumn: string,
+        distance: number,
+        options: { column?: string } = {}
+    ) {
+        const column =
+            typeof options.column === "string"
+                ? options.column
+                : await findGeoColumn(this)
+
         await queryDB(
             this,
             `ALTER TABLE ${this.name} ADD ${newColumn} GEOMETRY; UPDATE ${this.name} SET ${newColumn} =  ST_Buffer(${column}, ${distance});`,
@@ -3588,20 +3710,33 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
-     * Simplifies the geometries while preserving their topology. The simplification occurs on an object-by-object basis.
+     * Simplifies the geometries while preserving their topology. The simplification occurs on an object-by-object basis. A higher tolerance results in a more significant simplification.
      *
      * @example Basic usage
      * ```ts
      * // Simplifies with a tolerance of 0.1.
-     * await table.simplify("geomA", 0.1)
+     * // By default, the method will look for the column storing the geometries.
+     * await table.simplify(0.1)
      * ```
      *
-     * @param column - The name of the column storing the geometries.
+     * @example Specific column storing geometries
+     * ```ts
+     * // If the table has more than one column storing geometries, you must specify which column should be used.
+     * await table.simplify(0.1, { column: "geom" })
+     * ```
+     *
      * @param tolerance - A number used for the simplification. A higher tolerance results in a more significant simplification.
+     * @param options - An optional object with configuration options:
+     *   @param options.column - The column storing geometries.
      *
      * @category Geospatial
      */
-    async simplify(column: string, tolerance: number) {
+    async simplify(tolerance: number, options: { column?: string } = {}) {
+        const column =
+            typeof options.column === "string"
+                ? options.column
+                : await findGeoColumn(this)
+
         await queryDB(
             this,
             `UPDATE ${this.name} SET ${column} = ST_SimplifyPreserveTopology(${column}, ${tolerance})`,
@@ -3618,16 +3753,28 @@ export default class SimpleWebTable extends Simple {
      *
      * @example Basic usage
      * ```ts
-     * // Computes the centroid of the geometries in the column geom and returns the results in the column centroid.
-     * await table.centroid("geom", "centroid")
+     * // Computes the centroid of the geometries and returns the results in the column centroid.
+     * // By default, the method will look for the column storing the geometries.
+     * await table.centroid("centroid")
      * ```
      *
-     * @param column - The name of the column storing the geometries.
+     * @example Specific column storing geometries
+     * ```ts
+     * // If the table has more than one column storing geometries, you must specify which column should be used.
+     * await table.centroid("centroid", { column: "geom" })
+     * ```
+     *
      * @param newColumn - The name of the new column storing the centroids.
+     * @param options - An optional object with configuration options:
+     *   @param options.column - The column storing geometries.
      *
      * @category Geospatial
      */
-    async centroid(column: string, newColumn: string) {
+    async centroid(newColumn: string, options: { column?: string } = {}) {
+        const column =
+            typeof options.column === "string"
+                ? options.column
+                : await findGeoColumn(this)
         await queryDB(
             this,
             `ALTER TABLE ${this.name} ADD ${newColumn} GEOMETRY; UPDATE ${this.name} SET ${newColumn} =  ST_Centroid(${column});`,
@@ -3701,6 +3848,13 @@ export default class SimpleWebTable extends Simple {
      * @example Basic usage
      * ```ts
      * // Unnests geometries in the column "geom" and returns the same table with unnested items.
+     * // By default, the method will look for the column storing the geometries.
+     * await table.unnestGeo()
+     * ```
+     *
+     * @example Specific column storing geometries
+     * ```ts
+     * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.unnestGeo("geom")
      * ```
      *
@@ -3708,10 +3862,11 @@ export default class SimpleWebTable extends Simple {
      *
      * @category Geospatial
      */
-    async unnestGeo(column: string) {
+    async unnestGeo(column?: string) {
+        const col = column ?? (await findGeoColumn(this))
         await queryDB(
             this,
-            `CREATE OR REPLACE TABLE ${this.name} AS SELECT * EXCLUDE(${column}), UNNEST(ST_Dump(${column}), recursive := TRUE) FROM ${this.name}; ALTER TABLE ${this.name} DROP COLUMN path;`,
+            `CREATE OR REPLACE TABLE ${this.name} AS SELECT * EXCLUDE(${col}), UNNEST(ST_Dump(${col}), recursive := TRUE) FROM ${this.name}; ALTER TABLE ${this.name} DROP COLUMN path;`,
             mergeOptions(this, {
                 table: this.name,
                 method: "unnestGeo()",
@@ -3725,47 +3880,59 @@ export default class SimpleWebTable extends Simple {
      *
      * @example Basic usage
      * ```ts
-     * // Returns the union of all geometries in the column geom.
-     * await table.aggregateGeo("geom", "union")
+     * // Returns the union of all geometries.
+     * // By default, the method will look for the column storing the geometries.
+     * await table.aggregateGeo("union")
      *
      * // Same thing but for intersection.
-     * await table.aggregateGeo("geom", "intersection")
+     * await table.aggregateGeo("intersection")
+     * ```
+     *
+     * @example Specific column storing geometries
+     * ```ts
+     * // If the table has more than one column storing geometries, you must specify which column should be used.
+     * await table.aggregateGeo("union", { column: "geom" })
      * ```
      *
      * @example With categories
      * ```ts
-     * // Returns the union of all geometries in the column geom and uses the values in the column country as categories.
-     * await table.aggregateGeo("geom", "union", { categories: "country" })
+     * // Returns the union of all geometries and uses the values in the column country as categories.
+     * await table.aggregateGeo("union", { categories: "country" })
      * ```
      *
      * @example Returning results in a new table
      * ```ts
      * // Same thing but results a return in tableA
-     * const tableA = await table.aggregateGeo("geom", "union", { categories: "country", outputTable: true })
+     * const tableA = await table.aggregateGeo("union", { categories: "country", outputTable: true })
      * ```
      *
      * @example Returning results in a new table with a specific name in the DB
      * ```ts
      * // Same thing but results a return in tableA
-     * const tableA = await table.aggregateGeo("geom", "union", { categories: "country", outputTable: "tableA" })
+     * const tableA = await table.aggregateGeo("union", { categories: "country", outputTable: "tableA" })
      * ```
      *
-     * @param column - The name of the column storing geometries.
      * @param method - The method to use for the aggregation.
      * @param options - An optional object with configuration options:
+     *   @param options.column - The column storing geometries.
      *   @param options.categories - The column or columns that define categories for the aggragation. This can be a single column name or an array of column names.
      *   @param options.outputTable - An option to store the results in a new table.
      *
      * @category Geospatial
      */
     async aggregateGeo(
-        column: string,
         method: "union" | "intersection",
         options: {
+            column?: string
             categories?: string | string[]
             outputTable?: string | boolean
         } = {}
     ) {
+        const column =
+            typeof options.column === "string"
+                ? options.column
+                : await findGeoColumn(this)
+
         if (options.outputTable === true) {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
@@ -3791,7 +3958,14 @@ export default class SimpleWebTable extends Simple {
      *
      * @example Basic usage
      * ```ts
-     * // Transforms geometries in the column "geom" into polygons.
+     * // Transforms geometries into polygons.
+     * // By default, the method will look for the column storing the geometries.
+     * await table.linesToPolygons()
+     * ```
+     *
+     * @example Specific column storing geometries
+     * ```ts
+     * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.linesToPolygons("geom")
      * ```
      *
@@ -3799,10 +3973,12 @@ export default class SimpleWebTable extends Simple {
      *
      * @category Geospatial
      */
-    async linesToPolygons(column: string) {
+    async linesToPolygons(column?: string) {
+        const col = column ?? (await findGeoColumn(this))
+
         await queryDB(
             this,
-            `CREATE OR REPLACE TABLE ${this.name} AS SELECT * EXCLUDE(${column}), ST_MakePolygon(${column}) as ${column} FROM ${this.name};`,
+            `CREATE OR REPLACE TABLE ${this.name} AS SELECT * EXCLUDE(${col}), ST_MakePolygon(${col}) as ${col} FROM ${this.name};`,
             mergeOptions(this, {
                 table: this.name,
                 method: "linesToPolygons()",
@@ -3889,27 +4065,22 @@ export default class SimpleWebTable extends Simple {
      * @example Specific number of rows
      * ```ts
      * // Logs first 100 rows
-     * await table.logTable({ nbRowsToLog: 100 });
+     * await table.logTable(100);
      * ```
      *
-     * @param options - An optional object with configuration options:
-     *   @param options.nbRowsToLog - The number of rows to log when debugging. Defaults to 10 or the value set in the SimpleWebDB instance.
+     * @param nbRowsToLog - The number of rows to log when debugging. Defaults to 10 or the value set in the SimpleWebDB instance.
      */
-    async logTable(
-        options: {
-            nbRowsToLog?: number
-        } = {}
-    ) {
+    async logTable(nbRowsToLog?: number) {
+        const rows = nbRowsToLog ?? this.nbRowsToLog
         this.debug && console.log("\nlogTable()")
-        options.nbRowsToLog = options.nbRowsToLog ?? this.nbRowsToLog
-        this.debug && console.log("parameters:", { options })
+        this.debug && console.log("parameters:", { nbRowsToLog })
 
         if (this.connection === undefined) {
             console.log(`\ntable ${this.name}: no data`)
         } else {
             console.log(`\ntable ${this.name}:`)
             const data = await this.runQuery(
-                `SELECT * FROM ${this.name} LIMIT ${options.nbRowsToLog}`,
+                `SELECT * FROM ${this.name} LIMIT ${rows}`,
                 this.connection,
                 true,
                 {
@@ -3937,7 +4108,7 @@ export default class SimpleWebTable extends Simple {
             console.log(
                 `${addThousandSeparator(
                     nbRows[0]["count_star()"] as number
-                )} rows in total ${`(nbRowsToLog: ${options.nbRowsToLog})`}`
+                )} rows in total ${`(nbRowsToLog: ${rows})`}`
             )
         }
     }

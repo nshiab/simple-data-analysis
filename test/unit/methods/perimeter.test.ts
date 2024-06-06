@@ -16,7 +16,34 @@ describe("perimeter", () => {
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
         await table.flipCoordinates("geom")
-        await table.perimeter("geom", "perim")
+        await table.perimeter("perim")
+        await table.round("perim")
+        await table.selectColumns(["nameEnglish", "perim"])
+        const data = await table.getData()
+
+        assert.deepStrictEqual(data, [
+            { nameEnglish: "Newfoundland and Labrador", perim: 6924550 },
+            { nameEnglish: "Prince Edward Island", perim: 492387 },
+            { nameEnglish: "Nova Scotia", perim: 1713715 },
+            { nameEnglish: "New Brunswick", perim: 1299566 },
+            { nameEnglish: "Quebec", perim: 10533664 },
+            { nameEnglish: "Ontario", perim: 6782774 },
+            { nameEnglish: "Manitoba", perim: 3751609 },
+            { nameEnglish: "Saskatchewan", perim: 3529235 },
+            { nameEnglish: "Alberta", perim: 3525562 },
+            { nameEnglish: "British Columbia", perim: 7431794 },
+            { nameEnglish: "Yukon", perim: 3743373 },
+            { nameEnglish: "Northwest Territories", perim: 11134550 },
+            { nameEnglish: "Nunavut", perim: 33718590 },
+        ])
+    })
+    it("should calculate the perimeter of geometries from a specific column in meters", async () => {
+        const table = sdb.newTable()
+        await table.loadGeoData(
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
+        )
+        await table.flipCoordinates("geom")
+        await table.perimeter("perim", { column: "geom" })
         await table.round("perim")
         await table.selectColumns(["nameEnglish", "perim"])
         const data = await table.getData()
@@ -45,7 +72,7 @@ describe("perimeter", () => {
         )
         // No need to flip
         // await table.flipCoordinates("geom")
-        await table.perimeter("geom", "perim")
+        await table.perimeter("perim")
         await table.round("perim")
         await table.selectColumns(["nameEnglish", "perim"])
         const data = await table.getData()
@@ -72,7 +99,7 @@ describe("perimeter", () => {
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
         await table.flipCoordinates("geom")
-        await table.perimeter("geom", "perim", { unit: "km" })
+        await table.perimeter("perim", { unit: "km" })
         await table.round("perim")
         await table.selectColumns(["nameEnglish", "perim"])
         const data = await table.getData()
