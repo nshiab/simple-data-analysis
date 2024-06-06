@@ -20,6 +20,8 @@ The documentation is available [here](https://nshiab.github.io/simple-data-analy
 
 Tests are run for NodeJS and Bun. Deno is coming! :)
 
+You might also find the [journalism library](https://github.com/nshiab/journalism) and the [Code Like a Journalist](https://github.com/nshiab/code-like-a-journalist) course interesting.
+
 ## Core principles
 
 SDA is born out of the frustration of switching between Python, R, and JavaScript to produce data journalism projects. Usually, data crunching and analysis are done with Python or R, and interactive data visualizations are coded in JavaScript. However, being proficient in multiple programming languages is hard. Why can't we do everything in JS?
@@ -33,8 +35,6 @@ The syntax and the available methods were inspired by [Pandas](https://github.co
 You can also write your own SQL queries if you want to (check the [customQuery method](https://nshiab.github.io/simple-data-analysis/classes/SimpleWebDB.html#customQuery)) or use JavaScript to process your data (check the [updateWithJS method](https://nshiab.github.io/simple-data-analysis/classes/SimpleWebTable.html#updateWithJS)).
 
 Feel free to start a conversation or open an issue. Check how you can [contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
-
-You might find the [journalism library](https://github.com/nshiab/journalism) interesting as well.
 
 ## Performance
 
