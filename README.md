@@ -52,8 +52,6 @@ In each script, we:
 
 Each script has been run ten times on a MacBook Pro (Apple M1 Pro / 16 GB).
 
-The charts displayed below come from this [Observable notebook](https://observablehq.com/@nshiab/simple-data-analysis-benchmarks).
-
 ### Small file
 
 With _ahccd-samples.csv_:
@@ -102,7 +100,7 @@ Here's some code you can copy and paste into an HTML file.
 
 In this example, we load a CSV file with the latitude and longitude of 2023 wildfires in Canada, create point geometries from it, do a spatial join with provinces boundaries, and then compute the number of fires and the total area burnt per province.
 
-You could also use a framework or a bundler. Install the library with npm (`npm i simple-data-analysis`) and import it into your project (`import { SimpleWebDB } from 'simple-data-analysis'`).
+You could also use a framework or a bundler. Install the library with npm `npm i simple-data-analysis` and import it into your project `import { SimpleWebDB } from 'simple-data-analysis'`.
 
 ```html
 <script type="module">
@@ -113,7 +111,7 @@ You could also use a framework or a bundler. Install the library with npm (`npm 
         // We start a SimpleWebDB instance.
         const sdb = new SimpleWebDB()
 
-        // We create a new table
+        // We create a new table.
         const provinces = sdb.newTable("provinces")
         // We fetch the provinces' boundaries. It's a geoJSON.
         await provinces.fetchGeoData(
@@ -204,7 +202,7 @@ Copy and paste the code below into an `index.js` file and run it with `node inde
 
 In this example, we load a CSV file with the latitude and longitude of 2023 wildfires in Canada, create point geometries from it, do a spatial join with provinces' boundaries, and then compute the number of fires and the total area burnt per province.
 
-It's the same as the one you would run in a browser, except we use the _SimpleDB_ class instead of _SimpleWebDB_ and _loadData_ instead of _fetchData_.
+It's the same code as the one you would run in a browser, except we use the _SimpleDB_ class instead of _SimpleWebDB_ and _loadData_ instead of _fetchData_.
 
 With NodeJS and other runtimes, more methods are available to load and write data from/to local files. Check the [SimpleTable class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html).
 
