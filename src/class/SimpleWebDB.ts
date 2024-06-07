@@ -208,7 +208,7 @@ export default class SimpleWebDB extends Simple {
      * @example Basic usage
      * ```ts
      * // You can use the returnDataFrom option to retrieve the data from the query, if needed.
-     * await sdb.customQuery("SELECT * FROM employees WHERE Job = 'Clerk'", { returnDataFrom: "query" })
+     * const data = await sdb.customQuery("SELECT * FROM employees WHERE Job = 'Clerk'", { returnDataFrom: "query" })
      * ```
      *
      * @param query - The custom SQL query to be executed.
