@@ -357,6 +357,8 @@ export default class SimpleTable extends SimpleWebTable {
         )
 
         this.debug && (await this.logTable())
+
+        return this
     }
 
     /**
@@ -368,6 +370,7 @@ export default class SimpleTable extends SimpleWebTable {
         throw new Error(
             "This method is just for the web. For NodeJS and other runtimes, use loadData."
         )
+        return this
     }
 
     /**
@@ -441,6 +444,8 @@ export default class SimpleTable extends SimpleWebTable {
                 parameters: { files, options },
             })
         )
+
+        return this
     }
 
     /**
@@ -505,6 +510,8 @@ export default class SimpleTable extends SimpleWebTable {
                 parameters: { directory, options },
             })
         )
+
+        return this
     }
 
     /**
@@ -516,6 +523,7 @@ export default class SimpleTable extends SimpleWebTable {
         throw new Error(
             "This method is just for the web. For NodeJS and other runtimes, use loadGeoData."
         )
+        return this
     }
 
     /**
@@ -563,34 +571,8 @@ export default class SimpleTable extends SimpleWebTable {
                 proj4: "+proj=latlong +datum=WGS84 +no_defs",
             }
         }
-    }
 
-    async newTable(
-        name: string,
-        options?: {
-            types?:
-                | {
-                      [key: string]:
-                          | "string"
-                          | "number"
-                          | "bigint"
-                          | "boolean"
-                          | "integer"
-                          | "float"
-                          | "date"
-                          | "time"
-                          | "datetime"
-                          | "datetimeTz"
-                          | "double"
-                          | "varchar"
-                          | "timestamp"
-                          | "timestamp with time zone"
-                          | "geometry"
-                  }
-                | undefined
-        }
-    ): Promise<SimpleTable> {
-        return this.newTable(name, options)
+        return this
     }
 
     /**

@@ -1,5 +1,6 @@
 import assert from "assert"
 import SimpleDB from "../../../src/class/SimpleDB.js"
+import SimpleTable from "../../../src/class/SimpleTable.js"
 
 describe("loadGeoData", () => {
     let sdb: SimpleDB
@@ -10,6 +11,15 @@ describe("loadGeoData", () => {
         await sdb.done()
     })
 
+    it("should load a geojson file and return the table", async () => {
+        const table = await sdb
+            .newTable()
+            .loadGeoData(
+                "test/geodata/files/CanadianProvincesAndTerritories.json"
+            )
+
+        assert.deepStrictEqual(table instanceof SimpleTable, true)
+    })
     it("should load a geojson file", async () => {
         const table = sdb.newTable()
         await table.loadGeoData(
