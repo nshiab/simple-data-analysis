@@ -1,5 +1,6 @@
 import assert from "assert"
 import SimpleDB from "../../../src/class/SimpleDB.js"
+import SimpleTable from "../../../src/class/SimpleTable.js"
 
 describe("loadDataFromDirectory", () => {
     let sdb: SimpleDB
@@ -9,7 +10,15 @@ describe("loadDataFromDirectory", () => {
     after(async function () {
         await sdb.done()
     })
+    it("should load data from a directory and return the table", async () => {
+        const table = await sdb
+            .newTable()
+            .loadDataFromDirectory("test/data/directory/", {
+                unifyColumns: true,
+            })
 
+        assert.deepStrictEqual(table instanceof SimpleTable, true)
+    })
     it("should load data from a directory", async () => {
         const table = sdb.newTable()
         await table.loadDataFromDirectory("test/data/directory/", {

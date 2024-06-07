@@ -1,5 +1,6 @@
 import assert from "assert"
 import SimpleDB from "../../../src/class/SimpleDB.js"
+import SimpleTable from "../../../src/class/SimpleTable.js"
 
 describe("loadData", () => {
     let sdb: SimpleDB
@@ -10,6 +11,13 @@ describe("loadData", () => {
         await sdb.done()
     })
 
+    it("should load data from a csv file and return the table", async () => {
+        const table = await sdb
+            .newTable()
+            .loadData(["test/data/files/data.csv"])
+
+        assert.deepStrictEqual(table instanceof SimpleTable, true)
+    })
     it("should load data from a csv file", async () => {
         const table = sdb.newTable()
         await table.loadData(["test/data/files/data.csv"])

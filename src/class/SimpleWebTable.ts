@@ -222,6 +222,8 @@ export default class SimpleWebTable extends Simple {
                 },
             })
         )
+
+        return this
     }
 
     /**
@@ -254,6 +256,8 @@ export default class SimpleWebTable extends Simple {
         } = {}
     ) {
         await fetchDataBrowser(this, this.name, url, options)
+
+        return this
     }
 
     /**
@@ -2983,6 +2987,8 @@ export default class SimpleWebTable extends Simple {
                 proj4: "+proj=latlong +datum=WGS84 +no_defs",
             }
         }
+
+        return this
     }
 
     /**
