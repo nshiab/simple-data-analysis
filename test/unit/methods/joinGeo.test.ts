@@ -313,4 +313,75 @@ describe("joinGeo", () => {
             { name: "D", container: "A" },
         ])
     })
+    it("should return all points within a target distance (srs method)", async () => {
+        const cities = sdb.newTable()
+        await cities.loadGeoData("test/geodata/files/coordinates.geojson")
+        const cloned = await cities.cloneTable()
+        await cities.joinGeo(cloned, "within", { distance: 10 })
+        await cities.distance("geom", "geomTable1", "dist", { decimals: 2 })
+        await cities.selectColumns(["name", "name_1", "dist"])
+
+        const data = await cities.getData()
+
+        assert.deepStrictEqual(data, [
+            { name: "toronto", name_1: "toronto", dist: 0 },
+            { name: "montreal", name_1: "toronto", dist: 5.66 },
+            { name: "toronto", name_1: "montreal", dist: 5.66 },
+            { name: "montreal", name_1: "montreal", dist: 0 },
+            { name: "vancouver", name_1: "vancouver", dist: 0 },
+        ])
+    })
+    it("should return all points within a target distance (haversine method)", async () => {
+        const cities = sdb.newTable()
+        await cities.loadGeoData("test/geodata/files/coordinates.geojson", {
+            toWGS84: true,
+        })
+        const cloned = await cities.cloneTable()
+        await cities.joinGeo(cloned, "within", {
+            distance: 500_000,
+            distanceMethod: "haversine",
+            type: "inner",
+        })
+        await cities.distance("geom", "geomTable1", "dist", {
+            method: "haversine",
+            decimals: 0,
+        })
+        await cities.selectColumns(["name", "name_1", "dist"])
+        const data = await cities.getData()
+
+        assert.deepStrictEqual(data, [
+            { name: "toronto", name_1: "toronto", dist: 0 },
+            { name: "toronto", name_1: "montreal", dist: 464577 },
+            { name: "montreal", name_1: "toronto", dist: 464577 },
+            { name: "montreal", name_1: "montreal", dist: 0 },
+            { name: "vancouver", name_1: "vancouver", dist: 0 },
+        ])
+    })
+    it("should return all points within a target distance (spheroid method)", async () => {
+        const cities = sdb.newTable()
+        await cities.loadGeoData("test/geodata/files/coordinates.geojson", {
+            toWGS84: true,
+        })
+        const cloned = await cities.cloneTable()
+        await cities.joinGeo(cloned, "within", {
+            distance: 500_000,
+            distanceMethod: "spheroid",
+            type: "inner",
+        })
+        await cities.distance("geom", "geomTable1", "dist", {
+            method: "spheroid",
+            decimals: 0,
+        })
+        await cities.selectColumns(["name", "name_1", "dist"])
+
+        const data = await cities.getData()
+
+        assert.deepStrictEqual(data, [
+            { name: "toronto", name_1: "toronto", dist: 0 },
+            { name: "toronto", name_1: "montreal", dist: 465639 },
+            { name: "montreal", name_1: "toronto", dist: 465639 },
+            { name: "montreal", name_1: "montreal", dist: 0 },
+            { name: "vancouver", name_1: "vancouver", dist: 0 },
+        ])
+    })
 })

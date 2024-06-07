@@ -7,35 +7,37 @@ import joinGeoQuery from "./joinGeoQuery.js"
 
 export default async function joinGeo(
     leftTable: SimpleWebTable,
-    method: "intersect" | "inside",
+    method: "intersect" | "inside" | "within",
     rightTable: SimpleWebTable,
     options: {
-        columnLeftTable?: string
-        columnRightTable?: string
+        leftTableColumn?: string
+        rightTableColumn?: string
         type?: "inner" | "left" | "right" | "full"
+        distance?: number
+        distanceMethod?: "srs" | "haversine" | "spheroid"
         outputTable?: string | boolean
     } = {}
 ) {
-    const columnLeftTable =
-        options.columnLeftTable ?? (await findGeoColumn(leftTable))
-    const columnRightTable =
-        options.columnRightTable ?? (await findGeoColumn(rightTable))
-    let columnLeftTableForQuery = columnLeftTable
-    let columnRightTableForQuery = columnRightTable
+    const leftTableColumn =
+        options.leftTableColumn ?? (await findGeoColumn(leftTable))
+    const rightTableColumn =
+        options.rightTableColumn ?? (await findGeoColumn(rightTable))
+    let leftTableColumnForQuery = leftTableColumn
+    let rightTableColumnForQuery = rightTableColumn
 
     // We change the column names for geometries
-    if (columnLeftTable === columnRightTable) {
+    if (leftTableColumn === rightTableColumn) {
         if (!leftTable.defaultTableName) {
-            columnLeftTableForQuery = `${columnLeftTable}${capitalize(leftTable.name)}`
+            leftTableColumnForQuery = `${leftTableColumn}${capitalize(leftTable.name)}`
             const leftObj: { [key: string]: string } = {}
-            leftObj[columnLeftTable] = columnLeftTableForQuery
+            leftObj[leftTableColumn] = leftTableColumnForQuery
             await leftTable.renameColumns(leftObj)
         }
 
         if (!rightTable.defaultTableName) {
-            columnRightTableForQuery = `${columnRightTable}${capitalize(rightTable.name)}`
+            rightTableColumnForQuery = `${rightTableColumn}${capitalize(rightTable.name)}`
             const rightObj: { [key: string]: string } = {}
-            rightObj[columnRightTable] = columnRightTableForQuery
+            rightObj[rightTableColumn] = rightTableColumnForQuery
             await rightTable.renameColumns(rightObj)
         }
     }
@@ -50,12 +52,14 @@ export default async function joinGeo(
         leftTable,
         joinGeoQuery(
             leftTable.name,
-            columnLeftTableForQuery,
+            leftTableColumnForQuery,
             method,
             rightTable.name,
-            columnRightTableForQuery,
+            rightTableColumnForQuery,
             type,
-            outputTable
+            outputTable,
+            options.distance,
+            options.distanceMethod
         ),
         mergeOptions(leftTable, {
             table: outputTable,
@@ -70,16 +74,16 @@ export default async function joinGeo(
     )
 
     // We bring back the column names for geometries
-    if (columnLeftTable === columnRightTable) {
+    if (leftTableColumn === rightTableColumn) {
         if (!leftTable.defaultTableName) {
             const leftObj: { [key: string]: string } = {}
-            leftObj[columnLeftTableForQuery] = columnLeftTable
+            leftObj[leftTableColumnForQuery] = leftTableColumn
             await leftTable.renameColumns(leftObj)
         }
 
         if (!rightTable.defaultTableName) {
             const rightObj: { [key: string]: string } = {}
-            rightObj[columnRightTableForQuery] = columnRightTable
+            rightObj[rightTableColumnForQuery] = rightTableColumn
             await rightTable.renameColumns(rightObj)
         }
     }

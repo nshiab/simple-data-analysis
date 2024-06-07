@@ -258,11 +258,13 @@ export default class SimpleTable extends SimpleWebTable {
     }
     async joinGeo(
         rightTable: SimpleTable,
-        method: "intersect" | "inside",
+        method: "intersect" | "inside" | "within",
         options: {
             leftTableColumn?: string
             rightTableColumn?: string
             type?: "inner" | "left" | "right" | "full"
+            distance?: number
+            distanceMethod?: "srs" | "haversine" | "spheroid"
             outputTable?: string | boolean
         } = {}
     ) {

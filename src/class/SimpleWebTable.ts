@@ -3503,6 +3503,18 @@ export default class SimpleWebTable extends Simple {
      *
      * // Merges data of tableA and tableB based on geometries that in tableA that are inside geometries in tableB. tableA is overwritten with the result.
      * await tableA.joinGeo(tableB, "inside")
+     *
+     * // Merges data based on geometries in tableA that are within a target distance of geometries in tableB. By default, the distance is in the SRS unit.
+     * await tableA.joinGeo(tableB, "within", { distance : 10 })
+     *
+     * // Merges data based on geometries in tableA that are within a target distance of geometries in tableB. By default, the distance is in the SRS unit.
+     * await tableA.joinGeo(tableB, "within", { distance : 10 })
+     *
+     * // Same thing but using the haversine distance. The distance is in meters. The input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
+     * await tableA.joinGeo(tableB, "within", { distance : 10, distanceMethod: "haversine" })
+     *
+     * // Same thing but using an ellipsoidal model of the earth's surface. The distance is in meters. The input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
+     * await tableA.joinGeo(tableB, "within", { distance : 10, distanceMethod: "spheroid" })
      * ```
      *
      * @example With options
@@ -3516,18 +3528,22 @@ export default class SimpleWebTable extends Simple {
      * @param options - An optional object with configuration options:
      *   @param options.leftTableColumn - The column storing the geometries in leftTable. The method tries to find one by default.
      *   @param options.rightTableColumn - The column storing the geometries in rightTable. The method tries to find one by default.
-     *   @param options.type - The type of join operation to perform. For some methods (like 'inside'), the table order is important.
+     *   @param options.type - The type of join operation to perform. For some types (like 'inside'), the table order is important.
+     *   @param options.distance - If the method is 'within', you need to specify a target distance. The distance is in the SRS unit. If you choose options.distanceMethod 'spheroid', it will be considered as meters.
+     *   @param options.distanceMethod - 'srs' is default, but you can choose 'haversine' or 'spheroid'. These two need the input geometries with the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      *   @param options.outputTable - An option to store the results in a new table.
      *
      * @category Geospatial
      */
     async joinGeo(
         rightTable: SimpleWebTable,
-        method: "intersect" | "inside",
+        method: "intersect" | "inside" | "within",
         options: {
             leftTableColumn?: string
             rightTableColumn?: string
             type?: "inner" | "left" | "right" | "full"
+            distance?: number
+            distanceMethod?: "srs" | "haversine" | "spheroid"
             outputTable?: string | boolean
         } = {}
     ) {
@@ -3817,8 +3833,9 @@ export default class SimpleWebTable extends Simple {
      * @param column2 - The name of a column storing geometries.
      * @param newColumn - The name of the new column storing the centroids.
      * @param options - An optional object with configuration options:
-     *   @param options.method - The method to be used for the distance calculations. "srs" returns the values in the SRS unit. "spheroid" and "haversine" return the values in meters by default and need the input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order..
+     *   @param options.method - The method to be used for the distance calculations. "srs" returns the values in the SRS unit. "spheroid" and "haversine" return the values in meters by default and the input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      *   @param options.unit - If the method is "spheroid" or "haversine", you can choose between meters or kilometers. It's meters by default.
+     *   @param options.decimals - Number of decimal places to round to.
      *
      * @category Geospatial
      */
@@ -3829,6 +3846,7 @@ export default class SimpleWebTable extends Simple {
         options: {
             unit?: "m" | "km"
             method?: "srs" | "haversine" | "spheroid"
+            decimals?: number
         } = {}
     ) {
         await queryDB(

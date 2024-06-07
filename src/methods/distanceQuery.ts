@@ -6,6 +6,7 @@ export default function distanceQuery(
     options: {
         unit?: "m" | "km"
         method?: "srs" | "spheroid" | "haversine"
+        decimals?: number
     } = {}
 ) {
     options.method = options.method ?? "srs"
@@ -26,11 +27,23 @@ export default function distanceQuery(
     let query = `ALTER TABLE ${table} ADD ${newColumn} DOUBLE; UPDATE ${table} SET ${newColumn} = `
 
     if (options.method === "srs") {
-        query += `ST_Distance(${column1}, ${column2})`
+        if (typeof options.decimals === "number") {
+            query += `ROUND(ST_Distance(${column1}, ${column2}), ${options.decimals})`
+        } else {
+            query += `ST_Distance(${column1}, ${column2})`
+        }
     } else if (options.method === "haversine") {
-        query += `ST_Distance_Sphere(${column1}, ${column2}) ${options.unit === "km" ? "/ 1000" : ""};`
+        if (typeof options.decimals === "number") {
+            query += `ROUND(ST_Distance_Sphere(${column1}, ${column2}) ${options.unit === "km" ? "/ 1000" : ""}, ${options.decimals});`
+        } else {
+            query += `ST_Distance_Sphere(${column1}, ${column2}) ${options.unit === "km" ? "/ 1000" : ""};`
+        }
     } else if (options.method === "spheroid") {
-        query += `ST_Distance_Spheroid(${column1}, ${column2}) ${options.unit === "km" ? "/ 1000" : ""};`
+        if (typeof options.decimals === "number") {
+            query += `ROUND(ST_Distance_Spheroid(${column1}, ${column2}) ${options.unit === "km" ? "/ 1000" : ""}, ${options.decimals});`
+        } else {
+            query += `ST_Distance_Spheroid(${column1}, ${column2}) ${options.unit === "km" ? "/ 1000" : ""};`
+        }
     } else {
         throw new Error(
             `Uknown method ${options.method}. Choose between 'srs', 'haversine' and 'spheroid'.`
