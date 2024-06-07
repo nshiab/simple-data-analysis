@@ -1053,7 +1053,7 @@ export default class SimpleWebTable extends Simple {
         await queryDB(
             this,
             stringToArray(columns)
-                .map((d) => `ALTER TABLE ${this.name} DROP ${d};`)
+                .map((d) => `ALTER TABLE ${this.name} DROP "${d}";`)
                 .join("\n"),
             mergeOptions(this, {
                 table: this.name,
