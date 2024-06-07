@@ -1,34 +1,32 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("upper", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should uppercase strings in one column", async () => {
-        await simpleNodeDB.loadArray("data", [
-            { firstName: "nael", lastName: "shiab" },
-        ])
+        const table = sdb.newTable()
+        await table.loadArray([{ firstName: "nael", lastName: "shiab" }])
 
-        await simpleNodeDB.upper("data", "firstName")
+        await table.upper("firstName")
 
-        const data = await simpleNodeDB.getData("data")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [{ firstName: "NAEL", lastName: "shiab" }])
     })
     it("should uppercase strings in two columns", async () => {
-        await simpleNodeDB.loadArray("data", [
-            { firstName: "nael", lastName: "shiab" },
-        ])
+        const table = sdb.newTable()
+        await table.loadArray([{ firstName: "nael", lastName: "shiab" }])
 
-        await simpleNodeDB.upper("data", ["firstName", "lastName"])
+        await table.upper(["firstName", "lastName"])
 
-        const data = await simpleNodeDB.getData("data")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [{ firstName: "NAEL", lastName: "SHIAB" }])
     })

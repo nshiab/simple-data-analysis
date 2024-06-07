@@ -1,27 +1,47 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("distance", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should calculate the distance between points with the SRS unit", async () => {
-        await simpleNodeDB.loadGeoData(
-            "data",
-            "test/geodata/files/coordinates.geojson"
-        )
-        await simpleNodeDB.cloneTable("data", "dataClone")
-        await simpleNodeDB.crossJoin("data", "dataClone")
-        await simpleNodeDB.distance("data", "geom", "geom_1", "dist")
-        await simpleNodeDB.selectColumns("data", ["name", "name_1", "dist"])
-        await simpleNodeDB.round("data", "dist", { decimals: 3 })
+        const table = sdb.newTable("data")
+        await table.loadGeoData("test/geodata/files/coordinates.geojson")
+        const clone = await table.cloneTable()
+        await table.crossJoin(clone)
+        await table.distance("geom", "geom_1", "dist")
+        await table.selectColumns(["name", "name_1", "dist"])
+        await table.round("dist", { decimals: 3 })
 
-        const data = await simpleNodeDB.getData("data")
+        const data = await table.getData()
+
+        assert.deepStrictEqual(data, [
+            { name: "toronto", name_1: "toronto", dist: 0 },
+            { name: "toronto", name_1: "montreal", dist: 5.655 },
+            { name: "toronto", name_1: "vancouver", dist: 43.99 },
+            { name: "montreal", name_1: "toronto", dist: 5.655 },
+            { name: "montreal", name_1: "montreal", dist: 0 },
+            { name: "montreal", name_1: "vancouver", dist: 49.241 },
+            { name: "vancouver", name_1: "toronto", dist: 43.99 },
+            { name: "vancouver", name_1: "montreal", dist: 49.241 },
+            { name: "vancouver", name_1: "vancouver", dist: 0 },
+        ])
+    })
+    it("should calculate the distance between points with the SRS unit and round values", async () => {
+        const table = sdb.newTable("data")
+        await table.loadGeoData("test/geodata/files/coordinates.geojson")
+        const clone = await table.cloneTable()
+        await table.crossJoin(clone)
+        await table.distance("geom", "geom_1", "dist", { decimals: 3 })
+        await table.selectColumns(["name", "name_1", "dist"])
+
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { name: "toronto", name_1: "toronto", dist: 0 },
@@ -36,17 +56,16 @@ describe("distance", () => {
         ])
     })
     it("should calculate the distance between points and lines in the SRS unit", async () => {
-        await simpleNodeDB.loadGeoData(
-            "points",
-            "test/geodata/files/coordinates.geojson"
-        )
-        await simpleNodeDB.loadGeoData("line", "test/geodata/files/line.json")
-        await simpleNodeDB.crossJoin("points", "line")
-        await simpleNodeDB.distance("points", "geom", "geom_1", "dist")
-        await simpleNodeDB.selectColumns("points", ["name", "dist"])
-        await simpleNodeDB.round("points", "dist", { decimals: 3 })
+        const points = sdb.newTable("points")
+        await points.loadGeoData("test/geodata/files/coordinates.geojson")
+        const line = sdb.newTable("line")
+        await line.loadGeoData("test/geodata/files/line.json")
+        await points.crossJoin(line)
+        await points.distance("geom", "geom_1", "dist")
+        await points.selectColumns(["name", "dist"])
+        await points.round("dist", { decimals: 3 })
 
-        const data = await simpleNodeDB.getData("points")
+        const data = await points.getData()
 
         assert.deepStrictEqual(data, [
             { name: "toronto", dist: 3.968 },
@@ -55,20 +74,16 @@ describe("distance", () => {
         ])
     })
     it("should calculate the distance between points and polygons in the SRS unit", async () => {
-        await simpleNodeDB.loadGeoData(
-            "points",
-            "test/geodata/files/coordinates.geojson"
-        )
-        await simpleNodeDB.loadGeoData(
-            "polygon",
-            "test/geodata/files/polygon.json"
-        )
-        await simpleNodeDB.crossJoin("points", "polygon")
-        await simpleNodeDB.distance("points", "geom", "geom_1", "dist")
-        await simpleNodeDB.selectColumns("points", ["name", "dist"])
-        await simpleNodeDB.round("points", "dist", { decimals: 3 })
+        const points = sdb.newTable("points")
+        await points.loadGeoData("test/geodata/files/coordinates.geojson")
+        const polygon = sdb.newTable("polygon")
+        await polygon.loadGeoData("test/geodata/files/polygon.json")
+        await points.crossJoin(polygon)
+        await points.distance("geom", "geom_1", "dist")
+        await points.selectColumns(["name", "dist"])
+        await points.round("dist", { decimals: 3 })
 
-        const data = await simpleNodeDB.getData("points")
+        const data = await points.getData()
 
         assert.deepStrictEqual(data, [
             { name: "toronto", dist: 3.615 },
@@ -76,21 +91,77 @@ describe("distance", () => {
             { name: "vancouver", dist: 47.071 },
         ])
     })
-    it("should calculate the distance between points with the haversine method in meters", async () => {
-        await simpleNodeDB.loadGeoData(
-            "data",
-            "test/geodata/files/coordinates.geojson"
-        )
-        await simpleNodeDB.flipCoordinates("data", "geom")
-        await simpleNodeDB.cloneTable("data", "dataClone")
-        await simpleNodeDB.crossJoin("data", "dataClone")
-        await simpleNodeDB.distance("data", "geom", "geom_1", "dist", {
+    it("should calculate the distance between points with the haversine method in meters with a file loaded with option toWGS84", async () => {
+        const points = sdb.newTable("points")
+        await points.loadGeoData("test/geodata/files/coordinates.geojson", {
+            toWGS84: true,
+        })
+        // No need to flip
+        // await points.flipCoordinates("geom")
+        const pointsCloned = await points.cloneTable()
+        await points.crossJoin(pointsCloned)
+        await points.distance("geom", "geom_1", "dist", {
             method: "haversine",
         })
-        await simpleNodeDB.selectColumns("data", ["name", "name_1", "dist"])
-        await simpleNodeDB.round("data", "dist")
+        await points.selectColumns(["name", "name_1", "dist"])
+        await points.round("dist")
 
-        const data = await simpleNodeDB.getData("data")
+        const data = await points.getData()
+
+        assert.deepStrictEqual(data, [
+            { name: "toronto", name_1: "toronto", dist: 0 },
+            { name: "toronto", name_1: "montreal", dist: 464577 },
+            { name: "toronto", name_1: "vancouver", dist: 3350989 },
+            { name: "montreal", name_1: "toronto", dist: 464577 },
+            { name: "montreal", name_1: "montreal", dist: 0 },
+            { name: "montreal", name_1: "vancouver", dist: 3666382 },
+            { name: "vancouver", name_1: "toronto", dist: 3350989 },
+            { name: "vancouver", name_1: "montreal", dist: 3666382 },
+            { name: "vancouver", name_1: "vancouver", dist: 0 },
+        ])
+    })
+    it("should calculate the distance between points with the haversine method in meters with a file loaded with option toWGS84 and round values", async () => {
+        const points = sdb.newTable("points")
+        await points.loadGeoData("test/geodata/files/coordinates.geojson", {
+            toWGS84: true,
+        })
+        // No need to flip
+        // await points.flipCoordinates("geom")
+        const pointsCloned = await points.cloneTable()
+        await points.crossJoin(pointsCloned)
+        await points.distance("geom", "geom_1", "dist", {
+            method: "haversine",
+            decimals: 0,
+        })
+        await points.selectColumns(["name", "name_1", "dist"])
+
+        const data = await points.getData()
+
+        assert.deepStrictEqual(data, [
+            { name: "toronto", name_1: "toronto", dist: 0 },
+            { name: "toronto", name_1: "montreal", dist: 464577 },
+            { name: "toronto", name_1: "vancouver", dist: 3350989 },
+            { name: "montreal", name_1: "toronto", dist: 464577 },
+            { name: "montreal", name_1: "montreal", dist: 0 },
+            { name: "montreal", name_1: "vancouver", dist: 3666382 },
+            { name: "vancouver", name_1: "toronto", dist: 3350989 },
+            { name: "vancouver", name_1: "montreal", dist: 3666382 },
+            { name: "vancouver", name_1: "vancouver", dist: 0 },
+        ])
+    })
+    it("should calculate the distance between points with the haversine method in meters", async () => {
+        const points = sdb.newTable("points")
+        await points.loadGeoData("test/geodata/files/coordinates.geojson")
+        await points.flipCoordinates("geom")
+        const pointsCloned = await points.cloneTable()
+        await points.crossJoin(pointsCloned)
+        await points.distance("geom", "geom_1", "dist", {
+            method: "haversine",
+        })
+        await points.selectColumns(["name", "name_1", "dist"])
+        await points.round("dist")
+
+        const data = await points.getData()
 
         assert.deepStrictEqual(data, [
             { name: "toronto", name_1: "toronto", dist: 0 },
@@ -105,21 +176,19 @@ describe("distance", () => {
         ])
     })
     it("should calculate the distance between points with the haversine method in km", async () => {
-        await simpleNodeDB.loadGeoData(
-            "data",
-            "test/geodata/files/coordinates.geojson"
-        )
-        await simpleNodeDB.flipCoordinates("data", "geom")
-        await simpleNodeDB.cloneTable("data", "dataClone")
-        await simpleNodeDB.crossJoin("data", "dataClone")
-        await simpleNodeDB.distance("data", "geom", "geom_1", "dist", {
+        const points = sdb.newTable("points")
+        await points.loadGeoData("test/geodata/files/coordinates.geojson")
+        await points.flipCoordinates("geom")
+        const pointsCloned = await points.cloneTable()
+        await points.crossJoin(pointsCloned)
+        await points.distance("geom", "geom_1", "dist", {
             method: "haversine",
             unit: "km",
         })
-        await simpleNodeDB.selectColumns("data", ["name", "name_1", "dist"])
-        await simpleNodeDB.round("data", "dist")
+        await points.selectColumns(["name", "name_1", "dist"])
+        await points.round("dist")
 
-        const data = await simpleNodeDB.getData("data")
+        const data = await points.getData()
 
         assert.deepStrictEqual(data, [
             { name: "toronto", name_1: "toronto", dist: 0 },
@@ -134,20 +203,73 @@ describe("distance", () => {
         ])
     })
     it("should calculate the distance between points with the spheroid method in m", async () => {
-        await simpleNodeDB.loadGeoData(
-            "data",
-            "test/geodata/files/coordinates.geojson"
-        )
-        await simpleNodeDB.flipCoordinates("data", "geom")
-        await simpleNodeDB.cloneTable("data", "dataClone")
-        await simpleNodeDB.crossJoin("data", "dataClone")
-        await simpleNodeDB.distance("data", "geom", "geom_1", "dist", {
+        const points = sdb.newTable("points")
+        await points.loadGeoData("test/geodata/files/coordinates.geojson")
+        await points.flipCoordinates("geom")
+        const pointsCloned = await points.cloneTable()
+        await points.crossJoin(pointsCloned)
+        await points.distance("geom", "geom_1", "dist", {
             method: "spheroid",
         })
-        await simpleNodeDB.selectColumns("data", ["name", "name_1", "dist"])
-        await simpleNodeDB.round("data", "dist")
+        await points.selectColumns(["name", "name_1", "dist"])
+        await points.round("dist")
 
-        const data = await simpleNodeDB.getData("data")
+        const data = await points.getData()
+
+        assert.deepStrictEqual(data, [
+            { name: "toronto", name_1: "toronto", dist: 0 },
+            { name: "toronto", name_1: "montreal", dist: 465639 },
+            { name: "toronto", name_1: "vancouver", dist: 3360308 },
+            { name: "montreal", name_1: "toronto", dist: 465639 },
+            { name: "montreal", name_1: "montreal", dist: 0 },
+            { name: "montreal", name_1: "vancouver", dist: 3676968 },
+            { name: "vancouver", name_1: "toronto", dist: 3360308 },
+            { name: "vancouver", name_1: "montreal", dist: 3676968 },
+            { name: "vancouver", name_1: "vancouver", dist: 0 },
+        ])
+    })
+    it("should calculate the distance between points with the spheroid method in m and round values", async () => {
+        const points = sdb.newTable("points")
+        await points.loadGeoData("test/geodata/files/coordinates.geojson")
+        await points.flipCoordinates("geom")
+        const pointsCloned = await points.cloneTable()
+        await points.crossJoin(pointsCloned)
+        await points.distance("geom", "geom_1", "dist", {
+            method: "spheroid",
+            decimals: 0,
+        })
+        await points.selectColumns(["name", "name_1", "dist"])
+
+        const data = await points.getData()
+
+        assert.deepStrictEqual(data, [
+            { name: "toronto", name_1: "toronto", dist: 0 },
+            { name: "toronto", name_1: "montreal", dist: 465639 },
+            { name: "toronto", name_1: "vancouver", dist: 3360308 },
+            { name: "montreal", name_1: "toronto", dist: 465639 },
+            { name: "montreal", name_1: "montreal", dist: 0 },
+            { name: "montreal", name_1: "vancouver", dist: 3676968 },
+            { name: "vancouver", name_1: "toronto", dist: 3360308 },
+            { name: "vancouver", name_1: "montreal", dist: 3676968 },
+            { name: "vancouver", name_1: "vancouver", dist: 0 },
+        ])
+    })
+    it("should calculate the distance between points with the spheroid method in m with a file loaded with option toWGS84", async () => {
+        const points = sdb.newTable("points")
+        await points.loadGeoData("test/geodata/files/coordinates.geojson", {
+            toWGS84: true,
+        })
+        // No need to flip
+        // await points.flipCoordinates("geom")
+        const pointsCloned = await points.cloneTable()
+        await points.crossJoin(pointsCloned)
+        await points.distance("geom", "geom_1", "dist", {
+            method: "spheroid",
+        })
+        await points.selectColumns(["name", "name_1", "dist"])
+        await points.round("dist")
+
+        const data = await points.getData()
 
         assert.deepStrictEqual(data, [
             { name: "toronto", name_1: "toronto", dist: 0 },
@@ -162,21 +284,19 @@ describe("distance", () => {
         ])
     })
     it("should calculate the distance between points with the spheroid method in km", async () => {
-        await simpleNodeDB.loadGeoData(
-            "data",
-            "test/geodata/files/coordinates.geojson"
-        )
-        await simpleNodeDB.flipCoordinates("data", "geom")
-        await simpleNodeDB.cloneTable("data", "dataClone")
-        await simpleNodeDB.crossJoin("data", "dataClone")
-        await simpleNodeDB.distance("data", "geom", "geom_1", "dist", {
+        const points = sdb.newTable("points")
+        await points.loadGeoData("test/geodata/files/coordinates.geojson")
+        await points.flipCoordinates("geom")
+        const pointsCloned = await points.cloneTable()
+        await points.crossJoin(pointsCloned)
+        await points.distance("geom", "geom_1", "dist", {
             method: "spheroid",
             unit: "km",
         })
-        await simpleNodeDB.selectColumns("data", ["name", "name_1", "dist"])
-        await simpleNodeDB.round("data", "dist")
+        await points.selectColumns(["name", "name_1", "dist"])
+        await points.round("dist")
 
-        const data = await simpleNodeDB.getData("data")
+        const data = await points.getData()
 
         assert.deepStrictEqual(data, [
             { name: "toronto", name_1: "toronto", dist: 0 },

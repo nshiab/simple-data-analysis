@@ -1,10 +1,10 @@
-import SimpleDB from "../class/SimpleDB.js"
+import { SimpleWebDB, SimpleWebTable } from "../bundle.js"
 import addThousandSeparator from "./addThousandSeparator.js"
 import formatDuration from "./formatDuration.js"
 import logData from "./logData.js"
 
 export default async function queryDB(
-    simpleDB: SimpleDB,
+    simple: SimpleWebTable | SimpleWebDB,
     query: string,
     options: {
         table: string | null
@@ -21,8 +21,18 @@ export default async function queryDB(
       }[]
     | null
 > {
-    if (simpleDB.connection === undefined) {
-        await simpleDB.start()
+    if (simple instanceof SimpleWebDB && simple.connection === undefined) {
+        await simple.start()
+    } else if (
+        simple instanceof SimpleWebTable &&
+        simple.sdb.connection === undefined
+    ) {
+        await simple.sdb.start()
+        simple.db = simple.sdb.db
+        simple.connection = simple.sdb.connection
+    }
+    if (simple.connection === undefined) {
+        throw new Error("simple.connection is undefined")
     }
 
     query = query
@@ -32,6 +42,7 @@ export default async function queryDB(
         .replace(/ \| /g, " OR ")
         .replace(/ === /g, " = ")
         .replace(/ == /g, " = ")
+        .replace(/ !== /g, " != ")
 
     let start
     if (options.debug) {
@@ -44,9 +55,9 @@ export default async function queryDB(
     let data = null
 
     if (options.debug) {
-        const queryResult = await simpleDB.runQuery(
+        const queryResult = await simple.runQuery(
             query,
-            simpleDB.connection,
+            simple.connection,
             true,
             options
         )
@@ -71,14 +82,9 @@ export default async function queryDB(
             )
         }
     } else if (options.returnDataFrom === "none") {
-        await simpleDB.runQuery(query, simpleDB.connection, false, options)
+        await simple.runQuery(query, simple.connection, false, options)
     } else if (options.returnDataFrom === "query") {
-        data = await simpleDB.runQuery(
-            query,
-            simpleDB.connection,
-            true,
-            options
-        )
+        data = await simple.runQuery(query, simple.connection, true, options)
     } else {
         throw new Error(
             `Unknown ${options.returnDataFrom} options.returnDataFrom`
@@ -88,16 +94,16 @@ export default async function queryDB(
     if (options.debug) {
         if (typeof options.table === "string") {
             console.log(`\ntable ${options.table}:`)
-            const tableToLog = await simpleDB.runQuery(
+            const tableToLog = await simple.runQuery(
                 `SELECT * FROM ${options.table} LIMIT ${options.nbRowsToLog}`,
-                simpleDB.connection,
+                simple.connection,
                 true,
                 options
             )
             logData(tableToLog)
-            const nbRows = await simpleDB.runQuery(
+            const nbRows = await simple.runQuery(
                 `SELECT COUNT(*) FROM ${options.table};`,
-                simpleDB.connection,
+                simple.connection,
                 true,
                 options
             )

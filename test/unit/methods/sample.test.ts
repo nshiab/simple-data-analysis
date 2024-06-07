@@ -1,47 +1,44 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("sample", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return 5 random rows", async () => {
-        await simpleNodeDB.loadData("employeesRandomRows", [
-            "test/data/files/employees.csv",
-        ])
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/employees.csv"])
 
-        await simpleNodeDB.sample("employeesRandomRows", 5)
+        await table.sample(5)
 
-        const data = await simpleNodeDB.getData("employeesRandomRows")
+        const data = await table.getData()
 
-        assert.deepStrictEqual(data?.length, 5)
+        assert.deepStrictEqual(data.length, 5)
     })
 
     it("should return 20% random rows", async () => {
-        await simpleNodeDB.loadData("employeesRandomRowsPerc", [
-            "test/data/files/employees.csv",
-        ])
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/employees.csv"])
 
-        await simpleNodeDB.sample("employeesRandomRowsPerc", "20%")
-        const data = await simpleNodeDB.getData("employeesRandomRowsPerc")
+        await table.sample("20%")
+        const data = await table.getData()
 
-        assert.deepStrictEqual(data?.length, 10)
+        assert.deepStrictEqual(data.length, 10)
     })
 
     it("should return the 5 same random rows based on seed", async () => {
-        await simpleNodeDB.loadData("employeesRandomRowsSeed", [
-            "test/data/files/employees.csv",
-        ])
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/employees.csv"])
 
-        await simpleNodeDB.sample("employeesRandomRowsSeed", 5, {
+        await table.sample(5, {
             seed: 10,
         })
-        const data = await simpleNodeDB.getData("employeesRandomRowsSeed")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -88,15 +85,14 @@ describe("sample", () => {
     })
 
     it("should return the same 20% random rows based on a seed", async () => {
-        await simpleNodeDB.loadData("employeesRandomRowsPercSeed", [
-            "test/data/files/employees.csv",
-        ])
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/employees.csv"])
 
-        await simpleNodeDB.sample("employeesRandomRowsPercSeed", "20%", {
+        await table.sample("20%", {
             seed: 1,
         })
 
-        const data = await simpleNodeDB.getData("employeesRandomRowsPercSeed")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             {

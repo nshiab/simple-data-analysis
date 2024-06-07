@@ -1,25 +1,25 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("getMedian", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("data", ["test/data/files/data.json"])
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return the median value", async () => {
-        assert.deepStrictEqual(
-            await simpleNodeDB.getMedian("data", "key1"),
-            2.5
-        )
+        const table = sdb.newTable("data")
+        await table.loadData("test/data/files/data.json")
+        assert.deepStrictEqual(await table.getMedian("key1"), 2.5)
     })
     it("should return the median value rounded", async () => {
+        const table = sdb.newTable("data")
+        await table.loadData("test/data/files/data.json")
         assert.deepStrictEqual(
-            await simpleNodeDB.getMedian("data", "key1", { decimals: 0 }),
+            await table.getMedian("key1", { decimals: 0 }),
             3
         )
     })

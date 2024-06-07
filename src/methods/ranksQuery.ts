@@ -16,11 +16,11 @@ export default function rankQuery(
     const partition =
         categories.length === 0
             ? ""
-            : `PARTITION BY ${categories.map((d) => `"${d}"`).join(",")} `
+            : `PARTITION BY ${categories.map((d) => `${d}`).join(",")} `
 
     const query = `CREATE OR REPLACE TABLE ${table} AS SELECT *, ${
         options.noGaps ? "dense_rank()" : "rank()"
-    } OVER (${partition}ORDER BY "${values}") AS "${newColumn}",
+    } OVER (${partition}ORDER BY ${values}) AS ${newColumn},
     FROM ${table}`
 
     return query

@@ -1,17 +1,18 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("getMax", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("data", ["test/data/files/data.json"])
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return the max value", async () => {
-        assert.deepStrictEqual(await simpleNodeDB.getMax("data", "key1"), 4)
+        const table = sdb.newTable("data")
+        await table.loadData(["test/data/files/data.json"])
+        assert.deepStrictEqual(await table.getMax("key1"), 4)
     })
 })

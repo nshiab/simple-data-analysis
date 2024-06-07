@@ -1,22 +1,33 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("flipCoordinates", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
-        await simpleNodeDB.loadGeoData(
-            "geodata",
-            "test/geodata/files/point.json"
-        )
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should flip the coordinates", async () => {
-        await simpleNodeDB.flipCoordinates("geodata", "geom")
-        const data = await simpleNodeDB.customQuery(
+        const table = sdb.newTable("geoData")
+        await table.loadGeoData("test/geodata/files/point.json")
+        await table.flipCoordinates()
+        const data = await sdb.customQuery(
+            `SELECT ST_AsText(geom) as geomText FROM geoData;`,
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [
+            { geomText: "POINT (45.51412791316409 -73.62315106245389)" },
+        ])
+    })
+    it("should flip the coordinates from a specific column", async () => {
+        const table = sdb.newTable("geoData")
+        await table.loadGeoData("test/geodata/files/point.json")
+        await table.flipCoordinates("geom")
+        const data = await sdb.customQuery(
             `SELECT ST_AsText(geom) as geomText FROM geoData;`,
             { returnDataFrom: "query" }
         )

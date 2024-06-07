@@ -1,20 +1,21 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("updateColumn", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("cities", ["test/data/files/cities.csv"])
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should update a column", async () => {
-        await simpleNodeDB.updateColumn("cities", "city", `left("city", 3)`)
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/cities.csv"])
+        await table.updateColumn("city", `left("city", 3)`)
 
-        const data = await simpleNodeDB.getData("cities")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { id: 1108380, city: "VAN" },

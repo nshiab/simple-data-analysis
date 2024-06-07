@@ -16,13 +16,13 @@ export default function proportionsVerticalQuery(
     const partition =
         categories.length === 0
             ? ""
-            : `PARTITION BY ${categories.map((d) => `"${d}"`).join(",")}`
+            : `PARTITION BY ${categories.map((d) => `${d}`).join(",")}`
 
     let query = ""
     if (typeof options.decimals === "number") {
-        query = `CREATE OR REPLACE TABLE ${table} AS SELECT *, ROUND("${column}" / sum("${column}") OVER(${partition}), ${options.decimals}) AS "${newColumn}" FROM ${table}`
+        query = `CREATE OR REPLACE TABLE ${table} AS SELECT *, ROUND(${column} / sum(${column}) OVER(${partition}), ${options.decimals}) AS ${newColumn} FROM ${table}`
     } else {
-        query = `CREATE OR REPLACE TABLE ${table} AS SELECT *, "${column}" / sum("${column}") OVER(${partition}) AS "${newColumn}" FROM ${table}`
+        query = `CREATE OR REPLACE TABLE ${table} AS SELECT *, ${column} / sum(${column}) OVER(${partition}) AS ${newColumn} FROM ${table}`
     }
 
     return query

@@ -1,11 +1,18 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("zScore", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadArray("people", [
+        sdb = new SimpleDB()
+    })
+    after(async function () {
+        await sdb.done()
+    })
+
+    it("should add a column with the zScore", async () => {
+        const table = sdb.newTable()
+        await table.loadArray([
             { name: "Chloe", age: 33 },
             { name: "Philip", age: 33 },
             { name: "Sonny", age: 57 },
@@ -23,38 +30,11 @@ describe("zScore", () => {
             { name: "Genevieve", age: 32 },
             { name: "Jane", age: 32 },
         ])
-        await simpleNodeDB.cloneTable("people", "peopleTwoDecimals")
-        await simpleNodeDB.cloneTable("people", "peopleDifferentName")
-        await simpleNodeDB.cloneTable("people", "peopleThreeDecimals")
-        await simpleNodeDB.loadArray("peopleGender", [
-            { name: "Chloe", age: 33, gender: "Woman" },
-            { name: "Philip", age: 33, gender: "Man" },
-            { name: "Sonny", age: 57, gender: "Man" },
-            { name: "Frazer", age: 64, gender: "Man" },
-            { name: "Sarah", age: 64, gender: "Woman" },
-            { name: "Frankie", age: 65, gender: "Woman" },
-            { name: "Morgan", age: 33, gender: "Woman" },
-            { name: "Jeremy", age: 34, gender: "Man" },
-            { name: "Claudia", age: 35, gender: "Woman" },
-            { name: "Evangeline", age: 21, gender: "Woman" },
-            { name: "Amelia", age: 29, gender: "Woman" },
-            { name: "Marie", age: 30, gender: "Woman" },
-            { name: "Kiara", age: 31, gender: "Woman" },
-            { name: "Isobel", age: 31, gender: "Woman" },
-            { name: "Genevieve", age: 32, gender: "Woman" },
-            { name: "Jane", age: 32, gender: "Woman" },
-        ])
-    })
-    after(async function () {
-        await simpleNodeDB.done()
-    })
+        await table.zScore("age", "ageZ")
 
-    it("should add a column with the zScore", async () => {
-        await simpleNodeDB.zScore("people", "age", "ageZ")
+        await table.sort({ ageZ: "asc" })
 
-        await simpleNodeDB.sort("people", { ageZ: "asc" })
-
-        const data = await simpleNodeDB.getData("people")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { name: "Evangeline", age: 21, ageZ: -1.2460801157839236 },
@@ -77,13 +57,32 @@ describe("zScore", () => {
     })
 
     it("should add a column with the zScore rounded to 3 decimals", async () => {
-        await simpleNodeDB.zScore("peopleThreeDecimals", "age", "ageSigma", {
+        const table = sdb.newTable()
+        await table.loadArray([
+            { name: "Chloe", age: 33 },
+            { name: "Philip", age: 33 },
+            { name: "Sonny", age: 57 },
+            { name: "Frazer", age: 64 },
+            { name: "Sarah", age: 64 },
+            { name: "Frankie", age: 65 },
+            { name: "Morgan", age: 33 },
+            { name: "Jeremy", age: 34 },
+            { name: "Claudia", age: 35 },
+            { name: "Evangeline", age: 21 },
+            { name: "Amelia", age: 29 },
+            { name: "Marie", age: 30 },
+            { name: "Kiara", age: 31 },
+            { name: "Isobel", age: 31 },
+            { name: "Genevieve", age: 32 },
+            { name: "Jane", age: 32 },
+        ])
+        await table.zScore("age", "ageSigma", {
             decimals: 3,
         })
 
-        await simpleNodeDB.sort("peopleThreeDecimals", { ageSigma: "asc" })
+        await table.sort({ ageSigma: "asc" })
 
-        const data = await simpleNodeDB.getData("peopleThreeDecimals")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { name: "Evangeline", age: 21, ageSigma: -1.246 },
@@ -105,16 +104,35 @@ describe("zScore", () => {
         ])
     })
     it("should add a column with the zScore rounded to 3 decimals and with a category", async () => {
-        await simpleNodeDB.zScore("peopleGender", "age", "ageSigma", {
+        const table = sdb.newTable()
+        await table.loadArray([
+            { name: "Chloe", age: 33, gender: "Woman" },
+            { name: "Philip", age: 33, gender: "Man" },
+            { name: "Sonny", age: 57, gender: "Man" },
+            { name: "Frazer", age: 64, gender: "Man" },
+            { name: "Sarah", age: 64, gender: "Woman" },
+            { name: "Frankie", age: 65, gender: "Woman" },
+            { name: "Morgan", age: 33, gender: "Woman" },
+            { name: "Jeremy", age: 34, gender: "Man" },
+            { name: "Claudia", age: 35, gender: "Woman" },
+            { name: "Evangeline", age: 21, gender: "Woman" },
+            { name: "Amelia", age: 29, gender: "Woman" },
+            { name: "Marie", age: 30, gender: "Woman" },
+            { name: "Kiara", age: 31, gender: "Woman" },
+            { name: "Isobel", age: 31, gender: "Woman" },
+            { name: "Genevieve", age: 32, gender: "Woman" },
+            { name: "Jane", age: 32, gender: "Woman" },
+        ])
+        await table.zScore("age", "ageSigma", {
             categories: "gender",
             decimals: 3,
         })
 
-        await simpleNodeDB.sort("peopleGender", {
+        await table.sort({
             gender: "asc",
             ageSigma: "asc",
         })
-        const data = await simpleNodeDB.getData("peopleGender")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { name: "Philip", age: 33, gender: "Man", ageSigma: -0.883 },

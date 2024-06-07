@@ -1,22 +1,21 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("trim", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should remove whitespace", async () => {
-        await simpleNodeDB.loadData("dataTrim", [
-            "test/data/files/dataTrim.json",
-        ])
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/dataTrim.json"])
 
-        await simpleNodeDB.trim("dataTrim", "key1")
-        const data = await simpleNodeDB.getData("dataTrim")
+        await table.trim("key1")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: "a", key2: " !@a!@" },
@@ -26,13 +25,12 @@ describe("trim", () => {
         ])
     })
     it("should remove whitespace from multiple columns", async () => {
-        await simpleNodeDB.loadData("dataTrimMultipleColumns", [
-            "test/data/files/dataTrim.json",
-        ])
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/dataTrim.json"])
 
-        await simpleNodeDB.trim("dataTrimMultipleColumns", ["key1", "key2"])
+        await table.trim(["key1", "key2"])
 
-        const data = await simpleNodeDB.getData("dataTrimMultipleColumns")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: "a", key2: "!@a!@" },
@@ -42,14 +40,13 @@ describe("trim", () => {
         ])
     })
     it("should remove whitespace just on the left", async () => {
-        await simpleNodeDB.loadData("dataTrimLeft", [
-            "test/data/files/dataTrim.json",
-        ])
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/dataTrim.json"])
 
-        await simpleNodeDB.trim("dataTrimLeft", "key1", {
+        await table.trim("key1", {
             method: "leftTrim",
         })
-        const data = await simpleNodeDB.getData("dataTrimLeft")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: "a  ", key2: " !@a!@" },
@@ -59,14 +56,13 @@ describe("trim", () => {
         ])
     })
     it("should remove whitespace just on the right", async () => {
-        await simpleNodeDB.loadData("dataTrimRight", [
-            "test/data/files/dataTrim.json",
-        ])
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/dataTrim.json"])
 
-        await simpleNodeDB.trim("dataTrimRight", "key1", {
+        await table.trim("key1", {
             method: "rightTrim",
         })
-        const data = await simpleNodeDB.getData("dataTrimRight")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: "  a", key2: " !@a!@" },
@@ -76,15 +72,14 @@ describe("trim", () => {
         ])
     })
     it("should remove specific characters", async () => {
-        await simpleNodeDB.loadData("dataTrimSpecial", [
-            "test/data/files/dataTrim.json",
-        ])
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/dataTrim.json"])
 
-        await simpleNodeDB.trim("dataTrimSpecial", "key2", {
+        await table.trim("key2", {
             method: "rightTrim",
             character: "!@",
         })
-        const data = await simpleNodeDB.getData("dataTrimSpecial")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: "  a  ", key2: " !@a" },

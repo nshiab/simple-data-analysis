@@ -1,54 +1,42 @@
-import { existsSync, mkdirSync, readFileSync } from "fs"
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("union", () => {
-    const output = "./test/output/"
-
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        if (!existsSync(output)) {
-            mkdirSync(output)
-        }
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should compute the union of geometries", async () => {
-        await simpleNodeDB.loadGeoData(
-            "poly",
-            "test/geodata/files/polygonsGroups.json"
-        )
-        await simpleNodeDB.loadGeoData(
-            "circle",
+        const poly = sdb.newTable()
+        await poly.loadGeoData("test/geodata/files/polygonsGroups.json")
+
+        const circle = sdb.newTable()
+        await circle.loadGeoData(
             "test/geodata/files/circleOverlapPolygonsGroups.json"
         )
-        await simpleNodeDB.crossJoin("poly", "circle")
-        await simpleNodeDB.union("poly", ["geom", "geom_1"], "union")
-        await simpleNodeDB.selectColumns("poly", "union")
-        await simpleNodeDB.writeGeoData("poly", `${output}union.geojson`, {
-            precision: 2,
-        })
+        await poly.crossJoin(circle)
+        await poly.union("geom", "geom_1", "result")
+        await poly.selectColumns("result")
+        await poly.reducePrecision(2)
 
-        const data = JSON.parse(readFileSync(`${output}union.geojson`, "utf-8"))
+        const data = await poly.getGeoData()
 
         assert.deepStrictEqual(data, {
             type: "FeatureCollection",
-            name: "union",
             features: [
                 {
                     type: "Feature",
-                    properties: {},
                     geometry: {
                         type: "Polygon",
                         coordinates: [
                             [
-                                [-77.57, 49.49],
                                 [-72.88, 52.49],
                                 [-64.09, 47.83],
-                                [-68.0, 43.43],
+                                [-68, 43.43],
                                 [-72.66, 44.09],
                                 [-72.75, 44.02],
                                 [-72.95, 43.89],
@@ -72,7 +60,7 @@ describe("union", () => {
                                 [-77.08, 44.47],
                                 [-77.2, 44.64],
                                 [-77.3, 44.82],
-                                [-77.38, 45.0],
+                                [-77.38, 45],
                                 [-77.43, 45.19],
                                 [-77.45, 45.38],
                                 [-77.44, 45.57],
@@ -83,18 +71,18 @@ describe("union", () => {
                                 [-77.03, 46.47],
                                 [-76.97, 46.53],
                                 [-77.57, 49.49],
+                                [-72.88, 52.49],
                             ],
                         ],
                     },
+                    properties: {},
                 },
                 {
                     type: "Feature",
-                    properties: {},
                     geometry: {
                         type: "Polygon",
                         coordinates: [
                             [
-                                [-76.43, 42.31],
                                 [-84.42, 44.57],
                                 [-82.84, 50.63],
                                 [-74.92, 48.18],
@@ -118,7 +106,7 @@ describe("union", () => {
                                 [-71.9, 45.57],
                                 [-71.89, 45.38],
                                 [-71.91, 45.19],
-                                [-71.96, 45.0],
+                                [-71.96, 45],
                                 [-72.04, 44.82],
                                 [-72.14, 44.64],
                                 [-72.26, 44.47],
@@ -140,18 +128,18 @@ describe("union", () => {
                                 [-75.94, 43.69],
                                 [-76.07, 43.74],
                                 [-76.43, 42.31],
+                                [-84.42, 44.57],
                             ],
                         ],
                     },
+                    properties: {},
                 },
                 {
                     type: "Feature",
-                    properties: {},
                     geometry: {
                         type: "Polygon",
                         coordinates: [
                             [
-                                [-70.8, 46.32],
                                 [-65.25, 44.32],
                                 [-66.38, 38.66],
                                 [-71.3, 39.19],
@@ -166,7 +154,7 @@ describe("union", () => {
                                 [-77.08, 44.47],
                                 [-77.2, 44.64],
                                 [-77.3, 44.82],
-                                [-77.38, 45.0],
+                                [-77.38, 45],
                                 [-77.43, 45.19],
                                 [-77.45, 45.38],
                                 [-77.44, 45.57],
@@ -201,18 +189,18 @@ describe("union", () => {
                                 [-71.93, 45.76],
                                 [-71.92, 45.71],
                                 [-70.8, 46.32],
+                                [-65.25, 44.32],
                             ],
                         ],
                     },
+                    properties: {},
                 },
                 {
                     type: "Feature",
-                    properties: {},
                     geometry: {
                         type: "Polygon",
                         coordinates: [
                             [
-                                [-71.82, 43.78],
                                 [-76.54, 39.26],
                                 [-81.91, 41.78],
                                 [-78.67, 45.36],
@@ -249,14 +237,16 @@ describe("union", () => {
                                 [-71.9, 45.57],
                                 [-71.89, 45.38],
                                 [-71.91, 45.19],
-                                [-71.96, 45.0],
+                                [-71.96, 45],
                                 [-72.04, 44.82],
                                 [-72.14, 44.64],
                                 [-72.23, 44.51],
                                 [-71.82, 43.78],
+                                [-76.54, 39.26],
                             ],
                         ],
                     },
+                    properties: {},
                 },
             ],
         })

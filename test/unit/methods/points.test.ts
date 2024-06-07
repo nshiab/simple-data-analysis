@@ -1,41 +1,25 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
-import { existsSync, mkdirSync, readFileSync } from "fs"
-const output = "./test/output/"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("points", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        if (!existsSync(output)) {
-            mkdirSync(output)
-        }
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should create points", async () => {
-        await simpleNodeDB.loadGeoData(
-            "geodata",
-            "test/geodata/files/coordinates.csv"
-        )
-        await simpleNodeDB.convert("geodata", { lat: "double", lon: "double" })
-        await simpleNodeDB.points("geodata", "lat", "lon", "geom")
-        await simpleNodeDB.flipCoordinates("geodata", "geom")
+        const table = sdb.newTable()
+        await table.loadData("test/geodata/files/coordinates.csv")
+        await table.convert({ lat: "double", lon: "double" })
+        await table.points("lat", "lon", "geom")
 
-        await simpleNodeDB.writeGeoData(
-            "geodata",
-            `${output}/pointsTest.geojson`
-        )
-
-        const data = JSON.parse(
-            readFileSync(`${output}/pointsTest.geojson`, "utf-8")
-        )
+        const data = await table.getGeoData("geom")
 
         assert.deepStrictEqual(data, {
             type: "FeatureCollection",
-            name: "pointsTest",
             features: [
                 {
                     type: "Feature",

@@ -1,25 +1,20 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("proportionsVertical", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return the vertical proportions in a new column", async () => {
-        await simpleNodeDB.loadData("proportions", [
-            "test/data/files/dataSummarize.json",
-        ])
-        await simpleNodeDB.proportionsVertical(
-            "proportions",
-            "key2",
-            "key2Perc"
-        )
-        const data = await simpleNodeDB.getData("proportions")
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/dataSummarize.json"])
+        await table.proportionsVertical("key2", "key2Perc")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -61,18 +56,12 @@ describe("proportionsVertical", () => {
         ])
     })
     it("should return the vertical proportions in a new column and a specific number of decimals", async () => {
-        await simpleNodeDB.loadData("proportionsSuffixDecimals", [
-            "test/data/files/dataSummarize.json",
-        ])
-        await simpleNodeDB.proportionsVertical(
-            "proportionsSuffixDecimals",
-            "key2",
-            "key2Prop",
-            {
-                decimals: 4,
-            }
-        )
-        const data = await simpleNodeDB.getData("proportionsSuffixDecimals")
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/dataSummarize.json"])
+        await table.proportionsVertical("key2", "key2Prop", {
+            decimals: 4,
+        })
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: "Rubarbe", key2: 1, key3: 10.5, key2Prop: 0.0278 },
@@ -94,22 +83,16 @@ describe("proportionsVertical", () => {
         ])
     })
     it("should return the vertical proportions in a new column with a category", async () => {
-        await simpleNodeDB.loadData("proportionsCategory", [
-            "test/data/files/dataSummarize.json",
-        ])
-        await simpleNodeDB.proportionsVertical(
-            "proportionsCategory",
-            "key2",
-            "key2Perc",
-            {
-                categories: "key1",
-            }
-        )
-        await simpleNodeDB.sort("proportionsCategory", {
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/dataSummarize.json"])
+        await table.proportionsVertical("key2", "key2Perc", {
+            categories: "key1",
+        })
+        await table.sort({
             key1: "asc",
             key2Perc: "asc",
         })
-        const data = await simpleNodeDB.getData("proportionsCategory")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -152,23 +135,17 @@ describe("proportionsVertical", () => {
     })
 
     it("should return the vertical proportions in a new column with multiple categories", async () => {
-        await simpleNodeDB.loadData("proportionsCategories", [
-            "test/data/files/dataSummarize.json",
-        ])
-        await simpleNodeDB.proportionsVertical(
-            "proportionsCategories",
-            "key3",
-            "key3Perc",
-            {
-                categories: ["key1", "key2"],
-            }
-        )
-        await simpleNodeDB.sort("proportionsCategories", {
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/dataSummarize.json"])
+        await table.proportionsVertical("key3", "key3Perc", {
+            categories: ["key1", "key2"],
+        })
+        await table.sort({
             key1: "asc",
             key2: "asc",
             key3Perc: "asc",
         })
-        const data = await simpleNodeDB.getData("proportionsCategories")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             {

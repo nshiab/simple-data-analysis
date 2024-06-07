@@ -1,22 +1,21 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("selectColumns", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return one column", async () => {
-        await simpleNodeDB.loadData("employeesOneColumn", [
-            "test/data/files/employees.csv",
-        ])
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/employees.csv"])
 
-        await simpleNodeDB.selectColumns("employeesOneColumn", "Name")
-        const data = await simpleNodeDB.getData("employeesOneColumn")
+        await table.selectColumns("Name")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { Name: "OConnell, Donald" },
@@ -73,15 +72,11 @@ describe("selectColumns", () => {
         ])
     })
     it("should return multiple columns", async () => {
-        await simpleNodeDB.loadData("employeesMultipleColumns", [
-            "test/data/files/employees.csv",
-        ])
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/employees.csv"])
 
-        await simpleNodeDB.selectColumns("employeesMultipleColumns", [
-            "Name",
-            "Salary",
-        ])
-        const data = await simpleNodeDB.getData("employeesMultipleColumns")
+        await table.selectColumns(["Name", "Salary"])
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { Name: "OConnell, Donald", Salary: "2600" },

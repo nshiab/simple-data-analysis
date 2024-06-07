@@ -1,14 +1,13 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import stringToArray from "../helpers/stringToArray.js"
-import SimpleDB from "../class/SimpleDB.js"
 import summarizeQuery from "./summarizeQuery.js"
+import SimpleWebTable from "../class/SimpleWebTable.js"
 
 export default async function summarize(
-    simpleDB: SimpleDB,
-    table: string,
+    simpleWebTable: SimpleWebTable,
     options: {
-        outputTable?: string
+        outputTable?: string | boolean
         values?: string | string[]
         categories?: string | string[]
         summaries?:
@@ -39,9 +38,13 @@ export default async function summarize(
                   | "var"
               )[]
         decimals?: number
+        toMs?: boolean
     } = {}
 ) {
-    const outputTable = options.outputTable ?? table
+    const outputTable =
+        typeof options.outputTable === "string"
+            ? options.outputTable
+            : simpleWebTable.name
 
     options.values = options.values ? stringToArray(options.values) : []
     options.categories = options.categories
@@ -53,19 +56,31 @@ export default async function summarize(
         options.summaries = [options.summaries]
     }
 
-    const types = await simpleDB.getTypes(table)
+    const types = await simpleWebTable.getTypes()
     if (options.values.length === 0) {
         options.values = Object.keys(types)
+    }
+    if (options.toMs) {
+        const toMsObj: {
+            [key: string]: "bigint"
+        } = {}
+        for (const key of Object.keys(types)) {
+            if (types[key].includes("TIME") || types[key].includes("DATE")) {
+                toMsObj[key] = "bigint"
+                types[key] = "BIGINT"
+            }
+        }
+        await simpleWebTable.convert(toMsObj)
     }
 
     options.values = options.values.filter(
         (d) => !options.categories?.includes(d)
     )
 
-    return await queryDB(
-        simpleDB,
+    await queryDB(
+        simpleWebTable,
         summarizeQuery(
-            table,
+            simpleWebTable.name,
             types,
             outputTable,
             options.values,
@@ -73,11 +88,10 @@ export default async function summarize(
             options.summaries,
             options
         ),
-        mergeOptions(simpleDB, {
+        mergeOptions(simpleWebTable, {
             table: outputTable,
             method: "summarize()",
             parameters: {
-                table,
                 options,
             },
         })

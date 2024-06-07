@@ -11,8 +11,9 @@ export default function writeGeoDataQuery(
         if (typeof options.precision === "number") {
             layerOptions.push(`COORDINATE_PRECISION=${options.precision}`)
         }
+        layerOptions.push(`RFC7946=YES`)
 
-        return `COPY ${table} to '${file}' WITH (FORMAT GDAL, DRIVER 'GeoJSON'${layerOptions.length > 0 ? `, LAYER_CREATION_OPTIONS (${layerOptions.map((d) => `'${d}'`).join(", ")})` : ""})`
+        return `COPY ${table} to '${file}' WITH (FORMAT GDAL, DRIVER 'GeoJSON'${layerOptions.length > 0 ? `, LAYER_CREATION_OPTIONS ('WRITE_NAME=NO', ${layerOptions.map((d) => `'${d}'`).join(", ")})` : ""})`
     } else {
         throw new Error(`Unknown extension ${fileExtension}`)
     }

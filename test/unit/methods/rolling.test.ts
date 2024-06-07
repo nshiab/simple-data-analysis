@@ -1,17 +1,18 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("rolling", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should compute a rolling average with 3 preceding and 3 following", async () => {
-        await simpleNodeDB.loadArray("data", [
+        const table = sdb.newTable()
+        await table.loadArray([
             { value: 52 },
             { value: 76 },
             { value: 36 },
@@ -24,9 +25,9 @@ describe("rolling", () => {
             { value: 41 },
         ])
 
-        await simpleNodeDB.rolling("data", "value", "rollingAvg", "mean", 3, 3)
+        await table.rolling("value", "rollingAvg", "mean", 3, 3)
 
-        const data = await simpleNodeDB.getData("data")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { value: 52, rollingAvg: null },
@@ -42,7 +43,8 @@ describe("rolling", () => {
         ])
     })
     it("should compute a rolling average with 3 preceding and 3 following, and 4 decimals", async () => {
-        await simpleNodeDB.loadArray("data", [
+        const table = sdb.newTable()
+        await table.loadArray([
             { value: 52 },
             { value: 76 },
             { value: 36 },
@@ -55,17 +57,11 @@ describe("rolling", () => {
             { value: 41 },
         ])
 
-        await simpleNodeDB.rolling(
-            "data",
-            "value",
-            "rollingAvg",
-            "mean",
-            3,
-            3,
-            { decimals: 4 }
-        )
+        await table.rolling("value", "rollingAvg", "mean", 3, 3, {
+            decimals: 4,
+        })
 
-        const data = await simpleNodeDB.getData("data")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { value: 52, rollingAvg: null },
@@ -81,7 +77,8 @@ describe("rolling", () => {
         ])
     })
     it("should compute a rolling max with 0 preceding and 3 following", async () => {
-        await simpleNodeDB.loadArray("data", [
+        const table = sdb.newTable()
+        await table.loadArray([
             { value: 52 },
             { value: 76 },
             { value: 36 },
@@ -94,9 +91,9 @@ describe("rolling", () => {
             { value: 41 },
         ])
 
-        await simpleNodeDB.rolling("data", "value", "rollingMax", "max", 0, 3)
+        await table.rolling("value", "rollingMax", "max", 0, 3)
 
-        const data = await simpleNodeDB.getData("data")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { value: 52, rollingMax: 95 },
@@ -112,36 +109,37 @@ describe("rolling", () => {
         ])
     })
     it("should compute a rolling max with 0 preceding and 3 following, and a category", async () => {
-        await simpleNodeDB.loadArray("data", [
-            { index: 1, group: "a", value: 52 },
-            { index: 2, group: "a", value: 76 },
-            { index: 3, group: "a", value: 36 },
-            { index: 4, group: "a", value: 95 },
-            { index: 5, group: "a", value: 40 },
-            { index: 6, group: "b", value: 19 },
-            { index: 7, group: "b", value: 63 },
-            { index: 8, group: "b", value: 4 },
-            { index: 9, group: "b", value: 83 },
-            { index: 10, group: "b", value: 41 },
+        const table = sdb.newTable()
+        await table.loadArray([
+            { index: 1, groups: "a", value: 52 },
+            { index: 2, groups: "a", value: 76 },
+            { index: 3, groups: "a", value: 36 },
+            { index: 4, groups: "a", value: 95 },
+            { index: 5, groups: "a", value: 40 },
+            { index: 6, groups: "b", value: 19 },
+            { index: 7, groups: "b", value: 63 },
+            { index: 8, groups: "b", value: 4 },
+            { index: 9, groups: "b", value: 83 },
+            { index: 10, groups: "b", value: 41 },
         ])
 
-        await simpleNodeDB.rolling("data", "value", "rollingMax", "max", 0, 3, {
-            categories: "group",
+        await table.rolling("value", "rollingMax", "max", 0, 3, {
+            categories: "groups",
         })
-        await simpleNodeDB.sort("data", { index: "asc" })
-        const data = await simpleNodeDB.getData("data")
+        await table.sort({ index: "asc" })
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
-            { index: 1, group: "a", value: 52, rollingMax: 95 },
-            { index: 2, group: "a", value: 76, rollingMax: 95 },
-            { index: 3, group: "a", value: 36, rollingMax: null },
-            { index: 4, group: "a", value: 95, rollingMax: null },
-            { index: 5, group: "a", value: 40, rollingMax: null },
-            { index: 6, group: "b", value: 19, rollingMax: 83 },
-            { index: 7, group: "b", value: 63, rollingMax: 83 },
-            { index: 8, group: "b", value: 4, rollingMax: null },
-            { index: 9, group: "b", value: 83, rollingMax: null },
-            { index: 10, group: "b", value: 41, rollingMax: null },
+            { index: 1, groups: "a", value: 52, rollingMax: 95 },
+            { index: 2, groups: "a", value: 76, rollingMax: 95 },
+            { index: 3, groups: "a", value: 36, rollingMax: null },
+            { index: 4, groups: "a", value: 95, rollingMax: null },
+            { index: 5, groups: "a", value: 40, rollingMax: null },
+            { index: 6, groups: "b", value: 19, rollingMax: 83 },
+            { index: 7, groups: "b", value: 63, rollingMax: 83 },
+            { index: 8, groups: "b", value: 4, rollingMax: null },
+            { index: 9, groups: "b", value: 83, rollingMax: null },
+            { index: 10, groups: "b", value: 41, rollingMax: null },
         ])
     })
 })

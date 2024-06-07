@@ -1,21 +1,19 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("updateWithJS", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData(
-            "employees",
-            "test/data/files/employees.json"
-        )
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should update the data from the table with a javascript function and reinsert it into the table", async () => {
-        await simpleNodeDB.updateWithJS("employees", (rows) => {
+        const table = sdb.newTable()
+        await table.loadData("test/data/files/employees.json")
+        await table.updateWithJS((rows) => {
             const modifiedRows = rows.map((d) => ({
                 Name: typeof d.Name === "string" ? d.Name.slice(0, 4) : d.Name,
             }))
@@ -23,7 +21,7 @@ describe("updateWithJS", () => {
             return modifiedRows
         })
 
-        const data = await simpleNodeDB.getData("employees")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { Name: "OCon" },

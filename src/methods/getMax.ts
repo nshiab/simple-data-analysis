@@ -1,20 +1,19 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebTable from "../class/SimpleWebTable.js"
 
 export default async function getMax(
-    simpleDB: SimpleDB,
-    table: string,
+    simpleWebTable: SimpleWebTable,
     column: string
 ) {
     const queryResult = await queryDB(
-        simpleDB,
-        `SELECT MAX("${column}") AS valueForGetMax FROM ${table}`,
-        mergeOptions(simpleDB, {
-            table,
+        simpleWebTable,
+        `SELECT MAX(${column}) AS valueForGetMax FROM ${simpleWebTable.name}`,
+        mergeOptions(simpleWebTable, {
+            table: simpleWebTable.name,
             returnDataFrom: "query",
             method: "getMax()",
-            parameters: { table, column },
+            parameters: { column },
         })
     )
 
@@ -24,7 +23,7 @@ export default async function getMax(
 
     const result = queryResult[0].valueForGetMax
 
-    simpleDB.debug && console.log("max:", result)
+    simpleWebTable.debug && console.log("max:", result)
 
     return result
 }

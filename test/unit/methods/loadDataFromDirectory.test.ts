@@ -1,23 +1,22 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("loadDataFromDirectory", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should load data from a directory", async () => {
-        await simpleNodeDB.loadDataFromDirectory(
-            "directory",
-            "test/data/directory/",
-            { unifyColumns: true }
-        )
+        const table = sdb.newTable()
+        await table.loadDataFromDirectory("test/data/directory/", {
+            unifyColumns: true,
+        })
 
-        const data = await simpleNodeDB.getData("directory")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: 1, key2: "un", key3: null },
@@ -37,13 +36,12 @@ describe("loadDataFromDirectory", () => {
         ])
     })
     it("should load data from a directory even when the path doesn't have '/' at the end", async () => {
-        await simpleNodeDB.loadDataFromDirectory(
-            "directoryWithSlash",
-            "test/data/directory",
-            { unifyColumns: true }
-        )
+        const table = sdb.newTable()
+        await table.loadDataFromDirectory("test/data/directory", {
+            unifyColumns: true,
+        })
 
-        const data = await simpleNodeDB.getData("directoryWithSlash")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: 1, key2: "un", key3: null },
@@ -63,13 +61,13 @@ describe("loadDataFromDirectory", () => {
         ])
     })
     it("should load data from a directory with a limit option", async () => {
-        await simpleNodeDB.loadDataFromDirectory(
-            "directory",
-            "test/data/directory/",
-            { unifyColumns: true, limit: 3 }
-        )
+        const table = sdb.newTable()
+        await table.loadDataFromDirectory("test/data/directory/", {
+            unifyColumns: true,
+            limit: 3,
+        })
 
-        const data = await simpleNodeDB.getData("directory")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: 1, key2: "un", key3: null },

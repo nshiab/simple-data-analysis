@@ -1,11 +1,18 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
-describe("getLength", () => {
-    let simpleNodeDB: SimpleNodeDB
+describe("getNbRows", () => {
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadArray("age", [
+        sdb = new SimpleDB()
+    })
+    after(async function () {
+        await sdb.done()
+    })
+
+    it("should return the number of a rows in a table", async () => {
+        const table = sdb.newTable("data")
+        await table.loadArray([
             { name: "Evangeline", age: 21 },
             { name: "Amelia", age: 29 },
             { name: "Marie", age: 30 },
@@ -23,7 +30,13 @@ describe("getLength", () => {
             { name: "Sarah", age: 64 },
             { name: "Frankie", age: 65 },
         ])
-        await simpleNodeDB.loadArray("ageWithNull", [
+        const length = await table.getNbRows()
+
+        assert.deepStrictEqual(length, 16)
+    })
+    it("should return the number of a rows in a table with nul values", async () => {
+        const table = sdb.newTable("data")
+        await table.loadArray([
             { name: "Evangeline", age: 21 },
             { name: "Amelia", age: 29 },
             { name: "Marie", age: 30 },
@@ -41,18 +54,7 @@ describe("getLength", () => {
             { name: "Sarah", age: 64 },
             { name: "Frankie", age: 65 },
         ])
-    })
-    after(async function () {
-        await simpleNodeDB.done()
-    })
-
-    it("should return the number of a rows in a table", async () => {
-        const length = await simpleNodeDB.getLength("age")
-
-        assert.deepStrictEqual(length, 16)
-    })
-    it("should return the number of a rows in a table with nul values", async () => {
-        const length = await simpleNodeDB.getLength("ageWithNull")
+        const length = await table.getNbRows()
 
         assert.deepStrictEqual(length, 16)
     })

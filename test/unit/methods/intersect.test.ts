@@ -1,38 +1,32 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("intersect", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should check if geometries intersect", async () => {
-        await simpleNodeDB.loadGeoData(
-            "prov",
+        const prov = sdb.newTable("data")
+        await prov.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await simpleNodeDB.renameColumns("prov", { geom: "prov" })
+        await prov.renameColumns({ geom: "prov" })
 
-        await simpleNodeDB.loadGeoData(
-            "pol",
-            "test/geodata/files/polygons.geojson"
-        )
-        await simpleNodeDB.renameColumns("pol", { geom: "pol" })
+        const poly = sdb.newTable("poly")
+        await poly.loadGeoData("test/geodata/files/polygons.geojson")
+        await poly.renameColumns({ geom: "pol" })
 
-        await simpleNodeDB.crossJoin("prov", "pol", { outputTable: "joined" })
-        await simpleNodeDB.intersect("joined", ["pol", "prov"], "intersec")
+        const joined = await prov.crossJoin(poly, { outputTable: "joined" })
+        await joined.intersect("pol", "prov", "intersec")
 
-        await simpleNodeDB.selectColumns("joined", [
-            "nameEnglish",
-            "name",
-            "intersec",
-        ])
+        await joined.selectColumns(["nameEnglish", "name", "intersec"])
 
-        const data = await simpleNodeDB.getData("joined")
+        const data = await joined.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -96,30 +90,22 @@ describe("intersect", () => {
         ])
     })
     it("should check if geometries intersect and the returned booleans could be used to filter", async () => {
-        await simpleNodeDB.loadGeoData(
-            "prov",
+        const prov = sdb.newTable("data")
+        await prov.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await simpleNodeDB.renameColumns("prov", { geom: "prov" })
+        await prov.renameColumns({ geom: "prov" })
 
-        await simpleNodeDB.loadGeoData(
-            "pol",
-            "test/geodata/files/polygons.geojson"
-        )
-        await simpleNodeDB.renameColumns("pol", { geom: "pol" })
+        const poly = sdb.newTable("poly")
+        await poly.loadGeoData("test/geodata/files/polygons.geojson")
+        await poly.renameColumns({ geom: "pol" })
 
-        await simpleNodeDB.crossJoin("prov", "pol", { outputTable: "joined" })
-        await simpleNodeDB.intersect("joined", ["pol", "prov"], "intersec")
+        const joined = await prov.crossJoin(poly, { outputTable: "joined" })
+        await joined.intersect("pol", "prov", "intersec")
+        await joined.selectColumns(["nameEnglish", "name", "intersec"])
+        await joined.filter("intersec = TRUE")
 
-        await simpleNodeDB.selectColumns("joined", [
-            "nameEnglish",
-            "name",
-            "intersec",
-        ])
-
-        await simpleNodeDB.filter("joined", "intersec = TRUE")
-
-        const data = await simpleNodeDB.getData("joined")
+        const data = await joined.getData()
 
         assert.deepStrictEqual(data, [
             { nameEnglish: "Quebec", name: "polygonA", intersec: true },

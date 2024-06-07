@@ -4,12 +4,12 @@ import {
     DuckDBDataProtocol,
 } from "@duckdb/duckdb-wasm"
 import getExtension from "../helpers/getExtension.js"
-import SimpleDB from "../class/SimpleDB.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import formatDuration from "../helpers/formatDuration.js"
+import SimpleWebTable from "../class/SimpleWebTable.js"
 
-export default async function loadDataBrowser(
-    simpleDB: SimpleDB,
+export default async function fetchDataBrowser(
+    simpleWebTable: SimpleWebTable,
     table: string,
     url: string,
     options: {
@@ -21,16 +21,22 @@ export default async function loadDataBrowser(
         skip?: number
     } = {}
 ) {
-    simpleDB.debug && console.log("\nloadData()")
-    simpleDB.debug && console.log("parameters:", { table, url, options })
+    simpleWebTable.debug && console.log("\nloadData()")
+    simpleWebTable.debug && console.log("parameters:", { table, url, options })
 
     let start
-    if (simpleDB.debug) {
+    if (simpleWebTable.debug) {
         start = Date.now()
     }
 
-    if (await simpleDB.hasTable(table)) {
-        await simpleDB.removeTables(table)
+    if (simpleWebTable.db === undefined) {
+        await simpleWebTable.sdb.start()
+        simpleWebTable.db = simpleWebTable.sdb.db
+        simpleWebTable.connection = simpleWebTable.sdb.connection
+    }
+
+    if (await simpleWebTable.sdb.hasTable(table)) {
+        await simpleWebTable.sdb.customQuery(`DROP TABLE ${table};`)
     }
 
     const fileExtension = getExtension(url)
@@ -42,47 +48,45 @@ export default async function loadDataBrowser(
         options.fileType === "dsv" ||
         typeof options.delim === "string"
     ) {
-        await (simpleDB.db as AsyncDuckDB).registerFileURL(
+        await (simpleWebTable.db as AsyncDuckDB).registerFileURL(
             filename,
             url,
             DuckDBDataProtocol.HTTP,
             false
         )
 
-        await (simpleDB.connection as AsyncDuckDBConnection).insertCSVFromPath(
-            filename,
-            {
-                name: table,
-                detect: options.autoDetect ?? true,
-                header: options.header ?? true,
-                delimiter: options.delim ?? ",",
-                skip: options.skip,
-            }
-        )
+        await (
+            simpleWebTable.connection as AsyncDuckDBConnection
+        ).insertCSVFromPath(filename, {
+            name: table,
+            detect: options.autoDetect ?? true,
+            header: options.header ?? true,
+            delimiter: options.delim ?? ",",
+            skip: options.skip,
+        })
     } else if (options.fileType === "json" || fileExtension === "json") {
         const res = await fetch(url)
-        await (simpleDB.db as AsyncDuckDB).registerFileText(
+        await (simpleWebTable.db as AsyncDuckDB).registerFileText(
             filename,
             await res.text()
         )
-        await (simpleDB.connection as AsyncDuckDBConnection).insertJSONFromPath(
-            filename,
-            {
-                name: table,
-            }
-        )
+        await (
+            simpleWebTable.connection as AsyncDuckDBConnection
+        ).insertJSONFromPath(filename, {
+            name: table,
+        })
     } else if (options.fileType === "parquet" || fileExtension === "parquet") {
-        await (simpleDB.db as AsyncDuckDB).registerFileURL(
+        await (simpleWebTable.db as AsyncDuckDB).registerFileURL(
             filename,
             url,
             DuckDBDataProtocol.HTTP,
             false
         )
-        await simpleDB.runQuery(
+        await simpleWebTable.runQuery(
             `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM parquet_scan('${filename}')`,
-            simpleDB.connection,
+            simpleWebTable.connection,
             false,
-            mergeOptions(simpleDB, {
+            mergeOptions(simpleWebTable, {
                 table: null,
                 method: null,
                 parameters: null,
@@ -99,7 +103,7 @@ export default async function loadDataBrowser(
         console.log(`Done in ${formatDuration(start, end)}`)
     }
 
-    if (simpleDB.debug) {
-        await simpleDB.logTable(table)
+    if (simpleWebTable.debug) {
+        await simpleWebTable.logTable()
     }
 }

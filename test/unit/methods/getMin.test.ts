@@ -1,17 +1,18 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("getMin", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("data", ["test/data/files/data.json"])
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return the min value", async () => {
-        assert.deepStrictEqual(await simpleNodeDB.getMin("data", "key1"), 1)
+        const table = sdb.newTable("data")
+        await table.loadData("test/data/files/data.json")
+        assert.deepStrictEqual(await table.getMin("key1"), 1)
     })
 })

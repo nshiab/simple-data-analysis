@@ -2,25 +2,27 @@ import getCombinations from "../helpers/getCombinations.js"
 import keepNumericalColumns from "../helpers/keepNumericalColumns.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleDB from "../class/SimpleDB.js"
 import linearRegressionQuery from "./linearRegressionQuery.js"
+import SimpleWebTable from "../class/SimpleWebTable.js"
 
 export default async function linearRegressions(
-    simpleDB: SimpleDB,
-    table: string,
+    simpleWebTable: SimpleWebTable,
     options: {
         x?: string
         y?: string
         categories?: string | string[]
         decimals?: number
-        outputTable?: string
+        outputTable?: string | boolean
     } = {}
 ) {
-    const outputTable = options.outputTable ?? table
+    const outputTable =
+        typeof options.outputTable === "string"
+            ? options.outputTable
+            : simpleWebTable.name
 
     const permutations: [string, string][] = []
     if (!options.x && !options.y) {
-        const types = await simpleDB.getTypes(table)
+        const types = await simpleWebTable.getTypes()
         const columns = keepNumericalColumns(types)
         const combinations = getCombinations(columns, 2)
         for (const c of combinations) {
@@ -28,7 +30,7 @@ export default async function linearRegressions(
             permutations.push([c[1], c[0]])
         }
     } else if (options.x && !options.y) {
-        const types = await simpleDB.getTypes(table)
+        const types = await simpleWebTable.getTypes()
         const columns = keepNumericalColumns(types)
         for (const col of columns) {
             if (col !== options.x) {
@@ -42,13 +44,17 @@ export default async function linearRegressions(
     }
 
     await queryDB(
-        simpleDB,
-        linearRegressionQuery(table, outputTable, permutations, options),
-        mergeOptions(simpleDB, {
+        simpleWebTable,
+        linearRegressionQuery(
+            simpleWebTable.name,
+            outputTable,
+            permutations,
+            options
+        ),
+        mergeOptions(simpleWebTable, {
             table: outputTable,
             method: "linearRegressions()",
             parameters: {
-                table,
                 options,
                 "permutations (computed)": permutations,
             },

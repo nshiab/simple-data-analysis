@@ -1,38 +1,59 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("length", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should calculate the length of geometries in meters", async () => {
-        await simpleNodeDB.loadGeoData(
-            "geodata",
-            "test/geodata/files/line.json"
-        )
-        await simpleNodeDB.flipCoordinates("geodata", "geom")
-        await simpleNodeDB.length("geodata", "geom", "length")
-        await simpleNodeDB.round("geodata", "length")
-        await simpleNodeDB.selectColumns("geodata", "length")
-        const data = await simpleNodeDB.getData("geodata")
+        const table = sdb.newTable()
+        await table.loadGeoData("test/geodata/files/line.json")
+        await table.flipCoordinates()
+        await table.length("length")
+        await table.round("length")
+        await table.selectColumns("length")
+        const data = await table.getData()
+
+        assert.deepStrictEqual(data, [{ length: 70175 }])
+    })
+    it("should calculate the length of geometries from a specific column in meters", async () => {
+        const table = sdb.newTable()
+        await table.loadGeoData("test/geodata/files/line.json")
+        await table.flipCoordinates()
+        await table.length("length", { column: "geom" })
+        await table.round("length")
+        await table.selectColumns("length")
+        const data = await table.getData()
+
+        assert.deepStrictEqual(data, [{ length: 70175 }])
+    })
+    it("should calculate the length of geometries in meters from a file loaded with option toWGS84", async () => {
+        const table = sdb.newTable()
+        await table.loadGeoData("test/geodata/files/line.json", {
+            toWGS84: true,
+        })
+        // No need to flip
+        // await table.flipCoordinates("geom")
+        await table.length("length")
+        await table.round("length")
+        await table.selectColumns("length")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [{ length: 70175 }])
     })
     it("should calculate the length of geometries in kilometers", async () => {
-        await simpleNodeDB.loadGeoData(
-            "geodata",
-            "test/geodata/files/line.json"
-        )
-        await simpleNodeDB.flipCoordinates("geodata", "geom")
-        await simpleNodeDB.length("geodata", "geom", "length", { unit: "km" })
-        await simpleNodeDB.round("geodata", "length")
-        await simpleNodeDB.selectColumns("geodata", "length")
-        const data = await simpleNodeDB.getData("geodata")
+        const table = sdb.newTable()
+        await table.loadGeoData("test/geodata/files/line.json")
+        await table.flipCoordinates("geom")
+        await table.length("length", { unit: "km" })
+        await table.round("length")
+        await table.selectColumns("length")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [{ length: 70 }])
     })

@@ -1,33 +1,28 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
-import { existsSync, mkdirSync, readFileSync } from "fs"
+import SimpleDB from "../../../src/class/SimpleDB.js"
+import { existsSync, mkdirSync } from "fs"
+import SimpleTable from "../../../src/class/SimpleTable.js"
 
 describe("addColumn", () => {
     const output = "./test/output/"
 
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
+    let table: SimpleTable
     before(async function () {
         if (!existsSync(output)) {
             mkdirSync(output)
         }
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
-        await simpleNodeDB.loadData("dataSummarize", [
-            "test/data/files/dataSummarize.json",
-        ])
+        sdb = new SimpleDB()
+        table = sdb.newTable("data")
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return a column with new computed values", async () => {
-        await simpleNodeDB.addColumn(
-            "dataSummarize",
-            "multiply",
-            "double",
-            `key2 * key3`
-        )
-
-        const data = await simpleNodeDB.getData("dataSummarize")
+        await table.loadData(["test/data/files/dataSummarize.json"])
+        await table.addColumn("multiply", "double", `key2 * key3`)
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: "Rubarbe", key2: 1, key3: 10.5, multiply: 10.5 },
@@ -39,14 +34,9 @@ describe("addColumn", () => {
         ])
     })
     it("should return a column with booleans", async () => {
-        await simpleNodeDB.addColumn(
-            "dataSummarize",
-            "key2GreaterThanTen",
-            "boolean",
-            `key2 > 10`
-        )
+        await table.addColumn("key2GreaterThanTen", "boolean", `key2 > 10`)
 
-        const data = await simpleNodeDB.getData("dataSummarize")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -94,43 +84,31 @@ describe("addColumn", () => {
         ])
     })
     it("should return a column with geometry", async () => {
-        await simpleNodeDB.loadGeoData(
-            "geo",
-            "test/geodata/files/polygons.geojson"
-        )
+        const geo = sdb.newTable("geo")
+        await geo.loadGeoData("test/geodata/files/polygons.geojson")
 
-        await simpleNodeDB.addColumn(
-            "geo",
-            "centroid",
-            "geometry",
-            `ST_Centroid(geom)`
-        )
-        await simpleNodeDB.selectColumns("geo", ["name", "centroid"])
-        await simpleNodeDB.writeGeoData("geo", `${output}/addColumTest.geojson`)
-
-        const data = JSON.parse(
-            readFileSync(`${output}/addColumTest.geojson`, "utf-8")
-        )
+        await geo.addColumn("centroid", "geometry", `ST_Centroid(geom)`)
+        await geo.selectColumns(["name", "centroid"])
+        const data = await geo.getGeoData("centroid")
 
         assert.deepStrictEqual(data, {
             type: "FeatureCollection",
-            name: "addColumTest",
             features: [
                 {
                     type: "Feature",
-                    properties: { name: "polygonA" },
                     geometry: {
                         type: "Point",
-                        coordinates: [-78.404315186235195, 47.992857929155612],
+                        coordinates: [-78.40431518960061, 47.9928579141529],
                     },
+                    properties: { name: "polygonA" },
                 },
                 {
                     type: "Feature",
-                    properties: { name: "polygonB" },
                     geometry: {
                         type: "Point",
-                        coordinates: [-109.102836190004638, 57.31925822683683],
+                        coordinates: [-109.10283617191051, 57.319258201410996],
                     },
+                    properties: { name: "polygonB" },
                 },
             ],
         })

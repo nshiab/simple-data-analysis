@@ -1,23 +1,20 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("linearRegressions", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData(
-            "someData",
-            "test/data/files/dataCorrelations.json"
-        )
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
     it("should return the slope, yIntercept and coefficient of determination for all permutations of numeric columns and overwrite the current table with the results", async () => {
-        await simpleNodeDB.cloneTable("someData", "someDataCloned")
-        await simpleNodeDB.linearRegressions("someDataCloned", { decimals: 10 })
-        await simpleNodeDB.sort("someDataCloned", { r2: "desc", x: "asc" })
-        const data = await simpleNodeDB.getData("someDataCloned")
+        const table = sdb.newTable()
+        await table.loadData("test/data/files/dataCorrelations.json")
+        await table.linearRegressions({ decimals: 10 })
+        await table.sort({ r2: "desc", x: "asc" })
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -66,10 +63,11 @@ describe("linearRegressions", () => {
     })
 
     it("should return the slope, yIntercept and coefficient of determination for all permutations of numeric columns and overwrite the current table with the results, with 2 decimals", async () => {
-        await simpleNodeDB.cloneTable("someData", "someDataCloned")
-        await simpleNodeDB.linearRegressions("someDataCloned", { decimals: 2 })
-        await simpleNodeDB.sort("someDataCloned", { r2: "desc", x: "asc" })
-        const data = await simpleNodeDB.getData("someDataCloned")
+        const table = sdb.newTable()
+        await table.loadData("test/data/files/dataCorrelations.json")
+        await table.linearRegressions({ decimals: 2 })
+        await table.sort({ r2: "desc", x: "asc" })
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { x: "key3", y: "key4", slope: -0.58, yIntercept: 9.08, r2: 0.51 },
@@ -80,14 +78,15 @@ describe("linearRegressions", () => {
             { x: "key4", y: "key2", slope: -0.63, yIntercept: 11.97, r2: 0.06 },
         ])
     })
-
-    it("should return the slope, yIntercept and coefficient of determination for all permutations of numeric columns", async () => {
-        await simpleNodeDB.linearRegressions("someData", {
-            outputTable: "linearRegressions",
+    it("should return the slope, yIntercept and coefficient of determination for all permutations of numeric columns and push the results to a new table, with 2 decimals", async () => {
+        const table = sdb.newTable()
+        await table.loadData("test/data/files/dataCorrelations.json")
+        const regre = await table.linearRegressions({
             decimals: 2,
+            outputTable: true,
         })
-        await simpleNodeDB.sort("linearRegressions", { r2: "desc", x: "asc" })
-        const data = await simpleNodeDB.getData("linearRegressions")
+        await regre.sort({ r2: "desc", x: "asc" })
+        const data = await regre.getData()
 
         assert.deepStrictEqual(data, [
             { x: "key3", y: "key4", slope: -0.58, yIntercept: 9.08, r2: 0.51 },
@@ -98,33 +97,43 @@ describe("linearRegressions", () => {
             { x: "key4", y: "key2", slope: -0.63, yIntercept: 11.97, r2: 0.06 },
         ])
     })
+    it("should return the slope, yIntercept and coefficient of determination for all permutations of numeric columns and push the results to a new table with a specific name, with 2 decimals", async () => {
+        const table = sdb.newTable()
+        await table.loadData("test/data/files/dataCorrelations.json")
+        const regre = await table.linearRegressions({
+            decimals: 2,
+            outputTable: "regr",
+        })
+        await regre.sort({ r2: "desc", x: "asc" })
+        const data = await regre.getData()
 
-    // To redo with climate data
+        assert.deepStrictEqual(data, [
+            { x: "key3", y: "key4", slope: -0.58, yIntercept: 9.08, r2: 0.51 },
+            { x: "key4", y: "key3", slope: -0.88, yIntercept: 11.61, r2: 0.51 },
+            { x: "key2", y: "key3", slope: 0.17, yIntercept: 5.89, r2: 0.13 },
+            { x: "key3", y: "key2", slope: 0.73, yIntercept: 3.59, r2: 0.13 },
+            { x: "key2", y: "key4", slope: -0.1, yIntercept: 5.63, r2: 0.06 },
+            { x: "key4", y: "key2", slope: -0.63, yIntercept: 11.97, r2: 0.06 },
+        ])
+    })
     it("should return the slope, yIntercept and coefficient of determination for specific columns with a specific category", async () => {
-        await simpleNodeDB.loadData(
-            "temperatures",
-            "./test/data/files/dailyTemperatures.csv"
-        )
-        await simpleNodeDB.addColumn(
-            "temperatures",
-            "decade",
-            "integer",
-            "FLOOR(YEAR(time)/10)*10"
-        )
-        await simpleNodeDB.summarize("temperatures", {
+        const temp = sdb.newTable()
+        await temp.loadData("./test/data/files/dailyTemperatures.csv")
+        await temp.addColumn("decade", "integer", "FLOOR(YEAR(time)/10)*10")
+        await temp.summarize({
             values: "t",
             categories: ["decade", "id"],
             summaries: "mean",
         })
-        await simpleNodeDB.linearRegressions("temperatures", {
+        await temp.linearRegressions({
             x: "decade",
             y: "mean",
             categories: "id",
             decimals: 2,
         })
 
-        await simpleNodeDB.sort("temperatures", { r2: "desc" })
-        const data = await simpleNodeDB.getData("temperatures")
+        await temp.sort({ r2: "desc" })
+        const data = await temp.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -155,13 +164,14 @@ describe("linearRegressions", () => {
     })
 
     it("should return the slope, yIntercept and coefficient of determination for all combination of a column x and other numeric columns", async () => {
-        await simpleNodeDB.linearRegressions("someData", {
-            outputTable: "linearRegressions",
+        const table = sdb.newTable()
+        await table.loadData("test/data/files/dataCorrelations.json")
+        await table.linearRegressions({
             x: "key2",
             decimals: 2,
         })
-        await simpleNodeDB.sort("linearRegressions", { r2: "desc" })
-        const data = await simpleNodeDB.getData("linearRegressions")
+        await table.sort({ r2: "desc" })
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { x: "key2", y: "key3", slope: 0.17, yIntercept: 5.89, r2: 0.13 },
@@ -169,25 +179,27 @@ describe("linearRegressions", () => {
         ])
     })
     it("should return the slope, yIntercept and coefficient of determination for two specific columns", async () => {
-        await simpleNodeDB.linearRegressions("someData", {
-            outputTable: "linearRegressions",
+        const table = sdb.newTable()
+        await table.loadData("test/data/files/dataCorrelations.json")
+        await table.linearRegressions({
             x: "key2",
             y: "key3",
             decimals: 2,
         })
-        const data = await simpleNodeDB.getData("linearRegressions")
+        const data = await table.getData()
         assert.deepStrictEqual(data, [
             { x: "key2", y: "key3", slope: 0.17, yIntercept: 5.89, r2: 0.13 },
         ])
     })
     it("should return the slope, yIntercept and coefficient of determination for two specific columns, with a specific number of decimals", async () => {
-        await simpleNodeDB.linearRegressions("someData", {
-            outputTable: "linearRegressions",
+        const table = sdb.newTable()
+        await table.loadData("test/data/files/dataCorrelations.json")
+        await table.linearRegressions({
             x: "key2",
             y: "key3",
             decimals: 5,
         })
-        const data = await simpleNodeDB.getData("linearRegressions")
+        const data = await table.getData()
         assert.deepStrictEqual(data, [
             {
                 x: "key2",

@@ -1,22 +1,22 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("loadGeoData", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should load a geojson file", async () => {
-        await simpleNodeDB.loadGeoData(
-            "geoJsonData",
+        const table = sdb.newTable()
+        await table.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
 
-        const types = await simpleNodeDB.getTypes("geoJsonData")
+        const types = await table.getTypes()
 
         assert.deepStrictEqual(types, {
             nameEnglish: "VARCHAR",
@@ -25,12 +25,12 @@ describe("loadGeoData", () => {
         })
     })
     it("should load a geojson file from a URL", async () => {
-        await simpleNodeDB.loadGeoData(
-            "geoJsonData",
+        const table = sdb.newTable()
+        await table.loadGeoData(
             "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json"
         )
 
-        const types = await simpleNodeDB.getTypes("geoJsonData")
+        const types = await table.getTypes()
 
         assert.deepStrictEqual(types, {
             nameEnglish: "VARCHAR",
@@ -39,17 +39,31 @@ describe("loadGeoData", () => {
         })
     })
     it("should load a shapefile file", async () => {
-        await simpleNodeDB.loadGeoData(
-            "shapefileData",
+        const table = sdb.newTable()
+        await table.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.shp.zip"
         )
 
-        const types = await simpleNodeDB.getTypes("shapefileData")
+        const types = await table.getTypes()
 
         assert.deepStrictEqual(types, {
             nameEnglis: "VARCHAR",
             nameFrench: "VARCHAR",
             geom: "GEOMETRY",
         })
+    })
+    it("should load a geojson file and convert it to WGS84", async () => {
+        const table = sdb.newTable()
+        await table.loadGeoData("test/geodata/files/point.json", {
+            toWGS84: true,
+        })
+        await table.latLon("geom", "lat", "lon")
+        await table.selectColumns(["lat", "lon"])
+
+        const data = await table.getData()
+
+        assert.deepStrictEqual(data, [
+            { lat: 45.51412791316409, lon: -73.62315106245389 },
+        ])
     })
 })

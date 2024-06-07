@@ -1,17 +1,18 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("getSum", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("data", ["test/data/files/data.json"])
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return the sum", async () => {
-        assert.deepStrictEqual(await simpleNodeDB.getSum("data", "key1"), 10)
+        const table = sdb.newTable("data")
+        await table.loadData(["test/data/files/data.json"])
+        assert.deepStrictEqual(await table.getSum("key1"), 10)
     })
 })

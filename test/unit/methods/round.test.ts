@@ -1,24 +1,23 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("round", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should round to the nearest integer", async () => {
-        await simpleNodeDB.loadData("dataInteger", [
-            "test/data/files/dataManyDecimals.csv",
-        ])
-        await simpleNodeDB.selectColumns("dataInteger", ["key1"])
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/dataManyDecimals.csv"])
+        await table.selectColumns(["key1"])
 
-        await simpleNodeDB.round("dataInteger", ["key1"])
+        await table.round(["key1"])
 
-        const data = await simpleNodeDB.getData("dataInteger")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: 1 },
@@ -28,14 +27,13 @@ describe("round", () => {
         ])
     })
     it("should round to a specific number of decimals", async () => {
-        await simpleNodeDB.loadData("dataDecimals", [
-            "test/data/files/dataManyDecimals.csv",
-        ])
-        await simpleNodeDB.selectColumns("dataDecimals", ["key1"])
-        await simpleNodeDB.round("dataDecimals", ["key1"], {
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/dataManyDecimals.csv"])
+        await table.selectColumns(["key1"])
+        await table.round(["key1"], {
             decimals: 3,
         })
-        const data = await simpleNodeDB.getData("dataDecimals")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: 1.044 },
@@ -45,15 +43,14 @@ describe("round", () => {
         ])
     })
     it("should floor", async () => {
-        await simpleNodeDB.loadData("dataFloor", [
-            "test/data/files/dataManyDecimals.csv",
-        ])
-        await simpleNodeDB.selectColumns("dataFloor", ["key1"])
-        await simpleNodeDB.round("dataFloor", ["key1"], {
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/dataManyDecimals.csv"])
+        await table.selectColumns(["key1"])
+        await table.round(["key1"], {
             method: "floor",
         })
 
-        const data = await simpleNodeDB.getData("dataFloor")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: 1 },
@@ -63,14 +60,13 @@ describe("round", () => {
         ])
     })
     it("should ceil", async () => {
-        await simpleNodeDB.loadData("dataCeil", [
-            "test/data/files/dataManyDecimals.csv",
-        ])
-        await simpleNodeDB.selectColumns("dataCeil", ["key1"])
-        await simpleNodeDB.round("dataCeil", ["key1"], {
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/dataManyDecimals.csv"])
+        await table.selectColumns(["key1"])
+        await table.round(["key1"], {
             method: "ceiling",
         })
-        const data = await simpleNodeDB.getData("dataCeil")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: 2 },
@@ -80,13 +76,12 @@ describe("round", () => {
         ])
     })
     it("should round multiple columns", async () => {
-        await simpleNodeDB.loadData("dataMultipleColumns", [
-            "test/data/files/dataManyDecimals.csv",
-        ])
-        await simpleNodeDB.round("dataMultipleColumns", ["key1", "key2"], {
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/dataManyDecimals.csv"])
+        await table.round(["key1", "key2"], {
             decimals: 2,
         })
-        const data = await simpleNodeDB.getData("dataMultipleColumns")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { key1: 1.04, key2: 2.95 },

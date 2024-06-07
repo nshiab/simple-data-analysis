@@ -1,27 +1,26 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebTable from "../class/SimpleWebTable.js"
 
 export default async function getLastRow(
-    simpleDB: SimpleDB,
-    table: string,
+    simpleWebTable: SimpleWebTable,
     options: {
         condition?: string
     } = {}
 ) {
     const queryResult = await queryDB(
-        simpleDB,
+        simpleWebTable,
         `WITH numberedRowsForGetLastRow AS (
-                SELECT *, row_number() OVER () as rowNumberForGetLastRow FROM ${table}${
+                SELECT *, row_number() OVER () as rowNumberForGetLastRow FROM ${simpleWebTable.name}${
                     options.condition ? ` WHERE ${options.condition}` : ""
                 }
             )
             SELECT * FROM numberedRowsForGetLastRow ORDER BY rowNumberForGetLastRow DESC LIMIT 1;`,
-        mergeOptions(simpleDB, {
-            table,
+        mergeOptions(simpleWebTable, {
+            table: simpleWebTable.name,
             returnDataFrom: "query",
             method: "getLastRow()",
-            parameters: { table, options },
+            parameters: { options },
         })
     )
     if (!queryResult) {
@@ -30,7 +29,7 @@ export default async function getLastRow(
     const result = queryResult[0]
     delete result.rowNumberForGetLastRow
 
-    simpleDB.debug && console.log("last row:", result)
+    simpleWebTable.debug && console.log("last row:", result)
 
     return result
 }

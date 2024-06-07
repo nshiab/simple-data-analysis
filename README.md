@@ -1,6 +1,8 @@
 # Simple data analysis (SDA) in JavaScript
 
-This repository is maintained by [Nael Shiab](http://naelshiab.com/), computational journalist and senior data producer for [CBC News](https://www.cbc.ca/news).
+SDA is an easy-to-use and high-performance JavaScript library for data analysis. You can use it with tabular and geospatial data.
+
+The library is maintained by [Nael Shiab](http://naelshiab.com/), computational journalist and senior data producer for [CBC News](https://www.cbc.ca/news).
 
 To install with NPM:
 
@@ -18,29 +20,27 @@ The documentation is available [here](https://nshiab.github.io/simple-data-analy
 
 Tests are run for NodeJS and Bun. Deno is coming! :)
 
+You might also find the [journalism library](https://github.com/nshiab/journalism) and [Code Like a Journalist](https://github.com/nshiab/code-like-a-journalist) interesting.
+
 ## Core principles
 
-These project's goals are:
+SDA is born out of the frustration of switching between Python, R, and JavaScript to produce data journalism projects. Usually, data crunching and analysis are done with Python or R, and interactive data visualizations are coded in JavaScript. However, being proficient in multiple programming languages is hard. Why can't we do everything in JS?
 
--   To offer a high-performance and convenient solution in JavaScript for data analysis. It's based on [DuckDB](https://duckdb.org/) and inspired by [Pandas](https://github.com/pandas-dev/pandas) (Python) and the [Tidyverse](https://www.tidyverse.org/) (R).
+The missing piece in the JavaScript/TypeScript ecosystem was an easy-to-use and performant library for data analysis. This is why SDA was created.
 
--   To standardize and accelerate frontend/backend workflows with a simple-to-use library working both in the browser and with NodeJS (and similar runtimes).
+The library is based on [DuckDB](https://duckdb.org/), a fast in-process analytical database. Under the hood, SDA sends SQL queries to be executed by DuckDB. We use [duckdb-node](https://github.com/duckdb/duckdb-node) and [duckdb-wasm](https://github.com/duckdb/duckdb-wasm). This means SDA can run in the browser and with NodeJS and other runtimes.
 
--   To ease the way for non-coders (especially journalists and web developers) into the beautiful world of data analysis and data visualization in JavaScript.
+The syntax and the available methods were inspired by [Pandas](https://github.com/pandas-dev/pandas) (Python) and the [Tidyverse](https://www.tidyverse.org/) (R).
 
-SDA is based on [duckdb-node](https://github.com/duckdb/duckdb-node) and [duckdb-wasm](https://github.com/duckdb/duckdb-wasm). DuckDB is a high-performance analytical database system. Under the hood, SDA sends SQL queries to be executed by DuckDB.
-
-You also have the flexibility of writing your own queries if you want to (check the [customQuery method](https://nshiab.github.io/simple-data-analysis/classes/SimpleDB.html#customQuery)) or to use JavaScript to process your data (check the [updateWithJS method](https://nshiab.github.io/simple-data-analysis/classes/SimpleDB.html#updateWithJS)).
+You can also write your own SQL queries if you want to (check the [customQuery method](https://nshiab.github.io/simple-data-analysis/classes/SimpleWebDB.html#customQuery)) or use JavaScript to process your data (check the [updateWithJS method](https://nshiab.github.io/simple-data-analysis/classes/SimpleWebTable.html#updateWithJS)).
 
 Feel free to start a conversation or open an issue. Check how you can [contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
 
-## About v2
+## Performance
 
-Because v1.x.x versions weren't based on DuckDB, v2.x.x is a complete rewrite of the library with many breaking changes.
+To test and compare the library's performance, we calculated the average temperature per decade and city with the daily temperatures from the [Adjusted and Homogenized Canadian Climate Data](https://api.weather.gc.ca/collections/ahccd-annual). See [this repository](https://github.com/nshiab/simple-data-analysis-benchmarks) for the code.
 
-To test and compare the performance of **simple-data-analysis@2.x.x**, we calculated the average temperature per decade and city with the daily temperatures from the [Adjusted and Homogenized Canadian Climate Data](https://api.weather.gc.ca/collections/ahccd-annual). See [this repository](https://github.com/nshiab/simple-data-analysis-benchmarks) for the code.
-
-We ran the same calculations with **simple-data-analysis@1.8.1** (both NodeJS and Bun), **simple-data-analysis@2.0.1** (NodeJS), **simple-data-analysis@2.7.3** (NodeJS), **Pandas (Python)**, and the **tidyverse (R)**.
+We ran the same calculations with **simple-data-analysis@3.0.0** (both NodeJS and Bun), **Pandas (Python)**, and the **tidyverse (R)**.
 
 In each script, we:
 
@@ -50,7 +50,7 @@ In each script, we:
 4. Calculated the average temperature per decade and city (_Summarizing_)
 5. Wrote the cleaned-up data that we computed the averages from in a new CSV file (_Writing_)
 
-Each script has been run ten times on a MacBook Pro (Apple M1 Pro / 16 GB). The durations have been averaged and we calculated the standard deviation.
+Each script has been run ten times on a MacBook Pro (Apple M1 Pro / 16 GB).
 
 The charts displayed below come from this [Observable notebook](https://observablehq.com/@nshiab/simple-data-analysis-benchmarks).
 
@@ -64,7 +64,7 @@ With _ahccd-samples.csv_:
 -   971,804 rows
 -   19,436,080 data points
 
-**simple-data-analysis@1.8.1** was the slowest, but **simple-data-analysis@2.x.x** versions are now the fastest.
+**simple-data-analysis@3.0.0** is the fastest, but if we skip writing the CSV file, the **tidyverse** shows impressive speed with small files.
 
 ![A chart showing the processing duration of multiple scripts in various languages](./assets/small-file.png)
 
@@ -78,335 +78,198 @@ With _ahccd.csv_:
 -   22,051,025 rows
 -   441,020,500 data points
 
-The file was too big for **simple-data-analysis@1.8.1**, so it's not included here.
-
-While **simple-data-analysis@2.0.1** was already fast, **simple-data-analysis@2.7.3** shines even more with big files.
+Thanks to DuckDB, **simple-data-analysis@3.0.0** really shines with big files. It's the fastest option.
 
 ![A chart showing the processing duration of multiple scripts in various languages](./assets/big-file.png)
 
-We also tried the One Billion Row Challenge, which involves computing the min, mean, and max temperature for hundreds of cities in a 1,000,000,000 rows CSV file. And we were impressed by the [results](https://www.linkedin.com/feed/update/urn:li:activity:7181389160753102849/)! For more, check this [repo](https://github.com/nshiab/1brc) forked from this [one](https://github.com/gunnarmorling/1brc). The JavaScript code is [here](https://github.com/nshiab/1brc/blob/main/index.js).
+We also tried the One Billion Row Challenge, which involves computing the min, mean, and max temperatures for hundreds of cities in a 1,000,000,000 rows CSV file. The library has been able to crunch the numbers in 1 minute 32 seconds on the same computer (Apple M1 Pro / 16 GB). For more, check this [repo](https://github.com/nshiab/1brc) forked from this [one](https://github.com/gunnarmorling/1brc). The JavaScript code is [here](https://github.com/nshiab/1brc/blob/main/index.js).
 
 Note that DuckDB, which powers SDA, can also be used with [Python](https://duckdb.org/docs/api/python/overview.html) and [R](https://duckdb.org/docs/api/r).
 
 ## SDA in an Observable notebook
 
-Observable notebooks are great for data analysis in JavaScript. This [example](https://observablehq.com/@nshiab/hello-simple-data-analysis) shows you how to use simple-data-analysis in one of them.
+Observable notebooks are great for data analysis in JavaScript.
+
+In this [example](https://observablehq.com/@nshiab/hello-simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript), we calculate the average temperature per decade in three cities and check for trends. We will also join two tables to retrieve the names of the cities.
+
+This [other example](https://observablehq.com/@nshiab/hello-simple-data-analysis-and-geospatial-data?collection=@nshiab/simple-data-analysis-in-javascript) focuses on geospatial analysis. We create point geometries from the latitude and longitude of 2023 wildfires in Canada, do a spatial join with provinces' boundaries, and then compute the number of fires and the total area burnt per province.
 
 ## SDA in an HTML page
 
 If you want to add the library directly to your webpage, you can use a npm-based CDN like jsDelivr.
 
-Here's some code that you can copy and paste into an HTML file. For more methods, check the [SimpleDB class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleDB.html).
+Here's some code you can copy and paste into an HTML file.
+
+In this example, we load a CSV file with the latitude and longitude of 2023 wildfires in Canada, create point geometries from it, do a spatial join with provinces boundaries, and then compute the number of fires and the total area burnt per province.
+
+You could also use a framework or a bundler. Install the library with npm (`npm i simple-data-analysis`) and import it into your project (`import { SimpleWebDB } from 'simple-data-analysis'`).
 
 ```html
 <script type="module">
-    // We import the SimpleDB class from the esm bundle.
-    import { SimpleDB } from "https://cdn.jsdelivr.net/npm/simple-data-analysis/+esm"
+    // We import the SimpleWebDB class from the esm bundle.
+    import { SimpleWebDB } from "https://cdn.jsdelivr.net/npm/simple-data-analysis@3.0.0/+esm"
 
     async function main() {
-        // We start a new instance of SimpleDB
-        const sdb = new SimpleDB()
+        // We start a SimpleWebDB instance.
+        const sdb = new SimpleWebDB()
 
-        // We load daily temperatures for three cities.
-        // We put the data in the table dailyTemperatures.
-        await sdb.loadData(
-            "dailyTemperatures",
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/dailyTemperatures.csv"
+        // We create a new table
+        const provinces = sdb.newTable("provinces")
+        // We fetch the provinces' boundaries. It's a geoJSON.
+        await provinces.fetchGeoData(
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json"
         )
+        // We log the provinces.
+        await provinces.logTable()
 
-        // We compute the decade from each date
-        // and put the result in the decade column.
-        await sdb.addColumn(
-            "dailyTemperatures",
-            "decade",
-            "integer",
-            "FLOOR(YEAR(time)/10)*10" // This is SQL
+        // We create a new table.
+        const fires = sdb.newTable("fires")
+        // We fetch the wildfires data. It's a CSV.
+        await fires.fetchData(
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv"
         )
+        // We create point geometries from the lat and lon columns
+        // and we store the points in the new column geom.
+        await fires.points("lat", "lon", "geom")
+        // We log the fires
+        await fires.logTable()
 
-        // We summarize the data by computing
-        // the average dailyTemperature
-        // per decade and per city.
-        await sdb.summarize("dailyTemperatures", {
-            values: "t",
-            categories: ["decade", "id"],
-            summaries: "mean",
+        // We match fires with provinces
+        // and we output the results into a new table.
+        // By default, joinGeo will automatically look
+        // for columns storing geometries in the tables,
+        // do a left join, and put the results
+        // in the left table.
+        const firesInsideProvinces = await fires.joinGeo(provinces, "inside", {
+            outputTable: "firesInsideProvinces",
         })
 
-        // We run linear regressions
-        // to check for trends.
-        await sdb.linearRegressions("dailyTemperatures", {
-            x: "decade",
-            y: "mean",
-            categories: "id",
-            decimals: 4,
+        // We summarize to count the number of fires
+        // and sum up the area burnt in each province.
+        await firesInsideProvinces.summarize({
+            values: "hectares",
+            categories: "nameEnglish",
+            summaries: ["count", "sum"],
+            decimals: 0,
         })
+        // We rename columns.
+        await firesInsideProvinces.renameColumns({
+            count: "nbFires",
+            sum: "burntArea",
+        })
+        // We want the province with
+        // the greatest burnt area first.
+        await firesInsideProvinces.sort({ burntArea: "desc" })
 
-        // The dailyTemperature table does not have
-        // the name of the cities, just the ids.
-        // We load another file with the names
-        // in the table cities.
-        await sdb.loadData(
-            "cities",
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/cities.csv"
-        )
+        // We log the results. By default, the method
+        // logs the first 10 rows, but there are 13
+        // provinces and territories in Canada.
+        await firesInsideProvinces.logTable(13)
 
-        // We join the two tables. By default,
-        // join searches for a common column
-        // and does a left join. The result is stored in
-        // the left table (dailyTemperatures here).
-        await sdb.join("dailyTemperatures", "cities")
-
-        // We select the columns of interest
-        // after the join operation.
-        await sdb.selectColumns("dailyTemperatures", [
-            "city",
-            "slope",
-            "yIntercept",
-            "r2",
-        ])
-
-        // We log the results table.
-        await sdb.logTable("dailyTemperatures")
-
-        // We store the data in a variable.
-        const results = await sdb.getData("dailyTemperatures")
+        // We can also retrieve the data as an array of objects.
+        const data = await firesInsideProvinces.getData()
+        console.log(data)
     }
 
     main()
 </script>
 ```
 
-And here's the table you'll see in your browser's console tab.
+And here's what you'll see in your browser's console tab.
 
 ![The console tab in Google Chrome showing the result of simple-data-analysis computations.](./assets/browser-console.png)
-
-## SDA with React
-
-First, ensure that you have [NodeJS v18 or higher](https://nodejs.org/en/) installed.
-
-Then you'll need to run this command to install the library in your code repository.
-
-```bash
-npm install simple-data-analysis
-```
-
-And here's an example with React and TypeScript. For more methods, check the [SimpleDB class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleDB.html).
-
-```tsx
-import { useEffect, useState } from "react"
-
-// We import the SimpleDB class.
-import { SimpleDB } from "simple-data-analysis"
-
-const Main = () => {
-    // A state to store the results.
-    const [results, setResults] =
-        useState<{ [key: string]: string | number | boolean | Date | null }[]>(
-            null
-        )
-
-    // You can use sda inside a useEffect.
-    useEffect(() => {
-        // Because SimpleDB uses promises,
-        // we need to declare an async function
-        // in the useEffect hook.
-        async function sdaMagic() {
-            // We start a new instance of SimpleDB.
-            const sdb = new SimpleDB()
-
-            // We load daily temperatures for three cities.
-            // We put the data in the table dailyTemperatures.
-            await sdb.loadData(
-                "dailyTemperatures",
-                "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/dailyTemperatures.csv"
-            )
-
-            // We compute the decade from each date
-            // and put the result in the decade column.
-            // The calculations are written in SQL,
-            // but you can also use updateWithJS to
-            // use JavaScript.
-            await sdb.addColumn(
-                "dailyTemperatures",
-                "decade",
-                "integer",
-                "FLOOR(YEAR(time)/10)*10" // This is SQL
-            )
-
-            // We summarize the data by computing
-            // the average dailyTemperature
-            // per decade and per city.
-            await sdb.summarize("dailyTemperatures", {
-                values: "t",
-                categories: ["decade", "id"],
-                summaries: "mean",
-            })
-
-            // We run linear regressions
-            // to check for trends.
-            await sdb.linearRegressions("dailyTemperatures", {
-                x: "decade",
-                y: "mean",
-                categories: "id",
-                decimals: 4,
-            })
-
-            // The dailyTemperature table does not have
-            // the name of the cities, just the ids.
-            // We load another file with the names
-            // in the table cities.
-            await sdb.loadData(
-                "cities",
-                "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/cities.csv"
-            )
-
-            // We join the two tables. By default,
-            // join searches for a common column
-            // and does a left join. The result is stored in
-            // the left table (dailyTemperatures here).
-            await sdb.join("dailyTemperatures", "cities")
-
-            // We select the columns of interest
-            // after the join operation.
-            await sdb.selectColumns("dailyTemperatures", [
-                "city",
-                "slope",
-                "yIntercept",
-                "r2",
-            ])
-
-            // We log the results table.
-            await sdb.logTable("dailyTemperatures")
-
-            // We can store the results in our state.
-            setResults(await sdb.getData("dailyTemperatures"))
-        }
-
-        // We call the async function inside the useEffect hook.
-        sdaMagic()
-    }, [])
-
-    return (
-        <div>
-            <p>Check the console!</p>
-            <p>Here are the computed results:</p>
-            <p>{JSON.stringify(results, null, " ")}</p>
-        </div>
-    )
-}
-```
 
 ## SDA with NodeJS and similar runtimes
 
 First, ensure that you have [NodeJS v20 or higher](https://nodejs.org/en/) installed.
 
-Then you'll need to run this command to install the library in your code repository.
+Then, run this command to install the library in your code repository.
 
 ```bash
-npm install simple-data-analysis
+npm i simple-data-analysis@3.0.0
 ```
 
-A _package.json_ file should have been created. Open it and add or change the type to "module".
+A _package.json_ file should have been created. Open it and add or change the type to "module" to use a modern syntax. If you use Bun, you can skip this step.
 
 ```json
 {
     "type": "module",
     "dependencies": {
-        "simple-data-analysis": "^2.5.0"
+        "simple-data-analysis": "^3.0.0"
     }
 }
 ```
 
-Here's some code you can copy and paste into a JavaScript file. It's the same as the one you would run in a browser, except we use the _SimpleNodeDB_ class.
+Copy and paste the code below into an `index.js` file and run it with `node index.js`.
 
-This class has more methods available to load data from local files and write data to files. Check the [SimpleNodeDB class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleNodeDB.html). Its geospatial capabilities are under development. Check the [loadGeoData](https://nshiab.github.io/simple-data-analysis/classes/SimpleGeoDB.html#loadGeoData), [area](https://nshiab.github.io/simple-data-analysis/classes/SimpleGeoDB.html#area), and [intersection](https://nshiab.github.io/simple-data-analysis/classes/SimpleGeoDB.html#intersection) methods for more information.
+In this example, we load a CSV file with the latitude and longitude of 2023 wildfires in Canada, create point geometries from it, do a spatial join with provinces' boundaries, and then compute the number of fires and the total area burnt per province.
+
+It's the same as the one you would run in a browser, except we use the _SimpleDB_ class instead of _SimpleWebDB_ and _loadData_ instead of _fetchData_.
+
+With NodeJS and other runtimes, more methods are available to load and write data from/to local files. Check the [SimpleTable class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html).
 
 ```ts
-import { SimpleNodeDB } from "simple-data-analysis"
+import { SimpleDB } from "simple-data-analysis"
 
-async function main() {
-    // We start a new instance of SimpleNodeDB
-    const sdb = new SimpleNodeDB()
+// We start a SimpleDB instance.
+const sdb = new SimpleDB()
 
-    // We load daily temperatures for three cities.
-    // We put the data in the table dailyTemperatures.
-    await sdb.loadData(
-        "dailyTemperatures",
-        "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/dailyTemperatures.csv"
-    )
+// We create a new table.
+const provinces = sdb.newTable("provinces")
+// We fetch the provinces' boundaries. It's a geoJSON.
+await provinces.loadGeoData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json"
+)
+// We log the provinces.
+await provinces.logTable()
 
-    // We compute the decade from each date
-    // and put the result in the decade column.
-    // The calculations are written in SQL,
-    // but you can also use updateWithJS to
-    // use JavaScript.
-    await sdb.addColumn(
-        "dailyTemperatures",
-        "decade",
-        "integer",
-        "FLOOR(YEAR(time)/10)*10" // This is SQL
-    )
+// We create a new table.
+const fires = sdb.newTable("fires")
+// We fetch the wildfires data. It's a CSV.
+await fires.loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv"
+)
+// We create point geometries from the lat and lon columns
+// and we store the points in the new column geom.
+await fires.points("lat", "lon", "geom")
+// We log the fires.
+await fires.logTable()
 
-    // We summarize the data by computing
-    // the average dailyTemperature
-    // per decade and per city.
-    await sdb.summarize("dailyTemperatures", {
-        values: "t",
-        categories: ["decade", "id"],
-        summaries: "mean",
-    })
+// We match fires with provinces
+// and we output the results into a new table.
+// By default, joinGeo will automatically look
+// for columns storing geometries in the tables,
+// do a left join, and put the results
+// in the left table.
+const firesInsideProvinces = await fires.joinGeo(provinces, "inside", {
+    outputTable: "firesInsideProvinces",
+})
 
-    // We run linear regressions
-    // to check for trends.
-    await sdb.linearRegressions("dailyTemperatures", {
-        x: "decade",
-        y: "mean",
-        categories: "id",
-        decimals: 4,
-    })
+// We summarize to count the number of fires
+// and sum up the area burnt in each province.
+await firesInsideProvinces.summarize({
+    values: "hectares",
+    categories: "nameEnglish",
+    summaries: ["count", "sum"],
+    decimals: 0,
+})
+// We rename columns.
+await firesInsideProvinces.renameColumns({
+    count: "nbFires",
+    sum: "burntArea",
+})
+// We want the province with
+// the greatest burnt area first.
+await firesInsideProvinces.sort({ burntArea: "desc" })
 
-    // The dailyTemperature table does not have
-    // the name of the cities, just the ids.
-    // We load another file with the names
-    // in the table cities.
-    await sdb.loadData(
-        "cities",
-        "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/cities.csv"
-    )
-
-    // We join the two tables. By default,
-    // join searches for a common column
-    // and does a left join. The result is stored in
-    // the left table (dailyTemperatures here).
-    await sdb.join("dailyTemperatures", "cities")
-
-    // We select the columns of interest
-    // after the join operation.
-    await sdb.selectColumns("dailyTemperatures", [
-        "city",
-        "slope",
-        "yIntercept",
-        "r2",
-    ])
-
-    // We log the results table.
-    await sdb.logTable("dailyTemperatures")
-
-    // We store the data in a variable.
-    const results = await sdb.getData("dailyTemperatures")
-}
-
-main()
-```
-
-Here's the command to run the file. Change _index.js_ to your actual file.
-
-```bash
-node index.js
+// We log the results. By default, the method
+// logs the first 10 rows, but there are 13
+// provinces and territories in Canada.
+await firesInsideProvinces.logTable(13)
 ```
 
 And here's what you should see in your console.
 
 ![The console tab in Google Chrome showing the result of simple-data-analysis computations.](./assets/nodejs-console.png)
 
-If you want to generate and save charts, check the [journalism library](https://github.com/nshiab/journalism), more specifically the [savePlotChart function](https://nshiab.github.io/journalism/functions/savePlotChart.html).
+If you want to generate and save charts with NodeJS and other runtimes, check the [journalism library](https://github.com/nshiab/journalism), more specifically the [savePlotChart function](https://nshiab.github.io/journalism/functions/savePlotChart.html).

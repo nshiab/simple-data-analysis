@@ -1,31 +1,45 @@
 import { existsSync, mkdirSync, readFileSync } from "fs"
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("writeGeoData", () => {
     const output = "./test/output/"
 
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
         if (!existsSync(output)) {
             mkdirSync(output)
         }
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should write geojson file", async () => {
         const originalFile = "test/geodata/files/polygons.geojson"
 
-        await simpleNodeDB.loadGeoData("data", originalFile)
-        await simpleNodeDB.writeGeoData("data", `${output}data.geojson`)
+        const table = sdb.newTable()
+        await table.loadGeoData(originalFile)
+        await table.writeGeoData(`${output}data.geojson`)
 
         const originalData = JSON.parse(readFileSync(originalFile, "utf-8"))
-        originalData.name = "data"
         const writtenData = JSON.parse(
             readFileSync(`${output}data.geojson`, "utf-8")
+        )
+
+        assert.deepStrictEqual(writtenData, originalData)
+    })
+    it("should write geojson file that has been converted to WGS84", async () => {
+        const originalFile = "test/geodata/files/polygons.geojson"
+
+        const table = sdb.newTable()
+        await table.loadGeoData(originalFile, { toWGS84: true })
+        await table.writeGeoData(`${output}dataWithOptionsToWGS84.geojson`)
+
+        const originalData = JSON.parse(readFileSync(originalFile, "utf-8"))
+        const writtenData = JSON.parse(
+            readFileSync(`${output}dataWithOptionsToWGS84.geojson`, "utf-8")
         )
 
         assert.deepStrictEqual(writtenData, originalData)
@@ -34,14 +48,11 @@ describe("writeGeoData", () => {
     it("should write geojson file with coordinates rounded to 3 decimals", async () => {
         const originalFile = "test/geodata/files/polygons.geojson"
 
-        await simpleNodeDB.loadGeoData("data", originalFile)
-        await simpleNodeDB.writeGeoData(
-            "data",
-            `${output}dataPrecision.geojson`,
-            {
-                precision: 3,
-            }
-        )
+        const table = sdb.newTable()
+        await table.loadGeoData(originalFile)
+        await table.writeGeoData(`${output}dataPrecision.geojson`, {
+            precision: 3,
+        })
 
         const writtenData = JSON.parse(
             readFileSync(`${output}dataPrecision.geojson`, "utf-8")
@@ -49,7 +60,6 @@ describe("writeGeoData", () => {
 
         assert.deepStrictEqual(writtenData, {
             type: "FeatureCollection",
-            name: "dataPrecision",
             features: [
                 {
                     type: "Feature",

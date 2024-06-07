@@ -2,7 +2,7 @@ import getFirstNonNullOrUndefinedValues from "../helpers/getFirstNonNullOrUndefi
 import parseValue from "../helpers/parseValue.js"
 import getType from "./getType.js"
 
-export default function loadArrayQueryBrowser(
+export default function loadArrayQueryWeb(
     table: string,
     arrayOfObjects: { [key: string]: unknown }[]
 ) {
@@ -13,7 +13,7 @@ export default function loadArrayQueryBrowser(
     const columnsWithTypes = []
 
     for (let i = 0; i < columns.length; i++) {
-        columnsWithTypes.push(`"${columns[i]}" ${getType(values[i])}`)
+        columnsWithTypes.push(`${columns[i]} ${getType(values[i])}`)
     }
 
     query += `(${columnsWithTypes.join(", ")});\nINSERT INTO ${table} VALUES`

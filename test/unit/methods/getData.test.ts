@@ -1,20 +1,19 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("getData", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData("dataCsv", [
-            "test/data/files/employees.csv",
-        ])
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return the whole data from a table", async () => {
-        const data = await simpleNodeDB.getData("dataCsv")
+        const table = sdb.newTable("data")
+        await table.loadData("test/data/files/employees.csv")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             {
@@ -429,7 +428,9 @@ describe("getData", () => {
     })
 
     it("should return data from a table based on a condition", async () => {
-        const data = await simpleNodeDB.getData("dataCsv", {
+        const table = sdb.newTable("data")
+        await table.loadData("test/data/files/employees.csv")
+        const data = await table.getData({
             condition: "Job = 'Programmer'",
         })
 

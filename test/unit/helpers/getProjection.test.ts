@@ -1,17 +1,19 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
+import getProjection from "../../../src/helpers/getProjection.js"
 
 describe("getProjection", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should retrieve the projection of a json file", async () => {
-        const proj = await simpleNodeDB.getProjection(
+        const proj = await getProjection(
+            sdb,
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
         assert.deepStrictEqual(proj, {
@@ -22,7 +24,8 @@ describe("getProjection", () => {
         })
     })
     it("should retrieve the projection of a zipped shapefile", async () => {
-        const proj = await simpleNodeDB.getProjection(
+        const proj = await getProjection(
+            sdb,
             "test/geodata/files/canada-not-4326.shp.zip"
         )
         assert.deepStrictEqual(proj, {

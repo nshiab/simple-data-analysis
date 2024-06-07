@@ -14,12 +14,12 @@ export default function zScoreQuery(
         : []
     const partition =
         categories.length > 0
-            ? `PARTITION BY ${categories.map((d) => `"${d}"`).join(", ")}`
+            ? `PARTITION BY ${categories.map((d) => `${d}`).join(", ")}`
             : ""
 
-    const tempQuery = `("${column}"-AVG("${column}") OVER(${partition}))
+    const tempQuery = `(${column}-AVG(${column}) OVER(${partition}))
             /
-            STDDEV("${column}") OVER(${partition})`
+            STDDEV(${column}) OVER(${partition})`
     const query = `
     CREATE OR REPLACE TABLE ${table} AS
     SELECT *, (
@@ -29,7 +29,7 @@ export default function zScoreQuery(
                 : tempQuery
         }
         
-        ) AS "${newColumn}",
+        ) AS ${newColumn},
     FROM ${table}
     `
 

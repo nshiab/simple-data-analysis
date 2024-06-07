@@ -1,25 +1,24 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebTable from "../class/SimpleWebTable.js"
 
 export default async function getVar(
-    simpleDB: SimpleDB,
-    table: string,
+    simpleWebTable: SimpleWebTable,
     column: string,
     options: {
         decimals?: number
     } = {}
 ) {
     const queryResult = await queryDB(
-        simpleDB,
+        simpleWebTable,
         typeof options.decimals === "number"
-            ? `SELECT ROUND(VARIANCE("${column}"), ${options.decimals}) AS valueForGetVar FROM ${table}`
-            : `SELECT VARIANCE("${column}") AS valueForGetVar FROM ${table}`,
-        mergeOptions(simpleDB, {
-            table,
+            ? `SELECT ROUND(VARIANCE(${column}), ${options.decimals}) AS valueForGetVar FROM ${simpleWebTable.name}`
+            : `SELECT VARIANCE(${column}) AS valueForGetVar FROM ${simpleWebTable.name}`,
+        mergeOptions(simpleWebTable, {
+            table: simpleWebTable.name,
             returnDataFrom: "query",
             method: "getVar()",
-            parameters: { table, column, options },
+            parameters: { column, options },
         })
     )
 
@@ -28,6 +27,6 @@ export default async function getVar(
     }
 
     const result = queryResult[0].valueForGetVar
-    simpleDB.debug && console.log("variance:", result)
+    simpleWebTable.debug && console.log("variance:", result)
     return result as number
 }

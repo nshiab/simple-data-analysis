@@ -1,58 +1,38 @@
-import { existsSync, mkdirSync, readFileSync } from "fs"
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("removeIntersection", () => {
-    const output = "./test/output/"
-
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        if (!existsSync(output)) {
-            mkdirSync(output)
-        }
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should remove the small circle from the big circle", async () => {
-        await simpleNodeDB.loadGeoData(
-            "smallCircle",
-            "test/geodata/files/smallCircle.json"
-        )
-        await simpleNodeDB.renameColumns("smallCircle", {
-            geom: "smallCircleGeom",
-        })
+        const smallCircle = sdb.newTable()
+        await smallCircle.loadGeoData("test/geodata/files/smallCircle.json")
+        await smallCircle.renameColumns({ geom: "geomSmall" })
 
-        await simpleNodeDB.loadGeoData(
-            "bigCircle",
-            "test/geodata/files/bigCircle.json"
-        )
-        await simpleNodeDB.renameColumns("bigCircle", { geom: "bigCircleGeom" })
+        const bigCircle = sdb.newTable()
+        await bigCircle.loadGeoData("test/geodata/files/bigCircle.json")
+        await bigCircle.renameColumns({ geom: "geomBig" })
 
-        await simpleNodeDB.crossJoin("smallCircle", "bigCircle", {
-            outputTable: "joined",
-        })
-        await simpleNodeDB.removeIntersection(
-            "joined",
-            ["bigCircleGeom", "smallCircleGeom"],
+        await smallCircle.crossJoin(bigCircle)
+
+        await smallCircle.removeIntersection(
+            "geomBig",
+            "geomSmall",
             "bigCircleWithHole"
         )
 
-        await simpleNodeDB.selectColumns("joined", "bigCircleWithHole")
-        await simpleNodeDB.writeGeoData(
-            "joined",
-            "test/output/bigCircleWithHole.geojson"
-        )
+        await smallCircle.selectColumns("bigCircleWithHole")
 
-        const data = JSON.parse(
-            readFileSync("test/output/bigCircleWithHole.geojson", "utf-8")
-        )
+        const data = await smallCircle.getGeoData()
 
         assert.deepStrictEqual(data, {
             type: "FeatureCollection",
-            name: "bigCircleWithHole",
             features: [
                 {
                     type: "Feature",

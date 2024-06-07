@@ -1,25 +1,26 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("replaceNulls", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should replace null values in one column", async () => {
-        await simpleNodeDB.loadArray("data", [
+        const table = sdb.newTable()
+        await table.loadArray([
             { keyA: 1 },
             { keyA: null },
             { keyA: 3 },
             { keyA: null },
         ])
-        await simpleNodeDB.replaceNulls("data", "keyA", 0)
+        await table.replaceNulls("keyA", 0)
 
-        const data = await simpleNodeDB.getData("data")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { keyA: 1 },
@@ -30,15 +31,16 @@ describe("replaceNulls", () => {
     })
 
     it("should replace null values in multiple columns", async () => {
-        await simpleNodeDB.loadArray("data", [
+        const table = sdb.newTable()
+        await table.loadArray([
             { keyA: 1, keyB: 1 },
             { keyA: null, keyB: 2 },
             { keyA: 3, keyB: null },
             { keyA: null, keyB: 4 },
         ])
-        await simpleNodeDB.replaceNulls("data", ["keyA", "keyB"], 0)
+        await table.replaceNulls(["keyA", "keyB"], 0)
 
-        const data = await simpleNodeDB.getData("data")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { keyA: 1, keyB: 1 },

@@ -4,7 +4,7 @@
         {
             "type": "Feature",
             "properties": {
-                "group": "A"
+                "groups": "A"
             },
             "geometry": {
                 "coordinates": [
@@ -24,7 +24,7 @@
         {
             "type": "Feature",
             "properties": {
-                "group": "A"
+                "groups": "A"
             },
             "geometry": {
                 "coordinates": [
@@ -43,7 +43,7 @@
         {
             "type": "Feature",
             "properties": {
-                "group": "B"
+                "groups": "B"
             },
             "geometry": {
                 "coordinates": [
@@ -63,7 +63,7 @@
         {
             "type": "Feature",
             "properties": {
-                "group": "B"
+                "groups": "B"
             },
             "geometry": {
                 "coordinates": [

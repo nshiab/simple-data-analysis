@@ -1,6 +1,6 @@
 {
     "name": "simple-data-analysis",
-    "version": "2.22.0",
+    "version": "2.22.1-rc.19",
     "description": "Easy-to-use and high-performance JavaScript library for data analysis.",
     "homepage": "https://github.com/nshiab/simple-data-analysis#readme",
     "repository": {
@@ -11,10 +11,19 @@
         "simple-data-analysis",
         "data",
         "analysis",
+        "data-analysis",
+        "geo",
+        "geospatial",
+        "spatial",
+        "node",
         "nodejs",
+        "bun",
+        "bun.js",
+        "browser",
         "typescript",
         "javascript",
-        "duckdb"
+        "duckdb",
+        "sql"
     ],
     "license": "MIT",
     "author": {
@@ -40,8 +49,8 @@
         "default": "./dist/index.js"
     },
     "scripts": {
-        "test": "npx mocha \"test/unit/**/*.test.ts\"",
-        "test-bun": "bunx mocha \"test/unit/**/*.test.ts\"",
+        "test": "npx mocha \"test/unit/**/*.test.ts\" --timeout 20000",
+        "test-bun": "bunx mocha \"test/unit/**/*.test.ts\" --timeout 20000",
         "build": "rm -rf dist && npx tsc && npx rollup --config",
         "all-tests": "npm run format && npm run lint && npm run test && npm run build && npm run test-doc && bun upgrade && bun run test-bun",
         "rollup": "rollup --config",
@@ -63,18 +72,18 @@
         "url": "https://github.com/nshiab/simple-data-analysis/issues"
     },
     "devDependencies": {
-        "@rollup/plugin-commonjs": "^25.0.7",
+        "@rollup/plugin-commonjs": "^26.0.1",
         "@rollup/plugin-node-resolve": "^15.0.2",
         "@rollup/plugin-terser": "^0.4.1",
         "@rollup/plugin-typescript": "^11.1.0",
         "@types/mocha": "^10.0.0",
-        "@typescript-eslint/eslint-plugin": "^7.3.1",
-        "@typescript-eslint/parser": "^7.3.1",
+        "@typescript-eslint/eslint-plugin": "^7.12.0",
+        "@typescript-eslint/parser": "^7.12.0",
         "eslint": "^8.39.0",
         "eslint-config-prettier": "^9.0.0",
         "mocha": "^10.0.0",
         "prettier": "^3.0.0",
-        "rollup": "^4.17.2",
+        "rollup": "^4.18.0",
         "rollup-plugin-polyfill-node": "^0.13.0",
         "rollup-plugin-visualizer": "^5.6.0",
         "ts-node": "^10.7.0",
@@ -82,8 +91,8 @@
         "typescript": "^5.2.2"
     },
     "dependencies": {
-        "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
-        "apache-arrow": "^16.0.0",
-        "duckdb": "^0.10.2"
+        "@duckdb/duckdb-wasm": "^1.28.1-dev212.0",
+        "apache-arrow": "^16.1.0",
+        "duckdb": "^1.0.0"
     }
 }

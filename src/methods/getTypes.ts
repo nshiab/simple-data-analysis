@@ -1,16 +1,16 @@
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebTable from "../class/SimpleWebTable.js"
 
-export default async function getTypes(simpleDB: SimpleDB, table: string) {
+export default async function getTypes(simpleWebTable: SimpleWebTable) {
     const types = await queryDB(
-        simpleDB,
-        `DESCRIBE ${table}`,
-        mergeOptions(simpleDB, {
-            table,
+        simpleWebTable,
+        `DESCRIBE ${simpleWebTable.name}`,
+        mergeOptions(simpleWebTable, {
+            table: simpleWebTable.name,
             returnDataFrom: "query",
             method: "getTypes()",
-            parameters: { table },
+            parameters: {},
         })
     )
 
@@ -23,7 +23,7 @@ export default async function getTypes(simpleDB: SimpleDB, table: string) {
         }
     }
 
-    simpleDB.debug && console.log("types:", typesObj)
+    simpleWebTable.debug && console.log("types:", typesObj)
 
     return typesObj
 }

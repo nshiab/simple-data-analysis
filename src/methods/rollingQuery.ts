@@ -26,7 +26,7 @@ export default function rollingQuery(
         : []
     const partition =
         categories.length > 0
-            ? `PARTITION BY ${categories.map((d) => `"${d}"`).join(", ")}`
+            ? `PARTITION BY ${categories.map((d) => `${d}`).join(", ")}`
             : ""
 
     const tempQuery = `${aggregates[summary]}(${column}) OVER (${partition}
@@ -37,9 +37,9 @@ export default function rollingQuery(
         COUNT(${column}) OVER (${partition}
             ROWS BETWEEN ${preceding} PRECEDING AND ${following} FOLLOWING) as tempCountForRolling
         FROM ${table};
-        UPDATE ${table} SET "${newColumn}" = CASE
+        UPDATE ${table} SET ${newColumn} = CASE
             WHEN tempCountForRolling != ${preceding + following + 1} THEN NULL
-            ELSE "${newColumn}"
+            ELSE ${newColumn}
         END;
         ALTER TABLE ${table} DROP COLUMN tempCountForRolling;
         `

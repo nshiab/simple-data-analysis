@@ -1,21 +1,20 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
-describe("logDescription", () => {
-    let simpleNodeDB: SimpleNodeDB
+describe("getDescription", () => {
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should return the count of null values, non null values, and distinct values in each column of a table", async () => {
-        await simpleNodeDB.loadData("employees", [
-            "test/data/files/employees.json",
-        ])
+        const table = sdb.newTable("data")
+        await table.loadData("test/data/files/employees.json")
 
-        const description = await simpleNodeDB.getDescription("employees")
+        const description = await table.getDescription()
 
         assert.deepStrictEqual(description, [
             {

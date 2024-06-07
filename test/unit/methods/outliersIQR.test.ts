@@ -1,81 +1,44 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("outliersIQR", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadArray("people", [
-            { name: "Chloe", age: 33 },
-            { name: "Philip", age: 33 },
-            { name: "Sonny", age: 57 },
-            { name: "Frazer", age: 64 },
-            { name: "Sarah", age: 64 },
-            { name: "Frankie", age: 65 },
-            { name: "Morgan", age: 33 },
-            { name: "Jeremy", age: 34 },
-            { name: "Claudia", age: 35 },
-            { name: "Evangeline", age: 21 },
-            { name: "Amelia", age: 29 },
-            { name: "Marie", age: 30 },
-            { name: "Kiara", age: 31 },
-            { name: "Isobel", age: 31 },
-            { name: "Genevieve", age: 32 },
-            { name: "Jane", age: 32 },
-        ])
-        await simpleNodeDB.cloneTable("people", "peopleDifferentName")
-        await simpleNodeDB.loadArray("peopleOdd", [
-            { name: "Chloe", age: 33 },
-            { name: "Philip", age: 33 },
-            { name: "Sonny", age: 57 },
-            { name: "Frazer", age: 64 },
-            { name: "Sarah", age: 64 },
-            { name: "Frankie", age: 65 },
-            { name: "Morgan", age: 33 },
-            { name: "Helen", age: 20 },
-            { name: "Jeremy", age: 34 },
-            { name: "Claudia", age: 35 },
-            { name: "Evangeline", age: 21 },
-            { name: "Amelia", age: 29 },
-            { name: "Marie", age: 30 },
-            { name: "Kiara", age: 31 },
-            { name: "Isobel", age: 31 },
-            { name: "Genevieve", age: 32 },
-            { name: "Jane", age: 32 },
-        ])
-        await simpleNodeDB.loadArray("peopleGender", [
-            { name: "Chloe", age: 33, gender: "Woman" },
-            { name: "Philip", age: 125, gender: "Man" },
-            { name: "Sonny", age: 57, gender: "Man" },
-            { name: "Frazer", age: 64, gender: "Man" },
-            { name: "Sarah", age: 64, gender: "Woman" },
-            { name: "Frankie", age: 65, gender: "Woman" },
-            { name: "Morgan", age: 33, gender: "Woman" },
-            { name: "Helen", age: 20, gender: "Woman" },
-            { name: "Jeremy", age: 34, gender: "Man" },
-            { name: "Claudia", age: 35, gender: "Woman" },
-            { name: "Evangeline", age: 21, gender: "Woman" },
-            { name: "Amelia", age: 29, gender: "Woman" },
-            { name: "Marie", age: 30, gender: "Woman" },
-            { name: "Kiara", age: 31, gender: "Woman" },
-            { name: "Isobel", age: 31, gender: "Woman" },
-            { name: "Genevieve", age: 3, gender: "Woman" },
-            { name: "Jane", age: 32, gender: "Woman" },
-        ])
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should add an outliers column based on the IQR method with an even number of rows", async () => {
         // comparing against https://dataschool.com/how-to-teach-people-sql/how-to-find-outliers-with-sql/
 
-        await simpleNodeDB.outliersIQR("people", "age", "ageOutliers")
-        await simpleNodeDB.sort("people", {
+        const table = sdb.newTable()
+        await table.loadArray([
+            { name: "Chloe", age: 33 },
+            { name: "Philip", age: 33 },
+            { name: "Sonny", age: 57 },
+            { name: "Frazer", age: 64 },
+            { name: "Sarah", age: 64 },
+            { name: "Frankie", age: 65 },
+            { name: "Morgan", age: 33 },
+            { name: "Jeremy", age: 34 },
+            { name: "Claudia", age: 35 },
+            { name: "Evangeline", age: 21 },
+            { name: "Amelia", age: 29 },
+            { name: "Marie", age: 30 },
+            { name: "Kiara", age: 31 },
+            { name: "Isobel", age: 31 },
+            { name: "Genevieve", age: 32 },
+            { name: "Jane", age: 32 },
+        ])
+
+        await table.outliersIQR("age", "ageOutliers")
+        await table.sort({
             ageOutliers: "desc",
             age: "asc",
         })
-        const data = await simpleNodeDB.getData("people")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { name: "Evangeline", age: 21, ageOutliers: true },
@@ -99,13 +62,33 @@ describe("outliersIQR", () => {
     it("should add an outliers column based on the IQR method with an even number of rows", async () => {
         // comparing against https://dataschool.com/how-to-teach-people-sql/how-to-find-outliers-with-sql/
 
-        await simpleNodeDB.outliersIQR("peopleOdd", "age", "ageOutliers")
+        const table = sdb.newTable()
+        await table.loadArray([
+            { name: "Chloe", age: 33 },
+            { name: "Philip", age: 33 },
+            { name: "Sonny", age: 57 },
+            { name: "Frazer", age: 64 },
+            { name: "Sarah", age: 64 },
+            { name: "Frankie", age: 65 },
+            { name: "Morgan", age: 33 },
+            { name: "Helen", age: 20 },
+            { name: "Jeremy", age: 34 },
+            { name: "Claudia", age: 35 },
+            { name: "Evangeline", age: 21 },
+            { name: "Amelia", age: 29 },
+            { name: "Marie", age: 30 },
+            { name: "Kiara", age: 31 },
+            { name: "Isobel", age: 31 },
+            { name: "Genevieve", age: 32 },
+            { name: "Jane", age: 32 },
+        ])
+        await table.outliersIQR("age", "ageOutliers")
 
-        await simpleNodeDB.sort("peopleOdd", {
+        await table.sort({
             ageOutliers: "desc",
             age: "asc",
         })
-        const data = await simpleNodeDB.getData("peopleOdd")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { name: "Helen", age: 20, ageOutliers: true },
@@ -128,15 +111,35 @@ describe("outliersIQR", () => {
         ])
     })
     it("should add an outliers column based on the IQR method with an even number of rows and with a category", async () => {
-        await simpleNodeDB.outliersIQR("peopleGender", "age", "ageOutliers", {
+        const table = sdb.newTable()
+        await table.loadArray([
+            { name: "Chloe", age: 33, gender: "Woman" },
+            { name: "Philip", age: 125, gender: "Man" },
+            { name: "Sonny", age: 57, gender: "Man" },
+            { name: "Frazer", age: 64, gender: "Man" },
+            { name: "Sarah", age: 64, gender: "Woman" },
+            { name: "Frankie", age: 65, gender: "Woman" },
+            { name: "Morgan", age: 33, gender: "Woman" },
+            { name: "Helen", age: 20, gender: "Woman" },
+            { name: "Jeremy", age: 34, gender: "Man" },
+            { name: "Claudia", age: 35, gender: "Woman" },
+            { name: "Evangeline", age: 21, gender: "Woman" },
+            { name: "Amelia", age: 29, gender: "Woman" },
+            { name: "Marie", age: 30, gender: "Woman" },
+            { name: "Kiara", age: 31, gender: "Woman" },
+            { name: "Isobel", age: 31, gender: "Woman" },
+            { name: "Genevieve", age: 3, gender: "Woman" },
+            { name: "Jane", age: 32, gender: "Woman" },
+        ])
+        await table.outliersIQR("age", "ageOutliers", {
             categories: "gender",
         })
-        await simpleNodeDB.sort("peopleGender", {
+        await table.sort({
             gender: "asc",
             ageOutliers: "desc",
             age: "asc",
         })
-        const data = await simpleNodeDB.getData("peopleGender")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { name: "Philip", age: 125, gender: "Man", ageOutliers: true },

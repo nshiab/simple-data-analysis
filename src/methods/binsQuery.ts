@@ -1,8 +1,7 @@
-import SimpleDB from "../class/SimpleDB.js"
+import SimpleWebTable from "../class/SimpleWebTable.js"
 
 export default async function binsQuery(
-    simpleDB: SimpleDB,
-    table: string,
+    simpleWebTable: SimpleWebTable,
     values: string,
     interval: number,
     newColumn: string,
@@ -10,7 +9,7 @@ export default async function binsQuery(
         startValue?: number
     } = {}
 ) {
-    const minValue = await simpleDB.getMin(table, values)
+    const minValue = await simpleWebTable.getMin(values)
     if (typeof minValue !== "number") {
         throw new Error(`minValue of ${values} is not a number`)
     }
@@ -27,7 +26,7 @@ export default async function binsQuery(
         startValue = minValue
     }
 
-    const maxValue = await simpleDB.getMax(table, values)
+    const maxValue = await simpleWebTable.getMax(values)
     if (typeof maxValue !== "number") {
         throw new Error(`maxValue of ${values} is not a number`)
     }
@@ -48,12 +47,12 @@ export default async function binsQuery(
         const start = i
         const end = (i + interval - increment).toFixed(decimals)
         intervals.push(
-            `WHEN "${values}" >= ${start} AND "${values}" <= ${end} THEN '[${start}-${end}]'`
+            `WHEN ${values} >= ${start} AND ${values} <= ${end} THEN '[${start}-${end}]'`
         )
     }
 
-    const query = `ALTER TABLE ${table} ADD "${newColumn}" VARCHAR;
-    UPDATE ${table} SET "${newColumn}" = CASE
+    const query = `ALTER TABLE ${simpleWebTable.name} ADD ${newColumn} VARCHAR;
+    UPDATE ${simpleWebTable.name} SET ${newColumn} = CASE
     ${intervals.join("\n")}
     END`
 

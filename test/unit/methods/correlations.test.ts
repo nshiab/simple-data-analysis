@@ -1,25 +1,22 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("correlations", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB()
-        await simpleNodeDB.loadData(
-            "someData",
-            "test/data/files/dataCorrelations.json"
-        )
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should give all correlations between numeric columns in the table and overwrite the current table", async () => {
-        await simpleNodeDB.cloneTable("someData", "someDataOverwrite")
-        await simpleNodeDB.correlations("someDataOverwrite")
-        await simpleNodeDB.sort("someDataOverwrite", { corr: "desc" })
+        const table = sdb.newTable("data")
+        await table.loadData("test/data/files/dataCorrelations.json")
+        await table.correlations()
+        await table.sort({ corr: "desc" })
 
-        const data = await simpleNodeDB.getData("someDataOverwrite")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { x: "key2", y: "key3", corr: 0.3537284140407263 },
@@ -27,14 +24,46 @@ describe("correlations", () => {
             { x: "key3", y: "key4", corr: -0.715142020143122 },
         ])
     })
+    it("should give all correlations between numeric columns in the table and return a new table", async () => {
+        const table = sdb.newTable("data")
+        await table.loadData("test/data/files/dataCorrelations.json")
+        const newTable = await table.correlations({ outputTable: true })
+        await newTable.sort({ corr: "desc" })
 
+        const data = await newTable.getData()
+
+        assert.deepStrictEqual(data, [
+            { x: "key2", y: "key3", corr: 0.3537284140407263 },
+            { x: "key2", y: "key4", corr: -0.24750187590322287 },
+            { x: "key3", y: "key4", corr: -0.715142020143122 },
+        ])
+    })
+    it("should give all correlations between numeric columns in the table and return a new table with a specific name in the DB", async () => {
+        const table = sdb.newTable("data")
+        await table.loadData("test/data/files/dataCorrelations.json")
+        await table.correlations({
+            outputTable: "specificTable",
+        })
+
+        const data = await sdb.customQuery(
+            "select * FROM specificTable ORDER BY corr DESC",
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [
+            { x: "key2", y: "key3", corr: 0.3537284140407263 },
+            { x: "key2", y: "key4", corr: -0.24750187590322287 },
+            { x: "key3", y: "key4", corr: -0.715142020143122 },
+        ])
+    })
     it("should give all correlations between numeric columns in the table and overwrite the current table, with one decimal", async () => {
-        await simpleNodeDB.cloneTable("someData", "someDataOverwrite")
-        await simpleNodeDB.correlations("someDataOverwrite", {
+        const table = sdb.newTable("data")
+        await table.loadData("test/data/files/dataCorrelations.json")
+        await table.correlations({
             decimals: 1,
         })
-        await simpleNodeDB.sort("someDataOverwrite", { corr: "desc" })
-        const data = await simpleNodeDB.getData("someDataOverwrite")
+        await table.sort({ corr: "desc" })
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { x: "key2", y: "key3", corr: 0.4 },
@@ -44,12 +73,13 @@ describe("correlations", () => {
     })
 
     it("should give all correlations between numeric columns in the table", async () => {
-        await simpleNodeDB.correlations("someData", {
-            outputTable: "allCorrelations",
+        const table = sdb.newTable("data")
+        await table.loadData("test/data/files/dataCorrelations.json")
+        await table.correlations({
             decimals: 1,
         })
-        await simpleNodeDB.sort("allCorrelations", { corr: "desc" })
-        const data = await simpleNodeDB.getData("allCorrelations")
+        await table.sort({ corr: "desc" })
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { x: "key2", y: "key3", corr: 0.4 },
@@ -59,15 +89,14 @@ describe("correlations", () => {
     })
 
     it("should give all correlations between numeric columns with a specific x column", async () => {
-        await simpleNodeDB.correlations("someData", {
-            outputTable: "allCorrelationsX",
+        const table = sdb.newTable("data")
+        await table.loadData("test/data/files/dataCorrelations.json")
+        await table.correlations({
             x: "key2",
             decimals: 1,
         })
-
-        await simpleNodeDB.sort("allCorrelationsX", { corr: "desc" })
-
-        const data = await simpleNodeDB.getData("allCorrelationsX")
+        await table.sort({ corr: "desc" })
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { x: "key2", y: "key3", corr: 0.4 },
@@ -76,43 +105,38 @@ describe("correlations", () => {
     })
 
     it("should give the correlation between two specific columns", async () => {
-        await simpleNodeDB.correlations("someData", {
-            outputTable: "allCorrelationsX",
+        const table = sdb.newTable("data")
+        await table.loadData("test/data/files/dataCorrelations.json")
+        await table.correlations({
             x: "key2",
             y: "key3",
             decimals: 1,
         })
 
-        const data = await simpleNodeDB.getData("allCorrelationsX")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [{ x: "key2", y: "key3", corr: 0.4 }])
     })
+
     it("should give the correlation between two specific columns and with a category", async () => {
-        await simpleNodeDB.loadData(
-            "temperatures",
-            "./test/data/files/dailyTemperatures.csv"
-        )
-        await simpleNodeDB.addColumn(
-            "temperatures",
-            "decade",
-            "integer",
-            "FLOOR(YEAR(time)/10)*10"
-        )
-        await simpleNodeDB.summarize("temperatures", {
+        const table = sdb.newTable("data")
+        await table.loadData("./test/data/files/dailyTemperatures.csv")
+        await table.addColumn("decade", "integer", "FLOOR(YEAR(time)/10)*10")
+        await table.summarize({
             values: "t",
             categories: ["decade", "id"],
             summaries: "mean",
         })
-        await simpleNodeDB.correlations("temperatures", {
+        await table.correlations({
             x: "decade",
             y: "mean",
             categories: "id",
             decimals: 2,
         })
 
-        await simpleNodeDB.sort("temperatures", { corr: "desc" })
+        await table.sort({ corr: "desc" })
 
-        const data = await simpleNodeDB.getData("temperatures")
+        const data = await table.getData()
 
         assert.deepStrictEqual(data, [
             { id: 6158355, x: "decade", y: "mean", corr: 0.96 },

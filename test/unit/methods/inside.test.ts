@@ -1,45 +1,36 @@
 import assert from "assert"
-import SimpleNodeDB from "../../../src/class/SimpleNodeDB.js"
+import SimpleDB from "../../../src/class/SimpleDB.js"
 
 describe("inside", () => {
-    let simpleNodeDB: SimpleNodeDB
+    let sdb: SimpleDB
     before(async function () {
-        simpleNodeDB = new SimpleNodeDB({ spatial: true })
+        sdb = new SimpleDB()
     })
     after(async function () {
-        await simpleNodeDB.done()
+        await sdb.done()
     })
 
     it("should check if geometries are inside other geometries", async () => {
-        await simpleNodeDB.loadGeoData(
-            "points",
-            "test/geodata/files/pointsInside.json"
-        )
-        await simpleNodeDB.renameColumns("points", {
+        const points = sdb.newTable("points")
+        await points.loadGeoData("test/geodata/files/pointsInside.json")
+        await points.renameColumns({
             name: "points",
             geom: "geomPoints",
         })
-        await simpleNodeDB.loadGeoData(
-            "polygon",
-            "test/geodata/files/polygonInside.json"
-        )
-        await simpleNodeDB.renameColumns("polygon", {
+
+        const polygon = sdb.newTable("polygon")
+        await polygon.loadGeoData("test/geodata/files/polygonInside.json")
+        await polygon.renameColumns({
             name: "polygon",
             geom: "geomPolygon",
         })
-        await simpleNodeDB.crossJoin("points", "polygon")
-        await simpleNodeDB.inside(
-            "points",
-            ["geomPoints", "geomPolygon"],
-            "isInside"
-        )
 
-        await simpleNodeDB.selectColumns("points", [
-            "points",
-            "polygon",
-            "isInside",
-        ])
-        const data = await simpleNodeDB.getData("points")
+        await points.crossJoin(polygon)
+        await points.inside("geomPoints", "geomPolygon", "isInside")
+        await points.selectColumns(["points", "polygon", "isInside"])
+        await points.sort({ points: "asc" })
+
+        const data = await points.getData()
 
         assert.deepStrictEqual(data, [
             { points: "pointA", polygon: "container", isInside: false },
