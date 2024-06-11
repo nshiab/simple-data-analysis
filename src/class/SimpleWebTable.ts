@@ -449,7 +449,7 @@ export default class SimpleWebTable extends Simple {
             `CREATE OR REPLACE TABLE ${this.name} AS SELECT ${stringToArray(
                 columns
             )
-                .map((d) => `${d}`)
+                .map((d) => `"${d}"`)
                 .join(", ")} FROM ${this.name}`,
             mergeOptions(this, {
                 table: this.name,
