@@ -71,6 +71,67 @@ describe("selectColumns", () => {
             { Name: "Patel, Joshua" },
         ])
     })
+    it("should return one column with spaces in its name", async () => {
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/employees.csv"])
+
+        await table.selectColumns("Department or unit")
+        const data = await table.getData()
+
+        assert.deepStrictEqual(data, [
+            { "Department or unit": "50" },
+            { "Department or unit": "50" },
+            { "Department or unit": "50" },
+            { "Department or unit": "10" },
+            { "Department or unit": "20" },
+            { "Department or unit": "20" },
+            { "Department or unit": "40" },
+            { "Department or unit": "xyz" },
+            { "Department or unit": "110" },
+            { "Department or unit": "110" },
+            { "Department or unit": "90" },
+            { "Department or unit": "90" },
+            { "Department or unit": "90" },
+            { "Department or unit": "60" },
+            { "Department or unit": "60" },
+            { "Department or unit": "null" },
+            { "Department or unit": "60" },
+            { "Department or unit": "60" },
+            { "Department or unit": "100" },
+            { "Department or unit": "100" },
+            { "Department or unit": "100" },
+            { "Department or unit": "100" },
+            { "Department or unit": "100" },
+            { "Department or unit": "100" },
+            { "Department or unit": "30" },
+            { "Department or unit": "30" },
+            { "Department or unit": "30" },
+            { "Department or unit": null },
+            { "Department or unit": "30" },
+            { "Department or unit": "30" },
+            { "Department or unit": "50" },
+            { "Department or unit": "50" },
+            { "Department or unit": "undefined" },
+            { "Department or unit": "50" },
+            { "Department or unit": "50" },
+            { "Department or unit": "50" },
+            { "Department or unit": "50" },
+            { "Department or unit": "50" },
+            { "Department or unit": "50" },
+            { "Department or unit": "50" },
+            { "Department or unit": "50" },
+            { "Department or unit": "50" },
+            { "Department or unit": "null" },
+            { "Department or unit": "50" },
+            { "Department or unit": "50" },
+            { "Department or unit": "50" },
+            { "Department or unit": "NaN" },
+            { "Department or unit": "50" },
+            { "Department or unit": "50" },
+            { "Department or unit": "50" },
+            { "Department or unit": "50" },
+        ])
+    })
     it("should return multiple columns", async () => {
         const table = sdb.newTable()
         await table.loadData(["test/data/files/employees.csv"])
