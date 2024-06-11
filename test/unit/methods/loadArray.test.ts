@@ -90,4 +90,46 @@ describe("loadArray", () => {
 
         assert.deepStrictEqual(table instanceof SimpleTable, true)
     })
+    it("should load an array of objects into a table with spaces in column names", async () => {
+        const table = sdb.newTable()
+        await table.loadArray([
+            {
+                "column 1": 1,
+                "column 2": "un",
+            },
+            {
+                "column 1": 2,
+                "column 2": "deux",
+            },
+            {
+                "column 1": 3,
+                "column 2": "trois",
+            },
+            {
+                "column 1": 4,
+                "column 2": "quatre",
+            },
+        ])
+
+        const data = await table.getData()
+
+        assert.deepStrictEqual(data, [
+            {
+                "column 1": 1,
+                "column 2": "un",
+            },
+            {
+                "column 1": 2,
+                "column 2": "deux",
+            },
+            {
+                "column 1": 3,
+                "column 2": "trois",
+            },
+            {
+                "column 1": 4,
+                "column 2": "quatre",
+            },
+        ])
+    })
 })
