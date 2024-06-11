@@ -406,6 +406,8 @@ export default class SimpleTable extends SimpleWebTable {
      *   @param options.allText - A boolean indicating whether all columns should be treated as text. Applicable to CSV files. Defaults to false.
      *   @param options.delim - The delimiter used in the file. Applicable to CSV and DSV files. By default, the delimiter is inferred.
      *   @param options.skip - The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to 0.
+     *   @param options.nullPadding - If this option is enabled, when a row lacks columns, it will pad the remaining columns on the right with null values.
+     *   @param options.ignoreErrors - Option to ignore any parsing errors encountered and instead ignore rows with errors.
      *   @param options.compression - The compression type. Applicable to CSV files. Defaults to none.
      *   @param options.jsonFormat - The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
      *   @param options.records - A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
@@ -427,6 +429,9 @@ export default class SimpleTable extends SimpleWebTable {
             allText?: boolean
             delim?: string
             skip?: number
+
+            nullPadding?: boolean
+            ignoreErrors?: boolean
             compression?: "none" | "gzip" | "zstd"
             // json options
             jsonFormat?: "unstructured" | "newlineDelimited" | "array"
@@ -468,6 +473,8 @@ export default class SimpleTable extends SimpleWebTable {
      *   @param options.allText - A boolean indicating whether all columns should be treated as text. Applicable to CSV files. Defaults to false.
      *   @param options.delim - The delimiter used in the file. Applicable to CSV and DSV files. By default, the delimiter is inferred.
      *   @param options.skip - The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to 0.
+     *   @param options.nullPadding - If this option is enabled, when a row lacks columns, it will pad the remaining columns on the right with null values.
+     *   @param options.ignoreErrors - Option to ignore any parsing errors encountered and instead ignore rows with errors.
      *   @param options.compression - The compression type. Applicable to CSV files. Defaults to none.
      *   @param options.jsonFormat - The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
      *   @param options.records - A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
@@ -489,6 +496,8 @@ export default class SimpleTable extends SimpleWebTable {
             allText?: boolean
             delim?: string
             skip?: number
+            nullPadding?: boolean
+            ignoreErrors?: boolean
             compression?: "none" | "gzip" | "zstd"
             // json options
             jsonFormat?: "unstructured" | "newlineDelimited" | "array"

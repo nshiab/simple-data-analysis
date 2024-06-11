@@ -141,6 +141,50 @@ describe("loadData", () => {
             },
         ])
     })
+    it("should load a messy csv", async () => {
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/activefires.csv"], {
+            nullPadding: true,
+        })
+
+        const data = await table.getTop(3)
+
+        assert.deepStrictEqual(data, [
+            {
+                agency: "bc",
+                firename: " G70149",
+                lat: 55.642,
+                lon: -121.444,
+                startdate: " 2024-04-22 20:17:00",
+                hectares: 0.2,
+                stage_of_control: " UC",
+                timezone: " PDT",
+                response_type: " FUL",
+            },
+            {
+                agency: "nb",
+                firename: " 63424",
+                lat: 46.309,
+                lon: -66.718,
+                startdate: " 2024-04-27 16:55:19",
+                hectares: 0.1,
+                stage_of_control: " UC",
+                timezone: " ADT",
+                response_type: " FUL",
+            },
+            {
+                agency: "conus",
+                firename: " Anvil - ORRSF",
+                lat: 42.7458,
+                lon: -124.344,
+                startdate: " ",
+                hectares: 8978.85,
+                stage_of_control: " 95% contained",
+                timezone: " GMT",
+                response_type: null,
+            },
+        ])
+    })
     it("should load data from a fetched csv file", async () => {
         const table = sdb.newTable()
         await table.loadData([
