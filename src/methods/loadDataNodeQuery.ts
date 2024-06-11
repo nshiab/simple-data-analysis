@@ -15,6 +15,8 @@ export default function loadDataNodeQuery(
         allText?: boolean
         delim?: string
         skip?: number
+        nullPadding?: boolean
+        ignoreErrors?: boolean
         compression?: "none" | "gzip" | "zstd"
         // json options
         jsonFormat?: "unstructured" | "newlineDelimited" | "array"
@@ -63,12 +65,18 @@ export default function loadDataNodeQuery(
                 : ""
         const delim = options.delim ? `, delim='${options.delim}'` : ""
         const skip = options.skip ? `, skip=${options.skip}` : ""
+        const ignoreErrors = options.ignoreErrors
+            ? `, ignore_errors	=${options.ignoreErrors}`
+            : ""
+        const nullPadding = options.nullPadding
+            ? `, null_padding=${options.nullPadding}`
+            : ""
         const compression = options.compression
             ? `, compression=${options.compression}`
             : ""
 
         return `CREATE OR REPLACE TABLE ${table}
-            AS SELECT * FROM read_csv_auto(${filesAsString}${generalOptions}${header}${allText}${delim}${skip}${compression})${limit};`
+            AS SELECT * FROM read_csv_auto(${filesAsString}${generalOptions}${header}${allText}${delim}${skip}${compression}${nullPadding}${ignoreErrors})${limit};`
     } else if (options.fileType === "json" || fileExtension === "json") {
         const jsonFormat = options.jsonFormat
             ? `, format='${options.jsonFormat}'`
