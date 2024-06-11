@@ -1,6 +1,6 @@
 {
     "name": "simple-data-analysis",
-    "version": "3.0.2",
+    "version": "3.0.3",
     "description": "Easy-to-use and high-performance JavaScript library for data analysis. Works with tabular and geospatial data.",
     "homepage": "https://github.com/nshiab/simple-data-analysis#readme",
     "repository": {
