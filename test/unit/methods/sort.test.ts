@@ -26,7 +26,15 @@ describe("sort", () => {
             { key1: 900, key2: "Zéphir", key3: "A" },
         ])
     })
+    it("should sort one column with spaces in its name", async () => {
+        const table = sdb.newTable()
+        await table.loadArray([{ "column 1": 2 }, { "column 1": 1 }])
+        await table.sort({ "column 1": "asc" })
 
+        const data = await table.getData()
+
+        assert.deepStrictEqual(data, [{ "column 1": 1 }, { "column 1": 2 }])
+    })
     it("should sort one number column descendingly", async () => {
         const table = sdb.newTable()
         await table.loadData("test/data/files/dataSort.csv")
