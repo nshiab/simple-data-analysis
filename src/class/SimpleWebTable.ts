@@ -3264,10 +3264,8 @@ export default class SimpleWebTable extends Simple {
                 ? options.column
                 : await findGeoColumn(this)
 
-        if (
-            typeof this.projection?.proj4 !== "string" &&
-            typeof options.from !== "string"
-        ) {
+        const from = options.from ?? this.projection?.code
+        if (typeof from !== "string" || from === "") {
             throw new Error(
                 "Method reproject can't determine the original projection. Use the option 'from' to provide one."
             )
@@ -3275,7 +3273,7 @@ export default class SimpleWebTable extends Simple {
 
         await queryDB(
             this,
-            `UPDATE ${this.name} SET ${column} = ST_Transform(${column}, '${options.from ?? this.projection?.proj4 ?? this.projection?.code}', '${to}')`,
+            `UPDATE ${this.name} SET ${column} = ST_Transform(${column}, '${from}', '${to}')`,
             mergeOptions(this, {
                 table: this.name,
                 method: "reproject()",
@@ -3292,10 +3290,10 @@ export default class SimpleWebTable extends Simple {
                   proj4: "+proj=latlong +datum=WGS84 +no_defs",
               }
             : {
-                  name: "",
+                  name: undefined,
                   code: to,
-                  unit: "",
-                  proj4: "",
+                  unit: undefined,
+                  proj4: undefined,
               }
     }
 

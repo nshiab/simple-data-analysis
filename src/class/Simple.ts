@@ -20,10 +20,10 @@ export default class Simple {
     defaultTableName: boolean
     /** The projection of the geospatial data, if any. @category Properties */
     projection: {
-        name: string
-        code: string
-        unit: string
-        proj4: string
+        name: string | undefined
+        code: string | undefined
+        unit: string | undefined
+        proj4: string | undefined
     } | null
     /**
      * For internal use only. If you want to run a SQL query, use the customQuery method. @category Properties
