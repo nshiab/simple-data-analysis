@@ -15,12 +15,10 @@ describe("intersection", () => {
         await prov.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await prov.flipCoordinates("geom")
         await prov.renameColumns({ geom: "prov" })
 
         const poly = sdb.newTable("poly")
         await poly.loadGeoData("test/geodata/files/polygons.geojson")
-        await poly.flipCoordinates("geom")
         await poly.area("polArea")
         await poly.round("polArea")
         await poly.renameColumns({ geom: "pol" })

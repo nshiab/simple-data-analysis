@@ -77,22 +77,25 @@ export default class SimpleDB extends SimpleWebDB {
      * const employees = sdb.newTable("employees")
      * ```
      *
-     * @param name - The name of the new table
+     * @param name - The name of the new table.
+     * @param projection - The projection of the geospatial data, if any.
      *
      * @category DB methods
      */
-    newTable(name?: string): SimpleTable {
+    newTable(name?: string, projection?: string | null): SimpleTable {
         this.debug && console.log("\nnewTable()")
+
+        const proj = projection ?? null
 
         let table
         if (typeof name === "string") {
-            table = new SimpleTable(name, this, {
+            table = new SimpleTable(name, proj, this, {
                 debug: this.debug,
                 nbRowsToLog: this.nbRowsToLog,
             })
             table.defaultTableName = false
         } else {
-            table = new SimpleTable(`table${this.tableIncrement}`, this, {
+            table = new SimpleTable(`table${this.tableIncrement}`, proj, this, {
                 debug: this.debug,
                 nbRowsToLog: this.nbRowsToLog,
                 bigIntToInt: this.bigIntToInt,

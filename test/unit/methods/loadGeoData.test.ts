@@ -64,9 +64,7 @@ describe("loadGeoData", () => {
     })
     it("should load a geojson file and convert it to WGS84", async () => {
         const table = sdb.newTable()
-        await table.loadGeoData("test/geodata/files/point.json", {
-            toWGS84: true,
-        })
+        await table.loadGeoData("test/geodata/files/point.json")
         await table.latLon("geom", "lat", "lon")
         await table.selectColumns(["lat", "lon"])
 

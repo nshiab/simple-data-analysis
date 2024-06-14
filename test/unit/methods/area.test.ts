@@ -15,7 +15,6 @@ describe("area", () => {
         await table.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await table.flipCoordinates("geom")
         await table.area("area")
         await table.selectColumns(["nameEnglish", "nameFrench", "area"])
         await table.round("area")
@@ -90,7 +89,6 @@ describe("area", () => {
         await table.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await table.flipCoordinates("geom")
         await table.area("area", { column: "geom" })
         await table.selectColumns(["nameEnglish", "nameFrench", "area"])
         await table.round("area")
@@ -163,13 +161,8 @@ describe("area", () => {
     it("should calculate the area of geometries in square meters with a file loaded with option toWGS84", async () => {
         const table = sdb.newTable("geodata")
         await table.loadGeoData(
-            "test/geodata/files/CanadianProvincesAndTerritories.json",
-            {
-                toWGS84: true,
-            }
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        // No need to flip
-        // await table.flipCoordinates("geom")
         await table.area("area")
         await table.selectColumns(["nameEnglish", "nameFrench", "area"])
         await table.round("area")
@@ -244,7 +237,6 @@ describe("area", () => {
         await table.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await table.flipCoordinates("geom")
         await table.area("area", { unit: "km2" })
         await table.selectColumns(["nameEnglish", "nameFrench", "area"])
         await table.round("area")

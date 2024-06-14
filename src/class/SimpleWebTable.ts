@@ -66,6 +66,7 @@ import join from "../methods/join.js"
 import cloneQuery from "../methods/cloneQuery.js"
 import toCamelCase from "../helpers/toCamelCase.js"
 import findGeoColumn from "../helpers/findGeoColumn.js"
+import getExtension from "../helpers/getExtension.js"
 // Not working for now
 // import getProjection from "../helpers/getProjection.js"
 
@@ -99,11 +100,14 @@ import findGeoColumn from "../helpers/findGeoColumn.js"
 export default class SimpleWebTable extends Simple {
     /** Name of the table in the database. @category Properties */
     name: string
+    /** The projection of the geospatial data, if any. @category Properties */
+    projection: string | null
     /** The SimpleWebDB that created this table. @category Properties */
     sdb: SimpleWebDB
 
     constructor(
         name: string,
+        projection: string | null,
         simpleWebDB: SimpleWebDB,
         options: {
             debug?: boolean
@@ -112,6 +116,7 @@ export default class SimpleWebTable extends Simple {
     ) {
         super(runQueryWeb, options)
         this.name = name
+        this.projection = projection
         this.sdb = simpleWebDB
         this.db = simpleWebDB.db
         this.connection = this.sdb.connection
@@ -359,9 +364,15 @@ export default class SimpleWebTable extends Simple {
     ) {
         let clonedTable: SimpleWebTable
         if (typeof options.outputTable === "string") {
-            clonedTable = this.sdb.newTable(options.outputTable)
+            clonedTable = this.sdb.newTable(
+                options.outputTable,
+                this.projection
+            )
         } else {
-            clonedTable = this.sdb.newTable(`table${this.tableIncrement}`)
+            clonedTable = this.sdb.newTable(
+                `table${this.tableIncrement}`,
+                this.projection
+            )
             this.tableIncrement += 1
         }
 
@@ -578,7 +589,7 @@ export default class SimpleWebTable extends Simple {
         )
 
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable, this.projection)
         } else {
             return this
         }
@@ -1189,7 +1200,7 @@ export default class SimpleWebTable extends Simple {
             })
         )
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable, this.projection)
         } else {
             return this
         }
@@ -1233,7 +1244,7 @@ export default class SimpleWebTable extends Simple {
         await join(this, rightTable, options)
 
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable, this.projection)
         } else {
             return this
         }
@@ -1989,7 +2000,7 @@ export default class SimpleWebTable extends Simple {
         }
         await summarize(this, options)
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable, this.projection)
         } else {
             return this
         }
@@ -2121,7 +2132,7 @@ export default class SimpleWebTable extends Simple {
         }
         await correlations(this, options)
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable, this.projection)
         } else {
             return this
         }
@@ -2185,7 +2196,7 @@ export default class SimpleWebTable extends Simple {
         }
         await linearRegressions(this, options)
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable, this.projection)
         } else {
             return this
         }
@@ -2931,7 +2942,7 @@ export default class SimpleWebTable extends Simple {
     // GEOSPATIAL
 
     /**
-     * Loads geospatial data from an external file.
+     * Loads geospatial data from an external file. The coordinates of files or urls ending with .json or .geojson are automatically flipped to [latitude, longitude] axis order.
      *
      * @example Basic usage with URL
      * ```ts
@@ -2955,7 +2966,7 @@ export default class SimpleWebTable extends Simple {
      *
      * @param file - The URL or path to the external file containing the geospatial data.
      * @param options - An optional object with configuration options:
-     *   @param options.toWGS84 - If true, the method will look for the original projection in the file and convert the data to the WGS84 projection with [latitude, longitude] axis order.
+     *   @param options.toWGS84 - If true, the method will look for the original projection in the file and convert the data to the WGS84 projection with [latitude, longitude] axis order. If the file or the url ends by .json or .geojson, the coordinates are automatically flipped and this option has no effect.
      *   @param options.from - An option to pass the original projection, if the method is not able to find it.
      *
      * @category Geospatial
@@ -2978,7 +2989,16 @@ export default class SimpleWebTable extends Simple {
         // Not working for now.
         // this.projection = await getProjection(this.sdb, file)
 
-        if (options.toWGS84) {
+        const extension = getExtension(file)
+        if (extension === "json" || extension === "geojson") {
+            await this.flipCoordinates("geom") // column storing geometries
+            this.projection = "+proj=latlong +datum=WGS84 +no_defs"
+            if (options.toWGS84) {
+                console.log(
+                    "This file is a json or geojson. Option toWGS84 has no effect."
+                )
+            }
+        } else if (options.toWGS84) {
             await this.reproject("WGS84", { ...options, column: "geom" }) // column storing geometries is geom by default
         }
 
@@ -3227,7 +3247,7 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
-     * Reprojects the data to another Spatial Reference System (SRS).
+     * Reprojects the data to another Spatial Reference System (SRS). If you reproject to WGS84 or EPSG:4326, the result will have [latitude, longitude] axis order.
      *
      * @example Basic usage
      * ```ts
@@ -3264,13 +3284,18 @@ export default class SimpleWebTable extends Simple {
                 ? options.column
                 : await findGeoColumn(this)
 
-        const from = options.from ?? this.projection?.code
+        const from = options.from ?? this.projection
         if (typeof from !== "string" || from === "") {
             throw new Error(
                 "Method reproject can't determine the original projection. Use the option 'from' to provide one."
             )
         }
-
+        if (from === "+proj=latlong +datum=WGS84 +no_defs") {
+            await this.flipCoordinates(column)
+        }
+        if (to.toUpperCase() === "WGS84" || to.toUpperCase() === "EPSG:4326") {
+            to = "+proj=latlong +datum=WGS84 +no_defs"
+        }
         await queryDB(
             this,
             `UPDATE ${this.name} SET ${column} = ST_Transform(${column}, '${from}', '${to}')`,
@@ -3280,21 +3305,10 @@ export default class SimpleWebTable extends Simple {
                 parameters: { column, to },
             })
         )
-        this.projection = ["EPSG:4326", "WGS84", "WGS 84"].includes(
-            to.toUpperCase()
-        )
-            ? {
-                  name: "WGS 84",
-                  code: "EPSG:4326",
-                  unit: "degree",
-                  proj4: "+proj=latlong +datum=WGS84 +no_defs",
-              }
-            : {
-                  name: undefined,
-                  code: to,
-                  unit: undefined,
-                  proj4: undefined,
-              }
+        this.projection = to
+        if (this.projection === "+proj=latlong +datum=WGS84 +no_defs") {
+            await this.flipCoordinates()
+        }
     }
 
     /**
@@ -3551,7 +3565,7 @@ export default class SimpleWebTable extends Simple {
         }
         await joinGeo(this, method, rightTable, options)
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable, this.projection)
         } else {
             return this
         }
@@ -3963,7 +3977,7 @@ export default class SimpleWebTable extends Simple {
             })
         )
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable)
+            return this.sdb.newTable(options.outputTable, this.projection)
         } else {
             return this
         }
@@ -4004,7 +4018,7 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
-     * Get the bounding box of geometries in [minX, minY, maxX, maxY] order. By default, the method will try find the column with the geometries, but can also specify one.
+     * Get the bounding box of geometries in [minLong, minLat, maxLong, maxLat] order. By default, the method will try find the column with the geometries, but can also specify one. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      *
      * @example Basic usage
      * ```ts
@@ -4037,7 +4051,7 @@ export default class SimpleWebTable extends Simple {
                 returnDataFrom: "query",
             })
         )) as { minX: number; minY: number; maxX: number; maxY: number }[]
-        return [result[0].minX, result[0].minY, result[0].maxX, result[0].maxY]
+        return [result[0].minY, result[0].minX, result[0].maxY, result[0].maxX]
     }
 
     /**

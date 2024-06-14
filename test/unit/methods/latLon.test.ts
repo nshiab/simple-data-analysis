@@ -12,9 +12,7 @@ describe("latLon", () => {
 
     it("should extract the lat and lon of points", async () => {
         const table = sdb.newTable()
-        await table.loadGeoData("test/geodata/files/pointsInside.json", {
-            toWGS84: true,
-        })
+        await table.loadGeoData("test/geodata/files/pointsInside.json")
         await table.latLon("geom", "lat", "lon")
         await table.removeColumns("geom")
 

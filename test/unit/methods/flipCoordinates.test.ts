@@ -20,7 +20,7 @@ describe("flipCoordinates", () => {
         )
 
         assert.deepStrictEqual(data, [
-            { geomText: "POINT (45.51412791316409 -73.62315106245389)" },
+            { geomText: "POINT (-73.62315106245389 45.51412791316409)" },
         ])
     })
     it("should flip the coordinates from a specific column", async () => {
@@ -33,7 +33,7 @@ describe("flipCoordinates", () => {
         )
 
         assert.deepStrictEqual(data, [
-            { geomText: "POINT (45.51412791316409 -73.62315106245389)" },
+            { geomText: "POINT (-73.62315106245389 45.51412791316409)" },
         ])
     })
 })
