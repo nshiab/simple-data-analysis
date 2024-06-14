@@ -556,10 +556,14 @@ export default class SimpleTable extends SimpleWebTable {
      * @param file - The URL or path to the external file containing the geospatial data.
      * @param options - An optional object with configuration options:
      *   @param options.toWGS84 - If true, the method will look for the original projection in the file and convert the data to the WGS84 projection with [latitude, longitude] axis order.
+     *   @param options.from - An option to pass the original projection, if the method is not able to find it.
      *
      * @category Geospatial
      */
-    async loadGeoData(file: string, options: { toWGS84?: boolean } = {}) {
+    async loadGeoData(
+        file: string,
+        options: { toWGS84?: boolean; from?: string } = {}
+    ) {
         await queryDB(
             this,
             `INSTALL spatial; LOAD spatial;${file.toLowerCase().includes("http") ? " INSTALL https; LOAD https;" : ""}

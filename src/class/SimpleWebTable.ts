@@ -2962,7 +2962,7 @@ export default class SimpleWebTable extends Simple {
      */
     async fetchGeoData(
         file: string,
-        options: { toWGS84?: boolean; from?: string; column?: string } = {}
+        options: { toWGS84?: boolean; from?: string } = {}
     ) {
         await queryDB(
             this,
