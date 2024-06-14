@@ -2980,12 +2980,6 @@ export default class SimpleWebTable extends Simple {
 
         if (options.toWGS84) {
             await this.reproject("WGS84", { ...options, column: "geom" }) // column storing geometries is geom by default
-            this.projection = {
-                name: "WGS 84",
-                code: "EPSG:4326",
-                unit: "degree",
-                proj4: "+proj=latlong +datum=WGS84 +no_defs",
-            }
         }
 
         return this
@@ -3281,7 +3275,7 @@ export default class SimpleWebTable extends Simple {
 
         await queryDB(
             this,
-            `UPDATE ${this.name} SET ${column} = ST_Transform(${column}, '${options.from ?? this.projection?.proj4}', '${to}')`,
+            `UPDATE ${this.name} SET ${column} = ST_Transform(${column}, '${options.from ?? this.projection?.proj4 ?? this.projection?.code}', '${to}')`,
             mergeOptions(this, {
                 table: this.name,
                 method: "reproject()",

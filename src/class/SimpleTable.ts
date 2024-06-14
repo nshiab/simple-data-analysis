@@ -573,12 +573,6 @@ export default class SimpleTable extends SimpleWebTable {
         this.projection = await getProjection(this.sdb, file)
         if (options.toWGS84) {
             await this.reproject("WGS84", { column: "geom" }) // geom is default for column storing geometries
-            this.projection = {
-                name: "WGS 84",
-                code: "EPSG:4326",
-                unit: "degree",
-                proj4: "+proj=latlong +datum=WGS84 +no_defs",
-            }
         }
 
         return this
