@@ -333,9 +333,7 @@ describe("joinGeo", () => {
     })
     it("should return all points within a target distance (haversine method)", async () => {
         const cities = sdb.newTable()
-        await cities.loadGeoData("test/geodata/files/coordinates.geojson", {
-            toWGS84: true,
-        })
+        await cities.loadGeoData("test/geodata/files/coordinates.geojson")
         const cloned = await cities.cloneTable()
         await cities.joinGeo(cloned, "within", {
             distance: 500_000,
@@ -359,9 +357,7 @@ describe("joinGeo", () => {
     })
     it("should return all points within a target distance (spheroid method)", async () => {
         const cities = sdb.newTable()
-        await cities.loadGeoData("test/geodata/files/coordinates.geojson", {
-            toWGS84: true,
-        })
+        await cities.loadGeoData("test/geodata/files/coordinates.geojson")
         const cloned = await cities.cloneTable()
         await cities.joinGeo(cloned, "within", {
             distance: 500_000,

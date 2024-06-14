@@ -13,7 +13,6 @@ describe("length", () => {
     it("should calculate the length of geometries in meters", async () => {
         const table = sdb.newTable()
         await table.loadGeoData("test/geodata/files/line.json")
-        await table.flipCoordinates()
         await table.length("length")
         await table.round("length")
         await table.selectColumns("length")
@@ -24,7 +23,6 @@ describe("length", () => {
     it("should calculate the length of geometries from a specific column in meters", async () => {
         const table = sdb.newTable()
         await table.loadGeoData("test/geodata/files/line.json")
-        await table.flipCoordinates()
         await table.length("length", { column: "geom" })
         await table.round("length")
         await table.selectColumns("length")
@@ -34,11 +32,7 @@ describe("length", () => {
     })
     it("should calculate the length of geometries in meters from a file loaded with option toWGS84", async () => {
         const table = sdb.newTable()
-        await table.loadGeoData("test/geodata/files/line.json", {
-            toWGS84: true,
-        })
-        // No need to flip
-        // await table.flipCoordinates("geom")
+        await table.loadGeoData("test/geodata/files/line.json")
         await table.length("length")
         await table.round("length")
         await table.selectColumns("length")
@@ -49,7 +43,6 @@ describe("length", () => {
     it("should calculate the length of geometries in kilometers", async () => {
         const table = sdb.newTable()
         await table.loadGeoData("test/geodata/files/line.json")
-        await table.flipCoordinates("geom")
         await table.length("length", { unit: "km" })
         await table.round("length")
         await table.selectColumns("length")

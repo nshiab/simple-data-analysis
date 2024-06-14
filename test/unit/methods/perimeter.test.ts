@@ -15,7 +15,6 @@ describe("perimeter", () => {
         await table.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await table.flipCoordinates("geom")
         await table.perimeter("perim")
         await table.round("perim")
         await table.selectColumns(["nameEnglish", "perim"])
@@ -42,7 +41,6 @@ describe("perimeter", () => {
         await table.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await table.flipCoordinates("geom")
         await table.perimeter("perim", { column: "geom" })
         await table.round("perim")
         await table.selectColumns(["nameEnglish", "perim"])
@@ -67,11 +65,8 @@ describe("perimeter", () => {
     it("should calculate the perimeter of geometries in meters with a file loaded with option toWGS84", async () => {
         const table = sdb.newTable()
         await table.loadGeoData(
-            "test/geodata/files/CanadianProvincesAndTerritories.json",
-            { toWGS84: true }
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        // No need to flip
-        // await table.flipCoordinates("geom")
         await table.perimeter("perim")
         await table.round("perim")
         await table.selectColumns(["nameEnglish", "perim"])
@@ -98,7 +93,6 @@ describe("perimeter", () => {
         await table.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
         )
-        await table.flipCoordinates("geom")
         await table.perimeter("perim", { unit: "km" })
         await table.round("perim")
         await table.selectColumns(["nameEnglish", "perim"])

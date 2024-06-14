@@ -18,7 +18,7 @@ describe("reducePrecision", () => {
             `SELECT ST_AsText(geom) as geomText FROM geoData;`,
             { returnDataFrom: "query" }
         )
-        assert.deepStrictEqual(data, [{ geomText: "POINT (-73.623 45.514)" }])
+        assert.deepStrictEqual(data, [{ geomText: "POINT (45.514 -73.623)" }])
     })
     it("should round the coordinates to 3 decimals from a specific column", async () => {
         const table = sdb.newTable("geoData")
@@ -28,6 +28,6 @@ describe("reducePrecision", () => {
             `SELECT ST_AsText(geom) as geomText FROM geoData;`,
             { returnDataFrom: "query" }
         )
-        assert.deepStrictEqual(data, [{ geomText: "POINT (-73.623 45.514)" }])
+        assert.deepStrictEqual(data, [{ geomText: "POINT (45.514 -73.623)" }])
     })
 })
