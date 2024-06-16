@@ -4105,7 +4105,10 @@ export default class SimpleWebTable extends Simple {
         this.debug && console.log("\nlogTable()")
         this.debug && console.log("parameters:", { nbRowsToLog })
 
-        if (this.connection === undefined) {
+        if (
+            this.connection === undefined ||
+            !(await this.sdb.hasTable(this.name))
+        ) {
             console.log(`\ntable ${this.name}: no data`)
         } else {
             console.log(`\ntable ${this.name}:`)
@@ -4140,6 +4143,27 @@ export default class SimpleWebTable extends Simple {
                     nbRows[0]["count_star()"] as number
                 )} rows in total ${`(nbRowsToLog: ${rows})`}`
             )
+        }
+    }
+
+    /**
+     * Logs descriptive information about the columns, including details like data types, number of null and distinct values. It calls getDescription.
+     *
+     * @example Basic usage
+     * ```ts
+     * await table.logDescription()
+     * ```
+     *
+     */
+    async logDescription(): Promise<void> {
+        if (
+            this.connection === undefined ||
+            !(await this.sdb.hasTable(this.name))
+        ) {
+            console.log(`\ntable ${this.name}: no data`)
+        } else {
+            console.log(`\ntable ${this.name}:`)
+            console.table(await getDescription(this))
         }
     }
 }
