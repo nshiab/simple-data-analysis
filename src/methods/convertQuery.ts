@@ -25,7 +25,25 @@ export default function convertQuery(
     },
     options: { datetimeFormat?: string; try?: boolean }
 ) {
-    let query = `CREATE OR REPLACE TABLE ${table} AS SELECT`
+    let query = ""
+    // First, we clean if needed
+
+    for (const column of allColumns) {
+        const indexOf = columns.indexOf(column)
+        if (indexOf >= 0) {
+            const expectedType = parseType(columnsTypes[indexOf])
+            const currentType = allTypes[column]
+            const stringToNumber =
+                currentType === "VARCHAR" &&
+                ["DOUBLE", "BIGINT"].includes(expectedType)
+
+            if (stringToNumber) {
+                query += `UPDATE ${table} SET "${column}" = REPLACE("${column}", ',', '');\n`
+            }
+        }
+    }
+
+    query += `CREATE OR REPLACE TABLE ${table} AS SELECT`
 
     const cast = options.try ? "TRY_CAST" : "CAST"
 
@@ -38,6 +56,7 @@ export default function convertQuery(
             const currentType = allTypes[column]
             const datetimeFormatExist =
                 typeof options.datetimeFormat === "string"
+
             const stringToDate =
                 currentType === "VARCHAR" &&
                 (expectedType.includes("TIME") || expectedType.includes("DATE"))

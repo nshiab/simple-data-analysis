@@ -958,6 +958,8 @@ export default class SimpleWebTable extends Simple {
      *
      * If you convert timestamps, dates, or times to numbers, the result will be the number of milliseconds since 1970-01-01 00:00:00. If you convert numbers to timestamps, dates, or times, the same logic applies.
      *
+     * If you convert strings to numbers, commas (which are often used as thousand separators) will be removed before converting.
+     *
      * @example Basic usage with JavaScript types
      * ```ts
      * // Converts column1 to string and column2 to integer
