@@ -26,8 +26,8 @@ export default function convertQuery(
     options: { datetimeFormat?: string; try?: boolean }
 ) {
     let query = ""
-    // First, we clean if needed
 
+    // First, we clean if needed
     for (const column of allColumns) {
         const indexOf = columns.indexOf(column)
         if (indexOf >= 0) {
@@ -36,7 +36,6 @@ export default function convertQuery(
             const stringToNumber =
                 currentType === "VARCHAR" &&
                 ["DOUBLE", "BIGINT"].includes(expectedType)
-
             if (stringToNumber) {
                 query += `UPDATE ${table} SET "${column}" = REPLACE("${column}", ',', '');\n`
             }
