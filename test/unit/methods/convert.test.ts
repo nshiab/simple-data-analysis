@@ -24,7 +24,25 @@ describe("convert", () => {
             { key1: "1.0", key2: 154 },
         ])
     })
+    it("should convert strings with comma as thousand separator to number", async () => {
+        const table = sdb.newTable("data")
+        await table.loadArray([
+            { key1: "1,000.3", key2: 2 },
+            { key1: "3,000,000", key2: 15 },
+            { key1: "8.5", key2: 10 },
+            { key1: "1.0", key2: 154 },
+        ])
 
+        await table.convert({ key1: "number" })
+        const data = await table.getData()
+
+        assert.deepStrictEqual(data, [
+            { key1: 1000.3, key2: 2 },
+            { key1: 3000000, key2: 15 },
+            { key1: 8.5, key2: 10 },
+            { key1: 1.0, key2: 154 },
+        ])
+    })
     it("should try to convert string to number", async () => {
         const table = sdb.newTable("data")
         await table.loadData(["test/data/files/data.csv"], {
