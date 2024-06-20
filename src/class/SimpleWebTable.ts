@@ -894,8 +894,8 @@ export default class SimpleWebTable extends Simple {
             this,
             `CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM (
             FROM ${this.name} UNPIVOT INCLUDE NULLS (
-            ${valuesTo}
-            for ${columnsTo} in (${columns.map((d) => `${d}`).join(", ")})
+            "${valuesTo}"
+            for "${columnsTo}" in (${columns.map((d) => `"${d}"`).join(", ")})
             )
         )`,
             mergeOptions(this, {
@@ -942,7 +942,7 @@ export default class SimpleWebTable extends Simple {
     async wider(columnsFrom: string, valuesFrom: string) {
         await queryDB(
             this,
-            `CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM (PIVOT ${this.name} ON ${columnsFrom} USING sum(${valuesFrom}));`,
+            `CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM (PIVOT ${this.name} ON "${columnsFrom}" USING sum("${valuesFrom}"));`,
             mergeOptions(this, {
                 table: this.name,
                 method: "wider()",
