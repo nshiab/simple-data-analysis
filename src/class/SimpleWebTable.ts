@@ -1653,6 +1653,7 @@ export default class SimpleWebTable extends Simple {
      * @param values - The column containing values to be used for ranking.
      * @param newColumn - The name of the new column where the ranks will be stored.
      * @param options - An optional object with configuration options:
+     *   @param options.order - The order of values for the ranking. Defaults to ascending.
      *   @param options.categories - The column or columns that define categories for ranking.
      *   @param options.noGaps - A boolean indicating whether to assign ranks without gaps. Defaults to false.
      *
@@ -1662,6 +1663,7 @@ export default class SimpleWebTable extends Simple {
         values: string,
         newColumn: string,
         options: {
+            order?: "asc" | "desc"
             categories?: string | string[]
             noGaps?: boolean
         } = {}
