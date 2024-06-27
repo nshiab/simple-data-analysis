@@ -3010,7 +3010,7 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
-     * Creates point geometries from longitude a latitude columns.
+     * Creates point geometries from longitude a latitude columns. The geometries will have [latitude, longitude] axis order.
      *
      * @example Basic usage
      * ```ts
@@ -3027,13 +3027,14 @@ export default class SimpleWebTable extends Simple {
         await queryDB(
             this,
             `INSTALL spatial; LOAD spatial;
-            ALTER TABLE ${this.name} ADD COLUMN ${newColumn} GEOMETRY; UPDATE ${this.name} SET ${newColumn} = ST_Point2D(${columnLon}, ${columnLat})`,
+            ALTER TABLE ${this.name} ADD COLUMN ${newColumn} GEOMETRY; UPDATE ${this.name} SET ${newColumn} = ST_Point2D(${columnLat}, ${columnLon})`,
             mergeOptions(this, {
                 table: this.name,
                 method: "points()",
                 parameters: { columnLat, columnLon, newColumn },
             })
         )
+        this.projection = "+proj=latlong +datum=WGS84 +no_defs"
     }
 
     /**

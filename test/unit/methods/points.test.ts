@@ -23,18 +23,18 @@ describe("points", () => {
             features: [
                 {
                     type: "Feature",
-                    properties: { name: "montreal", lat: 43.77, lon: -79.29 },
                     geometry: { type: "Point", coordinates: [-79.29, 43.77] },
+                    properties: { name: "montreal", lat: 43.77, lon: -79.29 },
                 },
                 {
                     type: "Feature",
-                    properties: { name: "toronto", lat: 45.35, lon: -73.86 },
                     geometry: { type: "Point", coordinates: [-73.86, 45.35] },
+                    properties: { name: "toronto", lat: 45.35, lon: -73.86 },
                 },
                 {
                     type: "Feature",
-                    properties: { name: "vancouver", lat: 49.07, lon: -122.96 },
                     geometry: { type: "Point", coordinates: [-122.96, 49.07] },
+                    properties: { name: "vancouver", lat: 49.07, lon: -122.96 },
                 },
             ],
         })
