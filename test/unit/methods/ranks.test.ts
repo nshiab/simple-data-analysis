@@ -29,6 +29,23 @@ describe("ranks", () => {
             { Name: "Isabella", Subject: "English", Mark: 90, rank: 9 },
         ])
     })
+    it("should add a column with the rank in descending order", async () => {
+        const table = sdb.newTable()
+        await table.loadData("test/data/files/dataRank.csv")
+        await table.ranks("Mark", "rank", { order: "desc" })
+        const data = await table.getData()
+        assert.deepStrictEqual(data, [
+            { Name: "Isabella", Subject: "English", Mark: 90, rank: 1 },
+            { Name: "Olivia", Subject: "English", Mark: 89, rank: 2 },
+            { Name: "Lily", Subject: "Science", Mark: 80, rank: 3 },
+            { Name: "Lily", Subject: "English", Mark: 70, rank: 4 },
+            { Name: "Isabella", Subject: "Science", Mark: 70, rank: 4 },
+            { Name: "Lily", Subject: "Maths", Mark: 65, rank: 6 },
+            { Name: "Olivia", Subject: "Science", Mark: 60, rank: 7 },
+            { Name: "Olivia", Subject: "Maths", Mark: 55, rank: 8 },
+            { Name: "Isabella", Subject: "Maths", Mark: 50, rank: 9 },
+        ])
+    })
     it("should add a column with the rank and no gaps", async () => {
         const table = sdb.newTable()
         await table.loadData("test/data/files/dataRank.csv")
