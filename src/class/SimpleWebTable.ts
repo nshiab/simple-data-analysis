@@ -3524,9 +3524,6 @@ export default class SimpleWebTable extends Simple {
      * // Merges data based on geometries in tableA that are within a target distance of geometries in tableB. By default, the distance is in the SRS unit.
      * await tableA.joinGeo(tableB, "within", { distance : 10 })
      *
-     * // Merges data based on geometries in tableA that are within a target distance of geometries in tableB. By default, the distance is in the SRS unit.
-     * await tableA.joinGeo(tableB, "within", { distance : 10 })
-     *
      * // Same thing but using the haversine distance. The distance is in meters. The input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      * await tableA.joinGeo(tableB, "within", { distance : 10, distanceMethod: "haversine" })
      *
