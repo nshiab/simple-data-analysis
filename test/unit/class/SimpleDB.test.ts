@@ -43,6 +43,22 @@ describe("SimpleDB", () => {
             ["table1", "table2"]
         )
     })
+    it("should create multiple tables without names before loading data", async () => {
+        const sdb = new SimpleDB()
+
+        const table1 = sdb.newTable()
+        const table2 = sdb.newTable()
+
+        await table1.loadData(["test/data/files/data.json"])
+        await table2.loadData(["test/data/files/data.json"])
+
+        const tables = await sdb.getTables()
+
+        assert.deepStrictEqual(
+            tables.sort((a, b) => (a > b ? 1 : -1)),
+            ["table1", "table2"]
+        )
+    })
     it("should create tables with names", async () => {
         const table = sdb.newTable("tableWithName")
         await table.loadData(["test/data/files/data.json"])
