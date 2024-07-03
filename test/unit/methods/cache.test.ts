@@ -1,6 +1,6 @@
 import assert from "assert"
 import SimpleDB from "../../../src/class/SimpleDB.js"
-import { rmSync } from "fs"
+import { rmSync, existsSync } from "fs"
 import SimpleTable from "../../../src/class/SimpleTable.js"
 
 describe("cache", () => {
@@ -11,7 +11,9 @@ describe("cache", () => {
         sdb = new SimpleDB()
         table = sdb.newTable()
         tableGeo = sdb.newTable()
-        rmSync("./.sda-cache", { recursive: true })
+        if (existsSync("./.sda-cache")) {
+            rmSync("./.sda-cache", { recursive: true })
+        }
     })
     after(async function () {
         await sdb.done()
