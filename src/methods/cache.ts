@@ -6,6 +6,7 @@ type cacheSources = {
     [key: string]: {
         timestamp: number
         geo: boolean
+        geoColumnName: null | string
     }
 }
 
@@ -72,6 +73,9 @@ export default async function cache(
         if (cache.geo) {
             table.debug && console.log(`Geospatial data. Using loadGeoData`)
             await table.loadGeoData(`${cachePath}/${id}.geojson`)
+            if (typeof cache.geoColumnName === "string") {
+                await table.renameColumns({ geom: cache.geoColumnName })
+            }
         } else {
             table.debug && console.log(`Tabular data. Using loadData`)
             await table.loadData(`${cachePath}/${id}.parquet`)
@@ -90,14 +94,24 @@ async function runAndWrite(
     await run()
     table.debug && console.log("\ncache() after run()")
     const types = await table.getTypes()
-    const hasGeometries = Object.values(types).some((d) => d === "GEOMETRY")
-    if (hasGeometries) {
+    const geometriesColumns = Object.values(types).filter(
+        (d) => d === "GEOMETRY"
+    ).length
+    if (geometriesColumns > 1) {
+        throw new Error(
+            "Tables with geometries are stored as geojson files in cache, which can only have one geometry columns. Multiple geometry columns will be supported in the future."
+        )
+    } else if (geometriesColumns === 1) {
         table.debug &&
             console.log(`\nThe table has geometries. Using writeGeoData.`)
         await table.writeGeoData(`${cachePath}/${id}.geojson`)
         cacheSources[id] = {
             timestamp: Date.now(),
             geo: true,
+            geoColumnName:
+                Object.entries(types).find(
+                    ([, value]) => value === "GEOMETRY"
+                )?.[0] ?? null,
         }
     } else {
         table.debug &&
@@ -106,6 +120,7 @@ async function runAndWrite(
         cacheSources[id] = {
             timestamp: Date.now(),
             geo: false,
+            geoColumnName: null,
         }
     }
     writeFileSync(cacheSourcesPath, JSON.stringify(cacheSources))
