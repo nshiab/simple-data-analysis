@@ -112,12 +112,13 @@ describe("cache", () => {
                 await tableGeo.loadGeoData(
                     "test/geodata/files/pointsInside.json"
                 )
-                await tableGeo.latLon("geom", "lat", "lon")
+                await tableGeo.renameColumns({ geom: "points" })
+                await tableGeo.latLon("points", "lat", "lon")
             },
             { verbose: true }
         )
 
-        await tableGeo.removeColumns("geom")
+        await tableGeo.removeColumns("points")
         const data = await tableGeo.getData()
 
         assert.deepStrictEqual(data, [
@@ -149,12 +150,13 @@ describe("cache", () => {
                 await tableGeo.loadGeoData(
                     "test/geodata/files/pointsInside.json"
                 )
-                await tableGeo.latLon("geom", "lat", "lon")
+                await tableGeo.renameColumns({ geom: "points" })
+                await tableGeo.latLon("points", "lat", "lon")
             },
             { verbose: true }
         )
 
-        await tableGeo.removeColumns("geom")
+        await tableGeo.removeColumns("points")
         const data = await tableGeo.getData()
 
         assert.deepStrictEqual(data, [
@@ -186,12 +188,13 @@ describe("cache", () => {
                 await tableGeo.loadGeoData(
                     "test/geodata/files/pointsInside.json"
                 )
-                await tableGeo.latLon("geom", "lat", "lon")
+                await tableGeo.renameColumns({ geom: "points" })
+                await tableGeo.latLon("points", "lat", "lon")
             },
             { ttl: 0, verbose: true }
         )
 
-        await tableGeo.removeColumns("geom")
+        await tableGeo.removeColumns("points")
         const data = await tableGeo.getData()
 
         assert.deepStrictEqual(data, [
