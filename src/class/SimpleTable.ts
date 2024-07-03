@@ -23,6 +23,7 @@ import shouldFlipBeforeExport from "../helpers/shouldFlipBeforeExport.js"
 import findGeoColumn from "../helpers/findGeoColumn.js"
 import getProjection from "../helpers/getProjection.js"
 import getExtension from "../helpers/getExtension.js"
+import cache from "../methods/cache.js"
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
@@ -672,5 +673,65 @@ export default class SimpleTable extends SimpleWebTable {
                 })
             )
         }
+    }
+
+    /**
+     * Caches the results of computations in `./.sda-cache` which you probably want to add to your `.gitignore`.
+     *
+     * @example Basic usage
+     *
+     * The code will be triggered on the first run or if you update the function passed to the cache method. Otherwise, the result will be loaded from the cache.
+     *
+     * ```js
+     * await table.cache(async () => {
+     * await table.loadData("items.csv")
+     *     await table.summarize({
+     *         values: "price",
+     *         categories: "department",
+     *         summaries: ["min", "max", "mean"]
+     *     })
+     * })
+     * ```
+     *
+     * @example With a ttl
+     *
+     * You can pass a ttl option in seconds. Here, the code will be triggered on the first run or if the result is more than 1 minute old.
+     *
+     * ```js
+     * await table.cache(async () => {
+     *     await table.loadData("items.csv")
+     *     await table.summarize({
+     *         values: "price",
+     *         categories: "department",
+     *         summaries: ["min", "max", "mean"]
+     *     })
+     * }, { ttl: 60 })
+     * ```
+     *
+     * @example Verbose
+     *
+     * If you want to know when computations are bein run or when data is being loaded from the cache, use the option verbose. A message will be logged in the terminal.
+     *
+     * ```js
+     * await table.cache(async () => {
+     *     await table.loadData("items.csv")
+     *     await table.summarize({
+     *         values: "price",
+     *         categories: "department",
+     *         summaries: ["min", "max", "mean"]
+     *     })
+     * }, { ttl: 60, verbose: true })
+     * ```
+     *
+     * @param run - A function wrapping the computations.
+     * @param options - An optional object with configuration options:
+     *   @param options.ttl - If the data in cache is older than the ttl (in seconds), the computations will be run. By default, there is no ttl.
+     *   @param options.verbose - If true, a message will be logged in the console to indicate if computations are being run or if data is loaded from the cache. By default, nothing is logged.
+     */
+    async cache(
+        run: () => Promise<void>,
+        options: { ttl?: number; verbose?: boolean } = {}
+    ) {
+        await cache(this, run, options)
     }
 }

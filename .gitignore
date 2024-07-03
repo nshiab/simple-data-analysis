@@ -5,3 +5,4 @@ test/output/
 bundleSizeMin.html
 .tmp
 test-docs
+.sda-cache
