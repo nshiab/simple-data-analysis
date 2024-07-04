@@ -2414,13 +2414,23 @@ export default class SimpleWebTable extends Simple {
      * @category Updating data
      */
     async updateWithJS(
-        dataModifier: (
-            rows: {
-                [key: string]: number | string | Date | boolean | null
-            }[]
-        ) => {
-            [key: string]: number | string | Date | boolean | null
-        }[]
+        dataModifier:
+            | ((
+                  rows: {
+                      [key: string]: number | string | Date | boolean | null
+                  }[]
+              ) => Promise<
+                  {
+                      [key: string]: number | string | Date | boolean | null
+                  }[]
+              >)
+            | ((
+                  rows: {
+                      [key: string]: number | string | Date | boolean | null
+                  }[]
+              ) => {
+                  [key: string]: number | string | Date | boolean | null
+              }[])
     ) {
         this.debug && console.log("\nupdateWithJS()")
         this.debug && console.log("parameters:", { dataModifier: dataModifier })
@@ -2428,7 +2438,7 @@ export default class SimpleWebTable extends Simple {
         if (!oldData) {
             throw new Error("No data from getData.")
         }
-        const newData = dataModifier(oldData)
+        const newData = await dataModifier(oldData)
         await this.loadArray(newData)
     }
 
