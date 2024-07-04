@@ -38,6 +38,9 @@ import Simple from "./Simple.js"
  * ```
  */
 export default class SimpleWebDB extends Simple {
+    /** An object keeping track of the data used in cache. @category Properties */
+    cacheSourcesUsed: string[]
+
     constructor(
         options: {
             debug?: boolean
@@ -45,6 +48,7 @@ export default class SimpleWebDB extends Simple {
         } = {}
     ) {
         super(runQueryWeb, options)
+        this.cacheSourcesUsed = []
     }
 
     /**
