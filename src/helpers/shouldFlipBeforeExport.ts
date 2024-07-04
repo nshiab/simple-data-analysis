@@ -1,5 +1,3 @@
-import SimpleWebTable from "../class/SimpleWebTable.js"
-
-export default function shouldFlipBeforeExport(simpleWebTable: SimpleWebTable) {
-    return (simpleWebTable.projection ?? "").includes("proj=latlong")
+export default function shouldFlipBeforeExport(projection: string) {
+    return projection.includes("proj=latlong")
 }
