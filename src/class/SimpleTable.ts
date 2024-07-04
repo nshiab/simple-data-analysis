@@ -691,14 +691,21 @@ export default class SimpleTable extends SimpleWebTable {
      * The code will be triggered on the first run or if you update the function passed to the cache method. Otherwise, the result will be loaded from the cache.
      *
      * ```js
+     * const sdb = new SimpleDB()
+     * const table = sdb.newTable()
+     *
      * await table.cache(async () => {
-     * await table.loadData("items.csv")
+     *     await table.loadData("items.csv")
      *     await table.summarize({
      *         values: "price",
      *         categories: "department",
      *         summaries: ["min", "max", "mean"]
      *     })
      * })
+     *
+     * // It's important to call done() on the SimpleDB instance to clean up the cache.
+     * // We don't want it to grow in size indefinitely.
+     * await sdb.done()
      * ```
      *
      * @example With a ttl
@@ -706,6 +713,9 @@ export default class SimpleTable extends SimpleWebTable {
      * You can pass a ttl option in seconds. Here, the code will be triggered on the first run or if the result is more than 1 minute old.
      *
      * ```js
+     * const sdb = new SimpleDB()
+     * const table = sdb.newTable()
+     *
      * await table.cache(async () => {
      *     await table.loadData("items.csv")
      *     await table.summarize({
@@ -714,13 +724,20 @@ export default class SimpleTable extends SimpleWebTable {
      *         summaries: ["min", "max", "mean"]
      *     })
      * }, { ttl: 60 })
+     *
+     * // It's important to call done() on the SimpleDB instance to clean up the cache.
+     * // We don't want it to grow in size indefinitely.
+     * await sdb.done()
      * ```
      *
      * @example Verbose
      *
-     * If you want to know when computations are bein run or when data is being loaded from the cache, use the option verbose. A message will be logged in the terminal.
+     * If you want to know when computations are bein run or when data is being loaded from the cache, use the option verbose when instanciating the SimpleDB. Messages will be logged in the terminal.
      *
      * ```js
+     * const sdb = new SimpleDB({ cacheVerbose: true })
+     * const table = sdb.newTable()
+     *
      * await table.cache(async () => {
      *     await table.loadData("items.csv")
      *     await table.summarize({
@@ -728,18 +745,18 @@ export default class SimpleTable extends SimpleWebTable {
      *         categories: "department",
      *         summaries: ["min", "max", "mean"]
      *     })
-     * }, { ttl: 60, verbose: true })
+     * }, { ttl: 60 })
+     *
+     * // It's important to call done() on the SimpleDB instance to clean up the cache.
+     * // We don't want it to grow in size indefinitely.
+     * await sdb.done()
      * ```
      *
      * @param run - A function wrapping the computations.
      * @param options - An optional object with configuration options:
      *   @param options.ttl - If the data in cache is older than the ttl (in seconds), the computations will be run. By default, there is no ttl.
-     *   @param options.verbose - If true, a message will be logged in the console to indicate if computations are being run or if data is loaded from the cache. By default, nothing is logged.
      */
-    async cache(
-        run: () => Promise<void>,
-        options: { ttl?: number; verbose?: boolean } = {}
-    ) {
-        await cache(this, run, options)
+    async cache(run: () => Promise<void>, options: { ttl?: number } = {}) {
+        await cache(this, run, { ...options, verbose: this.sdb.cacheVerbose })
     }
 }

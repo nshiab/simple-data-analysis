@@ -3,6 +3,7 @@ const { Database } = pkg
 import runQueryNode from "../helpers/runQueryNode.js"
 import SimpleWebDB from "./SimpleWebDB.js"
 import SimpleTable from "./SimpleTable.js"
+import cleanCache from "../helpers/cleanCache.js"
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance, in-memory analytical database. This class is meant to be used with NodeJS and similar runtimes. For web browsers, use SimpleWebDB.
@@ -36,15 +37,20 @@ import SimpleTable from "./SimpleTable.js"
  */
 
 export default class SimpleDB extends SimpleWebDB {
+    /** A flag to log messages relative to the cache. Defaults to false. */
+    cacheVerbose: boolean
+
     constructor(
         options: {
             nbRowsToLog?: number
+            cacheVerbose?: boolean
             debug?: boolean
             bigIntToInt?: boolean
         } = {}
     ) {
         super(options)
         this.bigIntToInt = options.bigIntToInt ?? true
+        this.cacheVerbose = options.cacheVerbose ?? false
         this.runQuery = runQueryNode
     }
 
@@ -116,7 +122,7 @@ export default class SimpleDB extends SimpleWebDB {
     }
 
     /**
-     * Frees up memory by closing down the database.
+     * Frees up memory by closing down the database and cleans up cache so it doesn't grow in size indefinitely.
      *
      * @example Basic usage
      * ```typescript
@@ -130,5 +136,7 @@ export default class SimpleDB extends SimpleWebDB {
         if (this.db instanceof Database) {
             this.db.close()
         }
+
+        cleanCache(this)
     }
 }

@@ -4,6 +4,7 @@ import crypto from "crypto"
 
 type cacheSources = {
     [key: string]: {
+        file: string
         timestamp: number
         geo: boolean
         geoColumnName: null | string
@@ -41,7 +42,7 @@ export default async function cache(
 
     if (cache === undefined) {
         ;(table.debug || options.verbose) &&
-            console.log(`\nNothing in cache. Running and storing in cache.`)
+            console.log(`\nNothing in cache. Running and storing in cache.\n`)
         await runAndWrite(
             table,
             run,
@@ -57,7 +58,7 @@ export default async function cache(
     ) {
         ;(table.debug || options.verbose) &&
             console.log(
-                `\nttl of ${options.ttl} sec has expired. Running and storing in cache.`
+                `\nttl of ${options.ttl} sec has expired. Running and storing in cache.\n`
             )
         await runAndWrite(
             table,
@@ -69,16 +70,22 @@ export default async function cache(
         )
     } else {
         ;(table.debug || options.verbose) &&
-            console.log(`\nLoading data from cache.`)
+            console.log(`\nLoading data from cache.\n`)
         if (cache.geo) {
             table.debug && console.log(`Geospatial data. Using loadGeoData`)
-            await table.loadGeoData(`${cachePath}/${id}.geojson`)
+            await table.loadGeoData(cache.file)
+            if (table.sdb.cacheSourcesUsed.indexOf(id) < 0) {
+                table.sdb.cacheSourcesUsed.push(id)
+            }
             if (typeof cache.geoColumnName === "string") {
                 await table.renameColumns({ geom: cache.geoColumnName })
             }
         } else {
             table.debug && console.log(`Tabular data. Using loadData`)
-            await table.loadData(`${cachePath}/${id}.parquet`)
+            await table.loadData(cache.file)
+            if (table.sdb.cacheSourcesUsed.indexOf(id) < 0) {
+                table.sdb.cacheSourcesUsed.push(id)
+            }
         }
     }
 }
@@ -104,23 +111,33 @@ async function runAndWrite(
     } else if (geometriesColumns === 1) {
         table.debug &&
             console.log(`\nThe table has geometries. Using writeGeoData.`)
-        await table.writeGeoData(`${cachePath}/${id}.geojson`)
+        const file = `${cachePath}/${id}.geojson`
+        await table.writeGeoData(file)
         cacheSources[id] = {
             timestamp: Date.now(),
+            file,
             geo: true,
             geoColumnName:
                 Object.entries(types).find(
                     ([, value]) => value === "GEOMETRY"
                 )?.[0] ?? null,
         }
+        if (table.sdb.cacheSourcesUsed.indexOf(id) < 0) {
+            table.sdb.cacheSourcesUsed.push(id)
+        }
     } else {
         table.debug &&
             console.log(`\nNo geometries in the table. Using writeData.`)
-        await table.writeData(`${cachePath}/${id}.parquet`)
+        const file = `${cachePath}/${id}.parquet`
+        await table.writeData(file)
         cacheSources[id] = {
             timestamp: Date.now(),
+            file,
             geo: false,
             geoColumnName: null,
+        }
+        if (table.sdb.cacheSourcesUsed.indexOf(id) < 0) {
+            table.sdb.cacheSourcesUsed.push(id)
         }
     }
     writeFileSync(cacheSourcesPath, JSON.stringify(cacheSources))
