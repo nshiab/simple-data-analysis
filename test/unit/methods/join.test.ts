@@ -225,4 +225,19 @@ describe("join", () => {
             { dishId: 5, name: "Mochi", country: "Japan", category: null },
         ])
     })
+    it("should keep all projections", async () => {
+        const dishes = sdb.newTable("dishes")
+        await dishes.loadData("test/data/joins/dishes.csv")
+        const categories = sdb.newTable("categories")
+        await categories.loadData("test/data/joins/categories.csv")
+        await categories.addColumn("lat", "double", `45.50`)
+        await categories.addColumn("lon", "double", `-73.57`)
+        await categories.points("lat", "lon", "points")
+
+        await dishes.join(categories)
+
+        assert.deepStrictEqual(dishes.projections, {
+            points: "+proj=latlong +datum=WGS84 +no_defs",
+        })
+    })
 })

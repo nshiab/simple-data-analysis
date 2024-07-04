@@ -235,13 +235,7 @@ export default class SimpleTable extends SimpleWebTable {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
         }
-        await join(this, rightTable, options)
-
-        if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projections)
-        } else {
-            return this
-        }
+        return await join(this, rightTable, options)
     }
     async correlations(
         options: {
@@ -299,12 +293,7 @@ export default class SimpleTable extends SimpleWebTable {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
         }
-        await joinGeo(this, method, rightTable, options)
-        if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projections)
-        } else {
-            return this
-        }
+        return await joinGeo(this, method, rightTable, options)
     }
     async aggregateGeo(
         method: "union" | "intersection",

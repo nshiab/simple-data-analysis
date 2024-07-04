@@ -1077,17 +1077,23 @@ export default class SimpleWebTable extends Simple {
      * @category Restructuring data
      */
     async removeColumns(columns: string | string[]) {
+        const cols = stringToArray(columns)
         await queryDB(
             this,
-            stringToArray(columns)
-                .map((d) => `ALTER TABLE ${this.name} DROP "${d}";`)
-                .join("\n"),
+            cols.map((d) => `ALTER TABLE ${this.name} DROP "${d}";`).join("\n"),
             mergeOptions(this, {
                 table: this.name,
                 method: "removeColumns()",
                 parameters: { columns },
             })
         )
+
+        // Taking care of projections
+        for (const col of cols) {
+            if (Object.prototype.hasOwnProperty.call(this.projections, col)) {
+                delete this.projections[col]
+            }
+        }
     }
 
     /**
@@ -1289,13 +1295,7 @@ export default class SimpleWebTable extends Simple {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
         }
-        await join(this, rightTable, options)
-
-        if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projections)
-        } else {
-            return this
-        }
+        return await join(this, rightTable, options)
     }
 
     /**
@@ -3411,7 +3411,6 @@ export default class SimpleWebTable extends Simple {
                 parameters: { column, newColumn, options },
             })
         )
-        this.projections[newColumn] = this.projections[column]
     }
 
     /**
@@ -3616,12 +3615,7 @@ export default class SimpleWebTable extends Simple {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
         }
-        await joinGeo(this, method, rightTable, options)
-        if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projections)
-        } else {
-            return this
-        }
+        return await joinGeo(this, method, rightTable, options)
     }
 
     /**
