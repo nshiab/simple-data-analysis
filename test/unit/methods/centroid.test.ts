@@ -10,7 +10,7 @@ describe("centroid", () => {
         await sdb.done()
     })
 
-    it("should computes the centroids", async () => {
+    it("should compute the centroids", async () => {
         const table = sdb.newTable("geodata")
         await table.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"
@@ -131,7 +131,19 @@ describe("centroid", () => {
             ],
         })
     })
-    it("should computes the centroids from a specific column", async () => {
+    it("should compute the centroids and add a projection", async () => {
+        const table = sdb.newTable("geodata")
+        await table.loadGeoData(
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
+        )
+        await table.centroid("centroid")
+
+        assert.deepStrictEqual(table.projections, {
+            geom: "+proj=latlong +datum=WGS84 +no_defs",
+            centroid: "+proj=latlong +datum=WGS84 +no_defs",
+        })
+    })
+    it("should compute the centroids from a specific column", async () => {
         const table = sdb.newTable("geodata")
         await table.loadGeoData(
             "test/geodata/files/CanadianProvincesAndTerritories.json"

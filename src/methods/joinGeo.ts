@@ -55,6 +55,12 @@ export default async function joinGeo(
             const rightObj: { [key: string]: string } = {}
             rightObj[rightTableColumn] = rightTableColumnForQuery
             await rightTable.renameColumns(rightObj)
+        } else {
+            // Otherwise, we don't rename and transfer projections
+            rightTableColumnForQuery = `${rightTableColumn}_1`
+            const rightObj: { [key: string]: string } = {}
+            rightObj[rightTableColumn] = rightTableColumnForQuery
+            await rightTable.renameColumns(rightObj)
         }
     }
 
@@ -89,6 +95,12 @@ export default async function joinGeo(
         })
     )
 
+    // Before renaming columns in original tables
+    const allProjections = {
+        ...leftTable.projections,
+        ...rightTable.projections,
+    }
+
     // We bring back the column names for geometries
     if (leftTableColumn === rightTableColumn) {
         if (!leftTable.defaultTableName) {
@@ -97,10 +109,16 @@ export default async function joinGeo(
             await leftTable.renameColumns(leftObj)
         }
 
-        if (!rightTable.defaultTableName) {
-            const rightObj: { [key: string]: string } = {}
-            rightObj[rightTableColumnForQuery] = rightTableColumn
-            await rightTable.renameColumns(rightObj)
-        }
+        // We always changed it.
+        const rightObj: { [key: string]: string } = {}
+        rightObj[rightTableColumnForQuery] = rightTableColumn
+        await rightTable.renameColumns(rightObj)
+    }
+
+    if (typeof options.outputTable === "string") {
+        return leftTable.sdb.newTable(options.outputTable, allProjections)
+    } else {
+        leftTable.projections = allProjections
+        return leftTable
     }
 }

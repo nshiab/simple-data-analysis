@@ -63,8 +63,15 @@ export default async function join(
 
     const outputTable =
         typeof options.outputTable === "string"
-            ? leftTable.sdb.newTable(options.outputTable, leftTable.projections)
+            ? leftTable.sdb.newTable(options.outputTable, leftTable.projections) // missing projections here...
             : leftTable
+
+    // So we reassign here
+    const allProjections = {
+        ...leftTable.projections,
+        ...rightTable.projections,
+    }
+    outputTable.projections = allProjections
 
     // Need to remove the extra common column. Ideally, this would happen in the query. :1 is with web assembly version. _1 is with nodejs version. At some point, both will be the same.
     const columns = await outputTable.getColumns()
@@ -74,4 +81,6 @@ export default async function join(
     if (extraCommonColumn !== undefined) {
         await outputTable.removeColumns(extraCommonColumn)
     }
+
+    return outputTable
 }
