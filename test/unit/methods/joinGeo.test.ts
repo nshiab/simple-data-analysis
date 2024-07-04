@@ -317,6 +317,7 @@ describe("joinGeo", () => {
         const cities = sdb.newTable()
         await cities.loadGeoData("test/geodata/files/coordinates.geojson")
         const cloned = await cities.cloneTable()
+        await cloned.renameColumns({ name: "name_1" })
         await cities.joinGeo(cloned, "within", { distance: 10 })
         await cities.distance("geom", "geomTable1", "dist", { decimals: 2 })
         await cities.selectColumns(["name", "name_1", "dist"])
@@ -335,6 +336,8 @@ describe("joinGeo", () => {
         const cities = sdb.newTable()
         await cities.loadGeoData("test/geodata/files/coordinates.geojson")
         const cloned = await cities.cloneTable()
+        await cloned.renameColumns({ name: "name_1" })
+
         await cities.joinGeo(cloned, "within", {
             distance: 500_000,
             distanceMethod: "haversine",
@@ -359,6 +362,8 @@ describe("joinGeo", () => {
         const cities = sdb.newTable()
         await cities.loadGeoData("test/geodata/files/coordinates.geojson")
         const cloned = await cities.cloneTable()
+        await cloned.renameColumns({ name: "name_1" })
+
         await cities.joinGeo(cloned, "within", {
             distance: 500_000,
             distanceMethod: "spheroid",
