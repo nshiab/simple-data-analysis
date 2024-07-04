@@ -52,7 +52,7 @@ export default async function join(
 
     const outputTable =
         typeof options.outputTable === "string"
-            ? leftTable.sdb.newTable(options.outputTable, leftTable.projection)
+            ? leftTable.sdb.newTable(options.outputTable, leftTable.projections)
             : leftTable
 
     // Need to remove the extra column common column. Ideally, this would happen in the query. :1 is with web assembly version. _1 is with nodejs version. At some point, both will be the same.

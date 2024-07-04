@@ -78,14 +78,17 @@ export default class SimpleDB extends SimpleWebDB {
      * ```
      *
      * @param name - The name of the new table.
-     * @param projection - The projection of the geospatial data, if any.
+     * @param projections - The projections of the geospatial data, if any.
      *
      * @category DB methods
      */
-    newTable(name?: string, projection?: string | null): SimpleTable {
+    newTable(
+        name?: string,
+        projections?: { [key: string]: string }
+    ): SimpleTable {
         this.debug && console.log("\nnewTable()")
 
-        const proj = projection ?? null
+        const proj = projections ?? {}
 
         let table
         if (typeof name === "string") {

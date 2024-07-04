@@ -87,7 +87,9 @@ describe("addColumn", () => {
         const geo = sdb.newTable("geo")
         await geo.loadGeoData("test/geodata/files/polygons.geojson")
 
-        await geo.addColumn("centroid", "geometry", `ST_Centroid(geom)`)
+        await geo.addColumn("centroid", "geometry", `ST_Centroid(geom)`, {
+            projection: geo.projections.geom,
+        })
         await geo.selectColumns(["name", "centroid"])
         const data = await geo.getGeoData("centroid")
 

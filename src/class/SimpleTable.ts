@@ -24,6 +24,7 @@ import findGeoColumn from "../helpers/findGeoColumn.js"
 import getProjection from "../helpers/getProjection.js"
 import getExtension from "../helpers/getExtension.js"
 import cache from "../methods/cache.js"
+import getIdenticalColumns from "../helpers/getIdenticalColumns.js"
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
@@ -57,16 +58,16 @@ export default class SimpleTable extends SimpleWebTable {
 
     constructor(
         name: string,
-        projection: string | null,
+        projections: { [key: string]: string },
         simpleDB: SimpleDB,
         options: {
             debug?: boolean
             nbRowsToLog?: number
             bigIntToInt?: boolean
-            projection?: string | null
+            projections?: { [key: string]: string }
         } = {}
     ) {
-        super(name, projection, simpleDB, options)
+        super(name, projections, simpleDB, options)
         this.sdb = simpleDB
         this.bigIntToInt = options.bigIntToInt ?? true
         this.runQuery = runQueryNode
@@ -83,12 +84,12 @@ export default class SimpleTable extends SimpleWebTable {
         if (typeof options.outputTable === "string") {
             clonedTable = this.sdb.newTable(
                 options.outputTable,
-                this.projection
+                this.projections
             )
         } else {
             clonedTable = this.sdb.newTable(
                 `table${this.tableIncrement}`,
-                this.projection
+                this.projections
             )
             this.tableIncrement += 1
         }
@@ -127,7 +128,7 @@ export default class SimpleTable extends SimpleWebTable {
         )
 
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projection)
+            return this.sdb.newTable(options.outputTable, this.projections)
         } else {
             return this
         }
@@ -138,6 +139,13 @@ export default class SimpleTable extends SimpleWebTable {
             outputTable?: string | boolean
         } = {}
     ) {
+        const identicalColumns = await getIdenticalColumns(this, rightTable)
+        if (identicalColumns.length > 0) {
+            throw new Error(
+                `The tables have columns with identical names. Rename or remove ${identicalColumns.map((d) => `"${d}"`).join(", ")} in one of the two tables before doing the cross join.`
+            )
+        }
+
         if (options.outputTable === true) {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
@@ -154,9 +162,15 @@ export default class SimpleTable extends SimpleWebTable {
                 parameters: { rightTable, options },
             })
         )
+
+        const allProjections = {
+            ...this.projections,
+            ...rightTable.projections,
+        }
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projection)
+            return this.sdb.newTable(options.outputTable, allProjections)
         } else {
+            this.projections = allProjections
             return this
         }
     }
@@ -201,7 +215,7 @@ export default class SimpleTable extends SimpleWebTable {
         }
         await summarize(this, options)
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projection)
+            return this.sdb.newTable(options.outputTable, this.projections)
         } else {
             return this
         }
@@ -221,7 +235,7 @@ export default class SimpleTable extends SimpleWebTable {
         await join(this, rightTable, options)
 
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projection)
+            return this.sdb.newTable(options.outputTable, this.projections)
         } else {
             return this
         }
@@ -241,7 +255,7 @@ export default class SimpleTable extends SimpleWebTable {
         }
         await correlations(this, options)
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projection)
+            return this.sdb.newTable(options.outputTable, this.projections)
         } else {
             return this
         }
@@ -261,7 +275,7 @@ export default class SimpleTable extends SimpleWebTable {
         }
         await linearRegressions(this, options)
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projection)
+            return this.sdb.newTable(options.outputTable, this.projections)
         } else {
             return this
         }
@@ -284,7 +298,7 @@ export default class SimpleTable extends SimpleWebTable {
         }
         await joinGeo(this, method, rightTable, options)
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projection)
+            return this.sdb.newTable(options.outputTable, this.projections)
         } else {
             return this
         }
@@ -316,7 +330,7 @@ export default class SimpleTable extends SimpleWebTable {
             })
         )
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projection)
+            return this.sdb.newTable(options.outputTable, this.projections)
         } else {
             return this
         }
@@ -565,8 +579,8 @@ export default class SimpleTable extends SimpleWebTable {
      *
      * @param file - The URL or path to the external file containing the geospatial data.
      * @param options - An optional object with configuration options:
-     *   @param options.toWGS84 - If true, the method will look for the original projection in the file and convert the data to the WGS84 projection with [latitude, longitude] axis order. If the file or the url ends by .json or .geojson, the coordinates are automatically flipped and this option has no effect.
-     *   @param options.from - An option to pass the original projection, if the method is not able to find it.
+     *   @param options.toWGS84 - If true, the method will look for the original projections in the file and convert the data to the WGS84 projections with [latitude, longitude] axis order. If the file or the url ends by .json or .geojson, the coordinates are automatically flipped and this option has no effect.
+     *   @param options.from - An option to pass the original projections, if the method is not able to find it.
      *
      * @category Geospatial
      */
@@ -584,12 +598,14 @@ export default class SimpleTable extends SimpleWebTable {
                 parameters: { file },
             })
         )
-        this.projection = (await getProjection(this.sdb, file)).proj4
+
+        // column storing geometries is geom by default
+        this.projections["geom"] = (await getProjection(this.sdb, file)).proj4
 
         const extension = getExtension(file)
         if (extension === "json" || extension === "geojson") {
             await this.flipCoordinates("geom") // column storing geometries
-            this.projection = "+proj=latlong +datum=WGS84 +no_defs"
+            this.projections["geom"] = "+proj=latlong +datum=WGS84 +no_defs"
             if (options.toWGS84) {
                 console.log(
                     "This file is a json or geojson. Option toWGS84 has no effect."
@@ -648,10 +664,10 @@ export default class SimpleTable extends SimpleWebTable {
      * * @category Exporting data
      */
     async writeGeoData(file: string, options: { precision?: number } = {}) {
-        const flip = shouldFlipBeforeExport(this)
+        const geoColumn = await findGeoColumn(this)
+        const flip = shouldFlipBeforeExport(this.projections[geoColumn])
         if (flip) {
-            const columnToFlip = await findGeoColumn(this)
-            await this.flipCoordinates(columnToFlip)
+            await this.flipCoordinates(geoColumn)
             await queryDB(
                 this,
                 writeGeoDataQuery(this.name, file, options),
@@ -661,7 +677,7 @@ export default class SimpleTable extends SimpleWebTable {
                     parameters: { file, options },
                 })
             )
-            await this.flipCoordinates(columnToFlip)
+            await this.flipCoordinates(geoColumn)
         } else {
             await queryDB(
                 this,
