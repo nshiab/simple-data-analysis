@@ -1,6 +1,7 @@
 import SimpleWebTable from "../class/SimpleWebTable.js"
 import capitalize from "../helpers/capitalize.js"
 import findGeoColumn from "../helpers/findGeoColumn.js"
+import getIdenticalColumns from "../helpers/getIdenticalColumns.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import joinGeoQuery from "./joinGeoQuery.js"
@@ -22,6 +23,21 @@ export default async function joinGeo(
         options.leftTableColumn ?? (await findGeoColumn(leftTable))
     const rightTableColumn =
         options.rightTableColumn ?? (await findGeoColumn(rightTable))
+
+    const commonColumn =
+        leftTableColumn === rightTableColumn ? leftTableColumn : ""
+    const identicalColumns = (
+        await getIdenticalColumns(
+            await leftTable.getColumns(),
+            await rightTable.getColumns()
+        )
+    ).filter((d) => d !== commonColumn)
+    if (identicalColumns.length > 0) {
+        throw new Error(
+            `The tables have columns with identical names ${commonColumn !== "" ? `(excluding the columns "${commonColumn}" used for the geospatial join)` : ""}. Rename or remove ${identicalColumns.map((d) => `"${d}"`).join(", ")} in one of the two tables before doing the join.`
+        )
+    }
+
     let leftTableColumnForQuery = leftTableColumn
     let rightTableColumnForQuery = rightTableColumn
 

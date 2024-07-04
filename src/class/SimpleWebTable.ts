@@ -1216,7 +1216,10 @@ export default class SimpleWebTable extends Simple {
             outputTable?: string | boolean
         } = {}
     ) {
-        const identicalColumns = await getIdenticalColumns(this, rightTable)
+        const identicalColumns = await getIdenticalColumns(
+            await this.getColumns(),
+            await rightTable.getColumns()
+        )
         if (identicalColumns.length > 0) {
             throw new Error(
                 `The tables have columns with identical names. Rename or remove ${identicalColumns.map((d) => `"${d}"`).join(", ")} in one of the two tables before doing the cross join.`
