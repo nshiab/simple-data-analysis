@@ -377,9 +377,11 @@ export default class SimpleWebTable extends Simple {
             this.tableIncrement += 1
         }
 
+        const columns = await this.getColumns()
+
         await queryDB(
             this,
-            cloneQuery(this.name, clonedTable.name, options),
+            cloneQuery(this.name, columns, clonedTable.name, options),
             mergeOptions(this, {
                 table: clonedTable.name,
                 method: "cloneTable()",
