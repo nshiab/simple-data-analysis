@@ -476,6 +476,7 @@ SimpleDB - Done in 184 ms
 And if you run the script 60 seconds later, the fires and join/summary caches will have expired, but not the provinces one. Some of the code will have run, but not everything. The script still ran 1.5 times faster. This is quite handy in complex analysis with big datasets. The less you wait, the more fun you have!
 
 ```
+Found ./.sda-cache/fires.ff...8f.geojson in cache
 ttl of 60 sec has expired. The creation date is July 5, 2024, at 4:25 p.m.. It's is 4 min, 1 sec, 172 ms ago.
 Running and storing in cache.
 Duration: 424 ms. Wrote ./.sda-cache/fires.ff...8f.geojson.
@@ -483,6 +484,7 @@ Duration: 424 ms. Wrote ./.sda-cache/fires.ff...8f.geojson.
 Found ./.sda-cache/provinces.42...55.geojson in cache.
 Data loaded in 10 ms. Running the computations took 397 ms last time. You saved 387 ms.
 
+Fond ./.sda-cache/firesInsideProvinces.71...a8.parquet in cache
 ttl of 60 sec has expired. The creation date is July 5, 2024, at 4:25 p.m.. It's is 4 min, 1 sec, 239 ms ago.
 Running and storing in cache.
 Duration: 42 ms. Wrote ./.sda-cache/firesInsideProvinces.71...a8.parquet.
