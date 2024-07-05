@@ -36,6 +36,18 @@ describe("writeData", () => {
 
         assert.deepStrictEqual(data, expectedData)
     })
+    it("should write a csv file and create the path if it doesn't exist", async () => {
+        const table = sdb.newTable()
+        await table.loadData("test/data/files/data.csv")
+        await table.writeData(`${output}subfolderData/test.csv`)
+
+        // We test the content of the file
+        const tableCheck = sdb.newTable()
+        await tableCheck.loadData([`${output}subfolderData/test.csv`])
+        const data = await table.getData()
+
+        assert.deepStrictEqual(data, expectedData)
+    })
     it("should write a compressed csv file", async () => {
         const table = sdb.newTable()
         await table.loadData("test/data/files/data.csv")
