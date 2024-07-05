@@ -305,7 +305,7 @@ Instead of running your code manually every time you make a change, use the `--w
 
 When this flag is enabled, `index.js` will be rerun anytime you save a change to it or to any of its dependencies.
 
-### Caching fetched and computed Data
+### Caching fetched and computed data
 
 Instead of running the same code over and over again, you can cache the results. Combined with the `--watch` flag, this can speed up your workflow, especially when fetching data or performing computationally expensive operations.
 
