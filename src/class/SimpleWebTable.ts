@@ -42,7 +42,6 @@ import binsQuery from "../methods/binsQuery.js"
 import proportionsHorizontalQuery from "../methods/proportionsHorizontalQuery.js"
 import proportionsVerticalQuery from "../methods/proportionsVerticalQuery.js"
 import trimQuery from "../methods/trimQuery.js"
-import addThousandSeparator from "../helpers/addThousandSeparator.js"
 import removeDuplicatesQuery from "../methods/removeDuplicatesQuery.js"
 import logData from "../helpers/logData.js"
 import replaceNullsQuery from "../methods/replaceNullsQuery.js"
@@ -64,10 +63,10 @@ import selectRowsQuery from "../methods/selectRowsQuery.js"
 import crossJoinQuery from "../methods/crossJoinQuery.js"
 import join from "../methods/join.js"
 import cloneQuery from "../methods/cloneQuery.js"
-import toCamelCase from "../helpers/toCamelCase.js"
 import findGeoColumn from "../helpers/findGeoColumn.js"
 import getExtension from "../helpers/getExtension.js"
 import getIdenticalColumns from "../helpers/getIdenticalColumns.js"
+import { camelCase, formatNumber } from "journalism"
 // Not working for now
 // import getProjection from "../helpers/getProjection.js"
 
@@ -860,7 +859,7 @@ export default class SimpleWebTable extends Simple {
         const columns = await this.getColumns()
         const obj: { [key: string]: string } = {}
         for (const col of columns) {
-            obj[col] = toCamelCase(col)
+            obj[col] = camelCase(col)
         }
         await this.renameColumns(obj)
     }
@@ -4216,7 +4215,7 @@ export default class SimpleWebTable extends Simple {
                 throw new Error("nbRows is null")
             }
             console.log(
-                `${addThousandSeparator(
+                `${formatNumber(
                     nbRows[0]["count_star()"] as number
                 )} rows in total ${`(nbRowsToLog: ${rows})`}`
             )

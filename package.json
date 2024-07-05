@@ -93,6 +93,7 @@
     "dependencies": {
         "@duckdb/duckdb-wasm": "^1.28.1-dev212.0",
         "apache-arrow": "^16.1.0",
-        "duckdb": "^1.0.0"
+        "duckdb": "^1.0.0",
+        "journalism": "^1.10.0"
     }
 }

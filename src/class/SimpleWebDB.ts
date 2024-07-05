@@ -6,6 +6,7 @@ import runQueryWeb from "../helpers/runQueryWeb.js"
 import getTables from "../methods/getTables.js"
 import SimpleWebTable from "./SimpleWebTable.js"
 import Simple from "./Simple.js"
+import { prettyDuration } from "journalism"
 
 /**
  * SimpleWebDB is a class that provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleDB.
@@ -40,14 +41,21 @@ import Simple from "./Simple.js"
 export default class SimpleWebDB extends Simple {
     /** An object keeping track of the data used in cache. @category Properties */
     cacheSourcesUsed: string[]
+    /** A timestamp used to track the total duration logged in done(). @category Properties */
+    durationStart: number | undefined
 
     constructor(
         options: {
+            logDuration?: boolean
             debug?: boolean
             nbRowsToLog?: number
         } = {}
     ) {
         super(runQueryWeb, options)
+        if (options.logDuration || options.debug) {
+            this.durationStart = Date.now()
+        }
+
         this.cacheSourcesUsed = []
     }
 
@@ -274,6 +282,13 @@ export default class SimpleWebDB extends Simple {
         }
         if (this.worker instanceof Worker) {
             this.worker.terminate()
+        }
+        if (typeof this.durationStart === "number") {
+            prettyDuration(this.durationStart, {
+                log: true,
+                prefix: "\nSimpleWebDB - Done in ",
+                suffix: "\n",
+            })
         }
     }
 }

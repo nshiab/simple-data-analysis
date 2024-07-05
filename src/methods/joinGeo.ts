@@ -1,5 +1,5 @@
+import { capitalize } from "journalism"
 import SimpleWebTable from "../class/SimpleWebTable.js"
-import capitalize from "../helpers/capitalize.js"
 import findGeoColumn from "../helpers/findGeoColumn.js"
 import getIdenticalColumns from "../helpers/getIdenticalColumns.js"
 import mergeOptions from "../helpers/mergeOptions.js"

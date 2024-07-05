@@ -130,4 +130,25 @@ describe("SimpleDB", () => {
         await sdb.done()
         // How to test?
     })
+    it("should log debugging information when debug is true", async () => {
+        const sdb = new SimpleDB({ debug: true })
+        await sdb.newTable("test").loadData("test/data/files/cities.csv")
+        // How to test?
+        await sdb.done()
+    })
+    it("should log a specific number of rows", async () => {
+        const sdb = new SimpleDB({ nbRowsToLog: 2 })
+        const test = sdb.newTable("test")
+        await test.loadData("test/data/files/cities.csv")
+        await test.logTable()
+        // How to test?
+        await sdb.done()
+    })
+    it("should log the total duration", async () => {
+        const sdb = new SimpleDB({ logDuration: true })
+        const test = sdb.newTable("test")
+        await test.loadData("test/data/files/cities.csv")
+        // How to test?
+        await sdb.done()
+    })
 })

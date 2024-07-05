@@ -1,11 +1,13 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs"
 import SimpleTable from "../class/SimpleTable"
 import crypto from "crypto"
+import { formatDate, prettyDuration } from "journalism"
 
 type cacheSources = {
     [key: string]: {
         file: string
-        timestamp: number
+        creation: number
+        duration: number
         geo: boolean
         geoColumnName: null | string
     }
@@ -39,10 +41,11 @@ export default async function cache(
 
     table.debug && console.log("id:", id)
     const cache = cacheSources[id]
+    const now = Date.now()
 
     if (cache === undefined) {
         ;(table.debug || options.verbose) &&
-            console.log(`\nNothing in cache. Running and storing in cache.\n`)
+            console.log(`\nNothing in cache. Running and storing in cache.`)
         await runAndWrite(
             table,
             run,
@@ -54,11 +57,11 @@ export default async function cache(
     } else if (
         cache &&
         typeof options.ttl === "number" &&
-        Date.now() - cache.timestamp > options.ttl * 1000
+        now - cache.creation > options.ttl * 1000
     ) {
         ;(table.debug || options.verbose) &&
             console.log(
-                `\nttl of ${options.ttl} sec has expired. Running and storing in cache.\n`
+                `\nttl of ${options.ttl} sec has expired. The creation date is ${formatDate(new Date(cache.creation), "Month DD, YYYY, at HH:MM period")}. It's is ${prettyDuration(cache.creation, { end: now })} ago.\nRunning and storing in cache.`
             )
         await runAndWrite(
             table,
@@ -70,9 +73,17 @@ export default async function cache(
         )
     } else {
         ;(table.debug || options.verbose) &&
-            console.log(`\nLoading data from cache.\n`)
+            console.log(`\nFound ${cache.file} in cache.`)
+        if (typeof options.ttl === "number") {
+            const ttlLimit = new Date(cache.creation + options.ttl * 1000)
+            ;(table.debug || options.verbose) &&
+                console.log(
+                    `ttl of ${options.ttl} sec has not expired. The creation date is ${formatDate(new Date(cache.creation), "Month DD, YYYY, at HH:MM period")}. There is ${prettyDuration(now, { end: ttlLimit })} left.`
+                )
+        }
         if (cache.geo) {
             table.debug && console.log(`Geospatial data. Using loadGeoData`)
+            const start = Date.now()
             await table.loadGeoData(cache.file)
             if (table.sdb.cacheSourcesUsed.indexOf(id) < 0) {
                 table.sdb.cacheSourcesUsed.push(id)
@@ -80,12 +91,25 @@ export default async function cache(
             if (typeof cache.geoColumnName === "string") {
                 await table.renameColumns({ geom: cache.geoColumnName })
             }
+            const end = Date.now()
+            const duration = end - start
+            ;(table.debug || options.verbose) &&
+                console.log(
+                    `Data loaded in ${prettyDuration(start, { end })}. Running the computations took ${prettyDuration(0, { end: cache.duration })} last time. You saved ${prettyDuration(duration, { end: cache.duration })}.\n`
+                )
         } else {
             table.debug && console.log(`Tabular data. Using loadData`)
+            const start = Date.now()
             await table.loadData(cache.file)
             if (table.sdb.cacheSourcesUsed.indexOf(id) < 0) {
                 table.sdb.cacheSourcesUsed.push(id)
             }
+            const end = Date.now()
+            const duration = end - start
+            ;(table.debug || options.verbose) &&
+                console.log(
+                    `Data loaded in ${prettyDuration(start, { end })}. Running the computations took ${prettyDuration(0, { end: cache.duration })} last time. You saved ${prettyDuration(duration, { end: cache.duration })}.\n`
+                )
         }
     }
 }
@@ -98,7 +122,10 @@ async function runAndWrite(
     cachePath: string,
     id: string
 ) {
+    const start = Date.now()
     await run()
+    const end = Date.now()
+    const duration = end - start
     table.debug && console.log("\ncache() after run()")
     const types = await table.getTypes()
     const geometriesColumns = Object.values(types).filter(
@@ -114,7 +141,8 @@ async function runAndWrite(
         const file = `${cachePath}/${id}.geojson`
         await table.writeGeoData(file)
         cacheSources[id] = {
-            timestamp: Date.now(),
+            creation: Date.now(),
+            duration,
             file,
             geo: true,
             geoColumnName:
@@ -125,13 +153,18 @@ async function runAndWrite(
         if (table.sdb.cacheSourcesUsed.indexOf(id) < 0) {
             table.sdb.cacheSourcesUsed.push(id)
         }
+        table.sdb.cacheVerbose &&
+            console.log(
+                `Duration: ${prettyDuration(start, { end })}. Wrote ${file}.\n`
+            )
     } else {
         table.debug &&
             console.log(`\nNo geometries in the table. Using writeData.`)
         const file = `${cachePath}/${id}.parquet`
         await table.writeData(file)
         cacheSources[id] = {
-            timestamp: Date.now(),
+            creation: Date.now(),
+            duration,
             file,
             geo: false,
             geoColumnName: null,
@@ -139,6 +172,10 @@ async function runAndWrite(
         if (table.sdb.cacheSourcesUsed.indexOf(id) < 0) {
             table.sdb.cacheSourcesUsed.push(id)
         }
+        table.sdb.cacheVerbose &&
+            console.log(
+                `Duration: ${prettyDuration(start, { end })}. Wrote ${file}.\n`
+            )
     }
     writeFileSync(cacheSourcesPath, JSON.stringify(cacheSources))
 }

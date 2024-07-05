@@ -15,7 +15,7 @@ export default function cleanCache(sdb: SimpleDB) {
                 }
                 sdb.cacheVerbose &&
                     console.log(
-                        `Removing from cache: ${cacheSources[cacheId].file}`
+                        `Removing unused file from cache: ${cacheSources[cacheId].file}`
                     )
                 unlinkSync(cacheSources[cacheId].file)
                 delete cacheSources[cacheId]

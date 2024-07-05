@@ -4,6 +4,7 @@ import runQueryNode from "../helpers/runQueryNode.js"
 import SimpleWebDB from "./SimpleWebDB.js"
 import SimpleTable from "./SimpleTable.js"
 import cleanCache from "../helpers/cleanCache.js"
+import { prettyDuration } from "journalism"
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance, in-memory analytical database. This class is meant to be used with NodeJS and similar runtimes. For web browsers, use SimpleWebDB.
@@ -42,6 +43,7 @@ export default class SimpleDB extends SimpleWebDB {
 
     constructor(
         options: {
+            logDuration?: boolean
             nbRowsToLog?: number
             cacheVerbose?: boolean
             debug?: boolean
@@ -136,7 +138,13 @@ export default class SimpleDB extends SimpleWebDB {
         if (this.db instanceof Database) {
             this.db.close()
         }
-
         cleanCache(this)
+        if (typeof this.durationStart === "number") {
+            prettyDuration(this.durationStart, {
+                log: true,
+                prefix: "\nSimpleDB - Done in ",
+                suffix: "\n",
+            })
+        }
     }
 }
