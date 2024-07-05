@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync } from "fs"
+import { readFileSync } from "fs"
 import assert from "assert"
 import SimpleDB from "../../../src/class/SimpleDB.js"
 
@@ -7,16 +7,13 @@ describe("writeGeoData", () => {
 
     let sdb: SimpleDB
     before(async function () {
-        if (!existsSync(output)) {
-            mkdirSync(output)
-        }
         sdb = new SimpleDB()
     })
     after(async function () {
         await sdb.done()
     })
 
-    it("should write geojson file", async () => {
+    it("should write a geojson file", async () => {
         const originalFile = "test/geodata/files/polygons.geojson"
 
         const table = sdb.newTable()
@@ -26,6 +23,20 @@ describe("writeGeoData", () => {
         const originalData = JSON.parse(readFileSync(originalFile, "utf-8"))
         const writtenData = JSON.parse(
             readFileSync(`${output}data.geojson`, "utf-8")
+        )
+
+        assert.deepStrictEqual(writtenData, originalData)
+    })
+    it("should write a geojson file and create the path if it doesn't exist", async () => {
+        const originalFile = "test/geodata/files/polygons.geojson"
+
+        const table = sdb.newTable()
+        await table.loadGeoData(originalFile)
+        await table.writeGeoData(`${output}/subfolderGeoData/data.geojson`)
+
+        const originalData = JSON.parse(readFileSync(originalFile, "utf-8"))
+        const writtenData = JSON.parse(
+            readFileSync(`${output}subfolderGeoData/data.geojson`, "utf-8")
         )
 
         assert.deepStrictEqual(writtenData, originalData)
