@@ -179,4 +179,27 @@ describe("removeIntersection", () => {
             ],
         })
     })
+    it("should remove the small circle from the big circle, put the result in a new column and add a projection", async () => {
+        const smallCircle = sdb.newTable()
+        await smallCircle.loadGeoData("test/geodata/files/smallCircle.json")
+        await smallCircle.renameColumns({ geom: "geomSmall" })
+
+        const bigCircle = sdb.newTable()
+        await bigCircle.loadGeoData("test/geodata/files/bigCircle.json")
+        await bigCircle.renameColumns({ geom: "geomBig" })
+
+        await smallCircle.crossJoin(bigCircle)
+
+        await smallCircle.removeIntersection(
+            "geomBig",
+            "geomSmall",
+            "bigCircleWithHole"
+        )
+
+        assert.deepStrictEqual(smallCircle.projections, {
+            geomSmall: "+proj=latlong +datum=WGS84 +no_defs",
+            geomBig: "+proj=latlong +datum=WGS84 +no_defs",
+            bigCircleWithHole: "+proj=latlong +datum=WGS84 +no_defs",
+        })
+    })
 })

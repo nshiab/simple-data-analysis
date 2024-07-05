@@ -13,13 +13,17 @@ describe("union", () => {
     it("should compute the union of geometries", async () => {
         const poly = sdb.newTable()
         await poly.loadGeoData("test/geodata/files/polygonsGroups.json")
+        await poly.renameColumns({ geom: "polygons" })
 
         const circle = sdb.newTable()
         await circle.loadGeoData(
             "test/geodata/files/circleOverlapPolygonsGroups.json"
         )
+        await circle.renameColumns({ geom: "circle" })
+
         await poly.crossJoin(circle)
-        await poly.union("geom", "geom_1", "result")
+
+        await poly.union("polygons", "circle", "result")
         await poly.selectColumns("result")
         await poly.reducePrecision(2)
 
@@ -249,6 +253,27 @@ describe("union", () => {
                     properties: {},
                 },
             ],
+        })
+    })
+    it("should compute the union of geometries and add a projection", async () => {
+        const poly = sdb.newTable()
+        await poly.loadGeoData("test/geodata/files/polygonsGroups.json")
+        await poly.renameColumns({ geom: "polygons" })
+
+        const circle = sdb.newTable()
+        await circle.loadGeoData(
+            "test/geodata/files/circleOverlapPolygonsGroups.json"
+        )
+        await circle.renameColumns({ geom: "circle" })
+
+        await poly.crossJoin(circle)
+
+        await poly.union("polygons", "circle", "result")
+
+        assert.deepStrictEqual(poly.projections, {
+            polygons: "+proj=latlong +datum=WGS84 +no_defs",
+            circle: "+proj=latlong +datum=WGS84 +no_defs",
+            result: "+proj=latlong +datum=WGS84 +no_defs",
         })
     })
 })

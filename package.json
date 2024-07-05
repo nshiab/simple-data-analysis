@@ -1,6 +1,6 @@
 {
     "name": "simple-data-analysis",
-    "version": "3.0.12",
+    "version": "3.1.2",
     "description": "Easy-to-use and high-performance JavaScript library for data analysis. Works with tabular and geospatial data.",
     "homepage": "https://github.com/nshiab/simple-data-analysis#readme",
     "repository": {
@@ -52,7 +52,7 @@
         "test": "npx mocha \"test/unit/**/*.test.ts\" --timeout 20000",
         "test-bun": "bunx mocha \"test/unit/**/*.test.ts\" --timeout 20000",
         "build": "rm -rf dist && npx tsc && npx rollup --config",
-        "all-tests": "npm run format && npm run lint && npm run test && npm run build && npm run test-doc && bun upgrade && bun run test-bun",
+        "all-tests": "npm i && npm run format && npm run lint && npm run test && npm run build && npm run test-doc && bun upgrade && bun run test-bun",
         "rollup": "rollup --config",
         "doc": "typedoc --name Simple-data-analysis --includeVersion --readme README.md --out docs src/index.ts && cp -r ./assets ./docs",
         "test-doc": "typedoc --name Simple-data-analysis --includeVersion --readme README.md --out ./test-docs src/index.ts && cp -r ./assets ./test-docs",

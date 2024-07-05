@@ -38,6 +38,21 @@ describe("joinGeo", () => {
             { nameEnglish: "Yukon", name: null },
         ])
     })
+    it("should do a left spatial join the intersect method and keep all projections", async () => {
+        const prov = sdb.newTable()
+        await prov.loadGeoData(
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
+        )
+        const poly = sdb.newTable()
+        await poly.loadGeoData("test/geodata/files/polygons.geojson")
+
+        await prov.joinGeo(poly, "intersect")
+
+        assert.deepStrictEqual(prov.projections, {
+            geom: "+proj=latlong +datum=WGS84 +no_defs",
+            geom_1: "+proj=latlong +datum=WGS84 +no_defs",
+        })
+    })
     it("should do a left spatial join the intersect method and output the results to a new table", async () => {
         const prov = sdb.newTable()
         await prov.loadGeoData(
@@ -317,6 +332,7 @@ describe("joinGeo", () => {
         const cities = sdb.newTable()
         await cities.loadGeoData("test/geodata/files/coordinates.geojson")
         const cloned = await cities.cloneTable()
+        await cloned.renameColumns({ name: "name_1" })
         await cities.joinGeo(cloned, "within", { distance: 10 })
         await cities.distance("geom", "geomTable1", "dist", { decimals: 2 })
         await cities.selectColumns(["name", "name_1", "dist"])
@@ -335,6 +351,8 @@ describe("joinGeo", () => {
         const cities = sdb.newTable()
         await cities.loadGeoData("test/geodata/files/coordinates.geojson")
         const cloned = await cities.cloneTable()
+        await cloned.renameColumns({ name: "name_1" })
+
         await cities.joinGeo(cloned, "within", {
             distance: 500_000,
             distanceMethod: "haversine",
@@ -359,6 +377,8 @@ describe("joinGeo", () => {
         const cities = sdb.newTable()
         await cities.loadGeoData("test/geodata/files/coordinates.geojson")
         const cloned = await cities.cloneTable()
+        await cloned.renameColumns({ name: "name_1" })
+
         await cities.joinGeo(cloned, "within", {
             distance: 500_000,
             distanceMethod: "spheroid",

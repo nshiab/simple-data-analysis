@@ -22,6 +22,26 @@ describe("reproject", () => {
 
         assert.deepStrictEqual(data, expectedGeo)
     })
+    it("should convert from one projection to another one and update the projection property", async () => {
+        const table = sdb.newTable()
+        await table.loadGeoData("test/geodata/files/canada-not-4326.shp.zip")
+
+        const projections = {
+            old: structuredClone(table.projections),
+            new: table.projections, // for types
+        }
+
+        await table.reproject("EPSG:4326")
+
+        projections.new = table.projections
+
+        assert.deepStrictEqual(projections, {
+            old: {
+                geom: "+proj=lcc +lat_0=63.390675 +lon_0=-91.8666666666667 +lat_1=49 +lat_2=77 +x_0=6200000 +y_0=3000000 +datum=NAD83 +units=m +no_defs",
+            },
+            new: { geom: "+proj=latlong +datum=WGS84 +no_defs" },
+        })
+    })
     it("should convert from one projection to another one from a specific column", async () => {
         const table = sdb.newTable()
         await table.loadGeoData("test/geodata/files/canada-not-4326.shp.zip")

@@ -39,4 +39,14 @@ describe("points", () => {
             ],
         })
     })
+    it("should create points and add a projection", async () => {
+        const table = sdb.newTable()
+        await table.loadData("test/geodata/files/coordinates.csv")
+        await table.convert({ lat: "double", lon: "double" })
+        await table.points("lat", "lon", "geom")
+
+        assert.deepStrictEqual(table.projections, {
+            geom: "+proj=latlong +datum=WGS84 +no_defs",
+        })
+    })
 })

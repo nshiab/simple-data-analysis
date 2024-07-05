@@ -25,7 +25,7 @@ export default async function queryDB(
         await simple.start()
     } else if (
         simple instanceof SimpleWebTable &&
-        simple.sdb.connection === undefined
+        simple.connection === undefined
     ) {
         await simple.sdb.start()
         simple.db = simple.sdb.db

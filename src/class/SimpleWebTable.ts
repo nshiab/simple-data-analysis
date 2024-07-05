@@ -67,6 +67,7 @@ import cloneQuery from "../methods/cloneQuery.js"
 import toCamelCase from "../helpers/toCamelCase.js"
 import findGeoColumn from "../helpers/findGeoColumn.js"
 import getExtension from "../helpers/getExtension.js"
+import getIdenticalColumns from "../helpers/getIdenticalColumns.js"
 // Not working for now
 // import getProjection from "../helpers/getProjection.js"
 
@@ -100,14 +101,14 @@ import getExtension from "../helpers/getExtension.js"
 export default class SimpleWebTable extends Simple {
     /** Name of the table in the database. @category Properties */
     name: string
-    /** The projection of the geospatial data, if any. @category Properties */
-    projection: string | null
+    /** The projections of the geospatial data, if any. @category Properties */
+    projections: { [key: string]: string }
     /** The SimpleWebDB that created this table. @category Properties */
     sdb: SimpleWebDB
 
     constructor(
         name: string,
-        projection: string | null,
+        projections: { [key: string]: string },
         simpleWebDB: SimpleWebDB,
         options: {
             debug?: boolean
@@ -116,7 +117,7 @@ export default class SimpleWebTable extends Simple {
     ) {
         super(runQueryWeb, options)
         this.name = name
-        this.projection = projection
+        this.projections = projections
         this.sdb = simpleWebDB
         this.db = simpleWebDB.db
         this.connection = this.sdb.connection
@@ -366,12 +367,12 @@ export default class SimpleWebTable extends Simple {
         if (typeof options.outputTable === "string") {
             clonedTable = this.sdb.newTable(
                 options.outputTable,
-                this.projection
+                this.projections
             )
         } else {
             clonedTable = this.sdb.newTable(
                 `table${this.tableIncrement}`,
-                this.projection
+                this.projections
             )
             this.tableIncrement += 1
         }
@@ -589,7 +590,7 @@ export default class SimpleWebTable extends Simple {
         )
 
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projection)
+            return this.sdb.newTable(options.outputTable, this.projections)
         } else {
             return this
         }
@@ -820,19 +821,28 @@ export default class SimpleWebTable extends Simple {
      * @category Restructuring data
      */
     async renameColumns(names: { [key: string]: string }) {
+        const oldNames = Object.keys(names)
+        const newNames = Object.values(names)
+
         await queryDB(
             this,
-            renameColumnQuery(
-                this.name,
-                Object.keys(names),
-                Object.values(names)
-            ),
+            renameColumnQuery(this.name, oldNames, newNames),
             mergeOptions(this, {
                 table: this.name,
                 method: "renameColumns()",
                 parameters: { names },
             })
         )
+
+        // Taking care of projections
+        const types = await this.getTypes()
+        for (let i = 0; i < newNames.length; i++) {
+            if (types[newNames[i]] === "GEOMETRY") {
+                const projection = this.projections[oldNames[i]]
+                delete this.projections[oldNames[i]]
+                this.projections[newNames[i]] = projection
+            }
+        }
     }
 
     /**
@@ -1067,17 +1077,23 @@ export default class SimpleWebTable extends Simple {
      * @category Restructuring data
      */
     async removeColumns(columns: string | string[]) {
+        const cols = stringToArray(columns)
         await queryDB(
             this,
-            stringToArray(columns)
-                .map((d) => `ALTER TABLE ${this.name} DROP "${d}";`)
-                .join("\n"),
+            cols.map((d) => `ALTER TABLE ${this.name} DROP "${d}";`).join("\n"),
             mergeOptions(this, {
                 table: this.name,
                 method: "removeColumns()",
                 parameters: { columns },
             })
         )
+
+        // Taking care of projections
+        for (const col of cols) {
+            if (Object.prototype.hasOwnProperty.call(this.projections, col)) {
+                delete this.projections[col]
+            }
+        }
     }
 
     /**
@@ -1089,9 +1105,19 @@ export default class SimpleWebTable extends Simple {
      * await table.addColumn("column3", "float", "column1 + column2")
      * ```
      *
+     * @example Adding geometries
+     *
+     * If you add a new column with geometries, you must specify a projection. You can reuse the projection of an already existing column. All projections are stored in `table.projections`.
+     * ```ts
+     * // We create a new column with the centroid of countries boundaries. The resulting points will have the same projection as the countries boundaries, so we can reuse their projection.
+     * await table.addColumn("centroid", "geometry", `ST_Centroid("country")`, { projection: table.projections.country})
+     * ```
+     *
      * @param newColumn - The name of the new column to be added.
      * @param type - The data type for the new column. JavaScript or SQL types.
      * @param definition - SQL expression defining how the values should be computed for the new column.
+     * @param options - An optional object with configuration options:
+     *   @param options.projection - If you create a new column with geometries, you must specify the projection.
      *
      * @category Restructuring data
      */
@@ -1113,11 +1139,13 @@ export default class SimpleWebTable extends Simple {
             | "timestamp with time zone"
             | "boolean"
             | "geometry",
-        definition: string
+        definition: string,
+        options: { projection?: string } = {}
     ) {
+        const newType = parseType(type)
         await queryDB(
             this,
-            `ALTER TABLE ${this.name} ADD ${newColumn} ${parseType(type)};
+            `ALTER TABLE ${this.name} ADD ${newColumn} ${newType};
         UPDATE ${this.name} SET ${newColumn} = ${definition}`,
             mergeOptions(this, {
                 table: this.name,
@@ -1125,6 +1153,15 @@ export default class SimpleWebTable extends Simple {
                 parameters: { newColumn, type, definition },
             })
         )
+        if (newType === "GEOMETRY") {
+            if (typeof options.projection === "string") {
+                this.projections[newColumn] = options.projection
+            } else {
+                throw new Error(
+                    "You are creating a new column storing geometries. You must specify a projection. See examples in documentation."
+                )
+            }
+        }
     }
 
     /**
@@ -1185,6 +1222,15 @@ export default class SimpleWebTable extends Simple {
             outputTable?: string | boolean
         } = {}
     ) {
+        const identicalColumns = await getIdenticalColumns(
+            await this.getColumns(),
+            await rightTable.getColumns()
+        )
+        if (identicalColumns.length > 0) {
+            throw new Error(
+                `The tables have columns with identical names. Rename or remove ${identicalColumns.map((d) => `"${d}"`).join(", ")} in one of the two tables before doing the cross join.`
+            )
+        }
         if (options.outputTable === true) {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
@@ -1201,9 +1247,15 @@ export default class SimpleWebTable extends Simple {
                 parameters: { rightTable, options },
             })
         )
+
+        const allProjections = {
+            ...this.projections,
+            ...rightTable.projections,
+        }
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projection)
+            return this.sdb.newTable(options.outputTable, allProjections)
         } else {
+            this.projections = allProjections
             return this
         }
     }
@@ -1243,13 +1295,7 @@ export default class SimpleWebTable extends Simple {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
         }
-        await join(this, rightTable, options)
-
-        if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projection)
-        } else {
-            return this
-        }
+        return await join(this, rightTable, options)
     }
 
     /**
@@ -2004,7 +2050,7 @@ export default class SimpleWebTable extends Simple {
         }
         await summarize(this, options)
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projection)
+            return this.sdb.newTable(options.outputTable, this.projections)
         } else {
             return this
         }
@@ -2136,7 +2182,7 @@ export default class SimpleWebTable extends Simple {
         }
         await correlations(this, options)
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projection)
+            return this.sdb.newTable(options.outputTable, this.projections)
         } else {
             return this
         }
@@ -2200,7 +2246,7 @@ export default class SimpleWebTable extends Simple {
         }
         await linearRegressions(this, options)
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projection)
+            return this.sdb.newTable(options.outputTable, this.projections)
         } else {
             return this
         }
@@ -2368,13 +2414,23 @@ export default class SimpleWebTable extends Simple {
      * @category Updating data
      */
     async updateWithJS(
-        dataModifier: (
-            rows: {
-                [key: string]: number | string | Date | boolean | null
-            }[]
-        ) => {
-            [key: string]: number | string | Date | boolean | null
-        }[]
+        dataModifier:
+            | ((
+                  rows: {
+                      [key: string]: number | string | Date | boolean | null
+                  }[]
+              ) => Promise<
+                  {
+                      [key: string]: number | string | Date | boolean | null
+                  }[]
+              >)
+            | ((
+                  rows: {
+                      [key: string]: number | string | Date | boolean | null
+                  }[]
+              ) => {
+                  [key: string]: number | string | Date | boolean | null
+              }[])
     ) {
         this.debug && console.log("\nupdateWithJS()")
         this.debug && console.log("parameters:", { dataModifier: dataModifier })
@@ -2382,7 +2438,7 @@ export default class SimpleWebTable extends Simple {
         if (!oldData) {
             throw new Error("No data from getData.")
         }
-        const newData = dataModifier(oldData)
+        const newData = await dataModifier(oldData)
         await this.loadArray(newData)
     }
 
@@ -2991,12 +3047,12 @@ export default class SimpleWebTable extends Simple {
         )
 
         // Not working for now.
-        // this.projection = await getProjection(this.sdb, file)
+        // this.projections = await getProjection(this.sdb, file)
 
         const extension = getExtension(file)
         if (extension === "json" || extension === "geojson") {
             await this.flipCoordinates("geom") // column storing geometries
-            this.projection = "+proj=latlong +datum=WGS84 +no_defs"
+            this.projections["geom"] = "+proj=latlong +datum=WGS84 +no_defs"
             if (options.toWGS84) {
                 console.log(
                     "This file is a json or geojson. Option toWGS84 has no effect."
@@ -3034,7 +3090,7 @@ export default class SimpleWebTable extends Simple {
                 parameters: { columnLat, columnLon, newColumn },
             })
         )
-        this.projection = "+proj=latlong +datum=WGS84 +no_defs"
+        this.projections[newColumn] = "+proj=latlong +datum=WGS84 +no_defs"
     }
 
     /**
@@ -3186,7 +3242,7 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
-     * Flips the coordinates of geometries.
+     * Flips the coordinates of geometries. To use as a last resort. This messes up with the projections stored in `table.projection`.
      *
      * @example Basic usage
      * ```ts
@@ -3289,7 +3345,7 @@ export default class SimpleWebTable extends Simple {
                 ? options.column
                 : await findGeoColumn(this)
 
-        const from = options.from ?? this.projection
+        const from = options.from ?? this.projections[column]
         if (typeof from !== "string" || from === "") {
             throw new Error(
                 "Method reproject can't determine the original projection. Use the option 'from' to provide one."
@@ -3310,9 +3366,11 @@ export default class SimpleWebTable extends Simple {
                 parameters: { column, to },
             })
         )
-        this.projection = to
-        if (this.projection === "+proj=latlong +datum=WGS84 +no_defs") {
-            await this.flipCoordinates()
+        this.projections[column] = to
+        if (
+            this.projections[column] === "+proj=latlong +datum=WGS84 +no_defs"
+        ) {
+            await this.flipCoordinates(column)
         }
     }
 
@@ -3504,6 +3562,8 @@ export default class SimpleWebTable extends Simple {
                 parameters: { column, newColumn, distance },
             })
         )
+
+        this.projections[newColumn] = this.projections[column]
     }
 
     /**
@@ -3565,12 +3625,7 @@ export default class SimpleWebTable extends Simple {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
         }
-        await joinGeo(this, method, rightTable, options)
-        if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projection)
-        } else {
-            return this
-        }
+        return await joinGeo(this, method, rightTable, options)
     }
 
     /**
@@ -3588,6 +3643,11 @@ export default class SimpleWebTable extends Simple {
      * @category Geospatial
      */
     async intersection(column1: string, column2: string, newColumn: string) {
+        if (this.projections[column1] !== this.projections[column2]) {
+            throw new Error(
+                `${column1} and ${column2} don't have the same projection.\n${column1}: ${this.projections[column1]}\n${column2}: ${this.projections[column2]}`
+            )
+        }
         await queryDB(
             this,
             `ALTER TABLE ${this.name} ADD ${newColumn} GEOMETRY; UPDATE ${this.name} SET ${newColumn} = ST_Intersection(${column1}, ${column2})`,
@@ -3597,6 +3657,7 @@ export default class SimpleWebTable extends Simple {
                 parameters: { column1, column2, newColumn },
             })
         )
+        this.projections[newColumn] = this.projections[column1]
     }
 
     /**
@@ -3619,6 +3680,11 @@ export default class SimpleWebTable extends Simple {
         column2: string,
         newColumn: string
     ) {
+        if (this.projections[column1] !== this.projections[column2]) {
+            throw new Error(
+                `${column1} and ${column2} don't have the same projection.\n${column1}: ${this.projections[column1]}\n${column2}: ${this.projections[column2]}`
+            )
+        }
         await queryDB(
             this,
             `ALTER TABLE ${this.name} ADD ${newColumn} GEOMETRY; UPDATE ${this.name} SET ${newColumn} = ST_Difference(${column1}, ${column2})`,
@@ -3628,6 +3694,7 @@ export default class SimpleWebTable extends Simple {
                 parameters: { column1, column2, newColumn },
             })
         )
+        this.projections[newColumn] = this.projections[column1]
     }
 
     /**
@@ -3700,6 +3767,11 @@ export default class SimpleWebTable extends Simple {
      * @category Geospatial
      */
     async union(column1: string, column2: string, newColumn: string) {
+        if (this.projections[column1] !== this.projections[column2]) {
+            throw new Error(
+                `${column1} and ${column2} don't have the same projection.\n${column1}: ${this.projections[column1]}\n${column2}: ${this.projections[column2]}`
+            )
+        }
         await queryDB(
             this,
             `ALTER TABLE ${this.name} ADD ${newColumn} GEOMETRY; UPDATE ${this.name} SET ${newColumn} = ST_Union(${column1}, ${column2})`,
@@ -3709,6 +3781,8 @@ export default class SimpleWebTable extends Simple {
                 parameters: { column1, column2, newColumn },
             })
         )
+
+        this.projections[newColumn] = this.projections[column1]
     }
 
     /**
@@ -3814,6 +3888,7 @@ export default class SimpleWebTable extends Simple {
                 parameters: { column, newColumn },
             })
         )
+        this.projections[newColumn] = this.projections[column]
     }
 
     /**
@@ -3979,7 +4054,7 @@ export default class SimpleWebTable extends Simple {
             })
         )
         if (typeof options.outputTable === "string") {
-            return this.sdb.newTable(options.outputTable, this.projection)
+            return this.sdb.newTable(options.outputTable, this.projections)
         } else {
             return this
         }
