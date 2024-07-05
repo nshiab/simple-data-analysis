@@ -1,6 +1,7 @@
 import SimpleWebTable from "../class/SimpleWebTable.js"
 import capitalize from "../helpers/capitalize.js"
 import findGeoColumn from "../helpers/findGeoColumn.js"
+import getIdenticalColumns from "../helpers/getIdenticalColumns.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import joinGeoQuery from "./joinGeoQuery.js"
@@ -22,6 +23,21 @@ export default async function joinGeo(
         options.leftTableColumn ?? (await findGeoColumn(leftTable))
     const rightTableColumn =
         options.rightTableColumn ?? (await findGeoColumn(rightTable))
+
+    const commonColumn =
+        leftTableColumn === rightTableColumn ? leftTableColumn : ""
+    const identicalColumns = (
+        await getIdenticalColumns(
+            await leftTable.getColumns(),
+            await rightTable.getColumns()
+        )
+    ).filter((d) => d !== commonColumn)
+    if (identicalColumns.length > 0) {
+        throw new Error(
+            `The tables have columns with identical names ${commonColumn !== "" ? `(excluding the columns "${commonColumn}" used for the geospatial join)` : ""}. Rename or remove ${identicalColumns.map((d) => `"${d}"`).join(", ")} in one of the two tables before doing the join.`
+        )
+    }
+
     let leftTableColumnForQuery = leftTableColumn
     let rightTableColumnForQuery = rightTableColumn
 
@@ -36,6 +52,12 @@ export default async function joinGeo(
 
         if (!rightTable.defaultTableName) {
             rightTableColumnForQuery = `${rightTableColumn}${capitalize(rightTable.name)}`
+            const rightObj: { [key: string]: string } = {}
+            rightObj[rightTableColumn] = rightTableColumnForQuery
+            await rightTable.renameColumns(rightObj)
+        } else {
+            // Otherwise, we don't rename and transfer projections
+            rightTableColumnForQuery = `${rightTableColumn}_1`
             const rightObj: { [key: string]: string } = {}
             rightObj[rightTableColumn] = rightTableColumnForQuery
             await rightTable.renameColumns(rightObj)
@@ -73,6 +95,12 @@ export default async function joinGeo(
         })
     )
 
+    // Before renaming columns in original tables
+    const allProjections = {
+        ...leftTable.projections,
+        ...rightTable.projections,
+    }
+
     // We bring back the column names for geometries
     if (leftTableColumn === rightTableColumn) {
         if (!leftTable.defaultTableName) {
@@ -81,10 +109,16 @@ export default async function joinGeo(
             await leftTable.renameColumns(leftObj)
         }
 
-        if (!rightTable.defaultTableName) {
-            const rightObj: { [key: string]: string } = {}
-            rightObj[rightTableColumnForQuery] = rightTableColumn
-            await rightTable.renameColumns(rightObj)
-        }
+        // We always changed it.
+        const rightObj: { [key: string]: string } = {}
+        rightObj[rightTableColumnForQuery] = rightTableColumn
+        await rightTable.renameColumns(rightObj)
+    }
+
+    if (typeof options.outputTable === "string") {
+        return leftTable.sdb.newTable(options.outputTable, allProjections)
+    } else {
+        leftTable.projections = allProjections
+        return leftTable
     }
 }

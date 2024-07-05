@@ -74,6 +74,16 @@ describe("buffer", () => {
             ],
         })
     })
+    it("should create a buffer from points and create a new projection", async () => {
+        const table = sdb.newTable("geodata")
+        await table.loadGeoData("test/geodata/files/point.json")
+        await table.buffer("buffer", 1)
+
+        assert.deepStrictEqual(table.projections, {
+            geom: "+proj=latlong +datum=WGS84 +no_defs",
+            buffer: "+proj=latlong +datum=WGS84 +no_defs",
+        })
+    })
     it("should create a buffer from points in a specific column", async () => {
         const table = sdb.newTable("geodata")
         await table.loadGeoData("test/geodata/files/point.json")

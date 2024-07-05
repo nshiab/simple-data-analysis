@@ -122,4 +122,20 @@ describe("crossJoin", () => {
             { key1: 4, key2: "d" },
         ])
     })
+    it("should return all pairs of rows and all projections", async () => {
+        const point = await sdb
+            .newTable()
+            .loadGeoData("test/geodata/files/point.json")
+        const line = await sdb
+            .newTable()
+            .loadGeoData("test/geodata/files/line.json")
+        await line.renameColumns({ geom: "line" })
+
+        await point.crossJoin(line)
+
+        assert.deepStrictEqual(point.projections, {
+            geom: "+proj=latlong +datum=WGS84 +no_defs",
+            line: "+proj=latlong +datum=WGS84 +no_defs",
+        })
+    })
 })

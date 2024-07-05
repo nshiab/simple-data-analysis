@@ -5,6 +5,7 @@ export default function rankQuery(
     values: string,
     newColumn: string,
     options: {
+        order?: "asc" | "desc"
         categories?: string | string[]
         noGaps?: boolean
     } = {}
@@ -20,7 +21,7 @@ export default function rankQuery(
 
     const query = `CREATE OR REPLACE TABLE ${table} AS SELECT *, ${
         options.noGaps ? "dense_rank()" : "rank()"
-    } OVER (${partition}ORDER BY ${values}) AS ${newColumn},
+    } OVER (${partition}ORDER BY ${values} ${typeof options.order === "string" ? options.order.toUpperCase() : ""}) AS ${newColumn},
     FROM ${table}`
 
     return query

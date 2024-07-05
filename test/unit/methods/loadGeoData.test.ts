@@ -34,6 +34,17 @@ describe("loadGeoData", () => {
             geom: "GEOMETRY",
         })
     })
+    it("should load a geojson file and add a projection", async () => {
+        const table = await sdb
+            .newTable()
+            .loadGeoData(
+                "test/geodata/files/CanadianProvincesAndTerritories.json"
+            )
+
+        assert.deepStrictEqual(table.projections, {
+            geom: "+proj=latlong +datum=WGS84 +no_defs",
+        })
+    })
     it("should load a geojson file from a URL", async () => {
         const table = sdb.newTable()
         await table.loadGeoData(

@@ -8,7 +8,7 @@ export default async function getGeoData(
     column: string
 ) {
     let query = ""
-    if (shouldFlipBeforeExport(simpleWebTable)) {
+    if (shouldFlipBeforeExport(simpleWebTable.projections[column])) {
         query = `SELECT * EXCLUDE ${column}, ST_AsGeoJSON(ST_FlipCoordinates(${column})) as geoJsonFragment from ${simpleWebTable.name};`
     } else {
         query = `SELECT * EXCLUDE ${column}, ST_AsGeoJSON(${column}) as geoJsonFragment from ${simpleWebTable.name};`

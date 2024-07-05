@@ -38,6 +38,9 @@ import Simple from "./Simple.js"
  * ```
  */
 export default class SimpleWebDB extends Simple {
+    /** An object keeping track of the data used in cache. @category Properties */
+    cacheSourcesUsed: string[]
+
     constructor(
         options: {
             debug?: boolean
@@ -45,6 +48,7 @@ export default class SimpleWebDB extends Simple {
         } = {}
     ) {
         super(runQueryWeb, options)
+        this.cacheSourcesUsed = []
     }
 
     /**
@@ -79,14 +83,14 @@ export default class SimpleWebDB extends Simple {
      * ```
      *
      * @param name - The name of the new table.
-     * @param projection - The projection of the geospatial data, if any.
+     * @param projections - The projections of the geospatial data, if any.
      *
      * @category DB methods
      */
-    newTable(name?: string, projection?: string | null) {
+    newTable(name?: string, projections?: { [key: string]: string }) {
         this.debug && console.log("\nnewWebTable()")
 
-        const proj = projection ?? null
+        const proj = projections ?? {}
 
         let table
         if (typeof name === "string") {

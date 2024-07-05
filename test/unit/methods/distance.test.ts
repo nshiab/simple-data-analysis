@@ -14,6 +14,8 @@ describe("distance", () => {
         const table = sdb.newTable("data")
         await table.loadGeoData("test/geodata/files/coordinates.geojson")
         const clone = await table.cloneTable()
+        await clone.renameColumns({ geom: "geom_1", name: "name_1" })
+
         await table.crossJoin(clone)
         await table.distance("geom", "geom_1", "dist")
         await table.selectColumns(["name", "name_1", "dist"])
@@ -37,6 +39,8 @@ describe("distance", () => {
         const table = sdb.newTable("data")
         await table.loadGeoData("test/geodata/files/coordinates.geojson")
         const clone = await table.cloneTable()
+        await clone.renameColumns({ geom: "geom_1", name: "name_1" })
+
         await table.crossJoin(clone)
         await table.distance("geom", "geom_1", "dist", { decimals: 3 })
         await table.selectColumns(["name", "name_1", "dist"])
@@ -60,6 +64,8 @@ describe("distance", () => {
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
         const line = sdb.newTable("line")
         await line.loadGeoData("test/geodata/files/line.json")
+        await line.renameColumns({ geom: "geom_1" })
+
         await points.crossJoin(line)
         await points.distance("geom", "geom_1", "dist")
         await points.selectColumns(["name", "dist"])
@@ -78,6 +84,8 @@ describe("distance", () => {
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
         const polygon = sdb.newTable("polygon")
         await polygon.loadGeoData("test/geodata/files/polygon.json")
+        await polygon.renameColumns({ geom: "geom_1" })
+
         await points.crossJoin(polygon)
         await points.distance("geom", "geom_1", "dist")
         await points.selectColumns(["name", "dist"])
@@ -95,6 +103,8 @@ describe("distance", () => {
         const points = sdb.newTable("points")
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
         const pointsCloned = await points.cloneTable()
+        await pointsCloned.renameColumns({ geom: "geom_1", name: "name_1" })
+
         await points.crossJoin(pointsCloned)
         await points.distance("geom", "geom_1", "dist", {
             method: "haversine",
@@ -119,9 +129,9 @@ describe("distance", () => {
     it("should calculate the distance between points with the haversine method in meters and round values", async () => {
         const points = sdb.newTable("points")
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
-        // No need to flip
-        // await points.flipCoordinates("geom")
         const pointsCloned = await points.cloneTable()
+        await pointsCloned.renameColumns({ geom: "geom_1", name: "name_1" })
+
         await points.crossJoin(pointsCloned)
         await points.distance("geom", "geom_1", "dist", {
             method: "haversine",
@@ -147,6 +157,8 @@ describe("distance", () => {
         const points = sdb.newTable("points")
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
         const pointsCloned = await points.cloneTable()
+        await pointsCloned.renameColumns({ geom: "geom_1", name: "name_1" })
+
         await points.crossJoin(pointsCloned)
         await points.distance("geom", "geom_1", "dist", {
             method: "haversine",
@@ -172,6 +184,8 @@ describe("distance", () => {
         const points = sdb.newTable("points")
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
         const pointsCloned = await points.cloneTable()
+        await pointsCloned.renameColumns({ geom: "geom_1", name: "name_1" })
+
         await points.crossJoin(pointsCloned)
         await points.distance("geom", "geom_1", "dist", {
             method: "haversine",
@@ -198,6 +212,8 @@ describe("distance", () => {
         const points = sdb.newTable("points")
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
         const pointsCloned = await points.cloneTable()
+        await pointsCloned.renameColumns({ geom: "geom_1", name: "name_1" })
+
         await points.crossJoin(pointsCloned)
         await points.distance("geom", "geom_1", "dist", {
             method: "spheroid",
@@ -223,6 +239,8 @@ describe("distance", () => {
         const points = sdb.newTable("points")
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
         const pointsCloned = await points.cloneTable()
+        await pointsCloned.renameColumns({ geom: "geom_1", name: "name_1" })
+
         await points.crossJoin(pointsCloned)
         await points.distance("geom", "geom_1", "dist", {
             method: "spheroid",
@@ -248,6 +266,8 @@ describe("distance", () => {
         const points = sdb.newTable("points")
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
         const pointsCloned = await points.cloneTable()
+        await pointsCloned.renameColumns({ geom: "geom_1", name: "name_1" })
+
         await points.crossJoin(pointsCloned)
         await points.distance("geom", "geom_1", "dist", {
             method: "spheroid",
@@ -273,6 +293,8 @@ describe("distance", () => {
         const points = sdb.newTable("points")
         await points.loadGeoData("test/geodata/files/coordinates.geojson")
         const pointsCloned = await points.cloneTable()
+        await pointsCloned.renameColumns({ geom: "geom_1", name: "name_1" })
+
         await points.crossJoin(pointsCloned)
         await points.distance("geom", "geom_1", "dist", {
             method: "spheroid",

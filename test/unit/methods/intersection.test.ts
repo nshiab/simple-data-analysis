@@ -101,4 +101,24 @@ describe("intersection", () => {
             { nameEnglish: "Nunavut", name: "polygonB", intersecPerc: 0.0366 },
         ])
     })
+    it("should compute the intersection of geometries and add a projection", async () => {
+        const prov = sdb.newTable("prov")
+        await prov.loadGeoData(
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
+        )
+        await prov.renameColumns({ geom: "prov" })
+
+        const poly = sdb.newTable("poly")
+        await poly.loadGeoData("test/geodata/files/polygons.geojson")
+        await poly.renameColumns({ geom: "pol" })
+
+        const joined = await prov.crossJoin(poly, { outputTable: "joined" })
+        await joined.intersection("pol", "prov", "intersec")
+
+        assert.deepStrictEqual(joined.projections, {
+            prov: "+proj=latlong +datum=WGS84 +no_defs",
+            pol: "+proj=latlong +datum=WGS84 +no_defs",
+            intersec: "+proj=latlong +datum=WGS84 +no_defs",
+        })
+    })
 })

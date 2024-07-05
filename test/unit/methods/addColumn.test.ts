@@ -87,7 +87,9 @@ describe("addColumn", () => {
         const geo = sdb.newTable("geo")
         await geo.loadGeoData("test/geodata/files/polygons.geojson")
 
-        await geo.addColumn("centroid", "geometry", `ST_Centroid(geom)`)
+        await geo.addColumn("centroid", "geometry", `ST_Centroid(geom)`, {
+            projection: geo.projections.geom,
+        })
         await geo.selectColumns(["name", "centroid"])
         const data = await geo.getGeoData("centroid")
 
@@ -111,6 +113,19 @@ describe("addColumn", () => {
                     properties: { name: "polygonB" },
                 },
             ],
+        })
+    })
+    it("should return a column with geometry and a new projection", async () => {
+        const geo = sdb.newTable("geo")
+        await geo.loadGeoData("test/geodata/files/polygons.geojson")
+
+        await geo.addColumn("centroid", "geometry", `ST_Centroid(geom)`, {
+            projection: geo.projections.geom,
+        })
+
+        assert.deepStrictEqual(geo.projections, {
+            geom: "+proj=latlong +datum=WGS84 +no_defs",
+            centroid: "+proj=latlong +datum=WGS84 +no_defs",
         })
     })
 })
