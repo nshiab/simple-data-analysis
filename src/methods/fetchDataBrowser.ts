@@ -5,8 +5,8 @@ import {
 } from "@duckdb/duckdb-wasm"
 import getExtension from "../helpers/getExtension.js"
 import mergeOptions from "../helpers/mergeOptions.js"
-import formatDuration from "../helpers/formatDuration.js"
 import SimpleWebTable from "../class/SimpleWebTable.js"
+import { prettyDuration } from "journalism"
 
 export default async function fetchDataBrowser(
     simpleWebTable: SimpleWebTable,
@@ -99,8 +99,7 @@ export default async function fetchDataBrowser(
     }
 
     if (start) {
-        const end = Date.now()
-        console.log(`Done in ${formatDuration(start, end)}`)
+        console.log(`Done in ${prettyDuration(start)}`)
     }
 
     if (simpleWebTable.debug) {

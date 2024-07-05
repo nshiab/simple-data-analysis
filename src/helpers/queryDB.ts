@@ -1,6 +1,5 @@
+import { formatNumber, prettyDuration } from "journalism"
 import { SimpleWebDB, SimpleWebTable } from "../bundle.js"
-import addThousandSeparator from "./addThousandSeparator.js"
-import formatDuration from "./formatDuration.js"
 import logData from "./logData.js"
 
 export default async function queryDB(
@@ -111,7 +110,7 @@ export default async function queryDB(
                 throw new Error("nbRows is null")
             }
             console.log(
-                `${addThousandSeparator(
+                `${formatNumber(
                     nbRows[0]["count_star()"] as number
                 )} rows in total ${
                     options.returnDataFrom === "none"
@@ -124,8 +123,7 @@ export default async function queryDB(
         }
 
         if (start) {
-            const end = Date.now()
-            console.log(`Done in ${formatDuration(start, end)}`)
+            console.log(`Done in ${prettyDuration(start)}`)
         }
     }
 
