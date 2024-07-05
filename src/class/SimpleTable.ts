@@ -25,6 +25,7 @@ import getProjection from "../helpers/getProjection.js"
 import getExtension from "../helpers/getExtension.js"
 import cache from "../methods/cache.js"
 import getIdenticalColumns from "../helpers/getIdenticalColumns.js"
+import { createDirectory } from "journalism"
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
@@ -611,7 +612,7 @@ export default class SimpleTable extends SimpleWebTable {
     }
 
     /**
-     * Writes data to a file.
+     * Writes data to a file. If the path doesn't exist, it will be created.
      *
      * @example Basic usage
      * ```ts
@@ -630,6 +631,7 @@ export default class SimpleTable extends SimpleWebTable {
             compression?: boolean
         } = {}
     ) {
+        createDirectory(file)
         await queryDB(
             this,
             writeDataQuery(this.name, file, options),
@@ -642,7 +644,9 @@ export default class SimpleTable extends SimpleWebTable {
     }
 
     /**
-     * Writes geospatial data to a file. For .geojson files, if the projection is WGS84 or EPSG:4326 ([latitude, longitude] axis order), the coordinates will be flipped to follow the RFC7946 standard ([longitude, latitude] axis order).
+     * Writes geospatial data to a file. If the path doesn't exist, it will be created.
+     *
+     * For .geojson files, if the projection is WGS84 or EPSG:4326 ([latitude, longitude] axis order), the coordinates will be flipped to follow the RFC7946 standard ([longitude, latitude] axis order).
      *
      * @example Basic usage
      * ```ts
@@ -656,6 +660,7 @@ export default class SimpleTable extends SimpleWebTable {
      * * @category Exporting data
      */
     async writeGeoData(file: string, options: { precision?: number } = {}) {
+        createDirectory(file)
         const geoColumn = await findGeoColumn(this)
         const flip = shouldFlipBeforeExport(this.projections[geoColumn])
         if (flip) {
