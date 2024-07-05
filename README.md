@@ -332,7 +332,7 @@ const provinces = sdb.newTable("provinces")
 // from the local cache. However, if you run the
 // code after 60 seconds, the data will be
 // considered outdated and fetched again.
-// After 60 seconds, the new data in the cache will
+// After another 60 seconds, the new data in the cache will
 // expire again. This is useful when working with scraped data.
 // If you update the code passed to the cache method,
 // everything starts over.
