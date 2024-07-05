@@ -78,6 +78,35 @@ describe("cache", () => {
             },
         ])
     })
+    it("should load data from the cache if ttl has not expired", async () => {
+        await table.cache(
+            async () => {
+                await table.loadData("test/data/files/dataSummarize.json")
+                await table.summarize({
+                    values: "key2",
+                    decimals: 4,
+                })
+            },
+            { ttl: 10 }
+        )
+        const data = await table.getData()
+        assert.deepStrictEqual(data, [
+            {
+                value: "key2",
+                count: 6,
+                countUnique: 4,
+                countNull: 2,
+                min: 1,
+                max: 22,
+                mean: 9,
+                median: 6.5,
+                sum: 36,
+                skew: 0.9669,
+                stdDev: 9.7639,
+                var: 95.3333,
+            },
+        ])
+    })
     it("should not load data from the cache if ttl has expired", async () => {
         await table.cache(
             async () => {
