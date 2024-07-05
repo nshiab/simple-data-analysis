@@ -18,6 +18,8 @@ bun add simple-data-analysis
 
 The documentation is available [here](https://nshiab.github.io/simple-data-analysis/).
 
+Make sure to check the section [Tips to work efficiently with SDA](#tips-to-work-efficiently-with-SDA).
+
 Tests are run for NodeJS and Bun. Deno is coming! :)
 
 You might also find the [journalism library](https://github.com/nshiab/journalism) and [Code Like a Journalist](https://github.com/nshiab/code-like-a-journalist) interesting.
@@ -167,6 +169,9 @@ You could also use a framework or a bundler. Install the library with npm `npm i
         // We can also retrieve the data as an array of objects.
         const data = await firesInsideProvinces.getData()
         console.log(data)
+
+        // We close everything.
+        await sdb.done()
     }
 
     main()
@@ -183,8 +188,16 @@ First, ensure that you have [NodeJS v20 or higher](https://nodejs.org/en/) insta
 
 Then, run this command to install the library in your code repository.
 
+With npm:
+
 ```bash
-npm i simple-data-analysis@3.0.0
+npm i simple-data-analysis
+```
+
+With bun:
+
+```bash
+bun add simple-data-analysis
 ```
 
 A _package.json_ file should have been created. Open it and add or change the type to "module" to use a modern syntax. If you use Bun, you can skip this step.
@@ -193,7 +206,7 @@ A _package.json_ file should have been created. Open it and add or change the ty
 {
     "type": "module",
     "dependencies": {
-        "simple-data-analysis": "^3.0.0"
+        "simple-data-analysis": "^3.x.x"
     }
 }
 ```
@@ -264,10 +277,161 @@ await firesInsideProvinces.sort({ burntArea: "desc" })
 // logs the first 10 rows, but there are 13
 // provinces and territories in Canada.
 await firesInsideProvinces.logTable(13)
+
+// We close everything.
+await sdb.done()
 ```
 
 And here's what you should see in your console.
 
 ![The console tab in Google Chrome showing the result of simple-data-analysis computations.](./assets/nodejs-console.png)
+
+## Tips to work efficiently with SDA
+
+### Prettify your files
+
+If you use [VS Code](https://code.visualstudio.com/) as your code editor, enable the `Format On Save` option. Every time you save your files (shortcut is `CMD + S` on Mac and `CTRL + S` on Windows), your files will be formatted, making them more organized and easier to read.
+
+You can install the [Prettier extension](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) for more options.
+
+![The VS Code interface.](./assets/format-on-save.png)
+
+### Watch your files
+
+Instead of running your code manually every time you make a change, use the `--watch` flags like this:
+
+-   With NodeJS: `node --watch index.js`
+-   With Bun: `bun --watch index.js`
+
+When this flag is enabled, `index.js` will be rerun anytime you save a change to it or to any of its dependencies.
+
+### Caching fetched and computed Data
+
+Instead of running the same code over and over again, you can cache the results. Combined with the `--watch` flag, this can speed up your workflow, especially when fetching data or performing computationally expensive operations.
+
+Here's the previous example adapted to cache data. For more information, check the [cache method documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#cache).
+
+The data is cached in the hidden folder `.sda-cache` at the root of your code repository. Make sure to add it to your `.gitignore` if you have one. If you want to clean your cache, just delete the folder.
+
+```ts
+import { SimpleDB } from "simple-data-analysis"
+
+// We enable two options to make our lives easier.
+// cacheVerbose will log information about the cached
+// data, and logDuration will log the total duration between
+// the creation of this SimpleDB instance and its last operation.
+const sdb = new SimpleDB({ cacheVerbose: true, logDuration: true })
+
+const provinces = sdb.newTable("provinces")
+
+// We cache this step with a ttl of 60 seconds.
+// On the first run, the data will be fetched
+// and stored in the hidden folder .sda-cache.
+// If you rerun the script less than 60 seconds
+// later, the data won't be fetched but loaded
+// from the local cache. However, if you run the
+// code after 60 seconds, the data will be
+// considered outdated and fetched again.
+// After 60 seconds, the new data in the cache will
+// expire again. This is useful when working with scraped data.
+// If you update the code passed to the cache method,
+// everything starts over.
+await provinces.cache(
+    async () => {
+        await provinces.loadGeoData(
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json"
+        )
+    },
+    { ttl: 60 }
+)
+
+// await provinces.logTable();
+
+const fires = sdb.newTable("fires")
+
+// Same thing here, except two steps are cached
+// (fetching and creating points). You can cache
+// the result of as many steps as you want.
+// Also, there is no TTL option here, so the cached data
+// will never expire unless you delete the hidden
+// folder .sda-cache. Again, if you update the code
+// passed to the cache method, everything starts over.
+await fires.cache(async () => {
+    await fires.loadData(
+        "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv"
+    )
+    await fires.points("lat", "lon", "geom")
+})
+
+// await fires.logTable();
+
+const firesInsideProvinces = sdb.newTable("firesInsideProvinces")
+
+// While caching is quite useful when fetching data,
+// it's also handy for computationally expensive
+// operations like joins and summaries.
+// It can save you a lot of time.
+await firesInsideProvinces.cache(async () => {
+    await fires.joinGeo(provinces, "inside", {
+        outputTable: "firesInsideProvinces",
+    })
+    await firesInsideProvinces.summarize({
+        values: "hectares",
+        categories: "nameEnglish",
+        summaries: ["count", "sum"],
+        decimals: 0,
+    })
+    await firesInsideProvinces.renameColumns({
+        count: "nbFires",
+        sum: "burntArea",
+    })
+    await firesInsideProvinces.sort({ burntArea: "desc" })
+})
+
+// await firesInsideProvinces.logTable(13);
+
+// It's important to call done() at the end.
+// This method will remove the unused files
+// in the cache. It will also log the total duration
+// if the logDuration option was set to true.
+await sdb.done()
+```
+
+After the first run, here's what you'll see in your terminal. For each `cache()`, a file storing the results has been written in `.sda-cache`.
+
+The whole script took around a second to complete.
+
+```
+Nothing in cache. Running and storing in cache.
+Duration: 509 ms. Wrote ./.sda-cache/provinces.8a...bf.geojson.
+
+Nothing in cache. Running and storing in cache.
+Duration: 263 ms. Wrote ./.sda-cache/fires.1a...31.geojson.
+
+Nothing in cache. Running and storing in cache.
+Duration: 38 ms. Wrote ./.sda-cache/firesInsideProvinces.9b...b8.parquet.
+
+SimpleDB - Done in 923 ms
+```
+
+If you run the script less than 60 seconds after the first run, here's what you'll see:
+
+Thanks to caching, the script ran five times faster!
+
+```
+Found ./.sda-cache/provinces.8a...bf.geojson in cache.
+ttl of 60 sec has not expired. The creation date is July 5, 2024, at 3:53 p.m.. There is 52 sec, 359 ms left.
+Data loaded in 63 ms. Running the computations took 526 ms last time. You saved 463 ms.
+
+Found ./.sda-cache/fires.1a...31.geojson in cache.
+Data loaded in 100 ms. Running the computations took 155 ms last time. You saved 55 ms.
+
+Found ./.sda-cache/firesInsideProvinces.9b...b8.parquet in cache.
+Data loaded in 3 ms. Running the computations took 41 ms last time. You saved 38 ms.
+
+SimpleDB - Done in 169 ms
+```
+
+### Others
 
 If you want to generate and save charts with NodeJS and other runtimes, check the [journalism library](https://github.com/nshiab/journalism), more specifically the [savePlotChart function](https://nshiab.github.io/journalism/functions/savePlotChart.html).
