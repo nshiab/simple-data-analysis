@@ -61,7 +61,7 @@ export default async function cache(
     ) {
         ;(table.debug || options.verbose) &&
             console.log(
-                `\nttl of ${options.ttl} sec has expired. The creation date is ${formatDate(new Date(cache.creation), "Month DD, YYYY, at HH:MM period")}. It's is ${prettyDuration(cache.creation, { end: now })} ago.\nRunning and storing in cache.`
+                `\nFound ${cache.file} in cache.\nttl of ${options.ttl} sec has expired. The creation date is ${formatDate(new Date(cache.creation), "Month DD, YYYY, at HH:MM period")}. It's is ${prettyDuration(cache.creation, { end: now })} ago.\nRunning and storing in cache.`
             )
         await runAndWrite(
             table,
