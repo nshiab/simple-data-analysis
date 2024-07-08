@@ -1947,20 +1947,23 @@ export default class SimpleWebTable extends Simple {
      *
      * @example Basic usage
      * ```ts
-     * // Summarizes all numeric columns with all available summary operations.
-     * await tableA.summarize()
+     * // Summarizes all columns with all available summary operations.
+     * const columns = await tableA.getColumns()
+     * await tableA.summarize({ values: columns })
      * ```
      *
      * @example Results in a new table
      * ```ts
-     * // Same, but the results will be stored in variable tableB.
-     * const tableB = await tableA.summarize({ outputTable: true })
+     * // Same, but the results will be stored as a table in variable tableB.
+     * const columns = await tableA.getColumns()
+     * const tableB = await tableA.summarize({ values: columns, outputTable: true })
      * ```
      *
      * @example Results in a new table with a specific name in the DB
      * ```ts
-     * // Same, but the results will be stored in variable tableB and in tableB in the DB.
-     * const tableB = await tableA.summarize({ outputTable: "tableB" })
+     * // Same, but the results will be stored in variable tableSummary and in tableSummary in the DB.
+     * const columns = await tableA.getColumns()
+     * const tableSummary = await tableA.summarize({ values: columns, outputTable: "tableSummary" })
      * ```
      *
      * @example Just one column
