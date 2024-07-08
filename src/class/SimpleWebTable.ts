@@ -499,6 +499,30 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
+     * Skips the first X rows.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Skips the first 10 rows.
+     * await table.skip(10)
+     * ```
+     * @param nbRowsToSkip - The number of rows to skip.
+     *
+     * @category Selecting or filtering data
+     */
+    async skip(nbRowsToSkip: number) {
+        await queryDB(
+            this,
+            `CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM ${this.name} OFFSET ${nbRowsToSkip} ROWS;`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "skip()",
+                parameters: { nbRowsToSkip },
+            })
+        )
+    }
+
+    /**
      * Returns TRUE if the table has the column and FALSE otherwise.
      *
      * @example Basic usage
