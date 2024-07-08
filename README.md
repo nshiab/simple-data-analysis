@@ -30,7 +30,7 @@ SDA is born out of the frustration of switching between Python, R, and JavaScrip
 
 The missing piece in the JavaScript/TypeScript ecosystem was an easy-to-use and performant library for data analysis. This is why SDA was created.
 
-The library is based on [DuckDB](https://duckdb.org/), a fast in-process analytical database. Under the hood, SDA sends SQL queries to be executed by DuckDB. We use [duckdb-node](https://github.com/duckdb/duckdb-node) and [duckdb-wasm](https://github.com/duckdb/duckdb-wasm). This means SDA can run in the browser and with NodeJS and other runtimes. For geospatial computations, we rely on the [duckdb_spatial](https://github.com/duckdb/duckdb_spatial)
+The library is based on [DuckDB](https://duckdb.org/), a fast in-process analytical database. Under the hood, SDA sends SQL queries to be executed by DuckDB. We use [duckdb-node](https://github.com/duckdb/duckdb-node) and [duckdb-wasm](https://github.com/duckdb/duckdb-wasm). This means SDA can run in the browser and with NodeJS and other runtimes. For geospatial computations, we rely on the [duckdb_spatial](https://github.com/duckdb/duckdb_spatial) extension.
 
 The syntax and the available methods were inspired by [Pandas](https://github.com/pandas-dev/pandas) (Python) and the [Tidyverse](https://www.tidyverse.org/) (R).
 
