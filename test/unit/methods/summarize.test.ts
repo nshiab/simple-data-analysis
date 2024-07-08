@@ -10,12 +10,37 @@ describe("summarize", () => {
         await sdb.done()
     })
 
-    it("should summarize all rows", async () => {
+    it("should summarize all rows (no option values)", async () => {
         const table = sdb.newTable()
         await table.loadData("test/data/files/dataSummarize.json")
         await table.summarize()
         const data = await table.getData()
         assert.deepStrictEqual(data, [{ value: "rows", count: 6 }])
+    })
+    it("should summarize all rows into a new table", async () => {
+        const table = sdb.newTable()
+        await table.loadData("test/data/files/dataSummarize.json")
+        const summaryAllRows = await table.summarize({
+            categories: "key1",
+            outputTable: "summaryAllRows",
+        })
+        const data = await summaryAllRows.getData()
+        assert.deepStrictEqual(data, [
+            { value: "rows", key1: "Banane", count: 2 },
+            { value: "rows", key1: "Fraise", count: 2 },
+            { value: "rows", key1: "Rubarbe", count: 2 },
+        ])
+    })
+    it("should summarize all rows into a new table and the original table shouldn't be modified", async () => {
+        const table = sdb.newTable()
+        await table.loadData("test/data/files/dataSummarize.json")
+        const beforeData = await table.getData()
+        await table.summarize({
+            categories: "key1",
+            outputTable: "summaryAllRows",
+        })
+        const afterData = await table.getData()
+        assert.deepStrictEqual(beforeData, afterData)
     })
     it("should summarize all columns in a table and overwrite the table", async () => {
         const table = sdb.newTable()
