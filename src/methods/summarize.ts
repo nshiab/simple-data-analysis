@@ -47,19 +47,27 @@ export default async function summarize(
             : simpleWebTable.name
 
     options.values = options.values ? stringToArray(options.values) : []
+    if (options.values.length === 0) {
+        await simpleWebTable.addRowNumber("rowNumberToSummarizeQuerySDA")
+        options.values = ["rowNumberToSummarizeQuerySDA"]
+    }
     options.categories = options.categories
         ? stringToArray(options.categories)
         : []
     if (options.summaries === undefined) {
-        options.summaries = []
+        if (
+            options.values.length === 1 &&
+            options.values[0] === "rowNumberToSummarizeQuerySDA"
+        ) {
+            options.summaries = ["count"]
+        } else {
+            options.summaries = []
+        }
     } else if (typeof options.summaries === "string") {
         options.summaries = [options.summaries]
     }
 
     const types = await simpleWebTable.getTypes()
-    if (options.values.length === 0) {
-        options.values = Object.keys(types)
-    }
     if (options.toMs) {
         const toMsObj: {
             [key: string]: "bigint"
@@ -96,4 +104,14 @@ export default async function summarize(
             },
         })
     )
+
+    if (options.values.includes("rowNumberToSummarizeQuerySDA")) {
+        simpleWebTable.replace(
+            "value",
+            {
+                rowNumberToSummarizeQuerySDA: "rows",
+            },
+            { entireString: true }
+        )
+    }
 }

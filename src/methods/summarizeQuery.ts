@@ -85,7 +85,12 @@ export default function summarizeQuery(
                 ? `, ${categories.map((d) => `${d}`).join(", ")}`
                 : ""
         },${summaries.map((summary) => {
-            if (types[value] === "GEOMETRY") {
+            if (
+                value === "rowNumberToSummarizeQuerySDA" &&
+                aggregates[summary] !== "count"
+            ) {
+                return `\nNULL as '${summary}'`
+            } else if (types[value] === "GEOMETRY") {
                 return `\nNULL AS '${summary}'`
             } else if (
                 types[value] === "VARCHAR" &&
