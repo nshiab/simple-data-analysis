@@ -296,6 +296,8 @@ You can install the [Prettier extension](https://marketplace.visualstudio.com/it
 
 ![The VS Code interface.](./assets/format-on-save.png)
 
+If you use VS Code, the editor will try to show you the whole table in your terminal tabs. However, with wide tables, rows sometimes wrap onto the following line, making the tables unreadable. When this happens, use the shortcut ALT + Z to disable/enable the editor.wordWrap option. When disabled, the tables will overflow on the right side of your terminal, as expected.
+
 ### Watch your files
 
 Instead of running your code manually every time you make a change, use the `--watch` flags like this:
