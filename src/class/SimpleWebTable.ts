@@ -443,6 +443,34 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
+     * Fills cells containing NULL values. If a cell is empty, it's filled with the previous row's value.
+     *
+     * @example Basic usage
+     * ```ts
+     * await table.fill("column1")
+     * ```
+     * @param columns - The columns to fill.
+     *
+     * @category Restructuring data
+     */
+    async fill(columns: string | string[]) {
+        await queryDB(
+            this,
+            stringToArray(columns)
+                .map(
+                    (col) =>
+                        `CREATE OR REPLACE TABLE ${this.name} AS SELECT * EXCLUDE(${col}), COALESCE(${col}, LAG(${col} IGNORE NULLS) OVER()) as ${col} FROM ${this.name};`
+                )
+                .join("\n"),
+            mergeOptions(this, {
+                table: this.name,
+                method: "fill()",
+                parameters: { columns },
+            })
+        )
+    }
+
+    /**
      * Selects specific columns in the table and removes the others.
      *
      * @example Basic usage
