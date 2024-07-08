@@ -106,12 +106,13 @@ export default async function summarize(
     )
 
     if (options.values.includes("rowNumberToSummarizeQuerySDA")) {
-        simpleWebTable.replace(
-            "value",
-            {
-                rowNumberToSummarizeQuerySDA: "rows",
-            },
-            { entireString: true }
-        )
+        if (await simpleWebTable.hasColumn("rowNumberToSummarizeQuerySDA")) {
+            await simpleWebTable.removeColumns("rowNumberToSummarizeQuerySDA")
+        }
+        simpleWebTable.sdb.customQuery(`UPDATE ${outputTable} SET "value" = 
+                CASE
+                    WHEN "value" = 'rowNumberToSummarizeQuerySDA' THEN 'rows'
+                    ELSE "value"
+                END;`)
     }
 }
