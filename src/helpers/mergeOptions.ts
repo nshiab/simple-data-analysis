@@ -15,6 +15,7 @@ export default function mergeOptions(
     method: string | null
     parameters: { [key: string]: unknown } | null
     nbRowsToLog: number
+    nbCharactersToLog: number | undefined
     returnDataFrom: "query" | "none"
     debug: boolean
     bigIntToInt: boolean
@@ -24,6 +25,7 @@ export default function mergeOptions(
         method: options.method,
         parameters: options.parameters,
         nbRowsToLog: options.nbRowsToLog ?? simple.nbRowsToLog,
+        nbCharactersToLog: simple.nbCharactersToLog,
         returnDataFrom: options.returnDataFrom ?? "none",
         debug: options.debug ?? simple.debug,
         bigIntToInt: simple.bigIntToInt ?? false,

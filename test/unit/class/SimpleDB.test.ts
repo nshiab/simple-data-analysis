@@ -144,6 +144,14 @@ describe("SimpleDB", () => {
         // How to test?
         await sdb.done()
     })
+    it("should log a specific number of characters", async () => {
+        const sdb = new SimpleDB({ nbCharactersToLog: 5 })
+        const test = sdb.newTable("test")
+        await test.loadData("test/data/files/cities.csv")
+        await test.logTable()
+        // How to test?
+        await sdb.done()
+    })
     it("should log the total duration", async () => {
         const sdb = new SimpleDB({ logDuration: true })
         const test = sdb.newTable("test")

@@ -10,6 +10,7 @@ export default async function queryDB(
         method: string | null
         parameters: { [key: string]: unknown } | null
         nbRowsToLog: number
+        nbCharactersToLog: number | undefined
         returnDataFrom: "query" | "none"
         debug: boolean
         bigIntToInt: boolean
@@ -65,10 +66,13 @@ export default async function queryDB(
             Array.isArray(queryResult) &&
             queryResult.length > options.nbRowsToLog
         ) {
-            logData(queryResult.slice(0, options.nbRowsToLog))
+            logData(
+                queryResult.slice(0, options.nbRowsToLog),
+                options.nbCharactersToLog
+            )
             console.log(`nbRowsToLog: ${options.nbRowsToLog}`)
         } else {
-            logData(queryResult)
+            logData(queryResult, options.nbCharactersToLog)
         }
 
         if (options.returnDataFrom === "query") {
@@ -99,7 +103,7 @@ export default async function queryDB(
                 true,
                 options
             )
-            logData(tableToLog)
+            logData(tableToLog, options.nbCharactersToLog)
             const nbRows = await simple.runQuery(
                 `SELECT COUNT(*) FROM ${options.table};`,
                 simple.connection,
@@ -115,7 +119,7 @@ export default async function queryDB(
                 )} rows in total ${
                     options.returnDataFrom === "none"
                         ? ""
-                        : `(nbRowsToLog: ${options.nbRowsToLog})`
+                        : `(nbRowsToLog: ${options.nbRowsToLog}${typeof options.nbCharactersToLog === "number" ? `, nbCharactersToLog: ${options.nbCharactersToLog}` : ""})`
                 }`
             )
         } else {

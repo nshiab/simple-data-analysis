@@ -45,6 +45,7 @@ export default class SimpleDB extends SimpleWebDB {
         options: {
             logDuration?: boolean
             nbRowsToLog?: number
+            nbCharactersToLog?: number
             cacheVerbose?: boolean
             debug?: boolean
             bigIntToInt?: boolean
@@ -103,6 +104,7 @@ export default class SimpleDB extends SimpleWebDB {
             table = new SimpleTable(name, proj, this, {
                 debug: this.debug,
                 nbRowsToLog: this.nbRowsToLog,
+                nbCharactersToLog: this.nbCharactersToLog,
             })
             table.defaultTableName = false
         } else {
@@ -110,6 +112,7 @@ export default class SimpleDB extends SimpleWebDB {
                 debug: this.debug,
                 nbRowsToLog: this.nbRowsToLog,
                 bigIntToInt: this.bigIntToInt,
+                nbCharactersToLog: this.nbCharactersToLog,
             })
             table.defaultTableName = true
             this.tableIncrement += 1

@@ -64,6 +64,7 @@ export default class SimpleTable extends SimpleWebTable {
         options: {
             debug?: boolean
             nbRowsToLog?: number
+            nbCharactersToLog?: number
             bigIntToInt?: boolean
             projections?: { [key: string]: string }
         } = {}
