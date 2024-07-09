@@ -30,12 +30,14 @@ export default function logData(
                     }
                     if (
                         typeof nbCharactersToLog === "number" &&
-                        typeof data[i][key] === "string"
+                        typeof data[i][key] === "string" &&
+                        (data[i][key] as string).length > nbCharactersToLog
                     ) {
-                        newItem[key] = (data[i][key] as string).slice(
-                            0,
-                            nbCharactersToLog
-                        ) // tested above
+                        newItem[key] =
+                            (data[i][key] as string).slice(
+                                0,
+                                nbCharactersToLog
+                            ) + "..." // tested above
                     } else {
                         newItem[key] = data[i][key]
                     }
