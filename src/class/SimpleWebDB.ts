@@ -49,6 +49,7 @@ export default class SimpleWebDB extends Simple {
             logDuration?: boolean
             debug?: boolean
             nbRowsToLog?: number
+            nbCharactersToLog?: number
         } = {}
     ) {
         super(runQueryWeb, options)
@@ -105,6 +106,7 @@ export default class SimpleWebDB extends Simple {
             table = new SimpleWebTable(name, proj, this, {
                 debug: this.debug,
                 nbRowsToLog: this.nbRowsToLog,
+                nbCharactersToLog: this.nbCharactersToLog,
             })
             table.defaultTableName = false
         } else {
@@ -115,6 +117,7 @@ export default class SimpleWebDB extends Simple {
                 {
                     debug: this.debug,
                     nbRowsToLog: this.nbRowsToLog,
+                    nbCharactersToLog: this.nbCharactersToLog,
                 }
             )
             table.defaultTableName = true

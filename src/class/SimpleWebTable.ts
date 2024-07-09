@@ -112,6 +112,7 @@ export default class SimpleWebTable extends Simple {
         options: {
             debug?: boolean
             nbRowsToLog?: number
+            nbCharactersToLog?: number
         } = {}
     ) {
         super(runQueryWeb, options)
@@ -4276,7 +4277,7 @@ export default class SimpleWebTable extends Simple {
                     bigIntToInt: this.bigIntToInt,
                 }
             )
-            logData(data)
+            logData(data, this.nbCharactersToLog)
             const nbRows = await this.runQuery(
                 `SELECT COUNT(*) FROM ${this.name};`,
                 this.connection,
@@ -4294,7 +4295,7 @@ export default class SimpleWebTable extends Simple {
             console.log(
                 `${formatNumber(
                     nbRows[0]["count_star()"] as number
-                )} rows in total ${`(nbRowsToLog: ${rows})`}`
+                )} rows in total ${`(nbRowsToLog: ${rows}${typeof this.nbCharactersToLog === "number" ? `, nbCharactersToLog: ${this.nbCharactersToLog}` : ""})`}`
             )
         }
     }

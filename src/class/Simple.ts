@@ -4,8 +4,10 @@ import { Connection, Database } from "duckdb"
 export default class Simple {
     /** A flag indicating whether debugging information should be logged. Defaults to false. @category Properties */
     debug: boolean
-    /** The number of rows to log when debugging. Defaults to 10. @category Properties */
+    /** The number of rows to log. Defaults to 10. @category Properties */
     nbRowsToLog: number
+    /** The number of characters to log for text cells. By default, the whole text is logged. @category Properties */
+    nbCharactersToLog: number | undefined
     /** A DuckDB database. @category Properties */
     db!: AsyncDuckDB | Database
     /** A connection to a DuckDB database. @category Properties */
@@ -58,9 +60,11 @@ export default class Simple {
         options: {
             debug?: boolean
             nbRowsToLog?: number
+            nbCharactersToLog?: number
         } = {}
     ) {
         this.nbRowsToLog = options.nbRowsToLog ?? 10
+        this.nbCharactersToLog = options.nbCharactersToLog
         this.debug = options.debug ?? false
         this.worker = null
         this.tableIncrement = 1

@@ -3,7 +3,8 @@ export default function logData(
         | {
               [key: string]: string | number | boolean | Date | null
           }[]
-        | null
+        | null,
+    nbCharactersToLog?: number
 ) {
     if (data === null) {
         console.log("Data is null")
@@ -26,6 +27,15 @@ export default function logData(
                         Buffer.isBuffer(data[i][key])
                     ) {
                         newItem[key] = "<Buffer>"
+                    }
+                    if (
+                        typeof nbCharactersToLog === "number" &&
+                        typeof data[i][key] === "string"
+                    ) {
+                        newItem[key] = (data[i][key] as string).slice(
+                            0,
+                            nbCharactersToLog
+                        ) // tested above
                     } else {
                         newItem[key] = data[i][key]
                     }
