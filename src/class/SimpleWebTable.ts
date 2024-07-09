@@ -2666,6 +2666,28 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
+     * Returns the extent from specific column as an array with [min, max] order.
+     *
+     * ```ts
+     * const extent = await table.getExtent("column1")
+     * ```
+     *
+     * @param column - The name of the column.
+     *
+     * @category Getting data
+     */
+    async getExtent(
+        column: string
+    ): Promise<
+        [
+            string | number | boolean | Date | null,
+            string | number | boolean | Date | null,
+        ]
+    > {
+        return [await this.getMin(column), await this.getMax(column)]
+    }
+
+    /**
      * Returns the mean value from a specific column.
      *
      * @example Basic usage
