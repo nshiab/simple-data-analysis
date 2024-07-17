@@ -454,7 +454,7 @@ export default class SimpleWebTable extends Simple {
      * ```
      * @param columns - The columns to fill.
      *
-     * @category Restructuring data
+     * @category Updating data
      */
     async fill(columns: string | string[]) {
         await queryDB(
@@ -469,6 +469,50 @@ export default class SimpleWebTable extends Simple {
                 table: this.name,
                 method: "fill()",
                 parameters: { columns },
+            })
+        )
+    }
+
+    /**
+     * Sorts the rows based on specified column(s) and order(s).
+     *
+     * @example Basic usage
+     * ```ts
+     * // Sorts column1 ascendingly.
+     * await table.sort({ column1: "asc" })
+     * ```
+     *
+     * @example Sorting multiple columns
+     * ```ts
+     * // Sorts column1 ascendingly then column2 descendingly.
+     * await table.sort({ column1: "asc", column2: "desc" })
+     * ```
+     *
+     * @example Languages and special characters
+     * ```ts
+     * // Taking French accent into account in column1
+     * await table.sort({ column1: "asc", column2: "desc" }, { lang: { column1: "fr" }})
+     * ```
+     *
+     * @param order - An object mapping column names to the sorting order: "asc" for ascending or "desc" for descending.
+     * @param options - An optional object with configuration options:
+     *    @param options.lang - An object mapping column names to language codes. See DuckDB Collations documentation for more: https://duckdb.org/docs/sql/expressions/collations.
+     *
+     * @category Restructuring data
+     */
+    async sort(
+        order: { [key: string]: "asc" | "desc" },
+        options: {
+            lang?: { [key: string]: string }
+        } = {}
+    ) {
+        await queryDB(
+            this,
+            sortQuery(this.name, order, options),
+            mergeOptions(this, {
+                table: this.name,
+                method: "sort()",
+                parameters: { order, options },
             })
         )
     }
@@ -1688,50 +1732,6 @@ export default class SimpleWebTable extends Simple {
                 table: this.name,
                 method: "updateColumn()",
                 parameters: { column, definition },
-            })
-        )
-    }
-
-    /**
-     * Sorts the rows based on specified column(s) and order(s).
-     *
-     * @example Basic usage
-     * ```ts
-     * // Sorts column1 ascendingly.
-     * await table.sort({ column1: "asc" })
-     * ```
-     *
-     * @example Sorting multiple columns
-     * ```ts
-     * // Sorts column1 ascendingly then column2 descendingly.
-     * await table.sort({ column1: "asc", column2: "desc" })
-     * ```
-     *
-     * @example Languages and special characters
-     * ```ts
-     * // Taking French accent into account in column1
-     * await table.sort({ column1: "asc", column2: "desc" }, { lang: { column1: "fr" }})
-     * ```
-     *
-     * @param order - An object mapping column names to the sorting order: "asc" for ascending or "desc" for descending.
-     * @param options - An optional object with configuration options:
-     *    @param options.lang - An object mapping column names to language codes. See DuckDB Collations documentation for more: https://duckdb.org/docs/sql/expressions/collations.
-     *
-     * @category Updating data
-     */
-    async sort(
-        order: { [key: string]: "asc" | "desc" },
-        options: {
-            lang?: { [key: string]: string }
-        } = {}
-    ) {
-        await queryDB(
-            this,
-            sortQuery(this.name, order, options),
-            mergeOptions(this, {
-                table: this.name,
-                method: "sort()",
-                parameters: { order, options },
             })
         )
     }
