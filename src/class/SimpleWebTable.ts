@@ -3672,8 +3672,8 @@ export default class SimpleWebTable extends Simple {
      * @param options - An optional object with configuration options:
      *   @param options.leftTableColumn - The column storing the geometries in leftTable. The method tries to find one by default.
      *   @param options.rightTableColumn - The column storing the geometries in rightTable. The method tries to find one by default.
-     *   @param options.type - The type of join operation to perform. For some types (like 'inside'), the table order is important.
-     *   @param options.distance - If the method is 'within', you need to specify a target distance. The distance is in the SRS unit. If you choose options.distanceMethod 'spheroid', it will be considered as meters.
+     *   @param options.type - The type of join operation to perform. For some types (like 'inside'), the table order is important. Defaults to 'left'.
+     *   @param options.distance - If the method is 'within', you need to specify a target distance. The distance is in the SRS unit. If you choose options.distanceMethod 'haversine' or 'spheroid', it will be considered as meters.
      *   @param options.distanceMethod - 'srs' is default, but you can choose 'haversine' or 'spheroid'. These two need the input geometries with the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      *   @param options.outputTable - An option to store the results in a new table.
      *
