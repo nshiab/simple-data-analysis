@@ -79,11 +79,12 @@ import { camelCase, formatNumber } from "journalism"
  * const sdb = new SimpleWebDB()
  *
  * // Making a new table. This returns a SimpleWebTable.
- * const employees = sdb.newTable()
+ * const table = sdb.newTable()
  *
  * // You can now invoke methods on the table.
- * await employees.fetchData("./employees.csv")
- * await employees.logTable()
+ * const url = ".../some-file.csv"
+ * await table.fetchData(url)
+ * await table.logTable()
  *
  * // Removing the DB to free up memory.
  * await sdb.done()
@@ -93,7 +94,8 @@ import { camelCase, formatNumber } from "journalism"
  * ```ts
  * const boundaries = sdb.newTable()
  * // To load geospatial data, use .fetchGeoData instead of .fetchData
- * await boundaries.fetchGeoData("./boundaries.geojson")
+ * const url = ".../some-file.geojson"
+ * await boundaries.fetchGeoData(url)
  * ```
  *
  */
@@ -3086,19 +3088,9 @@ export default class SimpleWebTable extends Simple {
      * await table.fetchGeoData("https://some-website.com/some-data.geojson")
      * ```
      *
-     * @example Basic usage with local file
-     * ```ts
-     * await table.fetchGeoData("./some-data.geojson")
-     * ```
-     *
-     * @example Reprojecting to WGS84 with [latitude, longitude] axis order
-     * ```ts
-     * await table.fetchGeoData("./some-data.geojson", { toWGS84: true })
-     * ```
-     *
      * @example Reprojecting to WGS84 with [latitude, longitude] axis order from a specific projection
      * ```ts
-     * await table.fetchGeoData("./some-data.geojson", { toWGS84: true, from: "EPSG:3347" })
+     * await table.fetchGeoData("https://some-website.com/some-data.shp.zip", { toWGS84: true, from: "EPSG:3347" })
      * ```
      *
      * @param file - The URL or path to the external file containing the geospatial data.
@@ -3114,7 +3106,8 @@ export default class SimpleWebTable extends Simple {
     ) {
         await queryDB(
             this,
-            `INSTALL spatial; LOAD spatial;${file.toLowerCase().includes("http") ? " INSTALL https; LOAD https;" : ""}
+            `INSTALL spatial; LOAD spatial;
+            INSTALL https; LOAD https;
             CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM ST_Read('${file}');`,
             mergeOptions(this, {
                 table: this.name,
