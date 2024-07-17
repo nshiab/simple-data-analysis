@@ -76,7 +76,7 @@ export default async function join(
     // Need to remove the extra common column. Ideally, this would happen in the query. :1 is with web assembly version. _1 is with nodejs version. At some point, both will be the same.
     const columns = await outputTable.getColumns()
     const extraCommonColumn = columns.find(
-        (d) => d === `${commonColumn}_1` || d === `'${commonColumn}:1'`
+        (d) => d === `${commonColumn}_1` || d === `${commonColumn}:1`
     )
     if (extraCommonColumn !== undefined) {
         await outputTable.removeColumns(extraCommonColumn)
