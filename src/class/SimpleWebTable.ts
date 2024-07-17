@@ -4270,7 +4270,7 @@ export default class SimpleWebTable extends Simple {
                     bigIntToInt: this.bigIntToInt,
                 }
             )
-            logData(data, this.nbCharactersToLog)
+            logData(await this.getTypes(), data, this.nbCharactersToLog)
             const nbRows = await this.runQuery(
                 `SELECT COUNT(*) FROM ${this.name};`,
                 this.connection,
