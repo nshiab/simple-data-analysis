@@ -3203,6 +3203,44 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
+     * Adds a column with the number of vertices in geometries.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Adds a column nbVertices with the vertices count.
+     * await table.nbVertices("nbVertices")
+     * ```
+     *
+     * @example Specific column storing geometries
+     * ```ts
+     * // If the table has more than one column storing geometries, you must specify which column should be used.
+     * await table.nbVertices("nbVertices", { column: "geom" })
+     * ```
+     *
+     * @param newColumn - The name of the new column storing the results.
+     * @param options - An optional object with configuration options:
+     *   @param options.column - The column storing geometries.
+     *
+     * @category Geospatial
+     */
+    async nbVertices(newColumn: string, options: { column?: string } = {}) {
+        const column =
+            typeof options.column === "string"
+                ? options.column
+                : await findGeoColumn(this)
+
+        await queryDB(
+            this,
+            `ALTER TABLE ${this.name} ADD COLUMN ${newColumn} BIGINT; UPDATE ${this.name} SET ${newColumn} = ST_NPoints(${column})`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "nbVertices()",
+                parameters: { column, newColumn },
+            })
+        )
+    }
+
+    /**
      * Attempts to make an invalid geometry valid without removing any vertices.
      *
      * @example Basic usage
