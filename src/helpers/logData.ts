@@ -26,9 +26,8 @@ export default function logData(
                         typeof window === "undefined" &&
                         Buffer.isBuffer(data[i][key])
                     ) {
-                        newItem[key] = "<Buffer>"
-                    }
-                    if (
+                        newItem[key] = "<Geometry>"
+                    } else if (
                         typeof nbCharactersToLog === "number" &&
                         typeof data[i][key] === "string" &&
                         (data[i][key] as string).length > nbCharactersToLog
