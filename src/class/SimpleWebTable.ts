@@ -2452,7 +2452,7 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
-     * Updates data using a JavaScript function. The function takes the existing rows as an array of objects and must return them modified as an array of objects. This method provides a flexible way to update data, but it's slow.
+     * Updates data using a JavaScript function. The function takes the existing rows as an array of objects and must return them modified as an array of objects. This method provides a flexible way to update data, but it's slow. This won't work with tables containing geometries.
      *
      * @example Basic usage
      * ```ts
@@ -2491,6 +2491,14 @@ export default class SimpleWebTable extends Simple {
     ) {
         this.debug && console.log("\nupdateWithJS()")
         this.debug && console.log("parameters:", { dataModifier: dataModifier })
+
+        const types = await this.getTypes()
+        if (Object.values(types).includes("GEOMETRY")) {
+            throw new Error(
+                "updateWithJS doesn't work with tables containing geometries."
+            )
+        }
+
         const oldData = await this.getData()
         if (!oldData) {
             throw new Error("No data from getData.")
