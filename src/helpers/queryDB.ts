@@ -99,7 +99,7 @@ export default async function queryDB(
         if (typeof options.table === "string") {
             console.log(`\ntable ${options.table}:`)
             const tableToLog = await simple.runQuery(
-                `SELECT * FROM ${options.table} LIMIT ${options.nbRowsToLog}`,
+                `SELECT * FROM ${options.table}${options.nbRowsToLog === Infinity ? "" : ` LIMIT ${options.nbRowsToLog}`}`,
                 simple.connection,
                 true,
                 options

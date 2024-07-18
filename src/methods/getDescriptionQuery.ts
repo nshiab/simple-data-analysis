@@ -23,7 +23,7 @@ export default function getDescriptionQuery(
 
     const query = `SELECT ${columnsNullQuery.join(
         ", "
-    )}, '0-Null' as "_" FROM ${table},
+    )}, '0-Null' as "_" FROM ${table}
         UNION
         SELECT ${columnsCountQuery.join(
             ", "
