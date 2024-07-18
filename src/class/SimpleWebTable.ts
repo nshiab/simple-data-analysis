@@ -418,6 +418,10 @@ export default class SimpleWebTable extends Simple {
                 parameters: { originalColumn, newColumn },
             })
         )
+
+        if (typeof this.projections[originalColumn] === "string") {
+            this.projections[newColumn] = this.projections[originalColumn]
+        }
     }
 
     /**
@@ -443,6 +447,10 @@ export default class SimpleWebTable extends Simple {
                 parameters: { originalColumn, newColumn },
             })
         )
+
+        if (typeof this.projections[originalColumn] === "string") {
+            this.projections[newColumn] = this.projections[originalColumn]
+        }
     }
 
     /**
