@@ -535,7 +535,7 @@ export default class SimpleWebTable extends Simple {
      * ```
      * @param columns - Either a string (one column) or an array of strings (multiple columns) representing the columns to be selected.
      *
-     * @category Selecting or filtering data
+     * @category Restructuring data
      */
     async selectColumns(columns: string | string[]) {
         await queryDB(
