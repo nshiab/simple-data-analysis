@@ -94,6 +94,6 @@
         "@duckdb/duckdb-wasm": "^1.28.1-dev240.0",
         "apache-arrow": "^17.0.0",
         "duckdb": "^1.0.0",
-        "journalism": "^1.12.1"
+        "journalism": "^1.13.0"
     }
 }
