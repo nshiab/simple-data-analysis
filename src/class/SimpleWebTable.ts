@@ -79,11 +79,12 @@ import { camelCase, formatNumber } from "journalism"
  * const sdb = new SimpleWebDB()
  *
  * // Making a new table. This returns a SimpleWebTable.
- * const employees = sdb.newTable()
+ * const table = sdb.newTable()
  *
  * // You can now invoke methods on the table.
- * await employees.fetchData("./employees.csv")
- * await employees.logTable()
+ * const url = ".../some-file.csv"
+ * await table.fetchData(url)
+ * await table.logTable()
  *
  * // Removing the DB to free up memory.
  * await sdb.done()
@@ -93,7 +94,8 @@ import { camelCase, formatNumber } from "journalism"
  * ```ts
  * const boundaries = sdb.newTable()
  * // To load geospatial data, use .fetchGeoData instead of .fetchData
- * await boundaries.fetchGeoData("./boundaries.geojson")
+ * const url = ".../some-file.geojson"
+ * await boundaries.fetchGeoData(url)
  * ```
  *
  */
@@ -452,7 +454,7 @@ export default class SimpleWebTable extends Simple {
      * ```
      * @param columns - The columns to fill.
      *
-     * @category Restructuring data
+     * @category Updating data
      */
     async fill(columns: string | string[]) {
         await queryDB(
@@ -467,6 +469,50 @@ export default class SimpleWebTable extends Simple {
                 table: this.name,
                 method: "fill()",
                 parameters: { columns },
+            })
+        )
+    }
+
+    /**
+     * Sorts the rows based on specified column(s) and order(s).
+     *
+     * @example Basic usage
+     * ```ts
+     * // Sorts column1 ascendingly.
+     * await table.sort({ column1: "asc" })
+     * ```
+     *
+     * @example Sorting multiple columns
+     * ```ts
+     * // Sorts column1 ascendingly then column2 descendingly.
+     * await table.sort({ column1: "asc", column2: "desc" })
+     * ```
+     *
+     * @example Languages and special characters
+     * ```ts
+     * // Taking French accent into account in column1
+     * await table.sort({ column1: "asc", column2: "desc" }, { lang: { column1: "fr" }})
+     * ```
+     *
+     * @param order - An object mapping column names to the sorting order: "asc" for ascending or "desc" for descending.
+     * @param options - An optional object with configuration options:
+     *    @param options.lang - An object mapping column names to language codes. See DuckDB Collations documentation for more: https://duckdb.org/docs/sql/expressions/collations.
+     *
+     * @category Restructuring data
+     */
+    async sort(
+        order: { [key: string]: "asc" | "desc" },
+        options: {
+            lang?: { [key: string]: string }
+        } = {}
+    ) {
+        await queryDB(
+            this,
+            sortQuery(this.name, order, options),
+            mergeOptions(this, {
+                table: this.name,
+                method: "sort()",
+                parameters: { order, options },
             })
         )
     }
@@ -1691,50 +1737,6 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
-     * Sorts the rows based on specified column(s) and order(s).
-     *
-     * @example Basic usage
-     * ```ts
-     * // Sorts column1 ascendingly.
-     * await table.sort({ column1: "asc" })
-     * ```
-     *
-     * @example Sorting multiple columns
-     * ```ts
-     * // Sorts column1 ascendingly then column2 descendingly.
-     * await table.sort({ column1: "asc", column2: "desc" })
-     * ```
-     *
-     * @example Languages and special characters
-     * ```ts
-     * // Taking French accent into account in column1
-     * await table.sort({ column1: "asc", column2: "desc" }, { lang: { column1: "fr" }})
-     * ```
-     *
-     * @param order - An object mapping column names to the sorting order: "asc" for ascending or "desc" for descending.
-     * @param options - An optional object with configuration options:
-     *    @param options.lang - An object mapping column names to language codes. See DuckDB Collations documentation for more: https://duckdb.org/docs/sql/expressions/collations.
-     *
-     * @category Updating data
-     */
-    async sort(
-        order: { [key: string]: "asc" | "desc" },
-        options: {
-            lang?: { [key: string]: string }
-        } = {}
-    ) {
-        await queryDB(
-            this,
-            sortQuery(this.name, order, options),
-            mergeOptions(this, {
-                table: this.name,
-                method: "sort()",
-                parameters: { order, options },
-            })
-        )
-    }
-
-    /**
      * Assigns ranks in a new column based on specified column values.
      *
      * @example Basic usage
@@ -2450,7 +2452,7 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
-     * Updates data using a JavaScript function. The function takes the existing rows as an array of objects and must return them modified as an array of objects. This method provides a flexible way to update data, but it's slow.
+     * Updates data using a JavaScript function. The function takes the existing rows as an array of objects and must return them modified as an array of objects. This method provides a flexible way to update data, but it's slow. This won't work with tables containing geometries.
      *
      * @example Basic usage
      * ```ts
@@ -2489,6 +2491,14 @@ export default class SimpleWebTable extends Simple {
     ) {
         this.debug && console.log("\nupdateWithJS()")
         this.debug && console.log("parameters:", { dataModifier: dataModifier })
+
+        const types = await this.getTypes()
+        if (Object.values(types).includes("GEOMETRY")) {
+            throw new Error(
+                "updateWithJS doesn't work with tables containing geometries."
+            )
+        }
+
         const oldData = await this.getData()
         if (!oldData) {
             throw new Error("No data from getData.")
@@ -3086,19 +3096,9 @@ export default class SimpleWebTable extends Simple {
      * await table.fetchGeoData("https://some-website.com/some-data.geojson")
      * ```
      *
-     * @example Basic usage with local file
-     * ```ts
-     * await table.fetchGeoData("./some-data.geojson")
-     * ```
-     *
-     * @example Reprojecting to WGS84 with [latitude, longitude] axis order
-     * ```ts
-     * await table.fetchGeoData("./some-data.geojson", { toWGS84: true })
-     * ```
-     *
      * @example Reprojecting to WGS84 with [latitude, longitude] axis order from a specific projection
      * ```ts
-     * await table.fetchGeoData("./some-data.geojson", { toWGS84: true, from: "EPSG:3347" })
+     * await table.fetchGeoData("https://some-website.com/some-data.shp.zip", { toWGS84: true, from: "EPSG:3347" })
      * ```
      *
      * @param file - The URL or path to the external file containing the geospatial data.
@@ -3114,7 +3114,8 @@ export default class SimpleWebTable extends Simple {
     ) {
         await queryDB(
             this,
-            `INSTALL spatial; LOAD spatial;${file.toLowerCase().includes("http") ? " INSTALL https; LOAD https;" : ""}
+            `INSTALL spatial; LOAD spatial;
+            INSTALL https; LOAD https;
             CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM ST_Read('${file}');`,
             mergeOptions(this, {
                 table: this.name,
@@ -3204,6 +3205,44 @@ export default class SimpleWebTable extends Simple {
             mergeOptions(this, {
                 table: this.name,
                 method: "isValidGeo()",
+                parameters: { column, newColumn },
+            })
+        )
+    }
+
+    /**
+     * Adds a column with the number of vertices in geometries.
+     *
+     * @example Basic usage
+     * ```ts
+     * // Adds a column nbVertices with the vertices count.
+     * await table.nbVertices("nbVertices")
+     * ```
+     *
+     * @example Specific column storing geometries
+     * ```ts
+     * // If the table has more than one column storing geometries, you must specify which column should be used.
+     * await table.nbVertices("nbVertices", { column: "geom" })
+     * ```
+     *
+     * @param newColumn - The name of the new column storing the results.
+     * @param options - An optional object with configuration options:
+     *   @param options.column - The column storing geometries.
+     *
+     * @category Geospatial
+     */
+    async nbVertices(newColumn: string, options: { column?: string } = {}) {
+        const column =
+            typeof options.column === "string"
+                ? options.column
+                : await findGeoColumn(this)
+
+        await queryDB(
+            this,
+            `ALTER TABLE ${this.name} ADD COLUMN ${newColumn} BIGINT; UPDATE ${this.name} SET ${newColumn} = ST_NPoints(${column})`,
+            mergeOptions(this, {
+                table: this.name,
+                method: "nbVertices()",
                 parameters: { column, newColumn },
             })
         )
@@ -3679,8 +3718,8 @@ export default class SimpleWebTable extends Simple {
      * @param options - An optional object with configuration options:
      *   @param options.leftTableColumn - The column storing the geometries in leftTable. The method tries to find one by default.
      *   @param options.rightTableColumn - The column storing the geometries in rightTable. The method tries to find one by default.
-     *   @param options.type - The type of join operation to perform. For some types (like 'inside'), the table order is important.
-     *   @param options.distance - If the method is 'within', you need to specify a target distance. The distance is in the SRS unit. If you choose options.distanceMethod 'spheroid', it will be considered as meters.
+     *   @param options.type - The type of join operation to perform. For some types (like 'inside'), the table order is important. Defaults to 'left'.
+     *   @param options.distance - If the method is 'within', you need to specify a target distance. The distance is in the SRS unit. If you choose options.distanceMethod 'haversine' or 'spheroid', it will be considered as meters.
      *   @param options.distanceMethod - 'srs' is default, but you can choose 'haversine' or 'spheroid'. These two need the input geometries with the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      *   @param options.outputTable - An option to store the results in a new table.
      *
@@ -4277,7 +4316,7 @@ export default class SimpleWebTable extends Simple {
                     bigIntToInt: this.bigIntToInt,
                 }
             )
-            logData(data, this.nbCharactersToLog)
+            logData(await this.getTypes(), data, this.nbCharactersToLog)
             const nbRows = await this.runQuery(
                 `SELECT COUNT(*) FROM ${this.name};`,
                 this.connection,

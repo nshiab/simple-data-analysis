@@ -114,4 +114,16 @@ describe("writeData", () => {
 
         assert.deepStrictEqual(data, expectedData)
     })
+    it("should write a file at the root", async () => {
+        const table = sdb.newTable()
+        await table.loadData("test/data/files/data.csv")
+        await table.writeData(`testRoot.csv`)
+
+        // We test the content of the file
+        const tableCheck = sdb.newTable()
+        await tableCheck.loadData("testRoot.csv")
+        const data = await tableCheck.getData()
+
+        assert.deepStrictEqual(data, expectedData)
+    })
 })

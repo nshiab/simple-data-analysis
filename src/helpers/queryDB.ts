@@ -67,12 +67,13 @@ export default async function queryDB(
             queryResult.length > options.nbRowsToLog
         ) {
             logData(
+                {},
                 queryResult.slice(0, options.nbRowsToLog),
                 options.nbCharactersToLog
             )
             console.log(`nbRowsToLog: ${options.nbRowsToLog}`)
         } else {
-            logData(queryResult, options.nbCharactersToLog)
+            logData({}, queryResult, options.nbCharactersToLog)
         }
 
         if (options.returnDataFrom === "query") {
@@ -103,7 +104,7 @@ export default async function queryDB(
                 true,
                 options
             )
-            logData(tableToLog, options.nbCharactersToLog)
+            logData({}, tableToLog, options.nbCharactersToLog)
             const nbRows = await simple.runQuery(
                 `SELECT COUNT(*) FROM ${options.table};`,
                 simple.connection,
