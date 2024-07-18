@@ -10,7 +10,7 @@ describe("cloneColumnWithOffset", () => {
         await sdb.done()
     })
 
-    it("should clone a column", async () => {
+    it("should clone a column with an offset", async () => {
         const table = sdb.newTable("data")
         await table.loadArray([
             { firstName: "nael", lastName: "shiab" },
@@ -33,5 +33,18 @@ describe("cloneColumnWithOffset", () => {
             },
             { firstName: "andrew", lastName: "ryan", nextFirstName: null },
         ])
+    })
+    it("should clone a column with an offset when working with geometries and keep the projection", async () => {
+        const table = sdb.newTable("data")
+        await table.loadGeoData(
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
+        )
+
+        await table.cloneColumnWithOffset("geom", "geomClone")
+
+        assert.deepStrictEqual(
+            table.projections["geom"],
+            table.projections["geomClone"]
+        )
     })
 })
