@@ -24,4 +24,14 @@ describe("logTable", () => {
         // How to test?
         assert.deepStrictEqual(true, true)
     })
+    it("should log '<Geometry>' for geospatial data", async () => {
+        const table = sdb.newTable()
+        await table.loadGeoData(
+            "test/geodata/files/CanadianProvincesAndTerritories.json"
+        )
+        await table.logTable()
+
+        // How to test?
+        assert.deepStrictEqual(true, true)
+    })
 })

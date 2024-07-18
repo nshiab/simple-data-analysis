@@ -1,4 +1,5 @@
 export default function logData(
+    types: { [key: string]: string },
     data:
         | {
               [key: string]: string | number | boolean | Date | null
@@ -26,9 +27,8 @@ export default function logData(
                         typeof window === "undefined" &&
                         Buffer.isBuffer(data[i][key])
                     ) {
-                        newItem[key] = "<Buffer>"
-                    }
-                    if (
+                        newItem[key] = "<Geometry>"
+                    } else if (
                         typeof nbCharactersToLog === "number" &&
                         typeof data[i][key] === "string" &&
                         (data[i][key] as string).length > nbCharactersToLog
@@ -43,6 +43,9 @@ export default function logData(
                     }
                 }
                 dataToBeLogged.push(newItem)
+            }
+            if (Object.keys(types).length > 1) {
+                console.table([types])
             }
             console.table(dataToBeLogged)
         }
