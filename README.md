@@ -22,6 +22,8 @@ Make sure to check the section [Tips to work efficiently with SDA](#tips-to-work
 
 Tests are run for NodeJS and Bun. Deno is coming! :)
 
+To use the library in your browser, check out [simple-data-analysis-flow](https://github.com/nshiab/simple-data-analysis-flow).
+
 You might also find the [journalism library](https://github.com/nshiab/journalism) and [Code Like a Journalist](https://github.com/nshiab/code-like-a-journalist) interesting.
 
 ## Core principles
