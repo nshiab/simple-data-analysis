@@ -2083,6 +2083,7 @@ export default class SimpleWebTable extends Simple {
                 | (
                       | "count"
                       | "countUnique"
+                      | "countNull"
                       | "min"
                       | "max"
                       | "mean"
@@ -2095,6 +2096,7 @@ export default class SimpleWebTable extends Simple {
                 | (
                       | "count"
                       | "countUnique"
+                      | "countNull"
                       | "min"
                       | "max"
                       | "mean"
