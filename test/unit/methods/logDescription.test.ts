@@ -13,6 +13,7 @@ describe("logDescription", () => {
     it("should log a description of the table", async () => {
         const table = sdb.newTable()
         await table.loadData("test/data/files/employees.csv")
+
         await table.logDescription()
 
         // How to test?
