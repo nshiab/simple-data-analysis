@@ -97,4 +97,27 @@ describe("normalize", () => {
             { key1: "Banane", key2: null, key3: null, normalized: null },
         ])
     })
+    it("should normalize data with positive and negative values", async () => {
+        const table = sdb.newTable()
+        await table.loadArray([
+            { key1: -1 },
+            { key1: -0.5 },
+            { key1: 0 },
+            { key1: 0.5 },
+            { key1: 1 },
+        ])
+
+        await table.normalize("key1", "normalized")
+        await table.sort({ key1: "asc" })
+
+        const data = await table.getData()
+
+        assert.deepStrictEqual(data, [
+            { key1: -1, normalized: 0 },
+            { key1: -0.5, normalized: 0.25 },
+            { key1: 0, normalized: 0.5 },
+            { key1: 0.5, normalized: 0.75 },
+            { key1: 1, normalized: 1 },
+        ])
+    })
 })
