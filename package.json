@@ -34,7 +34,8 @@
     "type": "module",
     "files": [
         "dist/",
-        "src/"
+        "src/",
+        "bins/"
     ],
     "main": "./dist/index.js",
     "module": "./dist/index.js",
