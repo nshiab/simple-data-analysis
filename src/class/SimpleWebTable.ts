@@ -299,13 +299,13 @@ export default class SimpleWebTable extends Simple {
      * @example Basic usage with one table
      * ```ts
      * // Insert all rows from tableB into this table.
-     * await tableA.insertTable("tableB")
+     * await tableA.insertTables("tableB")
      * ```
      *
      * @example With multiple tables
      * ```ts
      * // Insert all rows from tableB and tableC into this table.
-     * await tableA.insertTable([ "tableB", "tableC" ])
+     * await tableA.insertTables([ "tableB", "tableC" ])
      * ```
      *
      * @param tablesToInsert - The name of the table(s) from which rows will be inserted.
@@ -318,11 +318,10 @@ export default class SimpleWebTable extends Simple {
             : [tablesToInsert]
         await queryDB(
             this,
-
             array
                 .map(
                     (tableToInsert) =>
-                        `INSERT INTO ${this.name} SELECT * FROM ${tableToInsert.name};`
+                        `INSERT INTO ${this.name} BY NAME SELECT * FROM ${tableToInsert.name};`
                 )
                 .join("\n"),
             mergeOptions(this, {
