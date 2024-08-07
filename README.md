@@ -2,29 +2,29 @@
 
 SDA is an easy-to-use and high-performance JavaScript library for data analysis. You can use it with tabular and geospatial data.
 
+The documentation is available [here](https://nshiab.github.io/simple-data-analysis/). Tests are run for Node.js and Bun.
+
+To use the library in your browser, check out [simple-data-analysis-flow](https://github.com/nshiab/simple-data-analysis-flow). You might also find the [journalism library](https://github.com/nshiab/journalism) and [Code Like a Journalist](https://github.com/nshiab/code-like-a-journalist) interesting.
+
 The library is maintained by [Nael Shiab](http://naelshiab.com/), computational journalist and senior data producer for [CBC News](https://www.cbc.ca/news).
 
-To install with NPM:
+To install the library:
 
 ```
 npm i simple-data-analysis
 ```
 
-With Bun:
+To setup a basic repo, create a folder and run:
 
 ```
-bun add simple-data-analysis
+npx simple-data-analysis
 ```
 
-The documentation is available [here](https://nshiab.github.io/simple-data-analysis/).
+The options are:
 
-Make sure to check the section [Tips to work efficiently with SDA](#tips-to-work-efficiently-with-SDA).
-
-Tests are run for NodeJS and Bun. Deno is coming! :)
-
-To use the library in your browser, check out [simple-data-analysis-flow](https://github.com/nshiab/simple-data-analysis-flow).
-
-You might also find the [journalism library](https://github.com/nshiab/journalism) and [Code Like a Journalist](https://github.com/nshiab/code-like-a-journalist) interesting.
+-   _--bun_ : To use Bun instead of Node.js.
+-   _--js_ : To use JavaScript instead of TypeScript.
+-   _--force_ : To overwrite files like package.json, .gitignore, etc.
 
 ## Core principles
 
@@ -32,7 +32,7 @@ SDA is born out of the frustration of switching between Python, R, and JavaScrip
 
 The missing piece in the JavaScript/TypeScript ecosystem was an easy-to-use and performant library for data analysis. This is why SDA was created.
 
-The library is based on [DuckDB](https://duckdb.org/), a fast in-process analytical database. Under the hood, SDA sends SQL queries to be executed by DuckDB. We use [duckdb-node](https://github.com/duckdb/duckdb-node) and [duckdb-wasm](https://github.com/duckdb/duckdb-wasm). This means SDA can run in the browser and with NodeJS and other runtimes. For geospatial computations, we rely on the [duckdb_spatial](https://github.com/duckdb/duckdb_spatial) extension.
+The library is based on [DuckDB](https://duckdb.org/), a fast in-process analytical database. Under the hood, SDA sends SQL queries to be executed by DuckDB. We use [duckdb-node](https://github.com/duckdb/duckdb-node) and [duckdb-wasm](https://github.com/duckdb/duckdb-wasm). This means SDA can run in the browser and with Node.js and other runtimes. For geospatial computations, we rely on the [duckdb_spatial](https://github.com/duckdb/duckdb_spatial) extension.
 
 The syntax and the available methods were inspired by [Pandas](https://github.com/pandas-dev/pandas) (Python) and the [Tidyverse](https://www.tidyverse.org/) (R).
 
@@ -44,7 +44,7 @@ Feel free to start a conversation or open an issue. Check how you can [contribut
 
 To test and compare the library's performance, we calculated the average temperature per decade and city with the daily temperatures from the [Adjusted and Homogenized Canadian Climate Data](https://api.weather.gc.ca/collections/ahccd-annual). See [this repository](https://github.com/nshiab/simple-data-analysis-benchmarks) for the code.
 
-We ran the same calculations with **simple-data-analysis@3.0.0** (both NodeJS and Bun), **Pandas (Python)**, and the **tidyverse (R)**.
+We ran the same calculations with **simple-data-analysis@3.0.0** (both Node.js and Bun), **Pandas (Python)**, and the **tidyverse (R)**.
 
 In each script, we:
 
@@ -184,25 +184,17 @@ And here's what you'll see in your browser's console tab.
 
 ![The console tab in Google Chrome showing the result of simple-data-analysis computations.](./assets/browser-console.png)
 
-## SDA with NodeJS and similar runtimes
+## SDA with Node.js and similar runtimes
 
-First, ensure that you have [NodeJS v20 or higher](https://nodejs.org/en/) installed.
+First, ensure that you have [Node.js v20 or higher](https://nodejs.org/en/) installed.
 
-Then, run this command to install the library in your code repository.
-
-With npm:
+Then, run this command in a new folder to install the library.
 
 ```bash
 npm i simple-data-analysis
 ```
 
-With bun:
-
-```bash
-bun add simple-data-analysis
-```
-
-A _package.json_ file should have been created. Open it and add or change the type to "module" to use a modern syntax. If you use Bun, you can skip this step.
+A _package.json_ file should have been created. Open it and add or change the type to "module" to use a modern syntax.
 
 ```json
 {
@@ -219,7 +211,7 @@ In this example, we load a CSV file with the latitude and longitude of 2023 wild
 
 It's the same code as the one you would run in a browser, except we use the _SimpleDB_ class instead of _SimpleWebDB_ and _loadData_ instead of _fetchData_.
 
-With NodeJS and other runtimes, more methods are available to load and write data from/to local files. Check the [SimpleTable class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html).
+With Node.js and other runtimes, more methods are available to load and write data from/to local files. Check the [SimpleTable class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html).
 
 ```ts
 import { SimpleDB } from "simple-data-analysis"
@@ -286,30 +278,9 @@ await sdb.done()
 
 And here's what you should see in your console.
 
-![The console tab in Google Chrome showing the result of simple-data-analysis computations.](./assets/nodejs-console.png)
+![The console tab in VS Code showing the result of simple-data-analysis computations.](./assets/nodejs-console.png)
 
-## Tips to work efficiently with SDA
-
-### Prettify your files
-
-If you use [VS Code](https://code.visualstudio.com/) as your code editor, enable the `Format On Save` option. Every time you save your files (shortcut is `CMD + S` on Mac and `CTRL + S` on Windows), your files will be formatted, making them more organized and easier to read.
-
-You can install the [Prettier extension](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) for more options.
-
-![The VS Code interface.](./assets/format-on-save.png)
-
-If you use VS Code, the editor will try to show you the whole table in your terminal tabs. However, with wide tables, rows sometimes wrap onto the following line, making the tables unreadable. When this happens, use the shortcut `ALT + Z` to disable/enable the `editor.wordWrap` option. When disabled, the tables will overflow on the right side of your terminal, as expected.
-
-### Watch your files
-
-Instead of running your code manually every time you make a change, use the `--watch` flags like this:
-
--   With NodeJS: `node --watch index.js`
--   With Bun: `bun --watch index.js`
-
-When this flag is enabled, `index.js` will be rerun anytime you save a change to it or to any of its dependencies.
-
-### Caching fetched and computed data
+## Caching fetched and computed data
 
 Instead of running the same code over and over again, you can cache the results. Combined with the `--watch` flag, this can speed up your workflow, especially when fetching data or performing computationally expensive operations.
 
@@ -518,4 +489,4 @@ SimpleDB - Done in 594 ms
 
 ### Others
 
-If you want to generate and save charts with NodeJS and other runtimes, check the [journalism library](https://github.com/nshiab/journalism), more specifically the [savePlotChart function](https://nshiab.github.io/journalism/functions/savePlotChart.html).
+If you want to generate and save charts with Node.js and other runtimes, check the [journalism library](https://github.com/nshiab/journalism), more specifically the [savePlotChart function](https://nshiab.github.io/journalism/functions/savePlotChart.html).
