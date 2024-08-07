@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execSync } from "node:child_process"
-import { existsSync, readFileSync, writeFileSync } from "fs"
+import { existsSync, writeFileSync } from "fs"
 
 console.log("\nStarting sda setup for NodeJS...")
 
@@ -83,19 +83,10 @@ if (existsSync("package.json") && force === false) {
         console.log("    => Option force is true. Files will be overwritten.")
     }
 
-    console.log("\n2 - Installing libraries with npm...")
-    execSync("npm i simple-data-analysis --silent", {
-        stdio: "ignore",
-    })
-    console.log("    => simple-data-analysis has been installed.")
-    execSync("npm i journalism --silent", {
-        stdio: "ignore",
-    })
-    console.log("    => journalism has been installed.")
-
-    console.log("\n3 - Creating and updating relevant files...")
-    const packageJson = JSON.parse(readFileSync("package.json", "utf8"))
-    packageJson.type = "module"
+    console.log("\n2 - Creating relevant files...")
+    const packageJson = {
+        type: "module",
+    }
     if (runtime === "bun") {
         if (language === "ts") {
             packageJson.scripts = {
@@ -118,7 +109,7 @@ if (existsSync("package.json") && force === false) {
         }
     }
     writeFileSync("package.json", JSON.stringify(packageJson, null, 2))
-    console.log("    => package.json has been updated.")
+    console.log("    => package.json has been created.")
 
     if (runtime === "nodejs" && language === "ts") {
         writeFileSync("tsconfig.json", tsconfigContent)
@@ -135,6 +126,16 @@ if (existsSync("package.json") && force === false) {
         writeFileSync("index.js", indexContent)
         console.log("    => index.js has been created.")
     }
+
+    console.log("\n3 - Installing libraries with npm...")
+    execSync("npm i simple-data-analysis --silent", {
+        stdio: "ignore",
+    })
+    console.log("    => simple-data-analysis has been installed.")
+    execSync("npm i journalism --silent", {
+        stdio: "ignore",
+    })
+    console.log("    => journalism has been installed.")
 
     console.log("\nSetup is done!")
     if (language === "ts") {
