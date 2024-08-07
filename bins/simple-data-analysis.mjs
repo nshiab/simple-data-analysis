@@ -5,6 +5,35 @@ import { existsSync, readFileSync, writeFileSync } from "fs"
 
 console.log("\nStarting sda setup for NodeJS...")
 
+const indexContent = `import { SimpleDB } from "simple-data-analysis";
+import { prettyDuration } from "journalism";
+
+const start = Date.now();
+
+const sdb = new SimpleDB();
+
+const table = await sdb
+  .newTable()
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv"
+  );
+
+await table.logTable();
+
+prettyDuration(start, { log: true, prefix: "\\nDone in " });
+`
+const tsconfigContent = `{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "verbatimModuleSyntax": null
+  },
+  "include": ["**/*"],
+  "exclude": ["node_modules"]
+}
+`
+
 const args = process.argv.slice(2)
 
 const runtime = args.includes("--bun") ? "bun" : "nodejs"
@@ -92,7 +121,6 @@ if (existsSync("package.json") && force === false) {
     console.log("    => package.json has been updated.")
 
     if (runtime === "nodejs" && language === "ts") {
-        const tsconfigContent = readFileSync("tsconfig-content.json", "utf-8")
         writeFileSync("tsconfig.json", tsconfigContent)
         console.log("    => tsconfig.json has been created.")
     }
@@ -100,7 +128,6 @@ if (existsSync("package.json") && force === false) {
     writeFileSync(".gitignore", "node_modules\n.temp\n.sda-cache")
     console.log("    => .gitignore has been created.")
 
-    const indexContent = readFileSync("index-content.js", "utf-8")
     if (language === "ts") {
         writeFileSync("index.ts", indexContent)
         console.log("    => index.ts has been created.")
