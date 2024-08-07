@@ -67,8 +67,7 @@
         "check-format": "prettier --ignore-path .prettierignore --check './**/*.ts'"
     },
     "bin": {
-        "setup-js": "./bins/setup-js.mjs",
-        "setup-ts-bun": "./bins/setup-ts-bun.mjs"
+        "simple-data-analysis": "./bins/simple-data-analysis.mjs"
     },
     "engines": {
         "node": ">=18.0"
