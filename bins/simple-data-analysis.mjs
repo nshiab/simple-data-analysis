@@ -138,9 +138,9 @@ if (existsSync("package.json") && force === false) {
 
     console.log("\nSetup is done!")
     if (language === "ts") {
-        console.log("    => Run npm run sda to watch index.ts.")
+        console.log("    => Run 'npm run sda' to watch index.ts.")
     } else {
-        console.log("    => Run npm run sda to watch index.js.")
+        console.log("    => Run 'npm run sda' to watch index.js.")
     }
 
     console.log("    => Have fun. ^_^\n")
