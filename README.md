@@ -186,26 +186,15 @@ And here's what you'll see in your browser's console tab.
 
 ## SDA with Node.js and similar runtimes
 
-First, ensure that you have [Node.js v20 or higher](https://nodejs.org/en/) installed.
+First, ensure that you have [Node.js v18 or higher](https://nodejs.org/en/) installed.
 
-Then, run this command in a new folder to install the library.
+Then, run this command in a new folder to install what you need.
 
 ```bash
-npm i simple-data-analysis
+npx simple-data-analysis
 ```
 
-A _package.json_ file should have been created. Open it and add or change the type to "module" to use a modern syntax.
-
-```json
-{
-    "type": "module",
-    "dependencies": {
-        "simple-data-analysis": "^3.x.x"
-    }
-}
-```
-
-Copy and paste the code below into an `index.js` file and run it with `node index.js`.
+Then copy and paste the code below into the `index.js` or `index.ts` file and run it with `npm run sda`.
 
 In this example, we load a CSV file with the latitude and longitude of 2023 wildfires in Canada, create point geometries from it, do a spatial join with provinces' boundaries, and then compute the number of fires and the total area burnt per province.
 
@@ -282,11 +271,13 @@ And here's what you should see in your console.
 
 ## Caching fetched and computed data
 
-Instead of running the same code over and over again, you can cache the results. Combined with the `--watch` flag, this can speed up your workflow, especially when fetching data or performing computationally expensive operations.
+Instead of running the same code over and over again, you can cache the results. This can speed up your workflow, especially when fetching data or performing computationally expensive operations.
 
 Here's the previous example adapted to cache data. For more information, check the [cache method documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#cache).
 
-The data is cached in the hidden folder `.sda-cache` at the root of your code repository. Make sure to add it to your `.gitignore` if you have one. If you want to clean your cache, just delete the folder.
+The data is cached in the hidden folder `.sda-cache` at the root of your code repository. Make sure to add it to your `.gitignore`. If you want to clean your cache, just delete the folder.
+
+If you set up with `npx simple-data-analysis`, `.sda-cache` is automatically added to your `.gitignore` and you can use `npm run clean` to clear the cache.
 
 ```ts
 import { SimpleDB } from "simple-data-analysis"

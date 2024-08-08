@@ -108,6 +108,7 @@ if (existsSync("package.json") && force === false) {
             }
         }
     }
+    packageJson.scripts.clean = "rm -rf .sda-cache && rm -rf .temp"
     writeFileSync("package.json", JSON.stringify(packageJson, null, 2))
     console.log("    => package.json has been created.")
 
