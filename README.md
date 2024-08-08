@@ -1,4 +1,4 @@
-# Simple data analysis (SDA) in JavaScript
+# Simple data analysis (SDA)
 
 SDA is an easy-to-use and high-performance JavaScript library for data analysis. You can use it with tabular and geospatial data.
 
