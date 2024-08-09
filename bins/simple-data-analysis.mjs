@@ -20,6 +20,8 @@ const table = await sdb
 
 await table.logTable();
 
+await sdb.done()
+
 prettyDuration(start, { log: true, prefix: "\\nDone in " });
 `
 const tsconfigContent = `{
