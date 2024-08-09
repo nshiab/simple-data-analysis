@@ -26,6 +26,7 @@ import getExtension from "../helpers/getExtension.js"
 import cache from "../methods/cache.js"
 import getIdenticalColumns from "../helpers/getIdenticalColumns.js"
 import { createDirectory } from "journalism"
+import writeDataAsArrays from "../helpers/writeDataAsArrays.js"
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
@@ -625,6 +626,7 @@ export default class SimpleTable extends SimpleWebTable {
      * @param file - The path to the file to which data will be written.
      * @param options - An optional object with configuration options:
      *   @param options.compression - A boolean indicating whether to compress the output file. Defaults to false. If true, CSV and JSON files will be compressed with GZIP while PARQUET files will use ZSTD.
+     *   @param options.dataAsArrays - A boolean for JSON files. If true, JSON files are written as one object with arrays instead of an array of objects. Convenient to reduce the size of JSON files for web projects. You can use the function arraysToData from the journalism library to bring back the data to its original state.
      *
      * @category Exporting data
      */
@@ -632,18 +634,24 @@ export default class SimpleTable extends SimpleWebTable {
         file: string,
         options: {
             compression?: boolean
+            dataAsArrays?: boolean
         } = {}
     ) {
         createDirectory(file)
-        await queryDB(
-            this,
-            writeDataQuery(this.name, file, options),
-            mergeOptions(this, {
-                table: this.name,
-                method: "writeData()",
-                parameters: { file, options },
-            })
-        )
+
+        if (options.dataAsArrays) {
+            await writeDataAsArrays(this, file)
+        } else {
+            await queryDB(
+                this,
+                writeDataQuery(this.name, file, options),
+                mergeOptions(this, {
+                    table: this.name,
+                    method: "writeData()",
+                    parameters: { file, options },
+                })
+            )
+        }
     }
 
     /**

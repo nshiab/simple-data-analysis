@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync } from "fs"
+import { existsSync, mkdirSync, readFileSync } from "fs"
 import assert from "assert"
 import SimpleDB from "../../../src/class/SimpleDB.js"
 
@@ -125,5 +125,22 @@ describe("writeData", () => {
         const data = await tableCheck.getData()
 
         assert.deepStrictEqual(data, expectedData)
+    })
+    it("should write data as arrays", async () => {
+        const table = sdb.newTable()
+        await table.loadData("test/data/files/data.csv")
+        await table.writeData(`${output}testRootArrays.json`, {
+            dataAsArrays: true,
+        })
+
+        // We test the content of the file
+        const data = JSON.parse(
+            readFileSync(`${output}testRootArrays.json`, "utf-8")
+        )
+
+        assert.deepStrictEqual(data, {
+            key1: ["1", "3", "8", "brioche"],
+            key2: ["2", "coucou", "10", "croissant"],
+        })
     })
 })
