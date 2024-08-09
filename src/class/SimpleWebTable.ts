@@ -1734,7 +1734,7 @@ export default class SimpleWebTable extends Simple {
     async updateColumn(column: string, definition: string) {
         await queryDB(
             this,
-            `UPDATE ${this.name} SET ${column} = ${definition}`,
+            `UPDATE ${this.name} SET "${column}" = ${definition}`,
             mergeOptions(this, {
                 table: this.name,
                 method: "updateColumn()",
