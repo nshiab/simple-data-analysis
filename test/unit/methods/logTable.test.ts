@@ -34,4 +34,13 @@ describe("logTable", () => {
         // How to test?
         assert.deepStrictEqual(true, true)
     })
+    it("should log types even if there is just one column in the table", async () => {
+        const table = sdb.newTable()
+        await table.loadData("test/data/files/employees.csv")
+        await table.selectColumns("Name")
+        await table.logTable()
+
+        // How to test?
+        assert.deepStrictEqual(true, true)
+    })
 })

@@ -44,7 +44,7 @@ export default function logData(
                 }
                 dataToBeLogged.push(newItem)
             }
-            if (Object.keys(types).length > 1) {
+            if (Object.keys(types).length > 0) {
                 console.table([types])
             }
             console.table(dataToBeLogged)
