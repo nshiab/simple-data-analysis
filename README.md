@@ -4,8 +4,6 @@ SDA is an easy-to-use and high-performance JavaScript library for data analysis.
 
 The documentation is available [here](https://nshiab.github.io/simple-data-analysis/). Tests are run for Node.js and Bun.
 
-To use the library in your browser, check out [simple-data-analysis-flow](https://github.com/nshiab/simple-data-analysis-flow). You might also find the [journalism library](https://github.com/nshiab/journalism) and [Code Like a Journalist](https://github.com/nshiab/code-like-a-journalist) interesting.
-
 The library is maintained by [Nael Shiab](http://naelshiab.com/), computational journalist and senior data producer for [CBC News](https://www.cbc.ca/news).
 
 To install the library:
@@ -14,10 +12,10 @@ To install the library:
 npm i simple-data-analysis
 ```
 
-To setup a basic repo, create a folder and run:
+To quickly get started, create a folder and run [setup-sda](https://github.com/nshiab/setup-sda):
 
 ```
-npx simple-data-analysis
+npx setup-sda
 ```
 
 The options are:
@@ -25,6 +23,8 @@ The options are:
 -   _--bun_ : To use Bun instead of Node.js.
 -   _--js_ : To use JavaScript instead of TypeScript.
 -   _--force_ : To overwrite files like package.json, .gitignore, etc.
+
+To use the library in your browser, check out [simple-data-analysis-flow](https://github.com/nshiab/simple-data-analysis-flow). You might also find the [journalism library](https://github.com/nshiab/journalism) and [Code Like a Journalist](https://github.com/nshiab/code-like-a-journalist) interesting.
 
 ## Core principles
 
