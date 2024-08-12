@@ -66,9 +66,6 @@
         "format": "prettier --ignore-path .prettierignore --write './**/*.ts'",
         "check-format": "prettier --ignore-path .prettierignore --check './**/*.ts'"
     },
-    "bin": {
-        "simple-data-analysis": "./bins/simple-data-analysis.mjs"
-    },
     "engines": {
         "node": ">=18.0"
     },
