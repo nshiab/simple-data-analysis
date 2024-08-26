@@ -19,7 +19,7 @@ export default function zScoreQuery(
 
     const tempQuery = `(${column}-AVG(${column}) OVER(${partition}))
             /
-            STDDEV(${column}) OVER(${partition})`
+            STDDEV_POP(${column}) OVER(${partition})`
     const query = `
     CREATE OR REPLACE TABLE ${table} AS
     SELECT *, (
