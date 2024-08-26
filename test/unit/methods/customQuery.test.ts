@@ -426,4 +426,125 @@ describe("customQuery (SimpleDB)", () => {
             },
         ])
     })
+    it("should work with === null", async () => {
+        const table = sdb.newTable("test")
+        await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }])
+
+        const data = await sdb.customQuery(
+            `SELECT * FROM test WHERE key1 === null`,
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [{ key1: null }])
+    })
+    it("should work with == null", async () => {
+        const table = sdb.newTable("test")
+        await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }])
+
+        const data = await sdb.customQuery(
+            `SELECT * FROM test WHERE key1 == null`,
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [{ key1: null }])
+    })
+    it("should work with = null", async () => {
+        const table = sdb.newTable("test")
+        await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }])
+
+        const data = await sdb.customQuery(
+            `SELECT * FROM test WHERE key1 = null`,
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [{ key1: null }])
+    })
+    it("should work with === NULL", async () => {
+        const table = sdb.newTable("test")
+        await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }])
+
+        const data = await sdb.customQuery(
+            `SELECT * FROM test WHERE key1 === NULL`,
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [{ key1: null }])
+    })
+    it("should work with == NULL", async () => {
+        const table = sdb.newTable("test")
+        await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }])
+
+        const data = await sdb.customQuery(
+            `SELECT * FROM test WHERE key1 == NULL`,
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [{ key1: null }])
+    })
+    it("should work with = NULL", async () => {
+        const table = sdb.newTable("test")
+        await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }])
+
+        const data = await sdb.customQuery(
+            `SELECT * FROM test WHERE key1 = NULL`,
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [{ key1: null }])
+    })
+    it("should work with !== null", async () => {
+        const table = sdb.newTable("test")
+        await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }])
+
+        const data = await sdb.customQuery(
+            `SELECT * FROM test WHERE key1 !== null`,
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [{ key1: 1 }, { key1: 2 }])
+    })
+    it("should work with != null", async () => {
+        const table = sdb.newTable("test")
+        await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }])
+
+        const data = await sdb.customQuery(
+            `SELECT * FROM test WHERE key1 != null`,
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [{ key1: 1 }, { key1: 2 }])
+    })
+    it("should work with !== NULL", async () => {
+        const table = sdb.newTable("test")
+        await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }])
+
+        const data = await sdb.customQuery(
+            `SELECT * FROM test WHERE key1 !== NULL`,
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [{ key1: 1 }, { key1: 2 }])
+    })
+    it("should work with != NULL", async () => {
+        const table = sdb.newTable("test")
+        await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }])
+
+        const data = await sdb.customQuery(
+            `SELECT * FROM test WHERE key1 != NULL`,
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [{ key1: 1 }, { key1: 2 }])
+    })
+    it("should work with === null not at the end of query", async () => {
+        const table = sdb.newTable("test")
+        await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }])
+
+        const data = await sdb.customQuery(
+            `SELECT * FROM test WHERE key1 === null || key1 === 2`,
+            { returnDataFrom: "query" }
+        )
+
+        assert.deepStrictEqual(data, [{ key1: null }, { key1: 2 }])
+    })
 })
