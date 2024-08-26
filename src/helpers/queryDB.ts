@@ -1,6 +1,7 @@
 import { formatNumber, prettyDuration } from "journalism"
 import { SimpleWebDB, SimpleWebTable } from "../bundle.js"
 import logData from "./logData.js"
+import cleanSQL from "./cleanSQL.js"
 
 export default async function queryDB(
     simple: SimpleWebTable | SimpleWebDB,
@@ -35,14 +36,7 @@ export default async function queryDB(
         throw new Error("simple.connection is undefined")
     }
 
-    query = query
-        .replace(/ && /g, " AND ")
-        .replace(/ & /g, " AND ")
-        .replace(/ \|\| /g, " OR ")
-        .replace(/ \| /g, " OR ")
-        .replace(/ === /g, " = ")
-        .replace(/ == /g, " = ")
-        .replace(/ !== /g, " != ")
+    query = cleanSQL(query)
 
     let start
     if (options.debug) {
