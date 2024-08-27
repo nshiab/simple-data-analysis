@@ -182,6 +182,7 @@ export default class SimpleWebDB extends Simple {
      *
      * @example Basic usage
      * ```ts
+     * // You can also pass a table instance.
      * const hasEmployees = await sdb.hasTable("employees")
      * ```
      *
@@ -189,10 +190,11 @@ export default class SimpleWebDB extends Simple {
      *
      * @category DB methods
      */
-    async hasTable(table: string): Promise<boolean> {
+    async hasTable(table: SimpleWebTable | string): Promise<boolean> {
         this.debug && console.log("\nhasTable()")
-        this.debug && console.log("parameters:", { table })
-        const result = (await this.getTables()).includes(table)
+        const tableName = typeof table === "string" ? table : table.name
+        this.debug && console.log("parameters:", { table: tableName })
+        const result = (await this.getTables()).includes(tableName)
         this.debug && console.log("hasTable:", result)
         return result
     }
