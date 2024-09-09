@@ -1,8 +1,4 @@
-import {
-    AsyncDuckDB,
-    AsyncDuckDBConnection,
-    DuckDBDataProtocol,
-} from "@duckdb/duckdb-wasm"
+import { AsyncDuckDB, AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
 import getExtension from "../helpers/getExtension.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import SimpleWebTable from "../class/SimpleWebTable.js"
@@ -48,6 +44,8 @@ export default async function fetchDataBrowser(
         options.fileType === "dsv" ||
         typeof options.delim === "string"
     ) {
+        // await import to make duckdb-wasm optional
+        const { DuckDBDataProtocol } = await import("@duckdb/duckdb-wasm")
         await (simpleWebTable.db as AsyncDuckDB).registerFileURL(
             filename,
             url,
@@ -76,6 +74,8 @@ export default async function fetchDataBrowser(
             name: table,
         })
     } else if (options.fileType === "parquet" || fileExtension === "parquet") {
+        // await import to make duckdb-wasm optional
+        const { DuckDBDataProtocol } = await import("@duckdb/duckdb-wasm")
         await (simpleWebTable.db as AsyncDuckDB).registerFileURL(
             filename,
             url,
