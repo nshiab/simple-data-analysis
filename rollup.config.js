@@ -21,11 +21,12 @@ export default [
         output: {
             file: `dist/${meta.name}.js`,
             name: "sda",
-            format: "umd",
+            format: "es",
             indent: false,
             extend: true,
             banner: banner,
             sourcemap: true,
+            inlineDynamicImports: true,
         },
         plugins: [
             nodePolyfills(),
@@ -47,11 +48,12 @@ export default [
         output: {
             file: `dist/${meta.name}.min.js`,
             name: "sda",
-            format: "umd",
+            format: "es",
             indent: false,
             extend: true,
             banner: banner,
             sourcemap: true,
+            inlineDynamicImports: true,
         },
         plugins: [
             nodePolyfills(),

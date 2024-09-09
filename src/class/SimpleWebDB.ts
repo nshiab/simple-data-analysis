@@ -1,5 +1,4 @@
 import { AsyncDuckDB, AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
-import getDuckDB from "../helpers/getDuckDB.js"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import runQueryWeb from "../helpers/runQueryWeb.js"
@@ -68,6 +67,10 @@ export default class SimpleWebDB extends Simple {
     async start() {
         if (this.db === undefined || this.connection === undefined) {
             this.debug && console.log("\nstart()\n")
+            // We await import to make duckdb-wasm optional
+            const { default: getDuckDB } = await import(
+                "../helpers/getDuckDB.js"
+            )
             const duckDB = await getDuckDB()
             this.db = duckDB.db
             this.connection = await this.db.connect()
