@@ -21,7 +21,7 @@ export default [
         output: {
             file: `dist/${meta.name}.js`,
             name: "sda",
-            format: "es",
+            format: "umd",
             indent: false,
             extend: true,
             banner: banner,
@@ -48,7 +48,7 @@ export default [
         output: {
             file: `dist/${meta.name}.min.js`,
             name: "sda",
-            format: "es",
+            format: "umd",
             indent: false,
             extend: true,
             banner: banner,
