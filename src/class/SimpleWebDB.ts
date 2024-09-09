@@ -1,4 +1,3 @@
-import { AsyncDuckDB, AsyncDuckDBConnection } from "@duckdb/duckdb-wasm"
 import mergeOptions from "../helpers/mergeOptions.js"
 import queryDB from "../helpers/queryDB.js"
 import runQueryWeb from "../helpers/runQueryWeb.js"
@@ -282,10 +281,11 @@ export default class SimpleWebDB extends Simple {
      */
     async done() {
         this.debug && console.log("\ndone()")
-        if (this.connection instanceof AsyncDuckDBConnection) {
+        if (this.connection) {
             await this.connection.close()
         }
-        if (this.db instanceof AsyncDuckDB) {
+        if (this.db) {
+            // @ts-expect-error We should check for instance of AsyncDuckDB but I don't want to import it to make duckdb-wasm optional
             await this.db.terminate()
         }
         if (this.worker instanceof Worker) {
