@@ -96,15 +96,25 @@ In this [example](https://observablehq.com/@nshiab/hello-simple-data-analysis?co
 
 This [other example](https://observablehq.com/@nshiab/hello-simple-data-analysis-and-geospatial-data?collection=@nshiab/simple-data-analysis-in-javascript) focuses on geospatial analysis. We create point geometries from the latitude and longitude of 2023 wildfires in Canada, do a spatial join with provinces' boundaries, and then compute the number of fires and the total area burnt per province.
 
-## SDA in an HTML page
+## SDA in a Web App or HTML Page
 
-If you want to add the library directly to your webpage, you can use a npm-based CDN like jsDelivr.
+If you are developing a web application, you'll need to install `@duckdb/duckdb-wasm`:
 
-Here's some code you can copy and paste into an HTML file.
+```
+npm i @duckdb/duckdb-wasm
+```
 
-In this example, we load a CSV file with the latitude and longitude of 2023 wildfires in Canada, create point geometries from it, do a spatial join with provinces boundaries, and then compute the number of fires and the total area burnt per province.
+Then import `SimpleWebDB` or `SimpleWebTable` directly from `bundle.js`:
 
-You could also use a framework or a bundler. Install the library with npm `npm i simple-data-analysis` and import it into your project `import { SimpleWebDB } from 'simple-data-analysis'`.
+```js
+import { SimpleWebDB } from "./node_modules/simple-data-analysis/dist/bundle.js"
+```
+
+You can also import the minified bundle with a npm-based CDN like jsDelivr.
+
+Here's some code you can copy and paste into an HTML file. You can also adapt it to any bundler or framework of your choice.
+
+In this example, we load a CSV file with the latitude and longitude of 2023 wildfires in Canada. We create point geometries from it, perform a spatial join with provinces boundaries, and then compute the number of fires and the total area burnt per province.
 
 ```html
 <script type="module">

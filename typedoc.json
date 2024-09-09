@@ -1,5 +1,8 @@
 {
-    "entryPoints": ["src/index.ts"],
+    "name": "Simple-data-analysis",
+    "includeVersion": true,
+    "readme": "README.md",
+    "entryPoints": ["src/index.ts", "src/bundle.ts"],
     "out": "docs",
     "excludeNotDocumented": true,
     "categoryOrder": [
