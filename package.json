@@ -34,8 +34,7 @@
     "type": "module",
     "files": [
         "dist/",
-        "src/",
-        "bins/"
+        "src/"
     ],
     "main": "./dist/index.js",
     "module": "./dist/index.js",
@@ -55,8 +54,8 @@
         "build": "rm -rf dist && npx tsc && npx rollup --config",
         "all-tests": "npm i && npm run format && npm run lint && npm run test && npm run build && npm run test-doc && bun upgrade && bun run test-bun",
         "rollup": "rollup --config",
-        "doc": "typedoc --name Simple-data-analysis --includeVersion --readme README.md --out docs src/index.ts && cp -r ./assets ./docs",
-        "test-doc": "typedoc --name Simple-data-analysis --includeVersion --readme README.md --out ./test-docs src/index.ts && cp -r ./assets ./test-docs",
+        "doc": "typedoc && cp -r ./assets ./docs",
+        "test-doc": "typedoc --out ./test-docs && cp -r ./assets ./test-docs",
         "update-doc": "npm run doc && git add -A && git commit -m 'Updating doc' && git push",
         "publish-patch": "npm run all-tests && npm version patch && npm run update-doc && npm publish",
         "publish-minor": "npm run all-tests && npm version minor && npm run update-doc && npm publish",
@@ -89,10 +88,10 @@
         "rollup-plugin-visualizer": "^5.6.0",
         "ts-node": "^10.7.0",
         "typedoc": "^0.26.5",
-        "typescript": "^5.5.4"
+        "typescript": "^5.5.4",
+        "@duckdb/duckdb-wasm": "^1.28.1-dev106.0"
     },
     "dependencies": {
-        "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
         "apache-arrow": "^17.0.0",
         "duckdb": "^1.0.0",
         "journalism": "^1.14.2"
