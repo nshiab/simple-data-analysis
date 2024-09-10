@@ -119,7 +119,7 @@ In this example, we load a CSV file with the latitude and longitude of 2023 wild
 ```html
 <script type="module">
     // We import the SimpleWebDB class from the esm bundle.
-    import { SimpleWebDB } from "https://cdn.jsdelivr.net/npm/simple-data-analysis@3.8.9/+esm"
+    import { SimpleWebDB } from "https://cdn.jsdelivr.net/npm/simple-data-analysis@3.8.10/+esm"
 
     async function main() {
         // We start a SimpleWebDB instance.
