@@ -1366,7 +1366,7 @@ export default class SimpleWebTable extends Simple {
     }
 
     /**
-     * Merges the data of this table with another table based on a common column. This table is considered the left table. Note that the returned data is not guaranteed to be in the same order as the original tables. It might create a .tmp folder, so make sure to add .tmp to your gitignore.
+     * Merges the data of this table with another table based on a common column or multiple columns. This table is considered the left table. Note that the returned data is not guaranteed to be in the same order as the original tables. It might create a .tmp folder, so make sure to add .tmp to your gitignore.
      *
      * @example Basic usage
      * ```ts
@@ -1380,9 +1380,14 @@ export default class SimpleWebTable extends Simple {
      * const tableC = await tableA.join("tableB", { commonColumn: 'id', type: 'inner', outputTable: true })
      * ```
      *
+     * @example Multiple columns
+     * ```ts
+     * // You can also join on multiple columns.
+     * await tableA.join(tableB, { commonColumn: ['name', 'category']})
+     *
      * @param rightTable - The right table to be joined.
      * @param options - An optional object with configuration options:
-     *   @param options.commonColumn - The common column used for the join operation. By default, the method automatically searches for a column name that exists in both tables.
+     *   @param options.commonColumn - The common column used for the join operation. By default, the method automatically searches for a column name that exists in both tables. You can also pass an array of multiple columns to be joined on.
      *   @param options.type - The type of join operation to perform. Possible values are "inner", "left", "right", or "full". Default is "left".
      *   @param options.outputTable - To return the results in a new table.
      *
@@ -1391,7 +1396,7 @@ export default class SimpleWebTable extends Simple {
     async join(
         rightTable: SimpleWebTable,
         options: {
-            commonColumn?: string
+            commonColumn?: string | string[]
             type?: "inner" | "left" | "right" | "full"
             outputTable?: string | boolean
         } = {}
