@@ -231,7 +231,7 @@ export default class SimpleTable extends SimpleWebTable {
     async join(
         rightTable: SimpleTable,
         options: {
-            commonColumn?: string
+            commonColumn?: string | string[]
             type?: "inner" | "left" | "right" | "full"
             outputTable?: string | boolean
         } = {}

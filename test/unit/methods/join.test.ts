@@ -240,4 +240,13 @@ describe("join", () => {
             points: "+proj=latlong +datum=WGS84 +no_defs",
         })
     })
+    it("should join on multiple columns", async () => {
+        const dishes = sdb.newTable("normals")
+        await dishes.loadData("test/data/joins/normals.csv")
+        const categories = sdb.newTable("projections")
+        await categories.loadData("test/data/joins/projections.csv")
+        await dishes.join(categories, { commonColumn: ["city", "season"] })
+
+        await dishes.logTable()
+    })
 })

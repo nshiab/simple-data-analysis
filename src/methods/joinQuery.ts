@@ -1,7 +1,7 @@
 export default function joinQuery(
     leftTable: string,
     rightTable: string,
-    commonColumn: string,
+    commonColumn: string[],
     join: "inner" | "left" | "right" | "full",
     outputTable: string
 ) {
@@ -19,7 +19,7 @@ export default function joinQuery(
         throw new Error(`Unknown ${join} join.`)
     }
 
-    query += ` ON (${leftTable}.${commonColumn} = ${rightTable}.${commonColumn});\n`
+    query += ` ON (${commonColumn.map((d) => `${leftTable}."${d}" = ${rightTable}."${d}"`).join(" AND ")});\n`
 
     return query
 }
