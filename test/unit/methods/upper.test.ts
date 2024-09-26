@@ -30,4 +30,16 @@ describe("upper", () => {
 
         assert.deepStrictEqual(data, [{ firstName: "NAEL", lastName: "SHIAB" }])
     })
+    it("should uppercase strings in two columns with column names containing spaces", async () => {
+        const table = sdb.newTable()
+        await table.loadArray([{ "first Name": "nael", "last Name": "shiab" }])
+
+        await table.upper(["first Name", "last Name"])
+
+        const data = await table.getData()
+
+        assert.deepStrictEqual(data, [
+            { "first Name": "NAEL", "last Name": "SHIAB" },
+        ])
+    })
 })

@@ -30,4 +30,16 @@ describe("lower", () => {
 
         assert.deepStrictEqual(data, [{ firstName: "nael", lastName: "shiab" }])
     })
+    it("should lowercase strings in two columns with column names containing spaces", async () => {
+        const table = sdb.newTable()
+        await table.loadArray([{ "first Name": "NAEL", "last Name": "SHIAB" }])
+
+        await table.lower(["first Name", "last Name"])
+
+        const data = await table.getData()
+
+        assert.deepStrictEqual(data, [
+            { "first Name": "nael", "last Name": "shiab" },
+        ])
+    })
 })
