@@ -24,6 +24,21 @@ describe("trim", () => {
             { key1: "d", key2: " !@d!@" },
         ])
     })
+    it("should remove whitespace with column name containing spaces", async () => {
+        const table = sdb.newTable()
+        await table.loadData(["test/data/files/dataTrim.json"])
+        await table.renameColumns({ key1: "key 1" })
+
+        await table.trim("key 1")
+        const data = await table.getData()
+
+        assert.deepStrictEqual(data, [
+            { "key 1": "a", key2: " !@a!@" },
+            { "key 1": "b", key2: " !@b!@" },
+            { "key 1": "c", key2: " !@c!@" },
+            { "key 1": "d", key2: " !@d!@" },
+        ])
+    })
     it("should remove whitespace from multiple columns", async () => {
         const table = sdb.newTable()
         await table.loadData(["test/data/files/dataTrim.json"])
