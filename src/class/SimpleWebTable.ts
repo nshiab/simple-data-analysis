@@ -1524,7 +1524,7 @@ export default class SimpleWebTable extends Simple {
             upperQuery(this.name, stringToArray(columns)),
             mergeOptions(this, {
                 table: this.name,
-                method: "lower()",
+                method: "upper()",
                 parameters: { columns },
             })
         )
