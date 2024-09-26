@@ -17,5 +17,6 @@
             "tsconfig.json",
             "typedoc.json"
         ]
-    }
+    },
+    "nodeModulesDir": "auto"
 }

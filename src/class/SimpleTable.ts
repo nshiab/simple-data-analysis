@@ -1,4 +1,4 @@
-import { readdirSync } from "fs"
+import { readdirSync } from "node:fs"
 import { tableFromJSON, tableToIPC } from "apache-arrow"
 import SimpleWebTable from "./SimpleWebTable.js"
 import { Connection } from "duckdb"
@@ -56,7 +56,7 @@ import writeDataAsArrays from "../helpers/writeDataAsArrays.js"
  */
 export default class SimpleTable extends SimpleWebTable {
     /** The SimpleDB that created this table. @category Properties */
-    sdb: SimpleDB
+    override sdb: SimpleDB
 
     constructor(
         name: string,
@@ -77,7 +77,7 @@ export default class SimpleTable extends SimpleWebTable {
     }
 
     // TO RETURN THE RIGHT TYPES
-    async cloneTable(
+    override async cloneTable(
         options: {
             outputTable?: string
             condition?: string
@@ -109,7 +109,7 @@ export default class SimpleTable extends SimpleWebTable {
 
         return clonedTable
     }
-    async selectRows(
+    override async selectRows(
         count: number | string,
         options: { offset?: number; outputTable?: string | boolean } = {}
     ) {
@@ -136,7 +136,7 @@ export default class SimpleTable extends SimpleWebTable {
             return this
         }
     }
-    async crossJoin(
+    override async crossJoin(
         rightTable: SimpleTable,
         options: {
             outputTable?: string | boolean
@@ -181,7 +181,7 @@ export default class SimpleTable extends SimpleWebTable {
         }
     }
 
-    async summarize(
+    override async summarize(
         options: {
             values?: string | string[]
             categories?: string | string[]
@@ -228,7 +228,7 @@ export default class SimpleTable extends SimpleWebTable {
             return this
         }
     }
-    async join(
+    override async join(
         rightTable: SimpleTable,
         options: {
             commonColumn?: string | string[]
@@ -242,7 +242,7 @@ export default class SimpleTable extends SimpleWebTable {
         }
         return await join(this, rightTable, options)
     }
-    async correlations(
+    override async correlations(
         options: {
             x?: string
             y?: string
@@ -262,7 +262,7 @@ export default class SimpleTable extends SimpleWebTable {
             return this
         }
     }
-    async linearRegressions(
+    override async linearRegressions(
         options: {
             x?: string
             y?: string
@@ -282,7 +282,7 @@ export default class SimpleTable extends SimpleWebTable {
             return this
         }
     }
-    async joinGeo(
+    override async joinGeo(
         rightTable: SimpleTable,
         method: "intersect" | "inside" | "within",
         options: {
@@ -300,7 +300,7 @@ export default class SimpleTable extends SimpleWebTable {
         }
         return await joinGeo(this, method, rightTable, options)
     }
-    async aggregateGeo(
+    override async aggregateGeo(
         method: "union" | "intersection",
         options: {
             column?: string
@@ -346,7 +346,7 @@ export default class SimpleTable extends SimpleWebTable {
      *
      * @category Importing data
      */
-    async loadArray(arrayOfObjects: { [key: string]: unknown }[]) {
+    override async loadArray(arrayOfObjects: { [key: string]: unknown }[]) {
         this.debug && console.log("\nloadArray()")
         this.debug &&
             console.log("parameters:", {
@@ -387,7 +387,7 @@ export default class SimpleTable extends SimpleWebTable {
      *
      * @category Importing data
      */
-    async fetchData() {
+    override async fetchData() {
         throw new Error(
             "This method is just for the web. For NodeJS and other runtimes, use loadData."
         )
@@ -549,7 +549,7 @@ export default class SimpleTable extends SimpleWebTable {
      *
      * @category Importing data
      */
-    async fetchGeoData() {
+    override async fetchGeoData() {
         throw new Error(
             "This method is just for the web. For NodeJS and other runtimes, use loadGeoData."
         )

@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, unlinkSync } from "fs"
+import { readFileSync, writeFileSync, unlinkSync } from "node:fs"
 import SimpleDB from "../class/SimpleDB"
 
 export default function cleanCache(sdb: SimpleDB) {

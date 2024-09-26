@@ -1,6 +1,6 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs"
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import SimpleTable from "../class/SimpleTable"
-import crypto from "crypto"
+import crypto from "node:crypto"
 import { formatDate, prettyDuration } from "journalism"
 
 type cacheSources = {

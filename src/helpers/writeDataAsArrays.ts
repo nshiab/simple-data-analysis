@@ -1,7 +1,7 @@
 import { dataToArrays } from "journalism"
 import SimpleTable from "../class/SimpleTable"
 import getExtension from "./getExtension.js"
-import { writeFileSync } from "fs"
+import { writeFileSync } from "node:fs"
 
 export default async function writeDataAsArrays(
     simpleTable: SimpleTable,
