@@ -63,7 +63,7 @@ export default class SimpleWebDB extends Simple {
      *
      * @category Internal
      */
-    async start() {
+    async start(): Promise<this> {
         if (this.db === undefined || this.connection === undefined) {
             this.debug && console.log("\nstart()\n")
             // We await import to make duckdb-wasm optional
@@ -98,7 +98,10 @@ export default class SimpleWebDB extends Simple {
      *
      * @category DB methods
      */
-    newTable(name?: string, projections?: { [key: string]: string }) {
+    newTable(
+        name?: string,
+        projections?: { [key: string]: string }
+    ): SimpleWebTable {
         this.debug && console.log("\nnewWebTable()")
 
         const proj = projections ?? {}

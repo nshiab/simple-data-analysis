@@ -215,7 +215,9 @@ export default class SimpleWebTable extends Simple {
      *
      * @category Importing data
      */
-    async loadArray(arrayOfObjects: { [key: string]: unknown }[]) {
+    async loadArray(
+        arrayOfObjects: { [key: string]: unknown }[]
+    ): Promise<SimpleWebTable> {
         await queryDB(
             this,
             loadArrayQueryWeb(this.name, arrayOfObjects),
@@ -262,7 +264,7 @@ export default class SimpleWebTable extends Simple {
             delim?: string
             skip?: number
         } = {}
-    ) {
+    ): Promise<this> {
         await fetchDataBrowser(this, this.name, url, options)
 
         return this
@@ -363,7 +365,7 @@ export default class SimpleWebTable extends Simple {
             outputTable?: string
             condition?: string
         } = {}
-    ) {
+    ): Promise<SimpleWebTable> {
         let clonedTable: SimpleWebTable
         if (typeof options.outputTable === "string") {
             clonedTable = this.sdb.newTable(
@@ -584,7 +586,7 @@ export default class SimpleWebTable extends Simple {
      * const bool = await table.hasColum("name")
      * ```
      */
-    async hasColumn(column: string) {
+    async hasColumn(column: string): Promise<boolean> {
         const columns = await this.getColumns()
         return columns.includes(column)
     }
@@ -676,7 +678,7 @@ export default class SimpleWebTable extends Simple {
     async selectRows(
         count: number | string,
         options: { offset?: number; outputTable?: string | boolean } = {}
-    ) {
+    ): Promise<SimpleWebTable> {
         if (options.outputTable === true) {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
@@ -1326,7 +1328,7 @@ export default class SimpleWebTable extends Simple {
         options: {
             outputTable?: string | boolean
         } = {}
-    ) {
+    ): Promise<SimpleWebTable> {
         const identicalColumns = await getIdenticalColumns(
             await this.getColumns(),
             await rightTable.getColumns()
@@ -1400,7 +1402,7 @@ export default class SimpleWebTable extends Simple {
             type?: "inner" | "left" | "right" | "full"
             outputTable?: string | boolean
         } = {}
-    ) {
+    ): Promise<SimpleWebTable> {
         if (options.outputTable === true) {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
@@ -2114,7 +2116,7 @@ export default class SimpleWebTable extends Simple {
             outputTable?: string | boolean
             toMs?: boolean
         } = {}
-    ) {
+    ): Promise<SimpleWebTable> {
         if (options.outputTable === true) {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
@@ -2246,7 +2248,7 @@ export default class SimpleWebTable extends Simple {
             decimals?: number
             outputTable?: string | boolean
         } = {}
-    ) {
+    ): Promise<SimpleWebTable> {
         if (options.outputTable === true) {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
@@ -2310,7 +2312,7 @@ export default class SimpleWebTable extends Simple {
             decimals?: number
             outputTable?: string | true
         } = {}
-    ) {
+    ): Promise<SimpleWebTable> {
         if (options.outputTable === true) {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
@@ -3125,7 +3127,7 @@ export default class SimpleWebTable extends Simple {
     async fetchGeoData(
         file: string,
         options: { toWGS84?: boolean; from?: string } = {}
-    ) {
+    ): Promise<SimpleWebTable> {
         await queryDB(
             this,
             `INSTALL spatial; LOAD spatial;
@@ -3750,7 +3752,7 @@ export default class SimpleWebTable extends Simple {
             distanceMethod?: "srs" | "haversine" | "spheroid"
             outputTable?: string | boolean
         } = {}
-    ) {
+    ): Promise<SimpleWebTable> {
         if (options.outputTable === true) {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
@@ -4164,7 +4166,7 @@ export default class SimpleWebTable extends Simple {
             categories?: string | string[]
             outputTable?: string | boolean
         } = {}
-    ) {
+    ): Promise<SimpleWebTable> {
         const column =
             typeof options.column === "string"
                 ? options.column
@@ -4241,7 +4243,9 @@ export default class SimpleWebTable extends Simple {
      *
      * @category Geospatial
      */
-    async getBoundingBox(column?: string) {
+    async getBoundingBox(
+        column?: string
+    ): Promise<[number, number, number, number]> {
         const col = column ?? (await findGeoColumn(this))
         const result = (await queryDB(
             this,
@@ -4280,7 +4284,10 @@ export default class SimpleWebTable extends Simple {
      *
      * @category Geospatial
      */
-    async getGeoData(column?: string) {
+    async getGeoData(column?: string): Promise<{
+        type: string
+        features: unknown[]
+    }> {
         if (column === undefined) {
             column = await findGeoColumn(this)
         }

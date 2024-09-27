@@ -62,7 +62,7 @@ export default class SimpleDB extends SimpleWebDB {
      *
      * @category Internal
      */
-    async start() {
+    override async start(): Promise<this> {
         if (this.db === undefined || this.connection === undefined) {
             this.debug && console.log("\nstart()")
             this.db = new Database(":memory:")
@@ -91,7 +91,7 @@ export default class SimpleDB extends SimpleWebDB {
      *
      * @category DB methods
      */
-    newTable(
+    override newTable(
         name?: string,
         projections?: { [key: string]: string }
     ): SimpleTable {
@@ -136,7 +136,7 @@ export default class SimpleDB extends SimpleWebDB {
      *
      * @category DB methods
      */
-    async done() {
+    override async done() {
         this.debug && console.log("\ndone()")
         if (this.db instanceof Database) {
             this.db.close()
