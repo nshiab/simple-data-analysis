@@ -147,7 +147,7 @@ Then, run this command in a new folder to install what you need.
 npx simple-data-analysis
 ```
 
-Then copy and paste the code below into the `main.js` or `main.ts` file and run it with `npm run sda`.
+Then copy and paste the code below into the `main.js` or `main.ts` file and run it with `npm run sda` or `bun run sda` or `deno task sda`.
 
 In this example, we load a CSV file with the latitude and longitude of 2023 wildfires in Canada, create point geometries from it, do a spatial join with provinces' boundaries, and then compute the number of fires and the total area burnt per province.
 
