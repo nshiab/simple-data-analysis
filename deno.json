@@ -2,6 +2,9 @@
     "name": "@nshiab/simple-data-analysis",
     "version": "3.9.3",
     "exports": "./src/index.ts",
+    "tasks": {
+        "test": "mocha \"test/unit/**/*.test.ts\" --timeout 20000"
+    },
     "publish": {
         "exclude": [
             "test",

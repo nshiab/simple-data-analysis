@@ -51,6 +51,7 @@
     "scripts": {
         "test": "npx mocha \"test/unit/**/*.test.ts\" --timeout 20000",
         "test-bun": "bunx mocha \"test/unit/**/*.test.ts\" --timeout 20000",
+        "test-deno": "deno task test",
         "build": "rm -rf dist && npx tsc && npx rollup --config",
         "all-tests": "npm i && npm run format && npm run lint && npm run test && npm run build && npm run test-doc && bun upgrade && bun run test-bun",
         "rollup": "rollup --config",
