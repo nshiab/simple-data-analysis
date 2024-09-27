@@ -2,17 +2,15 @@
 
 SDA is an easy-to-use and high-performance JavaScript library for data analysis. You can use it with tabular and geospatial data.
 
-The documentation is available [here](https://nshiab.github.io/simple-data-analysis/). Tests are run for Node.js and Bun.
+The library is available on [NPM](https://www.npmjs.com/package/simple-data-analysis) and [JSR](https://jsr.io/@nshiab/simple-data-analysis). The documentation is available on [Github](https://nshiab.github.io/simple-data-analysis/) and [JSR](https://jsr.io/@nshiab/simple-data-analysis/doc). Tests are run for Node.js, Bun, and Deno.
 
 The library is maintained by [Nael Shiab](http://naelshiab.com/), computational journalist and senior data producer for [CBC News](https://www.cbc.ca/news).
 
-To install the library:
+To use the library in your browser, check out [simple-data-analysis-flow](https://github.com/nshiab/simple-data-analysis-flow). You might also find the [journalism library](https://github.com/nshiab/journalism) and [Code Like a Journalist](https://github.com/nshiab/code-like-a-journalist) interesting.
 
-```
-npm i simple-data-analysis
-```
+## Quick setup
 
-To quickly get started, create a folder and run [setup-sda](https://github.com/nshiab/setup-sda):
+Create a folder and run [setup-sda](https://github.com/nshiab/setup-sda):
 
 ```
 npx setup-sda
@@ -20,11 +18,62 @@ npx setup-sda
 
 The options are:
 
+-   _--deno_ : To use Deno instead of Node.js.
 -   _--bun_ : To use Bun instead of Node.js.
 -   _--js_ : To use JavaScript instead of TypeScript.
 -   _--force_ : To overwrite files like package.json, .gitignore, etc.
 
-To use the library in your browser, check out [simple-data-analysis-flow](https://github.com/nshiab/simple-data-analysis-flow). You might also find the [journalism library](https://github.com/nshiab/journalism) and [Code Like a Journalist](https://github.com/nshiab/code-like-a-journalist) interesting.
+## With Node.js
+
+To install from NPM:
+
+```
+npm i simple-data-analysis
+```
+
+To run a `.js` file:
+
+```
+node main.js
+```
+
+To run a `.ts` file with Node.js v22.6.x or higher:
+
+```
+node --experimental-strip-types main.ts
+```
+
+## With Bun
+
+To install from NPM:
+
+```
+bun add simple-data-analysis
+```
+
+To run a `.js` or `.ts` file:
+
+```
+bun run index.js
+```
+
+## With Deno
+
+You need Deno v2.x.x or higher.
+
+To install from JSR:
+
+```
+deno install --node-modules-dir=auto --allow-scripts=npm:duckdb jsr:simple-data-analysis
+```
+
+Depending on what you are doing, you might need to install and enable the [Deno extension](https://docs.deno.com/runtime/getting_started/setup_your_environment/) before running your code.
+
+To run:
+
+```
+deno run --node-modules-dir=auto -A main.ts
+```
 
 ## Core principles
 
@@ -88,112 +137,6 @@ We also tried the One Billion Row Challenge, which involves computing the min, m
 
 Note that DuckDB, which powers SDA, can also be used with [Python](https://duckdb.org/docs/api/python/overview.html) and [R](https://duckdb.org/docs/api/r).
 
-## SDA in an Observable notebook
-
-Observable notebooks are great for data analysis in JavaScript.
-
-In this [example](https://observablehq.com/@nshiab/hello-simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript), we calculate the average temperature per decade in three cities and check for trends. We will also join two tables to retrieve the names of the cities.
-
-This [other example](https://observablehq.com/@nshiab/hello-simple-data-analysis-and-geospatial-data?collection=@nshiab/simple-data-analysis-in-javascript) focuses on geospatial analysis. We create point geometries from the latitude and longitude of 2023 wildfires in Canada, do a spatial join with provinces' boundaries, and then compute the number of fires and the total area burnt per province.
-
-## SDA in a Web App or HTML Page
-
-If you are developing a web application, you'll need to install `@duckdb/duckdb-wasm`:
-
-```
-npm i @duckdb/duckdb-wasm
-```
-
-Then import `SimpleWebDB` or `SimpleWebTable` directly from `bundle.js`:
-
-```js
-import { SimpleWebDB } from "./node_modules/simple-data-analysis/dist/bundle.js"
-```
-
-You can also import the minified bundle with a npm-based CDN like jsDelivr.
-
-Here's some code you can copy and paste into an HTML file. You can also adapt it to any bundler or framework of your choice.
-
-In this example, we load a CSV file with the latitude and longitude of 2023 wildfires in Canada. We create point geometries from it, perform a spatial join with provinces boundaries, and then compute the number of fires and the total area burnt per province.
-
-```html
-<script type="module">
-    // We import the SimpleWebDB class from the esm bundle.
-    import { SimpleWebDB } from "https://cdn.jsdelivr.net/npm/simple-data-analysis@3.8.10/+esm"
-
-    async function main() {
-        // We start a SimpleWebDB instance.
-        const sdb = new SimpleWebDB()
-
-        // We create a new table.
-        const provinces = sdb.newTable("provinces")
-        // We fetch the provinces' boundaries. It's a geoJSON.
-        await provinces.fetchGeoData(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json"
-        )
-        // We log the provinces.
-        await provinces.logTable()
-
-        // We create a new table.
-        const fires = sdb.newTable("fires")
-        // We fetch the wildfires data. It's a CSV.
-        await fires.fetchData(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv"
-        )
-        // We create point geometries from the lat and lon columns
-        // and we store the points in the new column geom.
-        await fires.points("lat", "lon", "geom")
-        // We log the fires
-        await fires.logTable()
-
-        // We match fires with provinces
-        // and we output the results into a new table.
-        // By default, joinGeo will automatically look
-        // for columns storing geometries in the tables,
-        // do a left join, and put the results
-        // in the left table.
-        const firesInsideProvinces = await fires.joinGeo(provinces, "inside", {
-            outputTable: "firesInsideProvinces",
-        })
-
-        // We summarize to count the number of fires
-        // and sum up the area burnt in each province.
-        await firesInsideProvinces.summarize({
-            values: "hectares",
-            categories: "nameEnglish",
-            summaries: ["count", "sum"],
-            decimals: 0,
-        })
-        // We rename columns.
-        await firesInsideProvinces.renameColumns({
-            count: "nbFires",
-            sum: "burntArea",
-        })
-        // We want the province with
-        // the greatest burnt area first.
-        await firesInsideProvinces.sort({ burntArea: "desc" })
-
-        // We log the results. By default, the method
-        // logs the first 10 rows, but there are 13
-        // provinces and territories in Canada.
-        await firesInsideProvinces.logTable(13)
-
-        // We can also retrieve the data as an array of objects.
-        const data = await firesInsideProvinces.getData()
-        console.log(data)
-
-        // We close everything.
-        await sdb.done()
-    }
-
-    main()
-</script>
-```
-
-And here's what you'll see in your browser's console tab.
-
-![The console tab in Google Chrome showing the result of simple-data-analysis computations.](./assets/browser-console.png)
-
 ## SDA with Node.js and similar runtimes
 
 First, ensure that you have [Node.js v18 or higher](https://nodejs.org/en/) installed.
@@ -204,13 +147,9 @@ Then, run this command in a new folder to install what you need.
 npx simple-data-analysis
 ```
 
-Then copy and paste the code below into the `index.js` or `index.ts` file and run it with `npm run sda`.
+Then copy and paste the code below into the `main.js` or `main.ts` file and run it with `npm run sda`.
 
 In this example, we load a CSV file with the latitude and longitude of 2023 wildfires in Canada, create point geometries from it, do a spatial join with provinces' boundaries, and then compute the number of fires and the total area burnt per province.
-
-It's the same code as the one you would run in a browser, except we use the _SimpleDB_ class instead of _SimpleWebDB_ and _loadData_ instead of _fetchData_.
-
-With Node.js and other runtimes, more methods are available to load and write data from/to local files. Check the [SimpleTable class documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html).
 
 ```ts
 import { SimpleDB } from "simple-data-analysis"
@@ -487,6 +426,112 @@ table firesInsideProvinces:
 
 SimpleDB - Done in 594 ms
 ```
+
+## SDA in an Observable notebook
+
+Observable notebooks are great for data analysis in JavaScript.
+
+In this [example](https://observablehq.com/@nshiab/hello-simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript), we calculate the average temperature per decade in three cities and check for trends. We will also join two tables to retrieve the names of the cities.
+
+This [other example](https://observablehq.com/@nshiab/hello-simple-data-analysis-and-geospatial-data?collection=@nshiab/simple-data-analysis-in-javascript) focuses on geospatial analysis. We create point geometries from the latitude and longitude of 2023 wildfires in Canada, do a spatial join with provinces' boundaries, and then compute the number of fires and the total area burnt per province.
+
+## SDA in a Web App or HTML Page
+
+If you are developing a web application, you'll need to install `@duckdb/duckdb-wasm`:
+
+```
+npm i @duckdb/duckdb-wasm
+```
+
+Then import `SimpleWebDB` or `SimpleWebTable` directly from `bundle.js`:
+
+```js
+import { SimpleWebDB } from "./node_modules/simple-data-analysis/dist/bundle.js"
+```
+
+You can also import the minified bundle with a npm-based CDN like jsDelivr, as shown below.
+
+Here's some code you can copy and paste into an HTML file. You can also adapt it to any bundler or framework of your choice.
+
+In this example, we load a CSV file with the latitude and longitude of 2023 wildfires in Canada. We create point geometries from it, perform a spatial join with provinces boundaries, and then compute the number of fires and the total area burnt per province.
+
+```html
+<script type="module">
+    // We import the SimpleWebDB class from the esm bundle.
+    import { SimpleWebDB } from "https://cdn.jsdelivr.net/npm/simple-data-analysis@3.8.10/+esm"
+
+    async function main() {
+        // We start a SimpleWebDB instance.
+        const sdb = new SimpleWebDB()
+
+        // We create a new table.
+        const provinces = sdb.newTable("provinces")
+        // We fetch the provinces' boundaries. It's a geoJSON.
+        await provinces.fetchGeoData(
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json"
+        )
+        // We log the provinces.
+        await provinces.logTable()
+
+        // We create a new table.
+        const fires = sdb.newTable("fires")
+        // We fetch the wildfires data. It's a CSV.
+        await fires.fetchData(
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv"
+        )
+        // We create point geometries from the lat and lon columns
+        // and we store the points in the new column geom.
+        await fires.points("lat", "lon", "geom")
+        // We log the fires
+        await fires.logTable()
+
+        // We match fires with provinces
+        // and we output the results into a new table.
+        // By default, joinGeo will automatically look
+        // for columns storing geometries in the tables,
+        // do a left join, and put the results
+        // in the left table.
+        const firesInsideProvinces = await fires.joinGeo(provinces, "inside", {
+            outputTable: "firesInsideProvinces",
+        })
+
+        // We summarize to count the number of fires
+        // and sum up the area burnt in each province.
+        await firesInsideProvinces.summarize({
+            values: "hectares",
+            categories: "nameEnglish",
+            summaries: ["count", "sum"],
+            decimals: 0,
+        })
+        // We rename columns.
+        await firesInsideProvinces.renameColumns({
+            count: "nbFires",
+            sum: "burntArea",
+        })
+        // We want the province with
+        // the greatest burnt area first.
+        await firesInsideProvinces.sort({ burntArea: "desc" })
+
+        // We log the results. By default, the method
+        // logs the first 10 rows, but there are 13
+        // provinces and territories in Canada.
+        await firesInsideProvinces.logTable(13)
+
+        // We can also retrieve the data as an array of objects.
+        const data = await firesInsideProvinces.getData()
+        console.log(data)
+
+        // We close everything.
+        await sdb.done()
+    }
+
+    main()
+</script>
+```
+
+And here's what you'll see in your browser's console tab.
+
+![The console tab in Google Chrome showing the result of simple-data-analysis computations.](./assets/browser-console.png)
 
 ### Others
 
