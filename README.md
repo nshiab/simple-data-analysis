@@ -26,7 +26,7 @@ deno run -A npm:setup-sda --deno
 The options are:
 
 -   _--deno_ : To setup for Deno instead of Node.js.
--   _--bun_ : To setup Bun instead of Node.js.
+-   _--bun_ : To setup for Bun instead of Node.js.
 -   _--js_ : To use JavaScript instead of TypeScript.
 -   _--force_ : To overwrite files like package.json, .gitignore, etc.
 
