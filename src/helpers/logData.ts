@@ -1,3 +1,4 @@
+// Triggers a warning on build but should be fine.
 import { Buffer } from "node:buffer"
 
 export default function logData(
