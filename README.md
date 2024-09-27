@@ -13,13 +13,20 @@ To use the library in your browser, check out [simple-data-analysis-flow](https:
 Create a folder and run [setup-sda](https://github.com/nshiab/setup-sda):
 
 ```
+# Node.js
 npx setup-sda
+
+# Bun
+bunx setup-sda --bun
+
+# Deno
+deno run -A npm:setup-sda --deno
 ```
 
 The options are:
 
--   _--deno_ : To use Deno instead of Node.js.
--   _--bun_ : To use Bun instead of Node.js.
+-   _--deno_ : To setup for Deno instead of Node.js.
+-   _--bun_ : To setup Bun instead of Node.js.
 -   _--js_ : To use JavaScript instead of TypeScript.
 -   _--force_ : To overwrite files like package.json, .gitignore, etc.
 
