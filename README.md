@@ -28,7 +28,19 @@ The options are:
 -   _--deno_ : To setup for Deno instead of Node.js.
 -   _--bun_ : To setup for Bun instead of Node.js.
 -   _--js_ : To use JavaScript instead of TypeScript.
--   _--force_ : To overwrite files like package.json, .gitignore, etc.
+
+You can now run the code below to run `main.js` or `main.ts` and watch for changes.
+
+```bash
+# Node.js
+npm run sda
+
+# Bun
+bun run sda
+
+# Deno
+deno task sda
+```
 
 ## With Node.js
 
