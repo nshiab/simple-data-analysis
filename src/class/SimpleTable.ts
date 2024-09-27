@@ -56,7 +56,7 @@ import writeDataAsArrays from "../helpers/writeDataAsArrays.js"
  */
 export default class SimpleTable extends SimpleWebTable {
     /** The SimpleDB that created this table. @category Properties */
-    override sdb: SimpleDB
+    declare sdb: SimpleDB
 
     constructor(
         name: string,
@@ -82,7 +82,7 @@ export default class SimpleTable extends SimpleWebTable {
             outputTable?: string
             condition?: string
         } = {}
-    ) {
+    ): Promise<SimpleTable> {
         let clonedTable: SimpleTable
         if (typeof options.outputTable === "string") {
             clonedTable = this.sdb.newTable(
@@ -112,7 +112,7 @@ export default class SimpleTable extends SimpleWebTable {
     override async selectRows(
         count: number | string,
         options: { offset?: number; outputTable?: string | boolean } = {}
-    ) {
+    ): Promise<SimpleTable> {
         if (options.outputTable === true) {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
@@ -141,7 +141,7 @@ export default class SimpleTable extends SimpleWebTable {
         options: {
             outputTable?: string | boolean
         } = {}
-    ) {
+    ): Promise<SimpleTable> {
         const identicalColumns = await getIdenticalColumns(
             await this.getColumns(),
             await rightTable.getColumns()
@@ -216,7 +216,7 @@ export default class SimpleTable extends SimpleWebTable {
             outputTable?: string | boolean
             toMs?: boolean
         } = {}
-    ) {
+    ): Promise<SimpleTable> {
         if (options.outputTable === true) {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
@@ -235,12 +235,12 @@ export default class SimpleTable extends SimpleWebTable {
             type?: "inner" | "left" | "right" | "full"
             outputTable?: string | boolean
         } = {}
-    ) {
+    ): Promise<SimpleTable> {
         if (options.outputTable === true) {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
         }
-        return await join(this, rightTable, options)
+        return (await join(this, rightTable, options)) as SimpleTable
     }
     override async correlations(
         options: {
@@ -250,7 +250,7 @@ export default class SimpleTable extends SimpleWebTable {
             decimals?: number
             outputTable?: string | boolean
         } = {}
-    ) {
+    ): Promise<SimpleTable> {
         if (options.outputTable === true) {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
@@ -270,7 +270,7 @@ export default class SimpleTable extends SimpleWebTable {
             decimals?: number
             outputTable?: string | boolean
         } = {}
-    ) {
+    ): Promise<SimpleTable> {
         if (options.outputTable === true) {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
@@ -293,12 +293,12 @@ export default class SimpleTable extends SimpleWebTable {
             distanceMethod?: "srs" | "haversine" | "spheroid"
             outputTable?: string | boolean
         } = {}
-    ) {
+    ): Promise<SimpleTable> {
         if (options.outputTable === true) {
             options.outputTable = `table${this.sdb.tableIncrement}`
             this.sdb.tableIncrement += 1
         }
-        return await joinGeo(this, method, rightTable, options)
+        return (await joinGeo(this, method, rightTable, options)) as SimpleTable
     }
     override async aggregateGeo(
         method: "union" | "intersection",
@@ -307,7 +307,7 @@ export default class SimpleTable extends SimpleWebTable {
             categories?: string | string[]
             outputTable?: string | boolean
         } = {}
-    ) {
+    ): Promise<SimpleTable> {
         const column =
             typeof options.column === "string"
                 ? options.column
@@ -346,7 +346,9 @@ export default class SimpleTable extends SimpleWebTable {
      *
      * @category Importing data
      */
-    override async loadArray(arrayOfObjects: { [key: string]: unknown }[]) {
+    override async loadArray(
+        arrayOfObjects: { [key: string]: unknown }[]
+    ): Promise<this> {
         this.debug && console.log("\nloadArray()")
         this.debug &&
             console.log("parameters:", {
@@ -387,10 +389,12 @@ export default class SimpleTable extends SimpleWebTable {
      *
      * @category Importing data
      */
-    override async fetchData() {
+    override async fetchData(): Promise<this> {
         throw new Error(
             "This method is just for the web. For NodeJS and other runtimes, use loadData."
         )
+
+        // Needed for types
         return this
     }
 
@@ -460,7 +464,7 @@ export default class SimpleTable extends SimpleWebTable {
             // excel options
             sheet?: string
         } = {}
-    ) {
+    ): Promise<SimpleTable> {
         await queryDB(
             this,
             loadDataNodeQuery(this.name, stringToArray(files), options),
@@ -526,7 +530,7 @@ export default class SimpleTable extends SimpleWebTable {
             // excel options
             sheet?: string
         } = {}
-    ) {
+    ): Promise<SimpleTable> {
         const files = readdirSync(directory).map(
             (file) =>
                 `${directory.slice(-1) === "/" ? directory : directory + "/"}${file}`
@@ -549,7 +553,7 @@ export default class SimpleTable extends SimpleWebTable {
      *
      * @category Importing data
      */
-    override async fetchGeoData() {
+    override async fetchGeoData(): Promise<this> {
         throw new Error(
             "This method is just for the web. For NodeJS and other runtimes, use loadGeoData."
         )
@@ -584,7 +588,7 @@ export default class SimpleTable extends SimpleWebTable {
     async loadGeoData(
         file: string,
         options: { toWGS84?: boolean; from?: string } = {}
-    ) {
+    ): Promise<SimpleTable> {
         await queryDB(
             this,
             `INSTALL spatial; LOAD spatial;${file.toLowerCase().includes("http") ? " INSTALL https; LOAD https;" : ""}

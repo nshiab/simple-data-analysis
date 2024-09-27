@@ -62,7 +62,7 @@ export default class SimpleDB extends SimpleWebDB {
      *
      * @category Internal
      */
-    override async start() {
+    override async start(): Promise<this> {
         if (this.db === undefined || this.connection === undefined) {
             this.debug && console.log("\nstart()")
             this.db = new Database(":memory:")
