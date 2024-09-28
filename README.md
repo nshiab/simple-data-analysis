@@ -17,16 +17,14 @@ Create a folder and run [setup-sda](https://github.com/nshiab/setup-sda):
 npx setup-sda
 
 # Bun
-bunx setup-sda --bun
+bunx setup-sda
 
 # Deno
-deno run -A npm:setup-sda --deno
+deno run -A npm:setup-sda
 ```
 
-The options are:
+There is one option:
 
--   _--deno_ : To setup for Deno instead of Node.js.
--   _--bun_ : To setup for Bun instead of Node.js.
 -   _--js_ : To use JavaScript instead of TypeScript.
 
 You can now run the code below to run `main.js` or `main.ts` and watch for changes.
@@ -56,7 +54,7 @@ To run a `.js` file:
 node main.js
 ```
 
-To run a `.ts` file with Node.js v22.6.x or higher:
+To run a `.ts` file with Node.js v22.6.0 or higher:
 
 ```
 node --experimental-strip-types main.ts
@@ -78,7 +76,7 @@ bun run index.js
 
 ## With Deno
 
-You need Deno v2.x.x or higher.
+You need Deno v2.0.0 or higher.
 
 To install from JSR:
 
