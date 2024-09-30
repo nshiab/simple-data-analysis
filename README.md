@@ -12,15 +12,15 @@ To use the library in your browser, check out [simple-data-analysis-flow](https:
 
 Create a folder and run [setup-sda](https://github.com/nshiab/setup-sda):
 
-```
+```bash
+# Deno
+deno run -A jsr:@nshiab/setup-sda
+
 # Node.js
 npx setup-sda
 
 # Bun
 bunx setup-sda
-
-# Deno
-deno run -A npm:setup-sda
 ```
 
 There is one option:
@@ -30,14 +30,14 @@ There is one option:
 You can now run the code below to run `main.js` or `main.ts` and watch for changes.
 
 ```bash
+# Deno
+deno task sda
+
 # Node.js
 npm run sda
 
 # Bun
 bun run sda
-
-# Deno
-deno task sda
 ```
 
 ## With Node.js
@@ -81,7 +81,7 @@ You need Deno v2.0.0 or higher.
 To install from JSR:
 
 ```
-deno install --node-modules-dir=auto --allow-scripts=npm:duckdb jsr:simple-data-analysis
+deno install --node-modules-dir=auto --allow-scripts=npm:duckdb jsr:@nshiab/simple-data-analysis
 ```
 
 Depending on what you are doing, you might need to install and enable the [Deno extension](https://docs.deno.com/runtime/getting_started/setup_your_environment/) before running your code.
@@ -156,21 +156,6 @@ Note that DuckDB, which powers SDA, can also be used with [Python](https://duckd
 
 ## SDA with Node.js and similar runtimes
 
-Run this command in a new folder to install what you need.
-
-```bash
-# Node.js
-npx setup-sda
-
-# Bun
-bunx setup-sda
-
-# Deno
-deno run -A npm:setup-sda
-```
-
-Then copy and paste the code below into the `main.js` or `main.ts` file that has been created.
-
 In this example, we load a CSV file with the latitude and longitude of 2023 wildfires in Canada, create point geometries from it, do a spatial join with provinces' boundaries, and then compute the number of fires and the total area burnt per province.
 
 If you are using Deno, make sure to switch the first line to `import { SimpleDB } from "@nshiab/simple-data-analysis";` and to enable the [Deno extension](https://docs.deno.com/runtime/getting_started/setup_your_environment/).
@@ -238,22 +223,7 @@ await firesInsideProvinces.logTable(13)
 await sdb.done()
 ```
 
-Run the code with one of the following commands.
-
-```bash
-# Node.js
-npm run sda
-
-# Bun
-bun run sda
-
-# Deno
-deno task sda
-```
-
-And here's what you should see in your console.
-
-By default, the `sda` command watches for changes. So if you update `main.js` or `main.ts` and save it, the script will rerun automatically.
+Here's what you should see in your console if your run this scripts.
 
 ![The console tab in VS Code showing the result of simple-data-analysis computations.](./assets/nodejs-console.png)
 
@@ -265,7 +235,7 @@ Here's the previous example adapted to cache data. For more information, check t
 
 The data is cached in the hidden folder `.sda-cache` at the root of your code repository. Make sure to add it to your `.gitignore`. If you want to clean your cache, just delete the folder.
 
-If you set up with `npx simple-data-analysis`, `.sda-cache` is automatically added to your `.gitignore` and you can use `npm run clean` to clear the cache.
+If you set up with `setup-sda` (see _Quick setup_ at the top), `.sda-cache` is automatically added to your `.gitignore` and you can use `npm run clean` or `bun run clean` or `deno task clean` to clear the cache.
 
 ```ts
 import { SimpleDB } from "simple-data-analysis"
