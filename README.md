@@ -76,15 +76,13 @@ bun run index.js
 
 ## With Deno
 
-You need Deno v2.0.0 or higher.
+You need Deno v2.0.0 or higher. It's strongly recommended to install and enable the [Deno extension](https://docs.deno.com/runtime/getting_started/setup_your_environment/).
 
 To install from JSR:
 
 ```
 deno install --node-modules-dir=auto --allow-scripts=npm:duckdb jsr:@nshiab/simple-data-analysis
 ```
-
-Depending on what you are doing, you might need to install and enable the [Deno extension](https://docs.deno.com/runtime/getting_started/setup_your_environment/) before running your code.
 
 To run:
 
@@ -154,7 +152,7 @@ We also tried the One Billion Row Challenge, which involves computing the min, m
 
 Note that DuckDB, which powers SDA, can also be used with [Python](https://duckdb.org/docs/api/python/overview.html) and [R](https://duckdb.org/docs/api/r).
 
-## SDA with Node.js and similar runtimes
+## Example
 
 In this example, we load a CSV file with the latitude and longitude of 2023 wildfires in Canada, create point geometries from it, do a spatial join with provinces' boundaries, and then compute the number of fires and the total area burnt per province.
 
@@ -436,7 +434,7 @@ table firesInsideProvinces:
 SimpleDB - Done in 594 ms
 ```
 
-## SDA in an Observable notebook
+## In Observable notebooks
 
 Observable notebooks are great for data analysis in JavaScript.
 
@@ -444,7 +442,7 @@ In this [example](https://observablehq.com/@nshiab/hello-simple-data-analysis?co
 
 This [other example](https://observablehq.com/@nshiab/hello-simple-data-analysis-and-geospatial-data?collection=@nshiab/simple-data-analysis-in-javascript) focuses on geospatial analysis. We create point geometries from the latitude and longitude of 2023 wildfires in Canada, do a spatial join with provinces' boundaries, and then compute the number of fires and the total area burnt per province.
 
-## SDA in a Web App or HTML Page
+## In Web apps or HTML pages
 
 If you are developing a web application, you'll need to install `@duckdb/duckdb-wasm`:
 
@@ -544,4 +542,4 @@ And here's what you'll see in your browser's console tab.
 
 ### Others
 
-If you want to generate and save charts with Node.js and other runtimes, check the [journalism library](https://github.com/nshiab/journalism), more specifically the [savePlotChart function](https://nshiab.github.io/journalism/functions/savePlotChart.html).
+If you want to generate and save charts with Deno, Bun or Node.js, check the [journalism library](https://github.com/nshiab/journalism), more specifically the [savePlotChart function](https://nshiab.github.io/journalism/functions/savePlotChart.html).
