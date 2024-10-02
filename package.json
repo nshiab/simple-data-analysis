@@ -53,7 +53,7 @@
         "test-bun": "bunx mocha \"test/unit/**/*.test.ts\" --timeout 20000",
         "test-deno": "deno task test",
         "build": "rm -rf dist && npx tsc && npx rollup --config",
-        "all-tests": "npm i && npm run format && npm run lint && deno publish --unstable-sloppy-imports --dry-run && npm run test && npm run build && npm run test-doc && bun upgrade && bun run test-bun && deno upgrade canary && deno task test",
+        "all-tests": "npm run format && npm run lint && deno publish --unstable-sloppy-imports --dry-run && npm i && npm run test && npm run build && npm run test-doc && bun upgrade && bun run test-bun && deno upgrade canary && deno task test",
         "rollup": "rollup --config",
         "doc": "typedoc && cp -r ./assets ./docs",
         "test-doc": "typedoc --out ./test-docs && cp -r ./assets ./test-docs",
