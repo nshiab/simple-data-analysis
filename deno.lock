@@ -14,6 +14,7 @@
     "npm:eslint-config-prettier@9": "9.1.0_eslint@8.57.1",
     "npm:eslint@^8.39.0": "8.57.1",
     "npm:journalism@^1.14.2": "1.16.2_google-auth-library@9.14.1",
+    "npm:mocha@10.7.3": "10.7.3",
     "npm:mocha@^10.7.0": "10.7.3",
     "npm:prettier@3": "3.3.3",
     "npm:rollup-plugin-polyfill-node@0.13": "0.13.0_rollup@4.22.5",
