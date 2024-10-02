@@ -2,7 +2,7 @@
 
 SDA is an easy-to-use and high-performance JavaScript library for data analysis. You can use it with tabular and geospatial data.
 
-The library is available on [NPM](https://www.npmjs.com/package/simple-data-analysis) and [JSR](https://jsr.io/@nshiab/simple-data-analysis). The documentation is available on [Github](https://nshiab.github.io/simple-data-analysis/) and [JSR](https://jsr.io/@nshiab/simple-data-analysis/doc). Tests are run for Node.js, Bun, and Deno.
+The library is available on [NPM](https://www.npmjs.com/package/simple-data-analysis) and [JSR](https://jsr.io/@nshiab/simple-data-analysis). The documentation is available on [Github](https://nshiab.github.io/simple-data-analysis/) and [JSR](https://jsr.io/@nshiab/simple-data-analysis/doc).
 
 The library is maintained by [Nael Shiab](http://naelshiab.com/), computational journalist and senior data producer for [CBC News](https://www.cbc.ca/news).
 
