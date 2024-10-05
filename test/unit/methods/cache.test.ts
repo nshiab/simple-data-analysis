@@ -266,13 +266,13 @@ describe("cache", () => {
             { cacheSourcesIdsUpdated, files },
             {
                 cacheSourcesIdsUpdated: [
-                    "table1.afaf8ab8855d778f4f19526d0bade5d5f67b761cfade1ea9be6b2636979c7055",
-                    "table2.3fd3ed0fe0def2631f630112adadcca9d7de2eab3b00e6a7122017bc39f91857",
+                    "table1.e002723377931c1c8427ff80ea900b1527fd05511b5b7a0e3133af07a6d96015",
+                    "table2.6fc0e2c340d3b4fd5785612a2d38abcb76807547bdcfd41a1e03a15fd6553880",
                 ],
                 files: [
                     "sources.json",
-                    "table1.afaf8ab8855d778f4f19526d0bade5d5f67b761cfade1ea9be6b2636979c7055.parquet",
-                    "table2.3fd3ed0fe0def2631f630112adadcca9d7de2eab3b00e6a7122017bc39f91857.geojson",
+                    "table1.e002723377931c1c8427ff80ea900b1527fd05511b5b7a0e3133af07a6d96015.parquet",
+                    "table2.6fc0e2c340d3b4fd5785612a2d38abcb76807547bdcfd41a1e03a15fd6553880.geojson",
                 ],
             }
         )
