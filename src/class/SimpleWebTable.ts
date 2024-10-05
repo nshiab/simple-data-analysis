@@ -100,6 +100,13 @@ import { camelCase, formatNumber } from "journalism"
  * await boundaries.fetchGeoData(url)
  * ```
  *
+ * @param name - Name of the table.
+ * @param projections - The projections of the geospatial columns, if any.
+ * @param simpleWebDB - The SimpleWebDB tied to this table.
+ * @param options - An optional object with configuration options:
+ *   @param options.debug - A boolean indicating whether to enable debug mode.
+ *   @param options.nbRowsToLog - Number of rows to log when displaying table data.
+ *   @param options.nbCharactersToLog - Maximum number of characters to log for strings. Useful to avoid logging large text content.
  */
 export default class SimpleWebTable extends Simple {
     /** Name of the table in the database. @category Properties */

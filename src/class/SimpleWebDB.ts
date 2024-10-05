@@ -37,6 +37,12 @@ import { prettyDuration } from "journalism"
  * // Creating a database with options. Debug information will be logged each time a method is invoked. The first 20 rows of tables will be logged (default is 10).
  * const sdb = new SimpleWebDB({ debug: true, nbRowsToLog: 20 })
  * ```
+ *
+ * @param options - Configuration options for the SimpleWebDB instance.
+ * @param options.logDuration - If true, logs the duration of operations.
+ * @param options.debug - If true, enables debug logging.
+ * @param options.nbRowsToLog - Number of rows to log when displaying table data.
+ * @param options.nbCharactersToLog - Maximum number of characters to log for strings. Useful to avoid logging large text content.
  */
 export default class SimpleWebDB extends Simple {
     /** An object keeping track of the data used in cache. @category Properties */

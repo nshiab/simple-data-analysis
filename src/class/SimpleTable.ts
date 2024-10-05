@@ -55,7 +55,17 @@ import writeDataAsArrays from "../helpers/writeDataAsArrays.js"
  * const boundaries = sdb.newTable()
  * await boundaries.loadGeoData("./boundaries.geojson")
  * ```
+ *
+ * @param name - The name of the table.
+ * @param projections - The projections of columns with geospatial data.
+ * @param simpleDB - The SimpleDB instance tied to this table.
+ * @param options - An optional object with configuration options:
+ *   @param options.debug - A boolean indicating whether to enable debug mode.
+ *   @param options.nbRowsToLog - Number of rows to log when displaying table data.
+ *   @param options.nbCharactersToLog - Maximum number of characters to log for strings. Useful to avoid logging large text content.
+ *   @param options.bigIntToInt - A boolean indicating whether to convert BigInt to Int. Defaults to true.
  */
+
 export default class SimpleTable extends SimpleWebTable {
     /** The SimpleDB that created this table. @category Properties */
     declare sdb: SimpleDB
@@ -69,7 +79,6 @@ export default class SimpleTable extends SimpleWebTable {
             nbRowsToLog?: number
             nbCharactersToLog?: number
             bigIntToInt?: boolean
-            projections?: { [key: string]: string }
         } = {}
     ) {
         super(name, projections, simpleDB, options)

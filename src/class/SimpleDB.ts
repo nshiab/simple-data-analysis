@@ -37,6 +37,13 @@ import { prettyDuration } from "journalism"
  * const sdb = new SimpleWebDB({ debug: true, nbRowsToLog: 20 })
  * ```
  *
+ * @param options - Configuration options for the SimpleDB instance.
+ * @param options.logDuration - Whether to log the duration of operations.
+ * @param options.nbRowsToLog - Number of rows to log when displaying table data.
+ * @param options.nbCharactersToLog - Number of characters to log when displaying text content. Useful for long strings.
+ * @param options.cacheVerbose - Whether to log cache-related messages.
+ * @param options.debug - Whether to enable debug logging.
+ * @param options.bigIntToInt - Whether to convert BigInt values to integers. Defaults to true.
  */
 
 export default class SimpleDB extends SimpleWebDB {
