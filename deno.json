@@ -1,27 +1,27 @@
 {
-    "name": "@nshiab/simple-data-analysis",
-    "version": "3.10.1",
-    "exports": "./src/index.ts",
-    "tasks": {
-        "test": "deno publish --unstable-sloppy-imports --dry-run"
-    },
-    "publish": {
-        "exclude": [
-            "test",
-            "docs",
-            ".github",
-            ".eslintignore",
-            ".eslintrc.cjs",
-            ".mocharc.json",
-            ".prettierignore",
-            ".prettierrc",
-            "package.json",
-            "syncJsrVersion.js",
-            "package-lock.json",
-            "rollup.config.js",
-            "tsconfig.json",
-            "typedoc.json"
-        ]
-    },
-    "nodeModulesDir": "auto"
+  "name": "@nshiab/simple-data-analysis",
+  "version": "3.10.2",
+  "exports": "./src/index.ts",
+  "tasks": {
+    "test": "deno publish --unstable-sloppy-imports --dry-run"
+  },
+  "publish": {
+    "exclude": [
+      "test",
+      "docs",
+      ".github",
+      ".eslintignore",
+      ".eslintrc.cjs",
+      ".mocharc.json",
+      ".prettierignore",
+      ".prettierrc",
+      "package.json",
+      "syncJsrVersion.js",
+      "package-lock.json",
+      "rollup.config.js",
+      "tsconfig.json",
+      "typedoc.json"
+    ]
+  },
+  "nodeModulesDir": "auto"
 }
