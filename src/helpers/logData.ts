@@ -47,7 +47,11 @@ export default function logData(
                 }
                 dataToBeLogged.push(newItem)
             }
-            if (Object.keys(types).length > 0) {
+            const columns = Object.keys(types)
+            if (columns.length > 0) {
+                for (const col of columns) {
+                    types[col] = types[col] + "/" + typeof data[0][col]
+                }
                 console.table([types])
             }
             console.table(dataToBeLogged)
