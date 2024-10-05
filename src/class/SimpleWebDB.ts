@@ -11,7 +11,8 @@ import { prettyDuration } from "journalism"
  *
  * Here's how to instantiate a SimpleWebDB instance and then a SimpleWebTable.
  *
- * @example Basic usage
+ * @example
+ * Basic usage
  * ```ts
  * // Instantiating the database.
  * const sdb = new SimpleWebDB()
@@ -30,7 +31,8 @@ import { prettyDuration } from "journalism"
  * await sdb.done()
  * ```
  *
- * @example Instanciating with options
+ * @example
+ * Instanciating with options
  * ```ts
  * // Creating a database with options. Debug information will be logged each time a method is invoked. The first 20 rows of tables will be logged (default is 10).
  * const sdb = new SimpleWebDB({ debug: true, nbRowsToLog: 20 })
@@ -80,13 +82,15 @@ export default class SimpleWebDB extends Simple {
 
     /** Creates a table in the DB.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // This returns a new SimpleWebTable
      * const employees = sdb.newTable()
      * ```
      *
-     * @example With a specific name
+     * @example
+     * With a specific name
      * ```ts
      * // By default, tables will be named table1, table2, etc.
      * // But you can also give them specific names.
@@ -140,12 +144,14 @@ export default class SimpleWebDB extends Simple {
     /**
      * Remove a table or multiple tables from the database. Invoking methods on the tables will throw and error.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * await table.removeTables(tableA)
      * ```
      *
-     * @example Multiple tables
+     * @example
+     * Multiple tables
      * ```ts
      * await table.removeTables([tableA, tableB])
      * ```
@@ -171,7 +177,8 @@ export default class SimpleWebDB extends Simple {
     /**
      * Returns the list of tables.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const tables = await sdb.getTables()
      * ```
@@ -185,7 +192,8 @@ export default class SimpleWebDB extends Simple {
     /**
      * Returns true if a specified table exists and false if not.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // You can also pass a table instance.
      * const hasEmployees = await sdb.hasTable("employees")
@@ -207,6 +215,8 @@ export default class SimpleWebDB extends Simple {
     /**
      * Returns the DuckDB extensions.
      *
+     * @example
+     * Basic usage
      * ```ts
      * const extensions = await sdb.getExtensions()
      * ```
@@ -235,7 +245,8 @@ export default class SimpleWebDB extends Simple {
     /**
      * Executes a custom SQL query, providing flexibility for advanced users.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // You can use the returnDataFrom option to retrieve the data from the query, if needed.
      * const data = await sdb.customQuery("SELECT * FROM employees WHERE Job = 'Clerk'", { returnDataFrom: "query" })
@@ -275,7 +286,8 @@ export default class SimpleWebDB extends Simple {
     /**
      * Frees up memory. Closes the connection to the database and terminates associated resources.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```typescript
      * await sdb.done();
      * ```
