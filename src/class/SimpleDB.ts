@@ -49,6 +49,8 @@ import { prettyDuration } from "journalism"
 export default class SimpleDB extends SimpleWebDB {
     /** A flag to log messages relative to the cache. Defaults to false. */
     cacheVerbose: boolean
+    /** Amount of time saved by using the cache. */
+    cacheTimeSaved: number
 
     constructor(
         options: {
@@ -63,7 +65,11 @@ export default class SimpleDB extends SimpleWebDB {
         super(options)
         this.bigIntToInt = options.bigIntToInt ?? true
         this.cacheVerbose = options.cacheVerbose ?? false
+        this.cacheTimeSaved = 0
         this.runQuery = runQueryNode
+        if (this.cacheVerbose) {
+            this.durationStart = Date.now()
+        }
     }
 
     /**
@@ -155,11 +161,19 @@ export default class SimpleDB extends SimpleWebDB {
         }
         cleanCache(this)
         if (typeof this.durationStart === "number") {
-            prettyDuration(this.durationStart, {
-                log: true,
-                prefix: "\nSimpleDB - Done in ",
-                suffix: "\n",
-            })
+            if (this.cacheTimeSaved > 0) {
+                prettyDuration(this.durationStart, {
+                    log: true,
+                    prefix: "\nSimpleDB - Done in ",
+                    suffix: ` / You saved ${prettyDuration(0, { end: this.cacheTimeSaved })} by using the cache\n`,
+                })
+            } else {
+                prettyDuration(this.durationStart, {
+                    log: true,
+                    prefix: "\nSimpleDB - Done in ",
+                    suffix: "\n",
+                })
+            }
         }
     }
 }

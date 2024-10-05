@@ -93,10 +93,12 @@ export default async function cache(
             }
             const end = Date.now()
             const duration = end - start
-            ;(table.debug || options.verbose) &&
+            if (table.debug || options.verbose) {
                 console.log(
                     `Data loaded in ${prettyDuration(start, { end })}. Running the computations took ${prettyDuration(0, { end: cache.duration })} last time. You saved ${prettyDuration(duration, { end: cache.duration })}.\n`
                 )
+                table.sdb.cacheTimeSaved += cache.duration - duration
+            }
         } else {
             table.debug && console.log(`Tabular data. Using loadData`)
             const start = Date.now()
@@ -106,10 +108,12 @@ export default async function cache(
             }
             const end = Date.now()
             const duration = end - start
-            ;(table.debug || options.verbose) &&
+            if (table.debug || options.verbose) {
                 console.log(
                     `Data loaded in ${prettyDuration(start, { end })}. Running the computations took ${prettyDuration(0, { end: cache.duration })} last time. You saved ${prettyDuration(duration, { end: cache.duration })}.\n`
                 )
+                table.sdb.cacheTimeSaved += cache.duration - duration
+            }
         }
     }
 }
