@@ -36,7 +36,10 @@ export default async function cache(
 
     const functionBody = run.toString()
     table.debug && console.log("Function body:", functionBody)
-    const hash = crypto.createHash("sha256").update(functionBody).digest("hex")
+    const hash = crypto
+        .createHash("sha256")
+        .update(table.name + options.toString() + functionBody)
+        .digest("hex")
     const id = `${table.name}.${hash}`
 
     table.debug && console.log("id:", id)
