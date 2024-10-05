@@ -16,6 +16,7 @@
             ".prettierignore",
             ".prettierrc",
             "package.json",
+            "syncJsrVersion.js",
             "package-lock.json",
             "rollup.config.js",
             "tsconfig.json",

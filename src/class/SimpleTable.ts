@@ -31,7 +31,8 @@ import writeDataAsArrays from "../helpers/writeDataAsArrays.js"
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
  *
- * @example Basic usage
+ * @example
+ * Basic usage
  * ```ts
  * // Creating a database first.
  * const sdb = new SimpleDB()
@@ -47,7 +48,8 @@ import writeDataAsArrays from "../helpers/writeDataAsArrays.js"
  * await sdb.done()
  * ```
  *
- * @example Geospatial data
+ * @example
+ * Geospatial data
  * ```ts
  * // To load geospatial data, use .loadGeoData instead of .loadData
  * const boundaries = sdb.newTable()
@@ -336,7 +338,8 @@ export default class SimpleTable extends SimpleWebTable {
     /**
      * Loads an array of objects into the table.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const data = [{ letter: "a", number: 1 }, { letter: "b", number: 2 }]
      * await table.loadArray(data)
@@ -401,7 +404,8 @@ export default class SimpleTable extends SimpleWebTable {
     /**
      * Loads data from local or remote file(s) into it. CSV, JSON and PARQUET files are accepted.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Load data from a local file
      * await table.loadData("./some-data.csv")
@@ -410,7 +414,8 @@ export default class SimpleTable extends SimpleWebTable {
      * await table.loadData("https://some-website.com/some-data.parquet")
      * ```
      *
-     * @example Multiple files
+     * @example
+     * Multiple files
      * ```
      * // Load data from multiple local files.
      * await table.loadData([ "./some-data1.json", "./some-data2.json", "./some-data3.json" ])
@@ -481,7 +486,8 @@ export default class SimpleTable extends SimpleWebTable {
     /**
      * Loads data from all files in a local directory. CSV, JSON, and PARQUET files are accepted.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * await table.loadDataFromDirectory("./data/")
      * ```
@@ -563,17 +569,20 @@ export default class SimpleTable extends SimpleWebTable {
     /**
      * Loads geospatial data from an external file. The coordinates of files or urls ending with .json or .geojson are automatically flipped to [latitude, longitude] axis order.
      *
-     * @example Basic usage with URL
+     * @example
+     * Basic usage with URL
      * ```ts
      * await table.loadGeoData("https://some-website.com/some-data.geojson")
      * ```
      *
-     * @example Basic usage with local file
+     * @example
+     * Basic usage with local file
      * ```ts
      * await table.loadGeoData("./some-data.geojson")
      * ```
      *
-     * @example Reprojecting to WGS84 with [latitude, longitude] axis order
+     * @example
+     * Reprojecting to WGS84 with [latitude, longitude] axis order
      * ```ts
      * await table.loadGeoData("./some-data.geojson", { toWGS84: true })
      * ```
@@ -622,7 +631,8 @@ export default class SimpleTable extends SimpleWebTable {
     /**
      * Writes data to a file. If the path doesn't exist, it will be created.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * await table.writeData("output/data.csv");
      * ```
@@ -663,7 +673,8 @@ export default class SimpleTable extends SimpleWebTable {
      *
      * For .geojson files, if the projection is WGS84 or EPSG:4326 ([latitude, longitude] axis order), the coordinates will be flipped to follow the RFC7946 standard ([longitude, latitude] axis order).
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * await table.writeGeoata("output/data.geojson");
      * ```
@@ -706,7 +717,8 @@ export default class SimpleTable extends SimpleWebTable {
     /**
      * Caches the results of computations in `./.sda-cache` which you probably want to add to your `.gitignore`.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      *
      * The code will be triggered on the first run or if you update the function passed to the cache method. Otherwise, the result will be loaded from the cache.
      *
@@ -728,7 +740,8 @@ export default class SimpleTable extends SimpleWebTable {
      * await sdb.done()
      * ```
      *
-     * @example With a ttl
+     * @example
+     * With a ttl
      *
      * You can pass a ttl option in seconds. Here, the code will be triggered on the first run or if the result is more than 1 minute old.
      *
@@ -750,7 +763,8 @@ export default class SimpleTable extends SimpleWebTable {
      * await sdb.done()
      * ```
      *
-     * @example Verbose
+     * @example
+     * Verbose
      *
      * If you want to know when computations are bein run or when data is being loaded from the cache, use the option verbose when instanciating the SimpleDB. Messages will be logged in the terminal.
      *

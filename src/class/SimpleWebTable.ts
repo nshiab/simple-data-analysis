@@ -73,7 +73,8 @@ import { camelCase, formatNumber } from "journalism"
 /**
  * SimpleWebTable is a class representing a table in a SimpleWebDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleWebDB first.
  *
- * @example Basic usage
+ * @example
+ * Basic usage
  * ```ts
  * // Creating a database first.
  * const sdb = new SimpleWebDB()
@@ -90,7 +91,8 @@ import { camelCase, formatNumber } from "journalism"
  * await sdb.done()
  * ```
  *
- * @example Geospatial data
+ * @example
+ * Geospatial data
  * ```ts
  * const boundaries = sdb.newTable()
  * // To load geospatial data, use .fetchGeoData instead of .fetchData
@@ -127,7 +129,8 @@ export default class SimpleWebTable extends Simple {
 
     /** Rename the table.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * await table.renameTable("newName")
      * ```
@@ -149,7 +152,8 @@ export default class SimpleWebTable extends Simple {
 
     /** Set the types in the table.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      *  await table.setTypes({
      *     name: "string",
@@ -205,7 +209,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Loads an array of objects into the table.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const data = [{ letter: "a", number: 1 }, { letter: "b", number: 2 }]
      * await table.loadArray(data)
@@ -239,7 +244,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Fetch data from an url into the table. This method is just for the web. For NodeJS and other runtimes, use loadData.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * await table.fetchData("https://some-website.com/some-data.csv")
      * ```
@@ -273,7 +279,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Inserts rows formatted as an array of objects into the table.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const rows = [{ letter: "a", number: 1 }, { letter: "b", number: 2 }]
      * await table.insertRows(rows)
@@ -298,13 +305,15 @@ export default class SimpleWebTable extends Simple {
     /**
      * Inserts all rows from another table (or multiple tables) into this table.
      *
-     * @example Basic usage with one table
+     * @example
+     * Basic usage with one table
      * ```ts
      * // Insert all rows from tableB into this table.
      * await tableA.insertTables("tableB")
      * ```
      *
-     * @example With multiple tables
+     * @example
+     * With multiple tables
      * ```ts
      * // Insert all rows from tableB and tableC into this table.
      * await tableA.insertTables([ "tableB", "tableC" ])
@@ -337,20 +346,23 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns a new table with the same structure and data as this table. The data can be optionally filtered. This can be very slow with big tables.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Creating tableB as a clone of tableA.
      * // By default, tables are automatically named table1, table2, etc, in the DB.
      * const tableB = await tableA.cloneTable()
      * ```
      *
-     * @example With a specific name
+     * @example
+     * With a specific name
      * ```ts
      * // You can also give a specific name to the cloned table in the DB.
      * const tableB = await tableA.cloneTable({ outputTable: "tableB" })
      * ```
      *
-     * @example Cloning with condition
+     * @example
+     * Cloning with condition
      * ```ts
      * // Creating tableB as a clone of tableA. Only rows with values greater than 10 in column1 are cloned.
      * const tableB = await tableA.cloneTable({ condition: `column1 > 10` })
@@ -396,7 +408,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Clones a column in this table.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Clones column1 as column2
      * await table.cloneColumn("column1", "column2")
@@ -428,7 +441,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Clones a column in the table and offsets the values down by one row. The last row will have a NULL value.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Clones column1 as column2 and offsets values by 1. So value of column1-row1 will be in column2-row2, column1-row2 will be in column2-row3, etc.
      * await table.cloneColumnWithOffset("column1", "column2")
@@ -457,7 +471,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Fills cells containing NULL values. If a cell is empty, it's filled with the previous row's value.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * await table.fill("column1")
      * ```
@@ -485,19 +500,22 @@ export default class SimpleWebTable extends Simple {
     /**
      * Sorts the rows based on specified column(s) and order(s).
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Sorts column1 ascendingly.
      * await table.sort({ column1: "asc" })
      * ```
      *
-     * @example Sorting multiple columns
+     * @example
+     * Sorting multiple columns
      * ```ts
      * // Sorts column1 ascendingly then column2 descendingly.
      * await table.sort({ column1: "asc", column2: "desc" })
      * ```
      *
-     * @example Languages and special characters
+     * @example
+     * Languages and special characters
      * ```ts
      * // Taking French accent into account in column1
      * await table.sort({ column1: "asc", column2: "desc" }, { lang: { column1: "fr" }})
@@ -529,7 +547,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Selects specific columns in the table and removes the others.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Selecting only the columns firstName and lastName. All other columns in the table will be removed.
      * await table.selectColumns([ "firstName", "lastName" ])
@@ -557,7 +576,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Skips the first X rows.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Skips the first 10 rows.
      * await table.skip(10)
@@ -581,7 +601,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns TRUE if the table has the column and FALSE otherwise.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const bool = await table.hasColum("name")
      * ```
@@ -594,19 +615,22 @@ export default class SimpleWebTable extends Simple {
     /**
      * Selects random rows from the table and removes the others. You can optionally specify a seed to ensure the same random rows are selected each time.
      *
-     * @example Selecting a specific number
+     * @example
+     * Selecting a specific number
      * ```ts
      * // Selects 100 random rows
      * await table.sample(100)
      * ```
      *
-     * @example Selecting a percentage
+     * @example
+     * Selecting a percentage
      * ```ts
      * // Selects 10% of the rows randomly
      * await table.sample("10%")
      * ```
      *
-     * @example With a seed
+     * @example
+     * With a seed
      * ```ts
      * // Selects always the same random rows
      * await table.sample("10%", { seed: 1 })
@@ -644,25 +668,29 @@ export default class SimpleWebTable extends Simple {
     /**
      * Selects n rows from this table. An offset and outputTable options are available.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Selects the first 100 rows.
      * await table.selectRows(100)
      * ```
      *
-     * @example Skipping rows
+     * @example
+     * Skipping rows
      * ```ts
      * // Selects 100 rows after skipping the first 100 rows.
      * await table.selectRows(100, { offset: 100 })
      * ```
      *
-     * @example Into a new table
+     * @example
+     * Into a new table
      * ```ts
      * // Selects 100 rows and stores them in a new table.
      * const tableB = await tableA.selectRows(100, { outputTable: true })
      * ```
      *
-     * @example Into a new table with a specific name in the DB
+     * @example
+     * Into a new table with a specific name in the DB
      * ```ts
      * // Selects 100 rows and stores them in a new table.
      * const tableB = await tableA.selectRows(100, { outputTable: "tableB" })
@@ -706,7 +734,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Removes duplicate rows from this table, keeping unique rows. Note that SQL does not guarantee any specific order when using DISTINCT. So the data might be returned in a different order than the original.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * await table.removeDuplicates("tableA")
      * ```
@@ -735,13 +764,15 @@ export default class SimpleWebTable extends Simple {
     /**
      * Removes rows with missing values from this table. By default, missing values are NULL (as an SQL value), but also "NULL", "null", "NaN" and "undefined" that might have been converted to strings before being loaded into the table. Empty strings "" are also considered missing values.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Removes rows with missing values in any columns.
      * await table.removeMissing()
      * ```
      *
-     * @example Specific columns
+     * @example
+     * Specific columns
      * ```ts
      * // Removes rows with missing values in specific columns.
      * await table.removeMissing({ columns: ["firstName", "lastName"] })
@@ -767,13 +798,15 @@ export default class SimpleWebTable extends Simple {
     /**
      * Trims specified characters from the beginning, end, or both sides of string values.
      *
-     * @example Basic usage in one column
+     * @example
+     * Basic usage in one column
      * ```ts
      * // Trims values in column1
      * await table.trim("column1")
      * ```
      *
-     * @example Multiple column
+     * @example
+     * Multiple column
      * ```ts
      * // Trims values in column2, columns3, and column4
      * await table.trim(["column2", "column3", "column4"])
@@ -808,13 +841,15 @@ export default class SimpleWebTable extends Simple {
     /**
      * Filters rows from this table based on SQL conditions. Note that it's often faster to use the removeRows method.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Keeps only rows where the fruit is not an apple.
      * await table.filter(`fruit != 'apple'`)
      * ```
      *
-     * @example More examples
+     * @example
+     * More examples
      * ```
      * await table.filter(`price > 100 AND quantity > 0`)
      * await table.filter(`category = 'Electronics' OR category = 'Appliances'`)
@@ -842,7 +877,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Keeps rows with specific values in specific columns.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Keeps only rows where the job is 'accountant' or 'developer' and where the city is 'Montreal'.
      * await table.keep({ job: ["accountant", "developer"], city: ["Montreal"] })
@@ -867,7 +903,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Remove rows with specific values in specific columns.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Remove rows where the job is 'accountant' or 'developer' and where the city is 'Montreal'.
      * await table.remove({ job: ["accountant", "developer"], city: ["Montreal"] })
@@ -892,7 +929,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Removes rows from this table based on SQL conditions.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Removes rows where the fruit is an apple.
      * await table.removeRows(`fruit = 'apple'`)
@@ -917,7 +955,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Renames columns in the table.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Renaming "How old?" to "age" and "Man or woman?" to "sex".
      * await table.renameColumns({ "How old?" : "age", "Man or woman?": "sex" })
@@ -955,7 +994,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Cleans column names by removing non-alphanumeric characters and formats them to camel case.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * await table.cleanColumnNames()
      * ```
@@ -984,7 +1024,8 @@ export default class SimpleWebTable extends Simple {
      *
      * We restructure it by putting all years into a column *Year* and the employees counts into a column *Employees*.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * await table.longer(["2021", "2022", "2023"], "year", "employees")
      * ```
@@ -1039,7 +1080,8 @@ export default class SimpleWebTable extends Simple {
      *
      * We restructure it by making a new column for each year and with the associated employees counts as values.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * await table.longer("Year", "Employees")
      * ```
@@ -1077,19 +1119,22 @@ export default class SimpleWebTable extends Simple {
      *
      * If you convert strings to numbers, commas (which are often used as thousand separators) will be removed before converting.
      *
-     * @example Basic usage with JavaScript types
+     * @example
+     * Basic usage with JavaScript types
      * ```ts
      * // Converts column1 to string and column2 to integer
      * await table.convert({ column1: "string", column2: "integer" })
      * ```
      *
-     * @example With SQL types
+     * @example
+     * With SQL types
      * ```ts
      * // Converts column1 to VARCHAR and column2 to BIGINT
      * await table.convert({ column1: "varchar", column2: "bigint" })
      * ```
      *
-     * @example With dates
+     * @example
+     * With dates
      * ```ts
      * // Converts strings in a specific format to dates
      * await table.convert({ column3: "datetime"}, { datetimeFormat: "%Y-%m-%d" })
@@ -1152,7 +1197,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Remove the table from the database. Invoking methods on this table will throw and error.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * await table.removeTable()
      * ```
@@ -1174,7 +1220,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Removes one or more columns from this table.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * await table.removeColumns(["column1", "column2"])
      * ```
@@ -1206,13 +1253,15 @@ export default class SimpleWebTable extends Simple {
     /**
      * Adds a new column based on a type (JavaScript or SQL types) and a SQL definition.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Adds column3. The column's values are floats (equivalent to DOUBLE in SQL) and are the results of the sum of values from column1 and column2.
      * await table.addColumn("column3", "float", "column1 + column2")
      * ```
      *
-     * @example Adding geometries
+     * @example
+     * Adding geometries
      *
      * If you add a new column with geometries, you must specify a projection. You can reuse the projection of an already existing column. All projections are stored in `table.projections`.
      * ```ts
@@ -1274,7 +1323,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Adds a new column with the row number.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Adds the row number in new column rowNumber.
      * await table.addRowNumber("rowNumber")
@@ -1299,19 +1349,22 @@ export default class SimpleWebTable extends Simple {
     /**
      * Performs a cross join operation between this table and another table, returning all pairs of rows. This table is considered the left table. Note that the returned rows are not guaranteed to be in the same order. It might create a .tmp folder, so make sure to add .tmp to your gitignore.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // This table will be overwritten by the cross join with tableB.
      * await tableA.crossJoin(tableB);
      * ```
      *
-     * @example Results in a new table
+     * @example
+     * Results in a new table
      * ```ts
      * // Returns the resuts in a newTable
      * const tableC = await tableA.crossJoin(tableB, { outputTable: true });
      * ```
      *
-     * @example Results in a new table with a specific name in the DB
+     * @example
+     * Results in a new table with a specific name in the DB
      * ```ts
      * // Returns the resuts in a newTable
      * const tableC = await tableA.crossJoin(tableB, { outputTable: "tableC" });
@@ -1370,19 +1423,22 @@ export default class SimpleWebTable extends Simple {
     /**
      * Merges the data of this table with another table based on a common column or multiple columns. This table is considered the left table. Note that the returned data is not guaranteed to be in the same order as the original tables. It might create a .tmp folder, so make sure to add .tmp to your gitignore.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // By default, the method automatically looks for a common column in the two tables and does a left join of this tableA (left) and tableB (right). The leftTable (tableA here) will be overwritten with the result.
      * await tableA.join(tableB)
      * ```
      *
-     * @example With options
+     * @example
+     * With options
      * ```ts
      * // You can change the common column, the join type, and the output table in options.
      * const tableC = await tableA.join("tableB", { commonColumn: 'id', type: 'inner', outputTable: true })
      * ```
      *
-     * @example Multiple columns
+     * @example
+     * Multiple columns
      * ```ts
      * // You can also join on multiple columns.
      * await tableA.join(tableB, { commonColumn: ['name', 'category']})
@@ -1413,24 +1469,28 @@ export default class SimpleWebTable extends Simple {
     /**
      * Replaces specified strings in the selected columns
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      *```ts
      * // Replaces entire strings and substrings too.
      * await table.replace("column1", { "kilograms": "kg" })
      * ```
      *
-     * @example Multiple columns and multiple strings
+     * @example
+     * Multiple columns and multiple strings
      *```ts
      * // Replaces multiple strings in multiple columns.
      * await table.replace(["column1", "column2"], { "kilograms": "kg", liters: "l" })
      * ```
      *
-     * @example Exact match
+     * @example
+     * Exact match
      * ```ts
      * // Replaces only if matching entire string.
      * await table.replace("column1", { "kilograms": "kg", liters: "l" }, { entireString: true })
      * ```
-     * @example Regular expression
+     * @example
+     * Regular expression
      * ```ts
      * // Replaces using a regular expression. Any sequence of one or more digits would be replaced by a hyphen.
      * await table.replace("column1", {"\d+": "-" }, {regex: true})
@@ -1479,12 +1539,14 @@ export default class SimpleWebTable extends Simple {
     /**
      * Formats strings to lowercase.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      *```ts
      * await table.lower("column1")
      * ```
      *
-     * @example Multiple columns
+     * @example
+     * Multiple columns
      * ```ts
      * await table.lower(["column1", "column2"])
      * ```
@@ -1508,11 +1570,13 @@ export default class SimpleWebTable extends Simple {
     /**
      * Formats strings to uppercase.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * await table.upper("tableA", "column1")
      *
-     * @example Multiple columns
+     * @example
+     * Multiple columns
      * await table.upper(["column1", "column2"])
      * ```
      *
@@ -1535,7 +1599,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Splits strings along a separator and replaces the values with a substring at a specified index (starting at 0). If the index is outside the bounds of the list, return an empty string.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      *```ts
      * // Splits on commas and replaces values with the second substring.
      * await table.splitExtract("column1", ",", 1)
@@ -1562,7 +1627,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Extracts a specific number of characters, starting from the left.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      *```ts
      * // Strings in column1 will be replaced by the first two characters of each string.
      * await table.left("column1", 2)
@@ -1588,7 +1654,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Extracts a specific number of characters, starting from the right.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      *```ts
      * // Strings in column1 will be replaced by the last two characters of each string.
      * await table.right("column1", 2)
@@ -1614,7 +1681,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Replaces null values in the selected columns.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      *```ts
      * // Replace null values by 0.
      * await table.replaceNulls("column1", 0)
@@ -1643,13 +1711,15 @@ export default class SimpleWebTable extends Simple {
     /**
      * Concatenates values from specified columns into a new column.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Concatenates values from column1 and column2 into column3
      * await table.concatenate(["column1", "column2"], "column3")
      * ```
      *
-     * @example With a separator
+     * @example
+     * With a separator
      * ```ts
      * // Same thing, but the values will be separated by a dash
      * await table.concatenate(["column1", "column2"], "column3", { separator: "-" })
@@ -1683,19 +1753,22 @@ export default class SimpleWebTable extends Simple {
     /**
      * Rounds numeric values in specified columns.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Rounds column1's values to the nearest integer.
      * await table.round("column1")
      * ```
      *
-     * @example Specific number of decimals
+     * @example
+     * Specific number of decimals
      * ```ts
      * // Rounds column1's values with a specific number of decimal places.
      * await table.round("column1", { decimals: 2 })
      * ```
      *
-     * @example Specific rounding method
+     * @example
+     * Specific rounding method
      * ```ts
      * // Rounds column1's values with a specific method. Available methods are "round", "floor" and "ceiling".
      * await table.round("column1", { method: "floor" })
@@ -1729,7 +1802,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Updates values in a specified column with a SQL expression.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * await table.updateColumn("column1", `LEFT(column2)`)
      * ```
@@ -1753,12 +1827,14 @@ export default class SimpleWebTable extends Simple {
     /**
      * Assigns ranks in a new column based on specified column values.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Computes ranks in the new column rank from the column1 values.
      * await table.ranks("column1", "rank")
      * ```
-     * @example With categories
+     * @example
+     * With categories
      * ```ts
      * // Computing ranks in the new column rank from the column1 values. Using the values from column2 as categories.
      * await table.ranks("tableA", "column1", "rank", { categories: "column2" })
@@ -1796,13 +1872,15 @@ export default class SimpleWebTable extends Simple {
     /**
      * Assigns quantiles for specified column values.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Assigns a quantile from 1 to 10 for each row in new column quantiles, based on values from column1.
      * await table.quantiles("column1", 10, "quantiles")
      * ```
      *
-     * @example With categories
+     * @example
+     * With categories
      * ```ts
      * // Same thing, except the values in column2 are used as categories.
      * await table.quantiles("column1", 10, "quantiles", { categories: "column2" })
@@ -1843,14 +1921,16 @@ export default class SimpleWebTable extends Simple {
     /**
      * Assigns bins for specified column values based on an interval size.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Assigns a bin for each row in new column bins based on column1 values, with an interval of 10.
      * await table.bins("column1", 10, "bins")
      * // If the minimum value in column1 is 5, the bins will follow this pattern: "[5-14]", "[15-24]", "[25-34]", etc.
      * ```
      *
-     * @example Starting value
+     * @example
+     * Starting value
      * ```ts
      * // Same thing, but with the bins starting at a specific value.
      * await table.bins("column1", 10, "bins", { startValue: 0 })
@@ -1902,7 +1982,8 @@ export default class SimpleWebTable extends Simple {
      *
      * We compute the proportions of men, women, and non-binary on each row.
      *
-     * @example Basic usage with specific number of decimals
+     * @example
+     * Basic usage with specific number of decimals
      * ```ts
      * await tableA.proportionsHorizontal(["Men", "Women", "NonBinary"], { decimals: 2 })
      * ```
@@ -1917,7 +1998,8 @@ export default class SimpleWebTable extends Simple {
      *
      * By default, the new columns have the suffix "Perc", but you can use something else if you want.
      *
-     * @example Specific suffix for columns
+     * @example
+     * Specific suffix for columns
      * ```ts
      * await tableA.proportionsHorizontal(["Men", "Women", "NonBinary"], { suffix: "Prop", decimals: 2 })
      * ```
@@ -1962,19 +2044,22 @@ export default class SimpleWebTable extends Simple {
     /**
      * Computes proportions over a column's values.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // This will add a column perc with the result of each column1 value divided by the sum of all column1 values.
      * await table.proportionsVertical("column1", "perc")
      * ```
      *
-     * @example With categories
+     * @example
+     * With categories
      * ```ts
      * // Same thing but using column2 values as categories
      * await table.proportionsVertical("column1", "perc", { categories: "column2" })
      * ```
      *
-     * @example With specific number of decimals
+     * @example
+     * With specific number of decimals
      * ```ts
      * // Same thing but rounding to two decimals
      * await table.proportionsVertical("column1", "perc", { categories: "column2", decimals: 2 })
@@ -2014,58 +2099,67 @@ export default class SimpleWebTable extends Simple {
     /**
      * Creates a summary table based on specified values, categories, and summary operations.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Summarizes all columns with all available summary operations.
      * const columns = await tableA.getColumns()
      * await tableA.summarize({ values: columns })
      * ```
      *
-     * @example Results in a new table
+     * @example
+     * Results in a new table
      * ```ts
      * // Same, but the results will be stored as a table in variable tableB.
      * const columns = await tableA.getColumns()
      * const tableB = await tableA.summarize({ values: columns, outputTable: true })
      * ```
      *
-     * @example Results in a new table with a specific name in the DB
+     * @example
+     * Results in a new table with a specific name in the DB
      * ```ts
      * // Same, but the results will be stored in variable tableSummary and in tableSummary in the DB.
      * const columns = await tableA.getColumns()
      * const tableSummary = await tableA.summarize({ values: columns, outputTable: "tableSummary" })
      * ```
      *
-     * @example Just one column
+     * @example
+     * Just one column
      * ```ts
      * // Summarizes a specific column with all available summary operations
      * await tableA.summarize({ values: "column1" })
      * ```
      *
-     * @example Multiple columns
+     * @example
+     * Multiple columns
      * ```ts
      * // Summarizes multiple columns with all available summary operations.
      * await tableA.summarize({ values: ["column1", "column2"] })
      * ```
      *
-     * @example With categories
+     * @example
+     * With categories
      * ```ts
      * // Summarizes a specific column with all available summary operations and use the values in another column as categories. Categories can be an array of column names, too.
      * await tableA.summarize({ values: "column1", categories: "column2" })
      * ```
      *
-     * @example Specific aggregation
+     * @example
+     * Specific aggregation
      * ```ts
      * // Summarizes a specific column with a specific summary operation and use the values in another column as categories. Summaries can be an array of summary operations, too.
      * await tableA.summarize({ values: "column1", categories: "column2", summaries: "mean" })
      * ```
      *
-     * @example Rounding aggregated values
+     * @example
+     * Rounding aggregated values
      * ```ts
      * // Summarizes and round values with a specific number of decimal places.
      * await tableA.summarize({ values: "column1", categories: "column2", summaries: "mean", decimals: 4 })
      * ```
      *
-     * @example Converting timestamps, dates, or times, to milliseconds.
+     * @example
+     * Converting timestamps, dates, or times, to milliseconds.
      * ```ts
      * // You can't summarize numbers and dates at the same time because your values must be of the same type (strings don't count). The option toMs converts timestamps, dates, and times to numbers (milliseconds).
      * await tableA.summarize({ values: ["column1", "column2"], toMs: true })
@@ -2132,19 +2226,22 @@ export default class SimpleWebTable extends Simple {
     /**
      * Computes rolling aggregations, like a rolling average. For rows without enough preceding or following rows, returns NULL. For this method to work properly, don't forget to sort your data first.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // 7-day rolling average of values in column1 with the 3 preceding and 3 following rows.
      * await table.rolling("column1", "rollingAvg", "mean", 3, 3)
      * ```
      *
-     * @example With categories
+     * @example
+     * With categories
      * ```ts
      * // 7-day rolling average of values in column1 with the 3 preceding and 3 following rows. Using values in column2 as categories.
      * await table.rolling("column1", "rollingAvg", "mean", 3, 3, { categories: "column2" })
      * ```
      *
-     * @example Rounding
+     * @example
+     * Rounding
      * ```ts
      * // 7-day rolling average of values in column1 with the 3 preceding and 3 following rows. Using values in column2 as categories and rounding to two decimal places.
      * await table.rolling("column1", "rollingAvg", "mean", 3, 3, { categories: "column2", decimals: 2 })
@@ -2202,30 +2299,35 @@ export default class SimpleWebTable extends Simple {
      *
      * If no *x* and *y* columns are specified, the method computes the correlations of all numeric columns *combinations*. It's important to note that correlation is symmetrical: the correlation of *x* over *y* is the same as *y* over *x*.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Computes all correlations between all numeric columns.
      * await table.correlations()
      * ```
-     * @example Specific x column
+     * @example
+     * Specific x column
      * ```ts
      * // Computes all correlations between a specific x column and all other numeric columns.
      * await table.correlations({ x: "column1" })
      * ```
      *
-     * @example Specific x and y columns
+     * @example
+     * Specific x and y columns
      * ```ts
      * // Computes the correlations between specific x and y columns.
      * await table.correlations({ x: "column1", y: "column2" })
      * ```
      *
-     * @example Returning results in a new table
+     * @example
+     * Returning results in a new table
      * ```ts
      * // Same but results are stored in tableB.
      * const tableB = await table.correlations({ outputTable: true })
      * ```
      *
-     * @example Returning results in a new table with a specific name in the DB
+     * @example
+     * Returning results in a new table with a specific name in the DB
      * ```ts
      * // Same but results are stored in tableB.
      * const tableB = await table.correlations({ outputTable: "tableB" })
@@ -2266,31 +2368,36 @@ export default class SimpleWebTable extends Simple {
      *
      * If no *x* and *y* columns are specified, the method computes the linear regression analysis of all numeric columns *permutations*. It's important to note that linear regression analysis is asymmetrical: the linear regression of *x* over *y* is not the same as *y* over *x*.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Computes all linear regressions between all numeric columns in tableA and overwrites tableA.
      * await table.linearRegressions()
      * ```
      *
-     * @example Specific x column
+     * @example
+     * Specific x column
      * ```ts
      * // Computes all linear regressions between a specific x column and all other numeric columns.
      * await table.linearRegressions({ x: "column1" })
      * ```
      *
-     * @example Specific x and y columns
+     * @example
+     * Specific x and y columns
      * ```ts
      * // Computes the linear regression between a specific x and y columns.
      * await table.linearRegressions({ x: "column1", y: "column2" })
      * ```
      *
-     * @example Returning results in a new table
+     * @example
+     * Returning results in a new table
      * ```ts
      * // Same but stores the results in tableB.
      * const newTable = await table.linearRegressions({ outputTable: true })
      * ```
      *
-     * @example Returning results in a new table with a specific name in the DB
+     * @example
+     * Returning results in a new table with a specific name in the DB
      * ```ts
      * // Same but stores the results in tableB.
      * const tableB = await table.linearRegressions({ outputTable: "tableB" })
@@ -2328,13 +2435,15 @@ export default class SimpleWebTable extends Simple {
     /**
      * Identifies outliers using the Interquartile Range (IQR) method.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Looks for outliers in column age. Creates a new column outliers with TRUE or FALSE values.
      * await table.outliersIQR("age", "outliers")
      * ```
      *
-     * @example With categories
+     * @example
+     * With categories
      * ```ts
      * // Looks for outliers in column age with values from column gender as categories. Creates a new column outliers with TRUE or FALSE values.
      * await table.outliersIQR("age", "outliers", { categories: "gender" })
@@ -2374,19 +2483,22 @@ export default class SimpleWebTable extends Simple {
     /**
      * Computes the Z-score.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Calculates the Z-score for the values in column age and puts the results in column sigma.
      * await table.zScore("age", "sigma")
      * ```
      *
-     * @example With categories
+     * @example
+     * With categories
      * ```ts
      * // Calculates the Z-score for the values in column age with the column gender as categories and puts the results in column sigma.
      * await table.zScore("age", "sigma", { categories: "gender" })
      * ```
      *
-     * @example Rounding values
+     * @example
+     * Rounding values
      * ```ts
      * // Calculates the Z-score for the values in column age with the column gender as categories and puts the results in column sigma. The score is rounded to two decimal places.
      * await table.zScore("age", "sigma", { categories: "gender", decimals: 2 })
@@ -2422,19 +2534,22 @@ export default class SimpleWebTable extends Simple {
     /**
      * Normalizes the values in a column using min-max normalization.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Normalizes the values in the column1.
      * await table.normalize("column1")
      * ```
      *
-     * @example With categories
+     * @example
+     * With categories
      * ```ts
      * // Normalizes the values in the column1 with values from column2 as categories.
      * await table.normalize("column1", { categories: "column2" })
      * ```
      *
-     * @example Rounding values
+     * @example
+     * Rounding values
      * ```ts
      * // Normalizes the values in the column1 with values from column2 as categories. The values are rounded to two decimal places.
      * await table.normalize("column1", { categories: "column2", decimals: 2 })
@@ -2470,7 +2585,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Updates data using a JavaScript function. The function takes the existing rows as an array of objects and must return them modified as an array of objects. This method provides a flexible way to update data, but it's slow. This won't work with tables containing geometries.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Adds one to the values from column1. If the values are not numbers, they are replaced by null.
      * await table.updateWithJS((rows) => {
@@ -2526,7 +2642,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the schema (column names and their data types).
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const schema = await table.getSchema()
      * ```
@@ -2555,7 +2672,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns descriptive information about the columns, including details like data types, number of null and distinct values. Best to look at with console.table.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const description = await table.getDescription()
      * ```
@@ -2584,7 +2702,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the number of columns.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const nbColumns = await table.getNbColumns()
      * ```
@@ -2600,7 +2719,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the number of rows in a table.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const nbRows = await table.getNbRows()
      * ```
@@ -2612,7 +2732,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the number of values (number of columns * number of rows) in a table.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const nbValues = await table.getNbValues()
      * ```
@@ -2628,7 +2749,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the data types of columns.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const dataTypes = await table.getTypes()
      * ```
@@ -2642,7 +2764,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the values of a specific column.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const values = await table.getValues("column1")
      * ```
@@ -2660,7 +2783,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the minimum value from a specific column.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const minimum = await table.getMin("column1")
      * ```
@@ -2717,12 +2841,14 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the mean value from a specific column.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const mean = await table.getMean("column1")
      * ```
      *
-     * @example Rounding result
+     * @example
+     * Rounding result
      * ```ts
      * // Same thing but rounding to two decimal places.
      * const mean = await table.getMean("column1", { decimals: 2 })
@@ -2746,12 +2872,14 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the median value from a specific column.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const median = await table.getMedian("column1")
      * ```
      *
-     * @example Rounding results
+     * @example
+     * Rounding results
      * ```ts
      * // Same thing but rounding to two decimal places.
      * const median = await table.getMedian("column1", { decimals: 2})
@@ -2775,7 +2903,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the sum of values from a specific column.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const sum = await table.getSum("column1")
      * ```
@@ -2791,12 +2920,14 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the skewness of values from a specific column.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const skew = await table.getSkew("column1")
      * ```
      *
-     * @example Rounding result
+     * @example
+     * Rounding result
      * ```ts
      * // Same thing but rounding to two decimal places.
      * const skew = await table.getSkew("column1", { decimals: 2})
@@ -2820,12 +2951,14 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the standard deviation of values from a specific column.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const standardDeviation = await table.getStdDev("column1")
      * ```
      *
-     * @example Rounding result
+     * @example
+     * Rounding result
      * ```ts
      * // Same thing but rounding to two decimal places.
      * const standardDeviation = await table.getStdDev("column1", { decimals: 2 })
@@ -2849,12 +2982,14 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the variance of values from a specific column.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const variance = await table.getVar("column1")
      * ```
      *
-     * @example Rounding result
+     * @example
+     * Rounding result
      * ```ts
      * // Same thing but rounding to two decimal places
      * const variance = await table.getVar("column1")
@@ -2878,12 +3013,14 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the value of a specific quantile from the values in a given column.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const firstQuartile = await table.getQuantile("column1", 0.25)
      * ```
      *
-     * @example Rounding result
+     * @example
+     * Rounding result
      * ```ts
      * // Same thing but rounding to two decimal places.
      * const firstQuartile = await table.getQuantile("column1", 0.25, { decimals: 2 })
@@ -2907,7 +3044,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns unique values from a specific column. For convenience, it returns the value ascendingly.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const uniques = await table.getUniques("column1")
      * ```
@@ -2925,13 +3063,15 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the first row with optional filtering conditions written as an SQL expression.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Returns the first row
      * const firstRow = await table.getFirstRow()
      * ```
      *
-     * @example With condition
+     * @example
+     * With condition
      * ```ts
      * // Returns the first row with category being 'Book'.
      * const firstRowBooks = await table.getFirstRow({ condition: `category = 'Book'` })
@@ -2955,13 +3095,15 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the last row with optional filtering conditions written as an SQL expression.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Returns the last row.
      * const lastRow = await table.getLastRow()
      * ```
      *
-     * @example With condition
+     * @example
+     * With condition
      * ```
      * // Returns the last row of all rows having a category 'Book'.
      * const lastRowBooks = await table.getLastRow({ condition: `category = 'Book'` })
@@ -2985,13 +3127,15 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the top n rows, optionally with a condition written as an SQL expression.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Returns the first 10 rows
      * const top10 = await table.getTop(10)
      * ```
      *
-     * @example With a condition
+     * @example
+     * With a condition
      * ```
      * // Returns the first 10 rows with category being 'Books'.
      * const top10Books = await table.getTop(10, { condition: `category = 'Books'` })
@@ -3019,19 +3163,22 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the bottom n rows, optionally with a condition written as a SQL expression. The last row will be returned first. To keep the original order of the data, use the originalOrder option.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Last row will be returned first.
      * const bottom10 = await table.getBottom(10)
      * ```
      *
-     * @example With original order
+     * @example
+     * With original order
      * ```
      * // Last row will be returned last.
      * const bottom10 = await table.getBottom(10, { originalOrder: true })
      * ```
      *
-     * @example With a condition
+     * @example
+     * With a condition
      * ```
      * // Returns the last 10 rows with category being 'Books'.
      * const bottom10Books = await table.getBottom(10, { condition: `category = 'Books'` })
@@ -3061,12 +3208,14 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the data with an optional condition.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Returns all data.
      * const data = await table.getData()
      * ```
-     * @example With condition
+     * @example
+     * With condition
      * ```ts
      * // Returns just the rows with a category 'Book'. Conditions are SQL expressions.
      * const books = await table.getData({ condition: `category = 'Book'` })
@@ -3107,12 +3256,14 @@ export default class SimpleWebTable extends Simple {
     /**
      * Loads geospatial data from an external file. The coordinates of files or urls ending with .json or .geojson are automatically flipped to [latitude, longitude] axis order.
      *
-     * @example Basic usage with URL
+     * @example
+     * Basic usage with URL
      * ```ts
      * await table.fetchGeoData("https://some-website.com/some-data.geojson")
      * ```
      *
-     * @example Reprojecting to WGS84 with [latitude, longitude] axis order from a specific projection
+     * @example
+     * Reprojecting to WGS84 with [latitude, longitude] axis order from a specific projection
      * ```ts
      * await table.fetchGeoData("https://some-website.com/some-data.shp.zip", { toWGS84: true, from: "EPSG:3347" })
      * ```
@@ -3162,7 +3313,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Creates point geometries from longitude a latitude columns. The geometries will have [latitude, longitude] axis order.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Uses the columns "lat" and "lon" to create point geometries in column "geom"
      * await table.points("lat", "lon", "geom")
@@ -3190,14 +3342,16 @@ export default class SimpleWebTable extends Simple {
     /**
      * Adds a column with TRUE/FALSE values depending on the validity of geometries.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Checks if the geometries are valid and returns a boolean in column valid.
      * // By default, the method will look for the column storing the geometries.
      * await table.isValidGeo("valid")
      * ```
      *
-     * @example Specific column storing geometries
+     * @example
+     * Specific column storing geometries
      * ```ts
      * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.isValidGeo("valid", { column: "geom" })
@@ -3229,13 +3383,15 @@ export default class SimpleWebTable extends Simple {
     /**
      * Adds a column with the number of vertices in geometries.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Adds a column nbVertices with the vertices count.
      * await table.nbVertices("nbVertices")
      * ```
      *
-     * @example Specific column storing geometries
+     * @example
+     * Specific column storing geometries
      * ```ts
      * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.nbVertices("nbVertices", { column: "geom" })
@@ -3267,13 +3423,15 @@ export default class SimpleWebTable extends Simple {
     /**
      * Attempts to make an invalid geometry valid without removing any vertices.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // By default, the method will look for the column storing the geometries.
      * await table.fixGeo()
      * ```
      *
-     * @example Specific column storing geometries
+     * @example
+     * Specific column storing geometries
      * ```ts
      * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.fixGeo("geom")
@@ -3299,14 +3457,16 @@ export default class SimpleWebTable extends Simple {
     /**
      * Adds a column with TRUE if the geometry is closed and FALSE if it's open.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Checks if the geometries are closed and returns a boolean in column closed.
      * // By default, the method will look for the column storing the geometries.
      * await table.isClosedGeo("closed")
      * ```
      *
-     * @example Specific column storing geometries
+     * @example
+     * Specific column storing geometries
      * ```ts
      * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.isClosedGeo("closed", { column: "geom" })
@@ -3338,14 +3498,16 @@ export default class SimpleWebTable extends Simple {
     /**
      * Adds a column with the geometry type.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Returns the geometry type in column type.
      * // By default, the method will look for the column storing the geometries.
      * await table.typeGeo("type")
      * ```
      *
-     * @example Specific column storing geometries
+     * @example
+     * Specific column storing geometries
      * ```ts
      * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.typeGeo("type", { column: "geom" })
@@ -3376,7 +3538,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Flips the coordinates of geometries. To use as a last resort. This messes up with the projections stored in `table.projection`.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // By default, the method will look for the column storing the geometries.
      * await table.flipCoordinates()
@@ -3403,14 +3566,16 @@ export default class SimpleWebTable extends Simple {
     /**
      * Reduce the precision of geometries.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Reduce the precision to 3 decimals.
      * // By default, the method will look for the column storing the geometries.
      * await table.reducePrecision(3)
      * ```
      *
-     * @example Specific column storing geometries
+     * @example
+     * Specific column storing geometries
      * ```ts
      * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.reducePrecision(3, { column : "geom" })
@@ -3442,20 +3607,23 @@ export default class SimpleWebTable extends Simple {
     /**
      * Reprojects the data to another Spatial Reference System (SRS). If you reproject to WGS84 or EPSG:4326, the result will have [latitude, longitude] axis order.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // To EPSG:3347 (also called NAD83/Statistics Canada Lambert with coordinates in meters)
      * // By default, the method tries to find out the original projection and the column storing geometries.
      * await table.reproject("EPSG:3347")
      * ```
      *
-     * @example Specifying the original projection
+     * @example
+     * Specifying the original projection
      * ```ts
      * // If the method can't find out the original projection, you must provide one.
      * await table.reproject("EPSG:3347", { from: "EPSG:4326" })
      * ```
      *
-     * @example Specifying the geometries column
+     * @example
+     * Specifying the geometries column
      * ```ts
      * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.reproject("EPSG:3347", { column: "geom", from: "EPSG:4326" })
@@ -3509,20 +3677,23 @@ export default class SimpleWebTable extends Simple {
     /**
      * Computes the area of geometries in square meters or optionally square kilometers. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Computes the area of the geometries and returns the results in the column area.
      * // By default, the method will look for the column storing the geometries.
      * await table.area("area")
      * ```
      *
-     * @example With a different unit
+     * @example
+     * With a different unit
      * ```ts
      * // Same things but in square kilometers.
      * await table.area("area", { unit: "km2" })
      * ```
      *
-     * @example Specific column storing geometries
+     * @example
+     * Specific column storing geometries
      * ```ts
      * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.area("area", { column: "geom", unit: "km2" })
@@ -3558,20 +3729,23 @@ export default class SimpleWebTable extends Simple {
     /**
      * Computes the length of line geometries in meters or optionally kilometers. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Computes the length of the geometries and returns the results in the column length.
      * // By default, the method will look for the column storing the geometries.
      * await table.length("length")
      * ```
      *
-     * @example With a different unit
+     * @example
+     * With a different unit
      * ```ts
      * // Same things but in kilometers.
      * await table.length("length", { unit: "km" })
      * ```
      *
-     * @example Specific column storing geometries
+     * @example
+     * Specific column storing geometries
      * ```ts
      * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.length("length", { column: "geom", unit: "km" })
@@ -3606,20 +3780,23 @@ export default class SimpleWebTable extends Simple {
     /**
      * Computes the perimeter of polygon geometries in meters or optionally kilometers. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Computes the perimeter of the geometries and returns the results in the column perim.
      * // By default, the method will look for the column storing the geometries.
      * await table.perimeter("perim")
      * ```
      *
-     * @example With a different unit
+     * @example
+     * With a different unit
      * ```ts
      * // Same things but in kilometers.
      * await table.perimeter("perim", { unit: "km" })
      * ```
      *
-     * @example Specific column storing geometries
+     * @example
+     * Specific column storing geometries
      * ```ts
      * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.perimeter("perim", { unit: "km" })
@@ -3655,14 +3832,16 @@ export default class SimpleWebTable extends Simple {
     /**
      * Computes a buffer around geometries based on a specified distance. The distance is in the SRS unit.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Creates new geomeotries from the geometries with a buffer of 1 and puts the results in column buffer.
      * // By default, the method will look for the column storing the geometries.
      * await table.buffer("buffer", 1)
      * ```
      *
-     * @example Specific column storing geometries
+     * @example
+     * Specific column storing geometries
      * ```ts
      * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.buffer("buffer", 1, { column: "geom" })
@@ -3705,7 +3884,8 @@ export default class SimpleWebTable extends Simple {
      *
      * It might create a .tmp folder, so make sure to add .tmp to your gitignore.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Merges data of tableA and tableB based on geometries that intersect. tableA is overwritten with the result.
      * await tableA.joinGeo(tableB, "intersect")
@@ -3723,7 +3903,8 @@ export default class SimpleWebTable extends Simple {
      * await tableA.joinGeo(tableB, "within", { distance : 10, distanceMethod: "spheroid" })
      * ```
      *
-     * @example With options
+     * @example
+     * With options
      * ```ts
      * // Same thing but with specific column names storing geometries, a specific join type, and returning the results in a new table.
      * const tableC = await tableA.joinGeo(tableB, "intersect", { leftTableColumn: "geometriesA", rightTableColumn: "geometriesB", type: "inner", outputTable: true })
@@ -3763,7 +3944,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Computes the intersection of geometries.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Computes the intersection of geometries in geomA and geomB columns and puts the new geometries in column inter.
      * await table.intersection("geomA", "geomB", "inter")
@@ -3795,7 +3977,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Removes the intersection of two geometries.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Removes the intersection of geomA and geomB from geomA and returns the results in the new column noIntersection. The column order is important.
      * await table.removeIntersection("geomA", "geomB", "noIntersection")
@@ -3832,7 +4015,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns true if two geometries intersect.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Checks if geometries in geomA and in geomB intersect and return true or false in new column inter.
      * await table.intersect("geomA", "geomB", "inter")
@@ -3859,7 +4043,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns true if all points of a geometry lies inside another geometry.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Checks if geometries in column geomA are inside geometries in column geomB and return true or false in new column isInside.
      * await table.inside("geomA", "geomB", "isInside")
@@ -3886,7 +4071,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Computes the union of geometries.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Computes the union of geometries in geomA and geomB columns and puts the new geometries in column union.
      * await tabele.union("geomA", "geomB", "union")
@@ -3920,7 +4106,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Extracts the latitude and longitude of points. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Extracts the latitude and longitude of points from the points in the "geom" column and put them in the columns "lat" and "lon".
      * await table.latLon("geom", "lat", "lon")
@@ -3948,14 +4135,16 @@ export default class SimpleWebTable extends Simple {
     /**
      * Simplifies the geometries while preserving their topology. The simplification occurs on an object-by-object basis. A higher tolerance results in a more significant simplification.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Simplifies with a tolerance of 0.1.
      * // By default, the method will look for the column storing the geometries.
      * await table.simplify(0.1)
      * ```
      *
-     * @example Specific column storing geometries
+     * @example
+     * Specific column storing geometries
      * ```ts
      * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.simplify(0.1, { column: "geom" })
@@ -3987,14 +4176,16 @@ export default class SimpleWebTable extends Simple {
     /**
      * Computes the centroid of geometries. The values are returned in the SRS unit.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Computes the centroid of the geometries and returns the results in the column centroid.
      * // By default, the method will look for the column storing the geometries.
      * await table.centroid("centroid")
      * ```
      *
-     * @example Specific column storing geometries
+     * @example
+     * Specific column storing geometries
      * ```ts
      * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.centroid("centroid", { column: "geom" })
@@ -4026,25 +4217,29 @@ export default class SimpleWebTable extends Simple {
     /**
      * Computes the distance between geometries. By default, it uses the SRS unit. You can pass "spheroid" or "haversine" as options.method to get results in meters or optionally kilometers. If you do use these methods, the input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      *
-     * @example Basic usage (SRS unit)
+     * @example
+     * Basic usage (SRS unit)
      * ```ts
      * // Computes the distance between geometries in columns geomA and geomB. The distance is returned in the new column "distance" in the SRS unit.
      * await table.distance("geomA", "geomB", "distance")
      * ```
      *
-     * @example Haversine (meters)
+     * @example
+     * Haversine (meters)
      * ```ts
      * // Same but using the haversine distance. The distance is returned in meters by default. The input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      * await table.distance("geomA", "geomB", "distance", { method: "haversine" })
      * ```
      *
-     * @example Haversine (kilometers)
+     * @example
+     * Haversine (kilometers)
      * ```
      * // Same but the distance is returned in kilometers. The input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      * await table.distance("geomA", "geomB", "distance", { method: "haversine", unit: "km" })
      * ```
      *
-     * @example Spheroid (meters and optionally kilometers)
+     * @example
+     * Spheroid (meters and optionally kilometers)
      * ```ts
      * // Same but using an ellipsoidal model of the earth's surface. It's the most accurate but the slowest. By default, the distance is returned in meters and optionally as kilometers. The input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      * await table.distance("geomA", "geomB", "distance", { method: "spheroid", unit: "km" })
@@ -4084,14 +4279,16 @@ export default class SimpleWebTable extends Simple {
     /**
      * Unnests geometries recursively.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Unnests geometries in the column "geom" and returns the same table with unnested items.
      * // By default, the method will look for the column storing the geometries.
      * await table.unnestGeo()
      * ```
      *
-     * @example Specific column storing geometries
+     * @example
+     * Specific column storing geometries
      * ```ts
      * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.unnestGeo("geom")
@@ -4117,7 +4314,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Aggregates geometries.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Returns the union of all geometries.
      * // By default, the method will look for the column storing the geometries.
@@ -4127,25 +4325,29 @@ export default class SimpleWebTable extends Simple {
      * await table.aggregateGeo("intersection")
      * ```
      *
-     * @example Specific column storing geometries
+     * @example
+     * Specific column storing geometries
      * ```ts
      * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.aggregateGeo("union", { column: "geom" })
      * ```
      *
-     * @example With categories
+     * @example
+     * With categories
      * ```ts
      * // Returns the union of all geometries and uses the values in the column country as categories.
      * await table.aggregateGeo("union", { categories: "country" })
      * ```
      *
-     * @example Returning results in a new table
+     * @example
+     * Returning results in a new table
      * ```ts
      * // Same thing but results a return in tableA
      * const tableA = await table.aggregateGeo("union", { categories: "country", outputTable: true })
      * ```
      *
-     * @example Returning results in a new table with a specific name in the DB
+     * @example
+     * Returning results in a new table with a specific name in the DB
      * ```ts
      * // Same thing but results a return in tableA
      * const tableA = await table.aggregateGeo("union", { categories: "country", outputTable: "tableA" })
@@ -4195,14 +4397,16 @@ export default class SimpleWebTable extends Simple {
     /**
      * Transforms closed lines into polygons.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Transforms geometries into polygons.
      * // By default, the method will look for the column storing the geometries.
      * await table.linesToPolygons()
      * ```
      *
-     * @example Specific column storing geometries
+     * @example
+     * Specific column storing geometries
      * ```ts
      * // If the table has more than one column storing geometries, you must specify which column should be used.
      * await table.linesToPolygons("geom")
@@ -4229,12 +4433,14 @@ export default class SimpleWebTable extends Simple {
     /**
      * Get the bounding box of geometries in [minLong, minLat, maxLong, maxLat] order. By default, the method will try find the column with the geometries, but can also specify one. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * const bbox = await table.getBoundingBox()
      * ```
      *
-     * @example Specific column storing geometries
+     * @example
+     * Specific column storing geometries
      * ```ts
      * const bbox = await table.getBoundingBox("geometries")
      * ```
@@ -4268,13 +4474,15 @@ export default class SimpleWebTable extends Simple {
     /**
      * Returns the data as a geojson. If the table has more than one column storing geometries, you must specify which column should be used. If the projection is WGS84 or EPSG:4326 ([latitude, longitude] axis order), the coordinates will be flipped to follow the RFC7946 standard ([longitude, latitude] axis order).
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // By default, the method will look for the column storing the geometries. The other columns in the table will be stored as properties.
      * const geojson = await table.getGeoData()
      * ```
      *
-     * @example Specific geometry column
+     * @example
+     * Specific geometry column
      * ```ts
      * // If the table has more than one column storing geometries, you must specify which column should be used. All the other columns in the table will be stored as properties.
      * const geojson = await table.getGeoData("geometries")
@@ -4300,13 +4508,15 @@ export default class SimpleWebTable extends Simple {
     /**
      * Logs a specified number of rows. Default is 10 rows.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // Logs first 10 rows
      * await table.logTable();
      * ```
      *
-     * @example Specific number of rows
+     * @example
+     * Specific number of rows
      * ```ts
      * // Logs first 100 rows
      * await table.logTable(100);
@@ -4363,7 +4573,8 @@ export default class SimpleWebTable extends Simple {
     /**
      * Logs descriptive information about the columns, including details like data types, number of null and distinct values. It calls getDescription.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * await table.logDescription()
      * ```

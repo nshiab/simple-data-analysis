@@ -13,7 +13,8 @@ import { prettyDuration } from "journalism"
  *
  * Here's how to instantiate a SimpleDB instance and then a SimpleTable.
  *
- * @example Basic usage
+ * @example
+ * Basic usage
  * ```ts
  * // Instantiating the database.
  * const sdb = new SimpleDB()
@@ -29,7 +30,8 @@ import { prettyDuration } from "journalism"
  * await sdb.done()
  * ```
  *
- * @example Instanciating with options
+ * @example
+ * Instanciating with options
  * ```ts
  * // Creating a database with options. Debug information will be logged each time a method is invoked. The first 20 rows of tables will be logged (default is 10).
  * const sdb = new SimpleWebDB({ debug: true, nbRowsToLog: 20 })
@@ -73,13 +75,15 @@ export default class SimpleDB extends SimpleWebDB {
 
     /** Creates a table in the DB.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```ts
      * // This returns a new SimpleTable
      * const employees = sdb.newTable()
      * ```
      *
-     * @example With a specific name
+     * @example
+     * With a specific name
      * ```ts
      * // By default, tables will be named table1, table2, etc.
      * // But you can also give them specific names.
@@ -129,7 +133,8 @@ export default class SimpleDB extends SimpleWebDB {
     /**
      * Frees up memory by closing down the database and cleans up cache so it doesn't grow in size indefinitely.
      *
-     * @example Basic usage
+     * @example
+     * Basic usage
      * ```typescript
      * await sdb.done();
      * ```
