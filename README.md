@@ -456,7 +456,7 @@ Then import `SimpleWebDB` or `SimpleWebTable` directly from `bundle.js`:
 import { SimpleWebDB } from "./node_modules/simple-data-analysis/dist/bundle.js"
 ```
 
-You can also import the minified bundle with a npm-based CDN like jsDelivr, as shown below.
+You can also import the minified bundle with a npm-based CDN like [esm.sh](https://esm.sh/), as shown below.
 
 Here's some code you can copy and paste into an HTML file. You can also adapt it to any bundler or framework of your choice.
 
@@ -465,7 +465,7 @@ In this example, we load a CSV file with the latitude and longitude of 2023 wild
 ```html
 <script type="module">
     // We import the SimpleWebDB class from the esm bundle.
-    import { SimpleWebDB } from "https://cdn.jsdelivr.net/npm/simple-data-analysis@3.8.10/+esm"
+    import { SimpleWebDB } from "https://esm.sh/jsr/@nshiab/simple-data-analysis@3.9.3/src/bundle"
 
     async function main() {
         // We start a SimpleWebDB instance.
