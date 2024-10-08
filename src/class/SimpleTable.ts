@@ -25,7 +25,12 @@ import getProjection from "../helpers/getProjection.js"
 import getExtension from "../helpers/getExtension.js"
 import cache from "../methods/cache.js"
 import getIdenticalColumns from "../helpers/getIdenticalColumns.js"
-import { createDirectory } from "journalism"
+import {
+    createDirectory,
+    logLineChart,
+    logDotChart,
+    logBarChart,
+} from "journalism"
 import writeDataAsArrays from "../helpers/writeDataAsArrays.js"
 
 /**
@@ -801,5 +806,66 @@ export default class SimpleTable extends SimpleWebTable {
      */
     async cache(run: () => Promise<void>, options: { ttl?: number } = {}) {
         await cache(this, run, { ...options, verbose: this.sdb.cacheVerbose })
+    }
+
+    async logLineChart(
+        x: string,
+        y: string,
+        options: {
+            formatX?: (d: unknown) => string
+            formatY?: (d: unknown) => string
+            smallMultiples?: string
+            fixedScales?: boolean
+            smallMultiplesPerRow?: number
+            width?: number
+            height?: number
+        } = {}
+    ) {
+        const data = await this.sdb.customQuery(
+            `SELECT "${x}", "${y}"${typeof options.smallMultiples === "string" ? `, "${options.smallMultiples}"` : ""} FROM ${this.name}`,
+            { returnDataFrom: "query" }
+        )
+        logLineChart(data as { [key: string]: unknown }[], x, y, options)
+    }
+
+    async logDotChart(
+        x: string,
+        y: string,
+        options: {
+            formatX?: (d: unknown) => string
+            formatY?: (d: unknown) => string
+            smallMultiples?: string
+            fixedScales?: boolean
+            smallMultiplesPerRow?: number
+            width?: number
+            height?: number
+        } = {}
+    ) {
+        const data = await this.sdb.customQuery(
+            `SELECT "${x}", "${y}"${typeof options.smallMultiples === "string" ? `, "${options.smallMultiples}"` : ""} FROM ${this.name}`,
+            { returnDataFrom: "query" }
+        )
+        logDotChart(data as { [key: string]: unknown }[], x, y, options)
+    }
+
+    async logBarChart(
+        labels: string,
+        values: string,
+        options: {
+            formatLabels?: (d: unknown) => string
+            formatValues?: (d: unknown) => string
+            width?: number
+        } = {}
+    ) {
+        const data = await this.sdb.customQuery(
+            `SELECT "${labels}", "${values}" FROM ${this.name}`,
+            { returnDataFrom: "query" }
+        )
+        logBarChart(
+            data as { [key: string]: unknown }[],
+            labels,
+            values,
+            options
+        )
     }
 }
