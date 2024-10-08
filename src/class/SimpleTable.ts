@@ -808,6 +808,56 @@ export default class SimpleTable extends SimpleWebTable {
         await cache(this, run, { ...options, verbose: this.sdb.cacheVerbose })
     }
 
+    /**
+     * Generates and logs a line chart. The data is expected to be sorted by the x-axis values.
+     *
+     * @example
+     * Basic usage
+     * ```typescript
+     * const data = [
+     *     { date: new Date("2023-01-01"), value: 10 },
+     *     { date: new Date("2023-02-01"), value: 20 },
+     *     { date: new Date("2023-03-01"), value: 30 },
+     *     { date: new Date("2023-04-01"), value: 40 },
+     * ]
+     * await table.loadArray(data)
+     * await table.convert({ date: "string" }, { datetimeFormat: "%x" })
+     * await table.logLineChart("date", "value")
+     * ```
+     *
+     * @example
+     * Small multiples
+     * ```typescript
+     * const data = [
+     *     { date: new Date("2023-01-01"), value: 10, category: "A" },
+     *     { date: new Date("2023-02-01"), value: 20, category: "A" },
+     *     { date: new Date("2023-03-01"), value: 30, category: "A" },
+     *     { date: new Date("2023-04-01"), value: 40, category: "A" },
+     *     { date: new Date("2023-01-01"), value: 15, category: "B" },
+     *     { date: new Date("2023-02-01"), value: 25, category: "B" },
+     *     { date: new Date("2023-03-01"), value: 35, category: "B" },
+     *     { date: new Date("2023-04-01"), value: 45, category: "B" },
+     * ]
+     * await table.loadArray(data)
+     * await table.convert({ date: "string" }, { datetimeFormat: "%x" })
+     * await table.logLineChart("date", "value", {
+     *     smallMultiples: "category",
+     * })
+     * ```
+     *
+     * @param x - The key for the x-axis values in the data objects.
+     * @param y - The key for the y-axis values in the data objects.
+     * @param options - An optional object to customize the chart.
+     * @param options.formatX - A function to format the x-axis values.
+     * @param options.formatY - A function to format the y-axis values.
+     * @param options.smallMultiples - A key in the data objects to create small multiples of the chart.
+     * @param options.fixedScales - A boolean to determine if small multiple scales should be identical.
+     * @param options.smallMultiplesPerRow - The number of small multiples per row.
+     * @param options.width - The width of the chart.
+     * @param options.height - The height of the chart.
+     *
+     * @category Dataviz
+     */
     async logLineChart(
         x: string,
         y: string,
@@ -828,6 +878,56 @@ export default class SimpleTable extends SimpleWebTable {
         logLineChart(data as { [key: string]: unknown }[], x, y, options)
     }
 
+    /**
+     * Generates and logs a dot chart. The data is expected to be sorted by the x-axis values.
+     *
+     * @example
+     * Basic usage
+     * ```typescript
+     * const data = [
+     *     { date: new Date("2023-01-01"), value: 10 },
+     *     { date: new Date("2023-02-01"), value: 20 },
+     *     { date: new Date("2023-03-01"), value: 30 },
+     *     { date: new Date("2023-04-01"), value: 40 },
+     * ]
+     * await table.loadArray(data)
+     * await table.convert({ date: "string" }, { datetimeFormat: "%x" })
+     * await table.logDotChart("date", "value")
+     * ```
+     *
+     * @example
+     * Small multiples
+     * ```typescript
+     * const data = [
+     *     { date: new Date("2023-01-01"), value: 10, category: "A" },
+     *     { date: new Date("2023-02-01"), value: 20, category: "A" },
+     *     { date: new Date("2023-03-01"), value: 30, category: "A" },
+     *     { date: new Date("2023-04-01"), value: 40, category: "A" },
+     *     { date: new Date("2023-01-01"), value: 15, category: "B" },
+     *     { date: new Date("2023-02-01"), value: 25, category: "B" },
+     *     { date: new Date("2023-03-01"), value: 35, category: "B" },
+     *     { date: new Date("2023-04-01"), value: 45, category: "B" },
+     * ]
+     * await table.loadArray(data)
+     * await table.convert({ date: "string" }, { datetimeFormat: "%x" })
+     * await table.logDotChart("date", "value", {
+     *     smallMultiples: "category",
+     * })
+     * ```
+     *
+     * @param x - The key for the x-axis values in the data objects.
+     * @param y - The key for the y-axis values in the data objects.
+     * @param options - An optional object to customize the chart.
+     * @param options.formatX - A function to format the x-axis values.
+     * @param options.formatY - A function to format the y-axis values.
+     * @param options.smallMultiples - A key in the data objects to create small multiples of the chart.
+     * @param options.fixedScales - A boolean to determine if small multiple scales should be identical.
+     * @param options.smallMultiplesPerRow - The number of small multiples per row.
+     * @param options.width - The width of the chart.
+     * @param options.height - The height of the chart.
+     *
+     * @category Dataviz
+     */
     async logDotChart(
         x: string,
         y: string,
@@ -848,6 +948,28 @@ export default class SimpleTable extends SimpleWebTable {
         logDotChart(data as { [key: string]: unknown }[], x, y, options)
     }
 
+    /**
+     * Generates and logs a bar chart. The data is expected to be sorted.
+     *
+     * @example
+     * ```typescript
+     * const data = [
+     *     { category: "A", value: 10 },
+     *     { category: "B", value: 20 },
+     * ]
+     * await table.loadArray(data)
+     * await table.logBarChart("category", "value")
+     * ```
+     *
+     * @param labels - The key in the data objects to be used for the labels.
+     * @param values - The key in the data objects to be used for the values.
+     * @param options - Optional configuration for the chart.
+     * @param options.formatLabels - A function to format the labels. Defaults to converting the label to a string.
+     * @param options.formatValues - A function to format the values. Defaults to converting the value to a string.
+     * @param options.width - The width of the chart. Defaults to 40.
+     *
+     * @category Dataviz
+     */
     async logBarChart(
         labels: string,
         values: string,
