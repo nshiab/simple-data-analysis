@@ -57,6 +57,7 @@
         "doc": "typedoc && cp -r ./assets ./docs",
         "test-doc": "typedoc --out ./test-docs && cp -r ./assets ./test-docs",
         "update-doc": "npm run doc && git add -A && git commit -m 'Updating doc' && git push",
+        "publish-patch-no-test": "git branch --show-current | grep -q '^main$' && npm version patch && npm run build && npm run update-doc && npm publish && deno run -A syncJsrVersion.js && git pull && git add -A && git commit -m 'Syncing NPM/JSR versions' && deno publish --unstable-sloppy-imports",
         "publish-patch": "git branch --show-current | grep -q '^main$' && npm run all-tests && npm version patch && npm run update-doc && npm publish  && deno run -A syncJsrVersion.js && git pull && git add -A && git commit -m 'Syncing NPM/JSR versions' && deno publish --unstable-sloppy-imports",
         "publish-minor": "git branch --show-current | grep -q '^main$' && npm run all-tests && npm version minor && npm run update-doc && npm publish  && deno run -A syncJsrVersion.js && git pull && git add -A && git commit -m 'Syncing NPM/JSR versions' && deno publish --unstable-sloppy-imports",
         "publish-major": "git branch --show-current | grep -q '^main$' && npm run all-tests && npm version major && npm run update-doc && npm publish  && deno run -A syncJsrVersion.js && git pull && git add -A && git commit -m 'Syncing NPM/JSR versions' && deno publish --unstable-sloppy-imports",
