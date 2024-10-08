@@ -217,13 +217,16 @@ await firesInsideProvinces.sort({ burntArea: "desc" })
 // provinces and territories in Canada.
 await firesInsideProvinces.logTable(13)
 
+// We can also log a bar chart.
+await firesInsideProvinces.logBarChart("nameEnglish", "burntArea")
+
 // We close everything.
 await sdb.done()
 ```
 
 Here's what you should see in your console if your run this scripts.
 
-![The console tab in VS Code showing the result of simple-data-analysis computations.](./assets/nodejs-console.png)
+![The console tab in VS Code showing the result of simple-data-analysis computations.](./assets/nodejs-console-with-chart.png)
 
 ## Caching fetched and computed data
 
@@ -456,9 +459,9 @@ Then import `SimpleWebDB` or `SimpleWebTable` directly from `bundle.js`:
 import { SimpleWebDB } from "./node_modules/simple-data-analysis/dist/bundle.js"
 ```
 
-You can also import the minified bundle with a npm-based CDN like [esm.sh](https://esm.sh/), as shown below.
+You can also import the minified bundle with a npm-based CDN like [esm.sh](https://esm.sh/).
 
-You'll find an example here. You can copy and paste the code into an HTML file. You can also adapt it to any bundler or framework of your choice.
+You'll find an example [here](https://github.com/nshiab/simple-data-analysis/blob/main/examples/index.html). You can copy and paste the code into an HTML file. You can also adapt it to any bundler or framework of your choice.
 
 ### Others
 

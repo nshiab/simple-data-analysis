@@ -56,5 +56,8 @@ await firesInsideProvinces.sort({ burntArea: "desc" })
 // provinces and territories in Canada.
 await firesInsideProvinces.logTable(13)
 
+// We can also log a bar chart.
+await firesInsideProvinces.logBarChart("nameEnglish", "burntArea")
+
 // We close everything.
 await sdb.done()
