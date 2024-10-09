@@ -131,70 +131,83 @@ If you are using Deno, make sure to switch the first line to `import { SimpleDB 
 ```ts
 import { SimpleDB } from "simple-data-analysis"
 
-// We start a SimpleDB instance.
-const sdb = new SimpleDB()
+// We enable the cacheVerbose option, which will
+// log information about the cached data.
+const sdb = new SimpleDB({ cacheVerbose: true })
 
-// We create a new table.
-const provinces = sdb.newTable("provinces")
-// We fetch the provinces' boundaries. It's a geoJSON.
-await provinces.loadGeoData(
-    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json"
-)
-
-// Uncomment this line if you want to see the table.
-// await provinces.logTable()
-
-// We create a new table.
 const fires = sdb.newTable("fires")
-// We fetch the wildfires data. It's a CSV.
-await fires.loadData(
-    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv"
+
+// We cache these steps with a ttl of 60 seconds.
+// On the first run, the data will be fetched
+// and stored in the hidden folder .sda-cache.
+// If you rerun the script less than 60 seconds
+// later, the data won't be fetched but loaded
+// from the local cache. However, if you run the
+// code after 60 seconds, the data will be
+// considered outdated and fetched again.
+// After another 60 seconds, the new data in the cache will
+// expire again. This is useful when working with scraped data.
+// If you update the parameters or code passed to the cache
+// method, everything starts over.
+await fires.cache(
+    async () => {
+        await fires.loadData(
+            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv"
+        )
+        await fires.points("lat", "lon", "geom")
+    },
+    { ttl: 60 }
 )
-// We remove rows with missing data in any columns.
-await fires.removeMissing()
-// We create point geometries from the lat and lon columns
-// and we store the points in the new column geom.
-await fires.points("lat", "lon", "geom")
 
-// Uncomment this line if you want to see the table.
-// await fires.logTable()
+const provinces = sdb.newTable("provinces")
 
-// We match fires with provinces
-// and we output the results into a new table.
-// By default, joinGeo will automatically look
-// for columns storing geometries in the tables,
-// do a left join, and put the results
-// in the left table.
-const firesInsideProvinces = await fires.joinGeo(provinces, "inside", {
-    outputTable: "firesInsideProvinces",
+// Same thing here, except there is no ttl option,
+// so the cached data will never expire unless you delete
+// the hidden folder .sda-cache. Again, if you update
+// the code passed to the cache method, everything
+// starts over.
+await provinces.cache(async () => {
+    await provinces.loadGeoData(
+        "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json"
+    )
 })
 
-// We summarize to count the number of fires
-// and sum up the area burnt in each province.
-await firesInsideProvinces.summarize({
-    values: "hectares",
-    categories: "nameEnglish",
-    summaries: ["count", "sum"],
-    decimals: 0,
-})
-// We rename columns.
-await firesInsideProvinces.renameColumns({
-    count: "nbFires",
-    sum: "burntArea",
-})
-// We want the province with
-// the greatest burnt area first.
-await firesInsideProvinces.sort({ burntArea: "desc" })
+const firesInsideProvinces = sdb.newTable("firesInsideProvinces")
 
-// We log the results. By default, the method
-// logs the first 10 rows, but there are 13
-// provinces and territories in Canada.
-await firesInsideProvinces.logTable(13)
+// While caching is quite useful when fetching data,
+// it's also handy for computationally expensive
+// operations like joins and summaries.
+// Since the fires table has a ttl of 60 seconds
+// and we depend on it here, we need a ttl equal
+// or lower. Otherwise, we won't work with
+// up-to-date data.
+await firesInsideProvinces.cache(
+    async () => {
+        await fires.joinGeo(provinces, "inside", {
+            outputTable: "firesInsideProvinces",
+        })
+        await firesInsideProvinces.removeMissing()
+        await firesInsideProvinces.summarize({
+            values: "hectares",
+            categories: "nameEnglish",
+            summaries: ["count", "sum"],
+            decimals: 0,
+        })
+        await firesInsideProvinces.renameColumns({
+            count: "nbFires",
+            sum: "burntArea",
+        })
+        await firesInsideProvinces.sort({ burntArea: "desc" })
+    },
+    { ttl: 60 }
+)
 
-// We can also log a bar chart of the burnt area.
-await firesInsideProvinces.logBarChart("nameEnglish", "burntArea")
+await firesInsideProvinces.logTable(12)
 
-// We close everything.
+// It's important to call done() at the end.
+// This method will remove the unused files
+// in the cache. It will also log the total duration
+// if the logDuration option was set to true.
 await sdb.done()
 ```
 
@@ -272,6 +285,7 @@ await firesInsideProvinces.cache(
         await fires.joinGeo(provinces, "inside", {
             outputTable: "firesInsideProvinces",
         })
+        await firesInsideProvinces.removeMissing()
         await firesInsideProvinces.summarize({
             values: "hectares",
             categories: "nameEnglish",
@@ -287,7 +301,7 @@ await firesInsideProvinces.cache(
     { ttl: 60 }
 )
 
-await firesInsideProvinces.logTable(13)
+await firesInsideProvinces.logTable(12)
 
 // It's important to call done() at the end.
 // This method will remove the unused files
@@ -339,14 +353,14 @@ Thanks to caching, the script ran five times faster!
 
 ```
 Found ./.sda-cache/fires.ff...8f.geojson in cache.
-ttl of 60 sec has not expired. The creation date is July 5, 2024, at 4:25 p.m.. There is 11 sec, 491 ms left.
+ttl of 60 sec has not expired. The creation date is July 5, 2024, at 4:25 p.m.. There are 11 sec, 491 ms left.
 Data loaded in 151 ms. Running the computations took 311 ms last time. You saved 160 ms.
 
 Found ./.sda-cache/provinces.42...55.geojson in cache.
 Data loaded in 8 ms. Running the computations took 397 ms last time. You saved 389 ms.
 
 Found ./.sda-cache/firesInsideProvinces.71...a8.parquet in cache.
-ttl of 60 sec has not expired. The creation date is July 5, 2024, at 4:25 p.m.. There is 11 sec, 792 ms left.
+ttl of 60 sec has not expired. The creation date is July 5, 2024, at 4:25 p.m.. There are 11 sec, 792 ms left.
 Data loaded in 1 ms. Running the computations took 49 ms last time. You saved 48 ms.
 
 table firesInsideProvinces:
@@ -369,7 +383,7 @@ table firesInsideProvinces:
 └─────────┴────────────┴─────────────────────────────┴─────────┴───────────┘
 13 rows in total (nbRowsToLog: 13)
 
-SimpleDB - Done in 184 ms
+SimpleDB - Done in 184 ms / You saved 707 ms by using the cache
 ```
 
 And if you run the script 60 seconds later, the fires and join/summary caches will have expired, but not the provinces one. Some of the code will have run, but not everything. The script still ran 1.5 times faster. This is quite handy in complex analysis with big datasets. The less you wait, the more fun you have!
@@ -408,7 +422,7 @@ table firesInsideProvinces:
 └─────────┴────────────┴─────────────────────────────┴─────────┴───────────┘
 13 rows in total (nbRowsToLog: 13)
 
-SimpleDB - Done in 594 ms
+SimpleDB - Done in 594 ms / You saved 297 ms by using the cache
 ```
 
 ## In Observable notebooks

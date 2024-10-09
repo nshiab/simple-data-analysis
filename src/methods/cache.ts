@@ -81,7 +81,7 @@ export default async function cache(
             const ttlLimit = new Date(cache.creation + options.ttl * 1000)
             ;(table.debug || options.verbose) &&
                 console.log(
-                    `ttl of ${options.ttl} sec has not expired. The creation date is ${formatDate(new Date(cache.creation), "Month DD, YYYY, at HH:MM period")}. There is ${prettyDuration(now, { end: ttlLimit })} left.`
+                    `ttl of ${options.ttl} sec has not expired. The creation date is ${formatDate(new Date(cache.creation), "Month DD, YYYY, at HH:MM period")}. There are ${prettyDuration(now, { end: ttlLimit })} left.`
                 )
         }
         if (cache.geo) {
