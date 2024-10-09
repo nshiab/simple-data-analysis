@@ -13,7 +13,7 @@ To use the library in your browser, check out [simple-data-analysis-flow](https:
 Create a folder and run [setup-sda](https://github.com/nshiab/setup-sda):
 
 ```bash
-# Deno
+# Deno >= 2.x.x
 deno run -A jsr:@nshiab/setup-sda
 
 # Node.js
@@ -30,7 +30,7 @@ There is one option:
 You can now run the code below to run `main.js` or `main.ts` and watch for changes.
 
 ```bash
-# Deno
+# Deno >= 2.x.x
 deno task sda
 
 # Node.js
@@ -40,54 +40,22 @@ npm run sda
 bun run sda
 ```
 
-## With Node.js
+## Manual installation
 
-To install from NPM:
+If you want to add the library to an existing project, here's how.
 
-```
-npm i simple-data-analysis
-```
-
-To run a `.js` file:
-
-```
-node main.js
-```
-
-To run a `.ts` file with Node.js v22.6.0 or higher:
-
-```
-node --experimental-strip-types main.ts
-```
-
-## With Bun
-
-To install from NPM:
-
-```
-bun add simple-data-analysis
-```
-
-To run a `.js` or `.ts` file:
-
-```
-bun run index.js
-```
-
-## With Deno
-
-You need Deno v2.0.0 or higher. It's strongly recommended to install and enable the [Deno extension](https://docs.deno.com/runtime/getting_started/setup_your_environment/).
-
-To install from JSR:
-
-```
+```bash
+# Deno >= 2.x.x
 deno install --node-modules-dir=auto --allow-scripts=npm:duckdb jsr:@nshiab/simple-data-analysis
-```
 
-To run:
-
-```
+# To run with Deno
 deno run --node-modules-dir=auto -A main.ts
+
+# Node.js
+npm i simple-data-analysis
+
+# Bun
+bun add simple-data-analysis
 ```
 
 ## Core principles
@@ -462,7 +430,3 @@ import { SimpleWebDB } from "./node_modules/simple-data-analysis/dist/bundle.js"
 You can also import the minified bundle with a npm-based CDN like [esm.sh](https://esm.sh/).
 
 You'll find an example [here](https://github.com/nshiab/simple-data-analysis/blob/main/examples/index.html). You can copy and paste the code into an HTML file. You can also adapt it to any bundler or framework of your choice.
-
-### Others
-
-If you want to generate and save charts with Deno, Bun or Node.js, check the [journalism library](https://github.com/nshiab/journalism), more specifically the [savePlotChart function](https://nshiab.github.io/journalism/functions/savePlotChart.html).
