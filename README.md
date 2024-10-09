@@ -23,9 +23,11 @@ npx setup-sda
 bunx --bun setup-sda
 ```
 
-There is one option:
+There are two options:
 
 -   _--js_ : To use JavaScript instead of TypeScript.
+-   _--force_ : To force the creation of files even if the folder is not
+    empty.
 
 You can now run the code below to run `main.js` or `main.ts` and watch for changes.
 
