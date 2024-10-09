@@ -13,7 +13,7 @@
     "npm:duckdb@1.0.0": "1.0.0",
     "npm:eslint-config-prettier@9": "9.1.0_eslint@8.57.1",
     "npm:eslint@^8.39.0": "8.57.1",
-    "npm:journalism@^1.18.4": "1.18.4_google-auth-library@9.14.1",
+    "npm:journalism@^1.18.5": "1.18.5_google-auth-library@9.14.1",
     "npm:mocha@10.7.3": "10.7.3",
     "npm:mocha@^10.7.0": "10.7.3",
     "npm:prettier@3": "3.3.3",
@@ -1533,8 +1533,8 @@
         "@pkgjs/parseargs"
       ]
     },
-    "journalism@1.18.4_google-auth-library@9.14.1": {
-      "integrity": "sha512-TA2vMzLe+cYHC3EVk45zB9uFFYvUOqUGhcg7hc03N+GpVqDNj6QgGk/60omLmBsRKcb0Avkbni1Y89u20kVjgQ==",
+    "journalism@1.18.5_google-auth-library@9.14.1": {
+      "integrity": "sha512-t+XQnVop7aOiUcHgAEx47rRBORdsxrLqXtqW0zDol3uciEutPP1bBJTV9C0P485ItMfDlUMHug65HT5lbX9c5Q==",
       "dependencies": [
         "adm-zip",
         "cheerio",
@@ -2423,8 +2423,8 @@
     "undici-types@6.19.8": {
       "integrity": "sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw=="
     },
-    "undici@6.19.8": {
-      "integrity": "sha512-U8uCCl2x9TK3WANvmBavymRzxbfFYG+tAu+fgx3zxQy3qdagQqBLwJVrdyO1TBfUXvfKveMKJZhpvUYoOjM+4g=="
+    "undici@6.20.0": {
+      "integrity": "sha512-AITZfPuxubm31Sx0vr8bteSalEbs9wQb/BOBi9FPlD9Qpd6HxZ4Q0+hI742jBhkPb4RT2v5MQzaW5VhRVyj+9A=="
     },
     "unique-filename@2.0.1": {
       "integrity": "sha512-ODWHtkkdx3IAR+veKxFV+VBkUMcN+FaqzUUd7IZzt+0zhDZFPFxhlqwPF3YQvMHx1TD0tdgYl+kuPnJ8E6ql7A==",
@@ -2641,7 +2641,7 @@
         "npm:duckdb@1.0.0",
         "npm:eslint-config-prettier@9",
         "npm:eslint@^8.39.0",
-        "npm:journalism@^1.18.4",
+        "npm:journalism@^1.18.5",
         "npm:mocha@^10.7.0",
         "npm:prettier@3",
         "npm:rollup-plugin-polyfill-node@0.13",
