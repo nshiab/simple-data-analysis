@@ -32,6 +32,7 @@ import {
     logBarChart,
 } from "journalism"
 import writeDataAsArrays from "../helpers/writeDataAsArrays.js"
+import logHistogram from "../methods/logHistogram.js"
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
@@ -989,5 +990,35 @@ export default class SimpleTable extends SimpleWebTable {
             values,
             options
         )
+    }
+
+    /**
+     * Generates and logs a histogram. The data is expected to be numeric.
+     *
+     * @example
+     * Basic usage
+     * ```typescript
+     * await table.logHistogram("temperature")
+     * ```
+     *
+     * @param values - The key for the numeric values.
+     * @param options - An optional object to customize the histogram.
+     * @param options.bins - The number of bins to use for the histogram. Defaults to 10.
+     * @param options.formatLabels - A function to format the labels for the bins.
+     * @param options.compact - A boolean to determine if the histogram should be compact.
+     * @param options.width - The width of the histogram.
+     *
+     * @category Dataviz
+     */
+    async logHistogram(
+        values: string,
+        options: {
+            bins?: number
+            formatLabels?: (a: number, b: number) => string
+            compact?: boolean
+            width?: number
+        } = {}
+    ) {
+        logHistogram(this, values, options)
     }
 }
