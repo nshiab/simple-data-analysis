@@ -14,7 +14,7 @@ Create a folder and run [setup-sda](https://github.com/nshiab/setup-sda):
 
 ```bash
 # Deno >= 2.x.x
-deno run -A jsr:@nshiab/setup-sda
+deno -A jsr:@nshiab/setup-sda
 
 # Node.js
 npx setup-sda
@@ -140,8 +140,9 @@ const provinces = sdb.newTable("provinces")
 await provinces.loadGeoData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json"
 )
-// We log the provinces.
-await provinces.logTable()
+
+// Uncomment this line if you want to see the table.
+// await provinces.logTable()
 
 // We create a new table.
 const fires = sdb.newTable("fires")
@@ -149,11 +150,14 @@ const fires = sdb.newTable("fires")
 await fires.loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv"
 )
+// We remove rows with missing data in any columns.
+await fires.removeMissing()
 // We create point geometries from the lat and lon columns
 // and we store the points in the new column geom.
 await fires.points("lat", "lon", "geom")
-// We log the fires.
-await fires.logTable()
+
+// Uncomment this line if you want to see the table.
+// await fires.logTable()
 
 // We match fires with provinces
 // and we output the results into a new table.
@@ -187,7 +191,7 @@ await firesInsideProvinces.sort({ burntArea: "desc" })
 // provinces and territories in Canada.
 await firesInsideProvinces.logTable(13)
 
-// We can also log a bar chart.
+// We can also log a bar chart of the burnt area.
 await firesInsideProvinces.logBarChart("nameEnglish", "burntArea")
 
 // We close everything.
