@@ -13,7 +13,7 @@
     "npm:duckdb@1.0.0": "1.0.0",
     "npm:eslint-config-prettier@9": "9.1.0_eslint@8.57.1",
     "npm:eslint@^8.39.0": "8.57.1",
-    "npm:journalism@^1.18.7": "1.18.7_google-auth-library@9.14.1",
+    "npm:journalism@^1.18.8": "1.18.9_google-auth-library@9.14.1",
     "npm:mocha@10.7.3": "10.7.3",
     "npm:mocha@^10.7.0": "10.7.3",
     "npm:prettier@3": "3.3.3",
@@ -1533,8 +1533,8 @@
         "@pkgjs/parseargs"
       ]
     },
-    "journalism@1.18.7_google-auth-library@9.14.1": {
-      "integrity": "sha512-7WqrLRuXZeO/fdr+S6EenDIBVaLpSN0dCjiLnU3vMCyxJERbK3S7MxnD+/aD6U2QRhkqe1dztH15zlaMiwIeHw==",
+    "journalism@1.18.9_google-auth-library@9.14.1": {
+      "integrity": "sha512-etL8xkkKy4T6sSpSRl+dDWKGDpmMKTvo4FU02ZQs/ln5WZrf2PIgTyJ3VAeOYoCMjmwwChL3Z06CkVOaG181ng==",
       "dependencies": [
         "adm-zip",
         "cheerio",
@@ -2641,7 +2641,7 @@
         "npm:duckdb@1.0.0",
         "npm:eslint-config-prettier@9",
         "npm:eslint@^8.39.0",
-        "npm:journalism@^1.18.7",
+        "npm:journalism@^1.18.8",
         "npm:mocha@^10.7.0",
         "npm:prettier@3",
         "npm:rollup-plugin-polyfill-node@0.13",
