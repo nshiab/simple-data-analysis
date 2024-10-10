@@ -1,6 +1,6 @@
 {
   "name": "@nshiab/simple-data-analysis",
-  "version": "3.12.0",
+  "version": "3.12.1",
   "exports": "./src/index.ts",
   "tasks": {
     "test": "deno publish --unstable-sloppy-imports --dry-run"
