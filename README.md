@@ -13,33 +13,27 @@ To use the library in your browser, check out [simple-data-analysis-flow](https:
 Create a folder and run [setup-sda](https://github.com/nshiab/setup-sda):
 
 ```bash
-# Deno >= 2.x.x
-deno -A jsr:@nshiab/setup-sda
-
-# Node.js
+# Node.js >= 22.6.x
 npx setup-sda
 
 # Bun
 bunx --bun setup-sda
+
+# Deno >= 2.x.x
+deno -A jsr:@nshiab/setup-sda
 ```
 
-There are two options:
-
--   _--js_ : To use JavaScript instead of TypeScript.
--   _--force_ : To force the creation of files even if the folder is not
-    empty.
-
-You can now run the code below to run `main.js` or `main.ts` and watch for changes.
+If you want to use SDA with [Framework](https://github.com/observablehq/framework), pass the `--framework` flag:
 
 ```bash
-# Deno >= 2.x.x
-deno task sda
-
-# Node.js
-npm run sda
+# Node.js >= 22.6.x
+npx setup-sda --framework
 
 # Bun
-bun run sda
+bunx --bun setup-sda --framework
+
+# Deno >= 2.x.x
+deno -A jsr:@nshiab/setup-sda --framework
 ```
 
 ## Manual installation
