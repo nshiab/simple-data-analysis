@@ -1,9 +1,9 @@
 export default function upperQuery(table: string, columns: string[]) {
-    let query = ""
+  let query = "";
 
-    for (const column of columns) {
-        query += `\nUPDATE ${table} SET "${column}" = UPPER("${column}");`
-    }
+  for (const column of columns) {
+    query += `\nUPDATE ${table} SET "${column}" = UPPER("${column}");`;
+  }
 
-    return query
+  return query;
 }

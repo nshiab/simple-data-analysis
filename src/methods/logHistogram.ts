@@ -1,21 +1,21 @@
-import { logBarChart } from "journalism"
-import SimpleTable from "../class/SimpleTable"
+import { logBarChart } from "jsr:@nshiab/journalism@1";
+import type SimpleTable from "../class/SimpleTable.ts";
 
 export default async function logHistogram(
-    simpleTable: SimpleTable,
-    values: string,
-    options: {
-        bins?: number
-        formatLabels?: (a: number, b: number) => string
-        compact?: boolean
-        width?: number
-    } = {}
+  simpleTable: SimpleTable,
+  values: string,
+  options: {
+    bins?: number;
+    formatLabels?: (a: number, b: number) => string;
+    compact?: boolean;
+    width?: number;
+  } = {},
 ) {
-    const bins = options.bins ?? 10
-    const formatLabels = options.formatLabels ?? ((a, b) => `[${a} | ${b})`)
+  const bins = options.bins ?? 10;
+  const formatLabels = options.formatLabels ?? ((a, b) => `[${a} | ${b})`);
 
-    const data = await simpleTable.sdb.customQuery(
-        `
+  const data = await simpleTable.sdb.customQuery(
+    `
 WITH params AS (
   SELECT 
     ${bins} AS N_BINS,
@@ -40,24 +40,24 @@ SELECT
   frequency
 FROM histogram
 ORDER BY bin_start;`,
-        { returnDataFrom: "query" }
-    )
+    { returnDataFrom: "query" },
+  );
 
-    logBarChart(
-        (data as { [key: string]: unknown }[]).map((d) => ({
-            binRange: formatLabels(
-                parseFloat((d.bin_start as number).toFixed(10)),
-                parseFloat((d.bin_end as number).toFixed(10))
-            ),
-            frequency: d.frequency,
-        })),
-        "binRange",
-        "frequency",
-        {
-            title: `Distribution of "${values}"`,
-            totalLabel: "Number of data points",
-            compact: options.compact,
-            width: options.width,
-        }
-    )
+  logBarChart(
+    (data as { [key: string]: unknown }[]).map((d) => ({
+      binRange: formatLabels(
+        parseFloat((d.bin_start as number).toFixed(10)),
+        parseFloat((d.bin_end as number).toFixed(10)),
+      ),
+      frequency: d.frequency,
+    })),
+    "binRange",
+    "frequency",
+    {
+      title: `Distribution of "${values}"`,
+      totalLabel: "Number of data points",
+      compact: options.compact,
+      width: options.width,
+    },
+  );
 }

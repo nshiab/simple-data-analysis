@@ -1,2 +1,2 @@
-export { default as SimpleWebDB } from "./class/SimpleWebDB.js"
-export { default as SimpleWebTable } from "./class/SimpleWebTable.js"
+export { default as SimpleWebDB } from "./class/SimpleWebDB.ts";
+export { default as SimpleWebTable } from "./class/SimpleWebTable.ts";

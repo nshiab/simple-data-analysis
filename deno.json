@@ -3,7 +3,7 @@
   "version": "3.12.3",
   "exports": "./src/index.ts",
   "tasks": {
-    "test": "deno publish --unstable-sloppy-imports --dry-run"
+    "all-tests": "deno fmt --check && deno lint && deno check src/index.ts && deno publish --allow-dirty --dry-run && deno test -A --fail-fast"
   },
   "publish": {
     "exclude": [
@@ -23,5 +23,15 @@
       "typedoc.json"
     ]
   },
-  "nodeModulesDir": "auto"
+  "nodeModulesDir": "auto",
+  "imports": {
+    "@duckdb/duckdb-wasm": "npm:@duckdb/duckdb-wasm@^1.29.0",
+    "@nshiab/journalism": "jsr:@nshiab/journalism@^1.18.10",
+    "@std/assert": "jsr:@std/assert@^1.0.6",
+    "apache-arrow": "npm:apache-arrow@^17.0.0",
+    "duckdb": "npm:duckdb@1.0.0"
+  },
+  "fmt": {
+    "exclude": [".sda-cache", "test/output"]
+  }
 }

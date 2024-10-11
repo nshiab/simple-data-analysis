@@ -1,22 +1,16 @@
-import assert from "assert"
-import SimpleDB from "../../../src/class/SimpleDB.js"
+import { assertEquals } from "jsr:@std/assert";
+import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-describe("renameTable", () => {
-    let sdb: SimpleDB
-    before(async function () {
-        sdb = new SimpleDB()
-    })
-    after(async function () {
-        await sdb.done()
-    })
+const sdb = new SimpleDB();
 
-    it("should rename a table", async () => {
-        const table = sdb.newTable()
-        await table.loadData(["test/data/files/cities.csv"])
-        await table.renameTable("canadianCities")
+Deno.test("should rename a table", async () => {
+  const table = sdb.newTable();
+  await table.loadData(["test/data/files/cities.csv"]);
+  await table.renameTable("canadianCities");
 
-        const tables = await sdb.getTables()
+  const tables = await sdb.getTables();
 
-        assert.deepStrictEqual(tables, ["canadianCities"])
-    })
-})
+  assertEquals(tables, ["canadianCities"]);
+});
+
+await sdb.done();

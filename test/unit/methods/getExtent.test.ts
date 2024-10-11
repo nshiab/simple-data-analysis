@@ -1,18 +1,12 @@
-import assert from "assert"
-import SimpleDB from "../../../src/class/SimpleDB.js"
+import { assertEquals } from "jsr:@std/assert";
+import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-describe("getExtent", () => {
-    let sdb: SimpleDB
-    before(async function () {
-        sdb = new SimpleDB()
-    })
-    after(async function () {
-        await sdb.done()
-    })
+const sdb = new SimpleDB();
 
-    it("should return the extent in [min, max] order", async () => {
-        const table = sdb.newTable("data")
-        await table.loadData(["test/data/files/data.json"])
-        assert.deepStrictEqual(await table.getExtent("key1"), [1, 4])
-    })
-})
+Deno.test("should return the extent in [min, max] order", async () => {
+  const table = sdb.newTable("data");
+  await table.loadData(["test/data/files/data.json"]);
+  assertEquals(await table.getExtent("key1"), [1, 4]);
+});
+
+await sdb.done();

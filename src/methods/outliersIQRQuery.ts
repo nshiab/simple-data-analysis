@@ -1,28 +1,29 @@
-import stringToArray from "../helpers/stringToArray.js"
+import stringToArray from "../helpers/stringToArray.ts";
 
 export default function outliersIQRQuery(
-    table: string,
-    column: string,
-    newColumn: string,
-    parity: "even" | "odd",
-    options: {
-        categories?: string | string[]
-    } = {}
+  table: string,
+  column: string,
+  newColumn: string,
+  parity: "even" | "odd",
+  options: {
+    categories?: string | string[];
+  } = {},
 ) {
-    const categories = options.categories
-        ? stringToArray(options.categories).map((d) => `${d}`)
-        : []
+  const categories = options.categories
+    ? stringToArray(options.categories).map((d) => `${d}`)
+    : [];
 
-    const quantileFunc = parity === "even" ? "quantile_disc" : "quantile_cont"
+  const quantileFunc = parity === "even" ? "quantile_disc" : "quantile_cont";
 
-    const where =
-        categories.length > 0
-            ? `WHERE ${categories
-                  .map((d) => `${table}.${d} = iqr.${d}`)
-                  .join(" AND ")}`
-            : ""
+  const where = categories.length > 0
+    ? `WHERE ${
+      categories
+        .map((d) => `${table}.${d} = iqr.${d}`)
+        .join(" AND ")
+    }`
+    : "";
 
-    const query = `ALTER TABLE ${table}
+  const query = `ALTER TABLE ${table}
     ADD COLUMN ${newColumn} BOOLEAN;
     WITH iqr AS (
         SELECT${categories.length > 0 ? `\n${categories},` : ""}
@@ -39,7 +40,7 @@ export default function outliersIQRQuery(
         WHEN ${column} > (SELECT highThreshold FROM iqr ${where}) OR ${column} < (SELECT lowThreshold FROM iqr ${where}) THEN TRUE
         ELSE FALSE
     END;
-    `
+    `;
 
-    return query
+  return query;
 }

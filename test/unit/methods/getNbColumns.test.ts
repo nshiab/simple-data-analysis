@@ -1,18 +1,12 @@
-import assert from "assert"
-import SimpleDB from "../../../src/class/SimpleDB.js"
+import { assertEquals } from "jsr:@std/assert";
+import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-describe("getNbColumns", () => {
-    let sdb: SimpleDB
-    before(async function () {
-        sdb = new SimpleDB()
-    })
-    after(async function () {
-        await sdb.done()
-    })
+const sdb = new SimpleDB();
 
-    it("should return the number of columns", async () => {
-        const table = sdb.newTable("data")
-        await table.loadData(["test/data/files/employees.json"])
-        assert.deepStrictEqual(await table.getNbColumns(), 6)
-    })
-})
+Deno.test("should return the number of columns", async () => {
+  const table = sdb.newTable("data");
+  await table.loadData(["test/data/files/employees.json"]);
+  assertEquals(await table.getNbColumns(), 6);
+});
+
+await sdb.done();

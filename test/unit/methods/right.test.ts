@@ -1,29 +1,23 @@
-import assert from "assert"
-import SimpleDB from "../../../src/class/SimpleDB.js"
+import { assertEquals } from "jsr:@std/assert";
+import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-describe("right", () => {
-    let sdb: SimpleDB
-    before(async function () {
-        sdb = new SimpleDB()
-    })
-    after(async function () {
-        await sdb.done()
-    })
+const sdb = new SimpleDB();
 
-    it("should return the last two strings", async () => {
-        const table = sdb.newTable()
-        await table.loadArray([
-            { firstName: "Nael", lastName: "Shiab" },
-            { firstName: "Graeme", lastName: "Bruce" },
-        ])
+Deno.test("should return the last two strings", async () => {
+  const table = sdb.newTable();
+  await table.loadArray([
+    { firstName: "Nael", lastName: "Shiab" },
+    { firstName: "Graeme", lastName: "Bruce" },
+  ]);
 
-        await table.right("firstName", 2)
+  await table.right("firstName", 2);
 
-        const data = await table.getData()
+  const data = await table.getData();
 
-        assert.deepStrictEqual(data, [
-            { firstName: "el", lastName: "Shiab" },
-            { firstName: "me", lastName: "Bruce" },
-        ])
-    })
-})
+  assertEquals(data, [
+    { firstName: "el", lastName: "Shiab" },
+    { firstName: "me", lastName: "Bruce" },
+  ]);
+});
+
+await sdb.done();

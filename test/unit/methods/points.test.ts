@@ -1,52 +1,46 @@
-import assert from "assert"
-import SimpleDB from "../../../src/class/SimpleDB.js"
+import { assertEquals } from "jsr:@std/assert";
+import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-describe("points", () => {
-    let sdb: SimpleDB
-    before(async function () {
-        sdb = new SimpleDB()
-    })
-    after(async function () {
-        await sdb.done()
-    })
+const sdb = new SimpleDB();
 
-    it("should create points", async () => {
-        const table = sdb.newTable()
-        await table.loadData("test/geodata/files/coordinates.csv")
-        await table.convert({ lat: "double", lon: "double" })
-        await table.points("lat", "lon", "geom")
+Deno.test("should create points", async () => {
+  const table = sdb.newTable();
+  await table.loadData("test/geodata/files/coordinates.csv");
+  await table.convert({ lat: "double", lon: "double" });
+  await table.points("lat", "lon", "geom");
 
-        const data = await table.getGeoData("geom")
+  const data = await table.getGeoData("geom");
 
-        assert.deepStrictEqual(data, {
-            type: "FeatureCollection",
-            features: [
-                {
-                    type: "Feature",
-                    geometry: { type: "Point", coordinates: [-79.29, 43.77] },
-                    properties: { name: "montreal", lat: 43.77, lon: -79.29 },
-                },
-                {
-                    type: "Feature",
-                    geometry: { type: "Point", coordinates: [-73.86, 45.35] },
-                    properties: { name: "toronto", lat: 45.35, lon: -73.86 },
-                },
-                {
-                    type: "Feature",
-                    geometry: { type: "Point", coordinates: [-122.96, 49.07] },
-                    properties: { name: "vancouver", lat: 49.07, lon: -122.96 },
-                },
-            ],
-        })
-    })
-    it("should create points and add a projection", async () => {
-        const table = sdb.newTable()
-        await table.loadData("test/geodata/files/coordinates.csv")
-        await table.convert({ lat: "double", lon: "double" })
-        await table.points("lat", "lon", "geom")
+  assertEquals(data, {
+    type: "FeatureCollection",
+    features: [
+      {
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [-79.29, 43.77] },
+        properties: { name: "montreal", lat: 43.77, lon: -79.29 },
+      },
+      {
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [-73.86, 45.35] },
+        properties: { name: "toronto", lat: 45.35, lon: -73.86 },
+      },
+      {
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [-122.96, 49.07] },
+        properties: { name: "vancouver", lat: 49.07, lon: -122.96 },
+      },
+    ],
+  });
+});
+Deno.test("should create points and add a projection", async () => {
+  const table = sdb.newTable();
+  await table.loadData("test/geodata/files/coordinates.csv");
+  await table.convert({ lat: "double", lon: "double" });
+  await table.points("lat", "lon", "geom");
 
-        assert.deepStrictEqual(table.projections, {
-            geom: "+proj=latlong +datum=WGS84 +no_defs",
-        })
-    })
-})
+  assertEquals(table.projections, {
+    geom: "+proj=latlong +datum=WGS84 +no_defs",
+  });
+});
+
+await sdb.done();

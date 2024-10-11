@@ -1,39 +1,33 @@
-import assert from "assert"
-import SimpleDB from "../../../src/class/SimpleDB.js"
+import { assertEquals } from "jsr:@std/assert";
+import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-describe("cloneColumn", () => {
-    let sdb: SimpleDB
-    before(async function () {
-        sdb = new SimpleDB()
-    })
-    after(async function () {
-        await sdb.done()
-    })
+const sdb = new SimpleDB();
 
-    it("should clone a column", async () => {
-        const table = sdb.newTable("data")
-        await table.loadArray([{ firstName: "nael", lastName: "shiab" }])
+Deno.test("should clone a column", async () => {
+  const table = sdb.newTable("data");
+  await table.loadArray([{ firstName: "nael", lastName: "shiab" }]);
 
-        await table.cloneColumn("firstName", "firstNameCloned")
+  await table.cloneColumn("firstName", "firstNameCloned");
 
-        const data = await table.getData()
+  const data = await table.getData();
 
-        assert.deepStrictEqual(data, [
-            { firstName: "nael", lastName: "shiab", firstNameCloned: "nael" },
-        ])
-    })
+  assertEquals(data, [
+    { firstName: "nael", lastName: "shiab", firstNameCloned: "nael" },
+  ]);
+});
 
-    it("should clone a column with geometries and keep the projection", async () => {
-        const table = sdb.newTable("data")
-        await table.loadGeoData(
-            "test/geodata/files/CanadianProvincesAndTerritories.json"
-        )
+Deno.test("should clone a column with geometries and keep the projection", async () => {
+  const table = sdb.newTable("data");
+  await table.loadGeoData(
+    "test/geodata/files/CanadianProvincesAndTerritories.json",
+  );
 
-        await table.cloneColumn("geom", "geomClone")
+  await table.cloneColumn("geom", "geomClone");
 
-        assert.deepStrictEqual(
-            table.projections["geom"],
-            table.projections["geomClone"]
-        )
-    })
-})
+  assertEquals(
+    table.projections["geom"],
+    table.projections["geomClone"],
+  );
+});
+
+await sdb.done();

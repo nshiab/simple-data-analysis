@@ -1,29 +1,29 @@
-import mergeOptions from "../helpers/mergeOptions.js"
-import queryDB from "../helpers/queryDB.js"
-import SimpleWebTable from "../class/SimpleWebTable.js"
+import mergeOptions from "../helpers/mergeOptions.ts";
+import queryDB from "../helpers/queryDB.ts";
+import type SimpleWebTable from "../class/SimpleWebTable.ts";
 
 export default async function getMax(
-    simpleWebTable: SimpleWebTable,
-    column: string
+  simpleWebTable: SimpleWebTable,
+  column: string,
 ) {
-    const queryResult = await queryDB(
-        simpleWebTable,
-        `SELECT MAX(${column}) AS valueForGetMax FROM ${simpleWebTable.name}`,
-        mergeOptions(simpleWebTable, {
-            table: simpleWebTable.name,
-            returnDataFrom: "query",
-            method: "getMax()",
-            parameters: { column },
-        })
-    )
+  const queryResult = await queryDB(
+    simpleWebTable,
+    `SELECT MAX(${column}) AS valueForGetMax FROM ${simpleWebTable.name}`,
+    mergeOptions(simpleWebTable, {
+      table: simpleWebTable.name,
+      returnDataFrom: "query",
+      method: "getMax()",
+      parameters: { column },
+    }),
+  );
 
-    if (!queryResult) {
-        throw new Error("No queryResults")
-    }
+  if (!queryResult) {
+    throw new Error("No queryResults");
+  }
 
-    const result = queryResult[0].valueForGetMax
+  const result = queryResult[0].valueForGetMax;
 
-    simpleWebTable.debug && console.log("max:", result)
+  simpleWebTable.debug && console.log("max:", result);
 
-    return result
+  return result;
 }

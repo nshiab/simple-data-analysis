@@ -1,5 +1,6 @@
 # Simple data analysis (SDA)
 
+<<<<<<< HEAD
 > [!WARNING]\
 > Starting with version 3.13.0 (October 2024), the library will no longer be
 > updated on NPM. Instead, it will be available on
@@ -20,6 +21,17 @@ available on [Github](https://nshiab.github.io/simple-data-analysis/) and
 The library is maintained by [Nael Shiab](http://naelshiab.com/), computational
 journalist and senior data producer for [CBC News](https://www.cbc.ca/news).
 
+=======
+SDA is an easy-to-use and high-performance JavaScript library for data analysis.
+You can use it with tabular and geospatial data.
+
+The library is available on [JSR](https://jsr.io/@nshiab/simple-data-analysis)
+with its [documentation](https://jsr.io/@nshiab/simple-data-analysis/doc).
+
+The library is maintained by [Nael Shiab](http://naelshiab.com/), computational
+journalist and senior data producer for [CBC News](https://www.cbc.ca/news).
+
+>>>>>>> 715-drop-npm-full-denojsr
 To use the library in your browser, check out
 [simple-data-analysis-flow](https://github.com/nshiab/simple-data-analysis-flow).
 You might also find the
@@ -288,6 +300,13 @@ cache, just delete the folder.
 If you set up with `setup-sda` (see _Quick setup_ at the top), `.sda-cache` is
 automatically added to your `.gitignore` and you can use `npm run clean` or
 `bun run clean` or `deno task clean` to clear the cache.
+<<<<<<< HEAD
+=======
+
+If you are using Deno, make sure to switch the first line to
+`import { SimpleDB } from "@nshiab/simple-data-analysis";` and to enable the
+[Deno extension](https://docs.deno.com/runtime/getting_started/setup_your_environment/).
+>>>>>>> 715-drop-npm-full-denojsr
 
 ```ts
 import { SimpleDB } from "simple-data-analysis";
@@ -522,7 +541,11 @@ npm i @duckdb/duckdb-wasm
 Then import `SimpleWebDB` or `SimpleWebTable` directly from `bundle.js`:
 
 ```js
+<<<<<<< HEAD
 import { SimpleWebDB } from "./node_modules/simple-data-analysis/dist/bundle.js";
+=======
+import { SimpleWebDB } from "./node_modules/simple-data-analysis/dist/bundle.ts";
+>>>>>>> 715-drop-npm-full-denojsr
 ```
 
 You can also import the minified bundle with a npm-based CDN like

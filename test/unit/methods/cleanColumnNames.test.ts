@@ -1,27 +1,21 @@
-import assert from "assert"
-import SimpleDB from "../../../src/class/SimpleDB.js"
+import { assertEquals } from "jsr:@std/assert";
+import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-describe("cleanColumnNames", () => {
-    let sdb: SimpleDB
-    before(async function () {
-        sdb = new SimpleDB()
-    })
-    after(async function () {
-        await sdb.done()
-    })
+const sdb = new SimpleDB();
 
-    it("should clean column names", async () => {
-        const table = sdb.newTable()
-        await table.loadData("test/data/files/employees.csv")
-        await table.cleanColumnNames()
-        const columns = await table.getColumns()
-        assert.deepStrictEqual(columns, [
-            "name",
-            "hireDate",
-            "job",
-            "salary",
-            "departmentOrUnit",
-            "endOfYearBonus",
-        ])
-    })
-})
+Deno.test("should clean column names", async () => {
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/employees.csv");
+  await table.cleanColumnNames();
+  const columns = await table.getColumns();
+  assertEquals(columns, [
+    "name",
+    "hireDate",
+    "job",
+    "salary",
+    "departmentOrUnit",
+    "endOfYearBonus",
+  ]);
+});
+
+await sdb.done();

@@ -1,21 +1,15 @@
-import assert from "assert"
-import SimpleDB from "../../../src/class/SimpleDB.js"
+import { assertEquals } from "jsr:@std/assert";
+import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-describe("getTypes", () => {
-    let sdb: SimpleDB
-    before(async function () {
-        sdb = new SimpleDB()
-    })
-    after(async function () {
-        await sdb.done()
-    })
+const sdb = new SimpleDB();
 
-    it("should return the types of a table", async () => {
-        const table = sdb.newTable("data")
-        await table.loadData(["test/data/files/data.csv"])
+Deno.test("should return the types of a table", async () => {
+  const table = sdb.newTable("data");
+  await table.loadData(["test/data/files/data.csv"]);
 
-        const types = await table.getTypes()
+  const types = await table.getTypes();
 
-        assert.deepStrictEqual(types, { key1: "VARCHAR", key2: "VARCHAR" })
-    })
-})
+  assertEquals(types, { key1: "VARCHAR", key2: "VARCHAR" });
+});
+
+await sdb.done();
