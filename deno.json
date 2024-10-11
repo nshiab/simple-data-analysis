@@ -3,7 +3,8 @@
   "version": "3.12.3",
   "exports": "./src/index.ts",
   "tasks": {
-    "all-tests": "deno fmt --check && deno lint && deno check src/index.ts && deno publish --allow-dirty --dry-run && deno test -A --fail-fast"
+    "all-tests": "deno install --allow-scripts=npm:duckdb && deno fmt --check && deno lint && deno check src/index.ts && deno publish --allow-dirty --dry-run && deno test -A --fail-fast",
+    "publish": "deno task all-tests && deno publish"
   },
   "publish": {
     "exclude": [
