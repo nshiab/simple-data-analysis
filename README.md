@@ -3,11 +3,8 @@
 SDA is an easy-to-use and high-performance JavaScript library for data analysis.
 You can use it with tabular and geospatial data.
 
-The library is available on
-[NPM](https://www.npmjs.com/package/simple-data-analysis) and
-[JSR](https://jsr.io/@nshiab/simple-data-analysis). The documentation is
-available on [Github](https://nshiab.github.io/simple-data-analysis/) and
-[JSR](https://jsr.io/@nshiab/simple-data-analysis/doc).
+The library is available on [JSR](https://jsr.io/@nshiab/simple-data-analysis)
+with its [documentation](https://jsr.io/@nshiab/simple-data-analysis/doc).
 
 The library is maintained by [Nael Shiab](http://naelshiab.com/), computational
 journalist and senior data producer for [CBC News](https://www.cbc.ca/news).
@@ -63,10 +60,10 @@ deno install --node-modules-dir=auto --allow-scripts=npm:duckdb jsr:@nshiab/simp
 deno run --node-modules-dir=auto -A main.ts
 
 # Node.js
-npm i simple-data-analysis
+npx jsr add @nshiab/simple-data-analysis
 
 # Bun
-bun add simple-data-analysis
+bunx jsr add @nshiab/simple-data-analysis
 ```
 
 ## Core principles
@@ -280,6 +277,10 @@ cache, just delete the folder.
 If you set up with `setup-sda` (see _Quick setup_ at the top), `.sda-cache` is
 automatically added to your `.gitignore` and you can use `npm run clean` or
 `bun run clean` or `deno task clean` to clear the cache.
+
+If you are using Deno, make sure to switch the first line to
+`import { SimpleDB } from "@nshiab/simple-data-analysis";` and to enable the
+[Deno extension](https://docs.deno.com/runtime/getting_started/setup_your_environment/).
 
 ```ts
 import { SimpleDB } from "simple-data-analysis";

@@ -36,19 +36,20 @@ to write clear and understandable code.
 Then, do your magic to pass the tests you created. It's a great way to stay
 focused and break down the tasks into small steps.
 
-We use [mocha](https://mochajs.org/) for the tests, and the library is coded
-with [TypeScript](https://www.typescriptlang.org/).
+We use [Deno](https://github.com/denoland/deno) to build and test the library.
 
 Here's how to run a specific test file with one or more tests in it:
 
 ```bash
-npx mocha --require ts-node/register ./test/unit/methods/summarize.test.ts
+deno test -A test/unit/methods/addColumn.test.ts
 ```
 
-And here's how to run all mocha tests:
+And here's how to run all tests, including formatting, typescript checks,
+linter, and dry run to publish on
+[JSR](https://jsr.io/@nshiab/simple-data-analysis):
 
 ```bash
-npm run test
+deno task all-tests
 ```
 
 When committing your work, keep in mind that your messages will be public if
@@ -56,30 +57,13 @@ your code gets merged into the main branch.
 
 If you have any questions at any step, leave a comment on the relevant issue.
 
-## Final test
-
-When all the steps above are dealt with, it's time for the final test, which
-runs all tests but also formats your files, runs a linter, builds the library
-and the docs (in a test folder).
-
-```bash
-npm run all-tests
-```
-
-Make sure to correct any remaining problems, like linter warnings.
-
 ## Pull request
 
-It's now time to share your wonderful work!
+Make sure that your code is up-to-date. Some changes could have been pushed to
+the main branch while you worked on your things.
 
-First, you need to make sure that your code is up-to-date. Some changes could
-have been pushed to the main branch while you worked on your things.
-
-Pull the main branch latest version and merge it to your work. If you have
-conflicts, adapt your code to fix them.
-
-And, now create a pull request! Explain what you did in your code and what issue
-you solved.
+It's now time to create a pull request! Explain what you did in your code and
+what issue you solved.
 
 An experienced contributor will look at your proposition. They might ask
 questions and suggest modifications to your code.
