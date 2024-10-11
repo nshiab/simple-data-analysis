@@ -1,26 +1,20 @@
-import assert from "assert"
-import SimpleDB from "../../../src/class/SimpleDB.js"
+import { assertEquals } from "jsr:@std/assert";
+import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-describe("getMedian", () => {
-    let sdb: SimpleDB
-    before(async function () {
-        sdb = new SimpleDB()
-    })
-    after(async function () {
-        await sdb.done()
-    })
+const sdb = new SimpleDB();
 
-    it("should return the median value", async () => {
-        const table = sdb.newTable("data")
-        await table.loadData("test/data/files/data.json")
-        assert.deepStrictEqual(await table.getMedian("key1"), 2.5)
-    })
-    it("should return the median value rounded", async () => {
-        const table = sdb.newTable("data")
-        await table.loadData("test/data/files/data.json")
-        assert.deepStrictEqual(
-            await table.getMedian("key1", { decimals: 0 }),
-            3
-        )
-    })
-})
+Deno.test("should return the median value", async () => {
+  const table = sdb.newTable("data");
+  await table.loadData("test/data/files/data.json");
+  assertEquals(await table.getMedian("key1"), 2.5);
+});
+Deno.test("should return the median value rounded", async () => {
+  const table = sdb.newTable("data");
+  await table.loadData("test/data/files/data.json");
+  assertEquals(
+    await table.getMedian("key1", { decimals: 0 }),
+    3,
+  );
+});
+
+await sdb.done();

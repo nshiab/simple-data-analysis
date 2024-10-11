@@ -1,10 +1,10 @@
-import { SimpleDB } from "simple-data-analysis"
+import { SimpleDB } from "simple-data-analysis";
 
 // We enable the cacheVerbose option, which will
 // log information about the cached data.
-const sdb = new SimpleDB({ cacheVerbose: true })
+const sdb = new SimpleDB({ cacheVerbose: true });
 
-const fires = sdb.newTable("fires")
+const fires = sdb.newTable("fires");
 
 // We cache these steps with a ttl of 60 seconds.
 // On the first run, the data will be fetched
@@ -19,16 +19,16 @@ const fires = sdb.newTable("fires")
 // If you update the parameters or code passed to the cache
 // method, everything starts over.
 await fires.cache(
-    async () => {
-        await fires.loadData(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv"
-        )
-        await fires.points("lat", "lon", "geom")
-    },
-    { ttl: 60 }
-)
+  async () => {
+    await fires.loadData(
+      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
+    );
+    await fires.points("lat", "lon", "geom");
+  },
+  { ttl: 60 },
+);
 
-const provinces = sdb.newTable("provinces")
+const provinces = sdb.newTable("provinces");
 
 // Same thing here, except there is no ttl option,
 // so the cached data will never expire unless you delete
@@ -36,12 +36,12 @@ const provinces = sdb.newTable("provinces")
 // the code passed to the cache method, everything
 // starts over.
 await provinces.cache(async () => {
-    await provinces.loadGeoData(
-        "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json"
-    )
-})
+  await provinces.loadGeoData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
+  );
+});
 
-const firesInsideProvinces = sdb.newTable("firesInsideProvinces")
+const firesInsideProvinces = sdb.newTable("firesInsideProvinces");
 
 // While caching is quite useful when fetching data,
 // it's also handy for computationally expensive
@@ -51,30 +51,30 @@ const firesInsideProvinces = sdb.newTable("firesInsideProvinces")
 // or lower. Otherwise, we won't work with
 // up-to-date data.
 await firesInsideProvinces.cache(
-    async () => {
-        await fires.joinGeo(provinces, "inside", {
-            outputTable: "firesInsideProvinces",
-        })
-        await firesInsideProvinces.removeMissing()
-        await firesInsideProvinces.summarize({
-            values: "hectares",
-            categories: "nameEnglish",
-            summaries: ["count", "sum"],
-            decimals: 0,
-        })
-        await firesInsideProvinces.renameColumns({
-            count: "nbFires",
-            sum: "burntArea",
-        })
-        await firesInsideProvinces.sort({ burntArea: "desc" })
-    },
-    { ttl: 60 }
-)
+  async () => {
+    await fires.joinGeo(provinces, "inside", {
+      outputTable: "firesInsideProvinces",
+    });
+    await firesInsideProvinces.removeMissing();
+    await firesInsideProvinces.summarize({
+      values: "hectares",
+      categories: "nameEnglish",
+      summaries: ["count", "sum"],
+      decimals: 0,
+    });
+    await firesInsideProvinces.renameColumns({
+      count: "nbFires",
+      sum: "burntArea",
+    });
+    await firesInsideProvinces.sort({ burntArea: "desc" });
+  },
+  { ttl: 60 },
+);
 
-await firesInsideProvinces.logTable(12)
+await firesInsideProvinces.logTable(12);
 
 // It's important to call done() at the end.
 // This method will remove the unused files
 // in the cache. It will also log the total duration
 // if the logDuration option was set to true.
-await sdb.done()
+await sdb.done();

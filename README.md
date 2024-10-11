@@ -1,12 +1,23 @@
 # Simple data analysis (SDA)
 
-SDA is an easy-to-use and high-performance JavaScript library for data analysis. You can use it with tabular and geospatial data.
+SDA is an easy-to-use and high-performance JavaScript library for data analysis.
+You can use it with tabular and geospatial data.
 
-The library is available on [NPM](https://www.npmjs.com/package/simple-data-analysis) and [JSR](https://jsr.io/@nshiab/simple-data-analysis). The documentation is available on [Github](https://nshiab.github.io/simple-data-analysis/) and [JSR](https://jsr.io/@nshiab/simple-data-analysis/doc).
+The library is available on
+[NPM](https://www.npmjs.com/package/simple-data-analysis) and
+[JSR](https://jsr.io/@nshiab/simple-data-analysis). The documentation is
+available on [Github](https://nshiab.github.io/simple-data-analysis/) and
+[JSR](https://jsr.io/@nshiab/simple-data-analysis/doc).
 
-The library is maintained by [Nael Shiab](http://naelshiab.com/), computational journalist and senior data producer for [CBC News](https://www.cbc.ca/news).
+The library is maintained by [Nael Shiab](http://naelshiab.com/), computational
+journalist and senior data producer for [CBC News](https://www.cbc.ca/news).
 
-To use the library in your browser, check out [simple-data-analysis-flow](https://github.com/nshiab/simple-data-analysis-flow). You might also find the [journalism library](https://github.com/nshiab/journalism) and [Code Like a Journalist](https://github.com/nshiab/code-like-a-journalist) interesting.
+To use the library in your browser, check out
+[simple-data-analysis-flow](https://github.com/nshiab/simple-data-analysis-flow).
+You might also find the
+[journalism library](https://github.com/nshiab/journalism) and
+[Code Like a Journalist](https://github.com/nshiab/code-like-a-journalist)
+interesting.
 
 ## Quick setup
 
@@ -23,7 +34,9 @@ bunx --bun setup-sda
 deno -A jsr:@nshiab/setup-sda
 ```
 
-If you want to use SDA with [Framework](https://github.com/observablehq/framework), pass the `--framework` flag:
+If you want to use SDA with
+[Framework](https://github.com/observablehq/framework), pass the `--framework`
+flag:
 
 ```bash
 # Node.js >= 22.6.x
@@ -58,31 +71,55 @@ bun add simple-data-analysis
 
 ## Core principles
 
-SDA is born out of the frustration of switching between Python, R, and JavaScript to produce data journalism projects. Usually, data crunching and analysis are done with Python or R, and interactive data visualizations are coded in JavaScript. However, being proficient in multiple programming languages is hard. Why can't we do everything in JS?
+SDA is born out of the frustration of switching between Python, R, and
+JavaScript to produce data journalism projects. Usually, data crunching and
+analysis are done with Python or R, and interactive data visualizations are
+coded in JavaScript. However, being proficient in multiple programming languages
+is hard. Why can't we do everything in JS?
 
-The missing piece in the JavaScript/TypeScript ecosystem was an easy-to-use and performant library for data analysis. This is why SDA was created.
+The missing piece in the JavaScript/TypeScript ecosystem was an easy-to-use and
+performant library for data analysis. This is why SDA was created.
 
-The library is based on [DuckDB](https://duckdb.org/), a fast in-process analytical database. Under the hood, SDA sends SQL queries to be executed by DuckDB. We use [duckdb-node](https://github.com/duckdb/duckdb-node) and [duckdb-wasm](https://github.com/duckdb/duckdb-wasm). This means SDA can run in the browser and with Node.js and other runtimes. For geospatial computations, we rely on the [duckdb_spatial](https://github.com/duckdb/duckdb_spatial) extension.
+The library is based on [DuckDB](https://duckdb.org/), a fast in-process
+analytical database. Under the hood, SDA sends SQL queries to be executed by
+DuckDB. We use [duckdb-node](https://github.com/duckdb/duckdb-node) and
+[duckdb-wasm](https://github.com/duckdb/duckdb-wasm). This means SDA can run in
+the browser and with Node.js and other runtimes. For geospatial computations, we
+rely on the [duckdb_spatial](https://github.com/duckdb/duckdb_spatial)
+extension.
 
-The syntax and the available methods were inspired by [Pandas](https://github.com/pandas-dev/pandas) (Python) and the [Tidyverse](https://www.tidyverse.org/) (R).
+The syntax and the available methods were inspired by
+[Pandas](https://github.com/pandas-dev/pandas) (Python) and the
+[Tidyverse](https://www.tidyverse.org/) (R).
 
-You can also write your own SQL queries if you want to (check the [customQuery method](https://nshiab.github.io/simple-data-analysis/classes/SimpleWebDB.html#customQuery)) or use JavaScript to process your data (check the [updateWithJS method](https://nshiab.github.io/simple-data-analysis/classes/SimpleWebTable.html#updateWithJS)).
+You can also write your own SQL queries if you want to (check the
+[customQuery method](https://nshiab.github.io/simple-data-analysis/classes/SimpleWebDB.html#customQuery))
+or use JavaScript to process your data (check the
+[updateWithJS method](https://nshiab.github.io/simple-data-analysis/classes/SimpleWebTable.html#updateWithJS)).
 
-Feel free to start a conversation or open an issue. Check how you can [contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
+Feel free to start a conversation or open an issue. Check how you can
+[contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
 
 ## Performance
 
-To test and compare the library's performance, we calculated the average temperature per decade and city with the daily temperatures from the [Adjusted and Homogenized Canadian Climate Data](https://api.weather.gc.ca/collections/ahccd-annual). See [this repository](https://github.com/nshiab/simple-data-analysis-benchmarks) for the code.
+To test and compare the library's performance, we calculated the average
+temperature per decade and city with the daily temperatures from the
+[Adjusted and Homogenized Canadian Climate Data](https://api.weather.gc.ca/collections/ahccd-annual).
+See [this repository](https://github.com/nshiab/simple-data-analysis-benchmarks)
+for the code.
 
-We ran the same calculations with **simple-data-analysis@3.0.0** (both Node.js and Bun), **Pandas (Python)**, and the **tidyverse (R)**.
+We ran the same calculations with **simple-data-analysis@3.0.0** (both Node.js
+and Bun), **Pandas (Python)**, and the **tidyverse (R)**.
 
 In each script, we:
 
 1. Loaded a CSV file (_Importing_)
-2. Selected four columns, removed rows with missing temperature, converted date strings to date and temperature strings to float (_Cleaning_)
+2. Selected four columns, removed rows with missing temperature, converted date
+   strings to date and temperature strings to float (_Cleaning_)
 3. Added a new column _decade_ and calculated the decade (_Modifying_)
 4. Calculated the average temperature per decade and city (_Summarizing_)
-5. Wrote the cleaned-up data that we computed the averages from in a new CSV file (_Writing_)
+5. Wrote the cleaned-up data that we computed the averages from in a new CSV
+   file (_Writing_)
 
 Each script has been run ten times on a MacBook Pro (Apple M1 Pro / 16 GB).
 
@@ -90,13 +127,14 @@ Each script has been run ten times on a MacBook Pro (Apple M1 Pro / 16 GB).
 
 With _ahccd-samples.csv_:
 
--   74.7 MB
--   19 cities
--   20 columns
--   971,804 rows
--   19,436,080 data points
+- 74.7 MB
+- 19 cities
+- 20 columns
+- 971,804 rows
+- 19,436,080 data points
 
-**simple-data-analysis@3.0.0** is the fastest, but if we skip writing the CSV file, the **tidyverse** shows impressive speed with small files.
+**simple-data-analysis@3.0.0** is the fastest, but if we skip writing the CSV
+file, the **tidyverse** shows impressive speed with small files.
 
 ![A chart showing the processing duration of multiple scripts in various languages](./assets/small-file.png)
 
@@ -104,34 +142,48 @@ With _ahccd-samples.csv_:
 
 With _ahccd.csv_:
 
--   1.7 GB
--   773 cities
--   20 columns
--   22,051,025 rows
--   441,020,500 data points
+- 1.7 GB
+- 773 cities
+- 20 columns
+- 22,051,025 rows
+- 441,020,500 data points
 
-Thanks to DuckDB, **simple-data-analysis@3.0.0** really shines with big files. It's the fastest option.
+Thanks to DuckDB, **simple-data-analysis@3.0.0** really shines with big files.
+It's the fastest option.
 
 ![A chart showing the processing duration of multiple scripts in various languages](./assets/big-file.png)
 
-We also tried the One Billion Row Challenge, which involves computing the min, mean, and max temperatures for hundreds of cities in a 1,000,000,000 rows CSV file. The library has been able to crunch the numbers in 1 minute 32 seconds on the same computer (Apple M1 Pro / 16 GB). For more, check this [repo](https://github.com/nshiab/1brc) forked from this [one](https://github.com/gunnarmorling/1brc). The JavaScript code is [here](https://github.com/nshiab/1brc/blob/main/index.js).
+We also tried the One Billion Row Challenge, which involves computing the min,
+mean, and max temperatures for hundreds of cities in a 1,000,000,000 rows CSV
+file. The library has been able to crunch the numbers in 1 minute 32 seconds on
+the same computer (Apple M1 Pro / 16 GB). For more, check this
+[repo](https://github.com/nshiab/1brc) forked from this
+[one](https://github.com/gunnarmorling/1brc). The JavaScript code is
+[here](https://github.com/nshiab/1brc/blob/main/index.js).
 
-Note that DuckDB, which powers SDA, can also be used with [Python](https://duckdb.org/docs/api/python/overview.html) and [R](https://duckdb.org/docs/api/r).
+Note that DuckDB, which powers SDA, can also be used with
+[Python](https://duckdb.org/docs/api/python/overview.html) and
+[R](https://duckdb.org/docs/api/r).
 
 ## Example
 
-In this example, we load a CSV file with the latitude and longitude of 2023 wildfires in Canada, create point geometries from it, do a spatial join with provinces' boundaries, and then compute the number of fires and the total area burnt per province.
+In this example, we load a CSV file with the latitude and longitude of 2023
+wildfires in Canada, create point geometries from it, do a spatial join with
+provinces' boundaries, and then compute the number of fires and the total area
+burnt per province.
 
-If you are using Deno, make sure to switch the first line to `import { SimpleDB } from "@nshiab/simple-data-analysis";` and to enable the [Deno extension](https://docs.deno.com/runtime/getting_started/setup_your_environment/).
+If you are using Deno, make sure to switch the first line to
+`import { SimpleDB } from "@nshiab/simple-data-analysis";` and to enable the
+[Deno extension](https://docs.deno.com/runtime/getting_started/setup_your_environment/).
 
 ```ts
-import { SimpleDB } from "simple-data-analysis"
+import { SimpleDB } from "simple-data-analysis";
 
 // We enable the cacheVerbose option, which will
 // log information about the cached data.
-const sdb = new SimpleDB({ cacheVerbose: true })
+const sdb = new SimpleDB({ cacheVerbose: true });
 
-const fires = sdb.newTable("fires")
+const fires = sdb.newTable("fires");
 
 // We cache these steps with a ttl of 60 seconds.
 // On the first run, the data will be fetched
@@ -146,16 +198,16 @@ const fires = sdb.newTable("fires")
 // If you update the parameters or code passed to the cache
 // method, everything starts over.
 await fires.cache(
-    async () => {
-        await fires.loadData(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv"
-        )
-        await fires.points("lat", "lon", "geom")
-    },
-    { ttl: 60 }
-)
+  async () => {
+    await fires.loadData(
+      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
+    );
+    await fires.points("lat", "lon", "geom");
+  },
+  { ttl: 60 },
+);
 
-const provinces = sdb.newTable("provinces")
+const provinces = sdb.newTable("provinces");
 
 // Same thing here, except there is no ttl option,
 // so the cached data will never expire unless you delete
@@ -163,12 +215,12 @@ const provinces = sdb.newTable("provinces")
 // the code passed to the cache method, everything
 // starts over.
 await provinces.cache(async () => {
-    await provinces.loadGeoData(
-        "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json"
-    )
-})
+  await provinces.loadGeoData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
+  );
+});
 
-const firesInsideProvinces = sdb.newTable("firesInsideProvinces")
+const firesInsideProvinces = sdb.newTable("firesInsideProvinces");
 
 // While caching is quite useful when fetching data,
 // it's also handy for computationally expensive
@@ -178,33 +230,33 @@ const firesInsideProvinces = sdb.newTable("firesInsideProvinces")
 // or lower. Otherwise, we won't work with
 // up-to-date data.
 await firesInsideProvinces.cache(
-    async () => {
-        await fires.joinGeo(provinces, "inside", {
-            outputTable: "firesInsideProvinces",
-        })
-        await firesInsideProvinces.removeMissing()
-        await firesInsideProvinces.summarize({
-            values: "hectares",
-            categories: "nameEnglish",
-            summaries: ["count", "sum"],
-            decimals: 0,
-        })
-        await firesInsideProvinces.renameColumns({
-            count: "nbFires",
-            sum: "burntArea",
-        })
-        await firesInsideProvinces.sort({ burntArea: "desc" })
-    },
-    { ttl: 60 }
-)
+  async () => {
+    await fires.joinGeo(provinces, "inside", {
+      outputTable: "firesInsideProvinces",
+    });
+    await firesInsideProvinces.removeMissing();
+    await firesInsideProvinces.summarize({
+      values: "hectares",
+      categories: "nameEnglish",
+      summaries: ["count", "sum"],
+      decimals: 0,
+    });
+    await firesInsideProvinces.renameColumns({
+      count: "nbFires",
+      sum: "burntArea",
+    });
+    await firesInsideProvinces.sort({ burntArea: "desc" });
+  },
+  { ttl: 60 },
+);
 
-await firesInsideProvinces.logTable(12)
+await firesInsideProvinces.logTable(12);
 
 // It's important to call done() at the end.
 // This method will remove the unused files
 // in the cache. It will also log the total duration
 // if the logDuration option was set to true.
-await sdb.done()
+await sdb.done();
 ```
 
 Here's what you should see in your console if your run this scripts.
@@ -213,24 +265,32 @@ Here's what you should see in your console if your run this scripts.
 
 ## Caching fetched and computed data
 
-Instead of running the same code over and over again, you can cache the results. This can speed up your workflow, especially when fetching data or performing computationally expensive operations.
+Instead of running the same code over and over again, you can cache the results.
+This can speed up your workflow, especially when fetching data or performing
+computationally expensive operations.
 
-Here's the previous example adapted to cache data. For more information, check the [cache method documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#cache).
+Here's the previous example adapted to cache data. For more information, check
+the
+[cache method documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#cache).
 
-The data is cached in the hidden folder `.sda-cache` at the root of your code repository. Make sure to add it to your `.gitignore`. If you want to clean your cache, just delete the folder.
+The data is cached in the hidden folder `.sda-cache` at the root of your code
+repository. Make sure to add it to your `.gitignore`. If you want to clean your
+cache, just delete the folder.
 
-If you set up with `setup-sda` (see _Quick setup_ at the top), `.sda-cache` is automatically added to your `.gitignore` and you can use `npm run clean` or `bun run clean` or `deno task clean` to clear the cache.
+If you set up with `setup-sda` (see _Quick setup_ at the top), `.sda-cache` is
+automatically added to your `.gitignore` and you can use `npm run clean` or
+`bun run clean` or `deno task clean` to clear the cache.
 
 ```ts
-import { SimpleDB } from "simple-data-analysis"
+import { SimpleDB } from "simple-data-analysis";
 
 // We enable two options to make our lives easier.
 // cacheVerbose will log information about the cached
 // data, and logDuration will log the total duration between
 // the creation of this SimpleDB instance and its last operation.
-const sdb = new SimpleDB({ cacheVerbose: true, logDuration: true })
+const sdb = new SimpleDB({ cacheVerbose: true, logDuration: true });
 
-const fires = sdb.newTable("fires")
+const fires = sdb.newTable("fires");
 
 // We cache these steps with a ttl of 60 seconds.
 // On the first run, the data will be fetched
@@ -245,16 +305,16 @@ const fires = sdb.newTable("fires")
 // If you update the code passed to the cache method,
 // everything starts over.
 await fires.cache(
-    async () => {
-        await fires.loadData(
-            "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv"
-        )
-        await fires.points("lat", "lon", "geom")
-    },
-    { ttl: 60 }
-)
+  async () => {
+    await fires.loadData(
+      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
+    );
+    await fires.points("lat", "lon", "geom");
+  },
+  { ttl: 60 },
+);
 
-const provinces = sdb.newTable("provinces")
+const provinces = sdb.newTable("provinces");
 
 // Same thing here, except there is no ttl option,
 // so the cached data will never expire unless you delete
@@ -262,12 +322,12 @@ const provinces = sdb.newTable("provinces")
 // the code passed to the cache method, everything
 // starts over.
 await provinces.cache(async () => {
-    await provinces.loadGeoData(
-        "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json"
-    )
-})
+  await provinces.loadGeoData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
+  );
+});
 
-const firesInsideProvinces = sdb.newTable("firesInsideProvinces")
+const firesInsideProvinces = sdb.newTable("firesInsideProvinces");
 
 // While caching is quite useful when fetching data,
 // it's also handy for computationally expensive
@@ -277,36 +337,37 @@ const firesInsideProvinces = sdb.newTable("firesInsideProvinces")
 // or lower. Otherwise, we won't work with
 // up-to-date data.
 await firesInsideProvinces.cache(
-    async () => {
-        await fires.joinGeo(provinces, "inside", {
-            outputTable: "firesInsideProvinces",
-        })
-        await firesInsideProvinces.removeMissing()
-        await firesInsideProvinces.summarize({
-            values: "hectares",
-            categories: "nameEnglish",
-            summaries: ["count", "sum"],
-            decimals: 0,
-        })
-        await firesInsideProvinces.renameColumns({
-            count: "nbFires",
-            sum: "burntArea",
-        })
-        await firesInsideProvinces.sort({ burntArea: "desc" })
-    },
-    { ttl: 60 }
-)
+  async () => {
+    await fires.joinGeo(provinces, "inside", {
+      outputTable: "firesInsideProvinces",
+    });
+    await firesInsideProvinces.removeMissing();
+    await firesInsideProvinces.summarize({
+      values: "hectares",
+      categories: "nameEnglish",
+      summaries: ["count", "sum"],
+      decimals: 0,
+    });
+    await firesInsideProvinces.renameColumns({
+      count: "nbFires",
+      sum: "burntArea",
+    });
+    await firesInsideProvinces.sort({ burntArea: "desc" });
+  },
+  { ttl: 60 },
+);
 
-await firesInsideProvinces.logTable(12)
+await firesInsideProvinces.logTable(12);
 
 // It's important to call done() at the end.
 // This method will remove the unused files
 // in the cache. It will also log the total duration
 // if the logDuration option was set to true.
-await sdb.done()
+await sdb.done();
 ```
 
-After the first run, here's what you'll see in your terminal. For each `cache()`, a file storing the results has been written in `.sda-cache`.
+After the first run, here's what you'll see in your terminal. For each
+`cache()`, a file storing the results has been written in `.sda-cache`.
 
 The whole script took around a second to complete.
 
@@ -343,7 +404,8 @@ table firesInsideProvinces:
 SimpleDB - Done in 891 ms
 ```
 
-If you run the script less than 60 seconds after the first run, here's what you'll see.
+If you run the script less than 60 seconds after the first run, here's what
+you'll see.
 
 Thanks to caching, the script ran five times faster!
 
@@ -382,7 +444,10 @@ table firesInsideProvinces:
 SimpleDB - Done in 184 ms / You saved 707 ms by using the cache
 ```
 
-And if you run the script 60 seconds later, the fires and join/summary caches will have expired, but not the provinces one. Some of the code will have run, but not everything. The script still ran 1.5 times faster. This is quite handy in complex analysis with big datasets. The less you wait, the more fun you have!
+And if you run the script 60 seconds later, the fires and join/summary caches
+will have expired, but not the provinces one. Some of the code will have run,
+but not everything. The script still ran 1.5 times faster. This is quite handy
+in complex analysis with big datasets. The less you wait, the more fun you have!
 
 ```
 Found ./.sda-cache/fires.ff...8f.geojson in cache
@@ -425,13 +490,22 @@ SimpleDB - Done in 594 ms / You saved 297 ms by using the cache
 
 Observable notebooks are great for data analysis in JavaScript.
 
-In this [example](https://observablehq.com/@nshiab/hello-simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript), we calculate the average temperature per decade in three cities and check for trends. We will also join two tables to retrieve the names of the cities.
+In this
+[example](https://observablehq.com/@nshiab/hello-simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript),
+we calculate the average temperature per decade in three cities and check for
+trends. We will also join two tables to retrieve the names of the cities.
 
-This [other example](https://observablehq.com/@nshiab/hello-simple-data-analysis-and-geospatial-data?collection=@nshiab/simple-data-analysis-in-javascript) focuses on geospatial analysis. We create point geometries from the latitude and longitude of 2023 wildfires in Canada, do a spatial join with provinces' boundaries, and then compute the number of fires and the total area burnt per province.
+This
+[other example](https://observablehq.com/@nshiab/hello-simple-data-analysis-and-geospatial-data?collection=@nshiab/simple-data-analysis-in-javascript)
+focuses on geospatial analysis. We create point geometries from the latitude and
+longitude of 2023 wildfires in Canada, do a spatial join with provinces'
+boundaries, and then compute the number of fires and the total area burnt per
+province.
 
 ## In Web apps or HTML pages
 
-If you are developing a web application, you'll need to install `@duckdb/duckdb-wasm`:
+If you are developing a web application, you'll need to install
+`@duckdb/duckdb-wasm`:
 
 ```
 npm i @duckdb/duckdb-wasm
@@ -440,9 +514,13 @@ npm i @duckdb/duckdb-wasm
 Then import `SimpleWebDB` or `SimpleWebTable` directly from `bundle.js`:
 
 ```js
-import { SimpleWebDB } from "./node_modules/simple-data-analysis/dist/bundle.js"
+import { SimpleWebDB } from "./node_modules/simple-data-analysis/dist/bundle.ts";
 ```
 
-You can also import the minified bundle with a npm-based CDN like [esm.sh](https://esm.sh/).
+You can also import the minified bundle with a npm-based CDN like
+[esm.sh](https://esm.sh/).
 
-You'll find an example [here](https://github.com/nshiab/simple-data-analysis/blob/main/examples/index.html). You can copy and paste the code into an HTML file. You can also adapt it to any bundler or framework of your choice.
+You'll find an example
+[here](https://github.com/nshiab/simple-data-analysis/blob/main/examples/index.html).
+You can copy and paste the code into an HTML file. You can also adapt it to any
+bundler or framework of your choice.

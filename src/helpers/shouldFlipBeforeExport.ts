@@ -1,3 +1,3 @@
 export default function shouldFlipBeforeExport(projection: string) {
-    return projection.includes("proj=latlong")
+  return projection.includes("proj=latlong");
 }

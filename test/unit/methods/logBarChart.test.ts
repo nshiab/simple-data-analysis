@@ -1,41 +1,36 @@
-import assert from "assert"
-import SimpleDB from "../../../src/class/SimpleDB.js"
+import { assertEquals } from "jsr:@std/assert";
+import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-describe("logBarChart", () => {
-    let sdb: SimpleDB
-    before(async function () {
-        sdb = new SimpleDB()
-    })
-    after(async function () {
-        await sdb.done()
-    })
-    it("should log a dot chart", async () => {
-        const table = sdb.newTable()
+const sdb = new SimpleDB();
 
-        const data = [
-            { category: "A", value: 10 },
-            { category: "B", value: 20 },
-        ]
-        await table.loadArray(data)
-        await table.logBarChart("category", "value")
+Deno.test("should log a dot chart", async () => {
+  const table = sdb.newTable();
 
-        // How to test?
-        assert.deepStrictEqual(true, true)
-    })
-    it("should log a dot chart with options", async () => {
-        const table = sdb.newTable()
+  const data = [
+    { category: "A", value: 10 },
+    { category: "B", value: 20 },
+  ];
+  await table.loadArray(data);
+  await table.logBarChart("category", "value");
 
-        const data = [
-            { category: "A", value: 10 },
-            { category: "B", value: 20 },
-        ]
-        await table.loadArray(data)
-        await table.logBarChart("category", "value", {
-            formatLabels: (label: unknown) => (label as string).toUpperCase(),
-            formatValues: (value: unknown) => "$" + (value as number),
-        })
+  // How to test?
+  assertEquals(true, true);
+});
+Deno.test("should log a dot chart with options", async () => {
+  const table = sdb.newTable();
 
-        // How to test?
-        assert.deepStrictEqual(true, true)
-    })
-})
+  const data = [
+    { category: "A", value: 10 },
+    { category: "B", value: 20 },
+  ];
+  await table.loadArray(data);
+  await table.logBarChart("category", "value", {
+    formatLabels: (label: unknown) => (label as string).toUpperCase(),
+    formatValues: (value: unknown) => "$" + (value as number),
+  });
+
+  // How to test?
+  assertEquals(true, true);
+});
+
+await sdb.done();

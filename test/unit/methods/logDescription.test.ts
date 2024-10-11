@@ -1,29 +1,23 @@
-import assert from "assert"
-import SimpleDB from "../../../src/class/SimpleDB.js"
+import { assertEquals } from "jsr:@std/assert";
+import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-describe("logDescription", () => {
-    let sdb: SimpleDB
-    before(async function () {
-        sdb = new SimpleDB()
-    })
-    after(async function () {
-        await sdb.done()
-    })
+const sdb = new SimpleDB();
 
-    it("should log a description of the table", async () => {
-        const table = sdb.newTable()
-        await table.loadData("test/data/files/employees.csv")
+Deno.test("should log a description of the table", async () => {
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/employees.csv");
 
-        await table.logDescription()
+  await table.logDescription();
 
-        // How to test?
-        assert.deepStrictEqual(true, true)
-    })
-    it("should not throw an error when there is no table", async () => {
-        const table = sdb.newTable()
-        await table.logDescription()
+  // How to test?
+  assertEquals(true, true);
+});
+Deno.test("should not throw an error when there is no table", async () => {
+  const table = sdb.newTable();
+  await table.logDescription();
 
-        // How to test?
-        assert.deepStrictEqual(true, true)
-    })
-})
+  // How to test?
+  assertEquals(true, true);
+});
+
+await sdb.done();

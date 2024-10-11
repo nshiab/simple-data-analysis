@@ -1,28 +1,22 @@
-import assert from "assert"
-import SimpleDB from "../../../src/class/SimpleDB.js"
+import { assertEquals } from "jsr:@std/assert";
+import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-describe("addRowNumber", () => {
-    let sdb: SimpleDB
-    before(async function () {
-        sdb = new SimpleDB()
-    })
-    after(async function () {
-        await sdb.done()
-    })
+const sdb = new SimpleDB();
 
-    it("should return a column with the row number", async () => {
-        const table = sdb.newTable("data")
-        await table.loadArray([
-            { first: "Nael", last: "Shiab" },
-            { first: "Graeme", last: "Bruce" },
-        ])
-        await table.addRowNumber("rowNumber")
+Deno.test("should return a column with the row number", async () => {
+  const table = sdb.newTable("data");
+  await table.loadArray([
+    { first: "Nael", last: "Shiab" },
+    { first: "Graeme", last: "Bruce" },
+  ]);
+  await table.addRowNumber("rowNumber");
 
-        const data = await table.getData()
+  const data = await table.getData();
 
-        assert.deepStrictEqual(data, [
-            { first: "Nael", last: "Shiab", rowNumber: 1 },
-            { first: "Graeme", last: "Bruce", rowNumber: 2 },
-        ])
-    })
-})
+  assertEquals(data, [
+    { first: "Nael", last: "Shiab", rowNumber: 1 },
+    { first: "Graeme", last: "Bruce", rowNumber: 2 },
+  ]);
+});
+
+await sdb.done();

@@ -1,25 +1,19 @@
-import assert from "assert"
-import SimpleDB from "../../../src/class/SimpleDB.js"
+import { assertEquals } from "jsr:@std/assert";
+import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-describe("skip", () => {
-    let sdb: SimpleDB
-    before(async function () {
-        sdb = new SimpleDB()
-    })
-    after(async function () {
-        await sdb.done()
-    })
+const sdb = new SimpleDB();
 
-    it("should skip rows", async () => {
-        const table = await sdb
-            .newTable()
-            .loadArray([
-                { first: "Nael" },
-                { first: "Graeme" },
-                { first: "Andrew" },
-            ])
-        await table.skip(1)
-        const data = await table.getData()
-        assert.deepStrictEqual(data, [{ first: "Graeme" }, { first: "Andrew" }])
-    })
-})
+Deno.test("should skip rows", async () => {
+  const table = await sdb
+    .newTable()
+    .loadArray([
+      { first: "Nael" },
+      { first: "Graeme" },
+      { first: "Andrew" },
+    ]);
+  await table.skip(1);
+  const data = await table.getData();
+  assertEquals(data, [{ first: "Graeme" }, { first: "Andrew" }]);
+});
+
+await sdb.done();

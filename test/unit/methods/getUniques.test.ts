@@ -1,21 +1,15 @@
-import assert from "assert"
-import SimpleDB from "../../../src/class/SimpleDB.js"
+import { assertEquals } from "jsr:@std/assert";
+import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-describe("getUniques", () => {
-    let sdb: SimpleDB
-    before(async function () {
-        sdb = new SimpleDB()
-    })
-    after(async function () {
-        await sdb.done()
-    })
+const sdb = new SimpleDB();
 
-    it("should return the unique values of a column", async () => {
-        const table = sdb.newTable("data")
-        await table.loadData(["test/data/files/dataDuplicates.csv"])
+Deno.test("should return the unique values of a column", async () => {
+  const table = sdb.newTable("data");
+  await table.loadData(["test/data/files/dataDuplicates.csv"]);
 
-        const uniques = await table.getUniques("key1")
+  const uniques = await table.getUniques("key1");
 
-        assert.deepStrictEqual(uniques, ["1", "3", "8", "brioche"])
-    })
-})
+  assertEquals(uniques, ["1", "3", "8", "brioche"]);
+});
+
+await sdb.done();

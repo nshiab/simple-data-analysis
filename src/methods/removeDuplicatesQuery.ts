@@ -1,18 +1,18 @@
-import stringToArray from "../helpers/stringToArray.js"
+import stringToArray from "../helpers/stringToArray.ts";
 
 export default function removeDuplicatesQuery(
-    table: string,
-    options: {
-        on?: string | string[]
-    } = {}
+  table: string,
+  options: {
+    on?: string | string[];
+  } = {},
 ) {
-    const columnsOn = options.on ? stringToArray(options.on) : null
-    let distinct
-    if (columnsOn) {
-        distinct = `DISTINCT ON(${columnsOn.join(",")}) *`
-    } else {
-        distinct = "DISTINCT *"
-    }
+  const columnsOn = options.on ? stringToArray(options.on) : null;
+  let distinct;
+  if (columnsOn) {
+    distinct = `DISTINCT ON(${columnsOn.join(",")}) *`;
+  } else {
+    distinct = "DISTINCT *";
+  }
 
-    return `CREATE OR REPLACE TABLE ${table} AS SELECT ${distinct} FROM ${table};`
+  return `CREATE OR REPLACE TABLE ${table} AS SELECT ${distinct} FROM ${table};`;
 }

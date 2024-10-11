@@ -1,26 +1,20 @@
-import assert from "assert"
-import SimpleDB from "../../../src/class/SimpleDB.js"
+import { assertEquals } from "jsr:@std/assert";
+import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-describe("splitExtract", () => {
-    let sdb: SimpleDB
-    before(async function () {
-        sdb = new SimpleDB()
-    })
-    after(async function () {
-        await sdb.done()
-    })
+const sdb = new SimpleDB();
 
-    it("should extract a substring based on a separator and substring", async () => {
-        const table = sdb.newTable()
-        await table.loadArray([
-            { name: "Shiab, Nael" },
-            { name: "Bruce, Graeme" },
-        ])
+Deno.test("should extract a substring based on a separator and substring", async () => {
+  const table = sdb.newTable();
+  await table.loadArray([
+    { name: "Shiab, Nael" },
+    { name: "Bruce, Graeme" },
+  ]);
 
-        await table.splitExtract("name", ",", 0)
+  await table.splitExtract("name", ",", 0);
 
-        const data = await table.getData()
+  const data = await table.getData();
 
-        assert.deepStrictEqual(data, [{ name: "Shiab" }, { name: "Bruce" }])
-    })
-})
+  assertEquals(data, [{ name: "Shiab" }, { name: "Bruce" }]);
+});
+
+await sdb.done();
