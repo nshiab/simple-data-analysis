@@ -36,6 +36,8 @@ bunx --bun setup-sda --framework
 deno -A jsr:@nshiab/setup-sda --framework
 ```
 
+To also initialize a git repository, pass the --git flag.
+
 ## Manual installation
 
 If you want to add the library to an existing project, here's how.

@@ -95,6 +95,6 @@
     "dependencies": {
         "apache-arrow": "^17.0.0",
         "duckdb": "1.0.0",
-        "journalism": "^1.18.8"
+        "journalism": "^1.18.10"
     }
 }
