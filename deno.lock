@@ -13,7 +13,7 @@
     "npm:duckdb@1.0.0": "1.0.0",
     "npm:eslint-config-prettier@9": "9.1.0_eslint@8.57.1",
     "npm:eslint@^8.39.0": "8.57.1",
-    "npm:journalism@^1.18.8": "1.18.9_google-auth-library@9.14.1",
+    "npm:journalism@^1.18.10": "1.18.10_google-auth-library@9.14.2",
     "npm:mocha@10.7.3": "10.7.3",
     "npm:mocha@^10.7.0": "10.7.3",
     "npm:prettier@3": "3.3.3",
@@ -1162,8 +1162,8 @@
         "signal-exit@4.1.0"
       ]
     },
-    "form-data@4.0.0": {
-      "integrity": "sha512-ETEklSGi5t0QMZuiXoA/Q6vcnxcLQP5vdugSpuAyi6SVGi2clPPp+xgEhuMaHC+zGgn31Kd235W35f7Hykkaww==",
+    "form-data@4.0.1": {
+      "integrity": "sha512-tzN8e4TX8+kkxGPK8D5u0FNmjPUjw3lwC9lSLxxoB/+GtsJG91CO8bSWy73APlgAZzZbXEYZJuxjkHH2w+Ezhw==",
       "dependencies": [
         "asynckit",
         "combined-stream",
@@ -1306,8 +1306,8 @@
         "slash"
       ]
     },
-    "google-auth-library@9.14.1": {
-      "integrity": "sha512-Rj+PMjoNFGFTmtItH7gHfbHpGVSb3vmnGK3nwNBqxQF9NoBpttSZI/rc0WiM63ma2uGDQtYEkMHkK9U6937NiA==",
+    "google-auth-library@9.14.2": {
+      "integrity": "sha512-R+FRIfk1GBo3RdlRYWPdwk8nmtVUOn6+BkDomAC46KoU8kzXzE1HLmOasSCbWUByMMAGkknVF0G5kQ69Vj7dlA==",
       "dependencies": [
         "base64-js",
         "ecdsa-sig-formatter",
@@ -1317,7 +1317,7 @@
         "jws"
       ]
     },
-    "google-spreadsheet@4.1.4_google-auth-library@9.14.1": {
+    "google-spreadsheet@4.1.4_google-auth-library@9.14.2": {
       "integrity": "sha512-v6Bi7LIB/2E3+/XKmk11Qih2U0KpENSZuLSHOi8XoRDna/Tx8WYCZeEUTF60eucaELGLWC8GSepb0Cbkr3aXfg==",
       "dependencies": [
         "axios",
@@ -1533,8 +1533,8 @@
         "@pkgjs/parseargs"
       ]
     },
-    "journalism@1.18.9_google-auth-library@9.14.1": {
-      "integrity": "sha512-etL8xkkKy4T6sSpSRl+dDWKGDpmMKTvo4FU02ZQs/ln5WZrf2PIgTyJ3VAeOYoCMjmwwChL3Z06CkVOaG181ng==",
+    "journalism@1.18.10_google-auth-library@9.14.2": {
+      "integrity": "sha512-ueiWdstOPuhGLarYOg0PX1ir6rUZzXSFWXFFM5bnjEyOwQWaA9yV9R3MPQ30oZVxS6RqXtbYqn5MLAAE1sCcwg==",
       "dependencies": [
         "adm-zip",
         "cheerio",
@@ -2641,7 +2641,7 @@
         "npm:duckdb@1.0.0",
         "npm:eslint-config-prettier@9",
         "npm:eslint@^8.39.0",
-        "npm:journalism@^1.18.8",
+        "npm:journalism@^1.18.10",
         "npm:mocha@^10.7.0",
         "npm:prettier@3",
         "npm:rollup-plugin-polyfill-node@0.13",
