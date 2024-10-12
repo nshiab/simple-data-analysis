@@ -1,4 +1,5 @@
 name: Create release
+
 on:
   push:
     branches:
@@ -14,13 +15,12 @@ jobs:
     name: Create release
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Create release
+      - name: Set environment variables
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref_name }}
+        run: echo "Environment variables set"
+      - name: Create GitHub release
         run: |
           gh release create "$tag" \
               --repo="$GITHUB_REPOSITORY" \
