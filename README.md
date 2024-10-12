@@ -21,14 +21,14 @@ interesting.
 Create a folder and run [setup-sda](https://github.com/nshiab/setup-sda):
 
 ```bash
+# Deno >= 2.x.x
+deno -A jsr:@nshiab/setup-sda
+
 # Node.js >= 22.6.x
 npx setup-sda
 
 # Bun
 bunx --bun setup-sda
-
-# Deno >= 2.x.x
-deno -A jsr:@nshiab/setup-sda
 ```
 
 If you want to use SDA with
@@ -36,12 +36,6 @@ If you want to use SDA with
 flag:
 
 ```bash
-# Node.js >= 22.6.x
-npx setup-sda --framework
-
-# Bun
-bunx --bun setup-sda --framework
-
 # Deno >= 2.x.x
 deno -A jsr:@nshiab/setup-sda --framework
 ```
@@ -55,7 +49,6 @@ If you want to add the library to an existing project, here's how.
 ```bash
 # Deno >= 2.x.x
 deno install --node-modules-dir=auto --allow-scripts=npm:duckdb jsr:@nshiab/simple-data-analysis
-
 # To run with Deno
 deno run --node-modules-dir=auto -A main.ts
 
@@ -169,12 +162,11 @@ wildfires in Canada, create point geometries from it, do a spatial join with
 provinces' boundaries, and then compute the number of fires and the total area
 burnt per province.
 
-If you are using Deno, make sure to switch the first line to
-`import { SimpleDB } from "@nshiab/simple-data-analysis";` and to enable the
+If you are using Deno, make sure to install and enable the
 [Deno extension](https://docs.deno.com/runtime/getting_started/setup_your_environment/).
 
 ```ts
-import { SimpleDB } from "simple-data-analysis";
+import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 // We enable the cacheVerbose option, which will
 // log information about the cached data.
@@ -278,12 +270,8 @@ If you set up with `setup-sda` (see _Quick setup_ at the top), `.sda-cache` is
 automatically added to your `.gitignore` and you can use `npm run clean` or
 `bun run clean` or `deno task clean` to clear the cache.
 
-If you are using Deno, make sure to switch the first line to
-`import { SimpleDB } from "@nshiab/simple-data-analysis";` and to enable the
-[Deno extension](https://docs.deno.com/runtime/getting_started/setup_your_environment/).
-
 ```ts
-import { SimpleDB } from "simple-data-analysis";
+import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 // We enable two options to make our lives easier.
 // cacheVerbose will log information about the cached
@@ -515,7 +503,7 @@ npm i @duckdb/duckdb-wasm
 Then import `SimpleWebDB` or `SimpleWebTable` directly from `bundle.js`:
 
 ```js
-import { SimpleWebDB } from "./node_modules/simple-data-analysis/dist/bundle.ts";
+import { SimpleWebDB } from "./node_modules/@nshiab/simple-data-analysis/dist/bundle.ts";
 ```
 
 You can also import the minified bundle with a npm-based CDN like

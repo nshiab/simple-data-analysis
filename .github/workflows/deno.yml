@@ -1,8 +1,6 @@
-name: Deno CI
+name: All tests
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
 
