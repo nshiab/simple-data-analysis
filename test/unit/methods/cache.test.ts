@@ -250,7 +250,7 @@ Deno.test("should clean the cache when calling done", async () => {
   const cacheSourcesIdsUpdated = Object.keys(
     JSON.parse(readFileSync(".sda-cache/sources.json", "utf-8")),
   );
-  const files = readdirSync(".sda-cache/");
+  const files = readdirSync(".sda-cache/").sort((a, b) => a > b ? 1 : -1);
 
   assertEquals(
     { cacheSourcesIdsUpdated, files },
@@ -263,7 +263,7 @@ Deno.test("should clean the cache when calling done", async () => {
         "sources.json",
         "table2.e44bdaecaa9e4a7b6ee17b31185881e5958bd8793ec0d03348b79c829d4a0ff4.geojson",
         "table1.ba119b25f1a06cb34dc4b98b9f63af6777498ad0430df7fb558587e23262356c.parquet",
-      ],
+      ].sort((a, b) => a > b ? 1 : -1),
     },
   );
 });
