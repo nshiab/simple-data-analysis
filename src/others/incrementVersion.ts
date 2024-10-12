@@ -2,6 +2,20 @@ import { readFileSync, writeFileSync } from "node:fs";
 import process from "node:process";
 import { execSync } from "node:child_process";
 
+// Check if we are on the main branch
+let branch = execSync("git rev-parse --abbrev-ref HEAD", {
+  encoding: "utf-8",
+}).trim();
+// Remove 'heads/' prefix if present
+if (branch.startsWith("heads/")) {
+  branch = branch.slice(6);
+}
+if (branch !== "main") {
+  throw new Error(
+    `You can only increment the version on the main branch. Current branch is ${branch}`,
+  );
+}
+
 const args = process.argv.slice(2);
 const [incrementType] = args;
 const filePath = "deno.json";
@@ -26,19 +40,13 @@ writeFileSync(filePath, JSON.stringify(data, null, 2));
 
 execSync("git add -A");
 execSync(`git commit -m "v${data.version}"`);
-execSync("git push origin main");
+execSync("git push");
 
 console.log(`Version incremented to ${data.version}`);
-
-// Check if we are on the main branch
-const branch = execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
-if (branch !== "main") {
-  throw new Error("You are not on the main branch");
-}
 
 // Tag the current version
 const tagName = `v${data.version}`;
 execSync(`git tag ${tagName}`);
-execSync(`git push origin ${tagName}`);
+execSync(`git push origin tag ${tagName}`);
 
 console.log(`Tagged with ${tagName}`);
