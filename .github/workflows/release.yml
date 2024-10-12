@@ -13,12 +13,10 @@ jobs:
     name: Create release
     runs-on: ubuntu-latest
     steps:
-      - name: Set environment variables
+      - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
           tag: ${{ github.ref_name }}
-        run: echo "Environment variables set"
-      - name: Create GitHub release
         run: |
           gh release create "$tag" \
               --repo="$GITHUB_REPOSITORY" \
