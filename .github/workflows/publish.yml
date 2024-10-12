@@ -2,8 +2,7 @@ name: Publish
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   publish:
@@ -11,8 +10,10 @@ jobs:
     permissions:
       contents: read
       id-token: write # The OIDC ID token is used for authentication with JSR.
+
     steps:
+      - uses: actions/checkout@v4
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
-      - run: deno task publish
+      - run: deno task all-tests
