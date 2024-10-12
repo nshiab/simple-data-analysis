@@ -17,7 +17,7 @@ jobs:
           deno-version: v2.x
       - run: deno task publish
       - name: Tag the release
-      - run: |
+        run: |
           VERSION=$(deno eval 'console.log(JSON.parse(Deno.readTextFileSync("deno.json")).version)')
           git tag v$VERSION
           git push origin --tags

@@ -11,9 +11,12 @@ permissions:
 
 jobs:
   release:
-    name: Release pushed tag
+    name: Create release
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
