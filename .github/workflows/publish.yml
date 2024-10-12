@@ -1,7 +1,9 @@
 name: SDA CLI
 on:
   push:
-    branches: [main]
+    tags:
+      - "v*"
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -13,4 +15,4 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
-      - run: deno task publish
+      - run: deno install --allow-scripts=npm:duckdb && deno publish
