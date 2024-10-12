@@ -1,4 +1,4 @@
-import { SimpleDB } from "simple-data-analysis";
+import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 // We start a SimpleDB instance.
 const sdb = new SimpleDB();

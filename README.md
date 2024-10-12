@@ -33,14 +33,7 @@ bunx --bun setup-sda
 
 If you want to use SDA with
 [Framework](https://github.com/observablehq/framework), pass the `--framework`
-flag:
-
-```bash
-# Deno >= 2.x.x
-deno -A jsr:@nshiab/setup-sda --framework
-```
-
-To also initialize a git repository, pass the --git flag.
+flag. To initialize a git repository, pass the `--git` flag.
 
 ## Manual installation
 
@@ -494,16 +487,12 @@ province.
 ## In Web apps or HTML pages
 
 If you are developing a web application, you'll need to install
-`@duckdb/duckdb-wasm`:
+[@duckdb/duckdb-wasm](https://github.com/duckdb/duckdb-wasm).
 
-```
-npm i @duckdb/duckdb-wasm
-```
-
-Then import `SimpleWebDB` or `SimpleWebTable` directly from `bundle.js`:
+Then import `SimpleWebDB` or `SimpleWebTable` directly from `node_modules`:
 
 ```js
-import { SimpleWebDB } from "./node_modules/@nshiab/simple-data-analysis/dist/bundle.ts";
+import SimpleWebDB from "./node_modules/@nshiab/simple-data-analysis/src/class/SimpleWebDB.js";
 ```
 
 You can also import the minified bundle with a npm-based CDN like

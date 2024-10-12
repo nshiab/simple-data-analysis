@@ -1,4 +1,4 @@
-import { SimpleDB } from "simple-data-analysis";
+import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 // We enable the cacheVerbose option, which will
 // log information about the cached data.
