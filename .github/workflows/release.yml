@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   release:
-    name: Create release
     runs-on: ubuntu-latest
     steps:
       - name: Create GitHub release
