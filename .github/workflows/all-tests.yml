@@ -1,4 +1,4 @@
-name: All tests
+name: SDA CLI
 
 on:
   pull_request:

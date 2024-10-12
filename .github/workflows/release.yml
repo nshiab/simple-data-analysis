@@ -1,9 +1,7 @@
-name: Create release
+name: SDA CLI
 
 on:
   push:
-    branches:
-      - main
     tags:
       - "v*"
 
@@ -17,7 +15,7 @@ jobs:
     steps:
       - name: Set environment variables
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
           tag: ${{ github.ref_name }}
         run: echo "Environment variables set"
       - name: Create GitHub release

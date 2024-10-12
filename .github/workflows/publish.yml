@@ -1,4 +1,4 @@
-name: Publish
+name: SDA CLI
 on:
   push:
     branches: [main]
