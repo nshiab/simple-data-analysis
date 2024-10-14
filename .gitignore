@@ -2,9 +2,7 @@ node_modules
 dist/
 test/output/
 .DS_Store
-bundleSizeMin.html
 .tmp
-test-docs
 .sda-cache
 testRoot.csv
 cov_profile

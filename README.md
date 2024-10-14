@@ -489,10 +489,10 @@ province.
 If you are developing a web application, you'll need to install
 [@duckdb/duckdb-wasm](https://github.com/duckdb/duckdb-wasm).
 
-Then import `SimpleWebDB` or `SimpleWebTable` directly from `node_modules`:
+Then import `SimpleWebDB` or `SimpleWebTable` directly from `/web`:
 
 ```js
-import SimpleWebDB from "./node_modules/@nshiab/simple-data-analysis/src/class/SimpleWebDB.js";
+import { SimpleWebTable } from "@nshiab/simple-data-analysis/web";
 ```
 
 You can also import the minified bundle with a npm-based CDN like
