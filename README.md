@@ -501,6 +501,12 @@ import { SimpleWebTable } from "@nshiab/simple-data-analysis/web";
 You can also import the minified bundle with a npm-based CDN like
 [esm.sh](https://esm.sh/).
 
+```html
+<script type="module">
+  import { SimpleWebDB } from "https://esm.sh/jsr/@nshiab/simple-data-analysis@3.13.9/web";
+</script>
+```
+
 You'll find an example
 [here](https://github.com/nshiab/simple-data-analysis/blob/main/examples/index.html).
 You can copy and paste the code into an HTML file. You can also adapt it to any
