@@ -16,6 +16,9 @@ You might also find the
 [Code Like a Journalist](https://github.com/nshiab/code-like-a-journalist)
 interesting.
 
+If you wish to contribute, please check the
+[guidelines](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
+
 ## Quick setup
 
 Create a folder and run [setup-sda](https://github.com/nshiab/setup-sda):
