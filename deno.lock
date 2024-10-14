@@ -3,7 +3,7 @@
   "specifiers": {
     "jsr:@nshiab/journalism@1": "1.19.1",
     "jsr:@nshiab/journalism@1.19.1": "1.19.1",
-    "jsr:@nshiab/journalism@^1.19.1": "1.19.1",
+    "jsr:@std/assert@*": "1.0.6",
     "jsr:@std/assert@1.0.6": "1.0.6",
     "jsr:@std/internal@^1.0.4": "1.0.4",
     "npm:@duckdb/duckdb-wasm@1": "1.29.0",
@@ -1186,7 +1186,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@nshiab/journalism@^1.19.1",
+      "jsr:@nshiab/journalism@1.19.1",
       "jsr:@std/assert@1.0.6",
       "npm:@duckdb/duckdb-wasm@1.29.0",
       "npm:apache-arrow@17.0.0",
