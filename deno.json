@@ -16,27 +16,15 @@
   "publish": {
     "exclude": [
       "test",
-      "docs",
-      ".github",
-      ".eslintignore",
-      ".eslintrc.cjs",
-      ".mocharc.json",
-      ".prettierignore",
-      ".prettierrc",
-      "package.json",
-      "syncJsrVersion.js",
-      "package-lock.json",
-      "rollup.config.js",
-      "tsconfig.json",
-      "typedoc.json"
+      ".github"
     ]
   },
   "nodeModulesDir": "auto",
   "imports": {
-    "@duckdb/duckdb-wasm": "npm:@duckdb/duckdb-wasm@^1.29.0",
-    "@nshiab/journalism": "jsr:@nshiab/journalism@^1.18.10",
-    "@std/assert": "jsr:@std/assert@^1.0.6",
-    "apache-arrow": "npm:apache-arrow@^17.0.0",
+    "@duckdb/duckdb-wasm": "npm:@duckdb/duckdb-wasm@1.29.0",
+    "@nshiab/journalism": "jsr:@nshiab/journalism@1.18.10",
+    "@std/assert": "jsr:@std/assert@1.0.6",
+    "apache-arrow": "npm:apache-arrow@17.0.0",
     "duckdb": "npm:duckdb@1.0.0"
   },
   "fmt": {
