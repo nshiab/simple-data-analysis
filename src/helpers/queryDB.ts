@@ -1,4 +1,4 @@
-import { formatNumber, prettyDuration } from "jsr:@nshiab/journalism@1";
+import { formatNumber, prettyDuration } from "jsr:@nshiab/journalism@1/web";
 import SimpleWebTable from "../class/SimpleWebTable.ts";
 import SimpleWebDB from "../class/SimpleWebDB.ts";
 import logData from "./logData.ts";

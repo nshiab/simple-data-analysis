@@ -1,4 +1,4 @@
-import { capitalize } from "jsr:@nshiab/journalism@1";
+import { capitalize } from "jsr:@nshiab/journalism@1/web";
 import type SimpleWebTable from "../class/SimpleWebTable.ts";
 import findGeoColumn from "../helpers/findGeoColumn.ts";
 import getIdenticalColumns from "../helpers/getIdenticalColumns.ts";

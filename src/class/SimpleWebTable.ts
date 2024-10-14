@@ -66,7 +66,7 @@ import cloneQuery from "../methods/cloneQuery.ts";
 import findGeoColumn from "../helpers/findGeoColumn.ts";
 import getExtension from "../helpers/getExtension.ts";
 import getIdenticalColumns from "../helpers/getIdenticalColumns.ts";
-import { camelCase, formatNumber } from "jsr:@nshiab/journalism@1";
+import { camelCase, formatNumber } from "jsr:@nshiab/journalism@1/web";
 // Not working for now
 // import getProjection from "../helpers/getProjection.js"
 

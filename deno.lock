@@ -1,42 +1,48 @@
 {
   "version": "4",
   "specifiers": {
-    "jsr:@nshiab/journalism@*": "1.18.10",
-    "jsr:@nshiab/journalism@1": "1.18.10",
-    "jsr:@nshiab/journalism@^1.18.10": "1.18.10",
-    "jsr:@std/assert@*": "1.0.6",
-    "jsr:@std/assert@^1.0.6": "1.0.6",
+    "jsr:@nshiab/journalism@1": "1.19.1",
+    "jsr:@nshiab/journalism@1.19.1": "1.19.1",
+    "jsr:@nshiab/journalism@^1.19.1": "1.19.1",
+    "jsr:@std/assert@1.0.6": "1.0.6",
     "jsr:@std/internal@^1.0.4": "1.0.4",
-    "npm:@duckdb/duckdb-wasm@*": "1.29.0",
     "npm:@duckdb/duckdb-wasm@1": "1.29.0",
-    "npm:@duckdb/duckdb-wasm@^1.29.0": "1.29.0",
+    "npm:@duckdb/duckdb-wasm@1.29.0": "1.29.0",
     "npm:@types/node@*": "22.5.4",
+    "npm:adm-zip@0.5": "0.5.16",
     "npm:adm-zip@~0.5.10": "0.5.16",
-    "npm:apache-arrow@*": "17.0.0",
     "npm:apache-arrow@17": "17.0.0",
+    "npm:apache-arrow@17.0.0": "17.0.0",
+    "npm:cheerio@1": "1.0.0",
     "npm:cheerio@^1.0.0-rc.12": "1.0.0",
+    "npm:d3-array@3": "3.2.4",
     "npm:d3-array@^3.2.4": "3.2.4",
+    "npm:d3-dsv@3": "3.0.1",
     "npm:d3-dsv@^3.0.1": "3.0.1",
+    "npm:date-fns-tz@3": "3.2.0_date-fns@4.1.0",
     "npm:date-fns-tz@^3.1.3": "3.2.0_date-fns@4.1.0",
     "npm:duckdb@1": "1.0.0",
     "npm:duckdb@1.0.0": "1.0.0",
+    "npm:geotiff@2": "2.1.3",
     "npm:geotiff@^2.1.3": "2.1.3",
+    "npm:google-auth-library@9": "9.14.2",
     "npm:google-auth-library@^9.13.0": "9.14.2",
+    "npm:google-spreadsheet@4": "4.1.4_google-auth-library@9.14.2",
     "npm:google-spreadsheet@^4.1.2": "4.1.4_google-auth-library@9.14.2",
     "npm:journalism@*": "1.18.10_google-auth-library@9.14.2"
   },
   "jsr": {
-    "@nshiab/journalism@1.18.10": {
-      "integrity": "81bb8719bdcff008110b2aa4e0539387877baf32f68a5d53e9f23402a1547bef",
+    "@nshiab/journalism@1.19.1": {
+      "integrity": "f3c516c49452778a19993be532fd264cb7bb38c69747644e064f1ff153b9b044",
       "dependencies": [
-        "npm:adm-zip",
-        "npm:cheerio",
-        "npm:d3-array",
-        "npm:d3-dsv",
-        "npm:date-fns-tz",
-        "npm:geotiff",
-        "npm:google-auth-library",
-        "npm:google-spreadsheet"
+        "npm:adm-zip@0.5",
+        "npm:cheerio@1",
+        "npm:d3-array@3",
+        "npm:d3-dsv@3",
+        "npm:date-fns-tz@3",
+        "npm:geotiff@2",
+        "npm:google-auth-library@9",
+        "npm:google-spreadsheet@4"
       ]
     },
     "@std/assert@1.0.6": {
@@ -1180,10 +1186,10 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@nshiab/journalism@^1.18.10",
-      "jsr:@std/assert@^1.0.6",
-      "npm:@duckdb/duckdb-wasm@^1.29.0",
-      "npm:apache-arrow@17",
+      "jsr:@nshiab/journalism@^1.19.1",
+      "jsr:@std/assert@1.0.6",
+      "npm:@duckdb/duckdb-wasm@1.29.0",
+      "npm:apache-arrow@17.0.0",
       "npm:duckdb@1.0.0"
     ]
   }

@@ -10,8 +10,8 @@
     "test-coverage": "deno test -A --fail-fast --coverage=cov_profile && deno coverage cov_profile",
     "patch-no-tests": "deno run -A src/others/incrementVersion.ts patch",
     "patch": "deno task all-tests && deno run -A src/incrementVersion.ts patch",
-    "minor": "deno task all-tests && deno run -A src/incrementVersion.ts patch",
-    "major": "deno-task all-testes && deno run -A src/incrementVersion.ts patch"
+    "minor": "deno task all-tests && deno run -A src/incrementVersion.ts minor",
+    "major": "deno-task all-testes && deno run -A src/incrementVersion.ts major"
   },
   "publish": {
     "exclude": [
@@ -22,7 +22,7 @@
   "nodeModulesDir": "auto",
   "imports": {
     "@duckdb/duckdb-wasm": "npm:@duckdb/duckdb-wasm@1.29.0",
-    "@nshiab/journalism": "jsr:@nshiab/journalism@1.18.10",
+    "@nshiab/journalism": "jsr:@nshiab/journalism@1.19.1",
     "@std/assert": "jsr:@std/assert@1.0.6",
     "apache-arrow": "npm:apache-arrow@17.0.0",
     "duckdb": "npm:duckdb@1.0.0"

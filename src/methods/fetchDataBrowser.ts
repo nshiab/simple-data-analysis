@@ -5,7 +5,7 @@ import type {
 import getExtension from "../helpers/getExtension.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
 import type SimpleWebTable from "../class/SimpleWebTable.ts";
-import { prettyDuration } from "jsr:@nshiab/journalism@1";
+import { prettyDuration } from "jsr:@nshiab/journalism@1/web";
 
 export default async function fetchDataBrowser(
   simpleWebTable: SimpleWebTable,
