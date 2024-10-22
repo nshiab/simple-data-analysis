@@ -64,7 +64,9 @@ export default async function cache(
   ) {
     (table.debug || options.verbose) &&
       console.log(
-        `\nFound ${cache.file} in cache.\nttl of ${options.ttl} sec has expired. The creation date is ${
+        `\nFound ${cache.file} in cache.\nttl of ${
+          prettyDuration(0, { end: options.ttl * 1000 })
+        } has expired. The creation date is ${
           formatDate(
             new Date(cache.creation),
             "Month DD, YYYY, at HH:MM period",
@@ -88,7 +90,9 @@ export default async function cache(
       const ttlLimit = new Date(cache.creation + options.ttl * 1000);
       (table.debug || options.verbose) &&
         console.log(
-          `ttl of ${options.ttl} sec has not expired. The creation date is ${
+          `ttl of ${
+            prettyDuration(0, { end: options.ttl * 1000 })
+          } has not expired. The creation date is ${
             formatDate(
               new Date(cache.creation),
               "Month DD, YYYY, at HH:MM period",
