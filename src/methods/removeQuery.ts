@@ -11,7 +11,7 @@ export default function removeQuery(
   const conditions = [];
   for (const column of columns) {
     conditions.push(
-      ` ${column} NOT IN (${
+      `"${column}" NOT IN (${
         columnsAndValues[column].map((d) => parseValue(d)).join(", ")
       })`,
     );
