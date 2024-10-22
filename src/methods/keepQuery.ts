@@ -11,7 +11,7 @@ export default function keepQuery(
   const conditions = [];
   for (const column of columns) {
     conditions.push(
-      ` ${column} IN (${
+      `"${column}" IN (${
         columnsAndValues[column].map((d) => parseValue(d)).join(", ")
       })`,
     );
