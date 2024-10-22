@@ -67,6 +67,7 @@ import findGeoColumn from "../helpers/findGeoColumn.ts";
 import getExtension from "../helpers/getExtension.ts";
 import getIdenticalColumns from "../helpers/getIdenticalColumns.ts";
 import { camelCase, formatNumber } from "jsr:@nshiab/journalism@1/web";
+import capitalizeQuery from "../methods/capitalizeQuery.ts";
 // Not working for now
 // import getProjection from "../helpers/getProjection.js"
 
@@ -1582,10 +1583,12 @@ export default class SimpleWebTable extends Simple {
    * @example
    * Basic usage
    * ```ts
-   * await table.upper("tableA", "column1")
+   * await table.upper("column1")
+   * ```
    *
    * @example
    * Multiple columns
+   * ```ts
    * await table.upper(["column1", "column2"])
    * ```
    *
@@ -1597,6 +1600,37 @@ export default class SimpleWebTable extends Simple {
     await queryDB(
       this,
       upperQuery(this.name, stringToArray(columns)),
+      mergeOptions(this, {
+        table: this.name,
+        method: "upper()",
+        parameters: { columns },
+      }),
+    );
+  }
+
+  /**
+   * Capitalize strings. The first letter is capitalized and the rest is in lowercase.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * await table.capitalize("column1")
+   * ```
+   *
+   * @example
+   * Multiple columns
+   * ```ts
+   * await table.capitalize(["column1", "column2"])
+   * ```
+   *
+   * @param columns - Either a string or an array of strings specifying the columns to be updated.
+   *
+   * @category Updating data
+   */
+  async capitalize(columns: string | string[]) {
+    await queryDB(
+      this,
+      capitalizeQuery(this.name, stringToArray(columns)),
       mergeOptions(this, {
         table: this.name,
         method: "upper()",
