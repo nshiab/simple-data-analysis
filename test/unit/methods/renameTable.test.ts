@@ -7,7 +7,7 @@ Deno.test("should rename a table", async () => {
   await table.loadData(["test/data/files/cities.csv"]);
   await table.renameTable("canadianCities");
 
-  const tables = await sdb.getTables();
+  const tables = await sdb.getTableNames();
 
   assertEquals(tables, ["canadianCities"]);
   await sdb.done();

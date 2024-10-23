@@ -2,7 +2,7 @@ import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
 import type SimpleWebDB from "../class/SimpleWebDB.ts";
 
-export default async function getTables(simpleWebDB: SimpleWebDB) {
+export default async function getTableNames(simpleWebDB: SimpleWebDB) {
   const queryResult = await queryDB(
     simpleWebDB,
     `SHOW TABLES`,

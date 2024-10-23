@@ -21,7 +21,6 @@ Deno.test("should start and return an instance of SimpleDB", async () => {
   assertEquals(returned instanceof SimpleDB, true);
   await sdb.done();
 });
-
 Deno.test("should start and instantiate a connection", async () => {
   const sdb = new SimpleDB();
   await sdb.start();
@@ -45,7 +44,7 @@ Deno.test("should create tables without names", async () => {
   const table2 = sdb.newTable();
   await table2.loadData(["test/data/files/data.json"]);
 
-  const tables = await sdb.getTables();
+  const tables = await sdb.getTableNames();
 
   assertEquals(
     tables.sort((a, b) => (a > b ? 1 : -1)),
@@ -63,7 +62,7 @@ Deno.test("should create multiple tables without names before loading data", asy
   await table1.loadData(["test/data/files/data.json"]);
   await table2.loadData(["test/data/files/data.json"]);
 
-  const tables = await sdb.getTables();
+  const tables = await sdb.getTableNames();
 
   assertEquals(
     tables.sort((a, b) => (a > b ? 1 : -1)),
@@ -77,7 +76,7 @@ Deno.test("should create tables with names", async () => {
   const table = sdb.newTable("tableWithName");
   await table.loadData(["test/data/files/data.json"]);
 
-  const tables = await sdb.getTables();
+  const tables = await sdb.getTableNames();
 
   assertEquals(
     tables.sort((a, b) => (a > b ? 1 : -1)),
@@ -95,7 +94,7 @@ Deno.test("should remove one table", async () => {
 
   await sdb.removeTables(table1);
 
-  const tables = await sdb.getTables();
+  const tables = await sdb.getTableNames();
 
   assertEquals(
     tables.sort((a, b) => (a > b ? 1 : -1)),
@@ -119,14 +118,61 @@ Deno.test("should remove multiple tables", async () => {
   await sdb.done();
 });
 
-Deno.test("should return tables", async () => {
+Deno.test("should retrieve a SimpleTable instance", async () => {
+  const sdb = new SimpleDB();
+  const tableJSON = sdb.newTable("tableJSON");
+  await tableJSON.loadData(["test/data/files/data.json"]);
+
+  const tableJsonAgain = await sdb.getTable("tableJSON");
+
+  assertEquals(
+    {
+      instance: tableJsonAgain,
+      name: tableJsonAgain.name,
+      data: await tableJsonAgain.getData(),
+    },
+    {
+      instance: tableJSON,
+      name: tableJSON.name,
+      data: await tableJSON.getData(),
+    },
+  );
+  await sdb.done();
+});
+Deno.test("should retrieve a SimpleTable instance with geo data", async () => {
+  const sdb = new SimpleDB();
+  const tableJSON = sdb.newTable("tableGEOJSON");
+  await tableJSON.loadGeoData(
+    "test/geodata/files/CanadianProvincesAndTerritories.json",
+  );
+
+  const tableJsonAgain = await sdb.getTable("tableGEOJSON");
+
+  assertEquals(
+    {
+      instance: tableJsonAgain,
+      name: tableJsonAgain.name,
+      data: await tableJsonAgain.getGeoData(),
+      projection: tableJsonAgain.projections,
+    },
+    {
+      instance: tableJSON,
+      name: tableJSON.name,
+      data: await tableJSON.getGeoData(),
+      projection: tableJSON.projections,
+    },
+  );
+  await sdb.done();
+});
+
+Deno.test("should return table names", async () => {
   const sdb = new SimpleDB();
   const tableJSON = sdb.newTable("tableJSON");
   await tableJSON.loadData(["test/data/files/data.json"]);
   const tableCSV = sdb.newTable("tableCSV");
   await tableCSV.loadData(["test/data/files/data.csv"]);
 
-  const tables = await sdb.getTables();
+  const tables = await sdb.getTableNames();
 
   assertEquals(
     tables.sort((a, b) => (a > b ? 1 : -1)),

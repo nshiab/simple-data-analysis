@@ -47,6 +47,8 @@ import { prettyDuration } from "@nshiab/journalism";
  */
 
 export default class SimpleDB extends SimpleWebDB {
+  /** An array of SimpleWebTable instances. @category Properties */
+  override tables: SimpleTable[];
   /** A flag to log messages relative to the cache. Defaults to false. */
   cacheVerbose: boolean;
   /** Amount of time saved by using the cache. */
@@ -63,6 +65,7 @@ export default class SimpleDB extends SimpleWebDB {
     } = {},
   ) {
     super(options);
+    this.tables = [];
     this.bigIntToInt = options.bigIntToInt ?? true;
     this.cacheVerbose = options.cacheVerbose ?? false;
     this.cacheTimeSaved = 0;
@@ -142,7 +145,31 @@ export default class SimpleDB extends SimpleWebDB {
         }`,
       );
 
+    this.tables.push(table);
+
     return table;
+  }
+
+  /**
+   * Retrieves a table in the DB.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * const employees = await sdb.getTable("employees")
+   * ```
+   *
+   * @param name - The name of the table to retrieve.
+   *
+   * @category DB methods
+   */
+  override async getTable(name: string): Promise<SimpleTable> {
+    const table = this.tables.find((t) => t.name === name);
+    if (table) {
+      return await table;
+    } else {
+      throw new Error(`Table ${name} not found.`);
+    }
   }
 
   /**

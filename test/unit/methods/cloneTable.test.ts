@@ -34,7 +34,7 @@ Deno.test("should find the table name in the DB", async () => {
   await table.loadData("test/data/files/employees.csv");
   await table.cloneTable({ outputTable: "clone" });
 
-  const tables = await sdb.getTables();
+  const tables = await sdb.getTableNames();
 
   assertEquals(
     tables.sort((a, b) => (a > b ? -1 : 1)),
