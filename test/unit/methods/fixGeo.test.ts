@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should fix invalid geometries", async () => {
+  const sdb = new SimpleDB();
   // From https://github.com/chrieke/geojson-invalid-geometry
   const table = sdb.newTable("geodata");
   await table.loadGeoData("test/geodata/files/invalid.geojson");
@@ -46,8 +45,12 @@ Deno.test("should fix invalid geometries", async () => {
       },
     ],
   });
+
+  await sdb.done();
 });
+
 Deno.test("should fix invalid geometries in a specific column", async () => {
+  const sdb = new SimpleDB();
   // From https://github.com/chrieke/geojson-invalid-geometry
   const table = sdb.newTable("geodata");
   await table.loadGeoData("test/geodata/files/invalid.geojson");
@@ -90,8 +93,12 @@ Deno.test("should fix invalid geometries in a specific column", async () => {
       },
     ],
   });
+
+  await sdb.done();
 });
+
 Deno.test("should flag fixed geo as valid", async () => {
+  const sdb = new SimpleDB();
   // From https://github.com/chrieke/geojson-invalid-geometry
   const table = sdb.newTable("geodata");
   await table.loadGeoData("test/geodata/files/invalid.geojson");
@@ -101,6 +108,6 @@ Deno.test("should flag fixed geo as valid", async () => {
   const data = await table.getData();
 
   assertEquals(data, [{ isValid: true }]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

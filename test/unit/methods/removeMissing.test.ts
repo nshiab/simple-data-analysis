@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should return a table without any missing values", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
   await table.cleanColumnNames();
@@ -12,9 +11,11 @@ Deno.test("should return a table without any missing values", async () => {
   const data = await table.getData();
 
   assertEquals(data, dataNoNulls);
+  await sdb.done();
 });
 
 Deno.test("should return a table without any missing values even if there is a type JSON", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.json"]);
   await table.cleanColumnNames();
@@ -23,9 +24,11 @@ Deno.test("should return a table without any missing values even if there is a t
   const data = await table.getData();
 
   assertEquals(data, dataNoNullsJSON);
+  await sdb.done();
 });
 
 Deno.test("should return a table without any missing values even if there is a type associated with numbers", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/dataWithMissingValues.json"]);
 
@@ -36,9 +39,11 @@ Deno.test("should return a table without any missing values even if there is a t
   assertEquals(data, [
     { key1: 4, key2: "quatre", key3: 11545.12 },
   ]);
+  await sdb.done();
 });
 
 Deno.test("should return a table without any missing values even if there is a type associated with numbers and otherMissingValues as number", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/dataWithMissingValues.json"]);
 
@@ -52,9 +57,11 @@ Deno.test("should return a table without any missing values even if there is a t
     { key1: null, key2: "deux", key3: 12 },
     { key1: 4, key2: "quatre", key3: 11545.12 },
   ]);
+  await sdb.done();
 });
 
 Deno.test("should return a table without any missing values for a specific column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
   await table.cleanColumnNames();
@@ -65,8 +72,11 @@ Deno.test("should return a table without any missing values for a specific colum
   const data = await table.getData();
 
   assertEquals(data, dataNoNullsName);
+  await sdb.done();
 });
+
 Deno.test("should return a table without any missing values for multiple specific columns", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
   await table.cleanColumnNames();
@@ -78,8 +88,11 @@ Deno.test("should return a table without any missing values for multiple specifi
   const data = await table.getData();
 
   assertEquals(data, dataNoNullsMultipleColumns);
+  await sdb.done();
 });
+
 Deno.test("should return a table with null values in any columns", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
   await table.cleanColumnNames();
@@ -92,8 +105,11 @@ Deno.test("should return a table with null values in any columns", async () => {
   const data = await table.getData();
 
   assertEquals(data, dataJustNulls);
+  await sdb.done();
 });
+
 Deno.test("should return a table with null values in a specific column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
   await table.cleanColumnNames();
@@ -106,9 +122,8 @@ Deno.test("should return a table with null values in a specific column", async (
   const data = await table.getData();
 
   assertEquals(data, dataNullsInName);
+  await sdb.done();
 });
-
-await sdb.done();
 
 const dataNoNulls = [
   {

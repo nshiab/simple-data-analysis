@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should clone a column with an offset", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.loadArray([
     { firstName: "nael", lastName: "shiab" },
@@ -26,8 +25,12 @@ Deno.test("should clone a column with an offset", async () => {
     },
     { firstName: "andrew", lastName: "ryan", nextFirstName: null },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should clone a column with an offset when working with geometries and keep the projection", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -39,6 +42,6 @@ Deno.test("should clone a column with an offset when working with geometries and
     table.projections["geom"],
     table.projections["geomClone"],
   );
-});
 
-await sdb.done();
+  await sdb.done();
+});

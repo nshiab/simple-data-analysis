@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should check if geometries intersect", async () => {
+  const sdb = new SimpleDB();
   const prov = sdb.newTable("data");
   await prov.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -81,8 +80,12 @@ Deno.test("should check if geometries intersect", async () => {
     },
     { nameEnglish: "Nunavut", name: "polygonB", intersec: true },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should check if geometries intersect and the returned booleans could be used to filter", async () => {
+  const sdb = new SimpleDB();
   const prov = sdb.newTable("data");
   await prov.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -118,6 +121,6 @@ Deno.test("should check if geometries intersect and the returned booleans could 
     },
     { nameEnglish: "Nunavut", name: "polygonB", intersec: true },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

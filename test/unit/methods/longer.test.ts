@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should tidy data by stacking mutiple columns", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/dataUntidy.json");
   await table.longer(
@@ -35,6 +34,7 @@ Deno.test("should tidy data by stacking mutiple columns", async () => {
   ]);
 });
 Deno.test("should tidy data by stacking mutiple columns with spaces in their names", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadArray([
     {
@@ -165,8 +165,10 @@ Deno.test("should tidy data by stacking mutiple columns with spaces in their nam
       "employees full-time": 27,
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should tidy data by stacking mutiple columns and by including null values", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/dataUntidyWithNulls.json");
   await table.longer(
@@ -197,6 +199,5 @@ Deno.test("should tidy data by stacking mutiple columns and by including null va
     { Department: "sales", year: "2019", employees: 45 },
     { Department: "sales", year: "2020", employees: null },
   ]);
+  await sdb.done();
 });
-
-await sdb.done();

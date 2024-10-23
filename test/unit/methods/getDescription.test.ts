@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should return the count of null values, non null values, and distinct values in each column of a table", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.loadData("test/data/files/employees.json");
 
@@ -35,6 +34,5 @@ Deno.test("should return the count of null values, non null values, and distinct
     { column: "Name", type: "VARCHAR", count: 51, unique: 46, null: 4 },
     { column: "Salary", type: "JSON", count: 51, unique: 33, null: 3 },
   ]);
+  await sdb.done();
 });
-
-await sdb.done();

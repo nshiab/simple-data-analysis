@@ -3,30 +3,43 @@ import SimpleDB from "../../../src/class/SimpleDB.ts";
 import pkg from "npm:duckdb@1";
 const { Database, Connection } = pkg;
 
-const sdb = new SimpleDB();
-
-Deno.test("should instantiate a SimpleDB class", () => {
+Deno.test("should instantiate a SimpleDB class", async () => {
+  const sdb = new SimpleDB();
   assertEquals(sdb instanceof SimpleDB, true);
+  await sdb.done();
 });
 Deno.test("should start and instantiate a db", async () => {
+  const sdb = new SimpleDB();
   await sdb.start();
   assertEquals(sdb.db instanceof Database, true);
+  await sdb.done();
 });
+
 Deno.test("should start and return an instance of SimpleDB", async () => {
+  const sdb = new SimpleDB();
   const returned = await sdb.start();
   assertEquals(returned instanceof SimpleDB, true);
+  await sdb.done();
 });
+
 Deno.test("should start and instantiate a connection", async () => {
+  const sdb = new SimpleDB();
   await sdb.start();
   assertEquals(sdb.connection instanceof Connection, true);
+  await sdb.done();
 });
+
 Deno.test("should run a custom query and return the result", async () => {
+  const sdb = new SimpleDB();
   const result = await sdb.customQuery(`select 42 as result`, {
     returnDataFrom: "query",
   });
   assertEquals(result, [{ result: 42 }]);
+  await sdb.done();
 });
+
 Deno.test("should create tables without names", async () => {
+  const sdb = new SimpleDB();
   const table1 = sdb.newTable();
   await table1.loadData(["test/data/files/data.json"]);
   const table2 = sdb.newTable();
@@ -38,7 +51,9 @@ Deno.test("should create tables without names", async () => {
     tables.sort((a, b) => (a > b ? 1 : -1)),
     ["table1", "table2"],
   );
+  await sdb.done();
 });
+
 Deno.test("should create multiple tables without names before loading data", async () => {
   const sdb = new SimpleDB();
 
@@ -54,8 +69,11 @@ Deno.test("should create multiple tables without names before loading data", asy
     tables.sort((a, b) => (a > b ? 1 : -1)),
     ["table1", "table2"],
   );
+  await sdb.done();
 });
+
 Deno.test("should create tables with names", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("tableWithName");
   await table.loadData(["test/data/files/data.json"]);
 
@@ -63,13 +81,17 @@ Deno.test("should create tables with names", async () => {
 
   assertEquals(
     tables.sort((a, b) => (a > b ? 1 : -1)),
-    ["table1", "table2", "tableWithName"],
+    ["tableWithName"],
   );
+  await sdb.done();
 });
+
 Deno.test("should remove one table", async () => {
-  // Overwriting tables above to have them stored in variables
+  const sdb = new SimpleDB();
   const table1 = sdb.newTable("table1");
   await table1.loadData(["test/data/files/data.json"]);
+  const table2 = sdb.newTable("table2");
+  await table2.loadData(["test/data/files/data.json"]);
 
   await sdb.removeTables(table1);
 
@@ -77,23 +99,28 @@ Deno.test("should remove one table", async () => {
 
   assertEquals(
     tables.sort((a, b) => (a > b ? 1 : -1)),
-    ["table2", "tableWithName"],
+    ["table2"],
   );
+  await sdb.done();
 });
+
 Deno.test("should remove multiple tables", async () => {
-  // Overwriting tables above to have them stored in variables
-  const table2 = sdb.newTable("table2");
-  await table2.loadData(["test/data/files/data.json"]);
+  const sdb = new SimpleDB();
+  const table1 = sdb.newTable("table1");
+  await table1.loadData(["test/data/files/data.json"]);
   const tableWithName = sdb.newTable("tableWithName");
   await tableWithName.loadData(["test/data/files/data.json"]);
 
-  await sdb.removeTables([table2, tableWithName]);
+  await sdb.removeTables([table1, tableWithName]);
 
   const tables = await sdb.getTables();
 
   assertEquals(tables, []);
+  await sdb.done();
 });
+
 Deno.test("should return tables", async () => {
+  const sdb = new SimpleDB();
   const tableJSON = sdb.newTable("tableJSON");
   await tableJSON.loadData(["test/data/files/data.json"]);
   const tableCSV = sdb.newTable("tableCSV");
@@ -105,33 +132,47 @@ Deno.test("should return tables", async () => {
     tables.sort((a, b) => (a > b ? 1 : -1)),
     ["tableCSV", "tableJSON"],
   );
+  await sdb.done();
 });
-Deno.test("should check a return true when a table exists", async () => {
+
+Deno.test("should return true when a table exists", async () => {
+  const sdb = new SimpleDB();
   const tableJSON = sdb.newTable("tableJSON");
   await tableJSON.loadData(["test/data/files/data.json"]);
 
   assertEquals(await sdb.hasTable("tableJSON"), true);
+  await sdb.done();
 });
-Deno.test("should check a return false when a table doesn't exist", async () => {
+
+Deno.test("should return false when a table doesn't exist", async () => {
+  const sdb = new SimpleDB();
   const tableJSON = sdb.newTable("tableJSON");
   await tableJSON.loadData(["test/data/files/data.json"]);
 
   assertEquals(await sdb.hasTable("tableX"), false);
+  await sdb.done();
 });
+
 Deno.test("should return the DuckDB extensions", async () => {
+  const sdb = new SimpleDB();
   await sdb.getExtensions();
   // Not sure how to test. Different depending on the environment?
+  await sdb.done();
 });
+
 Deno.test("should close the db", async () => {
+  const sdb = new SimpleDB();
   await sdb.done();
   // How to test?
 });
+
 Deno.test("should log debugging information when debug is true", async () => {
   const sdb = new SimpleDB({ debug: true });
   await sdb.newTable("test").loadData("test/data/files/cities.csv");
   // How to test?
   await sdb.done();
 });
+
 Deno.test("should log a specific number of rows", async () => {
   const sdb = new SimpleDB({ nbRowsToLog: 2 });
   const test = sdb.newTable("test");
@@ -140,6 +181,7 @@ Deno.test("should log a specific number of rows", async () => {
   // How to test?
   await sdb.done();
 });
+
 Deno.test("should log a specific number of characters", async () => {
   const sdb = new SimpleDB({ nbCharactersToLog: 5 });
   const test = sdb.newTable("test");
@@ -148,6 +190,7 @@ Deno.test("should log a specific number of characters", async () => {
   // How to test?
   await sdb.done();
 });
+
 Deno.test("should log the total duration", async () => {
   const sdb = new SimpleDB({ logDuration: true });
   const test = sdb.newTable("test");

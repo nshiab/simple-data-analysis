@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should normalize values in a column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/dataSummarize.json");
 
@@ -30,8 +29,12 @@ Deno.test("should normalize values in a column", async () => {
     { key1: "Banane", key2: null, key3: null, normalized: null },
     { key1: "Banane", key2: null, key3: null, normalized: null },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should normalize values in a column with two decimals", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/dataSummarize.json");
 
@@ -50,8 +53,12 @@ Deno.test("should normalize values in a column with two decimals", async () => {
     { key1: "Banane", key2: null, key3: null, normalized: null },
     { key1: "Banane", key2: null, key3: null, normalized: null },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should normalize values in a column and keep 4 decimals", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/dataSummarize.json");
 
@@ -70,8 +77,12 @@ Deno.test("should normalize values in a column and keep 4 decimals", async () =>
     { key1: "Banane", key2: null, key3: null, normalized: null },
     { key1: "Banane", key2: null, key3: null, normalized: null },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should normalize values in a column with categories", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/dataSummarize.json");
 
@@ -90,8 +101,12 @@ Deno.test("should normalize values in a column with categories", async () => {
     { key1: "Banane", key2: null, key3: null, normalized: null },
     { key1: "Banane", key2: null, key3: null, normalized: null },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should normalize data with positive and negative values", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadArray([
     { key1: -1 },
@@ -113,6 +128,6 @@ Deno.test("should normalize data with positive and negative values", async () =>
     { key1: 0.5, normalized: 0.75 },
     { key1: 1, normalized: 1 },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

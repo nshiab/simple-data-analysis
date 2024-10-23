@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should create points", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/geodata/files/coordinates.csv");
   await table.convert({ lat: "double", lon: "double" });
@@ -31,8 +30,12 @@ Deno.test("should create points", async () => {
       },
     ],
   });
+
+  await sdb.done();
 });
+
 Deno.test("should create points and add a projection", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/geodata/files/coordinates.csv");
   await table.convert({ lat: "double", lon: "double" });
@@ -41,6 +44,6 @@ Deno.test("should create points and add a projection", async () => {
   assertEquals(table.projections, {
     geom: "+proj=latlong +datum=WGS84 +no_defs",
   });
-});
 
-await sdb.done();
+  await sdb.done();
+});

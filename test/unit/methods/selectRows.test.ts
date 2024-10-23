@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should return the first 5 rows", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
 
@@ -53,8 +52,12 @@ Deno.test("should return the first 5 rows", async () => {
       "End-of_year-BONUS?": "2,71%",
     },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should return the first 5 rows, with an offset of 5", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
 
@@ -104,8 +107,12 @@ Deno.test("should return the first 5 rows, with an offset of 5", async () => {
       "End-of_year-BONUS?": "15,7%",
     },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should return the first 5 rows and output the results to a new table", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
 
@@ -157,8 +164,12 @@ Deno.test("should return the first 5 rows and output the results to a new table"
       "End-of_year-BONUS?": "2,71%",
     },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should return the first 5 rows with an offset of 5 and output the results to a new table", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
 
@@ -211,8 +222,12 @@ Deno.test("should return the first 5 rows with an offset of 5 and output the res
       "End-of_year-BONUS?": "15,7%",
     },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should return the first 5 rows with an offset of 5 and output the results to a new table with a specific name", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
 
@@ -267,6 +282,6 @@ Deno.test("should return the first 5 rows with an offset of 5 and output the res
       "End-of_year-BONUS?": "15,7%",
     },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

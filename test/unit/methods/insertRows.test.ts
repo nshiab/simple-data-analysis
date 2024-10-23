@@ -1,9 +1,9 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("add rows in a table", async () => {
+  const sdb = new SimpleDB();
+
   const table = sdb.newTable("data");
   await table.loadData("test/data/files/data.json");
 
@@ -22,6 +22,6 @@ Deno.test("add rows in a table", async () => {
     { key1: 5, key2: "cinq" },
     { key1: 6, key2: "six" },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

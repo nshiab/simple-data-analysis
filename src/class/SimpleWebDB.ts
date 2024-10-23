@@ -49,6 +49,8 @@ export default class SimpleWebDB extends Simple {
   cacheSourcesUsed: string[];
   /** A timestamp used to track the total duration logged in done(). @category Properties */
   durationStart: number | undefined;
+  /** A number used when creating new tables. @category Properties */
+  tableIncrement: number;
 
   constructor(
     options: {
@@ -63,6 +65,7 @@ export default class SimpleWebDB extends Simple {
       this.durationStart = Date.now();
     }
 
+    this.tableIncrement = 1;
     this.cacheSourcesUsed = [];
   }
 

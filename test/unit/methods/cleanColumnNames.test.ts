@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should clean column names", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/employees.csv");
   await table.cleanColumnNames();
@@ -16,6 +15,5 @@ Deno.test("should clean column names", async () => {
     "departmentOrUnit",
     "endOfYearBonus",
   ]);
+  await sdb.done();
 });
-
-await sdb.done();

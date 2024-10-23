@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should calculate the area of geometries in square meters", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("geodata");
   await table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -76,8 +75,12 @@ Deno.test("should calculate the area of geometries in square meters", async () =
       area: 2090913434132,
     },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should calculate the area of geometries in square meters from a specific column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("geodata");
   await table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -150,8 +153,12 @@ Deno.test("should calculate the area of geometries in square meters from a speci
       area: 2090913434132,
     },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should calculate the area of geometries in square meters with a file loaded with option toWGS84", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("geodata");
   await table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -224,8 +231,12 @@ Deno.test("should calculate the area of geometries in square meters with a file 
       area: 2090913434132,
     },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should calculate the area of geometries in square kilometers", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("geodata");
   await table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -278,6 +289,6 @@ Deno.test("should calculate the area of geometries in square kilometers", async 
     },
     { nameEnglish: "Nunavut", nameFrench: "Nunavut", area: 2090913 },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

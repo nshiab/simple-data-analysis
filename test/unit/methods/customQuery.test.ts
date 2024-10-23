@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should return the results of a custom query", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("employees");
   await table.loadData(["test/data/files/employees.csv"]);
 
@@ -174,8 +173,10 @@ Deno.test("should return the results of a custom query", async () => {
       "End-of_year-BONUS?": "16,19%",
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should work with ==", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("employees");
   await table.loadData("test/data/files/employees.csv");
 
@@ -194,8 +195,10 @@ Deno.test("should work with ==", async () => {
       "End-of_year-BONUS?": "16,19%",
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should work with ===", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("employees");
   await table.loadData("test/data/files/employees.csv");
 
@@ -214,8 +217,10 @@ Deno.test("should work with ===", async () => {
       "End-of_year-BONUS?": "16,19%",
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should work with &", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("employees");
   await table.loadData("test/data/files/employees.csv");
 
@@ -250,8 +255,10 @@ Deno.test("should work with &", async () => {
       "End-of_year-BONUS?": "16,19%",
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should work with &&", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("employees");
   await table.loadData("test/data/files/employees.csv");
 
@@ -270,8 +277,10 @@ Deno.test("should work with &&", async () => {
       "End-of_year-BONUS?": "15,8%",
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should work with |", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("employees");
   await table.loadData("test/data/files/employees.csv");
 
@@ -306,8 +315,10 @@ Deno.test("should work with |", async () => {
       "End-of_year-BONUS?": "16,19%",
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should work with ||", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("employees");
   await table.loadData("test/data/files/employees.csv");
 
@@ -342,8 +353,10 @@ Deno.test("should work with ||", async () => {
       "End-of_year-BONUS?": "16,19%",
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should work with !==", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("employees");
   await table.loadData("test/data/files/employees.csv");
 
@@ -418,8 +431,10 @@ Deno.test("should work with !==", async () => {
       "End-of_year-BONUS?": "12,64%",
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should work with === null", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("test");
   await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }]);
 
@@ -429,8 +444,10 @@ Deno.test("should work with === null", async () => {
   );
 
   assertEquals(data, [{ key1: null }]);
+  await sdb.done();
 });
 Deno.test("should work with == null", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("test");
   await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }]);
 
@@ -440,8 +457,10 @@ Deno.test("should work with == null", async () => {
   );
 
   assertEquals(data, [{ key1: null }]);
+  await sdb.done();
 });
 Deno.test("should work with = null", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("test");
   await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }]);
 
@@ -451,8 +470,10 @@ Deno.test("should work with = null", async () => {
   );
 
   assertEquals(data, [{ key1: null }]);
+  await sdb.done();
 });
 Deno.test("should work with === NULL", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("test");
   await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }]);
 
@@ -462,8 +483,10 @@ Deno.test("should work with === NULL", async () => {
   );
 
   assertEquals(data, [{ key1: null }]);
+  await sdb.done();
 });
 Deno.test("should work with == NULL", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("test");
   await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }]);
 
@@ -473,8 +496,10 @@ Deno.test("should work with == NULL", async () => {
   );
 
   assertEquals(data, [{ key1: null }]);
+  await sdb.done();
 });
 Deno.test("should work with = NULL", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("test");
   await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }]);
 
@@ -484,8 +509,10 @@ Deno.test("should work with = NULL", async () => {
   );
 
   assertEquals(data, [{ key1: null }]);
+  await sdb.done();
 });
 Deno.test("should work with !== null", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("test");
   await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }]);
 
@@ -495,8 +522,10 @@ Deno.test("should work with !== null", async () => {
   );
 
   assertEquals(data, [{ key1: 1 }, { key1: 2 }]);
+  await sdb.done();
 });
 Deno.test("should work with != null", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("test");
   await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }]);
 
@@ -506,8 +535,10 @@ Deno.test("should work with != null", async () => {
   );
 
   assertEquals(data, [{ key1: 1 }, { key1: 2 }]);
+  await sdb.done();
 });
 Deno.test("should work with !== NULL", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("test");
   await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }]);
 
@@ -517,8 +548,10 @@ Deno.test("should work with !== NULL", async () => {
   );
 
   assertEquals(data, [{ key1: 1 }, { key1: 2 }]);
+  await sdb.done();
 });
 Deno.test("should work with != NULL", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("test");
   await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }]);
 
@@ -528,8 +561,10 @@ Deno.test("should work with != NULL", async () => {
   );
 
   assertEquals(data, [{ key1: 1 }, { key1: 2 }]);
+  await sdb.done();
 });
 Deno.test("should work with === null not at the end of query", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("test");
   await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }]);
 
@@ -539,6 +574,5 @@ Deno.test("should work with === null not at the end of query", async () => {
   );
 
   assertEquals(data, [{ key1: null }, { key1: 2 }]);
+  await sdb.done();
 });
-
-await sdb.done();

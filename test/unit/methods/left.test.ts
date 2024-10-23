@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should return the first two strings", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadArray([
     { firstName: "Nael", lastName: "Shiab" },
@@ -18,6 +17,6 @@ Deno.test("should return the first two strings", async () => {
     { firstName: "Na", lastName: "Shiab" },
     { firstName: "Gr", lastName: "Bruce" },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

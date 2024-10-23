@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should return the horizontal proportions in new columns", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/dataProportions.json"]);
   await table.proportionsHorizontal(["key1", "key2", "key3"]);
@@ -35,9 +34,12 @@ Deno.test("should return the horizontal proportions in new columns", async () =>
       key3Perc: 0.375,
     },
   ]);
+
+  await sdb.done();
 });
 
 Deno.test("should return the horizontal proportions in new columns with a specific suffix", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/dataProportions.json"]);
   await table.proportionsHorizontal(["key1", "key2", "key3"], {
@@ -71,9 +73,12 @@ Deno.test("should return the horizontal proportions in new columns with a specif
       key3Prop: 0.375,
     },
   ]);
+
+  await sdb.done();
 });
 
 Deno.test("should return the horizontal proportions in new columns with a specific suffix and 4 decimals", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/dataProportions.json"]);
   await table.proportionsHorizontal(["key1", "key2", "key3"], {
@@ -108,6 +113,6 @@ Deno.test("should return the horizontal proportions in new columns with a specif
       key3Prop: 0.375,
     },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

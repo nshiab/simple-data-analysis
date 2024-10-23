@@ -396,10 +396,10 @@ export default class SimpleWebTable extends Simple {
       );
     } else {
       clonedTable = this.sdb.newTable(
-        `table${this.tableIncrement}`,
+        `table${this.sdb.tableIncrement}`,
         this.projections,
       );
-      this.tableIncrement += 1;
+      this.sdb.tableIncrement += 1;
     }
 
     await queryDB(

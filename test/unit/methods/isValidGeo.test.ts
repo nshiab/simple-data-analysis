@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should find that geometries are valid", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("geodata");
   await table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -55,8 +54,12 @@ Deno.test("should find that geometries are valid", async () => {
     },
     { nameEnglish: "Nunavut", nameFrench: "Nunavut", isValid: true },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should find that geometries are valid when checking a specific column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("geodata");
   await table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -108,8 +111,12 @@ Deno.test("should find that geometries are valid when checking a specific column
     },
     { nameEnglish: "Nunavut", nameFrench: "Nunavut", isValid: true },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should find that geometries are not valid", async () => {
+  const sdb = new SimpleDB();
   // From https://github.com/chrieke/geojson-invalid-geometry
   const table = sdb.newTable("geodata");
   await table.loadGeoData("test/geodata/files/invalid.geojson");
@@ -118,6 +125,6 @@ Deno.test("should find that geometries are not valid", async () => {
   const data = await table.getData();
 
   assertEquals(data, [{ isValid: false }]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

@@ -1,10 +1,9 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-const table = sdb.newTable("employees");
-
 Deno.test("should concatenate multiple columns in a new one", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("employees");
   await table.loadData(["test/data/files/employees.json"]);
   await table.concatenate(["Name", "Job"], "concatenated");
   const data = await table.getData();
@@ -469,9 +468,13 @@ Deno.test("should concatenate multiple columns in a new one", async () => {
       concatenated: "Patel, JoshuaClerk",
     },
   ]);
+  await sdb.done();
 });
 
 Deno.test("should concatenate multiple columns in a new one with a separator", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("employees");
+  await table.loadData(["test/data/files/employees.json"]);
   await table.concatenate(["Name", "Job"], "concatenatedWithSeparator", {
     separator: "-",
   });
@@ -485,7 +488,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "2600",
       "Department or unit": "50",
       "End-of_year-BONUS?": "1,94%",
-      concatenated: "OConnell, DonaldClerk",
       concatenatedWithSeparator: "OConnell, Donald-Clerk",
     },
     {
@@ -495,7 +497,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "2600",
       "Department or unit": "50",
       "End-of_year-BONUS?": "1,94%",
-      concatenated: "OConnell, DonaldClerk",
       concatenatedWithSeparator: "OConnell, Donald-Clerk",
     },
     {
@@ -505,7 +506,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: null,
       "Department or unit": "50",
       "End-of_year-BONUS?": "23,39%",
-      concatenated: "Grant, DouglasClerk",
       concatenatedWithSeparator: "Grant, Douglas-Clerk",
     },
     {
@@ -515,7 +515,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "4400",
       "Department or unit": "10",
       "End-of_year-BONUS?": "17,51%",
-      concatenated: "Assistant",
       concatenatedWithSeparator: "Assistant",
     },
     {
@@ -525,7 +524,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "13000",
       "Department or unit": "20",
       "End-of_year-BONUS?": "2,71%",
-      concatenated: "Hartstein, MichaelManager",
       concatenatedWithSeparator: "Hartstein, Michael-Manager",
     },
     {
@@ -535,7 +533,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "6000",
       "Department or unit": "20",
       "End-of_year-BONUS?": "18,68%",
-      concatenated: "Fay, PatRepresentative",
       concatenatedWithSeparator: "Fay, Pat-Representative",
     },
     {
@@ -545,7 +542,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "6500",
       "Department or unit": "40",
       "End-of_year-BONUS?": "23,47%",
-      concatenated: "Mavris, SusanSalesperson",
       concatenatedWithSeparator: "Mavris, Susan-Salesperson",
     },
     {
@@ -555,7 +551,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "10000",
       "Department or unit": '"xyz"',
       "End-of_year-BONUS?": "17,63%",
-      concatenated: "Salesperson",
       concatenatedWithSeparator: "Salesperson",
     },
     {
@@ -565,7 +560,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "12008",
       "Department or unit": "110",
       "End-of_year-BONUS?": "17,09%",
-      concatenated: "Higgins, ShelleyManager",
       concatenatedWithSeparator: "Higgins, Shelley-Manager",
     },
     {
@@ -575,7 +569,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "8300",
       "Department or unit": "110",
       "End-of_year-BONUS?": "15,7%",
-      concatenated: "Accountant",
       concatenatedWithSeparator: "Accountant",
     },
     {
@@ -585,7 +578,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "24000",
       "Department or unit": "90",
       "End-of_year-BONUS?": "2,46%",
-      concatenated: "King, StevenPresident",
       concatenatedWithSeparator: "King, Steven-President",
     },
     {
@@ -595,7 +587,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: '"&6%"',
       "Department or unit": "90",
       "End-of_year-BONUS?": "11,6%",
-      concatenated: "Kochhar, NeenaVice-president",
       concatenatedWithSeparator: "Kochhar, Neena-Vice-president",
     },
     {
@@ -605,7 +596,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "17000",
       "Department or unit": "90",
       "End-of_year-BONUS?": "23,43%",
-      concatenated: "De Haan, LexVice-president",
       concatenatedWithSeparator: "De Haan, Lex-Vice-president",
     },
     {
@@ -615,7 +605,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "9000",
       "Department or unit": "60",
       "End-of_year-BONUS?": "23,01%",
-      concatenated: "Hunold, AlexanderProgrammer",
       concatenatedWithSeparator: "Hunold, Alexander-Programmer",
     },
     {
@@ -625,7 +614,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "6000",
       "Department or unit": "60",
       "End-of_year-BONUS?": "25,91%",
-      concatenated: "Ernst, BruceProgrammer",
       concatenatedWithSeparator: "Ernst, Bruce-Programmer",
     },
     {
@@ -635,7 +623,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "4800",
       "Department or unit": null,
       "End-of_year-BONUS?": "6,89%",
-      concatenated: "Austin, DavidProgrammer",
       concatenatedWithSeparator: "Austin, David-Programmer",
     },
     {
@@ -645,7 +632,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: null,
       "Department or unit": "60",
       "End-of_year-BONUS?": "1,62%",
-      concatenated: "Pataballa, ValliProgrammer",
       concatenatedWithSeparator: "Pataballa, Valli-Programmer",
     },
     {
@@ -655,7 +641,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "4200",
       "Department or unit": "60",
       "End-of_year-BONUS?": "13,17%",
-      concatenated: "Lorentz, DianaProgrammer",
       concatenatedWithSeparator: "Lorentz, Diana-Programmer",
     },
     {
@@ -665,7 +650,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "12008",
       "Department or unit": "100",
       "End-of_year-BONUS?": "74,69%",
-      concatenated: "Greenberg, NancyManager",
       concatenatedWithSeparator: "Greenberg, Nancy-Manager",
     },
     {
@@ -675,7 +659,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "9000",
       "Department or unit": "100",
       "End-of_year-BONUS?": "2,92%",
-      concatenated: "Faviet, DanielAccountant",
       concatenatedWithSeparator: "Faviet, Daniel-Accountant",
     },
     {
@@ -685,7 +668,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "8200",
       "Department or unit": "100",
       "End-of_year-BONUS?": "9,31%",
-      concatenated: "Chen, JohnAccountant",
       concatenatedWithSeparator: "Chen, John-Accountant",
     },
     {
@@ -695,7 +677,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "7700",
       "Department or unit": "100",
       "End-of_year-BONUS?": "13,18%",
-      concatenated: "Sciarra, IsmaelAccountant",
       concatenatedWithSeparator: "Sciarra, Ismael-Accountant",
     },
     {
@@ -705,7 +686,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "7800",
       "Department or unit": "100",
       "End-of_year-BONUS?": "1,33%",
-      concatenated: "Urman, Jose ManuelAccountant",
       concatenatedWithSeparator: "Urman, Jose Manuel-Accountant",
     },
     {
@@ -715,7 +695,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "6900",
       "Department or unit": "100",
       "End-of_year-BONUS?": "2,98%",
-      concatenated: "Popp, LuisAccountant",
       concatenatedWithSeparator: "Popp, Luis-Accountant",
     },
     {
@@ -725,7 +704,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "11000",
       "Department or unit": "30",
       "End-of_year-BONUS?": "3,35%",
-      concatenated: "Raphaely, DenManager",
       concatenatedWithSeparator: "Raphaely, Den-Manager",
     },
     {
@@ -735,7 +713,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "3100",
       "Department or unit": "30",
       "End-of_year-BONUS?": "19,81%",
-      concatenated: "Khoo, AlexanderClerk",
       concatenatedWithSeparator: "Khoo, Alexander-Clerk",
     },
     {
@@ -745,7 +722,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "2900",
       "Department or unit": "30",
       "End-of_year-BONUS?": "11,06%",
-      concatenated: "Baida, ShelliClerk",
       concatenatedWithSeparator: "Baida, Shelli-Clerk",
     },
     {
@@ -755,7 +731,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "2800",
       "Department or unit": null,
       "End-of_year-BONUS?": null,
-      concatenated: "Tobias, Sigal",
       concatenatedWithSeparator: "Tobias, Sigal",
     },
     {
@@ -765,7 +740,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "2600",
       "Department or unit": "30",
       "End-of_year-BONUS?": "25,98%",
-      concatenated: "Himuro, GuyClerk",
       concatenatedWithSeparator: "Himuro, Guy-Clerk",
     },
     {
@@ -775,7 +749,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "2500",
       "Department or unit": "30",
       "End-of_year-BONUS?": "15,8%",
-      concatenated: "Colmenares, KarenClerk",
       concatenatedWithSeparator: "Colmenares, Karen-Clerk",
     },
     {
@@ -785,7 +758,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "8000",
       "Department or unit": "50",
       "End-of_year-BONUS?": "25,17%",
-      concatenated: "Weiss, MatthewManager",
       concatenatedWithSeparator: "Weiss, Matthew-Manager",
     },
     {
@@ -795,7 +767,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "8200",
       "Department or unit": "50",
       "End-of_year-BONUS?": "21%",
-      concatenated: "Fripp, AdamManager",
       concatenatedWithSeparator: "Fripp, Adam-Manager",
     },
     {
@@ -805,7 +776,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "7900",
       "Department or unit": null,
       "End-of_year-BONUS?": "21,33%",
-      concatenated: "Kaufling, PayamManager",
       concatenatedWithSeparator: "Kaufling, Payam-Manager",
     },
     {
@@ -815,7 +785,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "6500",
       "Department or unit": "50",
       "End-of_year-BONUS?": "3,45%",
-      concatenated: "Vollman, Shanta",
       concatenatedWithSeparator: "Vollman, Shanta",
     },
     {
@@ -825,7 +794,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "5800",
       "Department or unit": "50",
       "End-of_year-BONUS?": "19,07%",
-      concatenated: "Mourgos, KevinManager",
       concatenatedWithSeparator: "Mourgos, Kevin-Manager",
     },
     {
@@ -835,7 +803,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "3200",
       "Department or unit": "50",
       "End-of_year-BONUS?": "18,7%",
-      concatenated: "Nayer, JuliaClerk",
       concatenatedWithSeparator: "Nayer, Julia-Clerk",
     },
     {
@@ -845,7 +812,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "2700",
       "Department or unit": "50",
       "End-of_year-BONUS?": "11,82%",
-      concatenated: "Mikkilineni, IreneClerk",
       concatenatedWithSeparator: "Mikkilineni, Irene-Clerk",
     },
     {
@@ -855,7 +821,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "2400",
       "Department or unit": "50",
       "End-of_year-BONUS?": null,
-      concatenated: "Landry, JamesClerk",
       concatenatedWithSeparator: "Landry, James-Clerk",
     },
     {
@@ -865,7 +830,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "2200",
       "Department or unit": "50",
       "End-of_year-BONUS?": "11,26%",
-      concatenated: "Markle, StevenClerk",
       concatenatedWithSeparator: "Markle, Steven-Clerk",
     },
     {
@@ -875,7 +839,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "3300",
       "Department or unit": "50",
       "End-of_year-BONUS?": "4,53%",
-      concatenated: "Bissot, Laura",
       concatenatedWithSeparator: "Bissot, Laura",
     },
     {
@@ -885,7 +848,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: null,
       "Department or unit": "50",
       "End-of_year-BONUS?": "9,61%",
-      concatenated: "Atkinson, MozheClerk",
       concatenatedWithSeparator: "Atkinson, Mozhe-Clerk",
     },
     {
@@ -895,7 +857,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "2500",
       "Department or unit": "50",
       "End-of_year-BONUS?": "15,74%",
-      concatenated: "Marlow, JamesClerk",
       concatenatedWithSeparator: "Marlow, James-Clerk",
     },
     {
@@ -905,7 +866,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "2100",
       "Department or unit": null,
       "End-of_year-BONUS?": "22,3%",
-      concatenated: "Olson, TJClerk",
       concatenatedWithSeparator: "Olson, TJ-Clerk",
     },
     {
@@ -915,7 +875,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "3300",
       "Department or unit": "50",
       "End-of_year-BONUS?": "18,54%",
-      concatenated: "Clerk",
       concatenatedWithSeparator: "Clerk",
     },
     {
@@ -925,7 +884,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "2900",
       "Department or unit": "50",
       "End-of_year-BONUS?": null,
-      concatenated: "Rogers, MichaelClerk",
       concatenatedWithSeparator: "Rogers, Michael-Clerk",
     },
     {
@@ -935,7 +893,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "2400",
       "Department or unit": "50",
       "End-of_year-BONUS?": "12,64%",
-      concatenated: "Gee, Ki",
       concatenatedWithSeparator: "Gee, Ki",
     },
     {
@@ -945,7 +902,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "2200",
       "Department or unit": null,
       "End-of_year-BONUS?": "24,17%",
-      concatenated: "Philtanker, HazelClerk",
       concatenatedWithSeparator: "Philtanker, Hazel-Clerk",
     },
     {
@@ -955,7 +911,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "3600",
       "Department or unit": "50",
       "End-of_year-BONUS?": "17,86%",
-      concatenated: "Ladwig, Renske",
       concatenatedWithSeparator: "Ladwig, Renske",
     },
     {
@@ -965,7 +920,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "3200",
       "Department or unit": "50",
       "End-of_year-BONUS?": null,
-      concatenated: "Stiles, StephenClerk",
       concatenatedWithSeparator: "Stiles, Stephen-Clerk",
     },
     {
@@ -975,7 +929,6 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "2700",
       "Department or unit": "50",
       "End-of_year-BONUS?": "0,16%",
-      concatenated: "Seo, JohnClerk",
       concatenatedWithSeparator: "Seo, John-Clerk",
     },
     {
@@ -985,10 +938,8 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
       Salary: "2500",
       "Department or unit": "50",
       "End-of_year-BONUS?": "16,19%",
-      concatenated: "Patel, JoshuaClerk",
       concatenatedWithSeparator: "Patel, Joshua-Clerk",
     },
   ]);
+  await sdb.done();
 });
-
-await sdb.done();

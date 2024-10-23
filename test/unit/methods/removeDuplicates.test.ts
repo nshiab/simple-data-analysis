@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should remove duplicates from a table", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
 
@@ -413,9 +412,11 @@ Deno.test("should remove duplicates from a table", async () => {
       "End-of_year-BONUS?": "17,51%",
     },
   ]);
+  await sdb.done();
 });
 
 Deno.test("should remove duplicates from a table based on a specific column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
 
@@ -531,6 +532,5 @@ Deno.test("should remove duplicates from a table based on a specific column", as
       "End-of_year-BONUS?": "17,51%",
     },
   ]);
+  await sdb.done();
 });
-
-await sdb.done();

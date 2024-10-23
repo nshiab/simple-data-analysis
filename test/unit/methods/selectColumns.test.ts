@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should return one column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
 
@@ -63,8 +62,12 @@ Deno.test("should return one column", async () => {
     { Name: "Seo, John" },
     { Name: "Patel, Joshua" },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should return one column with spaces in its name", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
 
@@ -124,8 +127,12 @@ Deno.test("should return one column with spaces in its name", async () => {
     { "Department or unit": "50" },
     { "Department or unit": "50" },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should return multiple columns", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
 
@@ -185,6 +192,6 @@ Deno.test("should return multiple columns", async () => {
     { Name: "Seo, John", Salary: "2700" },
     { Name: "Patel, Joshua", Salary: "2500" },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

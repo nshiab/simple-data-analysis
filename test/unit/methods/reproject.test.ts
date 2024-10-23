@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should convert from one projection to another one", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadGeoData("test/geodata/files/canada-not-4326.shp.zip");
 
@@ -14,8 +13,10 @@ Deno.test("should convert from one projection to another one", async () => {
   const data = await table.getGeoData();
 
   assertEquals(data, expectedGeo);
+  await sdb.done();
 });
 Deno.test("should convert from one projection to another one and update the projection property", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadGeoData("test/geodata/files/canada-not-4326.shp.zip");
 
@@ -35,8 +36,10 @@ Deno.test("should convert from one projection to another one and update the proj
     },
     new: { geom: "+proj=latlong +datum=WGS84 +no_defs" },
   });
+  await sdb.done();
 });
 Deno.test("should convert from one projection to another one from a specific column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadGeoData("test/geodata/files/canada-not-4326.shp.zip");
 
@@ -47,8 +50,10 @@ Deno.test("should convert from one projection to another one from a specific col
   const data = await table.getGeoData();
 
   assertEquals(data, expectedGeo);
+  await sdb.done();
 });
 Deno.test("should return the same result when converting to EPSG:4326 and WGS84", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadGeoData("test/geodata/files/canada-not-4326.shp.zip");
 
@@ -59,8 +64,10 @@ Deno.test("should return the same result when converting to EPSG:4326 and WGS84"
   const data = await table.getGeoData();
 
   assertEquals(data, expectedGeo);
+  await sdb.done();
 });
 Deno.test("should convert from one projection to another one with a specific original projection", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadGeoData("test/geodata/files/canada-not-4326.shp.zip");
 
@@ -71,8 +78,10 @@ Deno.test("should convert from one projection to another one with a specific ori
   const data = await table.getGeoData();
 
   assertEquals(data, expectedGeo);
+  await sdb.done();
 });
 Deno.test("should be able to reproject multiples times by keeping track of the projection", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadGeoData("test/geodata/files/canada-not-4326.shp.zip");
 
@@ -85,9 +94,8 @@ Deno.test("should be able to reproject multiples times by keeping track of the p
   const data = await table.getGeoData();
 
   assertEquals(data, expectedGeo);
+  await sdb.done();
 });
-
-await sdb.done();
 
 const expectedGeo = {
   type: "FeatureCollection",

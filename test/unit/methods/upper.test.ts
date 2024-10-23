@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should uppercase strings in one column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadArray([{ firstName: "nael", lastName: "shiab" }]);
 
@@ -12,8 +11,11 @@ Deno.test("should uppercase strings in one column", async () => {
   const data = await table.getData();
 
   assertEquals(data, [{ firstName: "NAEL", lastName: "shiab" }]);
+  await sdb.done();
 });
+
 Deno.test("should uppercase strings in two columns", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadArray([{ firstName: "nael", lastName: "shiab" }]);
 
@@ -22,8 +24,11 @@ Deno.test("should uppercase strings in two columns", async () => {
   const data = await table.getData();
 
   assertEquals(data, [{ firstName: "NAEL", lastName: "SHIAB" }]);
+  await sdb.done();
 });
+
 Deno.test("should uppercase strings in two columns with column names containing spaces", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadArray([{ "first Name": "nael", "last Name": "shiab" }]);
 
@@ -34,6 +39,5 @@ Deno.test("should uppercase strings in two columns with column names containing 
   assertEquals(data, [
     { "first Name": "NAEL", "last Name": "SHIAB" },
   ]);
+  await sdb.done();
 });
-
-await sdb.done();

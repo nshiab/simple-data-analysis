@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should return the number of a rows in a table", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.loadArray([
     { name: "Evangeline", age: 21 },
@@ -26,8 +25,11 @@ Deno.test("should return the number of a rows in a table", async () => {
   const length = await table.getNbRows();
 
   assertEquals(length, 16);
+  await sdb.done();
 });
+
 Deno.test("should return the number of a rows in a table with nul values", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.loadArray([
     { name: "Evangeline", age: 21 },
@@ -50,6 +52,5 @@ Deno.test("should return the number of a rows in a table with nul values", async
   const length = await table.getNbRows();
 
   assertEquals(length, 16);
+  await sdb.done();
 });
-
-await sdb.done();

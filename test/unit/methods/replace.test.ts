@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should replace the text in one column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
   await table.cleanColumnNames();
@@ -422,9 +421,11 @@ Deno.test("should replace the text in one column", async () => {
       endOfYearBonus: "16,19",
     },
   ]);
+  await sdb.done();
 });
 
 Deno.test("should replace substings in one column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
   await table.cleanColumnNames();
@@ -843,9 +844,12 @@ Deno.test("should replace substings in one column", async () => {
       endOfYearBonus: "16,19%",
     },
   ]);
+
+  await sdb.done();
 });
 
 Deno.test("should replace entire strings in one column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
   await table.cleanColumnNames();
@@ -1268,9 +1272,11 @@ Deno.test("should replace entire strings in one column", async () => {
       endOfYearBonus: "16,19%",
     },
   ]);
+  await sdb.done();
 });
 
 Deno.test("should replace multiple texts in one column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
   await table.cleanColumnNames();
@@ -1689,9 +1695,11 @@ Deno.test("should replace multiple texts in one column", async () => {
       endOfYearBonus: "16.19",
     },
   ]);
+  await sdb.done();
 });
 
 Deno.test("should replace the text in multiple columns", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
   await table.cleanColumnNames();
@@ -2110,9 +2118,11 @@ Deno.test("should replace the text in multiple columns", async () => {
       endOfYearBonus: "16 => 19%",
     },
   ]);
+  await sdb.done();
 });
 
 Deno.test("should replace multiple texts in multiple columns", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
   await table.cleanColumnNames();
@@ -2534,8 +2544,10 @@ Deno.test("should replace multiple texts in multiple columns", async () => {
       endOfYearBonus: "16.19",
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should work with ' without throwing an error", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
   await table.cleanColumnNames();
@@ -2956,8 +2968,11 @@ Deno.test("should work with ' without throwing an error", async () => {
       endOfYearBonus: "16,19%",
     },
   ]);
+
+  await sdb.done();
 });
 Deno.test("should use a regular expression", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
   await table.cleanColumnNames();
@@ -3376,6 +3391,5 @@ Deno.test("should use a regular expression", async () => {
       endOfYearBonus: "16,19%",
     },
   ]);
+  await sdb.done();
 });
-
-await sdb.done();

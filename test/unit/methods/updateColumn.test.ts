@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should update a column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/cities.csv"]);
   await table.updateColumn("city", `left("city", 3)`);
@@ -15,8 +14,12 @@ Deno.test("should update a column", async () => {
     { id: 6158355, city: "TOR" },
     { id: 7024745, city: "MON" },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should update a column with a space in its name", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/employees.csv");
   await table.updateColumn(
@@ -53,6 +56,6 @@ Deno.test("should update a column with a space in its name", async () => {
       "End-of_year-BONUS?": "23,39%",
     },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

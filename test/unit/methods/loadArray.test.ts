@@ -2,9 +2,8 @@ import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import SimpleTable from "../../../src/class/SimpleTable.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should load an array of objects into a table", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadArray([
     {
@@ -51,8 +50,12 @@ Deno.test("should load an array of objects into a table", async () => {
       key4: false,
     },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should load an array of objects into a table and return the table", async () => {
+  const sdb = new SimpleDB();
   const table = await sdb.newTable().loadArray([
     {
       key1: 1,
@@ -81,8 +84,11 @@ Deno.test("should load an array of objects into a table and return the table", a
   ]);
 
   assertEquals(table instanceof SimpleTable, true);
+  await sdb.done();
 });
+
 Deno.test("should load an array of objects into a table with spaces in column names", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadArray([
     {
@@ -123,6 +129,6 @@ Deno.test("should load an array of objects into a table with spaces in column na
       "column 2": "quatre",
     },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should change the name of one column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/data.json"]);
 
@@ -18,9 +17,12 @@ Deno.test("should change the name of one column", async () => {
     { A: 3, key2: "trois" },
     { A: 4, key2: "quatre" },
   ]);
+
+  await sdb.done();
 });
 
 Deno.test("should change the name of multiple columns", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/data.json"]);
 
@@ -36,6 +38,6 @@ Deno.test("should change the name of multiple columns", async () => {
     { A: 3, B: "trois" },
     { A: 4, B: "quatre" },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

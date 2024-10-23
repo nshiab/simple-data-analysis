@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should compute the union of geometries", async () => {
+  const sdb = new SimpleDB();
   const poly = sdb.newTable();
   await poly.loadGeoData("test/geodata/files/polygonsGroups.json");
   await poly.renameColumns({ geom: "polygons" });
@@ -247,8 +246,10 @@ Deno.test("should compute the union of geometries", async () => {
       },
     ],
   });
+  await sdb.done();
 });
 Deno.test("should compute the union of geometries and add a projection", async () => {
+  const sdb = new SimpleDB();
   const poly = sdb.newTable();
   await poly.loadGeoData("test/geodata/files/polygonsGroups.json");
   await poly.renameColumns({ geom: "polygons" });
@@ -268,6 +269,5 @@ Deno.test("should compute the union of geometries and add a projection", async (
     circle: "+proj=latlong +datum=WGS84 +no_defs",
     result: "+proj=latlong +datum=WGS84 +no_defs",
   });
+  await sdb.done();
 });
-
-await sdb.done();

@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should log a dot chart", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
 
   const data = [
@@ -15,8 +14,11 @@ Deno.test("should log a dot chart", async () => {
 
   // How to test?
   assertEquals(true, true);
+  await sdb.done();
 });
+
 Deno.test("should log a dot chart with options", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
 
   const data = [
@@ -31,6 +33,5 @@ Deno.test("should log a dot chart with options", async () => {
 
   // How to test?
   assertEquals(true, true);
+  await sdb.done();
 });
-
-await sdb.done();

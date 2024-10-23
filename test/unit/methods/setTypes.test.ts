@@ -1,15 +1,17 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should create a new SimpleTable with types", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.setTypes({ name: "string", age: "number" });
   const types = await table.getTypes();
   assertEquals(types, { name: "VARCHAR", age: "DOUBLE" });
+  await sdb.done();
 });
-Deno.test("should create a new SimpleTable with geometrye in types", async () => {
+
+Deno.test("should create a new SimpleTable with geometry in types", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.setTypes({
     name: "string",
@@ -21,6 +23,5 @@ Deno.test("should create a new SimpleTable with geometrye in types", async () =>
     { name: "VARCHAR", age: "DOUBLE", city: "GEOMETRY" },
     types,
   );
+  await sdb.done();
 });
-
-await sdb.done();

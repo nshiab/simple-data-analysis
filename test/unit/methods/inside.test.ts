@@ -1,9 +1,9 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should check if geometries are inside other geometries", async () => {
+  const sdb = new SimpleDB();
+
   const points = sdb.newTable("points");
   await points.loadGeoData("test/geodata/files/pointsInside.json");
   await points.renameColumns({
@@ -31,6 +31,6 @@ Deno.test("should check if geometries are inside other geometries", async () => 
     { points: "pointC", polygon: "container", isInside: true },
     { points: "pointD", polygon: "container", isInside: true },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

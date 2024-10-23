@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should return the bottom 3", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.loadData("test/data/files/employees.csv");
   const data = await table.getBottom(3);
@@ -33,8 +32,11 @@ Deno.test("should return the bottom 3", async () => {
       "End-of_year-BONUS?": null,
     },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should return the bottom 3 with the original order", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.loadData("test/data/files/employees.csv");
   const data = await table.getBottom(3, {
@@ -66,8 +68,11 @@ Deno.test("should return the bottom 3 with the original order", async () => {
       "End-of_year-BONUS?": "16,19%",
     },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should return the bottom 3 with a condition", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.loadData("test/data/files/employees.csv");
   const data = await table.getBottom(3, {
@@ -99,8 +104,11 @@ Deno.test("should return the bottom 3 with a condition", async () => {
       "End-of_year-BONUS?": "6,89%",
     },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should return the bottom 3 with a condition with original order", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.loadData("test/data/files/employees.csv");
   const data = await table.getBottom(3, {
@@ -134,6 +142,5 @@ Deno.test("should return the bottom 3 with a condition with original order", asy
       "End-of_year-BONUS?": "13,17%",
     },
   ]);
+  await sdb.done();
 });
-
-await sdb.done();

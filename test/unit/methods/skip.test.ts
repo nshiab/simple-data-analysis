@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should skip rows", async () => {
+  const sdb = new SimpleDB();
   const table = await sdb
     .newTable()
     .loadArray([
@@ -14,6 +13,5 @@ Deno.test("should skip rows", async () => {
   await table.skip(1);
   const data = await table.getData();
   assertEquals(data, [{ first: "Graeme" }, { first: "Andrew" }]);
+  await sdb.done();
 });
-
-await sdb.done();
