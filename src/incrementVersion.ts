@@ -20,6 +20,7 @@ const args = process.argv.slice(2);
 const [incrementType] = args;
 const filePath = "deno.json";
 const data = JSON.parse(readFileSync(filePath, "utf-8"));
+console.log(`\nCurrent version is ${data.version}`);
 const versionParts = data.version.split(".").map((d: string) => parseInt(d));
 
 if (incrementType === "major") {
