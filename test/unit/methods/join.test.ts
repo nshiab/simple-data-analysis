@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should put the result of an inner join into a new table", async () => {
+  const sdb = new SimpleDB();
   const dishes = sdb.newTable("dishes");
   await dishes.loadData("test/data/joins/dishes.csv");
   const categories = sdb.newTable("categories");
@@ -32,8 +31,12 @@ Deno.test("should put the result of an inner join into a new table", async () =>
       category: "Dessert",
     },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should put the result of a left join into a new table", async () => {
+  const sdb = new SimpleDB();
   const dishes = sdb.newTable("dishes");
   await dishes.loadData("test/data/joins/dishes.csv");
   const categories = sdb.newTable("categories");
@@ -69,8 +72,12 @@ Deno.test("should put the result of a left join into a new table", async () => {
     },
     { dishId: 5, name: "Mochi", country: "Japan", category: null },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should put the result of a right join into a new table", async () => {
+  const sdb = new SimpleDB();
   const dishes = sdb.newTable("dishes");
   await dishes.loadData("test/data/joins/dishes.csv");
   const categories = sdb.newTable("categories");
@@ -102,8 +109,12 @@ Deno.test("should put the result of a right join into a new table", async () => 
     { dishId: null, name: null, country: null, category: "Main" },
     { dishId: null, name: null, country: null, category: "Dessert" },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should put the result of a full join into a new table", async () => {
+  const sdb = new SimpleDB();
   const dishes = sdb.newTable("dishes");
   await dishes.loadData("test/data/joins/dishes.csv");
   const categories = sdb.newTable("categories");
@@ -142,8 +153,12 @@ Deno.test("should put the result of a full join into a new table", async () => {
       category: null,
     },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should put the result of a full join into a new table with a specific name in the DB", async () => {
+  const sdb = new SimpleDB();
   const dishes = sdb.newTable("dishes");
   await dishes.loadData("test/data/joins/dishes.csv");
   const categories = sdb.newTable("categories");
@@ -184,8 +199,12 @@ Deno.test("should put the result of a full join into a new table with a specific
       category: null,
     },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should automatically find a common column, make left join and put the result into leftTable", async () => {
+  const sdb = new SimpleDB();
   const dishes = sdb.newTable("dishes");
   await dishes.loadData("test/data/joins/dishes.csv");
   const categories = sdb.newTable("categories");
@@ -217,8 +236,12 @@ Deno.test("should automatically find a common column, make left join and put the
     },
     { dishId: 5, name: "Mochi", country: "Japan", category: null },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should keep all projections", async () => {
+  const sdb = new SimpleDB();
   const dishes = sdb.newTable("dishes");
   await dishes.loadData("test/data/joins/dishes.csv");
   const categories = sdb.newTable("categories");
@@ -232,15 +255,17 @@ Deno.test("should keep all projections", async () => {
   assertEquals(dishes.projections, {
     points: "+proj=latlong +datum=WGS84 +no_defs",
   });
+
+  await sdb.done();
 });
+
 Deno.test("should join on multiple columns", async () => {
+  const sdb = new SimpleDB();
   const dishes = sdb.newTable("normals");
   await dishes.loadData("test/data/joins/normals.csv");
   const categories = sdb.newTable("projections");
   await categories.loadData("test/data/joins/projections.csv");
   await dishes.join(categories, { commonColumn: ["city", "season"] });
 
-  await dishes.logTable();
+  await sdb.done();
 });
-
-await sdb.done();

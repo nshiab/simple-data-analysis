@@ -4,9 +4,8 @@ import SimpleDB from "../../../src/class/SimpleDB.ts";
 
 const output = "./test/output/";
 
-const sdb = new SimpleDB();
-
 Deno.test("should write a geojson file", async () => {
+  const sdb = new SimpleDB();
   const originalFile = "test/geodata/files/polygons.geojson";
 
   const table = sdb.newTable();
@@ -19,8 +18,11 @@ Deno.test("should write a geojson file", async () => {
   );
 
   assertEquals(writtenData, originalData);
+  await sdb.done();
 });
+
 Deno.test("should write a geojson file and create the path if it doesn't exist", async () => {
+  const sdb = new SimpleDB();
   const originalFile = "test/geodata/files/polygons.geojson";
 
   const table = sdb.newTable();
@@ -33,8 +35,11 @@ Deno.test("should write a geojson file and create the path if it doesn't exist",
   );
 
   assertEquals(writtenData, originalData);
+  await sdb.done();
 });
+
 Deno.test("should write geojson file that has been converted to WGS84", async () => {
+  const sdb = new SimpleDB();
   const originalFile = "test/geodata/files/canada-not-4326.shp.zip";
 
   const table = sdb.newTable();
@@ -47,8 +52,11 @@ Deno.test("should write geojson file that has been converted to WGS84", async ()
   );
 
   assertEquals(writtenData, canada);
+  await sdb.done();
 });
+
 Deno.test("should write geojson file that has been manually converted to WGS84", async () => {
+  const sdb = new SimpleDB();
   const originalFile = "test/geodata/files/canada-not-4326.shp.zip";
 
   const table = sdb.newTable();
@@ -63,11 +71,13 @@ Deno.test("should write geojson file that has been manually converted to WGS84",
   );
 
   assertEquals(writtenData, canada);
+  await sdb.done();
 });
 
 Deno.test("should write geojson file with coordinates rounded to 3 decimals", async () => {
   const originalFile = "test/geodata/files/polygons.geojson";
 
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadGeoData(originalFile);
   await table.writeGeoData(`${output}dataPrecision.geojson`, {
@@ -117,9 +127,9 @@ Deno.test("should write geojson file with coordinates rounded to 3 decimals", as
       },
     ],
   });
-});
 
-await sdb.done();
+  await sdb.done();
+});
 
 const canada = {
   type: "FeatureCollection",

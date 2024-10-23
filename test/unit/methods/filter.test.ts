@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should filter the rows based on one condition", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.loadData(["test/data/files/employees.csv"]);
 
@@ -172,8 +171,10 @@ Deno.test("should filter the rows based on one condition", async () => {
       "End-of_year-BONUS?": "16,19%",
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should filter the rows based on multiple conditions", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.loadData(["test/data/files/employees.csv"]);
   await table.filter(`"Job" = 'Clerk' AND "Department or unit" != '50'`);
@@ -229,8 +230,10 @@ Deno.test("should filter the rows based on multiple conditions", async () => {
       "End-of_year-BONUS?": "24,17%",
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should filter the rows based on booleans", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.loadArray([
     { name: "Nael", value: true },
@@ -240,6 +243,5 @@ Deno.test("should filter the rows based on booleans", async () => {
   const data = await table.getData();
 
   assertEquals(data, [{ name: "Nael", value: true }]);
+  await sdb.done();
 });
-
-await sdb.done();

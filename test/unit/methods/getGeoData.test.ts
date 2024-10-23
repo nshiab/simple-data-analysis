@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should find the column with geometries and return geospatial data as a geojson", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("geoData");
   await table.loadGeoData("test/geodata/files/polygons.geojson");
   await table.renameColumns({ geom: "newGeom" });
@@ -48,8 +47,12 @@ Deno.test("should find the column with geometries and return geospatial data as 
       },
     ],
   });
+
+  await sdb.done();
 });
+
 Deno.test("should return geospatial data as a geojson with a specific geometry column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("geoData");
   await table.loadGeoData("test/geodata/files/polygons.geojson");
   await table.renameColumns({ geom: "newGeom" });
@@ -94,6 +97,6 @@ Deno.test("should return geospatial data as a geojson with a specific geometry c
       },
     ],
   });
-});
 
-await sdb.done();
+  await sdb.done();
+});

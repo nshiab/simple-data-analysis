@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should add an outliers column based on the IQR method with an even number of rows", async () => {
+  const sdb = new SimpleDB();
   // comparing against https://dataschool.com/how-to-teach-people-sql/how-to-find-outliers-with-sql/
 
   const table = sdb.newTable();
@@ -51,8 +50,12 @@ Deno.test("should add an outliers column based on the IQR method with an even nu
     { name: "Jeremy", age: 34, ageOutliers: false },
     { name: "Claudia", age: 35, ageOutliers: false },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should add an outliers column based on the IQR method with an even number of rows", async () => {
+  const sdb = new SimpleDB();
   // comparing against https://dataschool.com/how-to-teach-people-sql/how-to-find-outliers-with-sql/
 
   const table = sdb.newTable();
@@ -102,8 +105,12 @@ Deno.test("should add an outliers column based on the IQR method with an even nu
     { name: "Jeremy", age: 34, ageOutliers: false },
     { name: "Claudia", age: 35, ageOutliers: false },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should add an outliers column based on the IQR method with an even number of rows and with a category", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadArray([
     { name: "Chloe", age: 33, gender: "Woman" },
@@ -153,6 +160,6 @@ Deno.test("should add an outliers column based on the IQR method with an even nu
     { name: "Morgan", age: 33, gender: "Woman", ageOutliers: false },
     { name: "Claudia", age: 35, gender: "Woman", ageOutliers: false },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

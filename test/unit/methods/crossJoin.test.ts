@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should return all pairs of rows", async () => {
+  const sdb = new SimpleDB();
   const numbers = sdb.newTable("numbers");
   await numbers.loadArray([
     { key1: 1 },
@@ -38,8 +37,11 @@ Deno.test("should return all pairs of rows", async () => {
     { key1: 4, key2: "c" },
     { key1: 4, key2: "d" },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should return all pairs of rows in a new table", async () => {
+  const sdb = new SimpleDB();
   const numbers = sdb.newTable("numbers");
   await numbers.loadArray([
     { key1: 1 },
@@ -76,8 +78,11 @@ Deno.test("should return all pairs of rows in a new table", async () => {
     { key1: 4, key2: "c" },
     { key1: 4, key2: "d" },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should return all pairs of rows in a new table with a specific name", async () => {
+  const sdb = new SimpleDB();
   const numbers = sdb.newTable("numbers");
   await numbers.loadArray([
     { key1: 1 },
@@ -114,8 +119,11 @@ Deno.test("should return all pairs of rows in a new table with a specific name",
     { key1: 4, key2: "c" },
     { key1: 4, key2: "d" },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should return all pairs of rows and all projections", async () => {
+  const sdb = new SimpleDB();
   const point = await sdb
     .newTable()
     .loadGeoData("test/geodata/files/point.json");
@@ -130,6 +138,6 @@ Deno.test("should return all pairs of rows and all projections", async () => {
     geom: "+proj=latlong +datum=WGS84 +no_defs",
     line: "+proj=latlong +datum=WGS84 +no_defs",
   });
-});
 
-await sdb.done();
+  await sdb.done();
+});

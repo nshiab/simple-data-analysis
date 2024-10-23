@@ -7,8 +7,6 @@ if (!existsSync(output)) {
   mkdirSync(output);
 }
 
-const sdb = new SimpleDB();
-
 const expectedData = [
   { key1: "1", key2: "2" },
   { key1: "3", key2: "coucou" },
@@ -17,6 +15,7 @@ const expectedData = [
 ];
 
 Deno.test("should write a csv file", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/data.csv");
   await table.writeData(`${output}test.csv`);
@@ -27,8 +26,11 @@ Deno.test("should write a csv file", async () => {
   const data = await table.getData();
 
   assertEquals(data, expectedData);
+  await sdb.done();
 });
+
 Deno.test("should write a csv file and create the path if it doesn't exist", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/data.csv");
   await table.writeData(`${output}subfolderData/test.csv`);
@@ -39,8 +41,11 @@ Deno.test("should write a csv file and create the path if it doesn't exist", asy
   const data = await table.getData();
 
   assertEquals(data, expectedData);
+  await sdb.done();
 });
+
 Deno.test("should write a compressed csv file", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/data.csv");
   await table.writeData(`${output}test.csv`, {
@@ -53,8 +58,11 @@ Deno.test("should write a compressed csv file", async () => {
   const data = await tableCheck.getData();
 
   assertEquals(data, expectedData);
+  await sdb.done();
 });
+
 Deno.test("should write a json file", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/data.csv");
   await table.writeData(`${output}test.json`);
@@ -65,8 +73,11 @@ Deno.test("should write a json file", async () => {
   const data = await tableCheck.getData();
 
   assertEquals(data, expectedData);
+  await sdb.done();
 });
+
 Deno.test("should write a compressed json file", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/data.csv");
   await table.writeData(`${output}test.json`, {
@@ -79,8 +90,11 @@ Deno.test("should write a compressed json file", async () => {
   const data = await tableCheck.getData();
 
   assertEquals(data, expectedData);
+  await sdb.done();
 });
+
 Deno.test("should write a parquet file", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/data.csv");
   await table.writeData(`${output}test.parquet`);
@@ -91,8 +105,11 @@ Deno.test("should write a parquet file", async () => {
   const data = await tableCheck.getData();
 
   assertEquals(data, expectedData);
+  await sdb.done();
 });
+
 Deno.test("should write a compressed parquet file", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/data.csv");
   await table.writeData(`${output}testCompressed.parquet`, {
@@ -105,8 +122,11 @@ Deno.test("should write a compressed parquet file", async () => {
   const data = await tableCheck.getData();
 
   assertEquals(data, expectedData);
+  await sdb.done();
 });
+
 Deno.test("should write a file at the root", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/data.csv");
   await table.writeData(`testRoot.csv`);
@@ -117,8 +137,11 @@ Deno.test("should write a file at the root", async () => {
   const data = await tableCheck.getData();
 
   assertEquals(data, expectedData);
+  await sdb.done();
 });
+
 Deno.test("should write data as arrays", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/data.csv");
   await table.writeData(`${output}testRootArrays.json`, {
@@ -134,6 +157,5 @@ Deno.test("should write data as arrays", async () => {
     key1: ["1", "3", "8", "brioche"],
     key2: ["2", "coucou", "10", "croissant"],
   });
+  await sdb.done();
 });
-
-await sdb.done();

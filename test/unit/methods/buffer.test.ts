@@ -1,15 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
-import { existsSync, mkdirSync } from "node:fs";
-
-const output = "./test/output/";
-if (!existsSync(output)) {
-  mkdirSync(output);
-}
-
-const sdb = new SimpleDB();
 
 Deno.test("should create a buffer from points", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("geodata");
   await table.loadGeoData("test/geodata/files/point.json");
   await table.buffer("buffer", 1);
@@ -66,8 +59,10 @@ Deno.test("should create a buffer from points", async () => {
       },
     ],
   });
+  await sdb.done();
 });
 Deno.test("should create a buffer from points and create a new projection", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("geodata");
   await table.loadGeoData("test/geodata/files/point.json");
   await table.buffer("buffer", 1);
@@ -76,8 +71,10 @@ Deno.test("should create a buffer from points and create a new projection", asyn
     geom: "+proj=latlong +datum=WGS84 +no_defs",
     buffer: "+proj=latlong +datum=WGS84 +no_defs",
   });
+  await sdb.done();
 });
 Deno.test("should create a buffer from points in a specific column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("geodata");
   await table.loadGeoData("test/geodata/files/point.json");
   await table.buffer("buffer", 1, { column: "geom" });
@@ -134,8 +131,10 @@ Deno.test("should create a buffer from points in a specific column", async () =>
       },
     ],
   });
+  await sdb.done();
 });
 Deno.test("should create a buffer from polygons", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("geodata");
   await table.loadGeoData("test/geodata/files/canada-not-4326.shp.zip");
   await table.buffer("buffer", 100_000);
@@ -2573,6 +2572,5 @@ Deno.test("should create a buffer from polygons", async () => {
       },
     ],
   });
+  await sdb.done();
 });
-
-await sdb.done();

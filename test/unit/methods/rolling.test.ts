@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should compute a rolling average with 3 preceding and 3 following", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadArray([
     { value: 52 },
@@ -34,8 +33,12 @@ Deno.test("should compute a rolling average with 3 preceding and 3 following", a
     { value: 83, rollingAvg: null },
     { value: 41, rollingAvg: null },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should compute a rolling average with 3 preceding and 3 following, and 4 decimals", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadArray([
     { value: 52 },
@@ -68,8 +71,12 @@ Deno.test("should compute a rolling average with 3 preceding and 3 following, an
     { value: 83, rollingAvg: null },
     { value: 41, rollingAvg: null },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should compute a rolling max with 0 preceding and 3 following", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadArray([
     { value: 52 },
@@ -100,8 +107,12 @@ Deno.test("should compute a rolling max with 0 preceding and 3 following", async
     { value: 83, rollingMax: null },
     { value: 41, rollingMax: null },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should compute a rolling max with 0 preceding and 3 following, and a category", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadArray([
     { index: 1, groups: "a", value: 52 },
@@ -134,6 +145,6 @@ Deno.test("should compute a rolling max with 0 preceding and 3 following, and a 
     { index: 9, groups: "b", value: 83, rollingMax: null },
     { index: 10, groups: "b", value: 41, rollingMax: null },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

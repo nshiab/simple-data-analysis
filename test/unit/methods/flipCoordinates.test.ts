@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should flip the coordinates", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("geoData");
   await table.loadGeoData("test/geodata/files/point.json");
   await table.flipCoordinates();
@@ -15,8 +14,11 @@ Deno.test("should flip the coordinates", async () => {
   assertEquals(data, [
     { geomText: "POINT (-73.62315106245389 45.51412791316409)" },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should flip the coordinates from a specific column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("geoData");
   await table.loadGeoData("test/geodata/files/point.json");
   await table.flipCoordinates("geom");
@@ -28,6 +30,5 @@ Deno.test("should flip the coordinates from a specific column", async () => {
   assertEquals(data, [
     { geomText: "POINT (-73.62315106245389 45.51412791316409)" },
   ]);
+  await sdb.done();
 });
-
-await sdb.done();

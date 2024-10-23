@@ -12,11 +12,9 @@ if (existsSync("./.sda-cache")) {
   rmSync("./.sda-cache", { recursive: true });
 }
 
-const sdb = new SimpleDB({ cacheVerbose: true });
-const table = sdb.newTable();
-const tableGeo = sdb.newTable();
-
 Deno.test("should cache computed values for tabular data", async () => {
+  const sdb = new SimpleDB({ cacheVerbose: true });
+  const table = sdb.newTable();
   await table.cache(async () => {
     await table.loadData("test/data/files/dataSummarize.json");
     await table.summarize({
@@ -41,8 +39,11 @@ Deno.test("should cache computed values for tabular data", async () => {
       var: 95.3333,
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should load data from the cache instead of running computations", async () => {
+  const sdb = new SimpleDB({ cacheVerbose: true });
+  const table = sdb.newTable();
   await table.cache(async () => {
     await table.loadData("test/data/files/dataSummarize.json");
     await table.summarize({
@@ -67,8 +68,11 @@ Deno.test("should load data from the cache instead of running computations", asy
       var: 95.3333,
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should load data from the cache if ttl has not expired", async () => {
+  const sdb = new SimpleDB({ cacheVerbose: true });
+  const table = sdb.newTable();
   await table.cache(
     async () => {
       await table.loadData("test/data/files/dataSummarize.json");
@@ -96,8 +100,11 @@ Deno.test("should load data from the cache if ttl has not expired", async () => 
       var: 95.3333,
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should not load data from the cache if ttl has expired", async () => {
+  const sdb = new SimpleDB({ cacheVerbose: true });
+  const table = sdb.newTable();
   await table.cache(
     async () => {
       await table.loadData("test/data/files/dataSummarize.json");
@@ -125,8 +132,11 @@ Deno.test("should not load data from the cache if ttl has expired", async () => 
       var: 95.3333,
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should cache computed values for geospatial data", async () => {
+  const sdb = new SimpleDB({ cacheVerbose: true });
+  const tableGeo = sdb.newTable("geodata");
   await tableGeo.cache(async () => {
     await tableGeo.loadGeoData("test/geodata/files/pointsInside.json");
     await tableGeo.renameColumns({ geom: "points" });
@@ -158,8 +168,12 @@ Deno.test("should cache computed values for geospatial data", async () => {
       lon: -72.2926406368759,
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should load geospatial data from the cache instead of running computations", async () => {
+  const sdb = new SimpleDB({ cacheVerbose: true });
+  const tableGeo = sdb.newTable("geodata");
+
   await tableGeo.cache(async () => {
     await tableGeo.loadGeoData("test/geodata/files/pointsInside.json");
     await tableGeo.renameColumns({ geom: "points" });
@@ -191,8 +205,11 @@ Deno.test("should load geospatial data from the cache instead of running computa
       lon: -72.2926406368759,
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should not load data from the cache if ttl has expired", async () => {
+  const sdb = new SimpleDB({ cacheVerbose: true });
+  const tableGeo = sdb.newTable("geodata");
   await tableGeo.cache(
     async () => {
       await tableGeo.loadGeoData(
@@ -229,8 +246,23 @@ Deno.test("should not load data from the cache if ttl has expired", async () => 
       lon: -72.2926406368759,
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should clean the cache when calling done", async () => {
+  if (existsSync("./.sda-cache")) {
+    rmSync("./.sda-cache", { recursive: true });
+  }
+
+  const sdb = new SimpleDB({ cacheVerbose: true });
+  const table = sdb.newTable();
+  await table.cache(async () => {
+    await table.loadData("test/data/files/dataSummarize.json");
+    await table.summarize({
+      values: "key2",
+      decimals: 4,
+    });
+  });
+
   // We create a fake cached file.
 
   const cacheSources = JSON.parse(
@@ -257,13 +289,11 @@ Deno.test("should clean the cache when calling done", async () => {
     {
       cacheSourcesIdsUpdated: [
         "table1.ba119b25f1a06cb34dc4b98b9f63af6777498ad0430df7fb558587e23262356c",
-        "table2.e44bdaecaa9e4a7b6ee17b31185881e5958bd8793ec0d03348b79c829d4a0ff4",
       ],
       files: [
         "sources.json",
-        "table2.e44bdaecaa9e4a7b6ee17b31185881e5958bd8793ec0d03348b79c829d4a0ff4.geojson",
         "table1.ba119b25f1a06cb34dc4b98b9f63af6777498ad0430df7fb558587e23262356c.parquet",
-      ].sort((a, b) => a > b ? 1 : -1),
+      ],
     },
   );
 });

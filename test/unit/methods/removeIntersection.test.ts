@@ -1,9 +1,9 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should remove the small circle from the big circle", async () => {
+  const sdb = new SimpleDB();
+
   const smallCircle = sdb.newTable();
   await smallCircle.loadGeoData("test/geodata/files/smallCircle.json");
   await smallCircle.renameColumns({ geom: "geomSmall" });
@@ -171,8 +171,10 @@ Deno.test("should remove the small circle from the big circle", async () => {
       },
     ],
   });
+  await sdb.done();
 });
 Deno.test("should remove the small circle from the big circle, put the result in a new column and add a projection", async () => {
+  const sdb = new SimpleDB();
   const smallCircle = sdb.newTable();
   await smallCircle.loadGeoData("test/geodata/files/smallCircle.json");
   await smallCircle.renameColumns({ geom: "geomSmall" });
@@ -194,6 +196,6 @@ Deno.test("should remove the small circle from the big circle, put the result in
     geomBig: "+proj=latlong +datum=WGS84 +no_defs",
     bigCircleWithHole: "+proj=latlong +datum=WGS84 +no_defs",
   });
-});
 
-await sdb.done();
+  await sdb.done();
+});

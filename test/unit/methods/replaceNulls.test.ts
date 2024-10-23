@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should replace null values in one column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadArray([
     { keyA: 1 },
@@ -21,9 +20,12 @@ Deno.test("should replace null values in one column", async () => {
     { keyA: 3 },
     { keyA: 0 },
   ]);
+
+  await sdb.done();
 });
 
 Deno.test("should replace null values in multiple columns", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadArray([
     { keyA: 1, keyB: 1 },
@@ -41,6 +43,6 @@ Deno.test("should replace null values in multiple columns", async () => {
     { keyA: 3, keyB: 0 },
     { keyA: 0, keyB: 4 },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

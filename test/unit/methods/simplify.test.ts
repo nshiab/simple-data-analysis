@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should simplify the geometries", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -1029,8 +1028,10 @@ Deno.test("should simplify the geometries", async () => {
       },
     ],
   });
+  await sdb.done();
 });
 Deno.test("should simplify the geometries from a specific column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -2056,6 +2057,6 @@ Deno.test("should simplify the geometries from a specific column", async () => {
       },
     ],
   });
-});
 
-await sdb.done();
+  await sdb.done();
+});

@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should round to the nearest integer", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/dataManyDecimals.csv"]);
   await table.selectColumns(["key1"]);
@@ -18,8 +17,12 @@ Deno.test("should round to the nearest integer", async () => {
     { key1: 8 },
     { key1: 10 },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should round to a specific number of decimals", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/dataManyDecimals.csv"]);
   await table.selectColumns(["key1"]);
@@ -34,8 +37,12 @@ Deno.test("should round to a specific number of decimals", async () => {
     { key1: 8.1 },
     { key1: 10 },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should floor", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/dataManyDecimals.csv"]);
   await table.selectColumns(["key1"]);
@@ -51,8 +58,12 @@ Deno.test("should floor", async () => {
     { key1: 8 },
     { key1: 10 },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should ceil", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/dataManyDecimals.csv"]);
   await table.selectColumns(["key1"]);
@@ -67,8 +78,12 @@ Deno.test("should ceil", async () => {
     { key1: 9 },
     { key1: 10 },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should round multiple columns", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/dataManyDecimals.csv"]);
   await table.round(["key1", "key2"], {
@@ -82,6 +97,6 @@ Deno.test("should round multiple columns", async () => {
     { key1: 8.1, key2: 34.5 },
     { key1: 10, key2: 100 },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

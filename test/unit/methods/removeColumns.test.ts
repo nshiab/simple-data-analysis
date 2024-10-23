@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should remove one column with spaces", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/employees.csv");
 
@@ -369,8 +368,10 @@ Deno.test("should remove one column with spaces", async () => {
       "End-of_year-BONUS?": "16,19%",
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should remove one column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/employees.csv");
   await table.cleanColumnNames();
@@ -737,9 +738,11 @@ Deno.test("should remove one column", async () => {
       endOfYearBonus: "16,19%",
     },
   ]);
+  await sdb.done();
 });
 
 Deno.test("should remove multiple columns", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/employees.csv");
   await table.cleanColumnNames();
@@ -1054,8 +1057,10 @@ Deno.test("should remove multiple columns", async () => {
       endOfYearBonus: "16,19%",
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should remove a column with geometry and its projection", async () => {
+  const sdb = new SimpleDB();
   const geo = sdb.newTable("geo");
   await geo.loadGeoData("test/geodata/files/polygons.geojson");
 
@@ -1065,6 +1070,5 @@ Deno.test("should remove a column with geometry and its projection", async () =>
   assertEquals(geo.projections, {
     centroid: "+proj=latlong +datum=WGS84 +no_defs",
   });
+  await sdb.done();
 });
-
-await sdb.done();

@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should update the data from the table with a javascript function and reinsert it into the table", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/employees.json");
   await table.updateWithJS((rows) => {
@@ -69,8 +68,12 @@ Deno.test("should update the data from the table with a javascript function and 
     { Name: "Seo," },
     { Name: "Pate" },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should update the data from the table with an async javascript function and reinsert it into the table", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/employees.json");
   await table.updateWithJS((rows) => {
@@ -136,6 +139,6 @@ Deno.test("should update the data from the table with an async javascript functi
     { Name: "Seo," },
     { Name: "Pate" },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

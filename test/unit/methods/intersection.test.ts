@@ -1,9 +1,9 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should compute the intersection of geometries", async () => {
+  const sdb = new SimpleDB();
+
   const prov = sdb.newTable("prov");
   await prov.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -93,8 +93,13 @@ Deno.test("should compute the intersection of geometries", async () => {
     },
     { nameEnglish: "Nunavut", name: "polygonB", intersecPerc: 0.0366 },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should compute the intersection of geometries and add a projection", async () => {
+  const sdb = new SimpleDB();
+
   const prov = sdb.newTable("prov");
   await prov.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -113,6 +118,6 @@ Deno.test("should compute the intersection of geometries and add a projection", 
     pol: "+proj=latlong +datum=WGS84 +no_defs",
     intersec: "+proj=latlong +datum=WGS84 +no_defs",
   });
-});
 
-await sdb.done();
+  await sdb.done();
+});

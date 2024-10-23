@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should keep only specific rows", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
   await table.cleanColumnNames();
@@ -160,8 +159,10 @@ Deno.test("should keep only specific rows", async () => {
       endOfYearBonus: "15,8%",
     },
   ]);
+  await sdb.done();
 });
 Deno.test("should keep only specific rows even with spaces in column names", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/employees.csv"]);
 
@@ -317,6 +318,5 @@ Deno.test("should keep only specific rows even with spaces in column names", asy
       "End-of_year-BONUS?": "15,8%",
     },
   ]);
+  await sdb.done();
 });
-
-await sdb.done();

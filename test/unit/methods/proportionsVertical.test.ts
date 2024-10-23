@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should return the vertical proportions in a new column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/dataSummarize.json"]);
   await table.proportionsVertical("key2", "key2Perc");
@@ -47,8 +46,11 @@ Deno.test("should return the vertical proportions in a new column", async () => 
       key2Perc: null,
     },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should return the vertical proportions in a new column and a specific number of decimals", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/dataSummarize.json"]);
   await table.proportionsVertical("key2", "key2Prop", {
@@ -74,8 +76,11 @@ Deno.test("should return the vertical proportions in a new column and a specific
       key2Prop: null,
     },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should return the vertical proportions in a new column with a category", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/dataSummarize.json"]);
   await table.proportionsVertical("key2", "key2Perc", {
@@ -125,9 +130,11 @@ Deno.test("should return the vertical proportions in a new column with a categor
       key2Perc: 0.6666666666666666,
     },
   ]);
+  await sdb.done();
 });
 
 Deno.test("should return the vertical proportions in a new column with multiple categories", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData(["test/data/files/dataSummarize.json"]);
   await table.proportionsVertical("key3", "key3Perc", {
@@ -158,6 +165,5 @@ Deno.test("should return the vertical proportions in a new column with multiple 
     { key1: "Rubarbe", key2: 1, key3: 10.5, key3Perc: 1 },
     { key1: "Rubarbe", key2: 2, key3: 4.5657, key3Perc: 1 },
   ]);
+  await sdb.done();
 });
-
-await sdb.done();

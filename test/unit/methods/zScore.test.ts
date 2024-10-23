@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should add a column with the zScore", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadArray([
     { name: "Chloe", age: 33 },
@@ -47,8 +46,12 @@ Deno.test("should add a column with the zScore", async () => {
     { name: "Sarah", age: 64, ageZ: 1.787425013507906 },
     { name: "Frankie", age: 65, ageZ: 1.858922014048222 },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should add a column with the zScore rounded to 3 decimals", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadArray([
     { name: "Chloe", age: 33 },
@@ -94,8 +97,12 @@ Deno.test("should add a column with the zScore rounded to 3 decimals", async () 
     { name: "Sarah", age: 64, ageSigma: 1.787 },
     { name: "Frankie", age: 65, ageSigma: 1.859 },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should add a column with the zScore rounded to 3 decimals and with a category", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadArray([
     { name: "Chloe", age: 33, gender: "Woman" },
@@ -144,6 +151,6 @@ Deno.test("should add a column with the zScore rounded to 3 decimals and with a 
     { name: "Sarah", age: 64, gender: "Woman", ageSigma: 2.125 },
     { name: "Frankie", age: 65, gender: "Woman", ageSigma: 2.202 },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

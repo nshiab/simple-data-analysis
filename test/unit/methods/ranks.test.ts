@@ -3,9 +3,8 @@ import SimpleDB from "../../../src/class/SimpleDB.ts";
 
 // Based on https://www.sqlshack.com/overview-of-sql-rank-functions/
 
-const sdb = new SimpleDB();
-
 Deno.test("should add a column with the rank", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/dataRank.csv");
   await table.ranks("Mark", "rank");
@@ -21,8 +20,11 @@ Deno.test("should add a column with the rank", async () => {
     { Name: "Olivia", Subject: "English", Mark: 89, rank: 8 },
     { Name: "Isabella", Subject: "English", Mark: 90, rank: 9 },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should add a column with the rank in descending order", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/dataRank.csv");
   await table.ranks("Mark", "rank", { order: "desc" });
@@ -38,8 +40,11 @@ Deno.test("should add a column with the rank in descending order", async () => {
     { Name: "Olivia", Subject: "Maths", Mark: 55, rank: 8 },
     { Name: "Isabella", Subject: "Maths", Mark: 50, rank: 9 },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should add a column with the rank and no gaps", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/dataRank.csv");
   await table.ranks("Mark", "rank", {
@@ -58,8 +63,11 @@ Deno.test("should add a column with the rank and no gaps", async () => {
     { Name: "Olivia", Subject: "English", Mark: 89, rank: 7 },
     { Name: "Isabella", Subject: "English", Mark: 90, rank: 8 },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should add a column with the rank after grouping with one category", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/dataRank.csv");
   await table.ranks("Mark", "rank", {
@@ -81,8 +89,11 @@ Deno.test("should add a column with the rank after grouping with one category", 
     { Name: "Isabella", Subject: "Science", Mark: 70, rank: 2 },
     { Name: "Lily", Subject: "Science", Mark: 80, rank: 3 },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should add a column with the rank after grouping with multiple categories", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/dataRank.csv");
   await table.ranks("Mark", "rank", {
@@ -108,6 +119,5 @@ Deno.test("should add a column with the rank after grouping with multiple catego
     { Name: "Olivia", Subject: "Maths", Mark: 55, rank: 1 },
     { Name: "Olivia", Subject: "Science", Mark: 60, rank: 1 },
   ]);
+  await sdb.done();
 });
-
-await sdb.done();

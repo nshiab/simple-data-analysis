@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should compute the centroids", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("geodata");
   await table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -123,8 +122,12 @@ Deno.test("should compute the centroids", async () => {
       },
     ],
   });
+
+  await sdb.done();
 });
+
 Deno.test("should compute the centroids and add a projection", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("geodata");
   await table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -135,8 +138,12 @@ Deno.test("should compute the centroids and add a projection", async () => {
     geom: "+proj=latlong +datum=WGS84 +no_defs",
     centroid: "+proj=latlong +datum=WGS84 +no_defs",
   });
+
+  await sdb.done();
 });
+
 Deno.test("should compute the centroids from a specific column", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable("geodata");
   await table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -256,6 +263,6 @@ Deno.test("should compute the centroids from a specific column", async () => {
       },
     ],
   });
-});
 
-await sdb.done();
+  await sdb.done();
+});

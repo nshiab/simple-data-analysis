@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should add rows from a table into another table", async () => {
+  const sdb = new SimpleDB();
   const table1 = sdb.newTable("table1");
   await table1.loadData("test/data/files/data.json");
 
@@ -22,8 +21,11 @@ Deno.test("should add rows from a table into another table", async () => {
     { key1: 3, key2: "trois" },
     { key1: 4, key2: "quatre" },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should add rows from a table into another table even if the column order is not the same", async () => {
+  const sdb = new SimpleDB();
   const table1 = sdb.newTable("table1");
   await table1.loadData("test/data/files/data.json");
 
@@ -43,8 +45,11 @@ Deno.test("should add rows from a table into another table even if the column or
     { key1: 3, key2: "trois" },
     { key1: 4, key2: "quatre" },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should add rows from multiple tables into another table", async () => {
+  const sdb = new SimpleDB();
   const table1 = sdb.newTable("table1");
   await table1.loadData("test/data/files/data.json");
 
@@ -70,6 +75,5 @@ Deno.test("should add rows from multiple tables into another table", async () =>
     { key1: 3, key2: "trois" },
     { key1: 4, key2: "quatre" },
   ]);
+  await sdb.done();
 });
-
-await sdb.done();

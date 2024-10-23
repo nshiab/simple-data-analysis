@@ -2,9 +2,8 @@ import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import SimpleTable from "../../../src/class/SimpleTable.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should load data from a directory and return the table", async () => {
+  const sdb = new SimpleDB();
   const table = await sdb
     .newTable()
     .loadDataFromDirectory("test/data/directory/", {
@@ -12,8 +11,11 @@ Deno.test("should load data from a directory and return the table", async () => 
     });
 
   assertEquals(table instanceof SimpleTable, true);
+  await sdb.done();
 });
+
 Deno.test("should load data from a directory", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadDataFromDirectory("test/data/directory/", {
     unifyColumns: true,
@@ -41,8 +43,11 @@ Deno.test("should load data from a directory", async () => {
       { key1: 11, key2: "onze", key3: null },
     ],
   );
+  await sdb.done();
 });
+
 Deno.test("should load data from a directory even when the path doesn't have '/' at the end", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadDataFromDirectory("test/data/directory", {
     unifyColumns: true,
@@ -69,8 +74,11 @@ Deno.test("should load data from a directory even when the path doesn't have '/'
       { key1: 11, key2: "onze", key3: null },
     ],
   );
+  await sdb.done();
 });
+
 Deno.test("should load data from a directory with a limit option", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadDataFromDirectory("test/data/directory/", {
     unifyColumns: true,
@@ -80,6 +88,5 @@ Deno.test("should load data from a directory with a limit option", async () => {
   const data = await table.getData();
 
   assertEquals(data.length, 3);
+  await sdb.done();
 });
-
-await sdb.done();

@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should fill empty cells for one column", async () => {
+  const sdb = new SimpleDB();
   const table = await sdb
     .newTable()
     .loadArray([
@@ -30,8 +29,11 @@ Deno.test("should fill empty cells for one column", async () => {
     { first: "Graeme" },
     { first: "Andrew" },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should fill empty cells for multiple columns", async () => {
+  const sdb = new SimpleDB();
   const table = await sdb.newTable().loadArray([
     { first: "Nael", job: "Senior producer" },
     { first: null, job: null },
@@ -56,6 +58,5 @@ Deno.test("should fill empty cells for multiple columns", async () => {
     { first: "Graeme", job: "Super producer" },
     { first: "Andrew", job: "Senior dev" },
   ]);
+  await sdb.done();
 });
-
-await sdb.done();

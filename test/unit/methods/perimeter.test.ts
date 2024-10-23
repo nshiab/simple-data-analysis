@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should calculate the perimeter of geometries in meters", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -28,8 +27,12 @@ Deno.test("should calculate the perimeter of geometries in meters", async () => 
     { nameEnglish: "Northwest Territories", perim: 11134550 },
     { nameEnglish: "Nunavut", perim: 33718590 },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should calculate the perimeter of geometries from a specific column in meters", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -54,8 +57,12 @@ Deno.test("should calculate the perimeter of geometries from a specific column i
     { nameEnglish: "Northwest Territories", perim: 11134550 },
     { nameEnglish: "Nunavut", perim: 33718590 },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should calculate the perimeter of geometries in meters with a file loaded with option toWGS84", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -80,8 +87,12 @@ Deno.test("should calculate the perimeter of geometries in meters with a file lo
     { nameEnglish: "Northwest Territories", perim: 11134550 },
     { nameEnglish: "Nunavut", perim: 33718590 },
   ]);
+
+  await sdb.done();
 });
+
 Deno.test("should calculate the perimeter of geometries in kilometers", async () => {
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -106,6 +117,6 @@ Deno.test("should calculate the perimeter of geometries in kilometers", async ()
     { nameEnglish: "Northwest Territories", perim: 11135 },
     { nameEnglish: "Nunavut", perim: 33719 },
   ]);
-});
 
-await sdb.done();
+  await sdb.done();
+});

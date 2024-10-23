@@ -1,9 +1,8 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-const sdb = new SimpleDB();
-
 Deno.test("should do a left spatial join the intersect method", async () => {
+  const sdb = new SimpleDB();
   const prov = sdb.newTable();
   await prov.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -30,8 +29,10 @@ Deno.test("should do a left spatial join the intersect method", async () => {
     { nameEnglish: "New Brunswick", name: null },
     { nameEnglish: "Yukon", name: null },
   ]);
+  await sdb.done();
 });
 Deno.test("should do a left spatial join the intersect method and keep all projections", async () => {
+  const sdb = new SimpleDB();
   const prov = sdb.newTable();
   await prov.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -45,8 +46,10 @@ Deno.test("should do a left spatial join the intersect method and keep all proje
     geom: "+proj=latlong +datum=WGS84 +no_defs",
     geom_1: "+proj=latlong +datum=WGS84 +no_defs",
   });
+  await sdb.done();
 });
 Deno.test("should do a left spatial join the intersect method and output the results to a new table", async () => {
+  const sdb = new SimpleDB();
   const prov = sdb.newTable();
   await prov.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -75,8 +78,10 @@ Deno.test("should do a left spatial join the intersect method and output the res
     { nameEnglish: "New Brunswick", name: null },
     { nameEnglish: "Yukon", name: null },
   ]);
+  await sdb.done();
 });
 Deno.test("should do a left spatial join the intersect method and output the results to a new table with a specific name", async () => {
+  const sdb = new SimpleDB();
   const prov = sdb.newTable();
   await prov.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -108,8 +113,10 @@ Deno.test("should do a left spatial join the intersect method and output the res
     { nameEnglish: "New Brunswick", name: null },
     { nameEnglish: "Yukon", name: null },
   ]);
+  await sdb.done();
 });
 Deno.test("should do a left spatial join the intersect method with tables with default names", async () => {
+  const sdb = new SimpleDB();
   const prov = sdb.newTable();
   await prov.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -128,8 +135,10 @@ Deno.test("should do a left spatial join the intersect method with tables with d
     "name",
     "geom_1",
   ]);
+  await sdb.done();
 });
 Deno.test("should do a left spatial join the intersect method with tables with specific names", async () => {
+  const sdb = new SimpleDB();
   const prov = sdb.newTable("prov");
   await prov.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -148,8 +157,10 @@ Deno.test("should do a left spatial join the intersect method with tables with s
     "name",
     "geomPoly",
   ]);
+  await sdb.done();
 });
 Deno.test("should do a left spatial join the intersect method without changing the name of the original tables", async () => {
+  const sdb = new SimpleDB();
   const prov = sdb.newTable();
   await prov.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -175,8 +186,10 @@ Deno.test("should do a left spatial join the intersect method without changing t
       columnsRightTable: ["name", "geom"],
     },
   );
+  await sdb.done();
 });
 Deno.test("should do a left spatial join the intersect method without changing the name of the original tables with an outputTable option", async () => {
+  const sdb = new SimpleDB();
   const prov = sdb.newTable();
   await prov.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -197,8 +210,10 @@ Deno.test("should do a left spatial join the intersect method without changing t
       columnsRightTable: ["name", "geom"],
     },
   );
+  await sdb.done();
 });
 Deno.test("should do a left spatial join the intersect method with specific options", async () => {
+  const sdb = new SimpleDB();
   const prov = sdb.newTable();
   await prov.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -228,8 +243,10 @@ Deno.test("should do a left spatial join the intersect method with specific opti
     { nameEnglish: "Northwest Territories", name: "polygonB" },
     { nameEnglish: "Nunavut", name: "polygonB" },
   ]);
+  await sdb.done();
 });
 Deno.test("should do a left spatial join the inside method", async () => {
+  const sdb = new SimpleDB();
   const points = sdb.newTable();
   await points.loadGeoData("test/geodata/files/pointsInside.json");
 
@@ -248,8 +265,10 @@ Deno.test("should do a left spatial join the inside method", async () => {
     { name: "pointA", polygonName: null },
     { name: "pointB", polygonName: null },
   ]);
+  await sdb.done();
 });
 Deno.test("should return all intersections and all rows from leftTable when doing a left join", async () => {
+  const sdb = new SimpleDB({ debug: true });
   const polygonsWithin = sdb.newTable();
   await polygonsWithin.loadGeoData(
     "test/geodata/files/polygonsWithinPolygons.json",
@@ -284,8 +303,11 @@ Deno.test("should return all intersections and all rows from leftTable when doin
     { name: "C", container: "B" },
     { name: "D", container: "A" },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should return all intersections - and just intersections - when doing an inner join", async () => {
+  const sdb = new SimpleDB();
   const polygonsWithin = sdb.newTable();
   await polygonsWithin.loadGeoData(
     "test/geodata/files/polygonsWithinPolygons.json",
@@ -320,14 +342,17 @@ Deno.test("should return all intersections - and just intersections - when doing
     { name: "C", container: "B" },
     { name: "D", container: "A" },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should return all points within a target distance (srs method)", async () => {
+  const sdb = new SimpleDB();
   const cities = sdb.newTable();
   await cities.loadGeoData("test/geodata/files/coordinates.geojson");
   const cloned = await cities.cloneTable();
   await cloned.renameColumns({ name: "name_1" });
   await cities.joinGeo(cloned, "within", { distance: 10 });
-  await cities.distance("geom", "geomTable1", "dist", { decimals: 2 });
+  await cities.distance("geom", "geomTable2", "dist", { decimals: 2 });
   await cities.selectColumns(["name", "name_1", "dist"]);
 
   const data = await cities.getData();
@@ -339,8 +364,11 @@ Deno.test("should return all points within a target distance (srs method)", asyn
     { name: "montreal", name_1: "montreal", dist: 0 },
     { name: "vancouver", name_1: "vancouver", dist: 0 },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should return all points within a target distance (haversine method)", async () => {
+  const sdb = new SimpleDB();
   const cities = sdb.newTable();
   await cities.loadGeoData("test/geodata/files/coordinates.geojson");
   const cloned = await cities.cloneTable();
@@ -351,7 +379,7 @@ Deno.test("should return all points within a target distance (haversine method)"
     distanceMethod: "haversine",
     type: "inner",
   });
-  await cities.distance("geom", "geomTable1", "dist", {
+  await cities.distance("geom", "geomTable2", "dist", {
     method: "haversine",
     decimals: 0,
   });
@@ -365,8 +393,11 @@ Deno.test("should return all points within a target distance (haversine method)"
     { name: "montreal", name_1: "montreal", dist: 0 },
     { name: "vancouver", name_1: "vancouver", dist: 0 },
   ]);
+  await sdb.done();
 });
+
 Deno.test("should return all points within a target distance (spheroid method)", async () => {
+  const sdb = new SimpleDB();
   const cities = sdb.newTable();
   await cities.loadGeoData("test/geodata/files/coordinates.geojson");
   const cloned = await cities.cloneTable();
@@ -377,7 +408,7 @@ Deno.test("should return all points within a target distance (spheroid method)",
     distanceMethod: "spheroid",
     type: "inner",
   });
-  await cities.distance("geom", "geomTable1", "dist", {
+  await cities.distance("geom", "geomTable2", "dist", {
     method: "spheroid",
     decimals: 0,
   });
@@ -392,6 +423,5 @@ Deno.test("should return all points within a target distance (spheroid method)",
     { name: "montreal", name_1: "montreal", dist: 0 },
     { name: "vancouver", name_1: "vancouver", dist: 0 },
   ]);
+  await sdb.done();
 });
-
-await sdb.done();
