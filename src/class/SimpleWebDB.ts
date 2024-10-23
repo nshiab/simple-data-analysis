@@ -1,7 +1,7 @@
 import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
 import runQueryWeb from "../helpers/runQueryWeb.ts";
-import getTables from "../methods/getTables.ts";
+import getTableNames from "../methods/getTableNames.ts";
 import SimpleWebTable from "./SimpleWebTable.ts";
 import Simple from "./Simple.ts";
 import { prettyDuration } from "jsr:@nshiab/journalism@1/web";
@@ -51,6 +51,8 @@ export default class SimpleWebDB extends Simple {
   durationStart: number | undefined;
   /** A number used when creating new tables. @category Properties */
   tableIncrement: number;
+  /** An array of SimpleWebTable instances. @category Properties */
+  tables: SimpleWebTable[];
 
   constructor(
     options: {
@@ -66,6 +68,7 @@ export default class SimpleWebDB extends Simple {
     }
 
     this.tableIncrement = 1;
+    this.tables = [];
     this.cacheSourcesUsed = [];
   }
 
@@ -149,7 +152,31 @@ export default class SimpleWebDB extends Simple {
         }`,
       );
 
+    this.tables.push(table);
+
     return table;
+  }
+
+  /**
+   * Retrieves a table in the DB.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * const employees = await sdb.getTable("employees")
+   * ```
+   *
+   * @param name - The name of the table to retrieve.
+   *
+   * @category DB methods
+   */
+  async getTable(name: string): Promise<SimpleWebTable> {
+    const table = this.tables.find((t) => t.name === name);
+    if (table) {
+      return await table;
+    } else {
+      throw new Error(`Table ${name} not found.`);
+    }
   }
 
   /**
@@ -183,21 +210,41 @@ export default class SimpleWebDB extends Simple {
         parameters: {},
       }),
     );
+
+    const tablesNamesToBeRemoved = tablesToBeRemoved.map((t) => t.name);
+    this.tables = this.tables.filter((t) =>
+      !tablesNamesToBeRemoved.includes(t.name)
+    );
   }
 
   /**
-   * Returns the list of tables.
+   * Returns the list of table names.
    *
    * @example
    * Basic usage
    * ```ts
-   * const tables = await sdb.getTables()
+   * const tablesNames = await sdb.getTableNames()
    * ```
    *
    * @category DB methods
    */
-  async getTables(): Promise<string[]> {
-    return await getTables(this);
+  async getTableNames(): Promise<string[]> {
+    return await getTableNames(this);
+  }
+
+  /**
+   * Returns all tables in the db.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * const tablesNames = await sdb.getTableNames()
+   * ```
+   *
+   * @category DB methods
+   */
+  async getTables(): Promise<SimpleWebTable[]> {
+    return await this.tables;
   }
 
   /**
@@ -218,7 +265,7 @@ export default class SimpleWebDB extends Simple {
     this.debug && console.log("\nhasTable()");
     const tableName = typeof table === "string" ? table : table.name;
     this.debug && console.log("parameters:", { table: tableName });
-    const result = (await this.getTables()).includes(tableName);
+    const result = (await this.getTableNames()).includes(tableName);
     this.debug && console.log("hasTable:", result);
     return result;
   }
