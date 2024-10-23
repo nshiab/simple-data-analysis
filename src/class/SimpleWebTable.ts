@@ -1444,7 +1444,7 @@ export default class SimpleWebTable extends Simple {
    * With options
    * ```ts
    * // You can change the common column, the join type, and the output table in options.
-   * const tableC = await tableA.join("tableB", { commonColumn: 'id', type: 'inner', outputTable: true })
+   * const tableC = await tableA.join(tableB, { commonColumn: 'id', type: 'inner', outputTable: "tableC" })
    * ```
    *
    * @example
