@@ -6,7 +6,6 @@ export default function cleanCache(sdb: SimpleDB) {
     const cacheSources = JSON.parse(
       readFileSync(".sda-cache/sources.json", "utf-8"),
     );
-    console.log(cacheSources);
     let first = true;
     for (const cacheId of Object.keys(cacheSources)) {
       if (!sdb.cacheSourcesUsed.includes(cacheId)) {
