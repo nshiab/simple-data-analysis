@@ -10,7 +10,6 @@ Deno.test("should summarize all rows (no option values)", async () => {
   assertEquals(data, [{ value: "rows", count: 6 }]);
   await sdb.done();
 });
-
 Deno.test("should summarize all rows into a new table", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
@@ -27,7 +26,71 @@ Deno.test("should summarize all rows into a new table", async () => {
   ]);
   await sdb.done();
 });
+Deno.test("should summarize all rows into a new table, even if column names have spaces", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/dataSummarize.json");
+  await table.renameColumns({
+    "key1": "key 1",
+    "key2": "key 2",
+    "key3": "key 3",
+  });
 
+  const summaryAllRows = await table.summarize({
+    values: "key 2",
+    categories: "key 1",
+    outputTable: "summaryAllRows",
+  });
+  const data = await summaryAllRows.getData();
+  assertEquals(data, [
+    {
+      value: "key 2",
+      "key 1": "Banane",
+      count: 2,
+      countUnique: 0,
+      countNull: 2,
+      min: null,
+      max: null,
+      mean: null,
+      median: null,
+      sum: null,
+      skew: null,
+      stdDev: null,
+      var: null,
+    },
+    {
+      value: "key 2",
+      "key 1": "Fraise",
+      count: 2,
+      countUnique: 2,
+      countNull: 0,
+      min: 11,
+      max: 22,
+      mean: 16.5,
+      median: 16.5,
+      sum: 33,
+      skew: null,
+      stdDev: 7.7781745930520225,
+      var: 60.5,
+    },
+    {
+      value: "key 2",
+      "key 1": "Rubarbe",
+      count: 2,
+      countUnique: 2,
+      countNull: 0,
+      min: 1,
+      max: 2,
+      mean: 1.5,
+      median: 1.5,
+      sum: 3,
+      skew: null,
+      stdDev: 0.7071067811865476,
+      var: 0.5,
+    },
+  ]);
+  await sdb.done();
+});
 Deno.test("should summarize all rows into a new table and the original table shouldn't be modified", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
