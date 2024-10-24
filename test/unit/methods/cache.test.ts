@@ -12,6 +12,22 @@ if (existsSync("./.sda-cache")) {
   rmSync("./.sda-cache", { recursive: true });
 }
 
+Deno.test("should log a warning, not an error, when no data or table", async () => {
+  const sdb = new SimpleDB({ cacheVerbose: true });
+  const table = sdb.newTable();
+  await table.cache(async () => {
+    // Nothing in cache
+  });
+  await sdb.done();
+});
+Deno.test("should log a warning, not an error, when loading cache when no data or table", async () => {
+  const sdb = new SimpleDB({ cacheVerbose: true });
+  const table = sdb.newTable();
+  await table.cache(async () => {
+    // Nothing in cache
+  });
+  await sdb.done();
+});
 Deno.test("should cache computed values for tabular data", async () => {
   const sdb = new SimpleDB({ cacheVerbose: true });
   const table = sdb.newTable();
