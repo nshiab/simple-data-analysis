@@ -5,7 +5,7 @@ import { formatDate, prettyDuration } from "jsr:@nshiab/journalism@1";
 
 type cacheSources = {
   [key: string]: {
-    file: string;
+    file: string | null;
     creation: number;
     duration: number;
     geo: boolean;
@@ -18,7 +18,8 @@ export default async function cache(
   run: () => Promise<void>,
   options: { ttl?: number; verbose?: boolean } = {},
 ) {
-  table.debug && console.log("\ncache()");
+  (table.debug || options.verbose) &&
+    console.log(`\ncache() for ${table.name}`);
 
   const cachePath = "./.sda-cache";
   if (!existsSync(cachePath)) {
@@ -48,7 +49,7 @@ export default async function cache(
 
   if (cache === undefined) {
     (table.debug || options.verbose) &&
-      console.log(`\nNothing in cache. Running and storing in cache.`);
+      console.log(`Nothing in cache. Running and storing in cache.`);
     await runAndWrite(
       table,
       run,
@@ -64,7 +65,7 @@ export default async function cache(
   ) {
     (table.debug || options.verbose) &&
       console.log(
-        `\nFound ${cache.file} in cache.\nttl of ${
+        `Found ${cache.file} in cache.\nttl of ${
           prettyDuration(0, { end: options.ttl * 1000 })
         } has expired. The creation date is ${
           formatDate(
@@ -85,7 +86,7 @@ export default async function cache(
     );
   } else {
     (table.debug || options.verbose) &&
-      console.log(`\nFound ${cache.file} in cache.`);
+      console.log(`Found ${cache.file} in cache.`);
     if (typeof options.ttl === "number") {
       const ttlLimit = new Date(cache.creation + options.ttl * 1000);
       (table.debug || options.verbose) &&
@@ -100,7 +101,9 @@ export default async function cache(
           }. There are ${prettyDuration(now, { end: ttlLimit })} left.`,
         );
     }
-    if (cache.geo) {
+    if (cache.file === null) {
+      console.log("No data in cache. Nothing to load.");
+    } else if (cache.geo) {
       table.debug && console.log(`Geospatial data. Using loadGeoData`);
       const start = Date.now();
       await table.loadGeoData(cache.file);
@@ -162,54 +165,66 @@ async function runAndWrite(
   const end = Date.now();
   const duration = end - start;
   table.debug && console.log("\ncache() after run()");
-  const types = await table.getTypes();
-  const geometriesColumns = Object.values(types).filter(
-    (d) => d === "GEOMETRY",
-  ).length;
-  if (geometriesColumns > 1) {
-    throw new Error(
-      "Tables with geometries are stored as geojson files in cache, which can only have one geometry columns. Multiple geometry columns will be supported in the future.",
-    );
-  } else if (geometriesColumns === 1) {
-    table.debug &&
-      console.log(`\nThe table has geometries. Using writeGeoData.`);
-    const file = `${cachePath}/${id}.geojson`;
-    await table.writeGeoData(file);
+  if (!(await table.sdb.hasTable(table.name))) {
+    console.log(`No data in table ${table.name}. Nothing stored in cache.`);
     cacheSources[id] = {
       creation: Date.now(),
       duration,
-      file,
-      geo: true,
-      geoColumnName: Object.entries(types).find(
-        ([, value]) => value === "GEOMETRY",
-      )?.[0] ?? null,
-    };
-    if (table.sdb.cacheSourcesUsed.indexOf(id) < 0) {
-      table.sdb.cacheSourcesUsed.push(id);
-    }
-    table.sdb.cacheVerbose &&
-      console.log(
-        `Duration: ${prettyDuration(start, { end })}. Wrote ${file}.\n`,
-      );
-  } else {
-    table.debug &&
-      console.log(`\nNo geometries in the table. Using writeData.`);
-    const file = `${cachePath}/${id}.parquet`;
-    await table.writeData(file);
-    cacheSources[id] = {
-      creation: Date.now(),
-      duration,
-      file,
+      file: null,
       geo: false,
       geoColumnName: null,
     };
-    if (table.sdb.cacheSourcesUsed.indexOf(id) < 0) {
-      table.sdb.cacheSourcesUsed.push(id);
-    }
-    table.sdb.cacheVerbose &&
-      console.log(
-        `Duration: ${prettyDuration(start, { end })}. Wrote ${file}.\n`,
+  } else {
+    const types = await table.getTypes();
+    const geometriesColumns = Object.values(types).filter(
+      (d) => d === "GEOMETRY",
+    ).length;
+    if (geometriesColumns > 1) {
+      throw new Error(
+        "Tables with geometries are stored as geojson files in cache, which can only have one geometry columns. Multiple geometry columns will be supported in the future.",
       );
+    } else if (geometriesColumns === 1) {
+      table.debug &&
+        console.log(`\nThe table has geometries. Using writeGeoData.`);
+      const file = `${cachePath}/${id}.geojson`;
+      await table.writeGeoData(file);
+      cacheSources[id] = {
+        creation: Date.now(),
+        duration,
+        file,
+        geo: true,
+        geoColumnName: Object.entries(types).find(
+          ([, value]) => value === "GEOMETRY",
+        )?.[0] ?? null,
+      };
+      if (table.sdb.cacheSourcesUsed.indexOf(id) < 0) {
+        table.sdb.cacheSourcesUsed.push(id);
+      }
+      table.sdb.cacheVerbose &&
+        console.log(
+          `Duration: ${prettyDuration(start, { end })}. Wrote ${file}.\n`,
+        );
+    } else {
+      table.debug &&
+        console.log(`\nNo geometries in the table. Using writeData.`);
+      const file = `${cachePath}/${id}.parquet`;
+      await table.writeData(file);
+      cacheSources[id] = {
+        creation: Date.now(),
+        duration,
+        file,
+        geo: false,
+        geoColumnName: null,
+      };
+      if (table.sdb.cacheSourcesUsed.indexOf(id) < 0) {
+        table.sdb.cacheSourcesUsed.push(id);
+      }
+      table.sdb.cacheVerbose &&
+        console.log(
+          `Duration: ${prettyDuration(start, { end })}. Wrote ${file}.\n`,
+        );
+    }
   }
+
   writeFileSync(cacheSourcesPath, JSON.stringify(cacheSources));
 }
