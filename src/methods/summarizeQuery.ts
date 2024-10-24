@@ -146,7 +146,7 @@ export default function summarizeQuery(
 
   query += `\nORDER BY ${
     ["value", ...categories]
-      .map((d) => `${d} ASC`)
+      .map((d) => `"${d}" ASC`)
       .join(", ")
   }`;
 
