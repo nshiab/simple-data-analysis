@@ -8,7 +8,7 @@
   "tasks": {
     "all-tests": "deno install --allow-scripts=npm:duckdb && deno fmt --check && deno lint && deno check src/index.ts && deno publish --allow-dirty --dry-run && deno test -A --fail-fast",
     "test-coverage": "deno test -A --fail-fast --coverage=cov_profile && deno coverage cov_profile",
-    "patch-no-tests": "deno run -A src/others/incrementVersion.ts patch",
+    "patch-no-tests": "deno run -A src/incrementVersion.ts patch",
     "patch": "deno task all-tests && deno run -A src/incrementVersion.ts patch",
     "minor": "deno task all-tests && deno run -A src/incrementVersion.ts minor",
     "major": "deno-task all-testes && deno run -A src/incrementVersion.ts major"
