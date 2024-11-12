@@ -34,9 +34,25 @@ npx setup-sda
 bunx --bun setup-sda
 ```
 
+If you want to use SDA with [Svelte](https://svelte.dev/), pass the `--svelte`
+flag:
+
+```bash
+# Deno >= 2.x.x
+deno -A jsr:@nshiab/setup-sda --svelte
+
+# Node.js >= 22.6.x
+npx setup-sda --svelte
+
+# Bun
+bunx --bun setup-sda --svelte
+```
+
 If you want to use SDA with
 [Framework](https://github.com/observablehq/framework), pass the `--framework`
-flag. To initialize a git repository, pass the `--git` flag.
+flag.
+
+To initialize a git repository, pass the `--git` flag.
 
 ## Manual installation
 
