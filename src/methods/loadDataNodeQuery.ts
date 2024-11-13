@@ -36,7 +36,7 @@ export default function loadDataNodeQuery(
     ? `, columns=${JSON.stringify(options.columnTypes)}`
     : "";
   const fileName = typeof options.fileName === "boolean"
-    ? `, filename='${String(options.fileName).toUpperCase()}'`
+    ? `, filename=${String(options.fileName).toUpperCase()}`
     : "";
   const unifyColumns = typeof options.unifyColumns === "boolean"
     ? `, union_by_name='${String(options.unifyColumns).toUpperCase()}'`

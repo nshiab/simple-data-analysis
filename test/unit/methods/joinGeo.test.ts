@@ -268,7 +268,7 @@ Deno.test("should do a left spatial join the inside method", async () => {
   await sdb.done();
 });
 Deno.test("should return all intersections and all rows from leftTable when doing a left join", async () => {
-  const sdb = new SimpleDB({ debug: true });
+  const sdb = new SimpleDB();
   const polygonsWithin = sdb.newTable();
   await polygonsWithin.loadGeoData(
     "test/geodata/files/polygonsWithinPolygons.json",
@@ -388,8 +388,8 @@ Deno.test("should return all points within a target distance (haversine method)"
 
   assertEquals(data, [
     { name: "toronto", name_1: "toronto", dist: 0 },
-    { name: "toronto", name_1: "montreal", dist: 464577 },
     { name: "montreal", name_1: "toronto", dist: 464577 },
+    { name: "toronto", name_1: "montreal", dist: 464577 },
     { name: "montreal", name_1: "montreal", dist: 0 },
     { name: "vancouver", name_1: "vancouver", dist: 0 },
   ]);
@@ -418,8 +418,8 @@ Deno.test("should return all points within a target distance (spheroid method)",
 
   assertEquals(data, [
     { name: "toronto", name_1: "toronto", dist: 0 },
-    { name: "toronto", name_1: "montreal", dist: 465639 },
     { name: "montreal", name_1: "toronto", dist: 465639 },
+    { name: "toronto", name_1: "montreal", dist: 465639 },
     { name: "montreal", name_1: "montreal", dist: 0 },
     { name: "vancouver", name_1: "vancouver", dist: 0 },
   ]);
