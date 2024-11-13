@@ -508,7 +508,14 @@ export default class SimpleWebTable extends Simple {
   }
 
   /**
-   * Sorts the rows based on specified column(s) and order(s).
+   * Sorts the rows based on specified column(s) and order(s). If no columns are specified, all columns are sorted from left to right by ascending order.
+   *
+   * @example
+   * Sorting all columns
+   * ```ts
+   * // All columns sorted from left to right by ascending order.
+   * await table.sort()
+   * ```
    *
    * @example
    * Basic usage
@@ -538,7 +545,7 @@ export default class SimpleWebTable extends Simple {
    * @category Restructuring data
    */
   async sort(
-    order: { [key: string]: "asc" | "desc" },
+    order: { [key: string]: "asc" | "desc" } | null = null,
     options: {
       lang?: { [key: string]: string };
     } = {},

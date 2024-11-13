@@ -123,3 +123,22 @@ Deno.test("should sort mutiple columns ascendingly or descendingly with a specif
 
   await sdb.done();
 });
+
+Deno.test("should sort all columns by defaut, from left to right, in ascending order", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/dataSort.csv");
+  await table.sort();
+  const data = await table.getData();
+
+  assertEquals(data, [
+    { key1: 1, key2: "Roi", key3: "A" },
+    { key1: 2, key2: "Alambic", key3: "B" },
+    { key1: 4, key2: "Extérieur", key3: "B" },
+    { key1: 5, key2: "À l'ouest", key3: "A" },
+    { key1: 56.7, key2: "Éléphant", key3: "A" },
+    { key1: 900, key2: "Zéphir", key3: "A" },
+  ]);
+
+  await sdb.done();
+});
