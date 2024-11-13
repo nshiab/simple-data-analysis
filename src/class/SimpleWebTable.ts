@@ -897,14 +897,20 @@ export default class SimpleWebTable extends Simple {
    * Basic usage
    * ```ts
    * // Keeps only rows where the job is 'accountant' or 'developer' and where the city is 'Montreal'.
-   * await table.keep({ job: ["accountant", "developer"], city: ["Montreal"] })
+   * await table.keep({ job: ["accountant", "developer"], city: "Montreal" })
    * ```
    *
-   * @param columnsAndValues - An object with the columns (keys) and the values to be kept (values as arrays)
+   * @param columnsAndValues - An object with the columns and the values to be kept.
    *
    * @category Selecting or filtering data
    */
-  async keep(columnsAndValues: { [key: string]: unknown[] }) {
+  async keep(
+    columnsAndValues: {
+      [key: string]:
+        | (number | string | Date | boolean | null)[]
+        | (number | string | Date | boolean | null);
+    },
+  ) {
     await queryDB(
       this,
       keepQuery(this.name, columnsAndValues),
@@ -923,14 +929,20 @@ export default class SimpleWebTable extends Simple {
    * Basic usage
    * ```ts
    * // Remove rows where the job is 'accountant' or 'developer' and where the city is 'Montreal'.
-   * await table.remove({ job: ["accountant", "developer"], city: ["Montreal"] })
+   * await table.remove({ job: ["accountant", "developer"], city: "Montreal" })
    * ```
    *
-   * @param columnsAndValues - An object with the columns (keys) and the values to be removed (values as arrays)
+   * @param columnsAndValues - An object with the columns and the values to be removed
    *
    * @category Selecting or filtering data
    */
-  async remove(columnsAndValues: { [key: string]: unknown[] }) {
+  async remove(
+    columnsAndValues: {
+      [key: string]:
+        | (number | string | Date | boolean | null)[]
+        | (number | string | Date | boolean | null);
+    },
+  ) {
     await queryDB(
       this,
       removeQuery(this.name, columnsAndValues),
