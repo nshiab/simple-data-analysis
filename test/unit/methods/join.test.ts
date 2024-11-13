@@ -105,9 +105,9 @@ Deno.test("should put the result of a right join into a new table", async () => 
       country: "Mexico",
       category: "Dessert",
     },
-    { dishId: null, name: null, country: null, category: "Main" },
-    { dishId: null, name: null, country: null, category: "Main" },
     { dishId: null, name: null, country: null, category: "Dessert" },
+    { dishId: null, name: null, country: null, category: "Main" },
+    { dishId: null, name: null, country: null, category: "Main" },
   ]);
 
   await sdb.done();
@@ -142,16 +142,11 @@ Deno.test("should put the result of a full join into a new table", async () => {
       country: "Mexico",
       category: "Dessert",
     },
-    { dishId: null, name: null, country: null, category: "Main" },
-    { dishId: null, name: null, country: null, category: "Main" },
-    { dishId: null, name: null, country: null, category: "Dessert" },
+    { dishId: 4, name: "Couscous", country: "Morrocco", category: null },
     { dishId: 5, name: "Mochi", country: "Japan", category: null },
-    {
-      dishId: 4,
-      name: "Couscous",
-      country: "Morrocco",
-      category: null,
-    },
+    { dishId: null, name: null, country: null, category: "Dessert" },
+    { dishId: null, name: null, country: null, category: "Main" },
+    { dishId: null, name: null, country: null, category: "Main" },
   ]);
 
   await sdb.done();
@@ -188,16 +183,11 @@ Deno.test("should put the result of a full join into a new table with a specific
       country: "Mexico",
       category: "Dessert",
     },
-    { dishId: null, name: null, country: null, category: "Main" },
-    { dishId: null, name: null, country: null, category: "Main" },
-    { dishId: null, name: null, country: null, category: "Dessert" },
+    { dishId: 4, name: "Couscous", country: "Morrocco", category: null },
     { dishId: 5, name: "Mochi", country: "Japan", category: null },
-    {
-      dishId: 4,
-      name: "Couscous",
-      country: "Morrocco",
-      category: null,
-    },
+    { dishId: null, name: null, country: null, category: "Dessert" },
+    { dishId: null, name: null, country: null, category: "Main" },
+    { dishId: null, name: null, country: null, category: "Main" },
   ]);
 
   await sdb.done();
