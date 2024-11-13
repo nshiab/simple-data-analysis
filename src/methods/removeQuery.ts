@@ -2,7 +2,11 @@ import parseValue from "../helpers/parseValue.ts";
 
 export default function removeQuery(
   table: string,
-  columnsAndValues: { [key: string]: unknown[] },
+  columnsAndValues: {
+    [key: string]:
+      | (number | string | Date | boolean | null)[]
+      | (number | string | Date | boolean | null);
+  },
 ) {
   let query =
     `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ${table} WHERE\n`;
@@ -10,10 +14,13 @@ export default function removeQuery(
 
   const conditions = [];
   for (const column of columns) {
+    let values = columnsAndValues[column];
+    if (!Array.isArray(values)) {
+      values = [values];
+    }
+
     conditions.push(
-      `"${column}" NOT IN (${
-        columnsAndValues[column].map((d) => parseValue(d)).join(", ")
-      })`,
+      `"${column}" NOT IN (${values.map((d) => parseValue(d)).join(", ")})`,
     );
   }
 
