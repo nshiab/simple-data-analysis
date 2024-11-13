@@ -1,6 +1,4 @@
-import { Buffer } from "node:buffer";
-
-export default function logData(
+export default function logDataWeb(
   types: { [key: string]: string },
   data:
     | {
@@ -25,10 +23,6 @@ export default function logData(
         } = {};
         for (const key of keys) {
           if (
-            Buffer.isBuffer(data[i][key])
-          ) {
-            newItem[key] = "<Geometry>";
-          } else if (
             typeof nbCharactersToLog === "number" &&
             typeof data[i][key] === "string" &&
             (data[i][key] as string).length > nbCharactersToLog
