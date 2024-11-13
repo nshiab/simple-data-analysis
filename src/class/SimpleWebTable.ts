@@ -43,7 +43,6 @@ import proportionsHorizontalQuery from "../methods/proportionsHorizontalQuery.ts
 import proportionsVerticalQuery from "../methods/proportionsVerticalQuery.ts";
 import trimQuery from "../methods/trimQuery.ts";
 import removeDuplicatesQuery from "../methods/removeDuplicatesQuery.ts";
-import logData from "../helpers/logData.ts";
 import replaceNullsQuery from "../methods/replaceNullsQuery.ts";
 import lowerQuery from "../methods/lowerQuery.ts";
 import upperQuery from "../methods/upperQuery.ts";
@@ -68,6 +67,7 @@ import getExtension from "../helpers/getExtension.ts";
 import getIdenticalColumns from "../helpers/getIdenticalColumns.ts";
 import { camelCase, formatNumber } from "jsr:@nshiab/journalism@1/web";
 import capitalizeQuery from "../methods/capitalizeQuery.ts";
+import logDataWeb from "../helpers/logDataWeb.ts";
 // Not working for now
 // import getProjection from "../helpers/getProjection.js"
 
@@ -4609,7 +4609,7 @@ export default class SimpleWebTable extends Simple {
           bigIntToInt: this.bigIntToInt,
         },
       );
-      logData(await this.getTypes(), data, this.nbCharactersToLog);
+      logDataWeb(await this.getTypes(), data, this.nbCharactersToLog);
       const nbRows = await this.runQuery(
         `SELECT COUNT(*) FROM ${this.name};`,
         this.connection,

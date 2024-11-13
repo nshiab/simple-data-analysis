@@ -27,12 +27,14 @@ import cache from "../methods/cache.ts";
 import getIdenticalColumns from "../helpers/getIdenticalColumns.ts";
 import {
   createDirectory,
+  formatNumber,
   logBarChart,
   logDotChart,
   logLineChart,
 } from "jsr:@nshiab/journalism@1";
 import writeDataAsArrays from "../helpers/writeDataAsArrays.ts";
 import logHistogram from "../methods/logHistogram.ts";
+import logData from "../helpers/logData.ts";
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
@@ -1031,5 +1033,76 @@ export default class SimpleTable extends SimpleWebTable {
     } = {},
   ) {
     await logHistogram(this, values, options);
+  }
+
+  /**
+   * Logs a specified number of rows. Default is 10 rows.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * // Logs first 10 rows
+   * await table.logTable();
+   * ```
+   *
+   * @example
+   * Specific number of rows
+   * ```ts
+   * // Logs first 100 rows
+   * await table.logTable(100);
+   * ```
+   *
+   * @param nbRowsToLog - The number of rows to log when debugging. Defaults to 10 or the value set in the SimpleWebDB instance.
+   */
+  override async logTable(nbRowsToLog?: number) {
+    const rows = nbRowsToLog ?? this.nbRowsToLog;
+    this.debug && console.log("\nlogTable()");
+    this.debug && console.log("parameters:", { nbRowsToLog });
+
+    if (
+      this.connection === undefined ||
+      !(await this.sdb.hasTable(this.name))
+    ) {
+      console.log(`\ntable ${this.name}: no data`);
+    } else {
+      console.log(`\ntable ${this.name}:`);
+      const data = await this.runQuery(
+        `SELECT * FROM ${this.name} LIMIT ${rows}`,
+        this.connection,
+        true,
+        {
+          debug: this.debug,
+          method: null,
+          parameters: null,
+          bigIntToInt: this.bigIntToInt,
+        },
+      );
+      logData(await this.getTypes(), data, this.nbCharactersToLog);
+      const nbRows = await this.runQuery(
+        `SELECT COUNT(*) FROM ${this.name};`,
+        this.connection,
+        true,
+        {
+          debug: this.debug,
+          method: null,
+          parameters: null,
+          bigIntToInt: this.bigIntToInt,
+        },
+      );
+      if (nbRows === null) {
+        throw new Error("nbRows is null");
+      }
+      console.log(
+        `${
+          formatNumber(
+            nbRows[0]["count_star()"] as number,
+          )
+        } rows in total ${`(nbRowsToLog: ${rows}${
+          typeof this.nbCharactersToLog === "number"
+            ? `, nbCharactersToLog: ${this.nbCharactersToLog}`
+            : ""
+        })`}`,
+      );
+    }
   }
 }
