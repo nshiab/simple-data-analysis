@@ -110,8 +110,8 @@ temperature per decade and city with the daily temperatures from the
 See [this repository](https://github.com/nshiab/simple-data-analysis-benchmarks)
 for the code.
 
-We ran the same calculations with **simple-data-analysis@3.0.0** (both Node.js
-and Bun), **Pandas (Python)**, and the **tidyverse (R)**.
+We ran the same calculations with **simple-data-analysis** (Node.js, Bun, and
+Deno), **Pandas (Python)**, and the **tidyverse (R)**.
 
 In each script, we:
 
@@ -135,8 +135,8 @@ With _ahccd-samples.csv_:
 - 971,804 rows
 - 19,436,080 data points
 
-**simple-data-analysis@3.0.0** is the fastest, but if we skip writing the CSV
-file, the **tidyverse** shows impressive speed with small files.
+**simple-data-analysis** is the fastest, but if we skip writing the CSV file,
+the **tidyverse** shows impressive speed with small files.
 
 ![A chart showing the processing duration of multiple scripts in various languages](./assets/small-file.png)
 
@@ -150,8 +150,8 @@ With _ahccd.csv_:
 - 22,051,025 rows
 - 441,020,500 data points
 
-Thanks to DuckDB, **simple-data-analysis@3.0.0** really shines with big files.
-It's the fastest option.
+Thanks to DuckDB, **simple-data-analysis** really shines with big files. It's
+the fastest option.
 
 ![A chart showing the processing duration of multiple scripts in various languages](./assets/big-file.png)
 
