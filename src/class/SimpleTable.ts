@@ -723,9 +723,15 @@ export default class SimpleTable extends SimpleWebTable {
    * For .geojson files, if the projection is WGS84 or EPSG:4326 ([latitude, longitude] axis order), the coordinates will be flipped to follow the RFC7946 standard ([longitude, latitude] axis order).
    *
    * @example
-   * Basic usage
+   * Basic usage to write geojson files
    * ```ts
    * await table.writeGeoata("output/data.geojson");
+   * ```
+   *
+   * @example
+   * Basic usage to write geoparquet files
+   * ```ts
+   * await table.writeGeoata("output/data.geoparquet");
    * ```
    *
    * @param file - The path to the file to which data will be written.
