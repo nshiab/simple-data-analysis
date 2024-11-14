@@ -68,6 +68,7 @@ import getIdenticalColumns from "../helpers/getIdenticalColumns.ts";
 import { camelCase, formatNumber } from "jsr:@nshiab/journalism@1/web";
 import capitalizeQuery from "../methods/capitalizeQuery.ts";
 import logDataWeb from "../helpers/logDataWeb.ts";
+import getProjectionParquet from "../helpers/getProjectionParquet.ts";
 // Not working for now
 // import getProjection from "../helpers/getProjection.js"
 
@@ -3340,32 +3341,58 @@ export default class SimpleWebTable extends Simple {
     file: string,
     options: { toWGS84?: boolean; from?: string } = {},
   ): Promise<SimpleWebTable> {
-    await queryDB(
-      this,
-      `INSTALL spatial; LOAD spatial;
-            INSTALL https; LOAD https;
-            CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM ST_Read('${file}');`,
-      mergeOptions(this, {
-        table: this.name,
-        method: "fetchGeoData()",
-        parameters: { file },
-      }),
-    );
-
-    // Not working for now.
-    // this.projections = await getProjection(this.sdb, file)
-
     const extension = getExtension(file);
-    if (extension === "json" || extension === "geojson") {
-      await this.flipCoordinates("geom"); // column storing geometries
-      this.projections["geom"] = "+proj=latlong +datum=WGS84 +no_defs";
+
+    if (extension === "geoparquet" || extension === "parquet") {
+      await queryDB(
+        this,
+        `INSTALL spatial; LOAD spatial;${
+          file.toLowerCase().includes("http")
+            ? " INSTALL https; LOAD https;"
+            : ""
+        }
+              CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM read_parquet('${file}');`,
+        mergeOptions(this, {
+          table: this.name,
+          method: "loadGeoData()",
+          parameters: { file, options },
+        }),
+      );
+
+      this.projections = await getProjectionParquet(this, file);
+
       if (options.toWGS84) {
         console.log(
-          "This file is a json or geojson. Option toWGS84 has no effect.",
+          "This file is a parquet. Option toWGS84 has no effect. Use the .reproject() method instead.",
         );
       }
-    } else if (options.toWGS84) {
-      await this.reproject("WGS84", { ...options, column: "geom" }); // column storing geometries is geom by default
+    } else {
+      await queryDB(
+        this,
+        `INSTALL spatial; LOAD spatial;
+              INSTALL https; LOAD https;
+              CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM ST_Read('${file}');`,
+        mergeOptions(this, {
+          table: this.name,
+          method: "fetchGeoData()",
+          parameters: { file },
+        }),
+      );
+
+      // Not working for now.
+      // this.projections = await getProjection(this.sdb, file)
+
+      if (extension === "json" || extension === "geojson") {
+        await this.flipCoordinates("geom"); // column storing geometries
+        this.projections["geom"] = "+proj=latlong +datum=WGS84 +no_defs";
+        if (options.toWGS84) {
+          console.log(
+            "This file is a json or geojson. Option toWGS84 has no effect.",
+          );
+        }
+      } else if (options.toWGS84) {
+        await this.reproject("WGS84", { ...options, column: "geom" }); // column storing geometries is geom by default
+      }
     }
 
     return this;

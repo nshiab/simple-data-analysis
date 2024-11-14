@@ -131,6 +131,90 @@ Deno.test("should write geojson file with coordinates rounded to 3 decimals", as
   await sdb.done();
 });
 
+Deno.test("should write a geoparquet file", async () => {
+  const sdb = new SimpleDB();
+  const originalFile = "test/geodata/files/polygons.geojson";
+
+  const originalData = sdb.newTable();
+  await originalData.loadGeoData(originalFile);
+  await originalData.writeGeoData(`${output}data.geoparquet`);
+
+  const writtenData = sdb.newTable();
+  await writtenData.loadGeoData(`${output}data.geoparquet`);
+
+  assertEquals(await writtenData.getGeoData(), await originalData.getGeoData());
+  await sdb.done();
+});
+
+Deno.test("should write a compressed geoparquet file", async () => {
+  const sdb = new SimpleDB();
+  const originalFile = "test/geodata/files/polygons.geojson";
+
+  const originalData = sdb.newTable();
+  await originalData.loadGeoData(originalFile);
+  await originalData.writeGeoData(`${output}data-compressed.geoparquet`, {
+    compression: true,
+  });
+
+  const writtenData = sdb.newTable();
+  await writtenData.loadGeoData(`${output}data-compressed.geoparquet`);
+
+  assertEquals(await writtenData.getGeoData(), await originalData.getGeoData());
+  await sdb.done();
+});
+
+Deno.test("should write a geoparquet file and keep the projection", async () => {
+  const sdb = new SimpleDB();
+  const originalFile = "test/geodata/files/polygons.geojson";
+
+  const originalData = sdb.newTable();
+  await originalData.loadGeoData(originalFile);
+  await originalData.writeGeoData(`${output}data.geoparquet`);
+
+  const writtenData = sdb.newTable();
+  await writtenData.loadGeoData(`${output}data.geoparquet`);
+
+  assertEquals(writtenData.projections, {
+    geom: "+proj=latlong +datum=WGS84 +no_defs",
+  });
+  await sdb.done();
+});
+
+Deno.test("should write a geoparquet file with multiple geo columns", async () => {
+  const sdb = new SimpleDB();
+  const originalFile = "test/geodata/files/polygons.geojson";
+
+  const originalData = sdb.newTable();
+  await originalData.loadGeoData(originalFile);
+  await originalData.cloneColumn("geom", "anotherGeom");
+  await originalData.writeGeoData(`${output}data-multiple-columns.geoparquet`);
+
+  const writtenData = sdb.newTable();
+  await writtenData.loadGeoData(`${output}data-multiple-columns.geoparquet`);
+
+  assertEquals(await writtenData.getData(), await originalData.getData());
+  await sdb.done();
+});
+
+Deno.test("should write a geoparquet file with multiple geo columns and keep the projections", async () => {
+  const sdb = new SimpleDB();
+  const originalFile = "test/geodata/files/polygons.geojson";
+
+  const originalData = sdb.newTable();
+  await originalData.loadGeoData(originalFile);
+  await originalData.cloneColumn("geom", "anotherGeom");
+  await originalData.writeGeoData(`${output}data-multiple-columns.geoparquet`);
+
+  const writtenData = sdb.newTable();
+  await writtenData.loadGeoData(`${output}data-multiple-columns.geoparquet`);
+
+  assertEquals(writtenData.projections, {
+    geom: "+proj=latlong +datum=WGS84 +no_defs",
+    anotherGeom: "+proj=latlong +datum=WGS84 +no_defs",
+  });
+  await sdb.done();
+});
+
 const canada = {
   type: "FeatureCollection",
   features: [
