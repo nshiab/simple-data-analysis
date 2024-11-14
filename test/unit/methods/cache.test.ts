@@ -19,6 +19,7 @@ Deno.test("should log a warning, not an error, when no data or table", async () 
     // Nothing in cache
   });
   await sdb.done();
+  assertEquals(true, true);
 });
 Deno.test("should log a warning, not an error, when loading cache when no data or table", async () => {
   const sdb = new SimpleDB({ cacheVerbose: true });
@@ -27,6 +28,7 @@ Deno.test("should log a warning, not an error, when loading cache when no data o
     // Nothing in cache
   });
   await sdb.done();
+  assertEquals(true, true);
 });
 Deno.test("should cache computed values for tabular data", async () => {
   const sdb = new SimpleDB({ cacheVerbose: true });

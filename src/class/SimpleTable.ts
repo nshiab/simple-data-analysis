@@ -35,6 +35,7 @@ import {
 import writeDataAsArrays from "../helpers/writeDataAsArrays.ts";
 import logHistogram from "../methods/logHistogram.ts";
 import logData from "../helpers/logData.ts";
+import getProjectionParquet from "../helpers/getProjectionParquet.ts";
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
@@ -616,33 +617,61 @@ export default class SimpleTable extends SimpleWebTable {
     file: string,
     options: { toWGS84?: boolean; from?: string } = {},
   ): Promise<SimpleTable> {
-    await queryDB(
-      this,
-      `INSTALL spatial; LOAD spatial;${
-        file.toLowerCase().includes("http") ? " INSTALL https; LOAD https;" : ""
-      }
-            CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM ST_Read('${file}');`,
-      mergeOptions(this, {
-        table: this.name,
-        method: "loadGeoData()",
-        parameters: { file },
-      }),
-    );
+    const fileExtension = getExtension(file);
 
-    // column storing geometries is geom by default
-    this.projections["geom"] = (await getProjection(this.sdb, file)).proj4;
+    if (fileExtension === "geoparquet" || fileExtension === "parquet") {
+      await queryDB(
+        this,
+        `INSTALL spatial; LOAD spatial;${
+          file.toLowerCase().includes("http")
+            ? " INSTALL https; LOAD https;"
+            : ""
+        }
+              CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM read_parquet('${file}');`,
+        mergeOptions(this, {
+          table: this.name,
+          method: "loadGeoData()",
+          parameters: { file, options },
+        }),
+      );
 
-    const extension = getExtension(file);
-    if (extension === "json" || extension === "geojson") {
-      await this.flipCoordinates("geom"); // column storing geometries
-      this.projections["geom"] = "+proj=latlong +datum=WGS84 +no_defs";
+      this.projections = await getProjectionParquet(this, file);
+
       if (options.toWGS84) {
         console.log(
-          "This file is a json or geojson. Option toWGS84 has no effect.",
+          "\nThis file is a parquet. Option toWGS84 has no effect. Use the .reproject() method instead.\n",
         );
       }
-    } else if (options.toWGS84) {
-      await this.reproject("WGS84", { ...options, column: "geom" }); // column storing geometries is geom by default
+    } else {
+      await queryDB(
+        this,
+        `INSTALL spatial; LOAD spatial;${
+          file.toLowerCase().includes("http")
+            ? " INSTALL https; LOAD https;"
+            : ""
+        }
+              CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM ST_Read('${file}');`,
+        mergeOptions(this, {
+          table: this.name,
+          method: "loadGeoData()",
+          parameters: { file, options },
+        }),
+      );
+      // column storing geometries is geom by default
+      this.projections["geom"] = (await getProjection(this.sdb, file)).proj4;
+
+      const extension = getExtension(file);
+      if (extension === "json" || extension === "geojson") {
+        await this.flipCoordinates("geom"); // column storing geometries
+        this.projections["geom"] = "+proj=latlong +datum=WGS84 +no_defs";
+        if (options.toWGS84) {
+          console.log(
+            "This file is a json or geojson. Option toWGS84 has no effect.",
+          );
+        }
+      } else if (options.toWGS84) {
+        await this.reproject("WGS84", { ...options, column: "geom" }); // column storing geometries is geom by default
+      }
     }
 
     return this;
@@ -701,36 +730,69 @@ export default class SimpleTable extends SimpleWebTable {
    *
    * @param file - The path to the file to which data will be written.
    * @param options - An optional object with configuration options:
-   *   @param options.precision - Maximum number of figures after decimal separator to write in coordinates.
+   *   @param options.precision - Maximum number of figures after decimal separator to write in coordinates. Works with GeoJSON files only.
+   *   @param options.compression - A boolean indicating whether to compress the output file. Works with GeoParquet files only. Defaults to false. If true, the file will be compressed with ZSTD.
    *
    * * @category Exporting data
    */
-  async writeGeoData(file: string, options: { precision?: number } = {}) {
+  async writeGeoData(
+    file: string,
+    options: { precision?: number; compression?: boolean } = {},
+  ) {
     createDirectory(file);
-    const geoColumn = await findGeoColumn(this);
-    const flip = shouldFlipBeforeExport(this.projections[geoColumn]);
-    if (flip) {
-      await this.flipCoordinates(geoColumn);
+    const fileExtension = getExtension(file);
+    if (fileExtension === "geojson") {
+      if (typeof options.compression === "boolean") {
+        throw new Error(
+          "The compression option is not supported for writing GeoJSON files.",
+        );
+      }
+      const geoColumn = await findGeoColumn(this);
+      const flip = shouldFlipBeforeExport(this.projections[geoColumn]);
+      if (flip) {
+        await this.flipCoordinates(geoColumn);
+        await queryDB(
+          this,
+          writeGeoDataQuery(this.name, file, options),
+          mergeOptions(this, {
+            table: this.name,
+            method: "writeGeoData()",
+            parameters: { file, options },
+          }),
+        );
+        await this.flipCoordinates(geoColumn);
+      } else {
+        await queryDB(
+          this,
+          writeGeoDataQuery(this.name, file, options),
+          mergeOptions(this, {
+            table: this.name,
+            method: "writeGeoData()",
+            parameters: { file, options },
+          }),
+        );
+      }
+    } else if (fileExtension === "geoparquet") {
+      if (typeof options.precision === "number") {
+        throw new Error(
+          "The precision option is not supported for writing PARQUET files. Use the .reducePrecision() method.",
+        );
+      }
       await queryDB(
         this,
-        writeGeoDataQuery(this.name, file, options),
+        `COPY ${this.name} TO '${file}' WITH (FORMAT PARQUET${
+          options.compression === true ? ", COMPRESSION 'zstd'" : ""
+        }, KV_METADATA {
+             projections: '${JSON.stringify(this.projections)}'
+        });`,
         mergeOptions(this, {
           table: this.name,
           method: "writeGeoData()",
           parameters: { file, options },
         }),
       );
-      await this.flipCoordinates(geoColumn);
     } else {
-      await queryDB(
-        this,
-        writeGeoDataQuery(this.name, file, options),
-        mergeOptions(this, {
-          table: this.name,
-          method: "writeGeoData()",
-          parameters: { file, options },
-        }),
-      );
+      throw new Error(`Unknown extension ${fileExtension}`);
     }
   }
 
