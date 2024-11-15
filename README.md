@@ -104,6 +104,8 @@ Feel free to start a conversation or open an issue. Check how you can
 
 ## Performance
 
+### Tabular data
+
 To test and compare the library's performance, we calculated the average
 temperature per decade and city with the daily temperatures from the
 [Adjusted and Homogenized Canadian Climate Data](https://api.weather.gc.ca/collections/ahccd-annual).
@@ -125,33 +127,14 @@ In each script, we:
 
 Each script has been run ten times on a MacBook Pro (Apple M1 Pro / 16 GB).
 
-### Small file
-
-With _ahccd-samples.csv_:
-
-- 74.7 MB
-- 19 cities
-- 20 columns
-- 971,804 rows
-- 19,436,080 data points
-
-**simple-data-analysis@3.0.0** is the fastest, but if we skip writing the CSV
-file, the **tidyverse** shows impressive speed with small files.
-
-![A chart showing the processing duration of multiple scripts in various languages](./assets/small-file.png)
-
-### Big file
-
 With _ahccd.csv_:
 
 - 1.7 GB
 - 773 cities
 - 20 columns
 - 22,051,025 rows
-- 441,020,500 data points
 
-Thanks to DuckDB, **simple-data-analysis@3.0.0** really shines with big files.
-It's the fastest option.
+Thanks to DuckDB, **simple-data-analysis** is the fastest option.
 
 ![A chart showing the processing duration of multiple scripts in various languages](./assets/big-file.png)
 
@@ -162,6 +145,33 @@ the same computer (Apple M1 Pro / 16 GB). For more, check this
 [repo](https://github.com/nshiab/1brc) forked from this
 [one](https://github.com/gunnarmorling/1brc). The JavaScript code is
 [here](https://github.com/nshiab/1brc/blob/main/index.js).
+
+### Geospatial data
+
+To test the geospatial computation speed, we performed a spatial join to match
+each public tree in Montreal to its neighborhood. We then counted the number of
+trees in each neighbourhood. For more information, check this
+[repository](https://github.com/nshiab/simple-data-analysis-spatial-benchmarks).
+
+With _trees.csv_:
+
+- 128 MB
+- 316,321 trees
+- 33 columns
+
+And _neighbourhoods.geojson_:
+
+- 991 KB
+- 91 neighbourhoods
+- 6 columns
+
+Each script has been run ten times on a MacBook Pro (Apple M1 Pro / 16 GB).
+
+As we can see, **simple-data-analysis** is a bit slower than Python's GeoPandas
+but faster than R's sf package. Note that the spatial extension for DuckDB is a
+[work in progress](https://github.com/duckdb/duckdb_spatial).
+
+![A chart showing the processing duration of multiple scripts in various languages, for geospatial computations](./assets/spatial.png)
 
 Note that DuckDB, which powers SDA, can also be used with
 [Python](https://duckdb.org/docs/api/python/overview.html) and
