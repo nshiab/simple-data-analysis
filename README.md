@@ -112,8 +112,8 @@ temperature per decade and city with the daily temperatures from the
 See [this repository](https://github.com/nshiab/simple-data-analysis-benchmarks)
 for the code.
 
-We ran the same calculations with **simple-data-analysis@3.0.0** (both Node.js
-and Bun), **Pandas (Python)**, and the **tidyverse (R)**.
+We ran the same calculations with **simple-data-analysis@3.0.0** (Node.js, Bun,
+and Deno), **Pandas (Python)**, and the **tidyverse (R)**.
 
 In each script, we:
 
