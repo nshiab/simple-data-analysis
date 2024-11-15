@@ -173,7 +173,7 @@ but faster than R's sf package. Note that the spatial extension for DuckDB is a
 
 ![A chart showing the processing duration of multiple scripts in various languages, for geospatial computations](./assets/spatial.png)
 
-Note that DuckDB, which powers SDA, can also be used with
+DuckDB, which powers SDA, can also be used with
 [Python](https://duckdb.org/docs/api/python/overview.html) and
 [R](https://duckdb.org/docs/api/r).
 
