@@ -149,7 +149,7 @@ the same computer (Apple M1 Pro / 16 GB). For more, check this
 ### Geospatial data
 
 To test the geospatial computation speed, we performed a spatial join to match
-each public tree in Montreal to its neighborhood. We then counted the number of
+each public tree in Montreal to its neighbourhood. We then counted the number of
 trees in each neighbourhood. For more information, check this
 [repository](https://github.com/nshiab/simple-data-analysis-spatial-benchmarks).
 
