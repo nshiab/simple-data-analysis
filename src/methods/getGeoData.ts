@@ -1,11 +1,15 @@
+import { rewind } from "@nshiab/journalism/web";
 import type SimpleWebTable from "../class/SimpleWebTable.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
 import shouldFlipBeforeExport from "../helpers/shouldFlipBeforeExport.ts";
+// @deno-types="npm:@types/d3-geo@3"
+import type { GeoPermissibleObjects } from "npm:d3-geo@3";
 
 export default async function getGeoData(
   simpleWebTable: SimpleWebTable,
   column: string,
+  options: { rewind?: boolean } = {},
 ) {
   let query = "";
   if (shouldFlipBeforeExport(simpleWebTable.projections[column])) {
@@ -32,7 +36,10 @@ export default async function getGeoData(
 
   const features = queryResult.map((d) => {
     const { geoJsonFragment, ...properties } = d;
-    const geometry = JSON.parse(geoJsonFragment as string);
+    const geometry = JSON.parse(geoJsonFragment as string) as {
+      "type": string;
+      "coordinates": unknown[];
+    };
 
     const feature = {
       type: "Feature",
@@ -43,8 +50,24 @@ export default async function getGeoData(
     return feature;
   });
 
-  return {
+  const geoJSON = {
     type: "FeatureCollection",
     features,
   };
+
+  return options.rewind
+    ? rewind(geoJSON as GeoPermissibleObjects) as {
+      type: string;
+      features: {
+        type: string;
+        geometry: {
+          type: string;
+          coordinates: unknown[];
+        };
+        properties: {
+          [key: string]: string | number | boolean | Date | null;
+        };
+      }[];
+    }
+    : geoJSON;
 }

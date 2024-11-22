@@ -22,7 +22,7 @@
   "nodeModulesDir": "auto",
   "imports": {
     "@duckdb/duckdb-wasm": "npm:@duckdb/duckdb-wasm@1.29.0",
-    "@nshiab/journalism": "jsr:@nshiab/journalism@1.19.1",
+    "@nshiab/journalism": "jsr:@nshiab/journalism@^1.20.0",
     "@std/assert": "jsr:@std/assert@1.0.6",
     "apache-arrow": "npm:apache-arrow@17.0.0",
     "duckdb": "npm:duckdb@1.1.3"
