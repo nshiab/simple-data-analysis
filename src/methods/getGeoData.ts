@@ -36,7 +36,10 @@ export default async function getGeoData(
 
   const features = queryResult.map((d) => {
     const { geoJsonFragment, ...properties } = d;
-    const geometry = JSON.parse(geoJsonFragment as string);
+    const geometry = JSON.parse(geoJsonFragment as string) as {
+      "type": string;
+      "coordinates": unknown[];
+    };
 
     const feature = {
       type: "Feature",
@@ -55,7 +58,16 @@ export default async function getGeoData(
   return options.rewind
     ? rewind(geoJSON as GeoPermissibleObjects) as {
       type: string;
-      features: unknown[];
+      features: {
+        type: string;
+        geometry: {
+          type: string;
+          coordinates: unknown[];
+        };
+        properties: {
+          [key: string]: string | number | boolean | Date | null;
+        };
+      }[];
     }
     : geoJSON;
 }
