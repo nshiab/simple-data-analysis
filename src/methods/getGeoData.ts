@@ -1,3 +1,4 @@
+import { rewind } from "@nshiab/journalism/web";
 import type SimpleWebTable from "../class/SimpleWebTable.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
@@ -6,6 +7,7 @@ import shouldFlipBeforeExport from "../helpers/shouldFlipBeforeExport.ts";
 export default async function getGeoData(
   simpleWebTable: SimpleWebTable,
   column: string,
+  options: { rewind?: boolean } = {},
 ) {
   let query = "";
   if (shouldFlipBeforeExport(simpleWebTable.projections[column])) {
@@ -43,8 +45,10 @@ export default async function getGeoData(
     return feature;
   });
 
-  return {
+  const geoJSON = {
     type: "FeatureCollection",
     features,
   };
+
+  return options.rewind ? rewind(geoJSON) : geoJSON;
 }

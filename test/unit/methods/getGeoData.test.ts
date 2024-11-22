@@ -1,5 +1,6 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
+import { readFileSync } from "node:fs";
 
 Deno.test("should find the column with geometries and return geospatial data as a geojson", async () => {
   const sdb = new SimpleDB();
@@ -97,6 +98,34 @@ Deno.test("should return geospatial data as a geojson with a specific geometry c
       },
     ],
   });
+
+  await sdb.done();
+});
+Deno.test("should return geospatial data not rewinded", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("geoData");
+  await table.loadGeoData("test/geodata/files/economicRegions-simplified.json");
+  const geoData = await table.getGeoData();
+
+  const originalData = JSON.parse(
+    readFileSync("test/geodata/files/economicRegions-simplified.json", "utf-8"),
+  );
+
+  assertEquals(geoData, originalData);
+
+  await sdb.done();
+});
+Deno.test("should return geospatial data rewinded", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("geoData");
+  await table.loadGeoData("test/geodata/files/economicRegions-simplified.json");
+  const geoData = await table.getGeoData(undefined, { rewind: true });
+
+  const rewindedData = JSON.parse(
+    readFileSync("test/geodata/files/economicRegions-rewinded.json", "utf-8"),
+  );
+
+  assertEquals(geoData, rewindedData);
 
   await sdb.done();
 });

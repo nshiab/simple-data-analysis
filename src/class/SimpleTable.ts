@@ -31,11 +31,13 @@ import {
   logBarChart,
   logDotChart,
   logLineChart,
+  rewind,
 } from "jsr:@nshiab/journalism@1";
 import writeDataAsArrays from "../helpers/writeDataAsArrays.ts";
 import logHistogram from "../methods/logHistogram.ts";
 import logData from "../helpers/logData.ts";
 import getProjectionParquet from "../helpers/getProjectionParquet.ts";
+import { readFileSync, writeFileSync } from "node:fs";
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
@@ -737,13 +739,15 @@ export default class SimpleTable extends SimpleWebTable {
    * @param file - The path to the file to which data will be written.
    * @param options - An optional object with configuration options:
    *   @param options.precision - Maximum number of figures after decimal separator to write in coordinates. Works with GeoJSON files only.
+   *   @param options.rewind - If true, rewinds the winding order to be clockwise. Default is false. Works with GeoJSON files only.
    *   @param options.compression - A boolean indicating whether to compress the output file. Works with GeoParquet files only. Defaults to false. If true, the file will be compressed with ZSTD.
    *
    * * @category Exporting data
    */
   async writeGeoData(
     file: string,
-    options: { precision?: number; compression?: boolean } = {},
+    options: { precision?: number; compression?: boolean; rewind?: boolean } =
+      {},
   ) {
     createDirectory(file);
     const fileExtension = getExtension(file);
@@ -766,6 +770,11 @@ export default class SimpleTable extends SimpleWebTable {
             parameters: { file, options },
           }),
         );
+        if (options.rewind) {
+          const fileData = JSON.parse(readFileSync(file, "utf-8"));
+          const fileRewinded = rewind(fileData);
+          writeFileSync(file, JSON.stringify(fileRewinded));
+        }
         await this.flipCoordinates(geoColumn);
       } else {
         await queryDB(
@@ -782,6 +791,11 @@ export default class SimpleTable extends SimpleWebTable {
       if (typeof options.precision === "number") {
         throw new Error(
           "The precision option is not supported for writing PARQUET files. Use the .reducePrecision() method.",
+        );
+      }
+      if (typeof options.rewind === "boolean") {
+        throw new Error(
+          "The rewind option is not supported for writing PARQUET files.",
         );
       }
       await queryDB(

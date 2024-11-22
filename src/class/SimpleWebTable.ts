@@ -4578,10 +4578,15 @@ export default class SimpleWebTable extends Simple {
    * ```
    *
    * @param column - The name of a column storing geometries.
+   * @param options - An optional object with configuration options:
+   *   @param options.rewind - If true, rewinds the winding order to be clockwise. Default is false.
    *
    * @category Geospatial
    */
-  async getGeoData(column?: string): Promise<{
+  async getGeoData(
+    column?: string,
+    options: { rewind?: boolean } = {},
+  ): Promise<{
     type: string;
     features: unknown[];
   }> {
@@ -4589,7 +4594,7 @@ export default class SimpleWebTable extends Simple {
       column = await findGeoColumn(this);
     }
 
-    return await getGeoData(this, column);
+    return await getGeoData(this, column, options);
   }
 
   // OTHERS
