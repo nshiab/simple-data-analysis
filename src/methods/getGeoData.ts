@@ -3,6 +3,8 @@ import type SimpleWebTable from "../class/SimpleWebTable.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
 import shouldFlipBeforeExport from "../helpers/shouldFlipBeforeExport.ts";
+// @deno-types="npm:@types/d3-geo@3"
+import type { GeoPermissibleObjects } from "npm:d3-geo@3";
 
 export default async function getGeoData(
   simpleWebTable: SimpleWebTable,
@@ -50,5 +52,10 @@ export default async function getGeoData(
     features,
   };
 
-  return options.rewind ? rewind(geoJSON) : geoJSON;
+  return options.rewind
+    ? rewind(geoJSON as GeoPermissibleObjects) as {
+      type: string;
+      features: unknown[];
+    }
+    : geoJSON;
 }
