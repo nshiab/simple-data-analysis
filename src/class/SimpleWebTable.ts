@@ -3270,6 +3270,12 @@ export default class SimpleWebTable extends Simple {
   /**
    * Returns a row that matches the specified condition. If no row matches the condition, an error is thrown. If more than one row matches the condition, an error is thrown as well.
    *
+   * @example
+   * Basic usage
+   * ```ts
+   * const row = await table.getRow(`name = 'John'`)
+   * ```
+   *
    * @param condition - The condition to match. This should be a SQL WHERE clause.
    * @param options - Optional settings.
    * @param options.noCheck - If set to true, no error will be thrown when no row or more than one row match the condition. Default is false.
