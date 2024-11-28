@@ -3268,6 +3268,33 @@ export default class SimpleWebTable extends Simple {
   }
 
   /**
+   * Returns a row that matches the specified condition. If no row matches the condition, an error is thrown. If more than one row matches the condition, an error is thrown as well.
+   *
+   * @param condition - The condition to match. This should be a SQL WHERE clause.
+   * @param options - Optional settings.
+   * @param options.noCheck - If set to true, no error will be thrown when no row or more than one row match the condition. Default is false.
+   */
+  async getRow(
+    condition: string,
+    options: { noCheck?: boolean } = {},
+  ): Promise<{
+    [key: string]: string | number | boolean | Date | null;
+  }> {
+    const data = await this.getData({ condition });
+    if (options.noCheck !== true) {
+      if (data.length === 0) {
+        throw new Error(`No row found with condition \`${condition}\`.`);
+      } else if (data.length > 1) {
+        throw new Error(
+          `More than one row found with condition \`${condition}\`.`,
+        );
+      }
+    }
+
+    return data[0];
+  }
+
+  /**
    * Returns the data with an optional condition.
    *
    * @example
