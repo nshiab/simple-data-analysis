@@ -1356,8 +1356,8 @@ export default class SimpleWebTable extends Simple {
     const newType = parseType(type);
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} ADD ${newColumn} ${newType};
-        UPDATE ${this.name} SET ${newColumn} = ${definition}`,
+      `ALTER TABLE ${this.name} ADD "${newColumn}" ${newType};
+        UPDATE ${this.name} SET "${newColumn}" = ${definition}`,
       mergeOptions(this, {
         table: this.name,
         method: "addColumn()",

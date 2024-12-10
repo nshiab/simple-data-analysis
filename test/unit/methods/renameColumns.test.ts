@@ -41,3 +41,21 @@ Deno.test("should change the name of multiple columns", async () => {
 
   await sdb.done();
 });
+
+Deno.test("should change the name of a column with $ in its name", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadArray([{ "$ value": 10 }, { "$ value": 20 }]);
+
+  await table.renameColumns({
+    "$ value": "value",
+  });
+  const data = await table.getData();
+
+  assertEquals(data, [
+    { value: 10 },
+    { value: 20 },
+  ]);
+
+  await sdb.done();
+});

@@ -496,3 +496,21 @@ Deno.test("should convert numbers (ms) to dates and time", async () => {
   ]);
   await sdb.done();
 });
+
+Deno.test("should convert a column with $ in its name", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadArray([{ "$ value": 10 }, { "$ value": 20 }]);
+
+  await table.convert({
+    "$ value": "string",
+  });
+  const data = await table.getData();
+
+  assertEquals(data, [
+    { "$ value": "10.0" },
+    { "$ value": "20.0" },
+  ]);
+
+  await sdb.done();
+});
