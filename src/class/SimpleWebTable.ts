@@ -1205,6 +1205,14 @@ export default class SimpleWebTable extends Simple {
     const allTypes = await this.getTypes();
     const allColumns = Object.keys(allTypes);
 
+    for (const col in types) {
+      if (!allColumns.includes(col)) {
+        throw new Error(
+          `The column ${col} does not exist in the table.`,
+        );
+      }
+    }
+
     await queryDB(
       this,
       convertQuery(
