@@ -1,5 +1,5 @@
 export default function logDataWeb(
-  types: { [key: string]: string },
+  types: { [key: string]: string } | null,
   data:
     | {
       [key: string]: string | number | boolean | Date | null;
@@ -37,12 +37,14 @@ export default function logDataWeb(
         }
         dataToBeLogged.push(newItem);
       }
-      const columns = Object.keys(types);
-      if (columns.length > 0) {
-        for (const col of columns) {
-          types[col] = types[col] + "/" + typeof data[0][col];
+      if (types !== null) {
+        const columns = Object.keys(types);
+        if (columns.length > 0) {
+          for (const col of columns) {
+            types[col] = types[col] + "/" + typeof data[0][col];
+          }
+          console.table([types]);
         }
-        console.table([types]);
       }
       console.table(dataToBeLogged);
     }

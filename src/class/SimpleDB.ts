@@ -59,6 +59,7 @@ export default class SimpleDB extends SimpleWebDB {
       logDuration?: boolean;
       nbRowsToLog?: number;
       nbCharactersToLog?: number;
+      logTypes?: boolean;
       cacheVerbose?: boolean;
       debug?: boolean;
       bigIntToInt?: boolean;
@@ -119,12 +120,14 @@ export default class SimpleDB extends SimpleWebDB {
 
     const proj = projections ?? {};
 
+    // SHOULD MATCH cloneTable
     let table;
     if (typeof name === "string") {
       table = new SimpleTable(name, proj, this, {
         debug: this.debug,
         nbRowsToLog: this.nbRowsToLog,
         nbCharactersToLog: this.nbCharactersToLog,
+        logTypes: this.logTypes,
       });
       table.defaultTableName = false;
     } else {
@@ -133,6 +136,7 @@ export default class SimpleDB extends SimpleWebDB {
         nbRowsToLog: this.nbRowsToLog,
         bigIntToInt: this.bigIntToInt,
         nbCharactersToLog: this.nbCharactersToLog,
+        logTypes: this.logTypes,
       });
       table.defaultTableName = true;
       this.tableIncrement += 1;
