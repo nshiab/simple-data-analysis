@@ -28,7 +28,7 @@ export default async function joinGeo(
     ? leftTableColumn
     : "";
   const identicalColumns = (
-    await getIdenticalColumns(
+    getIdenticalColumns(
       await leftTable.getColumns(),
       await rightTable.getColumns(),
     )
@@ -50,29 +50,17 @@ export default async function joinGeo(
 
   // We change the column names for geometries
   if (leftTableColumn === rightTableColumn) {
-    if (!leftTable.defaultTableName) {
-      leftTableColumnForQuery = `${leftTableColumn}${
-        capitalize(leftTable.name)
-      }`;
-      const leftObj: { [key: string]: string } = {};
-      leftObj[leftTableColumn] = leftTableColumnForQuery;
-      await leftTable.renameColumns(leftObj);
-    }
+    leftTableColumnForQuery = `${leftTableColumn}${capitalize(leftTable.name)}`;
+    const leftObj: { [key: string]: string } = {};
+    leftObj[leftTableColumn] = leftTableColumnForQuery;
+    await leftTable.renameColumns(leftObj);
 
-    if (!rightTable.defaultTableName) {
-      rightTableColumnForQuery = `${rightTableColumn}${
-        capitalize(rightTable.name)
-      }`;
-      const rightObj: { [key: string]: string } = {};
-      rightObj[rightTableColumn] = rightTableColumnForQuery;
-      await rightTable.renameColumns(rightObj);
-    } else {
-      // Otherwise, we don't rename and transfer projections
-      rightTableColumnForQuery = `${rightTableColumn}_1`;
-      const rightObj: { [key: string]: string } = {};
-      rightObj[rightTableColumn] = rightTableColumnForQuery;
-      await rightTable.renameColumns(rightObj);
-    }
+    rightTableColumnForQuery = `${rightTableColumn}${
+      capitalize(rightTable.name)
+    }`;
+    const rightObj: { [key: string]: string } = {};
+    rightObj[rightTableColumn] = rightTableColumnForQuery;
+    await rightTable.renameColumns(rightObj);
   }
 
   const type = options.type ?? "left";
@@ -113,13 +101,10 @@ export default async function joinGeo(
 
   // We bring back the column names for geometries
   if (leftTableColumn === rightTableColumn) {
-    if (!leftTable.defaultTableName) {
-      const leftObj: { [key: string]: string } = {};
-      leftObj[leftTableColumnForQuery] = leftTableColumn;
-      await leftTable.renameColumns(leftObj);
-    }
+    const leftObj: { [key: string]: string } = {};
+    leftObj[leftTableColumnForQuery] = leftTableColumn;
+    await leftTable.renameColumns(leftObj);
 
-    // We always changed it.
     const rightObj: { [key: string]: string } = {};
     rightObj[rightTableColumnForQuery] = rightTableColumn;
     await rightTable.renameColumns(rightObj);

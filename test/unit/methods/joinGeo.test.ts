@@ -43,8 +43,8 @@ Deno.test("should do a left spatial join the intersect method and keep all proje
   await prov.joinGeo(poly, "intersect");
 
   assertEquals(prov.projections, {
-    geom: "+proj=latlong +datum=WGS84 +no_defs",
-    geom_1: "+proj=latlong +datum=WGS84 +no_defs",
+    geomTable1: "+proj=latlong +datum=WGS84 +no_defs",
+    geomTable2: "+proj=latlong +datum=WGS84 +no_defs",
   });
   await sdb.done();
 });
@@ -133,7 +133,7 @@ Deno.test("should do a left spatial join the intersect method with tables with d
     "nameFrench",
     "geom",
     "name",
-    "geom_1",
+    "geomTable2",
   ]);
   await sdb.done();
 });
@@ -181,7 +181,7 @@ Deno.test("should do a left spatial join the intersect method without changing t
         "nameFrench",
         "geom",
         "name",
-        "geom_1",
+        "geomTable2",
       ],
       columnsRightTable: ["name", "geom"],
     },
