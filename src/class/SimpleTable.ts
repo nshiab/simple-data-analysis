@@ -1160,7 +1160,7 @@ export default class SimpleTable extends SimpleWebTable {
    * ```
    *
    * @param nbRowsToLog - The number of rows to log when debugging. Defaults to 10 or the value set in the SimpleWebDB instance.
-   * @parem logTypes - A boolean indicating whether to log the types of the columns.
+   * @param logTypes - A boolean indicating whether to log the types of the columns.
    */
   override async logTable(nbRowsToLog?: number, logTypes?: boolean) {
     const rows = nbRowsToLog ?? this.nbRowsToLog;
