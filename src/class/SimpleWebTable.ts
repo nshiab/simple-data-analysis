@@ -126,6 +126,7 @@ export default class SimpleWebTable extends Simple {
       debug?: boolean;
       nbRowsToLog?: number;
       nbCharactersToLog?: number;
+      logTypes?: boolean;
     } = {},
   ) {
     super(runQueryWeb, options);
@@ -389,17 +390,34 @@ export default class SimpleWebTable extends Simple {
       condition?: string;
     } = {},
   ): Promise<SimpleWebTable> {
-    let clonedTable: SimpleWebTable;
+    // SHOULD MATCH newTable() in SimpleWebDB
+    let clonedTable;
     if (typeof options.outputTable === "string") {
-      clonedTable = this.sdb.newTable(
+      clonedTable = new SimpleWebTable(
         options.outputTable,
         this.projections,
+        this.sdb,
+        {
+          debug: this.debug,
+          nbRowsToLog: this.nbRowsToLog,
+          nbCharactersToLog: this.nbCharactersToLog,
+          logTypes: this.logTypes,
+        },
       );
+      clonedTable.defaultTableName = false;
     } else {
-      clonedTable = this.sdb.newTable(
+      clonedTable = new SimpleWebTable(
         `table${this.sdb.tableIncrement}`,
         this.projections,
+        this.sdb,
+        {
+          debug: this.debug,
+          nbRowsToLog: this.nbRowsToLog,
+          nbCharactersToLog: this.nbCharactersToLog,
+          logTypes: this.logTypes,
+        },
       );
+      clonedTable.defaultTableName = true;
       this.sdb.tableIncrement += 1;
     }
 
@@ -4657,9 +4675,16 @@ export default class SimpleWebTable extends Simple {
    * await table.logTable(100);
    * ```
    *
-   * @param nbRowsToLog - The number of rows to log when debugging. Defaults to 10 or the value set in the SimpleWebDB instance.
+   * @example
+   * Specific number of rows and types
+   * ```ts
+   * await table.logTable(100, true);
+   * ```
+   *
+   * @param nbRowsToLog - The number of rows to log. Defaults to 10 or the value set in the SimpleWebDB instance.
+   * @param logTypes - If true, logs the types of the columns.
    */
-  async logTable(nbRowsToLog?: number) {
+  async logTable(nbRowsToLog?: number, logTypes?: boolean) {
     const rows = nbRowsToLog ?? this.nbRowsToLog;
     this.debug && console.log("\nlogTable()");
     this.debug && console.log("parameters:", { nbRowsToLog });
@@ -4682,7 +4707,11 @@ export default class SimpleWebTable extends Simple {
           bigIntToInt: this.bigIntToInt,
         },
       );
-      logDataWeb(await this.getTypes(), data, this.nbCharactersToLog);
+      logDataWeb(
+        this.logTypes || logTypes ? await this.getTypes() : null,
+        data,
+        this.nbCharactersToLog,
+      );
       const nbRows = await this.runQuery(
         `SELECT COUNT(*) FROM ${this.name};`,
         this.connection,

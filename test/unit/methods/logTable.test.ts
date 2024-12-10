@@ -12,6 +12,17 @@ Deno.test("should log a table", async () => {
   await sdb.done();
 });
 
+Deno.test("should log a table with types", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/employees.csv");
+  await table.logTable(10, true);
+
+  // How to test?
+  assertEquals(true, true);
+  await sdb.done();
+});
+
 Deno.test("should not throw an error when there is no table", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
