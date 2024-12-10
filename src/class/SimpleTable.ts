@@ -39,7 +39,7 @@ import logHistogram from "../methods/logHistogram.ts";
 import logData from "../helpers/logData.ts";
 import getProjectionParquet from "../helpers/getProjectionParquet.ts";
 import { readFileSync, writeFileSync } from "node:fs";
-import type { Data } from "npm:@observablehq/plot";
+import type { Data } from "npm:@observablehq/plot@0";
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
