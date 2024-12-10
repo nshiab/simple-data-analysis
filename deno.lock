@@ -8,6 +8,7 @@
     "jsr:@std/internal@^1.0.4": "1.0.4",
     "npm:@duckdb/duckdb-wasm@1": "1.29.0",
     "npm:@duckdb/duckdb-wasm@1.29.0": "1.29.0",
+    "npm:@observablehq/plot@*": "0.6.16",
     "npm:@observablehq/plot@~0.6.16": "0.6.16",
     "npm:@types/d3-geo@3": "3.1.0",
     "npm:@types/node@*": "22.5.4",
@@ -39,7 +40,7 @@
     "@nshiab/journalism@1.21.1": {
       "integrity": "7e6fb1d5f5003825d3615fbc706f1ff94e2ea56a9def500d89edf154eade4130",
       "dependencies": [
-        "npm:@observablehq/plot",
+        "npm:@observablehq/plot@~0.6.16",
         "npm:@types/d3-geo",
         "npm:adm-zip@0.5",
         "npm:cheerio@1",
@@ -1432,6 +1433,7 @@
       "jsr:@nshiab/journalism@^1.21.1",
       "jsr:@std/assert@1.0.6",
       "npm:@duckdb/duckdb-wasm@1.29.0",
+      "npm:@observablehq/plot@~0.6.16",
       "npm:apache-arrow@17.0.0",
       "npm:duckdb@1.1.3"
     ]
