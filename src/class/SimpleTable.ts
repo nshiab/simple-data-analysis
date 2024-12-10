@@ -32,12 +32,14 @@ import {
   logDotChart,
   logLineChart,
   rewind,
+  saveChart,
 } from "jsr:@nshiab/journalism@1";
 import writeDataAsArrays from "../helpers/writeDataAsArrays.ts";
 import logHistogram from "../methods/logHistogram.ts";
 import logData from "../helpers/logData.ts";
 import getProjectionParquet from "../helpers/getProjectionParquet.ts";
 import { readFileSync, writeFileSync } from "node:fs";
+import type { Data } from "npm:@observablehq/plot";
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
@@ -1134,6 +1136,102 @@ export default class SimpleTable extends SimpleWebTable {
     } = {},
   ) {
     await logHistogram(this, values, options);
+  }
+
+  /**
+   * Creates an [Observable Plot](https://github.com/observablehq/plot) chart as an image file (.png or .jpeg) from the table data.
+   *
+   * To create maps, use the writeMap method.
+   *
+   * @example
+   * Basic usage:
+   * ```ts
+   * import { dot, plot } from "@observablehq/plot";
+   * import type { Data } from "@observablehq/plot";
+   *
+   * const sdb = new SimpleDB();
+   * const table = sdb.newTable();
+   *
+   * const data = [{ year: 2024, value: 10 }, { year: 2025, value: 15 }]
+   *
+   * await table.loadArray(data);
+   *
+   * const chart = (data: Data) =>
+   *   plot({
+   *     marks: [
+   *       dot(data, { x: "year", y: "value" }),
+   *     ],
+   *   });
+   *
+   * const path = "output/chart.png";
+   *
+   * await table.writeChart(chart, path);
+   * ```
+   *
+   * @param chart - A function that takes data and returns an Observable Plot chart.
+   * @param path - The path where the chart image will be saved.
+   */
+  async writeChart(
+    chart: (data: Data) => SVGSVGElement | HTMLElement,
+    path: string,
+  ) {
+    await saveChart(await this.getData(), chart, path);
+  }
+
+  /**
+   * Creates an [Observable Plot](https://github.com/observablehq/plot) map as an image file (.png or .jpeg) from the table data.
+   *
+   * To create charts, use the writeChart method.
+   *
+   * @example
+   * Basic usage:
+   * ```ts
+   * import { geo, plot } from "@observablehq/plot";
+   * import type { Data } from "@observablehq/plot";
+   *
+   * const sdb = new SimpleDB();
+   * const table = sdb.newTable();
+   *
+   * await table.loadGeoData(
+   *   "./CanadianProvincesAndTerritories.geojson",
+   * );
+   *
+   * const map = (data: Data) =>
+   *   plot({
+   *     projection: {
+   *       type: "conic-conformal",
+   *       rotate: [100, -60],
+   *       domain: data,
+   *     },
+   *     marks: [
+   *       geo(data, { stroke: "black", fill: "lightblue" }),
+   *     ],
+   *   });
+   *
+   * const path = "./output/map.png";
+   *
+   * // Note the option rewind, available if needed.
+   * await table.writeMap(map, path, { rewind: true });
+   * ```
+   *
+   * @param map - A function that takes data and returns an Observable Plot map.
+   * @param path - The path where the map image will be saved.
+   * @param options - An optional object with configuration options:
+   *   @param options.column - The name of a column storing geometries. If there is just one, it will be used by default.
+   *   @param options.rewind - If true, rewinds the winding order to be clockwise. Default is false.
+   */
+  async writeMap(
+    map: (data: Data) => SVGSVGElement | HTMLElement,
+    path: string,
+    options: { column?: string; rewind?: true } = {},
+  ) {
+    await saveChart(
+      await this.getGeoData(options.column, {
+        rewind: options.rewind,
+      }) as unknown as Data,
+      map,
+      path,
+    );
   }
 
   /**
