@@ -8,7 +8,7 @@ if (!existsSync(output)) {
   mkdirSync(output);
 }
 
-Deno.test("should write a chart", async () => {
+Deno.test("should write a chart as a png", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/dailyTemperatures.csv");
@@ -28,6 +28,46 @@ Deno.test("should write a chart", async () => {
   await sdb.done();
 });
 
+Deno.test("should write a chart as a jpeg", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/dailyTemperatures.csv");
+  await table.filter(`YEAR(time) === 2020`);
+  await table.writeChart((data: Data) =>
+    plot({
+      title: "My chart",
+      color: { legend: true, type: "diverging" },
+      facet: { data: data, y: "id" },
+      marginRight: 100,
+      marks: [
+        dot(data, { x: "time", y: "t", fill: "t", facet: "auto" }),
+      ],
+    }), output + "temp.jpeg");
+  // How to assert?
+  assertEquals(true, true);
+  await sdb.done();
+});
+
+Deno.test("should write a chart as a svg", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/dailyTemperatures.csv");
+  await table.filter(`YEAR(time) === 2020`);
+  await table.writeChart((data: Data) =>
+    plot({
+      title: "My chart",
+      color: { legend: true, type: "diverging" },
+      facet: { data: data, y: "id" },
+      marginRight: 100,
+      marks: [
+        dot(data, { x: "time", y: "t", fill: "t", facet: "auto" }),
+      ],
+    }), output + "temp.svg");
+  // How to assert?
+  assertEquals(true, true);
+  await sdb.done();
+});
+
 Deno.test("should write a chart (example from docs)", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
@@ -39,6 +79,26 @@ Deno.test("should write a chart (example from docs)", async () => {
         dot(data, { x: "year", y: "value" }),
       ],
     }), output + "example.png");
+  // How to assert?
+  assertEquals(true, true);
+  await sdb.done();
+});
+
+Deno.test("should write a chart in a folder that doesn't exist", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/dailyTemperatures.csv");
+  await table.filter(`YEAR(time) === 2020`);
+  await table.writeChart((data: Data) =>
+    plot({
+      title: "My chart",
+      color: { legend: true, type: "diverging" },
+      facet: { data: data, y: "id" },
+      marginRight: 100,
+      marks: [
+        dot(data, { x: "time", y: "t", fill: "t", facet: "auto" }),
+      ],
+    }), output + "/test/temp.png");
   // How to assert?
   assertEquals(true, true);
   await sdb.done();
