@@ -1139,7 +1139,7 @@ export default class SimpleTable extends SimpleWebTable {
   }
 
   /**
-   * Creates an [Observable Plot](https://github.com/observablehq/plot) chart as an image file (.png or .jpeg) from the table data.
+   * Creates an [Observable Plot](https://github.com/observablehq/plot) chart as an image file (.png, .jpeg or .svg) from the table data.
    *
    * To create maps, use the writeMap method.
    *
@@ -1179,7 +1179,7 @@ export default class SimpleTable extends SimpleWebTable {
   }
 
   /**
-   * Creates an [Observable Plot](https://github.com/observablehq/plot) map as an image file (.png or .jpeg) from the table data.
+   * Creates an [Observable Plot](https://github.com/observablehq/plot) map as an image file (.png, .jpeg or .svg) from the table data.
    *
    * To create charts, use the writeChart method.
    *
