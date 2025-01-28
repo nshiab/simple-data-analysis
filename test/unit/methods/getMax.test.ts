@@ -8,6 +8,14 @@ Deno.test("should return the max value", async () => {
   assertEquals(await table.getMax("key1"), 4);
   await sdb.done();
 });
+Deno.test("should return the max value even when there are spaces in the column name", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadData(["test/data/files/data.json"]);
+  await table.renameColumns({ key1: "key 1" });
+  assertEquals(await table.getMax("key 1"), 4);
+  await sdb.done();
+});
 Deno.test("should return the max value with Dates", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable("data");
