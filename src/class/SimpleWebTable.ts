@@ -4704,7 +4704,6 @@ export default class SimpleWebTable extends Simple {
           debug: this.debug,
           method: null,
           parameters: null,
-          bigIntToInt: this.bigIntToInt,
         },
       );
       logDataWeb(
@@ -4720,7 +4719,6 @@ export default class SimpleWebTable extends Simple {
           debug: this.debug,
           method: null,
           parameters: null,
-          bigIntToInt: this.bigIntToInt,
         },
       );
       if (nbRows === null) {

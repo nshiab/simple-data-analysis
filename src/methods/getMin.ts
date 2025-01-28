@@ -8,19 +8,22 @@ export default async function getMin(
 ) {
   const queryResult = await queryDB(
     simpleWebTable,
-    `SELECT MIN(${column}) AS valueForGetMin FROM ${simpleWebTable.name}`,
-    mergeOptions(simpleWebTable, {
-      table: simpleWebTable.name,
-      returnDataFrom: "query",
-      method: "getMin()",
-      parameters: { column },
-    }),
+    `SELECT MIN(${column}) AS "${column}" FROM ${simpleWebTable.name}`,
+    {
+      ...mergeOptions(simpleWebTable, {
+        table: simpleWebTable.name,
+        returnDataFrom: "query",
+        method: "getMin()",
+        parameters: { column },
+      }),
+      types: await simpleWebTable.getTypes(),
+    },
   );
 
   if (!queryResult) {
     throw new Error("No queryResults");
   }
-  const result = queryResult[0].valueForGetMin;
+  const result = queryResult[0][column];
 
   simpleWebTable.debug && console.log("min:", result);
 

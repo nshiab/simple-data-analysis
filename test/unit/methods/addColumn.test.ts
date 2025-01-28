@@ -5,6 +5,7 @@ Deno.test("should return a column with new computed values", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.loadData(["test/data/files/dataSummarize.json"]);
+  await table.convert({ key2: "integer" });
   await table.addColumn("multiply", "double", `key2 * key3`);
   const data = await table.getData();
 
@@ -22,6 +23,7 @@ Deno.test("should return a column with booleans", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.loadData(["test/data/files/dataSummarize.json"]);
+  await table.convert({ key2: "integer" });
   await table.addColumn("key2GreaterThanTen", "boolean", `key2 > 10`);
 
   const data = await table.getData();
@@ -120,6 +122,7 @@ Deno.test("should return a column with a space in its name", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.loadData(["test/data/files/dataSummarize.json"]);
+  await table.convert({ key2: "integer" });
   await table.addColumn("key 4", "double", `key2 * key3`);
   const data = await table.getData();
 
@@ -137,6 +140,7 @@ Deno.test("should return a column with a $ in its name", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.loadData(["test/data/files/dataSummarize.json"]);
+  await table.convert({ key2: "integer" });
   await table.addColumn("$key4", "double", `key2 * key3`);
   const data = await table.getData();
 

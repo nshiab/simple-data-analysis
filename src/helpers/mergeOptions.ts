@@ -18,7 +18,6 @@ export default function mergeOptions(
   nbCharactersToLog: number | undefined;
   returnDataFrom: "query" | "none";
   debug: boolean;
-  bigIntToInt: boolean;
 } {
   return {
     table: options.table,
@@ -28,6 +27,5 @@ export default function mergeOptions(
     nbCharactersToLog: simple.nbCharactersToLog,
     returnDataFrom: options.returnDataFrom ?? "none",
     debug: options.debug ?? simple.debug,
-    bigIntToInt: simple.bigIntToInt ?? false,
   };
 }

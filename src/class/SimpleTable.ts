@@ -1,7 +1,5 @@
 import { readdirSync } from "node:fs";
-import { tableFromJSON, tableToIPC } from "npm:apache-arrow@17";
 import SimpleWebTable from "./SimpleWebTable.ts";
-import type { Connection } from "npm:duckdb@1";
 import stringToArray from "../helpers/stringToArray.ts";
 import loadDataNodeQuery from "../methods/loadDataNodeQuery.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
@@ -40,6 +38,7 @@ import logData from "../helpers/logData.ts";
 import getProjectionParquet from "../helpers/getProjectionParquet.ts";
 import { readFileSync, writeFileSync } from "node:fs";
 import type { Data } from "npm:@observablehq/plot@0";
+import loadArray from "../methods/loadArray.ts";
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
@@ -76,7 +75,6 @@ import type { Data } from "npm:@observablehq/plot@0";
  *   @param options.debug - A boolean indicating whether to enable debug mode.
  *   @param options.nbRowsToLog - Number of rows to log when displaying table data.
  *   @param options.nbCharactersToLog - Maximum number of characters to log for strings. Useful to avoid logging large text content.
- *   @param options.bigIntToInt - A boolean indicating whether to convert BigInt to Int. Defaults to true.
  */
 
 export default class SimpleTable extends SimpleWebTable {
@@ -92,12 +90,10 @@ export default class SimpleTable extends SimpleWebTable {
       nbRowsToLog?: number;
       nbCharactersToLog?: number;
       logTypes?: boolean;
-      bigIntToInt?: boolean;
     } = {},
   ) {
     super(name, projections, simpleDB, options);
     this.sdb = simpleDB;
-    this.bigIntToInt = options.bigIntToInt ?? true;
     this.runQuery = runQueryNode;
   }
 
@@ -131,7 +127,6 @@ export default class SimpleTable extends SimpleWebTable {
         {
           debug: this.debug,
           nbRowsToLog: this.nbRowsToLog,
-          bigIntToInt: this.bigIntToInt,
           nbCharactersToLog: this.nbCharactersToLog,
           logTypes: this.logTypes,
         },
@@ -408,25 +403,7 @@ export default class SimpleTable extends SimpleWebTable {
           : arrayOfObjects,
       });
 
-    const arrowTable = tableFromJSON(arrayOfObjects);
-
-    await this.sdb.customQuery("INSTALL arrow; LOAD arrow;");
-    this.connection = this.sdb.connection;
-    (this.connection as Connection).register_buffer(
-      `tableAsView`,
-      [tableToIPC(arrowTable)],
-      true,
-      (err) => {
-        if (err) {
-          throw err;
-        }
-      },
-    );
-
-    await this.sdb.customQuery(
-      `CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM tableAsView;
-            DROP VIEW tableAsView;`,
-    );
+    await loadArray(this, arrayOfObjects);
 
     this.debug && (await this.logTable());
 
@@ -1263,7 +1240,7 @@ export default class SimpleTable extends SimpleWebTable {
   override async logTable(nbRowsToLog?: number, logTypes?: boolean) {
     const rows = nbRowsToLog ?? this.nbRowsToLog;
     this.debug && console.log("\nlogTable()");
-    this.debug && console.log("parameters:", { nbRowsToLog });
+    this.debug && console.log("parameters:", { nbRowsToLog: rows });
 
     if (
       this.connection === undefined ||
@@ -1272,42 +1249,15 @@ export default class SimpleTable extends SimpleWebTable {
       console.log(`\ntable ${this.name}: no data`);
     } else {
       console.log(`\ntable ${this.name}:`);
-      const data = await this.runQuery(
-        `SELECT * FROM ${this.name} LIMIT ${rows}`,
-        this.connection,
-        true,
-        {
-          debug: this.debug,
-          method: null,
-          parameters: null,
-          bigIntToInt: this.bigIntToInt,
-        },
-      );
+      const data = await this.getTop(rows);
       logData(
         this.logTypes || logTypes ? await this.getTypes() : null,
         data,
         this.nbCharactersToLog,
       );
-      const nbRows = await this.runQuery(
-        `SELECT COUNT(*) FROM ${this.name};`,
-        this.connection,
-        true,
-        {
-          debug: this.debug,
-          method: null,
-          parameters: null,
-          bigIntToInt: this.bigIntToInt,
-        },
-      );
-      if (nbRows === null) {
-        throw new Error("nbRows is null");
-      }
+      const nbRows = await this.getNbRows();
       console.log(
-        `${
-          formatNumber(
-            nbRows[0]["count_star()"] as number,
-          )
-        } rows in total ${`(nbRowsToLog: ${rows}${
+        `${formatNumber(nbRows)} rows in total ${`(nbRowsToLog: ${rows}${
           typeof this.nbCharactersToLog === "number"
             ? `, nbCharactersToLog: ${this.nbCharactersToLog}`
             : ""

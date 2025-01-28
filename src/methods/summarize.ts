@@ -74,7 +74,7 @@ export default async function summarize(
     for (const key of Object.keys(types)) {
       if (types[key].includes("TIME") || types[key].includes("DATE")) {
         toMsObj[key] = "bigint";
-        types[key] = "BIGINT";
+        types[key] = "bigint";
       }
     }
     await simpleWebTable.convert(toMsObj);

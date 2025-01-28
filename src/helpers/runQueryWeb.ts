@@ -1,17 +1,16 @@
 import type { AsyncDuckDBConnection } from "npm:@duckdb/duckdb-wasm@1";
-import type { Connection } from "npm:duckdb@1";
+import type { DuckDBConnection } from "@duckdb/node-api";
 import tableToArrayOfObjects from "./arraysToData.ts";
 import type { Table } from "npm:apache-arrow@17";
 
 export default async function runQueryWeb(
   query: string,
-  connection: AsyncDuckDBConnection | Connection,
+  connection: AsyncDuckDBConnection | DuckDBConnection,
   returnDataFromQuery: boolean,
   options: {
     debug: boolean;
     method: string | null;
     parameters: { [key: string]: unknown } | null;
-    bigIntToInt?: boolean;
   },
 ): Promise<
   | {

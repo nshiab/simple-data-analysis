@@ -18,7 +18,7 @@ export default function parseType(
 ) {
   const typeLowerCase = type.toLowerCase();
   if (typeLowerCase === "integer") {
-    return "BIGINT";
+    return "INTEGER";
   } else if (typeLowerCase === "float" || typeLowerCase === "number") {
     return "DOUBLE";
   } else if (typeLowerCase === "string") {

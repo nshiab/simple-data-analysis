@@ -41,6 +41,7 @@ Deno.test("should summarize all rows into a new table, even if column names have
     categories: "key 1",
     outputTable: "summaryAllRows",
   });
+
   const data = await summaryAllRows.getData();
   assertEquals(data, [
     {

@@ -1,15 +1,16 @@
 import type { AsyncDuckDBConnection } from "npm:@duckdb/duckdb-wasm@1";
-import type { Connection } from "npm:duckdb@1";
+import type { DuckDBConnection } from "@duckdb/node-api";
+import convertForJS from "./convertForJS.ts";
 
 export default async function runQueryNode(
   query: string,
-  connection: AsyncDuckDBConnection | Connection,
+  connection: AsyncDuckDBConnection | DuckDBConnection,
   returnDataFromQuery: boolean,
   options: {
     debug: boolean;
     method: string | null;
     parameters: { [key: string]: unknown } | null;
-    bigIntToInt?: boolean;
+    types?: { [key: string]: string };
   },
 ): Promise<
   | {
@@ -19,47 +20,20 @@ export default async function runQueryNode(
 > {
   try {
     if (returnDataFromQuery) {
-      const res = await new Promise<
-        | {
-          [key: string]: number | string | Date | boolean | null;
-        }[]
-        | null
-      >((resolve, reject) => {
-        (connection as Connection).all(query, (err, result) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(result);
-          }
-        });
-      });
+      const reader = await (connection as DuckDBConnection).runAndReadAll(
+        query,
+      );
+      const rows = reader.getRowObjectsJson() as {
+        [key: string]: string | number | boolean | Date | null;
+      }[];
 
-      if (
-        Array.isArray(res) &&
-        res.length > 0 &&
-        options?.bigIntToInt === true
-      ) {
-        const keys = Object.keys(res[0]);
-        for (let i = 0; i < res.length; i++) {
-          for (const key of keys) {
-            if (typeof res[i][key] === "bigint") {
-              res[i][key] = Number(res[i][key]);
-            }
-          }
-        }
+      if (options.types) {
+        convertForJS(rows, options.types);
       }
 
-      return res;
+      return rows;
     } else {
-      await new Promise<void>((resolve, reject) => {
-        (connection as Connection).exec(query, (err) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve();
-          }
-        });
-      });
+      await (connection as DuckDBConnection).run(query);
       return null;
     }
   } catch (error) {

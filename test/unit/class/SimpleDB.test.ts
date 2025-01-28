@@ -1,7 +1,6 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
-import pkg from "npm:duckdb@1";
-const { Database, Connection } = pkg;
+import { DuckDBConnection, DuckDBInstance } from "@duckdb/node-api";
 
 Deno.test("should instantiate a SimpleDB class", async () => {
   const sdb = new SimpleDB();
@@ -11,7 +10,7 @@ Deno.test("should instantiate a SimpleDB class", async () => {
 Deno.test("should start and instantiate a db", async () => {
   const sdb = new SimpleDB();
   await sdb.start();
-  assertEquals(sdb.db instanceof Database, true);
+  assertEquals(sdb.db instanceof DuckDBInstance, true);
   await sdb.done();
 });
 
@@ -24,7 +23,7 @@ Deno.test("should start and return an instance of SimpleDB", async () => {
 Deno.test("should start and instantiate a connection", async () => {
   const sdb = new SimpleDB();
   await sdb.start();
-  assertEquals(sdb.connection instanceof Connection, true);
+  assertEquals(sdb.connection instanceof DuckDBConnection, true);
   await sdb.done();
 });
 

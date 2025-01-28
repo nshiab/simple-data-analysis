@@ -60,7 +60,7 @@ If you want to add the library to an existing project, here's how.
 
 ```bash
 # Deno >= 2.x.x
-deno install --node-modules-dir=auto --allow-scripts=npm:duckdb jsr:@nshiab/simple-data-analysis
+deno install --node-modules-dir=auto jsr:@nshiab/simple-data-analysis
 # To run with Deno
 deno run --node-modules-dir=auto -A main.ts
 

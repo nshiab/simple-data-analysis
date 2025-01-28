@@ -324,38 +324,6 @@ Deno.test("should load data from a json file with a limit", async () => {
   await sdb.done();
 });
 
-Deno.test("should load data from a json file and keep the bigint", async () => {
-  const sdbBigInt = new SimpleDB({
-    bigIntToInt: false,
-  });
-  const table = sdbBigInt.newTable();
-  await table.loadData(["test/data/files/data.json"]);
-
-  const data = await table.getData();
-
-  assertEquals<{
-    [key: string]: string | number | bigint | boolean | Date | null;
-  }[]>(data, [
-    {
-      key1: BigInt(1),
-      key2: "un",
-    },
-    {
-      key1: BigInt(2),
-      key2: "deux",
-    },
-    {
-      key1: BigInt(3),
-      key2: "trois",
-    },
-    {
-      key1: BigInt(4),
-      key2: "quatre",
-    },
-  ]);
-  await sdbBigInt.done();
-});
-
 Deno.test("should load data from a parquet file", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
