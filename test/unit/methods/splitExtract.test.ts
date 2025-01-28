@@ -9,10 +9,13 @@ Deno.test("should extract a substring based on a separator and substring", async
     { name: "Bruce, Graeme" },
   ]);
 
-  await table.splitExtract("name", ",", 0);
+  await table.splitExtract("name", ",", 0, "lastName");
 
   const data = await table.getData();
 
-  assertEquals(data, [{ name: "Shiab" }, { name: "Bruce" }]);
+  assertEquals(data, [{ name: "Shiab, Nael", lastName: "Shiab" }, {
+    name: "Bruce, Graeme",
+    lastName: "Bruce",
+  }]);
   await sdb.done();
 });

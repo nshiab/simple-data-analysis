@@ -1212,33 +1212,36 @@ export default class SimpleTable extends SimpleWebTable {
   }
 
   /**
-   * Logs a specified number of rows. Default is 10 rows.
+   * Logs a specified number of rows. Default is 10 rows. You can optionnally log the types of the columns.
    *
    * @example
    * Basic usage
    * ```ts
-   * // Logs first 10 rows
+   * // Logs first 10 rows. No types.
    * await table.logTable();
    * ```
    *
    * @example
    * Specific number of rows
    * ```ts
-   * // Logs first 100 rows
-   * await table.logTable(100);
+   * // Logs first 100 rows. No types.
+   * await table.logTable({ nbRowsToLog: 100 });
    * ```
    *
    * @example
-   * Specific number of rows with types
+   * Specific number of rows and types.
    * ```ts
-   * await table.logTable(100, true);
+   * await table.logTable({ nbRowsToLog: 100, logTypes: true });
    * ```
    *
-   * @param nbRowsToLog - The number of rows to log when debugging. Defaults to 10 or the value set in the SimpleWebDB instance.
-   * @param logTypes - A boolean indicating whether to log the types of the columns.
+   * @param options - An optional object with configuration options:
+   *   @param nbRowsToLog - The number of rows to log. Defaults to 10 or the value set in the SimpleWebDB instance.
+   *   @param logTypes - If true, logs the types of the columns.
    */
-  override async logTable(nbRowsToLog?: number, logTypes?: boolean) {
-    const rows = nbRowsToLog ?? this.nbRowsToLog;
+  override async logTable(
+    options: { nbRowsToLog?: number; logTypes?: boolean } = {},
+  ) {
+    const rows = options.nbRowsToLog ?? this.nbRowsToLog;
     this.debug && console.log("\nlogTable()");
     this.debug && console.log("parameters:", { nbRowsToLog: rows });
 
@@ -1251,7 +1254,7 @@ export default class SimpleTable extends SimpleWebTable {
       console.log(`\ntable ${this.name}:`);
       const data = await this.getTop(rows);
       logData(
-        this.logTypes || logTypes ? await this.getTypes() : null,
+        this.logTypes || options.logTypes ? await this.getTypes() : null,
         data,
         this.nbCharactersToLog,
       );
