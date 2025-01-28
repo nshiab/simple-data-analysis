@@ -1,6 +1,7 @@
 {
   "version": "4",
   "specifiers": {
+    "jsr:@nshiab/journalism@1": "1.21.10",
     "jsr:@nshiab/journalism@1.21.10": "1.21.10",
     "jsr:@std/assert@*": "1.0.11",
     "jsr:@std/assert@1.0.11": "1.0.11",
