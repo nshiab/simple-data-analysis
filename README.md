@@ -243,11 +243,9 @@ await firesInsideProvinces.renameColumns({
 await firesInsideProvinces.sort({ burntArea: "desc" });
 
 // We log the results. By default, the method
-// logs the first 10 rows, but there is 12
-// provinces and territories in Canada
-// with burnt areas, so we log 12 rows.
-// We also log the data types.
-await firesInsideProvinces.logTable({ nbRowsToLog: 12, logTypes: true });
+// logs the first 10 rows, but there is 13
+// rows in our data. We also log the data types.
+await firesInsideProvinces.logTable({ nbRowsToLog: 13, logTypes: true });
 
 // We can also log a bar chart directly in the terminal.
 await firesInsideProvinces.logBarChart("nameEnglish", "burntArea");
@@ -354,7 +352,8 @@ await firesInsideProvinces.cache(
   { ttl: 60 },
 );
 
-await firesInsideProvinces.logTable(12);
+await firesInsideProvinces.logTable(13);
+await firesInsideProvinces.logBarChart("nameEnglish", "burntArea");
 
 // It's important to call done() at the end.
 // This method will remove the unused files
