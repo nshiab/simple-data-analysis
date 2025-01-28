@@ -171,20 +171,20 @@ Deno.test("should put the result of a full join into a new table with a specific
 
   assertEquals(data, [
     {
-      dishId: 1,
+      dishId: "1",
       name: "Crème brûlée",
       country: "France",
       category: "Dessert",
     },
-    { dishId: 2, name: "Pizza", country: "Italy", category: "Main" },
+    { dishId: "2", name: "Pizza", country: "Italy", category: "Main" },
     {
-      dishId: 3,
+      dishId: "3",
       name: "Churros",
       country: "Mexico",
       category: "Dessert",
     },
-    { dishId: 4, name: "Couscous", country: "Morrocco", category: null },
-    { dishId: 5, name: "Mochi", country: "Japan", category: null },
+    { dishId: "4", name: "Couscous", country: "Morrocco", category: null },
+    { dishId: "5", name: "Mochi", country: "Japan", category: null },
     { dishId: null, name: null, country: null, category: "Dessert" },
     { dishId: null, name: null, country: null, category: "Main" },
     { dishId: null, name: null, country: null, category: "Main" },

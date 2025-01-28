@@ -254,7 +254,7 @@ export default class SimpleWebTable extends Simple {
   }
 
   /**
-   * Fetch data from an url into the table. This method is just for the web. For NodeJS and other runtimes, use loadData.
+   * Fetch data from an url into the table.
    *
    * @example
    * Basic usage
@@ -1691,26 +1691,33 @@ export default class SimpleWebTable extends Simple {
    * @example
    * Basic usage
    * ```ts
-   * // Splits on commas and replaces values with the second substring.
-   * await table.splitExtract("column1", ",", 1)
+   * // Splits on commas and put the second substring in a new column.
+   * await table.splitExtract("column1", ",", 1, "column2")
    * ```
    *
    * @param column - The name of the column storing the strings
    * @param separator - The substring to use as a separator
    * @param index - The index of the substring to replace values
+   * @param newColumn - The name of the new column to store the extracted substrings
    *
    * @category Updating data
    */
-  async splitExtract(column: string, separator: string, index: number) {
+  async splitExtract(
+    column: string,
+    separator: string,
+    index: number,
+    newColumn: string,
+  ) {
     await queryDB(
       this,
-      `UPDATE ${this.name} SET ${column} = SPLIT_PART(${column}, '${separator}', ${
+      `ALTER TABLE ${this.name} ADD ${newColumn} VARCHAR;
+      UPDATE ${this.name} SET ${newColumn} = SPLIT_PART(${column}, '${separator}', ${
         index + 1
       })`,
       mergeOptions(this, {
         table: this.name,
         method: "splitExtract()",
-        parameters: { column, separator, index },
+        parameters: { column, separator, index, newColumn },
       }),
     );
   }
@@ -4659,35 +4666,36 @@ export default class SimpleWebTable extends Simple {
   // OTHERS
 
   /**
-   * Logs a specified number of rows. Default is 10 rows.
+   * Logs a specified number of rows. Default is 10 rows. You can optionnally log the types of the columns.
    *
    * @example
    * Basic usage
    * ```ts
-   * // Logs first 10 rows
+   * // Logs first 10 rows. No types.
    * await table.logTable();
    * ```
    *
    * @example
    * Specific number of rows
    * ```ts
-   * // Logs first 100 rows
-   * await table.logTable(100);
+   * // Logs first 100 rows. No types.
+   * await table.logTable({ nbRowsToLog: 100 });
    * ```
    *
    * @example
-   * Specific number of rows and types
+   * Specific number of rows and types.
    * ```ts
-   * await table.logTable(100, true);
+   * await table.logTable({ nbRowsToLog: 100, logTypes: true });
    * ```
    *
-   * @param nbRowsToLog - The number of rows to log. Defaults to 10 or the value set in the SimpleWebDB instance.
-   * @param logTypes - If true, logs the types of the columns.
+   * @param options - An optional object with configuration options:
+   *   @param nbRowsToLog - The number of rows to log. Defaults to 10 or the value set in the SimpleWebDB instance.
+   *   @param logTypes - If true, logs the types of the columns.
    */
-  async logTable(nbRowsToLog?: number, logTypes?: boolean) {
-    const rows = nbRowsToLog ?? this.nbRowsToLog;
+  async logTable(options: { nbRowsToLog?: number; logTypes?: boolean } = {}) {
+    const rows = options.nbRowsToLog ?? this.nbRowsToLog;
     this.debug && console.log("\nlogTable()");
-    this.debug && console.log("parameters:", { nbRowsToLog });
+    this.debug && console.log("parameters:", { options });
 
     if (
       this.connection === undefined ||
@@ -4704,11 +4712,10 @@ export default class SimpleWebTable extends Simple {
           debug: this.debug,
           method: null,
           parameters: null,
-          bigIntToInt: this.bigIntToInt,
         },
       );
       logDataWeb(
-        this.logTypes || logTypes ? await this.getTypes() : null,
+        this.logTypes || options.logTypes ? await this.getTypes() : null,
         data,
         this.nbCharactersToLog,
       );
@@ -4720,7 +4727,6 @@ export default class SimpleWebTable extends Simple {
           debug: this.debug,
           method: null,
           parameters: null,
-          bigIntToInt: this.bigIntToInt,
         },
       );
       if (nbRows === null) {

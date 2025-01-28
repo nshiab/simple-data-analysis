@@ -1,7 +1,6 @@
-import { formatNumber, prettyDuration } from "jsr:@nshiab/journalism@1/web";
+import { prettyDuration } from "jsr:@nshiab/journalism@1/web";
 import SimpleWebTable from "../class/SimpleWebTable.ts";
 import SimpleWebDB from "../class/SimpleWebDB.ts";
-import logData from "./logData.ts";
 import cleanSQL from "./cleanSQL.ts";
 
 export default async function queryDB(
@@ -15,7 +14,7 @@ export default async function queryDB(
     nbCharactersToLog: number | undefined;
     returnDataFrom: "query" | "none";
     debug: boolean;
-    bigIntToInt: boolean;
+    types?: { [key: string]: string };
   },
 ): Promise<
   | {
@@ -40,6 +39,7 @@ export default async function queryDB(
   query = cleanSQL(query);
 
   let start;
+  let end;
   if (options.debug) {
     console.log("\n" + options.method);
     console.log("parameters:", options.parameters);
@@ -56,34 +56,27 @@ export default async function queryDB(
       true,
       options,
     );
-    console.log("\nquery result:");
-    if (
-      Array.isArray(queryResult) &&
-      queryResult.length > options.nbRowsToLog
-    ) {
-      logData(
-        {},
-        queryResult.slice(0, options.nbRowsToLog),
-        options.nbCharactersToLog,
-      );
-      console.log(`nbRowsToLog: ${options.nbRowsToLog}`);
-    } else {
-      logData({}, queryResult, options.nbCharactersToLog);
-    }
-
     if (options.returnDataFrom === "query") {
       data = queryResult;
-    } else if (options.returnDataFrom === "none") {
-      // Nothing
-    } else {
-      throw new Error(
-        `Unknown ${options.returnDataFrom} options.returnDataFrom`,
-      );
     }
+    if (Array.isArray(queryResult)) {
+      if (queryResult.length > 10) {
+        console.table(queryResult.slice(0, 10));
+      } else {
+        console.table(queryResult);
+      }
+    }
+    end = Date.now();
   } else if (options.returnDataFrom === "none") {
     await simple.runQuery(query, simple.connection, false, options);
   } else if (options.returnDataFrom === "query") {
-    data = await simple.runQuery(query, simple.connection, true, options);
+    data = await simple.runQuery(query, simple.connection, true, {
+      ...options,
+      // To convert dates and bigInts to numbers
+      types: simple instanceof SimpleWebTable && options.method !== "getTypes()"
+        ? options.types ? options.types : await simple.getTypes()
+        : undefined,
+    });
   } else {
     throw new Error(
       `Unknown ${options.returnDataFrom} options.returnDataFrom`,
@@ -91,49 +84,10 @@ export default async function queryDB(
   }
 
   if (options.debug) {
-    if (typeof options.table === "string") {
-      console.log(`\ntable ${options.table}:`);
-      const tableToLog = await simple.runQuery(
-        `SELECT * FROM ${options.table}${
-          options.nbRowsToLog === Infinity
-            ? ""
-            : ` LIMIT ${options.nbRowsToLog}`
-        }`,
-        simple.connection,
-        true,
-        options,
-      );
-      logData({}, tableToLog, options.nbCharactersToLog);
-      const nbRows = await simple.runQuery(
-        `SELECT COUNT(*) FROM ${options.table};`,
-        simple.connection,
-        true,
-        options,
-      );
-      if (nbRows === null) {
-        throw new Error("nbRows is null");
-      }
-      console.log(
-        `${
-          formatNumber(
-            nbRows[0]["count_star()"] as number,
-          )
-        } rows in total ${
-          options.returnDataFrom === "none"
-            ? ""
-            : `(nbRowsToLog: ${options.nbRowsToLog}${
-              typeof options.nbCharactersToLog === "number"
-                ? `, nbCharactersToLog: ${options.nbCharactersToLog}`
-                : ""
-            })`
-        }`,
-      );
-    } else {
-      console.log("\nNo options.table. Not logging table.");
-    }
-
     if (start) {
-      console.log(`Done in ${prettyDuration(start)}`);
+      console.log(
+        `${options.method} - Done in ${prettyDuration(start, { end })}`,
+      );
     }
   }
 

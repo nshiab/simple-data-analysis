@@ -5,7 +5,7 @@ import type SimpleWebTable from "../class/SimpleWebTable.ts";
 export default async function getNbRows(simpleWebTable: SimpleWebTable) {
   const queryResult = await queryDB(
     simpleWebTable,
-    `SELECT COUNT(*) FROM ${simpleWebTable.name}`,
+    `SELECT CAST(COUNT(*) AS INTEGER) FROM ${simpleWebTable.name}`,
     mergeOptions(simpleWebTable, {
       table: simpleWebTable.name,
       returnDataFrom: "query",
@@ -17,7 +17,7 @@ export default async function getNbRows(simpleWebTable: SimpleWebTable) {
   if (!queryResult) {
     throw new Error("No result");
   }
-  const length = queryResult[0]["count_star()"] as number;
+  const length = queryResult[0]["CAST(count_star() AS INTEGER)"] as number;
 
   simpleWebTable.debug && console.log("length:", length);
 

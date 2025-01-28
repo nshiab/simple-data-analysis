@@ -37,12 +37,12 @@ Deno.test("should load an array of objects into a table", async () => {
   assertEquals(data, [
     { key1: 1, key2: "un", key3: new Date("2010-01-01"), key4: true },
     {
-      key1: NaN,
+      key1: null,
       key2: "deux",
       key3: new Date("2010-01-02"),
       key4: null,
     },
-    { key1: 3, key2: "", key3: new Date("2010-01-03"), key4: false },
+    { key1: 3, key2: null, key3: new Date("2010-01-03"), key4: false },
     {
       key1: 4,
       key2: "quatre",

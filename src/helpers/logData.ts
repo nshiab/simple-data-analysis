@@ -1,5 +1,3 @@
-import { Buffer } from "node:buffer";
-
 export default function logData(
   types: { [key: string]: string } | null,
   data:
@@ -13,7 +11,7 @@ export default function logData(
     console.log("Data is null");
   } else {
     if (data.length === 0) {
-      console.table(data);
+      console.log(data);
     } else {
       const dataToBeLogged: {
         [key: string]: string | number | boolean | Date | null;
@@ -25,10 +23,6 @@ export default function logData(
         } = {};
         for (const key of keys) {
           if (
-            Buffer.isBuffer(data[i][key])
-          ) {
-            newItem[key] = "<Geometry>";
-          } else if (
             typeof nbCharactersToLog === "number" &&
             typeof data[i][key] === "string" &&
             (data[i][key] as string).length > nbCharactersToLog
@@ -47,7 +41,8 @@ export default function logData(
         const columns = Object.keys(types);
         if (columns.length > 0) {
           for (const col of columns) {
-            types[col] = types[col] + "/" + typeof data[0][col];
+            types[col] = types[col] + "/" +
+              (data[0][col] === null ? null : typeof data[0][col]);
           }
           console.table([types]);
         }

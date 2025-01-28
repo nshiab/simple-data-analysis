@@ -12,8 +12,8 @@ export default async function getVar(
   const queryResult = await queryDB(
     simpleWebTable,
     typeof options.decimals === "number"
-      ? `SELECT ROUND(VARIANCE(${column}), ${options.decimals}) AS valueForGetVar FROM ${simpleWebTable.name}`
-      : `SELECT VARIANCE(${column}) AS valueForGetVar FROM ${simpleWebTable.name}`,
+      ? `SELECT ROUND(VARIANCE("${column}"), ${options.decimals}) AS "${column}" FROM ${simpleWebTable.name}`
+      : `SELECT VARIANCE("${column}") AS "${column}" FROM ${simpleWebTable.name}`,
     mergeOptions(simpleWebTable, {
       table: simpleWebTable.name,
       returnDataFrom: "query",
@@ -26,7 +26,7 @@ export default async function getVar(
     throw new Error("No queryResults");
   }
 
-  const result = queryResult[0].valueForGetVar;
+  const result = queryResult[0][column];
   simpleWebTable.debug && console.log("variance:", result);
   return result as number;
 }

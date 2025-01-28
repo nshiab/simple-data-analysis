@@ -7,7 +7,7 @@ import Simple from "./Simple.ts";
 import { prettyDuration } from "jsr:@nshiab/journalism@1/web";
 
 /**
- * SimpleWebDB is a class that provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser. For NodeJS and similar runtimes, use SimpleDB.
+ * SimpleWebDB is a class that provides a simplified interface for working with DuckDB, a high-performance in-memory analytical database. This class is meant to be used in a web browser.
  *
  * Here's how to instantiate a SimpleWebDB instance and then a SimpleWebTable.
  *

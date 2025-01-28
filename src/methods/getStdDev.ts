@@ -12,8 +12,8 @@ export default async function getStdDev(
   const queryResult = await queryDB(
     simpleWebTable,
     typeof options.decimals === "number"
-      ? `SELECT ROUND(STDDEV(${column}), ${options.decimals}) AS valueForGetStdDev FROM ${simpleWebTable.name}`
-      : `SELECT STDDEV(${column}) AS valueForGetStdDev FROM ${simpleWebTable.name}`,
+      ? `SELECT ROUND(STDDEV("${column}"), ${options.decimals}) AS "${column}" FROM ${simpleWebTable.name}`
+      : `SELECT STDDEV("${column}") AS "${column}" FROM ${simpleWebTable.name}`,
     mergeOptions(simpleWebTable, {
       table: simpleWebTable.name,
       returnDataFrom: "query",
@@ -26,7 +26,7 @@ export default async function getStdDev(
     throw new Error("No queryResults");
   }
 
-  const result = queryResult[0].valueForGetStdDev;
+  const result = queryResult[0][column];
   simpleWebTable.debug && console.log("Standard deviation:", result);
   return result as number;
 }

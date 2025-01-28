@@ -33,6 +33,6 @@ export default async function getProjectionParquet(
     );
     return {};
   } else {
-    return JSON.parse(projection.value.toString());
+    return JSON.parse((projection.value as string).replaceAll("\\x22", '"'));
   }
 }

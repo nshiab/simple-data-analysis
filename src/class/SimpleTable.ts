@@ -1,15 +1,13 @@
 import { readdirSync } from "node:fs";
-import { tableFromJSON, tableToIPC } from "npm:apache-arrow@17";
 import SimpleWebTable from "./SimpleWebTable.ts";
-import type { Connection } from "npm:duckdb@1";
 import stringToArray from "../helpers/stringToArray.ts";
-import loadDataNodeQuery from "../methods/loadDataNodeQuery.ts";
+import loadDataQuery from "../methods/loadDataQuery.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
 import writeDataQuery from "../methods/writeDataQuery.ts";
 import writeGeoDataQuery from "../methods/writeGeoDataQuery.ts";
 import type SimpleDB from "./SimpleDB.ts";
-import runQueryNode from "../helpers/runQueryNode.ts";
+import runQuery from "../helpers/runQuery.ts";
 import aggregateGeoQuery from "../methods/aggregateGeoQuery.ts";
 import selectRowsQuery from "../methods/selectRowsQuery.ts";
 import crossJoinQuery from "../methods/crossJoinQuery.ts";
@@ -40,6 +38,7 @@ import logData from "../helpers/logData.ts";
 import getProjectionParquet from "../helpers/getProjectionParquet.ts";
 import { readFileSync, writeFileSync } from "node:fs";
 import type { Data } from "npm:@observablehq/plot@0";
+import loadArray from "../methods/loadArray.ts";
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
@@ -76,7 +75,6 @@ import type { Data } from "npm:@observablehq/plot@0";
  *   @param options.debug - A boolean indicating whether to enable debug mode.
  *   @param options.nbRowsToLog - Number of rows to log when displaying table data.
  *   @param options.nbCharactersToLog - Maximum number of characters to log for strings. Useful to avoid logging large text content.
- *   @param options.bigIntToInt - A boolean indicating whether to convert BigInt to Int. Defaults to true.
  */
 
 export default class SimpleTable extends SimpleWebTable {
@@ -92,13 +90,11 @@ export default class SimpleTable extends SimpleWebTable {
       nbRowsToLog?: number;
       nbCharactersToLog?: number;
       logTypes?: boolean;
-      bigIntToInt?: boolean;
     } = {},
   ) {
     super(name, projections, simpleDB, options);
     this.sdb = simpleDB;
-    this.bigIntToInt = options.bigIntToInt ?? true;
-    this.runQuery = runQueryNode;
+    this.runQuery = runQuery;
   }
 
   // TO RETURN THE RIGHT TYPES
@@ -131,7 +127,6 @@ export default class SimpleTable extends SimpleWebTable {
         {
           debug: this.debug,
           nbRowsToLog: this.nbRowsToLog,
-          bigIntToInt: this.bigIntToInt,
           nbCharactersToLog: this.nbCharactersToLog,
           logTypes: this.logTypes,
         },
@@ -408,25 +403,7 @@ export default class SimpleTable extends SimpleWebTable {
           : arrayOfObjects,
       });
 
-    const arrowTable = tableFromJSON(arrayOfObjects);
-
-    await this.sdb.customQuery("INSTALL arrow; LOAD arrow;");
-    this.connection = this.sdb.connection;
-    (this.connection as Connection).register_buffer(
-      `tableAsView`,
-      [tableToIPC(arrowTable)],
-      true,
-      (err) => {
-        if (err) {
-          throw err;
-        }
-      },
-    );
-
-    await this.sdb.customQuery(
-      `CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM tableAsView;
-            DROP VIEW tableAsView;`,
-    );
+    await loadArray(this, arrayOfObjects);
 
     this.debug && (await this.logTable());
 
@@ -434,13 +411,13 @@ export default class SimpleTable extends SimpleWebTable {
   }
 
   /**
-   * This method is just for the web. For NodeJS and other runtimes, use loadData.
+   * This method is just for the web. Use loadData.
    *
    * @category Importing data
    */
   override fetchData(): Promise<this> {
     throw new Error(
-      "This method is just for the web. For NodeJS and other runtimes, use loadData.",
+      "This method is just for the web. Use loadData.",
     );
   }
 
@@ -515,7 +492,7 @@ export default class SimpleTable extends SimpleWebTable {
   ): Promise<SimpleTable> {
     await queryDB(
       this,
-      loadDataNodeQuery(this.name, stringToArray(files), options),
+      loadDataQuery(this.name, stringToArray(files), options),
       mergeOptions(this, {
         table: this.name,
         method: "loadData()",
@@ -586,7 +563,7 @@ export default class SimpleTable extends SimpleWebTable {
     );
     await queryDB(
       this,
-      loadDataNodeQuery(this.name, files, options),
+      loadDataQuery(this.name, files, options),
       mergeOptions(this, {
         table: this.name,
         method: "loadDataFromDirectory",
@@ -598,13 +575,13 @@ export default class SimpleTable extends SimpleWebTable {
   }
 
   /**
-   * This method is just for the web. For NodeJS and other runtimes, use loadGeoData.
+   * This method is just for the web. Use loadGeoData.
    *
    * @category Importing data
    */
   override fetchGeoData(): Promise<this> {
     throw new Error(
-      "This method is just for the web. For NodeJS and other runtimes, use loadGeoData.",
+      "This method is just for the web. Use loadGeoData.",
     );
   }
 
@@ -1235,35 +1212,38 @@ export default class SimpleTable extends SimpleWebTable {
   }
 
   /**
-   * Logs a specified number of rows. Default is 10 rows.
+   * Logs a specified number of rows. Default is 10 rows. You can optionnally log the types of the columns.
    *
    * @example
    * Basic usage
    * ```ts
-   * // Logs first 10 rows
+   * // Logs first 10 rows. No types.
    * await table.logTable();
    * ```
    *
    * @example
    * Specific number of rows
    * ```ts
-   * // Logs first 100 rows
-   * await table.logTable(100);
+   * // Logs first 100 rows. No types.
+   * await table.logTable({ nbRowsToLog: 100 });
    * ```
    *
    * @example
-   * Specific number of rows with types
+   * Specific number of rows and types.
    * ```ts
-   * await table.logTable(100, true);
+   * await table.logTable({ nbRowsToLog: 100, logTypes: true });
    * ```
    *
-   * @param nbRowsToLog - The number of rows to log when debugging. Defaults to 10 or the value set in the SimpleWebDB instance.
-   * @param logTypes - A boolean indicating whether to log the types of the columns.
+   * @param options - An optional object with configuration options:
+   *   @param nbRowsToLog - The number of rows to log. Defaults to 10 or the value set in the SimpleWebDB instance.
+   *   @param logTypes - If true, logs the types of the columns.
    */
-  override async logTable(nbRowsToLog?: number, logTypes?: boolean) {
-    const rows = nbRowsToLog ?? this.nbRowsToLog;
+  override async logTable(
+    options: { nbRowsToLog?: number; logTypes?: boolean } = {},
+  ) {
+    const rows = options.nbRowsToLog ?? this.nbRowsToLog;
     this.debug && console.log("\nlogTable()");
-    this.debug && console.log("parameters:", { nbRowsToLog });
+    this.debug && console.log("parameters:", { nbRowsToLog: rows });
 
     if (
       this.connection === undefined ||
@@ -1272,42 +1252,15 @@ export default class SimpleTable extends SimpleWebTable {
       console.log(`\ntable ${this.name}: no data`);
     } else {
       console.log(`\ntable ${this.name}:`);
-      const data = await this.runQuery(
-        `SELECT * FROM ${this.name} LIMIT ${rows}`,
-        this.connection,
-        true,
-        {
-          debug: this.debug,
-          method: null,
-          parameters: null,
-          bigIntToInt: this.bigIntToInt,
-        },
-      );
+      const data = await this.getTop(rows);
       logData(
-        this.logTypes || logTypes ? await this.getTypes() : null,
+        this.logTypes || options.logTypes ? await this.getTypes() : null,
         data,
         this.nbCharactersToLog,
       );
-      const nbRows = await this.runQuery(
-        `SELECT COUNT(*) FROM ${this.name};`,
-        this.connection,
-        true,
-        {
-          debug: this.debug,
-          method: null,
-          parameters: null,
-          bigIntToInt: this.bigIntToInt,
-        },
-      );
-      if (nbRows === null) {
-        throw new Error("nbRows is null");
-      }
+      const nbRows = await this.getNbRows();
       console.log(
-        `${
-          formatNumber(
-            nbRows[0]["count_star()"] as number,
-          )
-        } rows in total ${`(nbRowsToLog: ${rows}${
+        `${formatNumber(nbRows)} rows in total ${`(nbRowsToLog: ${rows}${
           typeof this.nbCharactersToLog === "number"
             ? `, nbCharactersToLog: ${this.nbCharactersToLog}`
             : ""

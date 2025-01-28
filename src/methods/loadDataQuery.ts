@@ -1,6 +1,6 @@
 import getExtension from "../helpers/getExtension.ts";
 
-export default function loadDataNodeQuery(
+export default function loadDataQuery(
   table: string,
   files: string[],
   options: {

@@ -1,13 +1,12 @@
-import pkg from "npm:duckdb@1";
-const { Database } = pkg;
-import runQueryNode from "../helpers/runQueryNode.ts";
+import { DuckDBInstance } from "@duckdb/node-api";
+import runQuery from "../helpers/runQuery.ts";
 import SimpleWebDB from "./SimpleWebDB.ts";
 import SimpleTable from "./SimpleTable.ts";
 import cleanCache from "../helpers/cleanCache.ts";
 import { prettyDuration } from "@nshiab/journalism";
 
 /**
- * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance, in-memory analytical database. This class is meant to be used with NodeJS and similar runtimes. For web browsers, use SimpleWebDB.
+ * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance, in-memory analytical database. For web browsers, use SimpleWebDB.
  *
  * With very expensive computations, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
  *
@@ -43,7 +42,6 @@ import { prettyDuration } from "@nshiab/journalism";
  * @param options.nbCharactersToLog - Number of characters to log when displaying text content. Useful for long strings.
  * @param options.cacheVerbose - Whether to log cache-related messages.
  * @param options.debug - Whether to enable debug logging.
- * @param options.bigIntToInt - Whether to convert BigInt values to integers. Defaults to true.
  */
 
 export default class SimpleDB extends SimpleWebDB {
@@ -62,15 +60,13 @@ export default class SimpleDB extends SimpleWebDB {
       logTypes?: boolean;
       cacheVerbose?: boolean;
       debug?: boolean;
-      bigIntToInt?: boolean;
     } = {},
   ) {
     super(options);
     this.tables = [];
-    this.bigIntToInt = options.bigIntToInt ?? true;
     this.cacheVerbose = options.cacheVerbose ?? false;
     this.cacheTimeSaved = 0;
-    this.runQuery = runQueryNode;
+    this.runQuery = runQuery;
     if (this.cacheVerbose) {
       this.durationStart = Date.now();
     }
@@ -84,8 +80,8 @@ export default class SimpleDB extends SimpleWebDB {
   override async start(): Promise<this> {
     if (this.db === undefined || this.connection === undefined) {
       this.debug && console.log("\nstart()");
-      this.db = new Database(":memory:");
-      this.connection = this.db.connect();
+      this.db = await DuckDBInstance.create(":memory:");
+      this.connection = await this.db.connect();
     }
     return await this;
   }
@@ -134,7 +130,6 @@ export default class SimpleDB extends SimpleWebDB {
       table = new SimpleTable(`table${this.tableIncrement}`, proj, this, {
         debug: this.debug,
         nbRowsToLog: this.nbRowsToLog,
-        bigIntToInt: this.bigIntToInt,
         nbCharactersToLog: this.nbCharactersToLog,
         logTypes: this.logTypes,
       });
@@ -189,8 +184,8 @@ export default class SimpleDB extends SimpleWebDB {
    */
   override async done(): Promise<this> {
     this.debug && console.log("\ndone()");
-    if (this.db instanceof Database) {
-      this.db.close();
+    if (this.db instanceof DuckDBInstance) {
+      this.connection.close();
     }
     cleanCache(this);
     if (typeof this.durationStart === "number") {

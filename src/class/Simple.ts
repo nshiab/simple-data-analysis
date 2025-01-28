@@ -2,7 +2,7 @@ import type {
   AsyncDuckDB,
   AsyncDuckDBConnection,
 } from "npm:@duckdb/duckdb-wasm@1";
-import type { Connection, Database } from "npm:duckdb@1";
+import type { DuckDBConnection, DuckDBInstance } from "@duckdb/node-api";
 
 export default class Simple {
   /** A flag indicating whether debugging information should be logged. Defaults to false. @category Properties */
@@ -14,13 +14,11 @@ export default class Simple {
   /** The number of characters to log for text cells. By default, the whole text is logged. @category Properties */
   nbCharactersToLog: number | undefined;
   /** A DuckDB database. @category Properties */
-  db!: AsyncDuckDB | Database;
+  db!: AsyncDuckDB | DuckDBInstance;
   /** A connection to a DuckDB database. @category Properties */
-  connection!: AsyncDuckDBConnection | Connection;
+  connection!: AsyncDuckDBConnection | DuckDBConnection;
   /** A worker to make DuckDB WASM work. @category Properties */
   worker!: Worker | null;
-  /** A flag for SimpleDB. Default is true. When data is retrieved from the database as an array of objects, BIGINT values are automatically converted to integers, which are easier to work with in JavaScript. If you want actual bigint values, set this option to false. @category Properties */
-  bigIntToInt: boolean | undefined;
   /** A flag to know if the name of the table has been attributed by default. @category Properties */
   defaultTableName: boolean;
   /**
@@ -28,13 +26,13 @@ export default class Simple {
    */
   runQuery!: (
     query: string,
-    connection: AsyncDuckDBConnection | Connection,
+    connection: AsyncDuckDBConnection | DuckDBConnection,
     returnDataFromQuery: boolean,
     options: {
       debug: boolean;
       method: string | null;
       parameters: { [key: string]: unknown } | null;
-      bigIntToInt?: boolean;
+      types?: { [key: string]: string };
     },
   ) => Promise<
     | {
@@ -46,13 +44,12 @@ export default class Simple {
   constructor(
     runQuery: (
       query: string,
-      connection: AsyncDuckDBConnection | Connection,
+      connection: AsyncDuckDBConnection | DuckDBConnection,
       returnDataFromQuery: boolean,
       options: {
         debug: boolean;
         method: string | null;
         parameters: { [key: string]: unknown } | null;
-        bigIntToInt?: boolean;
       },
     ) => Promise<
       | {

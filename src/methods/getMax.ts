@@ -8,20 +8,23 @@ export default async function getMax(
 ) {
   const queryResult = await queryDB(
     simpleWebTable,
-    `SELECT MAX(${column}) AS valueForGetMax FROM ${simpleWebTable.name}`,
-    mergeOptions(simpleWebTable, {
-      table: simpleWebTable.name,
-      returnDataFrom: "query",
-      method: "getMax()",
-      parameters: { column },
-    }),
+    `SELECT MAX("${column}") AS "${column}" FROM ${simpleWebTable.name}`,
+    {
+      ...mergeOptions(simpleWebTable, {
+        table: simpleWebTable.name,
+        returnDataFrom: "query",
+        method: "getMax()",
+        parameters: { column },
+      }),
+      types: await simpleWebTable.getTypes(),
+    },
   );
 
   if (!queryResult) {
     throw new Error("No queryResults");
   }
 
-  const result = queryResult[0].valueForGetMax;
+  const result = queryResult[0][column];
 
   simpleWebTable.debug && console.log("max:", result);
 

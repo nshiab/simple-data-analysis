@@ -12,8 +12,8 @@ export default async function getSkew(
   const queryResult = await queryDB(
     simpleWebTable,
     typeof options.decimals === "number"
-      ? `SELECT ROUND(SKEWNESS(${column}), ${options.decimals}) AS valueForGetSkew FROM ${simpleWebTable.name}`
-      : `SELECT SKEWNESS(${column}) AS valueForGetSkew FROM ${simpleWebTable.name}`,
+      ? `SELECT ROUND(SKEWNESS("${column}"), ${options.decimals}) AS "${column}" FROM ${simpleWebTable.name}`
+      : `SELECT SKEWNESS("${column}") AS "${column}" FROM ${simpleWebTable.name}`,
     mergeOptions(simpleWebTable, {
       table: simpleWebTable.name,
       returnDataFrom: "query",
@@ -26,7 +26,7 @@ export default async function getSkew(
     throw new Error("No queryResults");
   }
 
-  const result = queryResult[0].valueForGetSkew;
+  const result = queryResult[0][column];
   simpleWebTable.debug && console.log("skew:", result);
   return result as number;
 }

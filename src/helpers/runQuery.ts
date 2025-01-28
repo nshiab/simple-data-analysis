@@ -1,9 +1,8 @@
 import type { AsyncDuckDBConnection } from "npm:@duckdb/duckdb-wasm@1";
 import type { DuckDBConnection } from "@duckdb/node-api";
-import tableToArrayOfObjects from "./arraysToData.ts";
-import type { Table } from "npm:apache-arrow@17";
+import convertForJS from "./convertForJS.ts";
 
-export default async function runQueryWeb(
+export default async function runQuery(
   query: string,
   connection: AsyncDuckDBConnection | DuckDBConnection,
   returnDataFromQuery: boolean,
@@ -11,6 +10,7 @@ export default async function runQueryWeb(
     debug: boolean;
     method: string | null;
     parameters: { [key: string]: unknown } | null;
+    types?: { [key: string]: string };
   },
 ): Promise<
   | {
@@ -20,19 +20,29 @@ export default async function runQueryWeb(
 > {
   try {
     if (returnDataFromQuery) {
-      const data = await (connection as AsyncDuckDBConnection).query(query);
-      // Weird
-      return tableToArrayOfObjects(data as unknown as Table);
+      const reader = await (connection as DuckDBConnection).runAndReadAll(
+        query,
+      );
+      const rows = reader.getRowObjectsJson() as {
+        [key: string]: string | number | boolean | Date | null;
+      }[];
+
+      if (options.types) {
+        convertForJS(rows, options.types);
+      }
+
+      return rows;
     } else {
-      await (connection as AsyncDuckDBConnection).query(query);
+      await (connection as DuckDBConnection).run(query);
       return null;
     }
-  } catch (err) {
+  } catch (error) {
+    console.warn(error);
     if (options.debug === false) {
       console.log("SDA: method causing error =>", options.method);
       console.log("parameters:", options.parameters);
       console.log("query:", query);
     }
-    throw err;
+    throw error;
   }
 }

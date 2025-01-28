@@ -21,7 +21,27 @@ Deno.test("should return a quantile rounded", async () => {
   );
   await sdb.done();
 });
-
+Deno.test("should return a quantile even when there are spaces in the column name", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadData("test/data/files/data.json");
+  await table.renameColumns({ key1: "key 1" });
+  assertEquals(await table.getQuantile("key 1", 0.25), 1.75);
+  await sdb.done();
+});
+Deno.test("should return a quantile rounded even when there are spaces in the column name", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadData("test/data/files/data.json");
+  await table.renameColumns({ key1: "key 1" });
+  assertEquals(
+    await table.getQuantile("key 1", 0.25, {
+      decimals: 1,
+    }),
+    1.8,
+  );
+  await sdb.done();
+});
 Deno.test("should return the median with a quantile of 0.5", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable("data");

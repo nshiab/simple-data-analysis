@@ -29,7 +29,7 @@ histogram AS (
     floor(("${values}" - min_distance) / bin_size) AS bin_number,
     min_distance + floor(("${values}" - min_distance) / bin_size) * bin_size AS bin_start,
     min_distance + (floor(("${values}" - min_distance) / bin_size) + 1) * bin_size AS bin_end,
-    count(*) AS frequency
+    CAST(count(*) AS INTEGER) AS frequency
   FROM ${simpleTable.name}, params
   WHERE "${values}" >= min_distance AND "${values}" < max_distance
   GROUP BY 1, 2, 3
