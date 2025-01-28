@@ -1,8 +1,7 @@
 {
   "version": "4",
   "specifiers": {
-    "jsr:@nshiab/journalism@1": "1.21.9",
-    "jsr:@nshiab/journalism@1.21.9": "1.21.9",
+    "jsr:@nshiab/journalism@1.21.10": "1.21.10",
     "jsr:@std/assert@*": "1.0.11",
     "jsr:@std/assert@1.0.11": "1.0.11",
     "jsr:@std/internal@^1.0.5": "1.0.5",
@@ -25,11 +24,11 @@
     "npm:geotiff@2": "2.1.3",
     "npm:google-auth-library@9": "9.15.1",
     "npm:google-spreadsheet@4": "4.1.4_google-auth-library@9.15.1",
-    "npm:playwright-chromium@^1.49.1": "1.50.0"
+    "npm:playwright-chromium@^1.50.0": "1.50.0"
   },
   "jsr": {
-    "@nshiab/journalism@1.21.9": {
-      "integrity": "45b544c32756f559982208beddd1f6d8955adbc652a266e23130bb484f982b2e",
+    "@nshiab/journalism@1.21.10": {
+      "integrity": "fedb23086505f96c2248343b24b929125e81569b5dfc5980258e4af242fd9ebf",
       "dependencies": [
         "npm:@observablehq/plot@~0.6.16",
         "npm:@types/d3-geo",
@@ -861,7 +860,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@nshiab/journalism@1.21.9",
+      "jsr:@nshiab/journalism@1.21.10",
       "jsr:@std/assert@1.0.11",
       "npm:@duckdb/duckdb-wasm@1.29.0",
       "npm:@duckdb/node-api@1.1.3-alpha.10",
