@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: denoland/setup-deno@v2
+      - uses: denoland/setup-deno@v2.1.5
         with:
           deno-version: v2.x
       - run: deno task all-tests
