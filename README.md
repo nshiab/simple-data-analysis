@@ -21,7 +21,8 @@ If you wish to contribute, please check the
 
 ## Quick setup
 
-Create a folder and run [setup-sda](https://github.com/nshiab/setup-sda):
+Create a folder and run [setup-sda](https://github.com/nshiab/setup-sda) in it
+with:
 
 ```bash
 # Deno >= 2.x.x
@@ -52,15 +53,15 @@ If you want to use SDA with
 [Framework](https://github.com/observablehq/framework), pass the `--framework`
 flag.
 
-To initialize a git repository, pass the `--git` flag.
+To initialize a git repository in the folder, pass the `--git` flag.
 
 ## Manual installation
 
-If you want to add the library to an existing project, here's how.
+If you want to add the library to an existing project, run this:
 
 ```bash
 # Deno >= 2.x.x
-deno install --node-modules-dir=auto jsr:@nshiab/simple-data-analysis
+deno install --node-modules-dir=auto --allow-scripts=npm:playwright-chromium@1.50.0 jsr:@nshiab/simple-data-analysis
 # To run with Deno
 deno run --node-modules-dir=auto -A main.ts
 
@@ -84,7 +85,7 @@ performant library for data analysis. This is why SDA was created.
 
 The library is based on [DuckDB](https://duckdb.org/), a fast in-process
 analytical database. Under the hood, SDA sends SQL queries to be executed by
-DuckDB. We use [duckdb-node](https://github.com/duckdb/duckdb-node) and
+DuckDB. We use [duckdb-node-neo](https://github.com/duckdb/duckdb-node-neo) and
 [duckdb-wasm](https://github.com/duckdb/duckdb-wasm). This means SDA can run in
 the browser and with Node.js and other runtimes. For geospatial computations, we
 rely on the [duckdb_spatial](https://github.com/duckdb/duckdb_spatial)
@@ -190,83 +191,68 @@ If you are using Deno, make sure to install and enable the
 ```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
-// We enable the cacheVerbose option, which will
-// log information about the cached data.
-const sdb = new SimpleDB({ cacheVerbose: true });
+// We start a SimpleDB instance.
+const sdb = new SimpleDB();
 
-const fires = sdb.newTable("fires");
-
-// We cache these steps with a ttl of 60 seconds.
-// On the first run, the data will be fetched
-// and stored in the hidden folder .sda-cache.
-// If you rerun the script less than 60 seconds
-// later, the data won't be fetched but loaded
-// from the local cache. However, if you run the
-// code after 60 seconds, the data will be
-// considered outdated and fetched again.
-// After another 60 seconds, the new data in the cache will
-// expire again. This is useful when working with scraped data.
-// If you update the parameters or code passed to the cache
-// method, everything starts over.
-await fires.cache(
-  async () => {
-    await fires.loadData(
-      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
-    );
-    await fires.points("lat", "lon", "geom");
-  },
-  { ttl: 60 },
-);
-
+// We create a new table
 const provinces = sdb.newTable("provinces");
+// We fetch the provinces' boundaries. It's a geojson.
+await provinces.loadGeoData(
+  "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
+);
+// We log the provinces
+await provinces.logTable();
 
-// Same thing here, except there is no ttl option,
-// so the cached data will never expire unless you delete
-// the hidden folder .sda-cache. Again, if you update
-// the code passed to the cache method, everything
-// starts over.
-await provinces.cache(async () => {
-  await provinces.loadGeoData(
-    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
-  );
+// We create a new table
+const fires = sdb.newTable("fires");
+// We fetch the wildfires data. It's a csv.
+await fires.loadData(
+  "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
+);
+// We create point geometries from the lat and lon columns
+// and we store the points in the new column geom
+await fires.points("lat", "lon", "geom");
+// We log the fires
+await fires.logTable();
+
+// We match fires with provinces
+// and we output the results into a new table.
+// By default, joinGeo will automatically look
+// for columns storing geometries in the tables,
+// do a left join, and put the results
+// in the left table.
+const firesInsideProvinces = await fires.joinGeo(provinces, "inside", {
+  outputTable: "firesInsideProvinces",
 });
 
-const firesInsideProvinces = sdb.newTable("firesInsideProvinces");
+// We summarize to count the number of fires
+// and sum up the area burnt in each province.
+await firesInsideProvinces.summarize({
+  values: "hectares",
+  categories: "nameEnglish",
+  summaries: ["count", "sum"],
+  decimals: 0,
+});
+// We rename columns.
+await firesInsideProvinces.renameColumns({
+  count: "nbFires",
+  sum: "burntArea",
+});
+// We want the province with
+// the greatest burnt area first.
+await firesInsideProvinces.sort({ burntArea: "desc" });
 
-// While caching is quite useful when fetching data,
-// it's also handy for computationally expensive
-// operations like joins and summaries.
-// Since the fires table has a ttl of 60 seconds
-// and we depend on it here, we need a ttl equal
-// or lower. Otherwise, we won't work with
-// up-to-date data.
-await firesInsideProvinces.cache(
-  async () => {
-    await fires.joinGeo(provinces, "inside", {
-      outputTable: "firesInsideProvinces",
-    });
-    await firesInsideProvinces.removeMissing();
-    await firesInsideProvinces.summarize({
-      values: "hectares",
-      categories: "nameEnglish",
-      summaries: ["count", "sum"],
-      decimals: 0,
-    });
-    await firesInsideProvinces.renameColumns({
-      count: "nbFires",
-      sum: "burntArea",
-    });
-    await firesInsideProvinces.sort({ burntArea: "desc" });
-  },
-  { ttl: 60 },
-);
+// We log the results. By default, the method
+// logs the first 10 rows, but there is 12
+// provinces and territories in Canada
+// with burnt areas, so we log 12 rows.
+// We also log the data types.
+await firesInsideProvinces.logTable({ nbRowsToLog: 12, logTypes: true });
 
-await firesInsideProvinces.logTable(12);
+// We can also log a bar chart directly in the terminal.
+await firesInsideProvinces.logBarChart("nameEnglish", "burntArea");
 
-// It's important to call done() at the end.
-// This method will remove the unused files
-// in the cache. It will also log the total duration
-// if the logDuration option was set to true.
+// We close everything.
 await sdb.done();
 ```
 
@@ -499,6 +485,11 @@ SimpleDB - Done in 594 ms / You saved 297 ms by using the cache
 
 ## In Observable notebooks
 
+> [!WARNING]
+> The web version of the library is still a work in progress. It's usually best
+> to process your data in the backend, output a JSON file, and then visualize it
+> in the frontend.
+
 Observable notebooks are great for data analysis in JavaScript.
 
 In this
@@ -514,6 +505,11 @@ boundaries, and then compute the number of fires and the total area burnt per
 province.
 
 ## In Web apps or HTML pages
+
+> [!WARNING]
+> The web version of the library is still a work in progress. It's usually best
+> to process your data in the backend, output a JSON file, and then visualize it
+> in the frontend.
 
 If you are developing a web application, you'll need to install
 [@duckdb/duckdb-wasm](https://github.com/duckdb/duckdb-wasm).
