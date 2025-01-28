@@ -2,7 +2,7 @@ import type { AsyncDuckDBConnection } from "npm:@duckdb/duckdb-wasm@1";
 import type { DuckDBConnection } from "@duckdb/node-api";
 import convertForJS from "./convertForJS.ts";
 
-export default async function runQueryNode(
+export default async function runQuery(
   query: string,
   connection: AsyncDuckDBConnection | DuckDBConnection,
   returnDataFromQuery: boolean,

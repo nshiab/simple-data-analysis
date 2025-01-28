@@ -254,7 +254,7 @@ export default class SimpleWebTable extends Simple {
   }
 
   /**
-   * Fetch data from an url into the table. This method is just for the web. For NodeJS and other runtimes, use loadData.
+   * Fetch data from an url into the table.
    *
    * @example
    * Basic usage

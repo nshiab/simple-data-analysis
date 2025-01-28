@@ -1,13 +1,13 @@
 import { readdirSync } from "node:fs";
 import SimpleWebTable from "./SimpleWebTable.ts";
 import stringToArray from "../helpers/stringToArray.ts";
-import loadDataNodeQuery from "../methods/loadDataNodeQuery.ts";
+import loadDataQuery from "../methods/loadDataQuery.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
 import writeDataQuery from "../methods/writeDataQuery.ts";
 import writeGeoDataQuery from "../methods/writeGeoDataQuery.ts";
 import type SimpleDB from "./SimpleDB.ts";
-import runQueryNode from "../helpers/runQueryNode.ts";
+import runQuery from "../helpers/runQuery.ts";
 import aggregateGeoQuery from "../methods/aggregateGeoQuery.ts";
 import selectRowsQuery from "../methods/selectRowsQuery.ts";
 import crossJoinQuery from "../methods/crossJoinQuery.ts";
@@ -94,7 +94,7 @@ export default class SimpleTable extends SimpleWebTable {
   ) {
     super(name, projections, simpleDB, options);
     this.sdb = simpleDB;
-    this.runQuery = runQueryNode;
+    this.runQuery = runQuery;
   }
 
   // TO RETURN THE RIGHT TYPES
@@ -411,13 +411,13 @@ export default class SimpleTable extends SimpleWebTable {
   }
 
   /**
-   * This method is just for the web. For NodeJS and other runtimes, use loadData.
+   * This method is just for the web. Use loadData.
    *
    * @category Importing data
    */
   override fetchData(): Promise<this> {
     throw new Error(
-      "This method is just for the web. For NodeJS and other runtimes, use loadData.",
+      "This method is just for the web. Use loadData.",
     );
   }
 
@@ -492,7 +492,7 @@ export default class SimpleTable extends SimpleWebTable {
   ): Promise<SimpleTable> {
     await queryDB(
       this,
-      loadDataNodeQuery(this.name, stringToArray(files), options),
+      loadDataQuery(this.name, stringToArray(files), options),
       mergeOptions(this, {
         table: this.name,
         method: "loadData()",
@@ -563,7 +563,7 @@ export default class SimpleTable extends SimpleWebTable {
     );
     await queryDB(
       this,
-      loadDataNodeQuery(this.name, files, options),
+      loadDataQuery(this.name, files, options),
       mergeOptions(this, {
         table: this.name,
         method: "loadDataFromDirectory",
@@ -575,13 +575,13 @@ export default class SimpleTable extends SimpleWebTable {
   }
 
   /**
-   * This method is just for the web. For NodeJS and other runtimes, use loadGeoData.
+   * This method is just for the web. Use loadGeoData.
    *
    * @category Importing data
    */
   override fetchGeoData(): Promise<this> {
     throw new Error(
-      "This method is just for the web. For NodeJS and other runtimes, use loadGeoData.",
+      "This method is just for the web. Use loadGeoData.",
     );
   }
 

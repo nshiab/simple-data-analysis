@@ -8,3 +8,15 @@ Deno.test("should return the max value", async () => {
   assertEquals(await table.getMax("key1"), 4);
   await sdb.done();
 });
+Deno.test("should return the max value with Dates", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadArray([
+    { key1: new Date("2020-01-01") },
+    { key1: new Date("2021-01-01") },
+    { key1: new Date("2022-01-01") },
+    { key1: new Date("2023-01-01") },
+  ]);
+  assertEquals(await table.getMax("key1"), new Date("2023-01-01"));
+  await sdb.done();
+});

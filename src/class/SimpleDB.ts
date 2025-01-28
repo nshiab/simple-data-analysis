@@ -1,12 +1,12 @@
 import { DuckDBInstance } from "@duckdb/node-api";
-import runQueryNode from "../helpers/runQueryNode.ts";
+import runQuery from "../helpers/runQuery.ts";
 import SimpleWebDB from "./SimpleWebDB.ts";
 import SimpleTable from "./SimpleTable.ts";
 import cleanCache from "../helpers/cleanCache.ts";
 import { prettyDuration } from "@nshiab/journalism";
 
 /**
- * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance, in-memory analytical database. This class is meant to be used with NodeJS and similar runtimes. For web browsers, use SimpleWebDB.
+ * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance, in-memory analytical database. For web browsers, use SimpleWebDB.
  *
  * With very expensive computations, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
  *
@@ -66,7 +66,7 @@ export default class SimpleDB extends SimpleWebDB {
     this.tables = [];
     this.cacheVerbose = options.cacheVerbose ?? false;
     this.cacheTimeSaved = 0;
-    this.runQuery = runQueryNode;
+    this.runQuery = runQuery;
     if (this.cacheVerbose) {
       this.durationStart = Date.now();
     }
