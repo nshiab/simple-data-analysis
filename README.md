@@ -352,7 +352,7 @@ await firesInsideProvinces.cache(
   { ttl: 60 },
 );
 
-await firesInsideProvinces.logTable(13);
+await firesInsideProvinces.logTable({ nbRowsToLog: 13, logTypes: true });
 await firesInsideProvinces.logBarChart("nameEnglish", "burntArea");
 
 // It's important to call done() at the end.
