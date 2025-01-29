@@ -178,7 +178,7 @@ DuckDB, which powers SDA, can also be used with
 [Python](https://duckdb.org/docs/api/python/overview.html) and
 [R](https://duckdb.org/docs/api/r).
 
-## Example
+## Examples
 
 In this example, we load a CSV file with the latitude and longitude of 2023
 wildfires in Canada, create point geometries from it, do a spatial join with
@@ -257,6 +257,78 @@ await sdb.done();
 Here's what you should see in your console if your run this scripts.
 
 ![The console tab in VS Code showing the result of simple-data-analysis computations.](./assets/nodejs-console-with-chart.png)
+
+## Writing charts and maps
+
+You can easily display charts and maps directly in the terminal with the
+[`logBarChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logBarChart),
+[`logDotChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logDotChart),
+[`logLineChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logLineChart)
+and
+[`logHistogram`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logHistogram)
+methods.
+
+But you can also create [Observable Plot](https://github.com/observablehq/plot)
+charts as an image file (`.png`, `.jpeg` or `.svg`) with
+[`writeChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.writeChart).
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+import { dot, plot } from "@observablehq/plot";
+import type { Data } from "@observablehq/plot";
+
+const sdb = new SimpleDB();
+const table = sdb.newTable();
+
+const data = [{ year: 2024, value: 10 }, { year: 2025, value: 15 }];
+
+await table.loadArray(data);
+
+const chart = (data: Data) =>
+  plot({
+    marks: [
+      dot(data, { x: "year", y: "value" }),
+    ],
+  });
+
+const path = "./output/chart.png";
+
+await table.writeChart(chart, path);
+```
+
+If you want to create [Observable Plot](https://github.com/observablehq/plot)
+maps, you can use
+[`writeMap`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.writeMap).
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+import { geo, plot } from "@observablehq/plot";
+import type { Data } from "@observablehq/plot";
+
+const sdb = new SimpleDB();
+const table = sdb.newTable();
+
+await table.loadGeoData(
+  "./CanadianProvincesAndTerritories.geojson",
+);
+
+const map = (data: Data) =>
+  plot({
+    projection: {
+      type: "conic-conformal",
+      rotate: [100, -60],
+      domain: data,
+    },
+    marks: [
+      geo(data, { stroke: "black", fill: "lightblue" }),
+    ],
+  });
+
+const path = "./output/map.png";
+
+// Note the option rewind, available if needed.
+await table.writeMap(map, path, { rewind: true });
+```
 
 ## Caching fetched and computed data
 
