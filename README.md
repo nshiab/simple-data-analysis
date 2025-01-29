@@ -254,7 +254,7 @@ await firesInsideProvinces.logBarChart("nameEnglish", "burntArea");
 await sdb.done();
 ```
 
-Here's what you should see in your console if your run this scripts.
+Here's what you should see in your console if your run this script.
 
 ![The console tab in VS Code showing the result of simple-data-analysis computations.](./assets/nodejs-console-with-chart.png)
 
