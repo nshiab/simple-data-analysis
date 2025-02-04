@@ -1124,7 +1124,6 @@ export default class SimpleTable extends SimpleWebTable {
    * Basic usage:
    * ```ts
    * import { dot, plot } from "@observablehq/plot";
-   * import type { Data } from "@observablehq/plot";
    *
    * const sdb = new SimpleDB();
    * const table = sdb.newTable();
@@ -1133,7 +1132,7 @@ export default class SimpleTable extends SimpleWebTable {
    *
    * await table.loadArray(data);
    *
-   * const chart = (data: Data) =>
+   * const chart = (data: unknown[]) =>
    *   plot({
    *     marks: [
    *       dot(data, { x: "year", y: "value" }),
@@ -1149,10 +1148,14 @@ export default class SimpleTable extends SimpleWebTable {
    * @param path - The path where the chart image will be saved.
    */
   async writeChart(
-    chart: (data: Data) => SVGSVGElement | HTMLElement,
+    chart: (data: unknown[]) => SVGSVGElement | HTMLElement,
     path: string,
   ) {
-    await saveChart(await this.getData(), chart, path);
+    await saveChart(
+      await this.getData(),
+      chart as (data: Data) => SVGSVGElement | HTMLElement, // Not great.
+      path,
+    );
   }
 
   /**
@@ -1164,7 +1167,6 @@ export default class SimpleTable extends SimpleWebTable {
    * Basic usage:
    * ```ts
    * import { geo, plot } from "@observablehq/plot";
-   * import type { Data } from "@observablehq/plot";
    *
    * const sdb = new SimpleDB();
    * const table = sdb.newTable();
@@ -1173,7 +1175,9 @@ export default class SimpleTable extends SimpleWebTable {
    *   "./CanadianProvincesAndTerritories.geojson",
    * );
    *
-   * const map = (data: Data) =>
+   * const map = (data: {
+   *   features: unknown[];
+   * }) =>
    *   plot({
    *     projection: {
    *       type: "conic-conformal",
@@ -1191,22 +1195,26 @@ export default class SimpleTable extends SimpleWebTable {
    * await table.writeMap(map, path, { rewind: true });
    * ```
    *
-   * @param map - A function that takes data and returns an Observable Plot map.
+   * @param map - A function that takes geospatial data and returns an Observable Plot map.
    * @param path - The path where the map image will be saved.
    * @param options - An optional object with configuration options:
    *   @param options.column - The name of a column storing geometries. If there is just one, it will be used by default.
    *   @param options.rewind - If true, rewinds the winding order to be clockwise. Default is false.
    */
   async writeMap(
-    map: (data: Data) => SVGSVGElement | HTMLElement,
+    map: (geoData: {
+      features: {
+        properties: { [key: string]: unknown };
+      }[];
+    }) => SVGSVGElement | HTMLElement,
     path: string,
     options: { column?: string; rewind?: true } = {},
   ) {
     await saveChart(
       await this.getGeoData(options.column, {
         rewind: options.rewind,
-      }) as unknown as Data,
-      map,
+      }) as unknown as Data, // Not great.
+      map as unknown as (data: Data) => SVGSVGElement | HTMLElement, // Not great.
       path,
     );
   }

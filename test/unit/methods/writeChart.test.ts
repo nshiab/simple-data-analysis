@@ -2,7 +2,6 @@ import { existsSync, mkdirSync } from "node:fs";
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { dot, plot } from "@observablehq/plot";
-import type { Data } from "@observablehq/plot";
 const output = "./test/output/";
 if (!existsSync(output)) {
   mkdirSync(output);
@@ -13,7 +12,7 @@ Deno.test("should write a chart as a png", async () => {
   const table = sdb.newTable();
   await table.loadData("test/data/files/dailyTemperatures.csv");
   await table.filter(`YEAR(time) === 2020`);
-  await table.writeChart((data: Data) =>
+  await table.writeChart((data: unknown[]) =>
     plot({
       title: "My chart",
       color: { legend: true, type: "diverging" },
@@ -33,7 +32,7 @@ Deno.test("should write a chart as a jpeg", async () => {
   const table = sdb.newTable();
   await table.loadData("test/data/files/dailyTemperatures.csv");
   await table.filter(`YEAR(time) === 2020`);
-  await table.writeChart((data: Data) =>
+  await table.writeChart((data: unknown[]) =>
     plot({
       title: "My chart",
       color: { legend: true, type: "diverging" },
@@ -53,7 +52,7 @@ Deno.test("should write a chart as a svg", async () => {
   const table = sdb.newTable();
   await table.loadData("test/data/files/dailyTemperatures.csv");
   await table.filter(`YEAR(time) === 2020`);
-  await table.writeChart((data: Data) =>
+  await table.writeChart((data: unknown[]) =>
     plot({
       title: "My chart",
       color: { legend: true, type: "diverging" },
@@ -73,7 +72,7 @@ Deno.test("should write a chart (example from docs)", async () => {
   const table = sdb.newTable();
   await table.loadArray([{ year: 2024, value: 10 }, { year: 2025, value: 15 }]);
 
-  await table.writeChart((data: Data) =>
+  await table.writeChart((data: unknown[]) =>
     plot({
       marks: [
         dot(data, { x: "year", y: "value" }),
@@ -89,7 +88,7 @@ Deno.test("should write a chart in a folder that doesn't exist", async () => {
   const table = sdb.newTable();
   await table.loadData("test/data/files/dailyTemperatures.csv");
   await table.filter(`YEAR(time) === 2020`);
-  await table.writeChart((data: Data) =>
+  await table.writeChart((data: unknown[]) =>
     plot({
       title: "My chart",
       color: { legend: true, type: "diverging" },
