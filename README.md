@@ -61,7 +61,7 @@ If you want to add the library to an existing project, run this:
 
 ```bash
 # Deno >= 2.x.x
-deno install --node-modules-dir=auto --allow-scripts=npm:playwright-chromium@1.50.0 jsr:@nshiab/simple-data-analysis
+deno install --node-modules-dir=auto --allow-scripts=npm:playwright-chromium@1.50.1 jsr:@nshiab/simple-data-analysis
 # To run with Deno
 deno run -A main.ts
 
@@ -183,13 +183,14 @@ DuckDB, which powers SDA, can also be used with
 In this example, we load a CSV file with the latitude and longitude of 2023
 wildfires in Canada, create point geometries from it, do a spatial join with
 provinces' boundaries, and then compute the number of fires and the total area
-burnt per province.
+burnt per province. We are create charts and write the results to a file.
 
 If you are using Deno, make sure to install and enable the
 [Deno extension](https://docs.deno.com/runtime/getting_started/setup_your_environment/).
 
 ```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
+import { barX, plot } from "@observablehq/plot";
 
 // We start a SimpleDB instance.
 const sdb = new SimpleDB();
@@ -220,7 +221,8 @@ await fires.logTable();
 // By default, joinGeo will automatically look
 // for columns storing geometries in the tables,
 // do a left join, and put the results
-// in the left table.
+// in the left table. For non-spatial data,
+// you can use the method join.
 const firesInsideProvinces = await fires.joinGeo(provinces, "inside", {
   outputTable: "firesInsideProvinces",
 });
@@ -247,8 +249,34 @@ await firesInsideProvinces.sort({ burntArea: "desc" });
 // rows in our data. We also log the data types.
 await firesInsideProvinces.logTable({ nbRowsToLog: 13, logTypes: true });
 
-// We can also log a bar chart directly in the terminal.
+// We can also log a bar chart directly in the terminal...
 await firesInsideProvinces.logBarChart("nameEnglish", "burntArea");
+
+// ... or make a fancier chart or map
+// with Observable Plot (don't forget to install it)
+// and save it to a file.
+const chart = (data: unknown[]) =>
+  plot({
+    marginLeft: 170,
+    grid: true,
+    x: { tickFormat: (d) => `${d / 1_000_000}M`, label: "Burnt area (ha)" },
+    y: { label: null },
+    color: { scheme: "Reds" },
+    marks: [
+      barX(data, {
+        x: "burntArea",
+        y: "nameEnglish",
+        fill: "burntArea",
+        sort: { y: "-x" },
+      }),
+    ],
+  });
+await firesInsideProvinces.writeChart(chart, "./chart.png");
+
+// And we can write the data to a parquet, json or csv file.
+// For geospatial data, you can use writeGeoData to
+// write geojson or geoparquet files.
+await firesInsideProvinces.writeData("./firesInsideProvinces.parquet");
 
 // We close everything.
 await sdb.done();
@@ -258,7 +286,12 @@ Here's what you should see in your console if your run this script.
 
 ![The console tab in VS Code showing the result of simple-data-analysis computations.](./assets/nodejs-console-with-chart.png)
 
-## Writing charts and maps
+You'll also find a `chart.png` file and a `firesInsideProvinces.parquet` file in
+your folder.
+
+![A chart showing the burnt area of wildfires in Canadian provinces.](./assets/chart.png)
+
+## More on charts and maps
 
 You can easily display charts and maps directly in the terminal with the
 [`logBarChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logBarChart),
@@ -272,63 +305,150 @@ But you can also create [Observable Plot](https://github.com/observablehq/plot)
 charts as an image file (`.png`, `.jpeg` or `.svg`) with
 [`writeChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.writeChart).
 
+Here's an example.
+
 ```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
-import { dot, plot } from "@observablehq/plot";
-import type { Data } from "@observablehq/plot";
+import { dodgeX, dot, plot } from "@observablehq/plot";
 
 const sdb = new SimpleDB();
 const table = sdb.newTable();
 
-const data = [{ year: 2024, value: 10 }, { year: 2025, value: 15 }];
+await table.loadData(
+  "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
+);
+// We keep only the fires that are larger than 1 hectare.
+await table.filter(`hectares > 1`);
+// We rename the causes.
+await table.replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" });
+await table.logTable();
 
-await table.loadArray(data);
-
-const chart = (data: Data) =>
+// Let's create a beeswarm chart with a log scale.
+// We facet over the causes.
+const chart = (data: unknown[]) =>
   plot({
+    height: 600,
+    width: 800,
+    color: { legend: true },
+    y: { type: "log", label: "Hectares" },
+    r: { range: [1, 20] },
     marks: [
-      dot(data, { x: "year", y: "value" }),
+      dot(
+        data,
+        dodgeX("middle", {
+          fx: "cause",
+          y: "hectares",
+          fill: "cause",
+          r: "hectares",
+        }),
+      ),
     ],
   });
 
-const path = "./output/chart.png";
+const path = "./chart.png";
 
 await table.writeChart(chart, path);
+
+await sdb.done();
 ```
+
+![Beeswarm chart showing the size of wildfires in Canada in 2023.](./assets/beeswarm.png)
 
 If you want to create [Observable Plot](https://github.com/observablehq/plot)
 maps, you can use
 [`writeMap`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.writeMap).
 
+Here's an example.
+
 ```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 import { geo, plot } from "@observablehq/plot";
-import type { Data } from "@observablehq/plot";
 
 const sdb = new SimpleDB();
-const table = sdb.newTable();
+const provinces = sdb.newTable("provinces");
 
-await table.loadGeoData(
-  "./CanadianProvincesAndTerritories.geojson",
+// We fetch the Canadian provinces boundaries.
+await provinces.loadGeoData(
+  "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
 );
+await provinces.logTable();
 
-const map = (data: Data) =>
-  plot({
+// We fetch the fires.
+const fires = sdb.newTable("fires");
+await fires.loadData(
+  "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
+);
+// We create a new column to store the points as geometries.
+await fires.points("lat", "lon", "geom");
+// We select the columns of interest and filter out
+// fires less than 1 hectare.
+await fires.replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" });
+await fires.selectColumns(["geom", "hectares", "cause"]);
+await fires.filter(`hectares > 0`);
+await fires.logTable();
+
+// Now, we want the provinces and the fires in the same table
+// to draw our map with the writeMap method.
+// First, we clone the provinces table.
+const provincesAndFires = await provinces.cloneTable({
+  outputTable: "provincesAndFires",
+});
+// Then, we add the columns missing from the fires table.
+await provincesAndFires.addColumn("hectares", "number", `0`);
+await provincesAndFires.addColumn("cause", "string", `''`);
+// Now we can insert the fires into the provincesAndFires table.
+await provincesAndFires.insertTables(fires);
+// To make our lives easier, we add a column to
+// distinguish between provinces and fires.
+await provincesAndFires.addColumn("isFire", "boolean", `hectares > 0`);
+await provincesAndFires.logTable();
+
+// This is our function to draw the map, using the Plot library.
+const map = (geoData: {
+  features: {
+    properties: { [key: string]: unknown };
+  }[];
+}) => {
+  const fires = geoData.features.filter((d) => d.properties.isFire);
+  const provinces = geoData.features.filter((d) => !d.properties.isFire);
+
+  return plot({
     projection: {
       type: "conic-conformal",
       rotate: [100, -60],
-      domain: data,
+      domain: geoData,
     },
+    color: {
+      legend: true,
+    },
+    r: { range: [0.5, 25] },
     marks: [
-      geo(data, { stroke: "black", fill: "lightblue" }),
+      geo(provinces, {
+        stroke: "lightgray",
+        fill: "whitesmoke",
+      }),
+      geo(fires, {
+        r: "hectares",
+        fill: "cause",
+        fillOpacity: 0.25,
+        stroke: "cause",
+        strokeOpacity: 0.5,
+      }),
     ],
   });
+};
 
-const path = "./output/map.png";
+// This is the path where the map will be saved.
+const path = "./map.png";
 
-// Note the option rewind, available if needed.
-await table.writeMap(map, path, { rewind: true });
+// Now we can call writeMap.
+// Note the option to rewind coordinates, available if needed.
+await provincesAndFires.writeMap(map, path, { rewind: true });
+
+await sdb.done();
 ```
+
+![Map showing the wildfires in Canada in 2023.](./assets/map.png)
 
 ## Caching fetched and computed data
 
