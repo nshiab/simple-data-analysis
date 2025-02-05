@@ -209,15 +209,6 @@ import { barX, plot } from "@observablehq/plot";
 const sdb = new SimpleDB();
 
 // We create a new table
-const provinces = sdb.newTable("provinces");
-// We fetch the provinces' boundaries. It's a geojson.
-await provinces.loadGeoData(
-  "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
-);
-// We log the provinces
-await provinces.logTable();
-
-// We create a new table
 const fires = sdb.newTable("fires");
 // We fetch the wildfires data. It's a csv.
 await fires.loadData(
@@ -228,6 +219,15 @@ await fires.loadData(
 await fires.points("lat", "lon", "geom");
 // We log the fires
 await fires.logTable();
+
+// We create a new table
+const provinces = sdb.newTable("provinces");
+// We fetch the provinces' boundaries. It's a geojson.
+await provinces.loadGeoData(
+  "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
+);
+// We log the provinces
+await provinces.logTable();
 
 // We match fires with provinces
 // and we output the results into a new table.
