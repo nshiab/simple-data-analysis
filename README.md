@@ -35,6 +35,19 @@ npx setup-sda
 bunx --bun setup-sda
 ```
 
+If you want an example, pass the `--example` flag.
+
+```bash
+# Deno >= 2.x.x
+deno -A jsr:@nshiab/setup-sda --example
+
+# Node.js >= 22.6.x
+npx setup-sda --example
+
+# Bun
+bunx --bun setup-sda --example
+```
+
 If you want to use SDA with [Svelte](https://svelte.dev/), pass the `--svelte`
 flag:
 
