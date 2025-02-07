@@ -139,7 +139,6 @@ Deno.test("should write a map with multiple layers as a png", async () => {
   await provinces.loadGeoData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
   );
-  await provinces.logTable();
 
   const fires = sdb.newTable("fires");
   await fires.loadData(
@@ -153,7 +152,6 @@ Deno.test("should write a map with multiple layers as a png", async () => {
   });
   await fires.selectColumns(["geom", "hectares", "cause"]);
   await fires.filter(`hectares > 0 AND cause != 'Unknown'`);
-  await fires.logTable();
 
   const provincesAndFires = await provinces.cloneTable({
     outputTable: "provincesAndFires",
@@ -162,8 +160,6 @@ Deno.test("should write a map with multiple layers as a png", async () => {
   await provincesAndFires.addColumn("cause", "string", `''`);
   await provincesAndFires.insertTables(fires);
   await provincesAndFires.addColumn("isFire", "boolean", `hectares > 0`);
-
-  await provincesAndFires.logTable();
 
   const map = (
     geoData: {

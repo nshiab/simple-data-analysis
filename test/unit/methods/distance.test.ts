@@ -17,13 +17,13 @@ Deno.test("should calculate the distance between points with the SRS unit", asyn
 
   assertEquals(data, [
     { name: "toronto", name_1: "toronto", dist: 0 },
-    { name: "toronto", name_1: "montreal", dist: 5.655 },
-    { name: "toronto", name_1: "vancouver", dist: 43.99 },
     { name: "montreal", name_1: "toronto", dist: 5.655 },
-    { name: "montreal", name_1: "montreal", dist: 0 },
-    { name: "montreal", name_1: "vancouver", dist: 49.241 },
     { name: "vancouver", name_1: "toronto", dist: 43.99 },
+    { name: "toronto", name_1: "montreal", dist: 5.655 },
+    { name: "montreal", name_1: "montreal", dist: 0 },
     { name: "vancouver", name_1: "montreal", dist: 49.241 },
+    { name: "toronto", name_1: "vancouver", dist: 43.99 },
+    { name: "montreal", name_1: "vancouver", dist: 49.241 },
     { name: "vancouver", name_1: "vancouver", dist: 0 },
   ]);
 
@@ -45,13 +45,13 @@ Deno.test("should calculate the distance between points with the SRS unit and ro
 
   assertEquals(data, [
     { name: "toronto", name_1: "toronto", dist: 0 },
-    { name: "toronto", name_1: "montreal", dist: 5.655 },
-    { name: "toronto", name_1: "vancouver", dist: 43.99 },
     { name: "montreal", name_1: "toronto", dist: 5.655 },
-    { name: "montreal", name_1: "montreal", dist: 0 },
-    { name: "montreal", name_1: "vancouver", dist: 49.241 },
     { name: "vancouver", name_1: "toronto", dist: 43.99 },
+    { name: "toronto", name_1: "montreal", dist: 5.655 },
+    { name: "montreal", name_1: "montreal", dist: 0 },
     { name: "vancouver", name_1: "montreal", dist: 49.241 },
+    { name: "toronto", name_1: "vancouver", dist: 43.99 },
+    { name: "montreal", name_1: "vancouver", dist: 49.241 },
     { name: "vancouver", name_1: "vancouver", dist: 0 },
   ]);
 
@@ -124,13 +124,13 @@ Deno.test("should calculate the distance between points with the haversine metho
 
   assertEquals(data, [
     { name: "toronto", name_1: "toronto", dist: 0 },
-    { name: "toronto", name_1: "montreal", dist: 464577 },
-    { name: "toronto", name_1: "vancouver", dist: 3350989 },
     { name: "montreal", name_1: "toronto", dist: 464577 },
-    { name: "montreal", name_1: "montreal", dist: 0 },
-    { name: "montreal", name_1: "vancouver", dist: 3666382 },
     { name: "vancouver", name_1: "toronto", dist: 3350989 },
+    { name: "toronto", name_1: "montreal", dist: 464577 },
+    { name: "montreal", name_1: "montreal", dist: 0 },
     { name: "vancouver", name_1: "montreal", dist: 3666382 },
+    { name: "toronto", name_1: "vancouver", dist: 3350989 },
+    { name: "montreal", name_1: "vancouver", dist: 3666382 },
     { name: "vancouver", name_1: "vancouver", dist: 0 },
   ]);
 
@@ -155,13 +155,13 @@ Deno.test("should calculate the distance between points with the haversine metho
 
   assertEquals(data, [
     { name: "toronto", name_1: "toronto", dist: 0 },
-    { name: "toronto", name_1: "montreal", dist: 464577 },
-    { name: "toronto", name_1: "vancouver", dist: 3350989 },
     { name: "montreal", name_1: "toronto", dist: 464577 },
-    { name: "montreal", name_1: "montreal", dist: 0 },
-    { name: "montreal", name_1: "vancouver", dist: 3666382 },
     { name: "vancouver", name_1: "toronto", dist: 3350989 },
+    { name: "toronto", name_1: "montreal", dist: 464577 },
+    { name: "montreal", name_1: "montreal", dist: 0 },
     { name: "vancouver", name_1: "montreal", dist: 3666382 },
+    { name: "toronto", name_1: "vancouver", dist: 3350989 },
+    { name: "montreal", name_1: "vancouver", dist: 3666382 },
     { name: "vancouver", name_1: "vancouver", dist: 0 },
   ]);
 
@@ -185,13 +185,13 @@ Deno.test("should calculate the distance between points with the haversine metho
 
   assertEquals(data, [
     { name: "toronto", name_1: "toronto", dist: 0 },
-    { name: "toronto", name_1: "montreal", dist: 464577 },
-    { name: "toronto", name_1: "vancouver", dist: 3350989 },
     { name: "montreal", name_1: "toronto", dist: 464577 },
-    { name: "montreal", name_1: "montreal", dist: 0 },
-    { name: "montreal", name_1: "vancouver", dist: 3666382 },
     { name: "vancouver", name_1: "toronto", dist: 3350989 },
+    { name: "toronto", name_1: "montreal", dist: 464577 },
+    { name: "montreal", name_1: "montreal", dist: 0 },
     { name: "vancouver", name_1: "montreal", dist: 3666382 },
+    { name: "toronto", name_1: "vancouver", dist: 3350989 },
+    { name: "montreal", name_1: "vancouver", dist: 3666382 },
     { name: "vancouver", name_1: "vancouver", dist: 0 },
   ]);
 
@@ -217,13 +217,13 @@ Deno.test("should calculate the distance between points with the haversine metho
 
   assertEquals(data, [
     { name: "toronto", name_1: "toronto", dist: 0 },
-    { name: "toronto", name_1: "montreal", dist: 465 },
-    { name: "toronto", name_1: "vancouver", dist: 3351 },
     { name: "montreal", name_1: "toronto", dist: 465 },
-    { name: "montreal", name_1: "montreal", dist: 0 },
-    { name: "montreal", name_1: "vancouver", dist: 3666 },
     { name: "vancouver", name_1: "toronto", dist: 3351 },
+    { name: "toronto", name_1: "montreal", dist: 465 },
+    { name: "montreal", name_1: "montreal", dist: 0 },
     { name: "vancouver", name_1: "montreal", dist: 3666 },
+    { name: "toronto", name_1: "vancouver", dist: 3351 },
+    { name: "montreal", name_1: "vancouver", dist: 3666 },
     { name: "vancouver", name_1: "vancouver", dist: 0 },
   ]);
 
@@ -248,13 +248,13 @@ Deno.test("should calculate the distance between points with the spheroid method
 
   assertEquals(data, [
     { name: "toronto", name_1: "toronto", dist: 0 },
-    { name: "toronto", name_1: "montreal", dist: 465639 },
-    { name: "toronto", name_1: "vancouver", dist: 3360308 },
     { name: "montreal", name_1: "toronto", dist: 465639 },
-    { name: "montreal", name_1: "montreal", dist: 0 },
-    { name: "montreal", name_1: "vancouver", dist: 3676968 },
     { name: "vancouver", name_1: "toronto", dist: 3360308 },
+    { name: "toronto", name_1: "montreal", dist: 465639 },
+    { name: "montreal", name_1: "montreal", dist: 0 },
     { name: "vancouver", name_1: "montreal", dist: 3676968 },
+    { name: "toronto", name_1: "vancouver", dist: 3360308 },
+    { name: "montreal", name_1: "vancouver", dist: 3676968 },
     { name: "vancouver", name_1: "vancouver", dist: 0 },
   ]);
 
@@ -279,13 +279,13 @@ Deno.test("should calculate the distance between points with the spheroid method
 
   assertEquals(data, [
     { name: "toronto", name_1: "toronto", dist: 0 },
-    { name: "toronto", name_1: "montreal", dist: 465639 },
-    { name: "toronto", name_1: "vancouver", dist: 3360308 },
     { name: "montreal", name_1: "toronto", dist: 465639 },
-    { name: "montreal", name_1: "montreal", dist: 0 },
-    { name: "montreal", name_1: "vancouver", dist: 3676968 },
     { name: "vancouver", name_1: "toronto", dist: 3360308 },
+    { name: "toronto", name_1: "montreal", dist: 465639 },
+    { name: "montreal", name_1: "montreal", dist: 0 },
     { name: "vancouver", name_1: "montreal", dist: 3676968 },
+    { name: "toronto", name_1: "vancouver", dist: 3360308 },
+    { name: "montreal", name_1: "vancouver", dist: 3676968 },
     { name: "vancouver", name_1: "vancouver", dist: 0 },
   ]);
 
@@ -311,13 +311,13 @@ Deno.test("should calculate the distance between points with the spheroid method
 
   assertEquals(data, [
     { name: "toronto", name_1: "toronto", dist: 0 },
-    { name: "toronto", name_1: "montreal", dist: 466 },
-    { name: "toronto", name_1: "vancouver", dist: 3360 },
     { name: "montreal", name_1: "toronto", dist: 466 },
-    { name: "montreal", name_1: "montreal", dist: 0 },
-    { name: "montreal", name_1: "vancouver", dist: 3677 },
     { name: "vancouver", name_1: "toronto", dist: 3360 },
+    { name: "toronto", name_1: "montreal", dist: 466 },
+    { name: "montreal", name_1: "montreal", dist: 0 },
     { name: "vancouver", name_1: "montreal", dist: 3677 },
+    { name: "toronto", name_1: "vancouver", dist: 3360 },
+    { name: "montreal", name_1: "vancouver", dist: 3677 },
     { name: "vancouver", name_1: "vancouver", dist: 0 },
   ]);
 

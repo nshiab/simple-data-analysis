@@ -8,7 +8,7 @@
     "jsr:@std/internal@^1.0.5": "1.0.5",
     "npm:@duckdb/duckdb-wasm@1": "1.29.0",
     "npm:@duckdb/duckdb-wasm@1.29.0": "1.29.0",
-    "npm:@duckdb/node-api@1.1.3-alpha.12": "1.1.3-alpha.12",
+    "npm:@duckdb/node-api@1.2.0-alpha.13": "1.2.0-alpha.13",
     "npm:@observablehq/plot@0": "0.6.16",
     "npm:@observablehq/plot@0.6.16": "0.6.16",
     "npm:@observablehq/plot@~0.6.16": "0.6.16",
@@ -62,29 +62,29 @@
         "apache-arrow@17.0.0"
       ]
     },
-    "@duckdb/node-api@1.1.3-alpha.12": {
-      "integrity": "sha512-7n4o3/IFVrhvsyGlogueK0J5Y2EMwoN4hWM5IXNe9EwZ+zyvPU/JJEDaRwaWCjXtECfYLz6H7CKDorhvssHl4A==",
+    "@duckdb/node-api@1.2.0-alpha.13": {
+      "integrity": "sha512-O6Dy9uEu0FQdBO18ihG+x0HVOv4+dGaB4nCZ5vF1ay6E9x7RY4Y9xDwhv0AkzvzM6n6fmyb4okXaIAb5kDvKvw==",
       "dependencies": [
         "@duckdb/node-bindings"
       ]
     },
-    "@duckdb/node-bindings-darwin-arm64@1.1.3-alpha.12": {
-      "integrity": "sha512-fuO+r4Y2qkrnbBs2FsUsgJ5p4sUOcsu0LTexz4HMnC7WkVcQK308n/+ILbZ8VSztjQR7UhNlfy4grGKUnGRzKg=="
+    "@duckdb/node-bindings-darwin-arm64@1.2.0-alpha.13": {
+      "integrity": "sha512-0zDKvycejRdxISCWYZmFHW9C28vwbPaXUbO/rpeSh33sx68JMbGmDhh9N1Dx1yq6KvaP5vQtFM9kDKgcLrV6Sg=="
     },
-    "@duckdb/node-bindings-darwin-x64@1.1.3-alpha.12": {
-      "integrity": "sha512-97jw6ZO0ZO7YLJx83ifUg9Fsm7hKPeqNJi+AJSbSxmx9D3dWI7ndeBCMLX7CX8DW4Jjm6tZH7+VmLVrjt2vjQg=="
+    "@duckdb/node-bindings-darwin-x64@1.2.0-alpha.13": {
+      "integrity": "sha512-0BZgf0wCjkmizW2+QJnXDrQfHuPMr/5y4lGIp2XWX9lw9kea3WPdZd+o7TJq+P0g+b6zaWTxYm3kjhvtgvTSOA=="
     },
-    "@duckdb/node-bindings-linux-arm64@1.1.3-alpha.12": {
-      "integrity": "sha512-+3/ASrQoA5nPdoQofFGjtjklaYndW/UlUyzfHuUVxs21EfPZi4LI+6N0BA+78kPI1wHYHn1+4La0pc2wA6bzfg=="
+    "@duckdb/node-bindings-linux-arm64@1.2.0-alpha.13": {
+      "integrity": "sha512-ZTPnGLwep9yzpkOJdLgGH8uIqGqo9VaoVRe47NHuzz6HRhnuV5UiRDJCGk9CJWBwVyB4PhUt5YFdeV1N6XDdyg=="
     },
-    "@duckdb/node-bindings-linux-x64@1.1.3-alpha.12": {
-      "integrity": "sha512-kuAXWslGSPWZp5ienlV0LtSTO72Fhhst6qPbBxX59HeJLpCS4ZHkU9FNYKgXU8HziYh/3G81c/vBvqBgRKYbSA=="
+    "@duckdb/node-bindings-linux-x64@1.2.0-alpha.13": {
+      "integrity": "sha512-e048HU7yalzBq/V3rtirKDWYL29BA1VJD4ZXfSk6xiKwm/DAz/PKgACVE6uNT/whEK4hj/ZkHlioeB4wm4XA1w=="
     },
-    "@duckdb/node-bindings-win32-x64@1.1.3-alpha.12": {
-      "integrity": "sha512-6JeeQR9Fs8WcBF22TkDjWWnpte5ijxnBlvpov154dBKbFDZMh5L43zYmfcvamtnzYtqfhkhox1LDIkSovyHZwQ=="
+    "@duckdb/node-bindings-win32-x64@1.2.0-alpha.13": {
+      "integrity": "sha512-jP6nNMSi86xcuwpMp1eUNFZ1PPKm7Jd1sTAfNJYf9dUckHyNmqlRlFDGlwM9XZ4dAhofOyhUhEmtYlgJcXU5Gg=="
     },
-    "@duckdb/node-bindings@1.1.3-alpha.12": {
-      "integrity": "sha512-I89ljU1Xnyrwv9W2Eel0NQQgjRH0JmOexmRBUrOdw3K+ajoDSe3Bdmd0WeI4kW1p5AWCVe7qG/YnGdM0AsS5JQ==",
+    "@duckdb/node-bindings@1.2.0-alpha.13": {
+      "integrity": "sha512-reo1R3v/TDoi25VWNgeL40DIQiuU4NsLi4ILJaXY/DfKXIu+UDQm8mW5eC4M9PmTyosgdJvKXS00OcDpT2rqlg==",
       "dependencies": [
         "@duckdb/node-bindings-darwin-arm64",
         "@duckdb/node-bindings-darwin-x64",
@@ -868,7 +868,7 @@
       "jsr:@nshiab/journalism@1.21.11",
       "jsr:@std/assert@1.0.11",
       "npm:@duckdb/duckdb-wasm@1.29.0",
-      "npm:@duckdb/node-api@1.1.3-alpha.12",
+      "npm:@duckdb/node-api@1.2.0-alpha.13",
       "npm:@observablehq/plot@0.6.16",
       "npm:apache-arrow@18.1.0"
     ]
