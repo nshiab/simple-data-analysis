@@ -22,9 +22,9 @@
   "nodeModulesDir": "auto",
   "imports": {
     "@duckdb/duckdb-wasm": "npm:@duckdb/duckdb-wasm@1.29.0",
-    "@duckdb/node-api": "npm:@duckdb/node-api@1.2.0-alpha.13",
+    "@duckdb/node-api": "npm:@duckdb/node-api@1.2.0-alpha.14",
     "@nshiab/journalism": "jsr:@nshiab/journalism@1.21.11",
-    "@observablehq/plot": "npm:@observablehq/plot@0.6.16",
+    "@observablehq/plot": "npm:@observablehq/plot@0.6.17",
     "@std/assert": "jsr:@std/assert@1.0.11",
     "apache-arrow": "npm:apache-arrow@18.1.0"
   },

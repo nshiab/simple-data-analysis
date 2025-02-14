@@ -22,3 +22,17 @@ Deno.test("should not throw an error when there is no table", async () => {
   assertEquals(true, true);
   await sdb.done();
 });
+
+Deno.test("should log a description of the table containing dates", async () => {
+  const sdb = new SimpleDB();
+  const temperatures = sdb.newTable("temperatures");
+  await temperatures.loadData(
+    "test/data/files/dailyTemperatures.csv",
+  );
+  await temperatures.logDescription();
+  await sdb.done();
+
+  // How to test?
+  assertEquals(true, true);
+  await sdb.done();
+});
