@@ -69,6 +69,7 @@ import { camelCase, formatNumber } from "jsr:@nshiab/journalism@1/web";
 import capitalizeQuery from "../methods/capitalizeQuery.ts";
 import logDataWeb from "../helpers/logDataWeb.ts";
 import getProjectionParquet from "../helpers/getProjectionParquet.ts";
+import unifyColumns from "../helpers/unifyColumns.ts";
 // Not working for now
 // import getProjection from "../helpers/getProjection.js"
 
@@ -352,61 +353,13 @@ export default class SimpleWebTable extends Simple {
       ? tablesToInsert
       : [tablesToInsert];
 
+    // For scoping
+    let columnsAdded: {
+      [key: string]: string[];
+    } = {};
     if (options.unifyColumns) {
       const allTables = [this, ...array];
-      const allTypes: { [key: string]: string } = {};
-      const allProjections: { [key: string]: string } = {};
-      for (const table of allTables) {
-        const types = await table.getTypes();
-        for (const key in types) {
-          if (!allTypes[key]) {
-            allTypes[key] = types[key];
-            allProjections[key] = table.projections[key];
-          } else {
-            if (allTypes[key] !== types[key]) {
-              throw new Error(
-                `The column ${key} has different types in the tables.`,
-              );
-            } else if (allProjections[key] !== table.projections[key]) {
-              throw new Error(
-                `The column ${key} has different projections in the tables.`,
-              );
-            }
-          }
-        }
-      }
-      for (const column in allTypes) {
-        for (const table of allTables) {
-          if (!(await table.hasColumn(column))) {
-            await table.addColumn(
-              column,
-              // Could be improved
-              allTypes[column].toLowerCase() as
-                | "string"
-                | "number"
-                | "bigint"
-                | "boolean"
-                | "integer"
-                | "float"
-                | "date"
-                | "time"
-                | "datetime"
-                | "datetimeTz"
-                | "double"
-                | "varchar"
-                | "timestamp"
-                | "timestamp with time zone"
-                | "geometry",
-              `null`,
-              {
-                projection: allTypes[column] === "GEOMETRY"
-                  ? allProjections[column]
-                  : undefined,
-              },
-            );
-          }
-        }
-      }
+      columnsAdded = await unifyColumns(allTables);
     }
 
     await queryDB(
@@ -423,6 +376,13 @@ export default class SimpleWebTable extends Simple {
         parameters: { tablesToInsert },
       }),
     );
+
+    if (options.unifyColumns) {
+      for (const table of array) {
+        const cols = columnsAdded[table.name];
+        await table.removeColumns(cols);
+      }
+    }
   }
 
   /**

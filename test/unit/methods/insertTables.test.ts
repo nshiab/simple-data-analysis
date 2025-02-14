@@ -109,7 +109,7 @@ Deno.test("should add rows from tables with different columns", async () => {
   ]);
   await sdb.done();
 });
-Deno.test("should add rows from tables with different columns", async () => {
+Deno.test("should add rows from tables with different columns without adding columns to the original tables", async () => {
   const sdb = new SimpleDB();
   const table1 = sdb.newTable("table1");
   await table1.loadArray([
@@ -131,14 +131,26 @@ Deno.test("should add rows from tables with different columns", async () => {
 
   await table1.insertTables([table2, table3], { unifyColumns: true });
   const data = await table1.getData();
-  assertEquals(data, [
-    { firstName: "John", lastName: "Doe", age: null, city: null },
-    { firstName: "Jane", lastName: "Doe", age: null, city: null },
-    { firstName: "Anthony", lastName: null, age: 25, city: null },
-    { firstName: "Eleonore", lastName: null, age: 22, city: null },
-    { firstName: null, lastName: null, age: null, city: "Montreal" },
-    { firstName: null, lastName: null, age: null, city: "Toronto" },
-  ]);
+  const data2 = await table2.getData();
+  const data3 = await table3.getData();
+  assertEquals({ data, data2, data3 }, {
+    data: [
+      { firstName: "John", lastName: "Doe", age: null, city: null },
+      { firstName: "Jane", lastName: "Doe", age: null, city: null },
+      { firstName: "Anthony", lastName: null, age: 25, city: null },
+      { firstName: "Eleonore", lastName: null, age: 22, city: null },
+      { firstName: null, lastName: null, age: null, city: "Montreal" },
+      { firstName: null, lastName: null, age: null, city: "Toronto" },
+    ],
+    data2: [
+      { firstName: "Anthony", age: 25 },
+      { firstName: "Eleonore", age: 22 },
+    ],
+    data3: [
+      { city: "Montreal" },
+      { city: "Toronto" },
+    ],
+  });
   await sdb.done();
 });
 Deno.test("should add rows from tables with geometries", async () => {
