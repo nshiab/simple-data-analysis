@@ -1,4 +1,11 @@
 export default function cleanSQL(query: string) {
+  if (
+    query.includes("ALTER TABLE") && query.includes("UPDATE") &&
+    query.includes("SET")
+  ) {
+    return query;
+  }
+
   const cleaned = query
     .replace(/ && /g, " AND ")
     .replace(/ & /g, " AND ")

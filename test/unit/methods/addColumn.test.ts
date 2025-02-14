@@ -154,3 +154,16 @@ Deno.test("should return a column with a $ in its name", async () => {
   ]);
   await sdb.done();
 });
+Deno.test("should return a column with null values", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadArray([{ key1: "Nael" }, { key1: "Graeme" }]);
+  await table.addColumn("age", "integer", "null");
+  const data = await table.getData();
+
+  assertEquals(data, [{ key1: "Nael", age: null }, {
+    key1: "Graeme",
+    age: null,
+  }]);
+  await sdb.done();
+});
