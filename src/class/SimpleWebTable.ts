@@ -331,14 +331,84 @@ export default class SimpleWebTable extends Simple {
    * await tableA.insertTables([ "tableB", "tableC" ])
    * ```
    *
+   * @example
+   * With multiple tables having different columns
+   * ```ts
+   * // null values will be inserted in tables that don't have the same columns.
+   * await tableA.insertTables([ "tableB", "tableC" ], { unifyColumns: true })
+   * ```
+   *
    * @param tablesToInsert - The name of the table(s) from which rows will be inserted.
+   * @param options - An optional object with configuration options:
+   *   @param options.unifyColumns - A boolean indicating whether to unify the columns of the tables. Defaults to false.
    *
    * @category Importing data
    */
-  async insertTables(tablesToInsert: SimpleWebTable | SimpleWebTable[]) {
+  async insertTables(
+    tablesToInsert: SimpleWebTable | SimpleWebTable[],
+    options: { unifyColumns?: boolean } = {},
+  ) {
     const array = Array.isArray(tablesToInsert)
       ? tablesToInsert
       : [tablesToInsert];
+
+    if (options.unifyColumns) {
+      const allTables = [this, ...array];
+      const allTypes: { [key: string]: string } = {};
+      const allProjections: { [key: string]: string } = {};
+      for (const table of allTables) {
+        const types = await table.getTypes();
+        for (const key in types) {
+          if (!allTypes[key]) {
+            allTypes[key] = types[key];
+            allProjections[key] = table.projections[key];
+          } else {
+            if (allTypes[key] !== types[key]) {
+              throw new Error(
+                `The column ${key} has different types in the tables.`,
+              );
+            } else if (allProjections[key] !== table.projections[key]) {
+              throw new Error(
+                `The column ${key} has different projections in the tables.`,
+              );
+            }
+          }
+        }
+      }
+      for (const column in allTypes) {
+        for (const table of allTables) {
+          if (!(await table.hasColumn(column))) {
+            await table.addColumn(
+              column,
+              // Could be improved
+              allTypes[column].toLowerCase() as
+                | "string"
+                | "number"
+                | "bigint"
+                | "boolean"
+                | "integer"
+                | "float"
+                | "date"
+                | "time"
+                | "datetime"
+                | "datetimeTz"
+                | "double"
+                | "varchar"
+                | "timestamp"
+                | "timestamp with time zone"
+                | "geometry",
+              `null`,
+              {
+                projection: allTypes[column] === "GEOMETRY"
+                  ? allProjections[column]
+                  : undefined,
+              },
+            );
+          }
+        }
+      }
+    }
+
     await queryDB(
       this,
       array
