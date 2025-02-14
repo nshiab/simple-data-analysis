@@ -406,17 +406,19 @@ await fires.logTable();
 const provincesAndFires = await provinces.cloneTable({
   outputTable: "provincesAndFires",
 });
-// Then, we add the columns missing from the fires table.
-await provincesAndFires.addColumn("hectares", "number", `0`);
-await provincesAndFires.addColumn("cause", "string", `''`);
 // Now we can insert the fires into the provincesAndFires table.
-await provincesAndFires.insertTables(fires);
+// By default, SDA will throw an error if the tables don't have the
+// same columns. So we set the unifyColumns option to true.
+await provincesAndFires.insertTables(fires, { unifyColumns: true });
 // To make our lives easier, we add a column to
 // distinguish between provinces and fires.
 await provincesAndFires.addColumn("isFire", "boolean", `hectares > 0`);
 await provincesAndFires.logTable();
 
 // This is our function to draw the map, using the Plot library.
+// The geoData will come from the our provincesAndFires table
+// as GeoJSON data. Each row of the table is a feature, and each
+// feature has properties matching the columns of the table.
 const map = (geoData: {
   features: {
     properties: { [key: string]: unknown };
