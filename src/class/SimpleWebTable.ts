@@ -70,6 +70,7 @@ import capitalizeQuery from "../methods/capitalizeQuery.ts";
 import logDataWeb from "../helpers/logDataWeb.ts";
 import getProjectionParquet from "../helpers/getProjectionParquet.ts";
 import unifyColumns from "../helpers/unifyColumns.ts";
+import accumulateQuery from "../helpers/accumulateQuery.ts";
 // Not working for now
 // import getProjection from "../helpers/getProjection.js"
 
@@ -2348,6 +2349,46 @@ export default class SimpleWebTable extends Simple {
     } else {
       return this;
     }
+  }
+
+  /**
+   * Computes the cumulative sum of values in a column. Don't forget to sort your data first.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * // Computes the cumulative sum of values in column1 in a new column cumulative.
+   * await table.accumulate("column1", "cumulative")
+   * ```
+   *
+   * @example
+   * With categories
+   * ```ts
+   * // Computes the cumulative sum of values in column1 in a new column cumulative. Using values in column2 as categories.
+   * await table.accumulate("column1", "cumulative", { categories: "column2" })
+   * ```
+   *
+   * @param column - The name of the column storing the values to be accumulated.
+   * @param newColumn - The name of the new column in which the computed values will be stored.
+   * @param options - An optional object with configuration options:
+   *  @param options.categories - The category or categories to be used for the accumulation.
+   */
+  async accumulate(
+    column: string,
+    newColumn: string,
+    options: {
+      categories?: string | string[];
+    } = {},
+  ) {
+    await queryDB(
+      this,
+      accumulateQuery(this.name, column, newColumn, options),
+      mergeOptions(this, {
+        table: this.name,
+        method: "accumulate()",
+        parameters: { column, newColumn, options },
+      }),
+    );
   }
 
   /**
