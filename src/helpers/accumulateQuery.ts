@@ -12,12 +12,15 @@ export default function accumulateQuery(
     ? stringToArray(options.categories)
     : [];
   const partition = categories.length > 0
-    ? `PARTITION BY ${categories.map((d) => `${d}`).join(", ")}`
+    ? `PARTITION BY ${categories.map((d) => `"${d}"`).join(", ")} `
     : "";
 
   const query =
-    `CREATE OR REPLACE TABLE ${table} AS SELECT *, SUM(${column}) OVER (${partition} ORDER BY idForAccumulate) AS ${newColumn}
-    FROM ${table};`;
+    `CREATE OR REPLACE TABLE data AS SELECT *, ROW_NUMBER() OVER() AS idForAccumulate FROM data;
+    CREATE OR REPLACE TABLE ${table} AS SELECT *, SUM("${column}") OVER (${partition}ORDER BY idForAccumulate) AS "${newColumn}"
+    FROM ${table}
+    ORDER BY idForAccumulate;
+    ALTER TABLE data DROP "idForAccumulate";`;
 
   return query;
 }

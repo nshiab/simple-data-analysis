@@ -2380,8 +2380,6 @@ export default class SimpleWebTable extends Simple {
       categories?: string | string[];
     } = {},
   ) {
-    await this.addRowNumber("idForAccumulate");
-
     await queryDB(
       this,
       accumulateQuery(this.name, column, newColumn, options),
@@ -2391,8 +2389,6 @@ export default class SimpleWebTable extends Simple {
         parameters: { column, newColumn, options },
       }),
     );
-
-    await this.removeColumns("idForAccumulate");
   }
 
   /**
