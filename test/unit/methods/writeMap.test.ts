@@ -31,7 +31,7 @@ Deno.test("should write a map as png", async () => {
 
   const path = output + "map.png";
 
-  await table.writeMap(map, path, { rewind: true });
+  await table.writeMap(map, path);
 
   // How to assert?
   assertEquals(true, true);
@@ -62,7 +62,7 @@ Deno.test("should write a map as jpeg", async () => {
 
   const path = output + "map.jpeg";
 
-  await table.writeMap(map, path, { rewind: true });
+  await table.writeMap(map, path);
 
   // How to assert?
   assertEquals(true, true);
@@ -93,7 +93,7 @@ Deno.test("should write a map as svg", async () => {
 
   const path = output + "map.svg";
 
-  await table.writeMap(map, path, { rewind: true });
+  await table.writeMap(map, path);
 
   // How to assert?
   assertEquals(true, true);
@@ -124,7 +124,7 @@ Deno.test("should write a map in a folder that doesn't exist", async () => {
 
   const path = output + "test/test/map.png";
 
-  await table.writeMap(map, path, { rewind: true });
+  await table.writeMap(map, path);
 
   // How to assert?
   assertEquals(true, true);
@@ -199,7 +199,7 @@ Deno.test("should write a map with multiple layers as a png", async () => {
 
   const path = output + "test/test/complex-map.png";
 
-  await provincesAndFires.writeMap(map, path, { rewind: true });
+  await provincesAndFires.writeMap(map, path);
 
   await sdb.done();
 
