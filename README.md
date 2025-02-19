@@ -457,8 +457,7 @@ const map = (geoData: {
 const path = "./map.png";
 
 // Now we can call writeMap.
-// Note the option to rewind coordinates, available if needed.
-await provincesAndFires.writeMap(map, path, { rewind: true });
+await provincesAndFires.writeMap(map, path);
 
 await sdb.done();
 ```

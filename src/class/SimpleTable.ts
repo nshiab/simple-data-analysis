@@ -1191,15 +1191,14 @@ export default class SimpleTable extends SimpleWebTable {
    *
    * const path = "./output/map.png";
    *
-   * // Note the option rewind, available if needed.
-   * await table.writeMap(map, path, { rewind: true });
+   * await table.writeMap(map, path);
    * ```
    *
    * @param map - A function that takes geospatial data and returns an Observable Plot map.
    * @param path - The path where the map image will be saved.
    * @param options - An optional object with configuration options:
    *   @param options.column - The name of a column storing geometries. If there is just one, it will be used by default.
-   *   @param options.rewind - If true, rewinds the winding order to be clockwise. Default is false.
+   *   @param options.rewind - If true, rewinds the winding order to be clockwise. Default is true.
    */
   async writeMap(
     map: (geoData: {
@@ -1208,7 +1207,7 @@ export default class SimpleTable extends SimpleWebTable {
       }[];
     }) => SVGSVGElement | HTMLElement,
     path: string,
-    options: { column?: string; rewind?: true } = {},
+    options: { column?: string; rewind?: true } = { rewind: true },
   ) {
     await saveChart(
       await this.getGeoData(options.column, {
