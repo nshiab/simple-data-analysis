@@ -11,6 +11,15 @@ Deno.test("should load data from a csv file and return the table", async () => {
   assertEquals(table instanceof SimpleTable, true);
   await sdb.done();
 });
+Deno.test("should load data from a csv file with a specific encoding and return the table", async () => {
+  const sdb = new SimpleDB();
+  const table = await sdb
+    .newTable()
+    .loadData(["test/data/files/data.csv"], { encoding: "latin-1" });
+
+  assertEquals(table instanceof SimpleTable, true);
+  await sdb.done();
+});
 Deno.test("should load data from a csv file", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
