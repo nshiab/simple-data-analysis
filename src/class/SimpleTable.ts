@@ -459,6 +459,7 @@ export default class SimpleTable extends SimpleWebTable {
    *   @param options.nullPadding - If this option is enabled, when a row lacks columns, it will pad the remaining columns on the right with null values.
    *   @param options.ignoreErrors - Option to ignore any parsing errors encountered and instead ignore rows with errors.
    *   @param options.compression - The compression type. Applicable to CSV files. Defaults to none.
+   *   @param options.encoding - The encoding of the file. Applicable to CSV files. Defaults to utf-8.
    *   @param options.jsonFormat - The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
    *   @param options.records - A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
    *   @param options.sheet - A string indicating a specific sheet to import. Applicable to Excel files. By default, the first sheet is imported.
@@ -479,10 +480,10 @@ export default class SimpleTable extends SimpleWebTable {
       allText?: boolean;
       delim?: string;
       skip?: number;
-
       nullPadding?: boolean;
       ignoreErrors?: boolean;
       compression?: "none" | "gzip" | "zstd";
+      encoding?: "utf-8" | "utf-16" | "latin-1";
       // json options
       jsonFormat?: "unstructured" | "newlineDelimited" | "array";
       records?: boolean;
