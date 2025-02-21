@@ -38,7 +38,7 @@ bunx --bun setup-sda
 If you want an example, pass the `--example` flag.
 
 ```bash
-# Deno >= 2.x.x
+# Deno >= 2.2.x
 deno -A jsr:@nshiab/setup-sda --example
 
 # Node.js >= 22.6.x
@@ -52,7 +52,7 @@ If you want to use SDA with [Svelte](https://svelte.dev/), pass the `--svelte`
 flag:
 
 ```bash
-# Deno >= 2.x.x
+# Deno >= 2.2.x
 deno -A jsr:@nshiab/setup-sda --svelte
 
 # Node.js >= 22.6.x
@@ -73,7 +73,7 @@ To initialize a git repository in the folder, pass the `--git` flag.
 If you want to add the library to an existing project, run this:
 
 ```bash
-# Deno >= 2.x.x
+# Deno >= 2.2.x
 deno install --node-modules-dir=auto --allow-scripts=npm:playwright-chromium@1.50.1 jsr:@nshiab/simple-data-analysis
 # To run with Deno
 deno run -A main.ts
