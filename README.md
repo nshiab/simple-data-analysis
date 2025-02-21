@@ -25,7 +25,7 @@ Create a folder and run [setup-sda](https://github.com/nshiab/setup-sda) in it
 with:
 
 ```bash
-# Deno >= 2.x.x
+# Deno >= 2.2.x
 deno -A jsr:@nshiab/setup-sda
 
 # Node.js >= 22.6.x
