@@ -3436,7 +3436,7 @@ export default class SimpleWebTable extends Simple {
   > {
     return (await queryDB(
       this,
-      `SELECT * from ${this.name}${
+      `SELECT * from "${this.name}"${
         options.condition ? ` WHERE ${options.condition}` : ""
       }`,
       mergeOptions(this, {
