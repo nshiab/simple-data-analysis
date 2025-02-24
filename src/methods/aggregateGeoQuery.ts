@@ -12,7 +12,7 @@ export default function aggregateGeoQuery(
   const categoriesOptions = options.categories ?? [];
   const categories = stringToArray(categoriesOptions);
 
-  let query = `CREATE OR REPLACE TABLE ${options.outputTable ?? table} AS
+  let query = `CREATE OR REPLACE TABLE "${options.outputTable ?? table}" AS
     SELECT${
     categories.length > 0 ? ` ${categories.map((d) => `${d}`).join(", ")},` : ""
   }`;
@@ -25,7 +25,7 @@ export default function aggregateGeoQuery(
     throw new Error(`Unkown method ${method}`);
   }
 
-  query += `\nFROM ${table}`;
+  query += `\nFROM "${table}"`;
 
   if (categories.length > 0) {
     query += `\nGROUP BY ${categories.map((d) => `${d}`).join(", ")}`;

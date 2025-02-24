@@ -368,7 +368,7 @@ export default class SimpleWebTable extends Simple {
       array
         .map(
           (tableToInsert) =>
-            `INSERT INTO ${this.name} BY NAME SELECT * FROM ${tableToInsert.name};`,
+            `INSERT INTO "${this.name}" BY NAME SELECT * FROM "${tableToInsert.name}";`,
         )
         .join("\n"),
       mergeOptions(this, {
@@ -1320,7 +1320,7 @@ export default class SimpleWebTable extends Simple {
     const cols = stringToArray(columns);
     await queryDB(
       this,
-      cols.map((d) => `ALTER TABLE ${this.name} DROP "${d}";`).join("\n"),
+      cols.map((d) => `ALTER TABLE "${this.name}" DROP "${d}";`).join("\n"),
       mergeOptions(this, {
         table: this.name,
         method: "removeColumns()",
