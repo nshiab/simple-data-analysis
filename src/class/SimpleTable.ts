@@ -39,6 +39,7 @@ import getProjectionParquet from "../helpers/getProjectionParquet.ts";
 import { readFileSync, writeFileSync } from "node:fs";
 import type { Data } from "npm:@observablehq/plot@0";
 import loadArray from "../methods/loadArray.ts";
+import cleanPath from "../helpers/cleanPath.ts";
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
@@ -707,14 +708,15 @@ export default class SimpleTable extends SimpleWebTable {
       dataAsArrays?: boolean;
     } = {},
   ) {
-    createDirectory(file);
+    const cleanFile = cleanPath(file);
+    createDirectory(cleanFile);
 
     if (options.dataAsArrays) {
-      await writeDataAsArrays(this, file);
+      await writeDataAsArrays(this, cleanFile);
     } else {
       await queryDB(
         this,
-        writeDataQuery(this.name, file, options),
+        writeDataQuery(this.name, cleanFile, options),
         mergeOptions(this, {
           table: this.name,
           method: "writeData()",
@@ -754,8 +756,9 @@ export default class SimpleTable extends SimpleWebTable {
     options: { precision?: number; compression?: boolean; rewind?: boolean } =
       {},
   ) {
-    createDirectory(file);
-    const fileExtension = getExtension(file);
+    const cleanFile = cleanPath(file);
+    createDirectory(cleanFile);
+    const fileExtension = getExtension(cleanFile);
     if (fileExtension === "geojson") {
       if (typeof options.compression === "boolean") {
         throw new Error(
@@ -768,7 +771,7 @@ export default class SimpleTable extends SimpleWebTable {
         await this.flipCoordinates(geoColumn);
         await queryDB(
           this,
-          writeGeoDataQuery(this.name, file, options),
+          writeGeoDataQuery(this.name, cleanFile, options),
           mergeOptions(this, {
             table: this.name,
             method: "writeGeoData()",
@@ -776,15 +779,15 @@ export default class SimpleTable extends SimpleWebTable {
           }),
         );
         if (options.rewind) {
-          const fileData = JSON.parse(readFileSync(file, "utf-8"));
+          const fileData = JSON.parse(readFileSync(cleanFile, "utf-8"));
           const fileRewinded = rewind(fileData);
-          writeFileSync(file, JSON.stringify(fileRewinded));
+          writeFileSync(cleanFile, JSON.stringify(fileRewinded));
         }
         await this.flipCoordinates(geoColumn);
       } else {
         await queryDB(
           this,
-          writeGeoDataQuery(this.name, file, options),
+          writeGeoDataQuery(this.name, cleanFile, options),
           mergeOptions(this, {
             table: this.name,
             method: "writeGeoData()",
@@ -805,7 +808,7 @@ export default class SimpleTable extends SimpleWebTable {
       }
       await queryDB(
         this,
-        `COPY "${this.name}" TO '${file}' WITH (FORMAT PARQUET${
+        `COPY "${this.name} TO '${cleanFile}' WITH (FORMAT PARQUET${
           options.compression === true ? ", COMPRESSION 'zstd'" : ""
         }, KV_METADATA {
              projections: '${JSON.stringify(this.projections)}'
