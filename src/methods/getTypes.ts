@@ -6,7 +6,7 @@ import extractTypes from "../helpers/extractTypes.ts";
 export default async function getTypes(simpleWebTable: SimpleWebTable) {
   const types = await queryDB(
     simpleWebTable,
-    `DESCRIBE ${simpleWebTable.name}`,
+    `DESCRIBE "${simpleWebTable.name}"`,
     mergeOptions(simpleWebTable, {
       table: simpleWebTable.name,
       returnDataFrom: "query",
