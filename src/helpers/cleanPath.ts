@@ -1,3 +1,3 @@
 export default function cleanPath(file: string) {
-  return file.replaceAll("'", "''").replaceAll("/", "_");
+  return file.replaceAll("'", "''");
 }
