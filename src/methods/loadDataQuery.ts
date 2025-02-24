@@ -1,3 +1,4 @@
+import cleanPath from "../helpers/cleanPath.ts";
 import getExtension from "../helpers/getExtension.ts";
 
 export default function loadDataQuery(
@@ -28,7 +29,7 @@ export default function loadDataQuery(
   } = {},
 ) {
   const fileExtension = getExtension(files[0]);
-  const filesAsString = JSON.stringify(files);
+  const filesAsString = JSON.stringify(files.map((d) => cleanPath(d)));
 
   // General options, except for parquet
   const autoDetect = typeof options.autoDetect === "boolean"
@@ -76,7 +77,7 @@ export default function loadDataQuery(
     const encoding = options.encoding ? `, encoding='${options.encoding}'` : "";
     const strict = options.strict === false ? `, strict_mode=FALSE` : "";
 
-    return `CREATE OR REPLACE TABLE ${table}
+    return `CREATE OR REPLACE TABLE "${table}"
             AS SELECT * FROM read_csv_auto(${filesAsString}${generalOptions}${header}${allText}${delim}${skip}${compression}${encoding}${strict}${nullPadding}${ignoreErrors})${limit};`;
   } else if (options.fileType === "json" || fileExtension === "json") {
     const jsonFormat = options.jsonFormat
@@ -85,10 +86,10 @@ export default function loadDataQuery(
     const records = typeof options.records === "boolean"
       ? `, records=${String(options.records).toUpperCase()}`
       : "";
-    return `CREATE OR REPLACE TABLE ${table}
+    return `CREATE OR REPLACE TABLE "${table}"
             AS SELECT * FROM read_json_auto(${filesAsString}${generalOptions}${jsonFormat}${records})${limit};`;
   } else if (options.fileType === "parquet" || fileExtension === "parquet") {
-    return `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM read_parquet(${filesAsString}${fileName}${unifyColumns})${limit};`;
+    return `CREATE OR REPLACE TABLE "${table}" AS SELECT * FROM read_parquet(${filesAsString}${fileName}${unifyColumns})${limit};`;
   } else if (options.fileType === "excel" || fileExtension === "xlsx") {
     if (files.length > 1) {
       throw new Error(
@@ -97,7 +98,7 @@ export default function loadDataQuery(
     }
 
     return `INSTALL spatial; LOAD spatial; INSTALL https; LOAD https;
-        CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ST_Read('${
+        CREATE OR REPLACE TABLE "${table}" AS SELECT * FROM ST_Read('${
       files[0]
     }'${options.sheet ? `, layer='${options.sheet}'` : ""})${limit};`;
   } else {

@@ -635,7 +635,9 @@ export default class SimpleTable extends SimpleWebTable {
             ? " INSTALL https; LOAD https;"
             : ""
         }
-              CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM read_parquet('${file}');`,
+              CREATE OR REPLACE TABLE "${this.name}" AS SELECT * FROM read_parquet('${
+          cleanPath(file)
+        }');`,
         mergeOptions(this, {
           table: this.name,
           method: "loadGeoData()",
