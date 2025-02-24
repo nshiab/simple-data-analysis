@@ -1,4 +1,5 @@
 import type SimpleWebTable from "../class/SimpleWebTable.ts";
+import cleanPath from "./cleanPath.ts";
 import mergeOptions from "./mergeOptions.ts";
 import queryDB from "./queryDB.ts";
 
@@ -8,7 +9,7 @@ export default async function getProjectionParquet(
 ) {
   const queryResult = await queryDB(
     simpleWebTable,
-    `SELECT * FROM parquet_kv_metadata('${file}');`,
+    `SELECT * FROM parquet_kv_metadata('${cleanPath(file)}');`,
     mergeOptions(simpleWebTable, {
       table: simpleWebTable.name,
       method: "getProjectionParquet()",
