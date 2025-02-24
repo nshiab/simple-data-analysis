@@ -19,6 +19,7 @@ export default function loadDataQuery(
     ignoreErrors?: boolean;
     compression?: "none" | "gzip" | "zstd";
     encoding?: "utf-8" | "utf-16" | "latin-1";
+    strict?: boolean;
     // json options
     jsonFormat?: "unstructured" | "newlineDelimited" | "array";
     records?: boolean;
@@ -73,9 +74,10 @@ export default function loadDataQuery(
       ? `, compression=${options.compression}`
       : "";
     const encoding = options.encoding ? `, encoding='${options.encoding}'` : "";
+    const strict = options.strict === false ? `, strict_mode=FALSE` : "";
 
     return `CREATE OR REPLACE TABLE ${table}
-            AS SELECT * FROM read_csv_auto(${filesAsString}${generalOptions}${header}${allText}${delim}${skip}${compression}${encoding}${nullPadding}${ignoreErrors})${limit};`;
+            AS SELECT * FROM read_csv_auto(${filesAsString}${generalOptions}${header}${allText}${delim}${skip}${compression}${encoding}${strict}${nullPadding}${ignoreErrors})${limit};`;
   } else if (options.fileType === "json" || fileExtension === "json") {
     const jsonFormat = options.jsonFormat
       ? `, format='${options.jsonFormat}'`
