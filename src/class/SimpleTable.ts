@@ -805,7 +805,7 @@ export default class SimpleTable extends SimpleWebTable {
       }
       await queryDB(
         this,
-        `COPY ${this.name} TO '${file}' WITH (FORMAT PARQUET${
+        `COPY "${this.name}" TO '${file}' WITH (FORMAT PARQUET${
           options.compression === true ? ", COMPRESSION 'zstd'" : ""
         }, KV_METADATA {
              projections: '${JSON.stringify(this.projections)}'
