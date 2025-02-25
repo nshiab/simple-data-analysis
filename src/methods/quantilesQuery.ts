@@ -18,8 +18,8 @@ export default function quantilesQuery(
     : `PARTITION BY ${categories.map((d) => `${d}`).join(",")} `;
 
   const query =
-    `CREATE OR REPLACE TABLE ${table} AS SELECT *, ntile(${nbQuantiles}) OVER (${partition}ORDER BY ${values}) AS ${newColumn},
-    FROM ${table}`;
+    `CREATE OR REPLACE TABLE "${table}" AS SELECT *, ntile(${nbQuantiles}) OVER (${partition}ORDER BY ${values}) AS ${newColumn},
+    FROM "${table}"`;
 
   return query;
 }

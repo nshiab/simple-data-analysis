@@ -35,7 +35,7 @@ export default function correlationsQuery(
         : ""
     }'${comb[0]}' AS x, '${
       comb[1]
-    }' AS y, ${tempQuery}  as corr FROM ${table}${groupBy}`;
+    }' AS y, ${tempQuery}  as corr FROM "${table}"${groupBy}`;
   }
 
   return query;

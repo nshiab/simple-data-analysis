@@ -37,12 +37,12 @@ export default function convertQuery(
         ["DOUBLE", "BIGINT"].includes(expectedType);
       if (stringToNumber) {
         query +=
-          `UPDATE ${table} SET "${column}" = REPLACE("${column}", ',', '');\n`;
+          `UPDATE "${table}" SET "${column}" = REPLACE("${column}", ',', '');\n`;
       }
     }
   }
 
-  query += `CREATE OR REPLACE TABLE ${table} AS SELECT`;
+  query += `CREATE OR REPLACE TABLE "${table}" AS SELECT`;
 
   const cast = options.try ? "TRY_CAST" : "CAST";
 
@@ -101,7 +101,7 @@ export default function convertQuery(
   }
 
   query = query.slice(0, query.length - 1);
-  query += ` FROM ${table}`;
+  query += ` FROM "${table}"`;
 
   return query;
 }

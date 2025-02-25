@@ -5,7 +5,7 @@ export default function cloneQuery(
     condition?: string;
   } = {},
 ) {
-  return `CREATE OR REPLACE TABLE "${newTable}" AS SELECT * FROM ${table}${
+  return `CREATE OR REPLACE TABLE "${newTable}" AS SELECT * FROM "${table}"${
     options.condition ? ` WHERE ${options.condition}` : ""
   }`;
 }

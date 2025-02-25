@@ -21,7 +21,7 @@ export default function normalizeQuery(
     (MAX(${column}) OVER(${partition}) - MIN(${column}) OVER(${partition}))`;
 
   const query = `
-    CREATE OR REPLACE TABLE ${table} AS
+    CREATE OR REPLACE TABLE "${table}" AS
     SELECT *, (
         ${
     typeof options.decimals === "number"
@@ -29,7 +29,7 @@ export default function normalizeQuery(
       : tempQuery
   }
         ) AS ${newColumn},
-    FROM ${table}
+    FROM "${table}"
     `;
 
   return query;

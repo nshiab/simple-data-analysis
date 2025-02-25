@@ -9,7 +9,7 @@ export default function removeQuery(
   },
 ) {
   let query =
-    `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ${table} WHERE\n`;
+    `CREATE OR REPLACE TABLE "${table}" AS SELECT * FROM "${table}" WHERE\n`;
   const columns = Object.keys(columnsAndValues);
 
   const conditions = [];

@@ -31,7 +31,7 @@ export default function rollingQuery(
   const tempQuery = `${aggregates[summary]}(${column}) OVER (${partition}
                 ROWS BETWEEN ${preceding} PRECEDING AND ${following} FOLLOWING)`;
 
-  const query = `CREATE OR REPLACE TABLE ${table} AS SELECT *,
+  const query = `CREATE OR REPLACE TABLE "${table}" AS SELECT *,
     ${
     typeof options.decimals === "number"
       ? `ROUND(${tempQuery}, ${options.decimals})`
@@ -39,12 +39,12 @@ export default function rollingQuery(
   } AS "${newColumn}",
         COUNT("${column}") OVER (${partition}
             ROWS BETWEEN ${preceding} PRECEDING AND ${following} FOLLOWING) as tempCountForRolling
-        FROM ${table};
-        UPDATE ${table} SET "${newColumn}" = CASE
+        FROM "${table}";
+        UPDATE "${table}" SET "${newColumn}" = CASE
             WHEN tempCountForRolling != ${preceding + following + 1} THEN NULL
             ELSE ${newColumn}
         END;
-        ALTER TABLE ${table} DROP COLUMN "tempCountForRolling";
+        ALTER TABLE "${table}" DROP COLUMN "tempCountForRolling";
         `;
 
   return query;

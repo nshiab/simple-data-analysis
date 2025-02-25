@@ -14,5 +14,5 @@ export default function removeDuplicatesQuery(
     distinct = "DISTINCT *";
   }
 
-  return `CREATE OR REPLACE TABLE ${table} AS SELECT ${distinct} FROM ${table};`;
+  return `CREATE OR REPLACE TABLE "${table}" AS SELECT ${distinct} FROM "${table}";`;
 }

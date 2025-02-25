@@ -6,7 +6,7 @@ export default function proportionsHorizontalQuery(
     decimals?: number;
   } = {},
 ) {
-  let query = `CREATE OR REPLACE TABLE ${table} AS SELECT *,`;
+  let query = `CREATE OR REPLACE TABLE "${table}" AS SELECT *,`;
 
   for (const col of columns) {
     const tempQuery = `${col} / (${columns.map((d) => `${d}`).join(" + ")})`;
@@ -18,7 +18,7 @@ export default function proportionsHorizontalQuery(
     query += ` AS ${col}${options.suffix ?? "Perc"},`;
   }
 
-  query += `FROM ${table}`;
+  query += `FROM "${table}"`;
 
   return query;
 }

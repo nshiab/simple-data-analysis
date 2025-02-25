@@ -10,11 +10,11 @@ export default function removeMissingQuery(
     invert?: boolean;
   } = {},
 ) {
-  let query = `CREATE OR REPLACE TABLE ${table} AS SELECT ${
+  let query = `CREATE OR REPLACE TABLE "${table}" AS SELECT ${
     allColumns
       .map((d) => `${d}`)
       .join(", ")
-  } FROM ${table}
+  } FROM "${table}"
         WHERE`;
 
   if (options.invert) {

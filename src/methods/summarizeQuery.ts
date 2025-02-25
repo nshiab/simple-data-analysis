@@ -138,7 +138,7 @@ export default function summarizeQuery(
             : `\n${aggregates[summary]}"${value}") AS '${summary}'`;
         }
       })
-    }\nFROM ${table}`;
+    }\nFROM "${table}"`;
     if (categories.length > 0) {
       query += `\nGROUP BY ${categories.map((d) => `"${d}"`).join(", ")}`;
     }

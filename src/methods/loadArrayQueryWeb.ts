@@ -6,7 +6,7 @@ export default function loadArrayQueryWeb(
   table: string,
   arrayOfObjects: { [key: string]: unknown }[],
 ) {
-  let query = `CREATE OR REPLACE TABLE ${table}`;
+  let query = `CREATE OR REPLACE TABLE "${table}"`;
 
   const columns = Object.keys(arrayOfObjects[0]);
   const values = getFirstNonNullOrUndefinedValues(arrayOfObjects);
@@ -16,7 +16,7 @@ export default function loadArrayQueryWeb(
     columnsWithTypes.push(`"${columns[i]}" ${getType(values[i])}`);
   }
 
-  query += `(${columnsWithTypes.join(", ")});\nINSERT INTO ${table} VALUES`;
+  query += `(${columnsWithTypes.join(", ")});\nINSERT INTO "${table}" VALUES`;
 
   for (const object of arrayOfObjects) {
     query += `\n(${

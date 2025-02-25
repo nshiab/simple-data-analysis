@@ -660,7 +660,7 @@ export default class SimpleTable extends SimpleWebTable {
             ? " INSTALL https; LOAD https;"
             : ""
         }
-              CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM ST_Read('${file}');`,
+              CREATE OR REPLACE TABLE "${this.name}" AS SELECT * FROM ST_Read('${file}');`,
         mergeOptions(this, {
           table: this.name,
           method: "loadGeoData()",
@@ -974,7 +974,7 @@ export default class SimpleTable extends SimpleWebTable {
         typeof options.smallMultiples === "string"
           ? `, "${options.smallMultiples}"`
           : ""
-      } FROM ${this.name}`,
+      } FROM "${this.name}"`,
       { returnDataFrom: "query" },
     );
     logLineChart(data as { [key: string]: unknown }[], x, y, options);
@@ -1048,7 +1048,7 @@ export default class SimpleTable extends SimpleWebTable {
         typeof options.smallMultiples === "string"
           ? `, "${options.smallMultiples}"`
           : ""
-      } FROM ${this.name}`,
+      } FROM "${this.name}"`,
       { returnDataFrom: "query" },
     );
     logDotChart(data as { [key: string]: unknown }[], x, y, options);
@@ -1086,7 +1086,7 @@ export default class SimpleTable extends SimpleWebTable {
     } = {},
   ) {
     const data = await this.sdb.customQuery(
-      `SELECT "${labels}", "${values}" FROM ${this.name}`,
+      `SELECT "${labels}", "${values}" FROM "${this.name}"`,
       { returnDataFrom: "query" },
     );
     logBarChart(

@@ -20,7 +20,7 @@ export default function zScoreQuery(
             /
             STDDEV_POP(${column}) OVER(${partition})`;
   const query = `
-    CREATE OR REPLACE TABLE ${table} AS
+    CREATE OR REPLACE TABLE "${table}" AS
     SELECT *, (
         ${
     typeof options.decimals === "number"
@@ -29,7 +29,7 @@ export default function zScoreQuery(
   }
         
         ) AS ${newColumn},
-    FROM ${table}
+    FROM "${table}"
     `;
 
   return query;

@@ -51,7 +51,7 @@ export default function linearRegressionQuery(
     }'${perm[0]}' AS x, '${
       perm[1]
     }' AS y, ${tempSlop} AS slope, ${tempIntercept} AS yIntercept, ${tempR2} as r2
-        FROM ${table}${groupBy}`;
+        FROM "${table}"${groupBy}`;
   }
 
   return query;
