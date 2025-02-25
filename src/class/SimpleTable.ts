@@ -1219,7 +1219,7 @@ export default class SimpleTable extends SimpleWebTable {
       }[];
     }) => SVGSVGElement | HTMLElement,
     path: string,
-    options: { column?: string; rewind?: true } = { rewind: true },
+    options: { column?: string; rewind?: boolean } = { rewind: true },
   ) {
     await saveChart(
       await this.getGeoData(options.column, {
