@@ -8,25 +8,25 @@ export default function writeDataQuery(
   const fileExtension = getExtension(file);
   if (fileExtension === "csv") {
     if (options.compression) {
-      return `COPY ${table} TO '${
+      return `COPY "${table}" TO '${
         file + ".gz"
       }' (DELIMITER ',', HEADER TRUE, COMPRESSION GZIP);`;
     } else {
-      return `COPY ${table} TO '${file}' (DELIMITER ',', HEADER TRUE);`;
+      return `COPY "${table}" TO '${file}' (DELIMITER ',', HEADER TRUE);`;
     }
   } else if (fileExtension === "json") {
     if (options.compression) {
-      return `COPY ${table} TO '${
+      return `COPY "${table}" TO '${
         file + ".gz"
       }' (FORMAT JSON, ARRAY TRUE, COMPRESSION GZIP);`;
     } else {
-      return `COPY ${table} TO '${file}' (FORMAT JSON, ARRAY TRUE);`;
+      return `COPY "${table}" TO '${file}' (FORMAT JSON, ARRAY TRUE);`;
     }
   } else if (fileExtension === "parquet") {
     if (options.compression) {
-      return `COPY ${table} TO '${file}' (FORMAT PARQUET, COMPRESSION ZSTD);`;
+      return `COPY "${table}" TO '${file}' (FORMAT PARQUET, COMPRESSION ZSTD);`;
     } else {
-      return `COPY ${table} TO '${file}' (FORMAT PARQUET);`;
+      return `COPY "${table}" TO '${file}' (FORMAT PARQUET);`;
     }
   } else {
     throw new Error(`Unknown extension ${fileExtension}`);

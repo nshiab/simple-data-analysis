@@ -5,7 +5,7 @@ export default function selectRowsQuery(
 ) {
   return `CREATE OR REPLACE TABLE ${
     options.outputTable ?? table
-  } AS SELECT * FROM ${table} LIMIT ${count}${
+  } AS SELECT * FROM "${table}" LIMIT ${count}${
     typeof options.offset === "number" ? ` OFFSET ${options.offset}` : ""
   };`;
 }

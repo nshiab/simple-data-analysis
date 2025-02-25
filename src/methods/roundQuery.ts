@@ -3,7 +3,7 @@ export default function roundQuery(
   columns: string[],
   options: { method?: "round" | "ceiling" | "floor"; decimals?: number },
 ) {
-  let query = `UPDATE ${table} SET`;
+  let query = `UPDATE "${table}" SET`;
   const method = options.method?.toUpperCase() ?? "ROUND";
   const decimals = options.decimals ?? 0;
 

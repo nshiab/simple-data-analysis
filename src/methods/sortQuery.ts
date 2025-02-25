@@ -5,7 +5,7 @@ export default function sortQuery(
     lang?: { [key: string]: string };
   } = {},
 ) {
-  let query = `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM ${table}
+  let query = `CREATE OR REPLACE TABLE "${table}" AS SELECT * FROM "${table}"
     ORDER BY`;
 
   if (order === null) {

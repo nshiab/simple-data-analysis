@@ -25,7 +25,7 @@ export default function distanceQuery(
   }
 
   let query =
-    `ALTER TABLE ${table} ADD ${newColumn} DOUBLE; UPDATE ${table} SET ${newColumn} = `;
+    `ALTER TABLE "${table}" ADD ${newColumn} DOUBLE; UPDATE "${table}" SET ${newColumn} = `;
 
   if (options.method === "srs") {
     if (typeof options.decimals === "number") {

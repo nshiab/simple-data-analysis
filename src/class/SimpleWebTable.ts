@@ -151,7 +151,7 @@ export default class SimpleWebTable extends Simple {
   async renameTable(name: string) {
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} RENAME TO ${name};`,
+      `ALTER TABLE "${this.name}" RENAME TO "${name}";`,
       mergeOptions(this, {
         table: this.name,
         method: "renameTable()",
@@ -204,7 +204,7 @@ export default class SimpleWebTable extends Simple {
     }
     await queryDB(
       this,
-      `${spatial}CREATE OR REPLACE TABLE ${this.name} (${
+      `${spatial}CREATE OR REPLACE TABLE "${this.name}" (${
         Object.keys(
           types,
         )
@@ -515,7 +515,7 @@ export default class SimpleWebTable extends Simple {
   async cloneColumnWithOffset(originalColumn: string, newColumn: string) {
     await queryDB(
       this,
-      `CREATE OR REPLACE TABLE ${this.name} AS SELECT *, LEAD(${originalColumn}) OVER() AS ${newColumn} FROM ${this.name}`,
+      `CREATE OR REPLACE TABLE "${this.name}" AS SELECT *, LEAD(${originalColumn}) OVER() AS ${newColumn} FROM "${this.name}"`,
       mergeOptions(this, {
         table: this.name,
         method: "cloneColumnWithOffset()",
@@ -546,7 +546,7 @@ export default class SimpleWebTable extends Simple {
       stringToArray(columns)
         .map(
           (col) =>
-            `CREATE OR REPLACE TABLE ${this.name} AS SELECT * EXCLUDE(${col}), COALESCE(${col}, LAG(${col} IGNORE NULLS) OVER()) as ${col} FROM ${this.name};`,
+            `CREATE OR REPLACE TABLE "${this.name}" AS SELECT * EXCLUDE(${col}), COALESCE(${col}, LAG(${col} IGNORE NULLS) OVER()) as ${col} FROM "${this.name}";`,
         )
         .join("\n"),
       mergeOptions(this, {
@@ -627,13 +627,13 @@ export default class SimpleWebTable extends Simple {
   async selectColumns(columns: string | string[]) {
     await queryDB(
       this,
-      `CREATE OR REPLACE TABLE ${this.name} AS SELECT ${
+      `CREATE OR REPLACE TABLE "${this.name}" AS SELECT ${
         stringToArray(
           columns,
         )
           .map((d) => `"${d}"`)
           .join(", ")
-      } FROM ${this.name}`,
+      } FROM "${this.name}"`,
       mergeOptions(this, {
         table: this.name,
         method: "selectColumns()",
@@ -658,7 +658,7 @@ export default class SimpleWebTable extends Simple {
   async skip(nbRowsToSkip: number) {
     await queryDB(
       this,
-      `CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM ${this.name} OFFSET ${nbRowsToSkip} ROWS;`,
+      `CREATE OR REPLACE TABLE "${this.name}" AS SELECT * FROM "${this.name}" OFFSET ${nbRowsToSkip} ROWS;`,
       mergeOptions(this, {
         table: this.name,
         method: "skip()",
@@ -719,7 +719,7 @@ export default class SimpleWebTable extends Simple {
   ) {
     await queryDB(
       this,
-      `CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM ${this.name} USING SAMPLE RESERVOIR(${
+      `CREATE OR REPLACE TABLE "${this.name}" AS SELECT * FROM "${this.name}" USING SAMPLE RESERVOIR(${
         typeof quantity === "number" ? `${quantity} ROWS` : quantity
       })${
         typeof options.seed === "number" ? ` REPEATABLE(${options.seed})` : ""
@@ -929,8 +929,8 @@ export default class SimpleWebTable extends Simple {
   async filter(conditions: string) {
     await queryDB(
       this,
-      `CREATE OR REPLACE TABLE ${this.name} AS SELECT *
-        FROM ${this.name}
+      `CREATE OR REPLACE TABLE "${this.name}" AS SELECT *
+        FROM "${this.name}"
         WHERE ${conditions}`,
       mergeOptions(this, {
         table: this.name,
@@ -1021,7 +1021,7 @@ export default class SimpleWebTable extends Simple {
   async removeRows(conditions: string) {
     await queryDB(
       this,
-      `DELETE FROM ${this.name} WHERE ${conditions}`,
+      `DELETE FROM "${this.name}" WHERE ${conditions}`,
       mergeOptions(this, {
         table: this.name,
         method: "removeRows()",
@@ -1128,8 +1128,8 @@ export default class SimpleWebTable extends Simple {
   async longer(columns: string[], columnsTo: string, valuesTo: string) {
     await queryDB(
       this,
-      `CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM (
-            FROM ${this.name} UNPIVOT INCLUDE NULLS (
+      `CREATE OR REPLACE TABLE "${this.name}" AS SELECT * FROM (
+            FROM "${this.name}" UNPIVOT INCLUDE NULLS (
             "${valuesTo}"
             for "${columnsTo}" in (${columns.map((d) => `"${d}"`).join(", ")})
             )
@@ -1179,7 +1179,7 @@ export default class SimpleWebTable extends Simple {
   async wider(columnsFrom: string, valuesFrom: string) {
     await queryDB(
       this,
-      `CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM (PIVOT ${this.name} ON "${columnsFrom}" USING sum("${valuesFrom}"));`,
+      `CREATE OR REPLACE TABLE "${this.name}" AS SELECT * FROM (PIVOT "${this.name}" ON "${columnsFrom}" USING sum("${valuesFrom}"));`,
       mergeOptions(this, {
         table: this.name,
         method: "wider()",
@@ -1294,7 +1294,7 @@ export default class SimpleWebTable extends Simple {
   async removeTable() {
     await queryDB(
       this,
-      `DROP TABLE ${this.name};`,
+      `DROP TABLE "${this.name}";`,
       mergeOptions(this, {
         table: null,
         method: "removeTable()",
@@ -1387,8 +1387,8 @@ export default class SimpleWebTable extends Simple {
     const newType = parseType(type);
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} ADD "${newColumn}" ${newType};
-        UPDATE ${this.name} SET "${newColumn}" = ${definition}`,
+      `ALTER TABLE "${this.name}" ADD "${newColumn}" ${newType};
+        UPDATE "${this.name}" SET "${newColumn}" = ${definition}`,
       mergeOptions(this, {
         table: this.name,
         method: "addColumn()",
@@ -1423,7 +1423,7 @@ export default class SimpleWebTable extends Simple {
   async addRowNumber(newColumn: string) {
     await queryDB(
       this,
-      `CREATE OR REPLACE TABLE ${this.name} AS SELECT *, ROW_NUMBER() OVER() AS ${newColumn} FROM ${this.name}`,
+      `CREATE OR REPLACE TABLE "${this.name}" AS SELECT *, ROW_NUMBER() OVER() AS ${newColumn} FROM "${this.name}"`,
       mergeOptions(this, {
         table: this.name,
         method: "addRowNumber()",
@@ -1741,8 +1741,8 @@ export default class SimpleWebTable extends Simple {
   ) {
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} ADD ${newColumn} VARCHAR;
-      UPDATE ${this.name} SET ${newColumn} = SPLIT_PART(${column}, '${separator}', ${
+      `ALTER TABLE "${this.name}" ADD "${newColumn}" VARCHAR;
+      UPDATE "${this.name}" SET "${newColumn}" = SPLIT_PART("${column}", '${separator}', ${
         index + 1
       })`,
       mergeOptions(this, {
@@ -1771,7 +1771,7 @@ export default class SimpleWebTable extends Simple {
   async left(column: string, numberOfCharacters: number) {
     await queryDB(
       this,
-      `UPDATE ${this.name} SET ${column} = LEFT(${column}, ${numberOfCharacters})`,
+      `UPDATE "${this.name}" SET "${column}" = LEFT("${column}", ${numberOfCharacters})`,
       mergeOptions(this, {
         table: this.name,
         method: "left()",
@@ -1798,7 +1798,7 @@ export default class SimpleWebTable extends Simple {
   async right(column: string, numberOfCharacters: number) {
     await queryDB(
       this,
-      `UPDATE ${this.name} SET ${column} = RIGHT(${column}, ${numberOfCharacters})`,
+      `UPDATE "${this.name}" SET "${column}" = RIGHT("${column}", ${numberOfCharacters})`,
       mergeOptions(this, {
         table: this.name,
         method: "right()",
@@ -1944,7 +1944,7 @@ export default class SimpleWebTable extends Simple {
   async updateColumn(column: string, definition: string) {
     await queryDB(
       this,
-      `UPDATE ${this.name} SET "${column}" = ${definition}`,
+      `UPDATE "${this.name}" SET "${column}" = ${definition}`,
       mergeOptions(this, {
         table: this.name,
         method: "updateColumn()",
@@ -2824,7 +2824,7 @@ export default class SimpleWebTable extends Simple {
   > {
     return (await queryDB(
       this,
-      `DESCRIBE ${this.name}`,
+      `DESCRIBE "${this.name}"`,
       mergeOptions(this, {
         returnDataFrom: "query",
         nbRowsToLog: Infinity,
@@ -3488,7 +3488,7 @@ export default class SimpleWebTable extends Simple {
             ? " INSTALL https; LOAD https;"
             : ""
         }
-              CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM read_parquet('${file}');`,
+              CREATE OR REPLACE TABLE "${this.name}" AS SELECT * FROM read_parquet('${file}');`,
         mergeOptions(this, {
           table: this.name,
           method: "loadGeoData()",
@@ -3508,7 +3508,7 @@ export default class SimpleWebTable extends Simple {
         this,
         `INSTALL spatial; LOAD spatial;
               INSTALL https; LOAD https;
-              CREATE OR REPLACE TABLE ${this.name} AS SELECT * FROM ST_Read('${file}');`,
+              CREATE OR REPLACE TABLE "${this.name}" AS SELECT * FROM ST_Read('${file}');`,
         mergeOptions(this, {
           table: this.name,
           method: "fetchGeoData()",
@@ -3554,7 +3554,7 @@ export default class SimpleWebTable extends Simple {
     await queryDB(
       this,
       `INSTALL spatial; LOAD spatial;
-            ALTER TABLE ${this.name} ADD COLUMN ${newColumn} GEOMETRY; UPDATE ${this.name} SET ${newColumn} = ST_Point2D(${columnLat}, ${columnLon})`,
+            ALTER TABLE "${this.name}" ADD COLUMN "${newColumn}" GEOMETRY; UPDATE "${this.name}" SET "${newColumn}" = ST_Point2D("${columnLat}", "${columnLon}")`,
       mergeOptions(this, {
         table: this.name,
         method: "points()",
@@ -3595,7 +3595,7 @@ export default class SimpleWebTable extends Simple {
 
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} ADD COLUMN ${newColumn} BOOLEAN; UPDATE ${this.name} SET ${newColumn} = ST_IsValid(${column})`,
+      `ALTER TABLE "${this.name}" ADD COLUMN "${newColumn}" BOOLEAN; UPDATE "${this.name}" SET "${newColumn}" = ST_IsValid("${column}")`,
       mergeOptions(this, {
         table: this.name,
         method: "isValidGeo()",
@@ -3634,7 +3634,7 @@ export default class SimpleWebTable extends Simple {
 
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} ADD COLUMN ${newColumn} BIGINT; UPDATE ${this.name} SET ${newColumn} = ST_NPoints(${column})`,
+      `ALTER TABLE "${this.name}" ADD COLUMN "${newColumn}" BIGINT; UPDATE "${this.name}" SET "${newColumn}" = ST_NPoints("${column}")`,
       mergeOptions(this, {
         table: this.name,
         method: "nbVertices()",
@@ -3668,7 +3668,7 @@ export default class SimpleWebTable extends Simple {
     const col = column ?? (await findGeoColumn(this));
     await queryDB(
       this,
-      `UPDATE ${this.name} SET ${col} = ST_MakeValid(${col})`,
+      `UPDATE "${this.name}" SET "${col}" = ST_MakeValid("${col}")`,
       mergeOptions(this, {
         table: this.name,
         method: "fixGeo()",
@@ -3708,7 +3708,7 @@ export default class SimpleWebTable extends Simple {
 
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} ADD COLUMN ${newColumn} BOOLEAN; UPDATE ${this.name} SET ${newColumn} = ST_IsClosed(${column})`,
+      `ALTER TABLE "${this.name}" ADD COLUMN "${newColumn}" BOOLEAN; UPDATE "${this.name}" SET "${newColumn}" = ST_IsClosed("${column}")`,
       mergeOptions(this, {
         table: this.name,
         method: "isClosedGeo()",
@@ -3747,7 +3747,7 @@ export default class SimpleWebTable extends Simple {
       : await findGeoColumn(this);
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} ADD COLUMN ${newColumn} VARCHAR; UPDATE ${this.name} SET ${newColumn} = ST_GeometryType(${column})`,
+      `ALTER TABLE "${this.name}" ADD COLUMN "${newColumn}" VARCHAR; UPDATE "${this.name}" SET "${newColumn}" = ST_GeometryType("${column}")`,
       mergeOptions(this, {
         table: this.name,
         method: "typeGeo()",
@@ -3775,7 +3775,7 @@ export default class SimpleWebTable extends Simple {
 
     await queryDB(
       this,
-      `UPDATE ${this.name} SET ${col} = ST_FlipCoordinates(${col})`,
+      `UPDATE "${this.name}" SET "${col}" = ST_FlipCoordinates("${col}")`,
       mergeOptions(this, {
         table: this.name,
         method: "flipCoordinates()",
@@ -3815,7 +3815,7 @@ export default class SimpleWebTable extends Simple {
 
     await queryDB(
       this,
-      `UPDATE ${this.name} SET ${column} = ST_ReducePrecision(${column}, ${
+      `UPDATE "${this.name}" SET "${column}" = ST_ReducePrecision("${column}", ${
         1 / Math.pow(10, decimals)
       })`,
       mergeOptions(this, {
@@ -3880,7 +3880,7 @@ export default class SimpleWebTable extends Simple {
     }
     await queryDB(
       this,
-      `UPDATE ${this.name} SET ${column} = ST_Transform(${column}, '${from}', '${to}')`,
+      `UPDATE "${this.name}" SET "${column}" = ST_Transform("${column}", '${from}', '${to}')`,
       mergeOptions(this, {
         table: this.name,
         method: "reproject()",
@@ -3937,7 +3937,7 @@ export default class SimpleWebTable extends Simple {
 
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} ADD ${newColumn} DOUBLE; UPDATE ${this.name} SET ${newColumn} =  ST_Area_Spheroid(${column}) ${
+      `ALTER TABLE "${this.name}" ADD "${newColumn}" DOUBLE; UPDATE "${this.name}" SET "${newColumn}" =  ST_Area_Spheroid("${column}") ${
         options.unit === "km2" ? "/ 1000000" : ""
       };`,
       mergeOptions(this, {
@@ -3989,7 +3989,7 @@ export default class SimpleWebTable extends Simple {
 
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} ADD ${newColumn} DOUBLE; UPDATE ${this.name} SET ${newColumn} =  ST_Length_Spheroid(${column}) ${
+      `ALTER TABLE "${this.name}" ADD "${newColumn}" DOUBLE; UPDATE "${this.name}" SET "${newColumn}" =  ST_Length_Spheroid("${column}") ${
         options.unit === "km" ? "/ 1000" : ""
       };`,
       mergeOptions(this, {
@@ -4042,7 +4042,7 @@ export default class SimpleWebTable extends Simple {
 
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} ADD ${newColumn} DOUBLE; UPDATE ${this.name} SET ${newColumn} =  ST_Perimeter_Spheroid(${column}) ${
+      `ALTER TABLE "${this.name}" ADD "${newColumn}" DOUBLE; UPDATE "${this.name}" SET "${newColumn}" =  ST_Perimeter_Spheroid("${column}") ${
         options.unit === "km" ? "/ 1000" : ""
       };`,
       mergeOptions(this, {
@@ -4089,7 +4089,7 @@ export default class SimpleWebTable extends Simple {
 
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} ADD ${newColumn} GEOMETRY; UPDATE ${this.name} SET ${newColumn} =  ST_Buffer(${column}, ${distance});`,
+      `ALTER TABLE "${this.name}" ADD "${newColumn}" GEOMETRY; UPDATE "${this.name}" SET "${newColumn}" =  ST_Buffer("${column}", ${distance});`,
       mergeOptions(this, {
         table: this.name,
         method: "buffer()",
@@ -4189,7 +4189,7 @@ export default class SimpleWebTable extends Simple {
     }
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} ADD ${newColumn} GEOMETRY; UPDATE ${this.name} SET ${newColumn} = ST_Intersection(${column1}, ${column2})`,
+      `ALTER TABLE "${this.name}" ADD "${newColumn}" GEOMETRY; UPDATE "${this.name}" SET "${newColumn}" = ST_Intersection("${column1}", "${column2}")`,
       mergeOptions(this, {
         table: this.name,
         method: "intersection()",
@@ -4229,7 +4229,7 @@ export default class SimpleWebTable extends Simple {
     }
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} ADD ${newColumn} GEOMETRY; UPDATE ${this.name} SET ${newColumn} = ST_Difference(${column1}, ${column2})`,
+      `ALTER TABLE "${this.name}" ADD "${newColumn}" GEOMETRY; UPDATE "${this.name}" SET "${newColumn}" = ST_Difference("${column1}", "${column2}")`,
       mergeOptions(this, {
         table: this.name,
         method: "removeIntersection()",
@@ -4258,7 +4258,7 @@ export default class SimpleWebTable extends Simple {
   async intersect(column1: string, column2: string, newColumn: string) {
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} ADD ${newColumn} BOOLEAN; UPDATE ${this.name} SET ${newColumn} = ST_Intersects(${column1}, ${column2})`,
+      `ALTER TABLE "${this.name}" ADD "${newColumn}" BOOLEAN; UPDATE "${this.name}" SET "${newColumn}" = ST_Intersects("${column1}", "${column2}")`,
       mergeOptions(this, {
         table: this.name,
         method: "intersect()",
@@ -4286,7 +4286,7 @@ export default class SimpleWebTable extends Simple {
   async inside(column1: string, column2: string, newColumn: string) {
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} ADD ${newColumn} BOOLEAN; UPDATE ${this.name} SET ${newColumn} = ST_Covers(${column2}, ${column1})`,
+      `ALTER TABLE "${this.name}" ADD "${newColumn}" BOOLEAN; UPDATE "${this.name}" SET "${newColumn}" = ST_Covers("${column2}", "${column1}")`,
       mergeOptions(this, {
         table: this.name,
         method: "inside()",
@@ -4321,7 +4321,7 @@ export default class SimpleWebTable extends Simple {
     }
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} ADD ${newColumn} GEOMETRY; UPDATE ${this.name} SET ${newColumn} = ST_Union(${column1}, ${column2})`,
+      `ALTER TABLE "${this.name}" ADD "${newColumn}" GEOMETRY; UPDATE "${this.name}" SET "${newColumn}" = ST_Union("${column1}", "${column2}")`,
       mergeOptions(this, {
         table: this.name,
         method: "union()",
@@ -4351,8 +4351,8 @@ export default class SimpleWebTable extends Simple {
   async latLon(column: string, columnLat: string, columnLon: string) {
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} ADD ${columnLat} DOUBLE; UPDATE ${this.name} SET ${columnLat} = ST_X(${column});
-             ALTER TABLE ${this.name} ADD ${columnLon} DOUBLE; UPDATE ${this.name} SET ${columnLon} = ST_Y(${column});`,
+      `ALTER TABLE "${this.name}" ADD "${columnLat}" DOUBLE; UPDATE "${this.name}" SET "${columnLat}" = ST_X("${column}");
+             ALTER TABLE "${this.name}" ADD "${columnLon}" DOUBLE; UPDATE "${this.name}" SET "${columnLon}" = ST_Y("${column}");`,
       mergeOptions(this, {
         table: this.name,
         method: "latLon()",
@@ -4392,7 +4392,7 @@ export default class SimpleWebTable extends Simple {
 
     await queryDB(
       this,
-      `UPDATE ${this.name} SET ${column} = ST_SimplifyPreserveTopology(${column}, ${tolerance})`,
+      `UPDATE "${this.name}" SET "${column}" = ST_SimplifyPreserveTopology("${column}", ${tolerance})`,
       mergeOptions(this, {
         table: this.name,
         method: "simplify()",
@@ -4431,7 +4431,7 @@ export default class SimpleWebTable extends Simple {
       : await findGeoColumn(this);
     await queryDB(
       this,
-      `ALTER TABLE ${this.name} ADD ${newColumn} GEOMETRY; UPDATE ${this.name} SET ${newColumn} =  ST_Centroid(${column});`,
+      `ALTER TABLE "${this.name}" ADD "${newColumn}" GEOMETRY; UPDATE "${this.name}" SET "${newColumn}" =  ST_Centroid("${column}");`,
       mergeOptions(this, {
         table: this.name,
         method: "centroid()",
@@ -4529,7 +4529,7 @@ export default class SimpleWebTable extends Simple {
     const col = column ?? (await findGeoColumn(this));
     await queryDB(
       this,
-      `CREATE OR REPLACE TABLE ${this.name} AS SELECT * EXCLUDE(${col}), UNNEST(ST_Dump(${col}), recursive := TRUE) FROM ${this.name}; ALTER TABLE ${this.name} DROP COLUMN path;`,
+      `CREATE OR REPLACE TABLE "${this.name}" AS SELECT * EXCLUDE("${col}"), UNNEST(ST_Dump("${col}"), recursive := TRUE) FROM "${this.name}"; ALTER TABLE "${this.name}" DROP COLUMN path;`,
       mergeOptions(this, {
         table: this.name,
         method: "unnestGeo()",
@@ -4647,7 +4647,7 @@ export default class SimpleWebTable extends Simple {
 
     await queryDB(
       this,
-      `CREATE OR REPLACE TABLE ${this.name} AS SELECT * EXCLUDE(${col}), ST_MakePolygon(${col}) as ${col} FROM ${this.name};`,
+      `CREATE OR REPLACE TABLE "${this.name}" AS SELECT * EXCLUDE("${col}"), ST_MakePolygon("${col}") as "${col}" FROM "${this.name}";`,
       mergeOptions(this, {
         table: this.name,
         method: "linesToPolygons()",
@@ -4682,11 +4682,11 @@ export default class SimpleWebTable extends Simple {
     const result = (await queryDB(
       this,
       `SELECT
-                MIN(ST_XMin(${col})) AS minX,
-                MIN(ST_YMin(${col})) AS minY,
-                MAX(ST_XMax(${col})) AS maxX,
-                MAX(ST_YMax(${col})) AS maxY,
-            from ${this.name};`,
+                MIN(ST_XMin("${col}")) AS minX,
+                MIN(ST_YMin("${col}")) AS minY,
+                MAX(ST_XMax("${col}")) AS maxX,
+                MAX(ST_YMax("${col}")) AS maxY,
+            from "${this.name}";`,
       mergeOptions(this, {
         table: this.name,
         method: "getBoundingBox()",
@@ -4776,7 +4776,7 @@ export default class SimpleWebTable extends Simple {
     } else {
       console.log(`\ntable ${this.name}:`);
       const data = await this.runQuery(
-        `SELECT * FROM ${this.name} LIMIT ${rows}`,
+        `SELECT * FROM "${this.name}" LIMIT ${rows}`,
         this.connection,
         true,
         {
@@ -4791,7 +4791,7 @@ export default class SimpleWebTable extends Simple {
         this.nbCharactersToLog,
       );
       const nbRows = await this.runQuery(
-        `SELECT COUNT(*) FROM ${this.name};`,
+        `SELECT COUNT(*) FROM "${this.name}";`,
         this.connection,
         true,
         {

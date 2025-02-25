@@ -18,12 +18,12 @@ export default function outliersIQRQuery(
   const where = categories.length > 0
     ? `WHERE ${
       categories
-        .map((d) => `${table}.${d} = iqr.${d}`)
+        .map((d) => `"${table}".${d} = iqr.${d}`)
         .join(" AND ")
     }`
     : "";
 
-  const query = `ALTER TABLE ${table}
+  const query = `ALTER TABLE "${table}"
     ADD COLUMN ${newColumn} BOOLEAN;
     WITH iqr AS (
         SELECT${categories.length > 0 ? `\n${categories},` : ""}
@@ -32,10 +32,10 @@ export default function outliersIQRQuery(
             (q3-q1)*1.5 as range,
             q1-range as lowThreshold,
             q3+range as highThreshold
-        FROM ${table}
+        FROM "${table}"
         ${categories.length > 0 ? `GROUP BY ${categories}` : ""}
     )
-    UPDATE ${table}
+    UPDATE "${table}"
     SET ${newColumn} = CASE
         WHEN ${column} > (SELECT highThreshold FROM iqr ${where}) OR ${column} < (SELECT lowThreshold FROM iqr ${where}) THEN TRUE
         ELSE FALSE

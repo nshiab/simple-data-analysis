@@ -35,7 +35,7 @@ export default async function fetchDataBrowser(
   }
 
   if (await simpleWebTable.sdb.hasTable(table)) {
-    await simpleWebTable.sdb.customQuery(`DROP TABLE ${table};`);
+    await simpleWebTable.sdb.customQuery(`DROP TABLE "${table}";`);
   }
 
   const fileExtension = getExtension(url);
@@ -86,7 +86,7 @@ export default async function fetchDataBrowser(
       false,
     );
     await simpleWebTable.runQuery(
-      `CREATE OR REPLACE TABLE ${table} AS SELECT * FROM parquet_scan('${filename}')`,
+      `CREATE OR REPLACE TABLE "${table}" AS SELECT * FROM parquet_scan('${filename}')`,
       simpleWebTable.connection,
       false,
       mergeOptions(simpleWebTable, {

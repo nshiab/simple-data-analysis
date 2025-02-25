@@ -9,7 +9,7 @@ export default function replaceNullsQuery(
   const valueParsed = parseValue(value);
   for (const column of columns) {
     query +=
-      `UPDATE ${table} SET "${column}" = ${valueParsed} WHERE "${column}" IS NULL;`;
+      `UPDATE "${table}" SET "${column}" = ${valueParsed} WHERE "${column}" IS NULL;`;
   }
 
   return query;

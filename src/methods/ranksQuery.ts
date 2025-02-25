@@ -18,12 +18,12 @@ export default function rankQuery(
     ? ""
     : `PARTITION BY ${categories.map((d) => `${d}`).join(",")} `;
 
-  const query = `CREATE OR REPLACE TABLE ${table} AS SELECT *, ${
+  const query = `CREATE OR REPLACE TABLE "${table}" AS SELECT *, ${
     options.noGaps ? "dense_rank()" : "rank()"
   } OVER (${partition}ORDER BY ${values} ${
     typeof options.order === "string" ? options.order.toUpperCase() : ""
   }) AS ${newColumn},
-    FROM ${table}`;
+    FROM "${table}"`;
 
   return query;
 }

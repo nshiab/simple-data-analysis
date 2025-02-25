@@ -13,18 +13,18 @@ export default function replaceQuery(
   for (const column of columns) {
     for (let i = 0; i < oldTexts.length; i++) {
       if (options.entireString) {
-        query += `UPDATE ${table} SET "${column}" = 
+        query += `UPDATE "${table}" SET "${column}" = 
                 CASE
                     WHEN "${column}" = '${oldTexts[i]}' THEN '${newTexts[i]}'
                     ELSE "${column}"
                 END;\n`;
       } else if (options.regex) {
         query +=
-          `UPDATE ${table} SET "${column}" = REGEXP_REPLACE("${column}", '${
+          `UPDATE "${table}" SET "${column}" = REGEXP_REPLACE("${column}", '${
             oldTexts[i]
           }', '${newTexts[i]}', 'g');\n`;
       } else {
-        query += `UPDATE ${table} SET "${column}" = REPLACE("${column}", '${
+        query += `UPDATE "${table}" SET "${column}" = REPLACE("${column}", '${
           oldTexts[i]
         }', '${newTexts[i]}');\n`;
       }

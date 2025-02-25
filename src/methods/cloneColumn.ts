@@ -10,8 +10,8 @@ export default function cloneColumnQuery(
 
   if (originalColumnType) {
     query +=
-      `ALTER TABLE ${table} ADD COLUMN "${newColumn}" ${originalColumnType};
-        UPDATE ${table} SET "${newColumn}" = "${originalColumn}"`;
+      `ALTER TABLE "${table}" ADD COLUMN "${newColumn}" ${originalColumnType};
+        UPDATE "${table}" SET "${newColumn}" = "${originalColumn}"`;
   } else {
     throw new Error(`Can't find type of ${originalColumn}`);
   }
