@@ -1158,15 +1158,20 @@ export default class SimpleTable extends SimpleWebTable {
    *
    * @param chart - A function that takes data and returns an Observable Plot chart.
    * @param path - The path where the chart image will be saved.
+   * @param options - Optional object containing additional settings.
+   * @param options.style - CSS string to customize the chart's appearance if the Plot `style` option is not enough. Note the Plot chart is wrapped within a <div> element with the id `chart`.
+   * @param options.dark - To switch the chart to dark mode. Defaults to false.
    */
   async writeChart(
     chart: (data: unknown[]) => SVGSVGElement | HTMLElement,
     path: string,
+    options: { style?: string; dark?: boolean } = {},
   ) {
     await saveChart(
       await this.getData(),
       chart as (data: Data) => SVGSVGElement | HTMLElement, // Not great.
       path,
+      options,
     );
   }
 
@@ -1211,6 +1216,8 @@ export default class SimpleTable extends SimpleWebTable {
    * @param options - An optional object with configuration options:
    *   @param options.column - The name of a column storing geometries. If there is just one, it will be used by default.
    *   @param options.rewind - If true, rewinds the winding order to be clockwise. Default is true.
+   *   @param options.style - CSS string to customize the chart's appearance if the Plot `style` option is not enough. Note the Plot chart is wrapped within a <div> element with the id `chart`.
+   *   @param options.dark - To switch the chart to dark mode. Defaults to false.
    */
   async writeMap(
     map: (geoData: {
@@ -1219,14 +1226,21 @@ export default class SimpleTable extends SimpleWebTable {
       }[];
     }) => SVGSVGElement | HTMLElement,
     path: string,
-    options: { column?: string; rewind?: boolean } = { rewind: true },
+    options: {
+      column?: string;
+      rewind?: boolean;
+      style?: string;
+      dark?: boolean;
+    } = {},
   ) {
+    options.rewind = options.rewind ?? true;
     await saveChart(
       await this.getGeoData(options.column, {
         rewind: options.rewind,
       }) as unknown as Data, // Not great.
       map as unknown as (data: Data) => SVGSVGElement | HTMLElement, // Not great.
       path,
+      options,
     );
   }
 
