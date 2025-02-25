@@ -19,6 +19,9 @@ Deno.test("should write a map as png", async () => {
     features: unknown[];
   }) =>
     plot({
+      title: "A map",
+      subtitle: "A subtitle",
+      caption: "A caption",
       projection: {
         type: "conic-conformal",
         rotate: [100, -60],
