@@ -193,7 +193,7 @@ export default class SimpleDB extends SimpleWebDB {
     cleanCache(this);
     if (typeof this.durationStart === "number") {
       let string = prettyDuration(this.durationStart, {
-        prefix: "\nSimpleDB - Done in ",
+        prefix: "\n\nSimpleDB - Done in ",
       });
 
       if (this.cacheTimeSaved > 0) {
