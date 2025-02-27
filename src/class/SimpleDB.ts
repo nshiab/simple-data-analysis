@@ -51,6 +51,8 @@ export default class SimpleDB extends SimpleWebDB {
   cacheVerbose: boolean;
   /** Amount of time saved by using the cache. */
   cacheTimeSaved: number;
+  /** Amount of time spent writing the cache. */
+  cacheTimeWriting: number;
 
   constructor(
     options: {
@@ -66,6 +68,7 @@ export default class SimpleDB extends SimpleWebDB {
     this.tables = [];
     this.cacheVerbose = options.cacheVerbose ?? false;
     this.cacheTimeSaved = 0;
+    this.cacheTimeWriting = 0;
     this.runQuery = runQuery;
     if (this.cacheVerbose) {
       this.durationStart = Date.now();
@@ -189,23 +192,26 @@ export default class SimpleDB extends SimpleWebDB {
     }
     cleanCache(this);
     if (typeof this.durationStart === "number") {
+      let string = prettyDuration(this.durationStart, {
+        prefix: "\nSimpleDB - Done in ",
+      });
+
       if (this.cacheTimeSaved > 0) {
-        prettyDuration(this.durationStart, {
-          log: true,
-          prefix: "\nSimpleDB - Done in ",
-          suffix: ` / You saved ${
-            prettyDuration(0, {
-              end: this.cacheTimeSaved,
-            })
-          } by using the cache\n`,
-        });
-      } else {
-        prettyDuration(this.durationStart, {
-          log: true,
-          prefix: "\nSimpleDB - Done in ",
-          suffix: "\n",
-        });
+        string += ` / ${
+          prettyDuration(0, {
+            end: this.cacheTimeSaved,
+          })
+        } saved by using the cache`;
       }
+      if (this.cacheTimeWriting > 0) {
+        string += ` / ${
+          prettyDuration(0, {
+            end: this.cacheTimeWriting,
+          })
+        } spent writing the cache`;
+      }
+
+      console.log(`${string}\n`);
     }
 
     return await this;

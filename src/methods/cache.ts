@@ -64,7 +64,7 @@ export default async function cache(
   ) {
     (table.debug || options.verbose) &&
       console.log(
-        `Found ${cache.file} in cache.\nttl of ${
+        `Found in cache.\nttl of ${
           prettyDuration(0, { end: options.ttl * 1000 })
         } has expired. The creation date is ${
           formatDate(
@@ -85,7 +85,7 @@ export default async function cache(
     );
   } else {
     (table.debug || options.verbose) &&
-      console.log(`Found ${cache.file} in cache.`);
+      console.log(`Found in cache.`);
     if (typeof options.ttl === "number") {
       const ttlLimit = new Date(cache.creation + options.ttl * 1000);
       (table.debug || options.verbose) &&
@@ -115,11 +115,9 @@ export default async function cache(
         console.log(
           `Data loaded in ${
             prettyDuration(start, { end })
-          }. Running the computations took ${
+          }. Running computations previously took ${
             prettyDuration(0, { end: cache.duration })
-          } last time. You saved ${
-            prettyDuration(duration, { end: cache.duration })
-          }.\n`,
+          }. You saved ${prettyDuration(duration, { end: cache.duration })}.\n`,
         );
         table.sdb.cacheTimeSaved += cache.duration - duration;
       }
@@ -136,11 +134,9 @@ export default async function cache(
         console.log(
           `Data loaded in ${
             prettyDuration(start, { end })
-          }. Running the computations took ${
+          }. Running computations previously took ${
             prettyDuration(0, { end: cache.duration })
-          } last time. You saved ${
-            prettyDuration(duration, { end: cache.duration })
-          }.\n`,
+          }. You saved ${prettyDuration(duration, { end: cache.duration })}.\n`,
         );
         table.sdb.cacheTimeSaved += cache.duration - duration;
       }
@@ -160,6 +156,10 @@ async function runAndWrite(
   await run();
   const end = Date.now();
   const duration = end - start;
+  table.sdb.cacheVerbose &&
+    console.log(
+      `Computations done in ${prettyDuration(start, { end })}.`,
+    );
   table.debug && console.log("\ncache() after run()");
   if (!(await table.sdb.hasTable(table.name))) {
     console.log(`No data in table ${table.name}. Nothing stored in cache.`);
@@ -178,6 +178,7 @@ async function runAndWrite(
       table.debug &&
         console.log(`\nThe table has geometries. Using writeGeoData.`);
       const file = `${cachePath}/${id}.geoparquet`;
+      const writeStart = Date.now();
       await table.writeGeoData(file);
       cacheSources[id] = {
         creation: Date.now(),
@@ -185,18 +186,31 @@ async function runAndWrite(
         file,
         geo: true,
       };
+      const writeEnd = Date.now();
+      table.sdb.cacheVerbose &&
+        console.log(
+          `Wrote in cache in ${
+            prettyDuration(writeStart, { end: writeEnd })
+          }.\n`,
+        );
+      table.sdb.cacheTimeWriting += writeEnd - writeStart;
       if (table.sdb.cacheSourcesUsed.indexOf(id) < 0) {
         table.sdb.cacheSourcesUsed.push(id);
       }
-      table.sdb.cacheVerbose &&
-        console.log(
-          `Duration: ${prettyDuration(start, { end })}. Wrote ${file}.\n`,
-        );
     } else {
       table.debug &&
         console.log(`\nNo geometries in the table. Using writeData.`);
       const file = `${cachePath}/${id}.parquet`;
+      const writeStart = Date.now();
       await table.writeData(file);
+      const writeEnd = Date.now();
+      table.sdb.cacheVerbose &&
+        console.log(
+          `Wrote in cache in ${
+            prettyDuration(writeStart, { end: writeEnd })
+          }.\n`,
+        );
+      table.sdb.cacheTimeWriting += writeEnd - writeStart;
       cacheSources[id] = {
         creation: Date.now(),
         duration,
@@ -206,10 +220,6 @@ async function runAndWrite(
       if (table.sdb.cacheSourcesUsed.indexOf(id) < 0) {
         table.sdb.cacheSourcesUsed.push(id);
       }
-      table.sdb.cacheVerbose &&
-        console.log(
-          `Duration: ${prettyDuration(start, { end })}. Wrote ${file}.\n`,
-        );
     }
   }
 
