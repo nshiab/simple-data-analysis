@@ -66,12 +66,12 @@ export default async function cache(
       console.log(
         `Found in cache.\nttl of ${
           prettyDuration(0, { end: options.ttl * 1000 })
-        } has expired. The creation date is ${
+        } has expired.\nThe creation date is ${
           formatDate(
             new Date(cache.creation),
             "Month DD, YYYY, at HH:MM period",
           )
-        }. It's is ${
+        }.\nIt's is ${
           prettyDuration(cache.creation, { end: now })
         } ago.\nRunning and storing in cache.`,
       );
@@ -92,12 +92,12 @@ export default async function cache(
         console.log(
           `ttl of ${
             prettyDuration(0, { end: options.ttl * 1000 })
-          } has not expired. The creation date is ${
+          } has not expired.\nThe creation date is ${
             formatDate(
               new Date(cache.creation),
               "Month DD, YYYY, at HH:MM period",
             )
-          }. There are ${prettyDuration(now, { end: ttlLimit })} left.`,
+          }.\nThere are ${prettyDuration(now, { end: ttlLimit })} left.`,
         );
     }
     if (cache.file === null) {
@@ -115,9 +115,11 @@ export default async function cache(
         console.log(
           `Data loaded in ${
             prettyDuration(start, { end })
-          }. Running computations previously took ${
+          }.\nRunning computations previously took ${
             prettyDuration(0, { end: cache.duration })
-          }. You saved ${prettyDuration(duration, { end: cache.duration })}.\n`,
+          }.\nYou saved ${
+            prettyDuration(duration, { end: cache.duration })
+          }.\n`,
         );
         table.sdb.cacheTimeSaved += cache.duration - duration;
       }
@@ -134,9 +136,11 @@ export default async function cache(
         console.log(
           `Data loaded in ${
             prettyDuration(start, { end })
-          }. Running computations previously took ${
+          }.\nRunning computations previously took ${
             prettyDuration(0, { end: cache.duration })
-          }. You saved ${prettyDuration(duration, { end: cache.duration })}.\n`,
+          }.\nYou saved ${
+            prettyDuration(duration, { end: cache.duration })
+          }.\n`,
         );
         table.sdb.cacheTimeSaved += cache.duration - duration;
       }
