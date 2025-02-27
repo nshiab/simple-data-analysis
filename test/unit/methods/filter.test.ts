@@ -245,3 +245,14 @@ Deno.test("should filter the rows based on booleans", async () => {
   assertEquals(data, [{ name: "Nael", value: true }]);
   await sdb.done();
 });
+
+Deno.test("should not throw an error when all data has been filtered out", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadData(["test/data/files/employees.csv"]);
+  await table.filter(`Name = 'Nael'`);
+  const data = await table.getData();
+
+  assertEquals(data, []);
+  await sdb.done();
+});
