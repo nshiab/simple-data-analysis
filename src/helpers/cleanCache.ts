@@ -6,15 +6,10 @@ export default function cleanCache(sdb: SimpleDB) {
     const cacheSources = JSON.parse(
       readFileSync(".sda-cache/sources.json", "utf-8"),
     );
-    let first = true;
     for (const cacheId of Object.keys(cacheSources)) {
       if (!sdb.cacheSourcesUsed.includes(cacheId)) {
-        if (first) {
-          console.log("");
-          first = false;
-        }
         if (cacheSources[cacheId].file !== null) {
-          sdb.cacheVerbose &&
+          sdb.debug &&
             console.log(
               `Removing unused file from cache: ${cacheSources[cacheId].file}`,
             );
@@ -23,7 +18,6 @@ export default function cleanCache(sdb: SimpleDB) {
         delete cacheSources[cacheId];
       }
     }
-    console.log("");
     writeFileSync(".sda-cache/sources.json", JSON.stringify(cacheSources));
   }
 }
