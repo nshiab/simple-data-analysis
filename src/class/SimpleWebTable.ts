@@ -4837,4 +4837,19 @@ export default class SimpleWebTable extends Simple {
       console.table(await getDescription(this));
     }
   }
+
+  /**
+   * Logs the projections, if any.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * await table.logProjections()
+   * ```
+   */
+  async logProjections(): Promise<this> {
+    console.log(`\ntable ${this.name} projections:`);
+    console.log(this.projections);
+    return await this;
+  }
 }
