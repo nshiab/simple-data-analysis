@@ -126,7 +126,7 @@ temperature per decade and city with the daily temperatures from the
 See [this repository](https://github.com/nshiab/simple-data-analysis-benchmarks)
 for the code.
 
-We ran the same calculations with **simple-data-analysis@3.0.0** (Node.js, Bun,
+We ran the same calculations with **simple-data-analysis@4.0.1** (Node.js, Bun,
 and Deno), **Pandas (Python)**, and the **tidyverse (R)**.
 
 In each script, we:
@@ -154,8 +154,8 @@ Thanks to DuckDB, **simple-data-analysis** is the fastest option.
 
 We also tried the One Billion Row Challenge, which involves computing the min,
 mean, and max temperatures for hundreds of cities in a 1,000,000,000 rows CSV
-file. The library has been able to crunch the numbers in 1 minute 32 seconds on
-the same computer (Apple M1 Pro / 16 GB). For more, check this
+file. The library has been able to crunch the numbers in 50 seconds on the same
+computer (Apple M1 Pro / 16 GB). For more, check this
 [repo](https://github.com/nshiab/1brc) forked from this
 [one](https://github.com/gunnarmorling/1brc). The JavaScript code is
 [here](https://github.com/nshiab/1brc/blob/main/index.js).
