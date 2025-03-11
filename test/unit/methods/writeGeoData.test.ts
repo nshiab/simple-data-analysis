@@ -4,13 +4,30 @@ import SimpleDB from "../../../src/class/SimpleDB.ts";
 
 const output = "./test/output/";
 
+Deno.test("should write a json file", async () => {
+  const sdb = new SimpleDB();
+  const originalFile = "test/geodata/files/polygons.geojson";
+
+  const table = sdb.newTable();
+  await table.loadGeoData(originalFile);
+  await table.writeGeoData(`${output}data.json`);
+
+  const originalData = JSON.parse(readFileSync(originalFile, "utf-8"));
+  const writtenData = JSON.parse(
+    readFileSync(`${output}data.geojson`, "utf-8"),
+  );
+
+  assertEquals(writtenData, originalData);
+  await sdb.done();
+});
+
 Deno.test("should write a geojson file", async () => {
   const sdb = new SimpleDB();
   const originalFile = "test/geodata/files/polygons.geojson";
 
   const table = sdb.newTable();
   await table.loadGeoData(originalFile);
-  await table.writeGeoData(`${output}data.geojson`);
+  await table.writeGeoData(`${output}data.geojson`, { rewind: false });
 
   const originalData = JSON.parse(readFileSync(originalFile, "utf-8"));
   const writtenData = JSON.parse(
@@ -27,7 +44,9 @@ Deno.test("should write a geojson file and create the path if it doesn't exist",
 
   const table = sdb.newTable();
   await table.loadGeoData(originalFile);
-  await table.writeGeoData(`${output}/subfolderGeoData/data.geojson`);
+  await table.writeGeoData(`${output}/subfolderGeoData/data.geojson`, {
+    rewind: false,
+  });
 
   const originalData = JSON.parse(readFileSync(originalFile, "utf-8"));
   const writtenData = JSON.parse(
@@ -46,6 +65,7 @@ Deno.test("should write geojson file that has been converted to WGS84", async ()
   await table.loadGeoData(originalFile, { toWGS84: true });
   await table.writeGeoData(`${output}dataWithOptionsToWGS84.geojson`, {
     precision: 2,
+    rewind: false,
   });
   const writtenData = JSON.parse(
     readFileSync(`${output}dataWithOptionsToWGS84.geojson`, "utf-8"),
@@ -68,6 +88,7 @@ Deno.test("should write geojson file that has been manually converted to WGS84",
   await table.reproject("WGS84");
   await table.writeGeoData(`${output}dataWithOptionsToWGS84.geojson`, {
     precision: 2,
+    rewind: false,
   });
 
   const writtenData = JSON.parse(
@@ -90,6 +111,7 @@ Deno.test("should write geojson file with coordinates rounded to 3 decimals", as
   await table.loadGeoData(originalFile);
   await table.writeGeoData(`${output}dataPrecision.geojson`, {
     precision: 3,
+    rewind: false,
   });
 
   const writtenData = JSON.parse(
@@ -145,7 +167,7 @@ Deno.test("should write a geojson without rewinding the file", async () => {
   await data.loadGeoData(
     "test/geodata/files/economicRegions-simplified.json",
   );
-  await data.writeGeoData(`${output}no-rewind-data.geojson`);
+  await data.writeGeoData(`${output}no-rewind-data.geojson`, { rewind: false });
 
   const writtenData = JSON.parse(
     readFileSync(`${output}no-rewind-data.geojson`, "utf-8"),
@@ -163,7 +185,7 @@ Deno.test("should write a geojson and rewind the file", async () => {
   await data.loadGeoData(
     "test/geodata/files/economicRegions-simplified.json",
   );
-  await data.writeGeoData(`${output}rewind-data.geojson`, { rewind: true });
+  await data.writeGeoData(`${output}rewind-data.geojson`);
 
   const writtenData = JSON.parse(
     readFileSync(`${output}rewind-data.geojson`, "utf-8"),

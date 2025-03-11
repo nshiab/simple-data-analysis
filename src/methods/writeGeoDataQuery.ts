@@ -6,7 +6,7 @@ export default function writeGeoDataQuery(
   options: { precision?: number } = {},
 ) {
   const fileExtension = getExtension(file);
-  if (fileExtension === "geojson") {
+  if (fileExtension === "geojson" || fileExtension === "json") {
     const layerOptions = [];
     if (typeof options.precision === "number") {
       layerOptions.push(`COORDINATE_PRECISION=${options.precision}`);
