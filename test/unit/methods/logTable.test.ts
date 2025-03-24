@@ -11,18 +11,46 @@ Deno.test("should log a table", async () => {
   assertEquals(true, true);
   await sdb.done();
 });
-
-Deno.test("should log a table with types", async () => {
+Deno.test("should log a table with 100 rows", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/employees.csv");
-  await table.logTable({ nbRowsToLog: 10, logTypes: true });
+  await table.logTable(100);
 
   // How to test?
   assertEquals(true, true);
   await sdb.done();
 });
+Deno.test("should log a table with 100 rows in options", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/employees.csv");
+  await table.logTable({ nbRowsToLog: 100 });
 
+  // How to test?
+  assertEquals(true, true);
+  await sdb.done();
+});
+Deno.test("should log a table with types", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/employees.csv");
+  await table.logTable({ logTypes: true });
+
+  // How to test?
+  assertEquals(true, true);
+  await sdb.done();
+});
+Deno.test("should log a table with 100 rows and types", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/employees.csv");
+  await table.logTable({ logTypes: true, nbRowsToLog: 100 });
+
+  // How to test?
+  assertEquals(true, true);
+  await sdb.done();
+});
 Deno.test("should not throw an error when there is no table", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
