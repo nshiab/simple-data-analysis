@@ -1259,23 +1259,35 @@ export default class SimpleTable extends SimpleWebTable {
    * Specific number of rows
    * ```ts
    * // Logs first 100 rows. No types.
+   * await table.logTable(100);
+   * ```
+   *
+   * @example
+   * Specific number of rows in options
+   * ```ts
+   * // Logs first 100 rows. No types.
    * await table.logTable({ nbRowsToLog: 100 });
    * ```
    *
    * @example
-   * Specific number of rows and types.
+   * Specific number of rows and types options
    * ```ts
    * await table.logTable({ nbRowsToLog: 100, logTypes: true });
    * ```
    *
-   * @param options - An optional object with configuration options:
+   * @param options - Either the number of rows to log or an object with configuration options:
    *   @param nbRowsToLog - The number of rows to log. Defaults to 10 or the value set in the SimpleWebDB instance.
-   *   @param logTypes - If true, logs the types of the columns.
+   *   @param logTypes - If true, logs the column types.
    */
   override async logTable(
-    options: { nbRowsToLog?: number; logTypes?: boolean } = {},
+    options: number | { nbRowsToLog?: number; logTypes?: boolean } = {},
   ) {
-    const rows = options.nbRowsToLog ?? this.nbRowsToLog;
+    const rows = typeof options === "number"
+      ? options
+      : options.nbRowsToLog ?? this.nbRowsToLog;
+    const logTypes = typeof options === "number"
+      ? false
+      : options.logTypes ?? false;
     this.debug && console.log("\nlogTable()");
     this.debug && console.log("parameters:", { nbRowsToLog: rows });
 
@@ -1288,7 +1300,7 @@ export default class SimpleTable extends SimpleWebTable {
       console.log(`\ntable ${this.name}:`);
       const data = await this.getTop(rows);
       logData(
-        this.logTypes || options.logTypes ? await this.getTypes() : null,
+        this.logTypes || logTypes ? await this.getTypes() : null,
         data,
         this.nbCharactersToLog,
       );
