@@ -42,8 +42,6 @@ Deno.test("should do a left spatial join the intersect method and keep all proje
 
   await prov.joinGeo(poly, "intersect");
 
-  await prov.logProjections();
-
   assertEquals(prov.projections, {
     geom: "+proj=latlong +datum=WGS84 +no_defs",
     geomTable2: "+proj=latlong +datum=WGS84 +no_defs",
