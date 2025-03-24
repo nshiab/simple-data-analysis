@@ -93,17 +93,18 @@ export default async function joinGeo(
     }),
   );
 
-  // Before renaming columns in original tables
-  const allProjections = {
-    ...leftTable.projections,
-    ...rightTable.projections,
-  };
-
   // We bring back the column names for geometries
+  let allProjections = {};
   if (leftTableColumn === rightTableColumn) {
     const leftObj: { [key: string]: string } = {};
     leftObj[leftTableColumnForQuery] = leftTableColumn;
     await leftTable.renameColumns(leftObj);
+
+    // Before renaming columns in original tables
+    allProjections = {
+      ...leftTable.projections,
+      ...rightTable.projections,
+    };
 
     const rightObj: { [key: string]: string } = {};
     rightObj[rightTableColumnForQuery] = rightTableColumn;
