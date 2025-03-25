@@ -85,3 +85,13 @@ Deno.test("should log types even if there is just one column in the table", asyn
   assertEquals(true, true);
   await sdb.done();
 });
+Deno.test("should log a table with a condition", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/employees.csv");
+  await table.logTable({ conditions: `Name === 'OConnell, Donald'` });
+
+  // How to test?
+  assertEquals(true, true);
+  await sdb.done();
+});

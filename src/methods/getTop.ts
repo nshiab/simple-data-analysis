@@ -6,13 +6,13 @@ export default async function getTop(
   simpleWebTable: SimpleWebTable,
   count: number,
   options: {
-    condition?: string;
+    conditions?: string;
   } = {},
 ) {
   const rows = await queryDB(
     simpleWebTable,
     `SELECT * FROM ${simpleWebTable.name}${
-      options.condition ? ` WHERE ${options.condition}` : ""
+      options.conditions ? ` WHERE ${options.conditions}` : ""
     } LIMIT ${count}`,
     mergeOptions(simpleWebTable, {
       table: simpleWebTable.name,

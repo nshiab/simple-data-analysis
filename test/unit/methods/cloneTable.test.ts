@@ -61,7 +61,7 @@ Deno.test("should clone a table with a condition", async () => {
   const table = sdb.newTable("data");
   await table.loadData("test/data/files/employees.csv");
   const clone = await table.cloneTable({
-    condition: `Job = 'Manager'`,
+    conditions: `Job = 'Manager'`,
   });
 
   const originalTable = sdb.newTable("original");

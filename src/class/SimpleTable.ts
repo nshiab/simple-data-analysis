@@ -102,7 +102,7 @@ export default class SimpleTable extends SimpleWebTable {
   override async cloneTable(
     options: {
       outputTable?: string;
-      condition?: string;
+      conditions?: string;
     } = {},
   ): Promise<SimpleTable> {
     // Should match newTable from SimpleDB
@@ -1278,9 +1278,14 @@ export default class SimpleTable extends SimpleWebTable {
    * @param options - Either the number of rows to log or an object with configuration options:
    *   @param nbRowsToLog - The number of rows to log. Defaults to 10 or the value set in the SimpleWebDB instance.
    *   @param logTypes - If true, logs the column types.
+   *   @param conditions - A SQL WHERE clause condition to filter the data. Defaults to no condition.
    */
   override async logTable(
-    options: number | { nbRowsToLog?: number; logTypes?: boolean } = {},
+    options: number | {
+      nbRowsToLog?: number;
+      logTypes?: boolean;
+      conditions?: string;
+    } = {},
   ) {
     const rows = typeof options === "number"
       ? options
@@ -1288,8 +1293,12 @@ export default class SimpleTable extends SimpleWebTable {
     const logTypes = typeof options === "number"
       ? false
       : options.logTypes ?? false;
+    const conditions = typeof options === "number"
+      ? ""
+      : options.conditions ?? "";
     this.debug && console.log("\nlogTable()");
-    this.debug && console.log("parameters:", { nbRowsToLog: rows });
+    this.debug &&
+      console.log("parameters:", { nbRowsToLog: rows, logTypes, conditions });
 
     if (
       this.connection === undefined ||
@@ -1298,7 +1307,7 @@ export default class SimpleTable extends SimpleWebTable {
       console.log(`\ntable ${this.name}: no data`);
     } else {
       console.log(`\ntable ${this.name}:`);
-      const data = await this.getTop(rows);
+      const data = await this.getTop(rows, { conditions });
       logData(
         this.logTypes || logTypes ? await this.getTypes() : null,
         data,

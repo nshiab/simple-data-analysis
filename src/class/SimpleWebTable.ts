@@ -405,20 +405,20 @@ export default class SimpleWebTable extends Simple {
    * ```
    *
    * @example
-   * Cloning with condition
+   * Cloning with conditions
    * ```ts
    * // Creating tableB as a clone of tableA. Only rows with values greater than 10 in column1 are cloned.
-   * const tableB = await tableA.cloneTable({ condition: `column1 > 10` })
+   * const tableB = await tableA.cloneTable({ conditions: `column1 > 10` })
    * ```
    *
    * @param options - An optional object with configuration options:
    *   @param options.outputTable - The name in the DB of the new table that will be created as a clone.
-   *   @param options.condition - A SQL WHERE clause condition to filter the data. Defaults to no condition.
+   *   @param options.conditions - A SQL WHERE clause condition to filter the data. Defaults to no condition.
    */
   async cloneTable(
     options: {
       outputTable?: string;
-      condition?: string;
+      conditions?: string;
     } = {},
   ): Promise<SimpleWebTable> {
     // SHOULD MATCH newTable() in SimpleWebDB
@@ -3237,20 +3237,20 @@ export default class SimpleWebTable extends Simple {
    * ```
    *
    * @example
-   * With condition
+   * With conditions
    * ```ts
    * // Returns the first row with category being 'Book'.
-   * const firstRowBooks = await table.getFirstRow({ condition: `category = 'Book'` })
+   * const firstRowBooks = await table.getFirstRow({ conditions: `category = 'Book'` })
    * ```
    *
    * @param options - An optional object with configuration options:
-   *    @param options.condition - The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
+   *    @param options.conditions - The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
    *
    * @category Getting data
    */
   async getFirstRow(
     options: {
-      condition?: string;
+      conditions?: string;
     } = {},
   ): Promise<{
     [key: string]: string | number | boolean | Date | null;
@@ -3269,20 +3269,20 @@ export default class SimpleWebTable extends Simple {
    * ```
    *
    * @example
-   * With condition
+   * With conditions
    * ```
    * // Returns the last row of all rows having a category 'Book'.
-   * const lastRowBooks = await table.getLastRow({ condition: `category = 'Book'` })
+   * const lastRowBooks = await table.getLastRow({ conditions: `category = 'Book'` })
    * ```
    *
    * @param options - An optional object with configuration options:
-   *   @param options.condition - The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
+   *   @param options.conditions - The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
    *
    * @category Getting data
    */
   async getLastRow(
     options: {
-      condition?: string;
+      conditions?: string;
     } = {},
   ): Promise<{
     [key: string]: string | number | boolean | Date | null;
@@ -3291,7 +3291,7 @@ export default class SimpleWebTable extends Simple {
   }
 
   /**
-   * Returns the top n rows, optionally with a condition written as an SQL expression.
+   * Returns the top n rows, optionally with conditions written as an SQL expression.
    *
    * @example
    * Basic usage
@@ -3301,22 +3301,22 @@ export default class SimpleWebTable extends Simple {
    * ```
    *
    * @example
-   * With a condition
+   * With conditions
    * ```
    * // Returns the first 10 rows with category being 'Books'.
-   * const top10Books = await table.getTop(10, { condition: `category = 'Books'` })
+   * const top10Books = await table.getTop(10, { conditions: `category = 'Books'` })
    * ```
    *
    * @param count - The number of rows to return.
    * @param options - An optional object with configuration options:
-   *   @param options.condition - The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
+   *   @param options.conditions - The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
    *
    * @category Getting data
    */
   async getTop(
     count: number,
     options: {
-      condition?: string;
+      conditions?: string;
     } = {},
   ): Promise<
     {
@@ -3344,16 +3344,16 @@ export default class SimpleWebTable extends Simple {
    * ```
    *
    * @example
-   * With a condition
+   * With conditions
    * ```
    * // Returns the last 10 rows with category being 'Books'.
-   * const bottom10Books = await table.getBottom(10, { condition: `category = 'Books'` })
+   * const bottom10Books = await table.getBottom(10, { conditions: `category = 'Books'` })
    * ```
    *
    * @param count - The number of rows to return.
    * @param options - An optional object with configuration options:
    *   @param options.originalOrder - A boolean indicating whether the rows should be returned in their original order. Default is false, meaning the last row will be returned first.
-   *   @param options.condition - The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
+   *   @param options.conditions - The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
    *
    * @category Getting data
    */
@@ -3361,7 +3361,7 @@ export default class SimpleWebTable extends Simple {
     count: number,
     options: {
       originalOrder?: boolean;
-      condition?: string;
+      conditions?: string;
     } = {},
   ): Promise<
     {
@@ -3372,7 +3372,7 @@ export default class SimpleWebTable extends Simple {
   }
 
   /**
-   * Returns a row that matches the specified condition. If no row matches the condition, an error is thrown. If more than one row matches the condition, an error is thrown as well.
+   * Returns a row that matches the specified conditions. If no row matches the conditions, an error is thrown. If more than one row matches the conditions, an error is thrown as well.
    *
    * @example
    * Basic usage
@@ -3380,23 +3380,23 @@ export default class SimpleWebTable extends Simple {
    * const row = await table.getRow(`name = 'John'`)
    * ```
    *
-   * @param condition - The condition to match. This should be a SQL WHERE clause.
+   * @param conditions - The conditions to match. This should be a SQL WHERE clause.
    * @param options - Optional settings.
    * @param options.noCheck - If set to true, no error will be thrown when no row or more than one row match the condition. Default is false.
    */
   async getRow(
-    condition: string,
+    conditions: string,
     options: { noCheck?: boolean } = {},
   ): Promise<{
     [key: string]: string | number | boolean | Date | null;
   }> {
-    const data = await this.getData({ condition });
+    const data = await this.getData({ conditions });
     if (options.noCheck !== true) {
       if (data.length === 0) {
-        throw new Error(`No row found with condition \`${condition}\`.`);
+        throw new Error(`No row found with condition \`${conditions}\`.`);
       } else if (data.length > 1) {
         throw new Error(
-          `More than one row found with condition \`${condition}\`.`,
+          `More than one row found with condition \`${conditions}\`.`,
         );
       }
     }
@@ -3417,17 +3417,17 @@ export default class SimpleWebTable extends Simple {
    * With condition
    * ```ts
    * // Returns just the rows with a category 'Book'. Conditions are SQL expressions.
-   * const books = await table.getData({ condition: `category = 'Book'` })
+   * const books = await table.getData({ conditions: `category = 'Book'` })
    * ```
    *
    * @param options - An optional object with configuration options:
-   *   @param options.condition - A SQL WHERE clause condition to filter the data. Defaults to no condition.
+   *   @param options.conditions - A SQL WHERE clause conditions to filter the data. Defaults to no condition.
    *
    * @category Getting data
    */
   async getData(
     options: {
-      condition?: string;
+      conditions?: string;
     } = {},
   ): Promise<
     {
@@ -3437,7 +3437,7 @@ export default class SimpleWebTable extends Simple {
     return (await queryDB(
       this,
       `SELECT * from "${this.name}"${
-        options.condition ? ` WHERE ${options.condition}` : ""
+        options.conditions ? ` WHERE ${options.conditions}` : ""
       }`,
       mergeOptions(this, {
         returnDataFrom: "query",

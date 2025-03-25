@@ -7,14 +7,14 @@ export default async function getBottom(
   count: number,
   options: {
     originalOrder?: boolean;
-    condition?: string;
+    conditions?: string;
   } = {},
 ) {
   const queryResult = await queryDB(
     simpleWebTable,
     `WITH numberedRowsForGetBottom AS (
                 SELECT *, row_number() OVER () as rowNumberForGetBottom FROM ${simpleWebTable.name}${
-      options.condition ? ` WHERE ${options.condition}` : ""
+      options.conditions ? ` WHERE ${options.conditions}` : ""
     }
             )
             SELECT * FROM numberedRowsForGetBottom ORDER BY rowNumberForGetBottom DESC LIMIT ${count};`,

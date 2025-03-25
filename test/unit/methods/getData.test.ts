@@ -425,7 +425,7 @@ Deno.test("should return data from a table based on a condition", async () => {
   const table = sdb.newTable("data");
   await table.loadData("test/data/files/employees.csv");
   const data = await table.getData({
-    condition: "Job = 'Programmer'",
+    conditions: "Job = 'Programmer'",
   });
 
   assertEquals(data, [

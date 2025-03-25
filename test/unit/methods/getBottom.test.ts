@@ -76,7 +76,7 @@ Deno.test("should return the bottom 3 with a condition", async () => {
   const table = sdb.newTable("data");
   await table.loadData("test/data/files/employees.csv");
   const data = await table.getBottom(3, {
-    condition: `Job = 'Programmer'`,
+    conditions: `Job = 'Programmer'`,
   });
   assertEquals(data, [
     {
@@ -112,7 +112,7 @@ Deno.test("should return the bottom 3 with a condition with original order", asy
   const table = sdb.newTable("data");
   await table.loadData("test/data/files/employees.csv");
   const data = await table.getBottom(3, {
-    condition: `Job = 'Programmer'`,
+    conditions: `Job = 'Programmer'`,
     originalOrder: true,
   });
 

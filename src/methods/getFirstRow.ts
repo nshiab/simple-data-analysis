@@ -5,13 +5,13 @@ import type SimpleWebTable from "../class/SimpleWebTable.ts";
 export default async function getFirstRow(
   simpleWebTable: SimpleWebTable,
   options: {
-    condition?: string;
+    conditions?: string;
   } = {},
 ) {
   const queryResult = await queryDB(
     simpleWebTable,
     `SELECT * FROM ${simpleWebTable.name}${
-      options.condition ? ` WHERE ${options.condition}` : ""
+      options.conditions ? ` WHERE ${options.conditions}` : ""
     } LIMIT 1`,
     mergeOptions(simpleWebTable, {
       table: simpleWebTable.name,
