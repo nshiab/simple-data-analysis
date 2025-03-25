@@ -4852,4 +4852,65 @@ export default class SimpleWebTable extends Simple {
     console.log(this.projections);
     return await this;
   }
+
+  /**
+   * Logs unique values for a column. By default, a maximum of 100 values are logged (depending on your runtime). You can optionnally stringify the values to see them all.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * // Logs unique values for the column "name".
+   * await table.logUniques("name")
+   * ```
+   *
+   * @example
+   * Stringifying the values
+   * ```ts
+   * // Logs unique values for the column "name" and stringifies them.
+   * await table.logUniques("name", { stringify: true })
+   * ```
+   *
+   * @param column - The name of the column.
+   * @param options - An optional object with configuration options:
+   *  @param options.stringify - If true, stringifies the values.
+   */
+  async logUniques(
+    column: string,
+    options: { stringify?: boolean } = {},
+  ): Promise<this> {
+    const values = await this.getUniques(column);
+    console.log(`\nUnique values in ${column}:`);
+    if (options.stringify) {
+      console.log(JSON.stringify(values, null, 2));
+    } else {
+      console.log(values);
+    }
+    return await this;
+  }
+
+  /**
+   * Logs the columns in the table.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * await table.logColumns()
+   * ```
+   *
+   * @example
+   * With types
+   * ```ts
+   * await table.logColumns({ logTypes: true })
+   * ```
+   */
+  async logColumns(options: { logTypes?: boolean } = {}): Promise<this> {
+    console.log(`\nTable ${this.name} columns:`);
+    if (options.logTypes) {
+      console.log(await this.getTypes());
+    } else {
+      console.log(await this.getColumns());
+    }
+
+    return await this;
+  }
 }
