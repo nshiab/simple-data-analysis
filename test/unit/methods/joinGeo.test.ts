@@ -275,12 +275,12 @@ Deno.test("should return all intersections and all rows from leftTable when doin
   );
 
   const polygonsWithinNotNull = await polygonsWithin.cloneTable({
-    condition: `name NOT NULL`,
+    conditions: `name NOT NULL`,
   });
   await polygonsWithinNotNull.removeColumns("container");
 
   const containers = await polygonsWithin.cloneTable({
-    condition: `container NOT NULL`,
+    conditions: `container NOT NULL`,
   });
   await containers.removeColumns("name");
 
@@ -314,12 +314,12 @@ Deno.test("should return all intersections - and just intersections - when doing
   );
 
   const polygonsWithinNotNull = await polygonsWithin.cloneTable({
-    condition: `name NOT NULL`,
+    conditions: `name NOT NULL`,
   });
   await polygonsWithinNotNull.removeColumns("container");
 
   const containers = await polygonsWithin.cloneTable({
-    condition: `container NOT NULL`,
+    conditions: `container NOT NULL`,
   });
   await containers.removeColumns("name");
 

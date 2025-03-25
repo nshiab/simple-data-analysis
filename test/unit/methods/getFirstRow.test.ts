@@ -15,7 +15,7 @@ Deno.test("should return the first row found based on a condition", async () => 
   const table = sdb.newTable("data");
   await table.loadData("test/data/files/data.json");
   const data = await table.getFirstRow({
-    condition: `key2 = 'trois'`,
+    conditions: `key2 = 'trois'`,
   });
   assertEquals(data, {
     key1: 3,

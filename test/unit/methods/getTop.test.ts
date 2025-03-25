@@ -40,7 +40,7 @@ Deno.test("should return the top 3 with a condition", async () => {
   const table = sdb.newTable("data");
   await table.loadData(["test/data/files/employees.csv"]);
   const data = await table.getTop(3, {
-    condition: `Job = 'Programmer'`,
+    conditions: `Job = 'Programmer'`,
   });
   assertEquals(data, [
     {
