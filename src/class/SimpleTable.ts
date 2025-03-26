@@ -250,7 +250,21 @@ export default class SimpleTable extends SimpleWebTable {
           | "skew"
           | "stdDev"
           | "var"
-        )[];
+        )[]
+        | {
+          [key: string]:
+            | "count"
+            | "countUnique"
+            | "countNull"
+            | "min"
+            | "max"
+            | "mean"
+            | "median"
+            | "sum"
+            | "skew"
+            | "stdDev"
+            | "var";
+        };
       decimals?: number;
       outputTable?: string | boolean;
       toMs?: boolean;

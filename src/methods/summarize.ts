@@ -36,7 +36,21 @@ export default async function summarize(
         | "skew"
         | "stdDev"
         | "var"
-      )[];
+      )[]
+      | {
+        [key: string]:
+          | "count"
+          | "countUnique"
+          | "countNull"
+          | "min"
+          | "max"
+          | "mean"
+          | "median"
+          | "sum"
+          | "skew"
+          | "stdDev"
+          | "var";
+      };
     decimals?: number;
     toMs?: boolean;
   } = {},
@@ -53,6 +67,7 @@ export default async function summarize(
   options.categories = options.categories
     ? stringToArray(options.categories)
     : [];
+  let columns: string[] | undefined;
   if (options.summaries === undefined) {
     if (
       options.values.length === 1 &&
@@ -64,6 +79,12 @@ export default async function summarize(
     }
   } else if (typeof options.summaries === "string") {
     options.summaries = [options.summaries];
+  } else if (
+    !Array.isArray(options.summaries) && typeof options.summaries === "object"
+  ) {
+    const entries = Object.entries(options.summaries);
+    columns = entries.map((d) => d[0]);
+    options.summaries = entries.map((d) => d[1]);
   }
 
   const types = await simpleWebTable.getTypes();
@@ -94,6 +115,7 @@ export default async function summarize(
       options.categories,
       options.summaries,
       options,
+      columns,
     ),
     mergeOptions(simpleWebTable, {
       table: outputTable,

@@ -20,6 +20,7 @@ export default function summarizeQuery(
     | "var"
   )[],
   options: { decimals?: number } = {},
+  columns: string[] | undefined,
 ) {
   const typesOfValues = values.map((d) => types[d]);
 
@@ -84,14 +85,14 @@ export default function summarizeQuery(
         ? `, ${categories.map((d) => `"${d}"`).join(", ")}`
         : ""
     },${
-      summaries.map((summary) => {
+      summaries.map((summary, i) => {
         if (
           value === "rowNumberToSummarizeQuerySDA" &&
           aggregates[summary] !== "count"
         ) {
-          return `\nNULL as '${summary}'`;
+          return `\nNULL as '${columns ? columns[i] : summary}'`;
         } else if (types[value] === "GEOMETRY") {
-          return `\nNULL AS '${summary}'`;
+          return `\nNULL AS '${columns ? columns[i] : summary}'`;
         } else if (
           types[value] === "VARCHAR" &&
           [
@@ -105,7 +106,7 @@ export default function summarizeQuery(
             "VARIANCE(",
           ].includes(aggregates[summary])
         ) {
-          return `\nNULL AS '${summary}'`;
+          return `\nNULL AS '${columns ? columns[i] : summary}'`;
         } else if (
           [
             "DATE",
@@ -118,11 +119,15 @@ export default function summarizeQuery(
             aggregates[summary],
           )
         ) {
-          return `\nNULL AS '${summary}'`;
+          return `\nNULL AS '${columns ? columns[i] : summary}'`;
         } else if (summary === "count") {
-          return `\nCAST(COUNT(*) AS INTEGER) as count`;
+          return `\nCAST(COUNT(*) AS INTEGER) AS '${
+            columns ? columns[i] : "count"
+          }'`;
         } else if (summary === "countNull") {
-          return `\nCAST(COUNT(CASE WHEN "${value}" IS NULL THEN 1 END) AS INTEGER) as countNull`;
+          return `\nCAST(COUNT(CASE WHEN "${value}" IS NULL THEN 1 END) AS INTEGER) as '${
+            columns ? columns[i] : "countNull"
+          }'`;
         } else {
           return typeof options.decimals === "number" &&
               ![
@@ -134,8 +139,12 @@ export default function summarizeQuery(
               ].includes(types[value])
             ? `\nROUND(${
               aggregates[summary]
-            }"${value}"), ${options.decimals}) AS '${summary}'`
-            : `\n${aggregates[summary]}"${value}") AS '${summary}'`;
+            }"${value}"), ${options.decimals}) AS '${
+              columns ? columns[i] : summary
+            }'`
+            : `\n${aggregates[summary]}"${value}") AS '${
+              columns ? columns[i] : summary
+            }'`;
         }
       })
     }\nFROM "${table}"`;
