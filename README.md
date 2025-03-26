@@ -9,12 +9,15 @@ with its [documentation](https://jsr.io/@nshiab/simple-data-analysis/doc).
 The library is maintained by [Nael Shiab](http://naelshiab.com/), computational
 journalist and senior data producer for [CBC News](https://www.cbc.ca/news).
 
+> [!TIP]
+> To learn how to use SDA, check out
+> [Code Like a Journalist](https://www.code-like-a-journalist.com/), a free and
+> open-source data analysis and data visualization course in TypeScript.
+
 To use the library in your browser, check out
 [simple-data-analysis-flow](https://github.com/nshiab/simple-data-analysis-flow).
 You might also find the
-[journalism library](https://github.com/nshiab/journalism) and
-[Code Like a Journalist](https://github.com/nshiab/code-like-a-journalist)
-interesting.
+[journalism library](https://github.com/nshiab/journalism) interesting.
 
 If you wish to contribute, please check the
 [guidelines](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
