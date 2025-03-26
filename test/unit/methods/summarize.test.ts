@@ -417,6 +417,64 @@ Deno.test("should summarize and output a table without the column value, when on
   ]);
   await sdb.done();
 });
+Deno.test("should summarize and output a table without the column value, when only one column is aggregated and with categories", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/dataSummarize.json");
+  await table.summarize({
+    values: "key2",
+    categories: "key1",
+    decimals: 4,
+    noColumnValue: true,
+  });
+  const data = await table.getData();
+
+  assertEquals(data, [
+    {
+      key1: "Banane",
+      count: 2,
+      countUnique: 0,
+      countNull: 2,
+      min: null,
+      max: null,
+      mean: null,
+      median: null,
+      sum: null,
+      skew: null,
+      stdDev: null,
+      var: null,
+    },
+    {
+      key1: "Fraise",
+      count: 2,
+      countUnique: 2,
+      countNull: 0,
+      min: 11,
+      max: 22,
+      mean: 16.5,
+      median: 16.5,
+      sum: 33,
+      skew: null,
+      stdDev: 7.7782,
+      var: 60.5,
+    },
+    {
+      key1: "Rubarbe",
+      count: 2,
+      countUnique: 2,
+      countNull: 0,
+      min: 1,
+      max: 2,
+      mean: 1.5,
+      median: 1.5,
+      sum: 3,
+      skew: null,
+      stdDev: 0.7071,
+      var: 0.5,
+    },
+  ]);
+  await sdb.done();
+});
 
 Deno.test("should summarize all columns in a table with a non numeric category", async () => {
   const sdb = new SimpleDB();

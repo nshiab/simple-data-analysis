@@ -90,7 +90,7 @@ export default function summarizeQuery(
       categories.length > 0
         ? `, ${categories.map((d) => `"${d}"`).join(", ")}`
         : ""
-    }${options.noColumnValue ? "" : ","}${
+    },${
       summaries.map((summary, i) => {
         if (
           value === "rowNumberToSummarizeQuerySDA" &&
@@ -171,5 +171,5 @@ export default function summarizeQuery(
     }`;
   }
 
-  return query;
+  return query.replace("SELECT ,", "SELECT ");
 }
