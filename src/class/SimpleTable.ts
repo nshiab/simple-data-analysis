@@ -1309,8 +1309,8 @@ export default class SimpleTable extends SimpleWebTable {
       ? false
       : options.logTypes ?? false;
     const conditions = typeof options === "number"
-      ? ""
-      : options.conditions ?? "";
+      ? undefined
+      : options.conditions ?? undefined;
     this.debug && console.log("\nlogTable()");
     this.debug &&
       console.log("parameters:", { nbRowsToLog: rows, logTypes, conditions });
@@ -1322,6 +1322,7 @@ export default class SimpleTable extends SimpleWebTable {
       console.log(`\ntable ${this.name}: no data`);
     } else {
       console.log(`\ntable ${this.name}:`);
+      conditions && console.log(`conditions: ${conditions}`);
       const data = await this.getTop(rows, { conditions });
       logData(
         this.logTypes || logTypes ? await this.getTypes() : null,
