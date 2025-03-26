@@ -268,6 +268,7 @@ export default class SimpleTable extends SimpleWebTable {
       decimals?: number;
       outputTable?: string | boolean;
       toMs?: boolean;
+      noColumnValue?: boolean;
     } = {},
   ): Promise<SimpleTable> {
     if (options.outputTable === true) {

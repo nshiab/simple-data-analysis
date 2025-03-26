@@ -2299,6 +2299,12 @@ export default class SimpleWebTable extends Simple {
    * await tableA.summarize({ values: ["column1", "column2"], toMs: true })
    * ```
    *
+   * @example
+   * Removing the column "value" when there is only one column being aggregated.
+   * ```ts
+   * await tableA.summarize({ values: "column1", noColumnValue: true })
+   * ```
+   *
    * @param options - An optional object with configuration options:
    *   @param options.values - The column or columns whose values will be summarized. This can be a single column name or an array of column names.
    *   @param options.categories - The column or columns that define categories for the summarization. This can be a single column name or an array of column names.
@@ -2306,6 +2312,7 @@ export default class SimpleWebTable extends Simple {
    *   @param options.decimals - The number of decimal places to round the summarized values.
    *   @param options.outputTable - An option to store the results in a new table.
    *   @param options.toMs - An option to convert timestamps, dates, and times to milliseconds before summarizing.
+   *   @param options.noColumnValue - An option to remove the column "value". Works only when there is only one column being aggregated.
    *
    * @category Analyzing data
    */
@@ -2357,6 +2364,7 @@ export default class SimpleWebTable extends Simple {
       decimals?: number;
       outputTable?: string | boolean;
       toMs?: boolean;
+      noColumnValue?: boolean;
     } = {},
   ): Promise<SimpleWebTable> {
     if (options.outputTable === true) {

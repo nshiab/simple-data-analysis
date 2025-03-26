@@ -53,6 +53,7 @@ export default async function summarize(
       };
     decimals?: number;
     toMs?: boolean;
+    noColumnValue?: boolean;
   } = {},
 ) {
   const outputTable = typeof options.outputTable === "string"

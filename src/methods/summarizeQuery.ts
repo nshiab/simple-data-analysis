@@ -19,9 +19,15 @@ export default function summarizeQuery(
     | "stdDev"
     | "var"
   )[],
-  options: { decimals?: number } = {},
+  options: { decimals?: number; noColumnValue?: boolean } = {},
   columns: string[] | undefined,
 ) {
+  if (values.length > 1 && options.noColumnValue) {
+    throw new Error(
+      "The options `noColumnValue` works only when you aggregate the values from one column. Remove the option `noColumnValue` or specify just one column in the option `values`.",
+    );
+  }
+
   const typesOfValues = values.map((d) => types[d]);
 
   const doubleAndDate = Object.values(typesOfValues).includes("DOUBLE") &&
@@ -80,11 +86,11 @@ export default function summarizeQuery(
     } else {
       query += "\nUNION";
     }
-    query += `\nSELECT '${value}' AS 'value'${
+    query += `\nSELECT ${options.noColumnValue ? "" : `'${value}' AS 'value'`}${
       categories.length > 0
         ? `, ${categories.map((d) => `"${d}"`).join(", ")}`
         : ""
-    },${
+    }${options.noColumnValue ? "" : ","}${
       summaries.map((summary, i) => {
         if (
           value === "rowNumberToSummarizeQuerySDA" &&
@@ -153,11 +159,17 @@ export default function summarizeQuery(
     }
   }
 
-  query += `\nORDER BY ${
-    ["value", ...categories]
-      .map((d) => `"${d}" ASC`)
-      .join(", ")
-  }`;
+  if (options.noColumnValue) {
+    if (categories.length > 0) {
+      query += `\nORDER BY ${categories.map((d) => `"${d}" ASC`).join(", ")}`;
+    }
+  } else {
+    query += `\nORDER BY ${
+      ["value", ...categories]
+        .map((d) => `"${d}" ASC`)
+        .join(", ")
+    }`;
+  }
 
   return query;
 }
