@@ -1726,10 +1726,16 @@ export default class SimpleWebTable extends Simple {
    * await table.splitExtract("column1", ",", 1, "column2")
    * ```
    *
+   * @example
+   * Overwriting the same column works too.
+   * ```ts
+   * await table.splitExtract("column1", ",", 1, "column1")
+   * ```
+   *
    * @param column - The name of the column storing the strings
    * @param separator - The substring to use as a separator
-   * @param index - The index of the substring to replace values
-   * @param newColumn - The name of the new column to store the extracted substrings
+   * @param index - The index of the substring to replace values. Starts at 0.
+   * @param newColumn - The name of the new column to store the extracted substrings. To overwrite the same column, use the same name.
    *
    * @category Updating data
    */
@@ -1741,7 +1747,11 @@ export default class SimpleWebTable extends Simple {
   ) {
     await queryDB(
       this,
-      `ALTER TABLE "${this.name}" ADD "${newColumn}" VARCHAR;
+      `${
+        column === newColumn
+          ? ""
+          : `ALTER TABLE "${this.name}" ADD "${newColumn}" VARCHAR;`
+      }
       UPDATE "${this.name}" SET "${newColumn}" = SPLIT_PART("${column}", '${separator}', ${
         index + 1
       })`,
