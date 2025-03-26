@@ -1319,10 +1319,10 @@ export default class SimpleTable extends SimpleWebTable {
       this.connection === undefined ||
       !(await this.sdb.hasTable(this.name))
     ) {
-      console.log(`\ntable ${this.name}: no data`);
+      console.log(`\nTable ${this.name}: no data`);
     } else {
-      console.log(`\ntable ${this.name}:`);
-      conditions && console.log(`conditions: ${conditions}`);
+      console.log(`\nTable ${this.name}:`);
+      conditions && console.log(`Conditions: ${conditions}`);
       const data = await this.getTop(rows, { conditions });
       logData(
         this.logTypes || logTypes ? await this.getTypes() : null,
