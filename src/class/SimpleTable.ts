@@ -1329,7 +1329,14 @@ export default class SimpleTable extends SimpleWebTable {
         data,
         this.nbCharactersToLog,
       );
-      const nbRows = await this.getNbRows();
+      const nbRows = conditions
+        ? parseInt(
+          (await this.sdb.customQuery(
+            `select count(*) as count from "${this.name}" where ${conditions}`,
+            { returnDataFrom: "query" },
+          ) as { count: string }[])[0].count,
+        )
+        : await this.getNbRows();
       console.log(
         `${formatNumber(nbRows)} rows in total ${`(nbRowsToLog: ${rows}${
           typeof this.nbCharactersToLog === "number"
