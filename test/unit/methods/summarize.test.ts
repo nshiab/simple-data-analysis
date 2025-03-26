@@ -680,7 +680,24 @@ Deno.test("should summarize all columns in a table with specific summaries", asy
   ]);
   await sdb.done();
 });
+Deno.test("should summarize all columns in a table with specific summaries in specific new columns", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/dataSummarize.json");
+  await table.summarize({
+    values: await table.getColumns(),
+    decimals: 2,
+    summaries: { "average": "mean", "total": "count" },
+  });
+  const data = await table.getData();
 
+  assertEquals(data, [
+    { value: "key1", average: null, total: 6 },
+    { value: "key2", average: 9, total: 6 },
+    { value: "key3", average: 7.44, total: 6 },
+  ]);
+  await sdb.done();
+});
 Deno.test("should summarize all columns in a table with specific summaries and specific categories", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
@@ -703,7 +720,28 @@ Deno.test("should summarize all columns in a table with specific summaries and s
   ]);
   await sdb.done();
 });
+Deno.test("should summarize all columns in a table with specific summaries and columns names, based on specific categories", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/dataSummarize.json");
+  await table.summarize({
+    values: await table.getColumns(),
+    decimals: 2,
+    categories: "key1",
+    summaries: { "average": "mean", "total": "count" },
+  });
+  const data = await table.getData();
 
+  assertEquals(data, [
+    { value: "key2", key1: "Banane", average: null, total: 2 },
+    { value: "key2", key1: "Fraise", average: 16.5, total: 2 },
+    { value: "key2", key1: "Rubarbe", average: 1.5, total: 2 },
+    { value: "key3", key1: "Banane", average: null, total: 2 },
+    { value: "key3", key1: "Fraise", average: 7.34, total: 2 },
+    { value: "key3", key1: "Rubarbe", average: 7.53, total: 2 },
+  ]);
+  await sdb.done();
+});
 Deno.test("should summarize specific columns in a table with specific summaries and specific categories", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();

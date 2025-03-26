@@ -2280,6 +2280,12 @@ export default class SimpleWebTable extends Simple {
    * ```
    *
    * @example
+   * Specific aggregation with specific column name
+   * ```ts
+   * await tableA.summarize({ values: "column1", categories: "column2", summaries: { avgOfColumn2: "mean" } })
+   * ```
+   *
+   * @example
    * Rounding aggregated values
    * ```ts
    * // Summarizes and round values with a specific number of decimal places.
@@ -2296,7 +2302,7 @@ export default class SimpleWebTable extends Simple {
    * @param options - An optional object with configuration options:
    *   @param options.values - The column or columns whose values will be summarized. This can be a single column name or an array of column names.
    *   @param options.categories - The column or columns that define categories for the summarization. This can be a single column name or an array of column names.
-   *   @param options.summaries - The summary operations to be performed. This can be a single summary operation or an array of summary operations.
+   *   @param options.summaries - The summary operations to be performed. This can be a single summary operation, an array of summary operations or an object mapping column names to summary operations.
    *   @param options.decimals - The number of decimal places to round the summarized values.
    *   @param options.outputTable - An option to store the results in a new table.
    *   @param options.toMs - An option to convert timestamps, dates, and times to milliseconds before summarizing.
@@ -2333,7 +2339,21 @@ export default class SimpleWebTable extends Simple {
           | "skew"
           | "stdDev"
           | "var"
-        )[];
+        )[]
+        | {
+          [key: string]:
+            | "count"
+            | "countUnique"
+            | "countNull"
+            | "min"
+            | "max"
+            | "mean"
+            | "median"
+            | "sum"
+            | "skew"
+            | "stdDev"
+            | "var";
+        };
       decimals?: number;
       outputTable?: string | boolean;
       toMs?: boolean;
