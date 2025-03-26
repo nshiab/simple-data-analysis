@@ -4951,4 +4951,19 @@ export default class SimpleWebTable extends Simple {
 
     return await this;
   }
+
+  /**
+   * Logs the number of rows in the table.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * await table.logNbRows()
+   * ```
+   */
+  async logNbRows(): Promise<this> {
+    const nbRows = await this.getNbRows();
+    console.log(`\nTable ${this.name}: ${formatNumber(nbRows)} rows.`);
+    return await this;
+  }
 }
