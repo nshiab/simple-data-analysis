@@ -19,3 +19,18 @@ Deno.test("should extract a substring based on a separator and substring", async
   }]);
   await sdb.done();
 });
+Deno.test("should extract a substring based on a separator and substring, and overwrite the original column", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadArray([
+    { name: "Shiab, Nael" },
+    { name: "Bruce, Graeme" },
+  ]);
+
+  await table.splitExtract("name", ",", 0, "name");
+
+  const data = await table.getData();
+
+  assertEquals(data, [{ name: "Shiab" }, { name: "Bruce" }]);
+  await sdb.done();
+});
