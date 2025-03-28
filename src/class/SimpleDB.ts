@@ -42,6 +42,8 @@ import { prettyDuration } from "@nshiab/journalism";
  * @param options.nbCharactersToLog - Number of characters to log when displaying text content. Useful for long strings.
  * @param options.cacheVerbose - Whether to log cache-related messages.
  * @param options.debug - Whether to enable debug logging.
+ * @param options.progressBar - Whether to show a progress bar for long-running operations.
+ * @param options.logTypes - Whether to log the types of columns in the table.
  */
 
 export default class SimpleDB extends SimpleWebDB {
@@ -53,6 +55,8 @@ export default class SimpleDB extends SimpleWebDB {
   cacheTimeSaved: number;
   /** Amount of time spent writing the cache. */
   cacheTimeWriting: number;
+  /** A flag to log a progress bar when a method takes more than 2s. Defaults to false. */
+  progressBar: boolean;
 
   constructor(
     options: {
@@ -62,6 +66,7 @@ export default class SimpleDB extends SimpleWebDB {
       logTypes?: boolean;
       cacheVerbose?: boolean;
       debug?: boolean;
+      progressBar?: boolean;
     } = {},
   ) {
     super(options);
@@ -69,6 +74,7 @@ export default class SimpleDB extends SimpleWebDB {
     this.cacheVerbose = options.cacheVerbose ?? false;
     this.cacheTimeSaved = 0;
     this.cacheTimeWriting = 0;
+    this.progressBar = options.progressBar ?? false;
     this.runQuery = runQuery;
     if (this.cacheVerbose) {
       this.durationStart = Date.now();
@@ -85,6 +91,11 @@ export default class SimpleDB extends SimpleWebDB {
       this.debug && console.log("\nstart()");
       this.db = await DuckDBInstance.create(":memory:");
       this.connection = await this.db.connect();
+      if (this.progressBar) {
+        await this.customQuery(
+          `SET enable_progress_bar = TRUE;`,
+        );
+      }
     }
     return await this;
   }
