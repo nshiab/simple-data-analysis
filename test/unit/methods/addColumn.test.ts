@@ -167,3 +167,24 @@ Deno.test("should return a column with null values", async () => {
   }]);
   await sdb.done();
 });
+Deno.test("should add a column with a case statement and null", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadArray([{ votes: 10, winnerMax: 10, party: "LIB" }, {
+    votes: 5,
+    winnerMax: 10,
+    party: "CON",
+  }]);
+  await table.addColumn(
+    "winner",
+    "string",
+    `CASE WHEN votes === winnerMax THEN party ELSE NULL END`,
+  );
+  const data = await table.getData();
+
+  assertEquals(data, [
+    { votes: 10, winnerMax: 10, party: "LIB", winner: "LIB" },
+    { votes: 5, winnerMax: 10, party: "CON", winner: null },
+  ]);
+  await sdb.done();
+});
