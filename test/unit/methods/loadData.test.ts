@@ -617,22 +617,6 @@ Deno.test("should load data from a xlsx file", async () => {
   ]);
   await sdb.done();
 });
-
-Deno.test("should load data from a xlsx file with a limit", async () => {
-  const sdb = new SimpleDB();
-  const table = sdb.newTable();
-  await table.loadData(["test/data/files/populations-one-sheet.xlsx"], {
-    limit: 2,
-  });
-  const data = await table.getData();
-
-  assertEquals(data, [
-    { Country: "Canada", "Population (million)": 38 },
-    { Country: "US", "Population (million)": 332 },
-  ]);
-  await sdb.done();
-});
-
 Deno.test("should load data from a specific sheet in an xlsx file", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();

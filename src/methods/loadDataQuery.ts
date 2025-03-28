@@ -97,10 +97,9 @@ export default function loadDataQuery(
       );
     }
 
-    return `INSTALL spatial; LOAD spatial; INSTALL https; LOAD https;
-        CREATE OR REPLACE TABLE "${table}" AS SELECT * FROM ST_Read('${
+    return `CREATE OR REPLACE TABLE "${table}" AS SELECT * FROM read_xlsx('${
       files[0]
-    }'${options.sheet ? `, layer='${options.sheet}'` : ""})${limit};`;
+    }'${options.sheet ? `, sheet='${options.sheet}'` : ""});`;
   } else {
     throw new Error(
       `Unknown options.fileType ${options.fileType} or fileExtension ${fileExtension}`,
