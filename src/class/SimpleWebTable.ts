@@ -1081,7 +1081,6 @@ export default class SimpleWebTable extends Simple {
    * @category Restructuring data
    */
   async cleanColumnNames() {
-    this.debug && console.log("\ncleanColumnNames()");
     const columns = await this.getColumns();
     const obj: { [key: string]: string } = {};
     for (const col of columns) {
@@ -2827,10 +2826,6 @@ export default class SimpleWebTable extends Simple {
         [key: string]: number | string | Date | boolean | null;
       }[]),
   ) {
-    this.debug && console.log("\nupdateWithJS()");
-    this.debug &&
-      console.log("parameters:", { dataModifier: dataModifier });
-
     const types = await this.getTypes();
     if (Object.values(types).includes("GEOMETRY")) {
       throw new Error(
@@ -2913,10 +2908,7 @@ export default class SimpleWebTable extends Simple {
    * ```
    */
   async getNbColumns(): Promise<number> {
-    this.debug && console.log("\ngetNbColumns()");
-    this.debug && console.log("parameters:", {});
     const result = (await getColumns(this)).length;
-    this.debug && console.log("Number columns:", result);
     return result;
   }
 
@@ -2943,10 +2935,7 @@ export default class SimpleWebTable extends Simple {
    * ```
    */
   async getNbValues(): Promise<number> {
-    this.debug && console.log("\ngetNbValues");
-    this.debug && console.log("parameters:", {});
     const result = (await this.getNbColumns()) * (await this.getNbRows());
-    this.debug && console.log("Number values:", result);
     return result;
   }
 
@@ -4803,8 +4792,6 @@ export default class SimpleWebTable extends Simple {
    */
   async logTable(options: { nbRowsToLog?: number; logTypes?: boolean } = {}) {
     const rows = options.nbRowsToLog ?? this.nbRowsToLog;
-    this.debug && console.log("\nlogTable()");
-    this.debug && console.log("parameters:", { options });
 
     if (
       this.connection === undefined ||

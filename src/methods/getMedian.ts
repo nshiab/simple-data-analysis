@@ -27,7 +27,5 @@ export default async function getMedian(
   }
   const result = queryResult[0][column];
 
-  simpleWebTable.debug && console.log("median:", result);
-
   return result as number;
 }

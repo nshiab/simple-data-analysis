@@ -20,13 +20,7 @@ export default async function fetchDataBrowser(
     skip?: number;
   } = {},
 ) {
-  simpleWebTable.debug && console.log("\nloadData()");
-  simpleWebTable.debug && console.log("parameters:", { table, url, options });
-
   let start;
-  if (simpleWebTable.debug) {
-    start = Date.now();
-  }
 
   if (simpleWebTable.db === undefined) {
     await simpleWebTable.sdb.start();
@@ -103,9 +97,5 @@ export default async function fetchDataBrowser(
 
   if (start) {
     console.log(`Done in ${prettyDuration(start)}`);
-  }
-
-  if (simpleWebTable.debug) {
-    await simpleWebTable.logTable();
   }
 }

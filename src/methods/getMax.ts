@@ -26,7 +26,5 @@ export default async function getMax(
 
   const result = queryResult[0][column];
 
-  simpleWebTable.debug && console.log("max:", result);
-
   return result;
 }

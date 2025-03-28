@@ -36,8 +36,5 @@ export default async function getBottom(
   });
   const rows = options.originalOrder ? rowsRaw.reverse() : rowsRaw;
 
-  simpleWebTable.debug && console.log("Bottom rows:");
-  simpleWebTable.debug && console.table(rows);
-
   return rows;
 }

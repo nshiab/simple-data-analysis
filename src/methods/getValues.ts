@@ -22,14 +22,5 @@ export default async function getValues(
 
   const values = queryResult.map((d) => d[column]);
 
-  simpleWebTable.debug &&
-    console.log(
-      "values:",
-      values.length > 5
-        ? JSON.stringify(values.slice(0, 5)) +
-          " (showing first 5 values)"
-        : values,
-    );
-
   return values;
 }

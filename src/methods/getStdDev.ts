@@ -27,6 +27,5 @@ export default async function getStdDev(
   }
 
   const result = queryResult[0][column];
-  simpleWebTable.debug && console.log("Standard deviation:", result);
   return result as number;
 }

@@ -19,7 +19,5 @@ export default async function getNbRows(simpleWebTable: SimpleWebTable) {
   }
   const length = queryResult[0]["CAST(count_star() AS INTEGER)"] as number;
 
-  simpleWebTable.debug && console.log("length:", length);
-
   return length;
 }

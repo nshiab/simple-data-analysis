@@ -1,4 +1,3 @@
-import { prettyDuration } from "jsr:@nshiab/journalism@1/web";
 import SimpleWebTable from "../class/SimpleWebTable.ts";
 import SimpleWebDB from "../class/SimpleWebDB.ts";
 import cleanSQL from "./cleanSQL.ts";
@@ -38,36 +37,24 @@ export default async function queryDB(
 
   query = cleanSQL(query);
 
-  let start;
-  let end;
   if (options.debug) {
-    console.log("\n" + options.method);
-    console.log("parameters:", options.parameters);
+    // We beautify it a little bit
+    if (query.at(-1) !== ";") {
+      query += ";";
+    }
+    if (query.includes("\n")) {
+      query = query
+        .trim()
+        .split("\n")
+        .map((line) => line.trim())
+        .join("\n");
+    }
     console.log(query);
-    start = Date.now();
   }
 
   let data = null;
 
-  if (options.debug) {
-    const queryResult = await simple.runQuery(
-      query,
-      simple.connection,
-      true,
-      options,
-    );
-    if (options.returnDataFrom === "query") {
-      data = queryResult;
-    }
-    if (Array.isArray(queryResult)) {
-      if (queryResult.length > 10) {
-        console.table(queryResult.slice(0, 10));
-      } else {
-        console.table(queryResult);
-      }
-    }
-    end = Date.now();
-  } else if (options.returnDataFrom === "none") {
+  if (options.returnDataFrom === "none") {
     await simple.runQuery(query, simple.connection, false, options);
   } else if (options.returnDataFrom === "query") {
     data = await simple.runQuery(query, simple.connection, true, {
@@ -81,14 +68,6 @@ export default async function queryDB(
     throw new Error(
       `Unknown ${options.returnDataFrom} options.returnDataFrom`,
     );
-  }
-
-  if (options.debug) {
-    if (start) {
-      console.log(
-        `${options.method} - Done in ${prettyDuration(start, { end })}`,
-      );
-    }
   }
 
   if (options.returnDataFrom === "query") {

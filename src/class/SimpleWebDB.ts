@@ -80,7 +80,6 @@ export default class SimpleWebDB extends Simple {
    */
   async start(): Promise<this> {
     if (this.db === undefined || this.connection === undefined) {
-      this.debug && console.log("\nstart()\n");
       // We await import to make duckdb-wasm optional
       const { default: getDuckDB } = await import(
         "../helpers/getDuckDB.ts"
@@ -119,8 +118,6 @@ export default class SimpleWebDB extends Simple {
     name?: string,
     projections?: { [key: string]: string },
   ): SimpleWebTable {
-    this.debug && console.log("\nnewWebTable()");
-
     const proj = projections ?? {};
 
     // SHOW MATCH CLONE TABLE
@@ -148,13 +145,6 @@ export default class SimpleWebDB extends Simple {
       table.defaultTableName = true;
       this.tableIncrement += 1;
     }
-
-    this.debug &&
-      console.log(
-        `${table.name} has been created ${
-          table.defaultTableName ? "(name automatically attributed)" : ""
-        }`,
-      );
 
     this.tables.push(table);
 
@@ -266,11 +256,8 @@ export default class SimpleWebDB extends Simple {
    * @category DB methods
    */
   async hasTable(table: SimpleWebTable | string): Promise<boolean> {
-    this.debug && console.log("\nhasTable()");
     const tableName = typeof table === "string" ? table : table.name;
-    this.debug && console.log("parameters:", { table: tableName });
     const result = (await this.getTableNames()).includes(tableName);
-    this.debug && console.log("hasTable:", result);
     return result;
   }
 
@@ -357,7 +344,6 @@ export default class SimpleWebDB extends Simple {
    * @category DB methods
    */
   async done(): Promise<this> {
-    this.debug && console.log("\ndone()");
     if (this.connection) {
       await this.connection.close();
     }

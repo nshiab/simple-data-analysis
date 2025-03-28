@@ -20,7 +20,5 @@ export default async function getTableNames(simpleWebDB: SimpleWebDB) {
 
   const tables = queryResult.map((d) => d.name) as string[];
 
-  simpleWebDB.debug && console.log("tables:", tables);
-
   return tables;
 }
