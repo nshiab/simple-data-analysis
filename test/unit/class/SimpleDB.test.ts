@@ -252,3 +252,10 @@ Deno.test("should log the total duration", async () => {
   // How to test?
   await sdb.done();
 });
+Deno.test("should enable a progress bar", async () => {
+  const sdb = new SimpleDB({ progressBar: true });
+  const test = sdb.newTable("test");
+  await test.loadData("test/data/files/cities.csv");
+  // How to test?
+  await sdb.done();
+});
