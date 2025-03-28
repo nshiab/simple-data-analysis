@@ -763,7 +763,7 @@ export default class SimpleTable extends SimpleWebTable {
    * @param file - The path to the file to which data will be written.
    * @param options - An optional object with configuration options:
    *   @param options.precision - Maximum number of figures after decimal separator to write in coordinates. Works with GeoJSON files only.
-   *   @param options.rewind - If true, rewinds the winding order to be clockwise. Default is true. Works with GeoJSON files only.
+   *   @param options.rewind - If true, rewinds the winding order to be clockwise. Default is false. Works with GeoJSON files only.
    *   @param options.compression - A boolean indicating whether to compress the output file. Works with GeoParquet files only. Defaults to false. If true, the file will be compressed with ZSTD.
    *
    * * @category Exporting data
@@ -795,8 +795,7 @@ export default class SimpleTable extends SimpleWebTable {
             parameters: { file, options },
           }),
         );
-        const optionRewind = options.rewind ?? true;
-        if (optionRewind) {
+        if (options.rewind) {
           const fileData = JSON.parse(readFileSync(cleanFile, "utf-8"));
           const fileRewinded = rewind(fileData);
           writeFileSync(cleanFile, JSON.stringify(fileRewinded));

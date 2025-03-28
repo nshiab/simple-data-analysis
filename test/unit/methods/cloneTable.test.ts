@@ -75,7 +75,7 @@ Deno.test("should clone a table with a condition", async () => {
   await sdb.done();
 });
 Deno.test("should clone a table with a specific name with spaces", async () => {
-  const sdb = new SimpleDB({ debug: true });
+  const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.loadData("test/data/files/employees.csv");
   const clone = await table.cloneTable({ outputTable: "clone table" });
@@ -84,7 +84,7 @@ Deno.test("should clone a table with a specific name with spaces", async () => {
   await sdb.done();
 });
 Deno.test("should clone a table with a specific name with spaces and '", async () => {
-  const sdb = new SimpleDB({ debug: true });
+  const sdb = new SimpleDB();
   const table = sdb.newTable("data");
   await table.loadData("test/data/files/employees.csv");
   const clone = await table.cloneTable({ outputTable: "clone 'table" });
