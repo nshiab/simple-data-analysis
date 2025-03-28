@@ -21,7 +21,5 @@ export default async function getDescription(simpleWebTable: SimpleWebTable) {
     null: d["countNull"] as number,
   }));
 
-  simpleWebTable.debug && console.log("description:", description);
-
   return description;
 }

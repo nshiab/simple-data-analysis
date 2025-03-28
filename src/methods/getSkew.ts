@@ -27,6 +27,5 @@ export default async function getSkew(
   }
 
   const result = queryResult[0][column];
-  simpleWebTable.debug && console.log("skew:", result);
   return result as number;
 }

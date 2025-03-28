@@ -15,8 +15,6 @@ export default async function correlations(
     outputTable?: string | boolean;
   } = {},
 ) {
-  simpleWebTable.debug && console.log("\ncorrelations()");
-
   const outputTable = typeof options.outputTable === "string"
     ? options.outputTable
     : simpleWebTable.name;

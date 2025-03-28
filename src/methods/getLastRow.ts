@@ -29,7 +29,5 @@ export default async function getLastRow(
   const result = queryResult[0];
   delete result.rowNumberForGetLastRow;
 
-  simpleWebTable.debug && console.log("last row:", result);
-
   return result;
 }

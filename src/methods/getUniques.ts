@@ -23,7 +23,5 @@ export default async function getUniques(
 
   const uniques = queryResult.map((d) => d[column]);
 
-  simpleWebTable.debug && console.log("uniques:", uniques);
-
   return uniques;
 }

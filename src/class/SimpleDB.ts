@@ -88,7 +88,6 @@ export default class SimpleDB extends SimpleWebDB {
    */
   override async start(): Promise<this> {
     if (this.db === undefined || this.connection === undefined) {
-      this.debug && console.log("\nstart()");
       this.db = await DuckDBInstance.create(":memory:");
       this.connection = await this.db.connect();
       if (this.progressBar) {
@@ -126,8 +125,6 @@ export default class SimpleDB extends SimpleWebDB {
     name?: string,
     projections?: { [key: string]: string },
   ): SimpleTable {
-    this.debug && console.log("\nnewTable()");
-
     const proj = projections ?? {};
 
     // SHOULD MATCH cloneTable
@@ -150,13 +147,6 @@ export default class SimpleDB extends SimpleWebDB {
       table.defaultTableName = true;
       this.tableIncrement += 1;
     }
-
-    this.debug &&
-      console.log(
-        `${table.name} has been created ${
-          table.defaultTableName ? "(name automatically attributed)" : ""
-        }`,
-      );
 
     this.tables.push(table);
 
@@ -197,7 +187,6 @@ export default class SimpleDB extends SimpleWebDB {
    * @category DB methods
    */
   override async done(): Promise<this> {
-    this.debug && console.log("\ndone()");
     if (this.db instanceof DuckDBInstance) {
       this.connection.close();
     }

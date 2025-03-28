@@ -32,8 +32,6 @@ export default async function getProjection(
     result.unit as string,
   ).coordinate_system.axis[0].unit;
 
-  simpleWebDB.debug && console.log("projection:", result);
-
   return result as {
     name: string;
     code: string;

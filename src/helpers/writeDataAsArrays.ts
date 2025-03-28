@@ -7,7 +7,6 @@ export default async function writeDataAsArrays(
   simpleTable: SimpleTable,
   file: string,
 ) {
-  simpleTable.debug && console.log("\nwriteDataAsArrays");
   const fileExtension = getExtension(file);
   if (fileExtension === "json") {
     const data = await simpleTable.getData();
@@ -15,5 +14,4 @@ export default async function writeDataAsArrays(
   } else {
     throw new Error("The option dataAsArrays works only with json files.");
   }
-  simpleTable.debug && console.log("Done.");
 }

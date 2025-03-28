@@ -20,7 +20,5 @@ export default async function getColumns(simpleWebTable: SimpleWebTable) {
 
   const columns = queryResult.map((d) => d.column_name) as string[];
 
-  simpleWebTable.debug && console.log("columns:", columns);
-
   return columns;
 }

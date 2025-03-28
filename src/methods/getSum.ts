@@ -23,7 +23,5 @@ export default async function getSum(
 
   const result = queryResult[0][column];
 
-  simpleWebTable.debug && console.log("sum:", result);
-
   return result as number;
 }

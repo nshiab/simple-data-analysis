@@ -28,7 +28,5 @@ export default async function getMean(
 
   const result = queryResult[0][column];
 
-  simpleWebDB.debug && console.log("mean:", result);
-
   return result as number;
 }

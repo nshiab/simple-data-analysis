@@ -26,7 +26,5 @@ export default async function getFirstRow(
 
   const result = queryResult[0];
 
-  simpleWebTable.debug && console.log("first row:", result);
-
   return result;
 }

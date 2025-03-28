@@ -28,6 +28,5 @@ export default async function getQuantile(
   }
 
   const result = queryResult[0][column];
-  simpleWebTable.debug && console.log("quantile:", result);
   return result as number;
 }

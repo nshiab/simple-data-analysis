@@ -17,7 +17,5 @@ export default async function getTypes(simpleWebTable: SimpleWebTable) {
 
   const typesObj = extractTypes(types);
 
-  simpleWebTable.debug && console.log("types:", typesObj);
-
   return typesObj;
 }

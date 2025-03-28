@@ -26,8 +26,5 @@ export default async function getTop(
     throw new Error("no rows");
   }
 
-  simpleWebTable.debug && console.log("Top rows:");
-  simpleWebTable.debug && console.table(rows);
-
   return rows;
 }

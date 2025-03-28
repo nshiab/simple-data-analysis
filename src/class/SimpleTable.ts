@@ -408,20 +408,7 @@ export default class SimpleTable extends SimpleWebTable {
   override async loadArray(
     arrayOfObjects: { [key: string]: unknown }[],
   ): Promise<this> {
-    this.debug && console.log("\nloadArray()");
-    this.debug &&
-      console.log("parameters:", {
-        table: this.name,
-        arrayOfObjects: arrayOfObjects.length > 5
-          ? `${
-            JSON.stringify(arrayOfObjects.slice(0, 2))
-          } (just showing the first 5 items)`
-          : arrayOfObjects,
-      });
-
     await loadArray(this, arrayOfObjects);
-
-    this.debug && (await this.logTable());
 
     return this;
   }
@@ -1323,9 +1310,6 @@ export default class SimpleTable extends SimpleWebTable {
     const conditions = typeof options === "object"
       ? options.conditions ?? undefined
       : undefined;
-    this.debug && console.log("\nlogTable()");
-    this.debug &&
-      console.log("parameters:", { nbRowsToLog: rows, logTypes, conditions });
 
     if (
       this.connection === undefined ||

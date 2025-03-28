@@ -25,7 +25,5 @@ export default async function getMin(
   }
   const result = queryResult[0][column];
 
-  simpleWebTable.debug && console.log("min:", result);
-
   return result;
 }

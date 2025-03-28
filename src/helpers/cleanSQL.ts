@@ -10,13 +10,13 @@ export default function cleanSQL(query: string) {
     .replace(/ !== /g, " != ");
 
   if (
-    query.includes("ALTER TABLE") && query.includes("UPDATE") &&
-    query.includes("SET")
+    cleaned.includes("ALTER TABLE") && cleaned.includes("UPDATE") &&
+    cleaned.includes("SET")
   ) {
     // We pass
   } else {
     // We do a second pass
-    cleaned = query.replace(/ null(?=\s|$)/g, " NULL") // space after or end of string
+    cleaned = cleaned.replace(/ null(?=\s|$)/g, " NULL") // space after or end of string
       .replace(/ != NULL/g, " NOT NULL")
       .replace(/ = NULL/g, " IS NULL");
   }
