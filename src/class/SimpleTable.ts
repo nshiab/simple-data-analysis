@@ -1289,27 +1289,40 @@ export default class SimpleTable extends SimpleWebTable {
    * await table.logTable({ nbRowsToLog: 100, logTypes: true });
    * ```
    *
-   * @param options - Either the number of rows to log or an object with configuration options:
-   *   @param nbRowsToLog - The number of rows to log. Defaults to 10 or the value set in the SimpleWebDB instance.
+   * @param options Either the number of rows to log (a specific number or "all") or an object with configuration options:
+   *   @param nbRowsToLog - The number of rows to log. Defaults to 10 or the value set in the SimpleWebDB instance. If you want to log all rows, you can pass "all".
    *   @param logTypes - If true, logs the column types.
    *   @param conditions - A SQL WHERE clause condition to filter the data. Defaults to no condition.
    */
   override async logTable(
-    options: number | {
-      nbRowsToLog?: number;
+    options: "all" | number | {
+      nbRowsToLog?: number | "all";
       logTypes?: boolean;
       conditions?: string;
     } = {},
   ) {
-    const rows = typeof options === "number"
-      ? options
-      : options.nbRowsToLog ?? this.nbRowsToLog;
-    const logTypes = typeof options === "number"
-      ? false
-      : options.logTypes ?? false;
-    const conditions = typeof options === "number"
-      ? undefined
-      : options.conditions ?? undefined;
+    let rows: number;
+    if (typeof options === "number") {
+      rows = options;
+    } else if (options === "all") {
+      rows = await this.getNbRows();
+    } else if (typeof options === "object") {
+      if (options.nbRowsToLog === "all") {
+        rows = await this.getNbRows();
+      } else if (typeof options.nbRowsToLog === "number") {
+        rows = options.nbRowsToLog;
+      } else {
+        rows = this.nbRowsToLog;
+      }
+    } else {
+      rows = this.nbRowsToLog;
+    }
+    const logTypes = typeof options === "object"
+      ? options.logTypes ?? false
+      : false;
+    const conditions = typeof options === "object"
+      ? options.conditions ?? undefined
+      : undefined;
     this.debug && console.log("\nlogTable()");
     this.debug &&
       console.log("parameters:", { nbRowsToLog: rows, logTypes, conditions });
