@@ -185,7 +185,7 @@ Deno.test("should write a geojson and rewind the file", async () => {
   await data.loadGeoData(
     "test/geodata/files/economicRegions-simplified.json",
   );
-  await data.writeGeoData(`${output}rewind-data.geojson`);
+  await data.writeGeoData(`${output}rewind-data.geojson`, { rewind: true });
 
   const writtenData = JSON.parse(
     readFileSync(`${output}rewind-data.geojson`, "utf-8"),
