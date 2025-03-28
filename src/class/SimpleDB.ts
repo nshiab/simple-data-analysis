@@ -42,6 +42,8 @@ import { prettyDuration } from "@nshiab/journalism";
  * @param options.nbCharactersToLog - Number of characters to log when displaying text content. Useful for long strings.
  * @param options.cacheVerbose - Whether to log cache-related messages.
  * @param options.debug - Whether to enable debug logging.
+ * @param options.progressBar - Whether to show a progress bar for long-running operations.
+ * @param options.logTypes - Whether to log the types of columns in the table.
  */
 
 export default class SimpleDB extends SimpleWebDB {
