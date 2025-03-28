@@ -95,3 +95,23 @@ Deno.test("should log a table with a condition", async () => {
   assertEquals(true, true);
   await sdb.done();
 });
+Deno.test("should log a table with 'all'", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/employees.csv");
+  await table.logTable("all");
+
+  // How to test?
+  assertEquals(true, true);
+  await sdb.done();
+});
+Deno.test("should log a table with { nbRowsToLog: 'all'}", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/employees.csv");
+  await table.logTable({ nbRowsToLog: "all" });
+
+  // How to test?
+  assertEquals(true, true);
+  await sdb.done();
+});
