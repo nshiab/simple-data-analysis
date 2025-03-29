@@ -76,7 +76,7 @@ export default class SimpleDB extends SimpleWebDB {
     this.cacheTimeWriting = 0;
     this.progressBar = options.progressBar ?? false;
     this.runQuery = runQuery;
-    if (this.cacheVerbose) {
+    if (this.cacheVerbose || this.logDuration) {
       this.durationStart = Date.now();
     }
   }
