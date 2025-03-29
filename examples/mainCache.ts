@@ -75,6 +75,5 @@ await firesInsideProvinces.logTable(12);
 
 // It's important to call done() at the end.
 // This method will remove the unused files
-// in the cache. It will also log the total duration
-// if the logDuration option was set to true.
+// in the cache.
 await sdb.done();

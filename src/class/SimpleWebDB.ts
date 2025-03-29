@@ -53,6 +53,8 @@ export default class SimpleWebDB extends Simple {
   tableIncrement: number;
   /** An array of SimpleWebTable instances. @category Properties */
   tables: SimpleWebTable[];
+  /** A flag to log the total duration. */
+  logDuration: boolean;
 
   constructor(
     options: {
@@ -68,6 +70,7 @@ export default class SimpleWebDB extends Simple {
       this.durationStart = Date.now();
     }
 
+    this.logDuration = options.logDuration ?? false;
     this.tableIncrement = 1;
     this.tables = [];
     this.cacheSourcesUsed = [];
