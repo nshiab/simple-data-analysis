@@ -1,12 +1,12 @@
-import type SimpleWebTable from "../class/SimpleWebTable.ts";
+import type SimpleTable from "../class/SimpleTable.ts";
 import getIdenticalColumns from "../helpers/getIdenticalColumns.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
 import joinQuery from "./joinQuery.ts";
 
 export default async function join(
-  leftTable: SimpleWebTable,
-  rightTable: SimpleWebTable,
+  leftTable: SimpleTable,
+  rightTable: SimpleTable,
   options: {
     commonColumn?: string | string[];
     type?: "inner" | "left" | "right" | "full";
@@ -94,12 +94,9 @@ export default async function join(
   };
   outputTable.projections = allProjections;
 
-  // Need to remove the extra common columns. Ideally, this would happen in the query. :1 is with web assembly version. _1 is with nodejs version. At some point, both will be the same.
   const columns = await outputTable.getColumns();
   const extraCommonColumns = columns.filter(
-    (d) =>
-      commonColumn.map((c) => `${c}_1`).includes(d) ||
-      commonColumn.map((c) => `${c}:1`).includes(d),
+    (d) => commonColumn.map((c) => `${c}_1`).includes(d),
   );
   if (extraCommonColumns.length > 0) {
     await outputTable.removeColumns(extraCommonColumns);

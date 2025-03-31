@@ -2,8 +2,7 @@
   "name": "@nshiab/simple-data-analysis",
   "version": "4.4.7",
   "exports": {
-    ".": "./src/index.ts",
-    "./web": "./src/web.ts"
+    ".": "./src/index.ts"
   },
   "tasks": {
     "all-tests": "deno install --allow-scripts=npm:playwright-chromium@1.50.1 && deno fmt --check && deno lint && deno check src/index.ts && deno publish --allow-dirty --dry-run && deno test -A --fail-fast",
@@ -21,12 +20,10 @@
   },
   "nodeModulesDir": "auto",
   "imports": {
-    "@duckdb/duckdb-wasm": "npm:@duckdb/duckdb-wasm@1.29.0",
     "@duckdb/node-api": "npm:@duckdb/node-api@1.2.0-alpha.14",
     "@nshiab/journalism": "jsr:@nshiab/journalism@1.21.12",
     "@observablehq/plot": "npm:@observablehq/plot@0.6.17",
-    "@std/assert": "jsr:@std/assert@1.0.11",
-    "apache-arrow": "npm:apache-arrow@18.1.0"
+    "@std/assert": "jsr:@std/assert@1.0.11"
   },
   "fmt": {
     "exclude": [

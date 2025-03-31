@@ -1,10 +1,9 @@
-import type { AsyncDuckDBConnection } from "npm:@duckdb/duckdb-wasm@1";
 import type { DuckDBConnection } from "@duckdb/node-api";
 import convertForJS from "./convertForJS.ts";
 
 export default async function runQuery(
   query: string,
-  connection: AsyncDuckDBConnection | DuckDBConnection,
+  connection: DuckDBConnection,
   returnDataFromQuery: boolean,
   options: {
     debug: boolean;
@@ -20,7 +19,7 @@ export default async function runQuery(
 > {
   try {
     if (returnDataFromQuery) {
-      const reader = await (connection as DuckDBConnection).runAndReadAll(
+      const reader = await connection.runAndReadAll(
         query,
       );
       const rows = reader.getRowObjectsJson() as {
@@ -33,7 +32,7 @@ export default async function runQuery(
 
       return rows;
     } else {
-      await (connection as DuckDBConnection).run(query);
+      await connection.run(query);
       return null;
     }
   } catch (error) {

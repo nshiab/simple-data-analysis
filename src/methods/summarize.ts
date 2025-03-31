@@ -2,10 +2,10 @@ import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
 import stringToArray from "../helpers/stringToArray.ts";
 import summarizeQuery from "./summarizeQuery.ts";
-import type SimpleWebTable from "../class/SimpleWebTable.ts";
+import type SimpleTable from "../class/SimpleTable.ts";
 
 export default async function summarize(
-  simpleWebTable: SimpleWebTable,
+  SimpleTable: SimpleTable,
   options: {
     outputTable?: string | boolean;
     values?: string | string[];
@@ -58,11 +58,11 @@ export default async function summarize(
 ) {
   const outputTable = typeof options.outputTable === "string"
     ? options.outputTable
-    : simpleWebTable.name;
+    : SimpleTable.name;
 
   options.values = options.values ? stringToArray(options.values) : [];
   if (options.values.length === 0) {
-    await simpleWebTable.addRowNumber("rowNumberToSummarizeQuerySDA");
+    await SimpleTable.addRowNumber("rowNumberToSummarizeQuerySDA");
     options.values = ["rowNumberToSummarizeQuerySDA"];
   }
   options.categories = options.categories
@@ -88,7 +88,7 @@ export default async function summarize(
     options.summaries = entries.map((d) => d[1]);
   }
 
-  const types = await simpleWebTable.getTypes();
+  const types = await SimpleTable.getTypes();
   if (options.toMs) {
     const toMsObj: {
       [key: string]: "bigint";
@@ -99,7 +99,7 @@ export default async function summarize(
         types[key] = "bigint";
       }
     }
-    await simpleWebTable.convert(toMsObj);
+    await SimpleTable.convert(toMsObj);
   }
 
   options.values = options.values.filter(
@@ -107,9 +107,9 @@ export default async function summarize(
   );
 
   await queryDB(
-    simpleWebTable,
+    SimpleTable,
     summarizeQuery(
-      simpleWebTable.name,
+      SimpleTable.name,
       types,
       outputTable,
       options.values,
@@ -118,7 +118,7 @@ export default async function summarize(
       options,
       columns,
     ),
-    mergeOptions(simpleWebTable, {
+    mergeOptions(SimpleTable, {
       table: outputTable,
       method: "summarize()",
       parameters: {
@@ -128,10 +128,10 @@ export default async function summarize(
   );
 
   if (options.values.includes("rowNumberToSummarizeQuerySDA")) {
-    if (await simpleWebTable.hasColumn("rowNumberToSummarizeQuerySDA")) {
-      await simpleWebTable.removeColumns("rowNumberToSummarizeQuerySDA");
+    if (await SimpleTable.hasColumn("rowNumberToSummarizeQuerySDA")) {
+      await SimpleTable.removeColumns("rowNumberToSummarizeQuerySDA");
     }
-    simpleWebTable.sdb.customQuery(`UPDATE ${outputTable} SET "value" = 
+    SimpleTable.sdb.customQuery(`UPDATE ${outputTable} SET "value" = 
                 CASE
                     WHEN "value" = 'rowNumberToSummarizeQuerySDA' THEN 'rows'
                     ELSE "value"

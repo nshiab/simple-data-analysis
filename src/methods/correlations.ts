@@ -3,10 +3,10 @@ import keepNumericalColumns from "../helpers/keepNumericalColumns.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
 import correlationsQuery from "./correlationsQuery.ts";
-import type SimpleWebTable from "../class/SimpleWebTable.ts";
+import type SimpleTable from "../class/SimpleTable.ts";
 
 export default async function correlations(
-  simpleWebTable: SimpleWebTable,
+  SimpleTable: SimpleTable,
   options: {
     x?: string;
     y?: string;
@@ -17,15 +17,15 @@ export default async function correlations(
 ) {
   const outputTable = typeof options.outputTable === "string"
     ? options.outputTable
-    : simpleWebTable.name;
+    : SimpleTable.name;
 
   let combinations: [string, string][] = [];
   if (!options.x && !options.y) {
-    const types = await simpleWebTable.getTypes();
+    const types = await SimpleTable.getTypes();
     const columns = keepNumericalColumns(types);
     combinations = getCombinations(columns, 2);
   } else if (options.x && !options.y) {
-    const types = await simpleWebTable.getTypes();
+    const types = await SimpleTable.getTypes();
     const columns = keepNumericalColumns(types);
     combinations = [];
     for (const col of columns) {
@@ -40,14 +40,14 @@ export default async function correlations(
   }
 
   await queryDB(
-    simpleWebTable,
+    SimpleTable,
     correlationsQuery(
-      simpleWebTable.name,
+      SimpleTable.name,
       outputTable,
       combinations,
       options,
     ),
-    mergeOptions(simpleWebTable, {
+    mergeOptions(SimpleTable, {
       table: outputTable,
       method: "correlations()",
       parameters: {

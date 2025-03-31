@@ -1,7 +1,3 @@
-import type {
-  AsyncDuckDB,
-  AsyncDuckDBConnection,
-} from "npm:@duckdb/duckdb-wasm@1";
 import type { DuckDBConnection, DuckDBInstance } from "@duckdb/node-api";
 
 export default class Simple {
@@ -14,11 +10,9 @@ export default class Simple {
   /** The number of characters to log for text cells. By default, the whole text is logged. @category Properties */
   nbCharactersToLog: number | undefined;
   /** A DuckDB database. @category Properties */
-  db!: AsyncDuckDB | DuckDBInstance;
+  db!: DuckDBInstance;
   /** A connection to a DuckDB database. @category Properties */
-  connection!: AsyncDuckDBConnection | DuckDBConnection;
-  /** A worker to make DuckDB WASM work. @category Properties */
-  worker!: Worker | null;
+  connection!: DuckDBConnection;
   /** A flag to know if the name of the table has been attributed by default. @category Properties */
   defaultTableName: boolean;
   /**
@@ -26,7 +20,7 @@ export default class Simple {
    */
   runQuery!: (
     query: string,
-    connection: AsyncDuckDBConnection | DuckDBConnection,
+    connection: DuckDBConnection,
     returnDataFromQuery: boolean,
     options: {
       debug: boolean;
@@ -42,21 +36,6 @@ export default class Simple {
   >;
 
   constructor(
-    runQuery: (
-      query: string,
-      connection: AsyncDuckDBConnection | DuckDBConnection,
-      returnDataFromQuery: boolean,
-      options: {
-        debug: boolean;
-        method: string | null;
-        parameters: { [key: string]: unknown } | null;
-      },
-    ) => Promise<
-      | {
-        [key: string]: number | string | Date | boolean | null;
-      }[]
-      | null
-    >,
     options: {
       debug?: boolean;
       nbRowsToLog?: number;
@@ -68,8 +47,6 @@ export default class Simple {
     this.nbCharactersToLog = options.nbCharactersToLog;
     this.logTypes = options.logTypes ?? false;
     this.debug = options.debug ?? false;
-    this.worker = null;
     this.defaultTableName = false;
-    this.runQuery = runQuery;
   }
 }

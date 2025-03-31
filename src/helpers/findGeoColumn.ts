@@ -1,9 +1,9 @@
-import type SimpleWebTable from "../class/SimpleWebTable.ts";
+import type SimpleTable from "../class/SimpleTable.ts";
 
-export default async function findGeoColumn(simpleWebTable: SimpleWebTable) {
+export default async function findGeoColumn(SimpleTable: SimpleTable) {
   let column;
 
-  const types = await simpleWebTable.getTypes();
+  const types = await SimpleTable.getTypes();
   const geometries = Object.values(types).filter(
     (d) => d.toLowerCase() === "geometry",
   );

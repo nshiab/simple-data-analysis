@@ -1,13 +1,13 @@
 import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
-import type SimpleWebTable from "../class/SimpleWebTable.ts";
+import type SimpleTable from "../class/SimpleTable.ts";
 
-export default async function getNbRows(simpleWebTable: SimpleWebTable) {
+export default async function getNbRows(SimpleTable: SimpleTable) {
   const queryResult = await queryDB(
-    simpleWebTable,
-    `SELECT CAST(COUNT(*) AS INTEGER) FROM ${simpleWebTable.name}`,
-    mergeOptions(simpleWebTable, {
-      table: simpleWebTable.name,
+    SimpleTable,
+    `SELECT CAST(COUNT(*) AS INTEGER) FROM ${SimpleTable.name}`,
+    mergeOptions(SimpleTable, {
+      table: SimpleTable.name,
       returnDataFrom: "query",
       method: "getLength()",
       parameters: {},

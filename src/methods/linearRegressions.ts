@@ -3,10 +3,10 @@ import keepNumericalColumns from "../helpers/keepNumericalColumns.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
 import linearRegressionQuery from "./linearRegressionQuery.ts";
-import type SimpleWebTable from "../class/SimpleWebTable.ts";
+import type SimpleTable from "../class/SimpleTable.ts";
 
 export default async function linearRegressions(
-  simpleWebTable: SimpleWebTable,
+  SimpleTable: SimpleTable,
   options: {
     x?: string;
     y?: string;
@@ -17,11 +17,11 @@ export default async function linearRegressions(
 ) {
   const outputTable = typeof options.outputTable === "string"
     ? options.outputTable
-    : simpleWebTable.name;
+    : SimpleTable.name;
 
   const permutations: [string, string][] = [];
   if (!options.x && !options.y) {
-    const types = await simpleWebTable.getTypes();
+    const types = await SimpleTable.getTypes();
     const columns = keepNumericalColumns(types);
     const combinations = getCombinations(columns, 2);
     for (const c of combinations) {
@@ -29,7 +29,7 @@ export default async function linearRegressions(
       permutations.push([c[1], c[0]]);
     }
   } else if (options.x && !options.y) {
-    const types = await simpleWebTable.getTypes();
+    const types = await SimpleTable.getTypes();
     const columns = keepNumericalColumns(types);
     for (const col of columns) {
       if (col !== options.x) {
@@ -43,14 +43,14 @@ export default async function linearRegressions(
   }
 
   await queryDB(
-    simpleWebTable,
+    SimpleTable,
     linearRegressionQuery(
-      simpleWebTable.name,
+      SimpleTable.name,
       outputTable,
       permutations,
       options,
     ),
-    mergeOptions(simpleWebTable, {
+    mergeOptions(SimpleTable, {
       table: outputTable,
       method: "linearRegressions()",
       parameters: {

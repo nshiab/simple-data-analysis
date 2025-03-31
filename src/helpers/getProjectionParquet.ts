@@ -1,17 +1,17 @@
-import type SimpleWebTable from "../class/SimpleWebTable.ts";
+import type SimpleTable from "../class/SimpleTable.ts";
 import cleanPath from "./cleanPath.ts";
 import mergeOptions from "./mergeOptions.ts";
 import queryDB from "./queryDB.ts";
 
 export default async function getProjectionParquet(
-  simpleWebTable: SimpleWebTable,
+  SimpleTable: SimpleTable,
   file: string,
 ) {
   const queryResult = await queryDB(
-    simpleWebTable,
+    SimpleTable,
     `SELECT * FROM parquet_kv_metadata('${cleanPath(file)}');`,
-    mergeOptions(simpleWebTable, {
-      table: simpleWebTable.name,
+    mergeOptions(SimpleTable, {
+      table: SimpleTable.name,
       method: "getProjectionParquet()",
       parameters: { file },
       returnDataFrom: "query",
