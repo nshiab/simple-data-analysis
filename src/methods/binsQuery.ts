@@ -1,7 +1,7 @@
-import type SimpleWebTable from "../class/SimpleWebTable.ts";
+import type SimpleTable from "../class/SimpleTable.ts";
 
 export default async function binsQuery(
-  simpleWebTable: SimpleWebTable,
+  SimpleTable: SimpleTable,
   values: string,
   interval: number,
   newColumn: string,
@@ -9,7 +9,7 @@ export default async function binsQuery(
     startValue?: number;
   } = {},
 ) {
-  const minValue = await simpleWebTable.getMin(values);
+  const minValue = await SimpleTable.getMin(values);
   if (typeof minValue !== "number") {
     throw new Error(`minValue of ${values} is not a number`);
   }
@@ -26,7 +26,7 @@ export default async function binsQuery(
     startValue = minValue;
   }
 
-  const maxValue = await simpleWebTable.getMax(values);
+  const maxValue = await SimpleTable.getMax(values);
   if (typeof maxValue !== "number") {
     throw new Error(`maxValue of ${values} is not a number`);
   }
@@ -51,8 +51,8 @@ export default async function binsQuery(
     );
   }
 
-  const query = `ALTER TABLE ${simpleWebTable.name} ADD ${newColumn} VARCHAR;
-    UPDATE ${simpleWebTable.name} SET ${newColumn} = CASE
+  const query = `ALTER TABLE ${SimpleTable.name} ADD ${newColumn} VARCHAR;
+    UPDATE ${SimpleTable.name} SET ${newColumn} = CASE
     ${intervals.join("\n")}
     END`;
 

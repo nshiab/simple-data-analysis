@@ -1,5 +1,5 @@
 import { capitalize } from "jsr:@nshiab/journalism@1/web";
-import type SimpleWebTable from "../class/SimpleWebTable.ts";
+import type SimpleTable from "../class/SimpleTable.ts";
 import findGeoColumn from "../helpers/findGeoColumn.ts";
 import getIdenticalColumns from "../helpers/getIdenticalColumns.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
@@ -7,9 +7,9 @@ import queryDB from "../helpers/queryDB.ts";
 import joinGeoQuery from "./joinGeoQuery.ts";
 
 export default async function joinGeo(
-  leftTable: SimpleWebTable,
+  leftTable: SimpleTable,
   method: "intersect" | "inside" | "within",
-  rightTable: SimpleWebTable,
+  rightTable: SimpleTable,
   options: {
     leftTableColumn?: string;
     rightTableColumn?: string;

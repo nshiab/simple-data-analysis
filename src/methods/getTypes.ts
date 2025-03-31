@@ -1,14 +1,14 @@
 import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
-import type SimpleWebTable from "../class/SimpleWebTable.ts";
+import type SimpleTable from "../class/SimpleTable.ts";
 import extractTypes from "../helpers/extractTypes.ts";
 
-export default async function getTypes(simpleWebTable: SimpleWebTable) {
+export default async function getTypes(simpleTable: SimpleTable) {
   const types = await queryDB(
-    simpleWebTable,
-    `DESCRIBE "${simpleWebTable.name}"`,
-    mergeOptions(simpleWebTable, {
-      table: simpleWebTable.name,
+    simpleTable,
+    `DESCRIBE "${simpleTable.name}"`,
+    mergeOptions(simpleTable, {
+      table: simpleTable.name,
       returnDataFrom: "query",
       method: "getTypes()",
       parameters: {},

@@ -1,5 +1,5 @@
 import { rewind } from "@nshiab/journalism/web";
-import type SimpleWebTable from "../class/SimpleWebTable.ts";
+import type SimpleTable from "../class/SimpleTable.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
 import shouldFlipBeforeExport from "../helpers/shouldFlipBeforeExport.ts";
@@ -7,22 +7,22 @@ import shouldFlipBeforeExport from "../helpers/shouldFlipBeforeExport.ts";
 import type { GeoPermissibleObjects } from "npm:d3-geo@3";
 
 export default async function getGeoData(
-  simpleWebTable: SimpleWebTable,
+  SimpleTable: SimpleTable,
   column: string,
   options: { rewind?: boolean } = {},
 ) {
   let query = "";
-  if (shouldFlipBeforeExport(simpleWebTable.projections[column])) {
+  if (shouldFlipBeforeExport(SimpleTable.projections[column])) {
     query =
-      `SELECT * EXCLUDE ${column}, ST_AsGeoJSON(ST_FlipCoordinates(${column})) as geoJsonFragment from ${simpleWebTable.name};`;
+      `SELECT * EXCLUDE ${column}, ST_AsGeoJSON(ST_FlipCoordinates(${column})) as geoJsonFragment from ${SimpleTable.name};`;
   } else {
     query =
-      `SELECT * EXCLUDE ${column}, ST_AsGeoJSON(${column}) as geoJsonFragment from ${simpleWebTable.name};`;
+      `SELECT * EXCLUDE ${column}, ST_AsGeoJSON(${column}) as geoJsonFragment from ${SimpleTable.name};`;
   }
   const queryResult = await queryDB(
-    simpleWebTable,
+    SimpleTable,
     query,
-    mergeOptions(simpleWebTable, {
+    mergeOptions(SimpleTable, {
       table: null,
       method: "getGeoData()",
       parameters: { column },

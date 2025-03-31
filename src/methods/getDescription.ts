@@ -1,9 +1,9 @@
-import type SimpleWebTable from "../class/SimpleWebTable.ts";
+import type SimpleTable from "../class/SimpleTable.ts";
 
-export default async function getDescription(simpleWebTable: SimpleWebTable) {
-  const types = await simpleWebTable.getTypes();
-  const columns = await simpleWebTable.getColumns();
-  const summaryForGetDescription = await simpleWebTable.summarize({
+export default async function getDescription(simpleTable: SimpleTable) {
+  const types = await simpleTable.getTypes();
+  const columns = await simpleTable.getColumns();
+  const summaryForGetDescription = await simpleTable.summarize({
     values: columns,
     summaries: ["count", "countUnique", "countNull"],
     toMs: true,

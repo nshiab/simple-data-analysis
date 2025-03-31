@@ -1,6 +1,6 @@
-import type { SimpleWebTable } from "../web.ts";
+import type SimpleTable from "../class/SimpleTable.ts";
 
-export default async function unifyColumns(allTables: SimpleWebTable[]) {
+export default async function unifyColumns(allTables: SimpleTable[]) {
   const columnsAdded: {
     [key: string]: string[];
   } = {};

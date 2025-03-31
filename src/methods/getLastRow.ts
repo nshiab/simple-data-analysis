@@ -1,23 +1,23 @@
 import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
-import type SimpleWebTable from "../class/SimpleWebTable.ts";
+import type SimpleTable from "../class/SimpleTable.ts";
 
 export default async function getLastRow(
-  simpleWebTable: SimpleWebTable,
+  simpleTable: SimpleTable,
   options: {
     conditions?: string;
   } = {},
 ) {
   const queryResult = await queryDB(
-    simpleWebTable,
+    simpleTable,
     `WITH numberedRowsForGetLastRow AS (
-                SELECT *, row_number() OVER () as rowNumberForGetLastRow FROM ${simpleWebTable.name}${
+                SELECT *, row_number() OVER () as rowNumberForGetLastRow FROM ${simpleTable.name}${
       options.conditions ? ` WHERE ${options.conditions}` : ""
     }
             )
             SELECT * FROM numberedRowsForGetLastRow ORDER BY rowNumberForGetLastRow DESC LIMIT 1;`,
-    mergeOptions(simpleWebTable, {
-      table: simpleWebTable.name,
+    mergeOptions(simpleTable, {
+      table: simpleTable.name,
       returnDataFrom: "query",
       method: "getLastRow()",
       parameters: { options },

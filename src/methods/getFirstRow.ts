@@ -1,20 +1,20 @@
 import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
-import type SimpleWebTable from "../class/SimpleWebTable.ts";
+import type SimpleTable from "../class/SimpleTable.ts";
 
 export default async function getFirstRow(
-  simpleWebTable: SimpleWebTable,
+  simpleTable: SimpleTable,
   options: {
     conditions?: string;
   } = {},
 ) {
   const queryResult = await queryDB(
-    simpleWebTable,
-    `SELECT * FROM ${simpleWebTable.name}${
+    simpleTable,
+    `SELECT * FROM ${simpleTable.name}${
       options.conditions ? ` WHERE ${options.conditions}` : ""
     } LIMIT 1`,
-    mergeOptions(simpleWebTable, {
-      table: simpleWebTable.name,
+    mergeOptions(simpleTable, {
+      table: simpleTable.name,
       returnDataFrom: "query",
       method: "getFirstRow()",
       parameters: { options },

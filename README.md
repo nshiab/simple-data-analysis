@@ -14,8 +14,6 @@ journalist and senior data producer for [CBC News](https://www.cbc.ca/news).
 > [Code Like a Journalist](https://www.code-like-a-journalist.com/), a free and
 > open-source data analysis and data visualization course in TypeScript.
 
-To use the library in your browser, check out
-[simple-data-analysis-flow](https://github.com/nshiab/simple-data-analysis-flow).
 You might also find the
 [journalism library](https://github.com/nshiab/journalism) interesting.
 
@@ -101,11 +99,9 @@ performant library for data analysis. This is why SDA was created.
 
 The library is based on [DuckDB](https://duckdb.org/), a fast in-process
 analytical database. Under the hood, SDA sends SQL queries to be executed by
-DuckDB. We use [duckdb-node-neo](https://github.com/duckdb/duckdb-node-neo) and
-[duckdb-wasm](https://github.com/duckdb/duckdb-wasm). This means SDA can run in
-the browser and with Node.js and other runtimes. For geospatial computations, we
-rely on the [duckdb_spatial](https://github.com/duckdb/duckdb_spatial)
-extension.
+DuckDB. We use [duckdb-node-neo](https://github.com/duckdb/duckdb-node-neo). For
+geospatial computations, we rely on the
+[duckdb_spatial](https://github.com/duckdb/duckdb_spatial) extension.
 
 The syntax and the available methods were inspired by
 [Pandas](https://github.com/pandas-dev/pandas) (Python) and the
@@ -114,7 +110,7 @@ The syntax and the available methods were inspired by
 You can also write your own SQL queries if you want to (check the
 [customQuery method](https://nshiab.github.io/simple-data-analysis/classes/SimpleWebDB.html#customQuery))
 or use JavaScript to process your data (check the
-[updateWithJS method](https://nshiab.github.io/simple-data-analysis/classes/SimpleWebTable.html#updateWithJS)).
+[updateWithJS method](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#updateWithJS)).
 
 Feel free to start a conversation or open an issue. Check how you can
 [contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
@@ -690,54 +686,3 @@ table firesInsideProvinces:
 
 SimpleDB - Done in 594 ms / You saved 297 ms by using the cache
 ```
-
-## In Observable notebooks
-
-> [!WARNING]
-> The web version of the library is still a work in progress. It's usually best
-> to process your data in the backend, output a JSON file, and then visualize it
-> in the frontend.
-
-Observable notebooks are great for data analysis in JavaScript.
-
-In this
-[example](https://observablehq.com/@nshiab/hello-simple-data-analysis?collection=@nshiab/simple-data-analysis-in-javascript),
-we calculate the average temperature per decade in three cities and check for
-trends. We will also join two tables to retrieve the names of the cities.
-
-This
-[other example](https://observablehq.com/@nshiab/hello-simple-data-analysis-and-geospatial-data?collection=@nshiab/simple-data-analysis-in-javascript)
-focuses on geospatial analysis. We create point geometries from the latitude and
-longitude of 2023 wildfires in Canada, do a spatial join with provinces'
-boundaries, and then compute the number of fires and the total area burnt per
-province.
-
-## In Web apps or HTML pages
-
-> [!WARNING]
-> The web version of the library is still a work in progress. It's usually best
-> to process your data in the backend, output a JSON file, and then visualize it
-> in the frontend.
-
-If you are developing a web application, you'll need to install
-[@duckdb/duckdb-wasm](https://github.com/duckdb/duckdb-wasm).
-
-Then import `SimpleWebDB` or `SimpleWebTable` directly from `/web`:
-
-```js
-import { SimpleWebTable } from "@nshiab/simple-data-analysis/web";
-```
-
-You can also import the minified bundle with a npm-based CDN like
-[esm.sh](https://esm.sh/).
-
-```html
-<script type="module">
-  import { SimpleWebDB } from "https://esm.sh/jsr/@nshiab/simple-data-analysis@3.13.9/web";
-</script>
-```
-
-You'll find an example
-[here](https://github.com/nshiab/simple-data-analysis/blob/main/examples/index.html).
-You can copy and paste the code into an HTML file. You can also adapt it to any
-bundler or framework of your choice.

@@ -1,21 +1,21 @@
 import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
-import type SimpleWebTable from "../class/SimpleWebTable.ts";
+import type SimpleTable from "../class/SimpleTable.ts";
 
 export default async function getMean(
-  simpleWebDB: SimpleWebTable,
+  simpleTable: SimpleTable,
   column: string,
   options: {
     decimals?: number;
   } = {},
 ) {
   const queryResult = await queryDB(
-    simpleWebDB,
+    simpleTable,
     typeof options.decimals === "number"
-      ? `SELECT ROUND(AVG("${column}"), ${options.decimals}) AS "${column}" FROM ${simpleWebDB.name}`
-      : `SELECT AVG("${column}") AS "${column}" FROM ${simpleWebDB.name}`,
-    mergeOptions(simpleWebDB, {
-      table: simpleWebDB.name,
+      ? `SELECT ROUND(AVG("${column}"), ${options.decimals}) AS "${column}" FROM ${simpleTable.name}`
+      : `SELECT AVG("${column}") AS "${column}" FROM ${simpleTable.name}`,
+    mergeOptions(simpleTable, {
+      table: simpleTable.name,
       returnDataFrom: "query",
       method: "getMean()",
       parameters: { column, options },

@@ -1,9 +1,9 @@
-import SimpleWebTable from "../class/SimpleWebTable.ts";
-import SimpleWebDB from "../class/SimpleWebDB.ts";
+import SimpleTable from "../class/SimpleTable.ts";
+import SimpleDB from "../class/SimpleDB.ts";
 import cleanSQL from "./cleanSQL.ts";
 
 export default async function queryDB(
-  simple: SimpleWebTable | SimpleWebDB,
+  simple: SimpleTable | SimpleDB,
   query: string,
   options: {
     table: string | null;
@@ -21,10 +21,10 @@ export default async function queryDB(
   }[]
   | null
 > {
-  if (simple instanceof SimpleWebDB && simple.connection === undefined) {
+  if (simple instanceof SimpleDB && simple.connection === undefined) {
     await simple.start();
   } else if (
-    simple instanceof SimpleWebTable &&
+    simple instanceof SimpleTable &&
     simple.connection === undefined
   ) {
     await simple.sdb.start();
@@ -60,7 +60,7 @@ export default async function queryDB(
     data = await simple.runQuery(query, simple.connection, true, {
       ...options,
       // To convert dates and bigInts to numbers
-      types: simple instanceof SimpleWebTable && options.method !== "getTypes()"
+      types: simple instanceof SimpleTable && options.method !== "getTypes()"
         ? options.types ? options.types : await simple.getTypes()
         : undefined,
     });

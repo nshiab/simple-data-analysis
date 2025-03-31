@@ -1,22 +1,22 @@
 import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
-import type SimpleWebTable from "../class/SimpleWebTable.ts";
+import type SimpleTable from "../class/SimpleTable.ts";
 
 export default async function getMin(
-  simpleWebTable: SimpleWebTable,
+  simpleTable: SimpleTable,
   column: string,
 ) {
   const queryResult = await queryDB(
-    simpleWebTable,
-    `SELECT MIN("${column}") AS "${column}" FROM ${simpleWebTable.name}`,
+    simpleTable,
+    `SELECT MIN("${column}") AS "${column}" FROM ${simpleTable.name}`,
     {
-      ...mergeOptions(simpleWebTable, {
-        table: simpleWebTable.name,
+      ...mergeOptions(simpleTable, {
+        table: simpleTable.name,
         returnDataFrom: "query",
         method: "getMin()",
         parameters: { column },
       }),
-      types: await simpleWebTable.getTypes(),
+      types: await simpleTable.getTypes(),
     },
   );
 

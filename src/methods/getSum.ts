@@ -1,16 +1,16 @@
 import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
-import type SimpleWebTable from "../class/SimpleWebTable.ts";
+import type SimpleTable from "../class/SimpleTable.ts";
 
 export default async function getSum(
-  simpleWebTable: SimpleWebTable,
+  SimpleTable: SimpleTable,
   column: string,
 ) {
   const queryResult = await queryDB(
-    simpleWebTable,
-    `SELECT SUM("${column}") AS "${column}" FROM ${simpleWebTable.name}`,
-    mergeOptions(simpleWebTable, {
-      table: simpleWebTable.name,
+    SimpleTable,
+    `SELECT SUM("${column}") AS "${column}" FROM ${SimpleTable.name}`,
+    mergeOptions(SimpleTable, {
+      table: SimpleTable.name,
       returnDataFrom: "query",
       method: "getSum()",
       parameters: { column },
