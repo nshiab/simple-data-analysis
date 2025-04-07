@@ -1,6 +1,7 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { readFileSync } from "node:fs";
+import { rewind } from "@nshiab/journalism";
 
 Deno.test("should find the column with geometries and return geospatial data as a geojson", async () => {
   const sdb = new SimpleDB();
@@ -121,9 +122,12 @@ Deno.test("should return geospatial data rewinded", async () => {
   await table.loadGeoData("test/geodata/files/economicRegions-simplified.json");
   const geoData = await table.getGeoData(undefined, { rewind: true });
 
-  const rewindedData = JSON.parse(
-    readFileSync("test/geodata/files/economicRegions-rewinded.json", "utf-8"),
-  );
+  const rewindedData = rewind(JSON.parse(
+    readFileSync("test/geodata/files/economicRegions-simplified.json", "utf-8"),
+  )) as {
+    type: string;
+    features: unknown[];
+  };
 
   assertEquals(geoData, rewindedData);
 
