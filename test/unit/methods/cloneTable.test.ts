@@ -10,6 +10,16 @@ Deno.test("should clone a table", async () => {
   assertEquals(await table.getData(), await clone.getData());
   await sdb.done();
 });
+Deno.test("should clone and log a table", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadData("test/data/files/employees.csv");
+  const clone = await table.cloneTable();
+  await clone.logTable();
+
+  assertEquals(await table.getData(), await clone.getData());
+  await sdb.done();
+});
 Deno.test("should clone a table and give it a different name", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
