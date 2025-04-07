@@ -4998,11 +4998,7 @@ export default class SimpleTable extends Simple {
             parameters: { file, options },
           }),
         );
-        if (options.rewind) {
-          const fileData = JSON.parse(readFileSync(cleanFile, "utf-8"));
-          const fileRewinded = rewind(fileData);
-          writeFileSync(cleanFile, JSON.stringify(fileRewinded));
-        }
+
         await this.flipCoordinates(geoColumn);
       } else {
         await queryDB(
@@ -5014,6 +5010,11 @@ export default class SimpleTable extends Simple {
             parameters: { file, options },
           }),
         );
+      }
+      if (options.rewind) {
+        const fileData = JSON.parse(readFileSync(cleanFile, "utf-8"));
+        const fileRewinded = rewind(fileData);
+        writeFileSync(cleanFile, JSON.stringify(fileRewinded));
       }
     } else if (fileExtension === "geoparquet") {
       if (typeof options.precision === "number") {
