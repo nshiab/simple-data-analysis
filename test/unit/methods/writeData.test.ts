@@ -75,7 +75,41 @@ Deno.test("should write a json file", async () => {
   assertEquals(data, expectedData);
   await sdb.done();
 });
+Deno.test("should write a json file with dates", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadArray([{ key1: new Date("2025-01-01T01:23:10.987Z") }, {
+    key1: new Date("2025-04-08T14:09:24.155Z"),
+  }]);
 
+  await table.writeData(`${output}date-test.json`);
+
+  // We test the content of the file
+  const tableCheck = JSON.parse(
+    readFileSync(`${output}date-test.json`, "utf-8"),
+  );
+
+  assertEquals(tableCheck, [
+    { "key1": "2025-01-01T01:23:10.987Z" },
+    { "key1": "2025-04-08T14:09:24.155Z" },
+  ]);
+  await sdb.done();
+});
+Deno.test("should write a json file with dates and keep the original table unchanged", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  const originalData = [{ key1: new Date("2025-01-01T01:23:10.987Z") }, {
+    key1: new Date("2025-04-08T14:09:24.155Z"),
+  }];
+  await table.loadArray(originalData);
+
+  await table.writeData(`${output}date-test.json`);
+
+  const tableData = await table.getData();
+
+  assertEquals(tableData, originalData);
+  await sdb.done();
+});
 Deno.test("should write a compressed json file", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();

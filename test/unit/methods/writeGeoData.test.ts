@@ -22,6 +22,55 @@ Deno.test("should write a json file", async () => {
   await sdb.done();
 });
 
+Deno.test("should write a json file with dates properties", async () => {
+  const sdb = new SimpleDB();
+
+  const table = sdb.newTable();
+  const originalData = [{
+    time: new Date("2025-01-01T01:23:10.987Z"),
+    lat: 1,
+    lon: 2,
+  }];
+  await table.loadArray(originalData);
+  await table.points("lat", "lon", "geom");
+  await table.writeGeoData(`${output}geodata-dates.json`);
+
+  const writtenData = JSON.parse(
+    readFileSync(`${output}geodata-dates.json`, "utf-8"),
+  );
+  assertEquals(writtenData, {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "time": "2025-01-01T01:23:10.987Z",
+          "lat": 1.0,
+          "lon": 2.0,
+        },
+        "geometry": { "type": "Point", "coordinates": [2.0, 1.0] },
+      },
+    ],
+  });
+  await sdb.done();
+});
+Deno.test("should write a json file with dates properties and keep the original table unchanged", async () => {
+  const sdb = new SimpleDB();
+
+  const table = sdb.newTable();
+  const originalData = [{
+    time: new Date("2025-01-01T01:23:10.987Z"),
+    lat: 1,
+    lon: 2,
+  }];
+  await table.loadArray(originalData);
+  await table.points("lat", "lon", "geom");
+  await table.writeGeoData(`${output}geodata-dates.json`);
+  await table.selectColumns(["time", "lat", "lon"]);
+  assertEquals(await table.getData(), originalData);
+  await sdb.done();
+});
+
 Deno.test("should write a geojson file", async () => {
   const sdb = new SimpleDB();
   const originalFile = "test/geodata/files/polygons.geojson";
