@@ -91,6 +91,8 @@ import capitalizeQuery from "../methods/capitalizeQuery.ts";
 import getProjectionParquet from "../helpers/getProjectionParquet.ts";
 import unifyColumns from "../helpers/unifyColumns.ts";
 import accumulateQuery from "../helpers/accumulateQuery.ts";
+import stringifyDates from "../helpers/stringifyDates.ts";
+import stringifyDatesInvert from "../helpers/stringifyDatesInvert.ts";
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
@@ -4934,6 +4936,9 @@ export default class SimpleTable extends Simple {
     const cleanFile = cleanPath(file);
     createDirectory(cleanFile);
 
+    const types = await this.getTypes();
+    await stringifyDates(this, types);
+
     if (options.dataAsArrays) {
       await writeDataAsArrays(this, cleanFile);
     } else {
@@ -4947,6 +4952,7 @@ export default class SimpleTable extends Simple {
         }),
       );
     }
+    await stringifyDatesInvert(this, types);
   }
 
   /**
@@ -4983,6 +4989,9 @@ export default class SimpleTable extends Simple {
     createDirectory(cleanFile);
     const fileExtension = getExtension(cleanFile);
     if (fileExtension === "geojson" || fileExtension === "json") {
+      const types = await this.getTypes();
+      await stringifyDates(this, types);
+
       if (typeof options.compression === "boolean") {
         throw new Error(
           "The compression option is not supported for writing GeoJSON files.",
@@ -5019,6 +5028,7 @@ export default class SimpleTable extends Simple {
         const fileRewinded = rewind(fileData);
         writeFileSync(cleanFile, JSON.stringify(fileRewinded));
       }
+      await stringifyDatesInvert(this, types);
     } else if (fileExtension === "geoparquet") {
       if (typeof options.precision === "number") {
         throw new Error(
