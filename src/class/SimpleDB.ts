@@ -362,7 +362,7 @@ export default class SimpleDB extends Simple {
    */
   async done(): Promise<this> {
     if (this.db instanceof DuckDBInstance) {
-      this.connection.close();
+      this.connection.closeSync();
     }
     cleanCache(this);
     if (typeof this.durationStart === "number") {

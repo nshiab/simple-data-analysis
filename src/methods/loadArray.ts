@@ -60,7 +60,7 @@ export default async function loadArray(
   );
 
   const appender = await (simpleTable.connection as DuckDBConnection)
-    .createAppender("main", simpleTable.name);
+    .createAppender(simpleTable.name);
 
   const chunk = DuckDBDataChunk.create(types.map((d) => parseDuckDBType(d)));
 
@@ -68,5 +68,5 @@ export default async function loadArray(
     dataForChunk,
   );
   appender.appendDataChunk(chunk);
-  appender.flush();
+  appender.closeSync();
 }

@@ -75,7 +75,7 @@ If you want to add the library to an existing project, run this:
 
 ```bash
 # Deno >= 2.2.x
-deno install --node-modules-dir=auto --allow-scripts=npm:playwright-chromium@1.50.1 jsr:@nshiab/simple-data-analysis
+deno install --node-modules-dir=auto --allow-scripts=npm:playwright-chromium jsr:@nshiab/simple-data-analysis
 # To run with Deno
 deno run -A main.ts
 

@@ -15,7 +15,7 @@ Deno.test("should write a json file", async () => {
 
   const originalData = JSON.parse(readFileSync(originalFile, "utf-8"));
   const writtenData = JSON.parse(
-    readFileSync(`${output}data.geojson`, "utf-8"),
+    readFileSync(`${output}data.json`, "utf-8"),
   );
 
   assertEquals(writtenData, originalData);
