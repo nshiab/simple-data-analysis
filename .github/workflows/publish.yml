@@ -1,4 +1,4 @@
-name: SDA CLI
+name: SDA PUBLISH
 on:
   push:
     tags:
