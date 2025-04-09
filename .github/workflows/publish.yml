@@ -15,4 +15,4 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
-      - run: deno install --allow-scripts=npm:playwright-chromium@1.50.0 && deno publish
+      - run: deno install --allow-scripts=npm:playwright-chromium && deno publish
