@@ -30,6 +30,7 @@ Deno.test("should return a table without any missing values even if column names
   await table.loadData(["test/data/files/employees.csv"]);
 
   await table.removeMissing({ invert: true });
+  // Sorting to help the tests
   await table.sort({ Name: "asc", Job: "asc", Salary: "asc" });
   const data = await table.getData();
 
