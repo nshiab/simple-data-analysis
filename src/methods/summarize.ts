@@ -131,10 +131,8 @@ export default async function summarize(
     if (await SimpleTable.hasColumn("rowNumberToSummarizeQuerySDA")) {
       await SimpleTable.removeColumns("rowNumberToSummarizeQuerySDA");
     }
-    SimpleTable.sdb.customQuery(`UPDATE ${outputTable} SET "value" = 
-                CASE
-                    WHEN "value" = 'rowNumberToSummarizeQuerySDA' THEN 'rows'
-                    ELSE "value"
-                END;`);
+    SimpleTable.sdb.customQuery(
+      `ALTER TABLE "${outputTable}" DROP COLUMN value;`,
+    );
   }
 }
