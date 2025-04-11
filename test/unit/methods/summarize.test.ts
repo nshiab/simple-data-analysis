@@ -7,7 +7,7 @@ Deno.test("should summarize all rows (no option values)", async () => {
   await table.loadData("test/data/files/dataSummarize.json");
   await table.summarize();
   const data = await table.getData();
-  assertEquals(data, [{ value: "rows", count: 6 }]);
+  assertEquals(data, [{ count: 6 }]);
   await sdb.done();
 });
 Deno.test("should summarize all rows into a new table", async () => {
@@ -20,9 +20,9 @@ Deno.test("should summarize all rows into a new table", async () => {
   });
   const data = await summaryAllRows.getData();
   assertEquals(data, [
-    { value: "rows", key1: "Banane", count: 2 },
-    { value: "rows", key1: "Fraise", count: 2 },
-    { value: "rows", key1: "Rubarbe", count: 2 },
+    { key1: "Banane", count: 2 },
+    { key1: "Fraise", count: 2 },
+    { key1: "Rubarbe", count: 2 },
   ]);
   await sdb.done();
 });
