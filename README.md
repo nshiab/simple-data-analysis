@@ -36,38 +36,21 @@ npx setup-sda
 bunx --bun setup-sda
 ```
 
-If you want an example, pass the `--example` flag.
+Here are available options:
+
+- `--example`: adds example files
+- `--scrape`: adds web scraping dependencies
+- `--svelte`: adds a Svelte project
+- `--pages`: adds a GitHub Pages Actions workflow (works just with `--svelte`)
+- `--git`: initializes a git repository and commits the initial files
+
+You can combine options, for example, this will install web scraping
+dependencies, set up a Svelte project with example files, initialize a git
+repository, make a first commit, and add a GitHub Pages Actions workflow:
 
 ```bash
-# Deno >= 2.2.x
-deno -A jsr:@nshiab/setup-sda --example
-
-# Node.js >= 22.6.x
-npx setup-sda --example
-
-# Bun
-bunx --bun setup-sda --example
+deno -A jsr:@nshiab/setup-sda --scrape --svelte --example --pages --git
 ```
-
-If you want to use SDA with [Svelte](https://svelte.dev/), pass the `--svelte`
-flag:
-
-```bash
-# Deno >= 2.2.x
-deno -A jsr:@nshiab/setup-sda --svelte
-
-# Node.js >= 22.6.x
-npx setup-sda --svelte
-
-# Bun
-bunx --bun setup-sda --svelte
-```
-
-If you want to use SDA with
-[Framework](https://github.com/observablehq/framework), pass the `--framework`
-flag.
-
-To initialize a git repository in the folder, pass the `--git` flag.
 
 ## Manual installation
 
