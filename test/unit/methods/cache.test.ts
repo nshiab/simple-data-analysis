@@ -315,3 +315,38 @@ Deno.test("should clean the cache when calling done", async () => {
     },
   );
 });
+Deno.test("should cache dates and retrieve dates", async () => {
+  // Example from Code Like a Journalist lesson about tabular data
+
+  const sdb = new SimpleDB({ cacheVerbose: true });
+  const temperatures = sdb.newTable("temperatures");
+  await temperatures.cache(async () => {
+    await temperatures.loadData(
+      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/refs/heads/main/test/data/files/dailyTemperatures.csv",
+    );
+    const cities = sdb.newTable("cities");
+    await cities.loadData(
+      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/refs/heads/main/test/data/files/cities.csv",
+    );
+    await temperatures.join(cities);
+  });
+  const firstPass = await temperatures.getTop(10);
+  // await temperatures.logTable();
+
+  await temperatures.cache(async () => {
+    await temperatures.loadData(
+      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/refs/heads/main/test/data/files/dailyTemperatures.csv",
+    );
+    const cities = sdb.newTable("cities");
+    await cities.loadData(
+      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/refs/heads/main/test/data/files/cities.csv",
+    );
+    await temperatures.join(cities);
+  });
+  const secondPass = await temperatures.getTop(10);
+  // await temperatures.logTable();
+
+  await sdb.done();
+
+  assertEquals(firstPass, secondPass);
+});
