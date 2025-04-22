@@ -4937,7 +4937,10 @@ export default class SimpleTable extends Simple {
     createDirectory(cleanFile);
 
     const types = await this.getTypes();
-    await stringifyDates(this, types);
+    const extension = getExtension(cleanFile);
+    if (extension === "csv" || extension === "json") {
+      await stringifyDates(this, types);
+    }
 
     if (options.dataAsArrays) {
       await writeDataAsArrays(this, cleanFile);
@@ -4952,7 +4955,9 @@ export default class SimpleTable extends Simple {
         }),
       );
     }
-    await stringifyDatesInvert(this, types);
+    if (extension === "csv" || extension === "json") {
+      await stringifyDatesInvert(this, types);
+    }
   }
 
   /**
