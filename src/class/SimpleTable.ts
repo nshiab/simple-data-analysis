@@ -180,7 +180,7 @@ export default class SimpleTable extends Simple {
     this.name = name;
   }
 
-  /** Set the types in the table.
+  /** Set the types of a new table. If the table alread exists, it will be replaced. If you want to convert the types of an existing table, use the .convert() method.
    *
    * @example
    * Basic usage
