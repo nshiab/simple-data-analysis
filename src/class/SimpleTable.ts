@@ -5302,6 +5302,17 @@ export default class SimpleTable extends Simple {
       conditions?: string;
     } = {},
   ) {
+    if (
+      this.connection === undefined
+    ) {
+      await this.sdb.start();
+      this.db = this.sdb.db;
+      this.connection = this.sdb.connection;
+    }
+    if (this.connection === undefined) {
+      throw new Error("this.connection is undefined");
+    }
+
     let rows: number;
     if (typeof options === "number") {
       rows = options;
