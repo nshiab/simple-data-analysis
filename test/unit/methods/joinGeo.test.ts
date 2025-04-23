@@ -425,3 +425,27 @@ Deno.test("should return all points within a target distance (spheroid method)",
   ]);
   await sdb.done();
 });
+Deno.test("should log a table after a joinGeo", async () => {
+  // Example from Code Like a Journalist geospatial lesson
+
+  const sdb = new SimpleDB();
+
+  const fires = sdb.newTable("fires");
+
+  await fires.loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
+  );
+  await fires.points("lat", "lon", "geom");
+
+  const provinces = sdb.newTable("provinces");
+  await provinces.loadGeoData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
+  );
+
+  const firesInsideProvinces = await fires.joinGeo(provinces, "inside", {
+    outputTable: "firesInsideProvinces",
+  });
+  await firesInsideProvinces.logTable();
+
+  await sdb.done();
+});
