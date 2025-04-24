@@ -5702,7 +5702,7 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Logs the bottom n rows. Note that the order is inverted. The last rows are logged first.
+   * Logs the bottom n rows.
    *
    * @example
    * Basic usage
@@ -5716,7 +5716,7 @@ export default class SimpleTable extends Simple {
     count: number,
   ) {
     console.log(`\nTable ${this.name} (${count} bottom rows):`);
-    const data = await this.getBottom(count);
+    const data = await this.getBottom(count, { originalOrder: true });
     logData(
       null,
       data,
