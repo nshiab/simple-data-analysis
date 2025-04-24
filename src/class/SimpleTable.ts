@@ -4892,7 +4892,7 @@ export default class SimpleTable extends Simple {
    *
    * @param column - The name of a column storing geometries.
    * @param options - An optional object with configuration options:
-   *   @param options.rewind - If true, rewinds the winding order to be clockwise. Default is false.
+   *   @param options.rewind - If true, rewinds in the spherical winding order (important for D3.js). Default is false.
    *
    * @category Geospatial
    */
@@ -4980,7 +4980,7 @@ export default class SimpleTable extends Simple {
    * @param file - The path to the file to which data will be written.
    * @param options - An optional object with configuration options:
    *   @param options.precision - Maximum number of figures after decimal separator to write in coordinates. Works with GeoJSON files only.
-   *   @param options.rewind - If true, rewinds the winding order to be clockwise. Default is false. Works with GeoJSON files only.
+   *   @param options.rewind - If true, rewinds in the spherical winding order (important for D3.js). Default is false. Works with GeoJSON files only.
    *   @param options.compression - A boolean indicating whether to compress the output file. Works with GeoParquet files only. Defaults to false. If true, the file will be compressed with ZSTD.
    *
    * * @category Exporting data
@@ -5231,7 +5231,7 @@ export default class SimpleTable extends Simple {
    * @param path - The path where the map image will be saved.
    * @param options - An optional object with configuration options:
    *   @param options.column - The name of a column storing geometries. If there is just one, it will be used by default.
-   *   @param options.rewind - If true, rewinds the winding order to be clockwise. Default is true.
+   *   @param options.rewind - If true, rewinds in the spherical winding order (important for D3.js). Default is true.
    *   @param options.style - CSS string to customize the chart's appearance if the Plot `style` option is not enough. Note the Plot chart is wrapped within a <div> element with the id `chart`.
    *   @param options.dark - To switch the chart to dark mode. Defaults to false.
    */
