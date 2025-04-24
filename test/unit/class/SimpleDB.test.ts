@@ -213,7 +213,9 @@ Deno.test("should close the db", async () => {
 
 Deno.test("should log debugging information when debug is true", async () => {
   const sdb = new SimpleDB({ debug: true });
-  await sdb.newTable("test").loadData("test/data/files/cities.csv");
+  const test = await sdb.newTable("test");
+  await test.loadData("test/data/files/cities.csv");
+
   // How to test?
   await sdb.done();
 });

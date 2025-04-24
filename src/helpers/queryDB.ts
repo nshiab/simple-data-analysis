@@ -47,6 +47,7 @@ export default async function queryDB(
         .trim()
         .split("\n")
         .map((line) => line.trim())
+        .filter((line) => line !== "" && line !== ";")
         .join("\n");
     }
     console.log(query);
