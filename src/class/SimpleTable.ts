@@ -5700,4 +5700,27 @@ export default class SimpleTable extends Simple {
     console.log(`\nTable ${this.name}: ${formatNumber(nbRows)} rows.`);
     return await this;
   }
+
+  /**
+   * Logs the bottom n rows. Note that the order is inverted. The last rows are logged first.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * await table.logBottom(10)
+   * ```
+   *
+   * @param count - The number of rows to log.
+   */
+  async logBottom(
+    count: number,
+  ) {
+    console.log(`\nTable ${this.name} (${count} bottom rows):`);
+    const data = await this.getBottom(count);
+    logData(
+      null,
+      data,
+      this.nbCharactersToLog,
+    );
+  }
 }
