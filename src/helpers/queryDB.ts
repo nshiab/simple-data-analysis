@@ -1,6 +1,7 @@
 import SimpleTable from "../class/SimpleTable.ts";
 import SimpleDB from "../class/SimpleDB.ts";
 import cleanSQL from "./cleanSQL.ts";
+import { line } from "@observablehq/plot";
 
 export default async function queryDB(
   simple: SimpleTable | SimpleDB,
@@ -47,6 +48,7 @@ export default async function queryDB(
         .trim()
         .split("\n")
         .map((line) => line.trim())
+        .filter((line) => line !== "" && line !== ";")
         .join("\n");
     }
     console.log(query);
