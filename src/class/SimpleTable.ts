@@ -5723,4 +5723,21 @@ export default class SimpleTable extends Simple {
       this.nbCharactersToLog,
     );
   }
+
+  /**
+   * Logs the extent of a column.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * await table.logExtent("price")
+   * ```
+   *
+   * @param column - The name of the column.
+   */
+  async logExtent(column: string) {
+    const extent = await this.getExtent(column);
+    console.log(`\nTable ${this.name} (${column} extent):`);
+    console.log(extent);
+  }
 }
