@@ -725,7 +725,7 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Clones a column in the table and offsets the values down by one row. The last row will have a NULL value.
+   * Clones a column in the table and offsets the values. By default, the values are offset by 1.
    *
    * @example
    * Basic usage
@@ -733,15 +733,52 @@ export default class SimpleTable extends Simple {
    * // Clones column1 as column2 and offsets values by 1. So value of column1-row1 will be in column2-row2, column1-row2 will be in column2-row3, etc.
    * await table.cloneColumnWithOffset("column1", "column2")
    * ```
+   *
+   * @example
+   * With specific offset
+   * ```ts
+   * // Clones column1 as column2 and offsets values by 2. So value of column1-row1 will be in column2-row3, column1-row2 will be in column2-row4, etc.
+   * await table.cloneColumnWithOffset("column1", "column2", { offset: 2 })
+   * ```
+   *
+   * @example
+   * With categories
+   * ```ts
+   * // The offset is done within the categories category1 and category2.
+   * await table.cloneColumnWithOffset("column1", "column2", { offset: 2, categories: ["category1", "category2"] })
+   * ```
+   *
    * @param originalColumn - The original column.
    * @param newColumn - The name of the cloned column.
+   * @param options - An optional object with configuration options:
+   *  @param options.offset - The number of rows to offset the values. Defaults to 1.
+   *  @param options.categories - A string or an array of strings representing the categories.
    *
    * @category Restructuring data
    */
-  async cloneColumnWithOffset(originalColumn: string, newColumn: string) {
+  async cloneColumnWithOffset(
+    originalColumn: string,
+    newColumn: string,
+    options: {
+      offset?: number;
+      categories?: string | string[];
+    } = {},
+  ) {
+    const offset = options.offset ?? 1;
+    const categories = options.categories
+      ? stringToArray(options.categories)
+      : [];
+    const partition = categories.length > 0
+      ? `PARTITION BY ${categories.map((d) => `"${d}"`).join(", ")}`
+      : "";
+
     await queryDB(
       this,
-      `CREATE OR REPLACE TABLE "${this.name}" AS SELECT *, LEAD(${originalColumn}) OVER() AS ${newColumn} FROM "${this.name}"`,
+      `CREATE OR REPLACE TABLE "${this.name}" AS SELECT *, LEAD("${originalColumn}", ${offset}) OVER(${partition}) AS "${newColumn}" FROM "${this.name}"${
+        categories.length > 0
+          ? ` ORDER BY ${categories.map((d) => `"${d}"`).join(", ")}`
+          : ""
+      };`,
       mergeOptions(this, {
         table: this.name,
         method: "cloneColumnWithOffset()",
