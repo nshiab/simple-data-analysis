@@ -519,11 +519,13 @@ export default class SimpleTable extends Simple {
   /**
    * Applies a prompt to the value of each row in a specified column. The results of the prompt are stored in a new column. The method automatically appends `Here's the {column}: {value}` to the end of the prompt for each row.
    *
-   * Currently supports Google Gemini & Vertex AI. The method retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or accepts them as options. Options take precedence over environment variables.
+   * This method currently supports Google Gemini and Vertex AI. It retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or accepts them as options. Options take precedence over environment variables.
    *
-   * The temperature is set to 0 to ensure reproducible results.
+   * Since each row is processed individually, this method can be slow for large tables. To avoid exceeding rate limits, you can set the `rateLimitPerMinute` option. This will automatically add a delay between requests to comply with the rate limit.
    *
    * Using the `.sample()` method can be helpful for testing prompts. Additionally, the `.cache()` method can be useful for storing the results of the calls locally.
+   *
+   * The temperature is set to 0 to ensure reproducible results. However, consistent results cannot be guaranteed.
    *
    * @example
    * Basic usage
@@ -638,7 +640,7 @@ export default class SimpleTable extends Simple {
    *
    * Currently supports Google Gemini & Vertex AI. The method retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or accepts them as options. Options take precedence over environment variables.
    *
-   * The temperature is set to 0 to ensure reproducible results. However, to guarantee consistent results in the future, it is recommended to copy the query and execute it manually using `await sdb.customQuery(query)` or save the result locally with the `.cache()` method.
+   * The temperature is set to 0 to aim for reproducible results. However, to ensure consistent results in the future, it is recommended to copy the query and execute it manually using `await sdb.customQuery(query)` or save the result locally with the `.cache()` method.
    *
    * @example
    * Basic usage
