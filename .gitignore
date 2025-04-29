@@ -6,3 +6,4 @@ test/output/
 .sda-cache
 testRoot.csv
 cov_profile
+.env
