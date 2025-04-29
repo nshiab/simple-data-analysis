@@ -519,7 +519,7 @@ export default class SimpleTable extends Simple {
   /**
    * Applies a prompt to the value of each row in a specified column. The results of the prompt are stored in a new column. The method automatically appends `Here's the {column}: {value}` to the end of the prompt for each row.
    *
-   * Currently supports Google Gemini AI. The method retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or accepts them as options. Options take precedence over environment variables.
+   * Currently supports Google Gemini & Vertex AI. The method retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or accepts them as options. Options take precedence over environment variables.
    *
    * The temperature is set to 0 to ensure reproducible results.
    *
@@ -631,6 +631,66 @@ export default class SimpleTable extends Simple {
 
       return rows;
     });
+  }
+
+  /**
+   * Generates and executes a SQL query based on a prompt. Additional instructions are automatically added before and after your prompt, such as the column types. To see the full prompt, set the `verbose` option to true.
+   *
+   * Currently supports Google Gemini & Vertex AI. The method retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or accepts them as options. Options take precedence over environment variables.
+   *
+   * The temperature is set to 0 to ensure reproducible results. However, to guarantee consistent results in the future, it is recommended to copy the query and execute it manually using `await sdb.customQuery(query)` or save the result locally with the `.cache()` method.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * // The AI will generate a query that will be executed, and
+   * // the result will replace the existing table.
+   * await table.aiQuery("Give me the average salary by department")
+   * ```
+   *
+   * @param prompt - The input string to guide the AI in generating the SQL query.
+   * @param options - Configuration options for the AI request.
+   *  @param options.model - The model to use. Defaults to the `AI_MODEL` environment variable.
+   *  @param options.apiKey - The API key. Defaults to the `AI_KEY` environment variable.
+   *  @param options.vertex - Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
+   *  @param options.project - The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
+   *  @param options.location - The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
+   *  @param options.verbose - Whether to log additional information. Defaults to `false`.
+   *  @param options.costEstimate - Whether to estimate the cost of the request. Defaults to `false`.
+   */
+  async aiQuery(prompt: string, options: {
+    model?: string;
+    apiKey?: string;
+    vertex?: boolean;
+    project?: string;
+    location?: string;
+    verbose?: boolean;
+    costEstimate?: boolean;
+  } = {}) {
+    const p =
+      `I have a SQL table named "${this.name}". The data is already in it with these columns:\n${
+        JSON.stringify(await this.getTypes(), undefined, 2)
+      }\nI want you to give me a SQL query to do this:\n- ${prompt}\nThe query must replace the existing "${this.name}" table with 'CREATE OR REPLACE TABLE "${this.name}"'. Return just the query, nothing else.`;
+
+    if (options.verbose) {
+      console.log("\naiQuery()");
+      console.log("\nPrompt:");
+      console.log(p);
+    }
+
+    // Types could be improved
+    let query = await askAI(p, {
+      ...options,
+      verbose: options.costEstimate,
+    }) as unknown as string;
+    query = query.replace("```sql", "").replace("```", "").trim();
+
+    if (options.verbose) {
+      console.log("\nResponse:");
+      console.log(query);
+    }
+
+    await this.sdb.customQuery(query);
   }
 
   /**
