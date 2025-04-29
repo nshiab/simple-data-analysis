@@ -63,14 +63,17 @@ import shouldFlipBeforeExport from "../helpers/shouldFlipBeforeExport.ts";
 import getProjection from "../helpers/getProjection.ts";
 import cache from "../methods/cache.ts";
 import {
+  askAI,
   camelCase,
   createDirectory,
   formatNumber,
   logBarChart,
   logDotChart,
   logLineChart,
+  prettyDuration,
   rewind,
   saveChart,
+  sleep,
 } from "jsr:@nshiab/journalism@1";
 import writeDataAsArrays from "../helpers/writeDataAsArrays.ts";
 import logHistogram from "../methods/logHistogram.ts";
@@ -511,6 +514,123 @@ export default class SimpleTable extends Simple {
     }
 
     return this;
+  }
+
+  /**
+   * Applies a prompt to the value of each row in a specified column. The results of the prompt are stored in a new column. The method automatically appends `Here's the {column}: {value}` to the end of the prompt for each row.
+   *
+   * Currently supports Google Gemini AI. The method retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or accepts them as options. Options take precedence over environment variables.
+   *
+   * The temperature is set to 0 to ensure reproducible results.
+   *
+   * Using the `.sample()` method can be helpful for testing prompts. Additionally, the `.cache()` method can be useful for storing the results of the calls locally.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * // New table with column "city".
+   * await table.loadArray([
+   *   { city: "Marrakech" },
+   *   { city: "Kyoto" },
+   *   { city: "Auckland" },
+   * ]);
+   *
+   * // Ask the AI to generate the country for each city.
+   * // The result will be stored in a new column called "country".
+   * await table.aiRowByRow(
+   *   "city",
+   *   "country",
+   *   `Give me the country of the city.`,
+   * );
+   *
+   * // Result:
+   * // [
+   * //   { city: "Marrakech", country: "Morocco" },
+   * //   { city: "Kyoto", country: "Japan" },
+   * //   { city: "Auckland", country: "New Zealand" },
+   * // ]
+   * ```
+   *
+   * @param column - The column to be used as input for the prompt.
+   * @param newColumn - The name of the new column where the response will be stored.
+   * @param prompt - The input string to guide the AI's response.
+   * @param options - Configuration options for the AI request.
+   *   @param options.rateLimitPerMinute - The rate limit for the AI requests in requests per minute. If necessary, the method will wait between requests. By default, there is no limit.
+   *   @param options.model - The model to use. Defaults to the `AI_MODEL` environment variable.
+   *   @param options.apiKey - The API key. Defaults to the `AI_KEY` environment variable.
+   *   @param options.vertex - Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
+   *   @param options.project - The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
+   *   @param options.location - The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
+   *   @param options.returnJson - Whether to return the response as JSON. Defaults to `false`.
+   *   @param options.verbose - Whether to log additional information. Defaults to `false`.
+   *   @param options.costEstimate - Whether to estimate the cost of the request. Defaults to `false`.
+   */
+  async aiRowByRow(
+    column: string,
+    newColumn: string,
+    prompt: string,
+    options: {
+      model?: string;
+      apiKey?: string;
+      vertex?: boolean;
+      project?: string;
+      location?: string;
+      returnJson?: boolean;
+      verbose?: boolean;
+      costEstimate?: boolean;
+      rateLimitPerMinute?: number;
+    } = {},
+  ) {
+    await this.updateWithJS(async (rows) => {
+      if (options.verbose) {
+        console.log("\naiRowByRow()");
+        console.log("Prompt:", `${prompt}\nHere's the {column}: {value}`);
+      }
+
+      for (const row of rows) {
+        const fullPrompt = `${prompt}\nHere's the ${column}: ${row[column]}`;
+        const start = new Date();
+
+        // Types could be improved
+        let newValue = await askAI(
+          fullPrompt,
+          { ...options, verbose: options.costEstimate },
+        ) as unknown as string | number | boolean | Date | null;
+
+        if (typeof newValue === "string") {
+          newValue = newValue.trim();
+        }
+
+        const end = new Date();
+
+        if (options.verbose) {
+          console.log(`${options.costEstimate ? "" : "\n"}Value:`, row[column]);
+          console.log("Response:", newValue);
+          if (!options.costEstimate) {
+            console.log("Execution time:", prettyDuration(start, { end }));
+          }
+        }
+
+        row[newColumn] = newValue;
+
+        if (typeof options.rateLimitPerMinute === "number") {
+          const delay = Math.round((60 / options.rateLimitPerMinute) * 1000) -
+            (end.getTime() - start.getTime());
+          if (delay > 0) {
+            if (options.verbose) {
+              console.log(
+                `Waiting ${
+                  prettyDuration(0, { end: delay })
+                } to respect rate limit...`,
+              );
+            }
+            await sleep(delay);
+          }
+        }
+      }
+
+      return rows;
+    });
   }
 
   /**
