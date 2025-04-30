@@ -91,9 +91,9 @@ The syntax and the available methods were inspired by
 [Tidyverse](https://www.tidyverse.org/) (R).
 
 You can also write your own SQL queries if you want to (check the
-[customQuery method](https://nshiab.github.io/simple-data-analysis/classes/SimpleWebDB.html#customQuery))
+[customQuery method](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleDB.prototype.customQuery))
 or use JavaScript to process your data (check the
-[updateWithJS method](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#updateWithJS)).
+[updateWithJS method](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.updateWithJS)).
 
 Feel free to start a conversation or open an issue. Check how you can
 [contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
