@@ -527,6 +527,8 @@ export default class SimpleTable extends Simple {
    *
    * The temperature is set to 0 to ensure reproducible results. However, consistent results cannot be guaranteed.
    *
+   * This method won't work if you have geometries in your table.
+   *
    * @example
    * Basic usage
    * ```ts
