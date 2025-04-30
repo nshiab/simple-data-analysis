@@ -7,3 +7,4 @@ test/output/
 testRoot.csv
 cov_profile
 .env
+.journalism

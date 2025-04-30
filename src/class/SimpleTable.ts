@@ -523,14 +523,14 @@ export default class SimpleTable extends Simple {
    *
    * Since each row is processed individually, this method can be slow for large tables. To avoid exceeding rate limits, you can set the `rateLimitPerMinute` option. This will automatically add a delay between requests to comply with the rate limit.
    *
-   * Using the `.sample()` method can be helpful for testing prompts. Additionally, the `.cache()` method can be useful for storing the results of the calls locally.
+   * The `cache` option allows you to cache locally the results of each request for each row, saving resources and time. The data is cached in the local hidden folder `journalism` (because this method uses the `askAI` function from the [journalism library](https://github.com/nshiab/journalism)). So don't forget to add `.journalism` to your `.gitignore` file!
    *
    * The temperature is set to 0 to ensure reproducible results. However, consistent results cannot be guaranteed.
    *
    * This method won't work if you have geometries in your table.
    *
    * @example
-   * Basic usage
+   * Basic usage with cache
    * ```ts
    * // New table with column "city".
    * await table.loadArray([
@@ -545,6 +545,8 @@ export default class SimpleTable extends Simple {
    *   "city",
    *   "country",
    *   `Give me the country of the city.`,
+   *   // Don't forget to add .journalism to your .gitignore file!
+   *   { cache: true },
    * );
    *
    * // Result:
@@ -559,6 +561,8 @@ export default class SimpleTable extends Simple {
    * @param newColumn - The name of the new column where the response will be stored.
    * @param prompt - The input string to guide the AI's response.
    * @param options - Configuration options for the AI request.
+   *   @param options.cache - If true, the results will be cached locally. By default, it is false.
+   *   @param options.cacheVerbose - If true, more information about the cache will be logged. By default, it is false.
    *   @param options.rateLimitPerMinute - The rate limit for the AI requests in requests per minute. If necessary, the method will wait between requests. By default, there is no limit.
    *   @param options.model - The model to use. Defaults to the `AI_MODEL` environment variable.
    *   @param options.apiKey - The API key. Defaults to the `AI_KEY` environment variable.
@@ -574,6 +578,8 @@ export default class SimpleTable extends Simple {
     newColumn: string,
     prompt: string,
     options: {
+      cache?: boolean;
+      cacheVerbose?: boolean;
       model?: string;
       apiKey?: string;
       vertex?: boolean;
@@ -591,14 +597,24 @@ export default class SimpleTable extends Simple {
         console.log("Prompt:", `${prompt}\nHere's the {column}: {value}`);
       }
 
-      for (const row of rows) {
+      for (let i = 0; i < rows.length; i++) {
+        options.verbose &&
+          console.log(
+            `\n${i + 1}/${rows.length} | ${
+              formatNumber(i + 1 / rows.length * 100, {
+                significantDigits: 3,
+                suffix: "%",
+              })
+            }`,
+          );
+        const row = rows[i];
         const fullPrompt = `${prompt}\nHere's the ${column}: ${row[column]}`;
         const start = new Date();
 
         // Types could be improved
         let newValue = await askAI(
           fullPrompt,
-          { ...options, verbose: options.costEstimate },
+          { ...options, verbose: options.costEstimate || options.cacheVerbose },
         ) as unknown as string | number | boolean | Date | null;
 
         if (typeof newValue === "string") {
@@ -608,7 +624,14 @@ export default class SimpleTable extends Simple {
         const end = new Date();
 
         if (options.verbose) {
-          console.log(`${options.costEstimate ? "" : "\n"}Value:`, row[column]);
+          console.log(
+            `${
+              options.costEstimate || options.cacheVerbose || options.verbose
+                ? ""
+                : "\n"
+            }Value:`,
+            row[column],
+          );
           console.log("Response:", newValue);
           if (!options.costEstimate) {
             console.log("Execution time:", prettyDuration(start, { end }));
@@ -642,18 +665,27 @@ export default class SimpleTable extends Simple {
    *
    * Currently supports Google Gemini & Vertex AI. The method retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or accepts them as options. Options take precedence over environment variables.
    *
-   * The temperature is set to 0 to aim for reproducible results. However, to ensure consistent results in the future, it is recommended to copy the query and execute it manually using `await sdb.customQuery(query)` or save the result locally with the `.cache()` method.
+   * The temperature is set to 0 to aim for reproducible results. However, to ensure consistent results in the future, it is recommended to copy the query and execute it manually using `await sdb.customQuery(query)` or to cache the query using the `cache` option.
+   *
+   * When the `cache` option is set to true, the generated query will be cached locally in the hidden folder `.journalism` (because this method uses the `askAI` function from the [journalism library](https://github.com/nshiab/journalism)), saving resources and time. So don't forget to add `.journalism` to your `.gitignore` file!
    *
    * @example
-   * Basic usage
+   * Basic usage with cache
    * ```ts
    * // The AI will generate a query that will be executed, and
    * // the result will replace the existing table.
-   * await table.aiQuery("Give me the average salary by department")
+   * // If run again, it will use the previous query from the cache.
+   * // Don't forget to add .journalism to your .gitignore file!
+   * await table.aiQuery(
+   *    "Give me the average salary by department",
+   *     { cache: true }
+   * )
    * ```
    *
    * @param prompt - The input string to guide the AI in generating the SQL query.
    * @param options - Configuration options for the AI request.
+   *  @param options.cache - If true, the query will be cached locally. By default, it is false.
+   *  @param options.cacheVerbose - If true, more information about the cache will be logged. By default, it is false.
    *  @param options.model - The model to use. Defaults to the `AI_MODEL` environment variable.
    *  @param options.apiKey - The API key. Defaults to the `AI_KEY` environment variable.
    *  @param options.vertex - Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
@@ -663,6 +695,8 @@ export default class SimpleTable extends Simple {
    *  @param options.costEstimate - Whether to estimate the cost of the request. Defaults to `false`.
    */
   async aiQuery(prompt: string, options: {
+    cache?: boolean;
+    cacheVerbose?: boolean;
     model?: string;
     apiKey?: string;
     vertex?: boolean;
@@ -685,7 +719,7 @@ export default class SimpleTable extends Simple {
     // Types could be improved
     let query = await askAI(p, {
       ...options,
-      verbose: options.costEstimate,
+      verbose: options.costEstimate || options.cacheVerbose,
     }) as unknown as string;
     query = query.replace("```sql", "").replace("```", "").trim();
 
