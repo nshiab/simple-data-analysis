@@ -39,7 +39,7 @@ export default async function loadArray(
           }
         }));
       } else {
-        throw new Error(`Type object not supported.`);
+        throw new Error(`Type ${type} not supported.`);
       }
     } else {
       types.push(parseType(type));

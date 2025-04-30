@@ -67,6 +67,7 @@ import {
   camelCase,
   createDirectory,
   formatNumber,
+  getEmbedding,
   logBarChart,
   logDotChart,
   logLineChart,
@@ -589,7 +590,17 @@ export default class SimpleTable extends Simple {
         console.log("Prompt:", `${prompt}\nHere's the {column}: {value}`);
       }
 
-      for (const row of rows) {
+      for (let i = 0; i < rows.length; i++) {
+        options.verbose &&
+          console.log(
+            `\n${i + 1}/${rows.length} | ${
+              formatNumber(i + 1 / rows.length * 100, {
+                significantDigits: 3,
+                suffix: "%",
+              })
+            }`,
+          );
+        const row = rows[i];
         const fullPrompt = `${prompt}\nHere's the ${column}: ${row[column]}`;
         const start = new Date();
 
@@ -606,7 +617,10 @@ export default class SimpleTable extends Simple {
         const end = new Date();
 
         if (options.verbose) {
-          console.log(`${options.costEstimate ? "" : "\n"}Value:`, row[column]);
+          console.log(
+            `${options.costEstimate || options.verbose ? "" : "\n"}Value:`,
+            row[column],
+          );
           console.log("Response:", newValue);
           if (!options.costEstimate) {
             console.log("Execution time:", prettyDuration(start, { end }));
@@ -614,6 +628,68 @@ export default class SimpleTable extends Simple {
         }
 
         row[newColumn] = newValue;
+
+        if (typeof options.rateLimitPerMinute === "number") {
+          const delay = Math.round((60 / options.rateLimitPerMinute) * 1000) -
+            (end.getTime() - start.getTime());
+          if (delay > 0) {
+            if (options.verbose) {
+              console.log(
+                `Waiting ${
+                  prettyDuration(0, { end: delay })
+                } to respect rate limit...`,
+              );
+            }
+            await sleep(delay);
+          }
+        }
+      }
+
+      return rows;
+    });
+  }
+
+  async aiEmbeddings(column: string, newColumn: string, options: {
+    model?: string;
+    apiKey?: string;
+    vertex?: boolean;
+    project?: string;
+    location?: string;
+    verbose?: boolean;
+    rateLimitPerMinute?: number;
+  } = {}) {
+    await this.updateWithJS(async (rows) => {
+      if (options.verbose) {
+        console.log("\naiEmbeddings()");
+      }
+
+      for (let i = 0; i < rows.length; i++) {
+        options.verbose &&
+          console.log(
+            `\n${i + 1}/${rows.length} | ${
+              formatNumber(i + 1 / rows.length * 100, {
+                significantDigits: 3,
+                suffix: "%",
+              })
+            }`,
+          );
+        const row = rows[i];
+        const text = row[column];
+        if (typeof text !== "string") {
+          throw new Error(`${text} is not a string`);
+        }
+
+        const start = new Date();
+
+        const newValue = await getEmbedding(
+          text,
+          { ...options },
+        );
+
+        const end = new Date();
+
+        // This is wrong. It's an array of number.
+        row[newColumn] = newValue as unknown as number;
 
         if (typeof options.rateLimitPerMinute === "number") {
           const delay = Math.round((60 / options.rateLimitPerMinute) * 1000) -
