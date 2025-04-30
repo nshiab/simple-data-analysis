@@ -21,7 +21,7 @@
   "nodeModulesDir": "auto",
   "imports": {
     "@duckdb/node-api": "npm:@duckdb/node-api@1.2.2-alpha.18",
-    "@nshiab/journalism": "jsr:@nshiab/journalism@1.26.4",
+    "@nshiab/journalism": "jsr:@nshiab/journalism@^1.27.2",
     "@observablehq/plot": "npm:@observablehq/plot@0.6.17",
     "@std/assert": "jsr:@std/assert@1.0.12"
   },
