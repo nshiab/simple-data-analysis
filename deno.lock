@@ -1,6 +1,7 @@
 {
   "version": "4",
   "specifiers": {
+    "jsr:@nshiab/journalism@1": "1.27.5",
     "jsr:@nshiab/journalism@^1.27.5": "1.27.5",
     "jsr:@std/assert@*": "1.0.13",
     "jsr:@std/assert@1.0.12": "1.0.12",
@@ -12,6 +13,7 @@
     "npm:@observablehq/plot@0.6.17": "0.6.17",
     "npm:@observablehq/plot@~0.6.16": "0.6.17",
     "npm:@observablehq/plot@~0.6.17": "0.6.17",
+    "npm:@types/d3-geo@3": "3.1.0",
     "npm:@types/node@*": "22.5.4",
     "npm:adm-zip@0.5": "0.5.16",
     "npm:cheerio@1": "1.0.0",
@@ -29,8 +31,10 @@
     "@nshiab/journalism@1.27.5": {
       "integrity": "db26fd5699e93a8ed287aafe9cadc5cd31b9d8be611212776dadaaaaed419f0a",
       "dependencies": [
-        "jsr:@nshiab/journalism",
+        "jsr:@nshiab/journalism@^1.27.5",
         "npm:@google/genai",
+        "npm:@observablehq/plot@~0.6.17",
+        "npm:@types/d3-geo",
         "npm:adm-zip",
         "npm:cheerio",
         "npm:d3-array",
@@ -114,6 +118,15 @@
     },
     "@petamoriken/float16@3.9.2": {
       "integrity": "sha512-VgffxawQde93xKxT3qap3OH+meZf7VaSB5Sqd4Rqc+FP5alWbpOyan/7tRbOAvynjpG3GpdtAuGU/NdhQpmrog=="
+    },
+    "@types/d3-geo@3.1.0": {
+      "integrity": "sha512-856sckF0oP/diXtS4jNsiQw/UuK5fQG8l/a9VVLeSouf1/PPbBE1i1W852zVwKwYCBkFJJB7nCFTbk6UMEXBOQ==",
+      "dependencies": [
+        "@types/geojson"
+      ]
+    },
+    "@types/geojson@7946.0.16": {
+      "integrity": "sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg=="
     },
     "@types/node@22.5.4": {
       "integrity": "sha512-FDuKUJQm/ju9fT/SeX/6+gBzoPzlVCzfzmGkwKvRHQVxi4BntVbyIwf6a4Xn62mrvndLiml6z/UBXIdEVjQLXg==",
