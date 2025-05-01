@@ -530,7 +530,7 @@ export default class SimpleTable extends Simple {
    * This method won't work if you have geometries in your table.
    *
    * @example
-   * Basic usage with cache
+   * Basic usage with cache and batchSize
    * ```ts
    * // New table with column "city".
    * await table.loadArray([
@@ -546,7 +546,7 @@ export default class SimpleTable extends Simple {
    *   "country",
    *   `Give me the country of the city.`,
    *   // Don't forget to add .journalism to your .gitignore file!
-   *   { cache: true },
+   *   { cache: true, batchSize: 10, verbose: true },
    * );
    *
    * // Result:
