@@ -63,17 +63,14 @@ import shouldFlipBeforeExport from "../helpers/shouldFlipBeforeExport.ts";
 import getProjection from "../helpers/getProjection.ts";
 import cache from "../methods/cache.ts";
 import {
-  askAI,
   camelCase,
   createDirectory,
   formatNumber,
   logBarChart,
   logDotChart,
   logLineChart,
-  prettyDuration,
   rewind,
   saveChart,
-  sleep,
 } from "jsr:@nshiab/journalism@1";
 import writeDataAsArrays from "../helpers/writeDataAsArrays.ts";
 import logHistogram from "../methods/logHistogram.ts";
@@ -96,6 +93,8 @@ import unifyColumns from "../helpers/unifyColumns.ts";
 import accumulateQuery from "../helpers/accumulateQuery.ts";
 import stringifyDates from "../helpers/stringifyDates.ts";
 import stringifyDatesInvert from "../helpers/stringifyDatesInvert.ts";
+import aiRowByRow from "../methods/aiRowByRow.ts";
+import aiQuery from "../methods/aiQuery.ts";
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
@@ -517,20 +516,20 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Applies a prompt to the value of each row in a specified column. The results of the prompt are stored in a new column. The method automatically appends `Here's the {column}: {value}` to the end of the prompt for each row.
+   * Applies a prompt to the value of each row in a specified column. The results of the prompt are stored in a new column. The method automatically appends instructions to the prompt. To see it, set the `verbose` option to true.
    *
    * This method currently supports Google Gemini and Vertex AI. It retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or accepts them as options. Options take precedence over environment variables.
    *
-   * Since each row is processed individually, this method can be slow for large tables. To avoid exceeding rate limits, you can set the `rateLimitPerMinute` option. This will automatically add a delay between requests to comply with the rate limit.
+   * This method can be slow for large tables. To avoid exceeding rate limits, you can process multiple rows at once with the `batchSize` option. You can also use the `rateLimitPerMinute` option to automatically add a delay between requests to comply with the rate limit.
    *
-   * The `cache` option allows you to cache locally the results of each request for each row, saving resources and time. The data is cached in the local hidden folder `journalism` (because this method uses the `askAI` function from the [journalism library](https://github.com/nshiab/journalism)). So don't forget to add `.journalism` to your `.gitignore` file!
+   * The `cache` option allows you to cache locally the results of each request, saving resources and time. The data is cached in the local hidden folder `.journalism` (because this method uses the `askAI` function from the [journalism library](https://github.com/nshiab/journalism)). So don't forget to add `.journalism` to your `.gitignore` file!
    *
    * The temperature is set to 0 to ensure reproducible results. However, consistent results cannot be guaranteed.
    *
    * This method won't work if you have geometries in your table.
    *
    * @example
-   * Basic usage with cache
+   * Basic usage with cache and batchSize
    * ```ts
    * // New table with column "city".
    * await table.loadArray([
@@ -546,7 +545,7 @@ export default class SimpleTable extends Simple {
    *   "country",
    *   `Give me the country of the city.`,
    *   // Don't forget to add .journalism to your .gitignore file!
-   *   { cache: true },
+   *   { cache: true, batchSize: 10, verbose: true },
    * );
    *
    * // Result:
@@ -561,103 +560,33 @@ export default class SimpleTable extends Simple {
    * @param newColumn - The name of the new column where the response will be stored.
    * @param prompt - The input string to guide the AI's response.
    * @param options - Configuration options for the AI request.
+   *   @param options.batchSize - The number of rows to process in each batch. By default, it is 1.
    *   @param options.cache - If true, the results will be cached locally. By default, it is false.
-   *   @param options.cacheVerbose - If true, more information about the cache will be logged. By default, it is false.
    *   @param options.rateLimitPerMinute - The rate limit for the AI requests in requests per minute. If necessary, the method will wait between requests. By default, there is no limit.
    *   @param options.model - The model to use. Defaults to the `AI_MODEL` environment variable.
    *   @param options.apiKey - The API key. Defaults to the `AI_KEY` environment variable.
    *   @param options.vertex - Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
    *   @param options.project - The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
    *   @param options.location - The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
-   *   @param options.returnJson - Whether to return the response as JSON. Defaults to `false`.
    *   @param options.verbose - Whether to log additional information. Defaults to `false`.
-   *   @param options.costEstimate - Whether to estimate the cost of the request. Defaults to `false`.
    */
   async aiRowByRow(
     column: string,
     newColumn: string,
     prompt: string,
     options: {
+      batchSize?: number;
       cache?: boolean;
-      cacheVerbose?: boolean;
       model?: string;
       apiKey?: string;
       vertex?: boolean;
       project?: string;
       location?: string;
-      returnJson?: boolean;
       verbose?: boolean;
-      costEstimate?: boolean;
       rateLimitPerMinute?: number;
     } = {},
   ) {
-    await this.updateWithJS(async (rows) => {
-      if (options.verbose) {
-        console.log("\naiRowByRow()");
-        console.log("Prompt:", `${prompt}\nHere's the {column}: {value}`);
-      }
-
-      for (let i = 0; i < rows.length; i++) {
-        options.verbose &&
-          console.log(
-            `\n${i + 1}/${rows.length} | ${
-              formatNumber(i + 1 / rows.length * 100, {
-                significantDigits: 3,
-                suffix: "%",
-              })
-            }`,
-          );
-        const row = rows[i];
-        const fullPrompt = `${prompt}\nHere's the ${column}: ${row[column]}`;
-        const start = new Date();
-
-        // Types could be improved
-        let newValue = await askAI(
-          fullPrompt,
-          { ...options, verbose: options.costEstimate || options.cacheVerbose },
-        ) as unknown as string | number | boolean | Date | null;
-
-        if (typeof newValue === "string") {
-          newValue = newValue.trim();
-        }
-
-        const end = new Date();
-
-        if (options.verbose) {
-          console.log(
-            `${
-              options.costEstimate || options.cacheVerbose || options.verbose
-                ? ""
-                : "\n"
-            }Value:`,
-            row[column],
-          );
-          console.log("Response:", newValue);
-          if (!options.costEstimate) {
-            console.log("Execution time:", prettyDuration(start, { end }));
-          }
-        }
-
-        row[newColumn] = newValue;
-
-        if (typeof options.rateLimitPerMinute === "number") {
-          const delay = Math.round((60 / options.rateLimitPerMinute) * 1000) -
-            (end.getTime() - start.getTime());
-          if (delay > 0) {
-            if (options.verbose) {
-              console.log(
-                `Waiting ${
-                  prettyDuration(0, { end: delay })
-                } to respect rate limit...`,
-              );
-            }
-            await sleep(delay);
-          }
-        }
-      }
-
-      return rows;
-    });
+    await aiRowByRow(this, column, newColumn, prompt, options);
   }
 
   /**
@@ -678,57 +607,30 @@ export default class SimpleTable extends Simple {
    * // Don't forget to add .journalism to your .gitignore file!
    * await table.aiQuery(
    *    "Give me the average salary by department",
-   *     { cache: true }
+   *     { cache: true, verbose: true }
    * )
    * ```
    *
    * @param prompt - The input string to guide the AI in generating the SQL query.
    * @param options - Configuration options for the AI request.
    *  @param options.cache - If true, the query will be cached locally. By default, it is false.
-   *  @param options.cacheVerbose - If true, more information about the cache will be logged. By default, it is false.
    *  @param options.model - The model to use. Defaults to the `AI_MODEL` environment variable.
    *  @param options.apiKey - The API key. Defaults to the `AI_KEY` environment variable.
    *  @param options.vertex - Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
    *  @param options.project - The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
    *  @param options.location - The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
    *  @param options.verbose - Whether to log additional information. Defaults to `false`.
-   *  @param options.costEstimate - Whether to estimate the cost of the request. Defaults to `false`.
    */
   async aiQuery(prompt: string, options: {
     cache?: boolean;
-    cacheVerbose?: boolean;
     model?: string;
     apiKey?: string;
     vertex?: boolean;
     project?: string;
     location?: string;
     verbose?: boolean;
-    costEstimate?: boolean;
   } = {}) {
-    const p =
-      `I have a SQL table named "${this.name}". The data is already in it with these columns:\n${
-        JSON.stringify(await this.getTypes(), undefined, 2)
-      }\nI want you to give me a SQL query to do this:\n- ${prompt}\nThe query must replace the existing "${this.name}" table with 'CREATE OR REPLACE TABLE "${this.name}"'. Return just the query, nothing else.`;
-
-    if (options.verbose) {
-      console.log("\naiQuery()");
-      console.log("\nPrompt:");
-      console.log(p);
-    }
-
-    // Types could be improved
-    let query = await askAI(p, {
-      ...options,
-      verbose: options.costEstimate || options.cacheVerbose,
-    }) as unknown as string;
-    query = query.replace("```sql", "").replace("```", "").trim();
-
-    if (options.verbose) {
-      console.log("\nResponse:");
-      console.log(query);
-    }
-
-    await this.sdb.customQuery(query);
+    await aiQuery(this, prompt, options);
   }
 
   /**
