@@ -56,19 +56,22 @@ export default async function aiRowByRow(
         {
           ...options,
           returnJson: true,
+          test: (response: unknown) => {
+            if (!Array.isArray(response)) {
+              throw new Error(
+                `The AI returned a non-array value: ${
+                  JSON.stringify(response)
+                }`,
+              );
+            }
+            if (response.length !== batch.length) {
+              throw new Error(
+                `The AI returned ${response.length} values, but the batch size is ${batchSize}.`,
+              );
+            }
+          },
         },
       ) as (string | number | boolean | Date | null)[];
-
-      if (!Array.isArray(newValues)) {
-        throw new Error(
-          `The AI returned a non-array value: ${JSON.stringify(newValues)}`,
-        );
-      }
-      if (newValues.length !== batch.length) {
-        throw new Error(
-          `The AI returned ${newValues.length} values, but the batch size is ${batchSize}.`,
-        );
-      }
 
       const end = new Date();
 
