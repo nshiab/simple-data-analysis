@@ -524,12 +524,14 @@ export default class SimpleTable extends Simple {
    *
    * The `cache` option allows you to cache locally the results of each request, saving resources and time. The data is cached in the local hidden folder `.journalism` (because this method uses the `askAI` function from the [journalism library](https://github.com/nshiab/journalism)). So don't forget to add `.journalism` to your `.gitignore` file!
    *
+   * Sometimes, the AI returns less items than the batch size, which throws an error. If you want to automatically retry the request, you can use the `retry` option. The method will retry the request up to the specified number of times.
+   *
    * The temperature is set to 0 to ensure reproducible results. However, consistent results cannot be guaranteed.
    *
    * This method won't work if you have geometries in your table.
    *
    * @example
-   * Basic usage with cache and batchSize
+   * Basic usage with cache, batchSize and retry options
    * ```ts
    * // New table with column "city".
    * await table.loadArray([
@@ -545,7 +547,7 @@ export default class SimpleTable extends Simple {
    *   "country",
    *   `Give me the country of the city.`,
    *   // Don't forget to add .journalism to your .gitignore file!
-   *   { cache: true, batchSize: 10, verbose: true },
+   *   { cache: true, batchSize: 10, retry: 3, verbose: true },
    * );
    *
    * // Result:
@@ -562,6 +564,7 @@ export default class SimpleTable extends Simple {
    * @param options - Configuration options for the AI request.
    *   @param options.batchSize - The number of rows to process in each batch. By default, it is 1.
    *   @param options.cache - If true, the results will be cached locally. By default, it is false.
+   *   @param options.retry - The number of times to retry the request in case of failure. By default, it is 0.
    *   @param options.rateLimitPerMinute - The rate limit for the AI requests in requests per minute. If necessary, the method will wait between requests. By default, there is no limit.
    *   @param options.model - The model to use. Defaults to the `AI_MODEL` environment variable.
    *   @param options.apiKey - The API key. Defaults to the `AI_KEY` environment variable.
@@ -577,6 +580,7 @@ export default class SimpleTable extends Simple {
     options: {
       batchSize?: number;
       cache?: boolean;
+      retry?: number;
       model?: string;
       apiKey?: string;
       vertex?: boolean;

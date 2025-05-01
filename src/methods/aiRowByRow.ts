@@ -9,6 +9,7 @@ export default async function aiRowByRow(
   options: {
     batchSize?: number;
     cache?: boolean;
+    retry?: number;
     model?: string;
     apiKey?: string;
     vertex?: boolean;
@@ -50,28 +51,50 @@ export default async function aiRowByRow(
 
       const start = new Date();
 
-      // Types could be improved
-      const newValues = await askAI(
-        fullPrompt,
-        {
-          ...options,
-          returnJson: true,
-          test: (response: unknown) => {
-            if (!Array.isArray(response)) {
-              throw new Error(
-                `The AI returned a non-array value: ${
-                  JSON.stringify(response)
-                }`,
-              );
-            }
-            if (response.length !== batch.length) {
-              throw new Error(
-                `The AI returned ${response.length} values, but the batch size is ${batchSize}.`,
-              );
-            }
-          },
-        },
-      ) as (string | number | boolean | Date | null)[];
+      const retry = options.retry ?? 1;
+      let testPassed = false;
+      let iterations = 1;
+      let newValues: (string | number | boolean | Date | null)[] = [];
+      while (!testPassed && iterations <= retry) {
+        try {
+          // Types could be improved
+          newValues = await askAI(
+            fullPrompt,
+            {
+              ...options,
+              returnJson: true,
+              test: (response: unknown) => {
+                if (!Array.isArray(response)) {
+                  throw new Error(
+                    `The AI returned a non-array value: ${
+                      JSON.stringify(response)
+                    }`,
+                  );
+                }
+                if (response.length !== batch.length) {
+                  throw new Error(
+                    `The AI returned ${response.length} values, but the batch size is ${batchSize}.`,
+                  );
+                }
+              },
+            },
+          ) as (string | number | boolean | Date | null)[];
+
+          testPassed = true;
+        } catch (e: unknown) {
+          if (iterations < retry) {
+            console.log(
+              `Error: the AI didn't return the expected number of items.\nRetrying... (${iterations}/${retry})`,
+            );
+            iterations++;
+          } else {
+            console.log(
+              `Error: the AI didn't return the expected number of items.\nNo more retries left. (${iterations}/${retry}).`,
+            );
+            throw e;
+          }
+        }
+      }
 
       const end = new Date();
 
