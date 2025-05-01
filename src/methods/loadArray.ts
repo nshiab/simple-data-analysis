@@ -68,5 +68,5 @@ export default async function loadArray(
     dataForChunk,
   );
   appender.appendDataChunk(chunk);
-  appender.closeSync();
+  appender.flushSync();
 }
