@@ -42,7 +42,7 @@ export default async function aiRowByRow(
       const batch = rows.slice(i, i + batchSize);
       const fullPrompt = `${prompt}\nHere are the ${column} values as a list: ${
         JSON.stringify(batch.map((d) => d[column]))
-      }\nReturn the results in a list as well. It's critical you return the same number of items, exactly in the same order.`;
+      }\nReturn the results in a list as well. It's critical you return the same number of items, which is ${batch.length}, exactly in the same order.`;
 
       if (options.verbose) {
         console.log("\nPrompt:");
