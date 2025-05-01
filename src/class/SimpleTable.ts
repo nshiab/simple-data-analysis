@@ -517,13 +517,13 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Applies a prompt to the value of each row in a specified column. The results of the prompt are stored in a new column. The method automatically appends `Here's the {column}: {value}` to the end of the prompt for each row.
+   * Applies a prompt to the value of each row in a specified column. The results of the prompt are stored in a new column. The method automatically appends instructions to the prompt. To see it, set the `verbose` option to true.
    *
    * This method currently supports Google Gemini and Vertex AI. It retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or accepts them as options. Options take precedence over environment variables.
    *
-   * Since each row is processed individually, this method can be slow for large tables. To avoid exceeding rate limits, you can set the `rateLimitPerMinute` option. This will automatically add a delay between requests to comply with the rate limit.
+   * This method can be slow for large tables. To avoid exceeding rate limits, you can process multiple rows at once with the `batchSize` option. You can also use the `rateLimitPerMinute` option to automatically add a delay between requests to comply with the rate limit.
    *
-   * The `cache` option allows you to cache locally the results of each request for each row, saving resources and time. The data is cached in the local hidden folder `journalism` (because this method uses the `askAI` function from the [journalism library](https://github.com/nshiab/journalism)). So don't forget to add `.journalism` to your `.gitignore` file!
+   * The `cache` option allows you to cache locally the results of each request, saving resources and time. The data is cached in the local hidden folder `.journalism` (because this method uses the `askAI` function from the [journalism library](https://github.com/nshiab/journalism)). So don't forget to add `.journalism` to your `.gitignore` file!
    *
    * The temperature is set to 0 to ensure reproducible results. However, consistent results cannot be guaranteed.
    *
@@ -561,6 +561,7 @@ export default class SimpleTable extends Simple {
    * @param newColumn - The name of the new column where the response will be stored.
    * @param prompt - The input string to guide the AI's response.
    * @param options - Configuration options for the AI request.
+   *   @param options.batchSize - The number of rows to process in each batch. By default, it is 1.
    *   @param options.cache - If true, the results will be cached locally. By default, it is false.
    *   @param options.cacheVerbose - If true, more information about the cache will be logged. By default, it is false.
    *   @param options.rateLimitPerMinute - The rate limit for the AI requests in requests per minute. If necessary, the method will wait between requests. By default, there is no limit.
@@ -569,7 +570,6 @@ export default class SimpleTable extends Simple {
    *   @param options.vertex - Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
    *   @param options.project - The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
    *   @param options.location - The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
-   *   @param options.returnJson - Whether to return the response as JSON. Defaults to `false`.
    *   @param options.verbose - Whether to log additional information. Defaults to `false`.
    *   @param options.costEstimate - Whether to estimate the cost of the request. Defaults to `false`.
    */
@@ -578,6 +578,7 @@ export default class SimpleTable extends Simple {
     newColumn: string,
     prompt: string,
     options: {
+      batchSize?: number;
       cache?: boolean;
       cacheVerbose?: boolean;
       model?: string;
@@ -585,7 +586,6 @@ export default class SimpleTable extends Simple {
       vertex?: boolean;
       project?: string;
       location?: string;
-      returnJson?: boolean;
       verbose?: boolean;
       costEstimate?: boolean;
       rateLimitPerMinute?: number;
@@ -594,51 +594,64 @@ export default class SimpleTable extends Simple {
     await this.updateWithJS(async (rows) => {
       if (options.verbose) {
         console.log("\naiRowByRow()");
-        console.log("Prompt:", `${prompt}\nHere's the {column}: {value}`);
       }
 
-      for (let i = 0; i < rows.length; i++) {
+      const batchSize = options.batchSize ?? 1;
+
+      for (let i = 0; i < rows.length; i += batchSize) {
         options.verbose &&
           console.log(
-            `\n${i + 1}/${rows.length} | ${
-              formatNumber(i + 1 / rows.length * 100, {
-                significantDigits: 3,
-                suffix: "%",
-              })
+            `\n${Math.min(i + batchSize, rows.length)}/${rows.length} | ${
+              formatNumber(
+                (Math.min(i + batchSize, rows.length)) / rows.length * 100,
+                {
+                  significantDigits: 3,
+                  suffix: "%",
+                },
+              )
             }`,
           );
-        const row = rows[i];
-        const fullPrompt = `${prompt}\nHere's the ${column}: ${row[column]}`;
+        const batch = rows.slice(i, i + batchSize);
+        const fullPrompt =
+          `${prompt}\nHere're the ${column} values as a list: ${
+            JSON.stringify(batch.map((d) => d[column]))
+          }\nReturn the results in a list as well, in the same order.`;
+
+        if (options.verbose) {
+          console.log("\nPrompt:");
+          console.log(fullPrompt);
+        }
+
         const start = new Date();
 
         // Types could be improved
-        let newValue = await askAI(
+        const newValues = await askAI(
           fullPrompt,
-          { ...options, verbose: options.costEstimate || options.cacheVerbose },
-        ) as unknown as string | number | boolean | Date | null;
+          {
+            ...options,
+            verbose: options.costEstimate || options.cacheVerbose,
+            returnJson: true,
+          },
+        ) as (string | number | boolean | Date | null)[];
 
-        if (typeof newValue === "string") {
-          newValue = newValue.trim();
+        if (newValues.length !== batch.length) {
+          throw new Error(
+            `The AI returned ${newValues.length} values, but the batch size is ${batchSize}.`,
+          );
         }
 
         const end = new Date();
 
         if (options.verbose) {
-          console.log(
-            `${
-              options.costEstimate || options.cacheVerbose || options.verbose
-                ? ""
-                : "\n"
-            }Value:`,
-            row[column],
-          );
-          console.log("Response:", newValue);
+          console.log("\nResponse:", newValues);
           if (!options.costEstimate) {
             console.log("Execution time:", prettyDuration(start, { end }));
           }
         }
 
-        row[newColumn] = newValue;
+        for (let j = 0; j < newValues.length; j++) {
+          rows[i + j][newColumn] = newValues[j];
+        }
 
         if (typeof options.rateLimitPerMinute === "number") {
           const delay = Math.round((60 / options.rateLimitPerMinute) * 1000) -

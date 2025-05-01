@@ -3,7 +3,7 @@ import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
 
-const aiKey = Deno.env.get("AI_KEY");
+const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
 if (typeof aiKey === "string" && aiKey !== "") {
   if (existsSync("./.journalism")) {
     rmSync("./.journalism", { recursive: true });
