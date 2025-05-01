@@ -68,7 +68,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       "city",
       "country",
       `Give me the country of the city.`,
-      { batchSize: 10, cache: true, cacheVerbose: true },
+      { batchSize: 10, cache: true, verbose: true },
     );
     const data = await table.getData();
 
@@ -107,7 +107,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       "city",
       "country",
       `Give me the country of the city.`,
-      { batchSize: 10, cache: true, cacheVerbose: true },
+      { batchSize: 10, cache: true, verbose: true },
     );
     const data = await table.getData();
 
@@ -146,7 +146,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       "city",
       "country",
       `Give me the country of the city.`,
-      { batchSize: 10, cacheVerbose: true },
+      { batchSize: 10, verbose: true },
     );
     const data = await table.getData();
 
@@ -228,7 +228,6 @@ if (typeof aiKey === "string" && aiKey !== "") {
         batchSize: 10,
         verbose: true,
         rateLimitPerMinute: 15,
-        costEstimate: true,
       },
     );
     const data = await table.getData();
