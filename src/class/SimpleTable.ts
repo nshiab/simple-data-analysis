@@ -613,7 +613,7 @@ export default class SimpleTable extends Simple {
           );
         const batch = rows.slice(i, i + batchSize);
         const fullPrompt =
-          `${prompt}\nHere're the ${column} values as a list: ${
+          `${prompt}\nHere are the ${column} values as a list: ${
             JSON.stringify(batch.map((d) => d[column]))
           }\nReturn the results in a list as well, in the same order.`;
 
