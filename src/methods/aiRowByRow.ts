@@ -1,5 +1,6 @@
-import { askAI, formatNumber, prettyDuration, sleep } from "@nshiab/journalism";
+import { prettyDuration, sleep } from "@nshiab/journalism";
 import type { SimpleTable } from "../index.ts";
+import tryAI from "../helpers/tryAI.ts";
 
 export default async function aiRowByRow(
   simpleTable: SimpleTable,
@@ -8,6 +9,7 @@ export default async function aiRowByRow(
   prompt: string,
   options: {
     batchSize?: number;
+    concurrent?: number;
     cache?: boolean;
     retry?: number;
     model?: string;
@@ -25,99 +27,82 @@ export default async function aiRowByRow(
     }
 
     const batchSize = options.batchSize ?? 1;
+    const concurrent = options.concurrent ?? 1;
 
+    let requests = [];
     for (let i = 0; i < rows.length; i += batchSize) {
-      options.verbose &&
-        console.log(
-          `\n${Math.min(i + batchSize, rows.length)}/${rows.length} | ${
-            formatNumber(
-              (Math.min(i + batchSize, rows.length)) / rows.length * 100,
-              {
-                significantDigits: 3,
-                suffix: "%",
-              },
-            )
-          }`,
+      if (concurrent === 1) {
+        const start = new Date();
+        await tryAI(
+          i,
+          batchSize,
+          rows,
+          column,
+          newColumn,
+          prompt,
+          options,
         );
-      const batch = rows.slice(i, i + batchSize);
-      const fullPrompt = `${prompt}\nHere are the ${column} values as a list: ${
-        JSON.stringify(batch.map((d) => d[column]))
-      }\nReturn the results in a list as well. It's critical you return the same number of items, which is ${batch.length}, exactly in the same order.`;
+        const end = new Date();
 
-      if (options.verbose) {
-        console.log("\nPrompt:");
-        console.log(fullPrompt);
-      }
-
-      const start = new Date();
-
-      const retry = options.retry ?? 1;
-      let testPassed = false;
-      let iterations = 1;
-      let newValues: (string | number | boolean | Date | null)[] = [];
-      while (!testPassed && iterations <= retry) {
-        try {
-          // Types could be improved
-          newValues = await askAI(
-            fullPrompt,
-            {
-              ...options,
-              returnJson: true,
-              test: (response: unknown) => {
-                if (!Array.isArray(response)) {
-                  throw new Error(
-                    `The AI returned a non-array value: ${
-                      JSON.stringify(response)
-                    }`,
-                  );
-                }
-                if (response.length !== batch.length) {
-                  throw new Error(
-                    `The AI returned ${response.length} values, but the batch size is ${batchSize}.`,
-                  );
-                }
-              },
-            },
-          ) as (string | number | boolean | Date | null)[];
-
-          testPassed = true;
-        } catch (e: unknown) {
-          if (iterations < retry) {
-            console.log(
-              `Error: the AI didn't return the expected number of items.\nRetrying... (${iterations}/${retry})`,
-            );
-            iterations++;
-          } else {
-            console.log(
-              `Error: the AI didn't return the expected number of items.\nNo more retries left. (${iterations}/${retry}).`,
-            );
-            throw e;
+        const duration = end.getTime() - start.getTime();
+        // If duration is less than 50ms, it means data comes from cache and we don't need to wait
+        if (
+          typeof options.rateLimitPerMinute === "number" && duration > 50
+        ) {
+          const delay = Math.round((60 / options.rateLimitPerMinute) * 1000) -
+            duration;
+          if (delay > 0) {
+            if (options.verbose) {
+              console.log(
+                `Waiting ${
+                  prettyDuration(0, { end: delay })
+                } to respect rate limit...`,
+              );
+            }
+            await sleep(delay);
           }
         }
-      }
+      } else if (concurrent) {
+        if (requests.length < concurrent) {
+          requests.push(
+            tryAI(
+              i,
+              batchSize,
+              rows,
+              column,
+              newColumn,
+              prompt,
+              options,
+            ),
+          );
+        }
+        if (requests.length === concurrent || i + batchSize >= rows.length) {
+          const start = new Date();
+          await Promise.all(requests);
+          const end = new Date();
 
-      const end = new Date();
+          requests = [];
 
-      if (options.verbose) {
-        console.log("\nResponse:", newValues);
-      }
-
-      for (let j = 0; j < newValues.length; j++) {
-        rows[i + j][newColumn] = newValues[j];
-      }
-
-      if (typeof options.rateLimitPerMinute === "number") {
-        const delay = Math.round((60 / options.rateLimitPerMinute) * 1000) -
-          (end.getTime() - start.getTime());
-        if (delay > 0) {
-          if (options.verbose) {
-            console.log(
-              `Waiting ${
-                prettyDuration(0, { end: delay })
-              } to respect rate limit...`,
-            );
+          const duration = end.getTime() - start.getTime();
+          // If duration is less than 50ms, it means data comes from cache and we don't need to wait
+          if (
+            typeof options.rateLimitPerMinute === "number" && duration > 50
+          ) {
+            const delay = Math.round(
+              (60 / (options.rateLimitPerMinute / concurrent)) * 1000,
+            ) -
+              (end.getTime() - start.getTime());
+            if (delay > 0) {
+              if (options.verbose) {
+                console.log(
+                  `Waiting ${
+                    prettyDuration(0, { end: delay })
+                  } to respect rate limit...`,
+                );
+              }
+              await sleep(delay);
+            }
           }
-          await sleep(delay);
         }
       }
     }

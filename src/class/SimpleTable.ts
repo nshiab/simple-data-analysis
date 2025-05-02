@@ -520,18 +520,20 @@ export default class SimpleTable extends Simple {
    *
    * This method currently supports Google Gemini and Vertex AI. It retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or accepts them as options. Options take precedence over environment variables.
    *
-   * This method can be slow for large tables. To avoid exceeding rate limits, you can process multiple rows at once with the `batchSize` option. You can also use the `rateLimitPerMinute` option to automatically add a delay between requests to comply with the rate limit.
+   * To avoid exceeding rate limits, you can process multiple rows at once with the `batchSize` option. You can also use the `rateLimitPerMinute` option to automatically add a delay between requests to comply with the rate limit.
+   *
+   * On the other hand, if you have a business or professional account with high rate limits, you can set the `concurrent` option to process multiple requests concurrently and speed up the process.
    *
    * The `cache` option allows you to cache locally the results of each request, saving resources and time. The data is cached in the local hidden folder `.journalism` (because this method uses the `askAI` function from the [journalism library](https://github.com/nshiab/journalism)). So don't forget to add `.journalism` to your `.gitignore` file!
    *
-   * Sometimes, the AI returns less items than the batch size, which throws an error. If you want to automatically retry the request, you can use the `retry` option. The method will retry the request up to the specified number of times.
+   * Sometimes, the AI returns fewer items than the batch size, which throws an error. If you want to automatically retry the request, you can use the `retry` option. The method will retry the request up to the specified number of times.
    *
    * The temperature is set to 0 to ensure reproducible results. However, consistent results cannot be guaranteed.
    *
    * This method won't work if you have geometries in your table.
    *
    * @example
-   * Basic usage with cache, batchSize and retry options
+   * Basic usage with cache, batchSize and rate limit
    * ```ts
    * // New table with column "city".
    * await table.loadArray([
@@ -547,7 +549,7 @@ export default class SimpleTable extends Simple {
    *   "country",
    *   `Give me the country of the city.`,
    *   // Don't forget to add .journalism to your .gitignore file!
-   *   { cache: true, batchSize: 10, retry: 3, verbose: true },
+   *   { cache: true, batchSize: 10, rateLimitPerMinute: 15, verbose: true },
    * );
    *
    * // Result:
@@ -563,6 +565,7 @@ export default class SimpleTable extends Simple {
    * @param prompt - The input string to guide the AI's response.
    * @param options - Configuration options for the AI request.
    *   @param options.batchSize - The number of rows to process in each batch. By default, it is 1.
+   *   @param options.concurrent - The number of concurrent requests to send. By default, it is 1.
    *   @param options.cache - If true, the results will be cached locally. By default, it is false.
    *   @param options.retry - The number of times to retry the request in case of failure. By default, it is 0.
    *   @param options.rateLimitPerMinute - The rate limit for the AI requests in requests per minute. If necessary, the method will wait between requests. By default, there is no limit.
@@ -579,6 +582,7 @@ export default class SimpleTable extends Simple {
     prompt: string,
     options: {
       batchSize?: number;
+      concurrent?: number;
       cache?: boolean;
       retry?: number;
       model?: string;
