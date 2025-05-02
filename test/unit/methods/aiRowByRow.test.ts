@@ -5,8 +5,8 @@ import { existsSync, rmSync } from "node:fs";
 
 const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
 if (typeof aiKey === "string" && aiKey !== "") {
-  if (existsSync("./.journalism")) {
-    rmSync("./.journalism", { recursive: true });
+  if (existsSync("./.journalism-cache")) {
+    rmSync("./.journalism-cache", { recursive: true });
   }
 
   // Deno.test("should iterate over rows with a prompt and a batch size", async () => {

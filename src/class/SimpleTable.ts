@@ -524,7 +524,7 @@ export default class SimpleTable extends Simple {
    *
    * On the other hand, if you have a business or professional account with high rate limits, you can set the `concurrent` option to process multiple requests concurrently and speed up the process.
    *
-   * The `cache` option allows you to cache locally the results of each request, saving resources and time. The data is cached in the local hidden folder `.journalism` (because this method uses the `askAI` function from the [journalism library](https://github.com/nshiab/journalism)). So don't forget to add `.journalism` to your `.gitignore` file!
+   * The `cache` option allows you to cache locally the results of each request, saving resources and time. The data is cached in the local hidden folder `.journalism-cache` (because this method uses the `askAI` function from the [journalism library](https://github.com/nshiab/journalism)). So don't forget to add `.journalism-cache` to your `.gitignore` file!
    *
    * Sometimes, the AI returns fewer items than the batch size, which throws an error. If you want to automatically retry the request, you can use the `retry` option. The method will retry the request up to the specified number of times.
    *
@@ -548,7 +548,7 @@ export default class SimpleTable extends Simple {
    *   "city",
    *   "country",
    *   `Give me the country of the city.`,
-   *   // Don't forget to add .journalism to your .gitignore file!
+   *   // Don't forget to add .journalism-cache to your .gitignore file!
    *   { cache: true, batchSize: 10, rateLimitPerMinute: 15, verbose: true },
    * );
    *
@@ -604,7 +604,7 @@ export default class SimpleTable extends Simple {
    *
    * The temperature is set to 0 to aim for reproducible results. However, to ensure consistent results in the future, it is recommended to copy the query and execute it manually using `await sdb.customQuery(query)` or to cache the query using the `cache` option.
    *
-   * When the `cache` option is set to true, the generated query will be cached locally in the hidden folder `.journalism` (because this method uses the `askAI` function from the [journalism library](https://github.com/nshiab/journalism)), saving resources and time. So don't forget to add `.journalism` to your `.gitignore` file!
+   * When the `cache` option is set to true, the generated query will be cached locally in the hidden folder `.journalism-cache` (because this method uses the `askAI` function from the [journalism library](https://github.com/nshiab/journalism)), saving resources and time. So don't forget to add `.journalism-cache` to your `.gitignore` file!
    *
    * @example
    * Basic usage with cache
@@ -612,7 +612,7 @@ export default class SimpleTable extends Simple {
    * // The AI will generate a query that will be executed, and
    * // the result will replace the existing table.
    * // If run again, it will use the previous query from the cache.
-   * // Don't forget to add .journalism to your .gitignore file!
+   * // Don't forget to add .journalism-cache to your .gitignore file!
    * await table.aiQuery(
    *    "Give me the average salary by department",
    *     { cache: true, verbose: true }
