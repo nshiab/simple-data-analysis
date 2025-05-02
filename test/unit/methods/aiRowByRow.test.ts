@@ -9,6 +9,51 @@ if (typeof aiKey === "string" && aiKey !== "") {
     rmSync("./.journalism-cache", { recursive: true });
   }
 
+  Deno.test("should iterate over rows with a prompt", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { "city": "Marrakech" },
+      { "city": "Kyoto" },
+      { "city": "Auckland" },
+    ]);
+    await table.aiRowByRow(
+      "city",
+      "country",
+      `Give me the country of the city.`,
+    );
+    const data = await table.getData();
+
+    assertEquals(data, [
+      { city: "Marrakech", country: "Morocco" },
+      { city: "Kyoto", country: "Japan" },
+      { city: "Auckland", country: "New Zealand" },
+    ]);
+    await sdb.done();
+  });
+  Deno.test("should iterate over rows with a prompt", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { "city": "Marrakech" },
+      { "city": "Kyoto" },
+      { "city": "Auckland" },
+    ]);
+    await table.aiRowByRow(
+      "city",
+      "country",
+      `Give me the country of the city.`,
+      { verbose: true },
+    );
+    const data = await table.getData();
+
+    assertEquals(data, [
+      { city: "Marrakech", country: "Morocco" },
+      { city: "Kyoto", country: "Japan" },
+      { city: "Auckland", country: "New Zealand" },
+    ]);
+    await sdb.done();
+  });
   Deno.test("should iterate over rows with a prompt and a batch size", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");

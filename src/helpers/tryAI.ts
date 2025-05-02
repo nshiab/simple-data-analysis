@@ -1,4 +1,3 @@
-import { formatNumber } from "@nshiab/journalism";
 import { askAI } from "@nshiab/journalism";
 
 export default async function tryAI(
@@ -24,27 +23,10 @@ export default async function tryAI(
     rateLimitPerMinute?: number;
   } = {},
 ) {
-  options.verbose &&
-    console.log(
-      `\n${Math.min(i + batchSize, rows.length)}/${rows.length} | ${
-        formatNumber(
-          (Math.min(i + batchSize, rows.length)) / rows.length * 100,
-          {
-            significantDigits: 3,
-            suffix: "%",
-          },
-        )
-      }`,
-    );
   const batch = rows.slice(i, i + batchSize);
-  const fullPrompt = `${prompt}\nHere are the ${column} values as a list: ${
+  const fullPrompt = `${prompt}\nHere are the ${column} values as a list:\n${
     JSON.stringify(batch.map((d) => d[column]))
   }\nReturn the results in a list as well. It's critical you return the same number of items, which is ${batch.length}, exactly in the same order.`;
-
-  if (options.verbose) {
-    console.log("\nPrompt:");
-    console.log(fullPrompt);
-  }
 
   const retry = options.retry ?? 1;
 
@@ -90,10 +72,6 @@ export default async function tryAI(
         throw e;
       }
     }
-  }
-
-  if (options.verbose) {
-    console.log("\nResponse:", newValues);
   }
 
   for (let j = 0; j < newValues.length; j++) {
