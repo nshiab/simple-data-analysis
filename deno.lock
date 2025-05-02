@@ -1,8 +1,8 @@
 {
-  "version": "4",
+  "version": "5",
   "specifiers": {
-    "jsr:@nshiab/journalism@1": "1.27.7",
-    "jsr:@nshiab/journalism@^1.27.7": "1.27.7",
+    "jsr:@nshiab/journalism@1": "1.27.8",
+    "jsr:@nshiab/journalism@^1.27.8": "1.27.8",
     "jsr:@std/assert@*": "1.0.13",
     "jsr:@std/assert@1.0.12": "1.0.12",
     "jsr:@std/dotenv@*": "0.225.3",
@@ -28,10 +28,10 @@
     "npm:playwright-chromium@^1.51.1": "1.52.0"
   },
   "jsr": {
-    "@nshiab/journalism@1.27.7": {
-      "integrity": "44a2f012e4d6e9889f17221a6ace14a60824c456979519fa235eea28cef37b1d",
+    "@nshiab/journalism@1.27.8": {
+      "integrity": "ae42ec29d4199a4c9b0b34ae621eeb276fbb6f0549c0b67a49c586abce31d253",
       "dependencies": [
-        "jsr:@nshiab/journalism@^1.27.7",
+        "jsr:@nshiab/journalism@^1.27.8",
         "npm:@google/genai",
         "npm:@observablehq/plot@~0.6.17",
         "npm:@types/d3-geo",
@@ -75,23 +75,33 @@
       ]
     },
     "@duckdb/node-bindings-darwin-arm64@1.2.2-alpha.18": {
-      "integrity": "sha512-xNzfi/+swRiA1Rye25f33tKXmFYbyQcslN6bpB3nR/Wkiotjlu3dAc5wvTpUDiiJwNeZRTRdJM/OXtUO0YaAfw=="
+      "integrity": "sha512-xNzfi/+swRiA1Rye25f33tKXmFYbyQcslN6bpB3nR/Wkiotjlu3dAc5wvTpUDiiJwNeZRTRdJM/OXtUO0YaAfw==",
+      "os": ["darwin"],
+      "cpu": ["arm64"]
     },
     "@duckdb/node-bindings-darwin-x64@1.2.2-alpha.18": {
-      "integrity": "sha512-9vXgAJ2LFKRa53E7RmvGdhWtisLLPKIpSzeE/L3X4aD5zv1V4YnhYHuMOTgxZguj+eOT1pvG99geH1WQb3DdNQ=="
+      "integrity": "sha512-9vXgAJ2LFKRa53E7RmvGdhWtisLLPKIpSzeE/L3X4aD5zv1V4YnhYHuMOTgxZguj+eOT1pvG99geH1WQb3DdNQ==",
+      "os": ["darwin"],
+      "cpu": ["x64"]
     },
     "@duckdb/node-bindings-linux-arm64@1.2.2-alpha.18": {
-      "integrity": "sha512-WcgfkPDGRsMcKAVzDhL14BJB1lYD9YY7wEIoPdyXYwkK+c4WT7ublsx7diFqBk/jO0jFYTRmXIqpNyqGT0Lwjg=="
+      "integrity": "sha512-WcgfkPDGRsMcKAVzDhL14BJB1lYD9YY7wEIoPdyXYwkK+c4WT7ublsx7diFqBk/jO0jFYTRmXIqpNyqGT0Lwjg==",
+      "os": ["linux"],
+      "cpu": ["arm64"]
     },
     "@duckdb/node-bindings-linux-x64@1.2.2-alpha.18": {
-      "integrity": "sha512-dPqVJwpu9SmKxuw7ZfebUzOLBMrZz24UzFXuHX0uwSXZS1ndUuHnqk7SWGcWafNJeDlMKV//uMQke+MGXt2LmQ=="
+      "integrity": "sha512-dPqVJwpu9SmKxuw7ZfebUzOLBMrZz24UzFXuHX0uwSXZS1ndUuHnqk7SWGcWafNJeDlMKV//uMQke+MGXt2LmQ==",
+      "os": ["linux"],
+      "cpu": ["x64"]
     },
     "@duckdb/node-bindings-win32-x64@1.2.2-alpha.18": {
-      "integrity": "sha512-0BSRNH3JbvHDYd2LM/25uQlSaXzeJaJvBCJQZoIXttY5vq6stLknfQ9zWADLa8jwFYU+p87Ajqg415zs4SfMFQ=="
+      "integrity": "sha512-0BSRNH3JbvHDYd2LM/25uQlSaXzeJaJvBCJQZoIXttY5vq6stLknfQ9zWADLa8jwFYU+p87Ajqg415zs4SfMFQ==",
+      "os": ["win32"],
+      "cpu": ["x64"]
     },
     "@duckdb/node-bindings@1.2.2-alpha.18": {
       "integrity": "sha512-1O/yBDevwMNGlv559sn3myOds0lM0D4e8ilHsDzOs3rDnpzEdzK6aSTPVG8APjjFjPjk+pEzBxUse7UsP6objA==",
-      "dependencies": [
+      "optionalDependencies": [
         "@duckdb/node-bindings-darwin-arm64",
         "@duckdb/node-bindings-darwin-x64",
         "@duckdb/node-bindings-linux-arm64",
@@ -278,7 +288,8 @@
         "commander",
         "iconv-lite",
         "rw"
-      ]
+      ],
+      "bin": true
     },
     "d3-ease@3.0.1": {
       "integrity": "sha512-wR/XK3D3XcLIZwpbvQwQ5fK+8Ykds1ip7A2Txe0yxncXSdq1L9skcG7blcedkOX+ZcgxGAmLX1FrRGbADwzi0w=="
@@ -612,6 +623,9 @@
         "axios",
         "google-auth-library",
         "lodash"
+      ],
+      "optionalPeers": [
+        "google-auth-library"
       ]
     },
     "gopd@1.2.0": {
@@ -759,10 +773,13 @@
       "integrity": "sha512-ZTpzBzRFFRglyqRnAqdK5mFaw1P41qe8V2zSR+fA0eKPgGEEaH7r91ejXKijs3WhReatRcatHQe3ndMBMN1PLA==",
       "dependencies": [
         "playwright-core"
-      ]
+      ],
+      "scripts": true,
+      "bin": true
     },
     "playwright-core@1.52.0": {
-      "integrity": "sha512-l2osTgLXSMeuLZOML9qYODUQoPPnUsKsb5/P6LJ2e6uPKXUdPK5WYhN4z03G+YNbWmGDY4YENauNu4ZKczreHg=="
+      "integrity": "sha512-l2osTgLXSMeuLZOML9qYODUQoPPnUsKsb5/P6LJ2e6uPKXUdPK5WYhN4z03G+YNbWmGDY4YENauNu4ZKczreHg==",
+      "bin": true
     },
     "proxy-from-env@1.1.0": {
       "integrity": "sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg=="
@@ -792,7 +809,8 @@
       "integrity": "sha512-uROZWze0R0itiAKVPsYhFov9LxrPMHLMEQFszeI2gCN6bnIIZ8twzBCJcN2LJrBBLfrP0t1FW0g+JmKVl8Vk1g=="
     },
     "uuid@9.0.1": {
-      "integrity": "sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA=="
+      "integrity": "sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==",
+      "bin": true
     },
     "web-worker@1.5.0": {
       "integrity": "sha512-RiMReJrTAiA+mBjGONMnjVDP2u3p9R1vkcGz6gDIrOMT3oGuYwX2WRMYI9ipkphSuE5XKEhydbhNEJh4NY9mlw=="
@@ -837,7 +855,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@nshiab/journalism@^1.27.7",
+      "jsr:@nshiab/journalism@^1.27.8",
       "jsr:@std/assert@1.0.12",
       "npm:@duckdb/node-api@1.2.2-alpha.18",
       "npm:@observablehq/plot@0.6.17"
