@@ -16,7 +16,7 @@ export default async function aiQuery(
 ) {
   const p =
     `I have a SQL table named "${simpleTable.name}". The data is already in it with these columns:\n${
-      JSON.stringify(await simpleTable.getTypes(), undefined, 2)
+      JSON.stringify(await simpleTable.getTypes())
     }\nI want you to give me a SQL query to do this:\n- ${prompt}\nThe query must replace the existing "${simpleTable.name}" table. This means the the query must start with 'CREATE OR REPLACE TABLE "${simpleTable.name}"...'. Return just the query, nothing else.`;
 
   if (options.verbose) {
