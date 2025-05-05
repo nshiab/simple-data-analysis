@@ -79,3 +79,80 @@ if (typeof aiKey === "string" && aiKey !== "") {
 } else {
   console.log("No AI_PROJECT in process.env");
 }
+
+const ollama = Deno.env.get("OLLAMA");
+if (typeof ollama === "string" && ollama !== "") {
+  if (existsSync("./.journalism-cache")) {
+    rmSync("./.journalism-cache", { recursive: true });
+  }
+
+  Deno.test("should update a table with natural language", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadData("test/data/files/dailyTemperatures.csv");
+    await table.renameColumns({ t: "temperature", "id": "city" });
+
+    await table.aiQuery(
+      `I want the average temperature for each city with two decimals.`,
+    );
+
+    await table.logTable();
+
+    // Just to make sure it doesn't crash for now
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  Deno.test("should update a table with natural language with cache", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadData("test/data/files/dailyTemperatures.csv");
+    await table.renameColumns({ t: "temperature", "id": "city" });
+
+    await table.aiQuery(
+      `I want the average temperature for each city with two decimals.`,
+      { cache: true, verbose: true },
+    );
+
+    await table.logTable();
+
+    // Just to make sure it doesn't crash for now
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  Deno.test("should update a table with natural language with query returned from cache", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadData("test/data/files/dailyTemperatures.csv");
+    await table.renameColumns({ t: "temperature", "id": "city" });
+
+    await table.aiQuery(
+      `I want the average temperature for each city with two decimals.`,
+      { cache: true, verbose: true },
+    );
+
+    await table.logTable();
+
+    // Just to make sure it doesn't crash for now
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  Deno.test("should update a table with natural language and option verbose", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadData("test/data/files/dailyTemperatures.csv");
+    await table.renameColumns({ t: "temperature", "id": "city" });
+
+    await table.aiQuery(
+      `I want the average temperature for each city with two decimals.`,
+      { verbose: true },
+    );
+
+    await table.logTable();
+
+    // Just to make sure it doesn't crash for now
+    assertEquals(true, true);
+    await sdb.done();
+  });
+} else {
+  console.log("No AI_PROJECT in process.env");
+}
