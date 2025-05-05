@@ -18,8 +18,12 @@ export default async function aiRowByRow(
     vertex?: boolean;
     project?: string;
     location?: string;
+    ollama?: boolean;
     verbose?: boolean;
     rateLimitPerMinute?: number;
+    cleaning?: (
+      response: unknown,
+    ) => unknown;
   } = {},
 ) {
   await simpleTable.updateWithJS(async (rows) => {

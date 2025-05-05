@@ -1,8 +1,8 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@nshiab/journalism@1": "1.28.0",
-    "jsr:@nshiab/journalism@^1.28.0": "1.28.0",
+    "jsr:@nshiab/journalism@1": "1.28.2",
+    "jsr:@nshiab/journalism@^1.28.2": "1.28.2",
     "jsr:@std/assert@*": "1.0.13",
     "jsr:@std/assert@1.0.12": "1.0.12",
     "jsr:@std/dotenv@*": "0.225.3",
@@ -29,10 +29,10 @@
     "npm:playwright-chromium@^1.51.1": "1.52.0"
   },
   "jsr": {
-    "@nshiab/journalism@1.28.0": {
-      "integrity": "2f28e9c97255dd24d121be38b967972487b0b52ee06935f01a148816a0e0a553",
+    "@nshiab/journalism@1.28.2": {
+      "integrity": "c1d9e58795346518fc97ca5fd54f8f31184203803bb93ac9b42116ba290f35a3",
       "dependencies": [
-        "jsr:@nshiab/journalism@^1.28.0",
+        "jsr:@nshiab/journalism@^1.28.2",
         "npm:@google/genai",
         "npm:@observablehq/plot@~0.6.17",
         "npm:@types/d3-geo",
@@ -866,7 +866,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@nshiab/journalism@^1.28.0",
+      "jsr:@nshiab/journalism@^1.28.2",
       "jsr:@std/assert@1.0.12",
       "npm:@duckdb/node-api@1.2.2-alpha.18",
       "npm:@observablehq/plot@0.6.17"
