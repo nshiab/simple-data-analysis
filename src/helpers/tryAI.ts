@@ -20,14 +20,19 @@ export default async function tryAI(
     vertex?: boolean;
     project?: string;
     location?: string;
+    ollama?: boolean;
     verbose?: boolean;
     rateLimitPerMinute?: number;
+    cleaning?: (
+      response: unknown,
+    ) => unknown;
   } = {},
 ) {
   const batch = rows.slice(i, i + batchSize);
-  const fullPrompt = `${prompt}\nHere are the ${column} values as a list:\n${
-    JSON.stringify(batch.map((d) => d[column]))
-  }\nReturn the results in a list as well. It's critical you return the same number of items, which is ${batch.length}, exactly in the same order.`;
+  const fullPrompt =
+    `${prompt}\nHere are the ${column} values as a JSON array:\n${
+      JSON.stringify(batch.map((d) => d[column]))
+    }\nReturn your results in a JSON array as well. It's critical you return the same number of items, which is ${batch.length}, exactly in the same order.`;
 
   const retry = options.retry ?? 1;
 
@@ -72,12 +77,12 @@ export default async function tryAI(
     } catch (e: unknown) {
       if (iterations < retry) {
         console.log(
-          `Error: the AI didn't return the expected number of items.\nRetrying... (${iterations}/${retry})`,
+          `${console.log(e)}\nRetrying... (${iterations}/${retry})`,
         );
         iterations++;
       } else {
         console.log(
-          `Error: the AI didn't return the expected number of items.\nNo more retries left. (${iterations}/${retry}).`,
+          `${console.log(e)}\nNo more retries left. (${iterations}/${retry}).`,
         );
         throw e;
       }

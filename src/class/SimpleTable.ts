@@ -518,7 +518,9 @@ export default class SimpleTable extends Simple {
   /**
    * Applies a prompt to the value of each row in a specified column. The results of the prompt are stored in a new column. The method automatically appends instructions to the prompt. To see the full prompt, set the `verbose` option to true.
    *
-   * This method currently supports Google Gemini and Vertex AI. It retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or accepts them as options. Options take precedence over environment variables.
+   * This method currently supports Google Gemini, Vertex AI and local models running with Ollama. It retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or accepts them as options. Options take precedence over environment variables.
+   *
+   * To run local models with Ollama, set the `OLLAMA` environment variable to `true` and start Ollama on your machine. Make sure to install the model you want and to set the `AI_MODEL` environment variable to the model name.
    *
    * To avoid exceeding rate limits, you can process multiple rows at once using the `batchSize` option. You can also use the `rateLimitPerMinute` option to automatically add a delay between requests to comply with the rate limit.
    *
@@ -595,7 +597,9 @@ export default class SimpleTable extends Simple {
    *   @param options.vertex - Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
    *   @param options.project - The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
    *   @param options.location - The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
+   *   @param options.ollama - Whether to use Ollama. Defaults to the `OLLAMA` environment variable.
    *   @param options.verbose - Whether to log additional information. Defaults to `false`.
+   *   @param options.cleaning - A function to clean the response before testing, caching and storing.
    */
   async aiRowByRow(
     column: string,
@@ -612,8 +616,12 @@ export default class SimpleTable extends Simple {
       vertex?: boolean;
       project?: string;
       location?: string;
+      ollama?: boolean;
       verbose?: boolean;
       rateLimitPerMinute?: number;
+      cleaning?: (
+        response: unknown,
+      ) => unknown;
     } = {},
   ) {
     await aiRowByRow(this, column, newColumn, prompt, options);
