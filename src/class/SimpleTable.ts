@@ -630,7 +630,9 @@ export default class SimpleTable extends Simple {
   /**
    * Generates and executes a SQL query based on a prompt. Additional instructions are automatically added before and after your prompt, such as the column types. To see the full prompt, set the `verbose` option to true.
    *
-   * Currently supports Google Gemini & Vertex AI. The method retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or accepts them as options. Options take precedence over environment variables.
+   * Currently supports Google Gemini & Vertex AI, and local models running with Ollama. The method retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or accepts them as options. Options take precedence over environment variables.
+   *
+   * To run local models with Ollama, set the `OLLAMA` environment variable to `true` and start Ollama on your machine. Make sure to install the model you want and to set the `AI_MODEL` environment variable to the model name.
    *
    * The temperature is set to 0 to aim for reproducible results. However, to ensure consistent results in the future, it is recommended to copy the query and execute it manually using `await sdb.customQuery(query)` or to cache the query using the `cache` option.
    *
