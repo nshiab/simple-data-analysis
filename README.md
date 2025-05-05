@@ -95,6 +95,12 @@ You can also write your own SQL queries if you want to (check the
 or use JavaScript to process your data (check the
 [updateWithJS method](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.updateWithJS)).
 
+Several methods can also leverage LLMs (large language models). See
+[aiRowByRow](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiRowByRow)
+for cleaning, extracting, or categorizing data, and
+[aiQuery](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiQuery)
+for interacting with your data using natural language.
+
 Feel free to start a conversation or open an issue. Check how you can
 [contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
 
