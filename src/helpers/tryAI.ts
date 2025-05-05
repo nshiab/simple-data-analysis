@@ -13,6 +13,7 @@ export default async function tryAI(
     batchSize?: number;
     concurrent?: number;
     cache?: boolean;
+    test?: (response: unknown) => void;
     retry?: number;
     model?: string;
     apiKey?: string;
@@ -37,7 +38,11 @@ export default async function tryAI(
     try {
       // Types could be improved
       newValues = await askAI(
-        fullPrompt,
+        `${fullPrompt}${
+          iterations > 1
+            ? `\nThis is your attempt #${iterations}. So get it right by following my instructions closely!`
+            : ""
+        }`,
         {
           ...options,
           returnJson: true,
@@ -53,6 +58,11 @@ export default async function tryAI(
               throw new Error(
                 `The AI returned ${response.length} values, but the batch size is ${batch.length}.`,
               );
+            }
+            if (options.test) {
+              for (const item of response) {
+                options.test(item);
+              }
             }
           },
         },

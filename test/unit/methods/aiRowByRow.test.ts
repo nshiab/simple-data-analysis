@@ -8,7 +8,53 @@ if (typeof aiKey === "string" && aiKey !== "") {
   if (existsSync("./.journalism-cache")) {
     rmSync("./.journalism-cache", { recursive: true });
   }
+  Deno.test("should successfully run the code example", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    // New table with column "name".
+    await table.loadArray([
+      { name: "Marie" },
+      { name: "John" },
+      { name: "Alex" },
+    ]);
 
+    // Ask the AI to categorize in a new column "gender".
+    await table.aiRowByRow(
+      "name",
+      "gender",
+      `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral".`,
+      {
+        // Cache the results locally
+        cache: true,
+        // Send 10 rows at once to the AI
+        batchSize: 10,
+        // Ensure the response contains only the expected categories
+        test: (response: unknown) => {
+          if (
+            typeof response !== "string" ||
+            !["Man", "Woman", "Neutral"].includes(response)
+          ) {
+            throw new Error(`Invalid response ${response}`);
+          }
+        },
+        // Retry up to 3 times if the test fails
+        retry: 3,
+        // Avoid exceeding a rate limit by waiting between requests
+        rateLimitPerMinute: 15,
+        // Log details
+        verbose: true,
+      },
+    );
+
+    const data = await table.getData();
+
+    assertEquals(data, [
+      { name: "Marie", gender: "Woman" },
+      { name: "John", gender: "Man" },
+      { name: "Alex", gender: "Neutral" },
+    ]);
+    await sdb.done();
+  });
   Deno.test("should iterate over rows with a prompt", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");

@@ -1,8 +1,8 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@nshiab/journalism@1": "1.27.8",
-    "jsr:@nshiab/journalism@^1.27.8": "1.27.8",
+    "jsr:@nshiab/journalism@1": "1.28.0",
+    "jsr:@nshiab/journalism@^1.28.0": "1.28.0",
     "jsr:@std/assert@*": "1.0.13",
     "jsr:@std/assert@1.0.12": "1.0.12",
     "jsr:@std/dotenv@*": "0.225.3",
@@ -25,13 +25,14 @@
     "npm:google-auth-library@9": "9.15.1",
     "npm:google-spreadsheet@4": "4.1.4_google-auth-library@9.15.1",
     "npm:iconv-lite@0.6": "0.6.3",
+    "npm:ollama@~0.5.15": "0.5.15",
     "npm:playwright-chromium@^1.51.1": "1.52.0"
   },
   "jsr": {
-    "@nshiab/journalism@1.27.8": {
-      "integrity": "ae42ec29d4199a4c9b0b34ae621eeb276fbb6f0549c0b67a49c586abce31d253",
+    "@nshiab/journalism@1.28.0": {
+      "integrity": "2f28e9c97255dd24d121be38b967972487b0b52ee06935f01a148816a0e0a553",
       "dependencies": [
-        "jsr:@nshiab/journalism@^1.27.8",
+        "jsr:@nshiab/journalism@^1.28.0",
         "npm:@google/genai",
         "npm:@observablehq/plot@~0.6.17",
         "npm:@types/d3-geo",
@@ -45,6 +46,7 @@
         "npm:google-auth-library",
         "npm:google-spreadsheet",
         "npm:iconv-lite",
+        "npm:ollama",
         "npm:playwright-chromium"
       ]
     },
@@ -744,6 +746,12 @@
         "boolbase"
       ]
     },
+    "ollama@0.5.15": {
+      "integrity": "sha512-TSaZSJyP7MQJFjSmmNsoJiriwa3U+/UJRw6+M8aucs5dTsaWNZsBIGpDb5rXnW6nXxJBB/z79gZY8IaiIQgelQ==",
+      "dependencies": [
+        "whatwg-fetch"
+      ]
+    },
     "pako@2.1.0": {
       "integrity": "sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug=="
     },
@@ -824,6 +832,9 @@
         "iconv-lite"
       ]
     },
+    "whatwg-fetch@3.6.20": {
+      "integrity": "sha512-EqhiFU6daOA8kpjOWTL0olhVOF3i7OrFzSYiGsEMB8GcXS+RrzauAERX65xMeNWVqxA6HXH2m69Z9LaKKdisfg=="
+    },
     "whatwg-mimetype@4.0.0": {
       "integrity": "sha512-QaKxh0eNIi2mE9p2vEdzfagOKHCcj1pJ56EEHGQOVxp8r9/iszLUUV7v89x9O1p/T+NlTM5W7jW6+cz4Fq1YVg=="
     },
@@ -855,7 +866,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@nshiab/journalism@^1.27.8",
+      "jsr:@nshiab/journalism@^1.28.0",
       "jsr:@std/assert@1.0.12",
       "npm:@duckdb/node-api@1.2.2-alpha.18",
       "npm:@observablehq/plot@0.6.17"

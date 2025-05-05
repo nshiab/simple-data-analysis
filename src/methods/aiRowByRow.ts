@@ -11,6 +11,7 @@ export default async function aiRowByRow(
     batchSize?: number;
     concurrent?: number;
     cache?: boolean;
+    test?: (response: unknown) => void;
     retry?: number;
     model?: string;
     apiKey?: string;
@@ -92,7 +93,7 @@ export default async function aiRowByRow(
         // If duration is less than 10ms per request, it should means data comes from cache and we don't need to wait
         if (
           typeof options.rateLimitPerMinute === "number" &&
-          duration > 10 * requests.length
+          duration > 10 * requests.length && i + batchSize < rows.length
         ) {
           const delay = Math.round(
             (60 / (options.rateLimitPerMinute / concurrent)) * 1000,
