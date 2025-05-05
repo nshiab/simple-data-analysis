@@ -516,59 +516,80 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Applies a prompt to the value of each row in a specified column. The results of the prompt are stored in a new column. The method automatically appends instructions to the prompt. To see it, set the `verbose` option to true.
+   * Applies a prompt to the value of each row in a specified column. The results of the prompt are stored in a new column. The method automatically appends instructions to the prompt. To see the full prompt, set the `verbose` option to true.
    *
    * This method currently supports Google Gemini and Vertex AI. It retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or accepts them as options. Options take precedence over environment variables.
    *
-   * To avoid exceeding rate limits, you can process multiple rows at once with the `batchSize` option. You can also use the `rateLimitPerMinute` option to automatically add a delay between requests to comply with the rate limit.
+   * To avoid exceeding rate limits, you can process multiple rows at once using the `batchSize` option. You can also use the `rateLimitPerMinute` option to automatically add a delay between requests to comply with the rate limit.
    *
-   * On the other hand, if you have a business or professional account with high rate limits, you can set the `concurrent` option to process multiple requests concurrently and speed up the process.
+   * If you have a business or professional account with high rate limits, you can set the `concurrent` option to process multiple requests concurrently and speed up the process.
    *
-   * The `cache` option allows you to cache locally the results of each request, saving resources and time. The data is cached in the local hidden folder `.journalism-cache` (because this method uses the `askAI` function from the [journalism library](https://github.com/nshiab/journalism)). So don't forget to add `.journalism-cache` to your `.gitignore` file!
+   * The `cache` option allows you to cache the results of each request locally, saving resources and time. The data is cached in the local hidden folder `.journalism-cache` (because this method uses the `askAI` function from the [journalism library](https://github.com/nshiab/journalism)). Don't forget to add `.journalism-cache` to your `.gitignore` file!
    *
-   * Sometimes, the AI returns fewer items than the batch size, which throws an error. If you want to automatically retry the request, you can use the `retry` option. The method will retry the request up to the specified number of times.
+   * Sometimes, the AI returns fewer items than the batch size, which throws an error. If you want to automatically retry the request, you can use the `retry` option. The method will retry the request up to the specified number of times. You can also pass a test function to check the validity of the response. If the test throws an error, the method will retry the request if `retry` is set to a number greater than 0.
    *
    * The temperature is set to 0 to ensure reproducible results. However, consistent results cannot be guaranteed.
    *
-   * This method won't work if you have geometries in your table.
+   * This method won't work if your table contains geometries.
    *
    * @example
-   * Basic usage with cache, batchSize and rate limit
+   * Basic usage with cache, batchSize, rate limit, and test function
    * ```ts
-   * // New table with column "city".
+   * // New table with column "name".
    * await table.loadArray([
-   *   { city: "Marrakech" },
-   *   { city: "Kyoto" },
-   *   { city: "Auckland" },
+   *   { name: "Marie" },
+   *   { name: "John" },
+   *   { name: "Alex" },
+   *   ...
    * ]);
    *
-   * // Ask the AI to generate the country for each city.
-   * // The result will be stored in a new column called "country".
+   * // Ask the AI to categorize in a new column "gender".
    * await table.aiRowByRow(
-   *   "city",
-   *   "country",
-   *   `Give me the country of the city.`,
-   *   // Don't forget to add .journalism-cache to your .gitignore file!
-   *   { cache: true, batchSize: 10, rateLimitPerMinute: 15, verbose: true },
+   *   "name",
+   *   "gender",
+   *   `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral".`,
+   *   {
+   *      // Cache the results locally
+   *      cache: true,
+   *      // Send 10 rows at once to the AI
+   *      batchSize: 10,
+   *      // Ensure the response contains only the expected categories
+   *      test: (response: unknown) => {
+   *        if (
+   *          typeof response !== "string" ||
+   *          !["Man", "Woman", "Neutral"].includes(response)
+   *        ) {
+   *          throw new Error(`Invalid response ${response}`);
+   *        }
+   *      },
+   *      // Retry up to 3 times if the test fails
+   *      retry: 3,
+   *      // Avoid exceeding a rate limit by waiting between requests
+   *      rateLimitPerMinute: 15,
+   *      // Log details
+   *      verbose: true,
+   *   },
    * );
    *
-   * // Result:
-   * // [
-   * //   { city: "Marrakech", country: "Morocco" },
-   * //   { city: "Kyoto", country: "Japan" },
-   * //   { city: "Auckland", country: "New Zealand" },
-   * // ]
+   * // Results:
+   * [
+   *   { name: "Marie", gender: "Woman" },
+   *   { name: "John", gender: "Man" },
+   *   { name: "Alex", gender: "Neutral" },
+   *   ...
+   * ]
    * ```
    *
    * @param column - The column to be used as input for the prompt.
    * @param newColumn - The name of the new column where the response will be stored.
    * @param prompt - The input string to guide the AI's response.
    * @param options - Configuration options for the AI request.
-   *   @param options.batchSize - The number of rows to process in each batch. By default, it is 1.
-   *   @param options.concurrent - The number of concurrent requests to send. By default, it is 1.
-   *   @param options.cache - If true, the results will be cached locally. By default, it is false.
-   *   @param options.retry - The number of times to retry the request in case of failure. By default, it is 0.
-   *   @param options.rateLimitPerMinute - The rate limit for the AI requests in requests per minute. If necessary, the method will wait between requests. By default, there is no limit.
+   *   @param options.batchSize - The number of rows to process in each batch. Defaults to 1.
+   *   @param options.concurrent - The number of concurrent requests to send. Defaults to 1.
+   *   @param options.cache - If true, the results will be cached locally. Defaults to false.
+   *   @param options.test - A function to test the validity of the response. If the test fails, the method will retry the request if `retry` is set to a number greater than 0.
+   *   @param options.retry - The number of times to retry the request in case of failure. Defaults to 0.
+   *   @param options.rateLimitPerMinute - The rate limit for the AI requests in requests per minute. If necessary, the method will wait between requests. Defaults to no limit.
    *   @param options.model - The model to use. Defaults to the `AI_MODEL` environment variable.
    *   @param options.apiKey - The API key. Defaults to the `AI_KEY` environment variable.
    *   @param options.vertex - Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
@@ -584,6 +605,7 @@ export default class SimpleTable extends Simple {
       batchSize?: number;
       concurrent?: number;
       cache?: boolean;
+      test?: (response: unknown) => void;
       retry?: number;
       model?: string;
       apiKey?: string;
