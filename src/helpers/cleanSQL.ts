@@ -2,9 +2,7 @@ export default function cleanSQL(query: string) {
   // First pass
   let cleaned = query
     .replace(/ && /g, " AND ")
-    .replace(/ & /g, " AND ")
     .replace(/ \|\| /g, " OR ")
-    .replace(/ \| /g, " OR ")
     .replace(/ === /g, " = ")
     .replace(/ == /g, " = ")
     .replace(/ !== /g, " != ");

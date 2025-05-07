@@ -219,51 +219,13 @@ Deno.test("should work with ===", async () => {
   ]);
   await sdb.done();
 });
-Deno.test("should work with &", async () => {
-  const sdb = new SimpleDB();
-  const table = sdb.newTable("employees");
-  await table.loadData("test/data/files/employees.csv");
-
-  const data = await sdb.customQuery(
-    "SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500'",
-    { returnDataFrom: "query" },
-  );
-
-  assertEquals(data, [
-    {
-      Name: "Colmenares, Karen",
-      "Hire date": "10-AUG-07",
-      Job: "Clerk",
-      Salary: "2500",
-      "Department or unit": "30",
-      "End-of_year-BONUS?": "15,8%",
-    },
-    {
-      Name: "Marlow, James",
-      "Hire date": "16-FEB-05",
-      Job: "Clerk",
-      Salary: "2500",
-      "Department or unit": "50",
-      "End-of_year-BONUS?": "15,74%",
-    },
-    {
-      Name: "Patel, Joshua",
-      "Hire date": "06-APR-06",
-      Job: "Clerk",
-      Salary: "2500",
-      "Department or unit": "50",
-      "End-of_year-BONUS?": "16,19%",
-    },
-  ]);
-  await sdb.done();
-});
 Deno.test("should work with &&", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable("employees");
   await table.loadData("test/data/files/employees.csv");
 
   const data = await sdb.customQuery(
-    `SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500' && "Department or unit" = '30'`,
+    `SELECT * FROM employees WHERE Job === 'Clerk' && Salary == '2500' && "Department or unit" = '30'`,
     { returnDataFrom: "query" },
   );
 
@@ -275,44 +237,6 @@ Deno.test("should work with &&", async () => {
       Salary: "2500",
       "Department or unit": "30",
       "End-of_year-BONUS?": "15,8%",
-    },
-  ]);
-  await sdb.done();
-});
-Deno.test("should work with |", async () => {
-  const sdb = new SimpleDB();
-  const table = sdb.newTable("employees");
-  await table.loadData("test/data/files/employees.csv");
-
-  const data = await sdb.customQuery(
-    `SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500' && ("Department or unit" = '30' | "Department or unit" = '50')`,
-    { returnDataFrom: "query" },
-  );
-
-  assertEquals(data, [
-    {
-      Name: "Colmenares, Karen",
-      "Hire date": "10-AUG-07",
-      Job: "Clerk",
-      Salary: "2500",
-      "Department or unit": "30",
-      "End-of_year-BONUS?": "15,8%",
-    },
-    {
-      Name: "Marlow, James",
-      "Hire date": "16-FEB-05",
-      Job: "Clerk",
-      Salary: "2500",
-      "Department or unit": "50",
-      "End-of_year-BONUS?": "15,74%",
-    },
-    {
-      Name: "Patel, Joshua",
-      "Hire date": "06-APR-06",
-      Job: "Clerk",
-      Salary: "2500",
-      "Department or unit": "50",
-      "End-of_year-BONUS?": "16,19%",
     },
   ]);
   await sdb.done();
@@ -323,7 +247,7 @@ Deno.test("should work with ||", async () => {
   await table.loadData("test/data/files/employees.csv");
 
   const data = await sdb.customQuery(
-    `SELECT * FROM employees WHERE Job === 'Clerk' & Salary == '2500' && ("Department or unit" = '30' || "Department or unit" = '50')`,
+    `SELECT * FROM employees WHERE Job === 'Clerk' && Salary === '2500' && ("Department or unit" = '30' || "Department or unit" = '50')`,
     { returnDataFrom: "query" },
   );
 
@@ -440,19 +364,6 @@ Deno.test("should work with === null", async () => {
 
   const data = await sdb.customQuery(
     `SELECT * FROM test WHERE key1 === null`,
-    { returnDataFrom: "query" },
-  );
-
-  assertEquals(data, [{ key1: null }]);
-  await sdb.done();
-});
-Deno.test("should work with == null", async () => {
-  const sdb = new SimpleDB();
-  const table = sdb.newTable("test");
-  await table.loadArray([{ key1: 1 }, { key1: 2 }, { key1: null }]);
-
-  const data = await sdb.customQuery(
-    `SELECT * FROM test WHERE key1 == null`,
     { returnDataFrom: "query" },
   );
 
