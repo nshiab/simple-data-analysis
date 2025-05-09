@@ -4613,6 +4613,39 @@ export default class SimpleTable extends Simple {
   }
 
   /**
+   * Fill holes in geometries.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * // By default, this method will look for the column storing the geometries.
+   * await table.fillHoles()
+   * ```
+   *
+   * @example
+   * Specific column storing geometries
+   * ```ts
+   * // If the table has more than one column storing geometries, you must specify which column should be used.
+   * await table.fillHoles("geom")
+   * ```
+   *
+   * @param column - The name of the column storing the geometries.
+   * @category Geospatial
+   */
+  async fillHoles(column?: string) {
+    const col = column ?? (await findGeoColumn(this));
+    await queryDB(
+      this,
+      `UPDATE "${this.name}" SET geom = ST_MakePolygon(ST_ExteriorRing("${col}"));`,
+      mergeOptions(this, {
+        table: this.name,
+        method: "fillHoles()",
+        parameters: { column },
+      }),
+    );
+  }
+
+  /**
    * Returns true if two geometries intersect.
    *
    * @example
