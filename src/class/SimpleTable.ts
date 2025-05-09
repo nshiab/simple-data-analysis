@@ -1890,7 +1890,7 @@ export default class SimpleTable extends Simple {
       outputTable?: string | boolean;
     } = {},
   ): Promise<SimpleTable> {
-    const identicalColumns = await getIdenticalColumns(
+    const identicalColumns = getIdenticalColumns(
       await this.getColumns(),
       await rightTable.getColumns(),
     );
