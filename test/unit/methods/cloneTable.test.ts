@@ -102,3 +102,12 @@ Deno.test("should clone a table with a specific name with spaces and '", async (
   assertEquals(await table.getData(), await clone.getData());
   await sdb.done();
 });
+Deno.test("should clone a table with data and projections", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadGeoData("test/geodata/files/bigCircle.json");
+  const clone = await table.cloneTable({ outputTable: "clone 'table" });
+
+  assertEquals(table.projections, clone.projections);
+  await sdb.done();
+});
