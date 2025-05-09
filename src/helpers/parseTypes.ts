@@ -38,7 +38,7 @@ export default function parseType(
       "timestamp with time zone",
       "boolean",
       "geometry",
-    ].includes(type)
+    ].includes(typeLowerCase)
   ) {
     return type.toUpperCase();
   } else {

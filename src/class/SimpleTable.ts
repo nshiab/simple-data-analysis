@@ -746,6 +746,29 @@ export default class SimpleTable extends Simple {
       columnsAdded = await unifyColumns(allTables);
     }
 
+    if (!await this.sdb.hasTable(this.name)) {
+      await this.setTypes(
+        (await array[0].getTypes()) as {
+          [key: string]:
+            | "integer"
+            | "float"
+            | "number"
+            | "string"
+            | "date"
+            | "time"
+            | "datetime"
+            | "datetimeTz"
+            | "bigint"
+            | "double"
+            | "varchar"
+            | "timestamp"
+            | "timestamp with time zone"
+            | "boolean"
+            | "geometry";
+        },
+      );
+    }
+
     await queryDB(
       this,
       array
