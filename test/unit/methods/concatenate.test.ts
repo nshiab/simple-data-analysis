@@ -943,3 +943,48 @@ Deno.test("should concatenate multiple columns in a new one with a separator", a
   ]);
   await sdb.done();
 });
+
+Deno.test("should concatenate multiple columns in a new one with a separator and special characters in column names", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("employees");
+  await table.loadData(["test/data/files/employees.json"]);
+  await table.concatenate(
+    ["Department or unit", "End-of_year-BONUS?"],
+    "concat with sep",
+    {
+      separator: "-",
+    },
+  );
+  const data = await table.getData();
+
+  assertEquals(data.slice(0, 3), [
+    {
+      Name: "OConnell, Donald",
+      "Hire date": "21-JUN-07",
+      Job: "Clerk",
+      Salary: "2600",
+      "Department or unit": "50",
+      "End-of_year-BONUS?": "1,94%",
+      "concat with sep": "50-1,94%",
+    },
+    {
+      Name: "OConnell, Donald",
+      "Hire date": "21-JUN-07",
+      Job: "Clerk",
+      Salary: "2600",
+      "Department or unit": "50",
+      "End-of_year-BONUS?": "1,94%",
+      "concat with sep": "50-1,94%",
+    },
+    {
+      Name: "Grant, Douglas",
+      "Hire date": "13-JAN-08",
+      Job: "Clerk",
+      Salary: null,
+      "Department or unit": "50",
+      "End-of_year-BONUS?": "23,39%",
+      "concat with sep": "50-23,39%",
+    },
+  ]);
+  await sdb.done();
+});
