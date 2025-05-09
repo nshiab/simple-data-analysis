@@ -832,7 +832,7 @@ export default class SimpleTable extends Simple {
     if (typeof options.outputTable === "string") {
       clonedTable = new SimpleTable(
         options.outputTable,
-        this.projections,
+        structuredClone(this.projections),
         this.sdb,
         {
           debug: this.debug,
@@ -845,7 +845,7 @@ export default class SimpleTable extends Simple {
     } else {
       clonedTable = new SimpleTable(
         `table${this.sdb.tableIncrement}`,
-        this.projections,
+        structuredClone(this.projections),
         this.sdb,
         {
           debug: this.debug,

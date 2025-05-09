@@ -109,6 +109,11 @@ export default async function joinGeo(
     const rightObj: { [key: string]: string } = {};
     rightObj[rightTableColumnForQuery] = rightTableColumn;
     await rightTable.renameColumns(rightObj);
+  } else {
+    allProjections = {
+      ...leftTable.projections,
+      ...rightTable.projections,
+    };
   }
 
   if (typeof options.outputTable === "string") {
