@@ -49,6 +49,18 @@ Deno.test("should do an union of all geometries and overwrite the table", async 
   await sdb.done();
 });
 
+Deno.test("should do an union of all geometries and keep the projections", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("geodata");
+  await table.loadGeoData("test/geodata/files/polygonsGroups.json");
+  await table.aggregateGeo("union");
+
+  assertEquals(table.projections, {
+    geom: "+proj=latlong +datum=WGS84 +no_defs",
+  });
+  await sdb.done();
+});
+
 Deno.test("should do an union of all geometries from a specific column and overwrite the table", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable("geodata");

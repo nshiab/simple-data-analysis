@@ -449,3 +449,20 @@ Deno.test("should log a table after a joinGeo", async () => {
 
   await sdb.done();
 });
+Deno.test("should do a left spatial join the intersect method and keep all projections", async () => {
+  const sdb = new SimpleDB();
+  const prov = sdb.newTable();
+  await prov.loadGeoData(
+    "test/geodata/files/CanadianProvincesAndTerritories.json",
+  );
+  const poly = await prov.cloneTable();
+  await poly.selectColumns("geom");
+
+  await prov.joinGeo(poly, "intersect");
+
+  assertEquals(prov.projections, {
+    geom: "+proj=latlong +datum=WGS84 +no_defs",
+    geomTable2: "+proj=latlong +datum=WGS84 +no_defs",
+  });
+  await sdb.done();
+});
