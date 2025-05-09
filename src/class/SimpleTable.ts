@@ -4602,7 +4602,9 @@ export default class SimpleTable extends Simple {
     }
     await queryDB(
       this,
-      `ALTER TABLE "${this.name}" ADD "${newColumn}" GEOMETRY; UPDATE "${this.name}" SET "${newColumn}" = ST_Difference("${column1}", "${column2}")`,
+      (await this.getColumns()).includes(newColumn)
+        ? `UPDATE "${this.name}" SET "${newColumn}" = ST_Difference("${column1}", "${column2}")`
+        : `ALTER TABLE "${this.name}" ADD "${newColumn}" GEOMETRY; UPDATE "${this.name}" SET "${newColumn}" = ST_Difference("${column1}", "${column2}")`,
       mergeOptions(this, {
         table: this.name,
         method: "removeIntersection()",
