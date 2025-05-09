@@ -4735,7 +4735,7 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Simplifies the geometries while preserving their topology. The simplification occurs on an object-by-object basis. A higher tolerance results in a more significant simplification.
+   * Simplifies the geometries while preserving the overall coverage. A higher tolerance results in a more significant simplification.
    *
    * @example
    * Basic usage
@@ -4743,6 +4743,13 @@ export default class SimpleTable extends Simple {
    * // Simplifies with a tolerance of 0.1.
    * // By default, the method will look for the column storing the geometries.
    * await table.simplify(0.1)
+   * ```
+   *
+   * @example
+   * Keeping the overall boundary intact
+   * ```ts
+   * // Simplifies the interior only.
+   * await table.simplify(0.1, { simplifyBoundary: false })
    * ```
    *
    * @example
@@ -4755,17 +4762,23 @@ export default class SimpleTable extends Simple {
    * @param tolerance - A number used for the simplification. A higher tolerance results in a more significant simplification.
    * @param options - An optional object with configuration options:
    *   @param options.column - The column storing geometries.
+   *   @param options.simplifyBoundary - If true, the method will simplify the boundary of the geometries. If false, it will simplify the interior of the geometries. Detaults to true.
    *
    * @category Geospatial
    */
-  async simplify(tolerance: number, options: { column?: string } = {}) {
+  async simplify(
+    tolerance: number,
+    options: { column?: string; simplifyBoundary?: boolean } = {},
+  ) {
     const column = typeof options.column === "string"
       ? options.column
       : await findGeoColumn(this);
 
     await queryDB(
       this,
-      `UPDATE "${this.name}" SET "${column}" = ST_SimplifyPreserveTopology("${column}", ${tolerance})`,
+      `CREATE OR REPLACE TABLE "${this.name}" AS SELECT * REPLACE(ST_CoverageSimplify(ARRAY_AGG("${column}"), ${tolerance}${
+        options.simplifyBoundary === false ? ", FAlSE" : ""
+      }) AS "${column}") FROM "${this.name}" GROUP BY ALL;`,
       mergeOptions(this, {
         table: this.name,
         method: "simplify()",
