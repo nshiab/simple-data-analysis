@@ -198,3 +198,21 @@ Deno.test("should add rows from tables with geometries", async () => {
 
 //   await sdb.done();
 // });
+Deno.test("should add rows to an empty table", async () => {
+  const sdb = new SimpleDB();
+  const table1 = sdb.newTable();
+
+  const table2 = sdb.newTable();
+  await table2.loadArray([
+    { first: "John", last: "Doe" },
+    { first: "Jane", last: "Doe" },
+  ]);
+
+  await table1.insertTables(table2);
+
+  assertEquals(await table1.getData(), [
+    { first: "John", last: "Doe" },
+    { first: "Jane", last: "Doe" },
+  ]);
+  await sdb.done();
+});
