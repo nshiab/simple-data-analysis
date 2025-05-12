@@ -332,3 +332,26 @@ Deno.test("should add rows to an empty table", async () => {
   ]);
   await sdb.done();
 });
+Deno.test("should add rows with geometries to an empty table", async () => {
+  const sdb = new SimpleDB();
+  const table1 = sdb.newTable();
+
+  const table2 = sdb.newTable();
+  await table2.loadGeoData("test/geodata/files/point.json");
+  await table2.latLon("geom", "lat", "lon");
+
+  await table1.insertTables(table2, { unifyColumns: true });
+
+  const types = await table1.getTypes();
+  const projections = table1.projections;
+
+  assertEquals({ types, projections }, {
+    types: {
+      geom: "GEOMETRY",
+      lat: "DOUBLE",
+      lon: "DOUBLE",
+    },
+    projections: { geom: "+proj=latlong +datum=WGS84 +no_defs" },
+  });
+  await sdb.done();
+});

@@ -737,15 +737,6 @@ export default class SimpleTable extends Simple {
       ? tablesToInsert
       : [tablesToInsert];
 
-    // For scoping
-    let columnsAdded: {
-      [key: string]: string[];
-    } = {};
-    if (options.unifyColumns) {
-      const allTables = [this, ...array];
-      columnsAdded = await unifyColumns(allTables);
-    }
-
     if (!await this.sdb.hasTable(this.name)) {
       await this.setTypes(
         (await array[0].getTypes()) as {
@@ -767,6 +758,16 @@ export default class SimpleTable extends Simple {
             | "geometry";
         },
       );
+      this.projections = structuredClone(array[0].projections);
+    }
+
+    // For scoping
+    let columnsAdded: {
+      [key: string]: string[];
+    } = {};
+    if (options.unifyColumns) {
+      const allTables = [this, ...array];
+      columnsAdded = await unifyColumns(allTables);
     }
 
     await queryDB(
