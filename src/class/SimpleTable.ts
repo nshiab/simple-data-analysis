@@ -5252,13 +5252,18 @@ export default class SimpleTable extends Simple {
    *   @param options.precision - Maximum number of figures after decimal separator to write in coordinates. Works with GeoJSON files only.
    *   @param options.rewind - If true, rewinds in the spherical winding order (important for D3.js). Default is false. Works with GeoJSON files only.
    *   @param options.compression - A boolean indicating whether to compress the output file. Works with GeoParquet files only. Defaults to false. If true, the file will be compressed with ZSTD.
+   *   @param options.metadata - Metadata to be added to the file. Works only with GeoJSON files.
    *
    * * @category Exporting data
    */
   async writeGeoData(
     file: string,
-    options: { precision?: number; compression?: boolean; rewind?: boolean } =
-      {},
+    options: {
+      precision?: number;
+      compression?: boolean;
+      rewind?: boolean;
+      metadata?: unknown;
+    } = {},
   ) {
     const cleanFile = cleanPath(file);
     createDirectory(cleanFile);
@@ -5297,6 +5302,11 @@ export default class SimpleTable extends Simple {
             parameters: { file, options },
           }),
         );
+      }
+      if (options.metadata) {
+        const fileData = JSON.parse(readFileSync(cleanFile, "utf-8"));
+        fileData.metadata = options.metadata;
+        writeFileSync(cleanFile, JSON.stringify(fileData));
       }
       if (options.rewind) {
         const fileData = JSON.parse(readFileSync(cleanFile, "utf-8"));

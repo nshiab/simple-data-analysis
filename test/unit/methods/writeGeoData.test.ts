@@ -21,7 +21,25 @@ Deno.test("should write a json file", async () => {
   assertEquals(writtenData, originalData);
   await sdb.done();
 });
+Deno.test("should write a json file with metadata", async () => {
+  const sdb = new SimpleDB();
+  const originalFile = "test/geodata/files/polygons.geojson";
 
+  const table = sdb.newTable();
+  await table.loadGeoData(originalFile);
+  await table.writeGeoData(`${output}data.json`, {
+    metadata: { key: "value" },
+  });
+
+  const originalData = JSON.parse(readFileSync(originalFile, "utf-8"));
+  originalData.metadata = { key: "value" };
+  const writtenData = JSON.parse(
+    readFileSync(`${output}data.json`, "utf-8"),
+  );
+
+  assertEquals(writtenData, originalData);
+  await sdb.done();
+});
 Deno.test("should write a json file with dates properties", async () => {
   const sdb = new SimpleDB();
 
