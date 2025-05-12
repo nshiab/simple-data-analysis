@@ -19,8 +19,9 @@ export default async function loadArray(
 
   const keys = Object.keys(arrayOfObjects[0]);
   const types: string[] = [];
-  const dataForChunk: DuckDBValue[][] = [];
-  for (const key of keys) {
+  const dataForChunk: DuckDBValue[][] = arrayOfObjects.map(() => []);
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
     const type = typeof arrayOfObjects[0][key];
     if (
       type === "symbol" || type === "undefined" ||
@@ -29,27 +30,33 @@ export default async function loadArray(
       throw new Error(`Type ${type} not supported.`);
     } else if (type === "object") {
       if (arrayOfObjects[0][key] instanceof Date) {
-        types.push("TIMESTAMP");
-        dataForChunk.push(arrayOfObjects.map((d) => {
-          if (d[key] === null || d[key] === undefined || Number.isNaN(d[key])) {
-            return null;
+        types[i] = "TIMESTAMP";
+
+        for (let j = 0; j < arrayOfObjects.length; j++) {
+          const d = arrayOfObjects[j][key];
+          if (d === null || d === undefined || Number.isNaN(d)) {
+            dataForChunk[j][i] = null;
           } else {
-            const date = d[key] as Date;
-            return new DuckDBTimestampValue(BigInt(date.getTime() * 1000));
+            const date = d as Date;
+            dataForChunk[j][i] = new DuckDBTimestampValue(
+              BigInt(date.getTime() * 1000),
+            );
           }
-        }));
+        }
       } else {
         throw new Error(`Type object not supported.`);
       }
     } else {
-      types.push(parseType(type));
-      dataForChunk.push(arrayOfObjects.map((d) => {
-        if (d[key] === undefined || Number.isNaN(d[key])) {
-          return null;
+      types[i] = parseType(type);
+
+      for (let j = 0; j < arrayOfObjects.length; j++) {
+        const d = arrayOfObjects[j][key];
+        if (d === null || d === undefined || Number.isNaN(d)) {
+          dataForChunk[j][i] = null;
         } else {
-          return d[key] as DuckDBValue;
+          dataForChunk[j][i] = d as DuckDBValue;
         }
-      }));
+      }
     }
   }
 
@@ -62,11 +69,19 @@ export default async function loadArray(
   const appender = await (simpleTable.connection as DuckDBConnection)
     .createAppender(simpleTable.name);
 
-  const chunk = DuckDBDataChunk.create(types.map((d) => parseDuckDBType(d)));
+  // The maximum capacity of a DuckDB data chunk is 2048 rows.
+  const chunkSize = 2000;
+  for (let i = 0; i < dataForChunk.length; i += chunkSize) {
+    const chunk = dataForChunk.slice(i, i + chunkSize);
+    const dataChunk = DuckDBDataChunk.create(
+      types.map((d) => parseDuckDBType(d)),
+      chunk.length,
+    );
+    dataChunk.setRows(
+      chunk,
+    );
+    appender.appendDataChunk(dataChunk);
+  }
 
-  chunk.setColumns(
-    dataForChunk,
-  );
-  appender.appendDataChunk(chunk);
   appender.flushSync();
 }
