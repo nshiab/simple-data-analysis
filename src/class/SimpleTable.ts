@@ -4835,6 +4835,8 @@ export default class SimpleTable extends Simple {
       ? options.column
       : await findGeoColumn(this);
 
+    await this.addRowNumber("rowNumberForSimplify");
+
     await queryDB(
       this,
       `CREATE OR REPLACE TABLE "${this.name}" AS SELECT * REPLACE(ST_CoverageSimplify(ARRAY_AGG("${column}"), ${tolerance}${
@@ -4846,6 +4848,8 @@ export default class SimpleTable extends Simple {
         parameters: { column, tolerance },
       }),
     );
+
+    await this.removeColumns("rowNumberForSimplify");
   }
 
   /**
