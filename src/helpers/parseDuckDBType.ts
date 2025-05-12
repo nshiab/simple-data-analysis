@@ -1,8 +1,10 @@
 import {
+  ARRAY,
   BIGINT,
   BOOLEAN,
   DATE,
   DOUBLE,
+  FLOAT,
   INTEGER,
   TIME,
   TIMESTAMP,
@@ -29,6 +31,10 @@ export default function parseDuckDBType(type: string) {
     return TIME;
   } else if (type === "BOOLEAN") {
     return BOOLEAN;
+  } else if (type.includes("FLOAT[")) {
+    // For embeddings
+    const size = type.replace("FLOAT[", "").replace("]", "");
+    return ARRAY(FLOAT, parseInt(size));
   } else {
     throw new Error(`Type ${type} not supported.`);
   }
