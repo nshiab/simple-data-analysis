@@ -149,7 +149,7 @@ export default class SimpleTable extends Simple {
       debug?: boolean;
       nbRowsToLog?: number;
       nbCharactersToLog?: number;
-      logTypes?: boolean;
+      types?: boolean;
     } = {},
   ) {
     super(options);
@@ -787,7 +787,9 @@ export default class SimpleTable extends Simple {
     if (options.unifyColumns) {
       for (const table of array) {
         const cols = columnsAdded[table.name];
-        await table.removeColumns(cols);
+        if (cols) {
+          await table.removeColumns(cols);
+        }
       }
     }
   }
@@ -838,7 +840,7 @@ export default class SimpleTable extends Simple {
           debug: this.debug,
           nbRowsToLog: this.nbRowsToLog,
           nbCharactersToLog: this.nbCharactersToLog,
-          logTypes: this.logTypes,
+          types: this.types,
         },
       );
       clonedTable.defaultTableName = false;
@@ -851,7 +853,7 @@ export default class SimpleTable extends Simple {
           debug: this.debug,
           nbRowsToLog: this.nbRowsToLog,
           nbCharactersToLog: this.nbCharactersToLog,
-          logTypes: this.logTypes,
+          types: this.types,
         },
       );
       clonedTable.defaultTableName = true;
@@ -5555,18 +5557,18 @@ export default class SimpleTable extends Simple {
    * @example
    * Specific number of rows and types options
    * ```ts
-   * await table.logTable({ nbRowsToLog: 100, logTypes: true });
+   * await table.logTable({ nbRowsToLog: 100, types: true });
    * ```
    *
    * @param options Either the number of rows to log (a specific number or "all") or an object with configuration options:
    *   @param nbRowsToLog - The number of rows to log. Defaults to 10 or the value set in the SimpleWebDB instance. If you want to log all rows, you can pass "all".
-   *   @param logTypes - If true, logs the column types.
+   *   @param types - If true, logs the column types.
    *   @param conditions - A SQL WHERE clause condition to filter the data. Defaults to no condition.
    */
   async logTable(
     options: "all" | number | {
       nbRowsToLog?: number | "all";
-      logTypes?: boolean;
+      types?: boolean;
       conditions?: string;
     } = {},
   ) {
@@ -5597,9 +5599,7 @@ export default class SimpleTable extends Simple {
     } else {
       rows = this.nbRowsToLog;
     }
-    const logTypes = typeof options === "object"
-      ? options.logTypes ?? false
-      : false;
+    const types = typeof options === "object" ? options.types ?? false : false;
     const conditions = typeof options === "object"
       ? options.conditions ?? undefined
       : undefined;
@@ -5614,7 +5614,7 @@ export default class SimpleTable extends Simple {
       conditions && console.log(`Conditions: ${conditions}`);
       const data = await this.getTop(rows, { conditions });
       logData(
-        this.logTypes || logTypes ? await this.getTypes() : null,
+        this.types || types ? await this.getTypes() : null,
         data,
         this.nbCharactersToLog,
       );
@@ -5894,6 +5894,21 @@ export default class SimpleTable extends Simple {
   }
 
   /**
+   * Logs the types of the columns.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * await table.logTypes()
+   * ```
+   */
+  async logTypes(): Promise<this> {
+    console.log(`\ntable ${this.name} types:`);
+    console.log(await this.getTypes());
+    return await this;
+  }
+
+  /**
    * Logs unique values for a column. By default, a maximum of 100 values are logged (depending on your runtime). You can optionnally stringify the values to see them all.
    *
    * @example
@@ -5940,12 +5955,12 @@ export default class SimpleTable extends Simple {
    * @example
    * With types
    * ```ts
-   * await table.logColumns({ logTypes: true })
+   * await table.logColumns({ types: true })
    * ```
    */
-  async logColumns(options: { logTypes?: boolean } = {}): Promise<this> {
+  async logColumns(options: { types?: boolean } = {}): Promise<this> {
     console.log(`\nTable ${this.name} columns:`);
-    if (options.logTypes) {
+    if (options.types) {
       console.log(await this.getTypes());
     } else {
       console.log(await this.getColumns());

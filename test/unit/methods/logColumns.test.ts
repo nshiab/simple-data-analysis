@@ -15,7 +15,7 @@ Deno.test("should log columns with types", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/employees.csv");
-  await table.logColumns({ logTypes: true });
+  await table.logColumns({ types: true });
 
   // How to test?
   assertEquals(true, true);

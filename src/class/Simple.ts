@@ -6,7 +6,7 @@ export default class Simple {
   /** The number of rows to log. Defaults to 10. @category Properties */
   nbRowsToLog: number;
   /** A flag indicating whether types should be logged along tables. Defaults to false. @category Properties */
-  logTypes: boolean;
+  types: boolean;
   /** The number of characters to log for text cells. By default, the whole text is logged. @category Properties */
   nbCharactersToLog: number | undefined;
   /** A DuckDB database. @category Properties */
@@ -40,12 +40,12 @@ export default class Simple {
       debug?: boolean;
       nbRowsToLog?: number;
       nbCharactersToLog?: number;
-      logTypes?: boolean;
+      types?: boolean;
     } = {},
   ) {
     this.nbRowsToLog = options.nbRowsToLog ?? 10;
     this.nbCharactersToLog = options.nbCharactersToLog;
-    this.logTypes = options.logTypes ?? false;
+    this.types = options.types ?? false;
     this.debug = options.debug ?? false;
     this.defaultTableName = false;
   }

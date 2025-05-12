@@ -221,7 +221,7 @@ Deno.test("should log debugging information when debug is true", async () => {
 });
 
 Deno.test("should log the types", async () => {
-  const sdb = new SimpleDB({ logTypes: true });
+  const sdb = new SimpleDB({ types: true });
   const test = sdb.newTable("test");
   await test.loadData("test/data/files/cities.csv");
   await test.logTable();
