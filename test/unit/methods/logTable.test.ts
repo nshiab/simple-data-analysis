@@ -35,7 +35,7 @@ Deno.test("should log a table with types", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/employees.csv");
-  await table.logTable({ logTypes: true });
+  await table.logTable({ types: true });
 
   // How to test?
   assertEquals(true, true);
@@ -45,7 +45,7 @@ Deno.test("should log a table with 100 rows and types", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
   await table.loadData("test/data/files/employees.csv");
-  await table.logTable({ logTypes: true, nbRowsToLog: 100 });
+  await table.logTable({ types: true, nbRowsToLog: 100 });
 
   // How to test?
   assertEquals(true, true);

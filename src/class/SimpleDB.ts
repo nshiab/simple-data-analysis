@@ -46,7 +46,7 @@ import getTableNames from "../methods/getTableNames.ts";
  * @param options.cacheVerbose - Whether to log cache-related messages.
  * @param options.debug - Whether to enable debug logging.
  * @param options.progressBar - Whether to show a progress bar for long-running operations.
- * @param options.logTypes - Whether to log the types of columns in the table.
+ * @param options.types - Whether to log the types of columns in the table.
  */
 
 export default class SimpleDB extends Simple {
@@ -74,7 +74,7 @@ export default class SimpleDB extends Simple {
       logDuration?: boolean;
       nbRowsToLog?: number;
       nbCharactersToLog?: number;
-      logTypes?: boolean;
+      types?: boolean;
       cacheVerbose?: boolean;
       debug?: boolean;
       progressBar?: boolean;
@@ -149,7 +149,7 @@ export default class SimpleDB extends Simple {
         debug: this.debug,
         nbRowsToLog: this.nbRowsToLog,
         nbCharactersToLog: this.nbCharactersToLog,
-        logTypes: this.logTypes,
+        types: this.types,
       });
       table.defaultTableName = false;
     } else {
@@ -157,7 +157,7 @@ export default class SimpleDB extends Simple {
         debug: this.debug,
         nbRowsToLog: this.nbRowsToLog,
         nbCharactersToLog: this.nbCharactersToLog,
-        logTypes: this.logTypes,
+        types: this.types,
       });
       table.defaultTableName = true;
       this.tableIncrement += 1;
