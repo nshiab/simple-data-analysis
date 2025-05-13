@@ -6,6 +6,7 @@ export default async function aiEmbeddings(
   column: string,
   newColumn: string,
   options: {
+    createIndex?: boolean;
     concurrent?: number;
     cache?: boolean;
     model?: string;
@@ -80,4 +81,16 @@ export default async function aiEmbeddings(
 
     return rows;
   });
+
+  if (options.createIndex) {
+    options.verbose &&
+      console.log(
+        `\nCreating index on "${newColumn}" column...`,
+      );
+    await simpleTable.sdb.customQuery(
+      `INSTALL vss; LOAD vss;
+    CREATE INDEX my_hnsw_cosine_index ON "${simpleTable.name}" USING HNSW ("${newColumn}") WITH (metric = 'cosine');`,
+    );
+    simpleTable.indexes.push("my_hnsw_cosine_index");
+  }
 }
