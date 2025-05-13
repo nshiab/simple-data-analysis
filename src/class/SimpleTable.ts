@@ -66,6 +66,7 @@ import {
   camelCase,
   createDirectory,
   formatNumber,
+  getEmbedding,
   logBarChart,
   logDotChart,
   logLineChart,
@@ -96,6 +97,7 @@ import stringifyDatesInvert from "../helpers/stringifyDatesInvert.ts";
 import aiRowByRow from "../methods/aiRowByRow.ts";
 import aiQuery from "../methods/aiQuery.ts";
 import aiEmbeddings from "../methods/aiEmbeddings.ts";
+import aiVectorSimilarity from "../methods/aiVectorSimilarity.ts";
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
@@ -139,6 +141,8 @@ export default class SimpleTable extends Simple {
   name: string;
   /** The projections of the geospatial data, if any. @category Properties */
   projections: { [key: string]: string };
+  /** The indexes of the table. @category Properties */
+  indexes: string[];
   /** The SimpleDB that created this table. @category Properties */
   declare sdb: SimpleDB;
 
@@ -158,6 +162,7 @@ export default class SimpleTable extends Simple {
     this.projections = projections;
     this.sdb = simpleDB;
     this.runQuery = runQuery;
+    this.indexes = [];
   }
 
   /** Rename the table.
@@ -629,7 +634,7 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Generates embeddings for a specified column and stores the results in a new column.
+   * Generates embeddings for a specified text column and stores the results in a new column.
    *
    * This method currently supports Google Gemini, Vertex AI, and local models running with Ollama. It retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`) or accepts them as options. Options take precedence over environment variables.
    *
@@ -641,10 +646,12 @@ export default class SimpleTable extends Simple {
    *
    * The `cache` option allows you to cache the results of each request locally, saving resources and time. The data is cached in the local hidden folder `.journalism-cache` (because this method uses the `getEmbedding` function from the [journalism library](https://github.com/nshiab/journalism)). Don't forget to add `.journalism-cache` to your `.gitignore` file!
    *
+   * If the `createIndex` option is set to true, an index will be created on the new column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful to speed up the processing time of the `aiVectorSimilarity` method.
+   *
    * This method won't work if your table contains geometries.
    *
    * @example
-   * Basic usage with cache, rate limit, and verbose logging
+   * Basic usage with cache, rate limit, index creating and verbose logging
    * ```ts
    * // New table with column "food".
    * await table.loadArray([
@@ -662,6 +669,8 @@ export default class SimpleTable extends Simple {
    *   cache: true,
    *   // Avoid exceeding a rate limit by waiting between requests
    *   rateLimitPerMinute: 15,
+   *   // Create an index on the new column
+   *   createIndex: true,
    *   // Log details
    *   verbose: true,
    * });
@@ -670,10 +679,11 @@ export default class SimpleTable extends Simple {
    * @param column - The column to be used as input for the embeddings.
    * @param newColumn - The name of the new column where the embeddings will be stored.
    * @param options - Configuration options for the AI request.
+   *   @param options.createIndex - If true, an index will be created on the new column. Useful to speed up the processing time of the aiVectorSimilarity method. Defaults to false.
    *   @param options.concurrent - The number of concurrent requests to send. Defaults to 1.
    *   @param options.cache - If true, the results will be cached locally. Defaults to false.
    *   @param options.rateLimitPerMinute - The rate limit for the AI requests in requests per minute. If necessary, the method will wait between requests. Defaults to no limit.
-   *   @param options.model - The model to use. Defaults to the `AI_MODEL` environment variable.
+   *   @param options.model - The model to use. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
    *   @param options.apiKey - The API key. Defaults to the `AI_KEY` environment variable.
    *   @param options.vertex - Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
    *   @param options.project - The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
@@ -682,6 +692,7 @@ export default class SimpleTable extends Simple {
    *   @param options.verbose - Whether to log additional information. Defaults to `false`.
    */
   async aiEmbeddings(column: string, newColumn: string, options: {
+    createIndex?: boolean;
     concurrent?: number;
     cache?: boolean;
     model?: string;
@@ -694,6 +705,89 @@ export default class SimpleTable extends Simple {
     rateLimitPerMinute?: number;
   } = {}) {
     await aiEmbeddings(this, column, newColumn, options);
+  }
+
+  /**
+   * Creates an embedding from a specified text and returns the most similar text content based on their embeddings. This method is useful for semantic search and text similarity tasks.
+   *
+   * It computes the cosine distance, and results are sorted so that the most similar results are at the top.
+   *
+   * To create the embedding, this method currently supports Google Gemini, Vertex AI, and local models running with Ollama. It retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`) or accepts them as options. Options take precedence over environment variables.
+   *
+   * To run local models with Ollama, set the `OLLAMA` environment variable to `true` and start Ollama on your machine. Make sure to install the model you want and set the `AI_EMBEDDINGS_MODEL` environment variable to the model name.
+   *
+   * The `cache` option allows you to cache the embedding of the specified text, saving resources and time. The data is cached in the local hidden folder `.journalism-cache` (because this method uses the `getEmbedding` function from the [journalism library](https://github.com/nshiab/journalism)). Don't forget to add `.journalism-cache` to your `.gitignore` file!
+   *
+   * If the `createIndex` option is set to true, an index will be created on the embeddings column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful to speed up the processing time of the method. If the index already exists, it won't be created again.
+   *
+   * @example
+   * Basic usage with cache and index creation
+   * ```ts
+   * // New table with column "food".
+   * await table.loadArray([
+   *   { food: "pizza" },
+   *   { food: "sushi" },
+   *   { food: "burger" },
+   *   { food: "pasta" },
+   *   { food: "salad" },
+   *   { food: "tacos" }
+   * ]);
+   *
+   * // Ask the AI to generate embeddings in a new column "embeddings".
+   * await table.aiEmbeddings("food", "embeddings", {
+   *   // Cache the results locally
+   *   cache: true,
+   * });
+   *
+   * // Ask the AI to find the 3 most similar foods to "italian food" in the column "food".
+   * await table.aiVectorSimilarity(
+   *   "italian food",
+   *   "embeddings",
+   *   3,
+   *   {
+   *     // Create an index on the embeddings column
+   *     createIndex: true,
+   *     // Cache the results locally
+   *     cache: true,
+   *   }
+   * );
+   *
+   * // Log the results
+   * await table.logTable();
+   * ```
+   *
+   * @param text - The text to be used as input for the similarity search.
+   * @param column - The column containing the embeddings to be used for the similarity search.
+   * @param nbResults - The number of most similar results to return.
+   * @param options - An optional object with configuration options:
+   *   @param options.createIndex - If true, an index will be created. Defaults to false.
+   *   @param options.cache - If true, the results will be cached locally. Defaults to false.
+   *   @param options.model - The model to use. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
+   *   @param options.apiKey - The API key. Defaults to the `AI_KEY` environment variable.
+   *   @param options.vertex - Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
+   *   @param options.project - The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
+   *   @param options.location - The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
+   *   @param options.ollama - Whether to use Ollama. Defaults to the `OLLAMA` environment variable.
+   *   @param options.verbose - Whether to log additional information. Defaults to `false`.
+   */
+  async aiVectorSimilarity(
+    text: string,
+    column: string,
+    nbResults: number,
+    options: {
+      createIndex?: boolean;
+      outputTable?: string;
+      cache?: boolean;
+      model?: string;
+      apiKey?: string;
+      vertex?: boolean;
+      project?: string;
+      location?: string;
+      ollama?: boolean;
+      verbose?: boolean;
+    } = {},
+  ) {
+    return await aiVectorSimilarity(this, text, column, nbResults, options);
   }
 
   /**
