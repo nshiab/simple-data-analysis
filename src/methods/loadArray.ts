@@ -1,4 +1,5 @@
 import {
+  arrayValue,
   type DuckDBConnection,
   DuckDBDataChunk,
   DuckDBTimestampValue,
@@ -42,6 +43,13 @@ export default async function loadArray(
               BigInt(date.getTime() * 1000),
             );
           }
+        }
+      } else if (Array.isArray(arrayOfObjects[0][key])) {
+        types[i] = `FLOAT[${arrayOfObjects[0][key].length}]`;
+
+        for (let j = 0; j < arrayOfObjects.length; j++) {
+          const d = arrayOfObjects[j][key];
+          dataForChunk[j][i] = arrayValue(d as number[]);
         }
       } else {
         throw new Error(`Type object not supported.`);

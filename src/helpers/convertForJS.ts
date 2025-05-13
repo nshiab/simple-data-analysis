@@ -29,6 +29,10 @@ export default function convertForJS(rows: {
         for (const row of rows) {
           row[key] = row[key] === null ? null : "<Geometry>";
         }
+      } else if (types[key].includes("FLOAT[")) {
+        for (const row of rows) {
+          row[key] = row[key] === null ? null : `<${types[key]}>`;
+        }
       }
     }
   }

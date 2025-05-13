@@ -95,6 +95,7 @@ import stringifyDates from "../helpers/stringifyDates.ts";
 import stringifyDatesInvert from "../helpers/stringifyDatesInvert.ts";
 import aiRowByRow from "../methods/aiRowByRow.ts";
 import aiQuery from "../methods/aiQuery.ts";
+import aiEmbeddings from "../methods/aiEmbeddings.ts";
 
 /**
  * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
@@ -625,6 +626,74 @@ export default class SimpleTable extends Simple {
     } = {},
   ) {
     await aiRowByRow(this, column, newColumn, prompt, options);
+  }
+
+  /**
+   * Generates embeddings for a specified column and stores the results in a new column.
+   *
+   * This method currently supports Google Gemini, Vertex AI, and local models running with Ollama. It retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`) or accepts them as options. Options take precedence over environment variables.
+   *
+   * To run local models with Ollama, set the `OLLAMA` environment variable to `true` and start Ollama on your machine. Make sure to install the model you want and set the `AI_EMBEDDINGS_MODEL` environment variable to the model name.
+   *
+   * To avoid exceeding rate limits, you can use the `rateLimitPerMinute` option to automatically add a delay between requests to comply with the rate limit.
+   *
+   * If you have a business or professional account with high rate limits, you can set the `concurrent` option to process multiple requests concurrently and speed up the process.
+   *
+   * The `cache` option allows you to cache the results of each request locally, saving resources and time. The data is cached in the local hidden folder `.journalism-cache` (because this method uses the `getEmbedding` function from the [journalism library](https://github.com/nshiab/journalism)). Don't forget to add `.journalism-cache` to your `.gitignore` file!
+   *
+   * This method won't work if your table contains geometries.
+   *
+   * @example
+   * Basic usage with cache, rate limit, and verbose logging
+   * ```ts
+   * // New table with column "food".
+   * await table.loadArray([
+   *   { food: "pizza" },
+   *   { food: "sushi" },
+   *   { food: "burger" },
+   *   { food: "pasta" },
+   *   { food: "salad" },
+   *   { food: "tacos" }
+   * ]);
+   *
+   * // Ask the AI to generate embeddings in a new column "embeddings".
+   * await table.aiEmbeddings("food", "embeddings", {
+   *   // Cache the results locally
+   *   cache: true,
+   *   // Avoid exceeding a rate limit by waiting between requests
+   *   rateLimitPerMinute: 15,
+   *   // Log details
+   *   verbose: true,
+   * });
+   * ```
+   *
+   * @param column - The column to be used as input for the embeddings.
+   * @param newColumn - The name of the new column where the embeddings will be stored.
+   * @param options - Configuration options for the AI request.
+   *   @param options.concurrent - The number of concurrent requests to send. Defaults to 1.
+   *   @param options.cache - If true, the results will be cached locally. Defaults to false.
+   *   @param options.rateLimitPerMinute - The rate limit for the AI requests in requests per minute. If necessary, the method will wait between requests. Defaults to no limit.
+   *   @param options.model - The model to use. Defaults to the `AI_MODEL` environment variable.
+   *   @param options.apiKey - The API key. Defaults to the `AI_KEY` environment variable.
+   *   @param options.vertex - Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
+   *   @param options.project - The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
+   *   @param options.location - The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
+   *   @param options.ollama - Whether to use Ollama. Defaults to the `OLLAMA` environment variable.
+   *   @param options.verbose - Whether to log additional information. Defaults to `false`.
+   */
+  async aiEmbeddings(column: string, newColumn: string, options: {
+    concurrent?: number;
+    cache?: boolean;
+    model?: string;
+    apiKey?: string;
+    vertex?: boolean;
+    project?: string;
+    location?: string;
+    ollama?: boolean;
+    verbose?: boolean;
+    rateLimitPerMinute?: number;
+  } = {}) {
+    await aiEmbeddings(this, column, newColumn, options);
   }
 
   /**
