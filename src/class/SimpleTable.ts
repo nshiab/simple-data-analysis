@@ -66,7 +66,6 @@ import {
   camelCase,
   createDirectory,
   formatNumber,
-  getEmbedding,
   logBarChart,
   logDotChart,
   logLineChart,
@@ -786,7 +785,7 @@ export default class SimpleTable extends Simple {
       ollama?: boolean;
       verbose?: boolean;
     } = {},
-  ) {
+  ): Promise<SimpleTable> {
     return await aiVectorSimilarity(this, text, column, nbResults, options);
   }
 
