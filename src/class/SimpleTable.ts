@@ -560,8 +560,8 @@ export default class SimpleTable extends Simple {
    *      cache: true,
    *      // Send 10 rows at once to the AI
    *      batchSize: 10,
-   *      // Ensure the response contains only the expected categories
-   *      test: (response: unknown) => {
+   *      // Ensure each new data point is of the expected categories
+   *      test: (dataPoint: unknown) => {
    *        if (
    *          typeof response !== "string" ||
    *          !["Man", "Woman", "Neutral"].includes(response)
@@ -594,7 +594,7 @@ export default class SimpleTable extends Simple {
    *   @param options.batchSize - The number of rows to process in each batch. Defaults to 1.
    *   @param options.concurrent - The number of concurrent requests to send. Defaults to 1.
    *   @param options.cache - If true, the results will be cached locally. Defaults to false.
-   *   @param options.test - A function to test the validity of the response. If the test fails, the method will retry the request if `retry` is set to a number greater than 0.
+   *   @param options.test - A function to test the validity of the returned data point. If the test fails, the method will retry the request if `retry` is set to a number greater than 0.
    *   @param options.retry - The number of times to retry the request in case of failure. Defaults to 0.
    *   @param options.rateLimitPerMinute - The rate limit for the AI requests in requests per minute. If necessary, the method will wait between requests. Defaults to no limit.
    *   @param options.model - The model to use. Defaults to the `AI_MODEL` environment variable.
@@ -614,7 +614,7 @@ export default class SimpleTable extends Simple {
       batchSize?: number;
       concurrent?: number;
       cache?: boolean;
-      test?: (response: unknown) => void;
+      test?: (dataPoint: unknown) => void;
       retry?: number;
       model?: string;
       apiKey?: string;

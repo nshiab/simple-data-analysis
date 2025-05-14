@@ -28,7 +28,11 @@ export default async function loadArray(
       type === "symbol" || type === "undefined" ||
       type === "function"
     ) {
-      throw new Error(`Type ${type} not supported.`);
+      throw new Error(
+        `Type ${type} not supported for ${key}. Value: ${
+          arrayOfObjects[0][key]
+        }`,
+      );
     } else if (type === "object") {
       if (arrayOfObjects[0][key] instanceof Date) {
         types[i] = "TIMESTAMP";
@@ -52,7 +56,11 @@ export default async function loadArray(
           dataForChunk[j][i] = arrayValue(d as number[]);
         }
       } else {
-        throw new Error(`Type object not supported.`);
+        throw new Error(
+          `Type object not supported for ${key}. Value: ${
+            arrayOfObjects[0][key]
+          }`,
+        );
       }
     } else {
       types[i] = parseType(type);
