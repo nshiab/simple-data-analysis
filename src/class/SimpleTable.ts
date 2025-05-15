@@ -69,6 +69,7 @@ import {
   logBarChart,
   logDotChart,
   logLineChart,
+  overwriteSheetData,
   rewind,
   saveChart,
 } from "jsr:@nshiab/journalism@1";
@@ -5508,6 +5509,45 @@ export default class SimpleTable extends Simple {
     } else {
       throw new Error(`Unknown extension ${fileExtension}`);
     }
+  }
+
+  /**
+   * Clears a Google Sheet and populates it with the table's data. This methods uses the [overwriteSheetData function from the journalism library](https://jsr.io/@nshiab/journalism/doc/~/overwriteSheetData). See its documentation for more information.
+   *
+   * By default, this function looks for the API key in process.env.GOOGLE_PRIVATE_KEY and the service account email in process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL. If you don't have credentials, check [this](https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication).
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0")
+   * ```
+   *
+   * @param sheetUrl - The url directing to a specific sheet.
+   * @param options - An optional object with configuration options:
+   *   @param options.prepend - Text to be added before the data.
+   *   @param options.lastUpdate - If true, adds a row before the data with the date of the update.
+   *   @param options.timeZone - If lastUpdate is true, you can use this option to format the date to a specific time zone.
+   *   @param options.raw - If true, Google Sheet won't try to guess the data type and won't format or parse the values.
+   *   @param options.apiEmail - If your API email is stored under different names in process.env, use this option.
+   *   @param options.apiKey - If your API key is stored under different names in process.env, use this option.
+   */
+  async toSheet(sheetUrl: string, options: {
+    prepend?: string;
+    lastUpdate?: boolean;
+    timeZone?:
+      | "Canada/Atlantic"
+      | "Canada/Central"
+      | "Canada/Eastern"
+      | "Canada/Mountain"
+      | "Canada/Newfoundland"
+      | "Canada/Pacific"
+      | "Canada/Saskatchewan"
+      | "Canada/Yukon";
+    raw?: boolean;
+    apiEmail?: string;
+    apiKey?: string;
+  } = {}) {
+    await overwriteSheetData(await this.getData(), sheetUrl, options);
   }
 
   /**
