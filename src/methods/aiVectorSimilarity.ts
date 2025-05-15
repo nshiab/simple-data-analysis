@@ -41,7 +41,8 @@ export default async function aiVectorSimilarity(
 
   await queryDB(
     simpleTable,
-    `CREATE OR REPLACE TABLE "${
+    `INSTALL vss; LOAD vss;
+    CREATE OR REPLACE TABLE "${
       options.outputTable ?? simpleTable.name
     }" AS SELECT * FROM "${simpleTable.name}" ORDER BY array_cosine_distance("${column}", ${
       JSON.stringify(textEmbedding)
