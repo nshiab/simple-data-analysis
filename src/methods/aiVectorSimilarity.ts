@@ -21,6 +21,18 @@ export default async function aiVectorSimilarity(
     verbose?: boolean;
   } = {},
 ) {
+  const textEmbedding = await getEmbedding(text, options);
+
+  const types = await simpleTable.getTypes();
+  if (types[column] !== `FLOAT[${textEmbedding.length}]`) {
+    await simpleTable.sdb.customQuery(
+      `ALTER TABLE "${simpleTable.name}" ADD COLUMN "${column}_fixed_floatType" FLOAT[${textEmbedding.length}];
+      UPDATE "${simpleTable.name}" SET "${column}_fixed_floatType" = "${column}"::FLOAT[${textEmbedding.length}];
+      ALTER TABLE "${simpleTable.name}" DROP COLUMN "${column}";
+      ALTER TABLE "${simpleTable.name}" RENAME COLUMN "${column}_fixed_floatType" TO "${column}";`,
+    );
+  }
+
   if (options.createIndex) {
     options.verbose &&
       console.log(
@@ -37,14 +49,12 @@ export default async function aiVectorSimilarity(
     }
   }
 
-  const textEmbedding = await getEmbedding(text, options);
-
   await queryDB(
     simpleTable,
     `INSTALL vss; LOAD vss;
     CREATE OR REPLACE TABLE "${
       options.outputTable ?? simpleTable.name
-    }" AS SELECT * FROM "${simpleTable.name}" ORDER BY array_cosine_distance("${column}", ${
+    }" AS SELECT * FROM "${simpleTable.name}" ORDER BY array_cosine_distance("${column}"::FLOAT[${textEmbedding.length}], ${
       JSON.stringify(textEmbedding)
     }::FLOAT[${textEmbedding.length}]) LIMIT ${nbResults};`,
     mergeOptions(simpleTable, {
