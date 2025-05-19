@@ -21,7 +21,7 @@ export default async function aiRowByRow(
     ollama?: boolean;
     verbose?: boolean;
     rateLimitPerMinute?: number;
-    cleaning?: (
+    clean?: (
       response: unknown,
     ) => unknown;
   } = {},

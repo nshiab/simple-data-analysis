@@ -447,7 +447,7 @@ if (typeof ollama === "string" && aiKey !== "") {
         cache: true,
         // Send 10 rows at once to the AI
         batchSize: 10,
-        cleaning: (response: unknown) =>
+        clean: (response: unknown) =>
           typeof response === "object" && response && "genders" in response
             ? response.genders
             : response,
@@ -498,7 +498,7 @@ if (typeof ollama === "string" && aiKey !== "") {
         cache: true,
         // Send 10 rows at once to the AI
         batchSize: 10,
-        cleaning: (response: unknown) =>
+        clean: (response: unknown) =>
           typeof response === "object" && response && "genders" in response
             ? response.genders
             : response,
@@ -542,7 +542,7 @@ if (typeof ollama === "string" && aiKey !== "") {
       "country",
       `Give me the country of the city. Return an objects with two keys in it: one with the list of original cities and the other with a list of their countries, in the same order.`,
       {
-        cleaning: (response: unknown) =>
+        clean: (response: unknown) =>
           typeof response === "object" && response && "countries" in response
             ? response.countries
             : response,
@@ -571,7 +571,7 @@ if (typeof ollama === "string" && aiKey !== "") {
       `Give me the country of the city. Return an objects with two keys in it: one with the list of original cities and the other with a list of their countries, in the same order.`,
       {
         verbose: true,
-        cleaning: (response: unknown) =>
+        clean: (response: unknown) =>
           typeof response === "object" && response && "countries" in response
             ? response.countries
             : response,
@@ -609,7 +609,7 @@ if (typeof ollama === "string" && aiKey !== "") {
       {
         batchSize: 10,
         verbose: true,
-        cleaning: (response: unknown) =>
+        clean: (response: unknown) =>
           typeof response === "object" && response && "countries" in response
             ? response.countries
             : response,
@@ -656,7 +656,7 @@ if (typeof ollama === "string" && aiKey !== "") {
         batchSize: 10,
         cache: true,
         verbose: true,
-        cleaning: (response: unknown) =>
+        clean: (response: unknown) =>
           typeof response === "object" && response && "countries" in response
             ? response.countries
             : response,
@@ -703,7 +703,7 @@ if (typeof ollama === "string" && aiKey !== "") {
         batchSize: 10,
         cache: true,
         verbose: true,
-        cleaning: (response: unknown) =>
+        clean: (response: unknown) =>
           typeof response === "object" && response && "countries" in response
             ? response.countries
             : response,
@@ -749,7 +749,7 @@ if (typeof ollama === "string" && aiKey !== "") {
       {
         batchSize: 10,
         verbose: true,
-        cleaning: (response: unknown) =>
+        clean: (response: unknown) =>
           typeof response === "object" && response && "countries" in response
             ? response.countries
             : response,
@@ -796,7 +796,7 @@ if (typeof ollama === "string" && aiKey !== "") {
         batchSize: 2,
         concurrent: 2,
         verbose: true,
-        cleaning: (response: unknown) =>
+        clean: (response: unknown) =>
           typeof response === "object" && response && "countries" in response
             ? response.countries
             : response,
@@ -845,7 +845,7 @@ if (typeof ollama === "string" && aiKey !== "") {
         concurrent: 2,
         cache: true,
         verbose: true,
-        cleaning: (response: unknown) =>
+        clean: (response: unknown) =>
           typeof response === "object" && response && "countries" in response
             ? response.countries
             : response,

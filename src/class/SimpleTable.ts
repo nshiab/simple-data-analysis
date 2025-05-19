@@ -605,7 +605,7 @@ export default class SimpleTable extends Simple {
    *   @param options.location - The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
    *   @param options.ollama - Whether to use Ollama. Defaults to the `OLLAMA` environment variable.
    *   @param options.verbose - Whether to log additional information. Defaults to `false`.
-   *   @param options.cleaning - A function to clean the response before testing, caching and storing.
+   *   @param options.clean - A function to clean the response before testing, caching and storing.
    */
   async aiRowByRow(
     column: string,
@@ -625,7 +625,7 @@ export default class SimpleTable extends Simple {
       ollama?: boolean;
       verbose?: boolean;
       rateLimitPerMinute?: number;
-      cleaning?: (
+      clean?: (
         response: unknown,
       ) => unknown;
     } = {},

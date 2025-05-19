@@ -23,7 +23,7 @@ export default async function tryAI(
     ollama?: boolean;
     verbose?: boolean;
     rateLimitPerMinute?: number;
-    cleaning?: (
+    clean?: (
       response: unknown,
     ) => unknown;
   } = {},
