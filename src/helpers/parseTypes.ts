@@ -32,6 +32,7 @@ export default function parseType(
       "date",
       "time",
       "bigint",
+      "hugeint",
       "double",
       "varchar",
       "timestamp",
