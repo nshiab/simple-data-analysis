@@ -28,7 +28,7 @@ export default function writeDataQuery(
     } else {
       return `COPY "${table}" TO '${file}' (FORMAT PARQUET);`;
     }
-  } else if (fileExtension === "db") {
+  } else if (fileExtension === "sqlite") {
     return `INSTALL sqlite; LOAD sqlite;
     ATTACH '${file}' AS sqlite_db (TYPE SQLITE);
     CREATE TABLE IF NOT EXISTS sqlite_db."${table}" AS SELECT * FROM "${table}";`;

@@ -5370,9 +5370,9 @@ export default class SimpleTable extends Simple {
    * ```
    *
    * @example
-   * Writing a SQLite db
+   * Writing as a SQLite db
    * ```ts
-   * await table.writeData("output/data.db");
+   * await table.writeData("output/data.sqlite");
    * ```
    *
    * @param file - The path to the file to which data will be written.
