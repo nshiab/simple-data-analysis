@@ -5357,6 +5357,24 @@ export default class SimpleTable extends Simple {
    * await table.writeData("output/data.csv");
    * ```
    *
+   * @example
+   * Writing JSON data
+   * ```ts
+   * await table.writeData("output/data.json");
+   * ```
+   *
+   * @example
+   * Writing Parquet data
+   * ```ts
+   * await table.writeData("output/data.parquet");
+   * ```
+   *
+   * @example
+   * Writing a SQLite db
+   * ```ts
+   * await table.writeData("output/data.db");
+   * ```
+   *
    * @param file - The path to the file to which data will be written.
    * @param options - An optional object with configuration options:
    *   @param options.compression - A boolean indicating whether to compress the output file. Defaults to false. If true, CSV and JSON files will be compressed with GZIP while PARQUET files will use ZSTD.
