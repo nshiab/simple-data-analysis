@@ -193,6 +193,17 @@ Deno.test("should write data as arrays", async () => {
   });
   await sdb.done();
 });
+Deno.test("should write data as a db", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/data.csv");
+  await table.writeData(`${output}data.db`);
+
+  // Just making sure it doesn't throw
+  assertEquals(true, true);
+  await sdb.done();
+});
+
 Deno.test("should write data as a SQLite db", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();

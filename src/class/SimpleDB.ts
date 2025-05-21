@@ -2,11 +2,14 @@ import { DuckDBInstance } from "@duckdb/node-api";
 import runQuery from "../helpers/runQuery.ts";
 import SimpleTable from "./SimpleTable.ts";
 import cleanCache from "../helpers/cleanCache.ts";
-import { prettyDuration } from "@nshiab/journalism";
+import { createDirectory, prettyDuration } from "@nshiab/journalism";
 import Simple from "./Simple.ts";
 import queryDB from "../helpers/queryDB.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
 import getTableNames from "../methods/getTableNames.ts";
+import cleanPath from "../helpers/cleanPath.ts";
+import getExtension from "../helpers/getExtension.ts";
+import { existsSync, rmSync } from "node:fs";
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance, in-memory analytical database.
@@ -347,6 +350,126 @@ export default class SimpleDB extends Simple {
         parameters: { query, options },
       }),
     );
+  }
+
+  /**
+   * Loads a database from a file into memory. The original file will not be modified.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * await sdb.loadDB("my_database.db")
+   * const myTable = await sdb.getTable("myTable")
+   * ```
+   *
+   * @example
+   * Loading a SQLite database
+   * ```ts
+   * await sdb.loadDB("my_database.sqlite")
+   * const myTable = await sdb.getTable("myTable")
+   * ```
+   *
+   * @param file - The path to the file storing the database.
+   */
+  async loadDB(file: string): Promise<void> {
+    const path = cleanPath(file);
+    const extension = getExtension(path);
+    if (extension === "db") {
+      await queryDB(
+        this,
+        `ATTACH '${path}' AS my_database;
+COPY FROM DATABASE my_database TO memory;
+DETACH my_database;`,
+        mergeOptions(this, {
+          returnDataFrom: "none",
+          table: null,
+          method: "write()",
+          parameters: {},
+        }),
+      );
+    } else if (extension === "sqlite") {
+      await queryDB(
+        this,
+        `INSTALL sqlite; LOAD sqlite;
+        ATTACH '${path}' AS my_database (TYPE SQLITE);
+COPY FROM DATABASE my_database TO memory;
+DETACH my_database;`,
+        mergeOptions(this, {
+          returnDataFrom: "none",
+          table: null,
+          method: "write()",
+          parameters: {},
+        }),
+      );
+    } else {
+      throw new Error(
+        `The extension ${extension} is not supported. Please use .db or .sqlite instead.`,
+      );
+    }
+
+    for (const table of await this.getTableNames()) {
+      const t = this.newTable(table);
+      this.tables.push(t);
+    }
+    this.tableIncrement = Math.round(Math.random() * 1000000);
+  }
+
+  /**
+   * Writes the database to a file. The file will be created if it doesn't exist, and overwritten if it does.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * await sdb.writeDB("my_database.db")
+   * ```
+   *
+   * @example
+   * Writing a SQLite database
+   * ```ts
+   * await sdb.writeDB("my_database.sqlite")
+   * ```
+   *
+   * @param file - The path to the file where the database will be written.
+   */
+  async writeDB(file: string): Promise<void> {
+    const path = cleanPath(file);
+    if (existsSync(path)) {
+      rmSync(path);
+    }
+    createDirectory(path);
+    const extension = getExtension(path);
+    if (extension === "db") {
+      await queryDB(
+        this,
+        `ATTACH '${path}' AS my_database;
+COPY FROM DATABASE memory TO my_database;
+DETACH my_database;`,
+        mergeOptions(this, {
+          returnDataFrom: "none",
+          table: null,
+          method: "write()",
+          parameters: {},
+        }),
+      );
+    } else if (extension === "sqlite") {
+      await queryDB(
+        this,
+        `INSTALL sqlite; LOAD sqlite;
+        ATTACH '${path}' AS my_database (TYPE SQLITE);
+COPY FROM DATABASE memory TO my_database;
+DETACH my_database;`,
+        mergeOptions(this, {
+          returnDataFrom: "none",
+          table: null,
+          method: "write()",
+          parameters: {},
+        }),
+      );
+    } else {
+      throw new Error(
+        `The extension ${extension} is not supported. Please use .db or .sqlite instead.`,
+      );
+    }
   }
 
   /**

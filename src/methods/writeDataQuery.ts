@@ -1,3 +1,4 @@
+import { existsSync, rmSync } from "node:fs";
 import getExtension from "../helpers/getExtension.ts";
 
 export default function writeDataQuery(
@@ -28,10 +29,22 @@ export default function writeDataQuery(
     } else {
       return `COPY "${table}" TO '${file}' (FORMAT PARQUET);`;
     }
+  } else if (fileExtension === "db") {
+    if (existsSync(file)) {
+      rmSync(file);
+    }
+    return `ATTACH '${file}' AS my_database;
+COPY FROM DATABASE memory TO my_database;
+CREATE OR REPLACE TABLE my_database."${table}" AS SELECT * FROM "${table}";
+DETACH my_database;`;
   } else if (fileExtension === "sqlite") {
+    if (existsSync(file)) {
+      rmSync(file);
+    }
     return `INSTALL sqlite; LOAD sqlite;
-    ATTACH '${file}' AS ${table}_sqlite_db (TYPE SQLITE);
-    CREATE TABLE IF NOT EXISTS ${table}_sqlite_db."${table}" AS SELECT * FROM "${table}";`;
+    ATTACH '${file}' AS my_sqlite_db (TYPE SQLITE);
+    CREATE TABLE my_sqlite_db."${table}" AS SELECT * FROM "${table}";
+    DETACH my_sqlite_db;`;
   } else {
     throw new Error(`Unknown extension ${fileExtension}`);
   }

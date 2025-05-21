@@ -1,6 +1,12 @@
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { DuckDBConnection, DuckDBInstance } from "@duckdb/node-api";
+import { existsSync, mkdirSync } from "node:fs";
+
+const output = "./test/output/";
+if (!existsSync(output)) {
+  mkdirSync(output);
+}
 
 Deno.test("should instantiate a SimpleDB class", async () => {
   const sdb = new SimpleDB();
@@ -246,7 +252,6 @@ Deno.test("should log a specific number of characters", async () => {
   // How to test?
   await sdb.done();
 });
-
 Deno.test("should log the total duration", async () => {
   const sdb = new SimpleDB({ logDuration: true });
   const test = sdb.newTable("test");
@@ -259,5 +264,42 @@ Deno.test("should enable a progress bar", async () => {
   const test = sdb.newTable("test");
   await test.loadData("test/data/files/cities.csv");
   // How to test?
+  await sdb.done();
+});
+Deno.test("should write the db", async () => {
+  const sdb = new SimpleDB();
+  const test = sdb.newTable("test");
+  await test.loadData("test/data/files/cities.csv");
+
+  await sdb.writeDB(`${output}database.db`);
+  // How to test?
+  await sdb.done();
+});
+Deno.test("should write the SQLite db", async () => {
+  const sdb = new SimpleDB();
+  const test = sdb.newTable("test");
+  await test.loadData("test/data/files/cities.csv");
+
+  await sdb.writeDB(`${output}database.sqlite`);
+  // How to test?
+  await sdb.done();
+});
+Deno.test("should load the db", async () => {
+  const sdb = new SimpleDB();
+
+  await sdb.loadDB(`${output}database.db`);
+  const test = await sdb.getTable("test");
+  await test.logTable();
+
+  // How to test?
+  await sdb.done();
+});
+Deno.test("should load the sqlite db", async () => {
+  const sdb = new SimpleDB();
+
+  await sdb.loadDB(`${output}database.sqlite`);
+  const test = await sdb.getTable("test");
+  await test.logTable();
+
   await sdb.done();
 });
