@@ -290,6 +290,7 @@ Deno.test("should load the db", async () => {
   await sdb.loadDB(`${output}database.db`);
   const test = await sdb.getTable("test");
   await test.logTable();
+
   // How to test?
   await sdb.done();
 });

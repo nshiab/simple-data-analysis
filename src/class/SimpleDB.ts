@@ -392,7 +392,6 @@ DETACH my_database;`,
       const t = this.newTable(table);
       this.tables.push(t);
     }
-
     this.tableIncrement = Math.round(Math.random() * 1000000);
   }
 
