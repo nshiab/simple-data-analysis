@@ -30,8 +30,8 @@ export default function writeDataQuery(
     }
   } else if (fileExtension === "sqlite") {
     return `INSTALL sqlite; LOAD sqlite;
-    ATTACH '${file}' AS sqlite_db (TYPE SQLITE);
-    CREATE TABLE IF NOT EXISTS sqlite_db."${table}" AS SELECT * FROM "${table}";`;
+    ATTACH '${file}' AS ${table}_sqlite_db (TYPE SQLITE);
+    CREATE TABLE IF NOT EXISTS ${table}_sqlite_db."${table}" AS SELECT * FROM "${table}";`;
   } else {
     throw new Error(`Unknown extension ${fileExtension}`);
   }
