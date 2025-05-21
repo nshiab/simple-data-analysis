@@ -352,6 +352,25 @@ export default class SimpleDB extends Simple {
     );
   }
 
+  /**
+   * Loads a database from a file into memory. The original file will not be modified.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * await sdb.loadDB("my_database.db")
+   * const myTable = await sdb.getTable("myTable")
+   * ```
+   *
+   * @example
+   * Loading a SQLite database
+   * ```ts
+   * await sdb.loadDB("my_database.sqlite")
+   * const myTable = await sdb.getTable("myTable")
+   * ```
+   *
+   * @param file - The path to the file storing the database.
+   */
   async loadDB(file: string): Promise<void> {
     const path = cleanPath(file);
     const extension = getExtension(path);
