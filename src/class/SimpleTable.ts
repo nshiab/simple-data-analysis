@@ -5370,6 +5370,12 @@ export default class SimpleTable extends Simple {
    * ```
    *
    * @example
+   * Writing as a DuckDB database
+   * ```ts
+   * await table.writeData("output/data.db");
+   * ```
+   *
+   * @example
    * Writing as a SQLite db
    * ```ts
    * await table.writeData("output/data.sqlite");
