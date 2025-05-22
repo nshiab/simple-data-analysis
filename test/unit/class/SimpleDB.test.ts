@@ -303,3 +303,25 @@ Deno.test("should load the sqlite db", async () => {
 
   await sdb.done();
 });
+Deno.test("should write the db with geometries", async () => {
+  const sdb = new SimpleDB();
+  const test = sdb.newTable("test");
+  await test.loadGeoData(
+    "test/geodata/files/CanadianProvincesAndTerritories.json",
+  );
+  await test.logProjections();
+  await test.logTable();
+
+  await sdb.writeDB(`${output}database_geometry.db`);
+  // How to test?
+  await sdb.done();
+});
+Deno.test("should load the db with geometries", async () => {
+  const sdb = new SimpleDB();
+  await sdb.loadDB(`${output}database_geometry.db`);
+  const test = await sdb.getTable("test");
+  await test.logProjections();
+  await test.logTable();
+  // How to test?
+  await sdb.done();
+});
