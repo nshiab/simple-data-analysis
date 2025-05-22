@@ -10,6 +10,8 @@ import getTableNames from "../methods/getTableNames.ts";
 import cleanPath from "../helpers/cleanPath.ts";
 import getExtension from "../helpers/getExtension.ts";
 import { existsSync, rmSync } from "node:fs";
+import { writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance, in-memory analytical database.
@@ -353,7 +355,7 @@ export default class SimpleDB extends Simple {
   }
 
   /**
-   * Loads a database from a file into memory. The original file will not be modified.
+   * Loads a database from a file into memory. The original file will not be modified. If one or more columns has geometries, the method will automatically look for a file with projections in the same folder as the database file.
    *
    * @example
    * Basic usage
@@ -411,11 +413,24 @@ DETACH my_database;`,
       const t = this.newTable(table);
       this.tables.push(t);
     }
+    const allProjectionsFile = `${
+      path.replace(`.${extension}`, "")
+    }_projections.json`;
+    if (existsSync(allProjectionsFile)) {
+      const projections = JSON.parse(
+        readFileSync(allProjectionsFile, "utf-8"),
+      );
+      for (const table of this.tables) {
+        if (projections[table.name]) {
+          table.projections = projections[table.name];
+        }
+      }
+    }
     this.tableIncrement = Math.round(Math.random() * 1000000);
   }
 
   /**
-   * Writes the database to a file. The file will be created if it doesn't exist, and overwritten if it does.
+   * Writes the database to a file. The file will be created if it doesn't exist, and overwritten if it does. If one or more tables have geometries, a .json file will be created with the projections.
    *
    * @example
    * Basic usage
@@ -438,6 +453,23 @@ DETACH my_database;`,
     }
     createDirectory(path);
     const extension = getExtension(path);
+
+    const allProjections: { [key: string]: { [key: string]: string } } = {};
+    for (const table of this.tables) {
+      if (Object.keys(table.projections).length > 0) {
+        allProjections[table.name] = table.projections;
+      }
+    }
+    const allProjectionsFile = `${
+      path.replace(`.${extension}`, "")
+    }_projections.json`;
+    if (existsSync(allProjectionsFile)) {
+      rmSync(allProjectionsFile);
+    }
+    if (Object.keys(allProjections).length > 0) {
+      writeFileSync(allProjectionsFile, JSON.stringify(allProjections));
+    }
+
     if (extension === "db") {
       await queryDB(
         this,
