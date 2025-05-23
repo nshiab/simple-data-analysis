@@ -249,6 +249,28 @@ export default class SimpleDB extends Simple {
   }
 
   /**
+   * Logs the names of all tables in the database.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * await sdb.logTablesNames()
+   * ```
+   *
+   * @category DB methods
+   */
+  async logTableNames(): Promise<void> {
+    const tables = await this.getTableNames();
+    if (tables.length > 0) {
+      console.log(
+        `\nSimpleDB - Tables:  ${JSON.stringify(tables)}`,
+      );
+    } else {
+      console.log(`\nSimpleDB - No tables found.`);
+    }
+  }
+
+  /**
    * Returns all tables in the db.
    *
    * @example

@@ -325,3 +325,16 @@ Deno.test("should load the db with geometries", async () => {
   // How to test?
   await sdb.done();
 });
+
+Deno.test("should log the table names in the db", async () => {
+  const sdb = new SimpleDB();
+  const test = sdb.newTable("test");
+  await test.loadData("test/data/files/cities.csv");
+  const test1 = sdb.newTable("test1");
+  await test1.loadData("test/data/files/cities.csv");
+
+  await sdb.logTableNames();
+
+  // How to test?
+  await sdb.done();
+});
