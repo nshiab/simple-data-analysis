@@ -391,6 +391,7 @@ Deno.test("should load the db with geometries", async () => {
   await sdb.loadDB(`${output}database_geometry.db`);
   const test = await sdb.getTable("test");
   await test.logProjections();
+  await test.simplify(0.1);
   await test.logTable();
   // How to test?
   await sdb.done();

@@ -499,6 +499,7 @@ DETACH my_database;`,
           table.projections = projections[table.name];
         }
       }
+      await this.customQuery(`INSTALL spatial; LOAD spatial;`);
     }
     this.tableIncrement = Math.round(Math.random() * 1000000);
   }
