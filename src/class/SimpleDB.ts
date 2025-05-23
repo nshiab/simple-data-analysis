@@ -261,6 +261,12 @@ export default class SimpleDB extends Simple {
       t,
     ) => t instanceof SimpleTable ? t.name : t);
 
+    for (const table of tablesToBeSelected) {
+      if (!(await this.hasTable(table))) {
+        throw new Error(`Table ${table} not found.`);
+      }
+    }
+
     const tablesToBeRemoved = this.tables.filter((t) =>
       !tablesToBeSelected.includes(t.name)
     );
