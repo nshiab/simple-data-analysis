@@ -90,7 +90,7 @@ Deno.test("should create tables with names", async () => {
   await sdb.done();
 });
 
-Deno.test("should remove one table", async () => {
+Deno.test("should remove one table as an instance", async () => {
   const sdb = new SimpleDB();
   const table1 = sdb.newTable("table1");
   await table1.loadData(["test/data/files/data.json"]);
@@ -108,14 +108,32 @@ Deno.test("should remove one table", async () => {
   await sdb.done();
 });
 
-Deno.test("should remove multiple tables", async () => {
+Deno.test("should remove one table as a string", async () => {
+  const sdb = new SimpleDB();
+  const table1 = sdb.newTable("table1");
+  await table1.loadData(["test/data/files/data.json"]);
+  const table2 = sdb.newTable("table2");
+  await table2.loadData(["test/data/files/data.json"]);
+
+  await sdb.removeTables("table1");
+
+  const tables = await sdb.getTableNames();
+
+  assertEquals(
+    tables.sort((a, b) => (a > b ? 1 : -1)),
+    ["table2"],
+  );
+  await sdb.done();
+});
+
+Deno.test("should remove multiple tables as instances or strings", async () => {
   const sdb = new SimpleDB();
   const table1 = sdb.newTable("table1");
   await table1.loadData(["test/data/files/data.json"]);
   const tableWithName = sdb.newTable("tableWithName");
   await tableWithName.loadData(["test/data/files/data.json"]);
 
-  await sdb.removeTables([table1, tableWithName]);
+  await sdb.removeTables(["table1", tableWithName]);
 
   const tables = await sdb.getTables();
 

@@ -205,21 +205,23 @@ export default class SimpleDB extends Simple {
    * ```
    *
    * @example
-   * Multiple tables
+   * Multiple tables, as instances or strings
    * ```ts
-   * await table.removeTables([tableA, tableB])
+   * await table.removeTables([tableA, "tableB"])
    * ```
    *
    * @param tables - The tables to be removed
    *
    * @category DB methods
    */
-  async removeTables(tables: SimpleTable | SimpleTable[]) {
+  async removeTables(tables: SimpleTable | string | (SimpleTable | string)[]) {
     const tablesToBeRemoved = Array.isArray(tables) ? tables : [tables];
 
     await queryDB(
       this,
-      tablesToBeRemoved.map((d) => `DROP TABLE ${d.name};`).join("\n"),
+      tablesToBeRemoved.map((d) =>
+        `DROP TABLE ${d instanceof SimpleTable ? d.name : d};`
+      ).join("\n"),
       mergeOptions(this, {
         table: null,
         method: "removeTable()",
@@ -227,7 +229,9 @@ export default class SimpleDB extends Simple {
       }),
     );
 
-    const tablesNamesToBeRemoved = tablesToBeRemoved.map((t) => t.name);
+    const tablesNamesToBeRemoved = tablesToBeRemoved.map((t) =>
+      t instanceof SimpleTable ? t.name : t
+    );
     this.tables = this.tables.filter((t) =>
       !tablesNamesToBeRemoved.includes(t.name)
     );
