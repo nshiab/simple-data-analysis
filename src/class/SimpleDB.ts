@@ -238,6 +238,54 @@ export default class SimpleDB extends Simple {
   }
 
   /**
+   * Selects a table or multiple tables in the database. Invoking methods on the tables that have not been selected will throw an error.
+   *
+   * @example
+   * Basic usage
+   * ```ts
+   * await table.selectTables(tableA)
+   * ```
+   *
+   * @example
+   * Multiple tables, as instances or strings
+   * ```ts
+   * await table.selectTables([tableA, "tableB"])
+   * ```
+   *
+   * @param tables - The tables to be selected
+   *
+   * @category DB methods
+   */
+  async selectTables(tables: SimpleTable | string | (SimpleTable | string)[]) {
+    const tablesToBeSelected = (Array.isArray(tables) ? tables : [tables]).map((
+      t,
+    ) => t instanceof SimpleTable ? t.name : t);
+
+    const tablesToBeRemoved = this.tables.filter((t) =>
+      !tablesToBeSelected.includes(t.name)
+    );
+
+    await queryDB(
+      this,
+      tablesToBeRemoved.map((d) =>
+        `DROP TABLE ${d instanceof SimpleTable ? d.name : d};`
+      ).join("\n"),
+      mergeOptions(this, {
+        table: null,
+        method: "removeTable()",
+        parameters: {},
+      }),
+    );
+
+    const tablesNamesToBeRemoved = tablesToBeRemoved.map((t) =>
+      t instanceof SimpleTable ? t.name : t
+    );
+    this.tables = this.tables.filter((t) =>
+      !tablesNamesToBeRemoved.includes(t.name)
+    );
+  }
+
+  /**
    * Returns the list of table names.
    *
    * @example

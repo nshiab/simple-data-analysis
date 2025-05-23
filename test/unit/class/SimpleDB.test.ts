@@ -141,6 +141,58 @@ Deno.test("should remove multiple tables as instances or strings", async () => {
   await sdb.done();
 });
 
+Deno.test("should select one table as an instance", async () => {
+  const sdb = new SimpleDB();
+  const table1 = sdb.newTable("table1");
+  await table1.loadData(["test/data/files/data.json"]);
+  const table2 = sdb.newTable("table2");
+  await table2.loadData(["test/data/files/data.json"]);
+
+  await sdb.selectTables(table1);
+
+  const tables = await sdb.getTableNames();
+
+  assertEquals(
+    tables.sort((a, b) => (a > b ? 1 : -1)),
+    ["table1"],
+  );
+  await sdb.done();
+});
+Deno.test("should select one table as a string", async () => {
+  const sdb = new SimpleDB();
+  const table1 = sdb.newTable("table1");
+  await table1.loadData(["test/data/files/data.json"]);
+  const table2 = sdb.newTable("table2");
+  await table2.loadData(["test/data/files/data.json"]);
+
+  await sdb.selectTables("table1");
+
+  const tables = await sdb.getTableNames();
+
+  assertEquals(
+    tables.sort((a, b) => (a > b ? 1 : -1)),
+    ["table1"],
+  );
+  await sdb.done();
+});
+
+Deno.test("should select multiple tables as instances or strings", async () => {
+  const sdb = new SimpleDB();
+  const table1 = sdb.newTable("table1");
+  await table1.loadData(["test/data/files/data.json"]);
+  const table2 = sdb.newTable("table2");
+  await table2.loadData(["test/data/files/data.json"]);
+  const tableWithName = sdb.newTable("tableWithName");
+  await tableWithName.loadData(["test/data/files/data.json"]);
+
+  await sdb.selectTables(["table1", table2]);
+
+  const tables = await sdb.getTableNames();
+
+  assertEquals(tables.sort((a, b) => (a > b ? 1 : -1)), ["table1", "table2"]);
+  await sdb.done();
+});
+
 Deno.test("should retrieve a SimpleTable instance", async () => {
   const sdb = new SimpleDB();
   const tableJSON = sdb.newTable("tableJSON");
