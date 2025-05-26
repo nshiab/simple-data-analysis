@@ -1,5 +1,6 @@
-import { formatNumber, getEmbedding, sleep } from "@nshiab/journalism";
+import { formatNumber, sleep } from "@nshiab/journalism";
 import type { SimpleTable } from "../index.ts";
+import tryEmbedding from "../helpers/tryEmbedding.ts";
 
 export default async function aiEmbeddings(
   simpleTable: SimpleTable,
@@ -50,17 +51,13 @@ export default async function aiEmbeddings(
           );
         }
         requests.push(
-          getEmbedding(text, options),
+          tryEmbedding(i, rows, text, newColumn, options),
         );
       }
 
       if (requests.length === concurrent || i + 1 >= rows.length) {
         const start = new Date();
-        const newValues = await Promise.all(requests);
-        for (let j = 0; j < newValues.length; j++) {
-          // Should be improved...
-          rows[i + j][newColumn] = newValues[j] as unknown as number;
-        }
+        await Promise.all(requests);
         const end = new Date();
 
         const duration = end.getTime() - start.getTime();
