@@ -138,7 +138,7 @@ if (typeof ollama === "string" && ollama !== "") {
       // Cache the results locally
       cache: true,
       // Avoid exceeding a rate limit by waiting between requests
-      rateLimitPerMinute: 15,
+      // rateLimitPerMinute: 15,
       // Log details
       verbose: true,
     });
@@ -164,9 +164,39 @@ if (typeof ollama === "string" && ollama !== "") {
       // Cache the results locally
       cache: true,
       // Avoid exceeding a rate limit by waiting between requests
-      rateLimitPerMinute: 15,
+      // rateLimitPerMinute: 15,
       // Create an index on the new column "embeddings"
       createIndex: true,
+      // Log details
+      verbose: true,
+    });
+
+    // Just making sure it's doesnt crash for now
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  Deno.test("should create embeddings with concurrent requests", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { food: "pizza" },
+      { food: "sushi" },
+      { food: "burger" },
+      { food: "pasta" },
+      { food: "salad" },
+      { food: "tacos" },
+    ]);
+
+    // Ask the AI to generate embeddings in a new column "embeddings".
+    await table.aiEmbeddings("food", "embeddings", {
+      // Cache the results locally
+      cache: true,
+      // Avoid exceeding a rate limit by waiting between requests
+      // rateLimitPerMinute: 15,
+      // Create an index on the new column "embeddings"
+      createIndex: true,
+      // Use concurrent requests to speed up the process
+      concurrent: 2,
       // Log details
       verbose: true,
     });

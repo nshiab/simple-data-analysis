@@ -842,7 +842,7 @@ if (typeof ollama === "string" && aiKey !== "") {
       `Give me the country of the city. Return an objects with two keys in it: one with the list of original cities and the other with a list of their countries, in the same order.`,
       {
         batchSize: 2,
-        concurrent: 2,
+        concurrent: 5,
         cache: true,
         verbose: true,
         clean: (response: unknown) =>
