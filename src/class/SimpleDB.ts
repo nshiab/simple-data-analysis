@@ -267,8 +267,8 @@ export default class SimpleDB extends Simple {
       }
     }
 
-    const tablesToBeRemoved = this.tables.filter((t) =>
-      !tablesToBeSelected.includes(t.name)
+    const tablesToBeRemoved = Array.from(
+      new Set(this.tables.filter((t) => !tablesToBeSelected.includes(t.name))),
     );
 
     await queryDB(
