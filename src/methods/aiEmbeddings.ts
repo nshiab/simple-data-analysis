@@ -1,4 +1,4 @@
-import { formatNumber, sleep } from "@nshiab/journalism";
+import { camelCase, formatNumber, sleep } from "@nshiab/journalism";
 import type { SimpleTable } from "../index.ts";
 import tryEmbedding from "../helpers/tryEmbedding.ts";
 
@@ -86,8 +86,12 @@ export default async function aiEmbeddings(
       );
     await simpleTable.sdb.customQuery(
       `INSTALL vss; LOAD vss;
-    CREATE INDEX my_hnsw_cosine_index ON "${simpleTable.name}" USING HNSW ("${newColumn}") WITH (metric = 'cosine');`,
+    CREATE INDEX my_hnsw_cosine_index${
+        camelCase(simpleTable.name)
+      } ON "${simpleTable.name}" USING HNSW ("${newColumn}") WITH (metric = 'cosine');`,
     );
-    simpleTable.indexes.push("my_hnsw_cosine_index");
+    simpleTable.indexes.push(
+      `my_hnsw_cosine_index${camelCase(simpleTable.name)}`,
+    );
   }
 }

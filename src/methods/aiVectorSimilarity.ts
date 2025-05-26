@@ -1,4 +1,4 @@
-import { getEmbedding } from "@nshiab/journalism";
+import { camelCase, getEmbedding } from "@nshiab/journalism";
 import type { SimpleTable } from "../index.ts";
 import queryDB from "../helpers/queryDB.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
@@ -38,14 +38,22 @@ export default async function aiVectorSimilarity(
       console.log(
         `\nCreating index on "${column}" column...`,
       );
-    if (simpleTable.indexes.includes("my_hnsw_cosine_index")) {
+    if (
+      simpleTable.indexes.includes(
+        `my_hnsw_cosine_index${camelCase(simpleTable.name)}`,
+      )
+    ) {
       options.verbose && console.log("Index already exists.");
     } else {
       await simpleTable.sdb.customQuery(
         `INSTALL vss; LOAD vss;
-    CREATE INDEX my_hnsw_cosine_index ON "${simpleTable.name}" USING HNSW ("${column}") WITH (metric = 'cosine');`,
+    CREATE INDEX my_hnsw_cosine_index${
+          camelCase(simpleTable.name)
+        } ON "${simpleTable.name}" USING HNSW ("${column}") WITH (metric = 'cosine');`,
       );
-      simpleTable.indexes.push("my_hnsw_cosine_index");
+      simpleTable.indexes.push(
+        `my_hnsw_cosine_index${camelCase(simpleTable.name)}`,
+      );
     }
   }
 
