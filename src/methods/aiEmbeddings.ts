@@ -86,12 +86,12 @@ export default async function aiEmbeddings(
       );
     await simpleTable.sdb.customQuery(
       `INSTALL vss; LOAD vss;
-    CREATE INDEX my_hnsw_cosine_index${
+    CREATE INDEX vss_cosine_index${
         camelCase(simpleTable.name)
       } ON "${simpleTable.name}" USING HNSW ("${newColumn}") WITH (metric = 'cosine');`,
     );
     simpleTable.indexes.push(
-      `my_hnsw_cosine_index${camelCase(simpleTable.name)}`,
+      `vss_cosine_index${camelCase(simpleTable.name)}`,
     );
   }
 }

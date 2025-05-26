@@ -435,7 +435,7 @@ export default class SimpleDB extends Simple {
   }
 
   /**
-   * Loads a database from a file into memory. The original file will not be modified. If one or more columns has geometries, the method will automatically look for a file with projections in the same folder as the database file.
+   * Loads a database from a file into memory. The original file will not be modified. If one or more columns has geometries, the method will automatically look for files with projections and indexes in the same folder as the database file.
    *
    * @example
    * Basic usage
@@ -456,6 +456,24 @@ export default class SimpleDB extends Simple {
   async loadDB(file: string): Promise<void> {
     const path = cleanPath(file);
     const extension = getExtension(path);
+
+    const allIndexesFile = `${path.replace(`.${extension}`, "")}_indexes.json`;
+    let vssIndex = false;
+    if (existsSync(allIndexesFile)) {
+      const indexes = JSON.parse(readFileSync(allIndexesFile, "utf-8"));
+      for (const table of Object.keys(indexes)) {
+        for (const index of indexes[table]) {
+          if (index.startsWith("vss_")) {
+            vssIndex = true;
+          }
+        }
+      }
+    }
+
+    if (vssIndex) {
+      await this.customQuery(`INSTALL vss; LOAD vss;`);
+    }
+
     if (extension === "db") {
       await queryDB(
         this,
@@ -507,11 +525,21 @@ DETACH my_database;`,
       }
       await this.customQuery(`INSTALL spatial; LOAD spatial;`);
     }
+
+    if (existsSync(allIndexesFile)) {
+      const indexes = JSON.parse(readFileSync(allIndexesFile, "utf-8"));
+      for (const table of this.tables) {
+        if (indexes[table.name]) {
+          table.indexes = indexes[table.name];
+        }
+      }
+    }
+
     this.tableIncrement = Math.round(Math.random() * 1000000);
   }
 
   /**
-   * Writes the database to a file. The file will be created if it doesn't exist, and overwritten if it does. If one or more tables have geometries, a .json file will be created with the projections.
+   * Writes the database to a file. The file will be created if it doesn't exist, and overwritten if it does. If one or more tables have geometries, a .json file will be created with the projections. If one or more indexes are present, a .json file will be created with the indexes.
    *
    * @example
    * Basic usage
@@ -549,6 +577,20 @@ DETACH my_database;`,
     }
     if (Object.keys(allProjections).length > 0) {
       writeFileSync(allProjectionsFile, JSON.stringify(allProjections));
+    }
+
+    const allIndexes: { [key: string]: string[] } = {};
+    for (const table of this.tables) {
+      if (table.indexes.length > 0) {
+        allIndexes[table.name] = table.indexes;
+      }
+    }
+    const allIndexesFile = `${path.replace(`.${extension}`, "")}_indexes.json`;
+    if (existsSync(allIndexesFile)) {
+      rmSync(allIndexesFile);
+    }
+    if (Object.keys(allIndexes).length > 0) {
+      writeFileSync(allIndexesFile, JSON.stringify(allIndexes));
     }
 
     if (extension === "db") {

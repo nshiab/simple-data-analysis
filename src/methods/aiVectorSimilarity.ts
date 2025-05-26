@@ -40,19 +40,19 @@ export default async function aiVectorSimilarity(
       );
     if (
       simpleTable.indexes.includes(
-        `my_hnsw_cosine_index${camelCase(simpleTable.name)}`,
+        `vss_cosine_index${camelCase(simpleTable.name)}`,
       )
     ) {
       options.verbose && console.log("Index already exists.");
     } else {
       await simpleTable.sdb.customQuery(
         `INSTALL vss; LOAD vss;
-    CREATE INDEX my_hnsw_cosine_index${
+    CREATE INDEX vss_cosine_index${
           camelCase(simpleTable.name)
         } ON "${simpleTable.name}" USING HNSW ("${column}") WITH (metric = 'cosine');`,
       );
       simpleTable.indexes.push(
-        `my_hnsw_cosine_index${camelCase(simpleTable.name)}`,
+        `vss_cosine_index${camelCase(simpleTable.name)}`,
       );
     }
   }
