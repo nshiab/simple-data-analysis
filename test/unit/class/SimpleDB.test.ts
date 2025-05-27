@@ -1,3 +1,4 @@
+import "jsr:@std/dotenv/load";
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { DuckDBConnection, DuckDBInstance } from "@duckdb/node-api";
@@ -434,7 +435,6 @@ Deno.test("should load the db with geometries", async () => {
   // How to test?
   await sdb.done();
 });
-
 Deno.test("should log the table names in the db", async () => {
   const sdb = new SimpleDB();
   const test = sdb.newTable("test");
@@ -447,3 +447,40 @@ Deno.test("should log the table names in the db", async () => {
   // How to test?
   await sdb.done();
 });
+const ollama = Deno.env.get("OLLAMA");
+if (typeof ollama === "string" && ollama !== "") {
+  Deno.test("should create a DB with embeddings and an index", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { food: "pizza" },
+      { food: "sushi" },
+      { food: "burger" },
+      { food: "pasta" },
+      { food: "salad" },
+      { food: "tacos" },
+    ]);
+
+    await table.aiEmbeddings("food", "embeddings", {
+      verbose: true,
+      createIndex: true,
+    });
+
+    await sdb.writeDB(`${output}database_embeddings.db`);
+
+    // Just making sure it's doesnt crash for now
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  Deno.test("should load a DB with embeddings and an index", async () => {
+    const sdb = new SimpleDB();
+    await sdb.loadDB(`${output}database_embeddings.db`);
+    const table = await sdb.getTable("data");
+    await table.logTable();
+    // Just making sure it's doesnt crash for now
+    assertEquals(true, true);
+    await sdb.done();
+  });
+} else {
+  console.log("No OLLAMA in process.env");
+}
