@@ -364,6 +364,44 @@ Deno.test("should load the db", async () => {
   // How to test?
   await sdb.done();
 });
+Deno.test("should load the db with a specific name", async () => {
+  const sdb = new SimpleDB();
+
+  await sdb.loadDB(`${output}database.db`, { name: "something" });
+  const test = await sdb.getTable("test");
+  await test.logTable();
+
+  // How to test?
+  await sdb.done();
+});
+Deno.test("should load the sqlite db with a specific name", async () => {
+  const sdb = new SimpleDB();
+
+  await sdb.loadDB(`${output}database.sqlite`, { name: "something" });
+  const test = await sdb.getTable("test");
+  await test.logTable();
+
+  await sdb.done();
+});
+Deno.test("should load the db with and don't detach", async () => {
+  const sdb = new SimpleDB();
+
+  await sdb.loadDB(`${output}database.db`, { detach: false });
+  const test = await sdb.getTable("test");
+  await test.logTable();
+
+  // How to test?
+  await sdb.done();
+});
+Deno.test("should load the sqlite db and don't detach", async () => {
+  const sdb = new SimpleDB();
+
+  await sdb.loadDB(`${output}database.sqlite`, { detach: false });
+  const test = await sdb.getTable("test");
+  await test.logTable();
+
+  await sdb.done();
+});
 Deno.test("should load the sqlite db", async () => {
   const sdb = new SimpleDB();
 

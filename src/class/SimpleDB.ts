@@ -435,7 +435,11 @@ export default class SimpleDB extends Simple {
   }
 
   /**
-   * Loads a database from a file into memory. The original file will not be modified. If one or more columns has geometries, the method will automatically look for files with projections and indexes in the same folder as the database file.
+   * Loads a database. The method will automatically look for files with projections and indexes in the same folder as the database file, if any.
+   *
+   * By default, the database will be copied into memory and detached. The original file will not be modified. To keep the database attached, set the `detach` option to `false`.
+   *
+   * If you want to load multiple databases, you can use the `name` option to give them different names. If you don't provide a name, it will default to `my_database`. Note that the last database loaded will be considered the default database.
    *
    * @example
    * Basic usage
@@ -451,9 +455,26 @@ export default class SimpleDB extends Simple {
    * const myTable = await sdb.getTable("myTable")
    * ```
    *
+   * @example
+   * Loading a database with a specific name and keeping it attached
+   * ```ts
+   * await sdb.loadDB("my_database.db", { name: "my_custom_name", detach: false })
+   * ```
+   *
    * @param file - The path to the file storing the database.
+   * @param options - An optional object with configuration options:
+   *   @param options.name - The name of the database to be loaded. Defaults to "my_database".
+   *   @param options.detach - Whether to detach the database after loading it. Defaults to true.
+   *
+   * @category DB methods
    */
-  async loadDB(file: string): Promise<void> {
+  async loadDB(file: string, options: {
+    name?: string;
+    detach?: boolean;
+  } = {}): Promise<void> {
+    const name = options.name ?? "my_database";
+    const detach = options.detach ?? true;
+
     const path = cleanPath(file);
     const extension = getExtension(path);
 
@@ -475,32 +496,61 @@ export default class SimpleDB extends Simple {
     }
 
     if (extension === "db") {
-      await queryDB(
-        this,
-        `ATTACH '${path}' AS my_database;
-COPY FROM DATABASE my_database TO memory;
-DETACH my_database;`,
-        mergeOptions(this, {
-          returnDataFrom: "none",
-          table: null,
-          method: "write()",
-          parameters: {},
-        }),
-      );
+      if (detach) {
+        await queryDB(
+          this,
+          `ATTACH '${path}' AS ${name};
+COPY FROM DATABASE ${name} TO memory;
+DETACH ${name};`,
+          mergeOptions(this, {
+            returnDataFrom: "none",
+            table: null,
+            method: "loadDB()",
+            parameters: {},
+          }),
+        );
+      } else {
+        await queryDB(
+          this,
+          `ATTACH '${path}' AS ${name};
+          USE ${name};`,
+          mergeOptions(this, {
+            returnDataFrom: "none",
+            table: null,
+            method: "loadDB()",
+            parameters: {},
+          }),
+        );
+      }
     } else if (extension === "sqlite") {
-      await queryDB(
-        this,
-        `INSTALL sqlite; LOAD sqlite;
-        ATTACH '${path}' AS my_database (TYPE SQLITE);
-COPY FROM DATABASE my_database TO memory;
-DETACH my_database;`,
-        mergeOptions(this, {
-          returnDataFrom: "none",
-          table: null,
-          method: "write()",
-          parameters: {},
-        }),
-      );
+      if (detach) {
+        await queryDB(
+          this,
+          `INSTALL sqlite; LOAD sqlite;
+        ATTACH '${path}' AS ${name} (TYPE SQLITE);
+COPY FROM DATABASE ${name} TO memory;
+DETACH ${name};`,
+          mergeOptions(this, {
+            returnDataFrom: "none",
+            table: null,
+            method: "loadDB()",
+            parameters: {},
+          }),
+        );
+      } else {
+        await queryDB(
+          this,
+          `INSTALL sqlite; LOAD sqlite;
+        ATTACH '${path}' AS ${name} (TYPE SQLITE);
+        USE ${name};`,
+          mergeOptions(this, {
+            returnDataFrom: "none",
+            table: null,
+            method: "loadDB()",
+            parameters: {},
+          }),
+        );
+      }
     } else {
       throw new Error(
         `The extension ${extension} is not supported. Please use .db or .sqlite instead.`,
@@ -602,7 +652,7 @@ DETACH my_database;`,
         mergeOptions(this, {
           returnDataFrom: "none",
           table: null,
-          method: "write()",
+          method: "writeDB()",
           parameters: {},
         }),
       );
@@ -616,7 +666,7 @@ DETACH my_database;`,
         mergeOptions(this, {
           returnDataFrom: "none",
           table: null,
-          method: "write()",
+          method: "writeDB()",
           parameters: {},
         }),
       );
