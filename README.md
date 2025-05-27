@@ -43,6 +43,8 @@ Here are available options:
 - `--svelte`: adds a Svelte project
 - `--pages`: adds a GitHub Pages Actions workflow (works just with `--svelte`)
 - `--git`: initializes a git repository and commits the initial files
+- `--env`: adds a `.env` file for environment variables and loads them when
+  running
 
 You can combine options, for example, this will install web scraping
 dependencies, set up a Svelte project with example files, initialize a git
