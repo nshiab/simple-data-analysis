@@ -605,21 +605,29 @@ DETACH ${name};`,
    *
    * @param file - The path to the file where the database will be written.
    */
-  async writeDB(file: string): Promise<void> {
+  async writeDB(
+    file: string,
+    options: { noMetaData?: boolean } = {},
+  ): Promise<void> {
+    const noMetaData = options.noMetaData ?? false;
+
     if (existsSync(file)) {
       rmSync(file);
     }
     createDirectory(file);
     const extension = getExtension(file);
 
-    writeProjectionsAndIndexes(this, extension, file);
+    if (!noMetaData) {
+      writeProjectionsAndIndexes(this, extension, file);
+    }
 
+    const name = getName(file);
     if (extension === "db") {
       await queryDB(
         this,
-        `ATTACH '${cleanPath(file)}' AS my_database;
-COPY FROM DATABASE memory TO my_database;
-DETACH my_database;`,
+        `ATTACH '${cleanPath(file)}' AS ${name};
+COPY FROM DATABASE ${getName(this.file)} TO ${name};
+DETACH ${name};`,
         mergeOptions(this, {
           returnDataFrom: "none",
           table: null,
@@ -631,9 +639,9 @@ DETACH my_database;`,
       await queryDB(
         this,
         `INSTALL sqlite; LOAD sqlite;
-        ATTACH '${cleanPath(file)}' AS my_database (TYPE SQLITE);
-COPY FROM DATABASE memory TO my_database;
-DETACH my_database;`,
+        ATTACH '${cleanPath(file)}' AS ${name} (TYPE SQLITE);
+COPY FROM DATABASE ${getName(this.file)} TO ${name};
+DETACH ${name};`,
         mergeOptions(this, {
           returnDataFrom: "none",
           table: null,
@@ -661,15 +669,11 @@ DETACH my_database;`,
    */
   async done(): Promise<this> {
     if (this.file !== ":memory:") {
+      // To make sure the files will have the proper names.
       writeProjectionsAndIndexes(this, getExtension(this.file), this.file);
-      await this.customQuery("CHECKPOINT;");
-      const dbName = getName(this.file);
-      await this.customQuery(
-        `ATTACH '${dbName}_compacted.db' AS '${dbName}_compacted';\nCOPY FROM DATABASE '${dbName}' TO '${dbName}_compacted';`,
-      );
-      await this.customQuery(
-        `DETACH '${dbName}';\nDETACH '${dbName}_compacted';`,
-      );
+      await this.writeDB(this.file.replace(".db", "_compacted.db"), {
+        noMetaData: true,
+      });
       rmSync(this.file);
       renameSync(this.file.replace(".db", "_compacted.db"), this.file);
     }
