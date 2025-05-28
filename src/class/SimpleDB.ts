@@ -44,7 +44,7 @@ import writeProjectionsAndIndexes from "../helpers/writeProjectionsAndIndexes.ts
  * const sdb = new SimpleDB({ file: "./my_database.db", overwrite: true })
  * // Do your magic...
  *
- * // Don't forget to call .done() to write metadata like projections and indexes. Otherwise, you won't be able to retrieve them when using .loadDB() later, if needed.
+ * // Don't forget to call .done() to write up-to-date DB data and metadata.
  * await sdb.done()
  * ```
  *
