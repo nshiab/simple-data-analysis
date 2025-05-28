@@ -5395,21 +5395,20 @@ export default class SimpleTable extends Simple {
       dataAsArrays?: boolean;
     } = {},
   ) {
-    const cleanFile = cleanPath(file);
-    createDirectory(cleanFile);
+    createDirectory(file);
 
     const types = await this.getTypes();
-    const extension = getExtension(cleanFile);
+    const extension = getExtension(file);
     if (extension === "csv" || extension === "json") {
       await stringifyDates(this, types);
     }
 
     if (options.dataAsArrays) {
-      await writeDataAsArrays(this, cleanFile);
+      await writeDataAsArrays(this, file);
     } else {
       await queryDB(
         this,
-        writeDataQuery(this.name, cleanFile, options),
+        writeDataQuery(this.name, file, extension, options),
         mergeOptions(this, {
           table: this.name,
           method: "writeData()",
@@ -5457,9 +5456,8 @@ export default class SimpleTable extends Simple {
       metadata?: unknown;
     } = {},
   ) {
-    const cleanFile = cleanPath(file);
-    createDirectory(cleanFile);
-    const fileExtension = getExtension(cleanFile);
+    createDirectory(file);
+    const fileExtension = getExtension(file);
     if (fileExtension === "geojson" || fileExtension === "json") {
       const types = await this.getTypes();
       await stringifyDates(this, types);
@@ -5475,7 +5473,7 @@ export default class SimpleTable extends Simple {
         await this.flipCoordinates(geoColumn);
         await queryDB(
           this,
-          writeGeoDataQuery(this.name, cleanFile, options),
+          writeGeoDataQuery(this.name, file, fileExtension, options),
           mergeOptions(this, {
             table: this.name,
             method: "writeGeoData()",
@@ -5487,7 +5485,7 @@ export default class SimpleTable extends Simple {
       } else {
         await queryDB(
           this,
-          writeGeoDataQuery(this.name, cleanFile, options),
+          writeGeoDataQuery(this.name, file, fileExtension, options),
           mergeOptions(this, {
             table: this.name,
             method: "writeGeoData()",
@@ -5496,14 +5494,14 @@ export default class SimpleTable extends Simple {
         );
       }
       if (options.metadata) {
-        const fileData = JSON.parse(readFileSync(cleanFile, "utf-8"));
+        const fileData = JSON.parse(readFileSync(file, "utf-8"));
         fileData.metadata = options.metadata;
-        writeFileSync(cleanFile, JSON.stringify(fileData));
+        writeFileSync(file, JSON.stringify(fileData));
       }
       if (options.rewind) {
-        const fileData = JSON.parse(readFileSync(cleanFile, "utf-8"));
+        const fileData = JSON.parse(readFileSync(file, "utf-8"));
         const fileRewinded = rewind(fileData);
-        writeFileSync(cleanFile, JSON.stringify(fileRewinded));
+        writeFileSync(file, JSON.stringify(fileRewinded));
       }
       await stringifyDatesInvert(this, types);
     } else if (fileExtension === "geoparquet") {
@@ -5519,7 +5517,7 @@ export default class SimpleTable extends Simple {
       }
       await queryDB(
         this,
-        `COPY "${this.name}" TO '${cleanFile}' WITH (FORMAT PARQUET${
+        `COPY "${this.name}" TO '${cleanPath(file)}' WITH (FORMAT PARQUET${
           options.compression === true ? ", COMPRESSION 'zstd'" : ""
         }, KV_METADATA {
              projections: '${JSON.stringify(this.projections)}'

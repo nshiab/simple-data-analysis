@@ -46,7 +46,11 @@ export default async function aiVectorSimilarity(
       options.verbose && console.log("Index already exists.");
     } else {
       await simpleTable.sdb.customQuery(
-        `INSTALL vss; LOAD vss;
+        `INSTALL vss; LOAD vss;${
+          simpleTable.sdb.file !== ":memory:"
+            ? "\nSET hnsw_enable_experimental_persistence=true;"
+            : ""
+        }
     CREATE INDEX vss_cosine_index${
           camelCase(simpleTable.name)
         } ON "${simpleTable.name}" USING HNSW ("${column}") WITH (metric = 'cosine');`,

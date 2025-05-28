@@ -85,7 +85,11 @@ export default async function aiEmbeddings(
         `\nCreating index on "${newColumn}" column...`,
       );
     await simpleTable.sdb.customQuery(
-      `INSTALL vss; LOAD vss;
+      `INSTALL vss; LOAD vss;${
+        simpleTable.sdb.file !== ":memory:"
+          ? "\nSET hnsw_enable_experimental_persistence=true;"
+          : ""
+      }
     CREATE INDEX vss_cosine_index${
         camelCase(simpleTable.name)
       } ON "${simpleTable.name}" USING HNSW ("${newColumn}") WITH (metric = 'cosine');`,

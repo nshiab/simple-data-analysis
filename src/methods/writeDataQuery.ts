@@ -1,39 +1,40 @@
 import { existsSync, rmSync } from "node:fs";
-import getExtension from "../helpers/getExtension.ts";
+import cleanPath from "../helpers/cleanPath.ts";
 
 export default function writeDataQuery(
   table: string,
   file: string,
+  fileExtension: string,
   options: { compression?: boolean },
 ) {
-  const fileExtension = getExtension(file);
+  const cleanedFile = cleanPath(file);
   if (fileExtension === "csv") {
     if (options.compression) {
       return `COPY "${table}" TO '${
-        file + ".gz"
+        cleanedFile + ".gz"
       }' (DELIMITER ',', HEADER TRUE, COMPRESSION GZIP);`;
     } else {
-      return `COPY "${table}" TO '${file}' (DELIMITER ',', HEADER TRUE);`;
+      return `COPY "${table}" TO '${cleanedFile}' (DELIMITER ',', HEADER TRUE);`;
     }
   } else if (fileExtension === "json") {
     if (options.compression) {
       return `COPY "${table}" TO '${
-        file + ".gz"
+        cleanedFile + ".gz"
       }' (FORMAT JSON, ARRAY TRUE, COMPRESSION GZIP);`;
     } else {
-      return `COPY "${table}" TO '${file}' (FORMAT JSON, ARRAY TRUE);`;
+      return `COPY "${table}" TO '${cleanedFile}' (FORMAT JSON, ARRAY TRUE);`;
     }
   } else if (fileExtension === "parquet") {
     if (options.compression) {
-      return `COPY "${table}" TO '${file}' (FORMAT PARQUET, COMPRESSION ZSTD);`;
+      return `COPY "${table}" TO '${cleanedFile}' (FORMAT PARQUET, COMPRESSION ZSTD);`;
     } else {
-      return `COPY "${table}" TO '${file}' (FORMAT PARQUET);`;
+      return `COPY "${table}" TO '${cleanedFile}' (FORMAT PARQUET);`;
     }
   } else if (fileExtension === "db") {
     if (existsSync(file)) {
       rmSync(file);
     }
-    return `ATTACH '${file}' AS my_database;
+    return `ATTACH '${cleanedFile}' AS my_database;
 COPY FROM DATABASE memory TO my_database;
 CREATE OR REPLACE TABLE my_database."${table}" AS SELECT * FROM "${table}";
 DETACH my_database;`;
@@ -42,7 +43,7 @@ DETACH my_database;`;
       rmSync(file);
     }
     return `INSTALL sqlite; LOAD sqlite;
-    ATTACH '${file}' AS my_sqlite_db (TYPE SQLITE);
+    ATTACH '${cleanedFile}' AS my_sqlite_db (TYPE SQLITE);
     CREATE TABLE my_sqlite_db."${table}" AS SELECT * FROM "${table}";
     DETACH my_sqlite_db;`;
   } else {

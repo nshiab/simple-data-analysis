@@ -447,6 +447,49 @@ Deno.test("should log the table names in the db", async () => {
   // How to test?
   await sdb.done();
 });
+Deno.test("should instantiate by creating a new file", async () => {
+  const sdb = new SimpleDB({
+    file: `${output}database_new.db`,
+    overwrite: true,
+  });
+  const data = sdb.newTable("data");
+  await data.loadData("test/data/files/data.csv");
+  await data.logTable();
+
+  await sdb.done();
+});
+Deno.test("should load a db created when instantiating", async () => {
+  const sdb = new SimpleDB();
+  await sdb.loadDB(`${output}database_new.db`);
+  const data = sdb.newTable("data");
+  await data.loadData("test/data/files/data.csv");
+  await data.logTable();
+
+  await sdb.done();
+});
+Deno.test("should instantiate by creating a new file and geospatial data", async () => {
+  const sdb = new SimpleDB({
+    file: `${output}database_new_geo.db`,
+    overwrite: true,
+  });
+  const data = sdb.newTable("geodata");
+  await data.loadGeoData(
+    "test/geodata/files/CanadianProvincesAndTerritories.json",
+  );
+  await data.logTable();
+
+  await sdb.done();
+});
+Deno.test("should load a db created with geospatial data", async () => {
+  const sdb = new SimpleDB();
+  await sdb.loadDB(`${output}database_new_geo.db`);
+  const data = await sdb.getTable("geodata");
+  await data.simplify(0.1);
+  await data.logProjections();
+  await data.logTable();
+
+  await sdb.done();
+});
 const ollama = Deno.env.get("OLLAMA");
 if (typeof ollama === "string" && ollama !== "") {
   Deno.test("should create a DB with embeddings and an index", async () => {
@@ -475,6 +518,39 @@ if (typeof ollama === "string" && ollama !== "") {
   Deno.test("should load a DB with embeddings and an index", async () => {
     const sdb = new SimpleDB();
     await sdb.loadDB(`${output}database_embeddings.db`);
+    const table = await sdb.getTable("data");
+    await table.logTable();
+    // Just making sure it's doesnt crash for now
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  Deno.test("should instantiate by creating a new file and add embeddings and an index", async () => {
+    const sdb = new SimpleDB({
+      file: `${output}database_embeddings_new.db`,
+      overwrite: true,
+    });
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { food: "pizza" },
+      { food: "sushi" },
+      { food: "burger" },
+      { food: "pasta" },
+      { food: "salad" },
+      { food: "tacos" },
+    ]);
+
+    await table.aiEmbeddings("food", "embeddings", {
+      verbose: true,
+      createIndex: true,
+    });
+
+    // Just making sure it's doesnt crash for now
+
+    await sdb.done();
+  });
+  Deno.test("should load a DB instantiated with a file, with embeddings and an index", async () => {
+    const sdb = new SimpleDB();
+    await sdb.loadDB(`${output}database_embeddings_new.db`);
     const table = await sdb.getTable("data");
     await table.logTable();
     // Just making sure it's doesnt crash for now

@@ -11,7 +11,9 @@ import cleanPath from "../helpers/cleanPath.ts";
 import getExtension from "../helpers/getExtension.ts";
 import { existsSync, rmSync } from "node:fs";
 import { writeFileSync } from "node:fs";
-import { readFileSync } from "node:fs";
+import checkVssIndexes from "../helpers/checkVssIndexes.ts";
+import setDbProps from "../helpers/setDbProps.ts";
+import writeProjectionsAndIndexes from "../helpers/writeProjectionsAndIndexes.ts";
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance, in-memory analytical database.
@@ -23,7 +25,7 @@ import { readFileSync } from "node:fs";
  * @example
  * Basic usage
  * ```ts
- * // Instantiating the database.
+ * // Instantiating the database in memory.
  * const sdb = new SimpleDB()
  *
  * // Creating a new table.
@@ -34,6 +36,16 @@ import { readFileSync } from "node:fs";
  * await employees.logTable()
  *
  * // To free up memory.
+ * await sdb.done()
+ * ```
+ *
+ * @example
+ * Read from and write to a database file. If the option overwrite is set to true, a new file will be created with an empty DB, overwriting the existing one, if any.
+ * ```ts
+ * const sdb = new SimpleDB({ file: "./my_database.db", overwrite: true })
+ * // Do your magic...
+ *
+ * // Don't forget to call .done() to write metadata like projections and indexes. Otherwise, you won't be able to retrieve them when using .loadDB() later, if needed.
  * await sdb.done()
  * ```
  *
@@ -73,9 +85,15 @@ export default class SimpleDB extends Simple {
   cacheTimeWriting: number;
   /** A flag to log a progress bar when a method takes more than 2s. Defaults to false. */
   progressBar: boolean;
+  /** The database file. */
+  file: string;
+  /** Overwrite with the file if exists. */
+  overwrite: boolean;
 
   constructor(
     options: {
+      file?: string;
+      overwrite?: boolean;
       logDuration?: boolean;
       nbRowsToLog?: number;
       nbCharactersToLog?: number;
@@ -86,6 +104,8 @@ export default class SimpleDB extends Simple {
     } = {},
   ) {
     super(options);
+    this.file = options.file ?? ":memory:";
+    this.overwrite = options.overwrite ?? false;
     this.logDuration = options.logDuration ?? false;
     this.tableIncrement = 1;
     this.tables = [];
@@ -108,15 +128,26 @@ export default class SimpleDB extends Simple {
    */
   async start(): Promise<this> {
     if (this.db === undefined || this.connection === undefined) {
-      this.db = await DuckDBInstance.create(":memory:");
+      if (this.file !== ":memory:") {
+        if (existsSync(this.file) && this.overwrite === false) {
+          throw new Error(
+            `The file ${this.file} already exists. Set the overwrite option to true to overwrite it. Otherwise, use the loadDB() method to load an existing database with more options.`,
+          );
+        } else if (existsSync(this.file) && this.overwrite === true) {
+          rmSync(this.file);
+        }
+      }
+
+      this.db = await DuckDBInstance.create(this.file);
       this.connection = await this.db.connect();
+
       if (this.progressBar) {
         await this.customQuery(
           `SET enable_progress_bar = TRUE;`,
         );
       }
     }
-    return await this;
+    return this;
   }
 
   /** Creates a table in the DB.
@@ -475,22 +506,13 @@ export default class SimpleDB extends Simple {
     const name = options.name ?? "my_database";
     const detach = options.detach ?? true;
 
-    const path = cleanPath(file);
-    const extension = getExtension(path);
-
-    const allIndexesFile = `${path.replace(`.${extension}`, "")}_indexes.json`;
-    let vssIndex = false;
-    if (existsSync(allIndexesFile)) {
-      const indexes = JSON.parse(readFileSync(allIndexesFile, "utf-8"));
-      for (const table of Object.keys(indexes)) {
-        for (const index of indexes[table]) {
-          if (index.startsWith("vss_")) {
-            vssIndex = true;
-          }
-        }
-      }
+    if (!existsSync(file)) {
+      throw new Error(`The file ${file} does not exist.`);
     }
+    const extension = getExtension(file);
 
+    const allIndexesFile = `${file.replace(`.${extension}`, "")}_indexes.json`;
+    const vssIndex = checkVssIndexes(allIndexesFile);
     if (vssIndex) {
       await this.customQuery(`INSTALL vss; LOAD vss;`);
     }
@@ -499,7 +521,7 @@ export default class SimpleDB extends Simple {
       if (detach) {
         await queryDB(
           this,
-          `ATTACH '${path}' AS ${name};
+          `ATTACH '${cleanPath(file)}' AS ${name};
 COPY FROM DATABASE ${name} TO memory;
 DETACH ${name};`,
           mergeOptions(this, {
@@ -512,7 +534,7 @@ DETACH ${name};`,
       } else {
         await queryDB(
           this,
-          `ATTACH '${path}' AS ${name};
+          `ATTACH '${cleanPath(file)}' AS ${name};
           USE ${name};`,
           mergeOptions(this, {
             returnDataFrom: "none",
@@ -527,7 +549,7 @@ DETACH ${name};`,
         await queryDB(
           this,
           `INSTALL sqlite; LOAD sqlite;
-        ATTACH '${path}' AS ${name} (TYPE SQLITE);
+        ATTACH '${cleanPath(file)}' AS ${name} (TYPE SQLITE);
 COPY FROM DATABASE ${name} TO memory;
 DETACH ${name};`,
           mergeOptions(this, {
@@ -541,7 +563,7 @@ DETACH ${name};`,
         await queryDB(
           this,
           `INSTALL sqlite; LOAD sqlite;
-        ATTACH '${path}' AS ${name} (TYPE SQLITE);
+        ATTACH '${cleanPath(file)}' AS ${name} (TYPE SQLITE);
         USE ${name};`,
           mergeOptions(this, {
             returnDataFrom: "none",
@@ -557,35 +579,7 @@ DETACH ${name};`,
       );
     }
 
-    for (const table of await this.getTableNames()) {
-      const t = this.newTable(table);
-      this.tables.push(t);
-    }
-    const allProjectionsFile = `${
-      path.replace(`.${extension}`, "")
-    }_projections.json`;
-    if (existsSync(allProjectionsFile)) {
-      const projections = JSON.parse(
-        readFileSync(allProjectionsFile, "utf-8"),
-      );
-      for (const table of this.tables) {
-        if (projections[table.name]) {
-          table.projections = projections[table.name];
-        }
-      }
-      await this.customQuery(`INSTALL spatial; LOAD spatial;`);
-    }
-
-    if (existsSync(allIndexesFile)) {
-      const indexes = JSON.parse(readFileSync(allIndexesFile, "utf-8"));
-      for (const table of this.tables) {
-        if (indexes[table.name]) {
-          table.indexes = indexes[table.name];
-        }
-      }
-    }
-
-    this.tableIncrement = Math.round(Math.random() * 1000000);
+    await setDbProps(this, file, extension, allIndexesFile);
   }
 
   /**
@@ -606,47 +600,18 @@ DETACH ${name};`,
    * @param file - The path to the file where the database will be written.
    */
   async writeDB(file: string): Promise<void> {
-    const path = cleanPath(file);
-    if (existsSync(path)) {
-      rmSync(path);
+    if (existsSync(file)) {
+      rmSync(file);
     }
-    createDirectory(path);
-    const extension = getExtension(path);
+    createDirectory(file);
+    const extension = getExtension(file);
 
-    const allProjections: { [key: string]: { [key: string]: string } } = {};
-    for (const table of this.tables) {
-      if (Object.keys(table.projections).length > 0) {
-        allProjections[table.name] = table.projections;
-      }
-    }
-    const allProjectionsFile = `${
-      path.replace(`.${extension}`, "")
-    }_projections.json`;
-    if (existsSync(allProjectionsFile)) {
-      rmSync(allProjectionsFile);
-    }
-    if (Object.keys(allProjections).length > 0) {
-      writeFileSync(allProjectionsFile, JSON.stringify(allProjections));
-    }
-
-    const allIndexes: { [key: string]: string[] } = {};
-    for (const table of this.tables) {
-      if (table.indexes.length > 0) {
-        allIndexes[table.name] = table.indexes;
-      }
-    }
-    const allIndexesFile = `${path.replace(`.${extension}`, "")}_indexes.json`;
-    if (existsSync(allIndexesFile)) {
-      rmSync(allIndexesFile);
-    }
-    if (Object.keys(allIndexes).length > 0) {
-      writeFileSync(allIndexesFile, JSON.stringify(allIndexes));
-    }
+    writeProjectionsAndIndexes(this, extension, file);
 
     if (extension === "db") {
       await queryDB(
         this,
-        `ATTACH '${path}' AS my_database;
+        `ATTACH '${cleanPath(file)}' AS my_database;
 COPY FROM DATABASE memory TO my_database;
 DETACH my_database;`,
         mergeOptions(this, {
@@ -660,7 +625,7 @@ DETACH my_database;`,
       await queryDB(
         this,
         `INSTALL sqlite; LOAD sqlite;
-        ATTACH '${path}' AS my_database (TYPE SQLITE);
+        ATTACH '${cleanPath(file)}' AS my_database (TYPE SQLITE);
 COPY FROM DATABASE memory TO my_database;
 DETACH my_database;`,
         mergeOptions(this, {
@@ -693,6 +658,9 @@ DETACH my_database;`,
       this.connection.closeSync();
     }
     cleanCache(this);
+    if (this.file !== ":memory:") {
+      writeProjectionsAndIndexes(this, getExtension(this.file), this.file);
+    }
     if (typeof this.durationStart === "number") {
       let string = prettyDuration(this.durationStart, {
         prefix: "\n\nSimpleDB - Done in ",
