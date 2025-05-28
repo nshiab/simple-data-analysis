@@ -13,6 +13,8 @@ import { existsSync, rmSync } from "node:fs";
 import checkVssIndexes from "../helpers/checkVssIndexes.ts";
 import setDbProps from "../helpers/setDbProps.ts";
 import writeProjectionsAndIndexes from "../helpers/writeProjectionsAndIndexes.ts";
+import getName from "../helpers/getName.ts";
+import { renameSync } from "node:fs";
 
 /**
  * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance, in-memory analytical database.
@@ -44,7 +46,7 @@ import writeProjectionsAndIndexes from "../helpers/writeProjectionsAndIndexes.ts
  * const sdb = new SimpleDB({ file: "./my_database.db", overwrite: true })
  * // Do your magic...
  *
- * // Don't forget to call .done() to write up-to-date DB data and metadata.
+ * // Don't forget to call .done() to write up-to-date/compacted DB data and metadata.
  * await sdb.done()
  * ```
  *
@@ -128,6 +130,11 @@ export default class SimpleDB extends Simple {
   async start(): Promise<this> {
     if (this.db === undefined || this.connection === undefined) {
       if (this.file !== ":memory:") {
+        if (getExtension(this.file) !== "db") {
+          throw new Error(
+            `The file extension must be .db. The current file is ${this.file}.`,
+          );
+        }
         if (existsSync(this.file) && this.overwrite === false) {
           throw new Error(
             `The file ${this.file} already exists. Set the overwrite option to true to overwrite it. Otherwise, use the loadDB() method to load an existing database with more options.`,
@@ -655,9 +662,18 @@ DETACH my_database;`,
   async done(): Promise<this> {
     if (this.file !== ":memory:") {
       writeProjectionsAndIndexes(this, getExtension(this.file), this.file);
+      await this.customQuery("CHECKPOINT;");
+      const dbName = getName(this.file);
+      await this.customQuery(
+        `ATTACH '${dbName}_compacted.db' AS '${dbName}_compacted';\nCOPY FROM DATABASE '${dbName}' TO '${dbName}_compacted';`,
+      );
+      await this.customQuery(
+        `DETACH '${dbName}';\nDETACH '${dbName}_compacted';`,
+      );
+      rmSync(this.file);
+      renameSync(this.file.replace(".db", "_compacted.db"), this.file);
     }
     if (this.db instanceof DuckDBInstance) {
-      await this.customQuery("CHECKPOINT;");
       this.connection.closeSync();
       this.db.closeSync();
     }
