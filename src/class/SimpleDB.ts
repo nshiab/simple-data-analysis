@@ -10,7 +10,6 @@ import getTableNames from "../methods/getTableNames.ts";
 import cleanPath from "../helpers/cleanPath.ts";
 import getExtension from "../helpers/getExtension.ts";
 import { existsSync, rmSync } from "node:fs";
-import { writeFileSync } from "node:fs";
 import checkVssIndexes from "../helpers/checkVssIndexes.ts";
 import setDbProps from "../helpers/setDbProps.ts";
 import writeProjectionsAndIndexes from "../helpers/writeProjectionsAndIndexes.ts";
