@@ -599,6 +599,8 @@ DETACH ${name};`,
    * @param file - The path to the file where the database will be written.
    */
   async writeDB(file: string): Promise<void> {
+    await this.customQuery("CHECKPOINT;");
+
     if (existsSync(file)) {
       rmSync(file);
     }
