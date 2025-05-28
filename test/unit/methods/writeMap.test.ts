@@ -240,5 +240,4 @@ Deno.test("should write a map with multiple layers as a png", async () => {
 
   // How to assert?
   assertEquals(true, true);
-  await sdb.done();
 });

@@ -30,7 +30,6 @@ Deno.test("should log a description of the table containing dates", async () => 
     "test/data/files/dailyTemperatures.csv",
   );
   await temperatures.logDescription();
-  await sdb.done();
 
   // How to test?
   assertEquals(true, true);

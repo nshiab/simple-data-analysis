@@ -654,7 +654,6 @@ DETACH my_database;`,
    */
   async done(): Promise<this> {
     if (this.file !== ":memory:") {
-      await this.customQuery("CHECKPOINT;");
       writeProjectionsAndIndexes(this, getExtension(this.file), this.file);
     }
     if (this.db instanceof DuckDBInstance) {
