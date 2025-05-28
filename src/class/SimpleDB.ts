@@ -140,12 +140,6 @@ export default class SimpleDB extends Simple {
       this.db = await DuckDBInstance.create(this.file);
       this.connection = await this.db.connect();
 
-      if (this.file !== ":memory:") {
-        await this.customQuery(
-          `PRAGMA force_checkpoint;\nPRAGMA enable_checkpoint_on_shutdown;`,
-        );
-      }
-
       if (this.progressBar) {
         await this.customQuery(
           `SET enable_progress_bar = TRUE;`,
@@ -605,8 +599,6 @@ DETACH ${name};`,
    * @param file - The path to the file where the database will be written.
    */
   async writeDB(file: string): Promise<void> {
-    await this.customQuery("CHECKPOINT;");
-
     if (existsSync(file)) {
       rmSync(file);
     }
@@ -666,7 +658,9 @@ DETACH my_database;`,
       writeProjectionsAndIndexes(this, getExtension(this.file), this.file);
     }
     if (this.db instanceof DuckDBInstance) {
+      await this.customQuery("CHECKPOINT;");
       this.connection.closeSync();
+      this.db.closeSync();
     }
     cleanCache(this);
 

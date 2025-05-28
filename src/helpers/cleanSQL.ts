@@ -19,14 +19,5 @@ export default function cleanSQL(query: string) {
       .replace(/ = NULL/g, " IS NULL");
   }
 
-  cleaned = cleaned.trim();
-  if (cleaned.at(-1) !== ";") {
-    cleaned += ";";
-  }
-
-  return `
-  BEGIN TRANSACTION;
-  ${cleaned}
-  COMMIT TRANSACTION;
-  CHECKPOINT;`;
+  return cleaned.trim();
 }
