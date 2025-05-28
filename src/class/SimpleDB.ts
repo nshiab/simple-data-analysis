@@ -669,6 +669,7 @@ DETACH ${name};`,
    */
   async done(): Promise<this> {
     if (this.file !== ":memory:") {
+      await this.customQuery("CHECKPOINT;");
       // To make sure the files will have the proper names.
       writeProjectionsAndIndexes(this, getExtension(this.file), this.file);
       await this.writeDB(this.file.replace(".db", "_compacted.db"), {
