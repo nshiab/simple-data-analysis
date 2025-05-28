@@ -653,13 +653,15 @@ DETACH my_database;`,
    * @category DB methods
    */
   async done(): Promise<this> {
+    if (this.file !== ":memory:") {
+      await this.customQuery("CHECKPOINT;");
+      writeProjectionsAndIndexes(this, getExtension(this.file), this.file);
+    }
     if (this.db instanceof DuckDBInstance) {
       this.connection.closeSync();
     }
     cleanCache(this);
-    if (this.file !== ":memory:") {
-      writeProjectionsAndIndexes(this, getExtension(this.file), this.file);
-    }
+
     if (typeof this.durationStart === "number") {
       let string = prettyDuration(this.durationStart, {
         prefix: "\n\nSimpleDB - Done in ",
