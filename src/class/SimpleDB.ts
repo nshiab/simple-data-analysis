@@ -657,7 +657,7 @@ DETACH ${name};`,
   }
 
   /**
-   * Frees up memory by closing down the database and cleans up cache so it doesn't grow in size indefinitely.
+   * Frees up memory by closing down the database and cleans up cache so it doesn't grow in size indefinitely. Also compacts the database if it is not in memory.
    *
    * @example
    * Basic usage
