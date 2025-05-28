@@ -27,5 +27,6 @@ export default function cleanSQL(query: string) {
   return `
   BEGIN TRANSACTION;
   ${cleaned}
-  COMMIT TRANSACTION;`;
+  COMMIT TRANSACTION;
+  CHECKPOINT;`;
 }
