@@ -140,6 +140,12 @@ export default class SimpleDB extends Simple {
       this.db = await DuckDBInstance.create(this.file);
       this.connection = await this.db.connect();
 
+      if (this.file !== ":memory:") {
+        await this.customQuery(
+          `PRAGMA force_checkpoint;\nPRAGMA enable_checkpoint_on_shutdown;`,
+        );
+      }
+
       if (this.progressBar) {
         await this.customQuery(
           `SET enable_progress_bar = TRUE;`,
