@@ -77,6 +77,7 @@ Deno.test("should return a column with geometry", async () => {
     projection: geo.projections.geom,
   });
   await geo.selectColumns(["name", "centroid"]);
+  await geo.reducePrecision(6);
   const data = await geo.getGeoData("centroid");
 
   assertEquals(data, {
@@ -86,7 +87,7 @@ Deno.test("should return a column with geometry", async () => {
         type: "Feature",
         geometry: {
           type: "Point",
-          coordinates: [-78.40431518960061, 47.9928579141529],
+          coordinates: [-78.404315, 47.992858],
         },
         properties: { name: "polygonA" },
       },
@@ -94,7 +95,7 @@ Deno.test("should return a column with geometry", async () => {
         type: "Feature",
         geometry: {
           type: "Point",
-          coordinates: [-109.10283617191052, 57.319258201411],
+          coordinates: [-109.102836, 57.319258],
         },
         properties: { name: "polygonB" },
       },
