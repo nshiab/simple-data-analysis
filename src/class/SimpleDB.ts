@@ -146,6 +146,9 @@ export default class SimpleDB extends Simple {
       this.db = await DuckDBInstance.create(this.file);
       this.connection = await this.db.connect();
 
+      // We want to deal with caching with the cache method.
+      await this.customQuery("SET enable_external_file_cache=false;");
+
       if (this.progressBar) {
         await this.customQuery(
           `SET enable_progress_bar = TRUE;`,
