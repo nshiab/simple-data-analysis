@@ -19,22 +19,26 @@ export default async function loadArray(
   }
 
   const keys = Object.keys(arrayOfObjects[0]);
+  const firstNonNullValue = keys.map((key) =>
+    arrayOfObjects.find((obj) => obj[key] !== null && obj[key] !== undefined)
+      ?.[key]
+  );
   const types: string[] = [];
+
   const dataForChunk: DuckDBValue[][] = arrayOfObjects.map(() => []);
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
-    const type = typeof arrayOfObjects[0][key];
+    const value = firstNonNullValue[i];
+    const type = typeof value;
     if (
       type === "symbol" || type === "undefined" ||
       type === "function"
     ) {
       throw new Error(
-        `Type ${type} not supported for ${key}. Value: ${
-          arrayOfObjects[0][key]
-        }`,
+        `Type ${type} not supported for ${key}. Value: ${value}`,
       );
     } else if (type === "object") {
-      if (arrayOfObjects[0][key] instanceof Date) {
+      if (value instanceof Date) {
         types[i] = "TIMESTAMP";
 
         for (let j = 0; j < arrayOfObjects.length; j++) {
@@ -48,8 +52,8 @@ export default async function loadArray(
             );
           }
         }
-      } else if (Array.isArray(arrayOfObjects[0][key])) {
-        types[i] = `FLOAT[${arrayOfObjects[0][key].length}]`;
+      } else if (Array.isArray(value)) {
+        types[i] = `FLOAT[${value.length}]`;
 
         for (let j = 0; j < arrayOfObjects.length; j++) {
           const d = arrayOfObjects[j][key];
@@ -57,9 +61,7 @@ export default async function loadArray(
         }
       } else {
         throw new Error(
-          `Type object not supported for ${key}. Value: ${
-            arrayOfObjects[0][key]
-          }`,
+          `Type object not supported for ${key}. Value: ${value}`,
         );
       }
     } else {

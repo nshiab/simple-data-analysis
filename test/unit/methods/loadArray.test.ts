@@ -132,3 +132,48 @@ Deno.test("should load an array of objects into a table with spaces in column na
 
   await sdb.done();
 });
+Deno.test("should load an array of objects even if the first rows have null values", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadArray([
+    {
+      "column 1": 1,
+      "column 2": null,
+    },
+    {
+      "column 1": 2,
+      "column 2": "deux",
+    },
+    {
+      "column 1": 3,
+      "column 2": "trois",
+    },
+    {
+      "column 1": 4,
+      "column 2": "quatre",
+    },
+  ]);
+
+  const data = await table.getData();
+
+  assertEquals(data, [
+    {
+      "column 1": 1,
+      "column 2": null,
+    },
+    {
+      "column 1": 2,
+      "column 2": "deux",
+    },
+    {
+      "column 1": 3,
+      "column 2": "trois",
+    },
+    {
+      "column 1": 4,
+      "column 2": "quatre",
+    },
+  ]);
+
+  await sdb.done();
+});
