@@ -10,114 +10,180 @@ Deno.test("should compute the centroids", async () => {
   await table.centroid("centroid");
 
   await table.selectColumns(["nameEnglish", "centroid"]);
+  await table.reducePrecision(4);
 
   const data = await table.getGeoData("centroid");
 
   assertEquals(data, {
-    type: "FeatureCollection",
-    features: [
+    "type": "FeatureCollection",
+    "features": [
       {
-        type: "Feature",
-        properties: { nameEnglish: "Newfoundland and Labrador" },
-        geometry: {
-          type: "Point",
-          coordinates: [-60.513931135839627, 52.893675520752538],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -60.5139,
+            52.8937,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Newfoundland and Labrador",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Prince Edward Island" },
-        geometry: {
-          type: "Point",
-          coordinates: [-63.23603949323202, 46.381720093103226],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -63.236,
+            46.3817,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Prince Edward Island",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Nova Scotia" },
-        geometry: {
-          type: "Point",
-          coordinates: [-63.277862438654473, 45.157300791297118],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -63.2779,
+            45.1573,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Nova Scotia",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "New Brunswick" },
-        geometry: {
-          type: "Point",
-          coordinates: [-66.39159809401113, 46.626312034896515],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -66.3916,
+            46.6263,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "New Brunswick",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Quebec" },
-        geometry: {
-          type: "Point",
-          coordinates: [-71.792253583856564, 53.398296191964086],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -71.7923,
+            53.3983,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Quebec",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Ontario" },
-        geometry: {
-          type: "Point",
-          coordinates: [-86.044463664856721, 50.466352911290031],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -86.0445,
+            50.4664,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Ontario",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Manitoba" },
-        geometry: {
-          type: "Point",
-          coordinates: [-97.428598473724506, 54.930503752005343],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.4286,
+            54.9305,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Manitoba",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Saskatchewan" },
-        geometry: {
-          type: "Point",
-          coordinates: [-105.888113574678528, 54.416372073562258],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -105.8881,
+            54.4164,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Saskatchewan",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Alberta" },
-        geometry: {
-          type: "Point",
-          coordinates: [-114.508819120679618, 55.170803823629385],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -114.5088,
+            55.1708,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Alberta",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "British Columbia" },
-        geometry: {
-          type: "Point",
-          coordinates: [-124.71820632563734, 54.777694456377866],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -124.7182,
+            54.7777,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "British Columbia",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Yukon" },
-        geometry: {
-          type: "Point",
-          coordinates: [-135.513091951141718, 63.632549278527797],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -135.5131,
+            63.6325,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Yukon",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Northwest Territories" },
-        geometry: {
-          type: "Point",
-          coordinates: [-118.991099275710255, 66.368007992776697],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -118.9911,
+            66.368,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Northwest Territories",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Nunavut" },
-        geometry: {
-          type: "Point",
-          coordinates: [-88.662698828787768, 71.190027762260598],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -88.6627,
+            71.19,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Nunavut",
         },
       },
     ],
@@ -151,114 +217,180 @@ Deno.test("should compute the centroids from a specific column", async () => {
   await table.centroid("centroid", { column: "geom" });
 
   await table.selectColumns(["nameEnglish", "centroid"]);
+  await table.reducePrecision(4);
 
   const data = await table.getGeoData("centroid");
 
   assertEquals(data, {
-    type: "FeatureCollection",
-    features: [
+    "type": "FeatureCollection",
+    "features": [
       {
-        type: "Feature",
-        properties: { nameEnglish: "Newfoundland and Labrador" },
-        geometry: {
-          type: "Point",
-          coordinates: [-60.513931135839627, 52.893675520752538],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -60.5139,
+            52.8937,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Newfoundland and Labrador",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Prince Edward Island" },
-        geometry: {
-          type: "Point",
-          coordinates: [-63.23603949323202, 46.381720093103226],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -63.236,
+            46.3817,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Prince Edward Island",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Nova Scotia" },
-        geometry: {
-          type: "Point",
-          coordinates: [-63.277862438654473, 45.157300791297118],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -63.2779,
+            45.1573,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Nova Scotia",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "New Brunswick" },
-        geometry: {
-          type: "Point",
-          coordinates: [-66.39159809401113, 46.626312034896515],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -66.3916,
+            46.6263,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "New Brunswick",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Quebec" },
-        geometry: {
-          type: "Point",
-          coordinates: [-71.792253583856564, 53.398296191964086],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -71.7923,
+            53.3983,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Quebec",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Ontario" },
-        geometry: {
-          type: "Point",
-          coordinates: [-86.044463664856721, 50.466352911290031],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -86.0445,
+            50.4664,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Ontario",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Manitoba" },
-        geometry: {
-          type: "Point",
-          coordinates: [-97.428598473724506, 54.930503752005343],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.4286,
+            54.9305,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Manitoba",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Saskatchewan" },
-        geometry: {
-          type: "Point",
-          coordinates: [-105.888113574678528, 54.416372073562258],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -105.8881,
+            54.4164,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Saskatchewan",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Alberta" },
-        geometry: {
-          type: "Point",
-          coordinates: [-114.508819120679618, 55.170803823629385],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -114.5088,
+            55.1708,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Alberta",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "British Columbia" },
-        geometry: {
-          type: "Point",
-          coordinates: [-124.71820632563734, 54.777694456377866],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -124.7182,
+            54.7777,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "British Columbia",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Yukon" },
-        geometry: {
-          type: "Point",
-          coordinates: [-135.513091951141718, 63.632549278527797],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -135.5131,
+            63.6325,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Yukon",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Northwest Territories" },
-        geometry: {
-          type: "Point",
-          coordinates: [-118.991099275710255, 66.368007992776697],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -118.9911,
+            66.368,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Northwest Territories",
         },
       },
       {
-        type: "Feature",
-        properties: { nameEnglish: "Nunavut" },
-        geometry: {
-          type: "Point",
-          coordinates: [-88.662698828787768, 71.190027762260598],
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -88.6627,
+            71.19,
+          ],
+        },
+        "properties": {
+          "nameEnglish": "Nunavut",
         },
       },
     ],

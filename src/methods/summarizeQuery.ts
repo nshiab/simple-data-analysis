@@ -49,7 +49,7 @@ export default function summarizeQuery(
 
   const aggregates: { [key: string]: string } = {
     count: "count", // specific implementation
-    countUnique: "COUNT(DISTINCT ",
+    countUnique: "countUnique", // specific implementation
     countNull: "countNull", // Specific implementation
     min: "MIN(",
     max: "MAX(",
@@ -129,6 +129,10 @@ export default function summarizeQuery(
         } else if (summary === "count") {
           return `\nCAST(COUNT(*) AS INTEGER) AS '${
             columns ? columns[i] : "count"
+          }'`;
+        } else if (summary === "countUnique") {
+          return `\nCAST(COUNT(DISTINCT "${value}") AS INTEGER) AS '${
+            columns ? columns[i] : "countUnique"
           }'`;
         } else if (summary === "countNull") {
           return `\nCAST(COUNT(CASE WHEN "${value}" IS NULL THEN 1 END) AS INTEGER) as '${

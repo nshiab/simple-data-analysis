@@ -1947,14 +1947,6 @@ const dataNullsInName = [
     endOfYearBonus: "17,51%",
   },
   {
-    name: "undefined",
-    hireDate: "14-JUN-04",
-    job: "Clerk",
-    salary: "3300",
-    departmentOrUnit: "50",
-    endOfYearBonus: "18,54%",
-  },
-  {
     name: "NaN",
     hireDate: "07-JUN-02",
     job: "Salesperson",
@@ -1969,5 +1961,13 @@ const dataNullsInName = [
     salary: "8300",
     departmentOrUnit: "110",
     endOfYearBonus: "15,7%",
+  },
+  {
+    name: "undefined",
+    hireDate: "14-JUN-04",
+    job: "Clerk",
+    salary: "3300",
+    departmentOrUnit: "50",
+    endOfYearBonus: "18,54%",
   },
 ];

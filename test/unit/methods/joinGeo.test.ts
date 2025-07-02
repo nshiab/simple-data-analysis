@@ -359,8 +359,8 @@ Deno.test("should return all points within a target distance (srs method)", asyn
 
   assertEquals(data, [
     { name: "toronto", name_1: "toronto", dist: 0 },
-    { name: "montreal", name_1: "toronto", dist: 5.66 },
     { name: "toronto", name_1: "montreal", dist: 5.66 },
+    { name: "montreal", name_1: "toronto", dist: 5.66 },
     { name: "montreal", name_1: "montreal", dist: 0 },
     { name: "vancouver", name_1: "vancouver", dist: 0 },
   ]);
