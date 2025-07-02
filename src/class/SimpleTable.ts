@@ -1035,7 +1035,7 @@ export default class SimpleTable extends Simple {
     );
 
     clonedTable.connection = clonedTable.sdb.connection;
-    this.sdb.tables.push(clonedTable);
+    this.sdb.pushTable(clonedTable);
 
     return clonedTable;
   }

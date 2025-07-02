@@ -111,7 +111,6 @@ export default class SimpleDB extends Simple {
     this.tableIncrement = 1;
     this.tables = [];
     this.cacheSourcesUsed = [];
-    this.tables = [];
     this.cacheVerbose = options.cacheVerbose ?? false;
     this.cacheTimeSaved = 0;
     this.cacheTimeWriting = 0;
@@ -154,6 +153,18 @@ export default class SimpleDB extends Simple {
       }
     }
     return this;
+  }
+
+  /** Just for internal use. */
+  pushTable(table: SimpleTable): void {
+    if (!(table instanceof SimpleTable)) {
+      throw new Error("The table must be an instance of SimpleTable.");
+    }
+    if (this.tables.map((t) => t.name).includes(table.name)) {
+      throw new Error(`Table ${table.name} already exists.`);
+    }
+
+    this.tables.push(table);
   }
 
   /** Creates a table in the DB.
@@ -205,7 +216,7 @@ export default class SimpleDB extends Simple {
       this.tableIncrement += 1;
     }
 
-    this.tables.push(table);
+    this.pushTable(table);
 
     return table;
   }

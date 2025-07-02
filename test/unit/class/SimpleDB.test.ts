@@ -461,9 +461,9 @@ Deno.test("should instantiate by creating a new file", async () => {
 Deno.test("should load a db created when instantiating", async () => {
   const sdb = new SimpleDB();
   await sdb.loadDB(`${output}database_new.db`);
-  const data = sdb.newTable("data");
-  await data.loadData("test/data/files/data.csv");
-  await data.logTable();
+  const data2 = sdb.newTable("data2");
+  await data2.loadData("test/data/files/data.csv");
+  await data2.logTable();
 
   await sdb.done();
 });

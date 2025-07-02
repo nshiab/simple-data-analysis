@@ -8,8 +8,7 @@ export default async function setDbProps(
   allIndexesFile: string,
 ) {
   for (const table of await simpleDB.getTableNames()) {
-    const t = simpleDB.newTable(table);
-    simpleDB.tables.push(t);
+    simpleDB.newTable(table);
   }
   const allProjectionsFile = `${
     file.replace(`.${extension}`, "")
