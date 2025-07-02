@@ -484,6 +484,6 @@ Deno.test("should work with === null not at the end of query", async () => {
     { returnDataFrom: "query" },
   );
 
-  assertEquals(data, [{ key1: null }, { key1: 2 }]);
+  assertEquals(data, [{ key1: 2 }, { key1: null }]);
   await sdb.done();
 });

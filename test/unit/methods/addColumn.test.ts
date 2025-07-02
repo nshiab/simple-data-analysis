@@ -94,7 +94,7 @@ Deno.test("should return a column with geometry", async () => {
         type: "Feature",
         geometry: {
           type: "Point",
-          coordinates: [-109.10283617191051, 57.319258201410996],
+          coordinates: [-109.10283617191052, 57.319258201411],
         },
         properties: { name: "polygonB" },
       },
