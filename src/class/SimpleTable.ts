@@ -502,7 +502,7 @@ export default class SimpleTable extends Simple {
         }),
       );
       // column storing geometries is geom by default
-      this.projections["geom"] = (await getProjection(this.sdb, file)).proj4;
+      this.projections["geom"] = await getProjection(this.sdb, file);
 
       const extension = getExtension(file);
       if (extension === "json" || extension === "geojson") {

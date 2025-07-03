@@ -12,7 +12,7 @@ export default async function getProjection(
     simpleDB,
     `INSTALL spatial;
         LOAD spatial;
-        SELECT layers[1].geometry_fields[1].crs.name as name, CONCAT(layers[1].geometry_fields[1].crs.auth_name, ':', layers[1].geometry_fields[1].crs.auth_code) as code, layers[1].geometry_fields[1].crs.projjson as unit, layers[1].geometry_fields[1].crs.proj4 as proj4 FROM st_read_meta('${
+        SELECT layers[1].geometry_fields[1].crs.proj4 as proj4 FROM st_read_meta('${
       cleanPath(file)
     }')`,
     mergeOptions(simpleDB, {
@@ -27,15 +27,12 @@ export default async function getProjection(
     throw new Error("No queryResults");
   }
 
-  const result = queryResult[0];
-  result.unit = JSON.parse(
-    result.unit as string,
-  ).coordinate_system.axis[0].unit;
+  const proj4 = queryResult[0].proj4;
+  if (typeof proj4 !== "string") {
+    throw new Error(
+      `Expected proj4 to be a string, got ${typeof proj4}`,
+    );
+  }
 
-  return result as {
-    name: string;
-    code: string;
-    unit: string;
-    proj4: string;
-  };
+  return proj4;
 }
