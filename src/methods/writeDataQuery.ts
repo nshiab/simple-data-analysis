@@ -14,7 +14,7 @@ export default function writeDataQuery(
         cleanedFile + ".gz"
       }' (DELIMITER ',', HEADER TRUE, COMPRESSION GZIP);`;
     } else {
-      return `COPY "${table}" TO '${cleanedFile}' (DELIMITER ',', HEADER TRUE);`;
+      return `COPY "${table}" TO '${cleanedFile}' (DELIMITER ',', HEADER TRUE, DATEFORMAT '%xT%X.%gZ', TIMESTAMPFORMAT '%xT%X.%gZ');`;
     }
   } else if (fileExtension === "json") {
     if (options.compression) {
@@ -22,7 +22,7 @@ export default function writeDataQuery(
         cleanedFile + ".gz"
       }' (FORMAT JSON, ARRAY TRUE, COMPRESSION GZIP);`;
     } else {
-      return `COPY "${table}" TO '${cleanedFile}' (FORMAT JSON, ARRAY TRUE);`;
+      return `COPY "${table}" TO '${cleanedFile}' (FORMAT JSON, ARRAY TRUE, DATEFORMAT '%xT%X.%gZ', TIMESTAMPFORMAT '%xT%X.%gZ');`;
     }
   } else if (fileExtension === "parquet") {
     if (options.compression) {
