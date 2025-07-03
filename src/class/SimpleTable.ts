@@ -1912,6 +1912,10 @@ export default class SimpleTable extends Simple {
         parameters: {},
       }),
     );
+
+    this.sdb.tables = this.sdb.tables.filter(
+      (t) => t.name !== this.name,
+    );
   }
 
   /**
