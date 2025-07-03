@@ -51,7 +51,9 @@ Deno.test("should write a json file with dates properties", async () => {
   }];
   await table.loadArray(originalData);
   await table.points("lat", "lon", "geom");
-  await table.writeGeoData(`${output}geodata-dates.json`);
+  await table.writeGeoData(`${output}geodata-dates.json`, {
+    formatDates: true,
+  });
 
   const writtenData = JSON.parse(
     readFileSync(`${output}geodata-dates.json`, "utf-8"),
@@ -83,7 +85,9 @@ Deno.test("should write a json file with dates properties and keep the original 
   }];
   await table.loadArray(originalData);
   await table.points("lat", "lon", "geom");
-  await table.writeGeoData(`${output}geodata-dates.json`);
+  await table.writeGeoData(`${output}geodata-dates.json`, {
+    formatDates: true,
+  });
   await table.selectColumns(["time", "lat", "lon"]);
   assertEquals(await table.getData(), originalData);
   await sdb.done();

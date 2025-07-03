@@ -5397,11 +5397,7 @@ export default class SimpleTable extends Simple {
   ) {
     createDirectory(file);
 
-    const types = await this.getTypes();
     const extension = getExtension(file);
-    if (extension === "csv" || extension === "json") {
-      await stringifyDates(this, types);
-    }
 
     if (options.dataAsArrays) {
       await writeDataAsArrays(this, file);
@@ -5415,9 +5411,6 @@ export default class SimpleTable extends Simple {
           parameters: { file, options },
         }),
       );
-    }
-    if (extension === "csv" || extension === "json") {
-      await stringifyDatesInvert(this, types);
     }
   }
 
@@ -5444,6 +5437,7 @@ export default class SimpleTable extends Simple {
    *   @param options.rewind - If true, rewinds in the spherical winding order (important for D3.js). Default is false. Works with GeoJSON files only.
    *   @param options.compression - A boolean indicating whether to compress the output file. Works with GeoParquet files only. Defaults to false. If true, the file will be compressed with ZSTD.
    *   @param options.metadata - Metadata to be added to the file. Works only with GeoJSON files.
+   *   @param options.formatDates - If true, dates will be formatted as ISO strings ("2025-01-01T01:00:00.000Z"). Defaults to false. Works only with GeoJSON files.
    *
    * * @category Exporting data
    */
@@ -5454,13 +5448,22 @@ export default class SimpleTable extends Simple {
       compression?: boolean;
       rewind?: boolean;
       metadata?: unknown;
+      formatDates?: boolean;
     } = {},
   ) {
     createDirectory(file);
     const fileExtension = getExtension(file);
     if (fileExtension === "geojson" || fileExtension === "json") {
-      const types = await this.getTypes();
-      await stringifyDates(this, types);
+      let types;
+      if (options.formatDates === true) {
+        types = await this.getTypes();
+        if (
+          Object.values(types).includes("DATE") ||
+          Object.values(types).includes("TIMESTAMP")
+        ) {
+          await stringifyDates(this, types);
+        }
+      }
 
       if (typeof options.compression === "boolean") {
         throw new Error(
@@ -5503,7 +5506,12 @@ export default class SimpleTable extends Simple {
         const fileRewinded = rewind(fileData);
         writeFileSync(file, JSON.stringify(fileRewinded));
       }
-      await stringifyDatesInvert(this, types);
+      if (
+        types && (Object.values(types).includes("DATE") ||
+          Object.values(types).includes("TIMESTAMP"))
+      ) {
+        await stringifyDatesInvert(this, types);
+      }
     } else if (fileExtension === "geoparquet") {
       if (typeof options.precision === "number") {
         throw new Error(
