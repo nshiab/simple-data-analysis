@@ -82,7 +82,7 @@ Deno.test("should write a json file with dates", async () => {
     key1: new Date("2025-04-08T14:09:24.155Z"),
   }]);
 
-  await table.writeData(`${output}date-test.json`);
+  await table.writeData(`${output}date-test.json`, { formatDates: true });
 
   // We test the content of the file
   const tableCheck = JSON.parse(

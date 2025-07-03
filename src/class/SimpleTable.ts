@@ -5385,6 +5385,7 @@ export default class SimpleTable extends Simple {
    * @param options - An optional object with configuration options:
    *   @param options.compression - A boolean indicating whether to compress the output file. Defaults to false. If true, CSV and JSON files will be compressed with GZIP while PARQUET files will use ZSTD.
    *   @param options.dataAsArrays - A boolean for JSON files. If true, JSON files are written as one object with arrays instead of an array of objects. Convenient to reduce the size of JSON files for web projects. You can use the function arraysToData from the journalism library to bring back the data to its original state.
+   *   @param options.formatDates - If true, dates will be formatted as ISO strings ("2025-01-01T01:00:00.000Z"). Defaults to false. Works only with CSV and JSON files.
    *
    * @category Exporting data
    */
@@ -5393,6 +5394,7 @@ export default class SimpleTable extends Simple {
     options: {
       compression?: boolean;
       dataAsArrays?: boolean;
+      formatDates?: boolean;
     } = {},
   ) {
     createDirectory(file);
