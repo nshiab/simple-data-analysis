@@ -5,25 +5,25 @@ export default function writeDataQuery(
   table: string,
   file: string,
   fileExtension: string,
-  options: { compression?: boolean },
+  options: { compression?: boolean; formatDates?: boolean },
 ) {
   const cleanedFile = cleanPath(file);
   if (fileExtension === "csv") {
-    if (options.compression) {
-      return `COPY "${table}" TO '${
-        cleanedFile + ".gz"
-      }' (DELIMITER ',', HEADER TRUE, COMPRESSION GZIP);`;
-    } else {
-      return `COPY "${table}" TO '${cleanedFile}' (DELIMITER ',', HEADER TRUE, DATEFORMAT '%xT%X.%gZ', TIMESTAMPFORMAT '%xT%X.%gZ');`;
-    }
+    return `COPY "${table}" TO '${cleanedFile}' (DELIMITER ',', HEADER TRUE${
+      options.compression ? ", COMPRESSION GZIP" : ""
+    }${
+      options.formatDates
+        ? ", DATEFORMAT '%xT%X.%gZ', TIMESTAMPFORMAT '%xT%X.%gZ'"
+        : ""
+    });`;
   } else if (fileExtension === "json") {
-    if (options.compression) {
-      return `COPY "${table}" TO '${
-        cleanedFile + ".gz"
-      }' (FORMAT JSON, ARRAY TRUE, COMPRESSION GZIP);`;
-    } else {
-      return `COPY "${table}" TO '${cleanedFile}' (FORMAT JSON, ARRAY TRUE, DATEFORMAT '%xT%X.%gZ', TIMESTAMPFORMAT '%xT%X.%gZ');`;
-    }
+    return `COPY "${table}" TO '${cleanedFile}' (FORMAT JSON, ARRAY TRUE${
+      options.compression ? ", COMPRESSION GZIP" : ""
+    }${
+      options.formatDates
+        ? ", DATEFORMAT '%xT%X.%gZ', TIMESTAMPFORMAT '%xT%X.%gZ'"
+        : ""
+    });`;
   } else if (fileExtension === "parquet") {
     if (options.compression) {
       return `COPY "${table}" TO '${cleanedFile}' (FORMAT PARQUET, COMPRESSION ZSTD);`;
