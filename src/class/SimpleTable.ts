@@ -330,7 +330,7 @@ export default class SimpleTable extends Simple {
       nullPadding?: boolean;
       ignoreErrors?: boolean;
       compression?: "none" | "gzip" | "zstd";
-      encoding?: "utf-8" | "utf-16" | "latin-1";
+      encoding?: string;
       strict?: boolean;
       // json options
       jsonFormat?: "unstructured" | "newlineDelimited" | "array";
