@@ -9,7 +9,7 @@ export default function removeDuplicatesQuery(
   const columnsOn = options.on ? stringToArray(options.on) : null;
   let distinct;
   if (columnsOn) {
-    distinct = `DISTINCT ON(${columnsOn.join(",")}) *`;
+    distinct = `DISTINCT ON(${columnsOn.map((d) => `"${d}"`).join(",")}) *`;
   } else {
     distinct = "DISTINCT *";
   }

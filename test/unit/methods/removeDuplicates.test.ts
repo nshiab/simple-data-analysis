@@ -534,3 +534,130 @@ Deno.test("should remove duplicates from a table based on a specific column", as
   ]);
   await sdb.done();
 });
+Deno.test("should remove duplicates from a table based on a specific column with special characters", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData(["test/data/files/employees.csv"]);
+
+  await table.removeDuplicates({
+    on: "Department or unit",
+  });
+  await table.sort({ Name: "asc" });
+  const noDuplicates = await table.getData();
+
+  assertEquals(noDuplicates, [
+    {
+      Name: "Austin, David",
+      "Hire date": "NaN",
+      Job: "Programmer",
+      Salary: "4800",
+      "Department or unit": "null",
+      "End-of_year-BONUS?": "6,89%",
+    },
+    {
+      Name: "Greenberg, Nancy",
+      "Hire date": "17-AUG-02",
+      Job: "Manager",
+      Salary: "12008",
+      "Department or unit": "100",
+      "End-of_year-BONUS?": "74,69%",
+    },
+    {
+      Name: "Hartstein, Michael",
+      "Hire date": "17-FEB-04",
+      Job: "Manager",
+      Salary: "13000",
+      "Department or unit": "20",
+      "End-of_year-BONUS?": "2,71%",
+    },
+    {
+      Name: "Higgins, Shelley",
+      "Hire date": "07-JUN-02",
+      Job: "Manager",
+      Salary: "12008",
+      "Department or unit": "110",
+      "End-of_year-BONUS?": "17,09%",
+    },
+    {
+      Name: "Hunold, Alexander",
+      "Hire date": "03-JAN-06",
+      Job: "Programmer",
+      Salary: "9000",
+      "Department or unit": "60",
+      "End-of_year-BONUS?": "23,01%",
+    },
+    {
+      Name: "Kaufling, Payam",
+      "Hire date": "01-MAY-03",
+      Job: "Manager",
+      Salary: "7900",
+      "Department or unit": "undefined",
+      "End-of_year-BONUS?": "21,33%",
+    },
+    {
+      Name: "King, Steven",
+      "Hire date": null,
+      Job: "President",
+      Salary: "24000",
+      "Department or unit": "90",
+      "End-of_year-BONUS?": "2,46%",
+    },
+    {
+      Name: "Mavris, Susan",
+      "Hire date": "07-JUN-02",
+      Job: "Salesperson",
+      Salary: "6500",
+      "Department or unit": "40",
+      "End-of_year-BONUS?": "23,47%",
+    },
+    {
+      Name: "NaN",
+      "Hire date": "07-JUN-02",
+      Job: "Salesperson",
+      Salary: "10000",
+      "Department or unit": "xyz",
+      "End-of_year-BONUS?": "17,63%",
+    },
+    {
+      Name: "OConnell, Donald",
+      "Hire date": "21-JUN-07",
+      Job: "Clerk",
+      Salary: "2600",
+      "Department or unit": "50",
+      "End-of_year-BONUS?": "1,94%",
+    },
+    {
+      Name: "Philtanker, Hazel",
+      "Hire date": "06-FEB-08",
+      Job: "Clerk",
+      Salary: "2200",
+      "Department or unit": "NaN",
+      "End-of_year-BONUS?": "24,17%",
+    },
+    {
+      Name: "Raphaely, Den",
+      "Hire date": "07-DEC-02",
+      Job: "Manager",
+      Salary: "11000",
+      "Department or unit": "30",
+      "End-of_year-BONUS?": "3,35%",
+    },
+    {
+      Name: "Tobias, Sigal",
+      "Hire date": "24-JUL-05",
+      Job: "NaN",
+      Salary: "2800",
+      "Department or unit": null,
+      "End-of_year-BONUS?": "undefined",
+    },
+    {
+      Name: null,
+      "Hire date": "17-SEP-03",
+      Job: "Assistant",
+      Salary: "4400",
+      "Department or unit": "10",
+      "End-of_year-BONUS?": "17,51%",
+    },
+  ]);
+  await sdb.done();
+});
