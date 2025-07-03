@@ -9,7 +9,9 @@ export default function writeDataQuery(
 ) {
   const cleanedFile = cleanPath(file);
   if (fileExtension === "csv") {
-    return `COPY "${table}" TO '${cleanedFile}' (DELIMITER ',', HEADER TRUE${
+    return `COPY "${table}" TO '${
+      options.compression ? cleanedFile + ".gz" : cleanedFile
+    }' (DELIMITER ',', HEADER TRUE${
       options.compression ? ", COMPRESSION GZIP" : ""
     }${
       options.formatDates
@@ -17,7 +19,9 @@ export default function writeDataQuery(
         : ""
     });`;
   } else if (fileExtension === "json") {
-    return `COPY "${table}" TO '${cleanedFile}' (FORMAT JSON, ARRAY TRUE${
+    return `COPY "${table}" TO '${
+      options.compression ? cleanedFile + ".gz" : cleanedFile
+    }' (FORMAT JSON, ARRAY TRUE${
       options.compression ? ", COMPRESSION GZIP" : ""
     }${
       options.formatDates
