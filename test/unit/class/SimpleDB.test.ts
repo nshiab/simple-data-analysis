@@ -490,6 +490,21 @@ Deno.test("should load a db created with geospatial data", async () => {
 
   await sdb.done();
 });
+Deno.test("should not change the enable_external_file_cache option", async () => {
+  const sdb = new SimpleDB({ duckDbCache: null });
+  await sdb.start();
+  await sdb.done();
+});
+Deno.test("should set the enable_external_file_cache option to true", async () => {
+  const sdb = new SimpleDB({ duckDbCache: true });
+  await sdb.start();
+  await sdb.done();
+});
+Deno.test("should set the enable_external_file_cache option to false", async () => {
+  const sdb = new SimpleDB({ duckDbCache: false });
+  await sdb.start();
+  await sdb.done();
+});
 const ollama = Deno.env.get("OLLAMA");
 if (typeof ollama === "string" && ollama !== "") {
   Deno.test("should create a DB with embeddings and an index", async () => {
