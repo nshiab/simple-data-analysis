@@ -65,6 +65,7 @@ import { renameSync } from "node:fs";
  * @param options.debug - Whether to enable debug logging.
  * @param options.progressBar - Whether to show a progress bar for long-running operations.
  * @param options.types - Whether to log the types of columns in the table.
+ * @param options.duckDbCache - Whether to use DuckDB's external file cache. Defaults to false.
  */
 
 export default class SimpleDB extends Simple {
@@ -86,6 +87,8 @@ export default class SimpleDB extends Simple {
   cacheTimeWriting: number;
   /** A flag to log a progress bar when a method takes more than 2s. Defaults to false. */
   progressBar: boolean;
+  /** A flag to use DuckDB's external file cache. Defaults to false. */
+  duckDbCache: boolean | null;
   /** The database file. */
   file: string;
   /** Overwrite with the file if exists. */
@@ -101,6 +104,7 @@ export default class SimpleDB extends Simple {
       types?: boolean;
       cacheVerbose?: boolean;
       debug?: boolean;
+      duckDbCache?: boolean | null;
       progressBar?: boolean;
     } = {},
   ) {
@@ -115,6 +119,9 @@ export default class SimpleDB extends Simple {
     this.cacheTimeSaved = 0;
     this.cacheTimeWriting = 0;
     this.progressBar = options.progressBar ?? false;
+    this.duckDbCache = options.duckDbCache === undefined
+      ? false
+      : options.duckDbCache;
     this.runQuery = runQuery;
     if (this.cacheVerbose || this.logDuration) {
       this.durationStart = Date.now();
@@ -146,8 +153,11 @@ export default class SimpleDB extends Simple {
       this.db = await DuckDBInstance.create(this.file);
       this.connection = await this.db.connect();
 
-      // We want to deal with caching with the cache method.
-      await this.customQuery("SET enable_external_file_cache=false;");
+      if (this.duckDbCache === true) {
+        await this.customQuery("SET enable_external_file_cache=true;");
+      } else if (this.duckDbCache === false) {
+        await this.customQuery("SET enable_external_file_cache=false;");
+      }
 
       if (this.progressBar) {
         await this.customQuery(
