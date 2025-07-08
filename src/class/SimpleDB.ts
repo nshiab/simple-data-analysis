@@ -17,94 +17,165 @@ import getName from "../helpers/getName.ts";
 import { renameSync } from "node:fs";
 
 /**
- * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance, in-memory analytical database.
- *
- * With very expensive computations, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
- *
- * Here's how to instantiate a SimpleDB instance and then a SimpleTable.
+ * Manages a DuckDB database instance, providing a simplified interface for database operations.
  *
  * @example
- * Basic usage
- * ```ts
- * // Instantiating the database in memory.
- * const sdb = new SimpleDB()
- *
- * // Creating a new table.
- * const employees = sdb.newTable("employees")
- *
- * // You can now invoke methods on the table.
- * await employees.loadData("./employees.csv")
- * await employees.logTable()
- *
- * // To free up memory.
- * await sdb.done()
- * ```
+ * // In-memory database
+ * const sdb = new SimpleDB();
+ * const employees = sdb.newTable("employees");
+ * await employees.loadData("./employees.csv");
+ * await employees.logTable();
+ * await sdb.done();
  *
  * @example
- * Read from and write to a database file. If the option overwrite is set to true, a new file will be created with an empty DB, overwriting the existing one, if any.
- * ```ts
- * const sdb = new SimpleDB({ file: "./my_database.db", overwrite: true })
- * // Do your magic...
- *
- * // Don't forget to call .done() to write up-to-date/compacted DB data and metadata.
- * await sdb.done()
- * ```
+ * // Persistent database
+ * const sdb = new SimpleDB({ file: "./my_database.db" });
+ * //... operations
+ * await sdb.done(); // Saves changes to the file
  *
  * @example
- * Instanciating with options
- * ```ts
- * // Creating a database with options. Debug information will be logged each time a method is invoked. The first 20 rows of tables will be logged (default is 10).
- * const sdb = new SimpleDB({ debug: true, nbRowsToLog: 20 })
- * ```
- *
- * @param options - Configuration options for the SimpleDB instance.
- * @param options.logDuration - Whether to log the duration of operations.
- * @param options.nbRowsToLog - Number of rows to log when displaying table data.
- * @param options.nbCharactersToLog - Number of characters to log when displaying text content. Useful for long strings.
- * @param options.cacheVerbose - Whether to log cache-related messages.
- * @param options.debug - Whether to enable debug logging.
- * @param options.progressBar - Whether to show a progress bar for long-running operations.
- * @param options.types - Whether to log the types of columns in the table.
- * @param options.duckDbCache - Whether to use DuckDB's external file cache. Defaults to false.
+ * // With options
+ * const sdb = new SimpleDB({ debug: true, nbRowsToLog: 20 });
  */
 
 export default class SimpleDB extends Simple {
-  /** An object keeping track of the data used in cache. @category Properties */
+  /**
+   * An array of paths to the data sources used in the cache.
+   *
+   * @defaultValue `[]`
+   */
   cacheSourcesUsed: string[];
-  /** A timestamp used to track the total duration logged in done(). @category Properties */
+  /**
+   * A timestamp marking the start of a duration measurement.
+   *
+   * @defaultValue `undefined`
+   */
   durationStart: number | undefined;
-  /** A number used when creating new tables. @category Properties */
+  /**
+   * A counter for incrementing default table names.
+   *
+   * @defaultValue `1`
+   */
   tableIncrement: number;
-  /** A flag to log the total duration. */
+  /**
+   * A flag indicating whether to log the total execution duration.
+   *
+   * @defaultValue `false`
+   */
   logDuration: boolean;
-  /** An array of SimpleTable instances. @category Properties */
+  /**
+   * An array of SimpleTable instances associated with this database.
+   *
+   * @defaultValue `[]`
+   */
   tables: SimpleTable[];
-  /** A flag to log messages relative to the cache. Defaults to false. */
+  /**
+   * A flag indicating whether to log verbose cache-related messages.
+   *
+   * @defaultValue `false`
+   */
   cacheVerbose: boolean;
-  /** Amount of time saved by using the cache. */
+  /**
+   * The total time saved by using the cache, in milliseconds.
+   *
+   * @defaultValue `0`
+   */
   cacheTimeSaved: number;
-  /** Amount of time spent writing the cache. */
+  /**
+   * The total time spent writing to the cache, in milliseconds.
+   *
+   * @defaultValue `0`
+   */
   cacheTimeWriting: number;
-  /** A flag to log a progress bar when a method takes more than 2s. Defaults to false. */
+  /**
+   * A flag indicating whether to display a progress bar for long-running operations.
+   *
+   * @defaultValue `false`
+   */
   progressBar: boolean;
-  /** A flag to use DuckDB's external file cache. Defaults to false. */
+  /**
+   * A flag indicating whether to use DuckDB's external file cache.
+   *
+   * @defaultValue `false`
+   */
   duckDbCache: boolean | null;
-  /** The database file. */
+  /**
+   * The path to the database file. If not provided, an in-memory database is used.
+   *
+   * @defaultValue `:memory:`
+   */
   file: string;
-  /** Overwrite with the file if exists. */
+  /**
+   * A flag indicating whether to overwrite the database file if it already exists.
+   *
+   * @defaultValue `false`
+   */
   overwrite: boolean;
 
   constructor(
+    /**
+     * Configuration options for the SimpleDB instance.
+     */
     options: {
+      /**
+       * The path to the database file. If not provided, an in-memory database is used.
+       *
+       * @defaultValue `:memory:`
+       */
       file?: string;
+      /**
+       * A flag indicating whether to overwrite the database file if it already exists.
+       *
+       * @defaultValue `false`
+       */
       overwrite?: boolean;
+      /**
+       * A flag indicating whether to log the total execution duration.
+       *
+       * @defaultValue `false`
+       */
       logDuration?: boolean;
+      /**
+       * The number of rows to display when logging a table.
+       *
+       * @defaultValue `10`
+       */
       nbRowsToLog?: number;
+      /**
+       * The maximum number of characters to display for text-based cells.
+       *
+       * @defaultValue `undefined`
+       */
       nbCharactersToLog?: number;
+      /**
+       * A flag indicating whether to include data types when logging a table.
+       *
+       * @defaultValue `false`
+       */
       types?: boolean;
+      /**
+       * A flag indicating whether to log verbose cache-related messages.
+       *
+       * @defaultValue `false`
+       */
       cacheVerbose?: boolean;
+      /**
+       * A flag indicating whether to log debugging information.
+       *
+       * @defaultValue `false`
+       */
       debug?: boolean;
+      /**
+       * A flag indicating whether to use DuckDB's external file cache.
+       *
+       * @defaultValue `false`
+       */
       duckDbCache?: boolean | null;
+      /**
+       * A flag indicating whether to display a progress bar for long-running operations.
+       *
+       * @defaultValue `false`
+       */
       progressBar?: boolean;
     } = {},
   ) {

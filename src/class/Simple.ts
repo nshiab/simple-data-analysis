@@ -1,22 +1,49 @@
 import type { DuckDBConnection, DuckDBInstance } from "@duckdb/node-api";
 
+/**
+ * An abstract base class providing common properties for SimpleDB and SimpleTable. This class is not intended for direct instantiation.
+ */
 export default class Simple {
-  /** A flag indicating whether debugging information should be logged. Defaults to false. @category Properties */
+  /**
+   * A flag indicating whether to log debugging information.
+   *
+   * @defaultValue `false`
+   */
   debug: boolean;
-  /** The number of rows to log. Defaults to 10. @category Properties */
+  /**
+   * The number of rows to display when logging a table.
+   *
+   * @defaultValue `10`
+   */
   nbRowsToLog: number;
-  /** A flag indicating whether types should be logged along tables. Defaults to false. @category Properties */
+  /**
+   * A flag indicating whether to include data types when logging a table.
+   *
+   * @defaultValue `false`
+   */
   types: boolean;
-  /** The number of characters to log for text cells. By default, the whole text is logged. @category Properties */
+  /**
+   * The maximum number of characters to display for text-based cells. If undefined, the entire text is shown.
+   *
+   * @defaultValue `undefined`
+   */
   nbCharactersToLog: number | undefined;
-  /** A DuckDB database. @category Properties */
+  /**
+   * A DuckDB database instance.
+   */
   db!: DuckDBInstance;
-  /** A connection to a DuckDB database. @category Properties */
+  /**
+   * A connection to a DuckDB database.
+   */
   connection!: DuckDBConnection;
-  /** A flag to know if the name of the table has been attributed by default. @category Properties */
+  /**
+   * A flag indicating if the table name was assigned by default.
+   *
+   * @defaultValue `false`
+   */
   defaultTableName: boolean;
   /**
-   * For internal use only. If you want to run a SQL query, use the customQuery method. @category Properties
+   * A function for running SQL queries. This is for internal use only. To run a custom SQL query, use the SimpleDB.customQuery method.
    */
   runQuery!: (
     query: string,
