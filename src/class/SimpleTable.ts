@@ -100,7 +100,7 @@ import aiEmbeddings from "../methods/aiEmbeddings.ts";
 import aiVectorSimilarity from "../methods/aiVectorSimilarity.ts";
 
 /**
- * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular and geospatial data. To create one, it's best to instantiate a SimpleDB first.
+ * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular, geospatial and vector data. To create one, it's best to instantiate a SimpleDB first.
  *
  * @example
  * Basic usage
@@ -126,26 +126,48 @@ import aiVectorSimilarity from "../methods/aiVectorSimilarity.ts";
  * const boundaries = sdb.newTable()
  * await boundaries.loadGeoData("./boundaries.geojson")
  * ```
- *
- * @param name - The name of the table.
- * @param projections - The projections of columns with geospatial data.
- * @param simpleDB - The SimpleDB instance tied to this table.
- * @param options - An optional object with configuration options:
- *   @param options.debug - A boolean indicating whether to enable debug mode.
- *   @param options.nbRowsToLog - Number of rows to log when displaying table data.
- *   @param options.nbCharactersToLog - Maximum number of characters to log for strings. Useful to avoid logging large text content.
+ * @category Classes
  */
 
 export default class SimpleTable extends Simple {
-  /** Name of the table in the database. @category Properties */
+  /**
+   * Name of the table in the database.
+   *
+   * @category Properties
+   */
   name: string;
-  /** The projections of the geospatial data, if any. @category Properties */
+  /**
+   * The projections of the geospatial data, if any.
+   *
+   * @defaultValue `{}`
+   * @category Properties
+   */
   projections: { [key: string]: string };
-  /** The indexes of the table. @category Properties */
+  /**
+   * The indexes of the table.
+   *
+   * @defaultValue `[]`
+   * @category Properties
+   */
   indexes: string[];
-  /** The SimpleDB that created this table. @category Properties */
+  /**
+   * The SimpleDB instance that created this table.
+   *
+   * @category Properties
+   */
   declare sdb: SimpleDB;
 
+  /**
+   * Creates an instance of SimpleTable.
+   * @param name The name of the table.
+   * @param projections The projections of columns with geospatial data.
+   * @param simpleDB The SimpleDB instance tied to this table.
+   * @param options An optional object with configuration options:
+   *   @param options.debug A boolean indicating whether to enable debug mode.
+   *   @param options.nbRowsToLog Number of rows to log when displaying table data.
+   *   @param options.nbCharactersToLog Maximum number of characters to log for strings. Useful to avoid logging large text content.
+   *   @param options.types A boolean indicating whether to include data types when logging a table.
+   */
   constructor(
     name: string,
     projections: { [key: string]: string },
@@ -165,14 +187,16 @@ export default class SimpleTable extends Simple {
     this.indexes = [];
   }
 
-  /** Rename the table.
+  /**
+   * Renames the table.
    *
    * @example
    * Basic usage
    * ```ts
    * await table.renameTable("newName")
    * ```
-   * @param name - New name for the table
+   * @param name New name for the table.
+   * @category Table management
    */
   async renameTable(name: string) {
     await queryDB(
@@ -188,7 +212,8 @@ export default class SimpleTable extends Simple {
     this.name = name;
   }
 
-  /** Set the types of a new table. If the table alread exists, it will be replaced. If you want to convert the types of an existing table, use the `.convert()` method.
+  /**
+   * Sets the types of a new table. If the table already exists, it will be replaced. If you want to convert the types of an existing table, use the `.convert()` method.
    *
    * @example
    * Basic usage
@@ -200,7 +225,8 @@ export default class SimpleTable extends Simple {
    * })
    * ```
    *
-   * @param types - An object specifying the columns and their data types (JavaScript or SQL).
+   * @param types An object specifying the columns and their data types (JavaScript or SQL).
+   * @category Table management
    */
   async setTypes(types: {
     [key: string]:
@@ -255,7 +281,7 @@ export default class SimpleTable extends Simple {
    * await table.loadArray(data)
    * ```
    *
-   * @param arrayOfObjects - An array of objects representing the data.
+   * @param arrayOfObjects An array of objects representing the data.
    *
    * @category Importing data
    */
@@ -268,7 +294,7 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Loads data from local or remote file(s) into it. CSV, JSON and PARQUET files are accepted.
+   * Loads data from local or remote file(s) into the table. CSV, JSON, Parquet, and Excel files are accepted.
    *
    * @example
    * Basic usage
@@ -282,34 +308,34 @@ export default class SimpleTable extends Simple {
    *
    * @example
    * Multiple files
-   * ```
+   * ```ts
    * // Load data from multiple local files.
-   * await table.loadData([ "./some-data1.json", "./some-data2.json", "./some-data3.json" ])
+   * await table.loadData([ ".some-data1.json", ".some-data2.json", ".some-data3.json" ])
    *
    * // Load data from multiple remote files
    * await table.loadData([ "https://some-website.com/some-data1.parquet", "https://some-website.com/some-data2.parquet", "https://some-website.com/some-data3.parquet" ])
    * ```
    *
-   * @param files - The path(s) or url(s) of file(s) containing the data to be loaded. CSV, JSON, and PARQUET files are accepted.
-   * @param options - An optional object with configuration options:
-   *   @param options.fileType - The type of file to load ("csv", "dsv", "json", "parquet"). Defaults to the first file extension.
-   *   @param options.autoDetect - A boolean indicating whether to automatically detect the data format. Defaults to true.
-   *   @param options.limit - A number indicating the number of rows to load. Defaults to all rows.
-   *   @param options.fileName - A boolean indicating whether to include the file name as a column in the loaded data. Defaults to false.
-   *   @param options.unifyColumns - A boolean indicating whether to unify columns across multiple files, when the files structure is not the same. Defaults to false.
-   *   @param options.columnTypes - An object mapping the column names with their expected types. By default, the types are inferred.
-   *   @param options.header - A boolean indicating whether the file has a header. Applicable to CSV files. Defaults to true.
-   *   @param options.allText - A boolean indicating whether all columns should be treated as text. Applicable to CSV files. Defaults to false.
-   *   @param options.delim - The delimiter used in the file. Applicable to CSV and DSV files. By default, the delimiter is inferred.
-   *   @param options.skip - The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to 0.
-   *   @param options.nullPadding - If this option is enabled, when a row lacks columns, it will pad the remaining columns on the right with null values.
-   *   @param options.ignoreErrors - Option to ignore any parsing errors encountered and instead ignore rows with errors.
-   *   @param options.compression - The compression type. Applicable to CSV files. Defaults to none.
-   *   @param options.strict - If true, an error will be thrown when encountering any issues. If false, structurally incorrect files will be parsed tentatively. Defaults to true.
-   *   @param options.encoding - The encoding of the file. Applicable to CSV files. Defaults to utf-8.
-   *   @param options.jsonFormat - The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
-   *   @param options.records - A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
-   *   @param options.sheet - A string indicating a specific sheet to import. Applicable to Excel files. By default, the first sheet is imported.
+   * @param files The path(s) or url(s) of file(s) containing the data to be loaded. CSV, JSON, Parquet, and Excel files are accepted.
+   * @param options An optional object with configuration options:
+   *   @param options.fileType The type of file to load ("csv", "dsv", "json", "parquet", "excel"). Defaults to the first file extension.
+   *   @param options.autoDetect A boolean indicating whether to automatically detect the data format. Defaults to `true`.
+   *   @param options.limit A number indicating the number of rows to load. Defaults to all rows.
+   *   @param options.fileName A boolean indicating whether to include the file name as a column in the loaded data. Defaults to `false`.
+   *   @param options.unifyColumns A boolean indicating whether to unify columns across multiple files, when the files structure is not the same. Defaults to `false`.
+   *   @param options.columnTypes An object mapping the column names with their expected types. By default, the types are inferred.
+   *   @param options.header A boolean indicating whether the file has a header. Applicable to CSV files. Defaults to `true`.
+   *   @param options.allText A boolean indicating whether all columns should be treated as text. Applicable to CSV files. Defaults to `false`.
+   *   @param options.delim The delimiter used in the file. Applicable to CSV and DSV files. By default, the delimiter is inferred.
+   *   @param options.skip The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to `0`.
+   *   @param options.nullPadding If this option is enabled, when a row lacks columns, it will pad the remaining columns on the right with null values. Defaults to `false`.
+   *   @param options.ignoreErrors Option to ignore any parsing errors encountered and instead ignore rows with errors. Defaults to `false`.
+   *   @param options.compression The compression type. Applicable to CSV files. Defaults to `none`.
+   *   @param options.strict If true, an error will be thrown when encountering any issues. If false, structurally incorrect files will be parsed tentatively. Defaults to `true`.
+   *   @param options.encoding The encoding of the file. Applicable to CSV files. Defaults to `utf-8`.
+   *   @param options.jsonFormat The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
+   *   @param options.records A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
+   *   @param options.sheet A string indicating a specific sheet to import. Applicable to Excel files. By default, the first sheet is imported.
    *
    * @category Importing data
    */
@@ -353,7 +379,7 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Loads data from all files in a local directory. CSV, JSON, and PARQUET files are accepted.
+   * Loads data from all files in a local directory. CSV, JSON, Parquet, and Excel files are accepted.
    *
    * @example
    * Basic usage
@@ -361,26 +387,26 @@ export default class SimpleTable extends Simple {
    * await table.loadDataFromDirectory("./data/")
    * ```
    *
-   * @param directory - The path of the directory containing the data files to be loaded. CSV, JSON, and PARQUET files are accepted.
-   * @param options - An optional object with configuration options:
-   *   @param options.fileType - The type of file to load ("csv", "dsv", "json", "parquet"). Defaults to the first file extension.
-   *   @param options.autoDetect - A boolean indicating whether to automatically detect the data format. Defaults to true.
-   *   @param options.limit - A number indicating the number of rows to load. Defaults to all rows.
-   *   @param options.fileName - A boolean indicating whether to include the file name as a column in the loaded data. Defaults to false.
-   *   @param options.unifyColumns - A boolean indicating whether to unify columns across multiple files, when the files structure is not the same. Defaults to false.
-   *   @param options.columnTypes - An object mapping the column names with their expected types. By default, the types are inferred.
-   *   @param options.header - A boolean indicating whether the file has a header. Applicable to CSV files. Defaults to true.
-   *   @param options.allText - A boolean indicating whether all columns should be treated as text. Applicable to CSV files. Defaults to false.
-   *   @param options.delim - The delimiter used in the file. Applicable to CSV and DSV files. By default, the delimiter is inferred.
-   *   @param options.skip - The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to 0.
-   *   @param options.nullPadding - If this option is enabled, when a row lacks columns, it will pad the remaining columns on the right with null values.
-   *   @param options.ignoreErrors - Option to ignore any parsing errors encountered and instead ignore rows with errors.
-   *   @param options.compression - The compression type. Applicable to CSV files. Defaults to none.
-   *   @param options.strict - If true, an error will be thrown when encountering any issues. If false, structurally incorrect files will be parsed tentatively. Defaults to true.
-   *   @param options.encoding - The encoding of the files. Applicable to CSV files. Defaults to utf-8.
-   *   @param options.jsonFormat - The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
-   *   @param options.records - A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
-   *   @param options.sheet - A string indicating a specific sheet to import. Applicable to Excel files. By default, the first sheet is imported.
+   * @param directory The path of the directory containing the data files to be loaded. CSV, JSON, Parquet, and Excel files are accepted.
+   * @param options An optional object with configuration options:
+   *   @param options.fileType The type of file to load ("csv", "dsv", "json", "parquet", "excel"). Defaults to the first file extension.
+   *   @param options.autoDetect A boolean indicating whether to automatically detect the data format. Defaults to `true`.
+   *   @param options.limit A number indicating the number of rows to load. Defaults to all rows.
+   *   @param options.fileName A boolean indicating whether to include the file name as a column in the loaded data. Defaults to `false`.
+   *   @param options.unifyColumns A boolean indicating whether to unify columns across multiple files, when the files structure is not the same. Defaults to `false`.
+   *   @param options.columnTypes An object mapping the column names with their expected types. By default, the types are inferred.
+   *   @param options.header A boolean indicating whether the file has a header. Applicable to CSV files. Defaults to `true`.
+   *   @param options.allText A boolean indicating whether all columns should be treated as text. Applicable to CSV files. Defaults to `false`.
+   *   @param options.delim The delimiter used in the file. Applicable to CSV and DSV files. By default, the delimiter is inferred.
+   *   @param options.skip The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to `0`.
+   *   @param options.nullPadding If this option is enabled, when a row lacks columns, it will pad the remaining columns on the right with null values. Defaults to `false`.
+   *   @param options.ignoreErrors Option to ignore any parsing errors encountered and instead ignore rows with errors. Defaults to `false`.
+   *   @param options.compression The compression type. Applicable to CSV files. Defaults to `none`.
+   *   @param options.strict If true, an error will be thrown when encountering any issues. If false, structurally incorrect files will be parsed tentatively. Defaults to `true`.
+   *   @param options.encoding The encoding of the files. Applicable to CSV files. Defaults to `utf-8`.
+   *   @param options.jsonFormat The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
+   *   @param options.records A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
+   *   @param options.sheet A string indicating a specific sheet to import. Applicable to Excel files. By default, the first sheet is imported.
    *
    * @category Importing data
    */
@@ -445,13 +471,13 @@ export default class SimpleTable extends Simple {
    * @example
    * Reprojecting to WGS84 with [latitude, longitude] axis order
    * ```ts
-   * await table.loadGeoData("./some-data.geojson", { toWGS84: true })
+   * await table.loadGeoData("./some-data.shp.zip", { toWGS84: true })
    * ```
    *
-   * @param file - The URL or path to the external file containing the geospatial data.
-   * @param options - An optional object with configuration options:
-   *   @param options.toWGS84 - If true, the method will look for the original projections in the file and convert the data to the WGS84 projections with [latitude, longitude] axis order. If the file or the url ends by .json or .geojson, the coordinates are automatically flipped and this option has no effect.
-   *   @param options.from - An option to pass the original projections, if the method is not able to find it.
+   * @param file The URL or path to the external file containing the geospatial data.
+   * @param options An optional object with configuration options:
+   *   @param options.toWGS84 If true, the method will look for the original projections in the file and convert the data to the WGS84 projections with [latitude, longitude] axis order. If the file or the url ends by .json or .geojson, the coordinates are automatically flipped and this option has no effect. Defaults to `false`.
+   *   @param options.from An option to pass the original projections, if the method is not able to find it.
    *
    * @category Geospatial
    */
@@ -564,10 +590,10 @@ export default class SimpleTable extends Simple {
    *      // Ensure each new data point is of the expected categories
    *      test: (dataPoint: unknown) => {
    *        if (
-   *          typeof response !== "string" ||
-   *          !["Man", "Woman", "Neutral"].includes(response)
+   *          typeof dataPoint !== "string" ||
+   *          !["Man", "Woman", "Neutral"].includes(dataPoint)
    *        ) {
-   *          throw new Error(`Invalid response ${response}`);
+   *          throw new Error(`Invalid response ${dataPoint}`);
    *        }
    *      },
    *      // Retry up to 3 times if the test fails
@@ -588,24 +614,26 @@ export default class SimpleTable extends Simple {
    * ]
    * ```
    *
-   * @param column - The column to be used as input for the prompt.
-   * @param newColumn - The name of the new column where the response will be stored.
-   * @param prompt - The input string to guide the AI's response.
-   * @param options - Configuration options for the AI request.
-   *   @param options.batchSize - The number of rows to process in each batch. Defaults to 1.
-   *   @param options.concurrent - The number of concurrent requests to send. Defaults to 1.
-   *   @param options.cache - If true, the results will be cached locally. Defaults to false.
-   *   @param options.test - A function to test the validity of the returned data point. If the test fails, the method will retry the request if `retry` is set to a number greater than 0.
-   *   @param options.retry - The number of times to retry the request in case of failure. Defaults to 0.
-   *   @param options.rateLimitPerMinute - The rate limit for the AI requests in requests per minute. If necessary, the method will wait between requests. Defaults to no limit.
-   *   @param options.model - The model to use. Defaults to the `AI_MODEL` environment variable.
-   *   @param options.apiKey - The API key. Defaults to the `AI_KEY` environment variable.
-   *   @param options.vertex - Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
-   *   @param options.project - The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
-   *   @param options.location - The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
-   *   @param options.ollama - Whether to use Ollama. Defaults to the `OLLAMA` environment variable.
-   *   @param options.verbose - Whether to log additional information. Defaults to `false`.
-   *   @param options.clean - A function to clean the response before testing, caching and storing.
+   * @param column The column to be used as input for the prompt.
+   * @param newColumn The name of the new column where the response will be stored.
+   * @param prompt The input string to guide the AI's response.
+   * @param options Configuration options for the AI request.
+   *   @param options.batchSize The number of rows to process in each batch. Defaults to `1`.
+   *   @param options.concurrent The number of concurrent requests to send. Defaults to `1`.
+   *   @param options.cache If true, the results will be cached locally. Defaults to `false`.
+   *   @param options.test A function to test the validity of the returned data point. If the test fails, the method will retry the request if `retry` is set to a number greater than 0. Defaults to `undefined`.
+   *   @param options.retry The number of times to retry the request in case of failure. Defaults to `0`.
+   *   @param options.rateLimitPerMinute The rate limit for the AI requests in requests per minute. If necessary, the method will wait between requests. Defaults to `undefined` (no limit).
+   *   @param options.model The model to use. Defaults to the `AI_MODEL` environment variable.
+   *   @param options.apiKey The API key. Defaults to the `AI_KEY` environment variable.
+   *   @param options.vertex Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
+   *   @param options.project The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
+   *   @param options.location The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
+   *   @param options.ollama Whether to use Ollama. Defaults to the `OLLAMA` environment variable.
+   *   @param options.verbose Whether to log additional information. Defaults to `false`.
+   *   @param options.clean A function to clean the response before testing, caching and storing. Defaults to `undefined`.
+   *
+   * @category AI
    */
   async aiRowByRow(
     column: string,
@@ -676,20 +704,22 @@ export default class SimpleTable extends Simple {
    * });
    * ```
    *
-   * @param column - The column to be used as input for the embeddings.
-   * @param newColumn - The name of the new column where the embeddings will be stored.
-   * @param options - Configuration options for the AI request.
-   *   @param options.createIndex - If true, an index will be created on the new column. Useful to speed up the processing time of the aiVectorSimilarity method. Defaults to false.
-   *   @param options.concurrent - The number of concurrent requests to send. Defaults to 1.
-   *   @param options.cache - If true, the results will be cached locally. Defaults to false.
-   *   @param options.rateLimitPerMinute - The rate limit for the AI requests in requests per minute. If necessary, the method will wait between requests. Defaults to no limit.
-   *   @param options.model - The model to use. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
-   *   @param options.apiKey - The API key. Defaults to the `AI_KEY` environment variable.
-   *   @param options.vertex - Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
-   *   @param options.project - The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
-   *   @param options.location - The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
-   *   @param options.ollama - Whether to use Ollama. Defaults to the `OLLAMA` environment variable.
-   *   @param options.verbose - Whether to log additional information. Defaults to `false`.
+   * @param column The column to be used as input for the embeddings.
+   * @param newColumn The name of the new column where the embeddings will be stored.
+   * @param options Configuration options for the AI request.
+   *   @param options.createIndex If true, an index will be created on the new column. Useful to speed up the processing time of the aiVectorSimilarity method. Defaults to `false`.
+   *   @param options.concurrent The number of concurrent requests to send. Defaults to `1`.
+   *   @param options.cache If true, the results will be cached locally. Defaults to `false`.
+   *   @param options.rateLimitPerMinute The rate limit for the AI requests in requests per minute. If necessary, the method will wait between requests. Defaults to `undefined` (no limit).
+   *   @param options.model The model to use. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
+   *   @param options.apiKey The API key. Defaults to the `AI_KEY` environment variable.
+   *   @param options.vertex Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
+   *   @param options.project The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
+   *   @param options.location The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
+   *   @param options.ollama Whether to use Ollama. Defaults to the `OLLAMA` environment variable.
+   *   @param options.verbose Whether to log additional information. Defaults to `false`.
+   *
+   * @category AI
    */
   async aiEmbeddings(column: string, newColumn: string, options: {
     createIndex?: boolean;
@@ -756,19 +786,22 @@ export default class SimpleTable extends Simple {
    * await table.logTable();
    * ```
    *
-   * @param text - The text to be used as input for the similarity search.
-   * @param column - The column containing the embeddings to be used for the similarity search.
-   * @param nbResults - The number of most similar results to return.
-   * @param options - An optional object with configuration options:
-   *   @param options.createIndex - If true, an index will be created. Defaults to false.
-   *   @param options.cache - If true, the results will be cached locally. Defaults to false.
-   *   @param options.model - The model to use. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
-   *   @param options.apiKey - The API key. Defaults to the `AI_KEY` environment variable.
-   *   @param options.vertex - Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
-   *   @param options.project - The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
-   *   @param options.location - The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
-   *   @param options.ollama - Whether to use Ollama. Defaults to the `OLLAMA` environment variable.
-   *   @param options.verbose - Whether to log additional information. Defaults to `false`.
+   * @param text The text to be used as input for the similarity search.
+   * @param column The column containing the embeddings to be used for the similarity search.
+   * @param nbResults The number of most similar results to return.
+   * @param options An optional object with configuration options:
+   *   @param options.createIndex If true, an index will be created. Defaults to `false`.
+   *   @param options.outputTable The name of the output table. Defaults to `undefined`.
+   *   @param options.cache If true, the results will be cached locally. Defaults to `false`.
+   *   @param options.model The model to use. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
+   *   @param options.apiKey The API key. Defaults to the `AI_KEY` environment variable.
+   *   @param options.vertex Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
+   *   @param options.project The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
+   *   @param options.location The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
+   *   @param options.ollama Whether to use Ollama. Defaults to the `OLLAMA` environment variable.
+   *   @param options.verbose Whether to log additional information. Defaults to `false`.
+   *
+   * @category AI
    */
   async aiVectorSimilarity(
     text: string,
@@ -814,15 +847,17 @@ export default class SimpleTable extends Simple {
    * )
    * ```
    *
-   * @param prompt - The input string to guide the AI in generating the SQL query.
-   * @param options - Configuration options for the AI request.
-   *  @param options.cache - If true, the query will be cached locally. By default, it is false.
-   *  @param options.model - The model to use. Defaults to the `AI_MODEL` environment variable.
-   *  @param options.apiKey - The API key. Defaults to the `AI_KEY` environment variable.
-   *  @param options.vertex - Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
-   *  @param options.project - The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
-   *  @param options.location - The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
-   *  @param options.verbose - Whether to log additional information. Defaults to `false`.
+   * @param prompt The input string to guide the AI in generating the SQL query.
+   * @param options Configuration options for the AI request.
+   *  @param options.cache If true, the query will be cached locally. Defaults to `false`.
+   *  @param options.model The model to use. Defaults to the `AI_MODEL` environment variable.
+   *  @param options.apiKey The API key. Defaults to the `AI_KEY` environment variable.
+   *  @param options.vertex Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
+   *  @param options.project The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
+   *  @param options.location The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
+   *  @param options.verbose Whether to log additional information. Defaults to `false`.
+   *
+   * @category AI
    */
   async aiQuery(prompt: string, options: {
     cache?: boolean;
@@ -846,7 +881,7 @@ export default class SimpleTable extends Simple {
    * await table.insertRows(rows)
    * ```
    *
-   * @param rows - An array of objects representing the rows to be inserted into the table.
+   * @param rows An array of objects representing the rows to be inserted into the table.
    *
    * @category Importing data
    */
@@ -868,27 +903,27 @@ export default class SimpleTable extends Simple {
    * @example
    * Basic usage with one table
    * ```ts
-   * // Insert all rows from tableB into this table.
+   * // Insert all rows from tableB into tableA.
    * await tableA.insertTables("tableB")
    * ```
    *
    * @example
    * With multiple tables
    * ```ts
-   * // Insert all rows from tableB and tableC into this table.
+   * // Insert all rows from tableB and tableC into tableA.
    * await tableA.insertTables([ "tableB", "tableC" ])
    * ```
    *
    * @example
    * With multiple tables having different columns
    * ```ts
-   * // null values will be inserted in tables that don't have the same columns.
+   * // When unifying columns, missing columns in a table will be filled with NULL values.
    * await tableA.insertTables([ "tableB", "tableC" ], { unifyColumns: true })
    * ```
    *
-   * @param tablesToInsert - The name of the table(s) from which rows will be inserted.
-   * @param options - An optional object with configuration options:
-   *   @param options.unifyColumns - A boolean indicating whether to unify the columns of the tables. Defaults to false.
+   * @param tablesToInsert The name(s) of the table(s) or SimpleTable instance(s) from which rows will be inserted.
+   * @param options An optional object with configuration options:
+   *   @param options.unifyColumns A boolean indicating whether to unify the columns of the tables. Defaults to `false`.
    *
    * @category Importing data
    */
