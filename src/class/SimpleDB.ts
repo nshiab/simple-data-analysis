@@ -20,22 +20,28 @@ import { renameSync } from "node:fs";
  * Manages a DuckDB database instance, providing a simplified interface for database operations.
  *
  * @example
+ * ```ts
  * // In-memory database
  * const sdb = new SimpleDB();
  * const employees = sdb.newTable("employees");
  * await employees.loadData("./employees.csv");
  * await employees.logTable();
  * await sdb.done();
+ * ```
  *
  * @example
+ * ```ts
  * // Persistent database
  * const sdb = new SimpleDB({ file: "./my_database.db" });
  * //... operations
  * await sdb.done(); // Saves changes to the file
+ * ```
  *
  * @example
+ * ```ts
  * // With options
  * const sdb = new SimpleDB({ debug: true, nbRowsToLog: 20 });
+ * ```
  */
 
 export default class SimpleDB extends Simple {
@@ -43,72 +49,84 @@ export default class SimpleDB extends Simple {
    * An array of paths to the data sources used in the cache.
    *
    * @defaultValue `[]`
+   * @category Properties
    */
   cacheSourcesUsed: string[];
   /**
    * A timestamp marking the start of a duration measurement.
    *
    * @defaultValue `undefined`
+   * @category Properties
    */
   durationStart: number | undefined;
   /**
    * A counter for incrementing default table names.
    *
    * @defaultValue `1`
+   * @category Properties
    */
   tableIncrement: number;
   /**
    * A flag indicating whether to log the total execution duration.
    *
    * @defaultValue `false`
+   * @category Properties
    */
   logDuration: boolean;
   /**
    * An array of SimpleTable instances associated with this database.
    *
    * @defaultValue `[]`
+   * @category Properties
    */
   tables: SimpleTable[];
   /**
    * A flag indicating whether to log verbose cache-related messages.
    *
    * @defaultValue `false`
+   * @category Properties
    */
   cacheVerbose: boolean;
   /**
    * The total time saved by using the cache, in milliseconds.
    *
    * @defaultValue `0`
+   * @category Properties
    */
   cacheTimeSaved: number;
   /**
    * The total time spent writing to the cache, in milliseconds.
    *
    * @defaultValue `0`
+   * @category Properties
    */
   cacheTimeWriting: number;
   /**
    * A flag indicating whether to display a progress bar for long-running operations.
    *
    * @defaultValue `false`
+   * @category Properties
    */
   progressBar: boolean;
   /**
    * A flag indicating whether to use DuckDB's external file cache.
    *
    * @defaultValue `false`
+   * @category Properties
    */
   duckDbCache: boolean | null;
   /**
    * The path to the database file. If not provided, an in-memory database is used.
    *
    * @defaultValue `:memory:`
+   * @category Properties
    */
   file: string;
   /**
    * A flag indicating whether to overwrite the database file if it already exists.
    *
    * @defaultValue `false`
+   * @category Properties
    */
   overwrite: boolean;
 
@@ -264,12 +282,16 @@ export default class SimpleDB extends Simple {
    * @returns A new SimpleTable instance.
    *
    * @example
+   * ```ts
    * // Create a table with a default name
    * const dataTable = sdb.newTable();
+   * ```
    *
    * @example
+   * ```ts
    * // Create a table with a specific name
    * const employees = sdb.newTable("employees");
+   * ```
    */
   newTable(
     name?: string,
@@ -310,7 +332,9 @@ export default class SimpleDB extends Simple {
    * @returns A promise that resolves to the SimpleTable instance.
    *
    * @example
+   * ```ts
    * const employees = await sdb.getTable("employees");
+   * ```
    */
   async getTable(name: string): Promise<SimpleTable> {
     const table = this.tables.find((t) => t.name === name);
@@ -327,12 +351,16 @@ export default class SimpleDB extends Simple {
    * @param tables A single table or an array of tables to remove, specified by name or as SimpleTable instances.
    *
    * @example
+   * ```ts
    * // Remove a single table by name
    * await sdb.removeTables("employees");
+   * ```
    *
    * @example
+   * ```ts
    * // Remove multiple tables
    * await sdb.removeTables(["customers", "products"]);
+   * ```
    */
   async removeTables(tables: SimpleTable | string | (SimpleTable | string)[]) {
     const tablesToBeRemoved = Array.isArray(tables) ? tables : [tables];
@@ -363,12 +391,16 @@ export default class SimpleDB extends Simple {
    * @param tables A single table or an array of tables to select, specified by name or as SimpleTable instances.
    *
    * @example
+   * ```ts
    * // Select a single table
    * await sdb.selectTables("employees");
+   * ```
    *
    * @example
+   * ```ts
    * // Select multiple tables
    * await sdb.selectTables(["customers", "products"]);
+   * ```
    */
   async selectTables(tables: SimpleTable | string | (SimpleTable | string)[]) {
     const tablesToBeSelected = (Array.isArray(tables) ? tables : [tables]).map((
@@ -411,7 +443,9 @@ export default class SimpleDB extends Simple {
    * @returns A promise that resolves to an array of table names.
    *
    * @example
+   * ```ts
    * const tableNames = await sdb.getTableNames();
+   * ```
    */
   async getTableNames(): Promise<string[]> {
     return await getTableNames(this);
@@ -421,7 +455,9 @@ export default class SimpleDB extends Simple {
    * Logs the names of all tables in the database to the console.
    *
    * @example
+   * ```ts
    * await sdb.logTableNames();
+   * ```
    */
   async logTableNames(): Promise<void> {
     const tables = await this.getTableNames();
@@ -440,7 +476,9 @@ export default class SimpleDB extends Simple {
    * @returns A promise that resolves to an array of SimpleTable instances.
    *
    * @example
+   * ```ts
    * const tables = await sdb.getTables();
+   * ```
    */
   async getTables(): Promise<SimpleTable[]> {
     return await this.tables;
@@ -453,7 +491,9 @@ export default class SimpleDB extends Simple {
    * @returns A promise that resolves to true if the table exists, false otherwise.
    *
    * @example
+   * ```ts
    * const exists = await sdb.hasTable("employees");
+   * ```
    */
   async hasTable(table: SimpleTable | string): Promise<boolean> {
     const tableName = typeof table === "string" ? table : table.name;
@@ -467,7 +507,9 @@ export default class SimpleDB extends Simple {
    * @returns A promise that resolves to an array of objects, each representing an extension.
    *
    * @example
+   * ```ts
    * const extensions = await sdb.getExtensions();
+   * ```
    */
   async getExtensions(): Promise<
     {
@@ -498,12 +540,16 @@ export default class SimpleDB extends Simple {
    * @returns A promise that resolves to the query result, or null if `returnDataFrom` is "none".
    *
    * @example
+   * ```ts
    * // Query with no return value
    * await sdb.customQuery("CREATE TABLE new_table AS SELECT * FROM employees");
+   * ```
    *
    * @example
+   * ```ts
    * // Query with return value
    * const data = await sdb.customQuery("SELECT * FROM employees WHERE Job = 'Clerk'", { returnDataFrom: "query" });
+   * ```
    */
   async customQuery(
     query: string,
@@ -538,12 +584,16 @@ export default class SimpleDB extends Simple {
    *   @param options.detach If true, the database is detached after loading. Defaults to true.
    *
    * @example
+   * ```ts
    * // Load a DuckDB database
    * await sdb.loadDB("./my_database.db");
+   * ```
    *
    * @example
+   * ```ts
    * // Load a SQLite database and keep it attached
    * await sdb.loadDB("./my_database.sqlite", { detach: false });
+   * ```
    */
   async loadDB(file: string, options: {
     name?: string;
@@ -636,12 +686,16 @@ DETACH ${name};`,
    *   @param options.noMetaData If true, metadata files (projections, indexes) are not created. Defaults to false.
    *
    * @example
+   * ```ts
    * // Write to a DuckDB file
    * await sdb.writeDB("./my_database.db");
+   * ```
    *
    * @example
+   * ```ts
    * // Write to a SQLite file
    * await sdb.writeDB("./my_database.sqlite");
+   * ```
    */
   async writeDB(
     file: string,
@@ -701,7 +755,9 @@ DETACH ${name};`,
    * @returns A promise that resolves to the SimpleDB instance.
    *
    * @example
+   * ```ts
    * await sdb.done();
+   * ```
    */
   async done(): Promise<this> {
     if (this.file !== ":memory:") {
