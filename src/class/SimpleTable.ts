@@ -4779,35 +4779,33 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Computes the length of line geometries in meters or optionally kilometers. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
+   * Computes the length of line geometries in meters (`"m"`) or optionally kilometers (`"km"`).
+   * The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with `[latitude, longitude]` axis order.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Computes the length of the geometries and returns the results in the column length.
-   * // By default, the method will look for the column storing the geometries.
-   * await table.length("length")
-   * ```
-   *
-   * @example
-   * With a different unit
-   * ```ts
-   * // Same things but in kilometers.
-   * await table.length("length", { unit: "km" })
-   * ```
-   *
-   * @example
-   * Specific column storing geometries
-   * ```ts
-   * // If the table has more than one column storing geometries, you must specify which column should be used.
-   * await table.length("length", { column: "geom", unit: "km" })
-   * ```
-   *
-   * @param newColumn - The name of the new column storing the computed lengths.
+   * @param newColumn - The name of the new column where the computed lengths will be stored.
    * @param options - An optional object with configuration options:
-   *   @param options.unit - The length can be returned as meters or kilometers.
-   *   @param options.column - The column storing geometries.
+   * @param options.unit - The unit for the computed length: `"m"` (meters) or `"km"` (kilometers). Defaults to `"m"`.
+   * @param options.column - The name of the column storing the geometries. If omitted, the method will automatically attempt to find a geometry column.
+   * @returns A promise that resolves when the lengths have been computed.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Compute the length of line geometries in meters and store in 'length_m'
+   * await table.length("length_m");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute the length of line geometries in kilometers and store in 'length_km'
+   * await table.length("length_km", { unit: "km" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute the length of geometries in a specific column named 'routeGeom'
+   * await table.length("routeLength", { column: "routeGeom" });
+   * ```
    */
   async length(
     newColumn: string,
@@ -4831,36 +4829,33 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Computes the perimeter of polygon geometries in meters or optionally kilometers. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
+   * Computes the perimeter of polygon geometries in meters (`"m"`) or optionally kilometers (`"km"`).
+   * The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with `[latitude, longitude]` axis order.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Computes the perimeter of the geometries and returns the results in the column perim.
-   * // By default, the method will look for the column storing the geometries.
-   * await table.perimeter("perim")
-   * ```
-   *
-   * @example
-   * With a different unit
-   * ```ts
-   * // Same things but in kilometers.
-   * await table.perimeter("perim", { unit: "km" })
-   * ```
-   *
-   * @example
-   * Specific column storing geometries
-   * ```ts
-   * // If the table has more than one column storing geometries, you must specify which column should be used.
-   * await table.perimeter("perim", { unit: "km" })
-   * ```
-   *
-   * @param newColumn - The name of the new column storing the computed perimeters.
+   * @param newColumn - The name of the new column where the computed perimeters will be stored.
    * @param options - An optional object with configuration options:
-   *   @param options.unit - The perimeter can be returned as meters or kilometers.
-   *   @param options.column - The column storing geometries.
-   *
+   * @param options.unit - The unit for the computed perimeter: `"m"` (meters) or `"km"` (kilometers). Defaults to `"m"`.
+   * @param options.column - The name of the column storing the geometries. If omitted, the method will automatically attempt to find a geometry column.
+   * @returns A promise that resolves when the perimeters have been computed.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Compute the perimeter of polygon geometries in meters and store in 'perimeter_m'
+   * await table.perimeter("perimeter_m");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute the perimeter of polygon geometries in kilometers and store in 'perimeter_km'
+   * await table.perimeter("perimeter_km", { unit: "km" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute the perimeter of geometries in a specific column named 'landParcelGeom'
+   * await table.perimeter("landParcelPerimeter", { column: "landParcelGeom" });
+   * ```
    */
   async perimeter(
     newColumn: string,
@@ -4884,29 +4879,27 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Computes a buffer around geometries based on a specified distance. The distance is in the SRS unit.
+   * Computes a buffer (a polygon representing a specified distance around a geometry) for geometries in a specified column.
+   * The distance is in the Spatial Reference System (SRS) unit of the input geometries.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Creates new geomeotries from the geometries with a buffer of 1 and puts the results in column buffer.
-   * // By default, the method will look for the column storing the geometries.
-   * await table.buffer("buffer", 1)
-   * ```
-   *
-   * @example
-   * Specific column storing geometries
-   * ```ts
-   * // If the table has more than one column storing geometries, you must specify which column should be used.
-   * await table.buffer("buffer", 1, { column: "geom" })
-   * ```
-   *
-   * @param newColumn - The name of the new column to store the buffered geometries.
-   * @param distance - The distance for the buffer, in SRS unit.
+   * @param newColumn - The name of the new column where the buffered geometries will be stored.
+   * @param distance - The distance for the buffer. This value is in the units of the geometry's SRS.
    * @param options - An optional object with configuration options:
-   *   @param options.column - The column storing geometries.
-   *
+   * @param options.column - The name of the column storing the geometries. If omitted, the method will automatically attempt to find a geometry column.
+   * @returns A promise that resolves when the buffers have been computed.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Create a buffer of 1 unit around geometries in the default column, storing results in 'bufferedGeom'
+   * await table.buffer("bufferedGeom", 1);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Create a buffer of 10 units around geometries in a specific column named 'pointsGeom'
+   * await table.buffer("pointsBuffer", 10, { column: "pointsGeom" });
+   * ```
    */
   async buffer(
     newColumn: string,
@@ -4931,49 +4924,57 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Merges the data of the table with another table based on a spatial join. Note that the returned data is not guaranteed to be in the same order as the original tables.
+   * Merges the data of this table (considered the left table) with another table (the right table) based on a spatial relationship.
+   * Note that the order of rows in the returned data is not guaranteed to be the same as in the original tables.
+   * This operation might create temporary files in a `.tmp` folder; consider adding `.tmp` to your `.gitignore`.
    *
-   * By default, the method looks for a column storing the geometries in each table, does a left join and overwrites leftTable (the current table) with the results. The method also appends the name of the table to the columns storing the geometries if they have the same name in both tables.
-   *
-   * It might create a .tmp folder, so make sure to add .tmp to your gitignore.
-   *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Merges data of tableA and tableB based on geometries that intersect. tableA is overwritten with the result.
-   * await tableA.joinGeo(tableB, "intersect")
-   *
-   * // Merges data of tableA and tableB based on geometries that in tableA that are inside geometries in tableB. tableA is overwritten with the result.
-   * await tableA.joinGeo(tableB, "inside")
-   *
-   * // Merges data based on geometries in tableA that are within a target distance of geometries in tableB. By default, the distance is in the SRS unit.
-   * await tableA.joinGeo(tableB, "within", { distance : 10 })
-   *
-   * // Same thing but using the haversine distance. The distance is in meters. The input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
-   * await tableA.joinGeo(tableB, "within", { distance : 10, distanceMethod: "haversine" })
-   *
-   * // Same thing but using an ellipsoidal model of the earth's surface. The distance is in meters. The input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
-   * await tableA.joinGeo(tableB, "within", { distance : 10, distanceMethod: "spheroid" })
-   * ```
-   *
-   * @example
-   * With options
-   * ```ts
-   * // Same thing but with specific column names storing geometries, a specific join type, and returning the results in a new table.
-   * const tableC = await tableA.joinGeo(tableB, "intersect", { leftTableColumn: "geometriesA", rightTableColumn: "geometriesB", type: "inner", outputTable: true })
-   * ```
-   *
-   * @param method - The method for the spatial join.
-   * @param rightTable - The right table to be joined.
+   * @param rightTable - The SimpleTable instance to be joined with this table.
+   * @param method - The spatial join method to use: `"intersect"` (geometries overlap), `"inside"` (geometries of the left table are entirely within geometries of the right table), or `"within"` (geometries of the left table are within a specified distance of geometries in the right table).
    * @param options - An optional object with configuration options:
-   *   @param options.leftTableColumn - The column storing the geometries in leftTable. The method tries to find one by default.
-   *   @param options.rightTableColumn - The column storing the geometries in rightTable. The method tries to find one by default.
-   *   @param options.type - The type of join operation to perform. For some types (like 'inside'), the table order is important. Defaults to 'left'.
-   *   @param options.distance - If the method is 'within', you need to specify a target distance. The distance is in the SRS unit. If you choose options.distanceMethod 'haversine' or 'spheroid', it will be considered as meters.
-   *   @param options.distanceMethod - 'srs' is default, but you can choose 'haversine' or 'spheroid'. These two need the input geometries with the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
-   *   @param options.outputTable - An option to store the results in a new table.
-   *
+   * @param options.leftTableColumn - The name of the column storing geometries in the left table (this table). If omitted, the method attempts to find one.
+   * @param options.rightTableColumn - The name of the column storing geometries in the right table. If omitted, the method attempts to find one.
+   * @param options.type - The type of join operation to perform: `"inner"`, `"left"` (default), `"right"`, or `"full"`. For some types (like `"inside"`), the table order is important.
+   * @param options.distance - Required if `method` is `"within"`. The target distance for the spatial join. The unit depends on `distanceMethod`.
+   * @param options.distanceMethod - The method for distance calculations: `"srs"` (default, uses the SRS unit), `"haversine"` (uses meters, requires EPSG:4326 input), or `"spheroid"` (uses meters, requires EPSG:4326 input, most accurate but slowest).
+   * @param options.outputTable - If `true`, the results will be stored in a new table with a generated name. If a string, it will be used as the name for the new table. If `false` or omitted, the current table will be overwritten. Defaults to `false`.
+   * @returns A promise that resolves to the SimpleTable instance containing the spatially joined data (either the modified current table or a new table).
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Merge data based on intersecting geometries, overwriting tableA
+   * await tableA.joinGeo(tableB, "intersect");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Merge data where geometries in tableA are inside geometries in tableB
+   * await tableA.joinGeo(tableB, "inside");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Merge data where geometries in tableA are within 10 units (SRS) of geometries in tableB
+   * await tableA.joinGeo(tableB, "within", { distance: 10 });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Merge data where geometries in tableA are within 10 kilometers (Haversine) of geometries in tableB
+   * // Input geometries must be in EPSG:4326.
+   * await tableA.joinGeo(tableB, "within", { distance: 10, distanceMethod: "haversine", unit: "km" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Merge data with specific geometry columns and an inner join type, storing results in a new table
+   * const tableC = await tableA.joinGeo(tableB, "intersect", {
+   *   leftTableColumn: "geometriesA",
+   *   rightTableColumn: "geometriesB",
+   *   type: "inner",
+   *   outputTable: true,
+   * });
+   * ```
    */
   async joinGeo(
     rightTable: SimpleTable,
@@ -5000,19 +5001,19 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Computes the intersection of geometries.
+   * Computes the intersection of two sets of geometries, creating new geometries where they overlap.
+   *
+   * @param column1 - The name of the first column storing geometries.
+   * @param column2 - The name of the second column storing geometries. Both columns must have the same projection.
+   * @param newColumn - The name of the new column where the computed intersection geometries will be stored.
+   * @returns A promise that resolves when the intersection geometries have been computed.
+   * @category Geospatial
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Computes the intersection of geometries in geomA and geomB columns and puts the new geometries in column inter.
-   * await table.intersection("geomA", "geomB", "inter")
+   * // Compute the intersection of geometries in 'geomA' and 'geomB' columns, storing results in 'intersectGeom'
+   * await table.intersection("geomA", "geomB", "intersectGeom");
    * ```
-   * @param column1 - The names of a column storing geometries.
-   * @param column2 - The name of a column storing  geometries.
-   * @param newColumn - The name of the new column storing the computed intersections.
-   *
-   * @category Geospatial
    */
   async intersection(
     column1: string,
@@ -5039,20 +5040,19 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Removes the intersection of two geometries.
+   * Removes the intersection of two geometries from the first geometry, effectively computing the geometric difference.
+   *
+   * @param column1 - The name of the column storing the reference geometries. These geometries will have the intersection removed.
+   * @param column2 - The name of the column storing the geometries used to compute the intersection. Both columns must have the same projection.
+   * @param newColumn - The name of the new column where the resulting geometries (without the intersection) will be stored.
+   * @returns A promise that resolves when the geometries have been processed.
+   * @category Geospatial
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Removes the intersection of geomA and geomB from geomA and returns the results in the new column noIntersection. The column order is important.
-   * await table.removeIntersection("geomA", "geomB", "noIntersection")
+   * // Remove the intersection of 'geomB' from 'geomA', storing the result in 'geomA_minus_geomB'
+   * await table.removeIntersection("geomA", "geomB", "geomA_minus_geomB");
    * ```
-   *
-   * @param column1 - The names of a column storing geometries. These are the reference geometries that will be returned without the intersection.
-   * @param column2 - The name of a column storing  geometries. These are the geometries used to compute the intersection.
-   * @param newColumn - The name of the new column storing the new geometries.
-   *
-   * @category Geospatial
    */
   async removeIntersection(
     column1: string,
@@ -5081,24 +5081,23 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Fill holes in geometries.
+   * Fills holes in polygon geometries.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // By default, this method will look for the column storing the geometries.
-   * await table.fillHoles()
-   * ```
-   *
-   * @example
-   * Specific column storing geometries
-   * ```ts
-   * // If the table has more than one column storing geometries, you must specify which column should be used.
-   * await table.fillHoles("geom")
-   * ```
-   *
-   * @param column - The name of the column storing the geometries.
+   * @param column - The name of the column storing the geometries. If omitted, the method will automatically attempt to find a geometry column.
+   * @returns A promise that resolves when the holes have been filled.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Fill holes in geometries in the default geometry column
+   * await table.fillHoles();
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Fill holes in geometries in a specific column named 'polygonGeom'
+   * await table.fillHoles("polygonGeom");
+   * ```
    */
   async fillHoles(column?: string): Promise<void> {
     const col = column ?? (await findGeoColumn(this));
@@ -5114,20 +5113,19 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns true if two geometries intersect.
+   * Returns `TRUE` if two geometries intersect (overlap in any way), and `FALSE` otherwise.
+   *
+   * @param column1 - The name of the first column storing geometries.
+   * @param column2 - The name of the second column storing geometries. Both columns must have the same projection.
+   * @param newColumn - The name of the new column where the boolean results (`TRUE` for intersection, `FALSE` otherwise) will be stored.
+   * @returns A promise that resolves when the intersection check is complete.
+   * @category Geospatial
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Checks if geometries in geomA and in geomB intersect and return true or false in new column inter.
-   * await table.intersect("geomA", "geomB", "inter")
+   * // Check if geometries in 'geomA' and 'geomB' intersect, storing results in 'doIntersect'
+   * await table.intersect("geomA", "geomB", "doIntersect");
    * ```
-   *
-   * @param column1 - The names of a column storing geometries.
-   * @param column2 - The name of a column storing  geometries.
-   * @param newColumn - The name of the new column with true or false values.
-   *
-   * @category Geospatial
    */
   async intersect(
     column1: string,
@@ -5146,20 +5144,19 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns true if all points of a geometry lies inside another geometry.
+   * Returns `TRUE` if all points of a geometry in `column1` lie inside a geometry in `column2`, and `FALSE` otherwise.
+   *
+   * @param column1 - The name of the column storing the geometries to be tested for containment.
+   * @param column2 - The name of the column storing the geometries to be tested as containers. Both columns must have the same projection.
+   * @param newColumn - The name of the new column where the boolean results (`TRUE` for inside, `FALSE` otherwise) will be stored.
+   * @returns A promise that resolves when the containment check is complete.
+   * @category Geospatial
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Checks if geometries in column geomA are inside geometries in column geomB and return true or false in new column isInside.
-   * await table.inside("geomA", "geomB", "isInside")
+   * // Check if geometries in 'pointGeom' are inside 'polygonGeom', storing results in 'isInsidePolygon'
+   * await table.inside("pointGeom", "polygonGeom", "isInsidePolygon");
    * ```
-   *
-   * @param column1 - The first column holds the geometries that will be tested for containment.
-   * @param column2 - The second column stores the geometries to be tested as containers.
-   * @param newColumn - The name of the new column with true or false values.
-   *
-   * @category Geospatial
    */
   async inside(
     column1: string,
@@ -5178,20 +5175,19 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Computes the union of geometries.
+   * Computes the union of two geometries, creating a new geometry that represents the merged area of both.
+   *
+   * @param column1 - The name of the first column storing geometries.
+   * @param column2 - The name of the second column storing geometries. Both columns must have the same projection.
+   * @param newColumn - The name of the new column where the computed union geometries will be stored.
+   * @returns A promise that resolves when the union geometries have been computed.
+   * @category Geospatial
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Computes the union of geometries in geomA and geomB columns and puts the new geometries in column union.
-   * await tabele.union("geomA", "geomB", "union")
+   * // Compute the union of geometries in 'geomA' and 'geomB', storing results in 'unionGeom'
+   * await table.union("geomA", "geomB", "unionGeom");
    * ```
-   *
-   * @param column1 - The names of a column storing geometries.
-   * @param column2 - The name of a column storing  geometries.
-   * @param newColumn - The name of the new column storing the computed unions.
-   *
-   * @category Geospatial
    */
   async union(
     column1: string,
@@ -5219,20 +5215,20 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Extracts the latitude and longitude of points. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
+   * Extracts the latitude and longitude coordinates from point geometries.
+   * The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with `[latitude, longitude]` axis order.
+   *
+   * @param column - The name of the column storing the point geometries.
+   * @param columnLat - The name of the new column where the extracted latitude values will be stored.
+   * @param columnLon - The name of the new column where the extracted longitude values will be stored.
+   * @returns A promise that resolves when the latitude and longitude have been extracted.
+   * @category Geospatial
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Extracts the latitude and longitude of points from the points in the "geom" column and put them in the columns "lat" and "lon".
-   * await table.latLon("geom", "lat", "lon")
+   * // Extract latitude and longitude from 'geom' column into new 'lat' and 'lon' columns
+   * await table.latLon("geom", "lat", "lon");
    * ```
-   *
-   * @param column - The name of the table storing the points.
-   * @param columnLat - The name of the column storing the extracted latitude.
-   * @param columnLon - The name of the column storing the extracted longitude.
-   *
-   * @category Geospatial
    */
   async latLon(
     column: string,
@@ -5252,36 +5248,26 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Simplifies the geometries while preserving the overall coverage. A higher tolerance results in a more significant simplification.
+   * Simplifies geometries while preserving their overall coverage. A higher tolerance results in more significant simplification.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Simplifies with a tolerance of 0.1.
-   * // By default, the method will look for the column storing the geometries.
-   * await table.simplify(0.1)
-   * ```
-   *
-   * @example
-   * Keeping the overall boundary intact
-   * ```ts
-   * // Simplifies the interior only.
-   * await table.simplify(0.1, { simplifyBoundary: false })
-   * ```
-   *
-   * @example
-   * Specific column storing geometries
-   * ```ts
-   * // If the table has more than one column storing geometries, you must specify which column should be used.
-   * await table.simplify(0.1, { column: "geom" })
-   * ```
-   *
-   * @param tolerance - A number used for the simplification. A higher tolerance results in a more significant simplification.
+   * @param tolerance - A numeric value representing the simplification tolerance. A higher value leads to greater simplification.
    * @param options - An optional object with configuration options:
-   *   @param options.column - The column storing geometries.
-   *   @param options.simplifyBoundary - If true, the method will simplify the boundary of the geometries. If false, it will simplify the interior of the geometries. Detaults to true.
-   *
+   * @param options.column - The name of the column storing the geometries. If omitted, the method will automatically attempt to find a geometry column.
+   * @param options.simplifyBoundary - If `true` (default), the boundary of the geometries will also be simplified. If `false`, only the interior of the geometries will be simplified, preserving the original boundary.
+   * @returns A promise that resolves when the geometries have been simplified.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Simplify geometries in the default column with a tolerance of 0.1
+   * await table.simplify(0.1);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Simplify geometries in 'myGeom' column, preserving the boundary
+   * await table.simplify(0.05, { column: "myGeom", simplifyBoundary: false });
+   * ```
    */
   async simplify(
     tolerance: number,
@@ -5309,28 +5295,26 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Computes the centroid of geometries. The values are returned in the SRS unit.
+   * Computes the centroid of geometries.
+   * The values are returned in the SRS unit of the input geometries.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Computes the centroid of the geometries and returns the results in the column centroid.
-   * // By default, the method will look for the column storing the geometries.
-   * await table.centroid("centroid")
-   * ```
-   *
-   * @example
-   * Specific column storing geometries
-   * ```ts
-   * // If the table has more than one column storing geometries, you must specify which column should be used.
-   * await table.centroid("centroid", { column: "geom" })
-   * ```
-   *
-   * @param newColumn - The name of the new column storing the centroids.
+   * @param newColumn - The name of the new column where the computed centroid geometries will be stored.
    * @param options - An optional object with configuration options:
-   *   @param options.column - The column storing geometries.
-   *
+   * @param options.column - The name of the column storing the geometries. If omitted, the method will automatically attempt to find a geometry column.
+   * @returns A promise that resolves when the centroids have been computed.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Compute the centroid of geometries in the default column, storing results in 'centerPoint'
+   * await table.centroid("centerPoint");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute the centroid of geometries in a specific column named 'areaGeom'
+   * await table.centroid("areaCentroid", { column: "areaGeom" });
+   * ```
    */
   async centroid(
     newColumn: string,
@@ -5352,45 +5336,47 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Computes the distance between geometries. By default, it uses the SRS unit. You can pass "spheroid" or "haversine" as options.method to get results in meters or optionally kilometers. If you do use these methods, the input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
+   * Computes the distance between geometries in two specified columns.
+   * By default, the distance is calculated in the Spatial Reference System (SRS) unit of the input geometries.
+   * You can optionally specify `"spheroid"` or `"haversine"` methods to get results in meters or kilometers.
+   * If using `"spheroid"` or `"haversine"`, the input geometries must be in the EPSG:4326 coordinate system (WGS84), with `[latitude, longitude]` axis order.
    *
-   * @example
-   * Basic usage (SRS unit)
-   * ```ts
-   * // Computes the distance between geometries in columns geomA and geomB. The distance is returned in the new column "distance" in the SRS unit.
-   * await table.distance("geomA", "geomB", "distance")
-   * ```
-   *
-   * @example
-   * Haversine (meters)
-   * ```ts
-   * // Same but using the haversine distance. The distance is returned in meters by default. The input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
-   * await table.distance("geomA", "geomB", "distance", { method: "haversine" })
-   * ```
-   *
-   * @example
-   * Haversine (kilometers)
-   * ```
-   * // Same but the distance is returned in kilometers. The input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
-   * await table.distance("geomA", "geomB", "distance", { method: "haversine", unit: "km" })
-   * ```
-   *
-   * @example
-   * Spheroid (meters and optionally kilometers)
-   * ```ts
-   * // Same but using an ellipsoidal model of the earth's surface. It's the most accurate but the slowest. By default, the distance is returned in meters and optionally as kilometers. The input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
-   * await table.distance("geomA", "geomB", "distance", { method: "spheroid", unit: "km" })
-   * ```
-   *
-   * @param column1 - The name of a column storing geometries.
-   * @param column2 - The name of a column storing geometries.
-   * @param newColumn - The name of the new column storing the centroids.
+   * @param column1 - The name of the first column storing geometries.
+   * @param column2 - The name of the second column storing geometries.
+   * @param newColumn - The name of the new column where the computed distances will be stored.
    * @param options - An optional object with configuration options:
-   *   @param options.method - The method to be used for the distance calculations. "srs" returns the values in the SRS unit. "spheroid" and "haversine" return the values in meters by default and the input geometries must use the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
-   *   @param options.unit - If the method is "spheroid" or "haversine", you can choose between meters or kilometers. It's meters by default.
-   *   @param options.decimals - Number of decimal places to round to.
-   *
+   * @param options.method - The method to use for distance calculations: `"srs"` (default, uses SRS unit), `"haversine"` (meters, requires EPSG:4326), or `"spheroid"` (meters, requires EPSG:4326, most accurate but slowest).
+   * @param options.unit - If `method` is `"spheroid"` or `"haversine"`, you can choose between `"m"` (meters, default) or `"km"` (kilometers).
+   * @param options.decimals - The number of decimal places to round the distance values. Defaults to `undefined` (no rounding).
+   * @returns A promise that resolves when the distances have been computed.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Compute distance between 'geomA' and 'geomB' in SRS units, store in 'distance_srs'
+   * await table.distance("geomA", "geomB", "distance_srs");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute Haversine distance in meters between 'point1' and 'point2', store in 'distance_m'
+   * // Input geometries must be in EPSG:4326.
+   * await table.distance("point1", "point2", "distance_m", { method: "haversine" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute Haversine distance in kilometers, rounded to 2 decimal places
+   * // Input geometries must be in EPSG:4326.
+   * await table.distance("point1", "point2", "distance_km", { method: "haversine", unit: "km", decimals: 2 });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute Spheroid distance in kilometers
+   * // Input geometries must be in EPSG:4326.
+   * await table.distance("area1", "area2", "distance_spheroid_km", { method: "spheroid", unit: "km" });
+   * ```
    */
   async distance(
     column1: string,
@@ -5414,26 +5400,23 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Unnests geometries recursively.
+   * Unnests geometries recursively, transforming multi-part geometries (e.g., MultiPolygon) into individual single-part geometries (e.g., Polygon).
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Unnests geometries in the column "geom" and returns the same table with unnested items.
-   * // By default, the method will look for the column storing the geometries.
-   * await table.unnestGeo()
-   * ```
-   *
-   * @example
-   * Specific column storing geometries
-   * ```ts
-   * // If the table has more than one column storing geometries, you must specify which column should be used.
-   * await table.unnestGeo("geom")
-   * ```
-   *
-   * @param column - The name of a column storing geometries.
-   *
+   * @param column - The name of the column storing the geometries to be unnested. If omitted, the method will automatically attempt to find a geometry column.
+   * @returns A promise that resolves when the geometries have been unnested.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Unnest geometries in the default column
+   * await table.unnestGeo();
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Unnest geometries in a specific column named 'multiGeom'
+   * await table.unnestGeo("multiGeom");
+   * ```
    */
   async unnestGeo(column?: string): Promise<void> {
     const col = column ?? (await findGeoColumn(this));
@@ -5449,54 +5432,33 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Aggregates geometries.
+   * Aggregates geometries in a specified column based on a chosen aggregation method.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Returns the union of all geometries.
-   * // By default, the method will look for the column storing the geometries.
-   * await table.aggregateGeo("union")
-   *
-   * // Same thing but for intersection.
-   * await table.aggregateGeo("intersection")
-   * ```
-   *
-   * @example
-   * Specific column storing geometries
-   * ```ts
-   * // If the table has more than one column storing geometries, you must specify which column should be used.
-   * await table.aggregateGeo("union", { column: "geom" })
-   * ```
-   *
-   * @example
-   * With categories
-   * ```ts
-   * // Returns the union of all geometries and uses the values in the column country as categories.
-   * await table.aggregateGeo("union", { categories: "country" })
-   * ```
-   *
-   * @example
-   * Returning results in a new table
-   * ```ts
-   * // Same thing but results a return in tableA
-   * const tableA = await table.aggregateGeo("union", { categories: "country", outputTable: true })
-   * ```
-   *
-   * @example
-   * Returning results in a new table with a specific name in the DB
-   * ```ts
-   * // Same thing but results a return in tableA
-   * const tableA = await table.aggregateGeo("union", { categories: "country", outputTable: "tableA" })
-   * ```
-   *
-   * @param method - The method to use for the aggregation.
+   * @param method - The aggregation method to apply: `"union"` (combines all geometries into a single multi-geometry) or `"intersection"` (computes the intersection of all geometries).
    * @param options - An optional object with configuration options:
-   *   @param options.column - The column storing geometries.
-   *   @param options.categories - The column or columns that define categories for the aggragation. This can be a single column name or an array of column names.
-   *   @param options.outputTable - An option to store the results in a new table.
-   *
+   * @param options.column - The name of the column storing the geometries to be aggregated. If omitted, the method will automatically attempt to find a geometry column.
+   * @param options.categories - The column name or an array of column names that define categories for the aggregation. Aggregation will be performed independently within each category.
+   * @param options.outputTable - If `true`, the results will be stored in a new table with a generated name. If a string, it will be used as the name for the new table. If `false` or omitted, the current table will be overwritten. Defaults to `false`.
+   * @returns A promise that resolves to the SimpleTable instance containing the aggregated geometries (either the modified current table or a new table).
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Aggregate all geometries in the default column into a single union geometry
+   * await table.aggregateGeo("union");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Aggregate geometries by 'country' and compute their union
+   * await table.aggregateGeo("union", { categories: "country" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Aggregate geometries in 'regions' column into their intersection, storing results in a new table
+   * const intersectionTable = await table.aggregateGeo("intersection", { column: "regions", outputTable: true });
+   * ```
    */
   async aggregateGeo(
     method: "union" | "intersection",
@@ -5531,26 +5493,23 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Transforms closed lines into polygons.
+   * Transforms closed linestring geometries into polygon geometries.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Transforms geometries into polygons.
-   * // By default, the method will look for the column storing the geometries.
-   * await table.linesToPolygons()
-   * ```
-   *
-   * @example
-   * Specific column storing geometries
-   * ```ts
-   * // If the table has more than one column storing geometries, you must specify which column should be used.
-   * await table.linesToPolygons("geom")
-   * ```
-   *
-   * @param column - The name of a column storing geometries.
-   *
+   * @param column - The name of the column storing the linestring geometries. If omitted, the method will automatically attempt to find a geometry column.
+   * @returns A promise that resolves when the transformation is complete.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Transform closed linestrings in the default geometry column into polygons
+   * await table.linesToPolygons();
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Transform closed linestrings in a specific column named 'routeLines' into polygons
+   * await table.linesToPolygons("routeLines");
+   * ```
    */
   async linesToPolygons(column?: string): Promise<void> {
     const col = column ?? (await findGeoColumn(this));
@@ -5567,23 +5526,26 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Get the bounding box of geometries in [minLong, minLat, maxLong, maxLat] order. By default, the method will try find the column with the geometries, but can also specify one. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
+   * Returns the bounding box of geometries in `[minLat, minLon, maxLat, maxLon]` order.
+   * By default, the method will try to find the column with the geometries. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with `[latitude, longitude]` axis order.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * const bbox = await table.getBoundingBox()
-   * ```
-   *
-   * @example
-   * Specific column storing geometries
-   * ```ts
-   * const bbox = await table.getBoundingBox("geometries")
-   * ```
-   *
-   * @param column - The name of a column storing geometries.
-   *
+   * @param column - The name of the column storing geometries. If omitted, the method will automatically attempt to find a geometry column.
+   * @returns A promise that resolves to an array `[minLat, minLon, maxLat, maxLon]` representing the bounding box.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Get the bounding box of geometries in the default column
+   * const bbox = await table.getBoundingBox();
+   * console.log(bbox); // e.g., [45.0, -75.0, 46.0, -73.0]
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get the bounding box of geometries in a specific column named 'areaGeom'
+   * const areaBbox = await table.getBoundingBox("areaGeom");
+   * console.log(areaBbox);
+   * ```
    */
   async getBoundingBox(
     column?: string,
@@ -5608,27 +5570,36 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the data as a geojson. If the table has more than one column storing geometries, you must specify which column should be used. If the projection is WGS84 or EPSG:4326 ([latitude, longitude] axis order), the coordinates will be flipped to follow the RFC7946 standard ([longitude, latitude] axis order).
+   * Returns the table's geospatial data as a GeoJSON object.
+   * If the table has multiple geometry columns, you must specify which one to use.
+   * If the geometry column's projection is WGS84 or EPSG:4326 (`[latitude, longitude]` axis order), the coordinates will be flipped to follow the RFC7946 standard (`[longitude, latitude]` axis order) in the output GeoJSON.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // By default, the method will look for the column storing the geometries. The other columns in the table will be stored as properties.
-   * const geojson = await table.getGeoData()
-   * ```
-   *
-   * @example
-   * Specific geometry column
-   * ```ts
-   * // If the table has more than one column storing geometries, you must specify which column should be used. All the other columns in the table will be stored as properties.
-   * const geojson = await table.getGeoData("geometries")
-   * ```
-   *
-   * @param column - The name of a column storing geometries.
+   * @param column - The name of the column storing the geometries. If omitted, the method will automatically attempt to find a geometry column.
    * @param options - An optional object with configuration options:
-   *   @param options.rewind - If true, rewinds in the spherical winding order (important for D3.js). Default is false.
+   * @param options.rewind - If `true`, rewinds the coordinates of polygons to follow the spherical winding order (important for D3.js). Defaults to `false`.
+   * @returns A promise that resolves to a GeoJSON object representing the table's geospatial data.
+   * @category Getting Data
    *
-   * @category Geospatial
+   * @example
+   * ```ts
+   * // Get GeoJSON data from the default geometry column
+   * const geojson = await table.getGeoData();
+   * console.log(geojson);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get GeoJSON data from a specific geometry column named 'myGeometries'
+   * const myGeomJson = await table.getGeoData("myGeometries");
+   * console.log(myGeomJson);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get GeoJSON data and rewind polygon coordinates for D3.js compatibility
+   * const rewoundGeojson = await table.getGeoData(undefined, { rewind: true });
+   * console.log(rewoundGeojson);
+   * ```
    */
   async getGeoData(
     column?: string,
@@ -5645,45 +5616,53 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Writes data to a file. If the path doesn't exist, it will be created.
+   * Writes the table's data to a file in various formats (CSV, JSON, Parquet, DuckDB, SQLite).
+   * If the specified path does not exist, it will be created.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * await table.writeData("output/data.csv");
-   * ```
-   *
-   * @example
-   * Writing JSON data
-   * ```ts
-   * await table.writeData("output/data.json");
-   * ```
-   *
-   * @example
-   * Writing Parquet data
-   * ```ts
-   * await table.writeData("output/data.parquet");
-   * ```
-   *
-   * @example
-   * Writing as a DuckDB database
-   * ```ts
-   * await table.writeData("output/data.db");
-   * ```
-   *
-   * @example
-   * Writing as a SQLite db
-   * ```ts
-   * await table.writeData("output/data.sqlite");
-   * ```
-   *
-   * @param file - The path to the file to which data will be written.
+   * @param file - The absolute path to the output file (e.g., `"./output.csv"`, `"./output.json"`).
    * @param options - An optional object with configuration options:
-   *   @param options.compression - A boolean indicating whether to compress the output file. Defaults to false. If true, CSV and JSON files will be compressed with GZIP while PARQUET files will use ZSTD.
-   *   @param options.dataAsArrays - A boolean for JSON files. If true, JSON files are written as one object with arrays instead of an array of objects. Convenient to reduce the size of JSON files for web projects. You can use the function arraysToData from the journalism library to bring back the data to its original state.
-   *   @param options.formatDates - If true, dates will be formatted as ISO strings ("2025-01-01T01:00:00.000Z"). Defaults to false. Works only with CSV and JSON files.
+   * @param options.compression - A boolean indicating whether to compress the output file. If `true`, CSV and JSON files will be compressed with GZIP, while Parquet files will use ZSTD. Defaults to `false`.
+   * @param options.dataAsArrays - For JSON files only. If `true`, JSON files are written as a single object with arrays for each column (e.g., `{ "col1": [v1, v2], "col2": [v3, v4] }`) instead of an array of objects. This can reduce file size for web projects. You can use the `arraysToData` function from the [journalism library](https://jsr.io/@nshiab/journalism/doc/~/arraysToData) to convert it back.
+   * @param options.formatDates - For CSV and JSON files only. If `true`, date and timestamp columns will be formatted as ISO 8601 strings (e.g., `"2025-01-01T01:00:00.000Z"`). Defaults to `false`.
+   * @returns A promise that resolves when the data has been written to the file.
+   * @category File Operations
    *
-   * @category Exporting data
+   * @example
+   * ```ts
+   * // Write data to a CSV file
+   * await table.writeData("./output.csv");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Write data to a JSON file with GZIP compression.
+   * // The output file will be named output.json.gz.
+   * await table.writeData("./output.json", { compression: true });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Write data to a Parquet file
+   * await table.writeData("./output.parquet");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Write data to a DuckDB database file
+   * await table.writeData("./my_database.db");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Write data to a SQLite database file
+   * await table.writeData("./my_database.sqlite");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Write JSON data with dates formatted as ISO strings
+   * await table.writeData("./output_dates.json", { formatDates: true });
+   * ```
    */
   async writeData(
     file: string,
