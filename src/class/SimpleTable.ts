@@ -2384,23 +2384,23 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Formats strings to lowercase.
+   * Converts string values in the specified columns to lowercase.
+   *
+   * @param columns - The column name or an array of column names to be converted to lowercase.
+   * @returns A promise that resolves when the strings have been converted to lowercase.
+   * @category Updating Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.lower("column1")
+   * // Convert strings in 'column1' to lowercase
+   * await table.lower("column1");
    * ```
    *
    * @example
-   * Multiple columns
    * ```ts
-   * await table.lower(["column1", "column2"])
+   * // Convert strings in 'column1' and 'column2' to lowercase
+   * await table.lower(["column1", "column2"]);
    * ```
-   *
-   * @param columns - Either a string or an array of strings specifying the columns to be updated.
-   *
-   * @category Updating data
    */
   async lower(columns: string | string[]): Promise<void> {
     await queryDB(
@@ -2415,23 +2415,23 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Formats strings to uppercase.
+   * Converts string values in the specified columns to uppercase.
+   *
+   * @param columns - The column name or an array of column names to be converted to uppercase.
+   * @returns A promise that resolves when the strings have been converted to uppercase.
+   * @category Updating Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.upper("column1")
+   * // Convert strings in 'column1' to uppercase
+   * await table.upper("column1");
    * ```
    *
    * @example
-   * Multiple columns
    * ```ts
-   * await table.upper(["column1", "column2"])
+   * // Convert strings in 'column1' and 'column2' to uppercase
+   * await table.upper(["column1", "column2"]);
    * ```
-   *
-   * @param columns - Either a string or an array of strings specifying the columns to be updated.
-   *
-   * @category Updating data
    */
   async upper(columns: string | string[]): Promise<void> {
     await queryDB(
@@ -2446,23 +2446,23 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Capitalize strings. The first letter is capitalized and the rest is in lowercase.
+   * Capitalizes the first letter of each string in the specified columns and converts the rest of the string to lowercase.
+   *
+   * @param columns - The column name or an array of column names to be capitalized.
+   * @returns A promise that resolves when the strings have been capitalized.
+   * @category Updating Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.capitalize("column1")
+   * // Capitalize strings in 'column1' (e.g., "hello world" becomes "Hello world")
+   * await table.capitalize("column1");
    * ```
    *
    * @example
-   * Multiple columns
    * ```ts
-   * await table.capitalize(["column1", "column2"])
+   * // Capitalize strings in 'column1' and 'column2'
+   * await table.capitalize(["column1", "column2"]);
    * ```
-   *
-   * @param columns - Either a string or an array of strings specifying the columns to be updated.
-   *
-   * @category Updating data
    */
   async capitalize(columns: string | string[]): Promise<void> {
     await queryDB(
@@ -2477,27 +2477,29 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Splits strings along a separator and replaces the values with a substring at a specified index (starting at 0). If the index is outside the bounds of the list, return an empty string.
+   * Splits strings in a specified column by a separator and extracts a substring at a given index, storing the result in a new or existing column.
+   * If the index is out of bounds, an empty string will be returned for that row.
+   *
+   * @param column - The name of the column containing the strings to be split.
+   * @param separator - The substring to use as a delimiter for splitting the strings.
+   * @param index - The zero-based index of the substring to extract after splitting. For example, `0` for the first part, `1` for the second, etc.
+   * @param newColumn - The name of the column where the extracted substrings will be stored. To overwrite the original column, use the same name as `column`.
+   * @returns A promise that resolves when the strings have been split and extracted.
+   * @category Updating Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Splits on commas and put the second substring in a new column.
-   * await table.splitExtract("column1", ",", 1, "column2")
+   * // Split 'address' by comma and extract the second part (index 1) into a new 'city' column
+   * // e.g., "123 Main St, Anytown, USA" -> "Anytown"
+   * await table.splitExtract("address", ",", 1, "city");
    * ```
    *
    * @example
-   * Overwriting the same column works too.
    * ```ts
-   * await table.splitExtract("column1", ",", 1, "column1")
+   * // Split 'fileName' by dot and extract the first part (index 0), overwriting 'fileName'
+   * // e.g., "document.pdf" -> "document"
+   * await table.splitExtract("fileName", ".", 0, "fileName");
    * ```
-   *
-   * @param column - The name of the column storing the strings
-   * @param separator - The substring to use as a separator
-   * @param index - The index of the substring to replace values. Starts at 0.
-   * @param newColumn - The name of the new column to store the extracted substrings. To overwrite the same column, use the same name.
-   *
-   * @category Updating data
    */
   async splitExtract(
     column: string,
@@ -2524,19 +2526,19 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Extracts a specific number of characters, starting from the left.
+   * Extracts a specific number of characters from the beginning (left side) of string values in the specified column.
+   *
+   * @param column - The name of the column containing the strings to be modified.
+   * @param numberOfCharacters - The number of characters to extract from the left side of each string.
+   * @returns A promise that resolves when the strings have been updated.
+   * @category Updating Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Strings in column1 will be replaced by the first two characters of each string.
-   * await table.left("column1", 2)
+   * // Replace strings in 'productCode' with their first two characters
+   * // e.g., "ABC-123" becomes "AB"
+   * await table.left("productCode", 2);
    * ```
-   *
-   * @param column - The name of the column storing the strings
-   * @param numberOfCharacters - The number of characters, starting from the left
-   *
-   * @category Updating data
    */
   async left(column: string, numberOfCharacters: number): Promise<void> {
     await queryDB(
@@ -2551,19 +2553,19 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Extracts a specific number of characters, starting from the right.
+   * Extracts a specific number of characters from the end (right side) of string values in the specified column.
+   *
+   * @param column - The name of the column containing the strings to be modified.
+   * @param numberOfCharacters - The number of characters to extract from the right side of each string.
+   * @returns A promise that resolves when the strings have been updated.
+   * @category Updating Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Strings in column1 will be replaced by the last two characters of each string.
-   * await table.right("column1", 2)
+   * // Replace strings in 'productCode' with their last two characters
+   * // e.g., "ABC-123" becomes "23"
+   * await table.right("productCode", 2);
    * ```
-   *
-   * @param column - The name of the column storing the strings
-   * @param numberOfCharacters - The number of characters, starting from the right
-   *
-   * @category Updating data
    */
   async right(column: string, numberOfCharacters: number): Promise<void> {
     await queryDB(
@@ -2578,19 +2580,30 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Replaces null values in the selected columns.
+   * Replaces `NULL` values in the specified columns with a given value.
+   *
+   * @param columns - The column name or an array of column names in which to replace `NULL` values.
+   * @param value - The value to replace `NULL` occurrences with.
+   * @returns A promise that resolves when the `NULL` values have been replaced.
+   * @category Updating Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Replace null values by 0.
-   * await table.replaceNulls("column1", 0)
+   * // Replace NULL values in 'column1' with 0
+   * await table.replaceNulls("column1", 0);
    * ```
    *
-   * @param columns - Either a string or an array of strings specifying the columns where string replacements will occur.
-   * @param value - The value to replace the null values.
+   * @example
+   * ```ts
+   * // Replace NULL values in 'columnA' and 'columnB' with the string "N/A"
+   * await table.replaceNulls(["columnA", "columnB"], "N/A");
+   * ```
    *
-   * @category Updating data
+   * @example
+   * ```ts
+   * // Replace NULL values in 'dateColumn' with a specific date
+   * await table.replaceNulls("dateColumn", new Date("2023-01-01"));
+   * ```
    */
   async replaceNulls(
     columns: string | string[],
@@ -2610,26 +2623,24 @@ export default class SimpleTable extends Simple {
   /**
    * Concatenates values from specified columns into a new column.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Concatenates values from column1 and column2 into column3
-   * await table.concatenate(["column1", "column2"], "column3")
-   * ```
-   *
-   * @example
-   * With a separator
-   * ```ts
-   * // Same thing, but the values will be separated by a dash
-   * await table.concatenate(["column1", "column2"], "column3", { separator: "-" })
-   * ```
-   *
-   * @param columns - An array of column names from which values will be concatenated.
+   * @param columns - An array of column names whose values will be concatenated.
    * @param newColumn - The name of the new column to store the concatenated values.
    * @param options - An optional object with configuration options:
-   *   @param options.separator - The string used to separate concatenated values. Defaults to an empty string.
+   * @param options.separator - The string used to separate concatenated values. Defaults to an empty string (`""`).
+   * @returns A promise that resolves when the concatenation is complete.
+   * @category Updating Data
    *
-   * @category Updating data
+   * @example
+   * ```ts
+   * // Concatenate 'firstName' and 'lastName' into a new 'fullName' column
+   * await table.concatenate(["firstName", "lastName"], "fullName");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Concatenate 'city' and 'country' into 'location', separated by a comma and space
+   * await table.concatenate(["city", "country"], "location", { separator: ", " });
+   * ```
    */
   async concatenate(
     columns: string[],
@@ -2652,33 +2663,36 @@ export default class SimpleTable extends Simple {
   /**
    * Rounds numeric values in specified columns.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Rounds column1's values to the nearest integer.
-   * await table.round("column1")
-   * ```
-   *
-   * @example
-   * Specific number of decimals
-   * ```ts
-   * // Rounds column1's values with a specific number of decimal places.
-   * await table.round("column1", { decimals: 2 })
-   * ```
-   *
-   * @example
-   * Specific rounding method
-   * ```ts
-   * // Rounds column1's values with a specific method. Available methods are "round", "floor" and "ceiling".
-   * await table.round("column1", { method: "floor" })
-   * ```
-   *
-   * @param columns - Either a string or an array of strings specifying the columns containing numeric values to be rounded.
+   * @param columns - The column name or an array of column names containing numeric values to be rounded.
    * @param options - An optional object with configuration options:
-   *   @param options.decimals - The number of decimal places to round to. Defaults to 0.
-   *   @param options.method - The rounding method to use. Defaults to "round".
+   * @param options.decimals - The number of decimal places to round to. Defaults to `0` (rounds to the nearest integer).
+   * @param options.method - The rounding method to use: `"round"` (rounds to the nearest integer, with halves rounding up), `"ceiling"` (rounds up to the nearest integer), or `"floor"` (rounds down to the nearest integer). Defaults to `"round"`.
+   * @returns A promise that resolves when the numeric values have been rounded.
+   * @category Updating Data
    *
-   * @category Updating data
+   * @example
+   * ```ts
+   * // Round 'column1' values to the nearest integer
+   * await table.round("column1");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Round 'column1' values to 2 decimal places
+   * await table.round("column1", { decimals: 2 });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Round 'column1' values down to the nearest integer (floor)
+   * await table.round("column1", { method: "floor" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Round 'columnA' and 'columnB' values to 1 decimal place using ceiling method
+   * await table.round(["columnA", "columnB"], { decimals: 1, method: "ceiling" });
+   * ```
    */
   async round(
     columns: string | string[],
@@ -2699,17 +2713,30 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Updates values in a specified column with a SQL expression.
+   * Updates values in a specified column using a SQL expression.
+   *
+   * @param column - The name of the column to be updated.
+   * @param definition - The SQL expression used to set the new values in the column (e.g., `"column1 * 2"`, `"UPPER(column_name)"`).
+   * @returns A promise that resolves when the column has been updated.
+   * @category Updating Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.updateColumn("column1", `LEFT(column2)`)
+   * // Update 'column1' with the left 5 characters of 'column2'
+   * await table.updateColumn("column1", `LEFT(column2, 5)`);
    * ```
-   * @param column - The name of the column to be updated.
-   * @param definition - The SQL expression to set the new values in the column.
    *
-   * @category Updating data
+   * @example
+   * ```ts
+   * // Double the values in 'price' column
+   * await table.updateColumn("price", `price * 2`);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Set 'status' to 'active' where 'isActive' is true
+   * await table.updateColumn("status", `CASE WHEN isActive THEN 'active' ELSE 'inactive' END`);
+   * ```
    */
   async updateColumn(column: string, definition: string): Promise<void> {
     await queryDB(
@@ -2724,29 +2751,40 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Assigns ranks in a new column based on specified column values.
+   * Assigns ranks to rows in a new column based on the values of a specified column.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Computes ranks in the new column rank from the column1 values.
-   * await table.ranks("column1", "rank")
-   * ```
-   * @example
-   * With categories
-   * ```ts
-   * // Computing ranks in the new column rank from the column1 values. Using the values from column2 as categories.
-   * await table.ranks("tableA", "column1", "rank", { categories: "column2" })
-   * ```
-   *
-   * @param values - The column containing values to be used for ranking.
+   * @param values - The column containing the values to be used for ranking.
    * @param newColumn - The name of the new column where the ranks will be stored.
    * @param options - An optional object with configuration options:
-   *   @param options.order - The order of values for the ranking. Defaults to ascending.
-   *   @param options.categories - The column or columns that define categories for ranking.
-   *   @param options.noGaps - A boolean indicating whether to assign ranks without gaps. Defaults to false.
+   * @param options.order - The order of values for ranking: `"asc"` for ascending (default) or `"desc"` for descending.
+   * @param options.categories - The column name or an array of column names that define categories for ranking. Ranks will be assigned independently within each category.
+   * @param options.noGaps - A boolean indicating whether to assign ranks without gaps (dense ranking). If `true`, ranks will be consecutive integers (e.g., 1, 2, 2, 3). If `false` (default), ranks might have gaps (e.g., 1, 2, 2, 4).
+   * @returns A promise that resolves when the ranks have been assigned.
+   * @category Analyzing Data
    *
-   * @category Analyzing data
+   * @example
+   * ```ts
+   * // Compute ranks in a new 'rank' column based on 'score' values (ascending)
+   * await table.ranks("score", "rank");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute ranks in a new 'descRank' column based on 'score' values (descending)
+   * await table.ranks("score", "descRank", { order: "desc" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute ranks within 'department' categories, based on 'salary' values, without gaps
+   * await table.ranks("salary", "salaryRank", { categories: "department", noGaps: true });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute ranks within multiple categories ('department' and 'city')
+   * await table.ranks("sales", "salesRank", { categories: ["department", "city"] });
+   * ```
    */
   async ranks(
     values: string,
@@ -2769,29 +2807,33 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Assigns quantiles for specified column values.
-   *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Assigns a quantile from 1 to 10 for each row in new column quantiles, based on values from column1.
-   * await table.quantiles("column1", 10, "quantiles")
-   * ```
-   *
-   * @example
-   * With categories
-   * ```ts
-   * // Same thing, except the values in column2 are used as categories.
-   * await table.quantiles("column1", 10, "quantiles", { categories: "column2" })
-   * ```
+   * Assigns quantiles to rows in a new column based on specified column values.
    *
    * @param values - The column containing values from which quantiles will be assigned.
-   * @param nbQuantiles - The number of quantiles.
+   * @param nbQuantiles - The number of quantiles to divide the data into (e.g., `4` for quartiles, `10` for deciles).
    * @param newColumn - The name of the new column where the assigned quantiles will be stored.
    * @param options - An optional object with configuration options:
-   *   @param options.categories - The column or columns that define categories for computing quantiles. This can be a single column name or an array of column names.
+   * @param options.categories - The column name or an array of column names that define categories for computing quantiles. Quantiles will be assigned independently within each category.
+   * @returns A promise that resolves when the quantiles have been assigned.
+   * @category Analyzing Data
    *
-   * @category Analyzing data
+   * @example
+   * ```ts
+   * // Assigns a quantile from 1 to 10 for each row in a new 'quantiles' column, based on 'column1' values.
+   * await table.quantiles("column1", 10, "quantiles");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Assigns quantiles within 'column2' categories, based on 'column1' values.
+   * await table.quantiles("column1", 10, "quantiles", { categories: "column2" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Assigns quartiles (4 quantiles) to 'sales' data, storing results in 'salesQuartile'
+   * await table.quantiles("sales", 4, "salesQuartile");
+   * ```
    */
   async quantiles(
     values: string,
@@ -2820,29 +2862,27 @@ export default class SimpleTable extends Simple {
   /**
    * Assigns bins for specified column values based on an interval size.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Assigns a bin for each row in new column bins based on column1 values, with an interval of 10.
-   * await table.bins("column1", 10, "bins")
-   * // If the minimum value in column1 is 5, the bins will follow this pattern: "[5-14]", "[15-24]", "[25-34]", etc.
-   * ```
-   *
-   * @example
-   * Starting value
-   * ```ts
-   * // Same thing, but with the bins starting at a specific value.
-   * await table.bins("column1", 10, "bins", { startValue: 0 })
-   * // The bins will follow this pattern: "[0-9]", "[10-19]", "[20-29]", etc.
-   * ```
-   *
    * @param values - The column containing values from which bins will be computed.
    * @param interval - The interval size for binning the values.
    * @param newColumn - The name of the new column where the bins will be stored.
    * @param options - An optional object with configuration options:
-   *   @param options.startValue The starting value for binning. Defaults to the minimum value in the specified column.
+   * @param options.startValue - The starting value for binning. Defaults to the minimum value in the specified column.
+   * @returns A promise that resolves when the bins have been assigned.
+   * @category Analyzing Data
    *
-   * @category Analyzing data
+   * @example
+   * ```ts
+   * // Assigns a bin for each row in a new 'bins' column based on 'column1' values, with an interval of 10.
+   * // If the minimum value in 'column1' is 5, the bins will follow this pattern: "[5-14]", "[15-24]", etc.
+   * await table.bins("column1", 10, "bins");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Assigns bins starting at a specific value (0) with an interval of 10.
+   * // The bins will follow this pattern: "[0-9]", "[10-19]", "[20-29]", etc.
+   * await table.bins("column1", 10, "bins", { startValue: 0 });
+   * ```
    */
   async bins(
     values: string,
@@ -2869,54 +2909,54 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Computes proportions within a row for specified columns.
+   * Computes proportions horizontally across specified columns for each row.
    *
-   * For example, let's say this is tableA.
+   * For example, given a table showing counts of men, women, and non-binary individuals per year:
    *
    * | Year | Men | Women | NonBinary |
-   * | ---- | --- | ----- | ----------|
-   * |2021  | 564 | 685   | 145       |
-   * |2022  | 354 | 278   | 56        |
-   * |2023  | 856 | 321   | 221       |
+   * | :--- | :-- | :---- | :-------- |
+   * | 2021 | 564 | 685   | 145       |
+   * | 2022 | 354 | 278   | 56        |
+   * | 2023 | 856 | 321   | 221       |
    *
-   * We compute the proportions of men, women, and non-binary on each row.
+   * This method computes the proportion of men, women, and non-binary individuals on each row, adding new columns for these proportions.
    *
    * @example
-   * Basic usage with specific number of decimals
    * ```ts
-   * await tableA.proportionsHorizontal(["Men", "Women", "NonBinary"], { decimals: 2 })
+   * // Compute horizontal proportions for 'Men', 'Women', and 'NonBinary' columns, rounded to 2 decimal places
+   * await table.proportionsHorizontal(["Men", "Women", "NonBinary"], { decimals: 2 });
    * ```
    *
-   * The table now looks like this.
+   * The table will then look like this:
    *
    * | Year | Men | Women | NonBinary | MenPerc | WomenPerc | NonBinaryPerc |
-   * | ---- | --- | ----- | --------- | ------- | --------- | ------------- |
-   * |2021  | 564 | 685   | 145       | 0.4     | 0.49      | 0.10          |
-   * |2022  | 354 | 278   | 56        | 0.51    | 0.4       | 0.08          |
-   * |2023  | 856 | 321   | 221       | 0.61    | 0.23      | 0.16          |
+   * | :--- | :-- | :---- | :-------- | :------ | :-------- | :------------ |
+   * | 2021 | 564 | 685   | 145       | 0.4     | 0.49      | 0.10          |
+   * | 2022 | 354 | 278   | 56        | 0.51    | 0.4       | 0.08          |
+   * | 2023 | 856 | 321   | 221       | 0.61    | 0.23      | 0.16          |
    *
-   * By default, the new columns have the suffix "Perc", but you can use something else if you want.
+   * By default, the new columns will be named with a suffix of `"Perc"`. You can customize this suffix using the `suffix` option.
    *
    * @example
-   * Specific suffix for columns
    * ```ts
-   * await tableA.proportionsHorizontal(["Men", "Women", "NonBinary"], { suffix: "Prop", decimals: 2 })
+   * // Compute horizontal proportions with a custom suffix "Prop"
+   * await table.proportionsHorizontal(["Men", "Women", "NonBinary"], { suffix: "Prop", decimals: 2 });
    * ```
    *
-   * Here's the result with a different suffix.
+   * The table will then look like this:
    *
    * | Year | Men | Women | NonBinary | MenProp | WomenProp | NonBinaryProp |
-   * | ---- | --- | ----- | --------- | ------- | --------- | ------------- |
-   * |2021  | 564 | 685   | 145       | 0.4     | 0.49      | 0.10          |
-   * |2022  | 354 | 278   | 56        | 0.51    | 0.4       | 0.08          |
-   * |2023  | 856 | 321   | 221       | 0.61    | 0.23      | 0.16          |
+   * | :--- | :-- | :---- | :-------- | :------ | :-------- | :------------ |
+   * | 2021 | 564 | 685   | 145       | 0.4     | 0.49      | 0.10          |
+   * | 2022 | 354 | 278   | 56        | 0.51    | 0.4       | 0.08          |
+   * | 2023 | 856 | 321   | 221       | 0.61    | 0.23      | 0.16          |
    *
-   * @param columns - The columns for which proportions will be computed on each row.
+   * @param columns - An array of column names for which proportions will be computed on each row.
    * @param options - An optional object with configuration options:
-   *   @param options.suffix - A string suffix to append to the names of the new columns storing the computed proportions. Defaults to "Perc".
-   *   @param options.decimals - The number of decimal places to round the computed proportions.
-   *
-   * @category Analyzing data
+   * @param options.suffix - A string suffix to append to the names of the new columns storing the computed proportions. Defaults to `"Perc"`.
+   * @param options.decimals - The number of decimal places to round the computed proportions. Defaults to `undefined` (no rounding).
+   * @returns A promise that resolves when the horizontal proportions have been computed.
+   * @category Analyzing Data
    */
   async proportionsHorizontal(
     columns: string[],
@@ -2940,36 +2980,33 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Computes proportions over a column's values.
-   *
-   * @example
-   * Basic usage
-   * ```ts
-   * // This will add a column perc with the result of each column1 value divided by the sum of all column1 values.
-   * await table.proportionsVertical("column1", "perc")
-   * ```
-   *
-   * @example
-   * With categories
-   * ```ts
-   * // Same thing but using column2 values as categories
-   * await table.proportionsVertical("column1", "perc", { categories: "column2" })
-   * ```
-   *
-   * @example
-   * With specific number of decimals
-   * ```ts
-   * // Same thing but rounding to two decimals
-   * await table.proportionsVertical("column1", "perc", { categories: "column2", decimals: 2 })
-   * ```
+   * Computes proportions vertically over a column's values, relative to the sum of all values in that column (or within specified categories).
    *
    * @param column - The column containing values for which proportions will be computed. The proportions are calculated based on the sum of values in the specified column.
    * @param newColumn - The name of the new column where the proportions will be stored.
    * @param options - An optional object with configuration options:
-   *   @param options.categories - The column or columns that define categories for computing proportions. This can be a single column name or an array of column names.
-   *   @param options.decimals - The number of decimal places to round the computed proportions.
+   * @param options.categories - The column name or an array of column names that define categories for computing proportions. Proportions will be calculated independently within each category.
+   * @param options.decimals - The number of decimal places to round the computed proportions. Defaults to `undefined` (no rounding).
+   * @returns A promise that resolves when the vertical proportions have been computed.
+   * @category Analyzing Data
    *
-   * @category Analyzing data
+   * @example
+   * ```ts
+   * // Add a new column 'perc' with each 'column1' value divided by the sum of all 'column1' values
+   * await table.proportionsVertical("column1", "perc");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute proportions for 'column1' within 'column2' categories, rounded to two decimal places
+   * await table.proportionsVertical("column1", "perc", { categories: "column2", decimals: 2 });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute proportions for 'sales' within 'region' and 'product_type' categories
+   * await table.proportionsVertical("sales", "sales_proportion", { categories: ["region", "product_type"] });
+   * ```
    */
   async proportionsVertical(
     column: string,
@@ -2996,95 +3033,99 @@ export default class SimpleTable extends Simple {
 
   /**
    * Creates a summary table based on specified values, categories, and summary operations.
+   * This method allows you to aggregate data, calculate statistics (e.g., count, mean, sum), and group results by categorical columns.
+   *
+   * @param options - An object with configuration options for summarization:
+   * @param options.values - The column name or an array of column names whose values will be summarized. If omitted, all columns will be summarized.
+   * @param options.categories - The column name or an array of column names that define categories for the summarization. Results will be grouped by these categories.
+   * @param options.summaries - The summary operations to be performed. Can be a single operation (e.g., `"mean"`), an array of operations (e.g., `["min", "max"]`), or an object mapping new column names to operations (e.g., `{ avgSalary: "mean" }`). Supported operations include: `"count"`, `"countUnique"`, `"countNull"`, `"min"`, `"max"`, `"mean"`, `"median"`, `"sum"`, `"skew"`, `"stdDev"`, `"var"`.
+   * @param options.decimals - The number of decimal places to round the summarized values. Defaults to `undefined` (no rounding).
+   * @param options.outputTable - If `true`, the results will be stored in a new table with a generated name. If a string, it will be used as the name for the new table. If `false` or omitted, the current table will be overwritten. Defaults to `false`.
+   * @param options.toMs - If `true`, timestamps, dates, and times will be converted to milliseconds before summarizing. This is useful when summarizing mixed data types (numbers and dates) as values must be of the same type for aggregation.
+   * @param options.noColumnValue - If `true`, the default `value` column will be removed. This option only works when summarizing a single column without categories. Defaults to `false`.
+   * @returns A promise that resolves to the SimpleTable instance containing the summarized data (either the modified current table or a new table).
+   * @category Analyzing Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Summarizes all columns with all available summary operations.
-   * const columns = await tableA.getColumns()
-   * await tableA.summarize({ values: columns })
+   * // Summarize all columns with all available summary operations, overwriting the current table
+   * const columns = await table.getColumns();
+   * await table.summarize({ values: columns });
    * ```
    *
    * @example
-   * Results in a new table
    * ```ts
-   * // Same, but the results will be stored as a table in variable tableB.
-   * const columns = await tableA.getColumns()
-   * const tableB = await tableA.summarize({ values: columns, outputTable: true })
+   * // Summarize all columns and store the results in a new table with a generated name
+   * const columns = await table.getColumns();
+   * const summaryTable = await table.summarize({ values: columns, outputTable: true });
    * ```
    *
    * @example
-   * Results in a new table with a specific name in the DB
    * ```ts
-   * // Same, but the results will be stored in variable tableSummary and in tableSummary in the DB.
-   * const columns = await tableA.getColumns()
-   * const tableSummary = await tableA.summarize({ values: columns, outputTable: "tableSummary" })
+   * // Summarize all columns and store the results in a new table named 'mySummary'
+   * const columns = await table.getColumns();
+   * const mySummaryTable = await table.summarize({ values: columns, outputTable: "mySummary" });
    * ```
    *
    * @example
-   * Just one column
    * ```ts
-   * // Summarizes a specific column with all available summary operations
-   * await tableA.summarize({ values: "column1" })
+   * // Summarize a single column ('sales') with all available summary operations
+   * await table.summarize({ values: "sales" });
    * ```
    *
    * @example
-   * Multiple columns
    * ```ts
-   * // Summarizes multiple columns with all available summary operations.
-   * await tableA.summarize({ values: ["column1", "column2"] })
+   * // Summarize multiple columns ('sales' and 'profit') with all available summary operations
+   * await table.summarize({ values: ["sales", "profit"] });
    * ```
    *
    * @example
-   * With categories
    * ```ts
-   * // Summarizes a specific column with all available summary operations and use the values in another column as categories. Categories can be an array of column names, too.
-   * await tableA.summarize({ values: "column1", categories: "column2" })
+   * // Summarize 'sales' by 'region' (single category)
+   * await table.summarize({ values: "sales", categories: "region" });
    * ```
    *
    * @example
-   * Specific aggregation
    * ```ts
-   * // Summarizes a specific column with a specific summary operation and use the values in another column as categories. Summaries can be an array of summary operations, too.
-   * await tableA.summarize({ values: "column1", categories: "column2", summaries: "mean" })
+   * // Summarize 'sales' by 'region' and 'product_type' (multiple categories)
+   * await table.summarize({ values: "sales", categories: ["region", "product_type"] });
    * ```
    *
    * @example
-   * Specific aggregation with specific column name
    * ```ts
-   * await tableA.summarize({ values: "column1", categories: "column2", summaries: { avgOfColumn2: "mean" } })
+   * // Summarize 'sales' by 'region' with a specific summary operation (mean)
+   * await table.summarize({ values: "sales", categories: "region", summaries: "mean" });
    * ```
    *
    * @example
-   * Rounding aggregated values
    * ```ts
-   * // Summarizes and round values with a specific number of decimal places.
-   * await tableA.summarize({ values: "column1", categories: "column2", summaries: "mean", decimals: 4 })
+   * // Summarize 'sales' by 'region' with specific summary operations (mean and sum)
+   * await table.summarize({ values: "sales", categories: "region", summaries: ["mean", "sum"] });
    * ```
    *
    * @example
-   * Converting timestamps, dates, or times, to milliseconds.
    * ```ts
-   * // You can't summarize numbers and dates at the same time because your values must be of the same type (strings don't count). The option toMs converts timestamps, dates, and times to numbers (milliseconds).
-   * await tableA.summarize({ values: ["column1", "column2"], toMs: true })
+   * // Summarize 'sales' by 'region' with custom named summary operations
+   * await table.summarize({ values: "sales", categories: "region", summaries: { averageSales: "mean", totalSales: "sum" } });
    * ```
    *
    * @example
-   * Removing the column "value" when there is only one column being aggregated.
    * ```ts
-   * await tableA.summarize({ values: "column1", noColumnValue: true })
+   * // Summarize 'price' and 'cost', rounding aggregated values to 2 decimal places
+   * await table.summarize({ values: ["price", "cost"], decimals: 2 });
    * ```
    *
-   * @param options - An optional object with configuration options:
-   *   @param options.values - The column or columns whose values will be summarized. This can be a single column name or an array of column names.
-   *   @param options.categories - The column or columns that define categories for the summarization. This can be a single column name or an array of column names.
-   *   @param options.summaries - The summary operations to be performed. This can be a single summary operation, an array of summary operations or an object mapping column names to summary operations.
-   *   @param options.decimals - The number of decimal places to round the summarized values.
-   *   @param options.outputTable - An option to store the results in a new table.
-   *   @param options.toMs - An option to convert timestamps, dates, and times to milliseconds before summarizing.
-   *   @param options.noColumnValue - An option to remove the column "value". Works only when there is only one column being aggregated.
+   * @example
+   * ```ts
+   * // Summarize 'timestamp_column' by converting to milliseconds first
+   * await table.summarize({ values: "timestamp_column", toMs: true, summaries: "mean" });
+   * ```
    *
-   * @category Analyzing data
+   * @example
+   * ```ts
+   * // Summarize a single column 'value_column' without the default 'value' column in the output
+   * await table.summarize({ values: "value_column", noColumnValue: true });
+   * ```
    */
   async summarize(
     options: {
