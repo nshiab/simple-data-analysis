@@ -100,33 +100,43 @@ import aiEmbeddings from "../methods/aiEmbeddings.ts";
 import aiVectorSimilarity from "../methods/aiVectorSimilarity.ts";
 
 /**
- * SimpleTable is a class representing a table in a SimpleDB. It can handle tabular, geospatial and vector data. To create one, it's best to instantiate a SimpleDB first.
+ * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
+ * SimpleTable instances are typically created via a SimpleDB instance.
  *
+ * @category Main
  * @example
- * Basic usage
  * ```ts
- * // Creating a database first.
- * const sdb = new SimpleDB()
+ * // Create a SimpleDB instance (in-memory by default)
+ * const sdb = new SimpleDB();
  *
- * // Making a new table. This returns a SimpleTable.
- * const employees = sdb.newTable()
+ * // Create a new table named "employees" within the database
+ * const employees = sdb.newTable("employees");
  *
- * // You can now invoke methods on the table.
- * await employees.loadData("./employees.csv")
- * await employees.logTable()
+ * // Load data from a CSV file into the "employees" table
+ * await employees.loadData("./employees.csv");
  *
- * // Removing the DB to free up memory.
- * await sdb.done()
+ * // Log the first few rows of the "employees" table to the console
+ * await employees.logTable();
+ *
+ * // Close the database connection and free up resources
+ * await sdb.done();
  * ```
  *
  * @example
- * Geospatial data
  * ```ts
- * // To load geospatial data, use .loadGeoData instead of .loadData
- * const boundaries = sdb.newTable()
- * await boundaries.loadGeoData("./boundaries.geojson")
+ * // Handling geospatial data
+ * // Create a SimpleDB instance
+ * const sdb = new SimpleDB();
+ *
+ * // Create a new table for geospatial data
+ * const boundaries = sdb.newTable("boundaries");
+ *
+ * // Load geospatial data from a GeoJSON file
+ * await boundaries.loadGeoData("./boundaries.geojson");
+ *
+ * // Close the database connection
+ * await sdb.done();
  * ```
- * @category Classes
  */
 
 export default class SimpleTable extends Simple {
@@ -159,14 +169,16 @@ export default class SimpleTable extends Simple {
 
   /**
    * Creates an instance of SimpleTable.
-   * @param name The name of the table.
-   * @param projections The projections of columns with geospatial data.
-   * @param simpleDB The SimpleDB instance tied to this table.
-   * @param options An optional object with configuration options:
-   *   @param options.debug A boolean indicating whether to enable debug mode.
-   *   @param options.nbRowsToLog Number of rows to log when displaying table data.
-   *   @param options.nbCharactersToLog Maximum number of characters to log for strings. Useful to avoid logging large text content.
-   *   @param options.types A boolean indicating whether to include data types when logging a table.
+   *
+   * @param name - The name of the table.
+   * @param projections - An object mapping column names to their geospatial projections.
+   * @param simpleDB - The SimpleDB instance that this table belongs to.
+   * @param options - An optional object with configuration options:
+   * @param options.debug - A boolean indicating whether to enable debug mode.
+   * @param options.nbRowsToLog - The number of rows to log when displaying table data.
+   * @param options.nbCharactersToLog - The maximum number of characters to log for strings. Useful to avoid logging large text content.
+   * @param options.types - A boolean indicating whether to include data types when logging a table.
+   * @category Constructor
    */
   constructor(
     name: string,
@@ -188,17 +200,19 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Renames the table.
+   * Renames the current table.
+   *
+   * @param name - The new name for the table.
+   * @returns A promise that resolves when the table has been renamed.
+   * @category Table Management
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.renameTable("newName")
+   * // Rename the table to "new_employees"
+   * await table.renameTable("new_employees");
    * ```
-   * @param name New name for the table.
-   * @category Table management
    */
-  async renameTable(name: string) {
+  async renameTable(name: string): Promise<void> {
     await queryDB(
       this,
       `ALTER TABLE "${this.name}" RENAME TO "${name}";`,
@@ -213,20 +227,22 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Sets the types of a new table. If the table already exists, it will be replaced. If you want to convert the types of an existing table, use the `.convert()` method.
+   * Sets the data types for columns in a new table. If the table already exists, it will be replaced.
+   * To convert the types of an existing table, use the `.convert()` method instead.
+   *
+   * @param types - An object specifying the column names and their target data types (JavaScript or SQL types).
+   * @returns A promise that resolves when the types have been set.
+   * @category Table Management
    *
    * @example
-   * Basic usage
    * ```ts
-   *  await table.setTypes({
-   *     name: "string",
-   *     salary: "integer",
-   *     raise: "float",
-   * })
+   * // Set types for a new table
+   * await table.setTypes({
+   *   name: "string",
+   *   salary: "integer",
+   *   raise: "float",
+   * });
    * ```
-   *
-   * @param types An object specifying the columns and their data types (JavaScript or SQL).
-   * @category Table management
    */
   async setTypes(types: {
     [key: string]:
@@ -245,7 +261,7 @@ export default class SimpleTable extends Simple {
       | "timestamp with time zone"
       | "boolean"
       | "geometry";
-  }) {
+  }): Promise<void> {
     let spatial = "";
     if (
       Object.values(types)
@@ -272,72 +288,88 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Loads an array of objects into the table.
+   * Loads an array of JavaScript objects into the table.
+   *
+   * @param arrayOfObjects - An array of objects, where each object represents a row and its properties represent columns.
+   * @returns A promise that resolves to the SimpleTable instance after the data has been loaded.
+   * @category Importing Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * const data = [{ letter: "a", number: 1 }, { letter: "b", number: 2 }]
-   * await table.loadArray(data)
+   * // Load data from an array of objects
+   * const data = [
+   *   { letter: "a", number: 1 },
+   *   { letter: "b", number: 2 }
+   * ];
+   * await table.loadArray(data);
    * ```
-   *
-   * @param arrayOfObjects An array of objects representing the data.
-   *
-   * @category Importing data
    */
   async loadArray(
     arrayOfObjects: { [key: string]: unknown }[],
-  ): Promise<this> {
+  ): Promise<SimpleTable> {
     await loadArray(this, arrayOfObjects);
 
     return this;
   }
 
   /**
-   * Loads data from local or remote file(s) into the table. CSV, JSON, Parquet, and Excel files are accepted.
+   * Loads data from one or more local or remote files into the table.
+   * Supported file formats include CSV, JSON, Parquet, and Excel.
+   *
+   * @param files - The path(s) or URL(s) of the file(s) containing the data to be loaded.
+   * @param options - An optional object with configuration options:
+   * @param options.fileType - The type of file to load ("csv", "dsv", "json", "parquet", "excel"). Defaults to being inferred from the file extension.
+   * @param options.autoDetect - A boolean indicating whether to automatically detect the data format. Defaults to `true`.
+   * @param options.limit - A number indicating the maximum number of rows to load. Defaults to all rows.
+   * @param options.fileName - A boolean indicating whether to include the file name as a new column in the loaded data. Defaults to `false`.
+   * @param options.unifyColumns - A boolean indicating whether to unify columns across multiple files when their structures differ. Missing columns will be filled with `NULL` values. Defaults to `false`.
+   * @param options.columnTypes - An object mapping column names to their expected data types. By default, types are inferred.
+   * @param options.header - A boolean indicating whether the file has a header row. Applicable to CSV files. Defaults to `true`.
+   * @param options.allText - A boolean indicating whether all columns should be treated as text. Applicable to CSV files. Defaults to `false`.
+   * @param options.delim - The delimiter used in the file. Applicable to CSV and DSV files. By default, the delimiter is inferred.
+   * @param options.skip - The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to `0`.
+   * @param options.nullPadding - If `true`, when a row has fewer columns than expected, the remaining columns on the right will be padded with `NULL` values. Defaults to `false`.
+   * @param options.ignoreErrors - If `true`, parsing errors encountered will be ignored, and rows with errors will be skipped. Defaults to `false`.
+   * @param options.compression - The compression type of the file. Applicable to CSV files. Defaults to `none`.
+   * @param options.strict - If `true`, an error will be thrown when encountering any issues. If `false`, structurally incorrect files will be parsed tentatively. Defaults to `true`.
+   * @param options.encoding - The encoding of the file. Applicable to CSV files. Defaults to `utf-8`.
+   * @param options.jsonFormat - The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
+   * @param options.records - A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
+   * @param options.sheet - A string indicating a specific sheet to import from an Excel file. By default, the first sheet is imported.
+   * @returns A promise that resolves to the SimpleTable instance after the data has been loaded.
+   * @category Importing Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Load data from a local file
-   * await table.loadData("./some-data.csv")
-   *
-   * // Load data from a remote file
-   * await table.loadData("https://some-website.com/some-data.parquet")
+   * // Load data from a single local CSV file
+   * await table.loadData("./some-data.csv");
    * ```
    *
    * @example
-   * Multiple files
    * ```ts
-   * // Load data from multiple local files.
-   * await table.loadData([ ".some-data1.json", ".some-data2.json", ".some-data3.json" ])
-   *
-   * // Load data from multiple remote files
-   * await table.loadData([ "https://some-website.com/some-data1.parquet", "https://some-website.com/some-data2.parquet", "https://some-website.com/some-data3.parquet" ])
+   * // Load data from a remote Parquet file
+   * await table.loadData("https://some-website.com/some-data.parquet");
    * ```
    *
-   * @param files The path(s) or url(s) of file(s) containing the data to be loaded. CSV, JSON, Parquet, and Excel files are accepted.
-   * @param options An optional object with configuration options:
-   *   @param options.fileType The type of file to load ("csv", "dsv", "json", "parquet", "excel"). Defaults to the first file extension.
-   *   @param options.autoDetect A boolean indicating whether to automatically detect the data format. Defaults to `true`.
-   *   @param options.limit A number indicating the number of rows to load. Defaults to all rows.
-   *   @param options.fileName A boolean indicating whether to include the file name as a column in the loaded data. Defaults to `false`.
-   *   @param options.unifyColumns A boolean indicating whether to unify columns across multiple files, when the files structure is not the same. Defaults to `false`.
-   *   @param options.columnTypes An object mapping the column names with their expected types. By default, the types are inferred.
-   *   @param options.header A boolean indicating whether the file has a header. Applicable to CSV files. Defaults to `true`.
-   *   @param options.allText A boolean indicating whether all columns should be treated as text. Applicable to CSV files. Defaults to `false`.
-   *   @param options.delim The delimiter used in the file. Applicable to CSV and DSV files. By default, the delimiter is inferred.
-   *   @param options.skip The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to `0`.
-   *   @param options.nullPadding If this option is enabled, when a row lacks columns, it will pad the remaining columns on the right with null values. Defaults to `false`.
-   *   @param options.ignoreErrors Option to ignore any parsing errors encountered and instead ignore rows with errors. Defaults to `false`.
-   *   @param options.compression The compression type. Applicable to CSV files. Defaults to `none`.
-   *   @param options.strict If true, an error will be thrown when encountering any issues. If false, structurally incorrect files will be parsed tentatively. Defaults to `true`.
-   *   @param options.encoding The encoding of the file. Applicable to CSV files. Defaults to `utf-8`.
-   *   @param options.jsonFormat The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
-   *   @param options.records A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
-   *   @param options.sheet A string indicating a specific sheet to import. Applicable to Excel files. By default, the first sheet is imported.
+   * @example
+   * ```ts
+   * // Load data from multiple local JSON files
+   * await table.loadData([
+   *   "./some-data1.json",
+   *   "./some-data2.json",
+   *   "./some-data3.json"
+   * ]);
+   * ```
    *
-   * @category Importing data
+   * @example
+   * ```ts
+   * // Load data from multiple remote Parquet files with column unification
+   * await table.loadData([
+   *   "https://some-website.com/some-data1.parquet",
+   *   "https://some-website.com/some-data2.parquet",
+   *   "https://some-website.com/some-data3.parquet"
+   * ], { unifyColumns: true });
+   * ```
    */
   async loadData(
     files: string | string[],
@@ -379,36 +411,36 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Loads data from all files in a local directory. CSV, JSON, Parquet, and Excel files are accepted.
+   * Loads data from all supported files (CSV, JSON, Parquet, Excel) within a local directory into the table.
+   *
+   * @param directory - The absolute path to the directory containing the data files.
+   * @param options - An optional object with configuration options:
+   * @param options.fileType - The type of file to load ("csv", "dsv", "json", "parquet", "excel"). Defaults to being inferred from the file extension.
+   * @param options.autoDetect - A boolean indicating whether to automatically detect the data format. Defaults to `true`.
+   * @param options.limit - A number indicating the maximum number of rows to load. Defaults to all rows.
+   * @param options.fileName - A boolean indicating whether to include the file name as a new column in the loaded data. Defaults to `false`.
+   * @param options.unifyColumns - A boolean indicating whether to unify columns across multiple files when their structures differ. Missing columns will be filled with `NULL` values. Defaults to `false`.
+   * @param options.columnTypes - An object mapping column names to their expected data types. By default, types are inferred.
+   * @param options.header - A boolean indicating whether the file has a header row. Applicable to CSV files. Defaults to `true`.
+   * @param options.allText - A boolean indicating whether all columns should be treated as text. Applicable to CSV files. Defaults to `false`.
+   * @param options.delim - The delimiter used in the file. Applicable to CSV and DSV files. By default, the delimiter is inferred.
+   * @param options.skip - The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to `0`.
+   * @param options.nullPadding - If `true`, when a row has fewer columns than expected, the remaining columns on the right will be padded with `NULL` values. Defaults to `false`.
+   * @param options.ignoreErrors - If `true`, parsing errors encountered will be ignored, and rows with errors will be skipped. Defaults to `false`.
+   * @param options.compression - The compression type of the file. Applicable to CSV files. Defaults to `none`.
+   * @param options.strict - If `true`, an error will be thrown when encountering any issues. If `false`, structurally incorrect files will be parsed tentatively. Defaults to `true`.
+   * @param options.encoding - The encoding of the files. Applicable to CSV files. Defaults to `utf-8`.
+   * @param options.jsonFormat - The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
+   * @param options.records - A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
+   * @param options.sheet - A string indicating a specific sheet to import from an Excel file. By default, the first sheet is imported.
+   * @returns A promise that resolves to the SimpleTable instance after the data has been loaded.
+   * @category Importing Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.loadDataFromDirectory("./data/")
+   * // Load all supported data files from the "./data/" directory
+   * await table.loadDataFromDirectory("./data/");
    * ```
-   *
-   * @param directory The path of the directory containing the data files to be loaded. CSV, JSON, Parquet, and Excel files are accepted.
-   * @param options An optional object with configuration options:
-   *   @param options.fileType The type of file to load ("csv", "dsv", "json", "parquet", "excel"). Defaults to the first file extension.
-   *   @param options.autoDetect A boolean indicating whether to automatically detect the data format. Defaults to `true`.
-   *   @param options.limit A number indicating the number of rows to load. Defaults to all rows.
-   *   @param options.fileName A boolean indicating whether to include the file name as a column in the loaded data. Defaults to `false`.
-   *   @param options.unifyColumns A boolean indicating whether to unify columns across multiple files, when the files structure is not the same. Defaults to `false`.
-   *   @param options.columnTypes An object mapping the column names with their expected types. By default, the types are inferred.
-   *   @param options.header A boolean indicating whether the file has a header. Applicable to CSV files. Defaults to `true`.
-   *   @param options.allText A boolean indicating whether all columns should be treated as text. Applicable to CSV files. Defaults to `false`.
-   *   @param options.delim The delimiter used in the file. Applicable to CSV and DSV files. By default, the delimiter is inferred.
-   *   @param options.skip The number of lines to skip at the beginning of the file. Applicable to CSV files. Defaults to `0`.
-   *   @param options.nullPadding If this option is enabled, when a row lacks columns, it will pad the remaining columns on the right with null values. Defaults to `false`.
-   *   @param options.ignoreErrors Option to ignore any parsing errors encountered and instead ignore rows with errors. Defaults to `false`.
-   *   @param options.compression The compression type. Applicable to CSV files. Defaults to `none`.
-   *   @param options.strict If true, an error will be thrown when encountering any issues. If false, structurally incorrect files will be parsed tentatively. Defaults to `true`.
-   *   @param options.encoding The encoding of the files. Applicable to CSV files. Defaults to `utf-8`.
-   *   @param options.jsonFormat The format of JSON files ("unstructured", "newlineDelimited", "array"). By default, the format is inferred.
-   *   @param options.records A boolean indicating whether each line in a newline-delimited JSON file represents a record. Applicable to JSON files. By default, it's inferred.
-   *   @param options.sheet A string indicating a specific sheet to import. Applicable to Excel files. By default, the first sheet is imported.
-   *
-   * @category Importing data
    */
   async loadDataFromDirectory(
     directory: string,
@@ -454,32 +486,33 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Loads geospatial data from an external file. The coordinates of files or urls ending with .json or .geojson are automatically flipped to [latitude, longitude] axis order.
+   * Loads geospatial data from an external file or URL into the table.
+   * The coordinates of files or URLs ending with `.json` or `.geojson` are automatically flipped to `[latitude, longitude]` axis order.
    *
-   * @example
-   * Basic usage with URL
-   * ```ts
-   * await table.loadGeoData("https://some-website.com/some-data.geojson")
-   * ```
-   *
-   * @example
-   * Basic usage with local file
-   * ```ts
-   * await table.loadGeoData("./some-data.geojson")
-   * ```
-   *
-   * @example
-   * Reprojecting to WGS84 with [latitude, longitude] axis order
-   * ```ts
-   * await table.loadGeoData("./some-data.shp.zip", { toWGS84: true })
-   * ```
-   *
-   * @param file The URL or path to the external file containing the geospatial data.
-   * @param options An optional object with configuration options:
-   *   @param options.toWGS84 If true, the method will look for the original projections in the file and convert the data to the WGS84 projections with [latitude, longitude] axis order. If the file or the url ends by .json or .geojson, the coordinates are automatically flipped and this option has no effect. Defaults to `false`.
-   *   @param options.from An option to pass the original projections, if the method is not able to find it.
-   *
+   * @param file - The URL or absolute path to the external file containing the geospatial data.
+   * @param options - An optional object with configuration options:
+   * @param options.toWGS84 - If `true`, the method will attempt to reproject the data to WGS84 with `[latitude, longitude]` axis order. If the file is `.json` or `.geojson`, coordinates are automatically flipped, and this option has no additional effect. Defaults to `false`.
+   * @param options.from - An optional string specifying the original projection of the data, if the method is unable to detect it automatically.
+   * @returns A promise that resolves to the SimpleTable instance after the geospatial data has been loaded.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Load geospatial data from a URL
+   * await table.loadGeoData("https://some-website.com/some-data.geojson");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Load geospatial data from a local file
+   * await table.loadGeoData("./some-data.geojson");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Load geospatial data from a shapefile and reproject to WGS84
+   * await table.loadGeoData("./some-data.shp.zip", { toWGS84: true });
+   * ```
    */
   async loadGeoData(
     file: string,
@@ -548,92 +581,82 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Applies a prompt to the value of each row in a specified column. The results of the prompt are stored in a new column. The method automatically appends instructions to the prompt. To see the full prompt, set the `verbose` option to true.
+   * Applies a prompt to the value of each row in a specified column, storing the AI's response in a new column.
+   * This method automatically appends instructions to your prompt; set `verbose` to `true` to see the full prompt.
    *
-   * This method currently supports Google Gemini, Vertex AI and local models running with Ollama. It retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or accepts them as options. Options take precedence over environment variables.
+   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or directly via `options`, with `options` taking precedence.
    *
-   * To run local models with Ollama, set the `OLLAMA` environment variable to `true` and start Ollama on your machine. Make sure to install the model you want and to set the `AI_MODEL` environment variable to the model name.
+   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_MODEL` to your desired model name.
    *
-   * To avoid exceeding rate limits, you can process multiple rows at once using the `batchSize` option. You can also use the `rateLimitPerMinute` option to automatically add a delay between requests to comply with the rate limit.
+   * To manage rate limits, use `batchSize` to process multiple rows per request and `rateLimitPerMinute` to introduce delays between requests. For higher rate limits (business/professional accounts), `concurrent` allows parallel requests.
    *
-   * If you have a business or professional account with high rate limits, you can set the `concurrent` option to process multiple requests concurrently and speed up the process.
+   * The `cache` option enables local caching of results in `.journalism-cache` (from the `askAI` function in the [journalism library](https://github.com/nshiab/journalism)). Remember to add `.journalism-cache` to your `.gitignore`.
    *
-   * The `cache` option allows you to cache the results of each request locally, saving resources and time. The data is cached in the local hidden folder `.journalism-cache` (because this method uses the `askAI` function from the [journalism library](https://github.com/nshiab/journalism)). Don't forget to add `.journalism-cache` to your `.gitignore` file!
+   * If the AI returns fewer items than expected in a batch, or if a custom `test` function fails, the `retry` option (a number greater than 0) will reattempt the request.
    *
-   * Sometimes, the AI returns fewer items than the batch size, which throws an error. If you want to automatically retry the request, you can use the `retry` option. The method will retry the request up to the specified number of times. You can also pass a test function to check the validity of the response. If the test throws an error, the method will retry the request if `retry` is set to a number greater than 0.
+   * Temperature is set to 0 for reproducibility, though consistency cannot be guaranteed.
    *
-   * The temperature is set to 0 to ensure reproducible results. However, consistent results cannot be guaranteed.
+   * This method does not support tables containing geometries.
    *
-   * This method won't work if your table contains geometries.
+   * @param column - The name of the column to be used as input for the AI prompt.
+   * @param newColumn - The name of the new column where the AI's response will be stored.
+   * @param prompt - The input string to guide the AI's response.
+   * @param options - Configuration options for the AI request.
+   * @param options.batchSize - The number of rows to process in each batch. Defaults to `1`.
+   * @param options.concurrent - The number of concurrent requests to send. Defaults to `1`.
+   * @param options.cache - If `true`, the results will be cached locally. Defaults to `false`.
+   * @param options.test - A function to validate the returned data point. If it throws an error, the request will be retried (if `retry` is set). Defaults to `undefined`.
+   * @param options.retry - The number of times to retry the request in case of failure. Defaults to `0`.
+   * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
+   * @param options.model - The AI model to use. Defaults to the `AI_MODEL` environment variable.
+   * @param options.apiKey - The API key for the AI service. Defaults to the `AI_KEY` environment variable.
+   * @param options.vertex - If `true`, uses Vertex AI. Automatically set to `true` if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to `false`.
+   * @param options.project - The Google Cloud project ID for Vertex AI. Defaults to the `AI_PROJECT` environment variable.
+   * @param options.location - The Google Cloud location for Vertex AI. Defaults to the `AI_LOCATION` environment variable.
+   * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable.
+   * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
+   * @param options.clean - A function to clean the AI's response before testing, caching, and storing. Defaults to `undefined`.
+   * @returns A promise that resolves when the AI processing is complete.
+   * @category AI
    *
    * @example
-   * Basic usage with cache, batchSize, rate limit, and test function
    * ```ts
-   * // New table with column "name".
+   * // New table with a "name" column.
    * await table.loadArray([
    *   { name: "Marie" },
    *   { name: "John" },
    *   { name: "Alex" },
-   *   ...
    * ]);
    *
-   * // Ask the AI to categorize in a new column "gender".
+   * // Ask the AI to categorize names into a new "gender" column.
    * await table.aiRowByRow(
    *   "name",
    *   "gender",
    *   `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral".`,
    *   {
-   *      // Cache the results locally
-   *      cache: true,
-   *      // Send 10 rows at once to the AI
-   *      batchSize: 10,
-   *      // Ensure each new data point is of the expected categories
-   *      test: (dataPoint: unknown) => {
-   *        if (
-   *          typeof dataPoint !== "string" ||
-   *          !["Man", "Woman", "Neutral"].includes(dataPoint)
-   *        ) {
-   *          throw new Error(`Invalid response ${dataPoint}`);
-   *        }
-   *      },
-   *      // Retry up to 3 times if the test fails
-   *      retry: 3,
-   *      // Avoid exceeding a rate limit by waiting between requests
-   *      rateLimitPerMinute: 15,
-   *      // Log details
-   *      verbose: true,
+   *     cache: true, // Cache results locally
+   *     batchSize: 10, // Process 10 rows at once
+   *     test: (dataPoint: unknown) => { // Validate AI's response
+   *       if (
+   *         typeof dataPoint !== "string" ||
+   *         !["Man", "Woman", "Neutral"].includes(dataPoint)
+   *       ) {
+   *         throw new Error(`Invalid response: ${dataPoint}`);
+   *       }
+   *     },
+   *     retry: 3, // Retry up to 3 times on failure
+   *     rateLimitPerMinute: 15, // Limit requests to 15 per minute
+   *     verbose: true, // Log detailed information
    *   },
    * );
    *
-   * // Results:
-   * [
-   *   { name: "Marie", gender: "Woman" },
-   *   { name: "John", gender: "Man" },
-   *   { name: "Alex", gender: "Neutral" },
-   *   ...
-   * ]
+   * // Example results:
+   * // [
+   * //   { name: "Marie", gender: "Woman" },
+   * //   { name: "John", gender: "Man" },
+   * //   { name: "Alex", gender: "Neutral" },
+   * // ]
    * ```
-   *
-   * @param column The column to be used as input for the prompt.
-   * @param newColumn The name of the new column where the response will be stored.
-   * @param prompt The input string to guide the AI's response.
-   * @param options Configuration options for the AI request.
-   *   @param options.batchSize The number of rows to process in each batch. Defaults to `1`.
-   *   @param options.concurrent The number of concurrent requests to send. Defaults to `1`.
-   *   @param options.cache If true, the results will be cached locally. Defaults to `false`.
-   *   @param options.test A function to test the validity of the returned data point. If the test fails, the method will retry the request if `retry` is set to a number greater than 0. Defaults to `undefined`.
-   *   @param options.retry The number of times to retry the request in case of failure. Defaults to `0`.
-   *   @param options.rateLimitPerMinute The rate limit for the AI requests in requests per minute. If necessary, the method will wait between requests. Defaults to `undefined` (no limit).
-   *   @param options.model The model to use. Defaults to the `AI_MODEL` environment variable.
-   *   @param options.apiKey The API key. Defaults to the `AI_KEY` environment variable.
-   *   @param options.vertex Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
-   *   @param options.project The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
-   *   @param options.location The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
-   *   @param options.ollama Whether to use Ollama. Defaults to the `OLLAMA` environment variable.
-   *   @param options.verbose Whether to log additional information. Defaults to `false`.
-   *   @param options.clean A function to clean the response before testing, caching and storing. Defaults to `undefined`.
-   *
-   * @category AI
    */
   async aiRowByRow(
     column: string,
@@ -657,31 +680,45 @@ export default class SimpleTable extends Simple {
         response: unknown,
       ) => unknown;
     } = {},
-  ) {
+  ): Promise<void> {
     await aiRowByRow(this, column, newColumn, prompt, options);
   }
 
   /**
    * Generates embeddings for a specified text column and stores the results in a new column.
    *
-   * This method currently supports Google Gemini, Vertex AI, and local models running with Ollama. It retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`) or accepts them as options. Options take precedence over environment variables.
+   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`) or directly via `options`, with `options` taking precedence.
    *
-   * To run local models with Ollama, set the `OLLAMA` environment variable to `true` and start Ollama on your machine. Make sure to install the model you want and set the `AI_EMBEDDINGS_MODEL` environment variable to the model name.
+   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL` to your desired model name.
    *
-   * To avoid exceeding rate limits, you can use the `rateLimitPerMinute` option to automatically add a delay between requests to comply with the rate limit.
+   * To manage rate limits, use `rateLimitPerMinute` to introduce delays between requests. For higher rate limits (business/professional accounts), `concurrent` allows parallel requests.
    *
-   * If you have a business or professional account with high rate limits, you can set the `concurrent` option to process multiple requests concurrently and speed up the process.
+   * The `cache` option enables local caching of results in `.journalism-cache` (from the `getEmbedding` function in the [journalism library](https://github.com/nshiab/journalism)). Remember to add `.journalism-cache` to your `.gitignore`.
    *
-   * The `cache` option allows you to cache the results of each request locally, saving resources and time. The data is cached in the local hidden folder `.journalism-cache` (because this method uses the `getEmbedding` function from the [journalism library](https://github.com/nshiab/journalism)). Don't forget to add `.journalism-cache` to your `.gitignore` file!
+   * If `createIndex` is `true`, an index will be created on the new column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful for speeding up the `aiVectorSimilarity` method.
    *
-   * If the `createIndex` option is set to true, an index will be created on the new column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful to speed up the processing time of the `aiVectorSimilarity` method.
+   * This method does not support tables containing geometries.
    *
-   * This method won't work if your table contains geometries.
+   * @param column - The name of the column to be used as input for generating embeddings.
+   * @param newColumn - The name of the new column where the generated embeddings will be stored.
+   * @param options - Configuration options for the AI request.
+   * @param options.createIndex - If `true`, an index will be created on the new column. Useful for speeding up the `aiVectorSimilarity` method. Defaults to `false`.
+   * @param options.concurrent - The number of concurrent requests to send. Defaults to `1`.
+   * @param options.cache - If `true`, the results will be cached locally. Defaults to `false`.
+   * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
+   * @param options.model - The AI model to use. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
+   * @param options.apiKey - The API key for the AI service. Defaults to the `AI_KEY` environment variable.
+   * @param options.vertex - If `true`, uses Vertex AI. Automatically set to `true` if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to `false`.
+   * @param options.project - The Google Cloud project ID for Vertex AI. Defaults to the `AI_PROJECT` environment variable.
+   * @param options.location - The Google Cloud location for Vertex AI. Defaults to the `AI_LOCATION` environment variable.
+   * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable.
+   * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
+   * @returns A promise that resolves when the embeddings have been generated and stored.
+   * @category AI
    *
    * @example
-   * Basic usage with cache, rate limit, index creating and verbose logging
    * ```ts
-   * // New table with column "food".
+   * // New table with a "food" column.
    * await table.loadArray([
    *   { food: "pizza" },
    *   { food: "sushi" },
@@ -691,35 +728,14 @@ export default class SimpleTable extends Simple {
    *   { food: "tacos" }
    * ]);
    *
-   * // Ask the AI to generate embeddings in a new column "embeddings".
+   * // Generate embeddings for the "food" column and store them in a new "embeddings" column.
    * await table.aiEmbeddings("food", "embeddings", {
-   *   // Cache the results locally
-   *   cache: true,
-   *   // Avoid exceeding a rate limit by waiting between requests
-   *   rateLimitPerMinute: 15,
-   *   // Create an index on the new column
-   *   createIndex: true,
-   *   // Log details
-   *   verbose: true,
+   *   cache: true, // Cache results locally
+   *   rateLimitPerMinute: 15, // Limit requests to 15 per minute
+   *   createIndex: true, // Create an index on the new column for faster similarity searches
+   *   verbose: true, // Log detailed information
    * });
    * ```
-   *
-   * @param column The column to be used as input for the embeddings.
-   * @param newColumn The name of the new column where the embeddings will be stored.
-   * @param options Configuration options for the AI request.
-   *   @param options.createIndex If true, an index will be created on the new column. Useful to speed up the processing time of the aiVectorSimilarity method. Defaults to `false`.
-   *   @param options.concurrent The number of concurrent requests to send. Defaults to `1`.
-   *   @param options.cache If true, the results will be cached locally. Defaults to `false`.
-   *   @param options.rateLimitPerMinute The rate limit for the AI requests in requests per minute. If necessary, the method will wait between requests. Defaults to `undefined` (no limit).
-   *   @param options.model The model to use. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
-   *   @param options.apiKey The API key. Defaults to the `AI_KEY` environment variable.
-   *   @param options.vertex Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
-   *   @param options.project The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
-   *   @param options.location The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
-   *   @param options.ollama Whether to use Ollama. Defaults to the `OLLAMA` environment variable.
-   *   @param options.verbose Whether to log additional information. Defaults to `false`.
-   *
-   * @category AI
    */
   async aiEmbeddings(column: string, newColumn: string, options: {
     createIndex?: boolean;
@@ -733,27 +749,42 @@ export default class SimpleTable extends Simple {
     ollama?: boolean;
     verbose?: boolean;
     rateLimitPerMinute?: number;
-  } = {}) {
+  } = {}): Promise<void> {
     await aiEmbeddings(this, column, newColumn, options);
   }
 
   /**
-   * Creates an embedding from a specified text and returns the most similar text content based on their embeddings. This method is useful for semantic search and text similarity tasks.
+   * Creates an embedding from a specified text and returns the most similar text content based on their embeddings.
+   * This method is useful for semantic search and text similarity tasks, computing cosine distance and sorting results by similarity.
    *
-   * It computes the cosine distance, and results are sorted so that the most similar results are at the top.
+   * To create the embedding, this method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`) or directly via `options`, with `options` taking precedence.
    *
-   * To create the embedding, this method currently supports Google Gemini, Vertex AI, and local models running with Ollama. It retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`) or accepts them as options. Options take precedence over environment variables.
+   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL` to your desired model name.
    *
-   * To run local models with Ollama, set the `OLLAMA` environment variable to `true` and start Ollama on your machine. Make sure to install the model you want and set the `AI_EMBEDDINGS_MODEL` environment variable to the model name.
+   * The `cache` option enables local caching of the specified text's embedding in `.journalism-cache` (from the `getEmbedding` function in the [journalism library](https://github.com/nshiab/journalism)). Remember to add `.journalism-cache` to your `.gitignore`.
    *
-   * The `cache` option allows you to cache the embedding of the specified text, saving resources and time. The data is cached in the local hidden folder `.journalism-cache` (because this method uses the `getEmbedding` function from the [journalism library](https://github.com/nshiab/journalism)). Don't forget to add `.journalism-cache` to your `.gitignore` file!
+   * If `createIndex` is `true`, an index will be created on the embeddings column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss) to speed up processing. If the index already exists, it will not be recreated.
    *
-   * If the `createIndex` option is set to true, an index will be created on the embeddings column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful to speed up the processing time of the method. If the index already exists, it won't be created again.
+   * @param text - The text for which to generate an embedding and find similar content.
+   * @param column - The name of the column containing the embeddings to be used for the similarity search.
+   * @param nbResults - The number of most similar results to return.
+   * @param options - An optional object with configuration options:
+   * @param options.createIndex - If `true`, an index will be created on the embeddings column. Defaults to `false`.
+   * @param options.outputTable - The name of the output table where the results will be stored. If not provided, the current table will be modified. Defaults to `undefined`.
+   * @param options.cache - If `true`, the embedding of the input `text` will be cached locally. Defaults to `false`.
+   * @param options.model - The AI model to use for generating the embedding. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
+   * @param options.apiKey - The API key for the AI service. Defaults to the `AI_KEY` environment variable.
+   * @param options.vertex - If `true`, uses Vertex AI. Automatically set to `true` if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to `false`.
+   * @param options.project - The Google Cloud project ID for Vertex AI. Defaults to the `AI_PROJECT` environment variable.
+   * @param options.location - The Google Cloud location for Vertex AI. Defaults to the `AI_LOCATION` environment variable.
+   * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable.
+   * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
+   * @returns A promise that resolves to the SimpleTable instance containing the similarity search results.
+   * @category AI
    *
    * @example
-   * Basic usage with cache and index creation
    * ```ts
-   * // New table with column "food".
+   * // New table with a "food" column.
    * await table.loadArray([
    *   { food: "pizza" },
    *   { food: "sushi" },
@@ -763,45 +794,23 @@ export default class SimpleTable extends Simple {
    *   { food: "tacos" }
    * ]);
    *
-   * // Ask the AI to generate embeddings in a new column "embeddings".
-   * await table.aiEmbeddings("food", "embeddings", {
-   *   // Cache the results locally
-   *   cache: true,
-   * });
+   * // Generate embeddings for the "food" column.
+   * await table.aiEmbeddings("food", "embeddings", { cache: true });
    *
-   * // Ask the AI to find the 3 most similar foods to "italian food" in the column "food".
-   * await table.aiVectorSimilarity(
+   * // Find the 3 most similar foods to "italian food" based on embeddings.
+   * const similarFoods = await table.aiVectorSimilarity(
    *   "italian food",
    *   "embeddings",
    *   3,
    *   {
-   *     // Create an index on the embeddings column
-   *     createIndex: true,
-   *     // Cache the results locally
-   *     cache: true,
+   *     createIndex: true, // Create an index on the embeddings column for faster searches
+   *     cache: true, // Cache the embedding of "italian food"
    *   }
    * );
    *
    * // Log the results
-   * await table.logTable();
+   * await similarFoods.logTable();
    * ```
-   *
-   * @param text The text to be used as input for the similarity search.
-   * @param column The column containing the embeddings to be used for the similarity search.
-   * @param nbResults The number of most similar results to return.
-   * @param options An optional object with configuration options:
-   *   @param options.createIndex If true, an index will be created. Defaults to `false`.
-   *   @param options.outputTable The name of the output table. Defaults to `undefined`.
-   *   @param options.cache If true, the results will be cached locally. Defaults to `false`.
-   *   @param options.model The model to use. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
-   *   @param options.apiKey The API key. Defaults to the `AI_KEY` environment variable.
-   *   @param options.vertex Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
-   *   @param options.project The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
-   *   @param options.location The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
-   *   @param options.ollama Whether to use Ollama. Defaults to the `OLLAMA` environment variable.
-   *   @param options.verbose Whether to log additional information. Defaults to `false`.
-   *
-   * @category AI
    */
   async aiVectorSimilarity(
     text: string,
@@ -824,18 +833,30 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Generates and executes a SQL query based on a prompt. Additional instructions are automatically added before and after your prompt, such as the column types. To see the full prompt, set the `verbose` option to true.
+   * Generates and executes a SQL query based on a prompt.
+   * Additional instructions, such as column types, are automatically added to your prompt. Set `verbose` to `true` to see the full prompt.
    *
-   * Currently supports Google Gemini & Vertex AI, and local models running with Ollama. The method retrieves credentials and the model from environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or accepts them as options. Options take precedence over environment variables.
+   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or directly via `options`, with `options` taking precedence.
    *
-   * To run local models with Ollama, set the `OLLAMA` environment variable to `true` and start Ollama on your machine. Make sure to install the model you want and to set the `AI_MODEL` environment variable to the model name.
+   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_MODEL` to your desired model name.
    *
-   * The temperature is set to 0 to aim for reproducible results. However, to ensure consistent results in the future, it is recommended to copy the query and execute it manually using `await sdb.customQuery(query)` or to cache the query using the `cache` option.
+   * Temperature is set to 0 to aim for reproducible results. For future consistency, it's recommended to copy the generated query and execute it manually using `await sdb.customQuery(query)` or to cache the query using the `cache` option.
    *
-   * When the `cache` option is set to true, the generated query will be cached locally in the hidden folder `.journalism-cache` (because this method uses the `askAI` function from the [journalism library](https://github.com/nshiab/journalism)), saving resources and time. So don't forget to add `.journalism-cache` to your `.gitignore` file!
+   * When `cache` is `true`, the generated query will be cached locally in `.journalism-cache` (from the `askAI` function in the [journalism library](https://github.com/nshiab/journalism)), saving resources and time. Remember to add `.journalism-cache` to your `.gitignore`.
+   *
+   * @param prompt - The input string to guide the AI in generating the SQL query.
+   * @param options - Configuration options for the AI request.
+   * @param options.cache - If `true`, the generated query will be cached locally. Defaults to `false`.
+   * @param options.model - The AI model to use. Defaults to the `AI_MODEL` environment variable.
+   * @param options.apiKey - The API key for the AI service. Defaults to the `AI_KEY` environment variable.
+   * @param options.vertex - If `true`, uses Vertex AI. Automatically set to `true` if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to `false`.
+   * @param options.project - The Google Cloud project ID for Vertex AI. Defaults to the `AI_PROJECT` environment variable.
+   * @param options.location - The Google Cloud location for Vertex AI. Defaults to the `AI_LOCATION` environment variable.
+   * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
+   * @returns A promise that resolves when the AI query has been executed.
+   * @category AI
    *
    * @example
-   * Basic usage with cache
    * ```ts
    * // The AI will generate a query that will be executed, and
    * // the result will replace the existing table.
@@ -844,20 +865,8 @@ export default class SimpleTable extends Simple {
    * await table.aiQuery(
    *    "Give me the average salary by department",
    *     { cache: true, verbose: true }
-   * )
+   * );
    * ```
-   *
-   * @param prompt The input string to guide the AI in generating the SQL query.
-   * @param options Configuration options for the AI request.
-   *  @param options.cache If true, the query will be cached locally. Defaults to `false`.
-   *  @param options.model The model to use. Defaults to the `AI_MODEL` environment variable.
-   *  @param options.apiKey The API key. Defaults to the `AI_KEY` environment variable.
-   *  @param options.vertex Whether to use Vertex AI. Defaults to `false`. If `AI_PROJECT` and `AI_LOCATION` are set in the environment, it will automatically switch to true.
-   *  @param options.project The Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
-   *  @param options.location The Google Cloud location. Defaults to the `AI_LOCATION` environment variable.
-   *  @param options.verbose Whether to log additional information. Defaults to `false`.
-   *
-   * @category AI
    */
   async aiQuery(prompt: string, options: {
     cache?: boolean;
@@ -867,25 +876,28 @@ export default class SimpleTable extends Simple {
     project?: string;
     location?: string;
     verbose?: boolean;
-  } = {}) {
+  } = {}): Promise<void> {
     await aiQuery(this, prompt, options);
   }
 
   /**
-   * Inserts rows formatted as an array of objects into the table.
+   * Inserts rows, provided as an array of JavaScript objects, into the table.
+   *
+   * @param rows - An array of objects, where each object represents a row to be inserted and its properties correspond to column names.
+   * @returns A promise that resolves when the rows have been inserted.
+   * @category Importing Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * const rows = [{ letter: "a", number: 1 }, { letter: "b", number: 2 }]
-   * await table.insertRows(rows)
+   * // Insert new rows into the table
+   * const newRows = [
+   *   { letter: "c", number: 3 },
+   *   { letter: "d", number: 4 }
+   * ];
+   * await table.insertRows(newRows);
    * ```
-   *
-   * @param rows An array of objects representing the rows to be inserted into the table.
-   *
-   * @category Importing data
    */
-  async insertRows(rows: { [key: string]: unknown }[]) {
+  async insertRows(rows: { [key: string]: unknown }[]): Promise<void> {
     await queryDB(
       this,
       insertRowsQuery(this.name, rows),
@@ -898,39 +910,36 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Inserts all rows from another table (or multiple tables) into this table.
+   * Inserts all rows from one or more other tables into this table.
+   *
+   * @param tablesToInsert - The name(s) of the table(s) or SimpleTable instance(s) from which rows will be inserted.
+   * @param options - An optional object with configuration options:
+   * @param options.unifyColumns - A boolean indicating whether to unify the columns of the tables. If `true`, missing columns in a table will be filled with `NULL` values. Defaults to `false`.
+   * @returns A promise that resolves when the rows have been inserted.
+   * @category Importing Data
    *
    * @example
-   * Basic usage with one table
    * ```ts
-   * // Insert all rows from tableB into tableA.
-   * await tableA.insertTables("tableB")
+   * // Insert all rows from 'tableB' into 'tableA'.
+   * await tableA.insertTables("tableB");
    * ```
    *
    * @example
-   * With multiple tables
    * ```ts
-   * // Insert all rows from tableB and tableC into tableA.
-   * await tableA.insertTables([ "tableB", "tableC" ])
+   * // Insert all rows from 'tableB' and 'tableC' into 'tableA'.
+   * await tableA.insertTables(["tableB", "tableC"]);
    * ```
    *
    * @example
-   * With multiple tables having different columns
    * ```ts
-   * // When unifying columns, missing columns in a table will be filled with NULL values.
-   * await tableA.insertTables([ "tableB", "tableC" ], { unifyColumns: true })
+   * // Insert rows from multiple tables, unifying columns. Missing columns will be filled with NULL.
+   * await tableA.insertTables(["tableB", "tableC"], { unifyColumns: true });
    * ```
-   *
-   * @param tablesToInsert The name(s) of the table(s) or SimpleTable instance(s) from which rows will be inserted.
-   * @param options An optional object with configuration options:
-   *   @param options.unifyColumns A boolean indicating whether to unify the columns of the tables. Defaults to `false`.
-   *
-   * @category Importing data
    */
   async insertTables(
     tablesToInsert: SimpleTable | SimpleTable[],
     options: { unifyColumns?: boolean } = {},
-  ) {
+  ): Promise<void> {
     const array = Array.isArray(tablesToInsert)
       ? tablesToInsert
       : [tablesToInsert];
@@ -994,33 +1003,32 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns a new table with the same structure and data as this table. The data can be optionally filtered. This can be very slow with big tables.
-   *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Creating tableB as a clone of tableA.
-   * // By default, tables are automatically named table1, table2, etc, in the DB.
-   * const tableB = await tableA.cloneTable()
-   * ```
-   *
-   * @example
-   * With a specific name
-   * ```ts
-   * // You can also give a specific name to the cloned table in the DB.
-   * const tableB = await tableA.cloneTable({ outputTable: "tableB" })
-   * ```
-   *
-   * @example
-   * Cloning with conditions
-   * ```ts
-   * // Creating tableB as a clone of tableA. Only rows with values greater than 10 in column1 are cloned.
-   * const tableB = await tableA.cloneTable({ conditions: `column1 > 10` })
-   * ```
+   * Returns a new table with the same structure and data as this table. The data can be optionally filtered.
+   * Note that cloning large tables can be a slow operation.
    *
    * @param options - An optional object with configuration options:
-   *   @param options.outputTable - The name in the DB of the new table that will be created as a clone.
-   *   @param options.conditions - A SQL WHERE clause condition to filter the data. Defaults to no condition.
+   * @param options.outputTable - The name of the new table to be created in the database. If not provided, a default name (e.g., "table1", "table2") will be generated.
+   * @param options.conditions - A SQL `WHERE` clause condition to filter the data during cloning. Defaults to no condition (clones all rows).
+   * @returns A promise that resolves to the new SimpleTable instance containing the cloned data.
+   * @category Table Management
+   *
+   * @example
+   * ```ts
+   * // Clone tableA to a new table with a default generated name (e.g., "table1")
+   * const tableB = await tableA.cloneTable();
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Clone tableA to a new table named "my_cloned_table"
+   * const tableB = await tableA.cloneTable({ outputTable: "my_cloned_table" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Clone tableA, including only rows where 'column1' is greater than 10
+   * const tableB = await tableA.cloneTable({ conditions: `column1 > 10` });
+   * ```
    */
   async cloneTable(
     options: {
@@ -1076,21 +1084,20 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Clones a column in this table.
+   * Clones an existing column in this table, creating a new column with identical values.
+   *
+   * @param originalColumn - The name of the original column to clone.
+   * @param newColumn - The name of the new column to be created.
+   * @returns A promise that resolves when the column has been cloned.
+   * @category Column Operations
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Clones column1 as column2
-   * await table.cloneColumn("column1", "column2")
+   * // Clone 'firstName' column as 'contactName'
+   * await table.cloneColumn("firstName", "contactName");
    * ```
-   *
-   * @param originalColumn - The original column.
-   * @param newColumn - The name of the cloned column.
-   *
-   * @category Restructuring data
    */
-  async cloneColumn(originalColumn: string, newColumn: string) {
+  async cloneColumn(originalColumn: string, newColumn: string): Promise<void> {
     const types = await this.getTypes();
 
     await queryDB(
@@ -1109,36 +1116,46 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Clones a column in the table and offsets the values. By default, the values are offset by 1.
+   * Clones a column in the table and offsets its values by a specified number of rows.
+   * This is useful for time-series analysis or comparing values across different time points.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Clones column1 as column2 and offsets values by 1. So value of column1-row1 will be in column2-row2, column1-row2 will be in column2-row3, etc.
-   * await table.cloneColumnWithOffset("column1", "column2")
-   * ```
-   *
-   * @example
-   * With specific offset
-   * ```ts
-   * // Clones column1 as column2 and offsets values by 2. So value of column1-row1 will be in column2-row3, column1-row2 will be in column2-row4, etc.
-   * await table.cloneColumnWithOffset("column1", "column2", { offset: 2 })
-   * ```
-   *
-   * @example
-   * With categories
-   * ```ts
-   * // The offset is done within the categories category1 and category2.
-   * await table.cloneColumnWithOffset("column1", "column2", { offset: 2, categories: ["category1", "category2"] })
-   * ```
-   *
-   * @param originalColumn - The original column.
-   * @param newColumn - The name of the cloned column.
+   * @param originalColumn - The name of the original column.
+   * @param newColumn - The name of the new column to be created with offset values.
    * @param options - An optional object with configuration options:
-   *  @param options.offset - The number of rows to offset the values. Defaults to 1.
-   *  @param options.categories - A string or an array of strings representing the categories.
+   * @param options.offset - The number of rows to offset the values. A positive number shifts values downwards (later rows), a negative number shifts values upwards (earlier rows). Defaults to `1`.
+   * @param options.categories - A string or an array of strings representing columns to partition the data by. The offset will be applied independently within each category.
+   * @returns A promise that resolves when the column has been cloned with offset values.
+   * @category Column Operations
    *
-   * @category Restructuring data
+   * @example
+   * ```ts
+   * // Clone 'value' as 'previous_value', offsetting by 1 row (value of row N-1 goes to row N)
+   * await table.cloneColumnWithOffset("value", "previous_value");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Clone 'sales' as 'sales_2_days_ago', offsetting by 2 rows
+   * await table.cloneColumnWithOffset("sales", "sales_2_days_ago", { offset: 2 });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Clone 'temperature' as 'prev_temp_by_city', offsetting by 1 row within each 'city' category
+   * await table.cloneColumnWithOffset("temperature", "prev_temp_by_city", {
+   *   offset: 1,
+   *   categories: "city",
+   * });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Clone 'stock_price' as 'prev_price_by_stock_and_exchange', offsetting by 1 row within each 'stock_symbol' and 'exchange' category
+   * await table.cloneColumnWithOffset("stock_price", "prev_price_by_stock_and_exchange", {
+   *   offset: 1,
+   *   categories: ["stock_symbol", "exchange"],
+   * });
+   * ```
    */
   async cloneColumnWithOffset(
     originalColumn: string,
@@ -1147,7 +1164,7 @@ export default class SimpleTable extends Simple {
       offset?: number;
       categories?: string | string[];
     } = {},
-  ) {
+  ): Promise<void> {
     const offset = options.offset ?? 1;
     const categories = options.categories
       ? stringToArray(options.categories)
@@ -1176,18 +1193,25 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Fills cells containing NULL values. If a cell is empty, it's filled with the previous row's value.
+   * Fills `NULL` values in specified columns with the last non-`NULL` value from the preceding row.
+   *
+   * @param columns - The column(s) for which to fill `NULL` values.
+   * @returns A promise that resolves when the `NULL` values have been filled.
+   * @category Updating Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.fill("column1")
+   * // Fill NULL values in 'column1' with the previous non-NULL value
+   * await table.fill("column1");
    * ```
-   * @param columns - The columns to fill.
    *
-   * @category Updating data
+   * @example
+   * ```ts
+   * // Fill NULL values in multiple columns
+   * await table.fill(["columnA", "columnB"]);
+   * ```
    */
-  async fill(columns: string | string[]) {
+  async fill(columns: string | string[]): Promise<void> {
     await queryDB(
       this,
       stringToArray(columns)
@@ -1246,7 +1270,7 @@ export default class SimpleTable extends Simple {
     options: {
       lang?: { [key: string]: string };
     } = {},
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       sortQuery(this.name, order, options),
@@ -1271,7 +1295,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Selecting or filtering data
    */
-  async selectColumns(columns: string | string[]) {
+  async selectColumns(columns: string | string[]): Promise<void> {
     await queryDB(
       this,
       `CREATE OR REPLACE TABLE "${this.name}" AS SELECT ${
@@ -1302,7 +1326,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Selecting or filtering data
    */
-  async skip(nbRowsToSkip: number) {
+  async skip(nbRowsToSkip: number): Promise<void> {
     await queryDB(
       this,
       `CREATE OR REPLACE TABLE "${this.name}" AS SELECT * FROM "${this.name}" OFFSET ${nbRowsToSkip} ROWS;`,
@@ -1363,7 +1387,7 @@ export default class SimpleTable extends Simple {
     options: {
       seed?: number;
     } = {},
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       `CREATE OR REPLACE TABLE "${this.name}" AS SELECT * FROM "${this.name}" USING SAMPLE RESERVOIR(${
@@ -1462,7 +1486,7 @@ export default class SimpleTable extends Simple {
     options: {
       on?: string | string[];
     } = {},
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       removeDuplicatesQuery(this.name, options),
@@ -1504,7 +1528,7 @@ export default class SimpleTable extends Simple {
       missingValues?: (string | number)[];
       invert?: boolean;
     } = {},
-  ) {
+  ): Promise<void> {
     await removeMissing(this, options);
   }
 
@@ -1538,7 +1562,7 @@ export default class SimpleTable extends Simple {
       character?: string;
       method?: "leftTrim" | "rightTrim" | "trim";
     } = {},
-  ) {
+  ): Promise<void> {
     options.method = options.method ?? "trim";
     await queryDB(
       this,
@@ -1573,7 +1597,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Selecting or filtering data
    */
-  async filter(conditions: string) {
+  async filter(conditions: string): Promise<void> {
     await queryDB(
       this,
       `CREATE OR REPLACE TABLE "${this.name}" AS SELECT *
@@ -1607,7 +1631,7 @@ export default class SimpleTable extends Simple {
         | (number | string | Date | boolean | null)[]
         | (number | string | Date | boolean | null);
     },
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       keepQuery(this.name, columnsAndValues),
@@ -1639,7 +1663,7 @@ export default class SimpleTable extends Simple {
         | (number | string | Date | boolean | null)[]
         | (number | string | Date | boolean | null);
     },
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       removeQuery(this.name, columnsAndValues),
@@ -1665,7 +1689,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Selecting or filtering data
    */
-  async removeRows(conditions: string) {
+  async removeRows(conditions: string): Promise<void> {
     await queryDB(
       this,
       `DELETE FROM "${this.name}" WHERE ${conditions}`,
@@ -1691,7 +1715,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Restructuring data
    */
-  async renameColumns(names: { [key: string]: string }) {
+  async renameColumns(names: { [key: string]: string }): Promise<void> {
     const oldNames = Object.keys(names);
     const newNames = Object.values(names);
 
@@ -1727,7 +1751,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Restructuring data
    */
-  async cleanColumnNames() {
+  async cleanColumnNames(): Promise<void> {
     const columns = await this.getColumns();
     const obj: { [key: string]: string } = {};
     for (const col of columns) {
@@ -1771,7 +1795,11 @@ export default class SimpleTable extends Simple {
    *
    * @category Restructuring data
    */
-  async longer(columns: string[], columnsTo: string, valuesTo: string) {
+  async longer(
+    columns: string[],
+    columnsTo: string,
+    valuesTo: string,
+  ): Promise<void> {
     await queryDB(
       this,
       `CREATE OR REPLACE TABLE "${this.name}" AS SELECT * FROM (
@@ -1822,7 +1850,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Restructuring data
    */
-  async wider(columnsFrom: string, valuesFrom: string) {
+  async wider(columnsFrom: string, valuesFrom: string): Promise<void> {
     await queryDB(
       this,
       `CREATE OR REPLACE TABLE "${this.name}" AS SELECT * FROM (PIVOT "${this.name}" ON "${columnsFrom}" USING sum("${valuesFrom}"));`,
@@ -1896,7 +1924,7 @@ export default class SimpleTable extends Simple {
       try?: boolean;
       datetimeFormat?: string;
     } = {},
-  ) {
+  ): Promise<void> {
     const allTypes = await this.getTypes();
     const allColumns = Object.keys(allTypes);
 
@@ -1937,7 +1965,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Restructuring data
    */
-  async removeTable() {
+  async removeTable(): Promise<void> {
     await queryDB(
       this,
       `DROP TABLE "${this.name}";`,
@@ -1966,7 +1994,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Restructuring data
    */
-  async removeColumns(columns: string | string[]) {
+  async removeColumns(columns: string | string[]): Promise<void> {
     const cols = stringToArray(columns);
     await queryDB(
       this,
@@ -2033,7 +2061,7 @@ export default class SimpleTable extends Simple {
       | "geometry",
     definition: string,
     options: { projection?: string } = {},
-  ) {
+  ): Promise<void> {
     const newType = parseType(type);
     await queryDB(
       this,
@@ -2070,7 +2098,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Restructuring data
    */
-  async addRowNumber(newColumn: string) {
+  async addRowNumber(newColumn: string): Promise<void> {
     await queryDB(
       this,
       `CREATE OR REPLACE TABLE "${this.name}" AS SELECT *, ROW_NUMBER() OVER() AS ${newColumn} FROM "${this.name}"`,
@@ -2249,7 +2277,7 @@ export default class SimpleTable extends Simple {
       entireString?: boolean;
       regex?: boolean;
     } = {},
-  ) {
+  ): Promise<void> {
     options.entireString = options.entireString ?? false;
     options.regex = options.regex ?? false;
     if (options.entireString === true && options.regex === true) {
@@ -2293,7 +2321,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Updating data
    */
-  async lower(columns: string | string[]) {
+  async lower(columns: string | string[]): Promise<void> {
     await queryDB(
       this,
       lowerQuery(this.name, stringToArray(columns)),
@@ -2324,7 +2352,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Updating data
    */
-  async upper(columns: string | string[]) {
+  async upper(columns: string | string[]): Promise<void> {
     await queryDB(
       this,
       upperQuery(this.name, stringToArray(columns)),
@@ -2355,7 +2383,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Updating data
    */
-  async capitalize(columns: string | string[]) {
+  async capitalize(columns: string | string[]): Promise<void> {
     await queryDB(
       this,
       capitalizeQuery(this.name, stringToArray(columns)),
@@ -2395,7 +2423,7 @@ export default class SimpleTable extends Simple {
     separator: string,
     index: number,
     newColumn: string,
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       `${
@@ -2429,7 +2457,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Updating data
    */
-  async left(column: string, numberOfCharacters: number) {
+  async left(column: string, numberOfCharacters: number): Promise<void> {
     await queryDB(
       this,
       `UPDATE "${this.name}" SET "${column}" = LEFT("${column}", ${numberOfCharacters})`,
@@ -2456,7 +2484,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Updating data
    */
-  async right(column: string, numberOfCharacters: number) {
+  async right(column: string, numberOfCharacters: number): Promise<void> {
     await queryDB(
       this,
       `UPDATE "${this.name}" SET "${column}" = RIGHT("${column}", ${numberOfCharacters})`,
@@ -2486,7 +2514,7 @@ export default class SimpleTable extends Simple {
   async replaceNulls(
     columns: string | string[],
     value: number | string | Date | boolean,
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       replaceNullsQuery(this.name, stringToArray(columns), value),
@@ -2528,7 +2556,7 @@ export default class SimpleTable extends Simple {
     options: {
       separator?: string;
     } = {},
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       concatenateQuery(this.name, columns, newColumn, options),
@@ -2577,7 +2605,7 @@ export default class SimpleTable extends Simple {
       decimals?: number;
       method?: "round" | "ceiling" | "floor";
     } = {},
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       roundQuery(this.name, stringToArray(columns), options),
@@ -2602,7 +2630,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Updating data
    */
-  async updateColumn(column: string, definition: string) {
+  async updateColumn(column: string, definition: string): Promise<void> {
     await queryDB(
       this,
       `UPDATE "${this.name}" SET "${column}" = ${definition}`,
@@ -2647,7 +2675,7 @@ export default class SimpleTable extends Simple {
       categories?: string | string[];
       noGaps?: boolean;
     } = {},
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       ranksQuery(this.name, values, newColumn, options),
@@ -2691,7 +2719,7 @@ export default class SimpleTable extends Simple {
     options: {
       categories?: string | string[];
     } = {},
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       quantilesQuery(this.name, values, nbQuantiles, newColumn, options),
@@ -2742,7 +2770,7 @@ export default class SimpleTable extends Simple {
     options: {
       startValue?: number;
     } = {},
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       await binsQuery(this, values, interval, newColumn, options),
@@ -2815,7 +2843,7 @@ export default class SimpleTable extends Simple {
       suffix?: string;
       decimals?: number;
     } = {},
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       proportionsHorizontalQuery(this.name, columns, options),
@@ -2869,7 +2897,7 @@ export default class SimpleTable extends Simple {
       categories?: string | string[];
       decimals?: number;
     } = {},
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       proportionsVerticalQuery(this.name, column, newColumn, options),
@@ -3068,7 +3096,7 @@ export default class SimpleTable extends Simple {
     options: {
       categories?: string | string[];
     } = {},
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       accumulateQuery(this.name, column, newColumn, options),
@@ -3124,7 +3152,7 @@ export default class SimpleTable extends Simple {
       categories?: string | string[];
       decimals?: number;
     } = {},
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       rollingQuery(
@@ -3319,7 +3347,7 @@ export default class SimpleTable extends Simple {
     options: {
       categories?: string | string[];
     } = {},
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       outliersIQRQuery(
@@ -3376,7 +3404,7 @@ export default class SimpleTable extends Simple {
       categories?: string | string[];
       decimals?: number;
     } = {},
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       zScoreQuery(this.name, column, newColumn, options),
@@ -3427,7 +3455,7 @@ export default class SimpleTable extends Simple {
       categories?: string | string[];
       decimals?: number;
     } = {},
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       normalizeQuery(this.name, column, newColumn, options),
@@ -3477,7 +3505,7 @@ export default class SimpleTable extends Simple {
       ) => {
         [key: string]: number | string | Date | boolean | null;
       }[]),
-  ) {
+  ): Promise<void> {
     const types = await this.getTypes();
     if (Object.values(types).includes("GEOMETRY")) {
       throw new Error(
@@ -4146,7 +4174,11 @@ export default class SimpleTable extends Simple {
    *
    * @category Geospatial
    */
-  async points(columnLat: string, columnLon: string, newColumn: string) {
+  async points(
+    columnLat: string,
+    columnLon: string,
+    newColumn: string,
+  ): Promise<void> {
     await queryDB(
       this,
       `INSTALL spatial; LOAD spatial;
@@ -4184,7 +4216,10 @@ export default class SimpleTable extends Simple {
    *
    * @category Geospatial
    */
-  async isValidGeo(newColumn: string, options: { column?: string } = {}) {
+  async isValidGeo(
+    newColumn: string,
+    options: { column?: string } = {},
+  ): Promise<void> {
     const column = typeof options.column === "string"
       ? options.column
       : await findGeoColumn(this);
@@ -4223,7 +4258,10 @@ export default class SimpleTable extends Simple {
    *
    * @category Geospatial
    */
-  async nbVertices(newColumn: string, options: { column?: string } = {}) {
+  async nbVertices(
+    newColumn: string,
+    options: { column?: string } = {},
+  ): Promise<void> {
     const column = typeof options.column === "string"
       ? options.column
       : await findGeoColumn(this);
@@ -4260,7 +4298,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Geospatial
    */
-  async fixGeo(column?: string) {
+  async fixGeo(column?: string): Promise<void> {
     const col = column ?? (await findGeoColumn(this));
     await queryDB(
       this,
@@ -4297,7 +4335,10 @@ export default class SimpleTable extends Simple {
    *
    * @category Geospatial
    */
-  async isClosedGeo(newColumn: string, options: { column?: string } = {}) {
+  async isClosedGeo(
+    newColumn: string,
+    options: { column?: string } = {},
+  ): Promise<void> {
     const column = typeof options.column === "string"
       ? options.column
       : await findGeoColumn(this);
@@ -4337,7 +4378,10 @@ export default class SimpleTable extends Simple {
    *
    * @category Geospatial
    */
-  async typeGeo(newColumn: string, options: { column?: string } = {}) {
+  async typeGeo(
+    newColumn: string,
+    options: { column?: string } = {},
+  ): Promise<void> {
     const column = typeof options.column === "string"
       ? options.column
       : await findGeoColumn(this);
@@ -4366,7 +4410,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Geospatial
    */
-  async flipCoordinates(column?: string) {
+  async flipCoordinates(column?: string): Promise<void> {
     const col = column ?? (await findGeoColumn(this));
 
     await queryDB(
@@ -4404,7 +4448,10 @@ export default class SimpleTable extends Simple {
    *
    * @category Geospatial
    */
-  async reducePrecision(decimals: number, options: { column?: string } = {}) {
+  async reducePrecision(
+    decimals: number,
+    options: { column?: string } = {},
+  ): Promise<void> {
     const column = typeof options.column === "string"
       ? options.column
       : await findGeoColumn(this);
@@ -4457,7 +4504,7 @@ export default class SimpleTable extends Simple {
   async reproject(
     to: string,
     options: { from?: string; column?: string } = {},
-  ) {
+  ): Promise<void> {
     const column = typeof options.column === "string"
       ? options.column
       : await findGeoColumn(this);
@@ -4526,7 +4573,7 @@ export default class SimpleTable extends Simple {
   async area(
     newColumn: string,
     options: { unit?: "m2" | "km2"; column?: string } = {},
-  ) {
+  ): Promise<void> {
     const column = typeof options.column === "string"
       ? options.column
       : await findGeoColumn(this);
@@ -4578,7 +4625,7 @@ export default class SimpleTable extends Simple {
   async length(
     newColumn: string,
     options: { unit?: "m" | "km"; column?: string } = {},
-  ) {
+  ): Promise<void> {
     const column = typeof options.column === "string"
       ? options.column
       : await findGeoColumn(this);
@@ -4631,7 +4678,7 @@ export default class SimpleTable extends Simple {
   async perimeter(
     newColumn: string,
     options: { unit?: "m" | "km"; column?: string } = {},
-  ) {
+  ): Promise<void> {
     const column = typeof options.column === "string"
       ? options.column
       : await findGeoColumn(this);
@@ -4678,7 +4725,7 @@ export default class SimpleTable extends Simple {
     newColumn: string,
     distance: number,
     options: { column?: string } = {},
-  ) {
+  ): Promise<void> {
     const column = typeof options.column === "string"
       ? options.column
       : await findGeoColumn(this);
@@ -4780,7 +4827,11 @@ export default class SimpleTable extends Simple {
    *
    * @category Geospatial
    */
-  async intersection(column1: string, column2: string, newColumn: string) {
+  async intersection(
+    column1: string,
+    column2: string,
+    newColumn: string,
+  ): Promise<void> {
     if (this.projections[column1] !== this.projections[column2]) {
       throw new Error(
         `${column1} and ${column2} don't have the same projection.\n${column1}: ${
@@ -4820,7 +4871,7 @@ export default class SimpleTable extends Simple {
     column1: string,
     column2: string,
     newColumn: string,
-  ) {
+  ): Promise<void> {
     if (this.projections[column1] !== this.projections[column2]) {
       throw new Error(
         `${column1} and ${column2} don't have the same projection.\n${column1}: ${
@@ -4862,7 +4913,7 @@ export default class SimpleTable extends Simple {
    * @param column - The name of the column storing the geometries.
    * @category Geospatial
    */
-  async fillHoles(column?: string) {
+  async fillHoles(column?: string): Promise<void> {
     const col = column ?? (await findGeoColumn(this));
     await queryDB(
       this,
@@ -4891,7 +4942,11 @@ export default class SimpleTable extends Simple {
    *
    * @category Geospatial
    */
-  async intersect(column1: string, column2: string, newColumn: string) {
+  async intersect(
+    column1: string,
+    column2: string,
+    newColumn: string,
+  ): Promise<void> {
     await queryDB(
       this,
       `ALTER TABLE "${this.name}" ADD "${newColumn}" BOOLEAN; UPDATE "${this.name}" SET "${newColumn}" = ST_Intersects("${column1}", "${column2}")`,
@@ -4919,7 +4974,11 @@ export default class SimpleTable extends Simple {
    *
    * @category Geospatial
    */
-  async inside(column1: string, column2: string, newColumn: string) {
+  async inside(
+    column1: string,
+    column2: string,
+    newColumn: string,
+  ): Promise<void> {
     await queryDB(
       this,
       `ALTER TABLE "${this.name}" ADD "${newColumn}" BOOLEAN; UPDATE "${this.name}" SET "${newColumn}" = ST_Covers("${column2}", "${column1}")`,
@@ -4947,7 +5006,11 @@ export default class SimpleTable extends Simple {
    *
    * @category Geospatial
    */
-  async union(column1: string, column2: string, newColumn: string) {
+  async union(
+    column1: string,
+    column2: string,
+    newColumn: string,
+  ): Promise<void> {
     if (this.projections[column1] !== this.projections[column2]) {
       throw new Error(
         `${column1} and ${column2} don't have the same projection.\n${column1}: ${
@@ -4984,7 +5047,11 @@ export default class SimpleTable extends Simple {
    *
    * @category Geospatial
    */
-  async latLon(column: string, columnLat: string, columnLon: string) {
+  async latLon(
+    column: string,
+    columnLat: string,
+    columnLon: string,
+  ): Promise<void> {
     await queryDB(
       this,
       `ALTER TABLE "${this.name}" ADD "${columnLat}" DOUBLE; UPDATE "${this.name}" SET "${columnLat}" = ST_X("${column}");
@@ -5032,7 +5099,7 @@ export default class SimpleTable extends Simple {
   async simplify(
     tolerance: number,
     options: { column?: string; simplifyBoundary?: boolean } = {},
-  ) {
+  ): Promise<void> {
     const column = typeof options.column === "string"
       ? options.column
       : await findGeoColumn(this);
@@ -5078,7 +5145,10 @@ export default class SimpleTable extends Simple {
    *
    * @category Geospatial
    */
-  async centroid(newColumn: string, options: { column?: string } = {}) {
+  async centroid(
+    newColumn: string,
+    options: { column?: string } = {},
+  ): Promise<void> {
     const column = typeof options.column === "string"
       ? options.column
       : await findGeoColumn(this);
@@ -5144,7 +5214,7 @@ export default class SimpleTable extends Simple {
       method?: "srs" | "haversine" | "spheroid";
       decimals?: number;
     } = {},
-  ) {
+  ): Promise<void> {
     await queryDB(
       this,
       distanceQuery(this.name, column1, column2, newColumn, options),
@@ -5178,7 +5248,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Geospatial
    */
-  async unnestGeo(column?: string) {
+  async unnestGeo(column?: string): Promise<void> {
     const col = column ?? (await findGeoColumn(this));
     await queryDB(
       this,
@@ -5295,7 +5365,7 @@ export default class SimpleTable extends Simple {
    *
    * @category Geospatial
    */
-  async linesToPolygons(column?: string) {
+  async linesToPolygons(column?: string): Promise<void> {
     const col = column ?? (await findGeoColumn(this));
 
     await queryDB(
@@ -5435,7 +5505,7 @@ export default class SimpleTable extends Simple {
       dataAsArrays?: boolean;
       formatDates?: boolean;
     } = {},
-  ) {
+  ): Promise<void> {
     createDirectory(file);
 
     const extension = getExtension(file);
@@ -5491,7 +5561,7 @@ export default class SimpleTable extends Simple {
       metadata?: unknown;
       formatDates?: boolean;
     } = {},
-  ) {
+  ): Promise<void> {
     createDirectory(file);
     const fileExtension = getExtension(file);
     if (fileExtension === "geojson" || fileExtension === "json") {
@@ -5617,7 +5687,7 @@ export default class SimpleTable extends Simple {
     raw?: boolean;
     apiEmail?: string;
     apiKey?: string;
-  } = {}) {
+  } = {}): Promise<void> {
     await overwriteSheetData(await this.getData(), sheetUrl, options);
   }
 
@@ -5697,7 +5767,10 @@ export default class SimpleTable extends Simple {
    * @param options - An optional object with configuration options:
    *   @param options.ttl - If the data in cache is older than the ttl (in seconds), the computations will be run. By default, there is no ttl.
    */
-  async cache(run: () => Promise<void>, options: { ttl?: number } = {}) {
+  async cache(
+    run: () => Promise<void>,
+    options: { ttl?: number } = {},
+  ): Promise<void> {
     await cache(this, run, { ...options, verbose: this.sdb.cacheVerbose });
   }
 
@@ -5740,7 +5813,7 @@ export default class SimpleTable extends Simple {
     chart: (data: unknown[]) => SVGSVGElement | HTMLElement,
     path: string,
     options: { style?: string; dark?: boolean } = {},
-  ) {
+  ): Promise<void> {
     await saveChart(
       await this.getData(),
       chart as (data: Data) => SVGSVGElement | HTMLElement, // Not great.
@@ -5806,7 +5879,7 @@ export default class SimpleTable extends Simple {
       style?: string;
       dark?: boolean;
     } = {},
-  ) {
+  ): Promise<void> {
     options.rewind = options.rewind ?? true;
     await saveChart(
       await this.getGeoData(options.column, {
@@ -5859,7 +5932,7 @@ export default class SimpleTable extends Simple {
       types?: boolean;
       conditions?: string;
     } = {},
-  ) {
+  ): Promise<void> {
     if (
       this.connection === undefined
     ) {
@@ -5986,7 +6059,7 @@ export default class SimpleTable extends Simple {
       width?: number;
       height?: number;
     } = {},
-  ) {
+  ): Promise<void> {
     const data = await this.sdb.customQuery(
       `SELECT "${x}", "${y}"${
         typeof options.smallMultiples === "string"
@@ -6060,7 +6133,7 @@ export default class SimpleTable extends Simple {
       width?: number;
       height?: number;
     } = {},
-  ) {
+  ): Promise<void> {
     const data = await this.sdb.customQuery(
       `SELECT "${x}", "${y}"${
         typeof options.smallMultiples === "string"
@@ -6102,7 +6175,7 @@ export default class SimpleTable extends Simple {
       formatValues?: (d: unknown) => string;
       width?: number;
     } = {},
-  ) {
+  ): Promise<void> {
     const data = await this.sdb.customQuery(
       `SELECT "${labels}", "${values}" FROM "${this.name}"`,
       { returnDataFrom: "query" },
@@ -6141,7 +6214,7 @@ export default class SimpleTable extends Simple {
       compact?: boolean;
       width?: number;
     } = {},
-  ) {
+  ): Promise<void> {
     await logHistogram(this, values, options);
   }
 
@@ -6175,7 +6248,7 @@ export default class SimpleTable extends Simple {
    * await table.logProjections()
    * ```
    */
-  async logProjections(): Promise<this> {
+  async logProjections(): Promise<SimpleTable> {
     console.log(`\ntable ${this.name} projections:`);
     console.log(this.projections);
     return await this;
@@ -6190,7 +6263,7 @@ export default class SimpleTable extends Simple {
    * await table.logTypes()
    * ```
    */
-  async logTypes(): Promise<this> {
+  async logTypes(): Promise<SimpleTable> {
     console.log(`\ntable ${this.name} types:`);
     console.log(await this.getTypes());
     return await this;
@@ -6220,7 +6293,7 @@ export default class SimpleTable extends Simple {
   async logUniques(
     column: string,
     options: { stringify?: boolean } = {},
-  ): Promise<this> {
+  ): Promise<SimpleTable> {
     const values = await this.getUniques(column);
     console.log(`\nUnique values in ${column}:`);
     if (options.stringify) {
@@ -6246,7 +6319,7 @@ export default class SimpleTable extends Simple {
    * await table.logColumns({ types: true })
    * ```
    */
-  async logColumns(options: { types?: boolean } = {}): Promise<this> {
+  async logColumns(options: { types?: boolean } = {}): Promise<SimpleTable> {
     console.log(`\nTable ${this.name} columns:`);
     if (options.types) {
       console.log(await this.getTypes());
@@ -6266,7 +6339,7 @@ export default class SimpleTable extends Simple {
    * await table.logNbRows()
    * ```
    */
-  async logNbRows(): Promise<this> {
+  async logNbRows(): Promise<SimpleTable> {
     const nbRows = await this.getNbRows();
     console.log(`\nTable ${this.name}: ${formatNumber(nbRows)} rows.`);
     return await this;
@@ -6285,7 +6358,7 @@ export default class SimpleTable extends Simple {
    */
   async logBottom(
     count: number,
-  ) {
+  ): Promise<void> {
     console.log(`\nTable ${this.name} (${count} bottom rows):`);
     const data = await this.getBottom(count, { originalOrder: true });
     logData(
@@ -6306,7 +6379,7 @@ export default class SimpleTable extends Simple {
    *
    * @param column - The name of the column.
    */
-  async logExtent(column: string) {
+  async logExtent(column: string): Promise<void> {
     const extent = await this.getExtent(column);
     console.log(`\nTable ${this.name} (${column} extent):`);
     console.log(extent);
