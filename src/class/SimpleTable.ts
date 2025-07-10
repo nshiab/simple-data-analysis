@@ -5692,31 +5692,41 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Writes geospatial data to a file. If the path doesn't exist, it will be created.
+   * Writes the table's geospatial data to a file in GeoJSON or GeoParquet format.
+   * If the specified path does not exist, it will be created.
    *
-   * For .geojson files, if the projection is WGS84 or EPSG:4326 ([latitude, longitude] axis order), the coordinates will be flipped to follow the RFC7946 standard ([longitude, latitude] axis order).
+   * For GeoJSON files (`.geojson` or `.json`), if the projection is WGS84 or EPSG:4326 (`[latitude, longitude]` axis order), the coordinates will be flipped to follow the RFC7946 standard (`[longitude, latitude]` axis order) in the output.
    *
-   * @example
-   * Basic usage to write geojson files
-   * ```ts
-   * await table.writeGeoata("output/data.geojson");
-   * ```
-   *
-   * @example
-   * Basic usage to write geoparquet files
-   * ```ts
-   * await table.writeGeoata("output/data.geoparquet");
-   * ```
-   *
-   * @param file - The path to the file to which data will be written.
+   * @param file - The absolute path to the output file (e.g., `"./output.geojson"`, `"./output.geoparquet"`).
    * @param options - An optional object with configuration options:
-   *   @param options.precision - Maximum number of figures after decimal separator to write in coordinates. Works with GeoJSON files only.
-   *   @param options.rewind - If true, rewinds in the spherical winding order (important for D3.js). Default is false. Works with GeoJSON files only.
-   *   @param options.compression - A boolean indicating whether to compress the output file. Works with GeoParquet files only. Defaults to false. If true, the file will be compressed with ZSTD.
-   *   @param options.metadata - Metadata to be added to the file. Works only with GeoJSON files.
-   *   @param options.formatDates - If true, dates will be formatted as ISO strings ("2025-01-01T01:00:00.000Z"). Defaults to false. Works only with GeoJSON files.
+   * @param options.precision - For GeoJSON, the maximum number of figures after the decimal separator to write in coordinates. Defaults to `undefined` (full precision).
+   * @param options.compression - For GeoParquet, if `true`, the output will be ZSTD compressed. Defaults to `false`.
+   * @param options.rewind - For GeoJSON, if `true`, rewinds the coordinates of polygons to follow the right-hand rule (RFC 7946). Defaults to `false`.
+   * @param options.metadata - For GeoJSON, an object to be added as top-level metadata to the GeoJSON output.
+   * @param options.formatDates - For GeoJSON, if `true`, formats date and timestamp columns to ISO 8601 strings. Defaults to `false`.
+   * @returns A promise that resolves when the geospatial data has been written to the file.
+   * @category File Operations
    *
-   * * @category Exporting data
+   * @example
+   * ```ts
+   * // Write geospatial data to a GeoJSON file
+   * await table.writeGeoData("./output.geojson");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Write geospatial data to a compressed GeoParquet file
+   * await table.writeGeoData("./output.geoparquet", { compression: true });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Write GeoJSON with specific precision and metadata
+   * await table.writeGeoData("./output_high_precision.geojson", {
+   *   precision: 6,
+   *   metadata: { source: "SimpleDataAnalysis" },
+   * });
+   * ```
    */
   async writeGeoData(
     file: string,
@@ -5819,24 +5829,37 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Clears a Google Sheet and populates it with the table's data. This methods uses the [overwriteSheetData function from the journalism library](https://jsr.io/@nshiab/journalism/doc/~/overwriteSheetData). See its documentation for more information.
+   * Clears a Google Sheet and populates it with the table's data.
+   * This method uses the `overwriteSheetData` function from the [journalism library](https://jsr.io/@nshiab/journalism/doc/~/overwriteSheetData). Refer to its documentation for more details.
    *
-   * By default, this function looks for the API key in process.env.GOOGLE_PRIVATE_KEY and the service account email in process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL. If you don't have credentials, check [this](https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication).
+   * By default, this function looks for the API key in `GOOGLE_PRIVATE_KEY` and the service account email in `GOOGLE_SERVICE_ACCOUNT_EMAIL` environment variables. If you don't have credentials, refer to the [Google Spreadsheet authentication guide](https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication).
+   *
+   * @param sheetUrl - The URL pointing to a specific Google Sheet (e.g., `"https://docs.google.com/spreadsheets/d/.../edit#gid=0"`).
+   * @param options - An optional object with configuration options:
+   * @param options.prepend - Text to be added before the data in the sheet.
+   * @param options.lastUpdate - If `true`, adds a row before the data with the date of the update.
+   * @param options.timeZone - If `lastUpdate` is `true`, this option allows formatting the date to a specific time zone.
+   * @param options.raw - If `true`, Google Sheets will not attempt to guess the data type and will not format or parse the values.
+   * @param options.apiEmail - If your API email is stored under a different environment variable name, use this option to specify it.
+   * @param options.apiKey - If your API key is stored under a different environment variable name, use this option to specify it.
+   * @returns A promise that resolves when the data has been written to the Google Sheet.
+   * @category Exporting Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0")
+   * // Write table data to a Google Sheet
+   * await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
    * ```
    *
-   * @param sheetUrl - The url directing to a specific sheet.
-   * @param options - An optional object with configuration options:
-   *   @param options.prepend - Text to be added before the data.
-   *   @param options.lastUpdate - If true, adds a row before the data with the date of the update.
-   *   @param options.timeZone - If lastUpdate is true, you can use this option to format the date to a specific time zone.
-   *   @param options.raw - If true, Google Sheet won't try to guess the data type and won't format or parse the values.
-   *   @param options.apiEmail - If your API email is stored under different names in process.env, use this option.
-   *   @param options.apiKey - If your API key is stored under different names in process.env, use this option.
+   * @example
+   * ```ts
+   * // Write data to a Google Sheet, prepending a message and including the last update timestamp
+   * await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0", {
+   *   prepend: "Report generated on:",
+   *   lastUpdate: true,
+   *   timeZone: "Canada/Eastern",
+   * });
+   * ```
    */
   async toSheet(sheetUrl: string, options: {
     prepend?: string;
@@ -5858,80 +5881,71 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Caches the results of computations in `./.sda-cache` which you probably want to add to your `.gitignore`.
+   * Caches the results of computations in `./.sda-cache`.
+   * You should add `./.sda-cache` to your `.gitignore` file.
    *
-   * @example
-   * Basic usage
-   *
-   * The code will be triggered on the first run or if you update the function passed to the cache method. Otherwise, the result will be loaded from the cache.
-   *
-   * ```js
-   * const sdb = new SimpleDB()
-   * const table = sdb.newTable()
-   *
-   * await table.cache(async () => {
-   *     await table.loadData("items.csv")
-   *     await table.summarize({
-   *         values: "price",
-   *         categories: "department",
-   *         summaries: ["min", "max", "mean"]
-   *     })
-   * })
-   *
-   * // It's important to call done() on the SimpleDB instance to clean up the cache.
-   * // We don't want it to grow in size indefinitely.
-   * await sdb.done()
-   * ```
-   *
-   * @example
-   * With a ttl
-   *
-   * You can pass a ttl option in seconds. Here, the code will be triggered on the first run or if the result is more than 1 minute old.
-   *
-   * ```js
-   * const sdb = new SimpleDB()
-   * const table = sdb.newTable()
-   *
-   * await table.cache(async () => {
-   *     await table.loadData("items.csv")
-   *     await table.summarize({
-   *         values: "price",
-   *         categories: "department",
-   *         summaries: ["min", "max", "mean"]
-   *     })
-   * }, { ttl: 60 })
-   *
-   * // It's important to call done() on the SimpleDB instance to clean up the cache.
-   * // We don't want it to grow in size indefinitely.
-   * await sdb.done()
-   * ```
-   *
-   * @example
-   * Verbose
-   *
-   * If you want to know when computations are bein run or when data is being loaded from the cache, use the option verbose when instanciating the SimpleDB. Messages will be logged in the terminal.
-   *
-   * ```js
-   * const sdb = new SimpleDB({ cacheVerbose: true })
-   * const table = sdb.newTable()
-   *
-   * await table.cache(async () => {
-   *     await table.loadData("items.csv")
-   *     await table.summarize({
-   *         values: "price",
-   *         categories: "department",
-   *         summaries: ["min", "max", "mean"]
-   *     })
-   * }, { ttl: 60 })
-   *
-   * // It's important to call done() on the SimpleDB instance to clean up the cache.
-   * // We don't want it to grow in size indefinitely.
-   * await sdb.done()
-   * ```
-   *
-   * @param run - A function wrapping the computations.
+   * @param run - A function wrapping the computations to be cached. This function will be executed on the first run or if the cached data is invalid/expired.
    * @param options - An optional object with configuration options:
-   *   @param options.ttl - If the data in cache is older than the ttl (in seconds), the computations will be run. By default, there is no ttl.
+   * @param options.ttl - Time to live (in seconds). If the data in the cache is older than this duration, the `run` function will be executed again to refresh the cache. By default, there is no TTL, meaning the cache is only invalidated if the `run` function's content changes.
+   * @returns A promise that resolves when the computations are complete or the data is loaded from cache.
+   * @category Caching
+   *
+   * @example
+   * ```ts
+   * // Basic usage: computations are cached and re-run only if the function content changes
+   * const sdb = new SimpleDB();
+   * const table = sdb.newTable();
+   *
+   * await table.cache(async () => {
+   *   await table.loadData("items.csv");
+   *   await table.summarize({
+   *     values: "price",
+   *     categories: "department",
+   *     summaries: ["min", "max", "mean"],
+   *   });
+   * });
+   *
+   * // It's important to call done() on the SimpleDB instance to clean up the cache.
+   * // This prevents the cache from growing indefinitely.
+   * await sdb.done();
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Cache with a Time-To-Live (TTL) of 60 seconds
+   * // The computations will be re-run if the cached data is older than 1 minute or if the function content changes.
+   * const sdb = new SimpleDB();
+   * const table = sdb.newTable();
+   *
+   * await table.cache(async () => {
+   *   await table.loadData("items.csv");
+   *   await table.summarize({
+   *     values: "price",
+   *     categories: "department",
+   *     summaries: ["min", "max", "mean"],
+   *   });
+   * }, { ttl: 60 });
+   *
+   * await sdb.done();
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Enable verbose logging for cache operations via SimpleDB instance
+   * const sdb = new SimpleDB({ cacheVerbose: true });
+   * const table = sdb.newTable();
+   *
+   * await table.cache(async () => {
+   *   await table.loadData("items.csv");
+   *   await table.summarize({
+   *     values: "price",
+   *     categories: "department",
+   *     summaries: ["min", "max", "mean"],
+   *   });
+   * });
+   *
+   * await sdb.done();
+   * ```
    */
   async cache(
     run: () => Promise<void>,
@@ -5941,39 +5955,37 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Creates an [Observable Plot](https://github.com/observablehq/plot) chart as an image file (.png, .jpeg or .svg) from the table data.
+   * Creates an [Observable Plot](https://github.com/observablehq/plot) chart as an image file (.png, .jpeg, or .svg) from the table data.
+   * To create maps, use the `writeMap` method.
    *
-   * To create maps, use the writeMap method.
+   * @param chart - A function that takes data (as an array of objects) and returns an Observable Plot chart (an `SVGSVGElement` or `HTMLElement`).
+   * @param path - The absolute path where the chart image will be saved (e.g., `"./output/chart.png"`).
+   * @param options - Optional object containing additional settings:
+   * @param options.style - A CSS string to customize the chart's appearance. This is applied to a `<div>` element wrapping the Plot chart (which has the id `chart`). Use this if the Plot `style` option is insufficient.
+   * @param options.dark - If `true`, switches the chart to dark mode. Defaults to `false`.
+   * @returns A promise that resolves when the chart image has been saved.
+   * @category Dataviz
    *
    * @example
-   * Basic usage:
    * ```ts
    * import { dot, plot } from "@observablehq/plot";
    *
    * const sdb = new SimpleDB();
    * const table = sdb.newTable();
-   *
-   * const data = [{ year: 2024, value: 10 }, { year: 2025, value: 15 }]
-   *
+   * const data = [{ year: 2024, value: 10 }, { year: 2025, value: 15 }];
    * await table.loadArray(data);
    *
-   * const chart = (data: unknown[]) =>
+   * const chartFunction = (plotData: unknown[]) =>
    *   plot({
    *     marks: [
-   *       dot(data, { x: "year", y: "value" }),
+   *       dot(plotData, { x: "year", y: "value" }),
    *     ],
    *   });
    *
-   * const path = "output/chart.png";
+   * const outputPath = "output/chart.png";
    *
-   * await table.writeChart(chart, path);
+   * await table.writeChart(chartFunction, outputPath);
    * ```
-   *
-   * @param chart - A function that takes data and returns an Observable Plot chart.
-   * @param path - The path where the chart image will be saved.
-   * @param options - Optional object containing additional settings.
-   * @param options.style - CSS string to customize the chart's appearance if the Plot `style` option is not enough. Note the Plot chart is wrapped within a <div> element with the id `chart`.
-   * @param options.dark - To switch the chart to dark mode. Defaults to false.
    */
   async writeChart(
     chart: (data: unknown[]) => SVGSVGElement | HTMLElement,
@@ -5989,48 +6001,43 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Creates an [Observable Plot](https://github.com/observablehq/plot) map as an image file (.png, .jpeg or .svg) from the table data.
+   * Creates an [Observable Plot](https://github.com/observablehq/plot) map as an image file (.png, .jpeg, or .svg) from the table's geospatial data.
+   * To create charts from non-geospatial data, use the `writeChart` method.
    *
-   * To create charts, use the writeChart method.
+   * @param map - A function that takes geospatial data (in GeoJSON format) and returns an Observable Plot map (an `SVGSVGElement` or `HTMLElement`).
+   * @param path - The absolute path where the map image will be saved (e.g., `"./output/map.png"`).
+   * @param options - An optional object with configuration options:
+   * @param options.column - The name of the column storing geometries. If there is only one geometry column, it will be used by default.
+   * @param options.rewind - If `true`, rewinds the coordinates of polygons to follow the spherical winding order (important for D3.js). Defaults to `true`.
+   * @param options.style - A CSS string to customize the map's appearance. This is applied to a `<div>` element wrapping the Plot map (which has the ID `chart`). Use this if the Plot `style` option is insufficient.
+   * @param options.dark - If `true`, switches the map to dark mode. Defaults to `false`.
+   * @returns A promise that resolves when the map image has been saved.
+   * @category Dataviz
    *
    * @example
-   * Basic usage:
    * ```ts
    * import { geo, plot } from "@observablehq/plot";
    *
    * const sdb = new SimpleDB();
    * const table = sdb.newTable();
+   * await table.loadGeoData("./CanadianProvincesAndTerritories.geojson");
    *
-   * await table.loadGeoData(
-   *   "./CanadianProvincesAndTerritories.geojson",
-   * );
-   *
-   * const map = (data: {
-   *   features: unknown[];
-   * }) =>
+   * const mapFunction = (geoJsonData: { features: unknown[] }) =>
    *   plot({
    *     projection: {
    *       type: "conic-conformal",
    *       rotate: [100, -60],
-   *       domain: data,
+   *       domain: geoJsonData,
    *     },
    *     marks: [
-   *       geo(data, { stroke: "black", fill: "lightblue" }),
+   *       geo(geoJsonData, { stroke: "black", fill: "lightblue" }),
    *     ],
    *   });
    *
-   * const path = "./output/map.png";
+   * const outputPath = "./output/map.png";
    *
-   * await table.writeMap(map, path);
+   * await table.writeMap(mapFunction, outputPath);
    * ```
-   *
-   * @param map - A function that takes geospatial data and returns an Observable Plot map.
-   * @param path - The path where the map image will be saved.
-   * @param options - An optional object with configuration options:
-   *   @param options.column - The name of a column storing geometries. If there is just one, it will be used by default.
-   *   @param options.rewind - If true, rewinds in the spherical winding order (important for D3.js). Default is true.
-   *   @param options.style - CSS string to customize the chart's appearance if the Plot `style` option is not enough. Note the Plot chart is wrapped within a <div> element with the id `chart`.
-   *   @param options.dark - To switch the chart to dark mode. Defaults to false.
    */
   async writeMap(
     map: (geoData: {
