@@ -3191,26 +3191,34 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Computes the cumulative sum of values in a column. Don't forget to sort your data first.
-   *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Computes the cumulative sum of values in column1 in a new column cumulative.
-   * await table.accumulate("column1", "cumulative")
-   * ```
-   *
-   * @example
-   * With categories
-   * ```ts
-   * // Computes the cumulative sum of values in column1 in a new column cumulative. Using values in column2 as categories.
-   * await table.accumulate("column1", "cumulative", { categories: "column2" })
-   * ```
+   * Computes the cumulative sum of values in a column. For this method to work properly, ensure your data is sorted first.
    *
    * @param column - The name of the column storing the values to be accumulated.
-   * @param newColumn - The name of the new column in which the computed values will be stored.
+   * @param newColumn - The name of the new column in which the computed cumulative values will be stored.
    * @param options - An optional object with configuration options:
-   *  @param options.categories - The category or categories to be used for the accumulation.
+   * @param options.categories - The column name or an array of column names that define categories for the accumulation. Accumulation will be performed independently within each category.
+   * @returns A promise that resolves when the cumulative sum has been computed.
+   * @category Analyzing Data
+   *
+   * @example
+   * ```ts
+   * // Compute the cumulative sum of 'sales' in a new 'cumulativeSales' column
+   * // Ensure the table is sorted by a relevant column (e.g., date) before calling this method.
+   * await table.accumulate("sales", "cumulativeSales");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute the cumulative sum of 'orders' within 'customer_id' categories
+   * // Ensure the table is sorted by 'customer_id' and then by a relevant order column (e.g., order_date).
+   * await table.accumulate("orders", "cumulativeOrders", { categories: "customer_id" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute the cumulative sum of 'revenue' within 'region' and 'product_category' categories
+   * await table.accumulate("revenue", "cumulativeRevenue", { categories: ["region", "product_category"] });
+   * ```
    */
   async accumulate(
     column: string,
@@ -3231,38 +3239,39 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Computes rolling aggregations, like a rolling average. For rows without enough preceding or following rows, returns NULL. For this method to work properly, don't forget to sort your data first.
+   * Computes rolling aggregations (e.g., rolling average, min, max) over a specified column.
+   * For rows without enough preceding or following rows to form a complete window, `NULL` will be returned.
+   * For this method to work properly, ensure your data is sorted by the relevant column(s) first.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // 7-day rolling average of values in column1 with the 3 preceding and 3 following rows.
-   * await table.rolling("column1", "rollingAvg", "mean", 3, 3)
-   * ```
-   *
-   * @example
-   * With categories
-   * ```ts
-   * // 7-day rolling average of values in column1 with the 3 preceding and 3 following rows. Using values in column2 as categories.
-   * await table.rolling("column1", "rollingAvg", "mean", 3, 3, { categories: "column2" })
-   * ```
-   *
-   * @example
-   * Rounding
-   * ```ts
-   * // 7-day rolling average of values in column1 with the 3 preceding and 3 following rows. Using values in column2 as categories and rounding to two decimal places.
-   * await table.rolling("column1", "rollingAvg", "mean", 3, 3, { categories: "column2", decimals: 2 })
-   * ```
-   *
-   * @param column - The name of the column storing the values to be aggregated
-   * @param newColumn - The name of the new column in which the computed values will be stored
-   * @param summary - How to aggregate the values
-   * @param preceding - How many preceding rows to include
-   * @param following - How many following rows to include
+   * @param column - The name of the column storing the values to be aggregated.
+   * @param newColumn - The name of the new column in which the computed rolling values will be stored.
+   * @param summary - The aggregation function to apply: `"min"`, `"max"`, `"mean"`, `"median"`, or `"sum"`.
+   * @param preceding - The number of preceding rows to include in the rolling window.
+   * @param following - The number of following rows to include in the rolling window.
    * @param options - An optional object with configuration options:
-   *   @param options.categories - The category or categories to be used for the aggragation.
-   *   @param options.decimals - The number of decimal places to round the summarized values.
-   * @category Analyzing data
+   * @param options.categories - The column name or an array of column names that define categories for the aggregation. Rolling aggregations will be computed independently within each category.
+   * @param options.decimals - The number of decimal places to round the aggregated values. Defaults to `undefined` (no rounding).
+   * @returns A promise that resolves when the rolling aggregation is complete.
+   * @category Analyzing Data
+   *
+   * @example
+   * ```ts
+   * // Compute a 7-day rolling average of 'sales' with 3 preceding and 3 following rows
+   * // (total window size of 7: 3 preceding + current + 3 following)
+   * await table.rolling("sales", "rollingAvgSales", "mean", 3, 3);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute a rolling sum of 'transactions' within 'customer_id' categories
+   * await table.rolling("transactions", "rollingSumTransactions", "sum", 5, 0, { categories: "customer_id" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute a rolling maximum of 'temperature' rounded to 1 decimal place
+   * await table.rolling("temperature", "rollingMaxTemp", "max", 2, 2, { decimals: 1 });
+   * ```
    */
   async rolling(
     column: string,
@@ -3302,52 +3311,47 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Calculates correlations between columns.
-   *
-   * If no *x* and *y* columns are specified, the method computes the correlations of all numeric columns *combinations*. It's important to note that correlation is symmetrical: the correlation of *x* over *y* is the same as *y* over *x*.
-   *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Computes all correlations between all numeric columns.
-   * await table.correlations()
-   * ```
-   * @example
-   * Specific x column
-   * ```ts
-   * // Computes all correlations between a specific x column and all other numeric columns.
-   * await table.correlations({ x: "column1" })
-   * ```
-   *
-   * @example
-   * Specific x and y columns
-   * ```ts
-   * // Computes the correlations between specific x and y columns.
-   * await table.correlations({ x: "column1", y: "column2" })
-   * ```
-   *
-   * @example
-   * Returning results in a new table
-   * ```ts
-   * // Same but results are stored in tableB.
-   * const tableB = await table.correlations({ outputTable: true })
-   * ```
-   *
-   * @example
-   * Returning results in a new table with a specific name in the DB
-   * ```ts
-   * // Same but results are stored in tableB.
-   * const tableB = await table.correlations({ outputTable: "tableB" })
-   * ```
+   * Calculates correlations between columns. If no `x` and `y` columns are specified, the method computes the correlations for all numeric column combinations.
+   * Note that correlation is symmetrical: the correlation of `x` with `y` is the same as `y` with `x`.
    *
    * @param options - An optional object with configuration options:
-   *   @param options.x - The column name for the x values. Default is all numeric columns.
-   *   @param options.y - The column name for the y values. Default is all numeric columns.
-   *   @param options.categories - The column or columns that define categories. Correlation calculations will be run for each category.
-   *   @param options.decimals - The number of decimal places to round the correlation values.
-   *   @param options.outputTable - An option to store the results in a new table.
+   * @param options.x - The name of the column for the x-values. If omitted, correlations will be computed for all numeric columns.
+   * @param options.y - The name of the column for the y-values. If omitted, correlations will be computed for all numeric columns.
+   * @param options.categories - The column name or an array of column names that define categories. Correlation calculations will be performed independently for each category.
+   * @param options.decimals - The number of decimal places to round the correlation values. Defaults to `undefined` (no rounding).
+   * @param options.outputTable - If `true`, the results will be stored in a new table with a generated name. If a string, it will be used as the name for the new table. If `false` or omitted, the current table will be overwritten. Defaults to `false`.
+   * @returns A promise that resolves to the SimpleTable instance containing the correlation results (either the modified current table or a new table).
+   * @category Analyzing Data
    *
-   * @category Analyzing data
+   * @example
+   * ```ts
+   * // Compute correlations between all numeric columns, overwriting the current table
+   * await table.correlations();
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute correlations between 'column1' and all other numeric columns
+   * await table.correlations({ x: "column1" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute the correlation between 'column1' and 'column2'
+   * await table.correlations({ x: "column1", y: "column2" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute correlations within 'categoryColumn' and store results in a new table
+   * const correlationTable = await table.correlations({ categories: "categoryColumn", outputTable: true });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute correlations, rounded to 2 decimal places
+   * await table.correlations({ decimals: 2 });
+   * ```
    */
   async correlations(
     options: {
@@ -3371,52 +3375,48 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Performs linear regression analysis. The results include the slope, the y-intercept the R-squared.
-   *
-   * If no *x* and *y* columns are specified, the method computes the linear regression analysis of all numeric columns *permutations*. It's important to note that linear regression analysis is asymmetrical: the linear regression of *x* over *y* is not the same as *y* over *x*.
-   *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Computes all linear regressions between all numeric columns in tableA and overwrites tableA.
-   * await table.linearRegressions()
-   * ```
-   *
-   * @example
-   * Specific x column
-   * ```ts
-   * // Computes all linear regressions between a specific x column and all other numeric columns.
-   * await table.linearRegressions({ x: "column1" })
-   * ```
-   *
-   * @example
-   * Specific x and y columns
-   * ```ts
-   * // Computes the linear regression between a specific x and y columns.
-   * await table.linearRegressions({ x: "column1", y: "column2" })
-   * ```
-   *
-   * @example
-   * Returning results in a new table
-   * ```ts
-   * // Same but stores the results in tableB.
-   * const newTable = await table.linearRegressions({ outputTable: true })
-   * ```
-   *
-   * @example
-   * Returning results in a new table with a specific name in the DB
-   * ```ts
-   * // Same but stores the results in tableB.
-   * const tableB = await table.linearRegressions({ outputTable: "tableB" })
-   * ```
+   * Performs linear regression analysis. The results include the slope, the y-intercept, and the R-squared value.
+   * If no `x` and `y` columns are specified, the method computes linear regression analysis for all numeric column permutations.
+   * Note that linear regression analysis is asymmetrical: the linear regression of `x` over `y` is not the same as `y` over `x`.
    *
    * @param options - An optional object with configuration options:
-   *   @param options.x - The column name for the independent variable (x values) in the linear regression analysis.
-   *   @param options.y - The column name for the dependent variable (y values) in the linear regression analysis.
-   *   @param options.categories - The column or columns that define categories. Correlation calculations will be run for each category.
-   *   @param options.decimals - The number of decimal places to round the regression coefficients.
+   * @param options.x - The name of the column for the independent variable (x-values). If omitted, linear regressions will be computed for all numeric columns as x.
+   * @param options.y - The name of the column for the dependent variable (y-values). If omitted, linear regressions will be computed for all numeric columns as y.
+   * @param options.categories - The column name or an array of column names that define categories. Linear regression analysis will be performed independently for each category.
+   * @param options.decimals - The number of decimal places to round the regression values (slope, intercept, r-squared). Defaults to `undefined` (no rounding).
+   * @param options.outputTable - If `true`, the results will be stored in a new table with a generated name. If a string, it will be used as the name for the new table. If `false` or omitted, the current table will be overwritten. Defaults to `false`.
+   * @returns A promise that resolves to the SimpleTable instance containing the linear regression results (either the modified current table or a new table).
+   * @category Analyzing Data
    *
-   * @category Analyzing data
+   * @example
+   * ```ts
+   * // Compute all linear regressions between all numeric columns, overwriting the current table
+   * await table.linearRegressions();
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute linear regressions with 'column1' as the independent variable and all other numeric columns as dependent variables
+   * await table.linearRegressions({ x: "column1" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute the linear regression of 'sales' (y) over 'advertising' (x)
+   * await table.linearRegressions({ x: "advertising", y: "sales" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute linear regressions within 'region' categories and store results in a new table
+   * const regressionTable = await table.linearRegressions({ categories: "region", outputTable: true });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute linear regressions, rounded to 3 decimal places
+   * await table.linearRegressions({ decimals: 3 });
+   * ```
    */
   async linearRegressions(
     options: {
@@ -3440,28 +3440,26 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Identifies outliers using the Interquartile Range (IQR) method.
-   *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Looks for outliers in column age. Creates a new column outliers with TRUE or FALSE values.
-   * await table.outliersIQR("age", "outliers")
-   * ```
-   *
-   * @example
-   * With categories
-   * ```ts
-   * // Looks for outliers in column age with values from column gender as categories. Creates a new column outliers with TRUE or FALSE values.
-   * await table.outliersIQR("age", "outliers", { categories: "gender" })
-   * ```
+   * Identifies outliers in a specified column using the Interquartile Range (IQR) method.
    *
    * @param column - The name of the column in which outliers will be identified.
-   * @param newColumn - The name of the new column where the bins will be stored.
+   * @param newColumn - The name of the new column where the boolean results (`TRUE` for outlier, `FALSE` otherwise) will be stored.
    * @param options - An optional object with configuration options:
-   *   @param options.categories - The column or columns that define categories for outliers.
+   * @param options.categories - The column name or an array of column names that define categories. Outlier detection will be performed independently within each category.
+   * @returns A promise that resolves when the outliers have been identified.
+   * @category Analyzing Data
    *
-   * @category Analyzing data
+   * @example
+   * ```ts
+   * // Look for outliers in the 'age' column and store results in a new 'isOutlier' column
+   * await table.outliersIQR("age", "isOutlier");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Look for outliers in 'salary' within 'gender' categories
+   * await table.outliersIQR("salary", "salaryOutlier", { categories: "gender" });
+   * ```
    */
   async outliersIQR(
     column: string,
@@ -3488,36 +3486,33 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Computes the Z-score.
+   * Computes the Z-score for values in a specified column.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Calculates the Z-score for the values in column age and puts the results in column sigma.
-   * await table.zScore("age", "sigma")
-   * ```
-   *
-   * @example
-   * With categories
-   * ```ts
-   * // Calculates the Z-score for the values in column age with the column gender as categories and puts the results in column sigma.
-   * await table.zScore("age", "sigma", { categories: "gender" })
-   * ```
-   *
-   * @example
-   * Rounding values
-   * ```ts
-   * // Calculates the Z-score for the values in column age with the column gender as categories and puts the results in column sigma. The score is rounded to two decimal places.
-   * await table.zScore("age", "sigma", { categories: "gender", decimals: 2 })
-   * ```
-   *
-   * @param column - The name of the column for which Z-Score will be calculated.
-   * @param newColumn - The name of the new column where the bins will be stored.
+   * @param column - The name of the column for which Z-scores will be calculated.
+   * @param newColumn - The name of the new column where the computed Z-scores will be stored.
    * @param options - An optional object with configuration options:
-   *   @param options.categories - The column or columns that define categories for zScores.
-   *   @param options.decimals - The number of decimal places to round the Z-score values.
+   * @param options.categories - The column name or an array of column names that define categories. Z-scores will be calculated independently within each category.
+   * @param options.decimals - The number of decimal places to round the Z-score values. Defaults to `undefined` (no rounding).
+   * @returns A promise that resolves when the Z-scores have been computed.
+   * @category Analyzing Data
    *
-   * @category Analyzing data
+   * @example
+   * ```ts
+   * // Calculate the Z-score for 'age' values and store results in a new 'ageZScore' column
+   * await table.zScore("age", "ageZScore");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Calculate Z-scores for 'salary' within 'department' categories
+   * await table.zScore("salary", "salaryZScore", { categories: "department" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Calculate Z-scores for 'score', rounded to 2 decimal places
+   * await table.zScore("score", "scoreZScore", { decimals: 2 });
+   * ```
    */
   async zScore(
     column: string,
@@ -3541,34 +3536,31 @@ export default class SimpleTable extends Simple {
   /**
    * Normalizes the values in a column using min-max normalization.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Normalizes the values in the column1.
-   * await table.normalize("column1")
-   * ```
-   *
-   * @example
-   * With categories
-   * ```ts
-   * // Normalizes the values in the column1 with values from column2 as categories.
-   * await table.normalize("column1", { categories: "column2" })
-   * ```
-   *
-   * @example
-   * Rounding values
-   * ```ts
-   * // Normalizes the values in the column1 with values from column2 as categories. The values are rounded to two decimal places.
-   * await table.normalize("column1", { categories: "column2", decimals: 2 })
-   * ```
-   *
    * @param column - The name of the column in which values will be normalized.
    * @param newColumn - The name of the new column where normalized values will be stored.
    * @param options - An optional object with configuration options:
-   *   @param options.categories - The column or columns that define categories for the normalization.
-   *   @param options.decimals - The number of decimal places to round the normalized values.
+   * @param options.categories - The column name or an array of column names that define categories for the normalization. Normalization will be performed independently within each category.
+   * @param options.decimals - The number of decimal places to round the normalized values. Defaults to `undefined` (no rounding).
+   * @returns A promise that resolves when the values have been normalized.
+   * @category Analyzing Data
    *
-   * @category Analyzing data
+   * @example
+   * ```ts
+   * // Normalize the values in 'column1' and store them in a new 'normalizedColumn1' column
+   * await table.normalize("column1", "normalizedColumn1");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Normalize 'value' within 'group' categories
+   * await table.normalize("value", "normalizedValue", { categories: "group" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Normalize 'data' values, rounded to 2 decimal places
+   * await table.normalize("data", "normalizedData", { decimals: 2 });
+   * ```
    */
   async normalize(
     column: string,
@@ -3590,24 +3582,37 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Updates data using a JavaScript function. The function takes the existing rows as an array of objects and must return them modified as an array of objects. This method provides a flexible way to update data, but it's slow. This won't work with tables containing geometries.
+   * Updates data in the table using a JavaScript function. The function receives the existing rows as an array of objects and must return the modified rows as an array of objects.
+   * This method offers high flexibility for data manipulation but can be slow for large tables as it involves transferring data between DuckDB and JavaScript.
+   * This method does not work with tables containing geometries.
+   *
+   * @param dataModifier - A synchronous or asynchronous function that takes the existing rows (as an array of objects) and returns the modified rows (as an array of objects).
+   * @returns A promise that resolves when the data has been updated.
+   * @category Updating Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Adds one to the values from column1. If the values are not numbers, they are replaced by null.
+   * // Add 1 to values in 'column1'. If values are not numbers, they are replaced by null.
    * await table.updateWithJS((rows) => {
-   *  const modifiedRows = rows.map(d => ({
-   *      ...d,
-   *      column1: typeof d.column1 === "number" ? d.column1 + 1 : null
-   *  }))
-   *  return modifiedRows
-   * })
+   *   const modifiedRows = rows.map(d => ({
+   *     ...d,
+   *     column1: typeof d.column1 === "number" ? d.column1 + 1 : null,
+   *   }));
+   *   return modifiedRows;
+   * });
    * ```
    *
-   * @param dataModifier - A function that takes the existing rows and returns modified rows using JavaScript logic. The original rows are objects in an array and the modified rows must be returned as an array of objects too.
-   *
-   * @category Updating data
+   * @example
+   * ```ts
+   * // Convert a date string to a Date object in 'dateColumn'
+   * await table.updateWithJS((rows) => {
+   *   const modifiedRows = rows.map(d => ({
+   *     ...d,
+   *     dateColumn: typeof d.dateColumn === "string" ? new Date(d.dateColumn) : d.dateColumn,
+   *   }));
+   *   return modifiedRows;
+   * });
+   * ```
    */
   async updateWithJS(
     dataModifier:
@@ -3644,12 +3649,16 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the schema (column names and their data types).
+   * Returns the schema of the table, including column names and their data types.
+   *
+   * @returns A promise that resolves to an array of objects, where each object represents a column with its name and data type.
+   * @category Getting Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * const schema = await table.getSchema()
+   * // Get the schema of the table
+   * const schema = await table.getSchema();
+   * console.table(schema); // Log the schema in a readable table format
    * ```
    */
   async getSchema(): Promise<
@@ -3673,12 +3682,16 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns descriptive information about the columns, including details like data types, number of null and distinct values. Best to look at with console.table.
+   * Returns descriptive statistical information about the columns, including details like data types, number of null values, and distinct values.
+   *
+   * @returns A promise that resolves to an array of objects, each representing descriptive statistics for a column.
+   * @category Getting Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * const description = await table.getDescription()
+   * // Get and log descriptive information about the table's columns
+   * const description = await table.getDescription();
+   * console.table(description);
    * ```
    */
   async getDescription(): Promise<
@@ -3690,10 +3703,16 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Return the list of column names.
+   * Returns a list of all column names in the table.
    *
+   * @returns A promise that resolves to an array of strings, where each string is a column name.
+   * @category Getting Data
+   *
+   * @example
    * ```ts
-   * const columns = await table.getColumns()
+   * // Get all column names from the table
+   * const columns = await table.getColumns();
+   * console.log(columns); // e.g., ["id", "name", "age"]
    * ```
    */
   async getColumns(): Promise<string[]> {
@@ -3701,12 +3720,16 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the number of columns.
+   * Returns the number of columns in the table.
+   *
+   * @returns A promise that resolves to a number representing the total count of columns.
+   * @category Getting Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * const nbColumns = await table.getNbColumns()
+   * // Get the number of columns in the table
+   * const nbColumns = await table.getNbColumns();
+   * console.log(nbColumns); // e.g., 3
    * ```
    */
   async getNbColumns(): Promise<number> {
@@ -3715,12 +3738,16 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the number of rows in a table.
+   * Returns the number of rows in the table.
+   *
+   * @returns A promise that resolves to a number representing the total count of rows.
+   * @category Getting Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * const nbRows = await table.getNbRows()
+   * // Get the number of rows in the table
+   * const nbRows = await table.getNbRows();
+   * console.log(nbRows); // e.g., 100
    * ```
    */
   async getNbRows(): Promise<number> {
@@ -3728,12 +3755,16 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the number of values (number of columns * number of rows) in a table.
+   * Returns the total number of values in the table (number of columns multiplied by the number of rows).
+   *
+   * @returns A promise that resolves to a number representing the total count of values.
+   * @category Getting Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * const nbValues = await table.getNbValues()
+   * // Get the total number of values in the table
+   * const nbValues = await table.getNbValues();
+   * console.log(nbValues); // e.g., 300 (if 3 columns and 100 rows)
    * ```
    */
   async getNbValues(): Promise<number> {
@@ -3742,12 +3773,16 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the data types of columns.
+   * Returns the data types of all columns in the table.
+   *
+   * @returns A promise that resolves to an object where keys are column names and values are their corresponding data types (e.g., `{ "id": "BIGINT", "name": "VARCHAR" }`).
+   * @category Getting Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * const dataTypes = await table.getTypes()
+   * // Get the data types of all columns
+   * const dataTypes = await table.getTypes();
+   * console.log(dataTypes);
    * ```
    */
   async getTypes(): Promise<{
@@ -3757,17 +3792,18 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the values of a specific column.
+   * Returns all values from a specific column.
+   *
+   * @param column - The name of the column from which to retrieve values.
+   * @returns A promise that resolves to an array containing all values from the specified column.
+   * @category Getting Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * const values = await table.getValues("column1")
+   * // Get all values from the 'productName' column
+   * const productNames = await table.getValues("productName");
+   * console.log(productNames); // e.g., ["Laptop", "Mouse", "Keyboard"]
    * ```
-   *
-   * @param column - The name of the column.
-   *
-   * @category Getting data
    */
   async getValues(
     column: string,
@@ -3778,15 +3814,16 @@ export default class SimpleTable extends Simple {
   /**
    * Returns the minimum value from a specific column.
    *
+   * @param column - The name of the column from which to retrieve the minimum value.
+   * @returns A promise that resolves to the minimum value of the specified column.
+   * @category Getting Data
+   *
    * @example
-   * Basic usage
    * ```ts
-   * const minimum = await table.getMin("column1")
+   * // Get the minimum value from the 'price' column
+   * const minPrice = await table.getMin("price");
+   * console.log(minPrice); // e.g., 10.50
    * ```
-   *
-   * @param column - The name of the column.
-   *
-   * @category Getting data
    */
   async getMin(
     column: string,
@@ -3797,13 +3834,16 @@ export default class SimpleTable extends Simple {
   /**
    * Returns the maximum value from a specific column.
    *
+   * @param column - The name of the column from which to retrieve the maximum value.
+   * @returns A promise that resolves to the maximum value of the specified column.
+   * @category Getting Data
+   *
+   * @example
    * ```ts
-   * const maximum = await table.getMax("column1")
+   * // Get the maximum value from the 'price' column
+   * const maxPrice = await table.getMax("price");
+   * console.log(maxPrice); // e.g., 99.99
    * ```
-   *
-   * @param column - The name of the column.
-   *
-   * @category Getting data
    */
   async getMax(
     column: string,
@@ -3812,15 +3852,18 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the extent from specific column as an array with [min, max] order.
+   * Returns the extent (minimum and maximum values) of a specific column as an array.
    *
+   * @param column - The name of the column from which to retrieve the extent.
+   * @returns A promise that resolves to an array `[min, max]` containing the minimum and maximum values of the specified column.
+   * @category Getting Data
+   *
+   * @example
    * ```ts
-   * const extent = await table.getExtent("column1")
+   * // Get the extent of the 'temperature' column
+   * const tempExtent = await table.getExtent("temperature");
+   * console.log(tempExtent); // e.g., [15.2, 30.1]
    * ```
-   *
-   * @param column - The name of the column.
-   *
-   * @category Getting data
    */
   async getExtent(
     column: string,
@@ -3834,26 +3877,27 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the mean value from a specific column.
+   * Returns the mean (average) value from a specific numeric column.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * const mean = await table.getMean("column1")
-   * ```
-   *
-   * @example
-   * Rounding result
-   * ```ts
-   * // Same thing but rounding to two decimal places.
-   * const mean = await table.getMean("column1", { decimals: 2 })
-   * ```
-   *
-   * @param column - The name of the column.
+   * @param column - The name of the numeric column from which to retrieve the mean value.
    * @param options - An optional object with configuration options:
-   *   @param options.decimals - The number of decimal places to round the result to.
+   * @param options.decimals - The number of decimal places to round the result to. Defaults to `undefined` (no rounding).
+   * @returns A promise that resolves to the mean value of the specified column.
+   * @category Getting Data
    *
-   * @category Getting data
+   * @example
+   * ```ts
+   * // Get the mean of the 'age' column
+   * const meanAge = await table.getMean("age");
+   * console.log(meanAge); // e.g., 35.75
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get the mean of the 'salary' column, rounded to 2 decimal places
+   * const meanSalary = await table.getMean("salary", { decimals: 2 });
+   * console.log(meanSalary); // e.g., 55000.23
+   * ```
    */
   async getMean(
     column: string,
@@ -3865,26 +3909,27 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the median value from a specific column.
+   * Returns the median value from a specific numeric column.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * const median = await table.getMedian("column1")
-   * ```
-   *
-   * @example
-   * Rounding results
-   * ```ts
-   * // Same thing but rounding to two decimal places.
-   * const median = await table.getMedian("column1", { decimals: 2})
-   * ```
-   *
-   * @param column - The name of the column.
+   * @param column - The name of the numeric column from which to retrieve the median value.
    * @param options - An optional object with configuration options:
-   *   @param options.decimals - The number of decimal places to round the result to.
+   * @param options.decimals - The number of decimal places to round the result to. Defaults to `undefined` (no rounding).
+   * @returns A promise that resolves to the median value of the specified column.
+   * @category Getting Data
    *
-   * @category Getting data
+   * @example
+   * ```ts
+   * // Get the median of the 'age' column
+   * const medianAge = await table.getMedian("age");
+   * console.log(medianAge); // e.g., 30
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get the median of the 'salary' column, rounded to 2 decimal places
+   * const medianSalary = await table.getMedian("salary", { decimals: 2 });
+   * console.log(medianSalary); // e.g., 50000.00
+   * ```
    */
   async getMedian(
     column: string,
@@ -3896,43 +3941,45 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the sum of values from a specific column.
+   * Returns the sum of values from a specific numeric column.
+   *
+   * @param column - The name of the numeric column from which to retrieve the sum.
+   * @returns A promise that resolves to the sum of values in the specified column.
+   * @category Getting Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * const sum = await table.getSum("column1")
+   * // Get the sum of the 'quantity' column
+   * const totalQuantity = await table.getSum("quantity");
+   * console.log(totalQuantity); // e.g., 1250
    * ```
-   *
-   * @param column - The name of the column.
-   *
-   * @category Getting data
    */
   async getSum(column: string): Promise<number> {
     return await getSum(this, column);
   }
 
   /**
-   * Returns the skewness of values from a specific column.
+   * Returns the skewness of values from a specific numeric column.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * const skew = await table.getSkew("column1")
-   * ```
-   *
-   * @example
-   * Rounding result
-   * ```ts
-   * // Same thing but rounding to two decimal places.
-   * const skew = await table.getSkew("column1", { decimals: 2})
-   * ```
-   *
-   * @param column - The name of the column.
+   * @param column - The name of the numeric column from which to retrieve the skewness.
    * @param options - An optional object with configuration options:
-   *   @param options.decimals - The number of decimal places to round the result to.
+   * @param options.decimals - The number of decimal places to round the result to. Defaults to `undefined` (no rounding).
+   * @returns A promise that resolves to the skewness value of the specified column.
+   * @category Getting Data
    *
-   * @category Getting data
+   * @example
+   * ```ts
+   * // Get the skewness of the 'data' column
+   * const dataSkew = await table.getSkew("data");
+   * console.log(dataSkew); // e.g., 0.5
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get the skewness of the 'values' column, rounded to 2 decimal places
+   * const valuesSkew = await table.getSkew("values", { decimals: 2 });
+   * console.log(valuesSkew); // e.g., -0.25
+   * ```
    */
   async getSkew(
     column: string,
@@ -3944,26 +3991,27 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the standard deviation of values from a specific column.
+   * Returns the standard deviation of values from a specific numeric column.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * const standardDeviation = await table.getStdDev("column1")
-   * ```
-   *
-   * @example
-   * Rounding result
-   * ```ts
-   * // Same thing but rounding to two decimal places.
-   * const standardDeviation = await table.getStdDev("column1", { decimals: 2 })
-   * ```
-   *
-   * @param column - The name of the column.
+   * @param column - The name of the numeric column from which to retrieve the standard deviation.
    * @param options - An optional object with configuration options:
-   *   @param options.decimals - The number of decimal places to round the result to.
+   * @param options.decimals - The number of decimal places to round the result to. Defaults to `undefined` (no rounding).
+   * @returns A promise that resolves to the standard deviation value of the specified column.
+   * @category Getting Data
    *
-   * @category Getting data
+   * @example
+   * ```ts
+   * // Get the standard deviation of the 'height' column
+   * const heightStdDev = await table.getStdDev("height");
+   * console.log(heightStdDev); // e.g., 5.2
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get the standard deviation of the 'score' column, rounded to 3 decimal places
+   * const scoreStdDev = await table.getStdDev("score", { decimals: 3 });
+   * console.log(scoreStdDev); // e.g., 12.345
+   * ```
    */
   async getStdDev(
     column: string,
@@ -3975,26 +4023,27 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the variance of values from a specific column.
+   * Returns the variance of values from a specific numeric column.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * const variance = await table.getVar("column1")
-   * ```
-   *
-   * @example
-   * Rounding result
-   * ```ts
-   * // Same thing but rounding to two decimal places
-   * const variance = await table.getVar("column1")
-   * ```
-   *
-   * @param column - The name of the column.
+   * @param column - The name of the numeric column from which to retrieve the variance.
    * @param options - An optional object with configuration options:
-   *   @param options.decimals - The number of decimal places to round the result to.
+   * @param options.decimals - The number of decimal places to round the result to. Defaults to `undefined` (no rounding).
+   * @returns A promise that resolves to the variance value of the specified column.
+   * @category Getting Data
    *
-   * @category Getting data
+   * @example
+   * ```ts
+   * // Get the variance of the 'data' column
+   * const dataVariance = await table.getVar("data");
+   * console.log(dataVariance); // e.g., 25.5
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get the variance of the 'values' column, rounded to 2 decimal places
+   * const valuesVariance = await table.getVar("values", { decimals: 2 });
+   * console.log(valuesVariance); // e.g., 10.23
+   * ```
    */
   async getVar(
     column: string,
@@ -4006,27 +4055,28 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the value of a specific quantile from the values in a given column.
+   * Returns the value of a specific quantile from the values in a given numeric column.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * const firstQuartile = await table.getQuantile("column1", 0.25)
-   * ```
-   *
-   * @example
-   * Rounding result
-   * ```ts
-   * // Same thing but rounding to two decimal places.
-   * const firstQuartile = await table.getQuantile("column1", 0.25, { decimals: 2 })
-   * ```
-   *
-   * @param column - The name of the column from which to calculate the quantile.
-   * @param quantile - The quantile (between 0 and 1) to calculate. For example, 0.25 for the first quartile.
+   * @param column - The name of the numeric column from which to calculate the quantile.
+   * @param quantile - The quantile to calculate, expressed as a number between 0 and 1 (e.g., `0.25` for the first quartile, `0.5` for the median, `0.75` for the third quartile).
    * @param options - An optional object with configuration options:
-   *   @param options.decimals - The number of decimal places to round the result to.
+   * @param options.decimals - The number of decimal places to round the result to. Defaults to `undefined` (no rounding).
+   * @returns A promise that resolves to the quantile value of the specified column.
+   * @category Getting Data
    *
-   * @category Getting data
+   * @example
+   * ```ts
+   * // Get the first quartile (25th percentile) of 'column1'
+   * const firstQuartile = await table.getQuantile("column1", 0.25);
+   * console.log(firstQuartile); // e.g., 15.7
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get the 90th percentile of 'score' values, rounded to 2 decimal places
+   * const ninetiethPercentile = await table.getQuantile("score", 0.9, { decimals: 2 });
+   * console.log(ninetiethPercentile); // e.g., 88.55
+   * ```
    */
   async getQuantile(
     column: string,
@@ -4037,17 +4087,18 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns unique values from a specific column. For convenience, it returns the value ascendingly.
-   *
-   * @example
-   * Basic usage
-   * ```ts
-   * const uniques = await table.getUniques("column1")
-   * ```
+   * Returns unique values from a specific column. The values are returned in ascending order.
    *
    * @param column - The name of the column from which to retrieve unique values.
+   * @returns A promise that resolves to an array containing the unique values from the specified column, sorted in ascending order.
+   * @category Getting Data
    *
-   * @category Getting data
+   * @example
+   * ```ts
+   * // Get unique values from the 'category' column
+   * const uniqueCategories = await table.getUniques("category");
+   * console.log(uniqueCategories); // e.g., ["Books", "Clothing", "Electronics"]
+   * ```
    */
   async getUniques(
     column: string,
@@ -4056,26 +4107,27 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the first row with optional filtering conditions written as an SQL expression.
-   *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Returns the first row
-   * const firstRow = await table.getFirstRow()
-   * ```
-   *
-   * @example
-   * With conditions
-   * ```ts
-   * // Returns the first row with category being 'Book'.
-   * const firstRowBooks = await table.getFirstRow({ conditions: `category = 'Book'` })
-   * ```
+   * Returns the first row of the table, optionally filtered by SQL conditions.
+   * You can also use JavaScript syntax for conditions (e.g., `&&`, `||`, `===`, `!==`).
    *
    * @param options - An optional object with configuration options:
-   *    @param options.conditions - The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
+   * @param options.conditions - The filtering conditions specified as a SQL `WHERE` clause (e.g., `"category = 'Book'"`).
+   * @returns A promise that resolves to an object representing the first row, or `null` if no rows match the conditions.
+   * @category Getting Data
    *
-   * @category Getting data
+   * @example
+   * ```ts
+   * // Get the very first row of the table
+   * const firstRow = await table.getFirstRow();
+   * console.log(firstRow);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get the first row where the 'category' is 'Book'
+   * const firstRowBooks = await table.getFirstRow({ conditions: `category === 'Book'` }); // Using JS syntax
+   * console.log(firstRowBooks);
+   * ```
    */
   async getFirstRow(
     options: {
@@ -4088,26 +4140,27 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the last row with optional filtering conditions written as an SQL expression.
-   *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Returns the last row.
-   * const lastRow = await table.getLastRow()
-   * ```
-   *
-   * @example
-   * With conditions
-   * ```
-   * // Returns the last row of all rows having a category 'Book'.
-   * const lastRowBooks = await table.getLastRow({ conditions: `category = 'Book'` })
-   * ```
+   * Returns the last row of the table, optionally filtered by SQL conditions.
+   * You can also use JavaScript syntax for conditions (e.g., `&&`, `||`, `===`, `!==`).
    *
    * @param options - An optional object with configuration options:
-   *   @param options.conditions - The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
+   * @param options.conditions - The filtering conditions specified as a SQL `WHERE` clause (e.g., `"category = 'Book'"`).
+   * @returns A promise that resolves to an object representing the last row, or `null` if no rows match the conditions.
+   * @category Getting Data
    *
-   * @category Getting data
+   * @example
+   * ```ts
+   * // Get the very last row of the table
+   * const lastRow = await table.getLastRow();
+   * console.log(lastRow);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get the last row where the 'category' is 'Book'
+   * const lastRowBooks = await table.getLastRow({ conditions: `category === 'Book'` }); // Using JS syntax
+   * console.log(lastRowBooks);
+   * ```
    */
   async getLastRow(
     options: {
@@ -4120,27 +4173,28 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the top n rows, optionally with conditions written as an SQL expression.
+   * Returns the top `n` rows of the table, optionally filtered by SQL conditions.
+   * You can also use JavaScript syntax for conditions (e.g., `&&`, `||`, `===`, `!==`).
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Returns the first 10 rows
-   * const top10 = await table.getTop(10)
-   * ```
-   *
-   * @example
-   * With conditions
-   * ```
-   * // Returns the first 10 rows with category being 'Books'.
-   * const top10Books = await table.getTop(10, { conditions: `category = 'Books'` })
-   * ```
-   *
-   * @param count - The number of rows to return.
+   * @param count - The number of rows to return from the top of the table.
    * @param options - An optional object with configuration options:
-   *   @param options.conditions - The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
+   * @param options.conditions - The filtering conditions specified as a SQL `WHERE` clause (e.g., `"category = 'Books'"`).
+   * @returns A promise that resolves to an array of objects representing the top `n` rows.
+   * @category Getting Data
    *
-   * @category Getting data
+   * @example
+   * ```ts
+   * // Get the first 10 rows of the table
+   * const top10 = await table.getTop(10);
+   * console.log(top10);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get the first 5 rows where the 'category' is 'Books'
+   * const top5Books = await table.getTop(5, { conditions: `category === 'Books'` }); // Using JS syntax
+   * console.log(top5Books);
+   * ```
    */
   async getTop(
     count: number,
@@ -4156,35 +4210,37 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the bottom n rows, optionally with a condition written as a SQL expression. The last row will be returned first. To keep the original order of the data, use the originalOrder option.
+   * Returns the bottom `n` rows of the table, optionally filtered by SQL conditions.
+   * By default, the last row will be returned first. To preserve the original order, use the `originalOrder` option.
+   * You can also use JavaScript syntax for conditions (e.g., `&&`, `||`, `===`, `!==`).
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Last row will be returned first.
-   * const bottom10 = await table.getBottom(10)
-   * ```
-   *
-   * @example
-   * With original order
-   * ```
-   * // Last row will be returned last.
-   * const bottom10 = await table.getBottom(10, { originalOrder: true })
-   * ```
-   *
-   * @example
-   * With conditions
-   * ```
-   * // Returns the last 10 rows with category being 'Books'.
-   * const bottom10Books = await table.getBottom(10, { conditions: `category = 'Books'` })
-   * ```
-   *
-   * @param count - The number of rows to return.
+   * @param count - The number of rows to return from the bottom of the table.
    * @param options - An optional object with configuration options:
-   *   @param options.originalOrder - A boolean indicating whether the rows should be returned in their original order. Default is false, meaning the last row will be returned first.
-   *   @param options.conditions - The filtering conditions specified as a SQL WHERE clause. Defaults to no condition.
+   * @param options.originalOrder - A boolean indicating whether the rows should be returned in their original order (`true`) or in reverse order (last row first, `false`). Defaults to `false`.
+   * @param options.conditions - The filtering conditions specified as a SQL `WHERE` clause (e.g., `"category = 'Books'"`).
+   * @returns A promise that resolves to an array of objects representing the bottom `n` rows.
+   * @category Getting Data
    *
-   * @category Getting data
+   * @example
+   * ```ts
+   * // Get the last 10 rows (last row first)
+   * const bottom10 = await table.getBottom(10);
+   * console.log(bottom10);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get the last 10 rows in their original order
+   * const bottom10OriginalOrder = await table.getBottom(10, { originalOrder: true });
+   * console.log(bottom10OriginalOrder);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get the last 5 rows where the 'category' is 'Books' (using JS syntax)
+   * const bottom5Books = await table.getBottom(5, { conditions: `category === 'Books'` });
+   * console.log(bottom5Books);
+   * ```
    */
   async getBottom(
     count: number,
@@ -4201,24 +4257,45 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns a row that matches the specified conditions. If no row matches the conditions, an error is thrown. If more than one row matches the conditions, an error is thrown as well.
+   * Returns a single row that matches the specified conditions. If no row matches or if more than one row matches, an error is thrown by default.
+   * You can also use JavaScript syntax for conditions (e.g., `AND`, `||`, `===`, `!==`).
+   *
+   * @param conditions - The conditions to match, specified as a SQL `WHERE` clause.
+   * @param options - Optional settings:
+   * @param options.noCheck - If `true`, no error will be thrown when no row or more than one row match the condition. Defaults to `false`.
+   * @returns A promise that resolves to an object representing the matched row.
+   * @throws {Error} If `noCheck` is `false` and no row or more than one row matches the conditions.
+   * @category Getting Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * const row = await table.getRow(`name = 'John'`)
+   * // Get a row where 'name' is 'John'
+   * const johnsRow = await table.getRow(`name = 'John'`);
+   * console.log(johnsRow);
    * ```
    *
-   * @param conditions - The conditions to match. This should be a SQL WHERE clause.
-   * @param options - Optional settings.
-   * @param options.noCheck - If set to true, no error will be thrown when no row or more than one row match the condition. Default is false.
+   * @example
+   * ```ts
+   * // Get a row where 'id' is 123 (using JS syntax)
+   * const rowById = await table.getRow(`id === 123`);
+   * console.log(rowById);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get a row without throwing an error if multiple matches or no match
+   * const flexibleRow = await table.getRow(`status = 'pending'`, { noCheck: true });
+   * console.log(flexibleRow);
+   * ```
    */
   async getRow(
     conditions: string,
     options: { noCheck?: boolean } = {},
-  ): Promise<{
-    [key: string]: string | number | boolean | Date | null;
-  }> {
+  ): Promise<
+    {
+      [key: string]: string | number | boolean | Date | null;
+    } | undefined
+  > {
     const data = await this.getData({ conditions });
     if (options.noCheck !== true) {
       if (data.length === 0) {
@@ -4234,25 +4311,27 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns the data with an optional condition.
-   *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Returns all data.
-   * const data = await table.getData()
-   * ```
-   * @example
-   * With condition
-   * ```ts
-   * // Returns just the rows with a category 'Book'. Conditions are SQL expressions.
-   * const books = await table.getData({ conditions: `category = 'Book'` })
-   * ```
+   * Returns the data from the table as an array of objects, optionally filtered by SQL conditions.
+   * You can also use JavaScript syntax for conditions (e.g., `&&`, `||`, `===`, `!==`).
    *
    * @param options - An optional object with configuration options:
-   *   @param options.conditions - A SQL WHERE clause conditions to filter the data. Defaults to no condition.
+   * @param options.conditions - The filtering conditions specified as a SQL `WHERE` clause (e.g., `"category = 'Book'"`).
+   * @returns A promise that resolves to an array of objects, where each object represents a row in the table.
+   * @category Getting Data
    *
-   * @category Getting data
+   * @example
+   * ```ts
+   * // Get all data from the table
+   * const allData = await table.getData();
+   * console.log(allData);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get data filtered by a condition (using JS syntax)
+   * const booksData = await table.getData({ conditions: `category === 'Book'` });
+   * console.log(booksData);
+   * ```
    */
   async getData(
     options: {
@@ -4282,19 +4361,19 @@ export default class SimpleTable extends Simple {
   // GEOSPATIAL
 
   /**
-   * Creates point geometries from longitude a latitude columns. The geometries will have [latitude, longitude] axis order.
+   * Creates point geometries from longitude and latitude columns. The geometries will have `[latitude, longitude]` axis order.
+   *
+   * @param columnLat - The name of the column storing the latitude values.
+   * @param columnLon - The name of the column storing the longitude values.
+   * @param newColumn - The name of the new column where the point geometries will be stored.
+   * @returns A promise that resolves when the point geometries have been created.
+   * @category Geospatial
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Uses the columns "lat" and "lon" to create point geometries in column "geom"
-   * await table.points("lat", "lon", "geom")
+   * // Create point geometries in a new 'geom' column using 'lat' and 'lon' columns
+   * await table.points("lat", "lon", "geom");
    * ```
-   * @param columnLat - The name of the column storing the latitude.
-   * @param columnLon - The name of the column storing the longitude.
-   * @param newColumn - The name of the new column storing the point geometries.
-   *
-   * @category Geospatial
    */
   async points(
     columnLat: string,
@@ -4315,28 +4394,26 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Adds a column with TRUE/FALSE values depending on the validity of geometries.
+   * Adds a column with boolean values indicating the validity of geometries.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Checks if the geometries are valid and returns a boolean in column valid.
-   * // By default, the method will look for the column storing the geometries.
-   * await table.isValidGeo("valid")
-   * ```
-   *
-   * @example
-   * Specific column storing geometries
-   * ```ts
-   * // If the table has more than one column storing geometries, you must specify which column should be used.
-   * await table.isValidGeo("valid", { column: "geom" })
-   * ```
-   *
-   * @param newColumn - The name of the new column storing the results.
+   * @param newColumn - The name of the new column where the boolean results (`TRUE` for valid, `FALSE` for invalid) will be stored.
    * @param options - An optional object with configuration options:
-   *   @param options.column - The column storing geometries.
-   *
+   * @param options.column - The name of the column storing the geometries to be checked. If omitted, the method will automatically attempt to find a geometry column.
+   * @returns A promise that resolves when the validity check is complete.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Check if geometries are valid and store results in a new 'isValid' column
+   * // The method will automatically detect the geometry column.
+   * await table.isValidGeo("isValid");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Check validity of geometries in a specific column named 'myGeom'
+   * await table.isValidGeo("isValidMyGeom", { column: "myGeom" });
+   * ```
    */
   async isValidGeo(
     newColumn: string,
@@ -4358,27 +4435,26 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Adds a column with the number of vertices in geometries.
+   * Adds a column with the number of vertices (points) in each geometry.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Adds a column nbVertices with the vertices count.
-   * await table.nbVertices("nbVertices")
-   * ```
-   *
-   * @example
-   * Specific column storing geometries
-   * ```ts
-   * // If the table has more than one column storing geometries, you must specify which column should be used.
-   * await table.nbVertices("nbVertices", { column: "geom" })
-   * ```
-   *
-   * @param newColumn - The name of the new column storing the results.
+   * @param newColumn - The name of the new column where the vertex counts will be stored.
    * @param options - An optional object with configuration options:
-   *   @param options.column - The column storing geometries.
-   *
+   * @param options.column - The name of the column storing the geometries. If omitted, the method will automatically attempt to find a geometry column.
+   * @returns A promise that resolves when the vertex counts have been added.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Add a new column 'vertexCount' with the number of vertices for each geometry
+   * // The method will automatically detect the geometry column.
+   * await table.nbVertices("vertexCount");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Add vertex counts for geometries in a specific column named 'myGeom'
+   * await table.nbVertices("myGeomVertices", { column: "myGeom" });
+   * ```
    */
   async nbVertices(
     newColumn: string,
@@ -4400,25 +4476,23 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Attempts to make an invalid geometry valid without removing any vertices.
+   * Attempts to make invalid geometries valid without removing any vertices.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // By default, the method will look for the column storing the geometries.
-   * await table.fixGeo()
-   * ```
-   *
-   * @example
-   * Specific column storing geometries
-   * ```ts
-   * // If the table has more than one column storing geometries, you must specify which column should be used.
-   * await table.fixGeo("geom")
-   * ```
-   *
-   * @param column - The name of the column storing the geometries.
-   *
+   * @param column - The name of the column storing the geometries to be fixed. If omitted, the method will automatically attempt to find a geometry column.
+   * @returns A promise that resolves when the geometries have been processed.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Fix invalid geometries in the default geometry column
+   * await table.fixGeo();
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Fix invalid geometries in a specific column named 'myGeom'
+   * await table.fixGeo("myGeom");
+   * ```
    */
   async fixGeo(column?: string): Promise<void> {
     const col = column ?? (await findGeoColumn(this));
@@ -4434,28 +4508,25 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Adds a column with TRUE if the geometry is closed and FALSE if it's open.
+   * Adds a column with boolean values indicating whether geometries are closed (e.g., polygons) or open (e.g., linestrings).
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Checks if the geometries are closed and returns a boolean in column closed.
-   * // By default, the method will look for the column storing the geometries.
-   * await table.isClosedGeo("closed")
-   * ```
-   *
-   * @example
-   * Specific column storing geometries
-   * ```ts
-   * // If the table has more than one column storing geometries, you must specify which column should be used.
-   * await table.isClosedGeo("closed", { column: "geom" })
-   * ```
-   *
-   * @param newColumn - The name of the new column storing the results.
+   * @param newColumn - The name of the new column where the boolean results (`TRUE` for closed, `FALSE` for open) will be stored.
    * @param options - An optional object with configuration options:
-   *   @param options.column - The column storing geometries.
-   *
+   * @param options.column - The name of the column storing the geometries. If omitted, the method will automatically attempt to find a geometry column.
+   * @returns A promise that resolves when the closed geometry check is complete.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Check if geometries are closed and store results in a new 'isClosed' column
+   * await table.isClosedGeo("isClosed");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Check closed status of geometries in a specific column named 'boundaryGeom'
+   * await table.isClosedGeo("boundaryClosed", { column: "boundaryGeom" });
+   * ```
    */
   async isClosedGeo(
     newColumn: string,
@@ -4477,28 +4548,25 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Adds a column with the geometry type.
+   * Adds a column with the geometry type (e.g., `"POINT"`, `"LINESTRING"`, `"POLYGON"`) for each geometry.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Returns the geometry type in column type.
-   * // By default, the method will look for the column storing the geometries.
-   * await table.typeGeo("type")
-   * ```
-   *
-   * @example
-   * Specific column storing geometries
-   * ```ts
-   * // If the table has more than one column storing geometries, you must specify which column should be used.
-   * await table.typeGeo("type", { column: "geom" })
-   * ```
-   *
-   * @param newColumn - The name of the new column storing the results.
+   * @param newColumn - The name of the new column where the geometry types will be stored.
    * @param options - An optional object with configuration options:
-   *   @param options.column - The column storing geometries.
-   *
+   * @param options.column - The name of the column storing the geometries. If omitted, the method will automatically attempt to find a geometry column.
+   * @returns A promise that resolves when the geometry types have been added.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Add a new column 'geometryType' with the type of each geometry
+   * await table.typeGeo("geometryType");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get the geometry type for geometries in a specific column named 'featureGeom'
+   * await table.typeGeo("featureType", { column: "featureGeom" });
+   * ```
    */
   async typeGeo(
     newColumn: string,
@@ -4519,18 +4587,24 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Flips the coordinates of geometries. To use as a last resort. This messes up with the projections stored in `table.projection`.
+   * Flips the coordinate order of geometries in a specified column (e.g., from `[lon, lat]` to `[lat, lon]` or vice-versa).
+   * **Warning:** This method should be used with caution as it directly manipulates coordinate order and can affect the accuracy of geospatial operations if not used correctly. It also messes up with the projections stored in `table.projections`.
+   *
+   * @param column - The name of the column storing the geometries. If omitted, the method will automatically attempt to find a geometry column.
+   * @returns A promise that resolves when the coordinates have been flipped.
+   * @category Geospatial
    *
    * @example
-   * Basic usage
    * ```ts
-   * // By default, the method will look for the column storing the geometries.
-   * await table.flipCoordinates()
+   * // Flip coordinates in the default geometry column
+   * await table.flipCoordinates();
    * ```
    *
-   * @param column - The name of the column storing the geometries.
-   *
-   * @category Geospatial
+   * @example
+   * ```ts
+   * // Flip coordinates in a specific column named 'myGeom'
+   * await table.flipCoordinates("myGeom");
+   * ```
    */
   async flipCoordinates(column?: string): Promise<void> {
     const col = column ?? (await findGeoColumn(this));
@@ -4547,28 +4621,25 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Reduce the precision of geometries.
+   * Reduces the precision of geometries in a specified column to a given number of decimal places.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Reduce the precision to 3 decimals.
-   * // By default, the method will look for the column storing the geometries.
-   * await table.reducePrecision(3)
-   * ```
-   *
-   * @example
-   * Specific column storing geometries
-   * ```ts
-   * // If the table has more than one column storing geometries, you must specify which column should be used.
-   * await table.reducePrecision(3, { column : "geom" })
-   * ```
-   *
-   * @param decimals - The number of decimal places to keep in the coordinates.
+   * @param decimals - The number of decimal places to keep in the coordinates of the geometries.
    * @param options - An optional object with configuration options:
-   *   @param options.column - The column storing geometries.
-   *
+   * @param options.column - The name of the column storing the geometries. If omitted, the method will automatically attempt to find a geometry column.
+   * @returns A promise that resolves when the precision of the geometries has been reduced.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Reduce the precision of geometries in the default column to 3 decimal places
+   * await table.reducePrecision(3);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Reduce the precision of geometries in a specific column named 'myGeom' to 2 decimal places
+   * await table.reducePrecision(2, { column: "myGeom" });
+   * ```
    */
   async reducePrecision(
     decimals: number,
@@ -4592,36 +4663,33 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Reprojects the data to another Spatial Reference System (SRS). If you reproject to WGS84 or EPSG:4326, the result will have [latitude, longitude] axis order.
+   * Reprojects the geometries in a specified column to another Spatial Reference System (SRS).
+   * If reprojecting to WGS84 (`"WGS84"` or `"EPSG:4326"`), the resulting geometries will have `[latitude, longitude]` axis order.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // To EPSG:3347 (also called NAD83/Statistics Canada Lambert with coordinates in meters)
-   * // By default, the method tries to find out the original projection and the column storing geometries.
-   * await table.reproject("EPSG:3347")
-   * ```
-   *
-   * @example
-   * Specifying the original projection
-   * ```ts
-   * // If the method can't find out the original projection, you must provide one.
-   * await table.reproject("EPSG:3347", { from: "EPSG:4326" })
-   * ```
-   *
-   * @example
-   * Specifying the geometries column
-   * ```ts
-   * // If the table has more than one column storing geometries, you must specify which column should be used.
-   * await table.reproject("EPSG:3347", { column: "geom", from: "EPSG:4326" })
-   * ```
-   *
-   * @param to - The target SRS.
+   * @param to - The target SRS (e.g., `"EPSG:3347"`, `"WGS84"`).
    * @param options - An optional object with configuration options:
-   *   @param options.from - By default, the method tries to find out the original projection. If the method is not able to, you must provide one with this option.
-   *   @param options.column - The column storing geometries.
-   *
+   * @param options.from - The original projection of the geometries. If omitted, the method attempts to automatically detect it. Provide this option if auto-detection fails.
+   * @param options.column - The name of the column storing the geometries. If omitted, the method will automatically attempt to find a geometry column.
+   * @returns A promise that resolves when the geometries have been reprojected.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Reproject geometries in the default column to EPSG:3347 (NAD83/Statistics Canada Lambert)
+   * await table.reproject("EPSG:3347");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Reproject geometries from EPSG:4326 to EPSG:3347, specifying the original projection
+   * await table.reproject("EPSG:3347", { from: "EPSG:4326" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Reproject geometries in a specific column named 'myGeom' to EPSG:3347
+   * await table.reproject("EPSG:3347", { column: "myGeom", from: "EPSG:4326" });
+   * ```
    */
   async reproject(
     to: string,
@@ -4661,36 +4729,33 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Computes the area of geometries in square meters or optionally square kilometers. The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with [latitude, longitude] axis order.
+   * Computes the area of geometries in square meters (`"m2"`) or optionally square kilometers (`"km2"`).
+   * The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with `[latitude, longitude]` axis order.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Computes the area of the geometries and returns the results in the column area.
-   * // By default, the method will look for the column storing the geometries.
-   * await table.area("area")
-   * ```
-   *
-   * @example
-   * With a different unit
-   * ```ts
-   * // Same things but in square kilometers.
-   * await table.area("area", { unit: "km2" })
-   * ```
-   *
-   * @example
-   * Specific column storing geometries
-   * ```ts
-   * // If the table has more than one column storing geometries, you must specify which column should be used.
-   * await table.area("area", { column: "geom", unit: "km2" })
-   * ```
-   *
-   * @param newColumn - The name of the new column storing the computed areas.
+   * @param newColumn - The name of the new column where the computed areas will be stored.
    * @param options - An optional object with configuration options:
-   *   @param options.unit - The area can be returned as square meters or square kilometers.
-   *   @param options.column - The column storing geometries.
-   *
+   * @param options.unit - The unit for the computed area: `"m2"` (square meters) or `"km2"` (square kilometers). Defaults to `"m2"`.
+   * @param options.column - The name of the column storing the geometries. If omitted, the method will automatically attempt to find a geometry column.
+   * @returns A promise that resolves when the areas have been computed.
    * @category Geospatial
+   *
+   * @example
+   * ```ts
+   * // Compute the area of geometries in square meters and store in 'area_m2'
+   * await table.area("area_m2");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute the area of geometries in square kilometers and store in 'area_km2'
+   * await table.area("area_km2", { unit: "km2" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Compute the area of geometries in a specific column named 'myGeom'
+   * await table.area("myGeomArea", { column: "myGeom" });
+   * ```
    */
   async area(
     newColumn: string,
