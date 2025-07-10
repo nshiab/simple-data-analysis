@@ -1229,41 +1229,38 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Sorts the rows based on specified column(s) and order(s). If no columns are specified, all columns are sorted from left to right by ascending order.
+   * Sorts the rows of the table based on specified column(s) and order(s).
+   * If no columns are specified, all columns are sorted from left to right in ascending order.
    *
-   * @example
-   * Sorting all columns
-   * ```ts
-   * // All columns sorted from left to right by ascending order.
-   * await table.sort()
-   * ```
-   *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Sorts column1 ascendingly.
-   * await table.sort({ column1: "asc" })
-   * ```
-   *
-   * @example
-   * Sorting multiple columns
-   * ```ts
-   * // Sorts column1 ascendingly then column2 descendingly.
-   * await table.sort({ column1: "asc", column2: "desc" })
-   * ```
-   *
-   * @example
-   * Languages and special characters
-   * ```ts
-   * // Taking French accent into account in column1
-   * await table.sort({ column1: "asc", column2: "desc" }, { lang: { column1: "fr" }})
-   * ```
-   *
-   * @param order - An object mapping column names to the sorting order: "asc" for ascending or "desc" for descending.
+   * @param order - An object mapping column names to their sorting order: `"asc"` for ascending or `"desc"` for descending. If `null`, all columns are sorted ascendingly.
    * @param options - An optional object with configuration options:
-   *    @param options.lang - An object mapping column names to language codes. See DuckDB Collations documentation for more: https://duckdb.org/docs/sql/expressions/collations.
+   * @param options.lang - An object mapping column names to language codes for collation (e.g., `{ column1: "fr" }`). See DuckDB Collations documentation for more details: https://duckdb.org/docs/sql/expressions/collations.
+   * @returns A promise that resolves when the table has been sorted.
+   * @category Restructuring Data
    *
-   * @category Restructuring data
+   * @example
+   * ```ts
+   * // Sort all columns from left to right in ascending order
+   * await table.sort();
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Sort 'column1' in ascending order
+   * await table.sort({ column1: "asc" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Sort 'column1' ascendingly, then 'column2' descendingly
+   * await table.sort({ column1: "asc", column2: "desc" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Sort 'column1' considering French accents
+   * await table.sort({ column1: "asc" }, { lang: { column1: "fr" } });
+   * ```
    */
   async sort(
     order: { [key: string]: "asc" | "desc" } | null = null,
@@ -1283,17 +1280,23 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Selects specific columns in the table and removes the others.
+   * Selects specific columns in the table, removing all others.
+   *
+   * @param columns - The name or an array of names of the columns to be selected.
+   * @returns A promise that resolves when the columns have been selected.
+   * @category Selecting or Filtering Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Selecting only the columns firstName and lastName. All other columns in the table will be removed.
-   * await table.selectColumns([ "firstName", "lastName" ])
+   * // Select only the 'firstName' and 'lastName' columns, removing all other columns.
+   * await table.selectColumns(["firstName", "lastName"]);
    * ```
-   * @param columns - Either a string (one column) or an array of strings (multiple columns) representing the columns to be selected.
    *
-   * @category Selecting or filtering data
+   * @example
+   * ```ts
+   * // Select only the 'productName' column.
+   * await table.selectColumns("productName");
+   * ```
    */
   async selectColumns(columns: string | string[]): Promise<void> {
     await queryDB(
@@ -1314,17 +1317,17 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Skips the first X rows.
+   * Skips the first `n` rows of the table, effectively removing them.
+   *
+   * @param nbRowsToSkip - The number of rows to skip from the beginning of the table.
+   * @returns A promise that resolves when the rows have been skipped.
+   * @category Selecting or Filtering Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Skips the first 10 rows.
-   * await table.skip(10)
+   * // Skip the first 10 rows of the table
+   * await table.skip(10);
    * ```
-   * @param nbRowsToSkip - The number of rows to skip.
-   *
-   * @category Selecting or filtering data
    */
   async skip(nbRowsToSkip: number): Promise<void> {
     await queryDB(
@@ -1339,12 +1342,17 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Returns TRUE if the table has the column and FALSE otherwise.
+   * Checks if a column with the specified name exists in the table.
+   *
+   * @param column - The name of the column to check.
+   * @returns A promise that resolves to `true` if the column exists, `false` otherwise.
+   * @category Column Operations
    *
    * @example
-   * Basic usage
    * ```ts
-   * const bool = await table.hasColum("name")
+   * // Check if the table has a column named "age"
+   * const hasAgeColumn = await table.hasColumn("age");
+   * console.log(hasAgeColumn); // Output: true or false
    * ```
    */
   async hasColumn(column: string): Promise<boolean> {
@@ -1353,34 +1361,31 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Selects random rows from the table and removes the others. You can optionally specify a seed to ensure the same random rows are selected each time.
+   * Selects random rows from the table, removing all others. You can optionally specify a seed to ensure repeatable sampling.
    *
-   * @example
-   * Selecting a specific number
-   * ```ts
-   * // Selects 100 random rows
-   * await table.sample(100)
-   * ```
-   *
-   * @example
-   * Selecting a percentage
-   * ```ts
-   * // Selects 10% of the rows randomly
-   * await table.sample("10%")
-   * ```
-   *
-   * @example
-   * With a seed
-   * ```ts
-   * // Selects always the same random rows
-   * await table.sample("10%", { seed: 1 })
-   * ```
-   *
-   * @param quantity - The number of rows (1000 for example) or a string ("10%" for example) specifying the sampling size.
+   * @param quantity - The number of rows to select (e.g., `100`) or a percentage string (e.g., `"10%"`) specifying the sampling size.
    * @param options - An optional object with configuration options:
-   *   @param options.seed - A number specifying the seed for repeatable sampling. For example, setting it to 1 will ensure random rows will be the same each time you run the method.
+   * @param options.seed - A number specifying the seed for repeatable sampling. Using the same seed will always yield the same random rows. Defaults to a random seed.
+   * @returns A promise that resolves when the sampling is complete.
+   * @category Selecting or Filtering Data
    *
-   * @category Selecting or filtering data
+   * @example
+   * ```ts
+   * // Select 100 random rows from the table
+   * await table.sample(100);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Select 10% of the rows randomly
+   * await table.sample("10%");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Select random rows with a specific seed for repeatable results
+   * await table.sample("10%", { seed: 123 });
+   * ```
    */
   async sample(
     quantity: number | string,
@@ -1404,42 +1409,38 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Selects n rows from this table. An offset and outputTable options are available.
+   * Selects a specified number of rows from this table. An offset can be applied to skip initial rows, and the results can be output to a new table.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Selects the first 100 rows.
-   * await table.selectRows(100)
-   * ```
-   *
-   * @example
-   * Skipping rows
-   * ```ts
-   * // Selects 100 rows after skipping the first 100 rows.
-   * await table.selectRows(100, { offset: 100 })
-   * ```
-   *
-   * @example
-   * Into a new table
-   * ```ts
-   * // Selects 100 rows and stores them in a new table.
-   * const tableB = await tableA.selectRows(100, { outputTable: true })
-   * ```
-   *
-   * @example
-   * Into a new table with a specific name in the DB
-   * ```ts
-   * // Selects 100 rows and stores them in a new table.
-   * const tableB = await tableA.selectRows(100, { outputTable: "tableB" })
-   * ```
-   *
-   * @param count - The number of rows.
+   * @param count - The number of rows to select.
    * @param options - An optional object with configuration options:
-   *   @param options.offset - The number of rows to skip before selecting. Defaults to 0.
-   *   @param options.outputTable - To return a new table.
+   * @param options.offset - The number of rows to skip from the beginning of the table before selecting. Defaults to `0`.
+   * @param options.outputTable - If `true`, the selected rows will be stored in a new table with a generated name. If a string, it will be used as the name for the new table. If `false` or omitted, the current table will be modified. Defaults to `false`.
+   * @returns A promise that resolves to the SimpleTable instance containing the selected rows (either the modified current table or a new table).
+   * @category Selecting or Filtering Data
    *
-   * @category Selecting or filtering data
+   * @example
+   * ```ts
+   * // Select the first 100 rows of the current table
+   * await table.selectRows(100);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Select 100 rows after skipping the first 50 rows
+   * await table.selectRows(100, { offset: 50 });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Select 50 rows and store them in a new table with a generated name
+   * const newTable = await table.selectRows(50, { outputTable: true });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Select 75 rows and store them in a new table named "top_customers"
+   * const topCustomersTable = await table.selectRows(75, { outputTable: "top_customers" });
+   * ```
    */
   async selectRows(
     count: number | string,
@@ -1469,18 +1470,31 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Removes duplicate rows from this table, keeping unique rows. Note that SQL does not guarantee any specific order when using DISTINCT. So the data might be returned in a different order than the original.
-   *
-   * @example
-   * Basic usage
-   * ```ts
-   * await table.removeDuplicates("tableA")
-   * ```
+   * Removes duplicate rows from this table, keeping only unique rows.
+   * Note that the resulting data order might differ from the original.
    *
    * @param options - An optional object with configuration options:
-   *   @param options.on - A column or multiple columns to consider to remove duplicates. The other columns in the table will not be considered to exclude duplicates.
+   * @param options.on - A column name or an array of column names to consider when identifying duplicates. If specified, duplicates are determined based only on the values in these columns. If omitted, all columns are considered.
+   * @returns A promise that resolves when the duplicate rows have been removed.
+   * @category Selecting or Filtering Data
    *
-   * @category Selecting or filtering data
+   * @example
+   * ```ts
+   * // Remove duplicate rows based on all columns
+   * await table.removeDuplicates();
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Remove duplicate rows based only on the 'email' column
+   * await table.removeDuplicates({ on: "email" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Remove duplicate rows based on 'firstName' and 'lastName' columns
+   * await table.removeDuplicates({ on: ["firstName", "lastName"] });
+   * ```
    */
   async removeDuplicates(
     options: {
@@ -1499,28 +1513,39 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Removes rows with missing values from this table. By default, missing values are NULL (as an SQL value), but also "NULL", "null", "NaN" and "undefined" that might have been converted to strings before being loaded into the table. Empty strings "" are also considered missing values.
-   *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Removes rows with missing values in any columns.
-   * await table.removeMissing()
-   * ```
-   *
-   * @example
-   * Specific columns
-   * ```ts
-   * // Removes rows with missing values in specific columns.
-   * await table.removeMissing({ columns: ["firstName", "lastName"] })
-   * ```
+   * Removes rows with missing values from this table.
+   * By default, missing values include SQL `NULL`, as well as string representations like `"NULL"`, `"null"`, `"NaN"`, `"undefined"`, and empty strings `""`.
    *
    * @param options - An optional object with configuration options:
-   *   @param options.columns - Either a string or an array of strings specifying the columns to consider for missing values. By default, all columns are considered.
-   *   @param options.missingValues - An array of values to be treated as missing values. Defaults to ["undefined", "NaN", "null", "NULL", ""].
-   *   @param options.invert - A boolean indicating whether to invert the condition, keeping only rows with missing values. Defaults to false.
+   * @param options.columns - A string or an array of strings specifying the columns to consider for missing values. If omitted, all columns are considered.
+   * @param options.missingValues - An array of values to be treated as missing values instead of the default ones. Defaults to `["undefined", "NaN", "null", "NULL", ""]`.
+   * @param options.invert - A boolean indicating whether to invert the condition. If `true`, only rows containing missing values will be kept. Defaults to `false`.
+   * @returns A promise that resolves when the rows with missing values have been removed.
+   * @category Selecting or Filtering Data
    *
-   * @category Selecting or filtering data
+   * @example
+   * ```ts
+   * // Remove rows with missing values in any column
+   * await table.removeMissing();
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Remove rows with missing values only in 'firstName' or 'lastName' columns
+   * await table.removeMissing({ columns: ["firstName", "lastName"] });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Keep only rows with missing values in any column
+   * await table.removeMissing({ invert: true });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Remove rows where 'age' is missing or is equal to -1
+   * await table.removeMissing({ columns: "age", missingValues: [-1] });
+   * ```
    */
   async removeMissing(
     options: {
@@ -1533,28 +1558,32 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Trims specified characters from the beginning, end, or both sides of string values.
+   * Trims specified characters from the beginning, end, or both sides of string values in the given columns.
    *
-   * @example
-   * Basic usage in one column
-   * ```ts
-   * // Trims values in column1
-   * await table.trim("column1")
-   * ```
-   *
-   * @example
-   * Multiple column
-   * ```ts
-   * // Trims values in column2, columns3, and column4
-   * await table.trim(["column2", "column3", "column4"])
-   * ```
-   *
-   * @param columns - The column or columns to trim.
+   * @param columns - The column name or an array of column names to trim.
    * @param options - An optional object with configuration options:
-   *   @param options.character - The string to trim. Defaults to whitespace.
-   *   @param options.method - The trimming method.
+   * @param options.character - The string to trim. Defaults to whitespace characters.
+   * @param options.method - The trimming method to apply: `"leftTrim"` (removes from the beginning), `"rightTrim"` (removes from the end), or `"trim"` (removes from both sides). Defaults to `"trim"`.
+   * @returns A promise that resolves when the trimming operation is complete.
+   * @category Updating Data
    *
-   * @category Updating data
+   * @example
+   * ```ts
+   * // Trim whitespace from 'column1'
+   * await table.trim("column1");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Trim leading and trailing asterisks from 'productCode'
+   * await table.trim("productCode", { character: "*" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Right-trim whitespace from 'description' and 'notes' columns
+   * await table.trim(["description", "notes"], { method: "rightTrim" });
+   * ```
    */
   async trim(
     columns: string | string[],
@@ -1576,26 +1605,36 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Filters rows from this table based on SQL conditions. Note that it's often faster to use the removeRows method.
+   * Filters rows from this table based on SQL conditions. Note that it's often faster to use the `removeRows` method for simple removals.
+   * You can also use JavaScript syntax for conditions (e.g., `&&`, `||`, `===`, `!==`).
+   *
+   * @param conditions - The filtering conditions specified as a SQL `WHERE` clause (e.g., `"column1 > 10 AND column2 = 'value'"`).
+   * @returns A promise that resolves when the rows have been filtered.
+   * @category Selecting or Filtering Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Keeps only rows where the fruit is not an apple.
-   * await table.filter(`fruit != 'apple'`)
+   * // Keep only rows where the 'fruit' column is not 'apple'
+   * await table.filter(`fruit != 'apple'`);
    * ```
    *
    * @example
-   * More examples
-   * ```
-   * await table.filter(`price > 100 AND quantity > 0`)
-   * await table.filter(`category = 'Electronics' OR category = 'Appliances'`)
-   * await table.filter(`lastPurchaseDate >= '2023-01-01'`)
+   * ```ts
+   * // Keep rows where 'price' is greater than 100 AND 'quantity' is greater than 0
+   * await table.filter(`price > 100 && quantity > 0`); // Using JS syntax
    * ```
    *
-   * @param conditions - The filtering conditions specified as a SQL WHERE clause.
+   * @example
+   * ```ts
+   * // Keep rows where 'category' is 'Electronics' OR 'Appliances'
+   * await table.filter(`category === 'Electronics' || category === 'Appliances'`); // Using JS syntax
+   * ```
    *
-   * @category Selecting or filtering data
+   * @example
+   * ```ts
+   * // Keep rows where 'lastPurchaseDate' is on or after '2023-01-01'
+   * await table.filter(`lastPurchaseDate >= '2023-01-01'`);
+   * ```
    */
   async filter(conditions: string): Promise<void> {
     await queryDB(
@@ -1612,18 +1651,23 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Keeps rows with specific values in specific columns.
+   * Keeps rows in this table that have specific values in specified columns, removing all other rows.
+   *
+   * @param columnsAndValues - An object where keys are column names and values are the specific values (or an array of values) to keep in those columns.
+   * @returns A promise that resolves when the rows have been filtered.
+   * @category Selecting or Filtering Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Keeps only rows where the job is 'accountant' or 'developer' and where the city is 'Montreal'.
-   * await table.keep({ job: ["accountant", "developer"], city: "Montreal" })
+   * // Keep only rows where 'job' is 'accountant' or 'developer', AND 'city' is 'Montreal'
+   * await table.keep({ job: ["accountant", "developer"], city: "Montreal" });
    * ```
    *
-   * @param columnsAndValues - An object with the columns and the values to be kept.
-   *
-   * @category Selecting or filtering data
+   * @example
+   * ```ts
+   * // Keep only rows where 'status' is 'active'
+   * await table.keep({ status: "active" });
+   * ```
    */
   async keep(
     columnsAndValues: {
@@ -1644,18 +1688,23 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Remove rows with specific values in specific columns.
+   * Removes rows from this table that have specific values in specified columns.
+   *
+   * @param columnsAndValues - An object where keys are column names and values are the specific values (or an array of values) to remove from those columns.
+   * @returns A promise that resolves when the rows have been removed.
+   * @category Selecting or Filtering Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Remove rows where the job is 'accountant' or 'developer' and where the city is 'Montreal'.
-   * await table.remove({ job: ["accountant", "developer"], city: "Montreal" })
+   * // Remove rows where 'job' is 'accountant' or 'developer', AND 'city' is 'Montreal'
+   * await table.remove({ job: ["accountant", "developer"], city: "Montreal" });
    * ```
    *
-   * @param columnsAndValues - An object with the columns and the values to be removed
-   *
-   * @category Selecting or filtering data
+   * @example
+   * ```ts
+   * // Remove rows where 'status' is 'inactive'
+   * await table.remove({ status: "inactive" });
+   * ```
    */
   async remove(
     columnsAndValues: {
@@ -1676,18 +1725,36 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Removes rows from this table based on SQL conditions.
+   * Removes rows from this table based on SQL conditions. This method is similar to `filter()`, but removes rows instead of keeping them.
+   * You can also use JavaScript syntax for conditions (e.g., `&&`, `||`, `===`, `!==`).
+   *
+   * @param conditions - The filtering conditions specified as a SQL `WHERE` clause (e.g., `"fruit = 'apple'"`).
+   * @returns A promise that resolves when the rows have been removed.
+   * @category Selecting or Filtering Data
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Removes rows where the fruit is an apple.
-   * await table.removeRows(`fruit = 'apple'`)
+   * // Remove rows where the 'fruit' column is 'apple'
+   * await table.removeRows(`fruit = 'apple'`);
    * ```
    *
-   * @param conditions - The filtering conditions specified as a SQL WHERE clause.
+   * @example
+   * ```ts
+   * // Remove rows where 'quantity' is less than 5
+   * await table.removeRows(`quantity < 5`);
+   * ```
    *
-   * @category Selecting or filtering data
+   * @example
+   * ```ts
+   * // Remove rows where 'price' is less than 100 AND 'quantity' is 0
+   * await table.removeRows(`price < 100 && quantity === 0`); // Using JS syntax
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Remove rows where 'category' is 'Electronics' OR 'Appliances'
+   * await table.removeRows(`category === 'Electronics' || category === 'Appliances'`); // Using JS syntax
+   * ```
    */
   async removeRows(conditions: string): Promise<void> {
     await queryDB(
@@ -1702,18 +1769,23 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Renames columns in the table.
+   * Renames one or more columns in the table.
+   *
+   * @param names - An object mapping old column names to their new column names (e.g., `{ "oldName": "newName", "anotherOld": "anotherNew" }`).
+   * @returns A promise that resolves when the columns have been renamed.
+   * @category Column Operations
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Renaming "How old?" to "age" and "Man or woman?" to "sex".
-   * await table.renameColumns({ "How old?" : "age", "Man or woman?": "sex" })
+   * // Rename "How old?" to "age" and "Man or woman?" to "sex"
+   * await table.renameColumns({ "How old?": "age", "Man or woman?": "sex" });
    * ```
    *
-   * @param names - An object mapping old column names to new column names.
-   *
-   * @category Restructuring data
+   * @example
+   * ```ts
+   * // Rename a single column
+   * await table.renameColumns({ "product_id": "productId" });
+   * ```
    */
   async renameColumns(names: { [key: string]: string }): Promise<void> {
     const oldNames = Object.keys(names);
@@ -1741,15 +1813,17 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Cleans column names by removing non-alphanumeric characters and formats them to camel case.
+   * Cleans column names by removing non-alphanumeric characters and formatting them to camel case.
+   *
+   * @returns A promise that resolves when the column names have been cleaned.
+   * @category Column Operations
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.cleanColumnNames()
+   * // Clean all column names in the table
+   * // e.g., "First Name" becomes "firstName", "Product ID" becomes "productId"
+   * await table.cleanColumnNames();
    * ```
-   *
-   * @category Restructuring data
    */
   async cleanColumnNames(): Promise<void> {
     const columns = await this.getColumns();
@@ -1761,27 +1835,27 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Restructures this table by stacking values. Useful to tidy up data.
+   * Restructures this table by stacking (unpivoting) columns. This is useful for tidying up data from a wide format to a long format.
    *
-   * As an example, let's use this table. It shows the number of employees per year in different departments.
+   * For example, given a table showing employee counts per department per year:
    *
    * | Department | 2021 | 2022 | 2023 |
-   * | ---------- | ---- | ---- | ---- |
+   * | :--------- | :--- | :--- | :--- |
    * | Accounting | 10   | 9    | 15   |
    * | Sales      | 52   | 75   | 98   |
    *
-   * We restructure it by putting all years into a column *Year* and the employees counts into a column *Employees*.
+   * We can restructure it by putting all year columns into a new column named `Year` and their corresponding employee counts into a new column named `Employees`.
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.longer(["2021", "2022", "2023"], "year", "employees")
+   * // Restructure the table by stacking year columns into 'year' and 'employees'
+   * await table.longer(["2021", "2022", "2023"], "year", "employees");
    * ```
    *
-   * Now, the table looks like this and is longer.
+   * The table will then look like this:
    *
    * | Department | Year | Employees |
-   * | ---------- | ---- | --------- |
+   * | :--------- | :--- | :-------- |
    * | Accounting | 2021 | 10        |
    * | Accounting | 2022 | 9         |
    * | Accounting | 2023 | 15        |
@@ -1789,11 +1863,11 @@ export default class SimpleTable extends Simple {
    * | Sales      | 2022 | 75        |
    * | Sales      | 2023 | 98        |
    *
-   * @param columns - The column names (and associated values) that we want to stack.
-   * @param columnsTo - The new column in which the stacked columns' names will be put into.
-   * @param valuesTo - The new column in which the stacked columns' values will be put into.
-   *
-   * @category Restructuring data
+   * @param columns - An array of strings representing the names of the columns to be stacked (unpivoted).
+   * @param columnsTo - The name of the new column that will contain the original column names (e.g., "Year").
+   * @param valuesTo - The name of the new column that will contain the values from the stacked columns (e.g., "Employees").
+   * @returns A promise that resolves when the table has been restructured.
+   * @category Restructuring Data
    */
   async longer(
     columns: string[],
@@ -1817,12 +1891,12 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Restructures this table by unstacking values.
+   * Restructures this table by unstacking (pivoting) values, transforming data from a long format to a wide format.
    *
-   * As an example, let's use this table. It shows the number of employees per year in different departments.
+   * For example, given a table showing employee counts per department per year:
    *
    * | Department | Year | Employees |
-   * | ---------- | ---- | --------- |
+   * | :--------- | :--- | :-------- |
    * | Accounting | 2021 | 10        |
    * | Accounting | 2022 | 9         |
    * | Accounting | 2023 | 15        |
@@ -1830,25 +1904,25 @@ export default class SimpleTable extends Simple {
    * | Sales      | 2022 | 75        |
    * | Sales      | 2023 | 98        |
    *
-   * We restructure it by making a new column for each year and with the associated employees counts as values.
+   * We can restructure it by creating new columns for each year, with the associated employee counts as values.
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.longer("Year", "Employees")
+   * // Restructure the table by pivoting 'Year' into new columns with 'Employees' as values
+   * await table.wider("Year", "Employees");
    * ```
    *
-   * Now, the table looks like this and is wider.
+   * The table will then look like this:
    *
    * | Department | 2021 | 2022 | 2023 |
-   * | ---------- | ---- | ---- | ---- |
+   * | :--------- | :--- | :--- | :--- |
    * | Accounting | 10   | 9    | 15   |
    * | Sales      | 52   | 75   | 98   |
    *
-   * @param columnsFrom - The column containing the values that will be transformed into columns.
-   * @param valuesFrom - The column containing values to be spread across the new columns.
-   *
-   * @category Restructuring data
+   * @param columnsFrom - The name of the column containing the values that will be transformed into new column headers (e.g., "Year").
+   * @param valuesFrom - The name of the column containing the values to be spread across the new columns (e.g., "Employees").
+   * @returns A promise that resolves when the table has been restructured.
+   * @category Restructuring Data
    */
   async wider(columnsFrom: string, valuesFrom: string): Promise<void> {
     await queryDB(
@@ -1863,44 +1937,50 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Converts data types (JavaScript or SQL types) of specified columns.
+   * Converts data types of specified columns to target types (JavaScript or SQL types).
    *
-   * If you convert timestamps, dates, or times to strings, you need to pass [format specifiers](https://duckdb.org/docs/sql/functions/dateformat) as datetimeFormat option. Same to convert strings to timestamps, dates or times.
+   * When converting timestamps, dates, or times to/from strings, you must provide a `datetimeFormat` option using [DuckDB's format specifiers](https://duckdb.org/docs/sql/functions/dateformat).
    *
-   * If you convert timestamps, dates, or times to numbers, the result will be the number of milliseconds since 1970-01-01 00:00:00. If you convert numbers to timestamps, dates, or times, the same logic applies.
+   * When converting timestamps, dates, or times to/from numbers, the numerical representation will be in milliseconds since the Unix epoch (1970-01-01 00:00:00 UTC).
    *
-   * If you convert strings to numbers, commas (which are often used as thousand separators) will be removed before converting.
+   * When converting strings to numbers, commas (often used as thousand separators) will be automatically removed before conversion.
    *
-   * @example
-   * Basic usage with JavaScript types
-   * ```ts
-   * // Converts column1 to string and column2 to integer
-   * await table.convert({ column1: "string", column2: "integer" })
-   * ```
-   *
-   * @example
-   * With SQL types
-   * ```ts
-   * // Converts column1 to VARCHAR and column2 to BIGINT
-   * await table.convert({ column1: "varchar", column2: "bigint" })
-   * ```
-   *
-   * @example
-   * With dates
-   * ```ts
-   * // Converts strings in a specific format to dates
-   * await table.convert({ column3: "datetime"}, { datetimeFormat: "%Y-%m-%d" })
-   *
-   * // Converts dates to strings with a specific format.
-   * await table.convert({ column3: "datetime" }, { datetimeFormat: "%Y-%m-%d" })
-   * ```
-   *
-   * @param types - An object mapping column names to the target data types for conversion.
+   * @param types - An object mapping column names to their target data types for conversion.
    * @param options - An optional object with configuration options:
-   *   @param options.try - When true, the values that can't be converted will be replaced by NULL instead of throwing an error. Defaults to false.
-   *   @param options.datetimeFormat - A string specifying the format for date and time conversions. The method uses strftime and strptime functions from DuckDB. For the format specifiers, see https://duckdb.org/docs/sql/functions/dateformat.
+   * @param options.try - If `true`, values that cannot be converted will be replaced by `NULL` instead of throwing an error. Defaults to `false`.
+   * @param options.datetimeFormat - A string specifying the format for date and time conversions. Uses `strftime` and `strptime` functions from DuckDB. For format specifiers, see [DuckDB's documentation](https://duckdb.org/docs/sql/functions/dateformat).
+   * @returns A promise that resolves when the column types have been converted.
+   * @category Updating Data
    *
-   * @category Restructuring data
+   * @example
+   * ```ts
+   * // Convert 'column1' to string and 'column2' to integer (JavaScript types)
+   * await table.convert({ column1: "string", column2: "integer" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Convert 'column1' to VARCHAR and 'column2' to BIGINT (SQL types)
+   * await table.convert({ column1: "varchar", column2: "bigint" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Convert strings in 'column3' to datetime using a specific format
+   * await table.convert({ column3: "datetime" }, { datetimeFormat: "%Y-%m-%d" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Convert datetime values in 'column3' to strings using a specific format
+   * await table.convert({ column3: "string" }, { datetimeFormat: "%Y-%m-%d %H:%M:%S" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Convert 'amount' to float, replacing unconvertible values with NULL
+   * await table.convert({ amount: "float" }, { try: true });
+   * ```
    */
   async convert(
     types: {
@@ -1955,15 +2035,16 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Remove the table from the database. Invoking methods on this table will throw and error.
+   * Removes the table from the database. After this operation, invoking methods on this SimpleTable instance will result in an error.
+   *
+   * @returns A promise that resolves when the table has been removed.
+   * @category Table Management
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.removeTable()
+   * // Remove the current table from the database
+   * await table.removeTable();
    * ```
-   *
-   * @category Restructuring data
    */
   async removeTable(): Promise<void> {
     await queryDB(
@@ -1984,15 +2065,21 @@ export default class SimpleTable extends Simple {
   /**
    * Removes one or more columns from this table.
    *
+   * @param columns - The name or an array of names of the columns to be removed.
+   * @returns A promise that resolves when the columns have been removed.
+   * @category Column Operations
+   *
    * @example
-   * Basic usage
    * ```ts
-   * await table.removeColumns(["column1", "column2"])
+   * // Remove 'column1' and 'column2' from the table
+   * await table.removeColumns(["column1", "column2"]);
    * ```
    *
-   * @param columns - The name or an array of names of the columns to be removed.
-   *
-   * @category Restructuring data
+   * @example
+   * ```ts
+   * // Remove a single column named 'tempColumn'
+   * await table.removeColumns("tempColumn");
+   * ```
    */
   async removeColumns(columns: string | string[]): Promise<void> {
     const cols = stringToArray(columns);
@@ -2015,31 +2102,30 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Adds a new column based on a type (JavaScript or SQL types) and a SQL definition.
-   *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Adds column3. The column's values are floats (equivalent to DOUBLE in SQL) and are the results of the sum of values from column1 and column2.
-   * await table.addColumn("column3", "float", "column1 + column2")
-   * ```
-   *
-   * @example
-   * Adding geometries
-   *
-   * If you add a new column with geometries, you must specify a projection. You can reuse the projection of an already existing column. All projections are stored in `table.projections`.
-   * ```ts
-   * // We create a new column with the centroid of countries boundaries. The resulting points will have the same projection as the countries boundaries, so we can reuse their projection.
-   * await table.addColumn("centroid", "geometry", `ST_Centroid("country")`, { projection: table.projections.country})
-   * ```
+   * Adds a new column to the table based on a specified data type (JavaScript or SQL types) and a SQL definition.
    *
    * @param newColumn - The name of the new column to be added.
-   * @param type - The data type for the new column. JavaScript or SQL types.
-   * @param definition - SQL expression defining how the values should be computed for the new column.
+   * @param type - The data type for the new column. Can be a JavaScript type (e.g., `"number"`, `"string"`) or a SQL type (e.g., `"integer"`, `"varchar"`).
+   * @param definition - A SQL expression defining how the values for the new column should be computed (e.g., `"column1 + column2"`, `"ST_Centroid(geom_column)"`).
    * @param options - An optional object with configuration options:
-   *   @param options.projection - If you create a new column with geometries, you must specify the projection.
+   * @param options.projection - Required if the new column stores geometries. Specifies the geospatial projection of the new geometry column. You can reuse the projection of an existing geometry column (available in `table.projections`).
+   * @returns A promise that resolves when the new column has been added.
+   * @category Column Operations
    *
-   * @category Restructuring data
+   * @example
+   * ```ts
+   * // Add a new column 'total' as a float, calculated from 'column1' and 'column2'
+   * await table.addColumn("total", "float", "column1 + column2");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Add a new geometry column 'centroid' using the centroid of an existing 'country' geometry column
+   * // The projection of the new 'centroid' column is set to be the same as 'country'.
+   * await table.addColumn("centroid", "geometry", `ST_Centroid("country")`, {
+   *   projection: table.projections.country,
+   * });
+   * ```
    */
   async addColumn(
     newColumn: string,
@@ -2085,18 +2171,17 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Adds a new column with the row number.
+   * Adds a new column to the table containing the row number.
+   *
+   * @param newColumn - The name of the new column that will store the row number.
+   * @returns A promise that resolves when the row number column has been added.
+   * @category Column Operations
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Adds the row number in new column rowNumber.
-   * await table.addRowNumber("rowNumber")
+   * // Add a new column named 'rowNumber' with the row number for each row
+   * await table.addRowNumber("rowNumber");
    * ```
-   *
-   * @param newColumn - The name of the new column storing the row number
-   *
-   * @category Restructuring data
    */
   async addRowNumber(newColumn: string): Promise<void> {
     await queryDB(
@@ -2111,34 +2196,32 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Performs a cross join operation between this table and another table, returning all pairs of rows. This table is considered the left table. Note that the returned rows are not guaranteed to be in the same order. It might create a .tmp folder, so make sure to add .tmp to your gitignore.
+   * Performs a cross join operation with another table. A cross join returns the Cartesian product of the rows from both tables, meaning all possible pairs of rows will be in the resulting table.
+   * This means that if the left table has `n` rows and the right table has `m` rows, the result will have `n * m` rows.
+   *
+   * @param rightTable - The SimpleTable instance to cross join with.
+   * @param options - An optional object with configuration options:
+   * @param options.outputTable - If `true`, the results will be stored in a new table with a generated name. If a string, it will be used as the name for the new table. If `false` or omitted, the current table will be overwritten. Defaults to `false`.
+   * @returns A promise that resolves to the SimpleTable instance containing the cross-joined data (either the modified current table or a new table).
+   * @category Table Operations
    *
    * @example
-   * Basic usage
    * ```ts
-   * // This table will be overwritten by the cross join with tableB.
+   * // Perform a cross join with 'tableB', overwriting the current table (tableA)
    * await tableA.crossJoin(tableB);
    * ```
    *
    * @example
-   * Results in a new table
    * ```ts
-   * // Returns the resuts in a newTable
+   * // Perform a cross join with 'tableB' and store the results in a new table with a generated name
    * const tableC = await tableA.crossJoin(tableB, { outputTable: true });
    * ```
    *
    * @example
-   * Results in a new table with a specific name in the DB
    * ```ts
-   * // Returns the resuts in a newTable
+   * // Perform a cross join with 'tableB' and store the results in a new table named 'tableC'
    * const tableC = await tableA.crossJoin(tableB, { outputTable: "tableC" });
    * ```
-   *
-   * @param rightTable - The right table.
-   * @param options - An optional object with configuration options:
-   *   @param options.outputTable - To return a new table with the results.
-   *
-   * @category Restructuring data
    */
   async crossJoin(
     rightTable: SimpleTable,
@@ -2187,36 +2270,37 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Merges the data of this table with another table based on a common column or multiple columns. This table is considered the left table. Note that the returned data is not guaranteed to be in the same order as the original tables. It might create a .tmp folder, so make sure to add .tmp to your gitignore.
+   * Merges the data of this table (considered the left table) with another table (the right table) based on a common column or multiple columns.
+   * Note that the order of rows in the returned data is not guaranteed to be the same as in the original tables.
+   * This operation might create temporary files in a `.tmp` folder; consider adding `.tmp` to your `.gitignore`.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // By default, the method automatically looks for a common column in the two tables and does a left join of this tableA (left) and tableB (right). The leftTable (tableA here) will be overwritten with the result.
-   * await tableA.join(tableB)
-   * ```
-   *
-   * @example
-   * With options
-   * ```ts
-   * // You can change the common column, the join type, and the output table in options.
-   * const tableC = await tableA.join(tableB, { commonColumn: 'id', type: 'inner', outputTable: "tableC" })
-   * ```
-   *
-   * @example
-   * Multiple columns
-   * ```ts
-   * // You can also join on multiple columns.
-   * await tableA.join(tableB, { commonColumn: ['name', 'category']})
-   *
-   * @param rightTable - The right table to be joined.
+   * @param rightTable - The SimpleTable instance to be joined with this table.
    * @param options - An optional object with configuration options:
-   *   @param options.commonColumn - The common column used for the join operation. By default, the method automatically searches for a column name that exists in both tables. You can also pass an array of multiple columns to be joined on.
-   *   @param options.type - The type of join operation to perform. Possible values are "inner", "left", "right", or "full". Default is "left".
-   *   @param options.outputTable - To return the results in a new table.
+   * @param options.commonColumn - The common column(s) used for the join operation. If omitted, the method automatically searches for a column name that exists in both tables. Can be a single string or an array of strings for multiple join keys.
+   * @param options.type - The type of join operation to perform. Possible values are `"inner"`, `"left"` (default), `"right"`, or `"full"`.
+   * @param options.outputTable - If `true`, the results will be stored in a new table with a generated name. If a string, it will be used as the name for the new table. If `false` or omitted, the current table will be overwritten. Defaults to `false`.
+   * @returns A promise that resolves to the SimpleTable instance containing the joined data (either the modified current table or a new table).
+   * @category Table Operations
    *
-   * @category Restructuring data
+   * @example
+   * ```ts
+   * // Perform a left join with 'tableB' on a common column (auto-detected), overwriting tableA
+   * await tableA.join(tableB);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Perform an inner join with 'tableB' on the 'id' column, storing results in a new table named 'tableC'
+   * const tableC = await tableA.join(tableB, { commonColumn: 'id', type: 'inner', outputTable: "tableC" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Perform a join on multiple columns ('name' and 'category')
+   * await tableA.join(tableB, { commonColumn: ['name', 'category'] });
+   * ```
    */
+
   async join(
     rightTable: SimpleTable,
     options: {
@@ -2233,42 +2317,39 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Replaces specified strings in the selected columns
+   * Replaces specified strings in the selected columns.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Replaces entire strings and substrings too.
-   * await table.replace("column1", { "kilograms": "kg" })
-   * ```
-   *
-   * @example
-   * Multiple columns and multiple strings
-   * ```ts
-   * // Replaces multiple strings in multiple columns.
-   * await table.replace(["column1", "column2"], { "kilograms": "kg", liters: "l" })
-   * ```
-   *
-   * @example
-   * Exact match
-   * ```ts
-   * // Replaces only if matching entire string.
-   * await table.replace("column1", { "kilograms": "kg", liters: "l" }, { entireString: true })
-   * ```
-   * @example
-   * Regular expression
-   * ```ts
-   * // Replaces using a regular expression. Any sequence of one or more digits would be replaced by a hyphen.
-   * await table.replace("column1", {"\d+": "-" }, {regex: true})
-   * ```
-   *
-   * @param columns - Either a string or an array of strings specifying the columns where string replacements will occur.
-   * @param strings - An object mapping old strings to new strings.
+   * @param columns - The column name or an array of column names where string replacements will occur.
+   * @param strings - An object mapping old strings to new strings (e.g., `{ "oldValue": "newValue" }`).
    * @param options - An optional object with configuration options:
-   *   @param options.entireString - A boolean indicating whether the entire string must match for replacement. Defaults to false.
-   *   @param options.regex - A boolean indicating the use of regular expressions for a global replace. See the [RE2 docs](https://github.com/google/re2/wiki/Syntax) for the syntax. Defaults to false.
+   * @param options.entireString - A boolean indicating whether the entire cell content must match the `oldString` for replacement to occur. Defaults to `false` (replaces substrings).
+   * @param options.regex - A boolean indicating whether the `oldString` should be treated as a regular expression for global replacement. Cannot be used with `entireString: true`. Defaults to `false`.
+   * @returns A promise that resolves when the string replacements are complete.
+   * @category Updating Data
    *
-   * @category Updating data
+   * @example
+   * ```ts
+   * // Replace all occurrences of "kilograms" with "kg" in 'column1'
+   * await table.replace("column1", { "kilograms": "kg" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Replace "kilograms" with "kg" and "liters" with "l" in 'column1' and 'column2'
+   * await table.replace(["column1", "column2"], { "kilograms": "kg", "liters": "l" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Replace only if the entire string in 'column1' is "kilograms"
+   * await table.replace("column1", { "kilograms": "kg" }, { entireString: true });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Replace any sequence of one or more digits with a hyphen in 'column1' using regex
+   * await table.replace("column1", { "\d+": "-" }, { regex: true });
+   * ```
    */
   async replace(
     columns: string | string[],
