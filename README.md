@@ -43,8 +43,9 @@ bunx --bun setup-sda
 
 Here are available options:
 
-- `--claude` or `--gemini`: adds a `CLAUDE.md` or `GEMINI.md` file and extra
-  documentation in `./docs` to work efficiently with AI agents.
+- `--claude` or `--gemini` or `--copilot`: Adds a `CLAUDE.md` or `GEMINI.md` or
+  `.github/copilot-instructions.md` file and extra documentation in `./docs` to
+  work efficiently with AI agents.
 - `--example`: adds example files
 - `--scrape`: adds web scraping dependencies
 - `--svelte`: adds a Svelte project
