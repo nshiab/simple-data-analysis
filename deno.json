@@ -5,7 +5,8 @@
     ".": "./src/index.ts"
   },
   "tasks": {
-    "all-tests": "deno install --allow-scripts=npm:playwright-chromium && deno fmt --check && deno lint && deno check src/index.ts && deno publish --allow-dirty --dry-run && rm -rf test/output && deno test -A --fail-fast",
+    "all-tests": "deno install --allow-scripts=npm:playwright-chromium && deno fmt --check && deno lint && deno check src/index.ts && deno publish --allow-dirty --dry-run && rm -rf test/output && deno test -A --fail-fast && deno task llm",
+    "llm": "deno doc --json src/index.ts > docs.json && deno run -A src/generateLlmMd.ts && deno fmt llm.md",
     "test-coverage": "deno test -A --fail-fast --coverage=cov_profile && deno coverage cov_profile",
     "patch-no-tests": "deno run -A src/incrementVersion.ts patch",
     "patch": "deno task all-tests && deno run -A src/incrementVersion.ts patch",
