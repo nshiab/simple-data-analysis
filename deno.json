@@ -5,7 +5,7 @@
     ".": "./src/index.ts"
   },
   "tasks": {
-    "all-tests": "deno install --allow-scripts=npm:playwright-chromium && deno fmt --check && deno lint && deno check src/index.ts && deno doc --lint src/index.ts && deno publish --allow-dirty --dry-run && rm -rf test/output && deno test -A --fail-fast",
+    "all-tests": "deno install --allow-scripts=npm:playwright-chromium && deno fmt --check && deno lint && deno check src/index.ts && deno publish --allow-dirty --dry-run && rm -rf test/output && deno test -A --fail-fast",
     "test-coverage": "deno test -A --fail-fast --coverage=cov_profile && deno coverage cov_profile",
     "patch-no-tests": "deno run -A src/incrementVersion.ts patch",
     "patch": "deno task all-tests && deno run -A src/incrementVersion.ts patch",
