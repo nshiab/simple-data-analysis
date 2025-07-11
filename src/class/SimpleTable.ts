@@ -6065,39 +6065,46 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Logs a specified number of rows. Default is 10 rows. You can optionnally log the types of the columns.
+   * Logs a specified number of rows from the table to the console. By default, the first 10 rows are logged.
+   * You can optionally log the column types and filter the data based on conditions.
+   * You can also use JavaScript syntax for conditions (e.g., `&&`, `||`, `===`, `!==`).
+   *
+   * @param options - Either the number of rows to log (a specific number or `"all"`) or an object with configuration options:
+   * @param options.nbRowsToLog - The number of rows to log. Defaults to 10 or the value set in the SimpleDB instance. Use `"all"` to log all rows.
+   * @param options.types - If `true`, logs the column types along with the data. Defaults to `false`.
+   * @param options.conditions - A SQL `WHERE` clause condition to filter the data before logging. Defaults to no condition.
+   * @returns A promise that resolves when the table data has been logged.
+   * @category Logging
    *
    * @example
-   * Basic usage
    * ```ts
-   * // Logs first 10 rows. No types.
+   * // Log the first 10 rows (default behavior)
    * await table.logTable();
    * ```
    *
    * @example
-   * Specific number of rows
    * ```ts
-   * // Logs first 100 rows. No types.
-   * await table.logTable(100);
+   * // Log the first 50 rows
+   * await table.logTable(50);
    * ```
    *
    * @example
-   * Specific number of rows in options
    * ```ts
-   * // Logs first 100 rows. No types.
-   * await table.logTable({ nbRowsToLog: 100 });
+   * // Log all rows
+   * await table.logTable("all");
    * ```
    *
    * @example
-   * Specific number of rows and types options
    * ```ts
-   * await table.logTable({ nbRowsToLog: 100, types: true });
+   * // Log the first 20 rows and include column types
+   * await table.logTable({ nbRowsToLog: 20, types: true });
    * ```
    *
-   * @param options Either the number of rows to log (a specific number or "all") or an object with configuration options:
-   *   @param nbRowsToLog - The number of rows to log. Defaults to 10 or the value set in the SimpleWebDB instance. If you want to log all rows, you can pass "all".
-   *   @param types - If true, logs the column types.
-   *   @param conditions - A SQL WHERE clause condition to filter the data. Defaults to no condition.
+   * @example
+   * ```ts
+   * // Log rows where 'status' is 'active' (using JS syntax for conditions)
+   * await table.logTable({ conditions: `status === 'active'` });
+   * ```
    */
   async logTable(
     options: "all" | number | {
@@ -6171,10 +6178,23 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Generates and logs a line chart. The data is expected to be sorted by the x-axis values.
+   * Generates and logs a line chart to the console. The data should be sorted by the x-axis values for accurate representation.
+   *
+   * @param x - The name of the column to be used for the x-axis.
+   * @param y - The name of the column to be used for the y-axis.
+   * @param options - An optional object with configuration options:
+   * @param options.formatX - A function to format the x-axis tick labels. Defaults to converting the label to a string.
+   * @param options.formatY - A function to format the y-axis tick labels. Defaults to converting the label to a string.
+   * @param options.smallMultiples - The name of a column to create small multiples (also known as facets or trellis charts). Each unique value in this column will generate a separate chart.
+   * @param options.fixedScales - If `true`, all small multiples will share the same y-axis scale. Defaults to `false`.
+   * @param options.smallMultiplesPerRow - The number of small multiples to display per row.
+   * @param options.width - The width of the chart in characters.
+   * @param options.height - The height of the chart in characters.
+   * @returns A promise that resolves when the chart has been logged to the console.
+   * @category Dataviz
    *
    * @example
-   * Basic usage
+   * // Basic line chart
    * ```typescript
    * const data = [
    *     { date: new Date("2023-01-01"), value: 10 },
@@ -6188,7 +6208,7 @@ export default class SimpleTable extends Simple {
    * ```
    *
    * @example
-   * Small multiples
+   * // Line chart with small multiples
    * ```typescript
    * const data = [
    *     { date: new Date("2023-01-01"), value: 10, category: "A" },
@@ -6206,19 +6226,6 @@ export default class SimpleTable extends Simple {
    *     smallMultiples: "category",
    * })
    * ```
-   *
-   * @param x - The key for the x-axis values in the data objects.
-   * @param y - The key for the y-axis values in the data objects.
-   * @param options - An optional object to customize the chart.
-   * @param options.formatX - A function to format the x-axis values.
-   * @param options.formatY - A function to format the y-axis values.
-   * @param options.smallMultiples - A key in the data objects to create small multiples of the chart.
-   * @param options.fixedScales - A boolean to determine if small multiple scales should be identical.
-   * @param options.smallMultiplesPerRow - The number of small multiples per row.
-   * @param options.width - The width of the chart.
-   * @param options.height - The height of the chart.
-   *
-   * @category Dataviz
    */
   async logLineChart(
     x: string,
@@ -6245,10 +6252,23 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Generates and logs a dot chart. The data is expected to be sorted by the x-axis values.
+   * Generates and logs a dot chart to the console. The data should be sorted by the x-axis values for accurate representation.
+   *
+   * @param x - The name of the column to be used for the x-axis.
+   * @param y - The name of the column to be used for the y-axis.
+   * @param options - An optional object with configuration options:
+   * @param options.formatX - A function to format the x-axis tick labels. Defaults to converting the label to a string.
+   * @param options.formatY - A function to format the y-axis tick labels. Defaults to converting the label to a string.
+   * @param options.smallMultiples - The name of a column to create small multiples (also known as facets). Each unique value in this column will generate a separate chart.
+   * @param options.fixedScales - If `true`, all small multiples will share the same y-axis scale. Defaults to `false`.
+   * @param options.smallMultiplesPerRow - The number of small multiples to display per row.
+   * @param options.width - The width of the chart in characters.
+   * @param options.height - The height of the chart in characters.
+   * @returns A promise that resolves when the chart has been logged to the console.
+   * @category Dataviz
    *
    * @example
-   * Basic usage
+   * // Basic dot chart
    * ```typescript
    * const data = [
    *     { date: new Date("2023-01-01"), value: 10 },
@@ -6262,7 +6282,7 @@ export default class SimpleTable extends Simple {
    * ```
    *
    * @example
-   * Small multiples
+   * // Dot chart with small multiples
    * ```typescript
    * const data = [
    *     { date: new Date("2023-01-01"), value: 10, category: "A" },
@@ -6280,19 +6300,6 @@ export default class SimpleTable extends Simple {
    *     smallMultiples: "category",
    * })
    * ```
-   *
-   * @param x - The key for the x-axis values in the data objects.
-   * @param y - The key for the y-axis values in the data objects.
-   * @param options - An optional object to customize the chart.
-   * @param options.formatX - A function to format the x-axis values.
-   * @param options.formatY - A function to format the y-axis values.
-   * @param options.smallMultiples - A key in the data objects to create small multiples of the chart.
-   * @param options.fixedScales - A boolean to determine if small multiple scales should be identical.
-   * @param options.smallMultiplesPerRow - The number of small multiples per row.
-   * @param options.width - The width of the chart.
-   * @param options.height - The height of the chart.
-   *
-   * @category Dataviz
    */
   async logDotChart(
     x: string,
@@ -6319,7 +6326,16 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Generates and logs a bar chart. The data is expected to be sorted.
+   * Generates and logs a bar chart to the console.
+   *
+   * @param labels - The name of the column to be used for the labels (categories).
+   * @param values - The name of the column to be used for the values.
+   * @param options - An optional object with configuration options:
+   * @param options.formatLabels - A function to format the labels. Defaults to converting the label to a string.
+   * @param options.formatValues - A function to format the values. Defaults to converting the value to a string.
+   * @param options.width - The width of the chart in characters. Defaults to 40.
+   * @returns A promise that resolves when the chart has been logged to the console.
+   * @category Dataviz
    *
    * @example
    * ```typescript
@@ -6330,15 +6346,6 @@ export default class SimpleTable extends Simple {
    * await table.loadArray(data)
    * await table.logBarChart("category", "value")
    * ```
-   *
-   * @param labels - The key in the data objects to be used for the labels.
-   * @param values - The key in the data objects to be used for the values.
-   * @param options - Optional configuration for the chart.
-   * @param options.formatLabels - A function to format the labels. Defaults to converting the label to a string.
-   * @param options.formatValues - A function to format the values. Defaults to converting the value to a string.
-   * @param options.width - The width of the chart. Defaults to 40.
-   *
-   * @category Dataviz
    */
   async logBarChart(
     labels: string,
@@ -6362,28 +6369,37 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Generates and logs a histogram. The data is expected to be numeric.
+   * Generates and logs a histogram of a numeric column to the console.
+   *
+   * @param values - The name of the numeric column for which to generate the histogram.
+   * @param options - An optional object with configuration options:
+   * @param options.bins - The number of bins (intervals) to use for the histogram. Defaults to 10.
+   * @param options.formatLabels - A function to format the labels for the histogram bins. It receives the lower and upper bounds of each bin as arguments.
+   * @param options.compact - If `true`, the histogram will be displayed in a more compact format. Defaults to `false`.
+   * @param options.width - The maximum width of the histogram bars in characters.
+   * @returns A promise that resolves when the histogram has been logged to the console.
+   * @category Dataviz
    *
    * @example
-   * Basic usage
+   * // Basic histogram of the 'temperature' column
    * ```typescript
    * await table.logHistogram("temperature")
    * ```
    *
-   * @param values - The key for the numeric values.
-   * @param options - An optional object to customize the histogram.
-   * @param options.bins - The number of bins to use for the histogram. Defaults to 10.
-   * @param options.formatLabels - A function to format the labels for the bins.
-   * @param options.compact - A boolean to determine if the histogram should be compact.
-   * @param options.width - The width of the histogram.
-   *
-   * @category Dataviz
+   * @example
+   * // Histogram with 20 bins and custom label formatting
+   * ```typescript
+   * await table.logHistogram("age", {
+   *   bins: 20,
+   *   formatLabels: (min, max) => `${min}-${max} years`,
+   * });
+   * ```
    */
   async logHistogram(
     values: string,
     options: {
       bins?: number;
-      formatLabels?: (a: number, b: number) => string;
+      formatLabels?: (min: number, max: number) => string;
       compact?: boolean;
       width?: number;
     } = {},
@@ -6392,12 +6408,16 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Logs descriptive information about the columns, including details like data types, number of null and distinct values. It calls getDescription.
+   * Logs descriptive information about the columns in the table to the console. This includes details such as data types, number of null values, and number of distinct values for each column.
+   * It internally calls the `getDescription` method to retrieve the descriptive statistics.
+   *
+   * @returns A promise that resolves when the column description has been logged to the console.
+   * @category Logging
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.logDescription()
+   * // Log descriptive information for all columns in the table
+   * await table.logDescription();
    * ```
    */
   async logDescription(): Promise<void> {
@@ -6413,12 +6433,15 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Logs the projections, if any.
+   * Logs the projections of the geospatial data (if any) to the console.
+   *
+   * @returns A promise that resolves to the SimpleTable instance after logging the projections.
+   * @category Logging
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.logProjections()
+   * // Log the geospatial projections of the table
+   * await table.logProjections();
    * ```
    */
   async logProjections(): Promise<SimpleTable> {
@@ -6428,12 +6451,15 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Logs the types of the columns.
+   * Logs the types of all columns in the table to the console.
+   *
+   * @returns A promise that resolves to the SimpleTable instance after logging the column types.
+   * @category Logging
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.logTypes()
+   * // Log the data types of all columns in the table
+   * await table.logTypes();
    * ```
    */
   async logTypes(): Promise<SimpleTable> {
@@ -6443,25 +6469,26 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Logs unique values for a column. By default, a maximum of 100 values are logged (depending on your runtime). You can optionnally stringify the values to see them all.
+   * Logs unique values for a specified column to the console. By default, a maximum of 100 values are logged (depending on your runtime).
+   * You can optionally stringify the values to see them all.
    *
-   * @example
-   * Basic usage
-   * ```ts
-   * // Logs unique values for the column "name".
-   * await table.logUniques("name")
-   * ```
-   *
-   * @example
-   * Stringifying the values
-   * ```ts
-   * // Logs unique values for the column "name" and stringifies them.
-   * await table.logUniques("name", { stringify: true })
-   * ```
-   *
-   * @param column - The name of the column.
+   * @param column - The name of the column from which to retrieve and log unique values.
    * @param options - An optional object with configuration options:
-   *  @param options.stringify - If true, stringifies the values.
+   * @param options.stringify - If `true`, converts the unique values to a JSON string before logging. Defaults to `false`.
+   * @returns A promise that resolves to the SimpleTable instance after logging the unique values.
+   * @category Logging
+   *
+   * @example
+   * ```ts
+   * // Logs unique values for the column "name"
+   * await table.logUniques("name");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Logs unique values for the column "name" and stringifies them
+   * await table.logUniques("name", { stringify: true });
+   * ```
    */
   async logUniques(
     column: string,
@@ -6478,18 +6505,23 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Logs the columns in the table.
+   * Logs the columns in the table to the console. You can optionally include their data types.
+   *
+   * @param options - An optional object with configuration options:
+   * @param options.types - If `true`, logs the column names along with their data types. Defaults to `false`.
+   * @returns A promise that resolves to the SimpleTable instance after logging the columns.
+   * @category Logging
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.logColumns()
+   * // Log only the column names
+   * await table.logColumns();
    * ```
    *
    * @example
-   * With types
    * ```ts
-   * await table.logColumns({ types: true })
+   * // Log column names along with their types
+   * await table.logColumns({ types: true });
    * ```
    */
   async logColumns(options: { types?: boolean } = {}): Promise<SimpleTable> {
@@ -6504,12 +6536,15 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Logs the number of rows in the table.
+   * Logs the total number of rows in the table to the console.
+   *
+   * @returns A promise that resolves to the SimpleTable instance after logging the row count.
+   * @category Logging
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.logNbRows()
+   * // Log the total number of rows in the table
+   * await table.logNbRows();
    * ```
    */
   async logNbRows(): Promise<SimpleTable> {
@@ -6519,21 +6554,30 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Logs the bottom n rows.
+   * Logs the bottom `n` rows of the table to the console. By default, the last row will be returned first. To preserve the original order, use the `originalOrder` option.
+   *
+   * @param count - The number of rows to log from the bottom of the table.
+   * @returns A promise that resolves when the rows have been logged to the console.
+   * @category Logging
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.logBottom(10)
+   * // Log the last 10 rows (last row first)
+   * await table.logBottom(10);
    * ```
    *
-   * @param count - The number of rows to log.
+   * @example
+   * ```ts
+   * // Log the last 5 rows in their original order
+   * await table.logBottom(5, { originalOrder: true });
+   * ```
    */
   async logBottom(
     count: number,
+    options: { originalOrder?: boolean } = {},
   ): Promise<void> {
     console.log(`\nTable ${this.name} (${count} bottom rows):`);
-    const data = await this.getBottom(count, { originalOrder: true });
+    const data = await this.getBottom(count, options);
     logData(
       null,
       data,
@@ -6542,15 +6586,17 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Logs the extent of a column.
+   * Logs the extent (minimum and maximum values) of a numeric column to the console.
+   *
+   * @param column - The name of the numeric column for which to log the extent.
+   * @returns A promise that resolves when the column extent has been logged to the console.
+   * @category Logging
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.logExtent("price")
+   * // Log the extent of the 'price' column
+   * await table.logExtent("price");
    * ```
-   *
-   * @param column - The name of the column.
    */
   async logExtent(column: string): Promise<void> {
     const extent = await this.getExtent(column);
