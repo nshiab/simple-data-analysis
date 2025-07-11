@@ -8,3 +8,4 @@ testRoot.csv
 cov_profile
 .env
 .journalism-cache
+docs.json
