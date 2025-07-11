@@ -17,83 +17,143 @@ import getName from "../helpers/getName.ts";
 import { renameSync } from "node:fs";
 
 /**
- * SimpleDB is a class that provides a simplified interface for working with DuckDB, a high-performance, in-memory analytical database.
- *
- * With very expensive computations, it might create a .tmp folder, so make sure to add .tmp to your gitignore.
- *
- * Here's how to instantiate a SimpleDB instance and then a SimpleTable.
+ * Manages a DuckDB database instance, providing a simplified interface for database operations.
  *
  * @example
- * Basic usage
  * ```ts
- * // Instantiating the database in memory.
- * const sdb = new SimpleDB()
- *
- * // Creating a new table.
- * const employees = sdb.newTable("employees")
- *
- * // You can now invoke methods on the table.
- * await employees.loadData("./employees.csv")
- * await employees.logTable()
- *
- * // To free up memory.
- * await sdb.done()
+ * // Create an in-memory database instance
+ * const sdb = new SimpleDB();
+ * // Create a new table named "employees"
+ * const employees = sdb.newTable("employees");
+ * // Load data from a CSV file into the "employees" table
+ * await employees.loadData("./employees.csv");
+ * // Log the first few rows of the "employees" table to the console
+ * await employees.logTable();
+ * // Close the database connection and clean up resources
+ * await sdb.done();
  * ```
  *
  * @example
- * Read from and write to a database file. If the option overwrite is set to true, a new file will be created with an empty DB, overwriting the existing one, if any.
  * ```ts
- * const sdb = new SimpleDB({ file: "./my_database.db", overwrite: true })
- * // Do your magic...
- *
- * // Don't forget to call .done() to write up-to-date/compacted DB data and metadata.
- * await sdb.done()
+ * // Create a persistent database instance, saving data to a file
+ * const sdb = new SimpleDB({ file: "./my_database.db" });
+ * // Perform database operations...
+ * // Close the database connection, which saves changes to the specified file
+ * await sdb.done();
  * ```
  *
  * @example
- * Instanciating with options
  * ```ts
- * // Creating a database with options. Debug information will be logged each time a method is invoked. The first 20 rows of tables will be logged (default is 10).
- * const sdb = new SimpleDB({ debug: true, nbRowsToLog: 20 })
+ * // Create a database instance with custom options
+ * const sdb = new SimpleDB({
+ *   debug: true, // Enable debugging output
+ *   nbRowsToLog: 20 // Set the number of rows to log by default
+ * });
  * ```
- *
- * @param options - Configuration options for the SimpleDB instance.
- * @param options.logDuration - Whether to log the duration of operations.
- * @param options.nbRowsToLog - Number of rows to log when displaying table data.
- * @param options.nbCharactersToLog - Number of characters to log when displaying text content. Useful for long strings.
- * @param options.cacheVerbose - Whether to log cache-related messages.
- * @param options.debug - Whether to enable debug logging.
- * @param options.progressBar - Whether to show a progress bar for long-running operations.
- * @param options.types - Whether to log the types of columns in the table.
- * @param options.duckDbCache - Whether to use DuckDB's external file cache. Defaults to false.
  */
 
 export default class SimpleDB extends Simple {
-  /** An object keeping track of the data used in cache. @category Properties */
+  /**
+   * An array of paths to the data sources used in the cache.
+   *
+   * @defaultValue `[]`
+   * @category Properties
+   */
   cacheSourcesUsed: string[];
-  /** A timestamp used to track the total duration logged in done(). @category Properties */
+  /**
+   * A timestamp marking the start of a duration measurement.
+   *
+   * @defaultValue `undefined`
+   * @category Properties
+   */
   durationStart: number | undefined;
-  /** A number used when creating new tables. @category Properties */
+  /**
+   * A counter for incrementing default table names.
+   *
+   * @defaultValue `1`
+   * @category Properties
+   */
   tableIncrement: number;
-  /** A flag to log the total duration. */
+  /**
+   * A flag indicating whether to log the total execution duration.
+   *
+   * @defaultValue `false`
+   * @category Properties
+   */
   logDuration: boolean;
-  /** An array of SimpleTable instances. @category Properties */
+  /**
+   * An array of SimpleTable instances associated with this database.
+   *
+   * @defaultValue `[]`
+   * @category Properties
+   */
   tables: SimpleTable[];
-  /** A flag to log messages relative to the cache. Defaults to false. */
+  /**
+   * A flag indicating whether to log verbose cache-related messages.
+   *
+   * @defaultValue `false`
+   * @category Properties
+   */
   cacheVerbose: boolean;
-  /** Amount of time saved by using the cache. */
+  /**
+   * The total time saved by using the cache, in milliseconds.
+   *
+   * @defaultValue `0`
+   * @category Properties
+   */
   cacheTimeSaved: number;
-  /** Amount of time spent writing the cache. */
+  /**
+   * The total time spent writing to the cache, in milliseconds.
+   *
+   * @defaultValue `0`
+   * @category Properties
+   */
   cacheTimeWriting: number;
-  /** A flag to log a progress bar when a method takes more than 2s. Defaults to false. */
+  /**
+   * A flag indicating whether to display a progress bar for long-running operations.
+   *
+   * @defaultValue `false`
+   * @category Properties
+   */
   progressBar: boolean;
-  /** A flag to use DuckDB's external file cache. Defaults to false. */
+  /**
+   * A flag indicating whether to use DuckDB's external file cache.
+   *
+   * @defaultValue `false`
+   * @category Properties
+   */
   duckDbCache: boolean | null;
-  /** The database file. */
+  /**
+   * The path to the database file. If not provided, an in-memory database is used.
+   *
+   * @defaultValue `:memory:`
+   * @category Properties
+   */
   file: string;
-  /** Overwrite with the file if exists. */
+  /**
+   * A flag indicating whether to overwrite the database file if it already exists.
+   *
+   * @defaultValue `false`
+   * @category Properties
+   */
   overwrite: boolean;
 
+  /**
+   * Creates a new SimpleDB instance.
+   *
+   * @param options - Configuration options for the SimpleDB instance.
+   * @param options.file - The path to the database file. If not provided, an in-memory database is used.
+   * @param options.overwrite - A flag indicating whether to overwrite the database file if it already exists.
+   * @param options.logDuration - A flag indicating whether to log the total execution duration.
+   * @param options.nbRowsToLog - The number of rows to display when logging a table.
+   * @param options.nbCharactersToLog - The maximum number of characters to display for text-based cells.
+   * @param options.types - A flag indicating whether to include data types when logging a table.
+   * @param options.cacheVerbose - A flag indicating whether to log verbose cache-related messages.
+   * @param options.debug - A flag indicating whether to log debugging information.
+   * @param options.duckDbCache - A flag indicating whether to use DuckDB's external file cache.
+   * @param options.progressBar - A flag indicating whether to display a progress bar for long-running operations.
+   * @category Constructor
+   */
   constructor(
     options: {
       file?: string;
@@ -129,11 +189,13 @@ export default class SimpleDB extends Simple {
   }
 
   /**
-   * Initializes DuckDB and establishes a connection to the database. For internal use only.
+   * Initializes the DuckDB database instance and connection.
    *
-   * @category Internal
+   * @returns A promise that resolves to the SimpleDB instance after initialization.
+   * @internal
+   * @category Lifecycle
    */
-  async start(): Promise<this> {
+  async start(): Promise<SimpleDB> {
     if (this.db === undefined || this.connection === undefined) {
       if (this.file !== ":memory:") {
         if (getExtension(this.file) !== "db") {
@@ -168,7 +230,13 @@ export default class SimpleDB extends Simple {
     return this;
   }
 
-  /** Just for internal use. */
+  /**
+   * Adds a SimpleTable instance to the internal list of tables.
+   *
+   * @param table - The SimpleTable instance to add.
+   * @internal
+   * @category Table Management
+   */
   pushTable(table: SimpleTable): void {
     if (!(table instanceof SimpleTable)) {
       throw new Error("The table must be an instance of SimpleTable.");
@@ -180,27 +248,25 @@ export default class SimpleDB extends Simple {
     this.tables.push(table);
   }
 
-  /** Creates a table in the DB.
+  /**
+   * Creates a new SimpleTable instance within the database.
+   *
+   * @param name - The name of the new table. If not provided, a default name is generated (e.g., "table1").
+   * @param projections - An object mapping column names to their geospatial projections.
+   * @returns A new SimpleTable instance.
+   * @category Table Management
    *
    * @example
-   * Basic usage
    * ```ts
-   * // This returns a new SimpleTable
-   * const employees = sdb.newTable()
+   * // Create a table with a default name (e.g., "table1", "table2", etc.)
+   * const dataTable = sdb.newTable();
    * ```
    *
    * @example
-   * With a specific name
    * ```ts
-   * // By default, tables will be named table1, table2, etc.
-   * // But you can also give them specific names.
-   * const employees = sdb.newTable("employees")
+   * // Create a table with a specific name
+   * const employees = sdb.newTable("employees");
    * ```
-   *
-   * @param name - The name of the new table.
-   * @param projections - The projections of the geospatial data, if any.
-   *
-   * @category DB methods
    */
   newTable(
     name?: string,
@@ -235,17 +301,17 @@ export default class SimpleDB extends Simple {
   }
 
   /**
-   * Retrieves a table in the DB.
-   *
-   * @example
-   * Basic usage
-   * ```ts
-   * const employees = await sdb.getTable("employees")
-   * ```
+   * Retrieves an existing SimpleTable instance from the database.
    *
    * @param name - The name of the table to retrieve.
+   * @returns A promise that resolves to the SimpleTable instance if found.
+   * @category Table Management
    *
-   * @category DB methods
+   * @example
+   * ```ts
+   * // Retrieve the "employees" table
+   * const employees = await sdb.getTable("employees");
+   * ```
    */
   async getTable(name: string): Promise<SimpleTable> {
     const table = this.tables.find((t) => t.name === name);
@@ -257,25 +323,35 @@ export default class SimpleDB extends Simple {
   }
 
   /**
-   * Remove a table or multiple tables from the database. Invoking methods on the tables will throw and error.
+   * Removes one or more tables from the database.
+   *
+   * @param tables - A single table or an array of tables to remove, specified by name or as SimpleTable instances.
+   * @returns A promise that resolves when the tables have been removed.
+   * @category Table Management
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.removeTables(tableA)
+   * // Remove a single table by name
+   * await sdb.removeTables("employees");
    * ```
    *
    * @example
-   * Multiple tables, as instances or strings
    * ```ts
-   * await table.removeTables([tableA, "tableB"])
+   * // Remove multiple tables by name
+   * await sdb.removeTables(["customers", "products"]);
    * ```
    *
-   * @param tables - The tables to be removed
-   *
-   * @category DB methods
+   * @example
+   * ```ts
+   * // Remove a single table using a SimpleTable instance
+   * const employeesTable = sdb.newTable("employees");
+   * // ... load data ...
+   * await sdb.removeTables(employeesTable);
+   * ```
    */
-  async removeTables(tables: SimpleTable | string | (SimpleTable | string)[]) {
+  async removeTables(
+    tables: SimpleTable | string | (SimpleTable | string)[],
+  ): Promise<void> {
     const tablesToBeRemoved = Array.isArray(tables) ? tables : [tables];
 
     await queryDB(
@@ -299,25 +375,35 @@ export default class SimpleDB extends Simple {
   }
 
   /**
-   * Selects a table or multiple tables in the database. Invoking methods on the tables that have not been selected will throw an error.
+   * Selects one or more tables to keep in the database, removing all others.
+   *
+   * @param tables - A single table or an array of tables to select, specified by name or as SimpleTable instances.
+   * @returns A promise that resolves when the tables have been selected.
+   * @category Table Management
    *
    * @example
-   * Basic usage
    * ```ts
-   * await table.selectTables(tableA)
+   * // Select a single table by name, removing all other tables
+   * await sdb.selectTables("employees");
    * ```
    *
    * @example
-   * Multiple tables, as instances or strings
    * ```ts
-   * await table.selectTables([tableA, "tableB"])
+   * // Select multiple tables by name, removing all other tables
+   * await sdb.selectTables(["customers", "products"]);
    * ```
    *
-   * @param tables - The tables to be selected
-   *
-   * @category DB methods
+   * @example
+   * ```ts
+   * // Select a single table using a SimpleTable instance
+   * const employeesTable = sdb.newTable("employees");
+   * // ... load data ...
+   * await sdb.selectTables(employeesTable);
+   * ```
    */
-  async selectTables(tables: SimpleTable | string | (SimpleTable | string)[]) {
+  async selectTables(
+    tables: SimpleTable | string | (SimpleTable | string)[],
+  ): Promise<void> {
     const tablesToBeSelected = (Array.isArray(tables) ? tables : [tables]).map((
       t,
     ) => t instanceof SimpleTable ? t.name : t);
@@ -353,30 +439,34 @@ export default class SimpleDB extends Simple {
   }
 
   /**
-   * Returns the list of table names.
+   * Returns an array of all table names in the database.
+   *
+   * @returns A promise that resolves to an array of table names.
+   * @category Table Management
    *
    * @example
-   * Basic usage
    * ```ts
-   * const tablesNames = await sdb.getTableNames()
+   * // Get all table names
+   * const tableNames = await sdb.getTableNames();
+   * console.log(tableNames); // Output: ["employees", "customers"]
    * ```
-   *
-   * @category DB methods
    */
   async getTableNames(): Promise<string[]> {
     return await getTableNames(this);
   }
 
   /**
-   * Logs the names of all tables in the database.
+   * Logs the names of all tables in the database to the console.
+   *
+   * @returns A promise that resolves when the table names have been logged.
+   * @category Table Management
    *
    * @example
-   * Basic usage
    * ```ts
-   * await sdb.logTablesNames()
+   * // Log all table names to the console
+   * await sdb.logTableNames();
+   * // Example output: SimpleDB - Tables:  ["employees","customers"]
    * ```
-   *
-   * @category DB methods
    */
   async logTableNames(): Promise<void> {
     const tables = await this.getTableNames();
@@ -390,33 +480,42 @@ export default class SimpleDB extends Simple {
   }
 
   /**
-   * Returns all tables in the db.
+   * Returns an array of all SimpleTable instances in the database.
+   *
+   * @returns A promise that resolves to an array of SimpleTable instances.
+   * @category Table Management
    *
    * @example
-   * Basic usage
    * ```ts
-   * const tablesNames = await sdb.getTableNames()
+   * // Get all SimpleTable instances
+   * const tables = await sdb.getTables();
    * ```
-   *
-   * @category DB methods
    */
   async getTables(): Promise<SimpleTable[]> {
     return await this.tables;
   }
 
   /**
-   * Returns true if a specified table exists and false if not.
+   * Checks if a table exists in the database.
+   *
+   * @param table - The name of the table or a SimpleTable instance.
+   * @returns A promise that resolves to `true` if the table exists, `false` otherwise.
+   * @category Table Management
    *
    * @example
-   * Basic usage
    * ```ts
-   * // You can also pass a table instance.
-   * const hasEmployees = await sdb.hasTable("employees")
+   * // Check if a table named "employees" exists
+   * const exists = await sdb.hasTable("employees");
+   * console.log(exists); // Output: true or false
    * ```
    *
-   * @param table - The name of the table to check for existence.
-   *
-   * @category DB methods
+   * @example
+   * ```ts
+   * // Check if a SimpleTable instance exists in the database
+   * const myTable = sdb.newTable("my_data");
+   * const existsInstance = await sdb.hasTable(myTable);
+   * console.log(existsInstance); // Output: true or false
+   * ```
    */
   async hasTable(table: SimpleTable | string): Promise<boolean> {
     const tableName = typeof table === "string" ? table : table.name;
@@ -425,15 +524,17 @@ export default class SimpleDB extends Simple {
   }
 
   /**
-   * Returns the DuckDB extensions.
+   * Returns a list of installed DuckDB extensions.
+   *
+   * @returns A promise that resolves to an array of objects, each representing an installed extension.
+   * @category DuckDB
    *
    * @example
-   * Basic usage
    * ```ts
-   * const extensions = await sdb.getExtensions()
+   * // Get a list of all installed extensions
+   * const extensions = await sdb.getExtensions();
+   * console.log(extensions); // Output: [{ extension_name: "spatial", loaded: true, ... }]
    * ```
-   *
-   * @category DB methods
    */
   async getExtensions(): Promise<
     {
@@ -455,21 +556,30 @@ export default class SimpleDB extends Simple {
   }
 
   /**
-   * Executes a custom SQL query, providing flexibility for advanced users.
+   * Executes a custom SQL query directly against the DuckDB instance.
+   *
+   * @param query - The SQL query string to execute.
+   * @param options - Configuration options for the query.
+   * @param options.returnDataFrom - Specifies whether to return data from the query. Can be `"query"` to return data or `"none"` (default) to not return data.
+   * @param options.table - The name of the table associated with the query, primarily used for debugging and logging.
+   * @returns A promise that resolves to the query result as an array of objects if `returnDataFrom` is `"query"`, otherwise `null`.
+   * @category DuckDB
    *
    * @example
-   * Basic usage
    * ```ts
-   * // You can use the returnDataFrom option to retrieve the data from the query, if needed.
-   * const data = await sdb.customQuery("SELECT * FROM employees WHERE Job = 'Clerk'", { returnDataFrom: "query" })
+   * // Execute a query without returning data
+   * await sdb.customQuery("CREATE TABLE young_employees AS SELECT * FROM employees WHERE age > 30");
    * ```
    *
-   * @param query - The custom SQL query to be executed.
-   * @param options - An optional object with configuration options:
-   *   @param options.returnDataFrom - Specifies whether to return data from the "query" or not. Defaults to "none".
-   *   @param options.table - The name of the table associated with the query (if applicable). Needed when debug is true.
-   *
-   * @category DB methods
+   * @example
+   * ```ts
+   * // Execute a query and return the results
+   * const youngEmployees = await sdb.customQuery(
+   *   "SELECT * FROM employees WHERE age < 30",
+   *   { returnDataFrom: "query" }
+   * );
+   * console.log(youngEmployees);
+   * ```
    */
   async customQuery(
     query: string,
@@ -496,38 +606,33 @@ export default class SimpleDB extends Simple {
   }
 
   /**
-   * Loads a database. The method will automatically look for files with projections and indexes in the same folder as the database file, if any.
+   * Loads a database from a specified file into the current SimpleDB instance.
+   * Supported file types are `.db` (DuckDB) and `.sqlite` (SQLite).
    *
-   * By default, the database will be copied into memory and detached. The original file will not be modified. To keep the database attached, set the `detach` option to `false`.
-   *
-   * If you want to load multiple databases, you can use the `name` option to give them different names. If you don't provide a name, it will default to `my_database`. Note that the last database loaded will be considered the default database.
+   * @param file - The absolute path to the database file (e.g., "./my_database.db").
+   * @param options - Configuration options for loading the database.
+   * @param options.name - The name to assign to the loaded database within the DuckDB instance. Defaults to the file name without extension.
+   * @param options.detach - If `true` (default), the database is detached after loading its contents into memory. If `false`, the database remains attached.
+   * @returns A promise that resolves when the database has been loaded.
+   * @category File Operations
    *
    * @example
-   * Basic usage
    * ```ts
-   * await sdb.loadDB("my_database.db")
-   * const myTable = await sdb.getTable("myTable")
+   * // Load a DuckDB database file
+   * await sdb.loadDB("./my_database.db");
    * ```
    *
    * @example
-   * Loading a SQLite database
    * ```ts
-   * await sdb.loadDB("my_database.sqlite")
-   * const myTable = await sdb.getTable("myTable")
+   * // Load a SQLite database file and keep it attached
+   * await sdb.loadDB("./my_database.sqlite", { detach: false });
    * ```
    *
    * @example
-   * Loading a database with a specific name and keeping it attached
    * ```ts
-   * await sdb.loadDB("my_database.db", { name: "my_custom_name", detach: false })
+   * // Load a database with a custom name
+   * await sdb.loadDB("./archive.db", { name: "archive_db" });
    * ```
-   *
-   * @param file - The path to the file storing the database.
-   * @param options - An optional object with configuration options:
-   *   @param options.name - The name of the database to be loaded. Defaults to "my_database".
-   *   @param options.detach - Whether to detach the database after loading it. Defaults to true.
-   *
-   * @category DB methods
    */
   async loadDB(file: string, options: {
     name?: string;
@@ -613,21 +718,26 @@ DETACH ${name};`,
   }
 
   /**
-   * Writes the database to a file. The file will be created if it doesn't exist, and overwritten if it does. If one or more tables have geometries, a .json file will be created with the projections. If one or more indexes are present, a .json file will be created with the indexes.
+   * Writes the current state of the database to a specified file.
+   * Supported output file types are `.db` (DuckDB) and `.sqlite` (SQLite).
+   *
+   * @param file - The absolute path to the output file (e.g., "./my_exported_database.db").
+   * @param options - Configuration options for writing the database.
+   * @param options.noMetaData - If `true`, metadata files (projections, indexes) are not created alongside the database file. Defaults to `false`.
+   * @returns A promise that resolves when the database has been written to the file.
+   * @category File Operations
    *
    * @example
-   * Basic usage
    * ```ts
-   * await sdb.writeDB("my_database.db")
+   * // Write the current database to a DuckDB file
+   * await sdb.writeDB("./my_exported_database.db");
    * ```
    *
    * @example
-   * Writing a SQLite database
    * ```ts
-   * await sdb.writeDB("my_database.sqlite")
+   * // Write the current database to a SQLite file without metadata
+   * await sdb.writeDB("./my_exported_database.sqlite", { noMetaData: true });
    * ```
-   *
-   * @param file - The path to the file where the database will be written.
    */
   async writeDB(
     file: string,
@@ -681,17 +791,19 @@ DETACH ${name};`,
   }
 
   /**
-   * Frees up memory by closing down the database and cleans up cache so it doesn't grow in size indefinitely. Also compacts the database if it is not in memory.
+   * Frees up memory by closing the database connection and instance, and cleans up the cache.
+   * If the database is file-based, it also compacts the database file to optimize storage.
+   *
+   * @returns A promise that resolves to the SimpleDB instance after cleanup.
+   * @category Lifecycle
    *
    * @example
-   * Basic usage
-   * ```typescript
+   * ```ts
+   * // Close the database and clean up resources
    * await sdb.done();
    * ```
-   *
-   * @category DB methods
    */
-  async done(): Promise<this> {
+  async done(): Promise<SimpleDB> {
     if (this.file !== ":memory:") {
       await this.customQuery("CHECKPOINT;");
       // To make sure the files will have the proper names.
