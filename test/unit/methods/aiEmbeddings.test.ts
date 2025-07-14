@@ -2,6 +2,7 @@ import "jsr:@std/dotenv/load";
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
+import { Ollama } from "ollama";
 
 const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
 if (typeof aiKey === "string" && aiKey !== "") {
@@ -115,6 +116,33 @@ if (typeof ollama === "string" && ollama !== "") {
       cache: true,
       // Log details
       verbose: true,
+    });
+
+    // Just making sure it's doesnt crash for now
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  Deno.test("should create embeddings with a different Ollama instance", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { food: "pizza" },
+      { food: "sushi" },
+      { food: "burger" },
+      { food: "pasta" },
+      { food: "salad" },
+      { food: "tacos" },
+    ]);
+
+    const ollama = new Ollama({ host: "http://127.0.0.1:11434" });
+
+    // Ask the AI to generate embeddings in a new column "embeddings".
+    await table.aiEmbeddings("food", "embeddings", {
+      // Cache the results locally
+      cache: true,
+      // Log details
+      verbose: true,
+      ollama,
     });
 
     // Just making sure it's doesnt crash for now

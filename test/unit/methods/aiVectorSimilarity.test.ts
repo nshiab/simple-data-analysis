@@ -2,6 +2,7 @@ import "jsr:@std/dotenv/load";
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
+import { Ollama } from "ollama";
 
 // Testing just with Ollama for now
 const ollama = Deno.env.get("OLLAMA");
@@ -48,6 +49,46 @@ if (typeof ollama === "string" && ollama !== "") {
 
     // Just making sure it's doesnt crash for now
     assertEquals(values, ["pizza", "pasta", "salad"]);
+  });
+  Deno.test("should sucessfully run the example with a different Ollama instance", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable();
+    await table.loadArray([
+      { food: "pizza" },
+      { food: "sushi" },
+      { food: "burger" },
+      { food: "pasta" },
+      { food: "salad" },
+      { food: "tacos" },
+    ]);
+
+    // Ask the AI to generate embeddings in a new column "embeddings".
+    await table.aiEmbeddings("food", "embeddings", {
+      // Cache the results locally
+      cache: true,
+      concurrent: 3,
+    });
+
+    const ollama = new Ollama({ host: "http://127.0.0.1:11434" });
+
+    // Ask the AI to find the 3 most similar foods to "italian food" in the column "food".
+    await table.aiVectorSimilarity(
+      "italian foods",
+      "embeddings",
+      3,
+      {
+        // Create an index on the embeddings column
+        createIndex: true,
+        // Cache the results locally
+        cache: true,
+        ollama,
+      },
+    );
+
+    const values = await table.getValues("food");
+
+    // Just making sure it's doesnt crash for now
+    assertEquals(values, ["pasta", "pizza", "salad"]);
   });
   Deno.test("should make a vector similarity search", async () => {
     const sdb = new SimpleDB();
