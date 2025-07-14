@@ -98,6 +98,7 @@ import aiRowByRow from "../methods/aiRowByRow.ts";
 import aiQuery from "../methods/aiQuery.ts";
 import aiEmbeddings from "../methods/aiEmbeddings.ts";
 import aiVectorSimilarity from "../methods/aiVectorSimilarity.ts";
+import type { Ollama } from "ollama";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
@@ -586,7 +587,7 @@ export default class SimpleTable extends Simple {
    *
    * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or directly via `options`, with `options` taking precedence.
    *
-   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_MODEL` to your desired model name.
+   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_MODEL` to your desired model name. You can also pass your instance of Ollama to the `ollama` option.
    *
    * To manage rate limits, use `batchSize` to process multiple rows per request and `rateLimitPerMinute` to introduce delays between requests. For higher rate limits (business/professional accounts), `concurrent` allows parallel requests.
    *
@@ -613,7 +614,8 @@ export default class SimpleTable extends Simple {
    * @param options.vertex - If `true`, uses Vertex AI. Automatically set to `true` if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to `false`.
    * @param options.project - The Google Cloud project ID for Vertex AI. Defaults to the `AI_PROJECT` environment variable.
    * @param options.location - The Google Cloud location for Vertex AI. Defaults to the `AI_LOCATION` environment variable.
-   * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable.
+   * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama
+  instance to be used, you can pass it here too.
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
    * @param options.clean - A function to clean the AI's response before testing, caching, and storing. Defaults to `undefined`.
    * @returns A promise that resolves when the AI processing is complete.
@@ -673,7 +675,7 @@ export default class SimpleTable extends Simple {
       vertex?: boolean;
       project?: string;
       location?: string;
-      ollama?: boolean;
+      ollama?: boolean | Ollama;
       verbose?: boolean;
       rateLimitPerMinute?: number;
       clean?: (
@@ -689,7 +691,7 @@ export default class SimpleTable extends Simple {
    *
    * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`) or directly via `options`, with `options` taking precedence.
    *
-   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL` to your desired model name.
+   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL` to your desired model name. You can also pass your instance of Ollama to the `ollama` option.
    *
    * To manage rate limits, use `rateLimitPerMinute` to introduce delays between requests. For higher rate limits (business/professional accounts), `concurrent` allows parallel requests.
    *
@@ -711,7 +713,8 @@ export default class SimpleTable extends Simple {
    * @param options.vertex - If `true`, uses Vertex AI. Automatically set to `true` if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to `false`.
    * @param options.project - The Google Cloud project ID for Vertex AI. Defaults to the `AI_PROJECT` environment variable.
    * @param options.location - The Google Cloud location for Vertex AI. Defaults to the `AI_LOCATION` environment variable.
-   * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable.
+   * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama
+  instance to be used, you can pass it here too.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
    * @returns A promise that resolves when the embeddings have been generated and stored.
    * @category AI
@@ -746,7 +749,7 @@ export default class SimpleTable extends Simple {
     vertex?: boolean;
     project?: string;
     location?: string;
-    ollama?: boolean;
+    ollama?: boolean | Ollama;
     verbose?: boolean;
     rateLimitPerMinute?: number;
   } = {}): Promise<void> {
@@ -759,7 +762,7 @@ export default class SimpleTable extends Simple {
    *
    * To create the embedding, this method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`) or directly via `options`, with `options` taking precedence.
    *
-   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL` to your desired model name.
+   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL` to your desired model name. You can also pass your instance of Ollama to the `ollama` option.
    *
    * The `cache` option enables local caching of the specified text's embedding in `.journalism-cache` (from the `getEmbedding` function in the [journalism library](https://github.com/nshiab/journalism)). Remember to add `.journalism-cache` to your `.gitignore`.
    *
@@ -777,7 +780,8 @@ export default class SimpleTable extends Simple {
    * @param options.vertex - If `true`, uses Vertex AI. Automatically set to `true` if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to `false`.
    * @param options.project - The Google Cloud project ID for Vertex AI. Defaults to the `AI_PROJECT` environment variable.
    * @param options.location - The Google Cloud location for Vertex AI. Defaults to the `AI_LOCATION` environment variable.
-   * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable.
+   * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama
+  instance to be used, you can pass it here too.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
    * @returns A promise that resolves to the SimpleTable instance containing the similarity search results.
    * @category AI
@@ -825,7 +829,7 @@ export default class SimpleTable extends Simple {
       vertex?: boolean;
       project?: string;
       location?: string;
-      ollama?: boolean;
+      ollama?: boolean | Ollama;
       verbose?: boolean;
     } = {},
   ): Promise<SimpleTable> {
@@ -838,7 +842,7 @@ export default class SimpleTable extends Simple {
    *
    * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or directly via `options`, with `options` taking precedence.
    *
-   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_MODEL` to your desired model name.
+   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_MODEL` to your desired model name. You can also pass your instance of Ollama to the `ollama` option.
    *
    * Temperature is set to 0 to aim for reproducible results. For future consistency, it's recommended to copy the generated query and execute it manually using `await sdb.customQuery(query)` or to cache the query using the `cache` option.
    *
@@ -852,6 +856,8 @@ export default class SimpleTable extends Simple {
    * @param options.vertex - If `true`, uses Vertex AI. Automatically set to `true` if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to `false`.
    * @param options.project - The Google Cloud project ID for Vertex AI. Defaults to the `AI_PROJECT` environment variable.
    * @param options.location - The Google Cloud location for Vertex AI. Defaults to the `AI_LOCATION` environment variable.
+   * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama
+  instance to be used, you can pass it here too.
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
    * @returns A promise that resolves when the AI query has been executed.
    * @category AI
@@ -875,6 +881,7 @@ export default class SimpleTable extends Simple {
     vertex?: boolean;
     project?: string;
     location?: string;
+    ollama?: boolean | Ollama;
     verbose?: boolean;
   } = {}): Promise<void> {
     await aiQuery(this, prompt, options);

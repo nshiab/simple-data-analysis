@@ -2,6 +2,7 @@ import "jsr:@std/dotenv/load";
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
+import { Ollama } from "ollama";
 
 const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
 if (typeof aiKey === "string" && aiKey !== "") {
@@ -466,6 +467,60 @@ if (typeof ollama === "string" && aiKey !== "") {
         rateLimitPerMinute: 15,
         // Log details
         verbose: true,
+      },
+    );
+
+    const data = await table.getData();
+
+    assertEquals(data, [
+      { name: "Marie", gender: "Woman" },
+      { name: "John", gender: "Man" },
+      { name: "Alex", gender: "Neutral" },
+    ]);
+    await sdb.done();
+  });
+  Deno.test("should successfully run the code example with a different ollama instance (ollama)", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    // New table with column "name".
+    await table.loadArray([
+      { name: "Marie" },
+      { name: "John" },
+      { name: "Alex" },
+    ]);
+
+    const ollama = new Ollama({ host: "http://127.0.0.1:11434" });
+
+    // Ask the AI to categorize in a new column "gender".
+    await table.aiRowByRow(
+      "name",
+      "gender",
+      `Guess whether it's a "Man" or a "Woman" from the first names. If it could be both, return "Neutral". Return an objects with two keys in it: one with the names and the other with the genders.`,
+      {
+        // Cache the results locally
+        cache: true,
+        // Send 10 rows at once to the AI
+        batchSize: 10,
+        clean: (response: unknown) =>
+          typeof response === "object" && response && "genders" in response
+            ? response.genders
+            : response,
+        // Ensure the response contains only the expected categories
+        test: (response: unknown) => {
+          if (
+            typeof response !== "string" ||
+            !["Man", "Woman", "Neutral"].includes(response)
+          ) {
+            throw new Error(`Invalid response ${response}`);
+          }
+        },
+        // Retry up to 3 times if the test fails
+        retry: 3,
+        // Avoid exceeding a rate limit by waiting between requests
+        rateLimitPerMinute: 15,
+        // Log details
+        verbose: true,
+        ollama,
       },
     );
 

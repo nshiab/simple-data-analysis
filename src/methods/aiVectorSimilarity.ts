@@ -2,6 +2,7 @@ import { camelCase, getEmbedding } from "@nshiab/journalism";
 import type { SimpleTable } from "../index.ts";
 import queryDB from "../helpers/queryDB.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
+import type { Ollama } from "ollama";
 
 export default async function aiVectorSimilarity(
   simpleTable: SimpleTable,
@@ -17,7 +18,7 @@ export default async function aiVectorSimilarity(
     vertex?: boolean;
     project?: string;
     location?: string;
-    ollama?: boolean;
+    ollama?: boolean | Ollama;
     verbose?: boolean;
   } = {},
 ) {

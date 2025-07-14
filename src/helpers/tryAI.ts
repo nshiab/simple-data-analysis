@@ -1,4 +1,5 @@
 import { askAI } from "@nshiab/journalism";
+import type { Ollama } from "ollama";
 
 export default async function tryAI(
   i: number,
@@ -20,7 +21,7 @@ export default async function tryAI(
     vertex?: boolean;
     project?: string;
     location?: string;
-    ollama?: boolean;
+    ollama?: boolean | Ollama;
     verbose?: boolean;
     rateLimitPerMinute?: number;
     clean?: (

@@ -1,5 +1,6 @@
 import { askAI } from "@nshiab/journalism";
 import type { SimpleTable } from "../index.ts";
+import type { Ollama } from "ollama";
 
 export default async function aiQuery(
   simpleTable: SimpleTable,
@@ -11,6 +12,7 @@ export default async function aiQuery(
     vertex?: boolean;
     project?: string;
     location?: string;
+    ollama?: boolean | Ollama;
     verbose?: boolean;
   } = {},
 ) {

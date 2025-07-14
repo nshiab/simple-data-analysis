@@ -1,6 +1,7 @@
 import { camelCase, formatNumber, sleep } from "@nshiab/journalism";
 import type { SimpleTable } from "../index.ts";
 import tryEmbedding from "../helpers/tryEmbedding.ts";
+import type { Ollama } from "ollama";
 
 export default async function aiEmbeddings(
   simpleTable: SimpleTable,
@@ -15,7 +16,7 @@ export default async function aiEmbeddings(
     vertex?: boolean;
     project?: string;
     location?: string;
-    ollama?: boolean;
+    ollama?: boolean | Ollama;
     verbose?: boolean;
     rateLimitPerMinute?: number;
   } = {},

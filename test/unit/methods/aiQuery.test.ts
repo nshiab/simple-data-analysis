@@ -2,6 +2,7 @@ import "jsr:@std/dotenv/load";
 import { assertEquals } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
+import { Ollama } from "ollama";
 
 const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
 if (typeof aiKey === "string" && aiKey !== "") {
@@ -94,6 +95,29 @@ if (typeof ollama === "string" && ollama !== "") {
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
+      { verbose: true },
+    );
+
+    await table.logTable();
+
+    // Just to make sure it doesn't crash for now
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  Deno.test("should update a table with natural language with a different Ollama instance", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadData("test/data/files/dailyTemperatures.csv");
+    await table.renameColumns({ t: "temperature", "id": "city" });
+
+    const ollama = new Ollama({ host: "http://127.0.0.1:11434" });
+
+    await table.aiQuery(
+      `I want the average temperature for each city with two decimals.`,
+      {
+        ollama,
+        verbose: true,
+      },
     );
 
     await table.logTable();

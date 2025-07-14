@@ -1,4 +1,5 @@
 import { getEmbedding } from "@nshiab/journalism";
+import type { Ollama } from "ollama";
 
 export default async function tryEmbedding(
   i: number,
@@ -14,7 +15,7 @@ export default async function tryEmbedding(
     vertex?: boolean;
     project?: string;
     location?: string;
-    ollama?: boolean;
+    ollama?: boolean | Ollama;
     verbose?: boolean;
   } = {},
 ) {
