@@ -319,10 +319,13 @@ console.log(extensions); // Output: [{ extension_name: "spatial", loaded: true, 
 
 Executes a custom SQL query directly against the DuckDB instance.
 
+If you want to force the returned data to match the types of the columns, you
+can use the `types` option.
+
 ##### Signature
 
 ```typescript
-async customQuery(query: string, options?: { returnDataFrom?: "query" | "none"; table?: string }): Promise<Record<string, string | number | boolean | Date | null>[] | null>;
+async customQuery(query: string, options?: { returnDataFrom?: "query" | "none"; table?: string; types?: Record<string, string> }): Promise<Record<string, string | number | boolean | Date | null>[] | null>;
 ```
 
 ##### Parameters
@@ -334,6 +337,8 @@ async customQuery(query: string, options?: { returnDataFrom?: "query" | "none"; 
   data.
 - **`options.table`**: - The name of the table associated with the query,
   primarily used for debugging and logging.
+- **`options.types`**: - An optional object specifying data types for the query
+  parameters.
 
 ##### Returns
 
