@@ -9,6 +9,7 @@ export default function mergeOptions(
     nbRowsToLog?: number;
     returnDataFrom?: "query" | "none";
     debug?: boolean;
+    types?: { [key: string]: string };
   },
 ): {
   table: string | null;
@@ -18,6 +19,7 @@ export default function mergeOptions(
   nbCharactersToLog: number | undefined;
   returnDataFrom: "query" | "none";
   debug: boolean;
+  types?: { [key: string]: string };
 } {
   return {
     table: options.table,
@@ -27,5 +29,6 @@ export default function mergeOptions(
     nbCharactersToLog: simple.nbCharactersToLog,
     returnDataFrom: options.returnDataFrom ?? "none",
     debug: options.debug ?? simple.debug,
+    types: options.types,
   };
 }

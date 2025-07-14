@@ -505,6 +505,30 @@ Deno.test("should set the enable_external_file_cache option to false", async () 
   await sdb.start();
   await sdb.done();
 });
+Deno.test("should respect the data types when returning data with custom query", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+
+  const data = [
+    { date: new Date("2023-01-01"), value: 10 },
+    { date: new Date("2023-02-01"), value: 20 },
+    { date: new Date("2023-03-01"), value: 30 },
+    { date: new Date("2023-04-01"), value: 40 },
+  ];
+  await table.loadArray(data);
+
+  const returnedData = await sdb.customQuery(
+    `SELECT date, value FROM "${table.name}"`,
+    {
+      returnDataFrom: "query",
+      table: table.name,
+      types: await table.getTypes(),
+    },
+  );
+
+  assertEquals(returnedData, data);
+  await sdb.done();
+});
 const ollama = Deno.env.get("OLLAMA");
 if (typeof ollama === "string" && ollama !== "") {
   Deno.test("should create a DB with embeddings and an index", async () => {

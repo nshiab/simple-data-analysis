@@ -558,10 +558,13 @@ export default class SimpleDB extends Simple {
   /**
    * Executes a custom SQL query directly against the DuckDB instance.
    *
+   * If you want to force the returned data to match the types of the columns, you can use the `types` option.
+   *
    * @param query - The SQL query string to execute.
    * @param options - Configuration options for the query.
    * @param options.returnDataFrom - Specifies whether to return data from the query. Can be `"query"` to return data or `"none"` (default) to not return data.
    * @param options.table - The name of the table associated with the query, primarily used for debugging and logging.
+   * @param options.types - An optional object specifying data types for the query parameters.
    * @returns A promise that resolves to the query result as an array of objects if `returnDataFrom` is `"query"`, otherwise `null`.
    * @category DuckDB
    *
@@ -586,6 +589,7 @@ export default class SimpleDB extends Simple {
     options: {
       returnDataFrom?: "query" | "none";
       table?: string;
+      types?: { [key: string]: string };
     } = {},
   ): Promise<
     | {
@@ -601,6 +605,7 @@ export default class SimpleDB extends Simple {
         table: options.table ?? null,
         method: "customQuery()",
         parameters: { query, options },
+        types: options.types,
       }),
     );
   }

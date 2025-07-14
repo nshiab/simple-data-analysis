@@ -61,8 +61,12 @@ export default async function queryDB(
     data = await simple.runQuery(query, simple.connection, true, {
       ...options,
       // To convert dates and bigInts to numbers
-      types: simple instanceof SimpleTable && options.method !== "getTypes()"
-        ? options.types ? options.types : await simple.getTypes()
+      types: options.method !== "getTypes()"
+        ? options.types
+          ? options.types
+          : simple instanceof SimpleTable
+          ? await simple.getTypes()
+          : undefined
         : undefined,
     });
   } else {
