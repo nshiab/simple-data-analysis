@@ -6246,7 +6246,7 @@ export default class SimpleTable extends Simple {
           ? `, "${options.smallMultiples}"`
           : ""
       } FROM "${this.name}"`,
-      { returnDataFrom: "query" },
+      { returnDataFrom: "query", types: await this.getTypes() },
     );
     logLineChart(data as { [key: string]: unknown }[], x, y, options);
   }
@@ -6320,7 +6320,7 @@ export default class SimpleTable extends Simple {
           ? `, "${options.smallMultiples}"`
           : ""
       } FROM "${this.name}"`,
-      { returnDataFrom: "query" },
+      { returnDataFrom: "query", types: await this.getTypes() },
     );
     logDotChart(data as { [key: string]: unknown }[], x, y, options);
   }

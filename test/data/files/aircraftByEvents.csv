@@ -1,0 +1,3007 @@
+occurenceYear,aircraftEvent,count
+1993,Aircraft incident - conflict - unsafe operation,7
+1993,Aircraft incident - fuel - other,6
+1993,Aircraft incident - minor damage,50
+1993,Aircraft navigation/communication equipment,65
+1993,Airframe failure,3
+1993,Alleged Canadian Aviation Regulations (CARs) infraction,74
+1993,Bird strike,84
+1993,Blown tire/wheel failure,19
+1993,Brakes,6
+1993,Brakes - failure,1
+1993,Class F airspace violation,17
+1993,Collision midair,2
+1993,Collision on ground,8
+1993,Collision with object,58
+1993,Collision with terrain,78
+1993,Communication error,24
+1993,Conflict - IFR & VFR,33
+1993,Conflict - loss of separation,105
+1993,Conflict - near collision  (VFR or IFR),23
+1993,Conflict - potential,8
+1993,Controlled airspace - unauthorized entry,3
+1993,Crew incapacitation,13
+1993,Dangerous cargo problems (on board),1
+1993,Declared emergency/priority,154
+1993,Decompression/pressurization,23
+1993,Diversion,3
+1993,Door/canopy openings indications,14
+1993,Electrical problem,55
+1993,Engine - malfunction,361
+1993,Engine failure,123
+1993,Engine oil problem,38
+1993,Engine shut down,110
+1993,Fire/smoke (warning),152
+1993,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",48
+1993,Flight instrument failure,6
+1993,Forced landing,103
+1993,Fuel - dumping,1
+1993,Fuel - exhaustion,2
+1993,Fuel - spill,20
+1993,Fuel management,44
+1993,Hard landing,29
+1993,Hydraulic problem,46
+1993,Incursion - runway - aircraft,32
+1993,Landing gear,485
+1993,Landing gear - incorrect configuration,13
+1993,Loss of control - inflight,15
+1993,Loss of control - on ground,40
+1993,Medical emergency,30
+1993,Missing aircraft,23
+1993,Navigation assistance,62
+1993,Nose over,20
+1993,Other operational incident,158
+1993,Overshoot/missed approach,65
+1993,Overturn,20
+1993,Part or pieces separate from an aircraft,11
+1993,Propeller/rotor strike,14
+1993,Public complaint,5
+1993,Regulatory - other infraction,18
+1993,Regulatory - weather infraction,4
+1993,Rejected take-off,56
+1993,Roll over,4
+1993,Runway excursion,93
+1993,Security acts,28
+1993,Smoke/fumes - aircraft,1
+1993,TCAS alert,11
+1993,Wake turbulence/vortices,2
+1993,Weather - clear air turbulence (CAT)/turbulence,44
+1993,Weather - other,45
+1993,Weather - precipitation,10
+1993,Weather - visibility,13
+1993,Wire strike,43
+1993,,162
+1994,Aircraft incident - minor damage,4
+1994,Aircraft navigation/communication equipment,26
+1994,Airframe failure,19
+1994,Alleged Canadian Aviation Regulations (CARs) infraction,54
+1994,Bird strike,101
+1994,Blown tire/wheel failure,58
+1994,Brakes,27
+1994,Collision midair,2
+1994,Collision on ground,30
+1994,Collision with object,64
+1994,Collision with terrain,101
+1994,Communication error,1
+1994,Conflict - IFR & VFR,12
+1994,Conflict - loss of separation,53
+1994,Conflict - near collision  (VFR or IFR),17
+1994,Conflict - potential,35
+1994,Controlled airspace - unauthorized entry,36
+1994,Crew incapacitation,5
+1994,Declared emergency/priority,91
+1994,Decompression/pressurization,30
+1994,Disruptive passenger,1
+1994,Diversion,7
+1994,Door/canopy openings indications,29
+1994,Electrical problem,34
+1994,Engine - malfunction,286
+1994,Engine failure,174
+1994,Engine oil problem,43
+1994,Engine shut down,95
+1994,Fire - engine,1
+1994,Fire/smoke (warning),118
+1994,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",60
+1994,Flight instrument failure,15
+1994,Forced landing,65
+1994,Fuel - spill,14
+1994,Fuel management,62
+1994,Hard landing,49
+1994,Hydraulic problem,63
+1994,Incursion - runway - aircraft,30
+1994,Landing gear,357
+1994,Landing gear - incorrect configuration,12
+1994,Loss of control - inflight,29
+1994,Loss of control - on ground,51
+1994,Medical emergency,39
+1994,Missing aircraft,10
+1994,Navigation assistance,44
+1994,Nose over,15
+1994,Other operational incident,155
+1994,Overshoot/missed approach,14
+1994,Overturn,14
+1994,Part or pieces separate from an aircraft,15
+1994,Propeller/rotor strike,22
+1994,Public complaint,8
+1994,Rejected take-off,61
+1994,Roll over,7
+1994,Runway excursion,68
+1994,Security acts,9
+1994,TCAS alert,56
+1994,Wake turbulence/vortices,3
+1994,Weather - clear air turbulence (CAT)/turbulence,35
+1994,Weather - lightning,1
+1994,Weather - other,26
+1994,Weather - precipitation,10
+1994,Weather - visibility,11
+1994,Wire strike,25
+1994,,276
+1995,Accident - crash,4
+1995,Aircraft incident - conflict - unsafe operation,1
+1995,Aircraft incident - fuel - other,1
+1995,Aircraft incident - minor damage,36
+1995,Aircraft navigation/communication equipment,29
+1995,Airframe failure,20
+1995,Alleged Canadian Aviation Regulations (CARs) infraction,34
+1995,Bird strike,95
+1995,Blown tire/wheel failure,45
+1995,Brakes,20
+1995,Collision midair,6
+1995,Collision on ground,19
+1995,Collision with object,73
+1995,Collision with terrain,70
+1995,Communication error,13
+1995,Conflict - IFR & VFR,16
+1995,Conflict - loss of separation,49
+1995,Conflict - near collision  (VFR or IFR),15
+1995,Conflict - potential,12
+1995,Controlled airspace - unauthorized entry,29
+1995,Crew incapacitation,2
+1995,Declared emergency/priority,122
+1995,Decompression/pressurization,40
+1995,Diversion,20
+1995,Door/canopy openings indications,29
+1995,ELT,2
+1995,Electrical problem,51
+1995,Engine - malfunction,282
+1995,Engine failure,174
+1995,Engine oil problem,72
+1995,Engine shut down,119
+1995,False warning - smoke or fire,1
+1995,Fire - engine,3
+1995,Fire/smoke (warning),130
+1995,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",76
+1995,Flight instrument failure,12
+1995,Forced landing,84
+1995,Fuel - exhaustion,2
+1995,Fuel - spill,17
+1995,Fuel management,59
+1995,Hard landing,28
+1995,Hydraulic problem,55
+1995,Incursion - runway - aircraft,30
+1995,Landing gear,373
+1995,Landing gear - incorrect configuration,14
+1995,Loss of control - inflight,20
+1995,Loss of control - on ground,43
+1995,Medical emergency,54
+1995,Missing aircraft,8
+1995,Navigation assistance,53
+1995,Navigation error,1
+1995,Nose over,17
+1995,Other operational incident,182
+1995,Overshoot/missed approach,9
+1995,Overturn,28
+1995,Part or pieces separate from an aircraft,14
+1995,Propeller/rotor strike,37
+1995,Public complaint,7
+1995,Rejected take-off,46
+1995,Roll over,6
+1995,Runway excursion,87
+1995,Security acts,22
+1995,Smoke/fumes - aircraft,1
+1995,TCAS alert,43
+1995,Wake turbulence/vortices,3
+1995,Weather - clear air turbulence (CAT)/turbulence,34
+1995,Weather - icing,1
+1995,Weather - lightning,1
+1995,Weather - other,38
+1995,Weather - precipitation,12
+1995,Weather - visibility,24
+1995,Windshield/window (aircraft),2
+1995,Wire strike,38
+1995,,363
+1996,Aircraft navigation/communication equipment,26
+1996,Airframe failure,22
+1996,Alleged Canadian Aviation Regulations (CARs) infraction,49
+1996,Bird strike,116
+1996,Blown tire/wheel failure,61
+1996,Brakes,28
+1996,Collision midair,2
+1996,Collision on ground,10
+1996,Collision with object,90
+1996,Collision with terrain,82
+1996,Communication error,2
+1996,Conflict - IFR & VFR,7
+1996,Conflict - loss of separation,41
+1996,Conflict - near collision  (VFR or IFR),11
+1996,Conflict - potential,32
+1996,Controlled airspace - unauthorized entry,48
+1996,Crew incapacitation,13
+1996,Declared emergency/priority,120
+1996,Decompression/pressurization,34
+1996,Diversion,26
+1996,Door/canopy openings indications,21
+1996,ELT,1
+1996,Electrical problem,45
+1996,Engine - malfunction,272
+1996,Engine failure,141
+1996,Engine oil problem,59
+1996,Engine shut down,131
+1996,Evacuation (aircraft),2
+1996,False warning - smoke or fire,2
+1996,"Fire - aircraft (cockpit, cargo or passenger area)",2
+1996,Fire - engine,3
+1996,Fire/smoke (warning),177
+1996,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",64
+1996,Flight instrument failure,21
+1996,Forced landing,73
+1996,Fuel - dumping,1
+1996,Fuel - spill,8
+1996,Fuel - starvation,2
+1996,Fuel management,63
+1996,Hard landing,33
+1996,Hydraulic problem,68
+1996,Incursion - runway - aircraft,34
+1996,Landing gear,354
+1996,Landing gear - incorrect configuration,9
+1996,Loss of control - inflight,27
+1996,Loss of control - on ground,74
+1996,Medical emergency,75
+1996,Missing aircraft,14
+1996,Navigation assistance,25
+1996,Nose over,20
+1996,Other operational incident,159
+1996,Overshoot/missed approach,5
+1996,Overturn,27
+1996,Part or pieces separate from an aircraft,9
+1996,Propeller/rotor strike,28
+1996,Public complaint,9
+1996,Rejected take-off,60
+1996,Roll over,6
+1996,Runway excursion,69
+1996,Security acts,20
+1996,Smoke/fumes - aircraft,4
+1996,TCAS alert,71
+1996,Wake turbulence/vortices,4
+1996,Weather - clear air turbulence (CAT)/turbulence,17
+1996,Weather - other,36
+1996,Weather - precipitation,10
+1996,Weather - visibility,15
+1996,Windshield/window (aircraft),2
+1996,Wire strike,23
+1996,,396
+1997,Aircraft navigation/communication equipment,49
+1997,Airframe failure,32
+1997,Alleged Canadian Aviation Regulations (CARs) infraction,112
+1997,Bird strike,155
+1997,Blown tire/wheel failure,57
+1997,Brakes,24
+1997,Brakes - overheated,1
+1997,Collision midair,2
+1997,Collision on ground,24
+1997,Collision with object,74
+1997,Collision with terrain,111
+1997,Communication error,3
+1997,Conflict - IFR & VFR,4
+1997,Conflict - loss of separation,76
+1997,Conflict - near collision  (VFR or IFR),26
+1997,Conflict - potential,72
+1997,Controlled airspace - unauthorized entry,41
+1997,Crew incapacitation,18
+1997,Declared emergency/priority,191
+1997,Decompression/pressurization,52
+1997,Disruptive passenger,1
+1997,Diversion,23
+1997,Door/canopy openings indications,38
+1997,ELT,1
+1997,Electrical problem,89
+1997,Engine - malfunction,220
+1997,Engine failure,174
+1997,Engine oil problem,42
+1997,Engine shut down,136
+1997,Evacuation (aircraft),1
+1997,False warning - smoke or fire,1
+1997,Fire/smoke (warning),137
+1997,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",78
+1997,Flight instrument failure,23
+1997,Forced landing,104
+1997,Fuel - dumping,3
+1997,Fuel - leak,1
+1997,Fuel - spill,16
+1997,Fuel management,67
+1997,Hard landing,59
+1997,Hydraulic problem,85
+1997,Incursion - runway - aircraft,36
+1997,Landing gear,397
+1997,Landing gear - incorrect configuration,14
+1997,Loss of control - inflight,28
+1997,Loss of control - on ground,67
+1997,Medical emergency,104
+1997,Missing aircraft,12
+1997,Navigation assistance,51
+1997,Navigation error,1
+1997,Nose over,22
+1997,Other operational incident,155
+1997,Overshoot/missed approach,6
+1997,Overturn,22
+1997,Part or pieces separate from an aircraft,10
+1997,Precautionary landing,1
+1997,Propeller/rotor strike,21
+1997,Public complaint,19
+1997,Rejected take-off,67
+1997,Roll over,10
+1997,Runway excursion,83
+1997,Security acts,18
+1997,Smoke/fumes - aircraft,1
+1997,TCAS alert,91
+1997,Weather - clear air turbulence (CAT)/turbulence,27
+1997,Weather - icing,3
+1997,Weather - other,37
+1997,Weather - precipitation,1
+1997,Weather - visibility,14
+1997,Wire strike,15
+1997,,568
+1998,Aircraft navigation/communication equipment,54
+1998,Airframe failure,47
+1998,Alleged Canadian Aviation Regulations (CARs) infraction,181
+1998,Bird strike,197
+1998,Blown tire/wheel failure,56
+1998,Brakes,45
+1998,Collision midair,2
+1998,Collision on ground,38
+1998,Collision with object,81
+1998,Collision with terrain,129
+1998,Communication error,3
+1998,Conflict - IFR & VFR,7
+1998,Conflict - loss of separation,67
+1998,Conflict - near collision  (VFR or IFR),19
+1998,Conflict - potential,112
+1998,Controlled airspace - unauthorized entry,14
+1998,Crew incapacitation,8
+1998,Declared emergency/priority,395
+1998,Decompression/pressurization,47
+1998,Diversion,27
+1998,Door/canopy openings indications,48
+1998,Electrical problem,115
+1998,Engine - malfunction,267
+1998,Engine failure,207
+1998,Engine oil problem,46
+1998,Engine shut down,157
+1998,"Fire - aircraft (cockpit, cargo or passenger area)",1
+1998,Fire - engine,3
+1998,Fire/smoke (warning),206
+1998,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",80
+1998,Flight instrument failure,35
+1998,Forced landing,100
+1998,Fuel - exhaustion,2
+1998,Fuel - incorrect fuel,1
+1998,Fuel - leak,1
+1998,Fuel - spill,19
+1998,Fuel - starvation,1
+1998,Fuel management,69
+1998,Hard landing,50
+1998,Hydraulic problem,102
+1998,Incursion - runway - aircraft,44
+1998,Landing gear,457
+1998,Landing gear - incorrect configuration,12
+1998,Loss of control - inflight,51
+1998,Loss of control - on ground,77
+1998,Medical emergency,142
+1998,Missing aircraft,11
+1998,Navigation assistance,38
+1998,Navigation error,1
+1998,Nose over,11
+1998,Other operational incident,392
+1998,Overshoot/missed approach,10
+1998,Overturn,30
+1998,Part or pieces separate from an aircraft,9
+1998,Propeller/rotor strike,35
+1998,Public complaint,7
+1998,Rejected take-off,75
+1998,Roll over,4
+1998,Runway excursion,92
+1998,Security acts,19
+1998,Smoke/fumes - aircraft,4
+1998,TCAS alert,109
+1998,Wake turbulence/vortices,1
+1998,Weather - clear air turbulence (CAT)/turbulence,25
+1998,Weather - other,42
+1998,Weather - precipitation,2
+1998,Weather - visibility,20
+1998,Wire strike,19
+1998,,522
+1999,Aircraft navigation/communication equipment,46
+1999,Airframe failure,31
+1999,Alleged Canadian Aviation Regulations (CARs) infraction,338
+1999,Bird strike,214
+1999,Blown tire/wheel failure,76
+1999,Brakes,38
+1999,Brakes - other,1
+1999,Collision midair,1
+1999,Collision on ground,39
+1999,Collision with object,97
+1999,Collision with terrain,152
+1999,Communication error,5
+1999,Conflict - IFR & VFR,10
+1999,Conflict - loss of separation,77
+1999,Conflict - near collision  (VFR or IFR),24
+1999,Conflict - potential,171
+1999,Controlled airspace - unauthorized entry,21
+1999,Crew incapacitation,24
+1999,Declared emergency/priority,399
+1999,Decompression/pressurization,49
+1999,Diversion,24
+1999,Door/canopy openings indications,44
+1999,Electrical problem,104
+1999,Engine - malfunction,310
+1999,Engine failure,172
+1999,Engine oil problem,59
+1999,Engine shut down,132
+1999,False warning - smoke or fire,3
+1999,Fire/smoke (warning),210
+1999,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",95
+1999,Flight instrument failure,21
+1999,Forced landing,97
+1999,Fuel - dumping,2
+1999,Fuel - spill,27
+1999,Fuel - starvation,1
+1999,Fuel management,85
+1999,Hard landing,54
+1999,Hydraulic problem,107
+1999,Incursion - runway - aircraft,62
+1999,Landing gear,403
+1999,Landing gear - incorrect configuration,19
+1999,Loss of control - inflight,66
+1999,Loss of control - on ground,86
+1999,Medical emergency,162
+1999,Missing aircraft,22
+1999,Navigation assistance,32
+1999,Navigation error,1
+1999,Nose over,17
+1999,Other operational incident,582
+1999,Overshoot/missed approach,13
+1999,Overturn,28
+1999,Part or pieces separate from an aircraft,7
+1999,Precautionary landing,1
+1999,Propeller/rotor strike,36
+1999,Public complaint,9
+1999,Rejected take-off,104
+1999,Roll over,4
+1999,Runway excursion,69
+1999,Security acts,12
+1999,Smoke/fumes - aircraft,6
+1999,TCAS alert,101
+1999,Wake turbulence/vortices,2
+1999,Weather - clear air turbulence (CAT)/turbulence,38
+1999,Weather - other,34
+1999,Weather - precipitation,2
+1999,Weather - visibility,26
+1999,Wire strike,10
+1999,,671
+2000,Aircraft navigation/communication equipment,71
+2000,Airframe failure,28
+2000,Alleged Canadian Aviation Regulations (CARs) infraction,557
+2000,Bird strike,229
+2000,Blown tire/wheel failure,84
+2000,Brakes,38
+2000,Brakes - failure,3
+2000,Brakes - frozen,11
+2000,Brakes - other,2
+2000,Brakes - overheated,2
+2000,Class F airspace violation,1
+2000,Collision midair,2
+2000,Collision on ground,41
+2000,Collision with object,99
+2000,Collision with terrain,168
+2000,Communication error,18
+2000,Conflict - IFR & VFR,17
+2000,Conflict - loss of separation,63
+2000,Conflict - near collision  (VFR or IFR),29
+2000,Conflict - potential,187
+2000,Controlled airspace - unauthorized entry,47
+2000,Crew incapacitation,15
+2000,Declared emergency/priority,486
+2000,Decompression/pressurization,53
+2000,Disruptive passenger,6
+2000,Diversion,183
+2000,Door/canopy openings indications,47
+2000,ELT,11
+2000,Electrical problem,115
+2000,Engine - malfunction,320
+2000,Engine failure,164
+2000,Engine oil problem,67
+2000,Engine shut down,144
+2000,Evacuation (aircraft),2
+2000,False warning - smoke or fire,9
+2000,"Fire - aircraft (cockpit, cargo or passenger area)",3
+2000,Fire - engine,10
+2000,Fire/smoke (warning),162
+2000,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",134
+2000,Flight instrument failure,29
+2000,Forced landing,88
+2000,Fuel - contamination,1
+2000,Fuel - dumping,11
+2000,Fuel - exhaustion,3
+2000,Fuel - leak,11
+2000,Fuel - spill,16
+2000,Fuel - starvation,1
+2000,Fuel management,64
+2000,Hard landing,35
+2000,Hydraulic problem,92
+2000,Incursion - runway - aircraft,111
+2000,Landing gear,393
+2000,Landing gear - incorrect configuration,9
+2000,Laser interference,2
+2000,Loss of control - inflight,63
+2000,Loss of control - on ground,81
+2000,Medical emergency,211
+2000,Missing aircraft,29
+2000,Navigation assistance,50
+2000,Navigation error,7
+2000,Nose over,15
+2000,Other operational incident,793
+2000,Overshoot/missed approach,30
+2000,Overturn,28
+2000,Part or pieces separate from an aircraft,25
+2000,Precautionary landing,6
+2000,Propeller/rotor strike,47
+2000,Public complaint,16
+2000,Rejected take-off,95
+2000,Roll over,4
+2000,Runway excursion,78
+2000,Security acts,19
+2000,Smoke/fumes - aircraft,21
+2000,TCAS alert,148
+2000,Take-off without clearance,2
+2000,Transmission problem,1
+2000,Wake turbulence/vortices,1
+2000,Weather - clear air turbulence (CAT)/turbulence,32
+2000,Weather - icing,4
+2000,Weather - lightning,3
+2000,Weather - other,42
+2000,Weather - precipitation,3
+2000,Weather - visibility,35
+2000,Windshield/window (aircraft),8
+2000,Wire strike,5
+2000,,785
+2001,Aircraft navigation/communication equipment,72
+2001,Airframe failure,12
+2001,Alleged Canadian Aviation Regulations (CARs) infraction,788
+2001,Bird strike,386
+2001,Blown tire/wheel failure,109
+2001,Brakes - failure,17
+2001,Brakes - frozen,11
+2001,Brakes - other,17
+2001,Brakes - overheated,11
+2001,Class F airspace violation,18
+2001,Collision on ground,39
+2001,Collision with object,106
+2001,Collision with terrain,169
+2001,Communication error,168
+2001,Conflict - IFR & VFR,3
+2001,Conflict - loss of separation,48
+2001,Conflict - near collision  (VFR or IFR),14
+2001,Conflict - potential,214
+2001,Controlled airspace - unauthorized entry,115
+2001,Crew incapacitation,21
+2001,Dangerous goods/hazardous materials,1
+2001,Declared emergency/priority,678
+2001,Decompression/pressurization,66
+2001,Disruptive passenger,17
+2001,Diversion,833
+2001,Door/canopy openings indications,65
+2001,ELT,111
+2001,Electrical problem,177
+2001,Engine - malfunction,418
+2001,Engine failure,153
+2001,Engine oil problem,80
+2001,Engine shut down,162
+2001,Evacuation (aircraft),17
+2001,False warning - smoke or fire,31
+2001,"Fire - aircraft (cockpit, cargo or passenger area)",18
+2001,Fire - engine,42
+2001,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",153
+2001,Flight instrument failure,33
+2001,Forced landing,103
+2001,Fuel - contamination,5
+2001,Fuel - dumping,36
+2001,Fuel - exhaustion,31
+2001,Fuel - incorrect fuel,3
+2001,Fuel - leak,35
+2001,Fuel - spill,22
+2001,Fuel - starvation,34
+2001,Hard landing,66
+2001,Hydraulic problem,96
+2001,Incursion - runway - aircraft,157
+2001,Landing gear,456
+2001,Landing gear - incorrect configuration,21
+2001,Loss of control - inflight,67
+2001,Loss of control - on ground,119
+2001,Medical emergency,247
+2001,Missing aircraft,18
+2001,Navigation assistance,42
+2001,Navigation error,48
+2001,Nose over,27
+2001,Other operational incident,803
+2001,Overshoot/missed approach,183
+2001,Overturn,45
+2001,Parachute-related event,9
+2001,Part or pieces separate from an aircraft,26
+2001,Precautionary landing,43
+2001,Propeller/rotor strike,103
+2001,Public complaint,24
+2001,Rejected take-off,241
+2001,Roll over,7
+2001,Runway excursion,112
+2001,Security acts,29
+2001,Smoke/fumes - aircraft,110
+2001,TCAS alert,102
+2001,Transmission problem,5
+2001,Wake turbulence/vortices,6
+2001,Weather - clear air turbulence (CAT)/turbulence,46
+2001,Weather - icing,19
+2001,Weather - lightning,10
+2001,Weather - other,49
+2001,Weather - precipitation,10
+2001,Weather - visibility,76
+2001,Weather - wind,4
+2001,Weather - wind shear,1
+2001,Windshield/window (aircraft),44
+2001,Wing strike,3
+2001,Wire strike,13
+2001,,1535
+2002,Aircraft navigation/communication equipment,118
+2002,Airframe failure,4
+2002,Alleged Canadian Aviation Regulations (CARs) infraction,1262
+2002,Bird strike,441
+2002,Blown tire/wheel failure,120
+2002,Brakes - failure,11
+2002,Brakes - frozen,8
+2002,Brakes - other,13
+2002,Brakes - overheated,10
+2002,Class F airspace violation,32
+2002,Collision on ground,33
+2002,Collision with object,100
+2002,Collision with terrain,144
+2002,Communication error,151
+2002,Conflict - IFR & VFR,8
+2002,Conflict - loss of separation,37
+2002,Conflict - near collision  (VFR or IFR),18
+2002,Conflict - potential,235
+2002,Controlled airspace - unauthorized entry,161
+2002,Crew incapacitation,34
+2002,Declared emergency/priority,567
+2002,Decompression/pressurization,70
+2002,Disruptive passenger,17
+2002,Diversion,910
+2002,Door/canopy openings indications,83
+2002,ELT,147
+2002,Electrical problem,186
+2002,Engine - malfunction,412
+2002,Engine failure,172
+2002,Engine oil problem,103
+2002,Engine shut down,162
+2002,Evacuation (aircraft),26
+2002,False warning - smoke or fire,33
+2002,"Fire - aircraft (cockpit, cargo or passenger area)",24
+2002,Fire - engine,31
+2002,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",122
+2002,Flight instrument failure,47
+2002,Forced landing,92
+2002,Fuel - contamination,6
+2002,Fuel - dumping,59
+2002,Fuel - exhaustion,40
+2002,Fuel - incorrect fuel,2
+2002,Fuel - leak,31
+2002,Fuel - low/declared minimum,1
+2002,Fuel - spill,35
+2002,Fuel - starvation,28
+2002,Hard landing,49
+2002,Hydraulic problem,104
+2002,Incursion - runway - aircraft,192
+2002,Landing gear,453
+2002,Landing gear - incorrect configuration,12
+2002,Laser interference,1
+2002,Loss of control - inflight,54
+2002,Loss of control - on ground,115
+2002,Medical emergency,263
+2002,Missing aircraft,31
+2002,Natural disaster (environment),1
+2002,Navigation assistance,69
+2002,Navigation error,91
+2002,Nose over,34
+2002,Other operational incident,442
+2002,Overshoot/missed approach,187
+2002,Overturn,31
+2002,Parachute-related event,6
+2002,Part or pieces separate from an aircraft,31
+2002,Precautionary landing,54
+2002,Propeller/rotor strike,84
+2002,Public complaint,22
+2002,Rejected take-off,192
+2002,Roll over,8
+2002,Runway excursion,87
+2002,Security acts,33
+2002,Smoke/fumes - aircraft,138
+2002,TCAS alert,93
+2002,Transmission problem,1
+2002,Wake turbulence/vortices,4
+2002,Weather - clear air turbulence (CAT)/turbulence,40
+2002,Weather - icing,24
+2002,Weather - lightning,11
+2002,Weather - other,42
+2002,Weather - precipitation,9
+2002,Weather - visibility,107
+2002,Weather - wind,2
+2002,Windshield/window (aircraft),49
+2002,Wing strike,3
+2002,Wire strike,9
+2002,,1701
+2003,Aircraft navigation/communication equipment,164
+2003,Airframe failure,5
+2003,Alleged Canadian Aviation Regulations (CARs) infraction,1134
+2003,Bird strike,523
+2003,Blown tire/wheel failure,126
+2003,Brakes - failure,28
+2003,Brakes - frozen,15
+2003,Brakes - other,12
+2003,Brakes - overheated,17
+2003,Class F airspace violation,13
+2003,Collision on ground,32
+2003,Collision on ground with aircraft,1
+2003,Collision with object,100
+2003,Collision with terrain,161
+2003,Communication error,124
+2003,Conflict - IFR & VFR,5
+2003,Conflict - loss of separation,22
+2003,Conflict - near collision  (VFR or IFR),10
+2003,Conflict - potential,177
+2003,Controlled airspace - unauthorized entry,150
+2003,Crew incapacitation,37
+2003,Declared emergency/priority,571
+2003,Decompression/pressurization,66
+2003,Disruptive passenger,12
+2003,Diversion,967
+2003,Door/canopy openings indications,78
+2003,ELT,172
+2003,Electrical problem,192
+2003,Engine - malfunction,406
+2003,Engine failure,167
+2003,Engine oil problem,82
+2003,Engine shut down,163
+2003,Evacuation (aircraft),11
+2003,External load,1
+2003,False warning - smoke or fire,25
+2003,"Fire - aircraft (cockpit, cargo or passenger area)",12
+2003,Fire - engine,32
+2003,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",144
+2003,Flight instrument failure,31
+2003,Forced landing,108
+2003,Fuel - contamination,3
+2003,Fuel - dumping,51
+2003,Fuel - exhaustion,21
+2003,Fuel - incorrect fuel,2
+2003,Fuel - leak,40
+2003,Fuel - spill,18
+2003,Fuel - starvation,25
+2003,Hard landing,43
+2003,Hydraulic problem,99
+2003,Incursion - runway - aircraft,135
+2003,Landing gear,490
+2003,Landing gear - incorrect configuration,10
+2003,Loss of control - inflight,69
+2003,Loss of control - on ground,114
+2003,Medical emergency,259
+2003,Missing aircraft,10
+2003,Natural disaster (environment),1
+2003,Navigation assistance,60
+2003,Navigation error,67
+2003,Nose over,42
+2003,Other operational incident,412
+2003,Overshoot/missed approach,253
+2003,Overturn,33
+2003,Parachute-related event,4
+2003,Part or pieces separate from an aircraft,31
+2003,Precautionary landing,93
+2003,Propeller/rotor strike,106
+2003,Public complaint,37
+2003,Rejected take-off,215
+2003,Roll over,15
+2003,Runway excursion,121
+2003,Security acts,23
+2003,Smoke/fumes - aircraft,119
+2003,TCAS alert,95
+2003,Transmission problem,2
+2003,Wake turbulence/vortices,2
+2003,Weather - clear air turbulence (CAT)/turbulence,47
+2003,Weather - icing,23
+2003,Weather - lightning,9
+2003,Weather - other,32
+2003,Weather - precipitation,17
+2003,Weather - visibility,80
+2003,Weather - wind,1
+2003,Windshield/window (aircraft),50
+2003,Wing strike,4
+2003,Wire strike,17
+2003,,1553
+2004,Aircraft navigation/communication equipment,210
+2004,Airframe failure,3
+2004,Alleged Canadian Aviation Regulations (CARs) infraction,1466
+2004,Bird strike,641
+2004,Blown tire/wheel failure,121
+2004,Brakes - failure,21
+2004,Brakes - frozen,21
+2004,Brakes - other,9
+2004,Brakes - overheated,19
+2004,Class F airspace violation,46
+2004,Collision on ground,39
+2004,Collision with object,74
+2004,Collision with terrain,146
+2004,Communication error,225
+2004,Conflict - IFR & VFR,8
+2004,Conflict - loss of separation,21
+2004,Conflict - near collision  (VFR or IFR),26
+2004,Conflict - potential,403
+2004,Controlled airspace - unauthorized entry,290
+2004,Crew incapacitation,48
+2004,Declared emergency/priority,570
+2004,Decompression/pressurization,77
+2004,Disruptive passenger,26
+2004,Diversion,1248
+2004,Door/canopy openings indications,90
+2004,ELT,381
+2004,Electrical problem,222
+2004,Engine - malfunction,434
+2004,Engine failure,162
+2004,Engine oil problem,85
+2004,Engine shut down,134
+2004,Evacuation (aircraft),28
+2004,False warning - smoke or fire,20
+2004,"Fire - aircraft (cockpit, cargo or passenger area)",12
+2004,Fire - engine,26
+2004,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",191
+2004,Flight instrument failure,48
+2004,Forced landing,80
+2004,Fuel - contamination,7
+2004,Fuel - dumping,71
+2004,Fuel - exhaustion,38
+2004,Fuel - incorrect fuel,4
+2004,Fuel - leak,42
+2004,Fuel - spill,23
+2004,Fuel - starvation,16
+2004,Hard landing,46
+2004,Hydraulic problem,107
+2004,Incursion - runway - aircraft,112
+2004,Landing gear,531
+2004,Landing gear - incorrect configuration,18
+2004,Loss of control - inflight,56
+2004,Loss of control - on ground,116
+2004,Medical emergency,314
+2004,Missing aircraft,22
+2004,Navigation assistance,99
+2004,Navigation error,174
+2004,Nose over,31
+2004,Other operational incident,699
+2004,Overshoot/missed approach,259
+2004,Overturn,44
+2004,Parachute-related event,4
+2004,Part or pieces separate from an aircraft,33
+2004,Precautionary landing,95
+2004,Propeller/rotor strike,88
+2004,Public complaint,37
+2004,Rejected take-off,258
+2004,Roll over,12
+2004,Runway excursion,128
+2004,Security acts,32
+2004,Smoke/fumes - aircraft,110
+2004,TCAS alert,57
+2004,Transmission problem,2
+2004,Wake turbulence/vortices,3
+2004,Weather - clear air turbulence (CAT)/turbulence,52
+2004,Weather - icing,13
+2004,Weather - lightning,18
+2004,Weather - other,54
+2004,Weather - precipitation,17
+2004,Weather - visibility,113
+2004,Windshield/window (aircraft),52
+2004,Wire strike,8
+2004,,1974
+2005,Aircraft navigation/communication equipment,284
+2005,Airframe failure,5
+2005,Alleged Canadian Aviation Regulations (CARs) infraction,1384
+2005,Bird strike,606
+2005,Blown tire/wheel failure,107
+2005,Brakes - failure,31
+2005,Brakes - frozen,15
+2005,Brakes - other,22
+2005,Brakes - overheated,11
+2005,Class F airspace violation,52
+2005,Collision midair,1
+2005,Collision on ground,40
+2005,Collision with object,91
+2005,Collision with terrain,148
+2005,Communication error,268
+2005,Communication navigation surveillance/air traffic system,6
+2005,Conflict - IFR & VFR,20
+2005,Conflict - loss of separation,45
+2005,Conflict - near collision  (VFR or IFR),22
+2005,Conflict - potential,566
+2005,Controlled airspace - unauthorized entry,435
+2005,Crew incapacitation,47
+2005,Declared emergency/priority,592
+2005,Decompression/pressurization,105
+2005,Disruptive passenger,19
+2005,Diversion,1308
+2005,Door/canopy openings indications,110
+2005,ELT,416
+2005,Electrical problem,210
+2005,Engine - malfunction,450
+2005,Engine failure,160
+2005,Engine oil problem,96
+2005,Engine shut down,167
+2005,Evacuation (aircraft),15
+2005,False warning - smoke or fire,14
+2005,"Fire - aircraft (cockpit, cargo or passenger area)",10
+2005,Fire - engine,32
+2005,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",146
+2005,Flight instrument failure,48
+2005,Forced landing,81
+2005,Fuel - contamination,2
+2005,Fuel - dumping,43
+2005,Fuel - exhaustion,35
+2005,Fuel - incorrect fuel,2
+2005,Fuel - leak,40
+2005,Fuel - spill,29
+2005,Fuel - starvation,21
+2005,Hard landing,53
+2005,Hydraulic problem,100
+2005,Incursion - runway - aircraft,117
+2005,Landing gear,519
+2005,Landing gear - incorrect configuration,13
+2005,Laser interference,2
+2005,Loss of control - inflight,57
+2005,Loss of control - on ground,101
+2005,Medical emergency,377
+2005,Missing aircraft,23
+2005,Natural disaster (environment),3
+2005,Navigation assistance,85
+2005,Navigation error,183
+2005,Nose over,28
+2005,Other operational incident,688
+2005,Overshoot/missed approach,305
+2005,Overturn,36
+2005,Parachute-related event,3
+2005,Part or pieces separate from an aircraft,36
+2005,Precautionary landing,132
+2005,Propeller/rotor strike,72
+2005,Public complaint,21
+2005,Rejected take-off,260
+2005,Roll over,15
+2005,Runway excursion,109
+2005,Security acts,28
+2005,Smoke/fumes - aircraft,103
+2005,TCAS alert,95
+2005,Transmission problem,2
+2005,Wake turbulence/vortices,6
+2005,Weather - clear air turbulence (CAT)/turbulence,67
+2005,Weather - icing,38
+2005,Weather - lightning,18
+2005,Weather - other,41
+2005,Weather - precipitation,16
+2005,Weather - visibility,121
+2005,Windshield/window (aircraft),57
+2005,Wire strike,5
+2005,,1958
+2006,Aircraft navigation/communication equipment,310
+2006,Airframe failure,2
+2006,Alleged Canadian Aviation Regulations (CARs) infraction,1857
+2006,Bird strike,769
+2006,Blown tire/wheel failure,146
+2006,Brakes - failure,21
+2006,Brakes - frozen,19
+2006,Brakes - other,13
+2006,Brakes - overheated,23
+2006,Class F airspace violation,41
+2006,Collision on ground,22
+2006,Collision with object,104
+2006,Collision with terrain,134
+2006,Communication error,228
+2006,Conflict - IFR & VFR,11
+2006,Conflict - loss of separation,96
+2006,Conflict - near collision  (VFR or IFR),12
+2006,Conflict - potential,452
+2006,Controlled airspace - unauthorized entry,399
+2006,Crew incapacitation,60
+2006,Declared emergency/priority,605
+2006,Decompression/pressurization,118
+2006,Disruptive passenger,17
+2006,Diversion,1456
+2006,Door/canopy openings indications,129
+2006,ELT,536
+2006,Electrical problem,226
+2006,Engine - malfunction,458
+2006,Engine failure,129
+2006,Engine oil problem,105
+2006,Engine shut down,165
+2006,Evacuation (aircraft),27
+2006,False warning - smoke or fire,23
+2006,"Fire - aircraft (cockpit, cargo or passenger area)",10
+2006,Fire - engine,25
+2006,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",222
+2006,Flight instrument failure,58
+2006,Forced landing,69
+2006,Fuel - contamination,15
+2006,Fuel - dumping,53
+2006,Fuel - exhaustion,28
+2006,Fuel - incorrect fuel,5
+2006,Fuel - leak,51
+2006,Fuel - other,1
+2006,Fuel - spill,20
+2006,Fuel - starvation,20
+2006,Hard landing,60
+2006,Hydraulic problem,108
+2006,Incursion - runway - aircraft,159
+2006,Landing gear,517
+2006,Landing gear - incorrect configuration,18
+2006,Laser interference,3
+2006,Loss of control - inflight,45
+2006,Loss of control - on ground,95
+2006,Medical emergency,438
+2006,Missing aircraft,47
+2006,Natural disaster (environment),1
+2006,Navigation assistance,66
+2006,Navigation error,238
+2006,Nose over,23
+2006,Other operational incident,629
+2006,Overshoot/missed approach,375
+2006,Overturn,38
+2006,Parachute-related event,5
+2006,Part or pieces separate from an aircraft,31
+2006,Precautionary landing,239
+2006,Propeller/rotor strike,62
+2006,Public complaint,21
+2006,Rejected take-off,327
+2006,Roll over,12
+2006,Runway excursion,112
+2006,Security acts,25
+2006,Smoke/fumes - aircraft,126
+2006,TCAS alert,86
+2006,Transmission problem,4
+2006,Wake turbulence/vortices,5
+2006,Weather - clear air turbulence (CAT)/turbulence,92
+2006,Weather - icing,19
+2006,Weather - lightning,21
+2006,Weather - other,35
+2006,Weather - precipitation,23
+2006,Weather - visibility,106
+2006,Windshield/window (aircraft),52
+2006,Wire strike,10
+2006,,1828
+2007,Aircraft navigation/communication equipment,346
+2007,Airframe failure,1
+2007,Alleged Canadian Aviation Regulations (CARs) infraction,2198
+2007,Bird strike,758
+2007,Blown tire/wheel failure,193
+2007,Brakes - failure,24
+2007,Brakes - frozen,17
+2007,Brakes - other,29
+2007,Brakes - overheated,27
+2007,Class F airspace violation,62
+2007,Collision on ground,15
+2007,Collision with object,89
+2007,Collision with terrain,135
+2007,Communication error,373
+2007,Conflict - IFR & VFR,12
+2007,Conflict - loss of separation,38
+2007,Conflict - near collision  (VFR or IFR),10
+2007,Conflict - potential,454
+2007,Controlled airspace - unauthorized entry,359
+2007,Crew incapacitation,63
+2007,Declared emergency/priority,715
+2007,Decompression/pressurization,120
+2007,Disruptive passenger,12
+2007,Diversion,1564
+2007,Door/canopy openings indications,133
+2007,ELT,591
+2007,Electrical problem,257
+2007,Engine - malfunction,439
+2007,Engine failure,131
+2007,Engine oil problem,128
+2007,Engine shut down,164
+2007,Evacuation (aircraft),26
+2007,False warning - smoke or fire,23
+2007,"Fire - aircraft (cockpit, cargo or passenger area)",12
+2007,Fire - engine,23
+2007,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",311
+2007,Flight instrument failure,78
+2007,Forced landing,72
+2007,Fuel - contamination,8
+2007,Fuel - dumping,45
+2007,Fuel - exhaustion,25
+2007,Fuel - incorrect fuel,2
+2007,Fuel - leak,47
+2007,Fuel - other,1
+2007,Fuel - spill,29
+2007,Fuel - starvation,20
+2007,Hard landing,61
+2007,Hydraulic problem,112
+2007,Incursion - runway - aircraft,187
+2007,Landing gear,544
+2007,Landing gear - incorrect configuration,17
+2007,Landing in proximity of the intended surface,1
+2007,Laser interference,19
+2007,Loss of control - inflight,59
+2007,Loss of control - on ground,112
+2007,Medical emergency,468
+2007,Missing aircraft,42
+2007,Navigation assistance,86
+2007,Navigation error,346
+2007,Nose over,32
+2007,Other operational incident,600
+2007,Overshoot/missed approach,690
+2007,Overturn,41
+2007,Parachute-related event,4
+2007,Part or pieces separate from an aircraft,28
+2007,Precautionary landing,264
+2007,Propeller/rotor strike,104
+2007,Public complaint,28
+2007,Rejected take-off,394
+2007,Roll over,10
+2007,Runway excursion,101
+2007,Security acts,20
+2007,Smoke/fumes - aircraft,154
+2007,TCAS alert,130
+2007,Wake turbulence/vortices,7
+2007,Weather - clear air turbulence (CAT)/turbulence,106
+2007,Weather - icing,39
+2007,Weather - lightning,9
+2007,Weather - other,109
+2007,Weather - precipitation,19
+2007,Weather - visibility,235
+2007,Weather - wind,1
+2007,Windshield/window (aircraft),52
+2007,Wire strike,8
+2007,,2090
+2008,Aircraft navigation/communication equipment,459
+2008,Airframe failure,3
+2008,Alleged Canadian Aviation Regulations (CARs) infraction,2402
+2008,Bird strike,740
+2008,Blown tire/wheel failure,241
+2008,Brakes - failure,27
+2008,Brakes - frozen,20
+2008,Brakes - other,21
+2008,Brakes - overheated,15
+2008,Class F airspace violation,64
+2008,Collision on ground,16
+2008,Collision with object,92
+2008,Collision with terrain,141
+2008,Communication error,272
+2008,Conflict - IFR & VFR,11
+2008,Conflict - loss of separation,23
+2008,Conflict - near collision  (VFR or IFR),8
+2008,Conflict - potential,514
+2008,Controlled airspace - unauthorized entry,421
+2008,Crew incapacitation,77
+2008,Declared emergency/priority,709
+2008,Decompression/pressurization,133
+2008,Disruptive passenger,72
+2008,Diversion,1724
+2008,Door/canopy openings indications,170
+2008,ELT,568
+2008,Electrical problem,286
+2008,Engine - malfunction,465
+2008,Engine failure,121
+2008,Engine oil problem,121
+2008,Engine shut down,154
+2008,Evacuation (aircraft),40
+2008,False warning - smoke or fire,34
+2008,"Fire - aircraft (cockpit, cargo or passenger area)",10
+2008,Fire - engine,19
+2008,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",308
+2008,Flight instrument failure,90
+2008,Flight plan ? activation,1
+2008,Forced landing,88
+2008,Fuel - contamination,6
+2008,Fuel - dumping,39
+2008,Fuel - exhaustion,26
+2008,Fuel - incorrect fuel,1
+2008,Fuel - leak,38
+2008,Fuel - low/declared minimum,1
+2008,Fuel - spill,20
+2008,Fuel - starvation,19
+2008,Hard landing,48
+2008,Hydraulic problem,110
+2008,Incursion - runway - aircraft,232
+2008,Landing gear,631
+2008,Landing gear - incorrect configuration,16
+2008,Laser interference,80
+2008,Loss of control - inflight,55
+2008,Loss of control - on ground,102
+2008,Mechanical/technical malfunction of aircraft - other,1
+2008,Medical emergency,510
+2008,Missing aircraft,33
+2008,Navigation assistance,87
+2008,Navigation error,374
+2008,Nose over,30
+2008,Other operational incident,920
+2008,Overshoot/missed approach,950
+2008,Overturn,31
+2008,Parachute-related event,5
+2008,Part or pieces separate from an aircraft,30
+2008,Precautionary landing,244
+2008,Propeller/rotor strike,95
+2008,Public complaint,28
+2008,Rejected take-off,395
+2008,Roll over,15
+2008,Runway excursion,119
+2008,Security acts,58
+2008,Smoke/fumes - aircraft,119
+2008,TCAS alert,128
+2008,Wake turbulence/vortices,12
+2008,Weather - clear air turbulence (CAT)/turbulence,112
+2008,Weather - icing,23
+2008,Weather - lightning,9
+2008,Weather - other,153
+2008,Weather - precipitation,21
+2008,Weather - visibility,315
+2008,Windshield/window (aircraft),61
+2008,Wire strike,9
+2008,,2079
+2009,Aircraft navigation/communication equipment,364
+2009,Airframe failure,10
+2009,Alleged Canadian Aviation Regulations (CARs) infraction,1866
+2009,Bird strike,722
+2009,Blown tire/wheel failure,151
+2009,Brakes - failure,14
+2009,Brakes - frozen,12
+2009,Brakes - other,6
+2009,Brakes - overheated,14
+2009,Class F airspace violation,78
+2009,Collision on ground,8
+2009,Collision with object,98
+2009,Collision with terrain,103
+2009,Communication error,250
+2009,Conflict - IFR & VFR,3
+2009,Conflict - loss of separation,20
+2009,Conflict - near collision  (VFR or IFR),5
+2009,Conflict - potential,500
+2009,Controlled airspace - unauthorized entry,428
+2009,Crew incapacitation,58
+2009,Declared emergency/priority,668
+2009,Decompression/pressurization,111
+2009,Disruptive passenger,47
+2009,Diversion,1431
+2009,Door/canopy openings indications,110
+2009,ELT,428
+2009,Electrical problem,221
+2009,Engine - malfunction,377
+2009,Engine failure,138
+2009,Engine oil problem,102
+2009,Engine shut down,152
+2009,Evacuation (aircraft),31
+2009,False warning - smoke or fire,32
+2009,"Fire - aircraft (cockpit, cargo or passenger area)",12
+2009,Fire - engine,18
+2009,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",252
+2009,Flight instrument failure,75
+2009,Forced landing,85
+2009,Fuel - contamination,8
+2009,Fuel - dumping,44
+2009,Fuel - exhaustion,23
+2009,Fuel - incorrect fuel,2
+2009,Fuel - leak,35
+2009,Fuel - spill,14
+2009,Fuel - starvation,10
+2009,Hard landing,42
+2009,Hydraulic problem,98
+2009,Incursion - runway - aircraft,182
+2009,Landing gear,517
+2009,Landing gear - incorrect configuration,18
+2009,Laser interference,107
+2009,Loss of control - inflight,41
+2009,Loss of control - on ground,107
+2009,Medical emergency,476
+2009,Missing aircraft,28
+2009,Natural disaster (environment),1
+2009,Navigation assistance,74
+2009,Navigation error,312
+2009,Nose over,18
+2009,Other operational incident,974
+2009,Overshoot/missed approach,816
+2009,Overturn,37
+2009,Parachute-related event,5
+2009,Part or pieces separate from an aircraft,37
+2009,Precautionary landing,215
+2009,Propeller/rotor strike,74
+2009,Public complaint,40
+2009,Rejected take-off,326
+2009,Roll over,7
+2009,Runway excursion,110
+2009,Security acts,47
+2009,Smoke/fumes - aircraft,110
+2009,TCAS alert,116
+2009,Transmission problem,1
+2009,Wake turbulence/vortices,15
+2009,Weather - clear air turbulence (CAT)/turbulence,123
+2009,Weather - icing,16
+2009,Weather - lightning,14
+2009,Weather - other,80
+2009,Weather - precipitation,23
+2009,Weather - visibility,348
+2009,Windshield/window (aircraft),61
+2009,Wire strike,7
+2009,,1918
+2010,Aircraft navigation/communication equipment,350
+2010,Airframe failure,1
+2010,Alleged Canadian Aviation Regulations (CARs) infraction,1900
+2010,Bird strike,921
+2010,Blown tire/wheel failure,173
+2010,Brakes - failure,17
+2010,Brakes - frozen,6
+2010,Brakes - other,13
+2010,Brakes - overheated,19
+2010,Class F airspace violation,89
+2010,Collision on ground,9
+2010,Collision with object,73
+2010,Collision with terrain,116
+2010,Communication error,251
+2010,Conflict - IFR & VFR,8
+2010,Conflict - loss of separation,39
+2010,Conflict - near collision  (VFR or IFR),8
+2010,Conflict - potential,373
+2010,Controlled airspace - unauthorized entry,385
+2010,Crew incapacitation,50
+2010,Declared emergency/priority,653
+2010,Decompression/pressurization,106
+2010,Disruptive passenger,85
+2010,Diversion,1373
+2010,Door/canopy openings indications,112
+2010,ELT,422
+2010,Electrical problem,206
+2010,Engine - malfunction,397
+2010,Engine failure,102
+2010,Engine oil problem,95
+2010,Engine shut down,130
+2010,Evacuation (aircraft),40
+2010,False indication warning,1
+2010,False warning - smoke or fire,22
+2010,"Fire - aircraft (cockpit, cargo or passenger area)",17
+2010,Fire - engine,19
+2010,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",221
+2010,Flight instrument failure,70
+2010,Forced landing,74
+2010,Fuel - contamination,6
+2010,Fuel - dumping,45
+2010,Fuel - exhaustion,30
+2010,Fuel - incorrect fuel,1
+2010,Fuel - leak,40
+2010,Fuel - low/declared minimum,1
+2010,Fuel - spill,15
+2010,Fuel - starvation,11
+2010,Hard landing,51
+2010,Hydraulic problem,112
+2010,Incursion - runway - aircraft,143
+2010,Incursion - runway - animal,1
+2010,Incursion - runway - vehicle,1
+2010,Landing gear,498
+2010,Landing gear - incorrect configuration,17
+2010,Laser interference,190
+2010,Loss of control - inflight,49
+2010,Loss of control - on ground,96
+2010,Mechanical/technical malfunction of aircraft - other,1
+2010,Medical emergency,464
+2010,Missing aircraft,21
+2010,Natural disaster (environment),1
+2010,Navigation assistance,90
+2010,Navigation error,407
+2010,Nose over,21
+2010,Other operational incident,953
+2010,Overshoot/missed approach,1022
+2010,Overturn,36
+2010,Parachute-related event,6
+2010,Part or pieces separate from an aircraft,30
+2010,Precautionary landing,273
+2010,Propeller/rotor strike,76
+2010,Public complaint,54
+2010,Rejected take-off,351
+2010,Roll over,7
+2010,Runway excursion,114
+2010,Security acts,49
+2010,Smoke/fumes - aircraft,125
+2010,TCAS alert,127
+2010,Transmission problem,2
+2010,Wake turbulence/vortices,11
+2010,Weather - clear air turbulence (CAT)/turbulence,149
+2010,Weather - icing,29
+2010,Weather - lightning,19
+2010,Weather - other,68
+2010,Weather - precipitation,26
+2010,Weather - visibility,245
+2010,Weather - wind,1
+2010,Windshield/window (aircraft),66
+2010,Wing strike,2
+2010,Wire strike,17
+2010,,2765
+2011,Aerodrome - other,1
+2011,Aircraft navigation/communication equipment,452
+2011,Airframe failure,4
+2011,Alleged Canadian Aviation Regulations (CARs) infraction,1699
+2011,Bird strike,915
+2011,Blown tire/wheel failure,248
+2011,Brakes - failure,35
+2011,Brakes - frozen,12
+2011,Brakes - other,15
+2011,Brakes - overheated,18
+2011,Class F airspace violation,84
+2011,Collision on ground,15
+2011,Collision with object,71
+2011,Collision with terrain,100
+2011,Communication error,239
+2011,Conflict - IFR & VFR,6
+2011,Conflict - loss of separation,19
+2011,Conflict - near collision  (VFR or IFR),7
+2011,Conflict - potential,300
+2011,Controlled airspace - unauthorized entry,425
+2011,Crew incapacitation,32
+2011,Declared emergency/priority,631
+2011,Decompression/pressurization,134
+2011,Disruptive passenger,128
+2011,Diversion,1469
+2011,Door/canopy openings indications,117
+2011,ELT,472
+2011,Electrical problem,222
+2011,Engine - malfunction,364
+2011,Engine failure,101
+2011,Engine oil problem,89
+2011,Engine shut down,129
+2011,Evacuation (aircraft),25
+2011,False warning - smoke or fire,15
+2011,"Fire - aircraft (cockpit, cargo or passenger area)",13
+2011,Fire - engine,21
+2011,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",227
+2011,Flight instrument failure,68
+2011,Flight plan ? activation,4
+2011,Forced landing,60
+2011,Fuel - contamination,5
+2011,Fuel - dumping,52
+2011,Fuel - exhaustion,23
+2011,Fuel - incorrect fuel,3
+2011,Fuel - leak,41
+2011,Fuel - other,1
+2011,Fuel - spill,34
+2011,Fuel - starvation,14
+2011,Hard landing,50
+2011,Hydraulic problem,133
+2011,Incursion - runway - aircraft,185
+2011,Landing gear,545
+2011,Landing gear - incorrect configuration,7
+2011,Laser interference,233
+2011,Loss of control - inflight,40
+2011,Loss of control - on ground,96
+2011,Medical emergency,502
+2011,Missing aircraft,25
+2011,Navigation assistance,77
+2011,Navigation error,589
+2011,Nose over,18
+2011,Other operational incident,391
+2011,Overshoot/missed approach,1098
+2011,Overturn,38
+2011,Parachute-related event,11
+2011,Part or pieces separate from an aircraft,31
+2011,Precautionary landing,291
+2011,Propeller/rotor strike,75
+2011,Public complaint,68
+2011,Rejected take-off,449
+2011,Roll over,9
+2011,Runway excursion,109
+2011,SAR/comm search,1
+2011,Security acts,45
+2011,Smoke/fumes - aircraft,105
+2011,TCAS alert,120
+2011,Tail strike,1
+2011,Transmission problem,1
+2011,Wake turbulence/vortices,16
+2011,Weather - clear air turbulence (CAT)/turbulence,174
+2011,Weather - icing,27
+2011,Weather - lightning,28
+2011,Weather - other,80
+2011,Weather - precipitation,19
+2011,Weather - visibility,114
+2011,Weather - wind,5
+2011,Windshield/window (aircraft),64
+2011,Wing strike,4
+2011,Wire strike,10
+2011,,3516
+2012,Aircraft navigation/communication equipment,378
+2012,Airframe failure,4
+2012,Alleged Canadian Aviation Regulations (CARs) infraction,1671
+2012,Animal strike (or risk of collision with animal),1
+2012,Bird strike,1065
+2012,Blown tire/wheel failure,221
+2012,Brakes - failure,34
+2012,Brakes - frozen,8
+2012,Brakes - other,15
+2012,Brakes - overheated,19
+2012,Class F airspace violation,88
+2012,Collision on ground,11
+2012,Collision with object,60
+2012,Collision with terrain,120
+2012,Communication error,235
+2012,Conflict - IFR & VFR,2
+2012,Conflict - loss of separation,15
+2012,Conflict - near collision  (VFR or IFR),4
+2012,Conflict - potential,352
+2012,Controlled airspace - unauthorized entry,456
+2012,Crew incapacitation,46
+2012,Declared emergency/priority,589
+2012,Decompression/pressurization,126
+2012,Disruptive passenger,96
+2012,Diversion,1446
+2012,Door/canopy openings indications,106
+2012,ELT,450
+2012,Electrical problem,215
+2012,Engine - malfunction,331
+2012,Engine failure,103
+2012,Engine oil problem,77
+2012,Engine shut down,127
+2012,Evacuation (aircraft),23
+2012,False warning - smoke or fire,28
+2012,"Fire - aircraft (cockpit, cargo or passenger area)",16
+2012,Fire - engine,29
+2012,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",241
+2012,Flight instrument failure,81
+2012,Flight plan ? activation,1
+2012,Forced landing,63
+2012,Fuel - contamination,6
+2012,Fuel - dumping,34
+2012,Fuel - exhaustion,13
+2012,Fuel - incorrect fuel,1
+2012,Fuel - leak,38
+2012,Fuel - other,1
+2012,Fuel - spill,33
+2012,Fuel - starvation,10
+2012,Hard landing,64
+2012,Hydraulic problem,101
+2012,IFR operations below minimum,1
+2012,Incursion - runway - aircraft,136
+2012,Landing gear,540
+2012,Landing gear - incorrect configuration,17
+2012,Laser interference,340
+2012,Loss of control - inflight,46
+2012,Loss of control - on ground,108
+2012,Mechanical/technical malfunction of aircraft - other,4
+2012,Medical emergency,467
+2012,Missing aircraft,33
+2012,Natural disaster (environment),3
+2012,Navigation assistance,60
+2012,Navigation error,608
+2012,Nose over,21
+2012,Other operational incident,572
+2012,Overshoot/missed approach,1180
+2012,Overturn,40
+2012,Parachute-related event,4
+2012,Part or pieces separate from an aircraft,31
+2012,Precautionary landing,299
+2012,Propeller/rotor strike,78
+2012,Public complaint,53
+2012,Rejected take-off,527
+2012,Roll over,13
+2012,Runway excursion,115
+2012,SAR/comm search,1
+2012,Security acts,40
+2012,Smoke/fumes - aircraft,89
+2012,TCAS alert,107
+2012,Transmission problem,1
+2012,Wake turbulence/vortices,23
+2012,Weather - clear air turbulence (CAT)/turbulence,182
+2012,Weather - icing,26
+2012,Weather - lightning,16
+2012,Weather - other,65
+2012,Weather - precipitation,13
+2012,Weather - visibility,144
+2012,Weather - wind,8
+2012,Weather - wind shear,1
+2012,Windshield/window (aircraft),45
+2012,Wing strike,1
+2012,Wire strike,6
+2012,,3356
+2013,ATM - ILS irregularity,4
+2013,ATM - NAVAIDS/radar,1
+2013,ATS operating irregularity,7
+2013,Aerodrome - power failure,1
+2013,Aerodrome - runway or taxiway surface condition,1
+2013,Aerodrome - visual aids,2
+2013,"Aerodrome, runway or taxiway shutdown",5
+2013,Aircraft navigation/communication equipment,408
+2013,Airframe failure,14
+2013,Alleged Canadian Aviation Regulations (CARs) infraction,198
+2013,Animal strike (or risk of collision with animal),30
+2013,Bird strike,1088
+2013,Blown tire/wheel failure,245
+2013,Brakes - failure,17
+2013,Brakes - frozen,11
+2013,Brakes - other,35
+2013,Brakes - overheated,17
+2013,Class F airspace violation,322
+2013,Collision midair,6
+2013,Collision on ground,28
+2013,Collision on ground with aircraft,3
+2013,Collision with object,70
+2013,Collision with terrain,97
+2013,Communication error,729
+2013,Communication navigation surveillance/air traffic system,3
+2013,Conflict - IFR & VFR,146
+2013,Conflict - loss of separation,473
+2013,Conflict - near collision  (VFR or IFR),39
+2013,Conflict - potential,895
+2013,Controlled airspace - unauthorized entry,430
+2013,Crew incapacitation,62
+2013,Dangerous goods/hazardous materials,1
+2013,Declared emergency/priority,583
+2013,Decompression/pressurization,124
+2013,Disruptive passenger,131
+2013,Diversion,1533
+2013,Door/canopy openings indications,114
+2013,ELT,306
+2013,Electrical problem,151
+2013,Engine - malfunction,320
+2013,Engine failure,116
+2013,Engine oil problem,92
+2013,Engine shut down,118
+2013,Evacuation (aircraft),39
+2013,External load,13
+2013,FOD (foreign object debris),2
+2013,False indication warning,3
+2013,False warning - smoke or fire,18
+2013,"Fire - aircraft (cockpit, cargo or passenger area)",10
+2013,Fire - engine,16
+2013,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",190
+2013,Flight instrument failure,79
+2013,Flight plan ? activation,364
+2013,Forced landing,41
+2013,Fuel - contamination,4
+2013,Fuel - dumping,35
+2013,Fuel - exhaustion,6
+2013,Fuel - incorrect fuel,2
+2013,Fuel - leak,31
+2013,Fuel - low/declared minimum,24
+2013,Fuel - other,7
+2013,Fuel - spill,14
+2013,Fuel - starvation,6
+2013,GPWS/TAWS alert,19
+2013,Hard landing,63
+2013,Hydraulic problem,121
+2013,IFR operations below minimum,108
+2013,Incursion - manoeuvring area,185
+2013,Incursion - runway - aircraft,370
+2013,Incursion - runway - animal,6
+2013,Incursion - runway - pedestrian,1
+2013,Landing gear,504
+2013,Landing gear - incorrect configuration,27
+2013,Landing in proximity of the intended surface,2
+2013,Laser interference,473
+2013,Loss of control - inflight,44
+2013,Loss of control - on ground,79
+2013,Mechanical/technical malfunction of aircraft - other,321
+2013,Medical emergency,487
+2013,Missing aircraft,3
+2013,Navigation assistance,35
+2013,Navigation error,1138
+2013,Nose over,23
+2013,Object dropped from aircraft,9
+2013,Other operational incident,290
+2013,Overshoot/missed approach,2391
+2013,Overturn,28
+2013,Parachute-related event,12
+2013,Parked aircraft damage,4
+2013,Part or pieces separate from an aircraft,33
+2013,Precautionary landing,167
+2013,Propeller/rotor strike,71
+2013,Public complaint,20
+2013,Rejected take-off,585
+2013,Roll over,15
+2013,Runway excursion,113
+2013,SAR/comm search,96
+2013,Security acts,34
+2013,Smoke/fumes - aircraft,120
+2013,TCAS alert,401
+2013,Tail strike,2
+2013,Take-off without clearance,2
+2013,Wake turbulence/vortices,215
+2013,Weather - clear air turbulence (CAT)/turbulence,126
+2013,Weather - icing,36
+2013,Weather - lightning,25
+2013,Weather - other,90
+2013,Weather - precipitation,5
+2013,Weather - visibility,1402
+2013,Weather - wind,108
+2013,Weather - wind shear,106
+2013,"Weather balloon, meteor, rocket, CIRVIS/UFO",4
+2013,Windshield/window (aircraft),46
+2013,Wing strike,2
+2013,Wire strike,5
+2013,,1385
+2014,ATM - inaccurate aeronautical information,3
+2014,ATM - operations,2
+2014,ATM - weather observation systems,1
+2014,Aerodrome - other,30
+2014,Aerodrome - runway or taxiway surface condition,3
+2014,Aerodrome - visual aids,2
+2014,Aerodrome noise,18
+2014,"Aerodrome, runway or taxiway shutdown",7
+2014,Aircraft navigation/communication equipment,417
+2014,Airframe failure,10
+2014,Animal strike (or risk of collision with animal),46
+2014,Bird presence,5
+2014,Bird strike,1027
+2014,Blown tire/wheel failure,203
+2014,Blue ice,1
+2014,Brakes - failure,8
+2014,Brakes - frozen,14
+2014,Brakes - other,33
+2014,Brakes - overheated,11
+2014,Class F airspace violation,86
+2014,Collision on ground,7
+2014,Collision on ground with aircraft,19
+2014,Collision with object,50
+2014,Collision with terrain,109
+2014,Communication error,821
+2014,Conflict - IFR & VFR,169
+2014,Conflict - loss of separation,589
+2014,Conflict - near collision  (VFR or IFR),56
+2014,Conflict - potential,457
+2014,Controlled airspace - unauthorized entry,424
+2014,Crew incapacitation,43
+2014,Dangerous goods/hazardous materials,1
+2014,Declared emergency/priority,555
+2014,Decompression/pressurization,114
+2014,Disruptive passenger,133
+2014,Diversion,1423
+2014,Door/canopy openings indications,92
+2014,ELT,288
+2014,Electrical problem,224
+2014,Engine - malfunction,316
+2014,Engine failure,160
+2014,Engine oil problem,95
+2014,Engine shut down,140
+2014,Evacuation (aircraft),57
+2014,External load,5
+2014,FOD (foreign object debris),6
+2014,False indication warning,42
+2014,False warning - smoke or fire,20
+2014,"Fire - aircraft (cockpit, cargo or passenger area)",12
+2014,Fire - engine,15
+2014,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",191
+2014,Flight instrument failure,54
+2014,Flight plan ? activation,298
+2014,Forced landing,62
+2014,Fuel - contamination,8
+2014,Fuel - dumping,30
+2014,Fuel - exhaustion,5
+2014,Fuel - leak,48
+2014,Fuel - low/declared minimum,48
+2014,Fuel - other,50
+2014,Fuel - spill,11
+2014,Fuel - starvation,2
+2014,GPWS/TAWS alert,11
+2014,Ground handling services,1
+2014,Hard landing,50
+2014,Hydraulic problem,135
+2014,IFR operations below minimum,317
+2014,Incursion - manoeuvring area,200
+2014,Incursion - runway - aircraft,333
+2014,Incursion - runway - animal,12
+2014,Incursion - runway - vehicle,7
+2014,Landing gear,430
+2014,Landing gear - incorrect configuration,26
+2014,Landing in proximity of the intended surface,15
+2014,Laser interference,482
+2014,Loss of control - inflight,40
+2014,Loss of control - on ground,79
+2014,Mechanical/technical malfunction of aircraft - other,288
+2014,Medical emergency,480
+2014,Navigation assistance,37
+2014,Navigation error,1291
+2014,Nose over,18
+2014,Object dropped from aircraft,12
+2014,Other operational incident,99
+2014,Overshoot/missed approach,2595
+2014,Overturn,38
+2014,Parachute-related event,1
+2014,Parked aircraft damage,18
+2014,Part or pieces separate from an aircraft,33
+2014,Precautionary landing,25
+2014,Propeller/rotor strike,45
+2014,Public complaint,10
+2014,Rejected take-off,468
+2014,Roll over,9
+2014,Runway excursion,111
+2014,SAR/comm search,105
+2014,Security acts,13
+2014,Smoke/fumes - aircraft,144
+2014,TCAS alert,464
+2014,Tail strike,13
+2014,Take-off without clearance,84
+2014,Wake turbulence/vortices,282
+2014,Weather - clear air turbulence (CAT)/turbulence,54
+2014,Weather - icing,43
+2014,Weather - lightning,20
+2014,Weather - other,91
+2014,Weather - precipitation,13
+2014,Weather - visibility,61
+2014,Weather - wind,155
+2014,Weather - wind shear,136
+2014,Windshield/window (aircraft),42
+2014,Wing strike,46
+2014,Wire strike,15
+2014,,737
+2015,ATM - other,1
+2015,ATS operating irregularity,6
+2015,Aerodrome - other,32
+2015,Aerodrome noise,23
+2015,"Aerodrome, runway or taxiway shutdown",1
+2015,Aircraft navigation/communication equipment,418
+2015,Airframe failure,5
+2015,Airspeed Limitations - Deviation from CARs,588
+2015,Animal strike (or risk of collision with animal),36
+2015,Bird strike,984
+2015,Blown tire/wheel failure,153
+2015,Brakes - failure,10
+2015,Brakes - frozen,3
+2015,Brakes - other,39
+2015,Brakes - overheated,18
+2015,Class F airspace violation,96
+2015,Collision midair,8
+2015,Collision on ground,40
+2015,Collision on ground with aircraft,7
+2015,Collision with object,52
+2015,Collision with terrain,95
+2015,Communication error,858
+2015,Communication navigation surveillance/air traffic system,1
+2015,Conflict - IFR & VFR,229
+2015,Conflict - loss of separation,544
+2015,Conflict - near collision  (VFR or IFR),54
+2015,Conflict - potential,421
+2015,Controlled airspace - unauthorized entry,345
+2015,Crew incapacitation,48
+2015,Dangerous goods/hazardous materials,2
+2015,Declared emergency/priority,552
+2015,Decompression/pressurization,97
+2015,Disruptive passenger,176
+2015,Diversion,1317
+2015,Door/canopy openings indications,80
+2015,ELT,228
+2015,Electrical problem,187
+2015,Engine - malfunction,283
+2015,Engine failure,108
+2015,Engine oil problem,83
+2015,Engine shut down,110
+2015,Evacuation (aircraft),33
+2015,External load,20
+2015,FOD (foreign object debris),2
+2015,False indication warning,33
+2015,False warning - smoke or fire,19
+2015,"Fire - aircraft (cockpit, cargo or passenger area)",22
+2015,Fire - engine,14
+2015,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",167
+2015,Flight instrument failure,41
+2015,Flight plan ? activation,340
+2015,Flight plan ? route,75
+2015,Forced landing,57
+2015,Fuel - contamination,5
+2015,Fuel - dumping,24
+2015,Fuel - exhaustion,6
+2015,Fuel - incorrect fuel,2
+2015,Fuel - leak,31
+2015,Fuel - low/declared minimum,49
+2015,Fuel - other,74
+2015,Fuel - spill,16
+2015,Fuel - starvation,2
+2015,GPWS/TAWS alert,8
+2015,Ground handling services,6
+2015,Hard landing,43
+2015,Hydraulic problem,132
+2015,IFR operations below minimum,69
+2015,Incursion - manoeuvring area,209
+2015,Incursion - runway - aircraft,260
+2015,Incursion - runway - animal,10
+2015,Landing gear,456
+2015,Landing gear - incorrect configuration,30
+2015,Landing in proximity of the intended surface,15
+2015,Laser interference,597
+2015,Loss of control - inflight,52
+2015,Loss of control - on ground,76
+2015,Mechanical/technical malfunction of aircraft - other,300
+2015,Medical emergency,459
+2015,Navigation assistance,27
+2015,Navigation error,1317
+2015,Nose over,20
+2015,Object dropped from aircraft,11
+2015,Other operational incident,154
+2015,Overshoot/missed approach,2429
+2015,Overturn,39
+2015,Parachute-related event,10
+2015,Parked aircraft damage,13
+2015,Part or pieces separate from an aircraft,44
+2015,Precautionary landing,34
+2015,Propeller/rotor strike,35
+2015,Public complaint,51
+2015,Rejected take-off,352
+2015,Roll over,9
+2015,Runway excursion,110
+2015,SAR/comm search,104
+2015,Security acts,26
+2015,Smoke/fumes - aircraft,133
+2015,TCAS alert,477
+2015,Tail strike,22
+2015,Take-off without clearance,50
+2015,Wake turbulence/vortices,307
+2015,Weather - clear air turbulence (CAT)/turbulence,68
+2015,Weather - icing,36
+2015,Weather - lightning,9
+2015,Weather - other,47
+2015,Weather - precipitation,6
+2015,Weather - visibility,41
+2015,Weather - wind,103
+2015,Weather - wind shear,126
+2015,"Weather balloon, meteor, rocket, CIRVIS/UFO",1
+2015,Windshield/window (aircraft),36
+2015,Wing strike,53
+2015,Wire strike,10
+2015,,430
+2016,ATM - inaccurate aeronautical information,1
+2016,ATM - other,1
+2016,Aerodrome - other,2
+2016,Aerodrome - visual aids,2
+2016,Aerodrome noise,11
+2016,"Aerodrome, runway or taxiway shutdown",2
+2016,Aircraft navigation/communication equipment,440
+2016,Airframe failure,1
+2016,Animal strike (or risk of collision with animal),100
+2016,Bird presence,6
+2016,Bird strike,1011
+2016,Blown tire/wheel failure,133
+2016,Brakes - failure,12
+2016,Brakes - frozen,4
+2016,Brakes - other,22
+2016,Brakes - overheated,11
+2016,Class F airspace violation,93
+2016,Collision on ground,16
+2016,Collision on ground with aircraft,26
+2016,Collision on ground with person,2
+2016,Collision with object,61
+2016,Collision with terrain,92
+2016,Communication error,912
+2016,Communication navigation surveillance/air traffic system,3
+2016,Conflict - IFR & VFR,315
+2016,Conflict - loss of separation,393
+2016,Conflict - near collision  (VFR or IFR),36
+2016,Conflict - potential,1549
+2016,Controlled airspace - unauthorized entry,499
+2016,Crew incapacitation,77
+2016,Dangerous goods/hazardous materials,2
+2016,Declared emergency/priority,724
+2016,Decompression/pressurization,110
+2016,Disruptive passenger,131
+2016,Diversion,1197
+2016,Door/canopy openings indications,79
+2016,ELT,275
+2016,Electrical problem,167
+2016,Engine - malfunction,274
+2016,Engine failure,116
+2016,Engine oil problem,101
+2016,Engine shut down,117
+2016,Evacuation (aircraft),28
+2016,External load,19
+2016,FOD (foreign object debris),11
+2016,False indication warning,11
+2016,False warning - smoke or fire,10
+2016,"Fire - aircraft (cockpit, cargo or passenger area)",13
+2016,Fire - engine,15
+2016,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",180
+2016,Flight instrument failure,41
+2016,Flight plan ? activation,384
+2016,Flight plan ? information,16
+2016,Flight plan ? route,73
+2016,Forced landing,48
+2016,Fuel - contamination,2
+2016,Fuel - dumping,43
+2016,Fuel - exhaustion,6
+2016,Fuel - incorrect fuel,1
+2016,Fuel - leak,18
+2016,Fuel - low/declared minimum,38
+2016,Fuel - other,39
+2016,Fuel - spill,12
+2016,Fuel - starvation,3
+2016,GPWS/TAWS alert,11
+2016,Ground handling services,2
+2016,Hard landing,50
+2016,Hydraulic problem,82
+2016,IFR operations below minimum,19
+2016,Incursion - manoeuvring area,216
+2016,Incursion - runway - aircraft,253
+2016,Incursion - runway - animal,16
+2016,Incursion - runway - pedestrian,1
+2016,Incursion - runway - vehicle,1
+2016,Landing gear,399
+2016,Landing gear - incorrect configuration,21
+2016,Landing in proximity of the intended surface,28
+2016,Laser interference,529
+2016,Loss of control - inflight,30
+2016,Loss of control - on ground,107
+2016,Mechanical/technical malfunction of aircraft - other,279
+2016,Medical emergency,472
+2016,Navigation assistance,39
+2016,Navigation error,1423
+2016,Nose over,24
+2016,Object dropped from aircraft,10
+2016,Other operational incident,157
+2016,Overshoot/missed approach,2381
+2016,Overturn,41
+2016,Parachute-related event,14
+2016,Parked aircraft damage,10
+2016,Part or pieces separate from an aircraft,40
+2016,Precautionary landing,28
+2016,Propeller/rotor strike,41
+2016,Public complaint,11
+2016,Rejected take-off,319
+2016,Roll over,12
+2016,Runway excursion,120
+2016,SAR/comm search,126
+2016,Security acts,16
+2016,Smoke/fumes - aircraft,132
+2016,TCAS alert,543
+2016,Tail strike,12
+2016,Take-off without clearance,91
+2016,Transmission problem,2
+2016,Wake turbulence/vortices,256
+2016,Weather - clear air turbulence (CAT)/turbulence,69
+2016,Weather - icing,21
+2016,Weather - lightning,17
+2016,Weather - other,51
+2016,Weather - precipitation,3
+2016,Weather - visibility,26
+2016,Weather - wind,133
+2016,Weather - wind shear,157
+2016,"Weather balloon, meteor, rocket, CIRVIS/UFO",3
+2016,Windshield/window (aircraft),31
+2016,Wing strike,36
+2016,Wire strike,8
+2016,,190
+2017,ATS operating irregularity,2
+2017,Aerodrome - other,11
+2017,Aerodrome noise,23
+2017,Aerodrome property - death/injury,1
+2017,"Aerodrome, runway or taxiway shutdown",3
+2017,Aircraft navigation/communication equipment,407
+2017,Airframe failure,2
+2017,Airspeed Limitations - Deviation from CARs,6
+2017,Animal strike (or risk of collision with animal),56
+2017,Bird presence,1
+2017,Bird strike,985
+2017,Blown tire/wheel failure,146
+2017,Blue ice,2
+2017,Brakes - failure,7
+2017,Brakes - frozen,17
+2017,Brakes - other,38
+2017,Brakes - overheated,13
+2017,Class F airspace violation,102
+2017,Collision midair,8
+2017,Collision on ground,53
+2017,Collision on ground with aircraft,10
+2017,Collision with object,58
+2017,Collision with terrain,95
+2017,Communication error,1056
+2017,Communication navigation surveillance/air traffic system,2
+2017,Conflict - IFR & VFR,268
+2017,Conflict - loss of separation,525
+2017,Conflict - near collision  (VFR or IFR),100
+2017,Conflict - potential,579
+2017,Controlled airspace - unauthorized entry,719
+2017,Crew incapacitation,89
+2017,Dangerous goods/hazardous materials,1
+2017,Declared emergency/priority,731
+2017,Decompression/pressurization,115
+2017,Disruptive passenger,103
+2017,Diversion,1286
+2017,Door/canopy openings indications,66
+2017,ELT,294
+2017,Electrical problem,158
+2017,Engine - malfunction,222
+2017,Engine failure,124
+2017,Engine oil problem,83
+2017,Engine shut down,113
+2017,Evacuation (aircraft),21
+2017,External load,20
+2017,FOD (foreign object debris),3
+2017,False indication warning,19
+2017,False warning - smoke or fire,15
+2017,"Fire - aircraft (cockpit, cargo or passenger area)",14
+2017,Fire - engine,9
+2017,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",171
+2017,Flight instrument failure,55
+2017,Flight plan ? activation,329
+2017,Flight plan ? information,56
+2017,Flight plan ? route,20
+2017,Forced landing,72
+2017,Fuel - contamination,7
+2017,Fuel - dumping,31
+2017,Fuel - exhaustion,6
+2017,Fuel - leak,28
+2017,Fuel - low/declared minimum,41
+2017,Fuel - other,40
+2017,Fuel - spill,14
+2017,Fuel - starvation,6
+2017,GPWS/TAWS alert,3
+2017,Ground handling services,15
+2017,Hard landing,59
+2017,Hydraulic problem,122
+2017,IFR operations below minimum,53
+2017,Incursion - manoeuvring area,239
+2017,Incursion - runway - aircraft,296
+2017,Incursion - runway - animal,1
+2017,Incursion - runway - pedestrian,4
+2017,Landing gear,483
+2017,Landing gear - incorrect configuration,23
+2017,Landing in proximity of the intended surface,18
+2017,Laser interference,386
+2017,Loss of control - inflight,40
+2017,Loss of control - on ground,55
+2017,Mechanical/technical malfunction of aircraft - other,297
+2017,Medical emergency,528
+2017,Missing aircraft,2
+2017,Navigation assistance,26
+2017,Navigation error,1902
+2017,Nose over,18
+2017,Object dropped from aircraft,8
+2017,Other operational incident,274
+2017,Overshoot/missed approach,2975
+2017,Overturn,32
+2017,Parachute-related event,12
+2017,Parked aircraft damage,58
+2017,Part or pieces separate from an aircraft,33
+2017,Precautionary landing,16
+2017,Propeller/rotor strike,52
+2017,Public complaint,18
+2017,Rejected take-off,411
+2017,Roll over,9
+2017,Runway excursion,119
+2017,SAR/comm search,93
+2017,Security acts,6
+2017,Smoke/fumes - aircraft,157
+2017,TCAS alert,609
+2017,Tail strike,16
+2017,Take-off without clearance,94
+2017,Transmission problem,2
+2017,Wake turbulence/vortices,306
+2017,Weather - clear air turbulence (CAT)/turbulence,96
+2017,Weather - icing,41
+2017,Weather - lightning,13
+2017,Weather - other,59
+2017,Weather - precipitation,9
+2017,Weather - visibility,56
+2017,Weather - wind,196
+2017,Weather - wind shear,118
+2017,Windshield/window (aircraft),32
+2017,Wing strike,54
+2017,Wire strike,7
+2017,,295
+2018,ATM - ILS irregularity,2
+2018,ATM - inaccurate aeronautical information,2
+2018,ATM - operations,2
+2018,Aerodrome - other,2
+2018,Aerodrome - power failure,1
+2018,Aerodrome - runway or taxiway surface condition,1
+2018,Aerodrome - visual aids,1
+2018,Aerodrome noise,12
+2018,Aerodrome property - death/injury,1
+2018,"Aerodrome, runway or taxiway shutdown",4
+2018,Aircraft navigation/communication equipment,497
+2018,Airframe failure,1
+2018,Airspeed Limitations - Deviation from CARs,3
+2018,Animal strike (or risk of collision with animal),66
+2018,Bird presence,25
+2018,Bird strike,905
+2018,Blown tire/wheel failure,167
+2018,Brakes - failure,11
+2018,Brakes - frozen,7
+2018,Brakes - other,28
+2018,Brakes - overheated,15
+2018,Class F airspace violation,55
+2018,Collision midair,8
+2018,Collision on ground,36
+2018,Collision on ground with aircraft,16
+2018,Collision with object,50
+2018,Collision with terrain,85
+2018,Communication error,1161
+2018,Communication navigation surveillance/air traffic system,19
+2018,Conflict - IFR & VFR,118
+2018,Conflict - loss of separation,691
+2018,Conflict - near collision  (VFR or IFR),152
+2018,Conflict - potential,1053
+2018,Controlled airspace - unauthorized entry,665
+2018,Crew incapacitation,79
+2018,Dangerous goods/hazardous materials,6
+2018,Declared emergency/priority,730
+2018,Decompression/pressurization,115
+2018,Disruptive passenger,154
+2018,Diversion,1309
+2018,Door/canopy openings indications,96
+2018,ELT,238
+2018,Electrical problem,175
+2018,Engine - malfunction,268
+2018,Engine failure,95
+2018,Engine oil problem,76
+2018,Engine shut down,103
+2018,Evacuation (aircraft),39
+2018,External load,27
+2018,FOD (foreign object debris),6
+2018,False indication warning,26
+2018,False warning - smoke or fire,22
+2018,"Fire - aircraft (cockpit, cargo or passenger area)",19
+2018,Fire - engine,18
+2018,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",179
+2018,Flight instrument failure,58
+2018,Flight plan ? activation,307
+2018,Flight plan ? information,104
+2018,Flight plan ? route,83
+2018,Forced landing,50
+2018,Fuel - contamination,1
+2018,Fuel - dumping,30
+2018,Fuel - exhaustion,3
+2018,Fuel - incorrect fuel,1
+2018,Fuel - leak,33
+2018,Fuel - low/declared minimum,34
+2018,Fuel - other,41
+2018,Fuel - spill,16
+2018,Fuel - starvation,4
+2018,GPWS/TAWS alert,6
+2018,Ground handling services,8
+2018,Hard landing,43
+2018,Hydraulic problem,120
+2018,IFR operations below minimum,35
+2018,Incursion - manoeuvring area,280
+2018,Incursion - runway - aircraft,440
+2018,Incursion - runway - animal,19
+2018,Incursion - runway - pedestrian,1
+2018,Incursion - runway - vehicle,3
+2018,Landing gear,427
+2018,Landing gear - incorrect configuration,17
+2018,Landing in proximity of the intended surface,18
+2018,Laser interference,245
+2018,Loss of control - inflight,40
+2018,Loss of control - on ground,77
+2018,Mechanical/technical malfunction of aircraft - other,339
+2018,Medical emergency,630
+2018,Missing aircraft,1
+2018,Navigation assistance,46
+2018,Navigation error,2118
+2018,Nose over,15
+2018,Object dropped from aircraft,11
+2018,Other operational incident,272
+2018,Overshoot/missed approach,3154
+2018,Overturn,36
+2018,Parachute-related event,8
+2018,Parked aircraft damage,18
+2018,Part or pieces separate from an aircraft,41
+2018,Precautionary landing,11
+2018,Propeller/rotor strike,52
+2018,Public complaint,3
+2018,Rejected take-off,491
+2018,Roll over,8
+2018,Runway excursion,103
+2018,SAR/comm search,76
+2018,Security acts,5
+2018,Smoke/fumes - aircraft,138
+2018,TCAS alert,561
+2018,Tail strike,11
+2018,Take-off without clearance,140
+2018,Transmission problem,2
+2018,Wake turbulence/vortices,432
+2018,Weather - clear air turbulence (CAT)/turbulence,143
+2018,Weather - icing,30
+2018,Weather - lightning,21
+2018,Weather - other,51
+2018,Weather - precipitation,17
+2018,Weather - visibility,45
+2018,Weather - wind,225
+2018,Weather - wind shear,159
+2018,"Weather balloon, meteor, rocket, CIRVIS/UFO",4
+2018,Windshield/window (aircraft),31
+2018,Wing strike,34
+2018,Wire strike,6
+2018,,150
+2019,ATM - inaccurate aeronautical information,1
+2019,Aerodrome - visual aids,1
+2019,Aerodrome noise,14
+2019,"Aerodrome, runway or taxiway shutdown",1
+2019,Aircraft navigation/communication equipment,463
+2019,Airframe failure,1
+2019,Airspeed Limitations - Deviation from CARs,10
+2019,Animal strike (or risk of collision with animal),50
+2019,Bird presence,4
+2019,Bird strike,988
+2019,Blown tire/wheel failure,179
+2019,Brakes - failure,13
+2019,Brakes - frozen,3
+2019,Brakes - other,34
+2019,Brakes - overheated,14
+2019,Class F airspace violation,54
+2019,Collision midair,4
+2019,Collision on ground,19
+2019,Collision on ground with aircraft,16
+2019,Collision with object,66
+2019,Collision with terrain,95
+2019,Communication error,1260
+2019,Communication navigation surveillance/air traffic system,1
+2019,Conflict - IFR & VFR,80
+2019,Conflict - loss of separation,650
+2019,Conflict - near collision  (VFR or IFR),146
+2019,Conflict - potential,1245
+2019,Controlled airspace - unauthorized entry,764
+2019,Crew incapacitation,93
+2019,Declared emergency/priority,703
+2019,Decompression/pressurization,122
+2019,Disruptive passenger,118
+2019,Diversion,1310
+2019,Door/canopy openings indications,98
+2019,ELT,414
+2019,Electrical problem,163
+2019,Engine - malfunction,320
+2019,Engine failure,98
+2019,Engine oil problem,88
+2019,Engine shut down,113
+2019,Evacuation (aircraft),38
+2019,External load,27
+2019,FOD (foreign object debris),5
+2019,False indication warning,26
+2019,False warning - smoke or fire,6
+2019,"Fire - aircraft (cockpit, cargo or passenger area)",26
+2019,Fire - engine,14
+2019,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",153
+2019,Flight instrument failure,49
+2019,Flight plan ? activation,468
+2019,Flight plan ? information,112
+2019,Flight plan ? route,41
+2019,Forced landing,84
+2019,Fuel - contamination,3
+2019,Fuel - dumping,35
+2019,Fuel - exhaustion,3
+2019,Fuel - incorrect fuel,4
+2019,Fuel - leak,32
+2019,Fuel - low/declared minimum,28
+2019,Fuel - other,38
+2019,Fuel - spill,21
+2019,Fuel - starvation,6
+2019,GPWS/TAWS alert,11
+2019,Ground handling services,8
+2019,Hard landing,55
+2019,Hydraulic problem,105
+2019,IFR operations below minimum,51
+2019,Incursion - manoeuvring area,640
+2019,Incursion - runway - aircraft,672
+2019,Incursion - runway - animal,2
+2019,Incursion - runway - vehicle,2
+2019,Landing gear,441
+2019,Landing gear - incorrect configuration,23
+2019,Landing in proximity of the intended surface,17
+2019,Laser interference,281
+2019,Loss of control - inflight,39
+2019,Loss of control - on ground,84
+2019,Mechanical/technical malfunction of aircraft - other,477
+2019,Medical emergency,532
+2019,Missing aircraft,2
+2019,Navigation assistance,42
+2019,Navigation error,2537
+2019,Nose over,14
+2019,Object dropped from aircraft,5
+2019,Other operational incident,329
+2019,Overshoot/missed approach,3188
+2019,Overturn,37
+2019,Parachute-related event,4
+2019,Parked aircraft damage,8
+2019,Part or pieces separate from an aircraft,33
+2019,Precautionary landing,17
+2019,Propeller/rotor strike,37
+2019,Public complaint,18
+2019,Rejected take-off,544
+2019,Roll over,5
+2019,Runway excursion,138
+2019,SAR/comm search,128
+2019,Security acts,3
+2019,Smoke/fumes - aircraft,166
+2019,TCAS alert,640
+2019,Tail strike,13
+2019,Take-off without clearance,115
+2019,Transmission problem,5
+2019,Wake turbulence/vortices,418
+2019,Weather - clear air turbulence (CAT)/turbulence,129
+2019,Weather - icing,25
+2019,Weather - lightning,13
+2019,Weather - other,41
+2019,Weather - precipitation,13
+2019,Weather - visibility,67
+2019,Weather - wind,362
+2019,Weather - wind shear,183
+2019,"Weather balloon, meteor, rocket, CIRVIS/UFO",2
+2019,Windshield/window (aircraft),39
+2019,Wing strike,28
+2019,Wire strike,12
+2019,,58
+2020,Aerodrome noise,11
+2020,Aircraft navigation/communication equipment,413
+2020,Animal strike (or risk of collision with animal),21
+2020,Bird strike,426
+2020,Blown tire/wheel failure,133
+2020,Blue ice,2
+2020,Brakes - failure,11
+2020,Brakes - frozen,11
+2020,Brakes - other,25
+2020,Brakes - overheated,4
+2020,Class F airspace violation,50
+2020,Collision midair,8
+2020,Collision on ground,4
+2020,Collision on ground with aircraft,6
+2020,Collision on ground with person,1
+2020,Collision with object,38
+2020,Collision with terrain,62
+2020,Communication error,779
+2020,Conflict - IFR & VFR,50
+2020,Conflict - loss of separation,171
+2020,Conflict - near collision  (VFR or IFR),72
+2020,Conflict - potential,741
+2020,Controlled airspace - unauthorized entry,392
+2020,Crew incapacitation,37
+2020,Dangerous goods/hazardous materials,3
+2020,Declared emergency/priority,406
+2020,Decompression/pressurization,54
+2020,Disruptive passenger,77
+2020,Diversion,704
+2020,Door/canopy openings indications,51
+2020,ELT,580
+2020,Electrical problem,130
+2020,Engine - malfunction,211
+2020,Engine failure,92
+2020,Engine oil problem,53
+2020,Engine shut down,69
+2020,Evacuation (aircraft),17
+2020,External load,9
+2020,False indication warning,26
+2020,False warning - smoke or fire,5
+2020,"Fire - aircraft (cockpit, cargo or passenger area)",12
+2020,Fire - engine,9
+2020,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",104
+2020,Flight instrument failure,51
+2020,Flight plan ? activation,208
+2020,Flight plan ? information,85
+2020,Flight plan ? route,5
+2020,Forced landing,45
+2020,Fuel - contamination,8
+2020,Fuel - dumping,11
+2020,Fuel - exhaustion,5
+2020,Fuel - incorrect fuel,3
+2020,Fuel - leak,29
+2020,Fuel - low/declared minimum,12
+2020,Fuel - other,35
+2020,Fuel - spill,8
+2020,Fuel - starvation,1
+2020,GPWS/TAWS alert,4
+2020,Ground handling services,2
+2020,Hard landing,48
+2020,Hydraulic problem,65
+2020,IFR operations below minimum,17
+2020,Incursion - manoeuvring area,341
+2020,Incursion - runway - aircraft,363
+2020,Incursion - runway - vehicle,4
+2020,Landing gear,284
+2020,Landing gear - incorrect configuration,18
+2020,Landing in proximity of the intended surface,11
+2020,Laser interference,272
+2020,Loss of control - inflight,31
+2020,Loss of control - on ground,52
+2020,Mechanical/technical malfunction of aircraft - other,283
+2020,Medical emergency,153
+2020,Missing aircraft,2
+2020,Navigation assistance,17
+2020,Navigation error,1273
+2020,Nose over,26
+2020,Object dropped from aircraft,11
+2020,Other operational incident,210
+2020,Overshoot/missed approach,1294
+2020,Overturn,29
+2020,Parachute-related event,2
+2020,Parked aircraft damage,7
+2020,Part or pieces separate from an aircraft,31
+2020,Precautionary landing,6
+2020,Propeller/rotor strike,45
+2020,Public complaint,32
+2020,Rejected take-off,328
+2020,Roll over,7
+2020,Runway excursion,129
+2020,SAR/comm search,82
+2020,Security acts,2
+2020,Smoke/fumes - aircraft,62
+2020,TCAS alert,220
+2020,Tail strike,9
+2020,Take-off without clearance,77
+2020,Wake turbulence/vortices,104
+2020,Weather - clear air turbulence (CAT)/turbulence,59
+2020,Weather - icing,22
+2020,Weather - lightning,1
+2020,Weather - other,16
+2020,Weather - precipitation,1
+2020,Weather - visibility,32
+2020,Weather - wind,90
+2020,Weather - wind shear,84
+2020,Windshield/window (aircraft),20
+2020,Wing strike,31
+2020,Wire strike,9
+2020,,12
+2021,Aerodrome - other,1
+2021,Aerodrome noise,10
+2021,"Aerodrome, runway or taxiway shutdown",1
+2021,Aircraft navigation/communication equipment,481
+2021,Airframe failure,1
+2021,Airspeed Limitations - Deviation from CARs,7
+2021,Animal strike (or risk of collision with animal),23
+2021,Bird strike,563
+2021,Blown tire/wheel failure,176
+2021,Blue ice,2
+2021,Brakes - failure,5
+2021,Brakes - frozen,6
+2021,Brakes - other,27
+2021,Brakes - overheated,5
+2021,Class F airspace violation,89
+2021,Collision midair,4
+2021,Collision on ground,25
+2021,Collision on ground with aircraft,1
+2021,Collision with object,37
+2021,Collision with terrain,64
+2021,Communication error,1024
+2021,Communication navigation surveillance/air traffic system,2
+2021,Conflict - IFR & VFR,56
+2021,Conflict - loss of separation,188
+2021,Conflict - near collision  (VFR or IFR),120
+2021,Conflict - potential,1154
+2021,Controlled airspace - unauthorized entry,484
+2021,Crew incapacitation,22
+2021,Dangerous goods/hazardous materials,4
+2021,Declared emergency/priority,477
+2021,Decompression/pressurization,73
+2021,Disruptive passenger,135
+2021,Diversion,914
+2021,Door/canopy openings indications,72
+2021,ELT,565
+2021,Electrical problem,122
+2021,Engine - malfunction,245
+2021,Engine failure,123
+2021,Engine oil problem,97
+2021,Engine shut down,91
+2021,Evacuation (aircraft),14
+2021,External load,18
+2021,False indication warning,20
+2021,False warning - smoke or fire,9
+2021,"Fire - aircraft (cockpit, cargo or passenger area)",12
+2021,Fire - engine,4
+2021,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",98
+2021,Flight instrument failure,38
+2021,Flight plan ? activation,243
+2021,Flight plan ? information,113
+2021,Flight plan ? route,744
+2021,Forced landing,71
+2021,Fuel - contamination,4
+2021,Fuel - dumping,12
+2021,Fuel - exhaustion,5
+2021,Fuel - incorrect fuel,3
+2021,Fuel - leak,14
+2021,Fuel - low/declared minimum,18
+2021,Fuel - other,43
+2021,Fuel - spill,6
+2021,Fuel - starvation,11
+2021,GPWS/TAWS alert,2
+2021,Ground handling services,9
+2021,Hard landing,54
+2021,Hydraulic problem,67
+2021,IFR operations below minimum,13
+2021,Incursion - manoeuvring area,372
+2021,Incursion - runway - aircraft,452
+2021,Incursion - runway - animal,1
+2021,Landing gear,304
+2021,Landing gear - incorrect configuration,21
+2021,Landing in proximity of the intended surface,9
+2021,Laser interference,314
+2021,Loss of control - inflight,41
+2021,Loss of control - on ground,48
+2021,Mechanical/technical malfunction of aircraft - other,347
+2021,Medical emergency,192
+2021,Missing aircraft,1
+2021,Navigation assistance,12
+2021,Navigation error,1415
+2021,Nose over,26
+2021,Object dropped from aircraft,6
+2021,Other operational incident,342
+2021,Overshoot/missed approach,1243
+2021,Overturn,34
+2021,Parachute-related event,6
+2021,Parked aircraft damage,4
+2021,Part or pieces separate from an aircraft,29
+2021,Precautionary landing,17
+2021,Propeller/rotor strike,56
+2021,Public complaint,50
+2021,Rejected take-off,370
+2021,Roll over,10
+2021,Runway excursion,101
+2021,SAR/comm search,103
+2021,Security acts,3
+2021,Smoke/fumes - aircraft,88
+2021,TCAS alert,339
+2021,Tail strike,16
+2021,Take-off without clearance,97
+2021,Transmission problem,3
+2021,Wake turbulence/vortices,92
+2021,Weather - clear air turbulence (CAT)/turbulence,84
+2021,Weather - icing,14
+2021,Weather - lightning,5
+2021,Weather - other,74
+2021,Weather - visibility,29
+2021,Weather - wind,105
+2021,Weather - wind shear,79
+2021,Windshield/window (aircraft),30
+2021,Wing strike,55
+2021,Wire strike,6
+2021,,12
+2022,Aerodrome - runway or taxiway surface condition,1
+2022,Aerodrome noise,13
+2022,"Aerodrome, runway or taxiway shutdown",1
+2022,Aircraft navigation/communication equipment,468
+2022,Airframe failure,2
+2022,Airspeed Limitations - Deviation from CARs,6
+2022,Animal strike (or risk of collision with animal),34
+2022,Bird presence,3
+2022,Bird strike,798
+2022,Blown tire/wheel failure,154
+2022,Brakes - failure,6
+2022,Brakes - frozen,5
+2022,Brakes - other,39
+2022,Brakes - overheated,14
+2022,Class F airspace violation,108
+2022,Collision on ground,20
+2022,Collision on ground with aircraft,1
+2022,Collision with object,48
+2022,Collision with terrain,77
+2022,Communication error,1065
+2022,Conflict - IFR & VFR,105
+2022,Conflict - loss of separation,286
+2022,Conflict - near collision  (VFR or IFR),94
+2022,Conflict - potential,1312
+2022,Controlled airspace - unauthorized entry,530
+2022,Crew incapacitation,56
+2022,Dangerous goods/hazardous materials,1
+2022,Declared emergency/priority,573
+2022,Decompression/pressurization,97
+2022,Disruptive passenger,231
+2022,Diversion,1344
+2022,Door/canopy openings indications,99
+2022,ELT,561
+2022,Electrical problem,184
+2022,Engine - malfunction,285
+2022,Engine failure,100
+2022,Engine oil problem,78
+2022,Engine shut down,81
+2022,Evacuation (aircraft),30
+2022,External load,23
+2022,FOD (foreign object debris),1
+2022,False indication warning,22
+2022,False warning - smoke or fire,12
+2022,"Fire - aircraft (cockpit, cargo or passenger area)",10
+2022,Fire - engine,14
+2022,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",133
+2022,Flight instrument failure,74
+2022,Flight plan ? activation,484
+2022,Flight plan ? information,130
+2022,Flight plan ? route,8
+2022,Forced landing,58
+2022,Fuel - contamination,1
+2022,Fuel - dumping,19
+2022,Fuel - exhaustion,4
+2022,Fuel - incorrect fuel,1
+2022,Fuel - leak,23
+2022,Fuel - low/declared minimum,34
+2022,Fuel - other,42
+2022,Fuel - spill,9
+2022,Fuel - starvation,9
+2022,GPWS/TAWS alert,2
+2022,Ground handling services,7
+2022,Hard landing,48
+2022,Hydraulic problem,76
+2022,IFR operations below minimum,6
+2022,Incursion - manoeuvring area,423
+2022,Incursion - runway - aircraft,462
+2022,Incursion - runway - animal,2
+2022,Landing gear,316
+2022,Landing gear - incorrect configuration,30
+2022,Landing in proximity of the intended surface,11
+2022,Laser interference,343
+2022,Loss of control - inflight,43
+2022,Loss of control - on ground,63
+2022,Mechanical/technical malfunction of aircraft - other,462
+2022,Medical emergency,458
+2022,Navigation assistance,16
+2022,Navigation error,1632
+2022,Nose over,19
+2022,Object dropped from aircraft,4
+2022,Other operational incident,415
+2022,Overshoot/missed approach,2369
+2022,Overturn,19
+2022,Parachute-related event,14
+2022,Parked aircraft damage,12
+2022,Part or pieces separate from an aircraft,22
+2022,Precautionary landing,15
+2022,Propeller/rotor strike,32
+2022,Public complaint,74
+2022,Rejected take-off,465
+2022,Roll over,10
+2022,Runway excursion,129
+2022,SAR/comm search,112
+2022,Security acts,8
+2022,Smoke/fumes - aircraft,106
+2022,TCAS alert,505
+2022,Tail strike,27
+2022,Take-off without clearance,64
+2022,Transmission problem,1
+2022,Wake turbulence/vortices,330
+2022,Weather - clear air turbulence (CAT)/turbulence,126
+2022,Weather - icing,21
+2022,Weather - lightning,15
+2022,Weather - other,57
+2022,Weather - precipitation,8
+2022,Weather - visibility,157
+2022,Weather - wind,150
+2022,Weather - wind shear,197
+2022,Windshield/window (aircraft),35
+2022,Wing strike,47
+2022,Wire strike,11
+2022,,8
+2023,ATM - ILS irregularity,1
+2023,Aerodrome noise,7
+2023,Aircraft navigation/communication equipment,651
+2023,Airspeed Limitations - Deviation from CARs,38
+2023,Animal strike (or risk of collision with animal),28
+2023,Bird presence,10
+2023,Bird strike,939
+2023,Blown tire/wheel failure,180
+2023,Blue ice,1
+2023,Brakes - failure,13
+2023,Brakes - frozen,6
+2023,Brakes - other,37
+2023,Brakes - overheated,15
+2023,Class F airspace violation,105
+2023,Collision midair,8
+2023,Collision on ground,18
+2023,Collision on ground with aircraft,8
+2023,Collision on ground with person,1
+2023,Collision with object,50
+2023,Collision with terrain,68
+2023,Communication error,1260
+2023,Communication navigation surveillance/air traffic system,1
+2023,Conflict - IFR & VFR,88
+2023,Conflict - loss of separation,311
+2023,Conflict - near collision  (VFR or IFR),108
+2023,Conflict - potential,2057
+2023,Controlled airspace - unauthorized entry,736
+2023,Crew incapacitation,88
+2023,Declared emergency/priority,630
+2023,Decompression/pressurization,116
+2023,Disruptive passenger,199
+2023,Diversion,1535
+2023,Door/canopy openings indications,107
+2023,ELT,679
+2023,Electrical problem,173
+2023,Engine - malfunction,297
+2023,Engine failure,91
+2023,Engine oil problem,76
+2023,Engine shut down,90
+2023,Evacuation (aircraft),25
+2023,External load,27
+2023,FOD (foreign object debris),2
+2023,False indication warning,14
+2023,False warning - smoke or fire,12
+2023,"Fire - aircraft (cockpit, cargo or passenger area)",24
+2023,Fire - engine,10
+2023,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",165
+2023,Flight instrument failure,70
+2023,Flight plan ? activation,453
+2023,Flight plan ? information,109
+2023,Flight plan ? route,13
+2023,Forced landing,68
+2023,Fuel - dumping,13
+2023,Fuel - exhaustion,5
+2023,Fuel - incorrect fuel,3
+2023,Fuel - leak,31
+2023,Fuel - low/declared minimum,30
+2023,Fuel - other,55
+2023,Fuel - spill,11
+2023,Fuel - starvation,2
+2023,GPWS/TAWS alert,8
+2023,Ground handling services,14
+2023,Hard landing,64
+2023,Hydraulic problem,95
+2023,IFR operations below minimum,11
+2023,Incursion - manoeuvring area,672
+2023,Incursion - runway - aircraft,539
+2023,Incursion - runway - animal,3
+2023,Incursion - runway - pedestrian,2
+2023,Incursion - runway - vehicle,1
+2023,Landing gear,381
+2023,Landing gear - incorrect configuration,17
+2023,Landing in proximity of the intended surface,14
+2023,Laser interference,636
+2023,Loss of Global Navigation Satellite System (GNSS) or GNSS Anomalies,36
+2023,Loss of control - inflight,47
+2023,Loss of control - on ground,44
+2023,Mechanical/technical malfunction of aircraft - other,535
+2023,Medical emergency,718
+2023,Missing aircraft,1
+2023,Navigation assistance,9
+2023,Navigation error,2175
+2023,Nose over,23
+2023,Object dropped from aircraft,6
+2023,Other operational incident,495
+2023,Overshoot/missed approach,2795
+2023,Overturn,21
+2023,Parachute-related event,11
+2023,Parked aircraft damage,14
+2023,Part or pieces separate from an aircraft,21
+2023,Precautionary landing,10
+2023,Propeller/rotor strike,44
+2023,Public complaint,36
+2023,Rejected take-off,573
+2023,Roll over,8
+2023,Runway excursion,104
+2023,SAR/comm search,98
+2023,Security acts,5
+2023,Smoke/fumes - aircraft,104
+2023,TCAS alert,599
+2023,Tail strike,21
+2023,Take-off without clearance,83
+2023,Transmission problem,3
+2023,Wake turbulence/vortices,481
+2023,Weather - clear air turbulence (CAT)/turbulence,105
+2023,Weather - icing,18
+2023,Weather - lightning,12
+2023,Weather - other,88
+2023,Weather - precipitation,8
+2023,Weather - visibility,62
+2023,Weather - wind,165
+2023,Weather - wind shear,133
+2023,Windshield/window (aircraft),36
+2023,Wing strike,54
+2023,Wire strike,8
+2023,,16
+2024,ATM - inaccurate aeronautical information,2
+2024,Aerodrome - visual aids,2
+2024,Aerodrome noise,8
+2024,"Aerodrome, runway or taxiway shutdown",3
+2024,Aircraft navigation/communication equipment,641
+2024,Airframe failure,3
+2024,Airspeed Limitations - Deviation from CARs,25
+2024,Animal strike (or risk of collision with animal),52
+2024,Bird presence,8
+2024,Bird strike,898
+2024,Blown tire/wheel failure,163
+2024,Brakes - failure,11
+2024,Brakes - frozen,14
+2024,Brakes - other,30
+2024,Brakes - overheated,21
+2024,Class F airspace violation,101
+2024,Collision midair,4
+2024,Collision on ground with aircraft,5
+2024,Collision with object,35
+2024,Collision with terrain,76
+2024,Communication error,1253
+2024,Communication navigation surveillance/air traffic system,5
+2024,Conflict - IFR & VFR,56
+2024,Conflict - loss of separation,283
+2024,Conflict - near collision  (VFR or IFR),40
+2024,Conflict - potential,2431
+2024,Controlled airspace - unauthorized entry,894
+2024,Crew incapacitation,100
+2024,Dangerous goods/hazardous materials,6
+2024,Declared emergency/priority,601
+2024,Decompression/pressurization,135
+2024,Disruptive passenger,165
+2024,Diversion,1422
+2024,Door/canopy openings indications,104
+2024,ELT,562
+2024,Electrical problem,174
+2024,Engine - malfunction,289
+2024,Engine failure,96
+2024,Engine oil problem,73
+2024,Engine shut down,61
+2024,Evacuation (aircraft),20
+2024,External load,3
+2024,FOD (foreign object debris),9
+2024,False indication warning,13
+2024,False warning - smoke or fire,2
+2024,"Fire - aircraft (cockpit, cargo or passenger area)",12
+2024,Fire - engine,10
+2024,"Flight control systems (ailerons, rudder, rotors, flaps, main, tail)",166
+2024,Flight instrument failure,79
+2024,Flight plan ? activation,515
+2024,Flight plan ? information,201
+2024,Flight plan ? route,24
+2024,Forced landing,47
+2024,Fuel - dumping,8
+2024,Fuel - exhaustion,3
+2024,Fuel - leak,29
+2024,Fuel - low/declared minimum,29
+2024,Fuel - other,66
+2024,Fuel - spill,7
+2024,Fuel - starvation,1
+2024,GPWS/TAWS alert,2
+2024,Ground handling services,2
+2024,Hard landing,41
+2024,Hydraulic problem,64
+2024,IFR operations below minimum,55
+2024,Incursion - manoeuvring area,726
+2024,Incursion - runway - aircraft,565
+2024,Incursion - runway - animal,3
+2024,Incursion - runway - pedestrian,1
+2024,Incursion - runway - vehicle,1
+2024,Landing gear,367
+2024,Landing gear - incorrect configuration,14
+2024,Landing in proximity of the intended surface,2
+2024,Laser interference,590
+2024,Loss of Global Navigation Satellite System (GNSS) or GNSS Anomalies,4623
+2024,Loss of control - inflight,18
+2024,Loss of control - on ground,25
+2024,Mechanical/technical malfunction of aircraft - other,588
+2024,Medical emergency,701
+2024,Missing aircraft,1
+2024,Navigation assistance,13
+2024,Navigation error,2109
+2024,Nose over,12
+2024,Object dropped from aircraft,2
+2024,Other operational incident,619
+2024,Overshoot/missed approach,3094
+2024,Overturn,4
+2024,Parachute-related event,6
+2024,Parked aircraft damage,2
+2024,Part or pieces separate from an aircraft,19
+2024,Precautionary landing,9
+2024,Propeller/rotor strike,21
+2024,Public complaint,48
+2024,Rejected take-off,625
+2024,Roll over,4
+2024,Runway excursion,102
+2024,SAR/comm search,100
+2024,Security acts,9
+2024,Smoke/fumes - aircraft,106
+2024,TCAS alert,471
+2024,Tail strike,24
+2024,Take-off without clearance,132
+2024,Transmission problem,2
+2024,Wake turbulence/vortices,421
+2024,Weather - clear air turbulence (CAT)/turbulence,122
+2024,Weather - icing,27
+2024,Weather - lightning,8
+2024,Weather - other,104
+2024,Weather - precipitation,8
+2024,Weather - visibility,41
+2024,Weather - wind,157
+2024,Weather - wind shear,267
+2024,"Weather balloon, meteor, rocket, CIRVIS/UFO",2
+2024,Windshield/window (aircraft),40
+2024,Wing strike,15
+2024,Wire strike,2
+2024,,30
