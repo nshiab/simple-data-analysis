@@ -828,7 +828,8 @@ Ollama. Credentials and model selection are determined by environment variables
 with `options` taking precedence.
 
 For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is
-running, and set `AI_MODEL` to your desired model name.
+running, and set `AI_MODEL` to your desired model name. You can also pass your
+instance of Ollama to the `ollama` option.
 
 To manage rate limits, use `batchSize` to process multiple rows per request and
 `rateLimitPerMinute` to introduce delays between requests. For higher rate
@@ -851,7 +852,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRowByRow(column: string, newColumn: string, prompt: string, options?: { batchSize?: number; concurrent?: number; cache?: boolean; test?: (dataPoint: unknown) => any; retry?: number; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => any }): Promise<void>;
+async aiRowByRow(column: string, newColumn: string, prompt: string, options?: { batchSize?: number; concurrent?: number; cache?: boolean; test?: (dataPoint: unknown) => any; retry?: number; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => any }): Promise<void>;
 ```
 
 ##### Parameters
@@ -887,7 +888,8 @@ async aiRowByRow(column: string, newColumn: string, prompt: string, options?: { 
 - **`options.location`**: - The Google Cloud location for Vertex AI. Defaults to
   the `AI_LOCATION` environment variable.
 - **`options.ollama`**: - If `true`, uses Ollama. Defaults to the `OLLAMA`
-  environment variable.
+  environment variable. If you want your Ollama instance to be used, you can
+  pass it here too.
 - **`options.verbose`**: - If `true`, logs additional debugging information,
   including the full prompt sent to the AI. Defaults to `false`.
 - **`options.clean`**: - A function to clean the AI's response before testing,
@@ -948,7 +950,8 @@ Ollama. Credentials and model selection are determined by environment variables
 `options`, with `options` taking precedence.
 
 For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is
-running, and set `AI_EMBEDDINGS_MODEL` to your desired model name.
+running, and set `AI_EMBEDDINGS_MODEL` to your desired model name. You can also
+pass your instance of Ollama to the `ollama` option.
 
 To manage rate limits, use `rateLimitPerMinute` to introduce delays between
 requests. For higher rate limits (business/professional accounts), `concurrent`
@@ -968,7 +971,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiEmbeddings(column: string, newColumn: string, options?: { createIndex?: boolean; concurrent?: number; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean; verbose?: boolean; rateLimitPerMinute?: number }): Promise<void>;
+async aiEmbeddings(column: string, newColumn: string, options?: { createIndex?: boolean; concurrent?: number; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number }): Promise<void>;
 ```
 
 ##### Parameters
@@ -1000,7 +1003,8 @@ async aiEmbeddings(column: string, newColumn: string, options?: { createIndex?: 
 - **`options.location`**: - The Google Cloud location for Vertex AI. Defaults to
   the `AI_LOCATION` environment variable.
 - **`options.ollama`**: - If `true`, uses Ollama. Defaults to the `OLLAMA`
-  environment variable.
+  environment variable. If you want your Ollama instance to be used, you can
+  pass it here too.
 - **`options.verbose`**: - If `true`, logs additional debugging information.
   Defaults to `false`.
 
@@ -1044,7 +1048,8 @@ by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`,
 precedence.
 
 For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is
-running, and set `AI_EMBEDDINGS_MODEL` to your desired model name.
+running, and set `AI_EMBEDDINGS_MODEL` to your desired model name. You can also
+pass your instance of Ollama to the `ollama` option.
 
 The `cache` option enables local caching of the specified text's embedding in
 `.journalism-cache` (from the `getEmbedding` function in the
@@ -1058,7 +1063,7 @@ up processing. If the index already exists, it will not be recreated.
 ##### Signature
 
 ```typescript
-async aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { createIndex?: boolean; outputTable?: string; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean; verbose?: boolean }): Promise<SimpleTable>;
+async aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { createIndex?: boolean; outputTable?: string; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -1088,7 +1093,8 @@ async aiVectorSimilarity(text: string, column: string, nbResults: number, option
 - **`options.location`**: - The Google Cloud location for Vertex AI. Defaults to
   the `AI_LOCATION` environment variable.
 - **`options.ollama`**: - If `true`, uses Ollama. Defaults to the `OLLAMA`
-  environment variable.
+  environment variable. If you want your Ollama instance to be used, you can
+  pass it here too.
 - **`options.verbose`**: - If `true`, logs additional debugging information.
   Defaults to `false`.
 
@@ -1140,7 +1146,8 @@ Ollama. Credentials and model selection are determined by environment variables
 with `options` taking precedence.
 
 For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is
-running, and set `AI_MODEL` to your desired model name.
+running, and set `AI_MODEL` to your desired model name. You can also pass your
+instance of Ollama to the `ollama` option.
 
 Temperature is set to 0 to aim for reproducible results. For future consistency,
 it's recommended to copy the generated query and execute it manually using
@@ -1154,7 +1161,7 @@ and time. Remember to add `.journalism-cache` to your `.gitignore`.
 ##### Signature
 
 ```typescript
-async aiQuery(prompt: string, options?: { cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; verbose?: boolean }): Promise<void>;
+async aiQuery(prompt: string, options?: { cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean }): Promise<void>;
 ```
 
 ##### Parameters
@@ -1174,6 +1181,9 @@ async aiQuery(prompt: string, options?: { cache?: boolean; model?: string; apiKe
   to the `AI_PROJECT` environment variable.
 - **`options.location`**: - The Google Cloud location for Vertex AI. Defaults to
   the `AI_LOCATION` environment variable.
+- **`options.ollama`**: - If `true`, uses Ollama. Defaults to the `OLLAMA`
+  environment variable. If you want your Ollama instance to be used, you can
+  pass it here too.
 - **`options.verbose`**: - If `true`, logs additional debugging information,
   including the full prompt sent to the AI. Defaults to `false`.
 
@@ -5923,6 +5933,12 @@ await table.logTable({ conditions: `status === 'active'` });
 Generates and logs a line chart to the console. The data should be sorted by the
 x-axis values for accurate representation.
 
+**Data Type Requirements:**
+
+- **X-axis values**: Must be `number` or `Date` objects.
+- **Y-axis values**: Must be `number` values.
+- All values must be non-null and defined.
+
 ##### Signature
 
 ```typescript
@@ -5931,13 +5947,17 @@ async logLineChart(x: string, y: string, options?: { formatX?: (d: unknown) => a
 
 ##### Parameters
 
-- **`x`**: - The name of the column to be used for the x-axis.
-- **`y`**: - The name of the column to be used for the y-axis.
+- **`x`**: - The name of the column to be used for the x-axis. Values must be
+  numbers or Date objects.
+- **`y`**: - The name of the column to be used for the y-axis. Values must be
+  numbers.
 - **`options`**: - An optional object with configuration options:
-- **`options.formatX`**: - A function to format the x-axis tick labels. Defaults
-  to converting the label to a string.
-- **`options.formatY`**: - A function to format the y-axis tick labels. Defaults
-  to converting the label to a string.
+- **`options.formatX`**: - A function to format the x-axis values for display.
+  It receives the raw x-value as input and should return a string. If the first
+  data point's x value is a Date, it defaults to formatting the date as
+  "YYYY-MM-DD".
+- **`options.formatY`**: - A function to format the y-axis values for display.
+  It receives the raw y-value as input and should return a string.
 - **`options.smallMultiples`**: - The name of a column to create small multiples
   (also known as facets or trellis charts). Each unique value in this column
   will generate a separate chart.
@@ -5993,6 +6013,12 @@ await table.logLineChart("date", "value", {
 Generates and logs a dot chart to the console. The data should be sorted by the
 x-axis values for accurate representation.
 
+**Data Type Requirements:**
+
+- **X-axis values**: Must be `number` or `Date` objects.
+- **Y-axis values**: Must be `number` values.
+- All values must be non-null and defined.
+
 ##### Signature
 
 ```typescript
@@ -6001,13 +6027,17 @@ async logDotChart(x: string, y: string, options?: { formatX?: (d: unknown) => an
 
 ##### Parameters
 
-- **`x`**: - The name of the column to be used for the x-axis.
-- **`y`**: - The name of the column to be used for the y-axis.
+- **`x`**: - The name of the column to be used for the x-axis. Values must be
+  numbers or Date objects.
+- **`y`**: - The name of the column to be used for the y-axis. Values must be
+  numbers.
 - **`options`**: - An optional object with configuration options:
-- **`options.formatX`**: - A function to format the x-axis tick labels. Defaults
-  to converting the label to a string.
-- **`options.formatY`**: - A function to format the y-axis tick labels. Defaults
-  to converting the label to a string.
+- **`options.formatX`**: - A function to format the x-axis values for display.
+  It receives the raw x-value as input and should return a string. If the first
+  data point's x value is a Date, it defaults to formatting the date as
+  "YYYY-MM-DD".
+- **`options.formatY`**: - A function to format the y-axis values for display.
+  It receives the raw y-value as input and should return a string.
 - **`options.smallMultiples`**: - The name of a column to create small multiples
   (also known as facets). Each unique value in this column will generate a
   separate chart.
