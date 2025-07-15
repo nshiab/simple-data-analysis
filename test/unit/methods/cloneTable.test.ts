@@ -111,3 +111,17 @@ Deno.test("should clone a table with data and projections", async () => {
   assertEquals(table.projections, clone.projections);
   await sdb.done();
 });
+Deno.test("should clone a table with string parameter directly", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadData("test/data/files/employees.csv");
+  const clone = await table.cloneTable("my_cloned_table");
+
+  assertEquals(await table.getData(), await clone.getData());
+  assertEquals(clone.name, "my_cloned_table");
+
+  const tables = await sdb.getTableNames();
+  assertEquals(tables.includes("my_cloned_table"), true);
+
+  await sdb.done();
+});
