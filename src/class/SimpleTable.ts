@@ -618,6 +618,7 @@ export default class SimpleTable extends Simple {
   instance to be used, you can pass it here too.
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
    * @param options.clean - A function to clean the AI's response before testing, caching, and storing. Defaults to `undefined`.
+   * @param options.contextWindow - An option to specify the context window size for Ollama models. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
    * @returns A promise that resolves when the AI processing is complete.
    * @category AI
    *
@@ -681,6 +682,7 @@ export default class SimpleTable extends Simple {
       clean?: (
         response: unknown,
       ) => unknown;
+      contextWindow?: number;
     } = {},
   ): Promise<void> {
     await aiRowByRow(this, column, newColumn, prompt, options);
@@ -715,6 +717,7 @@ export default class SimpleTable extends Simple {
    * @param options.location - The Google Cloud location for Vertex AI. Defaults to the `AI_LOCATION` environment variable.
    * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama
   instance to be used, you can pass it here too.
+   * @param options.contextWindow - An option to specify the context window size for Ollama models. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
    * @returns A promise that resolves when the embeddings have been generated and stored.
    * @category AI
@@ -752,6 +755,7 @@ export default class SimpleTable extends Simple {
     ollama?: boolean | Ollama;
     verbose?: boolean;
     rateLimitPerMinute?: number;
+    contextWindow?: number;
   } = {}): Promise<void> {
     await aiEmbeddings(this, column, newColumn, options);
   }
@@ -783,6 +787,7 @@ export default class SimpleTable extends Simple {
    * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama
   instance to be used, you can pass it here too.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
+   * @param options.contextWindow - An option to specify the context window size for Ollama models. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
    * @returns A promise that resolves to the SimpleTable instance containing the similarity search results.
    * @category AI
    *
@@ -830,6 +835,7 @@ export default class SimpleTable extends Simple {
       project?: string;
       location?: string;
       ollama?: boolean | Ollama;
+      contextWindow?: number;
       verbose?: boolean;
     } = {},
   ): Promise<SimpleTable> {
@@ -858,6 +864,7 @@ export default class SimpleTable extends Simple {
    * @param options.location - The Google Cloud location for Vertex AI. Defaults to the `AI_LOCATION` environment variable.
    * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama
   instance to be used, you can pass it here too.
+   * @param options.contextWindow - An option to specify the context window size for Ollama models. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
    * @returns A promise that resolves when the AI query has been executed.
    * @category AI
@@ -882,6 +889,7 @@ export default class SimpleTable extends Simple {
     project?: string;
     location?: string;
     ollama?: boolean | Ollama;
+    contextWindow?: number;
     verbose?: boolean;
   } = {}): Promise<void> {
     await aiQuery(this, prompt, options);
