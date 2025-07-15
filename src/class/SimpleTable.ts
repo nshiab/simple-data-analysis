@@ -277,7 +277,7 @@ export default class SimpleTable extends Simple {
         Object.keys(
           types,
         )
-          .map((d) => `${d} ${parseType(types[d])}`)
+          .map((d) => `"${d}" ${parseType(types[d])}`)
           .join(", ")
       });`,
       mergeOptions(this, {
