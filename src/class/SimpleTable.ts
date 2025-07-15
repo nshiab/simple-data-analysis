@@ -1021,9 +1021,9 @@ export default class SimpleTable extends Simple {
    * Returns a new table with the same structure and data as this table. The data can be optionally filtered.
    * Note that cloning large tables can be a slow operation.
    *
-   * @param options - An optional object with configuration options:
-   * @param options.outputTable - The name of the new table to be created in the database. If not provided, a default name (e.g., "table1", "table2") will be generated.
-   * @param options.conditions - A SQL `WHERE` clause condition to filter the data during cloning. Defaults to no condition (clones all rows).
+   * @param nameOrOptions - Either a string specifying the name of the new table, or an optional object with configuration options. If not provided, a default name (e.g., "table1", "table2") will be generated.
+   * @param nameOrOptions.outputTable - The name of the new table to be created in the database. If not provided, a default name (e.g., "table1", "table2") will be generated.
+   * @param nameOrOptions.conditions - A SQL `WHERE` clause condition to filter the data during cloning. Defaults to no condition (clones all rows).
    * @returns A promise that resolves to the new SimpleTable instance containing the cloned data.
    * @category Table Management
    *
@@ -1035,7 +1035,13 @@ export default class SimpleTable extends Simple {
    *
    * @example
    * ```ts
-   * // Clone tableA to a new table named "my_cloned_table"
+   * // Clone tableA to a new table named "my_cloned_table" using string parameter
+   * const tableB = await tableA.cloneTable("my_cloned_table");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Clone tableA to a new table named "my_cloned_table" using options object
    * const tableB = await tableA.cloneTable({ outputTable: "my_cloned_table" });
    * ```
    *
@@ -1044,15 +1050,27 @@ export default class SimpleTable extends Simple {
    * // Clone tableA, including only rows where 'column1' is greater than 10
    * const tableB = await tableA.cloneTable({ conditions: `column1 > 10` });
    * ```
+   *
+   * @example
+   * ```ts
+   * // Clone tableA to a specific table name with filtered data
+   * const tableB = await tableA.cloneTable({
+   *   outputTable: "filtered_data",
+   *   conditions: `status = 'active' AND created_date >= '2023-01-01'`
+   * });
+   * ```
    */
   async cloneTable(
-    options: {
+    nameOrOptions: string | {
       outputTable?: string;
       conditions?: string;
     } = {},
   ): Promise<SimpleTable> {
     // Should match newTable from SimpleDB
     let clonedTable;
+    const options = typeof nameOrOptions === "string"
+      ? { outputTable: nameOrOptions }
+      : nameOrOptions;
     if (typeof options.outputTable === "string") {
       clonedTable = new SimpleTable(
         options.outputTable,
