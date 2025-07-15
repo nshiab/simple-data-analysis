@@ -852,7 +852,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRowByRow(column: string, newColumn: string, prompt: string, options?: { batchSize?: number; concurrent?: number; cache?: boolean; test?: (dataPoint: unknown) => any; retry?: number; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => any }): Promise<void>;
+async aiRowByRow(column: string, newColumn: string, prompt: string, options?: { batchSize?: number; concurrent?: number; cache?: boolean; test?: (dataPoint: unknown) => any; retry?: number; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => any; contextWindow?: number }): Promise<void>;
 ```
 
 ##### Parameters
@@ -894,6 +894,9 @@ async aiRowByRow(column: string, newColumn: string, prompt: string, options?: { 
   including the full prompt sent to the AI. Defaults to `false`.
 - **`options.clean`**: - A function to clean the AI's response before testing,
   caching, and storing. Defaults to `undefined`.
+- **`options.contextWindow`**: - An option to specify the context window size
+  for Ollama models. By default, Ollama sets this depending on the model, which
+  can be lower than the actual maximum context window size of the model.
 
 ##### Returns
 
@@ -971,7 +974,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiEmbeddings(column: string, newColumn: string, options?: { createIndex?: boolean; concurrent?: number; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number }): Promise<void>;
+async aiEmbeddings(column: string, newColumn: string, options?: { createIndex?: boolean; concurrent?: number; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; contextWindow?: number }): Promise<void>;
 ```
 
 ##### Parameters
@@ -1005,6 +1008,9 @@ async aiEmbeddings(column: string, newColumn: string, options?: { createIndex?: 
 - **`options.ollama`**: - If `true`, uses Ollama. Defaults to the `OLLAMA`
   environment variable. If you want your Ollama instance to be used, you can
   pass it here too.
+- **`options.contextWindow`**: - An option to specify the context window size
+  for Ollama models. By default, Ollama sets this depending on the model, which
+  can be lower than the actual maximum context window size of the model.
 - **`options.verbose`**: - If `true`, logs additional debugging information.
   Defaults to `false`.
 
@@ -1063,7 +1069,7 @@ up processing. If the index already exists, it will not be recreated.
 ##### Signature
 
 ```typescript
-async aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { createIndex?: boolean; outputTable?: string; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean }): Promise<SimpleTable>;
+async aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { createIndex?: boolean; outputTable?: string; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; contextWindow?: number; verbose?: boolean }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -1097,6 +1103,9 @@ async aiVectorSimilarity(text: string, column: string, nbResults: number, option
   pass it here too.
 - **`options.verbose`**: - If `true`, logs additional debugging information.
   Defaults to `false`.
+- **`options.contextWindow`**: - An option to specify the context window size
+  for Ollama models. By default, Ollama sets this depending on the model, which
+  can be lower than the actual maximum context window size of the model.
 
 ##### Returns
 
@@ -1161,7 +1170,7 @@ and time. Remember to add `.journalism-cache` to your `.gitignore`.
 ##### Signature
 
 ```typescript
-async aiQuery(prompt: string, options?: { cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean }): Promise<void>;
+async aiQuery(prompt: string, options?: { cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; contextWindow?: number; verbose?: boolean }): Promise<void>;
 ```
 
 ##### Parameters
@@ -1184,6 +1193,9 @@ async aiQuery(prompt: string, options?: { cache?: boolean; model?: string; apiKe
 - **`options.ollama`**: - If `true`, uses Ollama. Defaults to the `OLLAMA`
   environment variable. If you want your Ollama instance to be used, you can
   pass it here too.
+- **`options.contextWindow`**: - An option to specify the context window size
+  for Ollama models. By default, Ollama sets this depending on the model, which
+  can be lower than the actual maximum context window size of the model.
 - **`options.verbose`**: - If `true`, logs additional debugging information,
   including the full prompt sent to the AI. Defaults to `false`.
 
