@@ -25,6 +25,7 @@ export default async function aiRowByRow(
     clean?: (
       response: unknown,
     ) => unknown;
+    contextWindow?: number;
   } = {},
 ) {
   await simpleTable.updateWithJS(async (rows) => {

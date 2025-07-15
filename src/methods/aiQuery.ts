@@ -13,6 +13,7 @@ export default async function aiQuery(
     project?: string;
     location?: string;
     ollama?: boolean | Ollama;
+    contextWindow?: number;
     verbose?: boolean;
   } = {},
 ) {

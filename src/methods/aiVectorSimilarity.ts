@@ -20,6 +20,7 @@ export default async function aiVectorSimilarity(
     location?: string;
     ollama?: boolean | Ollama;
     verbose?: boolean;
+    contextWindow?: number;
   } = {},
 ) {
   const textEmbedding = await getEmbedding(text, options);

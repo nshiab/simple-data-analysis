@@ -19,6 +19,7 @@ export default async function aiEmbeddings(
     ollama?: boolean | Ollama;
     verbose?: boolean;
     rateLimitPerMinute?: number;
+    contextWindow?: number;
   } = {},
 ) {
   await simpleTable.updateWithJS(async (rows) => {

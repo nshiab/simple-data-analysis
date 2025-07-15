@@ -27,6 +27,7 @@ export default async function tryAI(
     clean?: (
       response: unknown,
     ) => unknown;
+    contextWindow?: number;
   } = {},
 ) {
   const batch = rows.slice(i, i + batchSize);

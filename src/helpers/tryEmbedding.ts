@@ -17,6 +17,7 @@ export default async function tryEmbedding(
     location?: string;
     ollama?: boolean | Ollama;
     verbose?: boolean;
+    contextWindow?: number;
   } = {},
 ) {
   // Should be improved...
