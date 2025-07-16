@@ -3,9 +3,9 @@ export default function selectRowsQuery(
   count: number | string,
   options: { offset?: number; outputTable?: string | boolean } = {},
 ) {
-  return `CREATE OR REPLACE TABLE ${
+  return `CREATE OR REPLACE TABLE "${
     options.outputTable ?? table
-  } AS SELECT * FROM "${table}" LIMIT ${count}${
+  }" AS SELECT * FROM "${table}" LIMIT ${count}${
     typeof options.offset === "number" ? ` OFFSET ${options.offset}` : ""
   };`;
 }

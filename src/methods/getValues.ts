@@ -8,7 +8,7 @@ export default async function getValues(
 ) {
   const queryResult = await queryDB(
     simpleTable,
-    `SELECT "${column}" FROM ${simpleTable.name}`,
+    `SELECT "${column}" FROM "${simpleTable.name}"`,
     mergeOptions(simpleTable, {
       table: simpleTable.name,
       returnDataFrom: "query",

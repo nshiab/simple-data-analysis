@@ -25,32 +25,32 @@ export default function distanceQuery(
   }
 
   let query =
-    `ALTER TABLE "${table}" ADD ${newColumn} DOUBLE; UPDATE "${table}" SET ${newColumn} = `;
+    `ALTER TABLE "${table}" ADD "${newColumn}" DOUBLE; UPDATE "${table}" SET "${newColumn}" = `;
 
   if (options.method === "srs") {
     if (typeof options.decimals === "number") {
       query +=
-        `ROUND(ST_Distance(${column1}, ${column2}), ${options.decimals})`;
+        `ROUND(ST_Distance("${column1}", "${column2}"), ${options.decimals})`;
     } else {
-      query += `ST_Distance(${column1}, ${column2})`;
+      query += `ST_Distance("${column1}", "${column2}")`;
     }
   } else if (options.method === "haversine") {
     if (typeof options.decimals === "number") {
-      query += `ROUND(ST_Distance_Sphere(${column1}, ${column2}) ${
+      query += `ROUND(ST_Distance_Sphere("${column1}", "${column2}") ${
         options.unit === "km" ? "/ 1000" : ""
       }, ${options.decimals});`;
     } else {
-      query += `ST_Distance_Sphere(${column1}, ${column2}) ${
+      query += `ST_Distance_Sphere("${column1}", "${column2}") ${
         options.unit === "km" ? "/ 1000" : ""
       };`;
     }
   } else if (options.method === "spheroid") {
     if (typeof options.decimals === "number") {
-      query += `ROUND(ST_Distance_Spheroid(${column1}, ${column2}) ${
+      query += `ROUND(ST_Distance_Spheroid("${column1}", "${column2}") ${
         options.unit === "km" ? "/ 1000" : ""
       }, ${options.decimals});`;
     } else {
-      query += `ST_Distance_Spheroid(${column1}, ${column2}) ${
+      query += `ST_Distance_Spheroid("${column1}", "${column2}") ${
         options.unit === "km" ? "/ 1000" : ""
       };`;
     }

@@ -11,7 +11,7 @@ export default async function getTop(
 ) {
   const rows = await queryDB(
     simpleTable,
-    `SELECT * FROM ${simpleTable.name}${
+    `SELECT * FROM "${simpleTable.name}"${
       options.conditions ? ` WHERE ${options.conditions}` : ""
     } LIMIT ${count}`,
     mergeOptions(simpleTable, {

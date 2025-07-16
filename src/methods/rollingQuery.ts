@@ -28,7 +28,7 @@ export default function rollingQuery(
     ? `PARTITION BY ${categories.map((d) => `"${d}"`).join(", ")}`
     : "";
 
-  const tempQuery = `${aggregates[summary]}(${column}) OVER (${partition}
+  const tempQuery = `${aggregates[summary]}("${column}") OVER (${partition}
                 ROWS BETWEEN ${preceding} PRECEDING AND ${following} FOLLOWING)`;
 
   const query = `CREATE OR REPLACE TABLE "${table}" AS SELECT *,
@@ -41,8 +41,8 @@ export default function rollingQuery(
             ROWS BETWEEN ${preceding} PRECEDING AND ${following} FOLLOWING) as tempCountForRolling
         FROM "${table}";
         UPDATE "${table}" SET "${newColumn}" = CASE
-            WHEN tempCountForRolling != ${preceding + following + 1} THEN NULL
-            ELSE ${newColumn}
+            WHEN "tempCountForRolling" != ${preceding + following + 1} THEN NULL
+            ELSE "${newColumn}"
         END;
         ALTER TABLE "${table}" DROP COLUMN "tempCountForRolling";
         `;

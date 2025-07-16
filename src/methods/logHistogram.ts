@@ -22,7 +22,7 @@ WITH params AS (
     min("${values}") AS min_distance,
     max("${values}") AS max_distance,
     (max("${values}") - min("${values}")) / ${bins} AS bin_size
-  FROM ${simpleTable.name}
+  FROM "${simpleTable.name}"
 ),
 histogram AS (
   SELECT 
@@ -30,7 +30,7 @@ histogram AS (
     min_distance + floor(("${values}" - min_distance) / bin_size) * bin_size AS bin_start,
     min_distance + (floor(("${values}" - min_distance) / bin_size) + 1) * bin_size AS bin_end,
     CAST(count(*) AS INTEGER) AS frequency
-  FROM ${simpleTable.name}, params
+  FROM "${simpleTable.name}", params
   WHERE "${values}" >= min_distance AND "${values}" < max_distance
   GROUP BY 1, 2, 3
 )

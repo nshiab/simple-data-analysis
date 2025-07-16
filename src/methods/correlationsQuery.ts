@@ -15,9 +15,9 @@ export default function correlationsQuery(
 
   const groupBy = categories.length === 0
     ? ""
-    : ` GROUP BY ${categories.map((d) => `${d}`).join(",")}`;
+    : ` GROUP BY ${categories.map((d) => `"${d}"`).join(",")}`;
 
-  let query = `CREATE OR REPLACE TABLE ${outputTable} AS`;
+  let query = `CREATE OR REPLACE TABLE "${outputTable}" AS`;
 
   let firstValue = true;
   for (const comb of combinations) {
@@ -27,15 +27,15 @@ export default function correlationsQuery(
       query += "\nUNION";
     }
     const tempQuery = typeof options.decimals === "number"
-      ? `ROUND(corr(${comb[0]}, ${comb[1]}), ${options.decimals})`
-      : `corr(${comb[0]}, ${comb[1]})`;
+      ? `ROUND(corr("${comb[0]}", "${comb[1]}"), ${options.decimals})`
+      : `corr("${comb[0]}", "${comb[1]}")`;
     query += `\nSELECT ${
       categories.length > 0
-        ? `${categories.map((d) => `${d}`).join(",")}, `
+        ? `${categories.map((d) => `"${d}"`).join(",")}, `
         : ""
     }'${comb[0]}' AS x, '${
       comb[1]
-    }' AS y, ${tempQuery}  as corr FROM "${table}"${groupBy}`;
+    }' AS y, ${tempQuery}  as "corr" FROM "${table}"${groupBy}`;
   }
 
   return query;

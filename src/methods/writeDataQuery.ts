@@ -38,18 +38,18 @@ export default function writeDataQuery(
     if (existsSync(file)) {
       rmSync(file);
     }
-    return `ATTACH '${cleanedFile}' AS my_database;
-COPY FROM DATABASE memory TO my_database;
-CREATE OR REPLACE TABLE my_database."${table}" AS SELECT * FROM "${table}";
-DETACH my_database;`;
+    return `ATTACH '${cleanedFile}' AS "my_database";
+COPY FROM DATABASE memory TO "my_database";
+CREATE OR REPLACE TABLE "my_database"."${table}" AS SELECT * FROM "${table}";
+DETACH "my_database";`;
   } else if (fileExtension === "sqlite") {
     if (existsSync(file)) {
       rmSync(file);
     }
     return `INSTALL sqlite; LOAD sqlite;
-    ATTACH '${cleanedFile}' AS my_sqlite_db (TYPE SQLITE);
-    CREATE TABLE my_sqlite_db."${table}" AS SELECT * FROM "${table}";
-    DETACH my_sqlite_db;`;
+    ATTACH '${cleanedFile}' AS "my_sqlite_db" (TYPE SQLITE);
+    CREATE TABLE "my_sqlite_db"."${table}" AS SELECT * FROM "${table}";
+    DETACH "my_sqlite_db";`;
   } else {
     throw new Error(`Unknown extension ${fileExtension}`);
   }

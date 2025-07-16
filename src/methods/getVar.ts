@@ -12,8 +12,8 @@ export default async function getVar(
   const queryResult = await queryDB(
     SimpleTable,
     typeof options.decimals === "number"
-      ? `SELECT ROUND(VARIANCE("${column}"), ${options.decimals}) AS "${column}" FROM ${SimpleTable.name}`
-      : `SELECT VARIANCE("${column}") AS "${column}" FROM ${SimpleTable.name}`,
+      ? `SELECT ROUND(VARIANCE("${column}"), ${options.decimals}) AS "${column}" FROM "${SimpleTable.name}"`
+      : `SELECT VARIANCE("${column}") AS "${column}" FROM "${SimpleTable.name}"`,
     mergeOptions(SimpleTable, {
       table: SimpleTable.name,
       returnDataFrom: "query",

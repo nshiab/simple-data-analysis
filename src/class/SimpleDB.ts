@@ -357,7 +357,7 @@ export default class SimpleDB extends Simple {
     await queryDB(
       this,
       tablesToBeRemoved.map((d) =>
-        `DROP TABLE ${d instanceof SimpleTable ? d.name : d};`
+        `DROP TABLE "${d instanceof SimpleTable ? d.name : d}";`
       ).join("\n"),
       mergeOptions(this, {
         table: null,
@@ -421,7 +421,7 @@ export default class SimpleDB extends Simple {
     await queryDB(
       this,
       tablesToBeRemoved.map((d) =>
-        `DROP TABLE ${d instanceof SimpleTable ? d.name : d};`
+        `DROP TABLE "${d instanceof SimpleTable ? d.name : d}";`
       ).join("\n"),
       mergeOptions(this, {
         table: null,

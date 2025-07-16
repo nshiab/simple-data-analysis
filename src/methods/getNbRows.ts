@@ -5,7 +5,7 @@ import type SimpleTable from "../class/SimpleTable.ts";
 export default async function getNbRows(SimpleTable: SimpleTable) {
   const queryResult = await queryDB(
     SimpleTable,
-    `SELECT CAST(COUNT(*) AS INTEGER) FROM ${SimpleTable.name}`,
+    `SELECT CAST(COUNT(*) AS INTEGER) FROM "${SimpleTable.name}"`,
     mergeOptions(SimpleTable, {
       table: SimpleTable.name,
       returnDataFrom: "query",

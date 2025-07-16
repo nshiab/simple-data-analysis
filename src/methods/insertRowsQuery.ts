@@ -6,7 +6,9 @@ export default function insertRowsQuery(
 ) {
   const columns = Object.keys(rows[0]);
 
-  let query = `INSERT INTO "${table}" (${columns.map((d) => `${d}`).join(", ")})
+  let query = `INSERT INTO "${table}" (${
+    columns.map((d) => `"${d}"`).join(", ")
+  })
         VALUES`;
 
   for (const row of rows) {

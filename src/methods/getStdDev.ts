@@ -12,8 +12,8 @@ export default async function getStdDev(
   const queryResult = await queryDB(
     SimpleTable,
     typeof options.decimals === "number"
-      ? `SELECT ROUND(STDDEV("${column}"), ${options.decimals}) AS "${column}" FROM ${SimpleTable.name}`
-      : `SELECT STDDEV("${column}") AS "${column}" FROM ${SimpleTable.name}`,
+      ? `SELECT ROUND(STDDEV("${column}"), ${options.decimals}) AS "${column}" FROM "${SimpleTable.name}"`
+      : `SELECT STDDEV("${column}") AS "${column}" FROM "${SimpleTable.name}"`,
     mergeOptions(SimpleTable, {
       table: SimpleTable.name,
       returnDataFrom: "query",
