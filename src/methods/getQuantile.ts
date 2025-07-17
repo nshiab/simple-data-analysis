@@ -13,8 +13,8 @@ export default async function getQuantile(
   const queryResult = await queryDB(
     SimpleTable,
     typeof options.decimals === "number"
-      ? `SELECT ROUND(QUANTILE_CONT("${column}", ${quantile}), ${options.decimals}) AS "${column}" FROM ${SimpleTable.name}`
-      : `SELECT QUANTILE_CONT("${column}", ${quantile}) AS "${column}" FROM ${SimpleTable.name}`,
+      ? `SELECT ROUND(QUANTILE_CONT("${column}", ${quantile}), ${options.decimals}) AS "${column}" FROM "${SimpleTable.name}"`
+      : `SELECT QUANTILE_CONT("${column}", ${quantile}) AS "${column}" FROM "${SimpleTable.name}"`,
     mergeOptions(SimpleTable, {
       table: SimpleTable.name,
       returnDataFrom: "query",

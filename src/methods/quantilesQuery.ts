@@ -15,10 +15,10 @@ export default function quantilesQuery(
 
   const partition = categories.length === 0
     ? ""
-    : `PARTITION BY ${categories.map((d) => `${d}`).join(",")} `;
+    : `PARTITION BY ${categories.map((d) => `"${d}"`).join(",")} `;
 
   const query =
-    `CREATE OR REPLACE TABLE "${table}" AS SELECT *, ntile(${nbQuantiles}) OVER (${partition}ORDER BY ${values}) AS ${newColumn},
+    `CREATE OR REPLACE TABLE "${table}" AS SELECT *, ntile(${nbQuantiles}) OVER (${partition}ORDER BY "${values}") AS "${newColumn}"
     FROM "${table}"`;
 
   return query;

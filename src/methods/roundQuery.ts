@@ -9,11 +9,11 @@ export default function roundQuery(
 
   if (method === "ROUND") {
     for (const column of columns) {
-      query += `\n${column} = ${method}(${column}, ${decimals}),`;
+      query += `\n"${column}" = ${method}("${column}", ${decimals}),`;
     }
   } else {
     for (const column of columns) {
-      query += `\n${column} = ${method}(${column}),`;
+      query += `\n"${column}" = ${method}("${column}"),`;
     }
   }
 

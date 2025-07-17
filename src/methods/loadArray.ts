@@ -79,7 +79,7 @@ export default async function loadArray(
   }
 
   await simpleTable.sdb.customQuery(
-    `CREATE OR REPLACE TABLE ${simpleTable.name}(${
+    `CREATE OR REPLACE TABLE "${simpleTable.name}"(${
       keys.map((key, i) => `"${key}" ${types[i]}`).join(", ")
     })`,
   );

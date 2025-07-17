@@ -47,12 +47,12 @@ export default async function binsQuery(
     const start = i;
     const end = (i + interval - increment).toFixed(decimals);
     intervals.push(
-      `WHEN ${values} >= ${start} AND ${values} <= ${end} THEN '[${start}-${end}]'`,
+      `WHEN "${values}" >= ${start} AND "${values}" <= ${end} THEN '[${start}-${end}]'`,
     );
   }
 
-  const query = `ALTER TABLE ${SimpleTable.name} ADD ${newColumn} VARCHAR;
-    UPDATE ${SimpleTable.name} SET ${newColumn} = CASE
+  const query = `ALTER TABLE "${SimpleTable.name}" ADD "${newColumn}" VARCHAR;
+    UPDATE "${SimpleTable.name}" SET "${newColumn}" = CASE
     ${intervals.join("\n")}
     END`;
 

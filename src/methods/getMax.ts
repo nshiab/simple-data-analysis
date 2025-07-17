@@ -8,7 +8,7 @@ export default async function getMax(
 ) {
   const queryResult = await queryDB(
     simpleTable,
-    `SELECT MAX("${column}") AS "${column}" FROM ${simpleTable.name}`,
+    `SELECT MAX("${column}") AS "${column}" FROM "${simpleTable.name}"`,
     {
       ...mergeOptions(simpleTable, {
         table: simpleTable.name,

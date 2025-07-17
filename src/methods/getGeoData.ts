@@ -14,10 +14,10 @@ export default async function getGeoData(
   let query = "";
   if (shouldFlipBeforeExport(SimpleTable.projections[column])) {
     query =
-      `SELECT * EXCLUDE ${column}, ST_AsGeoJSON(ST_FlipCoordinates(${column})) as geoJsonFragment from ${SimpleTable.name};`;
+      `SELECT * EXCLUDE ${column}, ST_AsGeoJSON(ST_FlipCoordinates(${column})) as geoJsonFragment from "${SimpleTable.name}";`;
   } else {
     query =
-      `SELECT * EXCLUDE ${column}, ST_AsGeoJSON(${column}) as geoJsonFragment from ${SimpleTable.name};`;
+      `SELECT * EXCLUDE ${column}, ST_AsGeoJSON(${column}) as geoJsonFragment from "${SimpleTable.name}";`;
   }
   const queryResult = await queryDB(
     SimpleTable,

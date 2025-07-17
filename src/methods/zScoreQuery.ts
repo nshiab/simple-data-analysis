@@ -13,12 +13,12 @@ export default function zScoreQuery(
     ? stringToArray(options.categories)
     : [];
   const partition = categories.length > 0
-    ? `PARTITION BY ${categories.map((d) => `${d}`).join(", ")}`
+    ? `PARTITION BY ${categories.map((d) => `"${d}"`).join(", ")}`
     : "";
 
-  const tempQuery = `(${column}-AVG(${column}) OVER(${partition}))
+  const tempQuery = `("${column}"-AVG("${column}") OVER(${partition}))
             /
-            STDDEV_POP(${column}) OVER(${partition})`;
+            STDDEV_POP("${column}") OVER(${partition})`;
   const query = `
     CREATE OR REPLACE TABLE "${table}" AS
     SELECT *, (

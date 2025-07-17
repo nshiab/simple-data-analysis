@@ -12,8 +12,8 @@ export default async function getMedian(
   const queryResult = await queryDB(
     SimpleTable,
     typeof options.decimals === "number"
-      ? `SELECT ROUND(MEDIAN("${column}"), ${options.decimals}) AS "${column}" FROM ${SimpleTable.name}`
-      : `SELECT MEDIAN("${column}") AS "${column}" FROM ${SimpleTable.name}`,
+      ? `SELECT ROUND(MEDIAN("${column}"), ${options.decimals}) AS "${column}" FROM "${SimpleTable.name}"`
+      : `SELECT MEDIAN("${column}") AS "${column}" FROM "${SimpleTable.name}"`,
     mergeOptions(SimpleTable, {
       table: SimpleTable.name,
       returnDataFrom: "query",

@@ -16,10 +16,10 @@ export default function accumulateQuery(
     : "";
 
   const query =
-    `CREATE OR REPLACE TABLE "${table}" AS SELECT *, ROW_NUMBER() OVER() AS idForAccumulate FROM "${table}";
-    CREATE OR REPLACE TABLE "${table}" AS SELECT *, SUM("${column}") OVER (${partition}ORDER BY idForAccumulate) AS "${newColumn}"
+    `CREATE OR REPLACE TABLE "${table}" AS SELECT *, ROW_NUMBER() OVER() AS "idForAccumulate" FROM "${table}";
+    CREATE OR REPLACE TABLE "${table}" AS SELECT *, SUM("${column}") OVER (${partition}ORDER BY "idForAccumulate") AS "${newColumn}"
     FROM "${table}"
-    ORDER BY idForAccumulate;
+    ORDER BY "idForAccumulate";
     ALTER TABLE "${table}" DROP "idForAccumulate";`;
 
   return query;

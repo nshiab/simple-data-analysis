@@ -77,7 +77,7 @@ export default function summarizeQuery(
     )[];
   }
 
-  let query = `CREATE OR REPLACE TABLE ${outputTable} AS`;
+  let query = `CREATE OR REPLACE TABLE "${outputTable}" AS`;
 
   let firstValue = true;
   for (const value of values) {

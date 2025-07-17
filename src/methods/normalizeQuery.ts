@@ -13,12 +13,12 @@ export default function normalizeQuery(
     ? stringToArray(options.categories)
     : [];
   const partition = categories.length > 0
-    ? `PARTITION BY ${categories.map((d) => `${d}`).join(", ")}`
+    ? `PARTITION BY ${categories.map((d) => `"${d}"`).join(", ")}`
     : "";
 
-  const tempQuery = `(${column} - MIN(${column}) OVER(${partition}))
+  const tempQuery = `("${column}" - MIN("${column}") OVER(${partition}))
     /
-    (MAX(${column}) OVER(${partition}) - MIN(${column}) OVER(${partition}))`;
+    (MAX("${column}") OVER(${partition}) - MIN("${column}") OVER(${partition}))`;
 
   const query = `
     CREATE OR REPLACE TABLE "${table}" AS

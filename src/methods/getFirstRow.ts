@@ -10,7 +10,7 @@ export default async function getFirstRow(
 ) {
   const queryResult = await queryDB(
     simpleTable,
-    `SELECT * FROM ${simpleTable.name}${
+    `SELECT * FROM "${simpleTable.name}"${
       options.conditions ? ` WHERE ${options.conditions}` : ""
     } LIMIT 1`,
     mergeOptions(simpleTable, {
