@@ -68,6 +68,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       "city",
       "country",
       `Give me the country of the city.`,
+      { verbose: true },
     );
     const data = await table.getData();
 
@@ -78,7 +79,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     ]);
     await sdb.done();
   });
-  Deno.test("should iterate over rows with a prompt", async () => {
+  Deno.test("should iterate over rows with a prompt with thinking", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     await table.loadArray([
@@ -90,7 +91,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       "city",
       "country",
       `Give me the country of the city.`,
-      { verbose: true },
+      { verbose: true, thinkingBudget: 300, model: "gemini-2.5-flash" },
     );
     const data = await table.getData();
 
@@ -448,10 +449,9 @@ if (typeof ollama === "string" && aiKey !== "") {
         cache: true,
         // Send 10 rows at once to the AI
         batchSize: 10,
-        clean: (response: unknown) =>
-          typeof response === "object" && response && "genders" in response
-            ? response.genders
-            : response,
+        clean: (response: string) =>
+          (JSON.parse(response) as { results: { gender: string }[] }).results
+            .map((d) => d.gender),
         // Ensure the response contains only the expected categories
         test: (response: unknown) => {
           if (
@@ -501,10 +501,9 @@ if (typeof ollama === "string" && aiKey !== "") {
         cache: true,
         // Send 10 rows at once to the AI
         batchSize: 10,
-        clean: (response: unknown) =>
-          typeof response === "object" && response && "genders" in response
-            ? response.genders
-            : response,
+        clean: (response: string) =>
+          (JSON.parse(response) as { results: { gender: string }[] }).results
+            .map((d) => d.gender),
         // Ensure the response contains only the expected categories
         test: (response: unknown) => {
           if (
@@ -553,10 +552,9 @@ if (typeof ollama === "string" && aiKey !== "") {
         cache: true,
         // Send 10 rows at once to the AI
         batchSize: 10,
-        clean: (response: unknown) =>
-          typeof response === "object" && response && "genders" in response
-            ? response.genders
-            : response,
+        clean: (response: string) =>
+          (JSON.parse(response) as { results: { gender: string }[] }).results
+            .map((d) => d.gender),
         // Ensure the response contains only the expected categories
         test: (response: unknown) => {
           if (
@@ -595,12 +593,16 @@ if (typeof ollama === "string" && aiKey !== "") {
     await table.aiRowByRow(
       "city",
       "country",
-      `Give me the country of the city. Return an objects with two keys in it: one with the list of original cities and the other with a list of their countries, in the same order.`,
+      `Give me the country of the city.`,
       {
-        clean: (response: unknown) =>
-          typeof response === "object" && response && "countries" in response
-            ? response.countries
-            : response,
+        clean: (response: string) => {
+          const parsed = JSON.parse(response);
+          return typeof parsed === "object" && parsed && "countries" in parsed
+            ? parsed.countries
+            : parsed;
+        },
+        extraInstructions:
+          `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
       },
     );
     const data = await table.getData();
@@ -623,13 +625,48 @@ if (typeof ollama === "string" && aiKey !== "") {
     await table.aiRowByRow(
       "city",
       "country",
-      `Give me the country of the city. Return an objects with two keys in it: one with the list of original cities and the other with a list of their countries, in the same order.`,
+      `Give me the country of the city.`,
       {
         verbose: true,
-        clean: (response: unknown) =>
-          typeof response === "object" && response && "countries" in response
-            ? response.countries
-            : response,
+        clean: (
+          response: string,
+        ) => (JSON.parse(response) as { countries: string }).countries,
+        extraInstructions:
+          `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
+      },
+    );
+    const data = await table.getData();
+
+    assertEquals(data, [
+      { city: "Marrakech", country: "Morocco" },
+      { city: "Kyoto", country: "Japan" },
+      { city: "Auckland", country: "New Zealand" },
+    ]);
+    await sdb.done();
+  });
+  Deno.test("should iterate over rows with a prompt and thinking (ollama)", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { "city": "Marrakech" },
+      { "city": "Kyoto" },
+      { "city": "Auckland" },
+    ]);
+    await table.aiRowByRow(
+      "city",
+      "country",
+      `Give me the country of the cities.`,
+      {
+        verbose: true,
+        clean: (response: string) => {
+          const parsed = JSON.parse(response);
+          return typeof parsed === "object" && parsed && "countries" in parsed
+            ? parsed.countries
+            : parsed;
+        },
+        batchSize: 3,
+        extraInstructions:
+          `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
       },
     );
     const data = await table.getData();
@@ -660,14 +697,18 @@ if (typeof ollama === "string" && aiKey !== "") {
     await table.aiRowByRow(
       "city",
       "country",
-      `Give me the country of the city. Return an objects with two keys in it: one with the list of original cities and the other with a list of their countries, in the same order.`,
+      `Give me the country of the city.`,
       {
         batchSize: 10,
         verbose: true,
-        clean: (response: unknown) =>
-          typeof response === "object" && response && "countries" in response
-            ? response.countries
-            : response,
+        clean: (response: string) => {
+          const parsed = JSON.parse(response);
+          return typeof parsed === "object" && parsed && "countries" in parsed
+            ? parsed.countries
+            : parsed;
+        },
+        extraInstructions:
+          `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
       },
     );
     const data = await table.getData();
@@ -706,15 +747,19 @@ if (typeof ollama === "string" && aiKey !== "") {
     await table.aiRowByRow(
       "city",
       "country",
-      `Give me the country of the city. Return an objects with two keys in it: one with the list of original cities and the other with a list of their countries, in the same order.`,
+      `Give me the country of the city.`,
       {
         batchSize: 10,
         cache: true,
         verbose: true,
-        clean: (response: unknown) =>
-          typeof response === "object" && response && "countries" in response
-            ? response.countries
-            : response,
+        clean: (response: string) => {
+          const parsed = JSON.parse(response);
+          return typeof parsed === "object" && parsed && "countries" in parsed
+            ? parsed.countries
+            : parsed;
+        },
+        extraInstructions:
+          `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
       },
     );
     const data = await table.getData();
@@ -753,15 +798,19 @@ if (typeof ollama === "string" && aiKey !== "") {
     await table.aiRowByRow(
       "city",
       "country",
-      `Give me the country of the city. Return an objects with two keys in it: one with the list of original cities and the other with a list of their countries, in the same order.`,
+      `Give me the country of the city.`,
       {
         batchSize: 10,
         cache: true,
         verbose: true,
-        clean: (response: unknown) =>
-          typeof response === "object" && response && "countries" in response
-            ? response.countries
-            : response,
+        clean: (response: string) => {
+          const parsed = JSON.parse(response);
+          return typeof parsed === "object" && parsed && "countries" in parsed
+            ? parsed.countries
+            : parsed;
+        },
+        extraInstructions:
+          `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
       },
     );
     const data = await table.getData();
@@ -800,14 +849,18 @@ if (typeof ollama === "string" && aiKey !== "") {
     await table.aiRowByRow(
       "city",
       "country",
-      `Give me the country of the city. Return an objects with two keys in it: one with the list of original cities and the other with a list of their countries, in the same order.`,
+      `Give me the country of the city.`,
       {
         batchSize: 10,
         verbose: true,
-        clean: (response: unknown) =>
-          typeof response === "object" && response && "countries" in response
-            ? response.countries
-            : response,
+        clean: (response: string) => {
+          const parsed = JSON.parse(response);
+          return typeof parsed === "object" && parsed && "countries" in parsed
+            ? parsed.countries
+            : parsed;
+        },
+        extraInstructions:
+          `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
       },
     );
     const data = await table.getData();
@@ -846,15 +899,19 @@ if (typeof ollama === "string" && aiKey !== "") {
     await table.aiRowByRow(
       "city",
       "country",
-      `Give me the country of the city. Return an objects with two keys in it: one with the list of original cities and the other with a list of their countries, in the same order.`,
+      `Give me the country of the city.`,
       {
         batchSize: 2,
         concurrent: 2,
         verbose: true,
-        clean: (response: unknown) =>
-          typeof response === "object" && response && "countries" in response
-            ? response.countries
-            : response,
+        clean: (response: string) => {
+          const parsed = JSON.parse(response);
+          return typeof parsed === "object" && parsed && "countries" in parsed
+            ? parsed.countries
+            : parsed;
+        },
+        extraInstructions:
+          `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
       },
     );
     const data = await table.getData();
@@ -894,16 +951,20 @@ if (typeof ollama === "string" && aiKey !== "") {
     await table.aiRowByRow(
       "city",
       "country",
-      `Give me the country of the city. Return an objects with two keys in it: one with the list of original cities and the other with a list of their countries, in the same order.`,
+      `Give me the country of the city.`,
       {
         batchSize: 2,
         concurrent: 5,
         cache: true,
         verbose: true,
-        clean: (response: unknown) =>
-          typeof response === "object" && response && "countries" in response
-            ? response.countries
-            : response,
+        clean: (response: string) => {
+          const parsed = JSON.parse(response);
+          return typeof parsed === "object" && parsed && "countries" in parsed
+            ? parsed.countries
+            : parsed;
+        },
+        extraInstructions:
+          `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
       },
     );
     const data = await table.getData();

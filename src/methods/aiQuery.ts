@@ -14,6 +14,7 @@ export default async function aiQuery(
     location?: string;
     ollama?: boolean | Ollama;
     contextWindow?: number;
+    thinkingBudget?: number;
     verbose?: boolean;
   } = {},
 ) {

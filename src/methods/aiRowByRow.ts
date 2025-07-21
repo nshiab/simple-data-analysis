@@ -23,9 +23,11 @@ export default async function aiRowByRow(
     verbose?: boolean;
     rateLimitPerMinute?: number;
     clean?: (
-      response: unknown,
+      response: string,
     ) => unknown;
     contextWindow?: number;
+    thinkingBudget?: number;
+    extraInstructions?: string;
   } = {},
 ) {
   await simpleTable.updateWithJS(async (rows) => {
