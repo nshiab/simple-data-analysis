@@ -439,7 +439,7 @@ export default class SimpleDB extends Simple {
   }
 
   /**
-   * Returns an array of all table names in the database.
+   * Returns an array of all table names in the database, sorted alphabetically.
    *
    * @returns A promise that resolves to an array of table names.
    * @category Table Management
@@ -456,7 +456,7 @@ export default class SimpleDB extends Simple {
   }
 
   /**
-   * Logs the names of all tables in the database to the console.
+   * Logs the names of all tables in the database to the console, sorted alphabetically.
    *
    * @returns A promise that resolves when the table names have been logged.
    * @category Table Management
