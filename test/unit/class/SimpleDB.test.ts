@@ -45,9 +45,10 @@ Deno.test("should run a custom query and return the result", async () => {
 
 Deno.test("should create tables without names", async () => {
   const sdb = new SimpleDB();
-  const table1 = sdb.newTable();
+  // Table 2 first to make sure results are sorted alphabetically
+  const table1 = sdb.newTable("table2");
   await table1.loadData(["test/data/files/data.json"]);
-  const table2 = sdb.newTable();
+  const table2 = sdb.newTable("table1");
   await table2.loadData(["test/data/files/data.json"]);
 
   const tables = await sdb.getTableNames();

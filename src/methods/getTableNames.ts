@@ -20,5 +20,5 @@ export default async function getTableNames(simpleDB: SimpleDB) {
 
   const tables = queryResult.map((d) => d.name) as string[];
 
-  return tables;
+  return tables.sort();
 }
