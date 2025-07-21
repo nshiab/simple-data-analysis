@@ -25,16 +25,20 @@ export default async function tryAI(
     verbose?: boolean;
     rateLimitPerMinute?: number;
     clean?: (
-      response: unknown,
+      response: string,
     ) => unknown;
     contextWindow?: number;
+    thinkingBudget?: number;
+    extraInstructions?: string;
   } = {},
 ) {
   const batch = rows.slice(i, i + batchSize);
   const fullPrompt =
     `${prompt}\nHere are the ${column} values as a JSON array:\n${
       JSON.stringify(batch.map((d) => d[column]))
-    }\nReturn your results in a JSON array as well. It's critical you return the same number of items, which is ${batch.length}, exactly in the same order.`;
+    }\nReturn your results in a JSON array as well. It's critical you return the same number of items, which is ${batch.length}, exactly in the same order.${
+      options.extraInstructions ? `\n${options.extraInstructions}` : ""
+    }`;
 
   const retry = options.retry ?? 1;
 
