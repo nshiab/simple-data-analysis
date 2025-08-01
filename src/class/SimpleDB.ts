@@ -36,7 +36,7 @@ import { renameSync } from "node:fs";
  * @example
  * ```ts
  * // Create a persistent database instance, saving data to a file
- * // To connect to an existing database, use the `loadDB` method instead
+ * // To load an existing database, use the `loadDB` method instead
  * const sdb = new SimpleDB({ file: "./my_database.db" });
  * // Perform database operations...
  * // Close the database connection, which saves changes to the specified file
