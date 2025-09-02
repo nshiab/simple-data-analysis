@@ -481,6 +481,7 @@ await sdb.done();
 
 ```ts
 // Create a persistent database instance, saving data to a file
+// To load an existing database, use the `loadDB` method instead
 const sdb = new SimpleDB({ file: "./my_database.db" });
 // Perform database operations...
 // Close the database connection, which saves changes to the specified file
@@ -1259,7 +1260,9 @@ await table.insertRows(newRows);
 
 #### `insertTables`
 
-Inserts all rows from one or more other tables into this table.
+Inserts all rows from one or more other tables into this table. If tables do not
+have the same columns, an error will be thrown unless the `unifyColumns` option
+is set to `true`.
 
 ##### Signature
 
@@ -1305,7 +1308,7 @@ be optionally filtered. Note that cloning large tables can be a slow operation.
 ##### Signature
 
 ```typescript
-async cloneTable(nameOrOptions?: string | { outputTable?: string; conditions?: string }): Promise<SimpleTable>;
+async cloneTable(nameOrOptions?: string | { outputTable?: string; conditions?: string; columns?: string | string[] }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -1318,6 +1321,8 @@ async cloneTable(nameOrOptions?: string | { outputTable?: string; conditions?: s
   be generated.
 - **`nameOrOptions.conditions`**: - A SQL `WHERE` clause condition to filter the
   data during cloning. Defaults to no condition (clones all rows).
+- **`nameOrOptions.columns`**: - An array of column names to include in the
+  cloned table. If not provided, all columns will be included.
 
 ##### Returns
 
@@ -1347,10 +1352,16 @@ const tableB = await tableA.cloneTable({ conditions: `column1 > 10` });
 ```
 
 ```ts
-// Clone tableA to a specific table name with filtered data
+// Clone tableA with only specific columns
+const tableB = await tableA.cloneTable({ columns: ["name", "age", "city"] });
+```
+
+```ts
+// Clone tableA to a specific table name with filtered data and specific columns
 const tableB = await tableA.cloneTable({
   outputTable: "filtered_data",
   conditions: `status = 'active' AND created_date >= '2023-01-01'`,
+  columns: ["name", "status", "created_date"],
 });
 ```
 
