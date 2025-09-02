@@ -1030,6 +1030,7 @@ export default class SimpleTable extends Simple {
    * @param nameOrOptions - Either a string specifying the name of the new table, or an optional object with configuration options. If not provided, a default name (e.g., "table1", "table2") will be generated.
    * @param nameOrOptions.outputTable - The name of the new table to be created in the database. If not provided, a default name (e.g., "table1", "table2") will be generated.
    * @param nameOrOptions.conditions - A SQL `WHERE` clause condition to filter the data during cloning. Defaults to no condition (clones all rows).
+   * @param nameOrOptions.columns - An array of column names to include in the cloned table. If not provided, all columns will be included.
    * @returns A promise that resolves to the new SimpleTable instance containing the cloned data.
    * @category Table Management
    *
@@ -1059,10 +1060,17 @@ export default class SimpleTable extends Simple {
    *
    * @example
    * ```ts
-   * // Clone tableA to a specific table name with filtered data
+   * // Clone tableA with only specific columns
+   * const tableB = await tableA.cloneTable({ columns: ["name", "age", "city"] });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Clone tableA to a specific table name with filtered data and specific columns
    * const tableB = await tableA.cloneTable({
    *   outputTable: "filtered_data",
-   *   conditions: `status = 'active' AND created_date >= '2023-01-01'`
+   *   conditions: `status = 'active' AND created_date >= '2023-01-01'`,
+   *   columns: ["name", "status", "created_date"]
    * });
    * ```
    */
@@ -1070,8 +1078,28 @@ export default class SimpleTable extends Simple {
     nameOrOptions: string | {
       outputTable?: string;
       conditions?: string;
+      columns?: string | string[];
     } = {},
   ): Promise<SimpleTable> {
+    const columns = typeof nameOrOptions === "object" && nameOrOptions.columns
+      ? stringToArray(nameOrOptions.columns)
+      : [];
+
+    // Dealing with projections
+    const clonedProjections = structuredClone(this.projections);
+    let newProjections: {
+      [key: string]: string;
+    } = {};
+    if (columns.length > 0) {
+      for (const col of columns) {
+        if (clonedProjections[col]) {
+          newProjections[col] = clonedProjections[col];
+        }
+      }
+    } else {
+      newProjections = clonedProjections;
+    }
+
     // Should match newTable from SimpleDB
     let clonedTable;
     const options = typeof nameOrOptions === "string"
@@ -1080,7 +1108,7 @@ export default class SimpleTable extends Simple {
     if (typeof options.outputTable === "string") {
       clonedTable = new SimpleTable(
         options.outputTable,
-        structuredClone(this.projections),
+        newProjections,
         this.sdb,
         {
           debug: this.debug,
@@ -1093,7 +1121,7 @@ export default class SimpleTable extends Simple {
     } else {
       clonedTable = new SimpleTable(
         `table${this.sdb.tableIncrement}`,
-        structuredClone(this.projections),
+        newProjections,
         this.sdb,
         {
           debug: this.debug,
@@ -1108,7 +1136,7 @@ export default class SimpleTable extends Simple {
 
     await queryDB(
       this,
-      cloneQuery(this.name, clonedTable.name, options),
+      cloneQuery(this.name, clonedTable.name, columns, options),
       mergeOptions(this, {
         table: clonedTable.name,
         method: "cloneTable()",

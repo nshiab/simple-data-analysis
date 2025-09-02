@@ -1,11 +1,16 @@
 export default function cloneQuery(
   table: string,
   newTable: string,
+  columns: string[],
   options: {
     conditions?: string;
   } = {},
 ) {
-  return `CREATE OR REPLACE TABLE "${newTable}" AS SELECT * FROM "${table}"${
+  const selectClause = columns.length > 0
+    ? columns.map((col) => `"${col}"`).join(", ")
+    : "*";
+
+  return `CREATE OR REPLACE TABLE "${newTable}" AS SELECT ${selectClause} FROM "${table}"${
     options.conditions ? ` WHERE ${options.conditions}` : ""
   }`;
 }

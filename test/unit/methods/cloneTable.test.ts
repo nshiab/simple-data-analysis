@@ -125,3 +125,82 @@ Deno.test("should clone a table with string parameter directly", async () => {
 
   await sdb.done();
 });
+
+Deno.test("should clone a table with specific columns", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadData("test/data/files/employees.csv");
+
+  const selectedColumns = ["Name", "Job"];
+
+  const clone = await table.cloneTable({
+    columns: selectedColumns,
+  });
+
+  const cloneColumns = await clone.getColumns();
+  const cloneData = await clone.getData();
+  const originalData = await table.getData();
+
+  // Check that the clone only has the selected columns
+  assertEquals(cloneColumns.sort(), selectedColumns.sort());
+
+  // Check that the data matches for the selected columns
+  const expectedData = originalData.map((row) => {
+    const filteredRow: { [key: string]: unknown } = {};
+    selectedColumns.forEach((col) => {
+      filteredRow[col] = row[col];
+    });
+    return filteredRow;
+  });
+
+  assertEquals(cloneData, expectedData);
+
+  await sdb.done();
+});
+
+Deno.test("should clone a table with specific columns and conditions", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadData("test/data/files/employees.csv");
+
+  const selectedColumns = ["Name", "Job"];
+  const clone = await table.cloneTable({
+    columns: selectedColumns,
+    conditions: `Job = 'Manager'`,
+  });
+
+  const cloneData = await clone.getData();
+  const originalData = await table.getData();
+
+  // Expected data: only Manager rows with only Name and Job columns
+  const expectedData = originalData
+    .filter((row) => row.Job === "Manager")
+    .map((row) => ({
+      Name: row.Name,
+      Job: row.Job,
+    }));
+
+  assertEquals(cloneData, expectedData);
+
+  await sdb.done();
+});
+Deno.test("should clone a table with data and projections, with specific columns", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadGeoData("test/geodata/files/bigCircle.json");
+  await table.cloneColumn("geom", "newGeom");
+  assertEquals(table.projections, {
+    geom: "+proj=latlong +datum=WGS84 +no_defs",
+    newGeom: "+proj=latlong +datum=WGS84 +no_defs",
+  });
+
+  const clone = await table.cloneTable({
+    outputTable: "clone 'table",
+    columns: "newGeom",
+  });
+
+  assertEquals(clone.projections, {
+    newGeom: "+proj=latlong +datum=WGS84 +no_defs",
+  });
+  await sdb.done();
+});
