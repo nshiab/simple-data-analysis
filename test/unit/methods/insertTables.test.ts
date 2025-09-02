@@ -1,4 +1,4 @@
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals, assertRejects } from "jsr:@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
 Deno.test("should add rows from a table into another table", async () => {
@@ -45,6 +45,19 @@ Deno.test("should add rows from a table into another table even if the column or
     { key1: 3, key2: "trois" },
     { key1: 4, key2: "quatre" },
   ]);
+  await sdb.done();
+});
+Deno.test("should throw an error if the tables have different columns", async () => {
+  const sdb = new SimpleDB();
+  const table1 = sdb.newTable();
+  await table1.loadData("test/data/files/data.json");
+
+  const table2 = sdb.newTable();
+  await table2.loadData("test/data/files/data.json");
+  await table2.selectColumns(["key2"]);
+
+  await assertRejects(async () => await table1.insertTables(table2));
+
   await sdb.done();
 });
 
@@ -181,23 +194,41 @@ Deno.test("should add rows from tables with geometries", async () => {
   });
   await sdb.done();
 });
-// NOT SURE HOW TO TEST FOR ERRORS. THIS IS EXPECT BEHAVIOR BELOW.
-// Deno.test("should throw an error if geometry projections are not the same", async () => {
-//   const sdb = new SimpleDB();
-//   const table1 = sdb.newTable();
-//   await table1.loadGeoData(
-//     "test/geodata/files/CanadianProvincesAndTerritories.json",
-//   );
+Deno.test("should throw an error if geometry projections are not the same", async () => {
+  const sdb = new SimpleDB();
+  const table1 = sdb.newTable();
+  await table1.loadGeoData(
+    "test/geodata/files/CanadianProvincesAndTerritories.json",
+  );
+  await table1.selectColumns("geom");
 
-//   const table2 = sdb.newTable();
-//   await table2.loadGeoData("test/geodata/files/point.json");
-//   await table2.reproject("EPSG:3347");
-//   await table2.latLon("geom", "lat", "lon");
+  const table2 = sdb.newTable();
+  await table2.loadGeoData("test/geodata/files/point.json");
+  await table2.reproject("EPSG:3347");
+  await table2.selectColumns("geom");
 
-//   await table1.insertTables(table2, { unifyColumns: true });
+  await assertRejects(async () => await table1.insertTables(table2));
 
-//   await sdb.done();
-// });
+  await sdb.done();
+});
+Deno.test("should throw an error if geometry projections are not the same, even if columns are unified", async () => {
+  const sdb = new SimpleDB();
+  const table1 = sdb.newTable();
+  await table1.loadGeoData(
+    "test/geodata/files/CanadianProvincesAndTerritories.json",
+  );
+
+  const table2 = sdb.newTable();
+  await table2.loadGeoData("test/geodata/files/point.json");
+  await table2.reproject("EPSG:3347");
+  await table2.latLon("geom", "lat", "lon");
+
+  await assertRejects(async () =>
+    await table1.insertTables(table2, { unifyColumns: true })
+  );
+
+  await sdb.done();
+});
 Deno.test("should add rows with geometries to a table without geometries", async () => {
   const sdb = new SimpleDB();
   const table1 = sdb.newTable();

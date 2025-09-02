@@ -931,7 +931,7 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Inserts all rows from one or more other tables into this table.
+   * Inserts all rows from one or more other tables into this table. If tables do not have the same columns, an error will be thrown unless the `unifyColumns` option is set to `true`.
    *
    * @param tablesToInsert - The name(s) of the table(s) or SimpleTable instance(s) from which rows will be inserted.
    * @param options - An optional object with configuration options:
@@ -989,13 +989,46 @@ export default class SimpleTable extends Simple {
       this.projections = structuredClone(array[0].projections);
     }
 
-    // For scoping
+    // Checking columns, types and projections
+    if (!options.unifyColumns) {
+      const thisColumns = (await this.getColumns()).sort().join(",");
+      for (const table of array) {
+        const tableColumns = (await table.getColumns()).sort().join(",");
+        if (thisColumns !== tableColumns) {
+          throw new Error(
+            `Tables ${this.name} and ${table.name} don't have the same columns: ${thisColumns} vs ${tableColumns}`,
+          );
+        }
+      }
+    }
+    const allTables = [this, ...array];
+    const allTypes: { [key: string]: string } = {};
+    const allProjections: { [key: string]: string } = {};
+    for (const table of allTables) {
+      const types = await table.getTypes();
+      for (const key in types) {
+        if (!allTypes[key]) {
+          allTypes[key] = types[key];
+          allProjections[key] = table.projections[key];
+        } else {
+          if (allTypes[key] !== types[key]) {
+            throw new Error(
+              `The column ${key} has different types in the tables.`,
+            );
+          } else if (allProjections[key] !== table.projections[key]) {
+            throw new Error(
+              `The column ${key} has different projections in the tables.`,
+            );
+          }
+        }
+      }
+    }
+
     let columnsAdded: {
       [key: string]: string[];
     } = {};
     if (options.unifyColumns) {
-      const allTables = [this, ...array];
-      columnsAdded = await unifyColumns(allTables);
+      columnsAdded = await unifyColumns(allTables, allTypes, allProjections);
     }
 
     await queryDB(
