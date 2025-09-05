@@ -18,7 +18,7 @@ To start, create a SimpleDB instance and then a SimpleTable from this instance:
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
-const table = db.createTable("myTable"); // This returns a SimpleTable instance
+const table = sdb.newTable("myTable"); // This returns a SimpleTable instance
 await table.loadData("path/to/your/data.csv");
 
 // You can now perform various data analysis operations on the table.
