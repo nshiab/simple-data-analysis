@@ -1,15 +1,15 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@nshiab/journalism@1": "1.34.2",
-    "jsr:@nshiab/journalism@1.34.2": "1.34.2",
+    "jsr:@nshiab/journalism@1": "1.34.8",
+    "jsr:@nshiab/journalism@1.34.8": "1.34.8",
     "jsr:@std/assert@*": "1.0.14",
     "jsr:@std/assert@1.0.14": "1.0.14",
     "jsr:@std/dotenv@*": "0.225.3",
     "jsr:@std/internal@^1.0.10": "1.0.10",
     "npm:@duckdb/node-api@1.3.2-alpha.26": "1.3.2-alpha.26",
     "npm:@google-cloud/storage@^7.17.0": "7.17.0",
-    "npm:@google/genai@^1.16.0": "1.16.0",
+    "npm:@google/genai@^1.17.0": "1.17.0",
     "npm:@observablehq/plot@0": "0.6.17",
     "npm:@observablehq/plot@0.6.17": "0.6.17",
     "npm:@observablehq/plot@~0.6.17": "0.6.17",
@@ -27,13 +27,14 @@
     "npm:google-auth-library@9": "9.15.1",
     "npm:google-spreadsheet@4": "4.1.5_google-auth-library@9.15.1",
     "npm:iconv-lite@0.6": "0.6.3",
+    "npm:jsonrepair@^3.13.0": "3.13.0",
     "npm:jstat@^1.9.6": "1.9.6",
     "npm:ollama@~0.5.17": "0.5.17",
     "npm:playwright-chromium@^1.55.0": "1.55.0"
   },
   "jsr": {
-    "@nshiab/journalism@1.34.2": {
-      "integrity": "36577362b0a987070cd9341245d707dcbfc28c0e01e3b74a72067209431078e0",
+    "@nshiab/journalism@1.34.8": {
+      "integrity": "aad899974975ede0bfa3da1e450880bf7c7d5bd9500a3034455107dd19431c1c",
       "dependencies": [
         "npm:@google-cloud/storage",
         "npm:@google/genai",
@@ -51,6 +52,7 @@
         "npm:google-auth-library",
         "npm:google-spreadsheet",
         "npm:iconv-lite",
+        "npm:jsonrepair",
         "npm:jstat",
         "npm:ollama",
         "npm:playwright-chromium"
@@ -269,8 +271,8 @@
         "uuid@8.3.2"
       ]
     },
-    "@google/genai@1.16.0": {
-      "integrity": "sha512-hdTYu39QgDFxv+FB6BK2zi4UIJGWhx2iPc0pHQ0C5Q/RCi+m+4gsryIzTGO+riqWcUA8/WGYp6hpqckdOBNysw==",
+    "@google/genai@1.17.0": {
+      "integrity": "sha512-r/OZWN9D8WvYrte3bcKPoLODrZ+2TjfxHm5OOyVHUbdFYIp1C4yJaXX4+sCS8I/+CbN9PxLjU5zm1cgmS7qz+A==",
       "dependencies": [
         "google-auth-library",
         "ws"
@@ -960,6 +962,10 @@
         "bignumber.js"
       ]
     },
+    "jsonrepair@3.13.0": {
+      "integrity": "sha512-5YRzlAQ7tuzV1nAJu3LvDlrKtBFIALHN2+a+I1MGJCt3ldRDBF/bZuvIPzae8Epot6KBXd0awRZZcuoeAsZ/mw==",
+      "bin": true
+    },
     "jstat@1.9.6": {
       "integrity": "sha512-rPBkJbK2TnA8pzs93QcDDPlKcrtZWuuCo2dVR0TFLOJSxhqfWOVCSp8aV3/oSbn+4uY4yw1URtLpHQedtmXfug=="
     },
@@ -1204,7 +1210,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@nshiab/journalism@1.34.2",
+      "jsr:@nshiab/journalism@1.34.8",
       "jsr:@std/assert@1.0.14",
       "npm:@duckdb/node-api@1.3.2-alpha.26",
       "npm:@observablehq/plot@0.6.17",
