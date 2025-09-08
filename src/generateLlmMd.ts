@@ -1,5 +1,3 @@
-// Created with Gemini 2.5 Pro
-
 import * as fs from "node:fs";
 
 // #region Type Definitions
@@ -28,7 +26,13 @@ interface TsTypeDef {
     | "typeLiteral"
     | "fnOrConstructor"
     | "parenthesized"
-    | "literal";
+    | "literal"
+    | "typePredicate"
+    | "intersection"
+    | "mapped"
+    | "indexedAccess"
+    | "typeOperator"
+    | "tuple";
   keyword?: string;
   typeRef?: {
     typeName: string;
@@ -36,6 +40,7 @@ interface TsTypeDef {
   };
   array?: TsTypeDef;
   union?: TsTypeDef[];
+  intersection?: TsTypeDef[];
   parenthesized?: TsTypeDef;
   typeLiteral?: {
     properties: { name: string; optional?: boolean; tsType?: TsTypeDef }[];
@@ -43,7 +48,8 @@ interface TsTypeDef {
   };
   fnOrConstructor?: {
     params: Param[];
-    returnType?: TsTypeDef;
+    tsType?: TsTypeDef; // This is actually the return type in Deno's JSON
+    returnType?: TsTypeDef; // Keep this for backward compatibility
   };
   literal?: {
     kind: "string" | "number" | "boolean";
@@ -51,6 +57,31 @@ interface TsTypeDef {
     number?: number;
     boolean?: boolean;
   };
+  typePredicate?: {
+    asserts?: boolean;
+    param?: {
+      type: string;
+      name: string;
+    };
+    type?: TsTypeDef;
+  };
+  mappedType?: {
+    typeParam: {
+      name: string;
+      constraint?: TsTypeDef;
+    };
+    tsType?: TsTypeDef;
+  };
+  indexedAccess?: {
+    readonly: boolean;
+    objType: TsTypeDef;
+    indexType?: TsTypeDef;
+  };
+  typeOperator?: {
+    operator: string;
+    tsType: TsTypeDef;
+  };
+  tuple?: TsTypeDef[];
 }
 
 interface Param {
@@ -61,15 +92,22 @@ interface Param {
   left?: Param; // Added to handle 'assign' parameter kinds
 }
 
+interface TypeParam {
+  name: string;
+  constraint?: TsTypeDef;
+}
+
 interface FunctionDef {
   params: Param[];
   returnType?: TsTypeDef;
   isAsync: boolean;
   isGenerator: boolean;
+  typeParams?: TypeParam[];
 }
 
 interface ClassMethodDef extends FunctionDef {
   // Inherits from FunctionDef and can have more properties
+  typeParams?: TypeParam[];
 }
 
 interface ClassMethod {
@@ -114,13 +152,17 @@ interface DenoDoc {
 function generateTypeRepr(tsType?: TsTypeDef): string {
   if (!tsType) return "any";
 
+  // Clean ANSI color codes from repr if it exists
+  const ansiRegex = new RegExp(String.fromCharCode(27) + "\\[[0-9;]*m", "g");
+  const cleanRepr = tsType.repr?.replace(ansiRegex, "");
+
   // Don't use repr if we have type parameters to process or if repr is empty
   // Also skip repr for literal types so they get quoted properly
   if (
-    tsType.repr && tsType.repr.trim() !== "" && tsType.kind !== "typeRef" &&
+    cleanRepr && cleanRepr.trim() !== "" && tsType.kind !== "typeRef" &&
     tsType.kind !== "literal"
   ) {
-    return tsType.repr;
+    return cleanRepr;
   }
 
   switch (tsType.kind) {
@@ -138,9 +180,49 @@ function generateTypeRepr(tsType?: TsTypeDef): string {
       return `${generateTypeRepr(tsType.array)}[]`;
     case "union":
       return tsType.union?.map(generateTypeRepr).join(" | ") ?? "any";
+    case "intersection":
+      return tsType.intersection?.map(generateTypeRepr).join(" & ") ?? "any";
     case "parenthesized":
       // Handle parenthesized types (e.g., (string | number))
       return `(${generateTypeRepr(tsType.parenthesized)})`;
+    case "typePredicate": {
+      if (!tsType.typePredicate) return "boolean";
+      const { asserts, param, type } = tsType.typePredicate;
+      if (asserts && param && type) {
+        return `asserts ${param.name} is ${generateTypeRepr(type)}`;
+      }
+      if (param && type) {
+        return `${param.name} is ${generateTypeRepr(type)}`;
+      }
+      return "boolean";
+    }
+    case "mapped": {
+      if (!tsType.mappedType) return "any";
+      const { typeParam, tsType: mappedTsType } = tsType.mappedType;
+      const constraint = typeParam.constraint
+        ? ` in ${generateTypeRepr(typeParam.constraint)}`
+        : "";
+      const valueType = mappedTsType ? generateTypeRepr(mappedTsType) : "any";
+      return `{ [${typeParam.name}${constraint}]: ${valueType} }`;
+    }
+    case "indexedAccess": {
+      if (!tsType.indexedAccess) return "any";
+      const objType = generateTypeRepr(tsType.indexedAccess.objType);
+      const indexType = tsType.indexedAccess.indexType
+        ? generateTypeRepr(tsType.indexedAccess.indexType)
+        : "any";
+      return `${objType}[${indexType}]`;
+    }
+    case "typeOperator": {
+      if (!tsType.typeOperator) return "any";
+      const operandType = generateTypeRepr(tsType.typeOperator.tsType);
+      return `${tsType.typeOperator.operator} ${operandType}`;
+    }
+    case "tuple": {
+      if (!tsType.tuple?.length) return "[]";
+      const elements = tsType.tuple.map(generateTypeRepr);
+      return `[${elements.join(", ")}]`;
+    }
     case "typeLiteral": {
       if (tsType.typeLiteral?.indexSignatures?.length) {
         const sig = tsType.typeLiteral.indexSignatures[0];
@@ -165,7 +247,10 @@ function generateTypeRepr(tsType?: TsTypeDef): string {
         const paramType = generateTypeRepr(p.tsType);
         return `${paramName}: ${paramType}`;
       }).join(", ");
-      const returnType = generateTypeRepr(tsType.fnOrConstructor.returnType);
+      // In Deno's JSON, the return type is stored in tsType, not returnType
+      const returnType = generateTypeRepr(
+        tsType.fnOrConstructor.tsType || tsType.fnOrConstructor.returnType,
+      );
       return `(${params}) => ${returnType}`;
     }
     case "literal": {
@@ -203,6 +288,20 @@ const getJsDocTag = (node: DocNode, kind: string): JsDocTag[] => {
  */
 const generateSignature = (node: DocNode): string => {
   if (!node.functionDef) return "";
+
+  // Generate type parameters if they exist
+  let typeParams = "";
+  if (node.functionDef.typeParams?.length) {
+    const typeParamStrings = node.functionDef.typeParams.map((tp) => {
+      if (tp.constraint) {
+        const constraintRepr = generateTypeRepr(tp.constraint);
+        return `${tp.name} extends ${constraintRepr}`;
+      }
+      return tp.name;
+    });
+    typeParams = `<${typeParamStrings.join(", ")}>`;
+  }
+
   const params = node.functionDef.params.map((p) => {
     let name = "";
     let typeInfo: TsTypeDef | undefined;
@@ -224,7 +323,7 @@ const generateSignature = (node: DocNode): string => {
   const returnType = generateTypeRepr(node.functionDef.returnType);
   return `\`\`\`typescript\n${
     node.functionDef.isAsync ? "async " : ""
-  }function ${node.name}(${params}): ${returnType};\n\`\`\`\n`;
+  }function ${node.name}${typeParams}(${params}): ${returnType};\n\`\`\`\n`;
 };
 
 /**
@@ -329,6 +428,19 @@ const generateClassMarkdown = (node: DocNode): string => {
 
         // Method signature
         if (method.functionDef) {
+          // Generate type parameters if they exist
+          let typeParams = "";
+          if (method.functionDef.typeParams?.length) {
+            const typeParamStrings = method.functionDef.typeParams.map((tp) => {
+              if (tp.constraint) {
+                const constraintRepr = generateTypeRepr(tp.constraint);
+                return `${tp.name} extends ${constraintRepr}`;
+              }
+              return tp.name;
+            });
+            typeParams = `<${typeParamStrings.join(", ")}>`;
+          }
+
           const params = method.functionDef.params.map((p) => {
             let name = "";
             let typeInfo: TsTypeDef | undefined;
@@ -351,7 +463,7 @@ const generateClassMarkdown = (node: DocNode): string => {
           const returnType = generateTypeRepr(method.functionDef.returnType);
           md += `##### Signature\n\`\`\`typescript\n${
             method.functionDef.isAsync ? "async " : ""
-          }${method.name}(${params}): ${returnType};\n\`\`\`\n\n`;
+          }${method.name}${typeParams}(${params}): ${returnType};\n\`\`\`\n\n`;
         }
 
         // Method parameters

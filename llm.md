@@ -854,7 +854,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRowByRow(column: string, newColumn: string, prompt: string, options?: { batchSize?: number; concurrent?: number; cache?: boolean; test?: (dataPoint: unknown) => any; retry?: number; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: string) => any; contextWindow?: number; thinkingBudget?: number; extraInstructions?: string }): Promise<void>;
+async aiRowByRow(column: string, newColumn: string, prompt: string, options?: { batchSize?: number; concurrent?: number; cache?: boolean; test?: (dataPoint: unknown) => void; retry?: number; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: string) => unknown; contextWindow?: number; thinkingBudget?: number; extraInstructions?: string }): Promise<void>;
 ```
 
 ##### Parameters
@@ -3606,7 +3606,7 @@ JavaScript. This method does not work with tables containing geometries.
 ##### Signature
 
 ```typescript
-async updateWithJS(dataModifier: ((rows: Record<string, number | string | Date | boolean | null>[]) => any) | ((rows: Record<string, number | string | Date | boolean | null>[]) => any)): Promise<void>;
+async updateWithJS(dataModifier: ((rows: Record<string, number | string | Date | boolean | null>[]) => Promise<Record<string, number | string | Date | boolean | null>[]>) | ((rows: Record<string, number | string | Date | boolean | null>[]) => Record<string, number | string | Date | boolean | null>[])): Promise<void>;
 ```
 
 ##### Parameters
@@ -3894,7 +3894,7 @@ array.
 ##### Signature
 
 ```typescript
-async getExtent(column: string): Promise<any>;
+async getExtent(column: string): Promise<[string | number | boolean | Date | null, string | number | boolean | Date | null]>;
 ```
 
 ##### Parameters
@@ -5477,7 +5477,7 @@ with `[latitude, longitude]` axis order.
 ##### Signature
 
 ```typescript
-async getBoundingBox(column?: string): Promise<any>;
+async getBoundingBox(column?: string): Promise<[number, number, number, number]>;
 ```
 
 ##### Parameters
@@ -5738,7 +5738,7 @@ Caches the results of computations in `./.sda-cache`. You should add
 ##### Signature
 
 ```typescript
-async cache(run: () => any, options?: { ttl?: number }): Promise<void>;
+async cache(run: () => Promise<void>, options?: { ttl?: number }): Promise<void>;
 ```
 
 ##### Parameters
@@ -5821,7 +5821,7 @@ image file (.png, .jpeg, or .svg) from the table data. To create maps, use the
 ##### Signature
 
 ```typescript
-async writeChart(chart: (data: unknown[]) => any, path: string, options?: { style?: string; dark?: boolean }): Promise<void>;
+async writeChart(chart: (data: unknown[]) => SVGSVGElement | HTMLElement, path: string, options?: { style?: string; dark?: boolean }): Promise<void>;
 ```
 
 ##### Parameters
@@ -5872,7 +5872,7 @@ charts from non-geospatial data, use the `writeChart` method.
 ##### Signature
 
 ```typescript
-async writeMap(map: (geoData: { features: { properties: Record<string, unknown> }[] }) => any, path: string, options?: { column?: string; rewind?: boolean; style?: string; dark?: boolean }): Promise<void>;
+async writeMap(map: (geoData: { features: { properties: Record<string, unknown> }[] }) => SVGSVGElement | HTMLElement, path: string, options?: { column?: string; rewind?: boolean; style?: string; dark?: boolean }): Promise<void>;
 ```
 
 ##### Parameters
@@ -5991,7 +5991,7 @@ x-axis values for accurate representation.
 ##### Signature
 
 ```typescript
-async logLineChart(x: string, y: string, options?: { formatX?: (d: unknown) => any; formatY?: (d: unknown) => any; smallMultiples?: string; fixedScales?: boolean; smallMultiplesPerRow?: number; width?: number; height?: number }): Promise<void>;
+async logLineChart(x: string, y: string, options?: { formatX?: (d: unknown) => string; formatY?: (d: unknown) => string; smallMultiples?: string; fixedScales?: boolean; smallMultiplesPerRow?: number; width?: number; height?: number }): Promise<void>;
 ```
 
 ##### Parameters
@@ -6071,7 +6071,7 @@ x-axis values for accurate representation.
 ##### Signature
 
 ```typescript
-async logDotChart(x: string, y: string, options?: { formatX?: (d: unknown) => any; formatY?: (d: unknown) => any; smallMultiples?: string; fixedScales?: boolean; smallMultiplesPerRow?: number; width?: number; height?: number }): Promise<void>;
+async logDotChart(x: string, y: string, options?: { formatX?: (d: unknown) => string; formatY?: (d: unknown) => string; smallMultiples?: string; fixedScales?: boolean; smallMultiplesPerRow?: number; width?: number; height?: number }): Promise<void>;
 ```
 
 ##### Parameters
@@ -6144,7 +6144,7 @@ Generates and logs a bar chart to the console.
 ##### Signature
 
 ```typescript
-async logBarChart(labels: string, values: string, options?: { formatLabels?: (d: unknown) => any; formatValues?: (d: unknown) => any; width?: number }): Promise<void>;
+async logBarChart(labels: string, values: string, options?: { formatLabels?: (d: unknown) => string; formatValues?: (d: unknown) => string; width?: number }): Promise<void>;
 ```
 
 ##### Parameters
@@ -6180,7 +6180,7 @@ Generates and logs a histogram of a numeric column to the console.
 ##### Signature
 
 ```typescript
-async logHistogram(values: string, options?: { bins?: number; formatLabels?: (min: number, max: number) => any; compact?: boolean; width?: number }): Promise<void>;
+async logHistogram(values: string, options?: { bins?: number; formatLabels?: (min: number, max: number) => string; compact?: boolean; width?: number }): Promise<void>;
 ```
 
 ##### Parameters
