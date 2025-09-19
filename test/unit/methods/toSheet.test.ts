@@ -1,5 +1,4 @@
-import "jsr:@std/dotenv/load";
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals } from "@std/assert";
 import { SimpleDB } from "../../../src/index.ts";
 
 const email = Deno.env.get("GOOGLE_SERVICE_ACCOUNT_EMAIL");

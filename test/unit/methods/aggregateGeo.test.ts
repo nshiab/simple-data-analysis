@@ -1,4 +1,4 @@
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals } from "@std/assert";
 import { existsSync, mkdirSync } from "node:fs";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
