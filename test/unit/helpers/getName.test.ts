@@ -1,4 +1,4 @@
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals } from "@std/assert";
 import getName from "../../../src/helpers/getName.ts";
 
 Deno.test("should return the file name without extension for a simple file path", function () {

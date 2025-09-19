@@ -4,7 +4,7 @@ import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";
 import shouldFlipBeforeExport from "../helpers/shouldFlipBeforeExport.ts";
 // @deno-types="npm:@types/d3-geo@3"
-import type { GeoPermissibleObjects } from "npm:d3-geo@3";
+import type { GeoPermissibleObjects } from "d3-geo";
 
 export default async function getGeoData(
   SimpleTable: SimpleTable,

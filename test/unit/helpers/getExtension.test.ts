@@ -1,4 +1,4 @@
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals } from "@std/assert";
 import getExtension from "../../../src/helpers/getExtension.ts";
 
 Deno.test("should return the extension when csv", function () {

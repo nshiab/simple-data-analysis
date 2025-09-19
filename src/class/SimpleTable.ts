@@ -72,12 +72,12 @@ import {
   overwriteSheetData,
   rewind,
   saveChart,
-} from "jsr:@nshiab/journalism@1";
+} from "@nshiab/journalism";
 import writeDataAsArrays from "../helpers/writeDataAsArrays.ts";
 import logHistogram from "../methods/logHistogram.ts";
 import logData from "../helpers/logData.ts";
 import { readFileSync, writeFileSync } from "node:fs";
-import type { Data } from "npm:@observablehq/plot@0";
+import type { Data } from "@observablehq/plot";
 import loadArray from "../methods/loadArray.ts";
 import cleanPath from "../helpers/cleanPath.ts";
 import Simple from "./Simple.ts";

@@ -1,5 +1,4 @@
-import "jsr:@std/dotenv/load";
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
 import { Ollama } from "ollama";
