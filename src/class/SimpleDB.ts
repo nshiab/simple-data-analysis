@@ -231,7 +231,7 @@ export default class SimpleDB extends Simple {
 
       if (this.progressBar) {
         await this.customQuery(
-          `SET enable_progress_bar = TRUE;`,
+          `SET enable_progress_bar = TRUE; SET progress_bar_time = 0;`,
         );
       }
     }
