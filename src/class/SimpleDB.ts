@@ -216,6 +216,13 @@ export default class SimpleDB extends Simple {
       this.db = await DuckDBInstance.create(this.file);
       this.connection = await this.db.connect();
 
+      // By default, DuckDB does not compress in-memory databases, so we enable it here.
+      if (this.file === ":memory:") {
+        await this.customQuery(
+          "ATTACH OR REPLACE ':memory:' AS memory (COMPRESS);",
+        );
+      }
+
       if (this.duckDbCache === true) {
         await this.customQuery("SET enable_external_file_cache=true;");
       } else if (this.duckDbCache === false) {

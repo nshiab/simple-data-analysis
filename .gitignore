@@ -9,3 +9,5 @@ cov_profile
 .env
 .journalism-cache
 docs.json
+# This is a big csv file used for testing purposes
+ahccd.csv
