@@ -5,7 +5,7 @@
     "jsr:@std/assert@1.0.15": "1.0.15",
     "jsr:@std/dotenv@*": "0.225.3",
     "jsr:@std/internal@^1.0.12": "1.0.12",
-    "npm:@duckdb/node-api@1.4.1-r.4": "1.4.1-r.4",
+    "npm:@duckdb/node-api@1.4.2-r.1": "1.4.2-r.1",
     "npm:@google-cloud/storage@^7.17.3": "7.17.3",
     "npm:@google/genai@^1.28.0": "1.28.0",
     "npm:@observablehq/plot@0.6.17": "0.6.17",
@@ -68,39 +68,39 @@
     }
   },
   "npm": {
-    "@duckdb/node-api@1.4.1-r.4": {
-      "integrity": "sha512-dvlkGZBlQBKzt5CDP2lv8stppufCCxK3RWbRGBjg8KHuGxreLNIKN1uzB4p6qpJuMZsD5N8UJd0dqidoKOZ/cw==",
+    "@duckdb/node-api@1.4.2-r.1": {
+      "integrity": "sha512-8Ef4R/Lq+rXTpcqZIJZe6ALfgMGxy88HmiPvRpWrRw1fUTy85x1U0NnGrqCklZsmWyZUdPwVYj90MQOF2MY/TA==",
       "dependencies": [
         "@duckdb/node-bindings"
       ]
     },
-    "@duckdb/node-bindings-darwin-arm64@1.4.1-r.4": {
-      "integrity": "sha512-4ZklLdqX5ZqqR0guwVj5DTTwIEL/o0aqJSWBU4loMbOSAZOLANVMG8+x9YJXI3aJjbQ+90VAzJN3ptJs3X1Ong==",
+    "@duckdb/node-bindings-darwin-arm64@1.4.2-r.1": {
+      "integrity": "sha512-C4yBI3zBX7iZ9iq8zJDvPatXA+2xM22sg1kX3fx76nG+qTqKtU/dGFVYL7Fx6cBYxBO1ZZ8Y+vjgYb6/bich8A==",
       "os": ["darwin"],
       "cpu": ["arm64"]
     },
-    "@duckdb/node-bindings-darwin-x64@1.4.1-r.4": {
-      "integrity": "sha512-tSWkNzXRjndWNMWJLJzOymGc8gscG2rwYf7wDm6r+e80f0VwrjP1bcNKB/qdKdmubkz1yRU/TWoVEpaK42266A==",
+    "@duckdb/node-bindings-darwin-x64@1.4.2-r.1": {
+      "integrity": "sha512-dgTSBuEfWyhymYovsGoRESjqcJuZWwJqla9l89SSsBDrGYcUp+EHsXUF73oUCspzTesT2lOvHrDufO8pKgtudw==",
       "os": ["darwin"],
       "cpu": ["x64"]
     },
-    "@duckdb/node-bindings-linux-arm64@1.4.1-r.4": {
-      "integrity": "sha512-RO7M85r+bK0Cvn9lD+304gFl3V2eHK47qnmlGCu7kFPHCAowGCYosKim9ML5FslD3ZBdghGl4AdNnrtY3i3mgQ==",
+    "@duckdb/node-bindings-linux-arm64@1.4.2-r.1": {
+      "integrity": "sha512-r2Ml1LvU2vkVMx4YU04T79FjGkYg8YMVtbOz7j740SZGIi5Cch5P1/oy48jJBWRqoaXuqimpYWeTZiGVeCQiZA==",
       "os": ["linux"],
       "cpu": ["arm64"]
     },
-    "@duckdb/node-bindings-linux-x64@1.4.1-r.4": {
-      "integrity": "sha512-jQKjaje/z35oUdYv7gvCyqZTpsgskgTyt1vyLCnGV/Kwi6UevzorvwEmpvglqxaMONvRQvoGZykfSzHc2ZlS5w==",
+    "@duckdb/node-bindings-linux-x64@1.4.2-r.1": {
+      "integrity": "sha512-ed5KiNIu1rqSva5rgo4PRVYSmBolAMVqGFWsYWLoRZ94ka2F/dHwJNkarCTmBFCEDGVZWzWzjRyWTQgYTvQxTg==",
       "os": ["linux"],
       "cpu": ["x64"]
     },
-    "@duckdb/node-bindings-win32-x64@1.4.1-r.4": {
-      "integrity": "sha512-IgwffRzZxYmsys6VD3zE3Zd6M9Ld24pNuP/h2eNQL6aY+kRa47R5ULEQ2E8BDFuB+ZIu680XQK5lNG+sW4DTNg==",
+    "@duckdb/node-bindings-win32-x64@1.4.2-r.1": {
+      "integrity": "sha512-kIIT8tuoW3mzr9EPcdSoKfv9CgOhTqRryHDI10Z0nuhc9UhqOWPUM/LnSUebfo1mdD9Drm7YrKCKYxNTr5dqBQ==",
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@duckdb/node-bindings@1.4.1-r.4": {
-      "integrity": "sha512-dlVzEH1Hizi1LxxiLOs9hpBhvH7mEWQA6ayJ/6NZQbru//UdmjKg27//4+Rbbg2+dF0E9CebOefxlAkKFWi3uA==",
+    "@duckdb/node-bindings@1.4.2-r.1": {
+      "integrity": "sha512-z0pJCdEnIj0Famkip6w7JZ/A17nm5VcYc6H7isOHXfEnPhBQ9PBusUTFgIzl6+3J8HOFQOv0szJq46zldbsHfQ==",
       "optionalDependencies": [
         "@duckdb/node-bindings-darwin-arm64",
         "@duckdb/node-bindings-darwin-x64",
@@ -1420,7 +1420,7 @@
     "dependencies": [
       "jsr:@nshiab/journalism@1.34.12",
       "jsr:@std/assert@1.0.15",
-      "npm:@duckdb/node-api@1.4.1-r.4",
+      "npm:@duckdb/node-api@1.4.2-r.1",
       "npm:@observablehq/plot@0.6.17",
       "npm:apache-arrow@^21.1.0",
       "npm:ollama@~0.6.2"
