@@ -1,6 +1,6 @@
 # Simple data analysis (SDA)
 
-SDA is an easy-to-use and high-performance JavaScript library for data analysis.
+SDA is an easy-to-use and high-performance TypeScript library for data analysis.
 You can use it with tabular and geospatial data.
 
 The library is available on [JSR](https://jsr.io/@nshiab/simple-data-analysis)
@@ -128,8 +128,8 @@ temperature per decade and city with the daily temperatures from the
 See [this repository](https://github.com/nshiab/simple-data-analysis-benchmarks)
 for the code.
 
-We ran the same calculations with **simple-data-analysis@4.0.1** (Node.js, Bun,
-and Deno), **Pandas (Python)**, and the **tidyverse (R)**.
+We ran the same calculations with **simple-data-analysis** (Node.js, Bun, and
+Deno), **Pandas (Python)**, and the **tidyverse (R)**.
 
 In each script, we:
 
@@ -141,7 +141,7 @@ In each script, we:
 5. Wrote the cleaned-up data that we computed the averages from in a new CSV
    file (_Writing_)
 
-Each script has been run ten times on a MacBook Pro (Apple M1 Pro / 16 GB).
+Each script has been run ten times on a MacBook Pro (Apple M4 Max / 64 GB).
 
 With _ahccd.csv_:
 
@@ -153,14 +153,6 @@ With _ahccd.csv_:
 Thanks to DuckDB, **simple-data-analysis** is the fastest option.
 
 ![A chart showing the processing duration of multiple scripts in various languages](./assets/big-file.png)
-
-We also tried the One Billion Row Challenge, which involves computing the min,
-mean, and max temperatures for hundreds of cities in a 1,000,000,000 rows CSV
-file. The library has been able to crunch the numbers in 50 seconds on the same
-computer (Apple M1 Pro / 16 GB). For more, check this
-[repo](https://github.com/nshiab/1brc) forked from this
-[one](https://github.com/gunnarmorling/1brc). The JavaScript code is
-[here](https://github.com/nshiab/1brc/blob/main/index.js).
 
 ### Geospatial data
 
@@ -181,11 +173,9 @@ And _neighbourhoods.geojson_:
 - 91 neighbourhoods
 - 6 columns
 
-Each script has been run ten times on a MacBook Pro (Apple M1 Pro / 16 GB).
+Each script has been run ten times on a MacBook Pro (Apple M4 Max / 64 GB).
 
-As we can see, **simple-data-analysis** is a bit slower than Python's GeoPandas
-but faster than R's sf package. Note that the spatial extension for DuckDB is a
-[work in progress](https://github.com/duckdb/duckdb_spatial).
+As we can see, **simple-data-analysis** is also the fastest option here.
 
 ![A chart showing the processing duration of multiple scripts in various languages, for geospatial computations](./assets/spatial.png)
 
