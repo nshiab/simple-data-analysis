@@ -1,3 +1,4 @@
+import { csvFormat } from "d3-dsv";
 import getDescription from "../methods/getDescription.ts";
 import renameColumnQuery from "../methods/renameColumnQuery.ts";
 import replaceQuery from "../methods/replaceQuery.ts";
@@ -4544,6 +4545,36 @@ export default class SimpleTable extends Simple {
     )) as {
       [key: string]: string | number | boolean | Date | null;
     }[];
+  }
+
+  /**
+   * Returns the data from the table as a CSV string, optionally filtered by SQL conditions.
+   * You can also use JavaScript syntax for conditions (e.g., `&&`, `||`, `===`, `!==`).
+   *
+   * @param options - An optional object with configuration options:
+   * @param options.conditions - The filtering conditions specified as a SQL `WHERE` clause (e.g., `"category = 'Book'"`).
+   * @returns A promise that resolves to a CSV-formatted string representation of the table data.
+   * @category Getting Data
+   *
+   * @example
+   * ```ts
+   * // Get all data from the table as CSV
+   * const allDataCSV = await table.getDataAsCSV();
+   * console.log(allDataCSV);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get data filtered by a condition (using JS syntax or SQL syntax) as CSV
+   * const booksDataCSV = await table.getDataAsCSV({ conditions: `category === 'Book'` });
+   * console.log(booksDataCSV);
+   * ```
+   */
+  async getDataAsCSV(options: {
+    conditions?: string;
+  } = {}): Promise<string> {
+    const data = await this.getData(options);
+    return csvFormat(data);
   }
 
   // GEOSPATIAL

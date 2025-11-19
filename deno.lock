@@ -1423,6 +1423,7 @@
       "npm:@duckdb/node-api@1.4.2-r.1",
       "npm:@observablehq/plot@0.6.17",
       "npm:apache-arrow@^21.1.0",
+      "npm:d3-dsv@^3.0.1",
       "npm:ollama@~0.6.2"
     ]
   }
