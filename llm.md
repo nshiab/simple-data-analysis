@@ -2749,6 +2749,94 @@ await table.concatenate(["firstName", "lastName"], "fullName");
 await table.concatenate(["city", "country"], "location", { separator: ", " });
 ```
 
+#### `unnest`
+
+Unnests (expands) rows by splitting a column's string values into multiple rows
+based on a separator.
+
+Each value in the specified column is split using the provided separator, and a
+new row is created for each resulting substring. All other column values are
+duplicated across the newly created rows.
+
+##### Signature
+
+```typescript
+async unnest(column: string, separator: string): Promise<void>;
+```
+
+##### Parameters
+
+- **`column`**: - The name of the column containing string values to be split
+  and unnested.
+- **`separator`**: - The delimiter string used to split the column values.
+
+##### Returns
+
+A promise that resolves when the unnesting is complete.
+
+##### Examples
+
+```ts
+// Unnest 'tags' column separated by commas
+// Before: [{ id: 1, tags: "red,blue,green" }]
+// After:  [{ id: 1, tags: "red" }, { id: 1, tags: "blue" }, { id: 1, tags: "green" }]
+await table.unnest("tags", ",");
+```
+
+```ts
+// Unnest 'neighborhoods' column separated by " / "
+// Before: [{ city: "Montreal", neighborhoods: "Old Montreal / Chinatown / Griffintown" }]
+// After:  [{ city: "Montreal", neighborhoods: "Old Montreal" },
+//         { city: "Montreal", neighborhoods: "Chinatown" },
+//         { city: "Montreal", neighborhoods: "Griffintown" }]
+await table.unnest("neighborhoods", " / ");
+```
+
+#### `nest`
+
+Nests (collapses) rows by aggregating a column's values into a single string per
+group, separated by a delimiter.
+
+This is the inverse operation of `unnest()`. Multiple rows are combined into
+fewer rows by grouping on specified category columns and concatenating the
+target column values with a separator.
+
+##### Signature
+
+```typescript
+async nest(column: string, separator: string, categories: string | string[]): Promise<void>;
+```
+
+##### Parameters
+
+- **`column`**: - The name of the column whose values will be aggregated and
+  concatenated.
+- **`separator`**: - The delimiter string used to join the column values.
+- **`categories`**: - The column name or an array of column names to group by.
+
+##### Returns
+
+A promise that resolves when the nesting is complete.
+
+##### Examples
+
+```ts
+// Nest 'neighborhoods' column separated by " / " for each city
+// Before: [{ city: "Montreal", neighborhoods: "Old Montreal" },
+//         { city: "Montreal", neighborhoods: "Chinatown" },
+//         { city: "Montreal", neighborhoods: "Griffintown" }]
+// After:  [{ city: "Montreal", neighborhoods: "Old Montreal / Chinatown / Griffintown" }]
+await table.nest("neighborhoods", " / ", "city");
+```
+
+```ts
+// Nest with multiple category columns
+// Before: [{ country: "Canada", city: "Montreal", tags: "red" },
+//         { country: "Canada", city: "Montreal", tags: "blue" }]
+// After:  [{ country: "Canada", city: "Montreal", tags: "red,blue" }]
+await table.nest("tags", ",", ["country", "city"]);
+```
+
 #### `round`
 
 Rounds numeric values in specified columns.
@@ -4433,6 +4521,45 @@ console.log(allData);
 // Get data filtered by a condition (using JS syntax)
 const booksData = await table.getData({ conditions: `category === 'Book'` });
 console.log(booksData);
+```
+
+#### `getDataAsCSV`
+
+Returns the data from the table as a CSV string, optionally filtered by SQL
+conditions. You can also use JavaScript syntax for conditions (e.g., `&&`, `||`,
+`===`, `!==`).
+
+##### Signature
+
+```typescript
+async getDataAsCSV(options?: { conditions?: string }): Promise<string>;
+```
+
+##### Parameters
+
+- **`options`**: - An optional object with configuration options:
+- **`options.conditions`**: - The filtering conditions specified as a SQL
+  `WHERE` clause (e.g., `"category = 'Book'"`).
+
+##### Returns
+
+A promise that resolves to a CSV-formatted string representation of the table
+data.
+
+##### Examples
+
+```ts
+// Get all data from the table as CSV
+const allDataCSV = await table.getDataAsCSV();
+console.log(allDataCSV);
+```
+
+```ts
+// Get data filtered by a condition (using JS syntax or SQL syntax) as CSV
+const booksDataCSV = await table.getDataAsCSV({
+  conditions: `category === 'Book'`,
+});
+console.log(booksDataCSV);
 ```
 
 #### `points`
