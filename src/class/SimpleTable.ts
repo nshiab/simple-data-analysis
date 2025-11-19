@@ -99,6 +99,8 @@ import aiQuery from "../methods/aiQuery.ts";
 import aiEmbeddings from "../methods/aiEmbeddings.ts";
 import aiVectorSimilarity from "../methods/aiVectorSimilarity.ts";
 import type { Ollama } from "ollama";
+import unnestQuery from "../helpers/unnestQuery.ts";
+import nestQuery from "../helpers/nestQuery.ts";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
@@ -2756,6 +2758,92 @@ export default class SimpleTable extends Simple {
         table: this.name,
         method: "concatenate()",
         parameters: { columns, newColumn, options },
+      }),
+    );
+  }
+
+  /**
+   * Unnests (expands) rows by splitting a column's string values into multiple rows based on a separator.
+   *
+   * Each value in the specified column is split using the provided separator, and a new row is created for each resulting substring. All other column values are duplicated across the newly created rows.
+   *
+   * @param column - The name of the column containing string values to be split and unnested.
+   * @param separator - The delimiter string used to split the column values.
+   * @returns A promise that resolves when the unnesting is complete.
+   * @category Updating Data
+   *
+   * @example
+   * ```ts
+   * // Unnest 'tags' column separated by commas
+   * // Before: [{ id: 1, tags: "red,blue,green" }]
+   * // After:  [{ id: 1, tags: "red" }, { id: 1, tags: "blue" }, { id: 1, tags: "green" }]
+   * await table.unnest("tags", ",");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Unnest 'neighborhoods' column separated by " / "
+   * // Before: [{ city: "Montreal", neighborhoods: "Old Montreal / Chinatown / Griffintown" }]
+   * // After:  [{ city: "Montreal", neighborhoods: "Old Montreal" },
+   * //         { city: "Montreal", neighborhoods: "Chinatown" },
+   * //         { city: "Montreal", neighborhoods: "Griffintown" }]
+   * await table.unnest("neighborhoods", " / ");
+   * ```
+   */
+  async unnest(column: string, separator: string): Promise<void> {
+    await queryDB(
+      this,
+      unnestQuery(this.name, column, separator),
+      mergeOptions(this, {
+        table: this.name,
+        method: "unnest()",
+        parameters: { column, separator },
+      }),
+    );
+  }
+
+  /**
+   * Nests (collapses) rows by aggregating a column's values into a single string per group, separated by a delimiter.
+   *
+   * This is the inverse operation of `unnest()`. Multiple rows are combined into fewer rows by grouping on specified category columns and concatenating the target column values with a separator.
+   *
+   * @param column - The name of the column whose values will be aggregated and concatenated.
+   * @param separator - The delimiter string used to join the column values.
+   * @param categories - The column name or an array of column names to group by.
+   * @returns A promise that resolves when the nesting is complete.
+   * @category Updating Data
+   *
+   * @example
+   * ```ts
+   * // Nest 'neighborhoods' column separated by " / " for each city
+   * // Before: [{ city: "Montreal", neighborhoods: "Old Montreal" },
+   * //         { city: "Montreal", neighborhoods: "Chinatown" },
+   * //         { city: "Montreal", neighborhoods: "Griffintown" }]
+   * // After:  [{ city: "Montreal", neighborhoods: "Old Montreal / Chinatown / Griffintown" }]
+   * await table.nest("neighborhoods", " / ", "city");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Nest with multiple category columns
+   * // Before: [{ country: "Canada", city: "Montreal", tags: "red" },
+   * //         { country: "Canada", city: "Montreal", tags: "blue" }]
+   * // After:  [{ country: "Canada", city: "Montreal", tags: "red,blue" }]
+   * await table.nest("tags", ",", ["country", "city"]);
+   * ```
+   */
+  async nest(
+    column: string,
+    separator: string,
+    categories: string | string[],
+  ): Promise<void> {
+    await queryDB(
+      this,
+      nestQuery(this.name, column, separator, categories),
+      mergeOptions(this, {
+        table: this.name,
+        method: "nest()",
+        parameters: { column, separator, categories },
       }),
     );
   }
