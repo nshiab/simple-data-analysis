@@ -102,6 +102,7 @@ import aiVectorSimilarity from "../methods/aiVectorSimilarity.ts";
 import type { Ollama } from "ollama";
 import unnestQuery from "../helpers/unnestQuery.ts";
 import nestQuery from "../helpers/nestQuery.ts";
+import concatenateRowQuery from "../helpers/concatenateRowQuery.ts";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
@@ -2766,6 +2767,80 @@ export default class SimpleTable extends Simple {
         table: this.name,
         method: "concatenate()",
         parameters: { columns, newColumn, options },
+      }),
+    );
+  }
+
+  /**
+   * Concatenates values from multiple columns into a new column with labeled rows.
+   *
+   * This method creates a new column where each value is a concatenation of the specified columns,
+   * with each column value prefixed by its column name and a colon, followed by a newline.
+   * Column entries are separated by double newlines ("\n\n").
+   *
+   * All values must be string, otherwise an error will be thrown. Use the `convert()` method first to convert non-string columns to string.
+   *
+   * If a column value is `NULL`, it will be replaced by `'Unknown'` in the concatenated result.
+   *
+   * @param columns - An array of column names whose values will be concatenated with labels.
+   * @param newColumn - The name of the new column to create with the concatenated values.
+   * @returns A promise that resolves when the concatenation is complete.
+   * @category Updating Data
+   *
+   * @example
+   * ```ts
+   * // Concatenate multiple string columns into a labeled text field
+   * await table.concatenateRow(
+   *   ["summary", "findings", "context", "date", "quote"],
+   *   "fullText"
+   * );
+   * // Result in "fullText" will look like:
+   * // summary:
+   * // [value]
+   * //
+   * // findings:
+   * // [value]
+   * //
+   * // context:
+   * // [value]
+   * //
+   * // date:
+   * // [value]
+   * //
+   * // quote:
+   * // [value]
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Convert numeric columns to strings first, then concatenate
+   * // NULL values will appear as 'Unknown'
+   * await table.convert({ age: "string", salary: "string" });
+   * await table.concatenateRow(["name", "age", "salary"], "profile");
+   * ```
+   */
+  async concatenateRow(
+    columns: string[],
+    newColumn: string,
+  ): Promise<void> {
+    const allTypes = await this.getTypes();
+    for (const col of columns) {
+      if (allTypes[col] !== "VARCHAR") {
+        throw new Error(
+          `The column ${col} is of type ${
+            allTypes[col]
+          }. The concatenateRow() method only works with string columns. Please convert the column to string first with the .convert() method.`,
+        );
+      }
+    }
+
+    await queryDB(
+      this,
+      concatenateRowQuery(this.name, columns, newColumn),
+      mergeOptions(this, {
+        table: this.name,
+        method: "concatenateRow()",
+        parameters: { columns, newColumn },
       }),
     );
   }
