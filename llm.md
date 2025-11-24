@@ -2754,6 +2754,70 @@ await table.concatenate(["firstName", "lastName"], "fullName");
 await table.concatenate(["city", "country"], "location", { separator: ", " });
 ```
 
+#### `concatenateRow`
+
+Concatenates values from multiple columns into a new column with labeled rows.
+
+This method creates a new column where each value is a concatenation of the
+specified columns, with each column value prefixed by its column name and a
+colon, followed by a newline. Column entries are separated by double newlines
+("\n\n").
+
+All values must be string, otherwise an error will be thrown. Use the
+`convert()` method first to convert non-string columns to string.
+
+If a column value is `NULL`, it will be replaced by `'Unknown'` in the
+concatenated result.
+
+##### Signature
+
+```typescript
+async concatenateRow(columns: string[], newColumn: string): Promise<void>;
+```
+
+##### Parameters
+
+- **`columns`**: - An array of column names whose values will be concatenated
+  with labels.
+- **`newColumn`**: - The name of the new column to create with the concatenated
+  values.
+
+##### Returns
+
+A promise that resolves when the concatenation is complete.
+
+##### Examples
+
+```ts
+// Concatenate multiple string columns into a labeled text field
+await table.concatenateRow(
+  ["summary", "findings", "context", "date", "quote"],
+  "fullText",
+);
+// Result in "fullText" will look like:
+// summary:
+// [value]
+//
+// findings:
+// [value]
+//
+// context:
+// [value]
+//
+// date:
+// [value]
+//
+// quote:
+// [value]
+```
+
+```ts
+// Convert numeric columns to strings first, then concatenate
+// NULL values will appear as 'Unknown'
+await table.convert({ age: "string", salary: "string" });
+await table.concatenateRow(["name", "age", "salary"], "profile");
+```
+
 #### `unnest`
 
 Unnests (expands) rows by splitting a column's string values into multiple rows
