@@ -854,7 +854,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRowByRow(column: string, newColumn: string, prompt: string, options?: { batchSize?: number; concurrent?: number; cache?: boolean; test?: (dataPoint: unknown) => void; retry?: number; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: string) => unknown; contextWindow?: number; thinkingBudget?: number; extraInstructions?: string }): Promise<void>;
+async aiRowByRow(column: string, newColumn: string, prompt: string, options?: { batchSize?: number; concurrent?: number; cache?: boolean; test?: (dataPoint: unknown) => void; retry?: number; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => unknown; contextWindow?: number; thinkingBudget?: number; extraInstructions?: string; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
 ```
 
 ##### Parameters
@@ -894,7 +894,7 @@ async aiRowByRow(column: string, newColumn: string, prompt: string, options?: { 
   pass it here too.
 - **`options.verbose`**: - If `true`, logs additional debugging information,
   including the full prompt sent to the AI. Defaults to `false`.
-- **`options.clean`**: - A function to clean the AI's response before JSON
+- **`options.clean`**: - A function to clean the AI's response after JSON
   parsing, testing, caching, and storing. Defaults to `undefined`.
 - **`options.contextWindow`**: - An option to specify the context window size
   for Ollama models. By default, Ollama sets this depending on the model, which
@@ -905,6 +905,11 @@ async aiRowByRow(column: string, newColumn: string, prompt: string, options?: { 
   enables reasoning, ignoring the specific budget amount.
 - **`options.extraInstructions`**: - Additional instructions to append to the
   prompt, providing more context or guidance for the AI.
+- **`options.metrics`**: - An object to track cumulative metrics across multiple
+  AI requests. Pass an object with totalCost, totalInputTokens,
+  totalOutputTokens, and totalRequests properties (all initialized to 0). The
+  function will update these values after each request. Note: totalCost is only
+  calculated for Google GenAI models, not for Ollama.
 
 ##### Returns
 
