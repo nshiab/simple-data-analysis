@@ -2,10 +2,18 @@ export default function cleanSQL(query: string) {
   // First pass
   let cleaned = query
     .replace(/ && /g, " AND ")
-    .replace(/ \|\| /g, " OR ")
     .replace(/ === /g, " = ")
     .replace(/ == /g, " = ")
     .replace(/ !== /g, " != ");
+
+  // Replace || with OR only in WHERE clauses (for logical operations)
+  // Preserve || elsewhere as it's the SQL concatenation operator
+  cleaned = cleaned.replace(
+    /WHERE\s+([\s\S]*?)(?=\s+(?:GROUP BY|ORDER BY|LIMIT|HAVING)|$)/gi,
+    (match) => {
+      return match.replace(/\s*\|\|\s*/g, " OR ");
+    },
+  );
 
   if (
     cleaned.includes("ALTER TABLE") && cleaned.includes("UPDATE") &&
