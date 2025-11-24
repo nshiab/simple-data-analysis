@@ -32,7 +32,7 @@ Deno.test("should log a line chart with formatting options", async () => {
   await table.loadArray(data);
   await table.logLineChart("date", "value", {
     formatX: (d) => formatDate(d as Date, "Month DD", { utc: true }),
-    formatY: (d) => formatNumber(d as number, { abreviation: true }),
+    formatY: (d) => formatNumber(d as number, { abbreviation: true }),
   });
 
   // How to test?

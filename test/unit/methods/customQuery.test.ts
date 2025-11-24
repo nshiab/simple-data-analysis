@@ -279,6 +279,47 @@ Deno.test("should work with ||", async () => {
   ]);
   await sdb.done();
 });
+Deno.test("should work with || as OR or concatenation", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("employees");
+  await table.loadData("test/data/files/employees.csv");
+
+  const data = await sdb.customQuery(
+    `SELECT *, "Job" || '-' || "Name" as JobName FROM employees WHERE Job === 'Clerk' && Salary === '2500' && ("Department or unit" = '30' || "Department or unit" = '50')`,
+    { returnDataFrom: "query" },
+  );
+
+  assertEquals(data, [
+    {
+      Name: "Colmenares, Karen",
+      "Hire date": "10-AUG-07",
+      Job: "Clerk",
+      Salary: "2500",
+      "Department or unit": "30",
+      "End-of_year-BONUS?": "15,8%",
+      JobName: "Clerk-Colmenares, Karen",
+    },
+    {
+      Name: "Marlow, James",
+      "Hire date": "16-FEB-05",
+      Job: "Clerk",
+      Salary: "2500",
+      "Department or unit": "50",
+      "End-of_year-BONUS?": "15,74%",
+      JobName: "Clerk-Marlow, James",
+    },
+    {
+      Name: "Patel, Joshua",
+      "Hire date": "06-APR-06",
+      Job: "Clerk",
+      Salary: "2500",
+      "Department or unit": "50",
+      "End-of_year-BONUS?": "16,19%",
+      JobName: "Clerk-Patel, Joshua",
+    },
+  ]);
+  await sdb.done();
+});
 Deno.test("should work with !==", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable("employees");
