@@ -620,10 +620,11 @@ export default class SimpleTable extends Simple {
    * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama
   instance to be used, you can pass it here too.
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
-   * @param options.clean - A function to clean the AI's response before JSON parsing, testing, caching, and storing. Defaults to `undefined`.
+   * @param options.clean - A function to clean the AI's response after JSON parsing, testing, caching, and storing. Defaults to `undefined`.
    * @param options.contextWindow - An option to specify the context window size for Ollama models. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
    * @param options.thinkingBudget - Sets the reasoning token budget: 0 to disable (default, though some models may reason regardless), -1 for a dynamic budget, or > 0 for a fixed budget. For Ollama models, any non-zero value simply enables reasoning, ignoring the specific budget amount.
    * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
+   * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
    * @returns A promise that resolves when the AI processing is complete.
    * @category AI
    *
@@ -685,11 +686,17 @@ export default class SimpleTable extends Simple {
       verbose?: boolean;
       rateLimitPerMinute?: number;
       clean?: (
-        response: string,
+        response: unknown,
       ) => unknown;
       contextWindow?: number;
       thinkingBudget?: number;
       extraInstructions?: string;
+      metrics?: {
+        totalCost: number;
+        totalInputTokens: number;
+        totalOutputTokens: number;
+        totalRequests: number;
+      };
     } = {},
   ): Promise<void> {
     await aiRowByRow(this, column, newColumn, prompt, options);

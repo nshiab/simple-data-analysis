@@ -78,7 +78,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     ]);
     await sdb.done();
   });
-  Deno.test("should iterate over rows with a prompt with thinking", async () => {
+  Deno.test("should iterate over rows with a prompt and metrics", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     await table.loadArray([
@@ -86,12 +86,54 @@ if (typeof aiKey === "string" && aiKey !== "") {
       { "city": "Kyoto" },
       { "city": "Auckland" },
     ]);
+    const metrics = {
+      totalCost: 0,
+      totalInputTokens: 0,
+      totalOutputTokens: 0,
+      totalRequests: 0,
+    };
     await table.aiRowByRow(
       "city",
       "country",
       `Give me the country of the city.`,
-      { verbose: true, thinkingBudget: 300, model: "gemini-2.5-flash" },
+      { verbose: true, metrics },
     );
+    console.table(metrics);
+    const data = await table.getData();
+
+    assertEquals(data, [
+      { city: "Marrakech", country: "Morocco" },
+      { city: "Kyoto", country: "Japan" },
+      { city: "Auckland", country: "New Zealand" },
+    ]);
+    await sdb.done();
+  });
+  Deno.test("should iterate over rows with a prompt with thinking and metrics", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { "city": "Marrakech" },
+      { "city": "Kyoto" },
+      { "city": "Auckland" },
+    ]);
+    const metrics = {
+      totalCost: 0,
+      totalInputTokens: 0,
+      totalOutputTokens: 0,
+      totalRequests: 0,
+    };
+    await table.aiRowByRow(
+      "city",
+      "country",
+      `Give me the country of the city.`,
+      {
+        verbose: true,
+        thinkingBudget: 1000,
+        model: "gemini-2.5-flash",
+        metrics,
+      },
+    );
+    console.table(metrics);
     const data = await table.getData();
 
     assertEquals(data, [
@@ -448,8 +490,9 @@ if (typeof ollama === "string" && aiKey !== "") {
         cache: true,
         // Send 10 rows at once to the AI
         batchSize: 10,
-        clean: (response: string) =>
-          (JSON.parse(response) as { results: { gender: string }[] }).results
+        clean: (response: unknown) =>
+          (JSON.parse(response as string) as { results: { gender: string }[] })
+            .results
             .map((d) => d.gender),
         // Ensure the response contains only the expected categories
         test: (response: unknown) => {
@@ -500,8 +543,9 @@ if (typeof ollama === "string" && aiKey !== "") {
         cache: true,
         // Send 10 rows at once to the AI
         batchSize: 10,
-        clean: (response: string) =>
-          (JSON.parse(response) as { results: { gender: string }[] }).results
+        clean: (response: unknown) =>
+          (JSON.parse(response as string) as { results: { gender: string }[] })
+            .results
             .map((d) => d.gender),
         // Ensure the response contains only the expected categories
         test: (response: unknown) => {
@@ -551,8 +595,9 @@ if (typeof ollama === "string" && aiKey !== "") {
         cache: true,
         // Send 10 rows at once to the AI
         batchSize: 10,
-        clean: (response: string) =>
-          (JSON.parse(response) as { results: { gender: string }[] }).results
+        clean: (response: unknown) =>
+          (JSON.parse(response as string) as { results: { gender: string }[] })
+            .results
             .map((d) => d.gender),
         // Ensure the response contains only the expected categories
         test: (response: unknown) => {
@@ -594,8 +639,8 @@ if (typeof ollama === "string" && aiKey !== "") {
       "country",
       `Give me the country of the city.`,
       {
-        clean: (response: string) => {
-          const parsed = JSON.parse(response);
+        clean: (response: unknown) => {
+          const parsed = JSON.parse(response as string);
           return typeof parsed === "object" && parsed && "countries" in parsed
             ? parsed.countries
             : parsed;
@@ -628,8 +673,9 @@ if (typeof ollama === "string" && aiKey !== "") {
       {
         verbose: true,
         clean: (
-          response: string,
-        ) => (JSON.parse(response) as { countries: string }).countries,
+          response: unknown,
+        ) =>
+          (JSON.parse(response as string) as { countries: string }).countries,
         extraInstructions:
           `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
       },
@@ -657,8 +703,8 @@ if (typeof ollama === "string" && aiKey !== "") {
       `Give me the country of the cities.`,
       {
         verbose: true,
-        clean: (response: string) => {
-          const parsed = JSON.parse(response);
+        clean: (response: unknown) => {
+          const parsed = JSON.parse(response as string);
           return typeof parsed === "object" && parsed && "countries" in parsed
             ? parsed.countries
             : parsed;
@@ -700,8 +746,8 @@ if (typeof ollama === "string" && aiKey !== "") {
       {
         batchSize: 10,
         verbose: true,
-        clean: (response: string) => {
-          const parsed = JSON.parse(response);
+        clean: (response: unknown) => {
+          const parsed = JSON.parse(response as string);
           return typeof parsed === "object" && parsed && "countries" in parsed
             ? parsed.countries
             : parsed;
@@ -751,8 +797,8 @@ if (typeof ollama === "string" && aiKey !== "") {
         batchSize: 10,
         cache: true,
         verbose: true,
-        clean: (response: string) => {
-          const parsed = JSON.parse(response);
+        clean: (response: unknown) => {
+          const parsed = JSON.parse(response as string);
           return typeof parsed === "object" && parsed && "countries" in parsed
             ? parsed.countries
             : parsed;
@@ -802,8 +848,8 @@ if (typeof ollama === "string" && aiKey !== "") {
         batchSize: 10,
         cache: true,
         verbose: true,
-        clean: (response: string) => {
-          const parsed = JSON.parse(response);
+        clean: (response: unknown) => {
+          const parsed = JSON.parse(response as string);
           return typeof parsed === "object" && parsed && "countries" in parsed
             ? parsed.countries
             : parsed;
@@ -852,8 +898,8 @@ if (typeof ollama === "string" && aiKey !== "") {
       {
         batchSize: 10,
         verbose: true,
-        clean: (response: string) => {
-          const parsed = JSON.parse(response);
+        clean: (response: unknown) => {
+          const parsed = JSON.parse(response as string);
           return typeof parsed === "object" && parsed && "countries" in parsed
             ? parsed.countries
             : parsed;
@@ -903,8 +949,8 @@ if (typeof ollama === "string" && aiKey !== "") {
         batchSize: 2,
         concurrent: 2,
         verbose: true,
-        clean: (response: string) => {
-          const parsed = JSON.parse(response);
+        clean: (response: unknown) => {
+          const parsed = JSON.parse(response as string);
           return typeof parsed === "object" && parsed && "countries" in parsed
             ? parsed.countries
             : parsed;
@@ -956,8 +1002,8 @@ if (typeof ollama === "string" && aiKey !== "") {
         concurrent: 5,
         cache: true,
         verbose: true,
-        clean: (response: string) => {
-          const parsed = JSON.parse(response);
+        clean: (response: unknown) => {
+          const parsed = JSON.parse(response as string);
           return typeof parsed === "object" && parsed && "countries" in parsed
             ? parsed.countries
             : parsed;
