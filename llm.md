@@ -854,14 +854,14 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRowByRow(column: string, newColumn: string, prompt: string, options?: { batchSize?: number; concurrent?: number; cache?: boolean; test?: (dataPoint: unknown) => void; retry?: number; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => unknown; contextWindow?: number; thinkingBudget?: number; extraInstructions?: string; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
+async aiRowByRow(column: string, newColumn: string | string[], prompt: string, options?: { batchSize?: number; concurrent?: number; cache?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => unknown; contextWindow?: number; thinkingBudget?: number; extraInstructions?: string; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
 ```
 
 ##### Parameters
 
 - **`column`**: - The name of the column to be used as input for the AI prompt.
-- **`newColumn`**: - The name of the new column where the AI's response will be
-  stored.
+- **`newColumn`**: - The name of the new column (or an array of column names)
+  where the AI's response will be stored.
 - **`prompt`**: - The input string to guide the AI's response.
 - **`options`**: - Configuration options for the AI request.
 - **`options.batchSize`**: - The number of rows to process in each batch.
@@ -870,8 +870,8 @@ async aiRowByRow(column: string, newColumn: string, prompt: string, options?: { 
   Defaults to `1`.
 - **`options.cache`**: - If `true`, the results will be cached locally. Defaults
   to `false`.
-- **`options.test`**: - A function to validate the returned data point. If it
-  throws an error, the request will be retried (if `retry` is set). Defaults to
+- **`options.test`**: - A function to validate the returned data. If it throws
+  an error, the request will be retried (if `retry` is set). Defaults to
   `undefined`.
 - **`options.retry`**: - The number of times to retry the request in case of
   failure. Defaults to `0`.
@@ -933,12 +933,12 @@ await table.aiRowByRow(
   {
     cache: true, // Cache results locally
     batchSize: 10, // Process 10 rows at once
-    test: (dataPoint: unknown) => { // Validate AI's response
+    test: (data: { [key: string]: unknown }) => { // Validate AI's response
       if (
-        typeof dataPoint !== "string" ||
-        !["Man", "Woman", "Neutral"].includes(dataPoint)
+        typeof data.gender !== "string" ||
+        !["Man", "Woman", "Neutral"].includes(data.gender)
       ) {
-        throw new Error(`Invalid response: ${dataPoint}`);
+        throw new Error(`Invalid response: ${data.gender}`);
       }
     },
     retry: 3, // Retry up to 3 times on failure
@@ -952,6 +952,28 @@ await table.aiRowByRow(
 //   { name: "Marie", gender: "Woman" },
 //   { name: "John", gender: "Man" },
 //   { name: "Alex", gender: "Neutral" },
+// ]
+```
+
+```ts
+await table.loadArray([
+  { city: "Marrakech" },
+  { city: "Kyoto" },
+  { city: "Auckland" },
+]);
+
+await table.aiRowByRow(
+  "city",
+  ["country", "continent"], // Multiple new columns
+  `Give me the country and continent of the city.`,
+  { verbose: true },
+);
+
+// Example results:
+// [
+//   { city: "Marrakech", country: "Morocco", continent: "Africa" },
+//   { city: "Kyoto", country: "Japan", continent: "Asia" },
+//   { city: "Auckland", country: "New Zealand", continent: "Oceania" },
 // ]
 ```
 
@@ -2622,6 +2644,49 @@ await table.splitExtract("address", ",", 1, "city");
 // Split 'fileName' by dot and extract the first part (index 0), overwriting 'fileName'
 // e.g., "document.pdf" -> "document"
 await table.splitExtract("fileName", ".", 0, "fileName");
+```
+
+#### `splitSpread`
+
+Splits strings in a specified column by a separator and spreads the resulting
+parts into multiple new columns.
+
+Each part of the split string will be stored in a separate column. The number of
+columns created is determined by the length of the `newColumns` array. If a row
+has fewer parts than the number of new columns, a warning will be logged and the
+extra columns will contain empty strings. If a row has more parts than the
+number of new columns, an error will be thrown.
+
+##### Signature
+
+```typescript
+async splitSpread(column: string, separator: string, newColumns: string[]): Promise<void>;
+```
+
+##### Parameters
+
+- **`column`**: - The name of the column containing the strings to be split.
+- **`separator`**: - The substring to use as a delimiter for splitting the
+  strings.
+- **`newColumns`**: - An array of column names for the extracted parts.
+
+##### Returns
+
+A promise that resolves when the strings have been split and spread into new
+columns.
+
+##### Examples
+
+```ts
+// Split 'fullName' by comma and spread into 'lastName' and 'firstName'
+// e.g., "Shiab, Nael" -> lastName: "Shiab", firstName: "Nael"
+await table.splitSpread("fullName", ",", ["lastName", "firstName"]);
+```
+
+```ts
+// Split 'address' by comma and spread into three columns
+// e.g., "123 Main St, Anytown, USA" -> street: "123 Main St", city: "Anytown", country: "USA"
+await table.splitSpread("address", ",", ["street", "city", "country"]);
 ```
 
 #### `left`
