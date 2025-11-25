@@ -29,12 +29,14 @@ if (typeof aiKey === "string" && aiKey !== "") {
         // Send 10 rows at once to the AI
         batchSize: 10,
         // Ensure the response contains only the expected categories
-        test: (response: unknown) => {
+        test: (data: {
+          [key: string]: unknown;
+        }) => {
           if (
-            typeof response !== "string" ||
-            !["Man", "Woman", "Neutral"].includes(response)
+            typeof data.gender !== "string" ||
+            !["Man", "Woman", "Neutral"].includes(data.gender)
           ) {
-            throw new Error(`Invalid response ${response}`);
+            throw new Error(`Invalid response ${data.gender}`);
           }
         },
         // Retry up to 3 times if the test fails
@@ -75,6 +77,52 @@ if (typeof aiKey === "string" && aiKey !== "") {
       { city: "Marrakech", country: "Morocco" },
       { city: "Kyoto", country: "Japan" },
       { city: "Auckland", country: "New Zealand" },
+    ]);
+    await sdb.done();
+  });
+  Deno.test("should iterate over rows with a prompt and add multiple columns", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { "city": "Marrakech" },
+      { "city": "Kyoto" },
+      { "city": "Auckland" },
+    ]);
+    await table.aiRowByRow(
+      "city",
+      ["country", "continent"],
+      `Give me the country and continent of the city.`,
+      { verbose: true },
+    );
+    const data = await table.getData();
+
+    assertEquals(data, [
+      { city: "Marrakech", country: "Morocco", continent: "Africa" },
+      { city: "Kyoto", country: "Japan", continent: "Asia" },
+      { city: "Auckland", country: "New Zealand", continent: "Oceania" },
+    ]);
+    await sdb.done();
+  });
+  Deno.test("should iterate over rows with a prompt and add multiple columns, with a bactch size greater than 1", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { "city": "Marrakech" },
+      { "city": "Kyoto" },
+      { "city": "Auckland" },
+    ]);
+    await table.aiRowByRow(
+      "city",
+      ["country", "continent"],
+      `Give me the country and continent of the city.`,
+      { verbose: true, batchSize: 2 },
+    );
+    const data = await table.getData();
+
+    assertEquals(data, [
+      { city: "Marrakech", country: "Morocco", continent: "Africa" },
+      { city: "Kyoto", country: "Japan", continent: "Asia" },
+      { city: "Auckland", country: "New Zealand", continent: "Oceania" },
     ]);
     await sdb.done();
   });

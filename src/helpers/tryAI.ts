@@ -8,13 +8,13 @@ export default async function tryAI(
     [key: string]: string | number | boolean | Date | null;
   }[],
   column: string,
-  newColumn: string,
+  newColumns: string[],
   prompt: string,
   options: {
     batchSize?: number;
     concurrent?: number;
     cache?: boolean;
-    test?: (response: unknown) => void;
+    test?: (result: { [key: string]: unknown }) => void;
     retry?: number;
     model?: string;
     apiKey?: string;
@@ -42,12 +42,16 @@ export default async function tryAI(
   const fullPrompt = batch.length === 1
     ? `${prompt}\nHere is the ${column} value:\n${
       JSON.stringify(batch[0][column])
-    }\nYou must return your result as a string. Do not return an object.${
+    }\nYou must return an object with the keys ${
+      newColumns.map((d) => `'${d}'`).join(", ")
+    }. Nothing else.${
       options.extraInstructions ? `\n${options.extraInstructions}` : ""
     }`
     : `${prompt}\nHere are the ${column} values as a JSON array:\n${
-      JSON.stringify(batch.map((d) => d[column]))
-    }\nReturn your results in a JSON array as well. It's critical you return the same number of items, which is ${batch.length}, exactly in the same order.${
+      JSON.stringify(batch.map((d) => d[column]), null, 2)
+    }\nReturn your results as an array of objects, each one with the keys ${
+      newColumns.map((d) => `'${d}'`).join(", ")
+    }. Do not return anything else. It's critical you return the same number of items, which is ${batch.length}, matching the JSON array values given above, exactly in the same order.${
       options.extraInstructions ? `\n${options.extraInstructions}` : ""
     }`;
 
@@ -55,10 +59,9 @@ export default async function tryAI(
 
   let testPassed = false;
   let iterations = 1;
-  let newValues: (string | number | boolean | Date | null)[] = [];
+  let newValues;
   while (!testPassed && iterations <= retry) {
     try {
-      // Types could be improved
       newValues = await askAI(
         `${fullPrompt}${
           iterations > 1
@@ -70,15 +73,24 @@ export default async function tryAI(
           returnJson: true,
           test: batch.length === 1
             ? (response: unknown) => {
-              if (typeof response !== "string") {
+              if (typeof response !== "object" || response === null) {
                 throw new Error(
-                  `The AI returned a non-string value: ${
+                  `The AI did not return an object: ${
                     JSON.stringify(response)
                   }`,
                 );
               }
+              for (const newColumn of newColumns) {
+                if (!(newColumn in response)) {
+                  throw new Error(
+                    `The AI's response is missing the key '${newColumn}': ${
+                      JSON.stringify(response)
+                    }`,
+                  );
+                }
+              }
               if (options.test) {
-                options.test(response);
+                options.test(response as { [key: string]: unknown });
               }
             }
             : (response: unknown) => {
@@ -94,14 +106,30 @@ export default async function tryAI(
                   `The AI returned ${response.length} values, but the batch size is ${batch.length}.`,
                 );
               }
+              for (const item of response) {
+                if (typeof item !== "object" || item === null) {
+                  throw new Error(
+                    `The AI did not return an object: ${JSON.stringify(item)}`,
+                  );
+                }
+                for (const newColumn of newColumns) {
+                  if (!(newColumn in item)) {
+                    throw new Error(
+                      `The AI's response is missing the key '${newColumn}': ${
+                        JSON.stringify(item)
+                      }`,
+                    );
+                  }
+                }
+              }
               if (options.test) {
                 for (const item of response) {
-                  options.test(item);
+                  options.test(item as { [key: string]: unknown });
                 }
               }
             },
         },
-      ) as (string | number | boolean | Date | null)[];
+      );
 
       testPassed = true;
     } catch (e: unknown) {
@@ -119,11 +147,27 @@ export default async function tryAI(
     }
   }
 
+  // Types could be improved
   if (batch.length === 1) {
-    rows[i][newColumn] = newValues as unknown as string;
+    for (const newColumn of newColumns) {
+      rows[i][newColumn] = (newValues as {
+        [key: string]: string | number | boolean | Date | null;
+      })[newColumn];
+    }
   } else {
-    for (let j = 0; j < newValues.length; j++) {
-      rows[i + j][newColumn] = newValues[j];
+    for (
+      let j = 0;
+      j <
+        (newValues as {
+          [key: string]: string | number | boolean | Date | null;
+        }[]).length;
+      j++
+    ) {
+      for (const newColumn of newColumns) {
+        rows[i + j][newColumn] = (newValues as {
+          [key: string]: string | number | boolean | Date | null;
+        }[])[j][newColumn];
+      }
     }
   }
 }

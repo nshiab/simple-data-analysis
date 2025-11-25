@@ -604,13 +604,13 @@ export default class SimpleTable extends Simple {
    * This method does not support tables containing geometries.
    *
    * @param column - The name of the column to be used as input for the AI prompt.
-   * @param newColumn - The name of the new column where the AI's response will be stored.
+   * @param newColumn - The name of the new column (or an array of column names) where the AI's response will be stored.
    * @param prompt - The input string to guide the AI's response.
    * @param options - Configuration options for the AI request.
    * @param options.batchSize - The number of rows to process in each batch. Defaults to `1`.
    * @param options.concurrent - The number of concurrent requests to send. Defaults to `1`.
    * @param options.cache - If `true`, the results will be cached locally. Defaults to `false`.
-   * @param options.test - A function to validate the returned data point. If it throws an error, the request will be retried (if `retry` is set). Defaults to `undefined`.
+   * @param options.test - A function to validate the returned data. If it throws an error, the request will be retried (if `retry` is set). Defaults to `undefined`.
    * @param options.retry - The number of times to retry the request in case of failure. Defaults to `0`.
    * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
    * @param options.model - The AI model to use. Defaults to the `AI_MODEL` environment variable.
@@ -646,12 +646,12 @@ export default class SimpleTable extends Simple {
    *   {
    *     cache: true, // Cache results locally
    *     batchSize: 10, // Process 10 rows at once
-   *     test: (dataPoint: unknown) => { // Validate AI's response
+   *     test: (data: { [key: string]: unknown }) => { // Validate AI's response
    *       if (
-   *         typeof dataPoint !== "string" ||
-   *         !["Man", "Woman", "Neutral"].includes(dataPoint)
+   *         typeof data.gender !== "string" ||
+   *         !["Man", "Woman", "Neutral"].includes(data.gender)
    *       ) {
-   *         throw new Error(`Invalid response: ${dataPoint}`);
+   *         throw new Error(`Invalid response: ${data.gender}`);
    *       }
    *     },
    *     retry: 3, // Retry up to 3 times on failure
@@ -667,16 +667,39 @@ export default class SimpleTable extends Simple {
    * //   { name: "Alex", gender: "Neutral" },
    * // ]
    * ```
+   *
+   * @example
+   * ```ts
+   * await table.loadArray([
+   *   { city: "Marrakech" },
+   *   { city: "Kyoto" },
+   *   { city: "Auckland" },
+   * ]);
+   *
+   * await table.aiRowByRow(
+   *   "city",
+   *   ["country", "continent"], // Multiple new columns
+   *   `Give me the country and continent of the city.`,
+   *   { verbose: true },
+   * );
+   *
+   * // Example results:
+   * // [
+   * //   { city: "Marrakech", country: "Morocco", continent: "Africa" },
+   * //   { city: "Kyoto", country: "Japan", continent: "Asia" },
+   * //   { city: "Auckland", country: "New Zealand", continent: "Oceania" },
+   * // ]
+   * ```
    */
   async aiRowByRow(
     column: string,
-    newColumn: string,
+    newColumn: string | string[],
     prompt: string,
     options: {
       batchSize?: number;
       concurrent?: number;
       cache?: boolean;
-      test?: (dataPoint: unknown) => void;
+      test?: (result: { [key: string]: unknown }) => void;
       retry?: number;
       model?: string;
       apiKey?: string;

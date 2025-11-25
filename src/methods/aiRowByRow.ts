@@ -2,17 +2,18 @@ import { formatNumber, sleep } from "@nshiab/journalism";
 import type { SimpleTable } from "../index.ts";
 import tryAI from "../helpers/tryAI.ts";
 import type { Ollama } from "ollama";
+import stringToArray from "../helpers/stringToArray.ts";
 
 export default async function aiRowByRow(
   simpleTable: SimpleTable,
   column: string,
-  newColumn: string,
+  newColumn: string | string[],
   prompt: string,
   options: {
     batchSize?: number;
     concurrent?: number;
     cache?: boolean;
-    test?: (response: unknown) => void;
+    test?: (result: { [key: string]: unknown }) => void;
     retry?: number;
     model?: string;
     apiKey?: string;
@@ -36,6 +37,8 @@ export default async function aiRowByRow(
     };
   } = {},
 ) {
+  const newColumns = stringToArray(newColumn);
+
   await simpleTable.updateWithJS(async (rows) => {
     if (options.verbose) {
       console.log("\naiRowByRow()");
@@ -91,7 +94,7 @@ export default async function aiRowByRow(
             batchSize,
             rows,
             column,
-            newColumn,
+            newColumns,
             prompt,
             options,
           ),
