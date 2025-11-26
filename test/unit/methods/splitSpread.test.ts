@@ -121,3 +121,27 @@ Deno.test("should throw error when rows have more parts than expected", async ()
 
   await sdb.done();
 });
+
+Deno.test("should skip validation with noCheck option when rows have more parts than expected", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadArray([
+    { data: "A,B,C,D,E" },
+    { data: "F,G,H" },
+    { data: "I,J,K,L" },
+  ]);
+
+  // This should not throw an error because noCheck is true
+  await table.splitSpread("data", ",", ["first", "second"], { noCheck: true });
+
+  const data = await table.getData();
+
+  // Only the first two parts should be extracted
+  assertEquals(data, [
+    { data: "A,B,C,D,E", first: "A", second: "B" },
+    { data: "F,G,H", first: "F", second: "G" },
+    { data: "I,J,K,L", first: "I", second: "J" },
+  ]);
+
+  await sdb.done();
+});

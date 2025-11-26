@@ -2664,12 +2664,14 @@ export default class SimpleTable extends Simple {
    * Splits strings in a specified column by a separator and spreads the resulting parts into multiple new columns.
    *
    * Each part of the split string will be stored in a separate column. The number of columns created is determined by the length of the `newColumns` array.
-   * If a row has fewer parts than the number of new columns, a warning will be logged and the extra columns will contain empty strings.
-   * If a row has more parts than the number of new columns, an error will be thrown.
+   * If a row has fewer parts than the number of new columns, a warning will be logged and the extra columns will contain empty strings (unless `noCheck` is set to true).
+   * If a row has more parts than the number of new columns, an error will be thrown unless `noCheck` is set to true.
    *
    * @param column - The name of the column containing the strings to be split.
    * @param separator - The substring to use as a delimiter for splitting the strings.
    * @param newColumns - An array of column names for the extracted parts.
+   * @param options - Optional configuration.
+   * @param options.noCheck - If true, skips all validation checks (both max and min parts). Default is false.
    * @returns A promise that resolves when the strings have been split and spread into new columns.
    * @category Updating Data
    *
@@ -2686,13 +2688,22 @@ export default class SimpleTable extends Simple {
    * // e.g., "123 Main St, Anytown, USA" -> street: "123 Main St", city: "Anytown", country: "USA"
    * await table.splitSpread("address", ",", ["street", "city", "country"]);
    * ```
+   *
+   * @example
+   * ```ts
+   * // Skip validation for performance with noCheck option
+   * await table.splitSpread("data", "|", ["col1", "col2"], { noCheck: true });
+   * ```
    */
   async splitSpread(
     column: string,
     separator: string,
     newColumns: string[],
+    options: {
+      noCheck?: boolean;
+    } = {},
   ): Promise<void> {
-    await splitSpread(this, column, separator, newColumns);
+    await splitSpread(this, column, separator, newColumns, options);
   }
 
   /**
