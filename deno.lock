@@ -1,7 +1,7 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@nshiab/journalism@1.36.1": "1.36.1",
+    "jsr:@nshiab/journalism@1.36.2": "1.36.2",
     "jsr:@std/assert@1.0.16": "1.0.16",
     "jsr:@std/dotenv@*": "0.225.3",
     "jsr:@std/internal@^1.0.12": "1.0.12",
@@ -9,8 +9,6 @@
     "npm:@google-cloud/storage@^7.18.0": "7.18.0",
     "npm:@google/genai@^1.33.0": "1.33.0",
     "npm:@observablehq/plot@0.6.17": "0.6.17",
-    "npm:@observablehq/plot@~0.6.17": "0.6.17",
-    "npm:@types/d3-geo@3": "3.1.0",
     "npm:@types/node@*": "24.2.0",
     "npm:adm-zip@~0.5.16": "0.5.16",
     "npm:apache-arrow@^21.1.0": "21.1.0",
@@ -30,13 +28,11 @@
     "npm:playwright-chromium@^1.57.0": "1.57.0"
   },
   "jsr": {
-    "@nshiab/journalism@1.36.1": {
-      "integrity": "879a69561baefec6ce892f87123df303ceda4e51ade5830e1102a8d8020f4861",
+    "@nshiab/journalism@1.36.2": {
+      "integrity": "7c588534550fe414022988dfa60ac823c4680f07b9db2e6f39200241c673681d",
       "dependencies": [
         "npm:@google-cloud/storage",
         "npm:@google/genai",
-        "npm:@observablehq/plot@~0.6.17",
-        "npm:@types/d3-geo",
         "npm:adm-zip",
         "npm:cheerio",
         "npm:d3-array",
@@ -191,15 +187,6 @@
     },
     "@types/command-line-usage@5.0.4": {
       "integrity": "sha512-BwR5KP3Es/CSht0xqBcUXS3qCAUVXwpRKsV2+arxeb65atasuXG9LykC9Ab10Cw3s2raH92ZqOeILaQbsB2ACg=="
-    },
-    "@types/d3-geo@3.1.0": {
-      "integrity": "sha512-856sckF0oP/diXtS4jNsiQw/UuK5fQG8l/a9VVLeSouf1/PPbBE1i1W852zVwKwYCBkFJJB7nCFTbk6UMEXBOQ==",
-      "dependencies": [
-        "@types/geojson"
-      ]
-    },
-    "@types/geojson@7946.0.16": {
-      "integrity": "sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg=="
     },
     "@types/node@24.2.0": {
       "integrity": "sha512-3xyG3pMCq3oYCNg7/ZP+E1ooTaGB4cG8JWRsqqOYQdbWNY4zbaV0Ennrd7stjiJEFZCaybcIgpTjJWHRfBSIDw==",
@@ -1418,7 +1405,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@nshiab/journalism@1.36.1",
+      "jsr:@nshiab/journalism@1.36.2",
       "jsr:@std/assert@1.0.16",
       "npm:@duckdb/node-api@1.4.3-r.1",
       "npm:@observablehq/plot@0.6.17",
