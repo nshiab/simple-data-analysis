@@ -188,7 +188,7 @@ DuckDB, which powers SDA, can also be used with
 In this example, we load a CSV file with the latitude and longitude of 2023
 wildfires in Canada, create point geometries from it, do a spatial join with
 provinces' boundaries, and then compute the number of fires and the total area
-burnt per province. We are create charts and write the results to a file.
+burnt per province. We create charts and write the results to a file.
 
 If you are using Deno, make sure to install and enable the
 [Deno extension](https://docs.deno.com/runtime/getting_started/setup_your_environment/).
