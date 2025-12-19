@@ -1,4 +1,4 @@
-import { dataToArrays } from "@nshiab/journalism";
+import { dataToArrays } from "@nshiab/journalism-format";
 import type SimpleTable from "../class/SimpleTable.ts";
 import getExtension from "./getExtension.ts";
 import { writeFileSync } from "node:fs";

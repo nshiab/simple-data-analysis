@@ -1,4 +1,5 @@
-import { camelCase, getEmbedding } from "@nshiab/journalism";
+import { camelCase } from "@nshiab/journalism-format";
+import { getEmbedding } from "@nshiab/journalism-ai";
 import type { SimpleTable } from "../index.ts";
 import queryDB from "../helpers/queryDB.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";

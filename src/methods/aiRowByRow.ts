@@ -1,4 +1,5 @@
-import { formatNumber, sleep } from "@nshiab/journalism";
+import { formatNumber } from "@nshiab/journalism-format";
+import sleep from "../helpers/sleep.ts";
 import type { SimpleTable } from "../index.ts";
 import tryAI from "../helpers/tryAI.ts";
 import type { Ollama } from "ollama";

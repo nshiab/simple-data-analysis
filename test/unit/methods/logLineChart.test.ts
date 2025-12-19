@@ -1,6 +1,6 @@
 import { assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
-import { formatDate, formatNumber } from "@nshiab/journalism";
+import { formatDate, formatNumber } from "@nshiab/journalism-format";
 
 Deno.test("should log a line chart", async () => {
   const sdb = new SimpleDB();

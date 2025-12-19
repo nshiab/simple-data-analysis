@@ -1,4 +1,4 @@
-import { getEmbedding } from "@nshiab/journalism";
+import { getEmbedding } from "@nshiab/journalism-ai";
 import type { Ollama } from "ollama";
 
 export default async function tryEmbedding(

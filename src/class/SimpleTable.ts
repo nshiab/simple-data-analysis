@@ -64,17 +64,16 @@ import joinGeo from "../methods/joinGeo.ts";
 import shouldFlipBeforeExport from "../helpers/shouldFlipBeforeExport.ts";
 import getProjection from "../helpers/getProjection.ts";
 import cache from "../methods/cache.ts";
+import { camelCase, formatNumber } from "@nshiab/journalism-format";
+import createDirectory from "../helpers/createDirectory.ts";
+import { overwriteSheetData } from "@nshiab/journalism-google";
 import {
-  camelCase,
-  createDirectory,
-  formatNumber,
   logBarChart,
   logDotChart,
   logLineChart,
-  overwriteSheetData,
   rewind,
   saveChart,
-} from "@nshiab/journalism";
+} from "@nshiab/journalism-dataviz";
 import writeDataAsArrays from "../helpers/writeDataAsArrays.ts";
 import logHistogram from "../methods/logHistogram.ts";
 import logData from "../helpers/logData.ts";
