@@ -1,4 +1,4 @@
-import { logBarChart } from "@nshiab/journalism";
+import { logBarChart } from "@nshiab/journalism-dataviz";
 import type SimpleTable from "../class/SimpleTable.ts";
 
 export default async function logHistogram(

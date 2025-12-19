@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
-import { rewind } from "@nshiab/journalism";
+import { rewind } from "@nshiab/journalism-dataviz";
 
 const output = "./test/output/";
 

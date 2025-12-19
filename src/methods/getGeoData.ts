@@ -1,4 +1,4 @@
-import { rewind } from "@nshiab/journalism/web";
+import { rewind } from "@nshiab/journalism-dataviz";
 import type SimpleTable from "../class/SimpleTable.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
 import queryDB from "../helpers/queryDB.ts";

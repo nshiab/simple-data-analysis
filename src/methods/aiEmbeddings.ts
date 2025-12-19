@@ -1,4 +1,5 @@
-import { camelCase, formatNumber, sleep } from "@nshiab/journalism";
+import { camelCase, formatNumber } from "@nshiab/journalism-format";
+import sleep from "../helpers/sleep.ts";
 import type { SimpleTable } from "../index.ts";
 import tryEmbedding from "../helpers/tryEmbedding.ts";
 import type { Ollama } from "ollama";

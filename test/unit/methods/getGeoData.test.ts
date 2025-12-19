@@ -1,7 +1,7 @@
 import { assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { readFileSync } from "node:fs";
-import { rewind } from "@nshiab/journalism";
+import { rewind } from "@nshiab/journalism-dataviz";
 
 Deno.test("should find the column with geometries and return geospatial data as a geojson", async () => {
   const sdb = new SimpleDB();

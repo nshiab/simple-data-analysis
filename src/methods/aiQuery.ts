@@ -1,4 +1,4 @@
-import { askAI } from "@nshiab/journalism";
+import { askAI } from "@nshiab/journalism-ai";
 import type { SimpleTable } from "../index.ts";
 import type { Ollama } from "ollama";
 
