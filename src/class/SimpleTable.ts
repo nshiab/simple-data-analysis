@@ -4043,6 +4043,23 @@ export default class SimpleTable extends Simple {
   }
 
   /**
+   * Returns the name of the table.
+   *
+   * @returns The name of the table as a string.
+   * @category Getting Data
+   *
+   * @example
+   * ```ts
+   * // Get the table name
+   * const tableName = table.getTableName();
+   * console.log(tableName); // e.g., "employees"
+   * ```
+   */
+  getTableName(): string {
+    return this.name;
+  }
+
+  /**
    * Returns a list of all column names in the table.
    *
    * @returns A promise that resolves to an array of strings, where each string is a column name.
