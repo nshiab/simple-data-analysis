@@ -11,3 +11,14 @@ Deno.test("should log the last rows", async () => {
   assertEquals(true, true);
   await sdb.done();
 });
+
+Deno.test("should log the default number of bottom rows", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/employees.csv");
+  await table.logBottom();
+
+  // How to test?
+  assertEquals(true, true);
+  await sdb.done();
+});
