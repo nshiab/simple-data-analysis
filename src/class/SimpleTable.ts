@@ -6936,28 +6936,37 @@ export default class SimpleTable extends Simple {
   /**
    * Logs the bottom `n` rows of the table to the console. By default, the last row will be returned first. To preserve the original order, use the `originalOrder` option.
    *
-   * @param count - The number of rows to log from the bottom of the table.
+   * @param count - The number of rows to log from the bottom of the table. Defaults to the table's `nbRowsToLog` option if not specified.
+   * @param options - An optional object with logging preferences.
+   * @param options.originalOrder - If true, the rows are displayed in their original order (top to bottom). Defaults to false.
    * @returns A promise that resolves when the rows have been logged to the console.
    * @category Logging
    *
    * @example
    * ```ts
-   * // Log the last 10 rows (last row first)
+   * // Log bottom rows with default count (uses table's nbRowsToLog option)
+   * await table.logBottom();
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Log the last 10 rows (displayed with last row first)
    * await table.logBottom(10);
    * ```
    *
    * @example
    * ```ts
-   * // Log the last 5 rows in their original order
+   * // Log the last 5 rows in original order (top to bottom)
    * await table.logBottom(5, { originalOrder: true });
    * ```
    */
   async logBottom(
-    count: number,
+    count?: number,
     options: { originalOrder?: boolean } = {},
   ): Promise<void> {
-    console.log(`\nTable ${this.name} (${count} bottom rows):`);
-    const data = await this.getBottom(count, options);
+    const rows = count ?? this.nbRowsToLog;
+    console.log(`\nTable ${this.name} (${rows} bottom rows):`);
+    const data = await this.getBottom(rows, options);
     logData(
       null,
       data,
