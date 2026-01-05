@@ -6219,7 +6219,7 @@ export default class SimpleTable extends Simple {
    * Clears a Google Sheet and populates it with the table's data.
    * This method uses the `overwriteSheetData` function from the [journalism library](https://jsr.io/@nshiab/journalism/doc/~/overwriteSheetData). Refer to its documentation for more details.
    *
-   * By default, this function looks for the API key in `GOOGLE_PRIVATE_KEY` and the service account email in `GOOGLE_SERVICE_ACCOUNT_EMAIL` environment variables. If you don't have credentials, refer to the [Google Spreadsheet authentication guide](https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication).
+   * By default, authentication is handled via environment variables (GOOGLE_PRIVATE_KEY and GOOGLE_SERVICE_ACCOUNT_EMAIL). Alternatively, you can use GOOGLE_APPLICATION_CREDENTIALS pointing to a service account JSON file. For detailed setup instructions, refer to the node-google-spreadsheet authentication guide: https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
    *
    * @param sheetUrl - The URL pointing to a specific Google Sheet (e.g., `"https://docs.google.com/spreadsheets/d/.../edit#gid=0"`).
    * @param options - An optional object with configuration options:
