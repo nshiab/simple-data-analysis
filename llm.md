@@ -3923,6 +3923,28 @@ const description = await table.getDescription();
 console.table(description);
 ```
 
+#### `getTableName`
+
+Returns the name of the table.
+
+##### Signature
+
+```typescript
+getTableName(): string;
+```
+
+##### Returns
+
+The name of the table as a string.
+
+##### Examples
+
+```ts
+// Get the table name
+const tableName = table.getTableName();
+console.log(tableName); // e.g., "employees"
+```
+
 #### `getColumns`
 
 Returns a list of all column names in the table.
@@ -5952,10 +5974,12 @@ the `overwriteSheetData` function from the
 [journalism library](https://jsr.io/@nshiab/journalism/doc/~/overwriteSheetData).
 Refer to its documentation for more details.
 
-By default, this function looks for the API key in `GOOGLE_PRIVATE_KEY` and the
-service account email in `GOOGLE_SERVICE_ACCOUNT_EMAIL` environment variables.
-If you don't have credentials, refer to the
-[Google Spreadsheet authentication guide](https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication).
+By default, authentication is handled via environment variables
+(GOOGLE_PRIVATE_KEY and GOOGLE_SERVICE_ACCOUNT_EMAIL). Alternatively, you can
+use GOOGLE_APPLICATION_CREDENTIALS pointing to a service account JSON file. For
+detailed setup instructions, refer to the node-google-spreadsheet authentication
+guide:
+https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
 
 ##### Signature
 
@@ -6657,12 +6681,16 @@ option.
 ##### Signature
 
 ```typescript
-async logBottom(count: number, options?: { originalOrder?: boolean }): Promise<void>;
+async logBottom(count?: number, options?: { originalOrder?: boolean }): Promise<void>;
 ```
 
 ##### Parameters
 
 - **`count`**: - The number of rows to log from the bottom of the table.
+  Defaults to the table's `nbRowsToLog` option if not specified.
+- **`options`**: - An optional object with logging preferences.
+- **`options.originalOrder`**: - If true, the rows are displayed in their
+  original order (top to bottom). Defaults to false.
 
 ##### Returns
 
@@ -6671,12 +6699,17 @@ A promise that resolves when the rows have been logged to the console.
 ##### Examples
 
 ```ts
-// Log the last 10 rows (last row first)
+// Log bottom rows with default count (uses table's nbRowsToLog option)
+await table.logBottom();
+```
+
+```ts
+// Log the last 10 rows (displayed with last row first)
 await table.logBottom(10);
 ```
 
 ```ts
-// Log the last 5 rows in their original order
+// Log the last 5 rows in original order (top to bottom)
 await table.logBottom(5, { originalOrder: true });
 ```
 
