@@ -953,15 +953,19 @@ export default class SimpleTable extends Simple {
    * ```
    */
   async insertRows(rows: { [key: string]: unknown }[]): Promise<void> {
-    await queryDB(
-      this,
-      insertRowsQuery(this.name, rows),
-      mergeOptions(this, {
-        table: this.name,
-        method: "insertRows()",
-        parameters: { rows },
-      }),
-    );
+    if (await this.sdb.hasTable(this.name)) {
+      await queryDB(
+        this,
+        insertRowsQuery(this.name, rows),
+        mergeOptions(this, {
+          table: this.name,
+          method: "insertRows()",
+          parameters: { rows },
+        }),
+      );
+    } else {
+      await this.loadArray(rows);
+    }
   }
 
   /**

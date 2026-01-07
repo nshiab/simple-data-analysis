@@ -1,6 +1,26 @@
 import { assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
+Deno.test("add rows in an empty table", async () => {
+  const sdb = new SimpleDB();
+
+  const table = sdb.newTable("data");
+
+  await table.insertRows([
+    { key1: 5, key2: "cinq" },
+    { key1: 6, key2: "six" },
+  ]);
+
+  const data = await table.getData();
+
+  assertEquals(data, [
+    { key1: 5, key2: "cinq" },
+    { key1: 6, key2: "six" },
+  ]);
+
+  await sdb.done();
+});
+
 Deno.test("add rows in a table", async () => {
   const sdb = new SimpleDB();
 
