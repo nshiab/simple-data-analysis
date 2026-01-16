@@ -1257,6 +1257,8 @@ export default class SimpleTable extends Simple {
    * Clones a column in the table and offsets its values by a specified number of rows.
    * This is useful for time-series analysis or comparing values across different time points.
    *
+   * **Important:** The offset is applied based on the current row order in the table. For meaningful results, ensure your data is sorted appropriately (e.g., by date/time for time-series analysis) before calling this method.
+   *
    * @param originalColumn - The name of the original column.
    * @param newColumn - The name of the new column to be created with offset values.
    * @param options - An optional object with configuration options:
@@ -1311,12 +1313,19 @@ export default class SimpleTable extends Simple {
       ? `PARTITION BY ${categories.map((d) => `"${d}"`).join(", ")}`
       : "";
 
+    const tempRowCol = `rowNumberForCloneColumnWithOffset`;
+    await this.addRowNumber(tempRowCol);
+
+    // Apply the offset using the row number for ordering
+    // When categories are specified, also sort the final result by categories
     await queryDB(
       this,
-      `CREATE OR REPLACE TABLE "${this.name}" AS SELECT *, LEAD("${originalColumn}", ${offset}) OVER(${partition}) AS "${newColumn}" FROM "${this.name}"${
+      `CREATE OR REPLACE TABLE "${this.name}" AS SELECT * EXCLUDE("${tempRowCol}"), LEAD("${originalColumn}", ${offset}) OVER(${partition} ORDER BY "${tempRowCol}") AS "${newColumn}" FROM "${this.name}"${
         categories.length > 0
-          ? ` ORDER BY ${categories.map((d) => `"${d}"`).join(", ")}`
-          : ""
+          ? ` ORDER BY ${
+            categories.map((d) => `"${d}"`).join(", ")
+          }, "${tempRowCol}"`
+          : ` ORDER BY "${tempRowCol}"`
       };`,
       mergeOptions(this, {
         table: this.name,
