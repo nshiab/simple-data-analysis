@@ -1425,6 +1425,10 @@ Clones a column in the table and offsets its values by a specified number of
 rows. This is useful for time-series analysis or comparing values across
 different time points.
 
+**Important:** The offset is applied based on the current row order in the
+table. For meaningful results, ensure your data is sorted appropriately (e.g.,
+by date/time for time-series analysis) before calling this method.
+
 ##### Signature
 
 ```typescript

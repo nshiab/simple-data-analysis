@@ -1,6 +1,6 @@
 {
   "name": "@nshiab/simple-data-analysis",
-  "version": "5.10.1",
+  "version": "5.10.2",
   "exports": {
     ".": "./src/index.ts"
   },
@@ -44,5 +44,8 @@
       "deno.ns"
     ]
   },
-  "allowScripts": ["npm:playwright-chromium@1", "npm:protobufjs@7.5.4"]
+  "allowScripts": [
+    "npm:playwright-chromium@1",
+    "npm:protobufjs@7.5.4"
+  ]
 }
