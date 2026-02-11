@@ -103,6 +103,7 @@ import type { Ollama } from "ollama";
 import unnestQuery from "../helpers/unnestQuery.ts";
 import nestQuery from "../helpers/nestQuery.ts";
 import concatenateRowQuery from "../helpers/concatenateRowQuery.ts";
+import aiRowByRowPool from "../methods/aiRowByRowPool.ts";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
@@ -586,7 +587,8 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Applies a prompt to the value of each row in a specified column, storing the AI's response in a new column.
+   * Applies a prompt to the value of each row in a specified column, storing the AI's response in a new column. This method can send requests concurrently and in batches, but is not using a pool, so it may not be the most efficient method for processing very large tables. Check `aiRowByRowPool` for a different approach, especially regarding error handling.
+   *
    * This method automatically appends instructions to your prompt; set `verbose` to `true` to see the full prompt.
    *
    * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or directly via `options`, with `options` taking precedence.
@@ -724,6 +726,164 @@ export default class SimpleTable extends Simple {
     } = {},
   ): Promise<void> {
     await aiRowByRow(this, column, newColumn, prompt, options);
+  }
+
+  /**
+   * Applies a prompt to the value of each row in a specified column using a pool-based approach, storing the AI's response in new columns and any errors in a designated error column. Unlike `aiRowByRow`, this method uses a worker pool for better control over concurrent requests and stores errors instead of throwing them, making it ideal for processing large tables where some rows may fail.
+   *
+   * This method automatically appends instructions to your prompt; set `verbose` to `true` to see the full prompt.
+   *
+   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`).
+   *
+   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_MODEL` to your desired model name.
+   *
+   * The pool size controls how many concurrent AI requests can run simultaneously. The `batchSize` option processes multiple rows per request. For example, with `poolSize: 5` and `batchSize: 10`, up to 5 requests can run concurrently, each processing 10 rows.
+   *
+   * The `cache` option enables local caching of results in `.journalism-cache` (from the `askAI` function in the [journalism library](https://github.com/nshiab/journalism)). Remember to add `.journalism-cache` to your `.gitignore`.
+   *
+   * If the AI returns fewer items than expected in a batch, or if a custom `test` function fails, the `retry` option (a number greater than 0) will reattempt the request. The `retryCheck` function allows conditional retries based on error inspection.
+   *
+   * The `minRequestDurationMs` option sets a minimum duration for each request, useful for respecting rate limits when you know the allowed requests per time period.
+   *
+   * Temperature is set to 0 for reproducibility, though consistency cannot be guaranteed.
+   *
+   * This method does not support tables containing geometries.
+   *
+   * @param column - The name of the column to be used as input for the AI prompt.
+   * @param newColumn - The name of the new column (or an array of column names) where the AI's response will be stored. If an error occurs for a row, the new column(s) for that row will be set to `NULL`.
+   * @param errorColumn - The name of the column where error messages will be stored. Successful requests will have `NULL` in this column.
+   * @param prompt - The input string to guide the AI's response.
+   * @param poolSize - The number of concurrent AI requests to run simultaneously in the pool.
+   * @param options - Configuration options for the AI request.
+   * @param options.cache - If `true`, the results will be cached locally. Defaults to `false`.
+   * @param options.batchSize - The number of rows to process in each batch. Defaults to `1`.
+   * @param options.logProgress - If `true`, logs progress information during processing. Defaults to `false`.
+   * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
+   * @param options.test - A function to validate the returned data. If it throws an error, the request will be retried (if `retry` is set). Defaults to `undefined`.
+   * @param options.retry - The number of times to retry the request in case of failure. Defaults to `0`.
+   * @param options.retryCheck - A function that receives an error and returns a boolean indicating whether to retry. Useful for conditional retries based on error type. Defaults to `undefined`.
+   * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
+   * @param options.minRequestDurationMs - The minimum duration in milliseconds for each request. Useful for respecting rate limits. Defaults to `undefined` (no minimum).
+   * @param options.clean - A function to clean the AI's response after JSON parsing, testing, caching, and storing. Defaults to `undefined`.
+   * @param options.contextWindow - An option to specify the context window size for Ollama models. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
+   * @param options.thinkingBudget - Sets the reasoning token budget: 0 to disable (default, though some models may reason regardless), -1 for a dynamic budget, or > 0 for a fixed budget. For Ollama models, any non-zero value simply enables reasoning, ignoring the specific budget amount.
+   * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
+   * @returns A promise that resolves when the AI processing is complete.
+   * @category AI
+   *
+   * @example
+   * ```ts
+   * // New table with a "review" column.
+   * await table.loadArray([
+   *   { review: "Great product!" },
+   *   { review: "Terrible quality." },
+   *   { review: "Not bad, could be better." },
+   *   { review: "Excellent service!" },
+   * ]);
+   *
+   * // Analyze sentiment using a pool with 2 concurrent workers, batch size of 2
+   * await table.aiRowByRowPool(
+   *   "review",
+   *   "sentiment",
+   *   "error",
+   *   `Classify the sentiment as "Positive", "Negative", or "Neutral".`,
+   *   2, // poolSize: 2 concurrent requests
+   *   {
+   *     cache: true,
+   *     batchSize: 2, // Process 2 rows per request
+   *     logProgress: true,
+   *     test: (data: { [key: string]: unknown }) => {
+   *       if (
+   *         typeof data.sentiment !== "string" ||
+   *         !["Positive", "Negative", "Neutral"].includes(data.sentiment)
+   *       ) {
+   *         throw new Error(`Invalid sentiment: ${data.sentiment}`);
+   *       }
+   *     },
+   *     retry: 2,
+   *     minRequestDurationMs: 1000, // Respect rate limits: at least 1 second per request
+   *   },
+   * );
+   *
+   * // Example results:
+   * // [
+   * //   { review: "Great product!", sentiment: "Positive", error: null },
+   * //   { review: "Terrible quality.", sentiment: "Negative", error: null },
+   * //   { review: "Not bad, could be better.", sentiment: "Neutral", error: null },
+   * //   { review: "Excellent service!", sentiment: "Positive", error: null },
+   * // ]
+   * ```
+   *
+   * @example
+   * ```ts
+   * await table.loadArray([
+   *   { product: "Laptop" },
+   *   { product: "Smartphone" },
+   *   { product: "Tablet" },
+   * ]);
+   *
+   * // Extract multiple properties using pool-based processing
+   * await table.aiRowByRowPool(
+   *   "product",
+   *   ["category", "typical_price_range"],
+   *   "error",
+   *   `For the given product, provide the category and typical price range.`,
+   *   3, // Process up to 3 products concurrently
+   *   {
+   *     logProgress: true,
+   *     retryCheck: (error) => {
+   *       // Retry only for specific error types
+   *       return error instanceof Error && error.message.includes("rate limit");
+   *     },
+   *   },
+   * );
+   *
+   * // Example results:
+   * // [
+   * //   { product: "Laptop", category: "Electronics", typical_price_range: "$500-$2000", error: null },
+   * //   { product: "Smartphone", category: "Electronics", typical_price_range: "$200-$1200", error: null },
+   * //   { product: "Tablet", category: "Electronics", typical_price_range: "$200-$800", error: null },
+   * // ]
+   * ```
+   */
+  async aiRowByRowPool(
+    column: string,
+    newColumn: string | string[],
+    errorColumn: string,
+    prompt: string,
+    poolSize: number,
+    options: {
+      cache?: boolean;
+      batchSize?: number;
+      logProgress?: boolean;
+      verbose?: boolean;
+      test?: (result: { [key: string]: unknown }) => void;
+      retry?: number;
+      retryCheck?: (error: unknown) => Promise<boolean> | boolean;
+      extraInstructions?: string;
+      minRequestDurationMs?: number;
+      clean?: (
+        response: unknown,
+      ) => unknown;
+      contextWindow?: number;
+      thinkingBudget?: number;
+      metrics?: {
+        totalCost: number;
+        totalInputTokens: number;
+        totalOutputTokens: number;
+        totalRequests: number;
+      };
+    } = {},
+  ) {
+    await aiRowByRowPool(
+      this,
+      column,
+      newColumn,
+      errorColumn,
+      prompt,
+      poolSize,
+      options,
+    );
   }
 
   /**

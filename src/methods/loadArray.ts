@@ -31,12 +31,19 @@ export default async function loadArray(
     const value = firstNonNullValue[i];
     const type = typeof value;
     if (
-      type === "symbol" || type === "undefined" ||
+      type === "symbol" ||
       type === "function"
     ) {
       throw new Error(
         `Type ${type} not supported for ${key}. Value: ${value}`,
       );
+    } else if (type === "undefined") {
+      // If all values in the column are null or undefined, default to VARCHAR type.
+      types[i] = "VARCHAR";
+
+      for (let j = 0; j < arrayOfObjects.length; j++) {
+        dataForChunk[j][i] = null;
+      }
     } else if (type === "object") {
       if (value instanceof Date) {
         types[i] = "TIMESTAMP";
