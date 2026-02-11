@@ -807,10 +807,10 @@ export default class SimpleTable extends Simple {
    *
    * // Example results:
    * // [
-   * //   { review: "Great product!", sentiment: "Positive", error: "No error" },
-   * //   { review: "Terrible quality.", sentiment: "Negative", error: "No error" },
-   * //   { review: "Not bad, could be better.", sentiment: "Neutral", error: "No error" },
-   * //   { review: "Excellent service!", sentiment: "Positive", error: "No error" },
+   * //   { review: "Great product!", sentiment: "Positive", error: null },
+   * //   { review: "Terrible quality.", sentiment: "Negative", error: null },
+   * //   { review: "Not bad, could be better.", sentiment: "Neutral", error: null },
+   * //   { review: "Excellent service!", sentiment: "Positive", error: null },
    * // ]
    * ```
    *
@@ -840,9 +840,9 @@ export default class SimpleTable extends Simple {
    *
    * // Example results:
    * // [
-   * //   { product: "Laptop", category: "Electronics", typical_price_range: "$500-$2000", error: "No error" },
-   * //   { product: "Smartphone", category: "Electronics", typical_price_range: "$200-$1200", error: "No error" },
-   * //   { product: "Tablet", category: "Electronics", typical_price_range: "$200-$800", error: "No error" },
+   * //   { product: "Laptop", category: "Electronics", typical_price_range: "$500-$2000", error: null },
+   * //   { product: "Smartphone", category: "Electronics", typical_price_range: "$200-$1200", error: null },
+   * //   { product: "Tablet", category: "Electronics", typical_price_range: "$200-$800", error: null },
    * // ]
    * ```
    */

@@ -177,3 +177,55 @@ Deno.test("should load an array of objects even if the first rows have null valu
 
   await sdb.done();
 });
+Deno.test("should load an array of objects even if the all values in a column are null", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadArray([
+    {
+      "column 1": 1,
+      "column 2": null,
+    },
+    {
+      "column 1": 2,
+      "column 2": null,
+    },
+    {
+      "column 1": 3,
+      "column 2": null,
+    },
+    {
+      "column 1": 4,
+      "column 2": null,
+    },
+  ]);
+
+  const data = await table.getData();
+
+  assertEquals(data, [
+    {
+      "column 1": 1,
+      "column 2": null,
+    },
+    {
+      "column 1": 2,
+      "column 2": null,
+    },
+    {
+      "column 1": 3,
+      "column 2": null,
+    },
+    {
+      "column 1": 4,
+      "column 2": null,
+    },
+  ]);
+
+  const types = await table.getTypes();
+
+  assertEquals(types, {
+    "column 1": "DOUBLE",
+    "column 2": "VARCHAR",
+  });
+
+  await sdb.done();
+});
