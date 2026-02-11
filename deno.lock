@@ -1,15 +1,15 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@nshiab/journalism-ai@^1.1.1": "1.1.1",
-    "jsr:@nshiab/journalism-dataviz@^1.0.2": "1.0.2",
+    "jsr:@nshiab/journalism-ai@^1.2.1": "1.2.1",
+    "jsr:@nshiab/journalism-dataviz@^1.0.3": "1.0.3",
     "jsr:@nshiab/journalism-format@^1.0.3": "1.0.3",
-    "jsr:@nshiab/journalism-google@^1.0.2": "1.0.2",
-    "jsr:@std/assert@1.0.16": "1.0.16",
+    "jsr:@nshiab/journalism-google@^1.0.3": "1.0.3",
+    "jsr:@std/assert@1.0.18": "1.0.18",
     "jsr:@std/internal@^1.0.12": "1.0.12",
-    "npm:@duckdb/node-api@1.4.3-r.3": "1.4.3-r.3",
-    "npm:@google-cloud/storage@^7.18.0": "7.18.0",
-    "npm:@google/genai@^1.37.0": "1.37.0",
+    "npm:@duckdb/node-api@1.4.4-r.1": "1.4.4-r.1",
+    "npm:@google-cloud/storage@^7.19.0": "7.19.0",
+    "npm:@google/genai@^1.37.0": "1.39.0",
     "npm:@observablehq/plot@0.6.17": "0.6.17",
     "npm:@observablehq/plot@~0.6.17": "0.6.17",
     "npm:@types/d3-geo@3": "3.1.0",
@@ -22,28 +22,29 @@
     "npm:google-spreadsheet@^5.0.2": "5.0.2_google-auth-library@10.5.0",
     "npm:jsonrepair@^3.13.2": "3.13.2",
     "npm:ollama@~0.6.3": "0.6.3",
-    "npm:playwright-chromium@^1.57.0": "1.57.0"
+    "npm:playwright-chromium@^1.57.0": "1.58.2",
+    "npm:playwright-chromium@^1.58.2": "1.58.2"
   },
   "jsr": {
-    "@nshiab/journalism-ai@1.1.1": {
-      "integrity": "2e26b4b9fb2c1d9475c2bf711282d324062ca397d91ec32f8f9096b2f9b216a4",
+    "@nshiab/journalism-ai@1.2.1": {
+      "integrity": "f7ea48688efc38d519aee35e116aa7f37fec416da75a2b99f3f2a3860b407749",
       "dependencies": [
         "jsr:@nshiab/journalism-format",
         "npm:@google/genai",
         "npm:jsonrepair",
         "npm:ollama",
-        "npm:playwright-chromium"
+        "npm:playwright-chromium@^1.57.0"
       ]
     },
-    "@nshiab/journalism-dataviz@1.0.2": {
-      "integrity": "0fd4be701beb9893a90f09eddeb961c054eb4e6c29dcdf27829335dac4328468",
+    "@nshiab/journalism-dataviz@1.0.3": {
+      "integrity": "8aae6055c59a0743fa6bd5085705d7313ff464065ed922e606405e24b078316e",
       "dependencies": [
         "jsr:@nshiab/journalism-format",
         "npm:@observablehq/plot@~0.6.17",
         "npm:@types/d3-geo",
         "npm:d3-array",
         "npm:d3-geo",
-        "npm:playwright-chromium"
+        "npm:playwright-chromium@^1.58.2"
       ]
     },
     "@nshiab/journalism-format@1.0.3": {
@@ -53,8 +54,8 @@
         "npm:date-fns-tz"
       ]
     },
-    "@nshiab/journalism-google@1.0.2": {
-      "integrity": "ba94a1d0237f852689114a5862e24582c58f7368d06185da1239e5ffc8124046",
+    "@nshiab/journalism-google@1.0.3": {
+      "integrity": "dd10459f4ce8ee20598b7ef339e51ac3ad54f55a39ca1caa6e1e9329319e7e33",
       "dependencies": [
         "jsr:@nshiab/journalism-format",
         "npm:@google-cloud/storage",
@@ -63,8 +64,8 @@
         "npm:google-spreadsheet"
       ]
     },
-    "@std/assert@1.0.16": {
-      "integrity": "6a7272ed1eaa77defe76e5ff63ca705d9c495077e2d5fd0126d2b53fc5bd6532",
+    "@std/assert@1.0.18": {
+      "integrity": "270245e9c2c13b446286de475131dc688ca9abcd94fc5db41d43a219b34d1c78",
       "dependencies": [
         "jsr:@std/internal"
       ]
@@ -74,39 +75,39 @@
     }
   },
   "npm": {
-    "@duckdb/node-api@1.4.3-r.3": {
-      "integrity": "sha512-lPHpmYRMoFJkTCZmp76sETTNPly7lT3eJfV69vqsZE3wur+OY9VW/BflMQ41mP1vSucGqw4rY6XCSmMACE7bwQ==",
+    "@duckdb/node-api@1.4.4-r.1": {
+      "integrity": "sha512-oqaH9DXTJNwyLkd2FgJwmSnWVqjB5irbESeTeNVMBnM03iRaNY545BhfBDumu1TnOV2koIdG1mNsmjgq/ZTIkA==",
       "dependencies": [
         "@duckdb/node-bindings"
       ]
     },
-    "@duckdb/node-bindings-darwin-arm64@1.4.3-r.3": {
-      "integrity": "sha512-iyVZbanRsZKSoK1BHqC61+PExyFUjJ7Ftz+BVN6xsWvB3tfkBBwEcZ5K/cCkHuCqmT7IcUwwDoc89Naz7Tze/A==",
+    "@duckdb/node-bindings-darwin-arm64@1.4.4-r.1": {
+      "integrity": "sha512-/NtbkCgCAOJDxw41XvSGV/mxQAlsx+2xUvhIVUj6fxoOfTG4jTttRhuphwE3EXNoWzJOjZxCZ5LwhC/qb6ZwLg==",
       "os": ["darwin"],
       "cpu": ["arm64"]
     },
-    "@duckdb/node-bindings-darwin-x64@1.4.3-r.3": {
-      "integrity": "sha512-exWYLzYLlKqsTp92iBR8SEcaMJpOWbUjaTmNN48TYCjDzLXPW2r4G2xhbFA67KuxnBJcrGvwNOOFcBje2AhfHg==",
+    "@duckdb/node-bindings-darwin-x64@1.4.4-r.1": {
+      "integrity": "sha512-lzFRDrZwc1EoV513vmKufasiAQ2WlhEb0O6guRBarbvOKKVhRb8tQ5H7LPVTrIewjTI3XDgHrnK+vfh9L+xQcA==",
       "os": ["darwin"],
       "cpu": ["x64"]
     },
-    "@duckdb/node-bindings-linux-arm64@1.4.3-r.3": {
-      "integrity": "sha512-Jx3SS6Hy2l3TuHUZ9iJ/b2ZnajfFV7AB1TMEh2gE1mmytoVkqjiMvVRj7487u4pxEANj9ELYXspdspC4/wyOaA==",
+    "@duckdb/node-bindings-linux-arm64@1.4.4-r.1": {
+      "integrity": "sha512-wq92/EcTiOTRW1RSDOwjeLyMMXWwNVNwU21TQdfu3sgS86+Ih3raaK68leDgY5cWgf72We3J2W7HYz8GwxcMYw==",
       "os": ["linux"],
       "cpu": ["arm64"]
     },
-    "@duckdb/node-bindings-linux-x64@1.4.3-r.3": {
-      "integrity": "sha512-1ISlvsyQheiJlr8tdtVJ0cfCsjBB2leQZL82KJHFKx4Q5gj4yWRYi4tfaPup9zk5rY0xXSuVuhBxKPkTX1UZqg==",
+    "@duckdb/node-bindings-linux-x64@1.4.4-r.1": {
+      "integrity": "sha512-fjYNc+t4/T7mhzZ57oJoIQaWvbYVvxhidcNNansQFiWnd6/JMLCULd4qnt8XI3Tt2BrZsraH690KSBIS3QPt0w==",
       "os": ["linux"],
       "cpu": ["x64"]
     },
-    "@duckdb/node-bindings-win32-x64@1.4.3-r.3": {
-      "integrity": "sha512-DQBGxcIZ6yatHrcxIevejKsyj1cobu6BwXU17YuxCSA/BxdfEl7QnhBzwEpDJUDj6gUbLbBqsEvwY+K/NWAwEg==",
+    "@duckdb/node-bindings-win32-x64@1.4.4-r.1": {
+      "integrity": "sha512-+J+MUYGvYWfX0balWToDIy3CBYg7hHI0KQUQ39+SniinXlMF8+puRW6ebyQ+AXrcrKkwuj4wzJuEBD0AdhHGtw==",
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@duckdb/node-bindings@1.4.3-r.3": {
-      "integrity": "sha512-QrkUgZw4Xwn5lNbvUHXcF3F5OvVexf9uQyJnxrLTzs9P93Be0UB+b4hr1EZwf1OMMocchN9iG1R839aVIfSJBg==",
+    "@duckdb/node-bindings@1.4.4-r.1": {
+      "integrity": "sha512-NFm0AMrK3kiVLQhgnGUEjX5c8Elm93dYePZ9BUCvvd0AVVTKEBeRhBp9afziuzP3Sl5+7XQ1TyaBLsZJKKBDBQ==",
       "optionalDependencies": [
         "@duckdb/node-bindings-darwin-arm64",
         "@duckdb/node-bindings-darwin-x64",
@@ -128,8 +129,8 @@
     "@google-cloud/promisify@4.0.0": {
       "integrity": "sha512-Orxzlfb9c67A15cq2JQEyVc7wEsmFBmHjZWZYQMUyJ1qivXyMwdyNOs9odi79hze+2zqdTtu1E19IM/FtqZ10g=="
     },
-    "@google-cloud/storage@7.18.0": {
-      "integrity": "sha512-r3ZwDMiz4nwW6R922Z1pwpePxyRwE5GdevYX63hRmAQUkUQJcBH/79EnQPDv5cOv1mFBgevdNWQfi3tie3dHrQ==",
+    "@google-cloud/storage@7.19.0": {
+      "integrity": "sha512-n2FjE7NAOYyshogdc7KQOl/VZb4sneqPjWouSyia9CMDdMhRX5+RIbqalNmC7LOLzuLAN89VlF2HvG8na9G+zQ==",
       "dependencies": [
         "@google-cloud/paginator",
         "@google-cloud/projectify",
@@ -148,8 +149,8 @@
         "uuid@8.3.2"
       ]
     },
-    "@google/genai@1.37.0": {
-      "integrity": "sha512-of85LwNqretPhBHHEljUY05OSsQVUPyw5n1RdNkUpKR36kgHq7CVVEGY4GplVbFaqbdT3DXfLSv5B/Avbe5vXw==",
+    "@google/genai@1.39.0": {
+      "integrity": "sha512-Vz7AQsOdBeiIcxmXIQNy/hzDvyAOE1lSpWA10itUQza7h3aQFF6QSGaQ7o1GYsjMD3XslK4Ee/Ol0eLhRXb7gA==",
       "dependencies": [
         "google-auth-library@10.5.0",
         "protobufjs",
@@ -700,8 +701,8 @@
     "extend@3.0.2": {
       "integrity": "sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g=="
     },
-    "fast-xml-parser@4.5.3": {
-      "integrity": "sha512-RKihhV+SHsIUGXObeVy9AXiBbFwkVk7Syp8XgwN5U3JV416+Gwp/GO9i0JYKmikykgz/UHRrrV4ROuZEo/T0ig==",
+    "fast-xml-parser@5.3.5": {
+      "integrity": "sha512-JeaA2Vm9ffQKp9VjvfzObuMCjUYAp5WDYhRYL5LrBPY/jUDlUtOvDfot0vKSkB9tuX885BDHjtw4fZadD95wnA==",
       "dependencies": [
         "strnum"
       ],
@@ -814,6 +815,7 @@
         "package-json-from-dist",
         "path-scurry"
       ],
+      "deprecated": true,
       "bin": true
     },
     "google-auth-library@10.5.0": {
@@ -983,8 +985,8 @@
         "safe-buffer"
       ]
     },
-    "ky@1.14.2": {
-      "integrity": "sha512-q3RBbsO5A5zrPhB6CaCS8ZUv+NWCXv6JJT4Em0i264G9W0fdPB8YRfnnEi7Dm7X7omAkBIPojzYJ2D1oHTHqug=="
+    "ky@1.14.3": {
+      "integrity": "sha512-9zy9lkjac+TR1c2tG+mkNSVlyOpInnWdSMiue4F+kq8TwJSgv6o8jhLRg8Ho6SnZ9wOYUq/yozts9qQCfk7bIw=="
     },
     "lodash.camelcase@4.3.0": {
       "integrity": "sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA=="
@@ -1072,16 +1074,16 @@
         "minipass"
       ]
     },
-    "playwright-chromium@1.57.0": {
-      "integrity": "sha512-GCVVTbmIDrZuBxWYoQ70rehRXMb3Q7ccENe63a+rGTWwypeVAgh/DD5o5QQ898oer5pdIv3vGINUlEkHtOZQEw==",
+    "playwright-chromium@1.58.2": {
+      "integrity": "sha512-SCoQ3hjBs7FfO46CoOtgAUg77BuYwCni1bzQgm47IUyLBTipnGkLxLnaUNRKXvPYO4hAyt8++Z6wVShVnhrzmw==",
       "dependencies": [
         "playwright-core"
       ],
       "scripts": true,
       "bin": true
     },
-    "playwright-core@1.57.0": {
-      "integrity": "sha512-agTcKlMw/mjBWOnD6kFZttAAGHgi/Nw0CZ2o6JqWSbMlI219lAFLZZCyqByTsvVAJq5XA5H8cA6PrvBRpBWEuQ==",
+    "playwright-core@1.58.2": {
+      "integrity": "sha512-yZkEtftgwS8CsfYo7nm0KE8jsvm6i/PTgVtB8DL726wNf6H2IMsDuxCpJj59KDaxCtSnrWan2AeDqM7JBaultg==",
       "bin": true
     },
     "protobufjs@7.5.4": {
@@ -1195,8 +1197,8 @@
         "ansi-regex@6.2.2"
       ]
     },
-    "strnum@1.1.2": {
-      "integrity": "sha512-vrN+B7DBIoTTZjnPNewwhx6cBA/H+IS7rfW68n7XxC1y7uoiGQBxaKzqucGUgavX15dJgiGztLJ8vxuEzwqBdA=="
+    "strnum@2.1.2": {
+      "integrity": "sha512-l63NF9y/cLROq/yqKXSLtcMeeyOfnSQlfMSlzFt/K73oIaD8DGaQWd7Z34X9GPiKqP5rbSh84Hl4bOlLcjiSrQ=="
     },
     "stubs@3.0.0": {
       "integrity": "sha512-PdHt7hHUJKxvTCgbKX9C1V/ftOcjJQgz8BZwNfV5c4B6dcGqlpelTbJ999jBGZ2jYiPAwcX5dP6oBwVlBlUbxw=="
@@ -1301,12 +1303,12 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@nshiab/journalism-ai@^1.1.1",
-      "jsr:@nshiab/journalism-dataviz@^1.0.2",
+      "jsr:@nshiab/journalism-ai@^1.2.1",
+      "jsr:@nshiab/journalism-dataviz@^1.0.3",
       "jsr:@nshiab/journalism-format@^1.0.3",
-      "jsr:@nshiab/journalism-google@^1.0.2",
-      "jsr:@std/assert@1.0.16",
-      "npm:@duckdb/node-api@1.4.3-r.3",
+      "jsr:@nshiab/journalism-google@^1.0.3",
+      "jsr:@std/assert@1.0.18",
+      "npm:@duckdb/node-api@1.4.4-r.1",
       "npm:@observablehq/plot@0.6.17",
       "npm:apache-arrow@^21.1.0",
       "npm:d3-dsv@^3.0.1",
