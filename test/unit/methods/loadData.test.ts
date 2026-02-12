@@ -587,22 +587,21 @@ Deno.test("should load data from a json file with specific types for each column
   await sdb.done();
 });
 
-// Works but very slow
-// Deno.test("should load data from a xlsx url", async () => {
-//     const sdb = new SimpleDB();
-//     const table = sdb.newTable();
-//     await table.loadData([
-//         "https://github.com/nshiab/simple-data-analysis/raw/main/test/data/files/populations-one-sheet.xlsx",
-//     ]);
-//     const data = await table.getData();
+Deno.test("should load data from a xlsx url", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData([
+    "https://github.com/nshiab/simple-data-analysis/raw/main/test/data/files/populations-one-sheet.xlsx",
+  ]);
+  const data = await table.getData();
 
-//     assertEquals(data, [
-//         { Country: "Canada", "Population (million)": 38 },
-//         { Country: "US", "Population (million)": 332 },
-//         { Country: "France", "Population (million)": 68 },
-//     ]);
-//     await sdb.done();
-// });
+  assertEquals(data, [
+    { Country: "Canada", "Population (million)": 38 },
+    { Country: "US", "Population (million)": 332 },
+    { Country: "France", "Population (million)": 68 },
+  ]);
+  await sdb.done();
+});
 
 Deno.test("should load data from a xlsx file", async () => {
   const sdb = new SimpleDB();
@@ -629,6 +628,40 @@ Deno.test("should load data from a specific sheet in an xlsx file", async () => 
     { Provinces: "Quebec", "Population (million)": 8 },
     { Provinces: "Ontario", "Population (million)": 15 },
     { Provinces: "British Columbia", "Population (million)": 5 },
+  ]);
+  await sdb.done();
+});
+Deno.test("should load data from a specific sheet in an xlsx file and all as text", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/populations-two-sheets.xlsx", {
+    sheet: "provinces",
+    allText: true,
+  });
+  const data = await table.getData();
+
+  assertEquals(data, [
+    { Provinces: "Quebec", "Population (million)": "8.0" },
+    { Provinces: "Ontario", "Population (million)": "15.0" },
+    { Provinces: "British Columbia", "Population (million)": "5.0" },
+  ]);
+  await sdb.done();
+});
+Deno.test("should load data from a specific sheet in an xlsx file and all as text without a header", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/populations-two-sheets.xlsx", {
+    sheet: "provinces",
+    allText: true,
+    header: false,
+  });
+  const data = await table.getData();
+
+  assertEquals(data, [
+    { A1: "Provinces", B1: "Population (million)" },
+    { A1: "Quebec", B1: "8.0" },
+    { A1: "Ontario", B1: "15.0" },
+    { A1: "British Columbia", B1: "5.0" },
   ]);
   await sdb.done();
 });
