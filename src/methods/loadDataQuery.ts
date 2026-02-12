@@ -97,9 +97,18 @@ export default function loadDataQuery(
       );
     }
 
+    const header = typeof options.header === "boolean"
+      ? `, header=${String(options.header).toUpperCase()}`
+      : ", header=TRUE";
+    const allText = typeof options.allText === "boolean"
+      ? `, all_varchar=${String(options.allText).toUpperCase()}`
+      : "";
+
     return `CREATE OR REPLACE TABLE "${table}" AS SELECT * FROM read_xlsx('${
       files[0]
-    }'${options.sheet ? `, sheet='${options.sheet}'` : ""});`;
+    }'${
+      options.sheet ? `, sheet='${options.sheet}'` : ""
+    }${header}${allText});`;
   } else {
     throw new Error(
       `Unknown options.fileType ${options.fileType} or fileExtension ${fileExtension}`,
