@@ -10,7 +10,9 @@ if (
   typeof key === "string" &&
   key !== ""
 ) {
-  Deno.test("should write the data to a google sheet", async () => {
+  Deno.test("should write the data to a google sheet", {
+    sanitizeResources: false,
+  }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable();
     await table.loadArray([
