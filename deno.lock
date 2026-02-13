@@ -4,22 +4,20 @@
     "jsr:@nshiab/journalism-ai@^1.2.2": "1.2.2",
     "jsr:@nshiab/journalism-dataviz@^1.0.3": "1.0.3",
     "jsr:@nshiab/journalism-format@^1.0.3": "1.0.3",
-    "jsr:@nshiab/journalism-google@^1.0.3": "1.0.3",
+    "jsr:@nshiab/journalism-google@^1.0.4": "1.0.4",
     "jsr:@std/assert@1.0.18": "1.0.18",
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "npm:@duckdb/node-api@1.4.4-r.1": "1.4.4-r.1",
     "npm:@google-cloud/storage@^7.19.0": "7.19.0",
-    "npm:@google/genai@^1.37.0": "1.39.0",
+    "npm:@google/genai@^1.37.0": "1.41.0",
     "npm:@observablehq/plot@0.6.17": "0.6.17",
-    "npm:@observablehq/plot@~0.6.17": "0.6.17",
-    "npm:@types/d3-geo@3": "3.1.0",
     "npm:apache-arrow@^21.1.0": "21.1.0",
     "npm:d3-array@^3.2.4": "3.2.4",
     "npm:d3-dsv@^3.0.1": "3.0.1",
     "npm:d3-geo@^3.1.1": "3.1.1",
     "npm:date-fns-tz@^3.2.0": "3.2.0_date-fns@4.1.0",
     "npm:google-auth-library@^10.5.0": "10.5.0",
-    "npm:google-spreadsheet@^5.0.2": "5.0.2_google-auth-library@10.5.0",
+    "npm:google-spreadsheet@^5.1.0": "5.1.0_google-auth-library@10.5.0",
     "npm:jsonrepair@^3.13.2": "3.13.2",
     "npm:ollama@~0.6.3": "0.6.3",
     "npm:playwright-chromium@^1.57.0": "1.58.2",
@@ -40,8 +38,6 @@
       "integrity": "8aae6055c59a0743fa6bd5085705d7313ff464065ed922e606405e24b078316e",
       "dependencies": [
         "jsr:@nshiab/journalism-format",
-        "npm:@observablehq/plot@~0.6.17",
-        "npm:@types/d3-geo",
         "npm:d3-array",
         "npm:d3-geo",
         "npm:playwright-chromium@^1.58.2"
@@ -54,8 +50,8 @@
         "npm:date-fns-tz"
       ]
     },
-    "@nshiab/journalism-google@1.0.3": {
-      "integrity": "dd10459f4ce8ee20598b7ef339e51ac3ad54f55a39ca1caa6e1e9329319e7e33",
+    "@nshiab/journalism-google@1.0.4": {
+      "integrity": "9715efe9005af3561cc027aa15a02c050b6ab5880728be4739dbc5840e3f1abc",
       "dependencies": [
         "jsr:@nshiab/journalism-format",
         "npm:@google-cloud/storage",
@@ -149,10 +145,11 @@
         "uuid@8.3.2"
       ]
     },
-    "@google/genai@1.39.0": {
-      "integrity": "sha512-Vz7AQsOdBeiIcxmXIQNy/hzDvyAOE1lSpWA10itUQza7h3aQFF6QSGaQ7o1GYsjMD3XslK4Ee/Ol0eLhRXb7gA==",
+    "@google/genai@1.41.0": {
+      "integrity": "sha512-S4WGil+PG0NBQRAx+0yrQuM/TWOLn2gGEy5wn4IsoOI6ouHad0P61p3OWdhJ3aqr9kfj8o904i/jevfaGoGuIQ==",
       "dependencies": [
         "google-auth-library@10.5.0",
+        "p-retry",
         "protobufjs",
         "ws"
       ]
@@ -230,15 +227,6 @@
     },
     "@types/command-line-usage@5.0.4": {
       "integrity": "sha512-BwR5KP3Es/CSht0xqBcUXS3qCAUVXwpRKsV2+arxeb65atasuXG9LykC9Ab10Cw3s2raH92ZqOeILaQbsB2ACg=="
-    },
-    "@types/d3-geo@3.1.0": {
-      "integrity": "sha512-856sckF0oP/diXtS4jNsiQw/UuK5fQG8l/a9VVLeSouf1/PPbBE1i1W852zVwKwYCBkFJJB7nCFTbk6UMEXBOQ==",
-      "dependencies": [
-        "@types/geojson"
-      ]
-    },
-    "@types/geojson@7946.0.16": {
-      "integrity": "sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg=="
     },
     "@types/node@24.10.3": {
       "integrity": "sha512-gqkrWUsS8hcm0r44yn7/xZeV1ERva/nLgrLxFRUGb7aoNMIJfZJ3AC261zDQuOAKC7MiXai1WCpYc48jAHoShQ==",
@@ -847,8 +835,8 @@
     "google-logging-utils@1.1.3": {
       "integrity": "sha512-eAmLkjDjAFCVXg7A1unxHsLf961m6y17QFqXqAXGj/gVkKFrEICfStRfwUlGNfeCEjNRa32JEWOUTlYXPyyKvA=="
     },
-    "google-spreadsheet@5.0.2_google-auth-library@10.5.0": {
-      "integrity": "sha512-8ugGYGsy6BLl6d4z2zwllEv8hFB2IVcCNAUYT/seo4DU7Pk6m79qv+qRxE2cE8bxbf4S13T5fzrjcPhbk2ogsw==",
+    "google-spreadsheet@5.1.0_google-auth-library@10.5.0": {
+      "integrity": "sha512-RODtEsyKaMhhDP2d9uMkK1VTEn07EHl76B+OSLygc/TgewgK7oSImTbyfPhma+Q5a1ttBmM6Hd9jRAA3seCY5w==",
       "dependencies": [
         "es-toolkit",
         "google-auth-library@10.5.0",
@@ -938,6 +926,9 @@
     },
     "is-fullwidth-code-point@3.0.0": {
       "integrity": "sha512-zymm5+u+sCsSWyD9qNaejV3DFvhCKclKdizYaJUuHA83RLjb7nSuGnddCHGv0hk+KY7BMAlsWeK4Ueg6EV6XQg=="
+    },
+    "is-network-error@1.3.0": {
+      "integrity": "sha512-6oIwpsgRfnDiyEDLMay/GqCl3HoAtH5+RUKW29gYkL0QA+ipzpDLA16yQs7/RHCSu+BwgbJaOUqa4A99qNVQVw=="
     },
     "is-stream@2.0.1": {
       "integrity": "sha512-hFoiJiTl63nn+kstHGBtewWSKnQLpyb155KHheA1l39uvtO9nWIop1p3udqPcUd/xbF1VLMO4n7OI6p7RbngDg=="
@@ -1059,6 +1050,12 @@
       "integrity": "sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ==",
       "dependencies": [
         "yocto-queue"
+      ]
+    },
+    "p-retry@7.1.1": {
+      "integrity": "sha512-J5ApzjyRkkf601HpEeykoiCvzHQjWxPAHhyjFcEUP2SWq0+35NKh8TLhpLw+Dkq5TZBFvUM6UigdE9hIVYTl5w==",
+      "dependencies": [
+        "is-network-error"
       ]
     },
     "package-json-from-dist@1.0.1": {
@@ -1306,7 +1303,7 @@
       "jsr:@nshiab/journalism-ai@^1.2.2",
       "jsr:@nshiab/journalism-dataviz@^1.0.3",
       "jsr:@nshiab/journalism-format@^1.0.3",
-      "jsr:@nshiab/journalism-google@^1.0.3",
+      "jsr:@nshiab/journalism-google@^1.0.4",
       "jsr:@std/assert@1.0.18",
       "npm:@duckdb/node-api@1.4.4-r.1",
       "npm:@observablehq/plot@0.6.17",
