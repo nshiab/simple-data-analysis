@@ -1,6 +1,7 @@
 import { assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
+import * as z from "zod";
 
 // Testing just with Gemini
 
@@ -415,6 +416,216 @@ if (typeof aiKey === "string" && aiKey !== "") {
       );
     }
 
+    await sdb.done();
+  });
+  Deno.test("should use the default Zod JSON schema", async () => {
+    const sdb = new SimpleDB({ logDuration: true });
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { "city": "Marrakech" },
+      { "city": "Kyoto" },
+      { "city": "Auckland" },
+      { "city": "Paris" },
+      { "city": "London" },
+      { "city": "New York" },
+      { "city": "Los Angeles" },
+      { "city": "Tokyo" },
+      { "city": "Beijing" },
+      { "city": "Moscow" },
+      { "city": "Berlin" },
+    ]);
+
+    await table.aiRowByRowPool(
+      "city",
+      ["country", "population"],
+      "error",
+      `Give me the country and population of the city.`,
+      100,
+      {
+        batchSize: 2,
+        logProgress: true,
+      },
+    );
+    const data = await table.getData();
+
+    assertEquals(data.length, 11);
+    assertEquals(
+      data.map((d) => d.city).every((city) => typeof city === "string"),
+      true,
+    );
+    assertEquals(
+      data.map((d) => d.country).every((country) =>
+        typeof country === "string"
+      ),
+      true,
+    );
+    assertEquals(
+      data.map((d) => d.population).every((population) =>
+        typeof population === "string"
+      ),
+      true,
+    );
+    await sdb.done();
+  });
+  Deno.test("should accept a Zod JSON schema for structured output", async () => {
+    const sdb = new SimpleDB({ logDuration: true });
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { "city": "Marrakech" },
+      { "city": "Kyoto" },
+      { "city": "Auckland" },
+      { "city": "Paris" },
+      { "city": "London" },
+      { "city": "New York" },
+      { "city": "Los Angeles" },
+      { "city": "Tokyo" },
+      { "city": "Beijing" },
+      { "city": "Moscow" },
+      { "city": "Berlin" },
+    ]);
+    const schemaJson = z.toJSONSchema(z.array(z.object({
+      country: z.string(),
+      population: z.number(),
+    })));
+
+    await table.aiRowByRowPool(
+      "city",
+      ["country", "population"],
+      "error",
+      `Give me the country and population of the city.`,
+      100,
+      {
+        schemaJson,
+        batchSize: 2,
+        logProgress: true,
+        verbose: true,
+      },
+    );
+    const data = await table.getData();
+
+    assertEquals(data.length, 11);
+    assertEquals(
+      data.map((d) => d.city).every((city) => typeof city === "string"),
+      true,
+    );
+    assertEquals(
+      data.map((d) => d.country).every((country) =>
+        typeof country === "string"
+      ),
+      true,
+    );
+    assertEquals(
+      data.map((d) => d.population).every((population) =>
+        typeof population === "number"
+      ),
+      true,
+    );
+    await sdb.done();
+  });
+  Deno.test("should not ground using web search", async () => {
+    const sdb = new SimpleDB({ logDuration: true });
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { "name": "Nael Shiab, CBC News" },
+      { "name": "Elizabeth Haggarty, CBC News" },
+      { "name": "Graeme Bruce, CBC News" },
+    ]);
+
+    await table.aiRowByRowPool(
+      "name",
+      "bio",
+      "error",
+      `Who is this?`,
+      100,
+      {
+        verbose: true,
+        model: "gemini-3-flash-preview",
+      },
+    );
+
+    await table.logTable();
+
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  Deno.test("should ground using web search", async () => {
+    const sdb = new SimpleDB({ logDuration: true });
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { "name": "Nael Shiab, CBC News" },
+      { "name": "Elizabeth Haggarty, CBC News" },
+      { "name": "Graeme Bruce, CBC News" },
+    ]);
+
+    await table.aiRowByRowPool(
+      "name",
+      "bio",
+      "error",
+      `Who is this?`,
+      100,
+      {
+        verbose: true,
+        webSearch: true,
+        model: "gemini-3-flash-preview",
+      },
+    );
+
+    await table.logTable();
+
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  Deno.test("should think minimally by default", async () => {
+    const sdb = new SimpleDB({ logDuration: true });
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { "birthday": "2020-01-01" },
+      { "birthday": "1990-05-15" },
+      { "birthday": "1985-10-30" },
+    ]);
+
+    await table.aiRowByRowPool(
+      "birthday",
+      "age",
+      "error",
+      `How old is this person? We are Feb 16, 2025.`,
+      100,
+      {
+        verbose: true,
+        model: "gemini-3-flash-preview",
+      },
+    );
+
+    await table.logTable();
+
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  Deno.test("should use thinking level high", async () => {
+    const sdb = new SimpleDB({ logDuration: true });
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { "birthday": "2020-01-01" },
+      { "birthday": "1990-05-15" },
+      { "birthday": "1985-10-30" },
+    ]);
+
+    await table.aiRowByRowPool(
+      "birthday",
+      "age",
+      "error",
+      `How old is this person? We are Feb 16, 2025.`,
+      100,
+      {
+        verbose: true,
+        model: "gemini-3-flash-preview",
+        thinkingLevel: "high",
+      },
+    );
+
+    await table.logTable();
+
+    assertEquals(true, true);
     await sdb.done();
   });
 } else {
