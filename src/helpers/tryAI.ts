@@ -52,22 +52,16 @@ export default async function tryAI(
     for (const newColumn of newColumns) {
       objectSchema[newColumn] = string();
     }
-    schemaJson = batch.length === 1
-      ? toJSONSchema(object(objectSchema))
-      : toJSONSchema(array(
-        object(objectSchema),
-      ));
+    schemaJson = toJSONSchema(array(
+      object(objectSchema),
+    ));
   }
 
-  const systemPrompt = batch.length === 1
-    ? undefined
-    : `You will be provided with a JSON array of ${batch.length} string items. You must return a JSON array containing exactly ${batch.length} objects, in the same corresponding order.`;
+  const systemPrompt =
+    `You will be provided with a JSON array of ${batch.length} string items. You must return a JSON array containing exactly ${batch.length} objects, in the same corresponding order.`;
 
-  const fullPrompt = batch.length === 1
-    ? `${prompt}\n\nHere is the ${column} value:\n${
-      JSON.stringify(batch[0][column], null, 2)
-    }\n\n${options.extraInstructions ? `\n${options.extraInstructions}` : ""}`
-    : `${prompt}\n\nHere are the ${column} values as a JSON array:\n${
+  const fullPrompt =
+    `${prompt}\n\nHere are the ${column} values as a JSON array:\n${
       JSON.stringify(batch.map((d) => d[column]), null, 2)
     }\n\n${options.extraInstructions ? `\n${options.extraInstructions}` : ""}`;
 
@@ -89,63 +83,41 @@ export default async function tryAI(
           includeThoughts: options.verbose ? true : false,
           systemPrompt: systemPrompt,
           schemaJson,
-          test: batch.length === 1
-            ? (response: unknown) => {
-              if (typeof response !== "object" || response === null) {
+          test: (response: unknown) => {
+            if (!Array.isArray(response)) {
+              throw new Error(
+                `The AI returned a non-array value: ${
+                  JSON.stringify(response)
+                }`,
+              );
+            }
+            if (response.length !== batch.length) {
+              throw new Error(
+                `The AI returned ${response.length} values, but the batch size is ${batch.length}.`,
+              );
+            }
+            for (const item of response) {
+              if (typeof item !== "object" || item === null) {
                 throw new Error(
-                  `The AI did not return an object: ${
-                    JSON.stringify(response)
-                  }`,
+                  `The AI did not return an object: ${JSON.stringify(item)}`,
                 );
               }
               for (const newColumn of newColumns) {
-                if (!(newColumn in response)) {
+                if (!(newColumn in item)) {
                   throw new Error(
                     `The AI's response is missing the key '${newColumn}': ${
-                      JSON.stringify(response)
+                      JSON.stringify(item)
                     }`,
                   );
                 }
               }
-              if (options.test) {
-                options.test(response as { [key: string]: unknown });
+            }
+            if (options.test) {
+              for (const item of response) {
+                options.test(item as { [key: string]: unknown });
               }
             }
-            : (response: unknown) => {
-              if (!Array.isArray(response)) {
-                throw new Error(
-                  `The AI returned a non-array value: ${
-                    JSON.stringify(response)
-                  }`,
-                );
-              }
-              if (response.length !== batch.length) {
-                throw new Error(
-                  `The AI returned ${response.length} values, but the batch size is ${batch.length}.`,
-                );
-              }
-              for (const item of response) {
-                if (typeof item !== "object" || item === null) {
-                  throw new Error(
-                    `The AI did not return an object: ${JSON.stringify(item)}`,
-                  );
-                }
-                for (const newColumn of newColumns) {
-                  if (!(newColumn in item)) {
-                    throw new Error(
-                      `The AI's response is missing the key '${newColumn}': ${
-                        JSON.stringify(item)
-                      }`,
-                    );
-                  }
-                }
-              }
-              if (options.test) {
-                for (const item of response) {
-                  options.test(item as { [key: string]: unknown });
-                }
-              }
-            },
+          },
         },
       );
 
@@ -166,26 +138,18 @@ export default async function tryAI(
   }
 
   // Types could be improved
-  if (batch.length === 1) {
-    for (const newColumn of newColumns) {
-      rows[i][newColumn] = (newValues as {
+  for (
+    let j = 0;
+    j <
+      (newValues as {
         [key: string]: string | number | boolean | Date | null;
-      })[newColumn];
-    }
-  } else {
-    for (
-      let j = 0;
-      j <
-        (newValues as {
-          [key: string]: string | number | boolean | Date | null;
-        }[]).length;
-      j++
-    ) {
-      for (const newColumn of newColumns) {
-        rows[i + j][newColumn] = (newValues as {
-          [key: string]: string | number | boolean | Date | null;
-        }[])[j][newColumn];
-      }
+      }[]).length;
+    j++
+  ) {
+    for (const newColumn of newColumns) {
+      rows[i + j][newColumn] = (newValues as {
+        [key: string]: string | number | boolean | Date | null;
+      }[])[j][newColumn];
     }
   }
 }

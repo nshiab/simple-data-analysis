@@ -775,6 +775,8 @@ export default class SimpleTable extends Simple {
    * @param options.thinkingBudget - Sets the reasoning token budget: 0 to disable (default, though some models may reason regardless), -1 for a dynamic budget, or > 0 for a fixed budget. For Ollama models, any non-zero value simply enables reasoning, ignoring the specific budget amount.
    * @param options.thinkingLevel - Sets the thinking level for reasoning: "minimal", "low", "medium", or "high", which some models expect instead of `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided. For Ollama models, any value enables reasoning.
    * @param options.webSearch - (Gemini only) If `true`, enables web search grounding for the AI's responses. Be careful of extra costs. Defaults to `false`.
+   * @param options.schemaJson - A Zod JSON schema object for structured output. This overrides the default schema based on the 'newColumn' names.
+   * @param options.model - The AI model to use. Defaults to the `AI_MODEL` environment variable.
    * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
    * @returns A promise that resolves when the AI processing is complete.
    * @category AI
@@ -877,6 +879,8 @@ export default class SimpleTable extends Simple {
       thinkingBudget?: number;
       thinkingLevel?: "minimal" | "low" | "medium" | "high";
       webSearch?: boolean;
+      schemaJson?: unknown;
+      model?: string;
       metrics?: {
         totalCost: number;
         totalInputTokens: number;

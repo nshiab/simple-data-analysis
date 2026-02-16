@@ -55,40 +55,26 @@ export default async function aiRowByRow(
     let requestsNb = 1;
     for (let i = 0; i < rows.length; i += batchSize) {
       if (options.verbose) {
-        if (batchSize === 1) {
-          console.log(
-            `\nProcessing row ${i + 1} of ${rows.length}... (${
-              formatNumber(
-                (i + 1) / rows.length * 100,
-                {
-                  significantDigits: 3,
-                  suffix: "%",
-                },
-              )
-            })`,
-          );
-        } else {
-          console.log(
-            `\nRequest ${requestsNb} - Processing rows ${i + 1} to ${
-              Math.min(
+        console.log(
+          `\nRequest ${requestsNb} - Processing rows ${i + 1} to ${
+            Math.min(
+              i + batchSize,
+              rows.length,
+            )
+          }... (${
+            formatNumber(
+              (Math.min(
                 i + batchSize,
                 rows.length,
-              )
-            }... (${
-              formatNumber(
-                (Math.min(
-                  i + batchSize,
-                  rows.length,
-                )) / rows.length * 100,
-                {
-                  significantDigits: 3,
-                  suffix: "%",
-                },
-              )
-            })`,
-          );
-          requestsNb++;
-        }
+              )) / rows.length * 100,
+              {
+                significantDigits: 3,
+                suffix: "%",
+              },
+            )
+          })`,
+        );
+        requestsNb++;
       }
 
       if (requests.length < concurrent) {

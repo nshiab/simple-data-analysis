@@ -1,7 +1,7 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@nshiab/journalism-ai@^1.2.7": "1.2.7",
+    "jsr:@nshiab/journalism-ai@^1.2.9": "1.2.9",
     "jsr:@nshiab/journalism-dataviz@^1.0.3": "1.0.3",
     "jsr:@nshiab/journalism-format@^1.0.3": "1.0.3",
     "jsr:@nshiab/journalism-google@^1.0.4": "1.0.4",
@@ -27,8 +27,8 @@
     "npm:zod@^4.3.6": "4.3.6"
   },
   "jsr": {
-    "@nshiab/journalism-ai@1.2.7": {
-      "integrity": "550f44d92dfa1b7b645c8bf2ed8d831c601ecdaf3ec7a0fbf7202c630ef02e0b",
+    "@nshiab/journalism-ai@1.2.9": {
+      "integrity": "7cca1d716d7b4c9662c6c8eca901cbb7cfe86c0a9bf5190395567507bfe6d7e7",
       "dependencies": [
         "jsr:@nshiab/journalism-format",
         "npm:@google/genai",
@@ -1317,7 +1317,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@nshiab/journalism-ai@^1.2.7",
+      "jsr:@nshiab/journalism-ai@^1.2.9",
       "jsr:@nshiab/journalism-dataviz@^1.0.3",
       "jsr:@nshiab/journalism-format@^1.0.3",
       "jsr:@nshiab/journalism-google@^1.0.4",

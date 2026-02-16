@@ -1,6 +1,7 @@
 import type SimpleTable from "../class/SimpleTable.ts";
 import { askAIPool } from "@nshiab/journalism-ai";
 import type { askAIRequest } from "@nshiab/journalism-ai";
+import { array, object, string, toJSONSchema } from "zod";
 
 export default async function aiRowByRowPool(
   table: SimpleTable,
@@ -24,6 +25,10 @@ export default async function aiRowByRowPool(
     ) => unknown;
     contextWindow?: number;
     thinkingBudget?: number;
+    thinkingLevel?: "minimal" | "low" | "medium" | "high";
+    webSearch?: boolean;
+    schemaJson?: unknown;
+    model?: string;
     metrics?: {
       totalCost: number;
       totalInputTokens: number;
@@ -35,6 +40,10 @@ export default async function aiRowByRowPool(
   const newColumns = Array.isArray(newColumn) ? newColumn : [newColumn];
 
   await table.updateWithJS(async (rows) => {
+    if (options.verbose) {
+      console.log("\naiRowByRowPool()");
+    }
+
     const batches: { [key: string]: unknown }[][] = [];
     for (let i = 0; i < rows.length; i += options.batchSize ?? 1) {
       batches.push(
@@ -43,89 +52,79 @@ export default async function aiRowByRowPool(
     }
 
     const requests: askAIRequest[] = batches.map((batch) => {
-      const batchPrompt = batch.length === 1
-        ? `${prompt}\nHere is the ${column} value:\n${
-          JSON.stringify(batch[0][column])
-        }\nYou must return an object with the keys ${
-          newColumns.map((d) => `'${d}'`).join(", ")
-        }. Nothing else.${
-          options.extraInstructions ? `\n${options.extraInstructions}` : ""
-        }`
-        : `${prompt}\nHere are the ${column} values as a JSON array:\n${
+      let schemaJson;
+      if (options.schemaJson) {
+        schemaJson = options.schemaJson;
+      } else {
+        const objectSchema: { [key: string]: unknown } = {};
+        for (const newColumn of newColumns) {
+          objectSchema[newColumn] = string();
+        }
+        schemaJson = toJSONSchema(array(
+          object(objectSchema),
+        ));
+      }
+
+      const systemPrompt =
+        `You will be provided with a JSON array of ${batch.length} string items. You must return a JSON array containing exactly ${batch.length} objects, in the same corresponding order.`;
+
+      const batchPrompt =
+        `${prompt}\n\nHere are the ${column} values as a JSON array:\n${
           JSON.stringify(batch.map((d) => d[column]), null, 2)
-        }\nReturn your results as an array of objects, each one with the keys ${
-          newColumns.map((d) => `'${d}'`).join(", ")
-        }. Do not return anything else. It's critical you return the same number of items, which is ${batch.length}, matching the JSON array values given above, exactly in the same order.${
+        }\n\n${
           options.extraInstructions ? `\n${options.extraInstructions}` : ""
         }`;
 
       return {
         prompt: batchPrompt,
         options: {
+          systemPrompt: systemPrompt,
           cache: options.cache,
-          returnJson: true,
+          schemaJson,
+          webSearch: options.webSearch,
           clean: options.clean,
+          model: options.model,
           contextWindow: options.contextWindow,
           thinkingBudget: options.thinkingBudget,
+          thinkingLevel: options.thinkingLevel,
           metrics: options.metrics,
           verbose: options.verbose,
-          test: batch.length === 1
-            ? (response: unknown) => {
-              if (typeof response !== "object" || response === null) {
+          includeThoughts: options.verbose,
+          test: (response: unknown) => {
+            if (!Array.isArray(response)) {
+              throw new Error(
+                `The AI returned a non-array value: ${
+                  JSON.stringify(response)
+                }`,
+              );
+            }
+            if (response.length !== batch.length) {
+              throw new Error(
+                `The AI returned ${response.length} values, but the batch size is ${batch.length}.`,
+              );
+            }
+            for (const item of response) {
+              if (typeof item !== "object" || item === null) {
                 throw new Error(
-                  `The AI did not return an object: ${
-                    JSON.stringify(response)
-                  }`,
+                  `The AI did not return an object: ${JSON.stringify(item)}`,
                 );
               }
               for (const newColumn of newColumns) {
-                if (!(newColumn in response)) {
+                if (!(newColumn in item)) {
                   throw new Error(
                     `The AI's response is missing the key '${newColumn}': ${
-                      JSON.stringify(response)
+                      JSON.stringify(item)
                     }`,
                   );
                 }
               }
-              if (options.test) {
-                options.test(response as { [key: string]: unknown });
+            }
+            if (options.test) {
+              for (const item of response) {
+                options.test(item as { [key: string]: unknown });
               }
             }
-            : (response: unknown) => {
-              if (!Array.isArray(response)) {
-                throw new Error(
-                  `The AI returned a non-array value: ${
-                    JSON.stringify(response)
-                  }`,
-                );
-              }
-              if (response.length !== batch.length) {
-                throw new Error(
-                  `The AI returned ${response.length} values, but the batch size is ${batch.length}.`,
-                );
-              }
-              for (const item of response) {
-                if (typeof item !== "object" || item === null) {
-                  throw new Error(
-                    `The AI did not return an object: ${JSON.stringify(item)}`,
-                  );
-                }
-                for (const newColumn of newColumns) {
-                  if (!(newColumn in item)) {
-                    throw new Error(
-                      `The AI's response is missing the key '${newColumn}': ${
-                        JSON.stringify(item)
-                      }`,
-                    );
-                  }
-                }
-              }
-              if (options.test) {
-                for (const item of response) {
-                  options.test(item as { [key: string]: unknown });
-                }
-              }
-            },
+          },
         },
       };
     });
