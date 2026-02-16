@@ -859,7 +859,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRowByRow(column: string, newColumn: string | string[], prompt: string, options?: { batchSize?: number; concurrent?: number; cache?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => unknown; contextWindow?: number; thinkingBudget?: number; extraInstructions?: string; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
+async aiRowByRow(column: string, newColumn: string | string[], prompt: string, options?: { batchSize?: number; concurrent?: number; cache?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => unknown; contextWindow?: number; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; extraInstructions?: string; schemaJson?: unknown; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
 ```
 
 ##### Parameters
@@ -908,6 +908,15 @@ async aiRowByRow(column: string, newColumn: string | string[], prompt: string, o
   (default, though some models may reason regardless), -1 for a dynamic budget,
   or > 0 for a fixed budget. For Ollama models, any non-zero value simply
   enables reasoning, ignoring the specific budget amount.
+- **`options.thinkingLevel`**: - Sets the thinking level for reasoning:
+  "minimal", "low", "medium", or "high", which some models expect instead of
+  `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided.
+  For Ollama models, any value enables reasoning.
+- **`options.webSearch`**: - (Gemini only) If `true`, enables web search
+  grounding for the AI's responses. Be careful of extra costs. Defaults to
+  `false`.
+- **`options.schemaJson`**: - A Zod JSON schema object for structured output.
+  This overrides the default schema based on the 'newColumn' names.
 - **`options.extraInstructions`**: - Additional instructions to append to the
   prompt, providing more context or guidance for the AI.
 - **`options.metrics`**: - An object to track cumulative metrics across multiple
@@ -1028,7 +1037,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRowByRowPool(column: string, newColumn: string | string[], errorColumn: string, prompt: string, poolSize: number, options?: { cache?: boolean; batchSize?: number; logProgress?: boolean; verbose?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; retryCheck?: (error: unknown) => Promise<boolean> | boolean; extraInstructions?: string; minRequestDurationMs?: number; clean?: (response: unknown) => unknown; contextWindow?: number; thinkingBudget?: number; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
+async aiRowByRowPool(column: string, newColumn: string | string[], errorColumn: string, prompt: string, poolSize: number, options?: { cache?: boolean; batchSize?: number; logProgress?: boolean; verbose?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; retryCheck?: (error: unknown) => Promise<boolean> | boolean; extraInstructions?: string; minRequestDurationMs?: number; clean?: (response: unknown) => unknown; contextWindow?: number; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; schemaJson?: unknown; model?: string; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
 ```
 
 ##### Parameters
@@ -1073,6 +1082,17 @@ async aiRowByRowPool(column: string, newColumn: string | string[], errorColumn: 
   (default, though some models may reason regardless), -1 for a dynamic budget,
   or > 0 for a fixed budget. For Ollama models, any non-zero value simply
   enables reasoning, ignoring the specific budget amount.
+- **`options.thinkingLevel`**: - Sets the thinking level for reasoning:
+  "minimal", "low", "medium", or "high", which some models expect instead of
+  `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided.
+  For Ollama models, any value enables reasoning.
+- **`options.webSearch`**: - (Gemini only) If `true`, enables web search
+  grounding for the AI's responses. Be careful of extra costs. Defaults to
+  `false`.
+- **`options.schemaJson`**: - A Zod JSON schema object for structured output.
+  This overrides the default schema based on the 'newColumn' names.
+- **`options.model`**: - The AI model to use. Defaults to the `AI_MODEL`
+  environment variable.
 - **`options.metrics`**: - An object to track cumulative metrics across multiple
   AI requests. Pass an object with totalCost, totalInputTokens,
   totalOutputTokens, and totalRequests properties (all initialized to 0). The
