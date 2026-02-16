@@ -1,7 +1,7 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@nshiab/journalism-ai@^1.2.9": "1.2.9",
+    "jsr:@nshiab/journalism-ai@^1.2.10": "1.2.10",
     "jsr:@nshiab/journalism-dataviz@^1.0.3": "1.0.3",
     "jsr:@nshiab/journalism-format@^1.0.3": "1.0.3",
     "jsr:@nshiab/journalism-google@^1.0.4": "1.0.4",
@@ -9,7 +9,7 @@
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "npm:@duckdb/node-api@1.4.4-r.1": "1.4.4-r.1",
     "npm:@google-cloud/storage@^7.19.0": "7.19.0",
-    "npm:@google/genai@^1.37.0": "1.41.0",
+    "npm:@google/genai@^1.41.0": "1.41.0",
     "npm:@observablehq/plot@0.6.17": "0.6.17",
     "npm:@observablehq/plot@~0.6.17": "0.6.17",
     "npm:@types/d3-geo@3": "3.1.0",
@@ -22,19 +22,18 @@
     "npm:google-spreadsheet@^5.1.0": "5.1.0_google-auth-library@10.5.0",
     "npm:jsonrepair@^3.13.2": "3.13.2",
     "npm:ollama@~0.6.3": "0.6.3",
-    "npm:playwright-chromium@^1.57.0": "1.58.2",
     "npm:playwright-chromium@^1.58.2": "1.58.2",
     "npm:zod@^4.3.6": "4.3.6"
   },
   "jsr": {
-    "@nshiab/journalism-ai@1.2.9": {
-      "integrity": "7cca1d716d7b4c9662c6c8eca901cbb7cfe86c0a9bf5190395567507bfe6d7e7",
+    "@nshiab/journalism-ai@1.2.10": {
+      "integrity": "fb04b87d0b4569d66c3b837f87200a928300c2f390b1650cfb8f4a977e90a3fe",
       "dependencies": [
         "jsr:@nshiab/journalism-format",
         "npm:@google/genai",
         "npm:jsonrepair",
         "npm:ollama",
-        "npm:playwright-chromium@^1.57.0"
+        "npm:playwright-chromium"
       ]
     },
     "@nshiab/journalism-dataviz@1.0.3": {
@@ -45,7 +44,7 @@
         "npm:@types/d3-geo",
         "npm:d3-array",
         "npm:d3-geo",
-        "npm:playwright-chromium@^1.58.2"
+        "npm:playwright-chromium"
       ]
     },
     "@nshiab/journalism-format@1.0.3": {
@@ -1317,7 +1316,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@nshiab/journalism-ai@^1.2.9",
+      "jsr:@nshiab/journalism-ai@^1.2.10",
       "jsr:@nshiab/journalism-dataviz@^1.0.3",
       "jsr:@nshiab/journalism-format@^1.0.3",
       "jsr:@nshiab/journalism-google@^1.0.4",
