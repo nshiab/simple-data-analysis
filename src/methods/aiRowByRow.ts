@@ -29,7 +29,10 @@ export default async function aiRowByRow(
     ) => unknown;
     contextWindow?: number;
     thinkingBudget?: number;
+    thinkingLevel?: "minimal" | "low" | "medium" | "high";
+    webSearch?: boolean;
     extraInstructions?: string;
+    schemaJson?: unknown;
     metrics?: {
       totalCost: number;
       totalInputTokens: number;

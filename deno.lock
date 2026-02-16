@@ -1,7 +1,7 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@nshiab/journalism-ai@^1.2.2": "1.2.2",
+    "jsr:@nshiab/journalism-ai@^1.2.7": "1.2.7",
     "jsr:@nshiab/journalism-dataviz@^1.0.3": "1.0.3",
     "jsr:@nshiab/journalism-format@^1.0.3": "1.0.3",
     "jsr:@nshiab/journalism-google@^1.0.4": "1.0.4",
@@ -23,11 +23,12 @@
     "npm:jsonrepair@^3.13.2": "3.13.2",
     "npm:ollama@~0.6.3": "0.6.3",
     "npm:playwright-chromium@^1.57.0": "1.58.2",
-    "npm:playwright-chromium@^1.58.2": "1.58.2"
+    "npm:playwright-chromium@^1.58.2": "1.58.2",
+    "npm:zod@^4.3.6": "4.3.6"
   },
   "jsr": {
-    "@nshiab/journalism-ai@1.2.2": {
-      "integrity": "540589954346fd87354de1118fb49dcbd86bc955fc81cb3afdf0e3d7c328efb7",
+    "@nshiab/journalism-ai@1.2.7": {
+      "integrity": "550f44d92dfa1b7b645c8bf2ed8d831c601ecdaf3ec7a0fbf7202c630ef02e0b",
       "dependencies": [
         "jsr:@nshiab/journalism-format",
         "npm:@google/genai",
@@ -1309,11 +1310,14 @@
     },
     "yocto-queue@0.1.0": {
       "integrity": "sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q=="
+    },
+    "zod@4.3.6": {
+      "integrity": "sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg=="
     }
   },
   "workspace": {
     "dependencies": [
-      "jsr:@nshiab/journalism-ai@^1.2.2",
+      "jsr:@nshiab/journalism-ai@^1.2.7",
       "jsr:@nshiab/journalism-dataviz@^1.0.3",
       "jsr:@nshiab/journalism-format@^1.0.3",
       "jsr:@nshiab/journalism-google@^1.0.4",
@@ -1322,7 +1326,8 @@
       "npm:@observablehq/plot@0.6.17",
       "npm:apache-arrow@^21.1.0",
       "npm:d3-dsv@^3.0.1",
-      "npm:ollama@~0.6.3"
+      "npm:ollama@~0.6.3",
+      "npm:zod@^4.3.6"
     ]
   }
 }

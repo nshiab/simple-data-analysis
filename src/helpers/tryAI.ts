@@ -1,5 +1,6 @@
 import { askAI } from "@nshiab/journalism-ai";
 import type { Ollama } from "ollama";
+import { array, object, string, toJSONSchema } from "zod";
 
 export default async function tryAI(
   i: number,
@@ -29,7 +30,10 @@ export default async function tryAI(
     ) => unknown;
     contextWindow?: number;
     thinkingBudget?: number;
+    thinkingLevel?: "minimal" | "low" | "medium" | "high";
+    webSearch?: boolean;
     extraInstructions?: string;
+    schemaJson?: unknown;
     metrics?: {
       totalCost: number;
       totalInputTokens: number;
@@ -39,21 +43,33 @@ export default async function tryAI(
   } = {},
 ) {
   const batch = rows.slice(i, i + batchSize);
+
+  let schemaJson;
+  if (options.schemaJson) {
+    schemaJson = options.schemaJson;
+  } else {
+    const objectSchema: { [key: string]: unknown } = {};
+    for (const newColumn of newColumns) {
+      objectSchema[newColumn] = string();
+    }
+    schemaJson = batch.length === 1
+      ? toJSONSchema(object(objectSchema))
+      : toJSONSchema(array(
+        object(objectSchema),
+      ));
+  }
+
+  const systemPrompt = batch.length === 1
+    ? undefined
+    : `You will be provided with a JSON array of ${batch.length} string items. You must return a JSON array containing exactly ${batch.length} objects, in the same corresponding order.`;
+
   const fullPrompt = batch.length === 1
-    ? `${prompt}\nHere is the ${column} value:\n${
-      JSON.stringify(batch[0][column])
-    }\nYou must return an object with the keys ${
-      newColumns.map((d) => `'${d}'`).join(", ")
-    }. Nothing else.${
-      options.extraInstructions ? `\n${options.extraInstructions}` : ""
-    }`
-    : `${prompt}\nHere are the ${column} values as a JSON array:\n${
+    ? `${prompt}\n\nHere is the ${column} value:\n${
+      JSON.stringify(batch[0][column], null, 2)
+    }\n\n${options.extraInstructions ? `\n${options.extraInstructions}` : ""}`
+    : `${prompt}\n\nHere are the ${column} values as a JSON array:\n${
       JSON.stringify(batch.map((d) => d[column]), null, 2)
-    }\nReturn your results as an array of objects, each one with the keys ${
-      newColumns.map((d) => `'${d}'`).join(", ")
-    }. Do not return anything else. It's critical you return the same number of items, which is ${batch.length}, matching the JSON array values given above, exactly in the same order.${
-      options.extraInstructions ? `\n${options.extraInstructions}` : ""
-    }`;
+    }\n\n${options.extraInstructions ? `\n${options.extraInstructions}` : ""}`;
 
   const retry = options.retry ?? 1;
 
@@ -70,7 +86,8 @@ export default async function tryAI(
         }`,
         {
           ...options,
-          returnJson: true,
+          systemPrompt: systemPrompt,
+          schemaJson,
           test: batch.length === 1
             ? (response: unknown) => {
               if (typeof response !== "object" || response === null) {
