@@ -609,6 +609,104 @@ if (typeof aiKey === "string" && aiKey !== "") {
     );
     await sdb.done();
   });
+  Deno.test("should not ground using web search", async () => {
+    const sdb = new SimpleDB({ logDuration: true });
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { "name": "Nael Shiab, CBC News" },
+      { "name": "Elizabeth Haggarty, CBC News" },
+      { "name": "Graeme Bruce, CBC News" },
+    ]);
+
+    await table.aiRowByRow(
+      "name",
+      "bio",
+      `Who is this?`,
+      {
+        verbose: true,
+        model: "gemini-3-flash-preview",
+      },
+    );
+
+    await table.logTable();
+
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  Deno.test("should ground using web search", async () => {
+    const sdb = new SimpleDB({ logDuration: true });
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { "name": "Nael Shiab, CBC News" },
+      { "name": "Elizabeth Haggarty, CBC News" },
+      { "name": "Graeme Bruce, CBC News" },
+    ]);
+
+    await table.aiRowByRow(
+      "name",
+      "bio",
+      `Who is this?`,
+      {
+        verbose: true,
+        webSearch: true,
+        model: "gemini-3-flash-preview",
+      },
+    );
+
+    await table.logTable();
+
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  Deno.test("should think minimally by default", async () => {
+    const sdb = new SimpleDB({ logDuration: true });
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { "birthday": "2020-01-01" },
+      { "birthday": "1990-05-15" },
+      { "birthday": "1985-10-30" },
+    ]);
+
+    await table.aiRowByRow(
+      "birthday",
+      "age",
+      `How old is this person? We are Feb 16, 2025.`,
+      {
+        verbose: true,
+        model: "gemini-3-flash-preview",
+      },
+    );
+
+    await table.logTable();
+
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  Deno.test("should use thinking level high", async () => {
+    const sdb = new SimpleDB({ logDuration: true });
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { "birthday": "2020-01-01" },
+      { "birthday": "1990-05-15" },
+      { "birthday": "1985-10-30" },
+    ]);
+
+    await table.aiRowByRow(
+      "birthday",
+      "age",
+      `How old is this person? We are Feb 16, 2025.`,
+      {
+        verbose: true,
+        model: "gemini-3-flash-preview",
+        thinkingLevel: "high",
+      },
+    );
+
+    await table.logTable();
+
+    assertEquals(true, true);
+    await sdb.done();
+  });
 } else {
   console.log("No AI_PROJECT in process.env");
 }

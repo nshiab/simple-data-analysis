@@ -86,6 +86,7 @@ export default async function tryAI(
         }`,
         {
           ...options,
+          includeThoughts: options.verbose ? true : false,
           systemPrompt: systemPrompt,
           schemaJson,
           test: batch.length === 1
