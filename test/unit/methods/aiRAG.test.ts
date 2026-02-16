@@ -1,0 +1,193 @@
+import { assertEquals } from "@std/assert";
+import SimpleDB from "../../../src/class/SimpleDB.ts";
+import { existsSync, rmSync } from "node:fs";
+
+const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
+if (typeof aiKey === "string" && aiKey !== "") {
+  if (existsSync("./.journalism-cache")) {
+    rmSync("./.journalism-cache", { recursive: true });
+  }
+  if (existsSync("./.sda-cache")) {
+    rmSync("./.sda-cache", { recursive: true });
+  }
+
+  Deno.test(
+    "should answer a question using RAG",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeMissing({ columns: "Recipe" });
+
+      const answer = await table.aiRAG(
+        "I want a buttery pastry for breakfast.",
+        "Recipe",
+        5,
+        {
+          cache: true,
+          ollamaEmbeddingsModel: true,
+          model: "gemini-3-flash-preview",
+          // verbose: true,
+        },
+      );
+
+      console.log(answer);
+
+      // Just to make sure it doesn't crash for now
+      assertEquals(true, true);
+      await sdb.done();
+    },
+  );
+  Deno.test("should answer a question using RAG with a cached table", {
+    sanitizeResources: false,
+  }, async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadData("test/data/files/recipes.parquet");
+    await table.removeMissing({ columns: "Recipe" });
+
+    const answer = await table.aiRAG(
+      "I am vegan. What can I eat for lunch that is spicy?",
+      "Recipe",
+      5,
+      {
+        cache: true,
+        ollamaEmbeddingsModel: true,
+        model: "gemini-3-flash-preview",
+        // verbose: true,
+      },
+    );
+
+    console.log(answer);
+
+    // Just to make sure it doesn't crash for now
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  Deno.test(
+    "should answer a question using RAG with a cached table and minimal thinking",
+    {
+      sanitizeResources: false,
+    },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeMissing({ columns: "Recipe" });
+
+      const answer = await table.aiRAG(
+        "I am looking for round dish, but I don't remember the name.",
+        "Recipe",
+        5,
+        {
+          cache: true,
+          thinkingLevel: "minimal",
+          ollamaEmbeddingsModel: true,
+          model: "gemini-3-flash-preview",
+          // verbose: true,
+        },
+      );
+
+      console.log(answer);
+
+      // Just to make sure it doesn't crash for now
+      assertEquals(true, true);
+      await sdb.done();
+    },
+  );
+} else {
+  console.log("No OLLAMA in process.env");
+}
+
+// const ollama = Deno.env.get("OLLAMA");
+// if (typeof ollama === "string" && ollama !== "") {
+//   if (existsSync("./.journalism-cache")) {
+//     rmSync("./.journalism-cache", { recursive: true });
+//   }
+//   if (existsSync("./.sda-cache")) {
+//     rmSync("./.sda-cache", { recursive: true });
+//   }
+
+//   Deno.test(
+//     "should answer a question using RAG",
+//     { sanitizeResources: false },
+//     async () => {
+//       const sdb = new SimpleDB();
+//       const table = sdb.newTable("data");
+//       await table.loadData("test/data/files/recipes.parquet");
+//       await table.removeMissing({ columns: "Recipe" });
+
+//       const answer = await table.aiRAG(
+//         "I want a buttery pastry for breakfast.",
+//         "Recipe",
+//         5,
+//         {
+//           cache: true,
+//           // verbose: true,
+//         },
+//       );
+
+//       console.log(answer);
+
+//       // Just to make sure it doesn't crash for now
+//       assertEquals(true, true);
+//       await sdb.done();
+//     },
+//   );
+//   Deno.test("should answer a question using RAG with a cached table", {
+//     sanitizeResources: false,
+//   }, async () => {
+//     const sdb = new SimpleDB();
+//     const table = sdb.newTable("data");
+//     await table.loadData("test/data/files/recipes.parquet");
+//     await table.removeMissing({ columns: "Recipe" });
+
+//     const answer = await table.aiRAG(
+//       "I am vegan. What can I eat for lunch that is spicy?",
+//       "Recipe",
+//       5,
+//       {
+//         cache: true,
+//         // verbose: true,
+//       },
+//     );
+
+//     console.log(answer);
+
+//     // Just to make sure it doesn't crash for now
+//     assertEquals(true, true);
+//     await sdb.done();
+//   });
+//   Deno.test(
+//     "should answer a question using RAG with a cached table and minimal thinking",
+//     {
+//       sanitizeResources: false,
+//     },
+//     async () => {
+//       const sdb = new SimpleDB();
+//       const table = sdb.newTable("data");
+//       await table.loadData("test/data/files/recipes.parquet");
+//       await table.removeMissing({ columns: "Recipe" });
+
+//       const answer = await table.aiRAG(
+//         "I am looking for round dish, but I don't remember the name.",
+//         "Recipe",
+//         5,
+//         {
+//           cache: true,
+//           thinkingLevel: "minimal",
+//           // verbose: true,
+//         },
+//       );
+
+//       console.log(answer);
+
+//       // Just to make sure it doesn't crash for now
+//       assertEquals(true, true);
+//       await sdb.done();
+//     },
+//   );
+// } else {
+//   console.log("No OLLAMA in process.env");
+// }

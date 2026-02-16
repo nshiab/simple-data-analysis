@@ -104,6 +104,7 @@ import unnestQuery from "../helpers/unnestQuery.ts";
 import nestQuery from "../helpers/nestQuery.ts";
 import concatenateRowQuery from "../helpers/concatenateRowQuery.ts";
 import aiRowByRowPool from "../methods/aiRowByRowPool.ts";
+import { aiRAG } from "../methods/aiRAG.ts";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
@@ -1051,6 +1052,26 @@ export default class SimpleTable extends Simple {
     } = {},
   ): Promise<SimpleTable> {
     return await aiVectorSimilarity(this, text, column, nbResults, options);
+  }
+
+  // Cached table. Change the name of table to invalidate the cache.
+  async aiRAG(
+    query: string,
+    column: string,
+    nbResults: number,
+    options: {
+      cache?: boolean;
+      verbose?: boolean;
+      contextWindow?: number;
+      thinkingBudget?: number;
+      thinkingLevel?: "minimal" | "low" | "medium" | "high";
+      webSearch?: boolean;
+      model?: string;
+      embedddingsModel?: string;
+      ollamaEmbeddingsModel?: boolean;
+    } = {},
+  ) {
+    return await aiRAG(this, query, column, nbResults, options);
   }
 
   /**
