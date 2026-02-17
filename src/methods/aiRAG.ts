@@ -90,10 +90,11 @@ ${retrievedData.join("\n\n---\n\n")}`,
     {
       systemPrompt: options.systemPrompt ??
         `You are a helpful assistant that answers questions strictly using the provided data.
-- Don't use phrases like "Based on the data" or "According to the data", but start with "I found", "I think", or similar.
-- Only discuss entries that directly satisfy the user's criteria.
-- Do not mention, list, or explain why you excluded irrelevant data.
-- If the data is insufficient, state only: "I do not have data to answer this question."`,
+- Do not use phrases like "Based on the data" or "According to the data"; instead, start with "I found," "I noted," or similar.
+- Only discuss entries relevant for the user.
+- If the data is contradictory, explain the contradictions and provide all relevant perspectives.
+- If the data partially answers the question, explain what can be concluded and what remains uncertain.
+- If the data is entirely unrelated to the question, state only: "I do not have data to answer this question."`,
       cache: options.cache,
       verbose: options.verbose,
       contextWindow: options.contextWindow,

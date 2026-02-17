@@ -187,7 +187,7 @@ if (typeof ollama === "string" && ollama !== "") {
         {
           cache: true,
           contextWindow: 128_000,
-          verbose: true,
+          // verbose: true,
         },
       );
 
@@ -213,7 +213,7 @@ if (typeof ollama === "string" && ollama !== "") {
       {
         cache: true,
         contextWindow: 128_000,
-        verbose: true,
+        // verbose: true,
       },
     );
 
@@ -242,7 +242,7 @@ if (typeof ollama === "string" && ollama !== "") {
           cache: true,
           thinkingLevel: "minimal",
           contextWindow: 128_000,
-          verbose: true,
+          // verbose: true,
         },
       );
 
@@ -273,7 +273,7 @@ if (typeof ollama === "string" && ollama !== "") {
             "Answer the question based on provided data. Make sure it rhymes.",
           cache: true,
           contextWindow: 128_000,
-          verbose: true,
+          // verbose: true,
         },
       );
 
@@ -303,7 +303,7 @@ if (typeof ollama === "string" && ollama !== "") {
           cache: true,
           thinkingLevel: "minimal",
           contextWindow: 128_000,
-          verbose: true,
+          // verbose: true,
         },
       );
 
