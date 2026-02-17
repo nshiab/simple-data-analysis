@@ -1178,7 +1178,7 @@ export default class SimpleTable extends Simple {
       embeddingsModel?: string;
       ollamaEmbeddings?: boolean;
     } = {},
-  ) {
+  ): Promise<string> {
     return await aiRAG(this, query, column, nbResults, options);
   }
 
