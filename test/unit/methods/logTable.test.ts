@@ -115,3 +115,41 @@ Deno.test("should log a table with { nbRowsToLog: 'all'}", async () => {
   assertEquals(true, true);
   await sdb.done();
 });
+Deno.test("should log a table with long strings and word wrap the columns", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/recipes.parquet");
+  await table.logTable();
+
+  // How to test?
+  assertEquals(true, true);
+  await sdb.done();
+});
+Deno.test("should log different colors for different data types", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  const dataArray = [
+    {
+      name: "Alice",
+      age: 30,
+      isStudent: false,
+      birthday: new Date("1993-01-01"),
+      salary: null,
+    },
+    {
+      name: "Bob",
+      age: 25,
+      isStudent: true,
+      birthday: new Date("1998-05-15"),
+      salary: 50000,
+    },
+  ];
+  console.table(dataArray);
+  await table.loadArray(dataArray);
+  await table.logTable();
+  await table.logTable({ types: true });
+
+  // How to test?
+  assertEquals(true, true);
+  await sdb.done();
+});
