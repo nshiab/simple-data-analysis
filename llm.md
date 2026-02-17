@@ -6388,6 +6388,57 @@ await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0", {
 });
 ```
 
+#### `loadSheet`
+
+Loads data from a Google Sheet into the table. This method uses the
+`getSheetData` function from the
+[journalism library](https://jsr.io/@nshiab/journalism). Refer to its
+documentation for more details.
+
+By default, authentication is handled via environment variables
+(GOOGLE_PRIVATE_KEY and GOOGLE_SERVICE_ACCOUNT_EMAIL). Alternatively, you can
+use GOOGLE_APPLICATION_CREDENTIALS pointing to a service account JSON file. For
+detailed setup instructions, refer to the node-google-spreadsheet authentication
+guide:
+https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
+
+##### Signature
+
+```typescript
+async loadSheet(sheetUrl: string, options?: { skip?: number; apiEmail?: string; apiKey?: string }): Promise<void>;
+```
+
+##### Parameters
+
+- **`sheetUrl`**: - The URL pointing to a specific Google Sheet (e.g.,
+  `"https://docs.google.com/spreadsheets/d/.../edit#gid=0"`).
+- **`options`**: - An optional object with configuration options:
+- **`options.skip`**: - The number of rows to skip from the top of the sheet
+  before reading data. Useful when the sheet contains metadata or headers that
+  should not be included in the data.
+- **`options.apiEmail`**: - If your API email is stored under a different
+  environment variable name, use this option to specify it.
+- **`options.apiKey`**: - If your API key is stored under a different
+  environment variable name, use this option to specify it.
+
+##### Returns
+
+A promise that resolves when the data has been loaded into the table.
+
+##### Examples
+
+```ts
+// Load data from a Google Sheet
+await table.loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+```
+
+```ts
+// Load data from a Google Sheet, skipping the first 2 rows (e.g., to skip a prepended message and timestamp)
+await table.loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0", {
+  skip: 2,
+});
+```
+
 #### `cache`
 
 Caches the results of computations in `./.sda-cache`. You should add
