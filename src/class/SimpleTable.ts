@@ -1062,6 +1062,7 @@ export default class SimpleTable extends Simple {
     options: {
       cache?: boolean;
       verbose?: boolean;
+      systemPrompt?: string;
       contextWindow?: number;
       thinkingBudget?: number;
       thinkingLevel?: "minimal" | "low" | "medium" | "high";

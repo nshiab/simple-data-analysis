@@ -9,6 +9,7 @@ export async function aiRAG(
   options: {
     cache?: boolean;
     verbose?: boolean;
+    systemPrompt?: string;
     contextWindow?: number;
     thinkingBudget?: number;
     thinkingLevel?: "minimal" | "low" | "medium" | "high";
@@ -53,8 +54,12 @@ export async function aiRAG(
 Base your answer only on the following data:\n\n
 ${retrievedData.join("\n\n---\n\n")}`,
     {
-      systemPrompt:
-        "You are a helpful assistant for answering questions based on the provided data. Use only the provided data to answer the question. The user won't see the provided data, so don't mention it otherwise it won't undestand your answer. If the data is not sufficient to answer the question, say you don't know.",
+      systemPrompt: options.systemPrompt ??
+        `You are a helpful assistant that answers questions strictly using the provided data.
+- Don't use phrases like "Based on the data" or "According to the data", but start with "I found", "I think", or similar.
+- Only discuss entries that directly satisfy the user's criteria.
+- Do not mention, list, or explain why you excluded irrelevant data.
+- If the data is insufficient, state only: "I do not have data to answer this question."`,
       cache: options.cache,
       verbose: options.verbose,
       contextWindow: options.contextWindow,
