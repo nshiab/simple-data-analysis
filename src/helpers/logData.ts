@@ -1,3 +1,5 @@
+import printTable from "./printTable.ts";
+
 export default function logData(
   types: { [key: string]: string } | null,
   data:
@@ -30,13 +32,14 @@ export default function logData(
             newItem[key] = (data[i][key] as string).slice(
               0,
               nbCharactersToLog,
-            ) + "..."; // tested above
+            ) + "...";
           } else {
             newItem[key] = data[i][key];
           }
         }
         dataToBeLogged.push(newItem);
       }
+      let hasTypesRow = false;
       if (types !== null) {
         const columns = Object.keys(types);
         if (columns.length > 0) {
@@ -44,10 +47,20 @@ export default function logData(
             types[col] = types[col] + "/" +
               (data[0][col] === null ? null : typeof data[0][col]);
           }
-          console.table([types]);
+          // Add types as the first row
+          dataToBeLogged.unshift(types);
+          hasTypesRow = true;
         }
       }
-      console.table(dataToBeLogged);
+      printTable(
+        dataToBeLogged,
+        {
+          ...(typeof nbCharactersToLog === "number"
+            ? { maxColumnWidth: nbCharactersToLog }
+            : {}),
+          ...(hasTypesRow ? { typesRowIndex: 0 } : {}),
+        },
+      );
     }
   }
 }
