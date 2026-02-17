@@ -3,7 +3,6 @@ import { getEmbedding } from "@nshiab/journalism-ai";
 import type { SimpleTable } from "../index.ts";
 import queryDB from "../helpers/queryDB.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
-import type { Ollama } from "ollama";
 
 export default async function aiVectorSimilarity(
   simpleTable: SimpleTable,
@@ -11,17 +10,10 @@ export default async function aiVectorSimilarity(
   column: string,
   nbResults: number,
   options: {
+    cache?: boolean;
     createIndex?: boolean;
     outputTable?: string;
-    cache?: boolean;
-    model?: string;
-    apiKey?: string;
-    vertex?: boolean;
-    project?: string;
-    location?: string;
-    ollama?: boolean | Ollama;
     verbose?: boolean;
-    contextWindow?: number;
   } = {},
 ) {
   const textEmbedding = await getEmbedding(text, options);

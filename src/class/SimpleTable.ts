@@ -104,6 +104,7 @@ import unnestQuery from "../helpers/unnestQuery.ts";
 import nestQuery from "../helpers/nestQuery.ts";
 import concatenateRowQuery from "../helpers/concatenateRowQuery.ts";
 import aiRowByRowPool from "../methods/aiRowByRowPool.ts";
+import { aiRAG } from "../methods/aiRAG.ts";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
@@ -1051,6 +1052,134 @@ export default class SimpleTable extends Simple {
     } = {},
   ): Promise<SimpleTable> {
     return await aiVectorSimilarity(this, text, column, nbResults, options);
+  }
+
+  /**
+   * Performs Retrieval-Augmented Generation (RAG) by passing semantic search results to an LLM. This method uses the `aiEmbeddings` and `aiVectorSimilarity` methods to retrieve the most relevant context based on your query, and then calls the `askAI` function from the journalism library to generate an answer based on that context.
+   *
+   * This method generates embeddings for a specified column (cached and indexed for efficiency), retrieves the most semantically similar content based on your query, and uses an LLM to answer your question based on the retrieved data.
+   *
+   * The embeddings are cached at two levels:
+   * * At the table level, so renaming the table will invalidate the cache and regenerate embeddings. For often updated tables, you can pass a timestamp to the table name (e.g., `mytable_20240901`) to keep the cache valid until the next update.
+   * * At the row level, so if the text content is different or not cached, the embedding will be generated and cached for that specific text. If the text content has been previously cached, the existing embedding will be reused, even if the table has been renamed (as long as the text content is unchanged).
+   *
+   * To delete the cache, simply remove the `.journalism-cache` and `.sda-cache` directories in your project or set the cache option to `false`. Remember to add `.journalism-cache` and `.sda-cache` to your `.gitignore`.
+   *
+   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`, `AI_EMBEDDINGS_MODEL`) or directly via `options`, with `options` taking precedence.
+   *
+   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_MODEL` and `AI_EMBEDDINGS_MODEL` to your desired model names. If you are using Google Gemini or Vertex AI for the LLM, you can still use Ollama embeddings via the `ollamaEmbeddings` option.
+   *
+   * The LLM temperature is set to 0 for reproducibility, though consistency cannot be guaranteed.
+   *
+   * @param query - The question or query to answer using the retrieved context.
+   * @param column - The name of the column containing the text content to search through and use as context.
+   * @param nbResults - The number of most similar rows to retrieve and use as context for the AI.
+   * @param options - Configuration options for the RAG process.
+   * @param options.cache - If `true`, embeddings and LLM responses will be cached locally. Defaults to `false`.
+   * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
+   * @param options.systemPrompt - An option to overwrite the LLM system prompt.
+   * @param options.contextWindow - An option to specify the context window size. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
+   * @param options.thinkingBudget - Sets the reasoning token budget: 0 to disable (default, though some models may reason regardless), -1 for a dynamic budget, or > 0 for a fixed budget. For Ollama models, any non-zero value simply enables reasoning, ignoring the specific budget amount.
+   * @param options.thinkingLevel - Sets the thinking level for reasoning: "minimal", "low", "medium", or "high", which some models expect instead of `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided. For Ollama models, any value enables reasoning.
+   * @param options.webSearch - (Gemini only) If `true`, enables web search grounding for the AI's responses. Be careful of extra costs. Defaults to `false`.
+   * @param options.model - The LLM model to use for answering the query. Defaults to the `AI_MODEL` environment variable.
+   * @param options.embeddingsModel - The model to use for generating embeddings. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
+   * @param options.ollamaEmbeddings - If `true`, forces the use of Ollama for embeddings generation, even if Gemini or Vertex is used for the LLM. Defaults to `false`.
+   * @returns A promise that resolves to the AI's answer to the query based on the retrieved context.
+   * @category AI
+   *
+   * @example
+   * ```ts
+   * // Load a dataset of recipes
+   * const sdb = new SimpleDB();
+   * const table = sdb.newTable("recipes");
+   * await table.loadData("recipes.parquet");
+   *
+   * // Ask a question using RAG (will generate embeddings automatically)
+   * const answer = await table.aiRAG(
+   *   "I want a buttery pastry for breakfast.",
+   *   "Recipe",
+   *   10, // The 10 most relevant recipes passed to the LLM
+   *   {
+   *     cache: true, // Cache embeddings
+   *     verbose: true, // Log debugging information
+   *   }
+   * );
+   *
+   * console.log(answer);
+   * // Example output: "I recommend Croissants.
+   * // They are a classic buttery pastry perfect for breakfast..."
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Use RAG with a custom system prompt
+   * const answer = await table.aiRAG(
+   *   "I am looking for a round dish, but I don't remember the name.",
+   *   "Recipe",
+   *   10,
+   *   {
+   *     systemPrompt: "Answer the question based on provided data. Make sure it rhymes.",
+   *     cache: true,
+   *   }
+   * );
+   *
+   * console.log(answer);
+   * // Example output: "The dish you seek is quite a treat,
+   * // A Pizza round, it can't be beat!"
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Use RAG with reasoning enabled for complex queries
+   * const answer = await table.aiRAG(
+   *   "I am vegan. What can I eat for lunch that is spicy?",
+   *   "Recipe",
+   *   10,
+   *   {
+   *     cache: true,
+   *     thinkingLevel: "minimal", // Enable reasoning with minimal thinking
+   *   }
+   * );
+   *
+   * console.log(answer);
+   * // The AI will analyze the recipes and provide vegan spicy options
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Use Ollama for embeddings even when using Gemini for the LLM
+   * const answer = await table.aiRAG(
+   *   "What's a healthy dinner option?",
+   *   "Recipe",
+   *   10,
+   *   {
+   *     cache: true,
+   *     ollamaEmbeddings: true, // Use Ollama for embeddings
+   *     model: "gemini-3-flash", // Use Gemini for answering
+   *     thinkingLevel: "minimal",
+   *   }
+   * );
+   * ```
+   */
+  async aiRAG(
+    query: string,
+    column: string,
+    nbResults: number,
+    options: {
+      cache?: boolean;
+      verbose?: boolean;
+      systemPrompt?: string;
+      contextWindow?: number;
+      thinkingBudget?: number;
+      thinkingLevel?: "minimal" | "low" | "medium" | "high";
+      webSearch?: boolean;
+      model?: string;
+      embeddingsModel?: string;
+      ollamaEmbeddings?: boolean;
+    } = {},
+  ): Promise<string> {
+    return await aiRAG(this, query, column, nbResults, options);
   }
 
   /**
