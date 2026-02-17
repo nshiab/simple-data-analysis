@@ -66,7 +66,7 @@ import getProjection from "../helpers/getProjection.ts";
 import cache from "../methods/cache.ts";
 import { camelCase, formatNumber } from "@nshiab/journalism-format";
 import createDirectory from "../helpers/createDirectory.ts";
-import { overwriteSheetData } from "@nshiab/journalism-google";
+import { getSheetData, overwriteSheetData } from "@nshiab/journalism-google";
 import {
   logBarChart,
   logDotChart,
@@ -6579,6 +6579,42 @@ export default class SimpleTable extends Simple {
     apiKey?: string;
   } = {}): Promise<void> {
     await overwriteSheetData(await this.getData(), sheetUrl, options);
+  }
+
+  /**
+   * Loads data from a Google Sheet into the table.
+   * This method uses the `getSheetData` function from the [journalism library](https://jsr.io/@nshiab/journalism). Refer to its documentation for more details.
+   *
+   * By default, authentication is handled via environment variables (GOOGLE_PRIVATE_KEY and GOOGLE_SERVICE_ACCOUNT_EMAIL). Alternatively, you can use GOOGLE_APPLICATION_CREDENTIALS pointing to a service account JSON file. For detailed setup instructions, refer to the node-google-spreadsheet authentication guide: https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
+   *
+   * @param sheetUrl - The URL pointing to a specific Google Sheet (e.g., `"https://docs.google.com/spreadsheets/d/.../edit#gid=0"`).
+   * @param options - An optional object with configuration options:
+   * @param options.skip - The number of rows to skip from the top of the sheet before reading data. Useful when the sheet contains metadata or headers that should not be included in the data.
+   * @param options.apiEmail - If your API email is stored under a different environment variable name, use this option to specify it.
+   * @param options.apiKey - If your API key is stored under a different environment variable name, use this option to specify it.
+   * @returns A promise that resolves when the data has been loaded into the table.
+   * @category Loading Data
+   *
+   * @example
+   * ```ts
+   * // Load data from a Google Sheet
+   * await table.loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Load data from a Google Sheet, skipping the first 2 rows (e.g., to skip a prepended message and timestamp)
+   * await table.loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0", {
+   *   skip: 2,
+   * });
+   * ```
+   */
+  async loadSheet(sheetUrl: string, options: {
+    skip?: number;
+    apiEmail?: string;
+    apiKey?: string;
+  } = {}): Promise<void> {
+    await this.loadArray(await getSheetData(sheetUrl, options));
   }
 
   /**
