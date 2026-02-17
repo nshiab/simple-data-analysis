@@ -15,21 +15,28 @@ export async function aiRAG(
     thinkingLevel?: "minimal" | "low" | "medium" | "high";
     webSearch?: boolean;
     model?: string;
-    embedddingsModel?: string;
-    ollamaEmbeddingsModel?: boolean;
+    embeddingsModel?: string;
+    ollamaEmbeddings?: boolean;
   } = {},
 ) {
   const embeddingColumn = `${column}_embeddings`;
 
-  await table.cache(async () => {
-    await table.aiEmbeddings(column, embeddingColumn, {
+  options.cache
+    ? await table.cache(async () => {
+      await table.aiEmbeddings(column, embeddingColumn, {
+        createIndex: true,
+        cache: true,
+        verbose: options.verbose,
+        ollama: options.ollamaEmbeddings,
+        model: options.embeddingsModel,
+      });
+    })
+    : await table.aiEmbeddings(column, embeddingColumn, {
       createIndex: true,
-      cache: true,
       verbose: options.verbose,
-      ollama: options.ollamaEmbeddingsModel,
-      model: options.embedddingsModel,
+      ollama: options.ollamaEmbeddings,
+      model: options.embeddingsModel,
     });
-  });
 
   const tempTable = await table.aiVectorSimilarity(
     query,
@@ -39,7 +46,6 @@ export async function aiRAG(
       cache: options.cache,
       outputTable: `${table.name}_rag_temp`,
       verbose: options.verbose,
-      ollama: options.ollamaEmbeddingsModel,
     },
   );
 
@@ -68,5 +74,5 @@ ${retrievedData.join("\n\n---\n\n")}`,
       webSearch: options.webSearch,
       model: options.model,
     },
-  );
+  ) as Promise<string>;
 }

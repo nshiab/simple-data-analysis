@@ -26,7 +26,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         10,
         {
           cache: true,
-          ollamaEmbeddingsModel: true,
+          ollamaEmbeddings: true,
           model: "gemini-3-flash-preview",
           //verbose: true,
         },
@@ -53,7 +53,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       10,
       {
         cache: true,
-        ollamaEmbeddingsModel: true,
+        ollamaEmbeddings: true,
         model: "gemini-3-flash-preview",
         // verbose: true,
       },
@@ -83,7 +83,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         {
           cache: true,
           thinkingLevel: "minimal",
-          ollamaEmbeddingsModel: true,
+          ollamaEmbeddings: true,
           model: "gemini-3-flash-preview",
           // verbose: true,
         },
@@ -115,7 +115,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
           systemPrompt:
             "Answer the question based on provided data. Make sure it rhymes.",
           cache: true,
-          ollamaEmbeddingsModel: true,
+          ollamaEmbeddings: true,
           // verbose: true,
         },
       );
@@ -145,7 +145,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         {
           cache: true,
           thinkingLevel: "minimal",
-          ollamaEmbeddingsModel: true,
+          ollamaEmbeddings: true,
           model: "gemini-3-flash-preview",
           // verbose: true,
         },
