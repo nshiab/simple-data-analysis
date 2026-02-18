@@ -1071,6 +1071,10 @@ export default class SimpleTable extends Simple {
    *
    * The LLM temperature is set to 0 for reproducibility, though consistency cannot be guaranteed.
    *
+   * If `createIndex` is `true`, an index will be created on the new column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful for speeding up the `aiVectorSimilarity` method.
+   *
+   * This method does not support tables containing geometries.
+   *
    * @param query - The question or query to answer using the retrieved context.
    * @param column - The name of the column containing the text content to search through and use as context.
    * @param nbResults - The number of most similar rows to retrieve and use as context for the AI.
@@ -1078,13 +1082,15 @@ export default class SimpleTable extends Simple {
    * @param options.cache - If `true`, embeddings and LLM responses will be cached locally. Defaults to `false`.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
    * @param options.systemPrompt - An option to overwrite the LLM system prompt.
-   * @param options.contextWindow - An option to specify the context window size. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
+   * @param options.modelContextWindow - An option to specify the context window size for the LLM model when using Ollama. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
+   * @param options.embeddingsModelContextWindow - An option to specify the context window size for the embeddings model when using Ollama. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
    * @param options.thinkingBudget - Sets the reasoning token budget: 0 to disable (default, though some models may reason regardless), -1 for a dynamic budget, or > 0 for a fixed budget. For Ollama models, any non-zero value simply enables reasoning, ignoring the specific budget amount.
    * @param options.thinkingLevel - Sets the thinking level for reasoning: "minimal", "low", "medium", or "high", which some models expect instead of `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided. For Ollama models, any value enables reasoning.
    * @param options.webSearch - (Gemini only) If `true`, enables web search grounding for the AI's responses. Be careful of extra costs. Defaults to `false`.
    * @param options.model - The LLM model to use for answering the query. Defaults to the `AI_MODEL` environment variable.
    * @param options.embeddingsModel - The model to use for generating embeddings. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
    * @param options.ollamaEmbeddings - If `true`, forces the use of Ollama for embeddings generation, even if Gemini or Vertex is used for the LLM. Defaults to `false`.
+   * @param options.createIndex - If `true`, an index will be created on the new column. Useful for speeding up the `aiVectorSimilarity` method. Defaults to `true`.
    * @returns A promise that resolves to the AI's answer to the query based on the retrieved context.
    * @category AI
    *
@@ -1170,7 +1176,9 @@ export default class SimpleTable extends Simple {
       cache?: boolean;
       verbose?: boolean;
       systemPrompt?: string;
-      contextWindow?: number;
+      modelContextWindow?: number;
+      embeddingsModelContextWindow?: number;
+      createIndex?: boolean;
       thinkingBudget?: number;
       thinkingLevel?: "minimal" | "low" | "medium" | "high";
       webSearch?: boolean;
