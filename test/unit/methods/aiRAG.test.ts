@@ -186,7 +186,8 @@ if (typeof ollama === "string" && ollama !== "") {
         10,
         {
           cache: true,
-          contextWindow: 128_000,
+          modelContextWindow: 128_000,
+          embeddingsModelContextWindow: 2_000,
           // verbose: true,
         },
       );
@@ -212,7 +213,8 @@ if (typeof ollama === "string" && ollama !== "") {
       10,
       {
         cache: true,
-        contextWindow: 128_000,
+        modelContextWindow: 128_000,
+        embeddingsModelContextWindow: 2_000,
         // verbose: true,
       },
     );
@@ -241,7 +243,8 @@ if (typeof ollama === "string" && ollama !== "") {
         {
           cache: true,
           thinkingLevel: "minimal",
-          contextWindow: 128_000,
+          modelContextWindow: 128_000,
+          embeddingsModelContextWindow: 2_000,
           // verbose: true,
         },
       );
@@ -272,7 +275,8 @@ if (typeof ollama === "string" && ollama !== "") {
           systemPrompt:
             "Answer the question based on provided data. Make sure it rhymes.",
           cache: true,
-          contextWindow: 128_000,
+          modelContextWindow: 128_000,
+          embeddingsModelContextWindow: 2_000,
           // verbose: true,
         },
       );
@@ -302,7 +306,8 @@ if (typeof ollama === "string" && ollama !== "") {
         {
           cache: true,
           thinkingLevel: "minimal",
-          contextWindow: 128_000,
+          modelContextWindow: 128_000,
+          embeddingsModelContextWindow: 2_000,
           // verbose: true,
         },
       );

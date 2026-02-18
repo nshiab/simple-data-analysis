@@ -11,7 +11,9 @@ export async function aiRAG(
     cache?: boolean;
     verbose?: boolean;
     systemPrompt?: string;
-    contextWindow?: number;
+    modelContextWindow?: number;
+    embeddingsModelContextWindow?: number;
+    createIndex?: boolean;
     thinkingBudget?: number;
     thinkingLevel?: "minimal" | "low" | "medium" | "high";
     webSearch?: boolean;
@@ -38,18 +40,20 @@ export async function aiRAG(
   options.cache
     ? await table.cache(async () => {
       await table.aiEmbeddings(column, embeddingColumn, {
-        createIndex: true,
+        createIndex: options.createIndex ?? true,
         cache: true,
         verbose: options.verbose,
         ollama: options.ollamaEmbeddings,
         model: options.embeddingsModel,
+        contextWindow: options.embeddingsModelContextWindow,
       });
     })
     : await table.aiEmbeddings(column, embeddingColumn, {
-      createIndex: true,
+      createIndex: options.createIndex ?? true,
       verbose: options.verbose,
       ollama: options.ollamaEmbeddings,
       model: options.embeddingsModel,
+      contextWindow: options.embeddingsModelContextWindow,
     });
 
   if (options.verbose) {
@@ -62,11 +66,12 @@ export async function aiRAG(
     embeddingColumn,
     nbResults,
     {
-      createIndex: true,
+      createIndex: options.createIndex ?? true,
       cache: options.cache,
       outputTable: `${table.name}_rag_temp`,
       ollama: options.ollamaEmbeddings,
       model: options.embeddingsModel,
+      contextWindow: options.embeddingsModelContextWindow,
       verbose: options.verbose,
     },
   );
@@ -94,13 +99,14 @@ ${retrievedData.join("\n\n-----\n\n")}`,
       systemPrompt: options.systemPrompt ??
         `You are a helpful assistant that answers questions strictly using the provided data.
 - Do not use phrases like "Based on the data" or "According to the data"; instead, start with "I found," "I noted," or similar.
-- Only discuss entries relevant for the user. Do not list or mention irrelevant entries.
+- Only discuss entries relevant for the user.
+- Do not list or mention entries that do not pertain to the user's query.
 - If the data is contradictory, explain the contradictions and provide all relevant perspectives.
 - If the data partially answers the question, explain what can be concluded and what remains uncertain.
 - If the data is entirely unrelated to the question, state only: "I do not have data to answer this question."`,
       cache: options.cache,
       verbose: options.verbose,
-      contextWindow: options.contextWindow,
+      contextWindow: options.modelContextWindow,
       thinkingBudget: options.thinkingBudget,
       thinkingLevel: options.thinkingLevel,
       webSearch: options.webSearch,
