@@ -1419,10 +1419,16 @@ use Ollama embeddings via the `ollamaEmbeddings` option.
 The LLM temperature is set to 0 for reproducibility, though consistency cannot
 be guaranteed.
 
+If `createIndex` is `true`, an index will be created on the new column using the
+[duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful for
+speeding up the `aiVectorSimilarity` method.
+
+This method does not support tables containing geometries.
+
 ##### Signature
 
 ```typescript
-async aiRAG(query: string, column: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; systemPrompt?: string; contextWindow?: number; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; model?: string; embeddingsModel?: string; ollamaEmbeddings?: boolean }): Promise<string>;
+async aiRAG(query: string, column: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; systemPrompt?: string; modelContextWindow?: number; embeddingsModelContextWindow?: number; createIndex?: boolean; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; model?: string; embeddingsModel?: string; ollamaEmbeddings?: boolean }): Promise<string>;
 ```
 
 ##### Parameters
@@ -1438,9 +1444,14 @@ async aiRAG(query: string, column: string, nbResults: number, options?: { cache?
 - **`options.verbose`**: - If `true`, logs additional debugging information.
   Defaults to `false`.
 - **`options.systemPrompt`**: - An option to overwrite the LLM system prompt.
-- **`options.contextWindow`**: - An option to specify the context window size.
-  By default, Ollama sets this depending on the model, which can be lower than
-  the actual maximum context window size of the model.
+- **`options.modelContextWindow`**: - An option to specify the context window
+  size for the LLM model when using Ollama. By default, Ollama sets this
+  depending on the model, which can be lower than the actual maximum context
+  window size of the model.
+- **`options.embeddingsModelContextWindow`**: - An option to specify the context
+  window size for the embeddings model when using Ollama. By default, Ollama
+  sets this depending on the model, which can be lower than the actual maximum
+  context window size of the model.
 - **`options.thinkingBudget`**: - Sets the reasoning token budget: 0 to disable
   (default, though some models may reason regardless), -1 for a dynamic budget,
   or > 0 for a fixed budget. For Ollama models, any non-zero value simply
@@ -1459,6 +1470,9 @@ async aiRAG(query: string, column: string, nbResults: number, options?: { cache?
 - **`options.ollamaEmbeddings`**: - If `true`, forces the use of Ollama for
   embeddings generation, even if Gemini or Vertex is used for the LLM. Defaults
   to `false`.
+- **`options.createIndex`**: - If `true`, an index will be created on the new
+  column. Useful for speeding up the `aiVectorSimilarity` method. Defaults to
+  `true`.
 
 ##### Returns
 
@@ -2968,6 +2982,37 @@ await table.capitalize("column1");
 ```ts
 // Capitalize strings in 'column1' and 'column2'
 await table.capitalize(["column1", "column2"]);
+```
+
+#### `truncate`
+
+Truncates string values in a specified column to a maximum number of characters.
+
+##### Signature
+
+```typescript
+async truncate(column: string, length: number): Promise<void>;
+```
+
+##### Parameters
+
+- **`column`**: - The column name containing strings to be truncated.
+- **`length`**: - The maximum number of characters to keep.
+
+##### Returns
+
+A promise that resolves when the strings have been truncated.
+
+##### Examples
+
+```ts
+// Truncate strings in 'description' column to 50 characters
+await table.truncate("description", 50);
+```
+
+```ts
+// Truncate strings in 'name' column to 10 characters
+await table.truncate("name", 10);
 ```
 
 #### `splitExtract`
