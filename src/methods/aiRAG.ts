@@ -62,8 +62,11 @@ export async function aiRAG(
     embeddingColumn,
     nbResults,
     {
+      createIndex: true,
       cache: options.cache,
       outputTable: `${table.name}_rag_temp`,
+      ollama: options.ollamaEmbeddings,
+      model: options.embeddingsModel,
       verbose: options.verbose,
     },
   );
@@ -82,16 +85,16 @@ export async function aiRAG(
   }
 
   const response = await askAI(
-    `Answer the following question:
-- ${query}.
+    `Answer the following:
+- ${query}
 
-Base your answer only on the following data:\n\n
-${retrievedData.join("\n\n---\n\n")}`,
+Base your answer only on the following data:\n
+${retrievedData.join("\n\n-----\n\n")}`,
     {
       systemPrompt: options.systemPrompt ??
         `You are a helpful assistant that answers questions strictly using the provided data.
 - Do not use phrases like "Based on the data" or "According to the data"; instead, start with "I found," "I noted," or similar.
-- Only discuss entries relevant for the user.
+- Only discuss entries relevant for the user. Do not list or mention irrelevant entries.
 - If the data is contradictory, explain the contradictions and provide all relevant perspectives.
 - If the data partially answers the question, explain what can be concluded and what remains uncertain.
 - If the data is entirely unrelated to the question, state only: "I do not have data to answer this question."`,

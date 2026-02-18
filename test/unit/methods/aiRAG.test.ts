@@ -28,7 +28,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
           cache: true,
           ollamaEmbeddings: true,
           model: "gemini-3-flash-preview",
-          //verbose: true,
+          // verbose: true,
         },
       );
 
@@ -147,7 +147,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
           thinkingLevel: "minimal",
           ollamaEmbeddings: true,
           model: "gemini-3-flash-preview",
-          // verbose: true,
+          //  verbose: true,
         },
       );
 
