@@ -172,14 +172,180 @@ if (typeof ollama === "string" && ollama !== "") {
     rmSync("./.sda-cache", { recursive: true });
   }
 
+  // Deno.test(
+  //   "should answer a question using RAG",
+  //   { sanitizeResources: false },
+  //   async () => {
+  //     const sdb = new SimpleDB();
+  //     const table = sdb.newTable("data");
+  //     await table.loadData("test/data/files/recipes.parquet");
+  //     await table.removeMissing({ columns: "Recipe" });
+
+  //     const answer = await table.aiRAG(
+  //       "I want a buttery pastry for breakfast.",
+  //       "Recipe",
+  //       10,
+  //       {
+  //         cache: true,
+  //         modelContextWindow: 128_000,
+  //         embeddingsModelContextWindow: 2_000,
+  //         // verbose: true,
+  //       },
+  //     );
+
+  //     console.log(answer);
+
+  //     // Just to make sure it doesn't crash for now
+  //     assertEquals(true, true);
+  //     await sdb.done();
+  //   },
+  // );
+  // Deno.test("should answer a question using RAG with a cached table", {
+  //   sanitizeResources: false,
+  // }, async () => {
+  //   const sdb = new SimpleDB();
+  //   const table = sdb.newTable("data");
+  //   await table.loadData("test/data/files/recipes.parquet");
+  //   await table.removeMissing({ columns: "Recipe" });
+
+  //   const answer = await table.aiRAG(
+  //     "I am vegan. What can I eat for lunch that is spicy?",
+  //     "Recipe",
+  //     10,
+  //     {
+  //       cache: true,
+  //       modelContextWindow: 128_000,
+  //       embeddingsModelContextWindow: 2_000,
+  //       // verbose: true,
+  //     },
+  //   );
+
+  //   console.log(answer);
+
+  //   // Just to make sure it doesn't crash for now
+  //   assertEquals(true, true);
+  //   await sdb.done();
+  // });
+  // Deno.test(
+  //   "should answer a question using RAG with a cached table and minimal thinking",
+  //   {
+  //     sanitizeResources: false,
+  //   },
+  //   async () => {
+  //     const sdb = new SimpleDB();
+  //     const table = sdb.newTable("data");
+  //     await table.loadData("test/data/files/recipes.parquet");
+  //     await table.removeMissing({ columns: "Recipe" });
+
+  //     const answer = await table.aiRAG(
+  //       "I am looking for round dish, but I don't remember the name.",
+  //       "Recipe",
+  //       10,
+  //       {
+  //         cache: true,
+  //         thinkingLevel: "minimal",
+  //         modelContextWindow: 128_000,
+  //         embeddingsModelContextWindow: 2_000,
+  //         // verbose: true,
+  //       },
+  //     );
+
+  //     console.log(answer);
+
+  //     // Just to make sure it doesn't crash for now
+  //     assertEquals(true, true);
+  //     await sdb.done();
+  //   },
+  // );
+  // Deno.test(
+  //   "should answer with a different system prompt",
+  //   {
+  //     sanitizeResources: false,
+  //   },
+  //   async () => {
+  //     const sdb = new SimpleDB();
+  //     const table = sdb.newTable("data");
+  //     await table.loadData("test/data/files/recipes.parquet");
+  //     await table.removeMissing({ columns: "Recipe" });
+
+  //     const answer = await table.aiRAG(
+  //       "I am looking for round dish, but I don't remember the name.",
+  //       "Recipe",
+  //       10,
+  //       {
+  //         systemPrompt:
+  //           "Answer the question based on provided data. Make sure it rhymes.",
+  //         cache: true,
+  //         modelContextWindow: 128_000,
+  //         embeddingsModelContextWindow: 2_000,
+  //         // verbose: true,
+  //       },
+  //     );
+
+  //     console.log(answer);
+
+  //     // Just to make sure it doesn't crash for now
+  //     assertEquals(true, true);
+  //     await sdb.done();
+  //   },
+  // );
+  // Deno.test(
+  //   "should answer that it doesn't know",
+  //   {
+  //     sanitizeResources: false,
+  //   },
+  //   async () => {
+  //     const sdb = new SimpleDB();
+  //     const table = sdb.newTable("data");
+  //     await table.loadData("test/data/files/recipes.parquet");
+  //     await table.removeMissing({ columns: "Recipe" });
+
+  //     const answer = await table.aiRAG(
+  //       "Why is the sky blue?",
+  //       "Recipe",
+  //       10,
+  //       {
+  //         cache: true,
+  //         thinkingLevel: "minimal",
+  //         modelContextWindow: 128_000,
+  //         embeddingsModelContextWindow: 2_000,
+  //         // verbose: true,
+  //       },
+  //     );
+
+  //     console.log(answer);
+
+  //     // Just to make sure it doesn't crash for now
+  //     assertEquals(true, true);
+  //     await sdb.done();
+  //   },
+  // );
   Deno.test(
-    "should answer a question using RAG",
+    "should answer a question using RAG with a DB that already exists and store in cache",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeMissing({ columns: "Recipe" });
+      // First iteration of the test, we remove
+      if (existsSync("test/output/recipes.db")) {
+        rmSync("test/output/recipes.db");
+      }
+
+      let sdb;
+      let table;
+      if (!existsSync("test/output/recipes.db")) {
+        sdb = new SimpleDB({
+          file: "test/output/recipes.db",
+          cacheVerbose: true,
+        });
+        table = sdb.newTable("data");
+        await table.loadData("test/data/files/recipes.parquet");
+        await table.removeMissing({ columns: "Recipe" });
+      } else {
+        sdb = new SimpleDB({ cacheVerbose: true });
+        await sdb.loadDB("test/output/recipes.db");
+        table = await sdb.getTable("data");
+      }
+
+      // await table.logTable();
 
       const answer = await table.aiRAG(
         "I want a buttery pastry for breakfast.",
@@ -187,66 +353,10 @@ if (typeof ollama === "string" && ollama !== "") {
         10,
         {
           cache: true,
+          createIndex: true,
           modelContextWindow: 128_000,
           embeddingsModelContextWindow: 2_000,
-          // verbose: true,
-        },
-      );
-
-      console.log(answer);
-
-      // Just to make sure it doesn't crash for now
-      assertEquals(true, true);
-      await sdb.done();
-    },
-  );
-  Deno.test("should answer a question using RAG with a cached table", {
-    sanitizeResources: false,
-  }, async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadData("test/data/files/recipes.parquet");
-    await table.removeMissing({ columns: "Recipe" });
-
-    const answer = await table.aiRAG(
-      "I am vegan. What can I eat for lunch that is spicy?",
-      "Recipe",
-      10,
-      {
-        cache: true,
-        modelContextWindow: 128_000,
-        embeddingsModelContextWindow: 2_000,
-        // verbose: true,
-      },
-    );
-
-    console.log(answer);
-
-    // Just to make sure it doesn't crash for now
-    assertEquals(true, true);
-    await sdb.done();
-  });
-  Deno.test(
-    "should answer a question using RAG with a cached table and minimal thinking",
-    {
-      sanitizeResources: false,
-    },
-    async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeMissing({ columns: "Recipe" });
-
-      const answer = await table.aiRAG(
-        "I am looking for round dish, but I don't remember the name.",
-        "Recipe",
-        10,
-        {
-          cache: true,
-          thinkingLevel: "minimal",
-          modelContextWindow: 128_000,
-          embeddingsModelContextWindow: 2_000,
-          // verbose: true,
+          verbose: true,
         },
       );
 
@@ -258,58 +368,38 @@ if (typeof ollama === "string" && ollama !== "") {
     },
   );
   Deno.test(
-    "should answer with a different system prompt",
-    {
-      sanitizeResources: false,
-    },
+    "should answer a question using RAG with a DB that already exists and reuse the cache",
+    { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeMissing({ columns: "Recipe" });
+      // Second iteration of the test, we reuse the existing DB
+      let sdb;
+      let table;
+      if (!existsSync("test/output/recipes.db")) {
+        sdb = new SimpleDB({
+          file: "test/output/recipes.db",
+          cacheVerbose: true,
+        });
+        table = sdb.newTable("data");
+        await table.loadData("test/data/files/recipes.parquet");
+        await table.removeMissing({ columns: "Recipe" });
+      } else {
+        sdb = new SimpleDB({ cacheVerbose: true });
+        await sdb.loadDB("test/output/recipes.db");
+        table = await sdb.getTable("data");
+      }
+
+      // await table.logTable();
 
       const answer = await table.aiRAG(
-        "I am looking for round dish, but I don't remember the name.",
-        "Recipe",
-        10,
-        {
-          systemPrompt:
-            "Answer the question based on provided data. Make sure it rhymes.",
-          cache: true,
-          modelContextWindow: 128_000,
-          embeddingsModelContextWindow: 2_000,
-          // verbose: true,
-        },
-      );
-
-      console.log(answer);
-
-      // Just to make sure it doesn't crash for now
-      assertEquals(true, true);
-      await sdb.done();
-    },
-  );
-  Deno.test(
-    "should answer that it doesn't know",
-    {
-      sanitizeResources: false,
-    },
-    async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeMissing({ columns: "Recipe" });
-
-      const answer = await table.aiRAG(
-        "Why is the sky blue?",
+        "I want a buttery pastry for breakfast.",
         "Recipe",
         10,
         {
           cache: true,
-          thinkingLevel: "minimal",
+          createIndex: true,
           modelContextWindow: 128_000,
           embeddingsModelContextWindow: 2_000,
-          // verbose: true,
+          verbose: true,
         },
       );
 

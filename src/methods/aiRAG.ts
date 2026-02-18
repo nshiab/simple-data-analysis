@@ -38,26 +38,39 @@ export default async function aiRAG(
 
   const embeddingColumn = `${column}_embeddings`;
 
-  options.cache
-    ? await table.cache(async () => {
-      await table.aiEmbeddings(column, embeddingColumn, {
-        createIndex: options.createIndex ?? true,
-        cache: true,
+  if (await table.hasColumn(embeddingColumn)) {
+    if (options.verbose) {
+      console.log(
+        `"${embeddingColumn}" in table "${table.name}" already exist. Reusing embeddings...`,
+      );
+    }
+  } else {
+    if (options.verbose) {
+      console.log(
+        `"${embeddingColumn}" in table "${table.name}" does not exist. Generating embeddings...`,
+      );
+    }
+    options.cache
+      ? await table.cache(async () => {
+        await table.aiEmbeddings(column, embeddingColumn, {
+          createIndex: options.createIndex ?? false,
+          cache: true,
+          verbose: options.verbose,
+          ollama: options.ollamaEmbeddings,
+          model: options.embeddingsModel,
+          contextWindow: options.embeddingsModelContextWindow,
+          concurrent: options.embeddingsConcurrent,
+        });
+      })
+      : await table.aiEmbeddings(column, embeddingColumn, {
+        createIndex: options.createIndex ?? false,
         verbose: options.verbose,
         ollama: options.ollamaEmbeddings,
         model: options.embeddingsModel,
         contextWindow: options.embeddingsModelContextWindow,
         concurrent: options.embeddingsConcurrent,
       });
-    })
-    : await table.aiEmbeddings(column, embeddingColumn, {
-      createIndex: options.createIndex ?? true,
-      verbose: options.verbose,
-      ollama: options.ollamaEmbeddings,
-      model: options.embeddingsModel,
-      contextWindow: options.embeddingsModelContextWindow,
-      concurrent: options.embeddingsConcurrent,
-    });
+  }
 
   if (options.verbose) {
     times.embeddingEnd = Date.now();
@@ -69,7 +82,7 @@ export default async function aiRAG(
     embeddingColumn,
     nbResults,
     {
-      createIndex: options.createIndex ?? true,
+      createIndex: options.createIndex ?? false,
       cache: options.cache,
       outputTable: `${table.name}_rag_temp`,
       ollama: options.ollamaEmbeddings,
