@@ -1428,7 +1428,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRAG(query: string, column: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; systemPrompt?: string; modelContextWindow?: number; embeddingsModelContextWindow?: number; createIndex?: boolean; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; model?: string; embeddingsModel?: string; ollamaEmbeddings?: boolean }): Promise<string>;
+async aiRAG(query: string, column: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; systemPrompt?: string; modelContextWindow?: number; embeddingsModelContextWindow?: number; createIndex?: boolean; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; model?: string; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number }): Promise<string>;
 ```
 
 ##### Parameters
@@ -1470,6 +1470,8 @@ async aiRAG(query: string, column: string, nbResults: number, options?: { cache?
 - **`options.ollamaEmbeddings`**: - If `true`, forces the use of Ollama for
   embeddings generation, even if Gemini or Vertex is used for the LLM. Defaults
   to `false`.
+- **`options.embeddingsConcurrent`**: - The number of concurrent requests to
+  send to the embeddings service. Defaults to `1`.
 - **`options.createIndex`**: - If `true`, an index will be created on the new
   column. Useful for speeding up the `aiVectorSimilarity` method. Defaults to
   `true`.
