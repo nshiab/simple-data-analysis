@@ -2,7 +2,7 @@ import { askAI } from "@nshiab/journalism-ai";
 import type SimpleTable from "../class/SimpleTable.ts";
 import { prettyDuration } from "@nshiab/journalism-format";
 
-export async function aiRAG(
+export default async function aiRAG(
   table: SimpleTable,
   query: string,
   column: string,
@@ -20,6 +20,7 @@ export async function aiRAG(
     model?: string;
     embeddingsModel?: string;
     ollamaEmbeddings?: boolean;
+    embeddingsConcurrent?: number;
   } = {},
 ) {
   const times = {
@@ -46,6 +47,7 @@ export async function aiRAG(
         ollama: options.ollamaEmbeddings,
         model: options.embeddingsModel,
         contextWindow: options.embeddingsModelContextWindow,
+        concurrent: options.embeddingsConcurrent,
       });
     })
     : await table.aiEmbeddings(column, embeddingColumn, {
@@ -54,6 +56,7 @@ export async function aiRAG(
       ollama: options.ollamaEmbeddings,
       model: options.embeddingsModel,
       contextWindow: options.embeddingsModelContextWindow,
+      concurrent: options.embeddingsConcurrent,
     });
 
   if (options.verbose) {

@@ -105,7 +105,7 @@ import unnestQuery from "../helpers/unnestQuery.ts";
 import nestQuery from "../helpers/nestQuery.ts";
 import concatenateRowQuery from "../helpers/concatenateRowQuery.ts";
 import aiRowByRowPool from "../methods/aiRowByRowPool.ts";
-import { aiRAG } from "../methods/aiRAG.ts";
+import aiRAG from "../methods/aiRAG.ts";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
@@ -1091,6 +1091,7 @@ export default class SimpleTable extends Simple {
    * @param options.model - The LLM model to use for answering the query. Defaults to the `AI_MODEL` environment variable.
    * @param options.embeddingsModel - The model to use for generating embeddings. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
    * @param options.ollamaEmbeddings - If `true`, forces the use of Ollama for embeddings generation, even if Gemini or Vertex is used for the LLM. Defaults to `false`.
+   * @param options.embeddingsConcurrent - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
    * @param options.createIndex - If `true`, an index will be created on the new column. Useful for speeding up the `aiVectorSimilarity` method. Defaults to `true`.
    * @returns A promise that resolves to the AI's answer to the query based on the retrieved context.
    * @category AI
@@ -1186,6 +1187,7 @@ export default class SimpleTable extends Simple {
       model?: string;
       embeddingsModel?: string;
       ollamaEmbeddings?: boolean;
+      embeddingsConcurrent?: number;
     } = {},
   ): Promise<string> {
     return await aiRAG(this, query, column, nbResults, options);
