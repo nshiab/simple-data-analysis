@@ -1,5 +1,8 @@
 import wrapString from "./wrapString.ts";
 
+/** A value that can be stored in a table cell. */
+type CellValue = string | number | boolean | Date | null;
+
 /**
  * Prints a formatted table to the console with support for word wrapping within cells.
  * Unlike console.table(), this function properly handles multi-line content within cells,
@@ -34,7 +37,7 @@ import wrapString from "./wrapString.ts";
  * ```
  */
 export default function printTable(
-  data: { [key: string]: string | number | boolean | Date | null }[],
+  data: { [key: string]: CellValue }[],
   options?: {
     maxColumnWidth?: number;
     minColumnWidth?: number;
@@ -50,9 +53,7 @@ export default function printTable(
   const minColumnWidth = options?.minColumnWidth ?? 3;
 
   // Helper function to format values for display
-  const formatValue = (
-    value: string | number | boolean | Date | null,
-  ): string => {
+  const formatValue = (value: CellValue): string => {
     if (value instanceof Date) {
       return value.toISOString();
     }
@@ -62,35 +63,58 @@ export default function printTable(
   // Get all column names
   const columns = Object.keys(data[0]);
 
-  // Calculate the required width for each column
+  if (columns.length === 0) {
+    console.log("(empty table)");
+    return;
+  }
+
+  // Single pass: calculate column widths and prepare wrapped data.
+  // First, seed widths from header names.
   const columnWidths: { [key: string]: number } = {};
-
   for (const col of columns) {
-    let maxWidth = col.length;
+    columnWidths[col] = col.length;
+  }
 
-    for (const row of data) {
+  // Format every cell, track the longest raw line per column, and
+  // store the formatted strings for the wrapping step that follows.
+  const formattedData: string[][] = [];
+  for (const row of data) {
+    const formattedRow: string[] = [];
+    for (let c = 0; c < columns.length; c++) {
+      const col = columns[c];
       const value = formatValue(row[col]);
-      // For wrapped strings, consider the longest line
-      const lines = value.split("\n");
-      const longestLine = Math.max(...lines.map((line) => line.length));
-      maxWidth = Math.max(maxWidth, longestLine);
-    }
+      formattedRow.push(value);
 
-    // Apply min/max constraints
+      // Track longest line (handles embedded newlines)
+      const lines = value.split("\n");
+      let longestLine = 0;
+      for (const line of lines) {
+        if (line.length > longestLine) longestLine = line.length;
+      }
+      if (longestLine > columnWidths[col]) {
+        columnWidths[col] = longestLine;
+      }
+    }
+    formattedData.push(formattedRow);
+  }
+
+  // Apply min/max constraints
+  for (const col of columns) {
     columnWidths[col] = Math.min(
-      Math.max(maxWidth, minColumnWidth),
+      Math.max(columnWidths[col], minColumnWidth),
       maxColumnWidth,
     );
   }
 
-  // Prepare wrapped data where each cell can contain multiple lines
+  // Wrap pre-formatted strings into multi-line cells
   const wrappedData: { [key: string]: string[] }[] = [];
 
-  for (const row of data) {
+  for (let r = 0; r < formattedData.length; r++) {
     const wrappedRow: { [key: string]: string[] } = {};
 
-    for (const col of columns) {
-      const value = formatValue(row[col]);
+    for (let c = 0; c < columns.length; c++) {
+      const col = columns[c];
+      const value = formattedData[r][c];
       const width = columnWidths[col];
 
       // Split by existing newlines, then wrap each part
@@ -127,8 +151,8 @@ export default function printTable(
 
   // Helper function to get color for a value based on its actual JavaScript type
   const getColorForValue = (
-    value: string | number | boolean | Date | null,
-    isTypeRow: boolean = false,
+    value: CellValue,
+    isTypeRow: boolean,
   ): string => {
     if (isTypeRow) return colors.grey;
     if (value === null || value === undefined) return colors.null;
@@ -138,23 +162,24 @@ export default function printTable(
     return colors.string;
   };
 
-  // Helper function to create a separator line
-  const createSeparator = () => {
-    const parts = columns.map((col) => "─".repeat(columnWidths[col] + 2));
-    return colors.grey + "├" + parts.join("┼") + "┤" + colors.reset;
+  // Helper function to create a horizontal border line with column junctions
+  const createBorderLine = (
+    left: string,
+    middle: string,
+    right: string,
+  ) => {
+    const segments = columns.map((col) => "─".repeat(columnWidths[col] + 2));
+    return colors.grey + left + segments.join(middle) + right + colors.reset;
   };
+
+  // Helper function to create a separator line
+  const createSeparator = () => createBorderLine("├", "┼", "┤");
 
   // Helper function to create the top border
-  const createTopBorder = () => {
-    const parts = columns.map((col) => "─".repeat(columnWidths[col] + 2));
-    return colors.grey + "┌" + parts.join("┬") + "┐" + colors.reset;
-  };
+  const createTopBorder = () => createBorderLine("┌", "┬", "┐");
 
   // Helper function to create the bottom border
-  const createBottomBorder = () => {
-    const parts = columns.map((col) => "─".repeat(columnWidths[col] + 2));
-    return colors.grey + "└" + parts.join("┴") + "┘" + colors.reset;
-  };
+  const createBottomBorder = () => createBorderLine("└", "┴", "┘");
 
   // Helper function to pad a string to a specific width
   const pad = (str: string, width: number) => {
@@ -174,8 +199,11 @@ export default function printTable(
       colors.reset,
   );
 
-  // Print separator after header
-  console.log(createSeparator());
+  // Print separator after header (unless the first row is the types row,
+  // in which case the separator is printed after the types row instead)
+  if (options?.typesRowIndex !== 0) {
+    console.log(createSeparator());
+  }
 
   // Print data rows
   for (let i = 0; i < wrappedData.length; i++) {
@@ -184,9 +212,12 @@ export default function printTable(
     const isTypeRow = i === options?.typesRowIndex;
 
     // Find the maximum number of lines in this row
-    const maxLines = Math.max(
-      ...columns.map((col) => wrappedRow[col].length),
-    );
+    let maxLines = 1;
+    for (const col of columns) {
+      if (wrappedRow[col].length > maxLines) {
+        maxLines = wrappedRow[col].length;
+      }
+    }
 
     // Print each line of this row
     for (let lineIdx = 0; lineIdx < maxLines; lineIdx++) {
@@ -198,13 +229,14 @@ export default function printTable(
       });
       console.log(
         colors.grey + "│" + colors.reset +
-          lineParts.join(colors.grey + "│" + colors.reset) + colors.grey + "│" +
+          lineParts.join(colors.grey + "│" + colors.reset) + colors.grey +
+          "│" +
           colors.reset,
       );
     }
 
-    // Print separator between rows (except after the last row)
-    if (i < wrappedData.length - 1) {
+    // Print separator after types row
+    if (isTypeRow) {
       console.log(createSeparator());
     }
   }
