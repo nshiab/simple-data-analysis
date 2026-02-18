@@ -90,6 +90,7 @@ import findGeoColumn from "../helpers/findGeoColumn.ts";
 import getExtension from "../helpers/getExtension.ts";
 import getIdenticalColumns from "../helpers/getIdenticalColumns.ts";
 import capitalizeQuery from "../methods/capitalizeQuery.ts";
+import truncateQuery from "../methods/truncateQuery.ts";
 import getProjectionParquet from "../helpers/getProjectionParquet.ts";
 import unifyColumns from "../helpers/unifyColumns.ts";
 import accumulateQuery from "../helpers/accumulateQuery.ts";
@@ -2928,6 +2929,38 @@ export default class SimpleTable extends Simple {
         table: this.name,
         method: "upper()",
         parameters: { columns },
+      }),
+    );
+  }
+
+  /**
+   * Truncates string values in a specified column to a maximum number of characters.
+   *
+   * @param column - The column name containing strings to be truncated.
+   * @param length - The maximum number of characters to keep.
+   * @returns A promise that resolves when the strings have been truncated.
+   * @category Updating Data
+   *
+   * @example
+   * ```ts
+   * // Truncate strings in 'description' column to 50 characters
+   * await table.truncate("description", 50);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Truncate strings in 'name' column to 10 characters
+   * await table.truncate("name", 10);
+   * ```
+   */
+  async truncate(column: string, length: number): Promise<void> {
+    await queryDB(
+      this,
+      truncateQuery(this.name, column, length),
+      mergeOptions(this, {
+        table: this.name,
+        method: "truncate()",
+        parameters: { column, length },
       }),
     );
   }
