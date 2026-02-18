@@ -28,7 +28,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
           cache: true,
           ollamaEmbeddings: true,
           model: "gemini-3-flash-preview",
-          // verbose: true,
+          // embeddingsConcurrent: 10,
+          verbose: true,
         },
       );
 
