@@ -1387,9 +1387,10 @@ to retrieve the most relevant context based on your query, and then calls the
 `askAI` function from the journalism library to generate an answer based on that
 context.
 
-This method generates embeddings for a specified column (cached and indexed for
-efficiency), retrieves the most semantically similar content based on your
-query, and uses an LLM to answer your question based on the retrieved data.
+This method generates embeddings for a specified column (that can be cached and
+indexed for efficiency), retrieves the most semantically similar content based
+on your query, and uses an LLM to answer your question based on the retrieved
+data.
 
 The embeddings are cached at two levels:
 
@@ -1402,7 +1403,12 @@ The embeddings are cached at two levels:
   content has been previously cached, the existing embedding will be reused,
   even if the table has been renamed (as long as the text content is unchanged).
 
-To delete the cache, simply remove the `.journalism-cache` and `.sda-cache`
+Also, the methods creates the column `{column}_embedding` to store the generated
+embeddings. If you wrote your DB to a file, and if the column already exists, it
+will reuse the existing `{column}_embedding` column directly, before even
+checking the cache, since the DB file itself serves as a cache.
+
+To delete the cache, simply remove the `.journalism-cache` and/or `.sda-cache`
 directories in your project or set the cache option to `false`. Remember to add
 `.journalism-cache` and `.sda-cache` to your `.gitignore`.
 
@@ -1421,7 +1427,8 @@ be guaranteed.
 
 If `createIndex` is `true`, an index will be created on the new column using the
 [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful for
-speeding up the `aiVectorSimilarity` method.
+speeding up the `aiVectorSimilarity` method, but note that indexes are only
+persisted if the database is written to a file.
 
 This method does not support tables containing geometries.
 
@@ -1473,8 +1480,9 @@ async aiRAG(query: string, column: string, nbResults: number, options?: { cache?
 - **`options.embeddingsConcurrent`**: - The number of concurrent requests to
   send to the embeddings service. Defaults to `1`.
 - **`options.createIndex`**: - If `true`, an index will be created on the new
-  column. Useful for speeding up the `aiVectorSimilarity` method. Defaults to
-  `true`.
+  column. Useful for speeding up the `aiVectorSimilarity` method. Note that
+  indexes are only persisted if the database is written to a file. Defaults to
+  `false`.
 
 ##### Returns
 
@@ -1552,6 +1560,47 @@ const answer = await table.aiRAG(
     thinkingLevel: "minimal",
   },
 );
+```
+
+```ts
+// Persist the vector index by writing the database to a file
+// If you don't write the DB to a file, the index is not stored
+// and needs to be recreated every time you run your code.
+// This example shows a script that can be re-run multiple times.
+import { existsSync } from "node:fs";
+
+let sdb;
+let table;
+
+// Check if database already exists
+if (!existsSync("recipes.db")) {
+  // First run: create and save the database with a file path
+  sdb = new SimpleDB({ file: "recipes.db" });
+  table = sdb.newTable("recipes");
+  await table.loadData("recipes.parquet");
+  await table.removeMissing({ columns: "Recipe" });
+} else {
+  // Subsequent runs: load the existing database
+  // The vector index is preserved, so it doesn't need to be recreated
+  sdb = new SimpleDB();
+  await sdb.loadDB("recipes.db");
+  table = await sdb.getTable("recipes");
+}
+
+// Generate embeddings and create index (stored in DB file on first run)
+// On subsequent runs, this will reuse the existing embeddings and index - much faster!
+const answer = await table.aiRAG(
+  "I want a buttery pastry for breakfast.",
+  "Recipe",
+  10,
+  {
+    cache: true, // Embeddings are cached for reuse
+    createIndex: true, // Index is persisted because DB is written to a file
+  },
+);
+
+console.log(answer);
+await sdb.done();
 ```
 
 #### `aiQuery`
