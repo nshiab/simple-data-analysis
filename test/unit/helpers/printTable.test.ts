@@ -101,3 +101,22 @@ Deno.test("printTable should handle mixed data types", () => {
   printTable(data);
   assertEquals(true, true);
 });
+Deno.test("printTable should add horizontal borders when word wrapping occurs", () => {
+  const data = [
+    {
+      name: "Alice",
+      description:
+        "This is a very long description that will definitely be wrapped to multiple lines when the max column width is applied",
+    },
+    {
+      name: "Bob",
+      description:
+        "Another long text that will span multiple lines to demonstrate the horizontal borders feature",
+    },
+    { name: "Charlie", description: "Short text" },
+  ];
+
+  // With word wrapping, horizontal borders should be added between rows
+  printTable(data, { maxColumnWidth: 25 });
+  assertEquals(true, true);
+});

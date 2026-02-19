@@ -199,6 +199,18 @@ export default function printTable(
       colors.reset,
   );
 
+  // Detect if any row has word wrapping (spans multiple lines)
+  let hasWordWrapping = false;
+  for (const wrappedRow of wrappedData) {
+    for (const col of columns) {
+      if (wrappedRow[col].length > 1) {
+        hasWordWrapping = true;
+        break;
+      }
+    }
+    if (hasWordWrapping) break;
+  }
+
   // Print separator after header (unless the first row is the types row,
   // in which case the separator is printed after the types row instead)
   if (options?.typesRowIndex !== 0) {
@@ -237,6 +249,9 @@ export default function printTable(
 
     // Print separator after types row
     if (isTypeRow) {
+      console.log(createSeparator());
+    } // Print separator between rows when word wrapping is present (except after last row)
+    else if (hasWordWrapping && i < wrappedData.length - 1) {
       console.log(createSeparator());
     }
   }
