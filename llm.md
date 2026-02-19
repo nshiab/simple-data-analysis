@@ -859,7 +859,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRowByRow(column: string, newColumn: string | string[], prompt: string, options?: { batchSize?: number; concurrent?: number; cache?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => unknown; contextWindow?: number; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; extraInstructions?: string; schemaJson?: unknown; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
+async aiRowByRow(column: string, newColumn: string | string[], prompt: string, options?: { batchSize?: number; concurrent?: number; cache?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; model?: string; temperature?: number; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => unknown; contextWindow?: number; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; extraInstructions?: string; schemaJson?: unknown; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
 ```
 
 ##### Parameters
@@ -885,6 +885,8 @@ async aiRowByRow(column: string, newColumn: string | string[], prompt: string, o
   `undefined` (no limit).
 - **`options.model`**: - The AI model to use. Defaults to the `AI_MODEL`
   environment variable.
+- **`options.temperature`**: - The temperature setting for the AI model,
+  controlling the randomness of the output. Defaults to `0`.
 - **`options.apiKey`**: - The API key for the AI service. Defaults to the
   `AI_KEY` environment variable.
 - **`options.vertex`**: - If `true`, uses Vertex AI. Automatically set to `true`
@@ -1093,6 +1095,8 @@ async aiRowByRowPool(column: string, newColumn: string | string[], errorColumn: 
   This overrides the default schema based on the 'newColumn' names.
 - **`options.model`**: - The AI model to use. Defaults to the `AI_MODEL`
   environment variable.
+- **`options.temperature`**: - The temperature setting for the AI model,
+  controlling the randomness of the output. Defaults to `0`.
 - **`options.metrics`**: - An object to track cumulative metrics across multiple
   AI requests. Pass an object with totalCost, totalInputTokens,
   totalOutputTokens, and totalRequests properties (all initialized to 0). The
@@ -1435,7 +1439,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRAG(query: string, column: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; systemPrompt?: string; modelContextWindow?: number; embeddingsModelContextWindow?: number; createIndex?: boolean; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; model?: string; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number }): Promise<string>;
+async aiRAG(query: string, column: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; systemPrompt?: string; modelContextWindow?: number; embeddingsModelContextWindow?: number; createIndex?: boolean; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; model?: string; temperature?: number; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number }): Promise<string>;
 ```
 
 ##### Parameters
@@ -1472,6 +1476,8 @@ async aiRAG(query: string, column: string, nbResults: number, options?: { cache?
   `false`.
 - **`options.model`**: - The LLM model to use for answering the query. Defaults
   to the `AI_MODEL` environment variable.
+- **`options.temperature`**: - The temperature setting for the AI model,
+  controlling the randomness of the output. Defaults to `0`.
 - **`options.embeddingsModel`**: - The model to use for generating embeddings.
   Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
 - **`options.ollamaEmbeddings`**: - If `true`, forces the use of Ollama for
