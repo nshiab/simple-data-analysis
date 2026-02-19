@@ -29,6 +29,7 @@ export default async function aiRowByRowPool(
     webSearch?: boolean;
     schemaJson?: unknown;
     model?: string;
+    temperature?: number;
     metrics?: {
       totalCost: number;
       totalInputTokens: number;
@@ -90,6 +91,7 @@ export default async function aiRowByRowPool(
           metrics: options.metrics,
           verbose: options.verbose,
           includeThoughts: options.verbose,
+          temperature: options.temperature,
           test: (response: unknown) => {
             if (!Array.isArray(response)) {
               throw new Error(
