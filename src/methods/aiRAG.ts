@@ -18,6 +18,7 @@ export default async function aiRAG(
     thinkingLevel?: "minimal" | "low" | "medium" | "high";
     webSearch?: boolean;
     model?: string;
+    temperature?: number;
     embeddingsModel?: string;
     ollamaEmbeddings?: boolean;
     embeddingsConcurrent?: number;
@@ -127,6 +128,7 @@ ${retrievedData.join("\n\n-----\n\n")}`,
       thinkingLevel: options.thinkingLevel,
       webSearch: options.webSearch,
       model: options.model,
+      temperature: options.temperature,
     },
   ) as Promise<string>;
 

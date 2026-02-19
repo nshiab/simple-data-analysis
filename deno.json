@@ -22,7 +22,7 @@
   "nodeModulesDir": "auto",
   "imports": {
     "@duckdb/node-api": "npm:@duckdb/node-api@1.4.4-r.1",
-    "@nshiab/journalism-ai": "jsr:@nshiab/journalism-ai@^1.2.10",
+    "@nshiab/journalism-ai": "jsr:@nshiab/journalism-ai@^1.2.12",
     "@nshiab/journalism-dataviz": "jsr:@nshiab/journalism-dataviz@^1.0.3",
     "@nshiab/journalism-format": "jsr:@nshiab/journalism-format@^1.0.3",
     "@nshiab/journalism-google": "jsr:@nshiab/journalism-google@^1.0.4",

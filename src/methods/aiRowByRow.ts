@@ -17,6 +17,7 @@ export default async function aiRowByRow(
     test?: (result: { [key: string]: unknown }) => void;
     retry?: number;
     model?: string;
+    temperature?: number;
     apiKey?: string;
     vertex?: boolean;
     project?: string;

@@ -618,6 +618,7 @@ export default class SimpleTable extends Simple {
    * @param options.retry - The number of times to retry the request in case of failure. Defaults to `0`.
    * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
    * @param options.model - The AI model to use. Defaults to the `AI_MODEL` environment variable.
+   * @param options.temperature - The temperature setting for the AI model, controlling the randomness of the output. Defaults to `0`.
    * @param options.apiKey - The API key for the AI service. Defaults to the `AI_KEY` environment variable.
    * @param options.vertex - If `true`, uses Vertex AI. Automatically set to `true` if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to `false`.
    * @param options.project - The Google Cloud project ID for Vertex AI. Defaults to the `AI_PROJECT` environment variable.
@@ -708,6 +709,7 @@ export default class SimpleTable extends Simple {
       test?: (result: { [key: string]: unknown }) => void;
       retry?: number;
       model?: string;
+      temperature?: number;
       apiKey?: string;
       vertex?: boolean;
       project?: string;
@@ -778,6 +780,7 @@ export default class SimpleTable extends Simple {
    * @param options.webSearch - (Gemini only) If `true`, enables web search grounding for the AI's responses. Be careful of extra costs. Defaults to `false`.
    * @param options.schemaJson - A Zod JSON schema object for structured output. This overrides the default schema based on the 'newColumn' names.
    * @param options.model - The AI model to use. Defaults to the `AI_MODEL` environment variable.
+   * @param options.temperature - The temperature setting for the AI model, controlling the randomness of the output. Defaults to `0`.
    * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
    * @returns A promise that resolves when the AI processing is complete.
    * @category AI
@@ -1091,6 +1094,7 @@ export default class SimpleTable extends Simple {
    * @param options.thinkingLevel - Sets the thinking level for reasoning: "minimal", "low", "medium", or "high", which some models expect instead of `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided. For Ollama models, any value enables reasoning.
    * @param options.webSearch - (Gemini only) If `true`, enables web search grounding for the AI's responses. Be careful of extra costs. Defaults to `false`.
    * @param options.model - The LLM model to use for answering the query. Defaults to the `AI_MODEL` environment variable.
+   * @param options.temperature - The temperature setting for the AI model, controlling the randomness of the output. Defaults to `0`.
    * @param options.embeddingsModel - The model to use for generating embeddings. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
    * @param options.ollamaEmbeddings - If `true`, forces the use of Ollama for embeddings generation, even if Gemini or Vertex is used for the LLM. Defaults to `false`.
    * @param options.embeddingsConcurrent - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
@@ -1229,6 +1233,7 @@ export default class SimpleTable extends Simple {
       thinkingLevel?: "minimal" | "low" | "medium" | "high";
       webSearch?: boolean;
       model?: string;
+      temperature?: number;
       embeddingsModel?: string;
       ollamaEmbeddings?: boolean;
       embeddingsConcurrent?: number;
