@@ -106,6 +106,7 @@ import nestQuery from "../helpers/nestQuery.ts";
 import concatenateRowQuery from "../helpers/concatenateRowQuery.ts";
 import aiRowByRowPool from "../methods/aiRowByRowPool.ts";
 import aiRAG from "../methods/aiRAG.ts";
+import bm25 from "../methods/bm25.ts";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
@@ -1077,7 +1078,7 @@ export default class SimpleTable extends Simple {
    *
    * The LLM temperature is set to 0 for reproducibility, though consistency cannot be guaranteed.
    *
-   * If `createIndex` is `true`, an index will be created on the new column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful for speeding up the `aiVectorSimilarity` method, but note that indexes are only persisted if the database is written to a file.
+   * If `createIndex` is `true`, an index will be created on the new column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful for speeding up the `aiVectorSimilarity` method.
    *
    * This method does not support tables containing geometries.
    *
@@ -1098,7 +1099,7 @@ export default class SimpleTable extends Simple {
    * @param options.embeddingsModel - The model to use for generating embeddings. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
    * @param options.ollamaEmbeddings - If `true`, forces the use of Ollama for embeddings generation, even if Gemini or Vertex is used for the LLM. Defaults to `false`.
    * @param options.embeddingsConcurrent - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
-   * @param options.createIndex - If `true`, an index will be created on the new column. Useful for speeding up the `aiVectorSimilarity` method. Note that indexes are only persisted if the database is written to a file. Defaults to `false`.
+   * @param options.createIndex - If `true`, an index will be created on the new column. Useful for speeding up the `aiVectorSimilarity` method. Defaults to `false`.
    * @returns A promise that resolves to the AI's answer to the query based on the retrieved context.
    * @category AI
    *
@@ -1178,7 +1179,7 @@ export default class SimpleTable extends Simple {
    *
    * @example
    * ```ts
-   * // Persist the vector index by writing the database to a file
+   * // Persist the data and index by writing the database to a file
    * // If you don't write the DB to a file, the index is not stored
    * // and needs to be recreated every time you run your code.
    * // This example shows a script that can be re-run multiple times.
@@ -1193,7 +1194,6 @@ export default class SimpleTable extends Simple {
    *   sdb = new SimpleDB({ file: "recipes.db" });
    *   table = sdb.newTable("recipes");
    *   await table.loadData("recipes.parquet");
-   *   await table.removeMissing({ columns: "Recipe" });
    * } else {
    *   // Subsequent runs: load the existing database
    *   // The vector index is preserved, so it doesn't need to be recreated
@@ -1209,8 +1209,8 @@ export default class SimpleTable extends Simple {
    *   "Recipe",
    *   10,
    *   {
-   *     cache: true, // Embeddings are cached for reuse
-   *     createIndex: true, // Index is persisted because DB is written to a file
+   *     cache: true,
+   *     createIndex: true,
    *   }
    * );
    *
@@ -1294,6 +1294,119 @@ export default class SimpleTable extends Simple {
     verbose?: boolean;
   } = {}): Promise<void> {
     await aiQuery(this, prompt, options);
+  }
+
+  /**
+   * Performs BM25 full-text search on a text column to find the most relevant results. BM25 (Best Matching 25) is a ranking function used in information retrieval that calculates relevance scores based on term frequency and document length normalization.
+   *
+   * This method creates a full-text search index on the specified text column using DuckDB's [FTS extension](https://duckdb.org/docs/stable/core_extensions/full_text_search). If the index already exists, it will be reused.
+   *
+   * @param text - The search query text to match against the text column.
+   * @param columnId - The name of the column containing unique identifiers for each row.
+   * @param columnText - The name of the column containing the text to search.
+   * @param nbResults - The number of top-ranked results to return.
+   * @param options - An optional object with configuration options:
+   * @param options.outputTable - The name of a new table where the results will be stored. If not provided, the current table will be replaced with the search results.
+   * @param options.verbose - If `true`, logs additional debugging information, including FTS index creation status. Defaults to `false`.
+   * @param options.k - The BM25 k parameter controlling term frequency saturation. Defaults to 1.2.
+   * @param options.b - The BM25 b parameter controlling document length normalization (0-1 range). Defaults to 0.75.
+   * @param options.stemmer - The language stemmer to apply for word normalization. Supports multiple languages or "none" to disable stemming. Defaults to 'porter'.
+   * @returns A promise that resolves to a SimpleTable instance containing the search results, ordered by relevance (best matches first).
+   * @category Text Search
+   *
+   * @example
+   * ```ts
+   * // Load a dataset of recipes
+   * await table.loadData("recipes.parquet");
+   *
+   * // Search for "italian food" in the Recipe column, return top 5 results
+   * await table.bm25("italian food", "Dish", "Recipe", 5);
+   *
+   * // Check the results
+   * const dishes = await table.getValues("Dish");
+   * // Returns: ["Carbonara", "Pizza", "Risotto", "Tiramisu", "Escarole Soup"]
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Search with a specific language stemmer
+   * await table.bm25("french food", "Dish", "Recipe", 5, {
+   *   stemmer: "french",
+   * });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Save results to a new table without modifying the original
+   * const italianDishes = await table.bm25("italian food", "Dish", "Recipe", 5, {
+   *   outputTable: "italian_results",
+   * });
+   *
+   * // Original table remains unchanged
+   * const allDishes = await table.getValues("Dish");
+   * console.log(allDishes.length); // 336 (all dishes)
+   *
+   * // New table contains only search results
+   * const italianOnly = await italianDishes.getValues("Dish");
+   * console.log(italianOnly.length); // 5 (top results)
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Multiple searches reuse the same index for better performance
+   * // The first search creates the index
+   * const italian = await table.bm25("italian food", "Dish", "Recipe", 5, {
+   *   outputTable: "italian",
+   * });
+   *
+   * // The second search reuses the existing index, so it's faster
+   * const french = await table.bm25("french food", "Dish", "Recipe", 5, {
+   *   outputTable: "french",
+   * });
+   * ```
+   */
+  async bm25(
+    text: string,
+    columnId: string,
+    columnText: string,
+    nbResults: number,
+    options: {
+      outputTable?: string;
+      verbose?: boolean;
+      k?: number;
+      b?: number;
+      stemmer?:
+        | "arabic"
+        | "basque"
+        | "catalan"
+        | "danish"
+        | "dutch"
+        | "english"
+        | "finnish"
+        | "french"
+        | "german"
+        | "greek"
+        | "hindi"
+        | "hungarian"
+        | "indonesian"
+        | "irish"
+        | "italian"
+        | "lithuanian"
+        | "nepali"
+        | "norwegian"
+        | "porter"
+        | "portuguese"
+        | "romanian"
+        | "russian"
+        | "serbian"
+        | "spanish"
+        | "swedish"
+        | "tamil"
+        | "turkish"
+        | "none";
+    } = {},
+  ): Promise<SimpleTable> {
+    return await bm25(this, text, columnId, columnText, nbResults, options);
   }
 
   /**
