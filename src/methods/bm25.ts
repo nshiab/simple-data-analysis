@@ -76,11 +76,11 @@ export default async function bm25(
       options.outputTable ?? simpleTable.name
     }" AS SELECT * EXCLUDE(score) FROM (SELECT *, fts_main_${
       camelCase(simpleTable.name)
-    }.match_bm25(${columnId}, '${text}'${
+    }.match_bm25(${columnId}, '${text.replace(/'/g, "''")}'${
       typeof options.k === "number" ? `, k := ${options.k}` : ""
     }${
       typeof options.b === "number" ? `, b := ${options.b}` : ""
-    }) AS score FROM "${simpleTable.name}") sq WHERE score ORDER BY score DESC LIMIT ${nbResults};`,
+    }) AS score FROM "${simpleTable.name}") sq WHERE score NOT NULL ORDER BY score DESC LIMIT ${nbResults};`,
     mergeOptions(simpleTable, {
       table: simpleTable.name,
       method: "bm25",
