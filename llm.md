@@ -1385,16 +1385,12 @@ await similarFoods.logTable();
 
 #### `aiRAG`
 
-Performs Retrieval-Augmented Generation (RAG) by passing semantic search results
-to an LLM. This method uses the `aiEmbeddings` and `aiVectorSimilarity` methods
-to retrieve the most relevant context based on your query, and then calls the
-`askAI` function from the journalism library to generate an answer based on that
-context.
-
-This method generates embeddings for a specified column (that can be cached and
-indexed for efficiency), retrieves the most semantically similar content based
-on your query, and uses an LLM to answer your question based on the retrieved
-data.
+Performs Retrieval-Augmented Generation (RAG) by combining semantic vector
+search and BM25 full-text search to retrieve the most relevant context, then
+passing it to an LLM for answering queries. This hybrid approach uses both
+`aiVectorSimilarity` (embeddings-based) and `bm25` (keyword-based) methods in
+parallel, fusing their results using Reciprocal Rank Fusion (RRF) before calling
+the `askAI` function from the journalism library.
 
 The embeddings are cached at two levels:
 
@@ -1407,10 +1403,11 @@ The embeddings are cached at two levels:
   content has been previously cached, the existing embedding will be reused,
   even if the table has been renamed (as long as the text content is unchanged).
 
-Also, the methods creates the column `{column}_embedding` to store the generated
-embeddings. If you wrote your DB to a file, and if the column already exists, it
-will reuse the existing `{column}_embedding` column directly, before even
-checking the cache, since the DB file itself serves as a cache.
+Also, the method creates the column `{columnText}_embeddings` to store the
+generated embeddings. If you wrote your DB to a file, and if the column already
+exists, it will reuse the existing embeddings column directly, before even
+checking the cache, since the DB file itself serves as a cache. Similarly, the
+embeddings and BM25 index are reused if they already exist.
 
 To delete the cache, simply remove the `.journalism-cache` and/or `.sda-cache`
 directories in your project or set the cache option to `false`. Remember to add
@@ -1429,24 +1426,27 @@ use Ollama embeddings via the `ollamaEmbeddings` option.
 The LLM temperature is set to 0 for reproducibility, though consistency cannot
 be guaranteed.
 
-If `createIndex` is `true`, an index will be created on the new column using the
-[duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful for
-speeding up the `aiVectorSimilarity` method, but note that indexes are only
-persisted if the database is written to a file.
+If `createIndex` is `true`, both a vector index (using the
+[duckdb-vss extension](https://github.com/duckdb/duckdb-vss)) and a BM25
+full-text search index (using the
+[fts extension](https://duckdb.org/docs/stable/core_extensions/full_text_search))
+will be created for faster retrieval.
 
 This method does not support tables containing geometries.
 
 ##### Signature
 
 ```typescript
-async aiRAG(query: string, column: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; systemPrompt?: string; modelContextWindow?: number; embeddingsModelContextWindow?: number; createIndex?: boolean; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; model?: string; temperature?: number; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number }): Promise<string>;
+async aiRAG(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; systemPrompt?: string; modelContextWindow?: number; embeddingsModelContextWindow?: number; createIndex?: boolean; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; model?: string; temperature?: number; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; k?: number; b?: number }): Promise<string>;
 ```
 
 ##### Parameters
 
 - **`query`**: - The question or query to answer using the retrieved context.
-- **`column`**: - The name of the column containing the text content to search
-  through and use as context.
+- **`columnId`**: - The name of the column containing unique identifiers for
+  each row.
+- **`columnText`**: - The name of the column containing the text content to
+  search through and use as context.
 - **`nbResults`**: - The number of most similar rows to retrieve and use as
   context for the AI.
 - **`options`**: - Configuration options for the RAG process.
@@ -1485,10 +1485,15 @@ async aiRAG(query: string, column: string, nbResults: number, options?: { cache?
   to `false`.
 - **`options.embeddingsConcurrent`**: - The number of concurrent requests to
   send to the embeddings service. Defaults to `1`.
-- **`options.createIndex`**: - If `true`, an index will be created on the new
-  column. Useful for speeding up the `aiVectorSimilarity` method. Note that
-  indexes are only persisted if the database is written to a file. Defaults to
-  `false`.
+- **`options.createIndex`**: - If `true`, both vector and BM25 indexes will be
+  created for faster retrieval. Defaults to `false`.
+- **`options.stemmer`**: - The language stemmer to apply for BM25 word
+  normalization. Supports multiple languages or "none" to disable stemming.
+  Defaults to `'porter'`.
+- **`options.k`**: - The BM25 k parameter controlling term frequency saturation.
+  Defaults to `1.2`.
+- **`options.b`**: - The BM25 b parameter controlling document length
+  normalization (0-1 range). Defaults to `0.75`.
 
 ##### Returns
 
@@ -1503,19 +1508,20 @@ const sdb = new SimpleDB();
 const table = sdb.newTable("recipes");
 await table.loadData("recipes.parquet");
 
-// Ask a question using RAG (will generate embeddings automatically)
+// Ask a question using hybrid RAG (vector + BM25 search)
 const answer = await table.aiRAG(
   "I want a buttery pastry for breakfast.",
-  "Recipe",
+  "Dish", // Column with unique IDs
+  "Recipe", // Column with text to search
   10, // The 10 most relevant recipes passed to the LLM
   {
     cache: true, // Cache embeddings
-    verbose: true, // Log debugging information
+    verbose: true, // Log debugging information and timings
   },
 );
 
 console.log(answer);
-// Example output: "I recommend Croissants.
+// Example output: "I recommend croissants.
 // They are a classic buttery pastry perfect for breakfast..."
 ```
 
@@ -1523,6 +1529,7 @@ console.log(answer);
 // Use RAG with a custom system prompt
 const answer = await table.aiRAG(
   "I am looking for a round dish, but I don't remember the name.",
+  "Dish",
   "Recipe",
   10,
   {
@@ -1534,44 +1541,62 @@ const answer = await table.aiRAG(
 
 console.log(answer);
 // Example output: "The dish you seek is quite a treat,
-// A Pizza round, it can't be beat!"
+// A Pizza round, it can't be beat pizza!"
 ```
 
 ```ts
 // Use RAG with reasoning enabled for complex queries
 const answer = await table.aiRAG(
   "I am vegan. What can I eat for lunch that is spicy?",
+  "Dish",
   "Recipe",
   10,
   {
     cache: true,
-    thinkingLevel: "minimal", // Enable reasoning with minimal thinking
+    thinkingLevel: "high", // Enable reasoning with high thinking
   },
 );
 
 console.log(answer);
-// The AI will analyze the recipes and provide vegan spicy options
+// The AI will analyze the recipes and provide vegan spicy options with citations
+```
+
+```ts
+// Customize BM25 parameters for better text matching
+const answer = await table.aiRAG(
+  "What's a healthy dinner option?",
+  "Dish",
+  "Recipe",
+  10,
+  {
+    cache: true,
+    stemmer: "english", // Use English stemmer for BM25
+    k: 1.5, // Adjust term frequency saturation
+    b: 0.8, // Adjust document length normalization
+  },
+);
 ```
 
 ```ts
 // Use Ollama for embeddings even when using Gemini for the LLM
 const answer = await table.aiRAG(
-  "What's a healthy dinner option?",
+  "What's a traditional French dish?",
+  "Dish",
   "Recipe",
   10,
   {
     cache: true,
     ollamaEmbeddings: true, // Use Ollama for embeddings
-    model: "gemini-3-flash", // Use Gemini for answering
-    thinkingLevel: "minimal",
+    model: "gemini-2.0-flash", // Use Gemini for answering
+    stemmer: "french", // Use French stemmer for BM25
   },
 );
 ```
 
 ```ts
-// Persist the vector index by writing the database to a file
-// If you don't write the DB to a file, the index is not stored
-// and needs to be recreated every time you run your code.
+// Persist the data and indexes by writing the database to a file
+// If you don't write the DB to a file, the indexes are not stored
+// and need to be recreated every time you run your code.
 // This example shows a script that can be re-run multiple times.
 import { existsSync } from "node:fs";
 
@@ -1584,24 +1609,23 @@ if (!existsSync("recipes.db")) {
   sdb = new SimpleDB({ file: "recipes.db" });
   table = sdb.newTable("recipes");
   await table.loadData("recipes.parquet");
-  await table.removeMissing({ columns: "Recipe" });
 } else {
   // Subsequent runs: load the existing database
-  // The vector index is preserved, so it doesn't need to be recreated
   sdb = new SimpleDB();
   await sdb.loadDB("recipes.db");
   table = await sdb.getTable("recipes");
 }
 
-// Generate embeddings and create index (stored in DB file on first run)
-// On subsequent runs, this will reuse the existing embeddings and index - much faster!
+// Generate embeddings and create indexes (stored in DB file on first run)
+// On subsequent runs, this will reuse existing embeddings and indexes - much faster!
 const answer = await table.aiRAG(
   "I want a buttery pastry for breakfast.",
+  "Dish",
   "Recipe",
   10,
   {
-    cache: true, // Embeddings are cached for reuse
-    createIndex: true, // Index is persisted because DB is written to a file
+    cache: true,
+    createIndex: true,
   },
 );
 
@@ -1684,6 +1708,99 @@ await table.aiQuery(
   "Give me the average salary by department",
   { cache: true, verbose: true },
 );
+```
+
+#### `bm25`
+
+Performs BM25 full-text search on a text column to find the most relevant
+results. BM25 (Best Matching 25) is a ranking function used in information
+retrieval that calculates relevance scores based on term frequency and document
+length normalization.
+
+This method creates a full-text search index on the specified text column using
+DuckDB's
+[FTS extension](https://duckdb.org/docs/stable/core_extensions/full_text_search).
+If the index already exists, it will be reused.
+
+##### Signature
+
+```typescript
+async bm25(text: string, columnId: string, columnText: string, nbResults: number, options?: { outputTable?: string; verbose?: boolean; k?: number; b?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none" }): Promise<SimpleTable>;
+```
+
+##### Parameters
+
+- **`text`**: - The search query text to match against the text column.
+- **`columnId`**: - The name of the column containing unique identifiers for
+  each row.
+- **`columnText`**: - The name of the column containing the text to search.
+- **`nbResults`**: - The number of top-ranked results to return.
+- **`options`**: - An optional object with configuration options:
+- **`options.outputTable`**: - The name of a new table where the results will be
+  stored. If not provided, the current table will be replaced with the search
+  results.
+- **`options.verbose`**: - If `true`, logs additional debugging information,
+  including FTS index creation status. Defaults to `false`.
+- **`options.k`**: - The BM25 k parameter controlling term frequency saturation.
+  Defaults to 1.2.
+- **`options.b`**: - The BM25 b parameter controlling document length
+  normalization (0-1 range). Defaults to 0.75.
+- **`options.stemmer`**: - The language stemmer to apply for word normalization.
+  Supports multiple languages or "none" to disable stemming. Defaults to
+  'porter'.
+
+##### Returns
+
+A promise that resolves to a SimpleTable instance containing the search results,
+ordered by relevance (best matches first).
+
+##### Examples
+
+```ts
+// Load a dataset of recipes
+await table.loadData("recipes.parquet");
+
+// Search for "italian food" in the Recipe column, return top 5 results
+await table.bm25("italian food", "Dish", "Recipe", 5);
+
+// Check the results
+const dishes = await table.getValues("Dish");
+// Returns: ["Carbonara", "Pizza", "Risotto", "Tiramisu", "Escarole Soup"]
+```
+
+```ts
+// Search with a specific language stemmer
+await table.bm25("french food", "Dish", "Recipe", 5, {
+  stemmer: "french",
+});
+```
+
+```ts
+// Save results to a new table without modifying the original
+const italianDishes = await table.bm25("italian food", "Dish", "Recipe", 5, {
+  outputTable: "italian_results",
+});
+
+// Original table remains unchanged
+const allDishes = await table.getValues("Dish");
+console.log(allDishes.length); // 336 (all dishes)
+
+// New table contains only search results
+const italianOnly = await italianDishes.getValues("Dish");
+console.log(italianOnly.length); // 5 (top results)
+```
+
+```ts
+// Multiple searches reuse the same index for better performance
+// The first search creates the index
+const italian = await table.bm25("italian food", "Dish", "Recipe", 5, {
+  outputTable: "italian",
+});
+
+// The second search reuses the existing index, so it's faster
+const french = await table.bm25("french food", "Dish", "Recipe", 5, {
+  outputTable: "french",
+});
 ```
 
 #### `insertRows`
