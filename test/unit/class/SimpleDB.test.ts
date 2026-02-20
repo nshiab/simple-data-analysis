@@ -529,6 +529,57 @@ Deno.test("should respect the data types when returning data with custom query",
   assertEquals(returnedData, data);
   await sdb.done();
 });
+Deno.test("should create a DB with bm25 index", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadData("test/data/files/recipes.parquet");
+  await table.removeDuplicates({ on: "Dish" });
+
+  await table.bm25("italian food", "Dish", "Recipe", 10, { verbose: true });
+  await table.logTable(1);
+
+  await sdb.writeDB(`${output}database_bm25.db`);
+
+  // Just making sure it's doesnt crash for now
+  assertEquals(true, true);
+  await sdb.done();
+});
+Deno.test("should load a DB with bm25 index", async () => {
+  const sdb = new SimpleDB();
+  await sdb.loadDB(`${output}database_bm25.db`);
+  const table = await sdb.getTable("data");
+  await table.bm25("italian food", "Dish", "Recipe", 5, { verbose: true });
+  await table.logTable(1);
+  // Just making sure it's doesnt crash for now
+  assertEquals(true, true);
+  await sdb.done();
+});
+Deno.test("should instantiate by creating a new file and add bm25 index", async () => {
+  const sdb = new SimpleDB({
+    file: `${output}database_bm25_new.db`,
+    overwrite: true,
+  });
+  const table = sdb.newTable("data");
+  await table.loadData("test/data/files/recipes.parquet");
+  await table.removeDuplicates({ on: "Dish" });
+
+  await table.bm25("italian food", "Dish", "Recipe", 10, { verbose: true });
+  await table.logTable(1);
+
+  // Just making sure it's doesnt crash for now
+  assertEquals(true, true);
+  await sdb.done();
+});
+Deno.test("should load a DB instantiated with a file, with bm25 index", async () => {
+  const sdb = new SimpleDB();
+  await sdb.loadDB(`${output}database_bm25_new.db`);
+  const table = await sdb.getTable("data");
+  await table.bm25("italian food", "Dish", "Recipe", 5, { verbose: true });
+  await table.logTable(1);
+  // Just making sure it's doesnt crash for now
+  assertEquals(true, true);
+  await sdb.done();
+});
 const ollama = Deno.env.get("OLLAMA");
 if (typeof ollama === "string" && ollama !== "") {
   Deno.test("should create a DB with embeddings and an index", async () => {
@@ -544,6 +595,7 @@ if (typeof ollama === "string" && ollama !== "") {
     ]);
 
     await table.aiEmbeddings("food", "embeddings", {
+      cache: true,
       verbose: true,
       createIndex: true,
     });
@@ -558,6 +610,10 @@ if (typeof ollama === "string" && ollama !== "") {
     const sdb = new SimpleDB();
     await sdb.loadDB(`${output}database_embeddings.db`);
     const table = await sdb.getTable("data");
+    await table.aiVectorSimilarity("italy", "embeddings", 25, {
+      createIndex: true,
+      verbose: true,
+    });
     await table.logTable();
     // Just making sure it's doesnt crash for now
     assertEquals(true, true);
@@ -579,6 +635,7 @@ if (typeof ollama === "string" && ollama !== "") {
     ]);
 
     await table.aiEmbeddings("food", "embeddings", {
+      cache: true,
       verbose: true,
       createIndex: true,
     });
@@ -591,7 +648,84 @@ if (typeof ollama === "string" && ollama !== "") {
     const sdb = new SimpleDB();
     await sdb.loadDB(`${output}database_embeddings_new.db`);
     const table = await sdb.getTable("data");
+    await table.aiVectorSimilarity("italy", "embeddings", 25, {
+      createIndex: true,
+      verbose: true,
+    });
     await table.logTable();
+    // Just making sure it's doesnt crash for now
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  // Embedding and bm25 together
+  Deno.test("should create a DB with embeddings and bm25 index", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadData("test/data/files/recipes.parquet");
+    await table.removeDuplicates({ on: "Dish" });
+    await table.removeMissing({ columns: ["Dish", "Recipe"] });
+
+    await table.aiEmbeddings("Recipe", "embeddings", {
+      cache: true,
+      verbose: true,
+      createIndex: true,
+    });
+    await table.bm25("italian food", "Dish", "Recipe", 10, { verbose: true });
+    await table.logTable(1);
+
+    await sdb.writeDB(`${output}database_embeddings.db`);
+
+    // Just making sure it's doesnt crash for now
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  Deno.test("should load a DB with embeddings and bm25 index", async () => {
+    const sdb = new SimpleDB();
+    await sdb.loadDB(`${output}database_embeddings.db`);
+    const table = await sdb.getTable("data");
+
+    await table.aiVectorSimilarity("italy", "embeddings", 25, {
+      createIndex: true,
+      verbose: true,
+    });
+    await table.bm25("italian food", "Dish", "Recipe", 5, { verbose: true });
+    // Just making sure it's doesnt crash for now
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  Deno.test("should instantiate by creating a new file and add embeddings and an index", async () => {
+    const sdb = new SimpleDB({
+      file: `${output}database_embeddings_new.db`,
+      overwrite: true,
+    });
+
+    const table = sdb.newTable("data");
+    await table.loadData("test/data/files/recipes.parquet");
+    await table.removeDuplicates({ on: "Dish" });
+    await table.removeMissing({ columns: ["Dish", "Recipe"] });
+
+    await table.aiEmbeddings("Recipe", "embeddings", {
+      verbose: true,
+      createIndex: true,
+      cache: true,
+    });
+    await table.bm25("italian food", "Dish", "Recipe", 10, { verbose: true });
+    await table.logTable(1);
+
+    // Just making sure it's doesnt crash for now
+    assertEquals(true, true);
+    await sdb.done();
+  });
+  Deno.test("should load a DB instantiated with a file, with embeddings and an index", async () => {
+    const sdb = new SimpleDB();
+    await sdb.loadDB(`${output}database_embeddings_new.db`);
+    const table = await sdb.getTable("data");
+
+    await table.aiVectorSimilarity("italy", "embeddings", 25, {
+      createIndex: true,
+      verbose: true,
+    });
+    await table.bm25("italian food", "Dish", "Recipe", 5, { verbose: true });
     // Just making sure it's doesnt crash for now
     assertEquals(true, true);
     await sdb.done();

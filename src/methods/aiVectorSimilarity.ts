@@ -38,7 +38,7 @@ export default async function aiVectorSimilarity(
         `vss_cosine_index${camelCase(simpleTable.name)}`,
       )
     ) {
-      options.verbose && console.log("Index already exists.");
+      options.verbose && console.log("HNSW index already exists.");
     } else {
       await simpleTable.sdb.customQuery(
         `INSTALL vss; LOAD vss;${
