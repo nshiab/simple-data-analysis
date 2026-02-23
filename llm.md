@@ -1207,14 +1207,15 @@ the `getEmbedding` function in the
 
 If `createIndex` is `true`, an index will be created on the new column using the
 [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful for
-speeding up the `aiVectorSimilarity` method.
+speeding up the `aiVectorSimilarity` method. If the index already exists, it
+will not be recreated unless `overwriteIndex` is `true`.
 
 This method does not support tables containing geometries.
 
 ##### Signature
 
 ```typescript
-async aiEmbeddings(column: string, newColumn: string, options?: { createIndex?: boolean; concurrent?: number; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; contextWindow?: number }): Promise<void>;
+async aiEmbeddings(column: string, newColumn: string, options?: { createIndex?: boolean; overwriteIndex?: boolean; concurrent?: number; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; contextWindow?: number }): Promise<void>;
 ```
 
 ##### Parameters
@@ -1227,6 +1228,8 @@ async aiEmbeddings(column: string, newColumn: string, options?: { createIndex?: 
 - **`options.createIndex`**: - If `true`, an index will be created on the new
   column. Useful for speeding up the `aiVectorSimilarity` method. Defaults to
   `false`.
+- **`options.overwriteIndex`**: - If `true` and `createIndex` is `true`, drops
+  and recreates the VSS index even if it already exists. Defaults to `false`.
 - **`options.concurrent`**: - The number of concurrent requests to send.
   Defaults to `1`.
 - **`options.cache`**: - If `true`, the results will be cached locally. Defaults
@@ -1304,12 +1307,13 @@ The `cache` option enables local caching of the specified text's embedding in
 
 If `createIndex` is `true`, an index will be created on the embeddings column
 using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss) to speed
-up processing. If the index already exists, it will not be recreated.
+up processing. If the index already exists, it will not be recreated unless
+`overwriteIndex` is `true`.
 
 ##### Signature
 
 ```typescript
-async aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { createIndex?: boolean; outputTable?: string; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; contextWindow?: number; verbose?: boolean }): Promise<SimpleTable>;
+async aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { createIndex?: boolean; overwriteIndex?: boolean; outputTable?: string; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; contextWindow?: number; verbose?: boolean }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -1322,6 +1326,8 @@ async aiVectorSimilarity(text: string, column: string, nbResults: number, option
 - **`options`**: - An optional object with configuration options:
 - **`options.createIndex`**: - If `true`, an index will be created on the
   embeddings column. Defaults to `false`.
+- **`options.overwriteIndex`**: - If `true` and `createIndex` is `true`, drops
+  and recreates the VSS index even if it already exists. Defaults to `false`.
 - **`options.outputTable`**: - The name of the output table where the results
   will be stored. If not provided, the current table will be modified. Defaults
   to `undefined`.
@@ -1894,6 +1900,129 @@ await table.aiQuery(
 );
 ```
 
+#### `createFtsIndex`
+
+Creates a full-text search (FTS) index on a specified text column using DuckDB's
+[FTS extension](https://duckdb.org/docs/stable/core_extensions/full_text_search).
+
+If an FTS index already exists on the table, this method will skip creation and
+log a message (when verbose is enabled), unless the `overwrite` option is set to
+`true`.
+
+##### Signature
+
+```typescript
+async createFtsIndex(columnId: string, columnText: string, options?: { stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; overwrite?: boolean; verbose?: boolean }): Promise<SimpleTable>;
+```
+
+##### Parameters
+
+- **`columnId`**: - The name of the column containing unique identifiers for
+  each row.
+- **`columnText`**: - The name of the column containing the text to index.
+- **`options`**: - An optional object with configuration options:
+- **`options.stemmer`**: - The language stemmer to apply for word normalization.
+  Supports multiple languages or "none" to disable stemming. Defaults to
+  'porter'.
+- **`options.overwrite`**: - If `true`, recreates the index even if it already
+  exists. Defaults to `false`.
+- **`options.verbose`**: - If `true`, logs additional debugging information,
+  including index creation status. Defaults to `false`.
+
+##### Returns
+
+A promise that resolves to the SimpleTable instance for method chaining.
+
+##### Examples
+
+```ts
+// Load a dataset and create an FTS index
+await table.loadData("recipes.parquet");
+
+// Create FTS index for later searches
+await table.createFtsIndex("Dish", "Recipe");
+```
+
+```ts
+// Create an index with a specific language stemmer
+await table.createFtsIndex("Dish", "Recipe", {
+  stemmer: "french",
+});
+```
+
+```ts
+// Recreate an existing index with different settings
+await table.createFtsIndex("Dish", "Recipe", {
+  stemmer: "english",
+  overwrite: true,
+});
+```
+
+```ts
+// Create index with verbose logging
+await table.createFtsIndex("Dish", "Recipe", {
+  verbose: true,
+});
+// Logs: "Creating FTS index on 'Recipe' column..."
+// Logs: "FTS index created successfully."
+```
+
+#### `createVssIndex`
+
+Creates a vector similarity search (VSS) index on a specified column using
+DuckDB's [VSS extension](https://duckdb.org/docs/stable/extensions/vss).
+
+If a VSS index already exists on the table, this method will skip creation and
+log a message (when verbose is enabled), unless the `overwrite` option is set to
+`true`.
+
+##### Signature
+
+```typescript
+async createVssIndex(column: string, options?: { overwrite?: boolean; verbose?: boolean }): Promise<SimpleTable>;
+```
+
+##### Parameters
+
+- **`column`**: - The name of the column containing vector embeddings (must be
+  FLOAT array type).
+- **`options`**: - An optional object with configuration options:
+- **`options.overwrite`**: - If `true`, drops and recreates the index even if it
+  already exists. Defaults to `false`.
+- **`options.verbose`**: - If `true`, logs additional debugging information,
+  including index creation status. Defaults to `false`.
+
+##### Returns
+
+A promise that resolves to the SimpleTable instance for method chaining.
+
+##### Examples
+
+```ts
+// Create embeddings and then create a VSS index
+await table.loadData("data.csv");
+await table.aiEmbeddings("text_column", "embedding_column");
+
+// Create VSS index for fast similarity searches
+await table.createVssIndex("embedding_column");
+```
+
+```ts
+// Recreate an existing index
+await table.createVssIndex("embedding_column", {
+  overwrite: true,
+});
+```
+
+```ts
+// Create index with verbose logging
+await table.createVssIndex("embedding_column", {
+  verbose: true,
+});
+// Logs: "Creating VSS index on 'embedding_column' column..."
+// Logs: "VSS index created successfully."
+```
+
 #### `bm25`
 
 Performs BM25 full-text search on a text column to find the most relevant
@@ -1904,12 +2033,13 @@ length normalization.
 This method creates a full-text search index on the specified text column using
 DuckDB's
 [FTS extension](https://duckdb.org/docs/stable/core_extensions/full_text_search).
-If the index already exists, it will be reused.
+If the index already exists, it will be reused unless the `overwriteIndex`
+option is set to `true`.
 
 ##### Signature
 
 ```typescript
-async bm25(text: string, columnId: string, columnText: string, nbResults: number, options?: { outputTable?: string; verbose?: boolean; k?: number; b?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none" }): Promise<SimpleTable>;
+async bm25(text: string, columnId: string, columnText: string, nbResults: number, options?: { outputTable?: string; verbose?: boolean; k?: number; b?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; overwriteIndex?: boolean }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -1932,6 +2062,8 @@ async bm25(text: string, columnId: string, columnText: string, nbResults: number
 - **`options.stemmer`**: - The language stemmer to apply for word normalization.
   Supports multiple languages or "none" to disable stemming. Defaults to
   'porter'.
+- **`options.overwriteIndex`**: - If `true`, drops and recreates the FTS index
+  even if it already exists. Defaults to `false`.
 
 ##### Returns
 
@@ -1956,6 +2088,14 @@ const dishes = await table.getValues("Dish");
 // Search with a specific language stemmer
 await table.bm25("french food", "Dish", "Recipe", 5, {
   stemmer: "french",
+});
+```
+
+```ts
+// Recreate the index with different settings and perform search
+await table.bm25("italian food", "Dish", "Recipe", 5, {
+  stemmer: "english",
+  overwriteIndex: true,
 });
 ```
 
