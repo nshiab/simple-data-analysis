@@ -201,7 +201,7 @@ export default async function hybridSearch(
     }" AS SELECT * FROM "${table.name}" WHERE "${columnId}" IN (${
       fusedIds
         .slice(0, nbResults)
-        .map((id) => `'${id}'`)
+        .map((id) => `'${id.replace(/'/g, "''")}'`)
         .join(", ")
     })`,
   );
