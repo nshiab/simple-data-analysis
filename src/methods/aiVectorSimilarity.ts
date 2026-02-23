@@ -1,8 +1,8 @@
-import { camelCase } from "@nshiab/journalism-format";
 import { getEmbedding } from "@nshiab/journalism-ai";
 import type { SimpleTable } from "../index.ts";
 import queryDB from "../helpers/queryDB.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
+import createVssIndex from "./createVssIndex.ts";
 
 export default async function aiVectorSimilarity(
   simpleTable: SimpleTable,
@@ -12,6 +12,7 @@ export default async function aiVectorSimilarity(
   options: {
     cache?: boolean;
     createIndex?: boolean;
+    overwriteIndex?: boolean;
     outputTable?: string;
     verbose?: boolean;
   } = {},
@@ -29,31 +30,10 @@ export default async function aiVectorSimilarity(
   }
 
   if (options.createIndex) {
-    options.verbose &&
-      console.log(
-        `\nCreating index on "${column}" column...`,
-      );
-    if (
-      simpleTable.indexes.includes(
-        `vss_cosine_index${camelCase(simpleTable.name)}`,
-      )
-    ) {
-      options.verbose && console.log("HNSW index already exists.");
-    } else {
-      await simpleTable.sdb.customQuery(
-        `INSTALL vss; LOAD vss;${
-          simpleTable.sdb.file !== ":memory:"
-            ? "\nSET hnsw_enable_experimental_persistence=true;"
-            : ""
-        }
-    CREATE INDEX vss_cosine_index${
-          camelCase(simpleTable.name)
-        } ON "${simpleTable.name}" USING HNSW ("${column}") WITH (metric = 'cosine');`,
-      );
-      simpleTable.indexes.push(
-        `vss_cosine_index${camelCase(simpleTable.name)}`,
-      );
-    }
+    await createVssIndex(simpleTable, column, {
+      overwrite: options.overwriteIndex,
+      verbose: options.verbose,
+    });
   }
 
   await queryDB(

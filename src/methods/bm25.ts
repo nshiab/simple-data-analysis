@@ -41,6 +41,7 @@ export default async function bm25(
       | "none";
     k?: number;
     b?: number;
+    overwriteIndex?: boolean;
     outputTable?: string;
     verbose?: boolean;
   } = {},
@@ -48,27 +49,11 @@ export default async function bm25(
   // This uses the fts extension
   // https://duckdb.org/docs/stable/core_extensions/full_text_search
 
-  options.verbose &&
-    console.log(
-      `\nCreating FTS index on "${columnText}" column...`,
-    );
-
-  if (
-    simpleTable.indexes.includes(
-      `fts_index${camelCase(simpleTable.name)}`,
-    )
-  ) {
-    options.verbose && console.log("FTS Index already exists.");
-  } else {
-    await simpleTable.sdb.customQuery(
-      `PRAGMA create_fts_index("${simpleTable.name}", "${columnId}", "${columnText}"${
-        options.stemmer ? `, stemmer = '${options.stemmer}'` : ""
-      });`,
-    );
-    simpleTable.indexes.push(
-      `fts_index${camelCase(simpleTable.name)}`,
-    );
-  }
+  await simpleTable.createFtsIndex(columnId, columnText, {
+    stemmer: options.stemmer,
+    overwrite: options.overwriteIndex,
+    verbose: options.verbose,
+  });
 
   await queryDB(
     simpleTable,
