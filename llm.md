@@ -1383,6 +1383,186 @@ const similarFoods = await table.aiVectorSimilarity(
 await similarFoods.logTable();
 ```
 
+#### `hybridSearch`
+
+Performs hybrid text search combining vector similarity and BM25 text search
+using Reciprocal Rank Fusion (RRF).
+
+This method:
+
+1. Generates embeddings for the text column if they don't already exist
+2. Runs vector similarity search and BM25 text search in parallel
+3. Fuses the results using Reciprocal Rank Fusion to get the best matches
+4. Returns a new table with the top results ordered by relevance
+
+The embeddings are cached at two levels:
+
+- At the table level, so renaming the table will invalidate the cache and
+  regenerate embeddings. For often updated tables, you can pass a timestamp to
+  the table name (e.g., `mytable_20240901`) to keep the cache valid until the
+  next update.
+- At the row level, so if the text content is different or not cached, the
+  embedding will be generated and cached for that specific text. If the text
+  content has been previously cached, the existing embedding will be reused,
+  even if the table has been renamed (as long as the text content is unchanged).
+
+Also, the method creates the column `{columnText}_embeddings` to store the
+generated embeddings. If you wrote your DB to a file, and if the column already
+exists, it will reuse the existing embeddings column directly, before even
+checking the cache, since the DB file itself serves as a cache. Similarly, the
+embeddings and BM25 index are reused if they already exist.
+
+To delete the cache, simply remove the `.journalism-cache` and/or `.sda-cache`
+directories in your project or set the cache option to `false`. Remember to add
+`.journalism-cache` and `.sda-cache` to your `.gitignore`.
+
+This method supports Google Gemini, Vertex AI, and local models running with
+Ollama. Credentials and model selection are determined by environment variables
+(`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`) or directly via
+`options`, with `options` taking precedence.
+
+For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is
+running, and set `AI_EMBEDDINGS_MODEL` to your desired model name. You can also
+pass your instance of Ollama.
+
+If `createIndex` is `true`, both a vector index (using the
+[duckdb-vss extension](https://github.com/duckdb/duckdb-vss)) and a BM25
+full-text search index (using the
+[fts extension](https://duckdb.org/docs/stable/core_extensions/full_text_search))
+will be created for faster retrieval.
+
+This method does not support tables containing geometries.
+
+##### Signature
+
+```typescript
+async hybridSearch(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; embeddingsModelContextWindow?: number; createIndex?: boolean; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; k?: number; b?: number; outputTable?: string; times?: { start?: number; embeddingStart?: number; embeddingEnd?: number; vectorSearchStart?: number; vectorSearchEnd?: number; bm25Start?: number; bm25End?: number } }): Promise<SimpleTable>;
+```
+
+##### Parameters
+
+- **`query`**: - The search query text.
+- **`columnId`**: - The name of the column containing unique identifiers for
+  each row.
+- **`columnText`**: - The name of the column containing the text content to
+  search through.
+- **`nbResults`**: - The number of most similar rows to retrieve.
+- **`options`**: - Configuration options for the hybrid search.
+- **`options.cache`**: - If `true`, embeddings will be cached locally. Defaults
+  to `false`.
+- **`options.verbose`**: - If `true`, logs additional debugging information.
+  Defaults to `false`.
+- **`options.embeddingsModelContextWindow`**: - An option to specify the context
+  window size for the embeddings model when using Ollama. By default, Ollama
+  sets this depending on the model, which can be lower than the actual maximum
+  context window size of the model.
+- **`options.createIndex`**: - If `true`, both vector and BM25 indexes will be
+  created for faster retrieval. Defaults to `false`.
+- **`options.embeddingsModel`**: - The model to use for generating embeddings.
+  Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
+- **`options.ollamaEmbeddings`**: - If `true`, forces the use of Ollama for
+  embeddings generation. Defaults to `false`.
+- **`options.embeddingsConcurrent`**: - The number of concurrent requests to
+  send to the embeddings service. Defaults to `1`.
+- **`options.stemmer`**: - The language stemmer to apply for BM25 word
+  normalization. Supports multiple languages or "none" to disable stemming.
+  Defaults to `'porter'`.
+- **`options.k`**: - The BM25 k parameter controlling term frequency saturation.
+  Defaults to `1.2`.
+- **`options.b`**: - The BM25 b parameter controlling document length
+  normalization (0-1 range). Defaults to `0.75`.
+- **`options.outputTable`**: - The name of a new table where the results will be
+  stored. If not provided, the current table will be replaced with the search
+  results.
+- **`options.times`**: - An optional object to track timing information. If
+  provided, it will be updated with detailed timing breakdowns (embeddingStart,
+  embeddingEnd, vectorSearchStart, vectorSearchEnd, bm25Start, bm25End). Useful
+  when calling from aiRAG to get combined timing information.
+
+##### Returns
+
+A promise that resolves to a SimpleTable instance containing the search results,
+ordered by relevance (best matches first).
+
+##### Examples
+
+```ts
+// Load a dataset of recipes
+const sdb = new SimpleDB();
+const table = sdb.newTable("recipes");
+await table.loadData("recipes.parquet");
+
+// Perform hybrid search - replaces the current table with top 10 results
+await table.hybridSearch(
+  "buttery pastry for breakfast",
+  "Dish", // Column with unique IDs
+  "Recipe", // Column with text to search
+  10, // Return top 10 results
+  {
+    cache: true, // Cache embeddings
+    verbose: true, // Log debugging information
+  },
+);
+
+// Table now contains only the most relevant recipes
+await table.logTable();
+```
+
+```ts
+// Use hybrid search with custom BM25 parameters
+await table.hybridSearch(
+  "healthy dinner option",
+  "Dish",
+  "Recipe",
+  5,
+  {
+    cache: true,
+    createIndex: true, // Create indexes for faster subsequent searches
+    stemmer: "english", // Use English stemmer for BM25
+    k: 1.5, // Adjust term frequency saturation
+    b: 0.8, // Adjust document length normalization
+  },
+);
+```
+
+```ts
+// Use Ollama for embeddings even if envronment variables are set for another provider
+const results = await table.hybridSearch(
+  "traditional French dish",
+  "Dish",
+  "Recipe",
+  10,
+  {
+    cache: true,
+    ollamaEmbeddings: true,
+    embeddingsModel: "nomic-embed-text",
+    stemmer: "french", // Use French stemmer for BM25
+  },
+);
+```
+
+```ts
+// Save results to a new table without modifying the original
+const results = await table.hybridSearch(
+  "spicy vegan lunch",
+  "Dish",
+  "Recipe",
+  10,
+  {
+    cache: true,
+    outputTable: "vegan_lunch_results",
+  },
+);
+
+// Original table remains unchanged
+const allDishes = await table.getValues("Dish");
+console.log(allDishes.length); // 336 (all dishes)
+
+// New table contains only search results
+const veganDishes = await results.getValues("Dish");
+console.log(veganDishes.length); // 10 (top results)
+```
+
 #### `aiRAG`
 
 Performs Retrieval-Augmented Generation (RAG) by combining semantic vector
@@ -1391,6 +1571,10 @@ passing it to an LLM for answering queries. This hybrid approach uses both
 `aiVectorSimilarity` (embeddings-based) and `bm25` (keyword-based) methods in
 parallel, fusing their results using Reciprocal Rank Fusion (RRF) before calling
 the `askAI` function from the journalism library.
+
+Internally, this method uses the `hybridSearch` method to retrieve relevant
+rows. If you want to perform hybrid search without the LLM step (i.e., to get
+the table of results directly), use `hybridSearch` instead.
 
 The embeddings are cached at two levels:
 
@@ -4571,6 +4755,33 @@ A promise that resolves to a number representing the total count of columns.
 // Get the number of columns in the table
 const nbColumns = await table.getNbColumns();
 console.log(nbColumns); // e.g., 3
+```
+
+#### `getNbCharacters`
+
+Returns the total number of characters in a column storing strings.
+
+##### Signature
+
+```typescript
+async getNbCharacters(column: string): Promise<number>;
+```
+
+##### Parameters
+
+- **`column`**: - The name of the string column to count characters from.
+
+##### Returns
+
+A promise that resolves to the total number of characters across all rows in the
+specified column.
+
+##### Examples
+
+```ts
+// Get the total number of characters in the 'name' column
+const totalChars = await table.getNbCharacters("name");
+console.log(totalChars); // e.g., 523
 ```
 
 #### `getNbRows`
