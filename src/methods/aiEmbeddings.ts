@@ -1,8 +1,9 @@
-import { camelCase, formatNumber } from "@nshiab/journalism-format";
+import { formatNumber } from "@nshiab/journalism-format";
 import sleep from "../helpers/sleep.ts";
 import type { SimpleTable } from "../index.ts";
 import tryEmbedding from "../helpers/tryEmbedding.ts";
 import type { Ollama } from "ollama";
+import createVssIndex from "./createVssIndex.ts";
 
 export default async function aiEmbeddings(
   simpleTable: SimpleTable,
@@ -10,6 +11,7 @@ export default async function aiEmbeddings(
   newColumn: string,
   options: {
     createIndex?: boolean;
+    overwriteIndex?: boolean;
     concurrent?: number;
     cache?: boolean;
     model?: string;
@@ -83,22 +85,9 @@ export default async function aiEmbeddings(
   });
 
   if (options.createIndex) {
-    options.verbose &&
-      console.log(
-        `\nCreating index on "${newColumn}" column...`,
-      );
-    await simpleTable.sdb.customQuery(
-      `INSTALL vss; LOAD vss;${
-        simpleTable.sdb.file !== ":memory:"
-          ? "\nSET hnsw_enable_experimental_persistence=true;"
-          : ""
-      }
-    CREATE INDEX vss_cosine_index${
-        camelCase(simpleTable.name)
-      } ON "${simpleTable.name}" USING HNSW ("${newColumn}") WITH (metric = 'cosine');`,
-    );
-    simpleTable.indexes.push(
-      `vss_cosine_index${camelCase(simpleTable.name)}`,
-    );
+    await createVssIndex(simpleTable, newColumn, {
+      overwrite: options.overwriteIndex,
+      verbose: options.verbose,
+    });
   }
 }

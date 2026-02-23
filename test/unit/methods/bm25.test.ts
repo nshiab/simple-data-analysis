@@ -110,3 +110,37 @@ Deno.test("should not recreate index if already exists", async () => {
   const allDishes = await table.getValues("Dish");
   assertEquals(allDishes.length, 336);
 });
+
+Deno.test("should recreate index with overwriteIndex option", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/recipes.parquet");
+  await table.removeDuplicates({ on: "Dish" });
+
+  // First search creates the index
+  await table.bm25("italian food", "Dish", "Recipe", 5, {
+    stemmer: "porter",
+    outputTable: "italian",
+  });
+
+  const indexCountBefore =
+    table.indexes.filter((idx) => idx.includes("fts_index")).length;
+  assertEquals(indexCountBefore, 1);
+
+  // Second search with overwriteIndex recreates the index
+  const french = await table.bm25("french food", "Dish", "Recipe", 5, {
+    stemmer: "english",
+    overwriteIndex: true,
+    outputTable: "french",
+    verbose: true,
+  });
+
+  const indexCountAfter =
+    table.indexes.filter((idx) => idx.includes("fts_index")).length;
+
+  // Should still have only one index
+  assertEquals(indexCountAfter, 1);
+
+  const dishesFrench = await french.getValues("Dish");
+  assertEquals(dishesFrench.length, 5);
+});

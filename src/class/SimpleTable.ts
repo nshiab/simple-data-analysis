@@ -108,6 +108,8 @@ import concatenateRowQuery from "../helpers/concatenateRowQuery.ts";
 import aiRowByRowPool from "../methods/aiRowByRowPool.ts";
 import aiRAG from "../methods/aiRAG.ts";
 import hybridSearch from "../methods/hybridSearch.ts";
+import createFtsIndex from "../methods/createFtsIndex.ts";
+import createVssIndex from "../methods/createVssIndex.ts";
 import bm25 from "../methods/bm25.ts";
 
 /**
@@ -918,7 +920,7 @@ export default class SimpleTable extends Simple {
    *
    * The `cache` option enables local caching of results in `.journalism-cache` (from the `getEmbedding` function in the [journalism library](https://github.com/nshiab/journalism)). Remember to add `.journalism-cache` to your `.gitignore`.
    *
-   * If `createIndex` is `true`, an index will be created on the new column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful for speeding up the `aiVectorSimilarity` method.
+   * If `createIndex` is `true`, an index will be created on the new column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful for speeding up the `aiVectorSimilarity` method. If the index already exists, it will not be recreated unless `overwriteIndex` is `true`.
    *
    * This method does not support tables containing geometries.
    *
@@ -926,6 +928,7 @@ export default class SimpleTable extends Simple {
    * @param newColumn - The name of the new column where the generated embeddings will be stored.
    * @param options - Configuration options for the AI request.
    * @param options.createIndex - If `true`, an index will be created on the new column. Useful for speeding up the `aiVectorSimilarity` method. Defaults to `false`.
+   * @param options.overwriteIndex - If `true` and `createIndex` is `true`, drops and recreates the VSS index even if it already exists. Defaults to `false`.
    * @param options.concurrent - The number of concurrent requests to send. Defaults to `1`.
    * @param options.cache - If `true`, the results will be cached locally. Defaults to `false`.
    * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
@@ -964,6 +967,7 @@ export default class SimpleTable extends Simple {
    */
   async aiEmbeddings(column: string, newColumn: string, options: {
     createIndex?: boolean;
+    overwriteIndex?: boolean;
     concurrent?: number;
     cache?: boolean;
     model?: string;
@@ -989,13 +993,14 @@ export default class SimpleTable extends Simple {
    *
    * The `cache` option enables local caching of the specified text's embedding in `.journalism-cache` (from the `getEmbedding` function in the [journalism library](https://github.com/nshiab/journalism)). Remember to add `.journalism-cache` to your `.gitignore`.
    *
-   * If `createIndex` is `true`, an index will be created on the embeddings column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss) to speed up processing. If the index already exists, it will not be recreated.
+   * If `createIndex` is `true`, an index will be created on the embeddings column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss) to speed up processing. If the index already exists, it will not be recreated unless `overwriteIndex` is `true`.
    *
    * @param text - The text for which to generate an embedding and find similar content.
    * @param column - The name of the column containing the embeddings to be used for the similarity search.
    * @param nbResults - The number of most similar results to return.
    * @param options - An optional object with configuration options:
    * @param options.createIndex - If `true`, an index will be created on the embeddings column. Defaults to `false`.
+   * @param options.overwriteIndex - If `true` and `createIndex` is `true`, drops and recreates the VSS index even if it already exists. Defaults to `false`.
    * @param options.outputTable - The name of the output table where the results will be stored. If not provided, the current table will be modified. Defaults to `undefined`.
    * @param options.cache - If `true`, the embedding of the input `text` will be cached locally. Defaults to `false`.
    * @param options.model - The AI model to use for generating the embedding. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
@@ -1046,6 +1051,7 @@ export default class SimpleTable extends Simple {
     nbResults: number,
     options: {
       createIndex?: boolean;
+      overwriteIndex?: boolean;
       outputTable?: string;
       cache?: boolean;
       model?: string;
@@ -1548,9 +1554,149 @@ export default class SimpleTable extends Simple {
   }
 
   /**
+   * Creates a full-text search (FTS) index on a specified text column using DuckDB's [FTS extension](https://duckdb.org/docs/stable/core_extensions/full_text_search).
+   *
+   * If an FTS index already exists on the table, this method will skip creation and log a message (when verbose is enabled), unless the `overwrite` option is set to `true`.
+   *
+   * @param columnId - The name of the column containing unique identifiers for each row.
+   * @param columnText - The name of the column containing the text to index.
+   * @param options - An optional object with configuration options:
+   * @param options.stemmer - The language stemmer to apply for word normalization. Supports multiple languages or "none" to disable stemming. Defaults to 'porter'.
+   * @param options.overwrite - If `true`, recreates the index even if it already exists. Defaults to `false`.
+   * @param options.verbose - If `true`, logs additional debugging information, including index creation status. Defaults to `false`.
+   * @returns A promise that resolves to the SimpleTable instance for method chaining.
+   * @category Text Search
+   *
+   * @example
+   * ```ts
+   * // Load a dataset and create an FTS index
+   * await table.loadData("recipes.parquet");
+   *
+   * // Create FTS index for later searches
+   * await table.createFtsIndex("Dish", "Recipe");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Create an index with a specific language stemmer
+   * await table.createFtsIndex("Dish", "Recipe", {
+   *   stemmer: "french",
+   * });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Recreate an existing index with different settings
+   * await table.createFtsIndex("Dish", "Recipe", {
+   *   stemmer: "english",
+   *   overwrite: true,
+   * });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Create index with verbose logging
+   * await table.createFtsIndex("Dish", "Recipe", {
+   *   verbose: true,
+   * });
+   * // Logs: "Creating FTS index on 'Recipe' column..."
+   * // Logs: "FTS index created successfully."
+   * ```
+   */
+  async createFtsIndex(
+    columnId: string,
+    columnText: string,
+    options: {
+      stemmer?:
+        | "arabic"
+        | "basque"
+        | "catalan"
+        | "danish"
+        | "dutch"
+        | "english"
+        | "finnish"
+        | "french"
+        | "german"
+        | "greek"
+        | "hindi"
+        | "hungarian"
+        | "indonesian"
+        | "irish"
+        | "italian"
+        | "lithuanian"
+        | "nepali"
+        | "norwegian"
+        | "porter"
+        | "portuguese"
+        | "romanian"
+        | "russian"
+        | "serbian"
+        | "spanish"
+        | "swedish"
+        | "tamil"
+        | "turkish"
+        | "none";
+      overwrite?: boolean;
+      verbose?: boolean;
+    } = {},
+  ): Promise<SimpleTable> {
+    return await createFtsIndex(this, columnId, columnText, options);
+  }
+
+  /**
+   * Creates a vector similarity search (VSS) index on a specified column using DuckDB's [VSS extension](https://duckdb.org/docs/stable/extensions/vss).
+   *
+   * If a VSS index already exists on the table, this method will skip creation and log a message (when verbose is enabled), unless the `overwrite` option is set to `true`.
+   *
+   * @param column - The name of the column containing vector embeddings (must be FLOAT array type).
+   * @param options - An optional object with configuration options:
+   * @param options.overwrite - If `true`, drops and recreates the index even if it already exists. Defaults to `false`.
+   * @param options.verbose - If `true`, logs additional debugging information, including index creation status. Defaults to `false`.
+   * @returns A promise that resolves to the SimpleTable instance for method chaining.
+   * @category Vector Search
+   *
+   * @example
+   * ```ts
+   * // Create embeddings and then create a VSS index
+   * await table.loadData("data.csv");
+   * await table.aiEmbeddings("text_column", "embedding_column");
+   *
+   * // Create VSS index for fast similarity searches
+   * await table.createVssIndex("embedding_column");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Recreate an existing index
+   * await table.createVssIndex("embedding_column", {
+   *   overwrite: true,
+   * });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Create index with verbose logging
+   * await table.createVssIndex("embedding_column", {
+   *   verbose: true,
+   * });
+   * // Logs: "Creating VSS index on 'embedding_column' column..."
+   * // Logs: "VSS index created successfully."
+   * ```
+   */
+  async createVssIndex(
+    column: string,
+    options: {
+      overwrite?: boolean;
+      verbose?: boolean;
+    } = {},
+  ): Promise<SimpleTable> {
+    return await createVssIndex(this, column, options);
+  }
+
+  /**
    * Performs BM25 full-text search on a text column to find the most relevant results. BM25 (Best Matching 25) is a ranking function used in information retrieval that calculates relevance scores based on term frequency and document length normalization.
    *
-   * This method creates a full-text search index on the specified text column using DuckDB's [FTS extension](https://duckdb.org/docs/stable/core_extensions/full_text_search). If the index already exists, it will be reused.
+   * This method creates a full-text search index on the specified text column using DuckDB's [FTS extension](https://duckdb.org/docs/stable/core_extensions/full_text_search). If the index already exists, it will be reused unless the `overwriteIndex` option is set to `true`.
    *
    * @param text - The search query text to match against the text column.
    * @param columnId - The name of the column containing unique identifiers for each row.
@@ -1562,6 +1708,7 @@ export default class SimpleTable extends Simple {
    * @param options.k - The BM25 k parameter controlling term frequency saturation. Defaults to 1.2.
    * @param options.b - The BM25 b parameter controlling document length normalization (0-1 range). Defaults to 0.75.
    * @param options.stemmer - The language stemmer to apply for word normalization. Supports multiple languages or "none" to disable stemming. Defaults to 'porter'.
+   * @param options.overwriteIndex - If `true`, drops and recreates the FTS index even if it already exists. Defaults to `false`.
    * @returns A promise that resolves to a SimpleTable instance containing the search results, ordered by relevance (best matches first).
    * @category Text Search
    *
@@ -1583,6 +1730,15 @@ export default class SimpleTable extends Simple {
    * // Search with a specific language stemmer
    * await table.bm25("french food", "Dish", "Recipe", 5, {
    *   stemmer: "french",
+   * });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Recreate the index with different settings and perform search
+   * await table.bm25("italian food", "Dish", "Recipe", 5, {
+   *   stemmer: "english",
+   *   overwriteIndex: true,
    * });
    * ```
    *
@@ -1655,6 +1811,7 @@ export default class SimpleTable extends Simple {
         | "tamil"
         | "turkish"
         | "none";
+      overwriteIndex?: boolean;
     } = {},
   ): Promise<SimpleTable> {
     return await bm25(this, text, columnId, columnText, nbResults, options);
