@@ -13,6 +13,7 @@ import concatenateQuery from "../methods/concatenateQuery.ts";
 import removeMissing from "../methods/removeMissing.ts";
 import getColumns from "../methods/getColumns.ts";
 import getNbRows from "../methods/getNbRows.ts";
+import getNbCharacters from "../methods/getNbCharacters.ts";
 import getTypes from "../methods/getTypes.ts";
 import getValues from "../methods/getValues.ts";
 import getUniques from "../methods/getUniques.ts";
@@ -4666,6 +4667,24 @@ export default class SimpleTable extends Simple {
   async getNbColumns(): Promise<number> {
     const result = (await getColumns(this)).length;
     return result;
+  }
+
+  /**
+   * Returns the total number of characters in a column storing strings.
+   *
+   * @param column - The name of the string column to count characters from.
+   * @returns A promise that resolves to the total number of characters across all rows in the specified column.
+   * @category Getting Data
+   *
+   * @example
+   * ```ts
+   * // Get the total number of characters in the 'name' column
+   * const totalChars = await table.getNbCharacters("name");
+   * console.log(totalChars); // e.g., 523
+   * ```
+   */
+  async getNbCharacters(column: string): Promise<number> {
+    return await getNbCharacters(this, column);
   }
 
   /**
