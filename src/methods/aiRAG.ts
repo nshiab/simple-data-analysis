@@ -1,7 +1,7 @@
 import { askAI } from "@nshiab/journalism-ai";
 import type SimpleTable from "../class/SimpleTable.ts";
 import { prettyDuration } from "@nshiab/journalism-format";
-import getRRFRanking from "../helpers/getRRFRanking.ts";
+import hybridSearch from "./hybridSearch.ts";
 
 export default async function aiRAG(
   table: SimpleTable,
@@ -69,143 +69,38 @@ export default async function aiRAG(
     llmEnd: 0,
   };
 
-  if (options.verbose) {
-    times.embeddingStart = Date.now();
-  }
-
-  const embeddingColumn = `${columnText}_embeddings`;
-
-  if (await table.hasColumn(embeddingColumn)) {
-    if (options.verbose) {
-      console.log(
-        `"${embeddingColumn}" in table "${table.name}" already exist. Reusing embeddings...`,
-      );
-    }
-  } else {
-    const previousCacheVerbose = table.sdb.cacheVerbose;
-    if (options.verbose) {
-      console.log(
-        `"${embeddingColumn}" in table "${table.name}" does not exist. Generating embeddings...`,
-      );
-      table.sdb.cacheVerbose = true;
-    }
-
-    options.cache
-      ? await table.cache(async () => {
-        await table.aiEmbeddings(columnText, embeddingColumn, {
-          createIndex: options.createIndex ?? false,
-          cache: true,
-          verbose: options.verbose,
-          ollama: options.ollamaEmbeddings,
-          model: options.embeddingsModel,
-          contextWindow: options.embeddingsModelContextWindow,
-          concurrent: options.embeddingsConcurrent,
-        });
-      })
-      : await table.aiEmbeddings(columnText, embeddingColumn, {
-        createIndex: options.createIndex ?? false,
-        verbose: options.verbose,
-        ollama: options.ollamaEmbeddings,
-        model: options.embeddingsModel,
-        contextWindow: options.embeddingsModelContextWindow,
-        concurrent: options.embeddingsConcurrent,
-      });
-
-    table.sdb.cacheVerbose = previousCacheVerbose;
-  }
-
-  if (options.verbose) {
-    times.embeddingEnd = Date.now();
-    times.vectorSearchStart = Date.now();
-    times.bm25Start = Date.now();
-  }
-
-  // Because we want to run the vector search and the BM25 search in parallel
-  async function vectorSearch() {
-    const vectorSearchResult = await table.aiVectorSimilarity(
-      query,
-      embeddingColumn,
-      nbResults,
-      {
-        createIndex: options.createIndex ?? false,
-        cache: options.cache,
-        outputTable: `${table.name}_vector_search_results`,
-        ollama: options.ollamaEmbeddings,
-        model: options.embeddingsModel,
-        contextWindow: options.embeddingsModelContextWindow,
-        verbose: options.verbose,
-      },
-    );
-    times.vectorSearchEnd = Date.now();
-    return vectorSearchResult;
-  }
-
-  async function bm25Search() {
-    const bm25SearchResult = await table.bm25(
-      query,
-      columnId,
-      columnText,
-      nbResults,
-      {
-        stemmer: options.stemmer,
-        k: options.k,
-        b: options.b,
-        outputTable: `${table.name}_bm25_search_results`,
-        verbose: options.verbose,
-      },
-    );
-    times.bm25End = Date.now();
-    return bm25SearchResult;
-  }
-
-  const [vectorSearchResult, bm25SearchResult] = await Promise.all([
-    vectorSearch(),
-    bm25Search(),
-  ]);
-
-  const vectorSearchResultsIds = await vectorSearchResult.getValues(
+  // Perform hybrid search (vector similarity + BM25 with RRF fusion)
+  const searchResultsTable = await hybridSearch(
+    table,
+    query,
     columnId,
-  ) as string[];
-  const bm25SearchResultsIds = await bm25SearchResult.getValues(
-    columnId,
-  ) as string[];
-
-  await vectorSearchResult.removeTable();
-  await bm25SearchResult.removeTable();
-
-  if (options.verbose) {
-    console.log(
-      `Vector search results IDs:`,
-      vectorSearchResultsIds,
-    );
-    console.log(
-      `BM25 search results IDs:`,
-      bm25SearchResultsIds,
-    );
-  }
-
-  const fusedIds = getRRFRanking(
-    [vectorSearchResultsIds, bm25SearchResultsIds],
+    columnText,
+    nbResults,
+    {
+      cache: options.cache,
+      verbose: options.verbose,
+      embeddingsModelContextWindow: options.embeddingsModelContextWindow,
+      createIndex: options.createIndex,
+      embeddingsModel: options.embeddingsModel,
+      ollamaEmbeddings: options.ollamaEmbeddings,
+      embeddingsConcurrent: options.embeddingsConcurrent,
+      stemmer: options.stemmer,
+      k: options.k,
+      b: options.b,
+      outputTable: `${table.name}_rag_search_results`,
+      times: times,
+    },
   );
 
-  if (options.verbose) {
-    console.log(
-      `Fused results IDs:`,
-      fusedIds,
-    );
-  }
+  await searchResultsTable.selectColumns([columnId, columnText]);
 
-  const retrievedData = await table.sdb.customQuery(
-    `SELECT "${columnId}", "${columnText}" FROM "${table.name}" WHERE "${columnId}" IN (${
-      fusedIds
-        .slice(0, nbResults)
-        .map((id) => `'${id}'`)
-        .join(", ")
-    })`,
-    {
-      returnDataFrom: "query",
-    },
-  ) as { [key: string]: string }[];
+  // Get the retrieved data
+  const retrievedData = await searchResultsTable.getData() as {
+    [key: string]: string;
+  }[];
+
+  // Clean up the temporary table
+  await searchResultsTable.removeTable();
 
   if (options.verbose) {
     times.llmStart = Date.now();
@@ -213,10 +108,10 @@ export default async function aiRAG(
 
   const response = await askAI(
     `Answer the following:
-  - ${query}
+- ${query}
 
-  Base your answer only on the following data:\n
-  ${
+Base your answer only on the following data:\n
+${
       retrievedData.map((entry) =>
         `${columnId}: ${entry[columnId]}\n\n${columnText}:\n\n${
           entry[columnText]
