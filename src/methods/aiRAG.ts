@@ -108,10 +108,10 @@ export default async function aiRAG(
 
   const response = await askAI(
     `Answer the following:
-  - ${query}
+- ${query}
 
-  Base your answer only on the following data:\n
-  ${
+Base your answer only on the following data:\n
+${
       retrievedData.map((entry) =>
         `${columnId}: ${entry[columnId]}\n\n${columnText}:\n\n${
           entry[columnText]
