@@ -1,6 +1,7 @@
 import { askAI } from "@nshiab/journalism-ai";
 import type { SimpleTable } from "../index.ts";
 import type { Ollama } from "ollama";
+import { object, string, toJSONSchema } from "zod";
 
 export default async function aiQuery(
   simpleTable: SimpleTable,
@@ -22,9 +23,9 @@ export default async function aiQuery(
   } = {},
 ) {
   const p =
-    `I have a SQL table named "${simpleTable.name}". The data is already in it with these columns:\n${
+    `I have a SQL table named "${simpleTable.name}". The data is already in it with these columns:\n\n${
       JSON.stringify(await simpleTable.getTypes())
-    }\nI want you to give me a SQL query to do this:\n- ${prompt}\nThe query must replace the existing "${simpleTable.name}" table. This means the the query must start with 'CREATE OR REPLACE TABLE "${simpleTable.name}"...'. Return just the query, nothing else.${
+    }\n\nI want you to give me a SQL query to do this:\n- ${prompt}\nThe query must replace the existing "${simpleTable.name}" table. This means the the query must start with 'CREATE OR REPLACE TABLE "${simpleTable.name}"...'. Return just the query, nothing else.${
       options.extraInstructions ? `\n${options.extraInstructions}` : ""
     }`;
 
@@ -32,8 +33,14 @@ export default async function aiQuery(
     console.log("\naiQuery()");
   }
 
+  const schemaJson = toJSONSchema(
+    object({
+      query: string(),
+    }),
+  );
+
   // Types could be improved
-  let query = await askAI(p, {
+  const answer = await askAI(p, {
     cache: options.cache,
     model: options.model,
     apiKey: options.apiKey,
@@ -46,8 +53,9 @@ export default async function aiQuery(
     thinkingLevel: options.thinkingLevel,
     verbose: options.verbose,
     includeThoughts: options.includeThoughts,
-  }) as unknown as string;
-  query = query.replace("```sql", "").replace("```", "").trim();
+    schemaJson,
+  }) as { query: string };
+  const query = answer.query;
 
   await simpleTable.sdb.customQuery(query);
 }

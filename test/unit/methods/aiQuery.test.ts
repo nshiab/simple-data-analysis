@@ -102,7 +102,9 @@ if (typeof ollama === "string" && ollama !== "") {
   if (existsSync("./.journalism-cache")) {
     rmSync("./.journalism-cache", { recursive: true });
   }
-  Deno.test("should update a table with natural language (Ollama)", async () => {
+  Deno.test("should update a table with natural language (Ollama)", {
+    sanitizeResources: false,
+  }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     await table.loadData("test/data/files/dailyTemperatures.csv");
@@ -119,46 +121,56 @@ if (typeof ollama === "string" && ollama !== "") {
     assertEquals(true, true);
     await sdb.done();
   });
-  Deno.test("should update a table with natural language and thinking (Ollama)", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+  Deno.test(
+    "should update a table with natural language and thinking (Ollama)",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/dailyTemperatures.csv");
+      await table.renameColumns({ t: "temperature", "id": "city" });
 
-    await table.aiQuery(
-      `I want the average temperature for each city with two decimals.`,
-      { verbose: true, thinkingBudget: 1 },
-    );
+      await table.aiQuery(
+        `I want the average temperature for each city with two decimals.`,
+        { verbose: true, thinkingBudget: 1 },
+      );
 
-    await table.logTable();
+      await table.logTable();
 
-    // Just to make sure it doesn't crash for now
-    assertEquals(true, true);
-    await sdb.done();
-  });
-  Deno.test("should update a table with natural language with a different Ollama instance", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+      // Just to make sure it doesn't crash for now
+      assertEquals(true, true);
+      await sdb.done();
+    },
+  );
+  Deno.test(
+    "should update a table with natural language with a different Ollama instance",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/dailyTemperatures.csv");
+      await table.renameColumns({ t: "temperature", "id": "city" });
 
-    const ollama = new Ollama({ host: "http://127.0.0.1:11434" });
+      const ollama = new Ollama({ host: "http://127.0.0.1:11434" });
 
-    await table.aiQuery(
-      `I want the average temperature for each city with two decimals.`,
-      {
-        ollama,
-        verbose: true,
-      },
-    );
+      await table.aiQuery(
+        `I want the average temperature for each city with two decimals.`,
+        {
+          ollama,
+          verbose: true,
+        },
+      );
 
-    await table.logTable();
+      await table.logTable();
 
-    // Just to make sure it doesn't crash for now
-    assertEquals(true, true);
-    await sdb.done();
-  });
-  Deno.test("should update a table with natural language with cache (Ollama)", async () => {
+      // Just to make sure it doesn't crash for now
+      assertEquals(true, true);
+      await sdb.done();
+    },
+  );
+  Deno.test("should update a table with natural language with cache (Ollama)", {
+    sanitizeResources: false,
+  }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     await table.loadData("test/data/files/dailyTemperatures.csv");
@@ -175,40 +187,48 @@ if (typeof ollama === "string" && ollama !== "") {
     assertEquals(true, true);
     await sdb.done();
   });
-  Deno.test("should update a table with natural language with query returned from cache (Ollama)", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+  Deno.test(
+    "should update a table with natural language with query returned from cache (Ollama)",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/dailyTemperatures.csv");
+      await table.renameColumns({ t: "temperature", "id": "city" });
 
-    await table.aiQuery(
-      `I want the average temperature for each city with two decimals.`,
-      { cache: true, verbose: true },
-    );
+      await table.aiQuery(
+        `I want the average temperature for each city with two decimals.`,
+        { cache: true, verbose: true },
+      );
 
-    await table.logTable();
+      await table.logTable();
 
-    // Just to make sure it doesn't crash for now
-    assertEquals(true, true);
-    await sdb.done();
-  });
-  Deno.test("should update a table with natural language and option verbose (Ollama)", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+      // Just to make sure it doesn't crash for now
+      assertEquals(true, true);
+      await sdb.done();
+    },
+  );
+  Deno.test(
+    "should update a table with natural language and option verbose (Ollama)",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/dailyTemperatures.csv");
+      await table.renameColumns({ t: "temperature", "id": "city" });
 
-    await table.aiQuery(
-      `I want the average temperature for each city with two decimals.`,
-      { verbose: true },
-    );
+      await table.aiQuery(
+        `I want the average temperature for each city with two decimals.`,
+        { verbose: true },
+      );
 
-    await table.logTable();
+      await table.logTable();
 
-    // Just to make sure it doesn't crash for now
-    assertEquals(true, true);
-    await sdb.done();
-  });
+      // Just to make sure it doesn't crash for now
+      assertEquals(true, true);
+      await sdb.done();
+    },
+  );
 } else {
   console.log("No AI_PROJECT in process.env");
 }
