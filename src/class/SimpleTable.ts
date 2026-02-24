@@ -1625,9 +1625,10 @@ export default class SimpleTable extends Simple {
    * @param options.contextWindow - An option to specify the context window size for Ollama models. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
    * @param options.thinkingBudget - Sets the reasoning token budget: 0 to disable (default, though some models may reason regardless), -1 for a dynamic budget, or > 0 for a fixed budget. For Ollama models, any non-zero value simply enables reasoning, ignoring the specific budget amount.
    * @param options.thinkingLevel - Sets the thinking level for reasoning: "minimal", "low", "medium", or "high", which some models expect instead of `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided. For Ollama models, any value enables reasoning.
+   * @param options.outputTable - The name of a new table where the results will be stored. If not provided, the current table will be replaced with the query results.
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
    * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.
-   * @returns A promise that resolves when the AI query has been executed.
+   * @returns A promise that resolves to the SimpleTable instance containing the query results (either the modified current table or a new table).
    * @category AI
    *
    * @example
@@ -1640,6 +1641,23 @@ export default class SimpleTable extends Simple {
    *    "Give me the average salary by department",
    *     { cache: true, verbose: true }
    * );
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Save results to a new table without modifying the original
+   * const results = await table.aiQuery(
+   *    "Give me the top 10 employees by salary",
+   *     { outputTable: "top_employees" }
+   * );
+   *
+   * // Original table remains unchanged
+   * const allEmployees = await table.getNbRows();
+   * console.log(allEmployees); // All employees
+   *
+   * // New table contains only query results
+   * const topEmployees = await results.getNbRows();
+   * console.log(topEmployees); // 10
    * ```
    */
   async aiQuery(prompt: string, options: {
@@ -1655,9 +1673,19 @@ export default class SimpleTable extends Simple {
     contextWindow?: number;
     thinkingBudget?: number;
     thinkingLevel?: "minimal" | "low" | "medium" | "high";
+    outputTable?: string;
     verbose?: boolean;
-  } = {}): Promise<void> {
+  } = {}): Promise<SimpleTable> {
     await aiQuery(this, prompt, options);
+
+    if (typeof options.outputTable === "string") {
+      return this.sdb.newTable(
+        options.outputTable,
+        structuredClone(this.projections),
+      );
+    } else {
+      return this;
+    }
   }
 
   /**

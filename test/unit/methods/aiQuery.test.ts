@@ -93,6 +93,31 @@ if (typeof aiKey === "string" && aiKey !== "") {
     assertEquals(true, true);
     await sdb.done();
   });
+  Deno.test("should create a new table with aiQuery results using outputTable option", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadData("test/data/files/dailyTemperatures.csv");
+    await table.renameColumns({ t: "temperature", "id": "city" });
+
+    const originalRowCount = await table.getNbRows();
+
+    const resultTable = await table.aiQuery(
+      `I want the average temperature for each city with two decimals.`,
+      { outputTable: "avg_temp", cache: true, verbose: true },
+    );
+
+    // Original table should remain unchanged
+    const currentRowCount = await table.getNbRows();
+    assertEquals(currentRowCount, originalRowCount);
+
+    // Result table should have the aggregated data
+    const resultRowCount = await resultTable.getNbRows();
+    assertEquals(resultTable.name, "avg_temp");
+    // We expect fewer rows since we're aggregating by city
+    assertEquals(resultRowCount < originalRowCount, true);
+
+    await sdb.done();
+  });
 } else {
   console.log("No AI_PROJECT in process.env");
 }
@@ -226,6 +251,35 @@ if (typeof ollama === "string" && ollama !== "") {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
+      await sdb.done();
+    },
+  );
+  Deno.test(
+    "should create a new table with aiQuery results using outputTable option (Ollama)",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/dailyTemperatures.csv");
+      await table.renameColumns({ t: "temperature", "id": "city" });
+
+      const originalRowCount = await table.getNbRows();
+
+      const resultTable = await table.aiQuery(
+        `I want the average temperature for each city with two decimals.`,
+        { outputTable: "avg_temp_ollama", cache: true, verbose: true },
+      );
+
+      // Original table should remain unchanged
+      const currentRowCount = await table.getNbRows();
+      assertEquals(currentRowCount, originalRowCount);
+
+      // Result table should have the aggregated data
+      const resultRowCount = await resultTable.getNbRows();
+      assertEquals(resultTable.name, "avg_temp_ollama");
+      // We expect fewer rows since we're aggregating by city
+      assertEquals(resultRowCount < originalRowCount, true);
+
       await sdb.done();
     },
   );
