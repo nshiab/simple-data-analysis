@@ -58,6 +58,9 @@ export default async function aiRAG(
     b?: number;
     bm25?: boolean;
     vectorSearch?: boolean;
+    efConstruction?: number;
+    efSearch?: number;
+    M?: number;
   } = {},
 ) {
   const times = {
@@ -93,6 +96,9 @@ export default async function aiRAG(
       bm25: options.bm25,
       vectorSearch: options.vectorSearch,
       outputTable: `${table.name}_rag_search_results`,
+      efConstruction: options.efConstruction,
+      efSearch: options.efSearch,
+      M: options.M,
       times: times,
     },
   );

@@ -50,6 +50,9 @@ export default async function hybridSearch(
     bm25?: boolean;
     vectorSearch?: boolean;
     outputTable?: string;
+    efConstruction?: number;
+    efSearch?: number;
+    M?: number;
     times?: {
       start?: number;
       embeddingStart?: number;
@@ -113,6 +116,9 @@ export default async function hybridSearch(
             model: options.embeddingsModel,
             contextWindow: options.embeddingsModelContextWindow,
             concurrent: options.embeddingsConcurrent,
+            efConstruction: options.efConstruction,
+            efSearch: options.efSearch,
+            M: options.M,
           });
         })
         : await table.aiEmbeddings(columnText, embeddingColumn, {
@@ -122,6 +128,9 @@ export default async function hybridSearch(
           model: options.embeddingsModel,
           contextWindow: options.embeddingsModelContextWindow,
           concurrent: options.embeddingsConcurrent,
+          efConstruction: options.efConstruction,
+          efSearch: options.efSearch,
+          M: options.M,
         });
 
       table.sdb.cacheVerbose = previousCacheVerbose;
@@ -149,6 +158,9 @@ export default async function hybridSearch(
         model: options.embeddingsModel,
         contextWindow: options.embeddingsModelContextWindow,
         verbose: options.verbose,
+        efConstruction: options.efConstruction,
+        efSearch: options.efSearch,
+        M: options.M,
       },
     );
     if (options.verbose) {

@@ -132,3 +132,29 @@ Deno.test("should recreate index with verbose logging when overwrite is true", a
   assertEquals(indexCountBefore, 1);
   assertEquals(indexCountAfter, 1);
 });
+
+Deno.test("should create index with custom HNSW parameters", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+
+  await table.loadArray([
+    { id: 1, embedding: [0.1, 0.2, 0.3] },
+    { id: 2, embedding: [0.4, 0.5, 0.6] },
+    { id: 3, embedding: [0.7, 0.8, 0.9] },
+  ]);
+
+  // Create VSS index with custom HNSW parameters
+  const result = await table.createVssIndex("embedding", {
+    efConstruction: 256,
+    efSearch: 128,
+    M: 32,
+  });
+
+  // Should return the table for chaining
+  assertEquals(result, table);
+
+  // Index should be in the indexes array
+  assertExists(
+    table.indexes.find((idx) => idx.includes("vss_cosine_index")),
+  );
+});

@@ -7,6 +7,9 @@ export default async function createVssIndex(
   options: {
     overwrite?: boolean;
     verbose?: boolean;
+    efConstruction?: number;
+    efSearch?: number;
+    M?: number;
   } = {},
 ) {
   const indexName = `vss_cosine_index_${camelCase(simpleTable.name)}`;
@@ -31,13 +34,27 @@ export default async function createVssIndex(
         `\nCreating VSS index on "${column}" column...`,
       );
 
+    // Build the WITH clause with all options
+    const withOptions: string[] = ["metric = 'cosine'"];
+    if (options.efConstruction !== undefined) {
+      withOptions.push(`efConstruction = ${options.efConstruction}`);
+    }
+    if (options.efSearch !== undefined) {
+      withOptions.push(`efSearch = ${options.efSearch}`);
+    }
+    if (options.M !== undefined) {
+      withOptions.push(`M = ${options.M}`);
+    }
+
     await simpleTable.sdb.customQuery(
       `INSTALL vss; LOAD vss;${
         simpleTable.sdb.file !== ":memory:"
           ? "\nSET hnsw_enable_experimental_persistence=true;"
           : ""
       }
-    CREATE INDEX ${indexName} ON "${simpleTable.name}" USING HNSW ("${column}") WITH (metric = 'cosine');`,
+    CREATE INDEX ${indexName} ON "${simpleTable.name}" USING HNSW ("${column}") WITH (${
+        withOptions.join(", ")
+      });`,
     );
 
     if (!simpleTable.indexes.includes(indexName)) {
