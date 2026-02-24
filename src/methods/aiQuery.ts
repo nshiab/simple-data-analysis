@@ -11,6 +11,7 @@ export default async function aiQuery(
     apiKey?: string;
     vertex?: boolean;
     project?: string;
+    includeThoughts?: boolean;
     location?: string;
     ollama?: boolean | Ollama;
     contextWindow?: number;
@@ -41,7 +42,7 @@ export default async function aiQuery(
     thinkingBudget: options.thinkingBudget,
     thinkingLevel: options.thinkingLevel,
     verbose: options.verbose,
-    includeThoughts: options.verbose,
+    includeThoughts: options.includeThoughts,
   }) as unknown as string;
   query = query.replace("```sql", "").replace("```", "").trim();
 

@@ -15,6 +15,7 @@ export default async function aiRowByRowPool(
     batchSize?: number;
     logProgress?: boolean;
     verbose?: boolean;
+    includeThoughts?: boolean;
     test?: (result: { [key: string]: unknown }) => void;
     retry?: number;
     retryCheck?: (error: unknown) => Promise<boolean> | boolean;
@@ -90,7 +91,7 @@ export default async function aiRowByRowPool(
           thinkingLevel: options.thinkingLevel,
           metrics: options.metrics,
           verbose: options.verbose,
-          includeThoughts: options.verbose,
+          includeThoughts: options.includeThoughts,
           temperature: options.temperature,
           test: (response: unknown) => {
             if (!Array.isArray(response)) {

@@ -773,6 +773,7 @@ export default class SimpleTable extends Simple {
    * @param options.batchSize - The number of rows to process in each batch. Defaults to `1`.
    * @param options.logProgress - If `true`, logs progress information during processing. Defaults to `false`.
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
+   * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.
    * @param options.test - A function to validate the returned data. If it throws an error, the request will be retried (if `retry` is set). Defaults to `undefined`.
    * @param options.retry - The number of times to retry the request in case of failure. Defaults to `0`.
    * @param options.retryCheck - A function that receives an error and returns a boolean indicating whether to retry. Useful for conditional retries based on error type. Defaults to `undefined`.
@@ -876,6 +877,7 @@ export default class SimpleTable extends Simple {
       batchSize?: number;
       logProgress?: boolean;
       verbose?: boolean;
+      includeThoughts?: boolean;
       test?: (result: { [key: string]: unknown }) => void;
       retry?: number;
       retryCheck?: (error: unknown) => Promise<boolean> | boolean;
@@ -1289,6 +1291,7 @@ export default class SimpleTable extends Simple {
    * @param options - Configuration options for the RAG process.
    * @param options.cache - If `true`, embeddings and LLM responses will be cached locally. Defaults to `false`.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
+   * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.
    * @param options.systemPrompt - An option to overwrite the LLM system prompt.
    * @param options.modelContextWindow - An option to specify the context window size for the LLM model when using Ollama. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
    * @param options.embeddingsModelContextWindow - An option to specify the context window size for the embeddings model when using Ollama. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
@@ -1451,6 +1454,7 @@ export default class SimpleTable extends Simple {
     options: {
       cache?: boolean;
       verbose?: boolean;
+      includeThoughts?: boolean;
       systemPrompt?: string;
       modelContextWindow?: number;
       embeddingsModelContextWindow?: number;
@@ -1523,6 +1527,7 @@ export default class SimpleTable extends Simple {
    * @param options.contextWindow - An option to specify the context window size for Ollama models. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
    * @param options.thinkingBudget - Sets the reasoning token budget: 0 to disable (default, though some models may reason regardless), -1 for a dynamic budget, or > 0 for a fixed budget. For Ollama models, any non-zero value simply enables reasoning, ignoring the specific budget amount.
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
+   * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.
    * @returns A promise that resolves when the AI query has been executed.
    * @category AI
    *
@@ -1549,6 +1554,7 @@ export default class SimpleTable extends Simple {
     contextWindow?: number;
     thinkingBudget?: number;
     verbose?: boolean;
+    includeThoughts?: boolean;
   } = {}): Promise<void> {
     await aiQuery(this, prompt, options);
   }
