@@ -1039,7 +1039,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRowByRowPool(column: string, newColumn: string | string[], errorColumn: string, prompt: string, poolSize: number, options?: { cache?: boolean; batchSize?: number; logProgress?: boolean; verbose?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; retryCheck?: (error: unknown) => Promise<boolean> | boolean; extraInstructions?: string; minRequestDurationMs?: number; clean?: (response: unknown) => unknown; contextWindow?: number; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; schemaJson?: unknown; model?: string; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
+async aiRowByRowPool(column: string, newColumn: string | string[], errorColumn: string, prompt: string, poolSize: number, options?: { cache?: boolean; batchSize?: number; logProgress?: boolean; verbose?: boolean; includeThoughts?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; retryCheck?: (error: unknown) => Promise<boolean> | boolean; extraInstructions?: string; minRequestDurationMs?: number; clean?: (response: unknown) => unknown; contextWindow?: number; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; schemaJson?: unknown; model?: string; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
 ```
 
 ##### Parameters
@@ -1062,6 +1062,9 @@ async aiRowByRowPool(column: string, newColumn: string | string[], errorColumn: 
   processing. Defaults to `false`.
 - **`options.verbose`**: - If `true`, logs additional debugging information,
   including the full prompt sent to the AI. Defaults to `false`.
+- **`options.includeThoughts`**: - If `true`, includes the AI model's reasoning
+  process in the logged output when using models that support extended thinking.
+  Only relevant when used with thinking-capable models. Defaults to `false`.
 - **`options.test`**: - A function to validate the returned data. If it throws
   an error, the request will be retried (if `retry` is set). Defaults to
   `undefined`.
@@ -1215,7 +1218,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiEmbeddings(column: string, newColumn: string, options?: { createIndex?: boolean; overwriteIndex?: boolean; concurrent?: number; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; contextWindow?: number }): Promise<void>;
+async aiEmbeddings(column: string, newColumn: string, options?: { createIndex?: boolean; overwriteIndex?: boolean; concurrent?: number; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; contextWindow?: number; efConstruction?: number; efSearch?: number; M?: number }): Promise<void>;
 ```
 
 ##### Parameters
@@ -1230,6 +1233,15 @@ async aiEmbeddings(column: string, newColumn: string, options?: { createIndex?: 
   `false`.
 - **`options.overwriteIndex`**: - If `true` and `createIndex` is `true`, drops
   and recreates the VSS index even if it already exists. Defaults to `false`.
+- **`options.efConstruction`**: - The number of candidate vertices to consider
+  during index construction. Higher values result in more accurate indexes but
+  increase build time. Defaults to 128.
+- **`options.efSearch`**: - The number of candidate vertices to consider during
+  search. Higher values result in more accurate searches but increase search
+  time. Defaults to 64.
+- **`options.M`**: - The maximum number of neighbors to keep for each vertex in
+  the graph. Higher values result in more accurate indexes but increase build
+  time and memory usage. Defaults to 16.
 - **`options.concurrent`**: - The number of concurrent requests to send.
   Defaults to `1`.
 - **`options.cache`**: - If `true`, the results will be cached locally. Defaults
@@ -1313,7 +1325,7 @@ up processing. If the index already exists, it will not be recreated unless
 ##### Signature
 
 ```typescript
-async aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { createIndex?: boolean; overwriteIndex?: boolean; outputTable?: string; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; contextWindow?: number; verbose?: boolean }): Promise<SimpleTable>;
+async aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { createIndex?: boolean; overwriteIndex?: boolean; outputTable?: string; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; contextWindow?: number; verbose?: boolean; efConstruction?: number; efSearch?: number; M?: number }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -1328,6 +1340,15 @@ async aiVectorSimilarity(text: string, column: string, nbResults: number, option
   embeddings column. Defaults to `false`.
 - **`options.overwriteIndex`**: - If `true` and `createIndex` is `true`, drops
   and recreates the VSS index even if it already exists. Defaults to `false`.
+- **`options.efConstruction`**: - The number of candidate vertices to consider
+  during index construction. Higher values result in more accurate indexes but
+  increase build time. Defaults to 128.
+- **`options.efSearch`**: - The number of candidate vertices to consider during
+  search. Higher values result in more accurate searches but increase search
+  time. Defaults to 64.
+- **`options.M`**: - The maximum number of neighbors to keep for each vertex in
+  the graph. Higher values result in more accurate indexes but increase build
+  time and memory usage. Defaults to 16.
 - **`options.outputTable`**: - The name of the output table where the results
   will be stored. If not provided, the current table will be modified. Defaults
   to `undefined`.
@@ -1442,7 +1463,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async hybridSearch(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; embeddingsModelContextWindow?: number; createIndex?: boolean; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; k?: number; b?: number; outputTable?: string; times?: { start?: number; embeddingStart?: number; embeddingEnd?: number; vectorSearchStart?: number; vectorSearchEnd?: number; bm25Start?: number; bm25End?: number } }): Promise<SimpleTable>;
+async hybridSearch(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; embeddingsModelContextWindow?: number; createIndex?: boolean; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; k?: number; b?: number; bm25?: boolean; vectorSearch?: boolean; outputTable?: string; efConstruction?: number; efSearch?: number; M?: number; times?: { start?: number; embeddingStart?: number; embeddingEnd?: number; vectorSearchStart?: number; vectorSearchEnd?: number; bm25Start?: number; bm25End?: number } }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -1464,6 +1485,15 @@ async hybridSearch(query: string, columnId: string, columnText: string, nbResult
   context window size of the model.
 - **`options.createIndex`**: - If `true`, both vector and BM25 indexes will be
   created for faster retrieval. Defaults to `false`.
+- **`options.efConstruction`**: - The number of candidate vertices to consider
+  during index construction. Higher values result in more accurate indexes but
+  increase build time. Defaults to 128.
+- **`options.efSearch`**: - The number of candidate vertices to consider during
+  search. Higher values result in more accurate searches but increase search
+  time. Defaults to 64.
+- **`options.M`**: - The maximum number of neighbors to keep for each vertex in
+  the graph. Higher values result in more accurate indexes but increase build
+  time and memory usage. Defaults to 16.
 - **`options.embeddingsModel`**: - The model to use for generating embeddings.
   Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
 - **`options.ollamaEmbeddings`**: - If `true`, forces the use of Ollama for
@@ -1477,6 +1507,10 @@ async hybridSearch(query: string, columnId: string, columnText: string, nbResult
   Defaults to `1.2`.
 - **`options.b`**: - The BM25 b parameter controlling document length
   normalization (0-1 range). Defaults to `0.75`.
+- **`options.bm25`**: - If `true`, includes BM25 text search in the hybrid
+  search. Defaults to `true`.
+- **`options.vectorSearch`**: - If `true`, includes vector similarity search in
+  the hybrid search. Defaults to `true`.
 - **`options.outputTable`**: - The name of a new table where the results will be
   stored. If not provided, the current table will be replaced with the search
   results.
@@ -1569,6 +1603,36 @@ const veganDishes = await results.getValues("Dish");
 console.log(veganDishes.length); // 10 (top results)
 ```
 
+```ts
+// Use only BM25 text search without vector similarity
+const results = await table.hybridSearch(
+  "quick pasta recipe",
+  "Dish",
+  "Recipe",
+  10,
+  {
+    vectorSearch: false, // Disable vector search
+    bm25: true, // Enable BM25 (default, shown for clarity)
+    stemmer: "english",
+  },
+);
+```
+
+```ts
+// Use only vector similarity search without BM25
+const results = await table.hybridSearch(
+  "healthy breakfast ideas",
+  "Dish",
+  "Recipe",
+  10,
+  {
+    vectorSearch: true, // Enable vector search (default, shown for clarity)
+    bm25: false, // Disable BM25
+    cache: true,
+  },
+);
+```
+
 #### `aiRAG`
 
 Performs Retrieval-Augmented Generation (RAG) by combining semantic vector
@@ -1627,7 +1691,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRAG(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; systemPrompt?: string; modelContextWindow?: number; embeddingsModelContextWindow?: number; createIndex?: boolean; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; model?: string; temperature?: number; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; k?: number; b?: number }): Promise<string>;
+async aiRAG(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; includeThoughts?: boolean; systemPrompt?: string; modelContextWindow?: number; embeddingsModelContextWindow?: number; createIndex?: boolean; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; model?: string; temperature?: number; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; k?: number; b?: number; bm25?: boolean; vectorSearch?: boolean; efConstruction?: number; efSearch?: number; M?: number }): Promise<string>;
 ```
 
 ##### Parameters
@@ -1644,6 +1708,9 @@ async aiRAG(query: string, columnId: string, columnText: string, nbResults: numb
   locally. Defaults to `false`.
 - **`options.verbose`**: - If `true`, logs additional debugging information.
   Defaults to `false`.
+- **`options.includeThoughts`**: - If `true`, includes the AI model's reasoning
+  process in the logged output when using models that support extended thinking.
+  Only relevant when used with thinking-capable models. Defaults to `false`.
 - **`options.systemPrompt`**: - An option to overwrite the LLM system prompt.
 - **`options.modelContextWindow`**: - An option to specify the context window
   size for the LLM model when using Ollama. By default, Ollama sets this
@@ -1677,6 +1744,15 @@ async aiRAG(query: string, columnId: string, columnText: string, nbResults: numb
   send to the embeddings service. Defaults to `1`.
 - **`options.createIndex`**: - If `true`, both vector and BM25 indexes will be
   created for faster retrieval. Defaults to `false`.
+- **`options.efConstruction`**: - The number of candidate vertices to consider
+  during index construction. Higher values result in more accurate indexes but
+  increase build time. Defaults to 128.
+- **`options.efSearch`**: - The number of candidate vertices to consider during
+  search. Higher values result in more accurate searches but increase search
+  time. Defaults to 64.
+- **`options.M`**: - The maximum number of neighbors to keep for each vertex in
+  the graph. Higher values result in more accurate indexes but increase build
+  time and memory usage. Defaults to 16.
 - **`options.stemmer`**: - The language stemmer to apply for BM25 word
   normalization. Supports multiple languages or "none" to disable stemming.
   Defaults to `'porter'`.
@@ -1684,6 +1760,10 @@ async aiRAG(query: string, columnId: string, columnText: string, nbResults: numb
   Defaults to `1.2`.
 - **`options.b`**: - The BM25 b parameter controlling document length
   normalization (0-1 range). Defaults to `0.75`.
+- **`options.bm25`**: - If `true`, includes BM25 text search in the hybrid
+  search. Defaults to `true`.
+- **`options.vectorSearch`**: - If `true`, includes vector similarity search in
+  the hybrid search. Defaults to `true`.
 
 ##### Returns
 
@@ -1784,6 +1864,37 @@ const answer = await table.aiRAG(
 ```
 
 ```ts
+// Use only BM25 for RAG without vector search
+const answer = await table.aiRAG(
+  "What's a quick pasta recipe?",
+  "Dish",
+  "Recipe",
+  10,
+  {
+    cache: true,
+    vectorSearch: false, // Disable vector search
+    bm25: true, // Enable BM25 (default, shown for clarity)
+    stemmer: "english",
+  },
+);
+```
+
+```ts
+// Use only vector search for RAG without BM25
+const answer = await table.aiRAG(
+  "I want something healthy for breakfast",
+  "Dish",
+  "Recipe",
+  10,
+  {
+    cache: true,
+    vectorSearch: true, // Enable vector search (default, shown for clarity)
+    bm25: false, // Disable BM25
+  },
+);
+```
+
+```ts
 // Persist the data and indexes by writing the database to a file
 // If you don't write the DB to a file, the indexes are not stored
 // and need to be recreated every time you run your code.
@@ -1850,7 +1961,7 @@ and time. Remember to add `.journalism-cache` to your `.gitignore`.
 ##### Signature
 
 ```typescript
-async aiQuery(prompt: string, options?: { cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; contextWindow?: number; thinkingBudget?: number; verbose?: boolean }): Promise<void>;
+async aiQuery(prompt: string, options?: { cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; contextWindow?: number; thinkingBudget?: number; verbose?: boolean; includeThoughts?: boolean }): Promise<void>;
 ```
 
 ##### Parameters
@@ -1882,6 +1993,9 @@ async aiQuery(prompt: string, options?: { cache?: boolean; model?: string; apiKe
   enables reasoning, ignoring the specific budget amount.
 - **`options.verbose`**: - If `true`, logs additional debugging information,
   including the full prompt sent to the AI. Defaults to `false`.
+- **`options.includeThoughts`**: - If `true`, includes the AI model's reasoning
+  process in the logged output when using models that support extended thinking.
+  Only relevant when used with thinking-capable models. Defaults to `false`.
 
 ##### Returns
 
@@ -1979,7 +2093,7 @@ log a message (when verbose is enabled), unless the `overwrite` option is set to
 ##### Signature
 
 ```typescript
-async createVssIndex(column: string, options?: { overwrite?: boolean; verbose?: boolean }): Promise<SimpleTable>;
+async createVssIndex(column: string, options?: { overwrite?: boolean; verbose?: boolean; efConstruction?: number; efSearch?: number; M?: number }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -1991,6 +2105,15 @@ async createVssIndex(column: string, options?: { overwrite?: boolean; verbose?: 
   already exists. Defaults to `false`.
 - **`options.verbose`**: - If `true`, logs additional debugging information,
   including index creation status. Defaults to `false`.
+- **`options.efConstruction`**: - The number of candidate vertices to consider
+  during index construction. Higher values result in more accurate indexes but
+  increase build time. Defaults to 128.
+- **`options.efSearch`**: - The number of candidate vertices to consider during
+  search. Higher values result in more accurate searches but increase search
+  time. Defaults to 64.
+- **`options.M`**: - The maximum number of neighbors to keep for each vertex in
+  the graph. Higher values result in more accurate indexes but increase build
+  time and memory usage. Defaults to 16.
 
 ##### Returns
 
@@ -2021,6 +2144,15 @@ await table.createVssIndex("embedding_column", {
 });
 // Logs: "Creating VSS index on 'embedding_column' column..."
 // Logs: "VSS index created successfully."
+```
+
+```ts
+// Create index with custom HNSW parameters for higher accuracy
+await table.createVssIndex("embedding_column", {
+  efConstruction: 256,
+  efSearch: 128,
+  M: 32,
+});
 ```
 
 #### `bm25`

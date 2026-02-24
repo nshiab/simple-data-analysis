@@ -37,10 +37,10 @@ export default async function createVssIndex(
     // Build the WITH clause with all options
     const withOptions: string[] = ["metric = 'cosine'"];
     if (options.efConstruction !== undefined) {
-      withOptions.push(`efConstruction = ${options.efConstruction}`);
+      withOptions.push(`ef_construction = ${options.efConstruction}`);
     }
     if (options.efSearch !== undefined) {
-      withOptions.push(`efSearch = ${options.efSearch}`);
+      withOptions.push(`ef_search = ${options.efSearch}`);
     }
     if (options.M !== undefined) {
       withOptions.push(`M = ${options.M}`);
