@@ -1109,6 +1109,8 @@ export default class SimpleTable extends Simple {
    * @param options.stemmer - The language stemmer to apply for BM25 word normalization. Supports multiple languages or "none" to disable stemming. Defaults to `'porter'`.
    * @param options.k - The BM25 k parameter controlling term frequency saturation. Defaults to `1.2`.
    * @param options.b - The BM25 b parameter controlling document length normalization (0-1 range). Defaults to `0.75`.
+   * @param options.bm25 - If `true`, includes BM25 text search in the hybrid search. Defaults to `true`.
+   * @param options.vectorSearch - If `true`, includes vector similarity search in the hybrid search. Defaults to `true`.
    * @param options.outputTable - The name of a new table where the results will be stored. If not provided, the current table will be replaced with the search results.
    * @param options.times - An optional object to track timing information. If provided, it will be updated with detailed timing breakdowns (embeddingStart, embeddingEnd, vectorSearchStart, vectorSearchEnd, bm25Start, bm25End). Useful when calling from aiRAG to get combined timing information.
    * @returns A promise that resolves to a SimpleTable instance containing the search results, ordered by relevance (best matches first).
@@ -1194,6 +1196,38 @@ export default class SimpleTable extends Simple {
    * const veganDishes = await results.getValues("Dish");
    * console.log(veganDishes.length); // 10 (top results)
    * ```
+   *
+   * @example
+   * ```ts
+   * // Use only BM25 text search without vector similarity
+   * const results = await table.hybridSearch(
+   *   "quick pasta recipe",
+   *   "Dish",
+   *   "Recipe",
+   *   10,
+   *   {
+   *     vectorSearch: false, // Disable vector search
+   *     bm25: true, // Enable BM25 (default, shown for clarity)
+   *     stemmer: "english",
+   *   }
+   * );
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Use only vector similarity search without BM25
+   * const results = await table.hybridSearch(
+   *   "healthy breakfast ideas",
+   *   "Dish",
+   *   "Recipe",
+   *   10,
+   *   {
+   *     vectorSearch: true, // Enable vector search (default, shown for clarity)
+   *     bm25: false, // Disable BM25
+   *     cache: true,
+   *   }
+   * );
+   * ```
    */
   async hybridSearch(
     query: string,
@@ -1239,6 +1273,8 @@ export default class SimpleTable extends Simple {
         | "none";
       k?: number;
       b?: number;
+      bm25?: boolean;
+      vectorSearch?: boolean;
       outputTable?: string;
       times?: {
         start?: number;
@@ -1307,6 +1343,8 @@ export default class SimpleTable extends Simple {
    * @param options.stemmer - The language stemmer to apply for BM25 word normalization. Supports multiple languages or "none" to disable stemming. Defaults to `'porter'`.
    * @param options.k - The BM25 k parameter controlling term frequency saturation. Defaults to `1.2`.
    * @param options.b - The BM25 b parameter controlling document length normalization (0-1 range). Defaults to `0.75`.
+   * @param options.bm25 - If `true`, includes BM25 text search in the hybrid search. Defaults to `true`.
+   * @param options.vectorSearch - If `true`, includes vector similarity search in the hybrid search. Defaults to `true`.
    * @returns A promise that resolves to the AI's answer to the query based on the retrieved context.
    * @category AI
    *
@@ -1407,6 +1445,39 @@ export default class SimpleTable extends Simple {
    *
    * @example
    * ```ts
+   * // Use only BM25 for RAG without vector search
+   * const answer = await table.aiRAG(
+   *   "What's a quick pasta recipe?",
+   *   "Dish",
+   *   "Recipe",
+   *   10,
+   *   {
+   *     cache: true,
+   *     vectorSearch: false, // Disable vector search
+   *     bm25: true, // Enable BM25 (default, shown for clarity)
+   *     stemmer: "english",
+   *   }
+   * );
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Use only vector search for RAG without BM25
+   * const answer = await table.aiRAG(
+   *   "I want something healthy for breakfast",
+   *   "Dish",
+   *   "Recipe",
+   *   10,
+   *   {
+   *     cache: true,
+   *     vectorSearch: true, // Enable vector search (default, shown for clarity)
+   *     bm25: false, // Disable BM25
+   *   }
+   * );
+   * ```
+   *
+   * @example
+   * ```ts
    * // Persist the data and indexes by writing the database to a file
    * // If you don't write the DB to a file, the indexes are not stored
    * // and need to be recreated every time you run your code.
@@ -1498,6 +1569,8 @@ export default class SimpleTable extends Simple {
         | "none";
       k?: number;
       b?: number;
+      bm25?: boolean;
+      vectorSearch?: boolean;
     } = {},
   ): Promise<string> {
     return await aiRAG(this, query, columnId, columnText, nbResults, options);

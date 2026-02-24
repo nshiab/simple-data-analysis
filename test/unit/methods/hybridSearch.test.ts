@@ -354,4 +354,110 @@ if (typeof ollama === "string" && ollama !== "") {
       await sdb.done();
     },
   );
+
+  Deno.test(
+    "should perform hybrid search with only BM25",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeDuplicates({ on: "Dish" });
+      await table.removeMissing({ columns: "Recipe" });
+
+      const results = await table.hybridSearch(
+        "dessert",
+        "Dish",
+        "Recipe",
+        5,
+        {
+          cache: true,
+          ollamaEmbeddings: true,
+          vectorSearch: false, // Disable vector search
+          bm25: true, // Enable only BM25
+          verbose: true,
+        },
+      );
+
+      await results.logTable();
+
+      const nbRows = await results.getNbRows();
+      assertEquals(nbRows <= 5, true);
+
+      await sdb.done();
+    },
+  );
+
+  Deno.test(
+    "should perform hybrid search with only vector search",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeDuplicates({ on: "Dish" });
+      await table.removeMissing({ columns: "Recipe" });
+
+      const results = await table.hybridSearch(
+        "healthy breakfast",
+        "Dish",
+        "Recipe",
+        5,
+        {
+          cache: true,
+          ollamaEmbeddings: true,
+          vectorSearch: true, // Enable only vector search
+          bm25: false, // Disable BM25
+          verbose: true,
+        },
+      );
+
+      await results.logTable();
+
+      const nbRows = await results.getNbRows();
+      assertEquals(nbRows <= 5, true);
+
+      await sdb.done();
+    },
+  );
+
+  Deno.test(
+    "should throw error when both search methods are disabled",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeDuplicates({ on: "Dish" });
+      await table.removeMissing({ columns: "Recipe" });
+
+      let errorThrown = false;
+      try {
+        await table.hybridSearch(
+          "test",
+          "Dish",
+          "Recipe",
+          5,
+          {
+            cache: true,
+            ollamaEmbeddings: true,
+            vectorSearch: false,
+            bm25: false,
+          },
+        );
+      } catch (error) {
+        errorThrown = true;
+        assertEquals(
+          (error as Error).message.includes(
+            "At least one search method must be enabled",
+          ),
+          true,
+        );
+      }
+
+      assertEquals(errorThrown, true);
+
+      await sdb.done();
+    },
+  );
 }

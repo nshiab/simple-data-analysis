@@ -169,6 +169,71 @@ if (typeof aiKey === "string" && aiKey !== "") {
       await sdb.done();
     },
   );
+
+  Deno.test(
+    "should answer a question using RAG with only BM25",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeDuplicates({ on: "Dish" });
+      await table.removeMissing({ columns: "Recipe" });
+
+      const answer = await table.aiRAG(
+        "What's a quick pasta recipe?",
+        "Dish",
+        "Recipe",
+        10,
+        {
+          cache: true,
+          vectorSearch: false, // Disable vector search
+          bm25: true, // Enable only BM25
+          model: "gemini-3-flash-preview",
+          verbose: true,
+        },
+      );
+
+      console.log(answer);
+
+      // Just to make sure it doesn't crash for now
+      assertEquals(true, true);
+      await sdb.done();
+    },
+  );
+
+  Deno.test(
+    "should answer a question using RAG with only vector search",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeDuplicates({ on: "Dish" });
+      await table.removeMissing({ columns: "Recipe" });
+
+      const answer = await table.aiRAG(
+        "I want something healthy for breakfast",
+        "Dish",
+        "Recipe",
+        10,
+        {
+          embeddingsConcurrent: 100,
+          cache: true,
+          vectorSearch: true, // Enable only vector search
+          bm25: false, // Disable BM25
+          model: "gemini-3-flash-preview",
+          verbose: true,
+        },
+      );
+
+      console.log(answer);
+
+      // Just to make sure it doesn't crash for now
+      assertEquals(true, true);
+      await sdb.done();
+    },
+  );
 } else {
   console.log("No AI_KEY or AI_PROJECT in process.env");
 }
@@ -418,6 +483,70 @@ if (typeof ollama === "string" && ollama !== "") {
           createIndex: true,
           modelContextWindow: 128_000,
           embeddingsModelContextWindow: 2_000,
+          verbose: true,
+        },
+      );
+
+      console.log(answer);
+
+      // Just to make sure it doesn't crash for now
+      assertEquals(true, true);
+      await sdb.done();
+    },
+  );
+
+  Deno.test(
+    "should answer a question using RAG with only BM25",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeDuplicates({ on: "Dish" });
+      await table.removeMissing({ columns: "Recipe" });
+
+      const answer = await table.aiRAG(
+        "What's a quick pasta recipe?",
+        "Dish",
+        "Recipe",
+        10,
+        {
+          cache: true,
+          ollamaEmbeddings: true,
+          vectorSearch: false, // Disable vector search
+          bm25: true, // Enable only BM25
+          verbose: true,
+        },
+      );
+
+      console.log(answer);
+
+      // Just to make sure it doesn't crash for now
+      assertEquals(true, true);
+      await sdb.done();
+    },
+  );
+
+  Deno.test(
+    "should answer a question using RAG with only vector search",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeDuplicates({ on: "Dish" });
+      await table.removeMissing({ columns: "Recipe" });
+
+      const answer = await table.aiRAG(
+        "I want something healthy for breakfast",
+        "Dish",
+        "Recipe",
+        10,
+        {
+          cache: true,
+          ollamaEmbeddings: true,
+          vectorSearch: true, // Enable only vector search
+          bm25: false, // Disable BM25
           verbose: true,
         },
       );
