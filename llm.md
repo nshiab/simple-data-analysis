@@ -1961,13 +1961,15 @@ and time. Remember to add `.journalism-cache` to your `.gitignore`.
 ##### Signature
 
 ```typescript
-async aiQuery(prompt: string, options?: { cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; contextWindow?: number; thinkingBudget?: number; verbose?: boolean; includeThoughts?: boolean }): Promise<void>;
+async aiQuery(prompt: string, options?: { extraInstructions?: string; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; includeThoughts?: boolean; location?: string; ollama?: boolean | Ollama; contextWindow?: number; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; outputTable?: string; verbose?: boolean }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
 
 - **`prompt`**: - The input string to guide the AI in generating the SQL query.
 - **`options`**: - Configuration options for the AI request.
+- **`options.extraInstructions`**: - Additional instructions to append to the
+  prompt, providing more context or guidance for the AI.
 - **`options.cache`**: - If `true`, the generated query will be cached locally.
   Defaults to `false`.
 - **`options.model`**: - The AI model to use. Defaults to the `AI_MODEL`
@@ -1991,6 +1993,13 @@ async aiQuery(prompt: string, options?: { cache?: boolean; model?: string; apiKe
   (default, though some models may reason regardless), -1 for a dynamic budget,
   or > 0 for a fixed budget. For Ollama models, any non-zero value simply
   enables reasoning, ignoring the specific budget amount.
+- **`options.thinkingLevel`**: - Sets the thinking level for reasoning:
+  "minimal", "low", "medium", or "high", which some models expect instead of
+  `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided.
+  For Ollama models, any value enables reasoning.
+- **`options.outputTable`**: - The name of a new table where the results will be
+  stored. If not provided, the current table will be replaced with the query
+  results.
 - **`options.verbose`**: - If `true`, logs additional debugging information,
   including the full prompt sent to the AI. Defaults to `false`.
 - **`options.includeThoughts`**: - If `true`, includes the AI model's reasoning
@@ -1999,7 +2008,8 @@ async aiQuery(prompt: string, options?: { cache?: boolean; model?: string; apiKe
 
 ##### Returns
 
-A promise that resolves when the AI query has been executed.
+A promise that resolves to the SimpleTable instance containing the query results
+(either the modified current table or a new table).
 
 ##### Examples
 
@@ -2012,6 +2022,22 @@ await table.aiQuery(
   "Give me the average salary by department",
   { cache: true, verbose: true },
 );
+```
+
+```ts
+// Save results to a new table without modifying the original
+const results = await table.aiQuery(
+  "Give me the top 10 employees by salary",
+  { outputTable: "top_employees" },
+);
+
+// Original table remains unchanged
+const allEmployees = await table.getNbRows();
+console.log(allEmployees); // All employees
+
+// New table contains only query results
+const topEmployees = await results.getNbRows();
+console.log(topEmployees); // 10
 ```
 
 #### `createFtsIndex`
