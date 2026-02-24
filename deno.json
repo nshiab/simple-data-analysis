@@ -1,6 +1,6 @@
 {
   "name": "@nshiab/simple-data-analysis",
-  "version": "5.17.1",
+  "version": "5.17.2",
   "exports": {
     ".": "./src/index.ts"
   },
@@ -22,7 +22,7 @@
   "nodeModulesDir": "auto",
   "imports": {
     "@duckdb/node-api": "npm:@duckdb/node-api@1.4.4-r.1",
-    "@nshiab/journalism-ai": "jsr:@nshiab/journalism-ai@^1.2.12",
+    "@nshiab/journalism-ai": "jsr:@nshiab/journalism-ai@^1.2.13",
     "@nshiab/journalism-dataviz": "jsr:@nshiab/journalism-dataviz@^1.0.3",
     "@nshiab/journalism-format": "jsr:@nshiab/journalism-format@^1.1.1",
     "@nshiab/journalism-google": "jsr:@nshiab/journalism-google@^1.0.4",
