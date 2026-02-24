@@ -15,6 +15,7 @@ export default async function aiQuery(
     ollama?: boolean | Ollama;
     contextWindow?: number;
     thinkingBudget?: number;
+    thinkingLevel?: "minimal" | "low" | "medium" | "high";
     verbose?: boolean;
   } = {},
 ) {
@@ -28,7 +29,20 @@ export default async function aiQuery(
   }
 
   // Types could be improved
-  let query = await askAI(p, options) as unknown as string;
+  let query = await askAI(p, {
+    cache: options.cache,
+    model: options.model,
+    apiKey: options.apiKey,
+    vertex: options.vertex,
+    project: options.project,
+    location: options.location,
+    ollama: options.ollama,
+    contextWindow: options.contextWindow,
+    thinkingBudget: options.thinkingBudget,
+    thinkingLevel: options.thinkingLevel,
+    verbose: options.verbose,
+    includeThoughts: options.verbose,
+  }) as unknown as string;
   query = query.replace("```sql", "").replace("```", "").trim();
 
   await simpleTable.sdb.customQuery(query);

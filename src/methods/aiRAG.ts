@@ -129,6 +129,7 @@ Rules of Engagement:
 - Groundedness: If the provided data does not contain the answer, your only response must be: "I do not have data to answer this question." Do not use outside knowledge.`,
       cache: options.cache,
       verbose: options.verbose,
+      includeThoughts: options.verbose,
       contextWindow: options.modelContextWindow,
       thinkingBudget: options.thinkingBudget,
       thinkingLevel: options.thinkingLevel,
