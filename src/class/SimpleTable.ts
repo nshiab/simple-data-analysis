@@ -1614,6 +1614,7 @@ export default class SimpleTable extends Simple {
    *
    * @param prompt - The input string to guide the AI in generating the SQL query.
    * @param options - Configuration options for the AI request.
+   * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
    * @param options.cache - If `true`, the generated query will be cached locally. Defaults to `false`.
    * @param options.model - The AI model to use. Defaults to the `AI_MODEL` environment variable.
    * @param options.apiKey - The API key for the AI service. Defaults to the `AI_KEY` environment variable.
@@ -1623,6 +1624,7 @@ export default class SimpleTable extends Simple {
    * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama instance to be used, you can pass it here too.
    * @param options.contextWindow - An option to specify the context window size for Ollama models. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
    * @param options.thinkingBudget - Sets the reasoning token budget: 0 to disable (default, though some models may reason regardless), -1 for a dynamic budget, or > 0 for a fixed budget. For Ollama models, any non-zero value simply enables reasoning, ignoring the specific budget amount.
+   * @param options.thinkingLevel - Sets the thinking level for reasoning: "minimal", "low", "medium", or "high", which some models expect instead of `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided. For Ollama models, any value enables reasoning.
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
    * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.
    * @returns A promise that resolves when the AI query has been executed.
@@ -1641,17 +1643,19 @@ export default class SimpleTable extends Simple {
    * ```
    */
   async aiQuery(prompt: string, options: {
+    extraInstructions?: string;
     cache?: boolean;
     model?: string;
     apiKey?: string;
     vertex?: boolean;
     project?: string;
+    includeThoughts?: boolean;
     location?: string;
     ollama?: boolean | Ollama;
     contextWindow?: number;
     thinkingBudget?: number;
+    thinkingLevel?: "minimal" | "low" | "medium" | "high";
     verbose?: boolean;
-    includeThoughts?: boolean;
   } = {}): Promise<void> {
     await aiQuery(this, prompt, options);
   }

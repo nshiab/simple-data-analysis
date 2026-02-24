@@ -6,6 +6,7 @@ export default async function aiQuery(
   simpleTable: SimpleTable,
   prompt: string,
   options: {
+    extraInstructions?: string;
     cache?: boolean;
     model?: string;
     apiKey?: string;
@@ -23,7 +24,9 @@ export default async function aiQuery(
   const p =
     `I have a SQL table named "${simpleTable.name}". The data is already in it with these columns:\n${
       JSON.stringify(await simpleTable.getTypes())
-    }\nI want you to give me a SQL query to do this:\n- ${prompt}\nThe query must replace the existing "${simpleTable.name}" table. This means the the query must start with 'CREATE OR REPLACE TABLE "${simpleTable.name}"...'. Return just the query, nothing else.`;
+    }\nI want you to give me a SQL query to do this:\n- ${prompt}\nThe query must replace the existing "${simpleTable.name}" table. This means the the query must start with 'CREATE OR REPLACE TABLE "${simpleTable.name}"...'. Return just the query, nothing else.${
+      options.extraInstructions ? `\n${options.extraInstructions}` : ""
+    }`;
 
   if (options.verbose) {
     console.log("\naiQuery()");
