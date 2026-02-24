@@ -56,6 +56,8 @@ export default async function aiRAG(
       | "none";
     k?: number;
     b?: number;
+    bm25?: boolean;
+    vectorSearch?: boolean;
   } = {},
 ) {
   const times = {
@@ -88,6 +90,8 @@ export default async function aiRAG(
       stemmer: options.stemmer,
       k: options.k,
       b: options.b,
+      bm25: options.bm25,
+      vectorSearch: options.vectorSearch,
       outputTable: `${table.name}_rag_search_results`,
       times: times,
     },
@@ -142,17 +146,45 @@ Rules of Engagement:
 
   if (options.verbose) {
     times.llmEnd = Date.now();
-    console.log(
-      `\nRAG process times:\n- Embedding: ${
-        prettyDuration(times.embeddingStart, { end: times.embeddingEnd })
-      }\n- Vector Search (parallel): ${
-        prettyDuration(times.vectorSearchStart, { end: times.vectorSearchEnd })
-      }\n- BM25 Search (parallel): ${
-        prettyDuration(times.bm25Start, { end: times.bm25End })
-      }\n- LLM: ${
-        prettyDuration(times.llmStart, { end: times.llmEnd })
-      }\n- Total: ${prettyDuration(times.start)}\n`,
+    const enableVectorSearch = options.vectorSearch !== false;
+    const enableBm25 = options.bm25 !== false;
+    const parallelLabel = enableVectorSearch && enableBm25 ? " (parallel)" : "";
+
+    const logParts = [`\nRAG process times:`];
+
+    if (enableVectorSearch) {
+      logParts.push(
+        `- Embedding: ${
+          prettyDuration(times.embeddingStart, { end: times.embeddingEnd })
+        }`,
+      );
+    }
+
+    logParts.push(
+      enableVectorSearch
+        ? `- Vector Search${parallelLabel}: ${
+          prettyDuration(times.vectorSearchStart, {
+            end: times.vectorSearchEnd,
+          })
+        }`
+        : `- Vector Search: disabled`,
     );
+
+    logParts.push(
+      enableBm25
+        ? `- BM25 Search${parallelLabel}: ${
+          prettyDuration(times.bm25Start, { end: times.bm25End })
+        }`
+        : `- BM25 Search: disabled`,
+    );
+
+    logParts.push(
+      `- LLM: ${prettyDuration(times.llmStart, { end: times.llmEnd })}`,
+    );
+
+    logParts.push(`- Total: ${prettyDuration(times.start)}`);
+
+    console.log(logParts.join("\n") + "\n");
   }
 
   return response;
