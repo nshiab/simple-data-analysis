@@ -23,6 +23,9 @@ export default async function aiEmbeddings(
     verbose?: boolean;
     rateLimitPerMinute?: number;
     contextWindow?: number;
+    efConstruction?: number;
+    efSearch?: number;
+    M?: number;
   } = {},
 ) {
   await simpleTable.updateWithJS(async (rows) => {
@@ -88,6 +91,9 @@ export default async function aiEmbeddings(
     await createVssIndex(simpleTable, newColumn, {
       overwrite: options.overwriteIndex,
       verbose: options.verbose,
+      efConstruction: options.efConstruction,
+      efSearch: options.efSearch,
+      M: options.M,
     });
   }
 }

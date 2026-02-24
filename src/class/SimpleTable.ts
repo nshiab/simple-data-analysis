@@ -931,6 +931,9 @@ export default class SimpleTable extends Simple {
    * @param options - Configuration options for the AI request.
    * @param options.createIndex - If `true`, an index will be created on the new column. Useful for speeding up the `aiVectorSimilarity` method. Defaults to `false`.
    * @param options.overwriteIndex - If `true` and `createIndex` is `true`, drops and recreates the VSS index even if it already exists. Defaults to `false`.
+   * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
+   * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
+   * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
    * @param options.concurrent - The number of concurrent requests to send. Defaults to `1`.
    * @param options.cache - If `true`, the results will be cached locally. Defaults to `false`.
    * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
@@ -981,6 +984,9 @@ export default class SimpleTable extends Simple {
     verbose?: boolean;
     rateLimitPerMinute?: number;
     contextWindow?: number;
+    efConstruction?: number;
+    efSearch?: number;
+    M?: number;
   } = {}): Promise<void> {
     await aiEmbeddings(this, column, newColumn, options);
   }
@@ -1003,6 +1009,9 @@ export default class SimpleTable extends Simple {
    * @param options - An optional object with configuration options:
    * @param options.createIndex - If `true`, an index will be created on the embeddings column. Defaults to `false`.
    * @param options.overwriteIndex - If `true` and `createIndex` is `true`, drops and recreates the VSS index even if it already exists. Defaults to `false`.
+   * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
+   * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
+   * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
    * @param options.outputTable - The name of the output table where the results will be stored. If not provided, the current table will be modified. Defaults to `undefined`.
    * @param options.cache - If `true`, the embedding of the input `text` will be cached locally. Defaults to `false`.
    * @param options.model - The AI model to use for generating the embedding. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
@@ -1064,6 +1073,9 @@ export default class SimpleTable extends Simple {
       ollama?: boolean | Ollama;
       contextWindow?: number;
       verbose?: boolean;
+      efConstruction?: number;
+      efSearch?: number;
+      M?: number;
     } = {},
   ): Promise<SimpleTable> {
     return await aiVectorSimilarity(this, text, column, nbResults, options);
@@ -1103,6 +1115,9 @@ export default class SimpleTable extends Simple {
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
    * @param options.embeddingsModelContextWindow - An option to specify the context window size for the embeddings model when using Ollama. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
    * @param options.createIndex - If `true`, both vector and BM25 indexes will be created for faster retrieval. Defaults to `false`.
+   * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
+   * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
+   * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
    * @param options.embeddingsModel - The model to use for generating embeddings. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
    * @param options.ollamaEmbeddings - If `true`, forces the use of Ollama for embeddings generation. Defaults to `false`.
    * @param options.embeddingsConcurrent - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
@@ -1276,6 +1291,9 @@ export default class SimpleTable extends Simple {
       bm25?: boolean;
       vectorSearch?: boolean;
       outputTable?: string;
+      efConstruction?: number;
+      efSearch?: number;
+      M?: number;
       times?: {
         start?: number;
         embeddingStart?: number;
@@ -1340,6 +1358,9 @@ export default class SimpleTable extends Simple {
    * @param options.ollamaEmbeddings - If `true`, forces the use of Ollama for embeddings generation, even if Gemini or Vertex is used for the LLM. Defaults to `false`.
    * @param options.embeddingsConcurrent - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
    * @param options.createIndex - If `true`, both vector and BM25 indexes will be created for faster retrieval. Defaults to `false`.
+   * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
+   * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
+   * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
    * @param options.stemmer - The language stemmer to apply for BM25 word normalization. Supports multiple languages or "none" to disable stemming. Defaults to `'porter'`.
    * @param options.k - The BM25 k parameter controlling term frequency saturation. Defaults to `1.2`.
    * @param options.b - The BM25 b parameter controlling document length normalization (0-1 range). Defaults to `0.75`.
@@ -1571,6 +1592,9 @@ export default class SimpleTable extends Simple {
       b?: number;
       bm25?: boolean;
       vectorSearch?: boolean;
+      efConstruction?: number;
+      efSearch?: number;
+      M?: number;
     } = {},
   ): Promise<string> {
     return await aiRAG(this, query, columnId, columnText, nbResults, options);
@@ -1731,6 +1755,9 @@ export default class SimpleTable extends Simple {
    * @param options - An optional object with configuration options:
    * @param options.overwrite - If `true`, drops and recreates the index even if it already exists. Defaults to `false`.
    * @param options.verbose - If `true`, logs additional debugging information, including index creation status. Defaults to `false`.
+   * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
+   * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
+   * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
    * @returns A promise that resolves to the SimpleTable instance for method chaining.
    * @category Vector Search
    *
@@ -1761,12 +1788,25 @@ export default class SimpleTable extends Simple {
    * // Logs: "Creating VSS index on 'embedding_column' column..."
    * // Logs: "VSS index created successfully."
    * ```
+   *
+   * @example
+   * ```ts
+   * // Create index with custom HNSW parameters for higher accuracy
+   * await table.createVssIndex("embedding_column", {
+   *   efConstruction: 256,
+   *   efSearch: 128,
+   *   M: 32,
+   * });
+   * ```
    */
   async createVssIndex(
     column: string,
     options: {
       overwrite?: boolean;
       verbose?: boolean;
+      efConstruction?: number;
+      efSearch?: number;
+      M?: number;
     } = {},
   ): Promise<SimpleTable> {
     return await createVssIndex(this, column, options);

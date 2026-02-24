@@ -15,6 +15,9 @@ export default async function aiVectorSimilarity(
     overwriteIndex?: boolean;
     outputTable?: string;
     verbose?: boolean;
+    efConstruction?: number;
+    efSearch?: number;
+    M?: number;
   } = {},
 ) {
   const textEmbedding = await getEmbedding(text, options);
@@ -33,6 +36,9 @@ export default async function aiVectorSimilarity(
     await createVssIndex(simpleTable, column, {
       overwrite: options.overwriteIndex,
       verbose: options.verbose,
+      efConstruction: options.efConstruction,
+      efSearch: options.efSearch,
+      M: options.M,
     });
   }
 
