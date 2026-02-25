@@ -86,6 +86,7 @@ import Simple from "./Simple.ts";
 import selectRowsQuery from "../methods/selectRowsQuery.ts";
 import crossJoinQuery from "../methods/crossJoinQuery.ts";
 import join from "../methods/join.ts";
+import fuzzyJoin from "../methods/fuzzyJoin.ts";
 import cloneQuery from "../methods/cloneQuery.ts";
 import findGeoColumn from "../helpers/findGeoColumn.ts";
 import getExtension from "../helpers/getExtension.ts";
@@ -3494,6 +3495,83 @@ export default class SimpleTable extends Simple {
       this.sdb.tableIncrement += 1;
     }
     return (await join(this, rightTable, options)) as SimpleTable;
+  }
+
+  /**
+   * Merges the data of this table (considered the left table) with another table (the right table) based on
+   * fuzzy string similarity between two text columns, using the
+   * [rapidfuzz](https://query.farm/duckdb_extension_rapidfuzz) DuckDB community extension.
+   * Optionally, a similarity score column can be added to the result.
+   * Note that the order of rows in the returned data is not guaranteed to be the same as in the original tables.
+   *
+   * @param leftColumn - The name of the column in this (left) table containing the text to compare.
+   * @param rightTable - The SimpleTable instance to be joined with this table.
+   * @param rightColumn - The name of the column in the right table containing the text to compare.
+   * @param options - An optional object with configuration options:
+   * @param options.method - The rapidfuzz similarity algorithm to use. Defaults to `"ratio"`.
+   *   - `"ratio"`: Overall similarity (Levenshtein-based).
+   *   - `"partial_ratio"`: Best partial/substring similarity.
+   *   - `"token_sort_ratio"`: Similarity after sorting tokens (words), useful for reordered words.
+   *   - `"token_set_ratio"`: Similarity based on sets of tokens, ignoring duplicates and word order.
+   * @param options.threshold - The minimum similarity score (0–100) required for two rows to be joined. Defaults to `80`.
+   * @param options.type - The type of join operation to perform: `"inner"`, `"left"` (default), `"right"`, or `"full"`.
+   * @param options.similarityColumn - If provided, a column with this name is added to the result containing the similarity score (0–100). If omitted, the score is not included in the output.
+   * @param options.outputTable - If `true`, the results will be stored in a new table with a generated name. If a string, it will be used as the name for the new table. If `false` or omitted, the current table will be overwritten. Defaults to `false`.
+   * @returns A promise that resolves to the SimpleTable instance containing the fuzzy-joined data (either the modified current table or a new table).
+   * @category Table Operations
+   *
+   * @example
+   * ```ts
+   * // Fuzzy join tableA with tableB on the 'name' and 'companyName' columns (left join, ratio >= 80)
+   * await tableA.fuzzyJoin("name", tableB, "companyName");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Inner fuzzy join with a custom threshold and method, storing results in a new table
+   * const tableC = await tableA.fuzzyJoin("name", tableB, "companyName", {
+   *   method: "token_sort_ratio",
+   *   threshold: 90,
+   *   type: "inner",
+   *   outputTable: true,
+   * });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Fuzzy join with a custom similarity column name
+   * await tableA.fuzzyJoin("name", tableB, "companyName", {
+   *   similarityColumn: "matchScore",
+   * });
+   * ```
+   */
+  async fuzzyJoin(
+    leftColumn: string,
+    rightTable: SimpleTable,
+    rightColumn: string,
+    options: {
+      method?:
+        | "ratio"
+        | "partial_ratio"
+        | "token_sort_ratio"
+        | "token_set_ratio";
+      threshold?: number;
+      type?: "inner" | "left" | "right" | "full";
+      similarityColumn?: string;
+      outputTable?: string | boolean;
+    } = {},
+  ): Promise<SimpleTable> {
+    if (options.outputTable === true) {
+      options.outputTable = `table${this.sdb.tableIncrement}`;
+      this.sdb.tableIncrement += 1;
+    }
+    return await fuzzyJoin(
+      this,
+      leftColumn,
+      rightTable,
+      rightColumn,
+      options,
+    );
   }
 
   /**
