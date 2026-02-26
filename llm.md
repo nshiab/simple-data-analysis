@@ -1325,7 +1325,7 @@ up processing. If the index already exists, it will not be recreated unless
 ##### Signature
 
 ```typescript
-async aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { createIndex?: boolean; overwriteIndex?: boolean; outputTable?: string; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; contextWindow?: number; verbose?: boolean; efConstruction?: number; efSearch?: number; M?: number }): Promise<SimpleTable>;
+async aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { createIndex?: boolean; overwriteIndex?: boolean; outputTable?: string; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; contextWindow?: number; verbose?: boolean; efConstruction?: number; efSearch?: number; M?: number; minSimilarity?: number; similarityColumn?: string }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -1334,8 +1334,15 @@ async aiVectorSimilarity(text: string, column: string, nbResults: number, option
   content.
 - **`column`**: - The name of the column containing the embeddings to be used
   for the similarity search.
-- **`nbResults`**: - The number of most similar results to return.
+- **`nbResults`**: - The maximum number of most similar results to return.
 - **`options`**: - An optional object with configuration options:
+- **`options.minSimilarity`**: - A threshold between 0.0 and 1.0 to filter out
+  results that are not similar enough. For example, 0.7 ensures only results
+  with a 70% similarity or higher are returned. Defaults to `undefined` (no
+  threshold).
+- **`options.similarityColumn`**: - If provided, a new column with this name
+  will be added to the output table containing the calculated similarity score
+  (from 0.0 to 1.0) for each row. Defaults to `undefined`.
 - **`options.createIndex`**: - If `true`, an index will be created on the
   embeddings column. Defaults to `false`.
 - **`options.overwriteIndex`**: - If `true` and `createIndex` is `true`, drops
@@ -1396,6 +1403,7 @@ await table.loadArray([
 await table.aiEmbeddings("food", "embeddings", { cache: true });
 
 // Find the 3 most similar foods to "italian food" based on embeddings.
+// We only want results with at least 60% similarity and we want to see the score.
 const similarFoods = await table.aiVectorSimilarity(
   "italian food",
   "embeddings",
@@ -1403,6 +1411,8 @@ const similarFoods = await table.aiVectorSimilarity(
   {
     createIndex: true, // Create an index on the embeddings column for faster searches
     cache: true, // Cache the embedding of "italian food"
+    minSimilarity: 0.6, // Filter out anything below 0.6 similarity
+    similarityColumn: "score", // Add a new column named "score" with the similarity math
   },
 );
 
@@ -2197,7 +2207,7 @@ option is set to `true`.
 ##### Signature
 
 ```typescript
-async bm25(text: string, columnId: string, columnText: string, nbResults: number, options?: { outputTable?: string; verbose?: boolean; k?: number; b?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; overwriteIndex?: boolean }): Promise<SimpleTable>;
+async bm25(text: string, columnId: string, columnText: string, nbResults: number, options?: { outputTable?: string; verbose?: boolean; k?: number; b?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; overwriteIndex?: boolean; minScore?: number; scoreColumn?: string }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -2222,6 +2232,10 @@ async bm25(text: string, columnId: string, columnText: string, nbResults: number
   'porter'.
 - **`options.overwriteIndex`**: - If `true`, drops and recreates the FTS index
   even if it already exists. Defaults to `false`.
+- **`options.minScore`**: - A threshold to filter out results with a BM25 score
+  below this value.
+- **`options.scoreColumn`**: - If provided, the BM25 score will be included in
+  the output table under this column name.
 
 ##### Returns
 
@@ -2282,6 +2296,16 @@ const italian = await table.bm25("italian food", "Dish", "Recipe", 5, {
 // The second search reuses the existing index, so it's faster
 const french = await table.bm25("french food", "Dish", "Recipe", 5, {
   outputTable: "french",
+});
+```
+
+- @example
+
+```ts
+// Filter results by a minimum BM25 score and include the score in the output
+await table.bm25("spicy noodles", "Dish", "Recipe", 10, {
+  minScore: 5.5,
+  scoreColumn: "bm25_score",
 });
 ```
 
