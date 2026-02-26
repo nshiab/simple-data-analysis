@@ -41,6 +41,8 @@ export default async function bm25(
       | "none";
     k?: number;
     b?: number;
+    minScore?: number;
+    scoreColumn?: string;
     overwriteIndex?: boolean;
     outputTable?: string;
     verbose?: boolean;
@@ -55,17 +57,25 @@ export default async function bm25(
     verbose: options.verbose,
   });
 
+  const minScoreCondition = typeof options.minScore === "number"
+    ? ` AND score >= ${options.minScore}`
+    : "";
+
+  const selectClause = typeof options.scoreColumn === "string"
+    ? `* EXCLUDE(score), score AS "${options.scoreColumn}"`
+    : `* EXCLUDE(score)`;
+
   await queryDB(
     simpleTable,
     `CREATE OR REPLACE TABLE "${
       options.outputTable ?? simpleTable.name
-    }" AS SELECT * EXCLUDE(score) FROM (SELECT *, fts_main_${
+    }" AS SELECT ${selectClause} FROM (SELECT *, fts_main_${
       camelCase(simpleTable.name)
     }.match_bm25(${columnId}, '${text.replace(/'/g, "''")}'${
       typeof options.k === "number" ? `, k := ${options.k}` : ""
     }${
       typeof options.b === "number" ? `, b := ${options.b}` : ""
-    }) AS score FROM "${simpleTable.name}") sq WHERE score NOT NULL ORDER BY score DESC LIMIT ${nbResults};`,
+    }) AS score FROM "${simpleTable.name}") sq WHERE score NOT NULL${minScoreCondition} ORDER BY score DESC LIMIT ${nbResults};`,
     mergeOptions(simpleTable, {
       table: simpleTable.name,
       method: "bm25",
@@ -74,6 +84,8 @@ export default async function bm25(
         columnId,
         columnText,
         nbResults,
+        minScore: options.minScore,
+        scoreColumn: options.scoreColumn,
         table: options.outputTable ?? simpleTable.name,
       },
     }),

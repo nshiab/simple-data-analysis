@@ -1007,8 +1007,10 @@ export default class SimpleTable extends Simple {
    *
    * @param text - The text for which to generate an embedding and find similar content.
    * @param column - The name of the column containing the embeddings to be used for the similarity search.
-   * @param nbResults - The number of most similar results to return.
+   * @param nbResults - The maximum number of most similar results to return.
    * @param options - An optional object with configuration options:
+   * @param options.minSimilarity - A threshold between 0.0 and 1.0 to filter out results that are not similar enough. For example, 0.7 ensures only results with a 70% similarity or higher are returned. Defaults to `undefined` (no threshold).
+   * @param options.similarityColumn - If provided, a new column with this name will be added to the output table containing the calculated similarity score (from 0.0 to 1.0) for each row. Defaults to `undefined`.
    * @param options.createIndex - If `true`, an index will be created on the embeddings column. Defaults to `false`.
    * @param options.overwriteIndex - If `true` and `createIndex` is `true`, drops and recreates the VSS index even if it already exists. Defaults to `false`.
    * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
@@ -1030,32 +1032,35 @@ export default class SimpleTable extends Simple {
    *
    * @example
    * ```ts
-   * // New table with a "food" column.
-   * await table.loadArray([
-   *   { food: "pizza" },
-   *   { food: "sushi" },
-   *   { food: "burger" },
-   *   { food: "pasta" },
-   *   { food: "salad" },
-   *   { food: "tacos" }
-   * ]);
-   *
-   * // Generate embeddings for the "food" column.
-   * await table.aiEmbeddings("food", "embeddings", { cache: true });
-   *
-   * // Find the 3 most similar foods to "italian food" based on embeddings.
-   * const similarFoods = await table.aiVectorSimilarity(
-   *   "italian food",
-   *   "embeddings",
-   *   3,
-   *   {
-   *     createIndex: true, // Create an index on the embeddings column for faster searches
-   *     cache: true, // Cache the embedding of "italian food"
-   *   }
-   * );
-   *
-   * // Log the results
-   * await similarFoods.logTable();
+  * // New table with a "food" column.
+  * await table.loadArray([
+  *   { food: "pizza" },
+  *   { food: "sushi" },
+  *   { food: "burger" },
+  *   { food: "pasta" },
+  *   { food: "salad" },
+  *   { food: "tacos" }
+  * ]);
+  *
+  * // Generate embeddings for the "food" column.
+  * await table.aiEmbeddings("food", "embeddings", { cache: true });
+  *
+  * // Find the 3 most similar foods to "italian food" based on embeddings.
+  * // We only want results with at least 60% similarity and we want to see the score.
+  * const similarFoods = await table.aiVectorSimilarity(
+  *   "italian food",
+  *   "embeddings",
+  *   3,
+  *   {
+  *     createIndex: true, // Create an index on the embeddings column for faster searches
+  *     cache: true, // Cache the embedding of "italian food"
+  *     minSimilarity: 0.6, // Filter out anything below 0.6 similarity
+  *     similarityColumn: "score" // Add a new column named "score" with the similarity math
+  *   }
+  * );
+  *
+  * // Log the results
+  * await similarFoods.logTable();
    * ```
    */
   async aiVectorSimilarity(
@@ -1078,6 +1083,8 @@ export default class SimpleTable extends Simple {
       efConstruction?: number;
       efSearch?: number;
       M?: number;
+      minSimilarity?: number; // Added to signature
+      similarityColumn?: string; // Added to signature
     } = {},
   ): Promise<SimpleTable> {
     return await aiVectorSimilarity(this, text, column, nbResults, options);
@@ -1862,6 +1869,8 @@ export default class SimpleTable extends Simple {
    * @param options.b - The BM25 b parameter controlling document length normalization (0-1 range). Defaults to 0.75.
    * @param options.stemmer - The language stemmer to apply for word normalization. Supports multiple languages or "none" to disable stemming. Defaults to 'porter'.
    * @param options.overwriteIndex - If `true`, drops and recreates the FTS index even if it already exists. Defaults to `false`.
+   * @param options.minScore - A threshold to filter out results with a BM25 score below this value.
+   * @param options.scoreColumn - If provided, the BM25 score will be included in the output table under this column name.
    * @returns A promise that resolves to a SimpleTable instance containing the search results, ordered by relevance (best matches first).
    * @category Text Search
    *
@@ -1924,6 +1933,14 @@ export default class SimpleTable extends Simple {
    *   outputTable: "french",
    * });
    * ```
+   * * @example
+   * ```ts
+   * // Filter results by a minimum BM25 score and include the score in the output
+   * await table.bm25("spicy noodles", "Dish", "Recipe", 10, {
+   *   minScore: 5.5,
+   *   scoreColumn: "bm25_score"
+   * });
+   * ```
    */
   async bm25(
     text: string,
@@ -1965,6 +1982,8 @@ export default class SimpleTable extends Simple {
         | "turkish"
         | "none";
       overwriteIndex?: boolean;
+      minScore?: number;
+      scoreColumn?: string;
     } = {},
   ): Promise<SimpleTable> {
     return await bm25(this, text, columnId, columnText, nbResults, options);
