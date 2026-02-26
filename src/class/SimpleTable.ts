@@ -3499,14 +3499,16 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Merges the data of this table (considered the left table) with another table (the right table) based on
-   * fuzzy string similarity between two text columns, using the
+   * Performs a fuzzy left join between this table (considered the left table) and another table
+   * (the right table) based on string similarity between two text columns. Uses the
    * [rapidfuzz](https://query.farm/duckdb_extension_rapidfuzz) DuckDB community extension.
-   * Optionally, a similarity score column can be added to the result.
-   * Note that the order of rows in the returned data is not guaranteed to be the same as in the original tables.
    *
-   * @param leftColumn - The name of the column in this (left) table containing the text to compare.
+   * If a similarity score column is added to the results, the rows will be ordered alphabetically by the left column, and then by descending similarity score within each group of identical left column values. Otherwise, the rows will be order alphabetically by the left column and then by the right column.
+   *
+   * This operation might create temporary files in a `.tmp` folder; consider adding `.tmp` to your `.gitignore`.
+   *
    * @param rightTable - The SimpleTable instance to be joined with this table.
+   * @param leftColumn - The name of the column in this (left) table containing the text to compare.
    * @param rightColumn - The name of the column in the right table containing the text to compare.
    * @param options - An optional object with configuration options:
    * @param options.method - The rapidfuzz similarity algorithm to use. Defaults to `"ratio"`.
@@ -3515,50 +3517,38 @@ export default class SimpleTable extends Simple {
    *   - `"token_sort_ratio"`: Similarity after sorting tokens (words), useful for reordered words.
    *   - `"token_set_ratio"`: Similarity based on sets of tokens, ignoring duplicates and word order.
    * @param options.threshold - The minimum similarity score (0–100) required for two rows to be joined. Defaults to `80`.
-   * @param options.type - The type of join operation to perform: `"inner"`, `"left"` (default), `"right"`, or `"full"`.
    * @param options.similarityColumn - If provided, a column with this name is added to the result containing the similarity score (0–100). If omitted, the score is not included in the output.
    * @param options.outputTable - If `true`, the results will be stored in a new table with a generated name. If a string, it will be used as the name for the new table. If `false` or omitted, the current table will be overwritten. Defaults to `false`.
-   * @param options.prefixBlockingSize - When set to a positive integer, only pairs whose first N characters match (case-insensitively) are
-   *   considered as candidates in a fast first pass. A second pass then runs an unbounded similarity scan for any left (or right) rows that
-   *   were not matched in the first pass, ensuring no rows are silently dropped. When `undefined` or `0`, all pairs are compared directly
-   *   (no blocking). Defaults to `undefined`.
    * @returns A promise that resolves to the SimpleTable instance containing the fuzzy-joined data (either the modified current table or a new table).
    * @category Table Operations
    *
    * @example
    * ```ts
-   * // Fuzzy join tableA with tableB on the 'name' and 'companyName' columns (left join, ratio >= 80)
-   * await tableA.fuzzyJoin("name", tableB, "companyName");
+   * // Fuzzy left join tableA with tableB on 'name' (left) and 'standardName' (right) (ratio >= 80)
+   * await tableA.fuzzyJoin(tableB, "name", "standardName");
    * ```
    *
    * @example
    * ```ts
-   * // Inner fuzzy join with a custom threshold and method, storing results in a new table
-   * const tableC = await tableA.fuzzyJoin("name", tableB, "companyName", {
+   * // Fuzzy join with a custom threshold and method, storing results in a new table
+   * const tableC = await tableA.fuzzyJoin(tableB, "name", "standardName", {
    *   method: "token_sort_ratio",
    *   threshold: 90,
-   *   type: "inner",
-   *   outputTable: true,
+   *   outputTable: "tableC",
    * });
    * ```
    *
    * @example
    * ```ts
    * // Fuzzy join with a custom similarity column name
-   * await tableA.fuzzyJoin("name", tableB, "companyName", {
+   * await tableA.fuzzyJoin(tableB, "name", "standardName", {
    *   similarityColumn: "matchScore",
    * });
    * ```
-   *
-   * @example
-   * ```ts
-   * // Use prefix blocking to speed up large joins (unmatched rows are always rescued by a second pass)
-   * await tableA.fuzzyJoin("name", tableB, "companyName", { prefixBlockingSize: 3 });
-   * ```
    */
   async fuzzyJoin(
-    leftColumn: string,
     rightTable: SimpleTable,
+    leftColumn: string,
     rightColumn: string,
     options: {
       method?:
@@ -3567,10 +3557,8 @@ export default class SimpleTable extends Simple {
         | "token_sort_ratio"
         | "token_set_ratio";
       threshold?: number;
-      type?: "inner" | "left" | "right" | "full";
       similarityColumn?: string;
       outputTable?: string | boolean;
-      prefixBlockingSize?: number;
     } = {},
   ): Promise<SimpleTable> {
     if (options.outputTable === true) {
@@ -3579,8 +3567,8 @@ export default class SimpleTable extends Simple {
     }
     return await fuzzyJoin(
       this,
-      leftColumn,
       rightTable,
+      leftColumn,
       rightColumn,
       options,
     );
@@ -3611,10 +3599,6 @@ export default class SimpleTable extends Simple {
    *   - `"shortestString"`: Keep the shortest string in the cluster.
    *   - `"mostCentral"`: Keep the string with the highest total similarity score to all other cluster members (the most "central" string).
    *   - `"maxScore"`: Keep the string that participates in the single highest-scoring pairwise match within the cluster.
-   * @param options.prefixBlockingSize - When set to a positive integer, only pairs whose first N characters match (case-insensitively) are
-   *   considered as candidates before running the similarity algorithm. This dramatically reduces the number of comparisons when there are many
-   *   unique values, at the cost of missing matches where the leading characters differ (e.g. `"MacDonald"` vs `"McDonald"`). When `undefined`
-   *   or `0`, all pairs are compared (no blocking). Defaults to `undefined`.
    * @returns A promise that resolves when the column has been normalized.
    * @category Updating Data
    *
@@ -3635,12 +3619,6 @@ export default class SimpleTable extends Simple {
    * // Normalize 'category' in-place, keeping the longest string in each cluster
    * await table.fuzzyClean("category", "category", { keep: "longestString" });
    * ```
-   *
-   * @example
-   * ```ts
-   * // Use prefix blocking to speed up comparison on a large dataset (only compare strings sharing the same first 3 characters)
-   * await table.fuzzyClean("city", "cityClean", { prefixBlockingSize: 3 });
-   * ```
    */
   async fuzzyClean(
     column: string,
@@ -3658,7 +3636,6 @@ export default class SimpleTable extends Simple {
         | "shortestString"
         | "mostCentral"
         | "maxScore";
-      prefixBlockingSize?: number;
     } = {},
   ): Promise<void> {
     await fuzzyClean(this, column, newColumn, options);

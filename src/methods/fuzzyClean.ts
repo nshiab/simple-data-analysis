@@ -19,21 +19,15 @@ export default async function fuzzyClean(
       | "shortestString"
       | "mostCentral"
       | "maxScore";
-    prefixBlockingSize?: number;
   } = {},
 ): Promise<void> {
   const method = options.method ?? "ratio";
   const threshold = options.threshold ?? 80;
   const keep = options.keep ?? "mostCommon";
-  const prefixBlockingSize = options.prefixBlockingSize || 0;
 
   // Single round trip: compute fuzzy pairs and embed counts for both sides.
   // Only values that appear in at least one pair above the threshold can be
   // normalized — singletons need no processing at all.
-  const blockingCondition = prefixBlockingSize > 0
-    ? `LEFT(LOWER(a.value), ${prefixBlockingSize}) = LEFT(LOWER(b.value), ${prefixBlockingSize}) AND\n       `
-    : "";
-
   const pairsData = await queryDB(
     table,
     `INSTALL rapidfuzz FROM community; LOAD rapidfuzz;
@@ -51,7 +45,7 @@ export default async function fuzzyClean(
        rapidfuzz_${method}(a.value, b.value) AS score
      FROM uniques a
      JOIN uniques b
-       ON ${blockingCondition}rapidfuzz_${method}(a.value, b.value) >= ${threshold}
+       ON rapidfuzz_${method}(a.value, b.value) >= ${threshold}
        AND a.value < b.value`,
     mergeOptions(table, {
       table: table.name,
