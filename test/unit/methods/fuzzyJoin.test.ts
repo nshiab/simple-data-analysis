@@ -294,3 +294,143 @@ Deno.test("should throw an error when tables have conflicting column names", asy
 
   await sdb.done();
 });
+
+// ─── prefixBlockingSize tests ────────────────────────────────────────────────
+
+// Test data used in all four blocking tests:
+//   Left  table: id=1 "MacDonald", id=2 "Alice"  (+ id=3 "Zzzzz" in some tests)
+//   Right table: code="A" "McDonald", code="B" "Alize"  (+ code="C" "Zzz" in some tests)
+//
+// "MacDonald" / "McDonald": rapidfuzz ratio ≈ 94 (above default 80), but
+//   LEFT("MacDonald",3)="Mac" ≠ LEFT("McDonald",3)="McD", so phase 1 misses them
+//   and phase 2 rescues the pair.
+// "Alice" / "Alize": ratio ≈ 90, LEFT(...,3)="Ali" for both, so phase 1 catches them.
+
+Deno.test("prefixBlockingSize: left join — cross-prefix match is rescued by phase 2", async () => {
+  const sdb = new SimpleDB();
+  const tblLeft = sdb.newTable("tblLeft");
+  await tblLeft.loadArray([
+    { id: 1, name: "MacDonald" },
+    { id: 2, name: "Alice" },
+  ]);
+  const tblRight = sdb.newTable("tblRight");
+  await tblRight.loadArray([
+    { code: "A", label: "McDonald" },
+    { code: "B", label: "Alize" },
+  ]);
+
+  const result = await tblLeft.fuzzyJoin("name", tblRight, "label", {
+    outputTable: "result",
+    prefixBlockingSize: 3,
+  });
+
+  const data = await result.getData();
+
+  // "Alice"/"Alize" matched by phase 1, "MacDonald"/"McDonald" matched by phase 2.
+  // ORDER BY name, label → "Alice" before "MacDonald".
+  assertEquals(data, [
+    { id: 2, name: "Alice", code: "B", label: "Alize" },
+    { id: 1, name: "MacDonald", code: "A", label: "McDonald" },
+  ]);
+
+  await sdb.done();
+});
+
+Deno.test("prefixBlockingSize: inner join — cross-prefix match included, truly unmatched row excluded", async () => {
+  const sdb = new SimpleDB();
+  const tblLeft = sdb.newTable("tblLeft");
+  await tblLeft.loadArray([
+    { id: 1, name: "MacDonald" },
+    { id: 2, name: "Alice" },
+    { id: 3, name: "Zzzzz" }, // no right-side match at any threshold
+  ]);
+  const tblRight = sdb.newTable("tblRight");
+  await tblRight.loadArray([
+    { code: "A", label: "McDonald" },
+    { code: "B", label: "Alize" },
+  ]);
+
+  const result = await tblLeft.fuzzyJoin("name", tblRight, "label", {
+    type: "inner",
+    outputTable: "result",
+    prefixBlockingSize: 3,
+  });
+
+  const data = await result.getData();
+
+  // "Zzzzz" has no match → excluded from inner join.
+  // Cross-prefix pair "MacDonald"/"McDonald" is still included (phase 2).
+  assertEquals(data, [
+    { id: 2, name: "Alice", code: "B", label: "Alize" },
+    { id: 1, name: "MacDonald", code: "A", label: "McDonald" },
+  ]);
+
+  await sdb.done();
+});
+
+Deno.test("prefixBlockingSize: right join — all right rows preserved, cross-prefix match included", async () => {
+  const sdb = new SimpleDB();
+  const tblLeft = sdb.newTable("tblLeft");
+  await tblLeft.loadArray([
+    { id: 1, name: "MacDonald" },
+    { id: 2, name: "Alice" },
+  ]);
+  const tblRight = sdb.newTable("tblRight");
+  await tblRight.loadArray([
+    { code: "A", label: "McDonald" },
+    { code: "B", label: "Alize" },
+    { code: "C", label: "Zzz" }, // no left-side match
+  ]);
+
+  const result = await tblLeft.fuzzyJoin("name", tblRight, "label", {
+    type: "right",
+    outputTable: "result",
+    prefixBlockingSize: 3,
+  });
+
+  const data = await result.getData();
+
+  // ORDER BY name, label → "Alice" (2), "MacDonald" (1), then NULL name last ("Zzz").
+  assertEquals(data, [
+    { id: 2, name: "Alice", code: "B", label: "Alize" },
+    { id: 1, name: "MacDonald", code: "A", label: "McDonald" },
+    { id: null, name: null, code: "C", label: "Zzz" },
+  ]);
+
+  await sdb.done();
+});
+
+Deno.test("prefixBlockingSize: full join — unmatched rows from both sides preserved", async () => {
+  const sdb = new SimpleDB();
+  const tblLeft = sdb.newTable("tblLeft");
+  await tblLeft.loadArray([
+    { id: 1, name: "MacDonald" },
+    { id: 2, name: "Alice" },
+    { id: 3, name: "Zzzzz" }, // no right-side match
+  ]);
+  const tblRight = sdb.newTable("tblRight");
+  await tblRight.loadArray([
+    { code: "A", label: "McDonald" },
+    { code: "B", label: "Alize" },
+    { code: "C", label: "Zzz" }, // no left-side match
+  ]);
+
+  const result = await tblLeft.fuzzyJoin("name", tblRight, "label", {
+    type: "full",
+    outputTable: "result",
+    prefixBlockingSize: 3,
+  });
+
+  const data = await result.getData();
+
+  // ORDER BY name, label:
+  //   "Alice"/"Alize", "MacDonald"/"McDonald", "Zzzzz"/null, null/"Zzz"
+  assertEquals(data, [
+    { id: 2, name: "Alice", code: "B", label: "Alize" },
+    { id: 1, name: "MacDonald", code: "A", label: "McDonald" },
+    { id: 3, name: "Zzzzz", code: null, label: null },
+    { id: null, name: null, code: "C", label: "Zzz" },
+  ]);
+
+  await sdb.done();
+});

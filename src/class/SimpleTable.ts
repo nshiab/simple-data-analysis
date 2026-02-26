@@ -87,6 +87,7 @@ import selectRowsQuery from "../methods/selectRowsQuery.ts";
 import crossJoinQuery from "../methods/crossJoinQuery.ts";
 import join from "../methods/join.ts";
 import fuzzyJoin from "../methods/fuzzyJoin.ts";
+import fuzzyClean from "../methods/fuzzyClean.ts";
 import cloneQuery from "../methods/cloneQuery.ts";
 import findGeoColumn from "../helpers/findGeoColumn.ts";
 import getExtension from "../helpers/getExtension.ts";
@@ -3517,6 +3518,10 @@ export default class SimpleTable extends Simple {
    * @param options.type - The type of join operation to perform: `"inner"`, `"left"` (default), `"right"`, or `"full"`.
    * @param options.similarityColumn - If provided, a column with this name is added to the result containing the similarity score (0–100). If omitted, the score is not included in the output.
    * @param options.outputTable - If `true`, the results will be stored in a new table with a generated name. If a string, it will be used as the name for the new table. If `false` or omitted, the current table will be overwritten. Defaults to `false`.
+   * @param options.prefixBlockingSize - When set to a positive integer, only pairs whose first N characters match (case-insensitively) are
+   *   considered as candidates in a fast first pass. A second pass then runs an unbounded similarity scan for any left (or right) rows that
+   *   were not matched in the first pass, ensuring no rows are silently dropped. When `undefined` or `0`, all pairs are compared directly
+   *   (no blocking). Defaults to `undefined`.
    * @returns A promise that resolves to the SimpleTable instance containing the fuzzy-joined data (either the modified current table or a new table).
    * @category Table Operations
    *
@@ -3544,6 +3549,12 @@ export default class SimpleTable extends Simple {
    *   similarityColumn: "matchScore",
    * });
    * ```
+   *
+   * @example
+   * ```ts
+   * // Use prefix blocking to speed up large joins (unmatched rows are always rescued by a second pass)
+   * await tableA.fuzzyJoin("name", tableB, "companyName", { prefixBlockingSize: 3 });
+   * ```
    */
   async fuzzyJoin(
     leftColumn: string,
@@ -3559,6 +3570,7 @@ export default class SimpleTable extends Simple {
       type?: "inner" | "left" | "right" | "full";
       similarityColumn?: string;
       outputTable?: string | boolean;
+      prefixBlockingSize?: number;
     } = {},
   ): Promise<SimpleTable> {
     if (options.outputTable === true) {
@@ -3572,6 +3584,84 @@ export default class SimpleTable extends Simple {
       rightColumn,
       options,
     );
+  }
+
+  /**
+   * Normalizes string values in a column by detecting fuzzy duplicates and replacing them with a single canonical value.
+   *
+   * Similar strings are grouped into clusters. Matching is transitive: if `"New York"` is similar to `"New Yorke"` and
+   * `"New Yorke"` is similar to `"New Yorkk"`, all three land in the same cluster even if `"New York"` and `"New Yorkk"`
+   * would not match directly. Each cluster is then collapsed to one representative value based on the `keep` strategy.
+   *
+   * Similarity is computed using the [rapidfuzz](https://query.farm/duckdb_extension_rapidfuzz) DuckDB community extension,
+   * which is installed and loaded automatically.
+   *
+   * @param column - The name of the column containing the strings to normalize.
+   * @param newColumn - The name of the column to write the normalized values to. Use the same name as `column` to normalize in-place.
+   * @param options - An optional object with configuration options:
+   * @param options.method - The rapidfuzz similarity algorithm to use. Defaults to `"ratio"`.
+   *   - `"ratio"`: Overall similarity.
+   *   - `"partial_ratio"`: Best partial/substring similarity.
+   *   - `"token_sort_ratio"`: Similarity after sorting tokens (words), useful for reordered words.
+   *   - `"token_set_ratio"`: Similarity based on sets of tokens, ignoring duplicates and word order.
+   * @param options.threshold - The minimum similarity score (0–100) for two strings to be considered duplicates. Defaults to `80`.
+   * @param options.keep - The strategy for choosing the canonical value within each cluster of similar strings. Defaults to `"mostCommon"`.
+   *   - `"mostCommon"`: Keep the value that appears most frequently in the original column.
+   *   - `"longestString"`: Keep the longest string in the cluster.
+   *   - `"shortestString"`: Keep the shortest string in the cluster.
+   *   - `"mostCentral"`: Keep the string with the highest total similarity score to all other cluster members (the most "central" string).
+   *   - `"maxScore"`: Keep the string that participates in the single highest-scoring pairwise match within the cluster.
+   * @param options.prefixBlockingSize - When set to a positive integer, only pairs whose first N characters match (case-insensitively) are
+   *   considered as candidates before running the similarity algorithm. This dramatically reduces the number of comparisons when there are many
+   *   unique values, at the cost of missing matches where the leading characters differ (e.g. `"MacDonald"` vs `"McDonald"`). When `undefined`
+   *   or `0`, all pairs are compared (no blocking). Defaults to `undefined`.
+   * @returns A promise that resolves when the column has been normalized.
+   * @category Updating Data
+   *
+   * @example
+   * ```ts
+   * // Normalize 'city' into a new 'cityClean' column, keeping the most common string per cluster
+   * await table.fuzzyClean("city", "cityClean");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Normalize 'companyName' into a new column using token_sort_ratio and a stricter threshold
+   * await table.fuzzyClean("companyName", "companyNameClean", { method: "token_sort_ratio", threshold: 90 });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Normalize 'category' in-place, keeping the longest string in each cluster
+   * await table.fuzzyClean("category", "category", { keep: "longestString" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Use prefix blocking to speed up comparison on a large dataset (only compare strings sharing the same first 3 characters)
+   * await table.fuzzyClean("city", "cityClean", { prefixBlockingSize: 3 });
+   * ```
+   */
+  async fuzzyClean(
+    column: string,
+    newColumn: string,
+    options: {
+      method?:
+        | "ratio"
+        | "partial_ratio"
+        | "token_sort_ratio"
+        | "token_set_ratio";
+      threshold?: number;
+      keep?:
+        | "mostCommon"
+        | "longestString"
+        | "shortestString"
+        | "mostCentral"
+        | "maxScore";
+      prefixBlockingSize?: number;
+    } = {},
+  ): Promise<void> {
+    await fuzzyClean(this, column, newColumn, options);
   }
 
   /**
