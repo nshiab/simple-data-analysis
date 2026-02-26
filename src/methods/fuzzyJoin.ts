@@ -20,6 +20,12 @@ export default async function fuzzyJoin(
     outputTable?: string | boolean;
   } = {},
 ) {
+  if (leftColumn === rightColumn) {
+    throw new Error(
+      `The leftColumn and rightColumn have the same name "${leftColumn}". Rename one of them before doing the fuzzy join.`,
+    );
+  }
+
   const leftCols = await leftTable.getColumns();
   const rightCols = await rightTable.getColumns();
   const identicalColumns = getIdenticalColumns(leftCols, rightCols);

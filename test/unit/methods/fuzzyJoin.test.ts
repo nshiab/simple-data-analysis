@@ -266,3 +266,15 @@ Deno.test("should throw an error when tables have conflicting column names", asy
 
   await sdb.done();
 });
+
+Deno.test("should throw an error when leftColumn and rightColumn have the same name", async () => {
+  const sdb = new SimpleDB();
+  const tableA = sdb.newTable("tableA");
+  await tableA.loadArray([{ name: "Alice" }]);
+  const tableB = sdb.newTable("tableB");
+  await tableB.loadArray([{ name: "Alise", score: 1 }]); // only 'name' is shared, it's also the join key
+
+  await assertRejects(() => tableA.fuzzyJoin(tableB, "name", "name"));
+
+  await sdb.done();
+});
