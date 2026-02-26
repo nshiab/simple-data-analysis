@@ -18,6 +18,8 @@ export default async function aiVectorSimilarity(
     efConstruction?: number;
     efSearch?: number;
     M?: number;
+    minSimilarity?: number;
+    similarityColumn?: string;
   } = {},
 ) {
   const textEmbedding = await getEmbedding(text, options);
@@ -42,14 +44,30 @@ export default async function aiVectorSimilarity(
     });
   }
 
+  const targetVector = `${
+    JSON.stringify(textEmbedding)
+  }::FLOAT[${textEmbedding.length}]`;
+  const columnVector = `"${column}"::FLOAT[${textEmbedding.length}]`;
+  const distanceFunction =
+    `array_cosine_distance(${columnVector}, ${targetVector})`;
+
+  const thresholdClause = options.minSimilarity !== undefined
+    ? `WHERE ${distanceFunction} <= ${1 - options.minSimilarity}`
+    : "";
+
+  // Conditionally build the SELECT statement to include the similarity math
+  const selectClause = options.similarityColumn
+    ? `*, (1 - ${distanceFunction}) AS "${options.similarityColumn}"`
+    : `*`;
+
   await queryDB(
     simpleTable,
     `INSTALL vss; LOAD vss;
-    CREATE OR REPLACE TABLE "${
-      options.outputTable ?? simpleTable.name
-    }" AS SELECT * FROM "${simpleTable.name}" ORDER BY array_cosine_distance("${column}"::FLOAT[${textEmbedding.length}], ${
-      JSON.stringify(textEmbedding)
-    }::FLOAT[${textEmbedding.length}]) LIMIT ${nbResults};`,
+    CREATE OR REPLACE TABLE "${options.outputTable ?? simpleTable.name}" AS 
+    SELECT ${selectClause} FROM "${simpleTable.name}" 
+    ${thresholdClause}
+    ORDER BY ${distanceFunction} ASC
+    LIMIT ${nbResults};`,
     mergeOptions(simpleTable, {
       table: simpleTable.name,
       method: "aiVectorSimilarity()",
@@ -57,6 +75,8 @@ export default async function aiVectorSimilarity(
         text,
         column,
         nbResults,
+        minSimilarity: options.minSimilarity,
+        similarityColumn: options.similarityColumn, // Include in merged options log
         table: options.outputTable ?? simpleTable.name,
       },
     }),
