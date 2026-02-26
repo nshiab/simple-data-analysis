@@ -3493,6 +3493,147 @@ const tableC = await tableA.join(tableB, {
 await tableA.join(tableB, { commonColumn: ["name", "category"] });
 ```
 
+#### `fuzzyJoin`
+
+Performs a fuzzy left join between this table (considered the left table) and
+another table (the right table) based on string similarity between two text
+columns. Uses the [rapidfuzz](https://query.farm/duckdb_extension_rapidfuzz)
+DuckDB community extension.
+
+If a similarity score column is added to the results, the rows will be ordered
+alphabetically by the left column, and then by descending similarity score
+within each group of identical left column values. Otherwise, the rows will be
+order alphabetically by the left column and then by the right column.
+
+This operation might create temporary files in a `.tmp` folder; consider adding
+`.tmp` to your `.gitignore`.
+
+##### Signature
+
+```typescript
+async fuzzyJoin(rightTable: SimpleTable, leftColumn: string, rightColumn: string, options?: { method?: "ratio" | "partial_ratio" | "token_sort_ratio" | "token_set_ratio"; threshold?: number; similarityColumn?: string; outputTable?: string | boolean }): Promise<SimpleTable>;
+```
+
+##### Parameters
+
+- **`rightTable`**: - The SimpleTable instance to be joined with this table.
+- **`leftColumn`**: - The name of the column in this (left) table containing the
+  text to compare.
+- **`rightColumn`**: - The name of the column in the right table containing the
+  text to compare.
+- **`options`**: - An optional object with configuration options:
+- **`options.method`**: - The rapidfuzz similarity algorithm to use. Defaults to
+  `"ratio"`. - `"ratio"`: Overall similarity (Levenshtein-based). -
+  `"partial_ratio"`: Best partial/substring similarity. - `"token_sort_ratio"`:
+  Similarity after sorting tokens (words), useful for reordered words. -
+  `"token_set_ratio"`: Similarity based on sets of tokens, ignoring duplicates
+  and word order.
+- **`options.threshold`**: - The minimum similarity score (0–100) required for
+  two rows to be joined. Defaults to `80`.
+- **`options.similarityColumn`**: - If provided, a column with this name is
+  added to the result containing the similarity score (0–100). If omitted, the
+  score is not included in the output.
+- **`options.outputTable`**: - If `true`, the results will be stored in a new
+  table with a generated name. If a string, it will be used as the name for the
+  new table. If `false` or omitted, the current table will be overwritten.
+  Defaults to `false`.
+
+##### Returns
+
+A promise that resolves to the SimpleTable instance containing the fuzzy-joined
+data (either the modified current table or a new table).
+
+##### Examples
+
+```ts
+// Fuzzy left join tableA with tableB on 'name' (left) and 'standardName' (right) (ratio >= 80)
+await tableA.fuzzyJoin(tableB, "name", "standardName");
+```
+
+```ts
+// Fuzzy join with a custom threshold and method, storing results in a new table
+const tableC = await tableA.fuzzyJoin(tableB, "name", "standardName", {
+  method: "token_sort_ratio",
+  threshold: 90,
+  outputTable: "tableC",
+});
+```
+
+```ts
+// Fuzzy join with a custom similarity column name
+await tableA.fuzzyJoin(tableB, "name", "standardName", {
+  similarityColumn: "matchScore",
+});
+```
+
+#### `fuzzyClean`
+
+Normalizes string values in a column by detecting fuzzy duplicates and replacing
+them with a single canonical value.
+
+Similar strings are grouped into clusters. Matching is transitive: if
+`"New York"` is similar to `"New Yorke"` and `"New Yorke"` is similar to
+`"New Yorkk"`, all three land in the same cluster even if `"New York"` and
+`"New Yorkk"` would not match directly. Each cluster is then collapsed to one
+representative value based on the `keep` strategy.
+
+Similarity is computed using the
+[rapidfuzz](https://query.farm/duckdb_extension_rapidfuzz) DuckDB community
+extension, which is installed and loaded automatically.
+
+##### Signature
+
+```typescript
+async fuzzyClean(column: string, newColumn: string, options?: { method?: "ratio" | "partial_ratio" | "token_sort_ratio" | "token_set_ratio"; threshold?: number; keep?: "mostCommon" | "longestString" | "shortestString" | "mostCentral" | "maxScore" }): Promise<void>;
+```
+
+##### Parameters
+
+- **`column`**: - The name of the column containing the strings to normalize.
+- **`newColumn`**: - The name of the column to write the normalized values to.
+  Use the same name as `column` to normalize in-place.
+- **`options`**: - An optional object with configuration options:
+- **`options.method`**: - The rapidfuzz similarity algorithm to use. Defaults to
+  `"ratio"`. - `"ratio"`: Overall similarity. - `"partial_ratio"`: Best
+  partial/substring similarity. - `"token_sort_ratio"`: Similarity after sorting
+  tokens (words), useful for reordered words. - `"token_set_ratio"`: Similarity
+  based on sets of tokens, ignoring duplicates and word order.
+- **`options.threshold`**: - The minimum similarity score (0–100) for two
+  strings to be considered duplicates. Defaults to `80`.
+- **`options.keep`**: - The strategy for choosing the canonical value within
+  each cluster of similar strings. Defaults to `"mostCommon"`. - `"mostCommon"`:
+  Keep the value that appears most frequently in the original column. -
+  `"longestString"`: Keep the longest string in the cluster. -
+  `"shortestString"`: Keep the shortest string in the cluster. -
+  `"mostCentral"`: Keep the string with the highest total similarity score to
+  all other cluster members (the most "central" string). - `"maxScore"`: Keep
+  the string that participates in the single highest-scoring pairwise match
+  within the cluster.
+
+##### Returns
+
+A promise that resolves when the column has been normalized.
+
+##### Examples
+
+```ts
+// Normalize 'city' into a new 'cityClean' column, keeping the most common string per cluster
+await table.fuzzyClean("city", "cityClean");
+```
+
+```ts
+// Normalize 'companyName' into a new column using token_sort_ratio and a stricter threshold
+await table.fuzzyClean("companyName", "companyNameClean", {
+  method: "token_sort_ratio",
+  threshold: 90,
+});
+```
+
+```ts
+// Normalize 'category' in-place, keeping the longest string in each cluster
+await table.fuzzyClean("category", "category", { keep: "longestString" });
+```
+
 #### `replace`
 
 Replaces specified strings in the selected columns.
