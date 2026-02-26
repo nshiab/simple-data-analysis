@@ -144,3 +144,56 @@ Deno.test("should recreate index with overwriteIndex option", async () => {
   const dishesFrench = await french.getValues("Dish");
   assertEquals(dishesFrench.length, 5);
 });
+Deno.test("should include the score column when scoreColumn option is provided", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/recipes.parquet");
+  await table.removeDuplicates({ on: "Dish" });
+  await table.bm25("italian food", "Dish", "Recipe", 5, {
+    scoreColumn: "bm25_score",
+  });
+
+  const scores = await table.getValues("bm25_score");
+  const dishes = await table.getValues("Dish");
+
+  assertEquals(scores.length, 5);
+  assertEquals(typeof scores[0], "number");
+  assertEquals(dishes.length, 5);
+});
+
+Deno.test("should filter out results below minScore", async () => {
+  const sdb = new SimpleDB();
+
+  // First, run a standard search to get a baseline score to test against
+  const baseTable = sdb.newTable();
+  await baseTable.loadData("test/data/files/recipes.parquet");
+  await baseTable.removeDuplicates({ on: "Dish" });
+  await baseTable.bm25("italian food", "Dish", "Recipe", 5, {
+    scoreColumn: "score",
+  });
+
+  const allScores = await baseTable.getValues("score") as number[];
+
+  // Grab the 3rd highest score to use as our minimum threshold
+  // This guarantees the new search should return fewer than 5 results
+  const threshold = allScores[2];
+
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/recipes.parquet");
+  await table.removeDuplicates({ on: "Dish" });
+  await table.bm25("italian food", "Dish", "Recipe", 5, {
+    minScore: threshold,
+    scoreColumn: "filtered_score",
+  });
+
+  const filteredScores = await table.getValues("filtered_score") as number[];
+  const dishes = await table.getValues("Dish");
+
+  // It should only return the top 3 items that met or exceeded the threshold
+  assertEquals(filteredScores.length, 3);
+  assertEquals(dishes.length, 3);
+
+  // Verify every returned score respects the minScore condition
+  const allValid = filteredScores.every((score) => score >= threshold);
+  assertEquals(allValid, true);
+});
