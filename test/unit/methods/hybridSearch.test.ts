@@ -491,4 +491,35 @@ if (typeof ollama === "string" && ollama !== "") {
       await sdb.done();
     },
   );
+  Deno.test(
+    "should should not throw an error when nothing is returned with strict thresholds and score columns",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeDuplicates({ on: "Dish" });
+      await table.removeMissing({ columns: "Recipe" });
+
+      await table.hybridSearch(
+        "gluten-free dessert",
+        "Dish",
+        "Recipe",
+        10,
+        {
+          cache: true,
+          vectorMinSimilarity: 0.9, // Only include vector results with at least 60% similarity
+          bm25MinScore: 2, // Only include BM25 results with a score above 1.5
+          bm25ScoreColumn: "bm25_score", // Add BM25 scores to the results
+          vectorSimilarityColumn: "vector_similarity", // Add vector similarity scores to the results
+        },
+      );
+
+      await table.logTable();
+
+      assertEquals(true, true);
+
+      await sdb.done();
+    },
+  );
 }
