@@ -472,3 +472,29 @@ Deno.test("should return data from a table based on a condition", async () => {
   ]);
   await sdb.done();
 });
+Deno.test("should return data from a table based on a condition and column selection", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadData("test/data/files/employees.csv");
+  const data = await table.getData({
+    conditions: "Job = 'Programmer'",
+    columns: ["Name", "Hire date", "Job"],
+  });
+
+  assertEquals(data, [
+    {
+      Name: "Hunold, Alexander",
+      "Hire date": "03-JAN-06",
+      Job: "Programmer",
+    },
+    { Name: "Ernst, Bruce", "Hire date": "21-MAY-07", Job: "Programmer" },
+    { Name: "Austin, David", "Hire date": "NaN", Job: "Programmer" },
+    { Name: "Pataballa, Valli", "Hire date": "abc", Job: "Programmer" },
+    {
+      Name: "Lorentz, Diana",
+      "Hire date": "07-ARB-07",
+      Job: "Programmer",
+    },
+  ]);
+  await sdb.done();
+});

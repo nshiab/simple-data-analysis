@@ -84,3 +84,22 @@ Deno.test("should return data from a table based on a condition as CSV", async (
   assertEquals(csv, expectedCSV);
   await sdb.done();
 });
+Deno.test("should return data from a table based on a condition as CSV with specific columns", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadData("test/data/files/employees.csv");
+  const csv = await table.getDataAsCSV({
+    columns: ["Name", "Job", "Salary"],
+    conditions: "Job = 'Programmer'",
+  });
+
+  const expectedCSV = `Name,Job,Salary
+"Hunold, Alexander",Programmer,9000
+"Ernst, Bruce",Programmer,6000
+"Austin, David",Programmer,4800
+"Pataballa, Valli",Programmer,
+"Lorentz, Diana",Programmer,4200`;
+
+  assertEquals(csv, expectedCSV);
+  await sdb.done();
+});
