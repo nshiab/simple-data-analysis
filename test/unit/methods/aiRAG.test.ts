@@ -558,6 +558,39 @@ if (typeof ollama === "string" && ollama !== "") {
       await sdb.done();
     },
   );
+  Deno.test(
+    "should answer a question using RAG and log scores",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeDuplicates({ on: "Dish" });
+      await table.removeMissing({ columns: "Recipe" });
+
+      const answer = await table.aiRAG(
+        "I want something healthy for breakfast",
+        "Dish",
+        "Recipe",
+        10,
+        {
+          cache: true,
+          ollamaEmbeddings: true,
+          verbose: true,
+          bm25MinScore: 0.1, // Set a low BM25 min score to see more results
+          bm25ScoreColumn: "bm25_score", // Log BM25 scores in this column
+          vectorMinSimilarity: 0.1, // Set a low vector similarity to see more results
+          vectorSimilarityColumn: "vector_similarity", // Log vector similarities in this column
+        },
+      );
+
+      console.log(answer);
+
+      // Just to make sure it doesn't crash for now
+      assertEquals(true, true);
+      await sdb.done();
+    },
+  );
 } else {
   console.log("No OLLAMA in process.env");
 }

@@ -175,12 +175,12 @@ if (typeof aiKey === "string" && aiKey !== "") {
 }
 const ollama = Deno.env.get("OLLAMA");
 if (typeof ollama === "string" && ollama !== "") {
-  // if (existsSync("./.journalism-cache")) {
-  //   rmSync("./.journalism-cache", { recursive: true });
-  // }
-  // if (existsSync("./.sda-cache")) {
-  //   rmSync("./.sda-cache", { recursive: true });
-  // }
+  if (existsSync("./.journalism-cache")) {
+    rmSync("./.journalism-cache", { recursive: true });
+  }
+  if (existsSync("./.sda-cache")) {
+    rmSync("./.sda-cache", { recursive: true });
+  }
 
   Deno.test(
     "should perform hybrid search and return a table",

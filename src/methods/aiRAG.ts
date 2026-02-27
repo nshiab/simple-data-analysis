@@ -196,7 +196,9 @@ Rules of Engagement:
       `- LLM: ${prettyDuration(times.llmStart, { end: times.llmEnd })}`,
     );
 
-    logParts.push(`- Total: ${prettyDuration(times.start)}`);
+    logParts.push(
+      `- Total: ${prettyDuration(times.start)} (verbose adds overhead)`,
+    );
 
     console.log(logParts.join("\n") + "\n");
   }
