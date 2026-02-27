@@ -293,16 +293,25 @@ export default async function hybridSearch(
     }
   }
 
-  await table.sdb.customQuery(
-    `CREATE OR REPLACE TABLE "${
-      options.outputTable ?? table.name
-    }" AS SELECT * FROM "${table.name}" WHERE "${columnId}" IN (${
-      finalIds
-        .slice(0, nbResults)
-        .map((id) => parseValue(id))
-        .join(", ")
-    })`,
-  );
+  const finalIdsSliced = finalIds.slice(0, nbResults);
+  if (finalIdsSliced.length === 0) {
+    // If there are no results, create an empty table with the same structure
+    await table.sdb.customQuery(
+      `CREATE OR REPLACE TABLE "${
+        options.outputTable ?? table.name
+      }" AS SELECT * FROM "${table.name}" WHERE 1=0`,
+    );
+  } else {
+    await table.sdb.customQuery(
+      `CREATE OR REPLACE TABLE "${
+        options.outputTable ?? table.name
+      }" AS SELECT * FROM "${table.name}" WHERE "${columnId}" IN (${
+        finalIdsSliced
+          .map((id) => parseValue(id))
+          .join(", ")
+      })`,
+    );
+  }
 
   let outputTableInstance;
   if (typeof options.outputTable === "string") {
@@ -315,36 +324,54 @@ export default async function hybridSearch(
   }
 
   if (options.vectorSimilarityColumn) {
-    await outputTableInstance.addColumn(
-      options.vectorSimilarityColumn,
-      "number",
-      `CASE ${
-        vectorSearchSimilarity.map((d) =>
-          `WHEN "${columnId}" = ${parseValue(d[columnId])} THEN ${
-            d[options.vectorSimilarityColumn!]
-          }`
-        ).join(" ")
-      } ELSE NULL END`,
-    );
-    await outputTableInstance.round(options.vectorSimilarityColumn, {
-      decimals: 4,
-    });
+    if (vectorSearchSimilarity.length === 0) {
+      // If there are no similarity scores (e.g. all results were filtered out by minSimilarity), add the column with NULL values
+      await outputTableInstance.addColumn(
+        options.vectorSimilarityColumn,
+        "number",
+        `NULL`,
+      );
+    } else {
+      await outputTableInstance.addColumn(
+        options.vectorSimilarityColumn,
+        "number",
+        `CASE ${
+          vectorSearchSimilarity.map((d) =>
+            `WHEN "${columnId}" = ${parseValue(d[columnId])} THEN ${
+              d[options.vectorSimilarityColumn!]
+            }`
+          ).join(" ")
+        } ELSE NULL END`,
+      );
+      await outputTableInstance.round(options.vectorSimilarityColumn, {
+        decimals: 4,
+      });
+    }
   }
   if (options.bm25ScoreColumn) {
-    await outputTableInstance.addColumn(
-      options.bm25ScoreColumn,
-      "number",
-      `CASE ${
-        bm25SearchScores.map((d) =>
-          `WHEN "${columnId}" = ${parseValue(d[columnId])} THEN ${
-            d[options.bm25ScoreColumn!]
-          }`
-        ).join(" ")
-      } ELSE NULL END`,
-    );
-    await outputTableInstance.round(options.bm25ScoreColumn, {
-      decimals: 4,
-    });
+    if (bm25SearchScores.length === 0) {
+      // If there are no BM25 scores (e.g. all results were filtered out by minScore), add the column with NULL values
+      await outputTableInstance.addColumn(
+        options.bm25ScoreColumn,
+        "number",
+        `NULL`,
+      );
+    } else {
+      await outputTableInstance.addColumn(
+        options.bm25ScoreColumn,
+        "number",
+        `CASE ${
+          bm25SearchScores.map((d) =>
+            `WHEN "${columnId}" = ${parseValue(d[columnId])} THEN ${
+              d[options.bm25ScoreColumn!]
+            }`
+          ).join(" ")
+        } ELSE NULL END`,
+      );
+      await outputTableInstance.round(options.bm25ScoreColumn, {
+        decimals: 4,
+      });
+    }
   }
   if (options.verbose) {
     await outputTableInstance.logTable("all");
