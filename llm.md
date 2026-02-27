@@ -1473,7 +1473,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async hybridSearch(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; embeddingsModelContextWindow?: number; createIndex?: boolean; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; k?: number; b?: number; bm25?: boolean; vectorSearch?: boolean; outputTable?: string; efConstruction?: number; efSearch?: number; M?: number; times?: { start?: number; embeddingStart?: number; embeddingEnd?: number; vectorSearchStart?: number; vectorSearchEnd?: number; bm25Start?: number; bm25End?: number } }): Promise<SimpleTable>;
+async hybridSearch(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; embeddingsModelContextWindow?: number; createIndex?: boolean; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; k?: number; b?: number; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; outputTable?: string; efConstruction?: number; efSearch?: number; M?: number; times?: { start?: number; embeddingStart?: number; embeddingEnd?: number; vectorSearchStart?: number; vectorSearchEnd?: number; bm25Start?: number; bm25End?: number } }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -1519,8 +1519,20 @@ async hybridSearch(query: string, columnId: string, columnText: string, nbResult
   normalization (0-1 range). Defaults to `0.75`.
 - **`options.bm25`**: - If `true`, includes BM25 text search in the hybrid
   search. Defaults to `true`.
+- **`options.bm25MinScore`**: - A threshold to filter BM25 results. Only rows
+  with a BM25 score above this value will be included in the final results.
+  Defaults to `undefined` (no threshold).
+- **`options.bm25ScoreColumn`**: - If provided, a new column with this name will
+  be added to the output table containing the BM25 score for each row.
 - **`options.vectorSearch`**: - If `true`, includes vector similarity search in
   the hybrid search. Defaults to `true`.
+- **`options.vectorMinSimilarity`**: - A threshold between 0.0 and 1.0 to filter
+  out vector search results that are not similar enough. For example, 0.7
+  ensures only results with a 70% similarity or higher are included in the final
+  results. Defaults to `undefined` (no threshold).
+- **`options.vectorSimilarityColumn`**: - If provided, a new column with this
+  name will be added to the output table containing the vector similarity score
+  (from 0.0 to 1.0) for each row.
 - **`options.outputTable`**: - The name of a new table where the results will be
   stored. If not provided, the current table will be replaced with the search
   results.
@@ -1643,6 +1655,23 @@ const results = await table.hybridSearch(
 );
 ```
 
+```ts
+// Min similarity and min score thresholds
+const results = await table.hybridSearch(
+  "gluten-free dessert",
+  "Dish",
+  "Recipe",
+  10,
+  {
+    cache: true,
+    vectorMinSimilarity: 0.7, // Only include vector results with at least 70% similarity
+    bm25MinScore: 1.5, // Only include BM25 results with a score above 1.5
+    bm25ScoreColumn: "bm25_score", // Add BM25 scores to the results
+    vectorSimilarityColumn: "vector_similarity", // Add vector similarity scores to the results
+  },
+);
+```
+
 #### `aiRAG`
 
 Performs Retrieval-Augmented Generation (RAG) by combining semantic vector
@@ -1701,7 +1730,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRAG(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; includeThoughts?: boolean; systemPrompt?: string; modelContextWindow?: number; embeddingsModelContextWindow?: number; createIndex?: boolean; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; model?: string; temperature?: number; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; k?: number; b?: number; bm25?: boolean; vectorSearch?: boolean; efConstruction?: number; efSearch?: number; M?: number }): Promise<string>;
+async aiRAG(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; includeThoughts?: boolean; systemPrompt?: string; modelContextWindow?: number; embeddingsModelContextWindow?: number; createIndex?: boolean; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; model?: string; temperature?: number; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; k?: number; b?: number; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; efConstruction?: number; efSearch?: number; M?: number }): Promise<string>;
 ```
 
 ##### Parameters
@@ -1772,8 +1801,20 @@ async aiRAG(query: string, columnId: string, columnText: string, nbResults: numb
   normalization (0-1 range). Defaults to `0.75`.
 - **`options.bm25`**: - If `true`, includes BM25 text search in the hybrid
   search. Defaults to `true`.
+- **`options.bm25MinScore`**: - A threshold to filter BM25 results. Only rows
+  with a BM25 score above this value will be included in the final results.
+  Defaults to `undefined` (no threshold).
+- **`options.bm25ScoreColumn`**: - If provided, a new column with this name will
+  be added to the output table containing the BM25 score for each row.
 - **`options.vectorSearch`**: - If `true`, includes vector similarity search in
   the hybrid search. Defaults to `true`.
+- **`options.vectorMinSimilarity`**: - A threshold between 0.0 and 1.0 to filter
+  out vector search results that are not similar enough. For example, 0.7
+  ensures only results with a 70% similarity or higher are included in the final
+  results. Defaults to `undefined` (no threshold).
+- **`options.vectorSimilarityColumn`**: - If provided, a new column with this
+  name will be added to the output table containing the vector similarity score
+  (from 0.0 to 1.0) for each row.
 
 ##### Returns
 
@@ -1900,6 +1941,23 @@ const answer = await table.aiRAG(
     cache: true,
     vectorSearch: true, // Enable vector search (default, shown for clarity)
     bm25: false, // Disable BM25
+  },
+);
+```
+
+```ts
+// Use RAG with thresholds and adding columns for scores
+const answer = await table.aiRAG(
+  "I want a gluten-free dessert.",
+  "Dish",
+  "Recipe",
+  10,
+  {
+    cache: true,
+    vectorMinSimilarity: 0.7, // Only include vector results with at least 70% similarity
+    bm25MinScore: 1.5, // Only include BM25 results with a score above 1.5
+    bm25ScoreColumn: "bm25_score", // Add BM25 scores to the results
+    vectorSimilarityColumn: "vector_similarity", // Add vector similarity scores to the results
   },
 );
 ```
@@ -5917,12 +5975,14 @@ SQL conditions. You can also use JavaScript syntax for conditions (e.g., `&&`,
 ##### Signature
 
 ```typescript
-async getData(options?: { conditions?: string }): Promise<Record<string, string | number | boolean | Date | null>[]>;
+async getData(options?: { columns?: string | string[]; conditions?: string }): Promise<Record<string, string | number | boolean | Date | null>[]>;
 ```
 
 ##### Parameters
 
 - **`options`**: - An optional object with configuration options:
+- **`options.columns`**: - An array of column names to include in the result. If
+  omitted, all columns will be included.
 - **`options.conditions`**: - The filtering conditions specified as a SQL
   `WHERE` clause (e.g., `"category = 'Book'"`).
 
@@ -5940,8 +6000,17 @@ console.log(allData);
 ```
 
 ```ts
-// Get data filtered by a condition (using JS syntax)
+// Get data filtered by a condition (using JS or SQL syntax)
 const booksData = await table.getData({ conditions: `category === 'Book'` });
+console.log(booksData);
+```
+
+```ts
+// Get data filtered by a condition and specific columns
+const booksData = await table.getData({
+  columns: ["title", "author"],
+  conditions: `category === 'Book'`,
+});
 console.log(booksData);
 ```
 
@@ -5954,12 +6023,14 @@ conditions. You can also use JavaScript syntax for conditions (e.g., `&&`, `||`,
 ##### Signature
 
 ```typescript
-async getDataAsCSV(options?: { conditions?: string }): Promise<string>;
+async getDataAsCSV(options?: { columns?: string | string[]; conditions?: string }): Promise<string>;
 ```
 
 ##### Parameters
 
 - **`options`**: - An optional object with configuration options:
+- **`options.columns`**: - An array of column names to include in the CSV. If
+  omitted, all columns will be included.
 - **`options.conditions`**: - The filtering conditions specified as a SQL
   `WHERE` clause (e.g., `"category = 'Book'"`).
 
@@ -5979,6 +6050,15 @@ console.log(allDataCSV);
 ```ts
 // Get data filtered by a condition (using JS syntax or SQL syntax) as CSV
 const booksDataCSV = await table.getDataAsCSV({
+  conditions: `category === 'Book'`,
+});
+console.log(booksDataCSV);
+```
+
+```ts
+// Get data filtered by a condition and specific columns as CSV
+const booksDataCSV = await table.getDataAsCSV({
+  columns: ["title", "author"],
   conditions: `category === 'Book'`,
 });
 console.log(booksDataCSV);
