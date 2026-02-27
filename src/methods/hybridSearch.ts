@@ -1,6 +1,7 @@
 import type SimpleTable from "../class/SimpleTable.ts";
 import { prettyDuration } from "@nshiab/journalism-format";
 import getRRFRanking from "../helpers/getRRFRanking.ts";
+import parseValue from "../helpers/parseValue.ts";
 
 export default async function hybridSearch(
   table: SimpleTable,
@@ -48,7 +49,11 @@ export default async function hybridSearch(
     k?: number;
     b?: number;
     bm25?: boolean;
+    bm25MinScore?: number;
+    bm25ScoreColumn?: string;
     vectorSearch?: boolean;
+    vectorMinSimilarity?: number;
+    vectorSimilarityColumn?: string;
     outputTable?: string;
     efConstruction?: number;
     efSearch?: number;
@@ -161,6 +166,8 @@ export default async function hybridSearch(
         efConstruction: options.efConstruction,
         efSearch: options.efSearch,
         M: options.M,
+        minSimilarity: options.vectorMinSimilarity,
+        similarityColumn: options.vectorSimilarityColumn,
       },
     );
     if (options.verbose) {
@@ -184,6 +191,8 @@ export default async function hybridSearch(
         b: options.b,
         outputTable: `${table.name}_bm25_search_results`,
         verbose: options.verbose,
+        minScore: options.bm25MinScore,
+        scoreColumn: options.bm25ScoreColumn,
       },
     );
     if (options.verbose) {
@@ -193,6 +202,12 @@ export default async function hybridSearch(
   }
 
   let finalIds: string[];
+  let vectorSearchSimilarity: {
+    [key: string]: string | number | boolean | Date | null;
+  }[] = [];
+  let bm25SearchScores: {
+    [key: string]: string | number | boolean | Date | null;
+  }[] = [];
 
   if (enableVectorSearch && enableBm25) {
     // Both methods enabled: run in parallel and fuse results
@@ -204,9 +219,19 @@ export default async function hybridSearch(
     const vectorSearchResultsIds = await vectorSearchResult.getValues(
       columnId,
     ) as string[];
+    if (options.vectorSimilarityColumn) {
+      vectorSearchSimilarity = await vectorSearchResult.getData({
+        columns: [columnId, options.vectorSimilarityColumn],
+      });
+    }
     const bm25SearchResultsIds = await bm25SearchResult.getValues(
       columnId,
     ) as string[];
+    if (options.bm25ScoreColumn) {
+      bm25SearchScores = await bm25SearchResult.getData({
+        columns: [columnId, options.bm25ScoreColumn],
+      });
+    }
 
     await vectorSearchResult.removeTable();
     await bm25SearchResult.removeTable();
@@ -236,6 +261,11 @@ export default async function hybridSearch(
     // Only vector search enabled
     const vectorSearchResult = await vectorSearch();
     finalIds = await vectorSearchResult.getValues(columnId) as string[];
+    if (options.vectorSimilarityColumn) {
+      vectorSearchSimilarity = await vectorSearchResult.getData({
+        columns: [columnId, options.vectorSimilarityColumn],
+      });
+    }
     await vectorSearchResult.removeTable();
 
     if (options.verbose) {
@@ -248,6 +278,11 @@ export default async function hybridSearch(
     // Only BM25 enabled
     const bm25SearchResult = await bm25Search();
     finalIds = await bm25SearchResult.getValues(columnId) as string[];
+    if (options.bm25ScoreColumn) {
+      bm25SearchScores = await bm25SearchResult.getData({
+        columns: [columnId, options.bm25ScoreColumn],
+      });
+    }
     await bm25SearchResult.removeTable();
 
     if (options.verbose) {
@@ -264,12 +299,56 @@ export default async function hybridSearch(
     }" AS SELECT * FROM "${table.name}" WHERE "${columnId}" IN (${
       finalIds
         .slice(0, nbResults)
-        .map((id) => `'${id.replace(/'/g, "''")}'`)
+        .map((id) => parseValue(id))
         .join(", ")
     })`,
   );
 
+  let outputTableInstance;
+  if (typeof options.outputTable === "string") {
+    outputTableInstance = table.sdb.newTable(
+      options.outputTable,
+      structuredClone(table.projections),
+    );
+  } else {
+    outputTableInstance = table;
+  }
+
+  if (options.vectorSimilarityColumn) {
+    await outputTableInstance.addColumn(
+      options.vectorSimilarityColumn,
+      "number",
+      `CASE ${
+        vectorSearchSimilarity.map((d) =>
+          `WHEN "${columnId}" = ${parseValue(d[columnId])} THEN ${
+            d[options.vectorSimilarityColumn!]
+          }`
+        ).join(" ")
+      } ELSE NULL END`,
+    );
+    await outputTableInstance.round(options.vectorSimilarityColumn, {
+      decimals: 4,
+    });
+  }
+  if (options.bm25ScoreColumn) {
+    await outputTableInstance.addColumn(
+      options.bm25ScoreColumn,
+      "number",
+      `CASE ${
+        bm25SearchScores.map((d) =>
+          `WHEN "${columnId}" = ${parseValue(d[columnId])} THEN ${
+            d[options.bm25ScoreColumn!]
+          }`
+        ).join(" ")
+      } ELSE NULL END`,
+    );
+    await outputTableInstance.round(options.bm25ScoreColumn, {
+      decimals: 4,
+    });
+  }
   if (options.verbose) {
+    await outputTableInstance.logTable("all");
+
     const logParts = [`\nHybrid search times:`];
 
     if (enableVectorSearch) {
@@ -300,16 +379,11 @@ export default async function hybridSearch(
         : `- BM25 Search: disabled`,
     );
 
-    logParts.push(`- Total: ${prettyDuration(times.start!)}`);
+    logParts.push(
+      `- Total: ${prettyDuration(times.start!)} (verbose adds some overhead)`,
+    );
     console.log(logParts.join("\n") + "\n");
   }
 
-  if (typeof options.outputTable === "string") {
-    return table.sdb.newTable(
-      options.outputTable,
-      structuredClone(table.projections),
-    );
-  } else {
-    return table;
-  }
+  return outputTableInstance;
 }

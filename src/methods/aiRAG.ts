@@ -57,7 +57,11 @@ export default async function aiRAG(
     k?: number;
     b?: number;
     bm25?: boolean;
+    bm25MinScore?: number;
+    bm25ScoreColumn?: string;
     vectorSearch?: boolean;
+    vectorMinSimilarity?: number;
+    vectorSimilarityColumn?: string;
     efConstruction?: number;
     efSearch?: number;
     M?: number;
@@ -94,7 +98,11 @@ export default async function aiRAG(
       k: options.k,
       b: options.b,
       bm25: options.bm25,
+      bm25MinScore: options.bm25MinScore,
+      bm25ScoreColumn: options.bm25ScoreColumn,
       vectorSearch: options.vectorSearch,
+      vectorMinSimilarity: options.vectorMinSimilarity,
+      vectorSimilarityColumn: options.vectorSimilarityColumn,
       outputTable: `${table.name}_rag_search_results`,
       efConstruction: options.efConstruction,
       efSearch: options.efSearch,

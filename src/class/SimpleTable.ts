@@ -1134,7 +1134,11 @@ export default class SimpleTable extends Simple {
    * @param options.k - The BM25 k parameter controlling term frequency saturation. Defaults to `1.2`.
    * @param options.b - The BM25 b parameter controlling document length normalization (0-1 range). Defaults to `0.75`.
    * @param options.bm25 - If `true`, includes BM25 text search in the hybrid search. Defaults to `true`.
+   * @param options.bm25MinScore - A threshold to filter BM25 results. Only rows with a BM25 score above this value will be included in the final results. Defaults to `undefined` (no threshold).
+   * @param options.bm25ScoreColumn - If provided, a new column with this name will be added to the output table containing the BM25 score for each row.
    * @param options.vectorSearch - If `true`, includes vector similarity search in the hybrid search. Defaults to `true`.
+   * @param options.vectorMinSimilarity - A threshold between 0.0 and 1.0 to filter out vector search results that are not similar enough. For example, 0.7 ensures only results with a 70% similarity or higher are included in the final results. Defaults to `undefined` (no threshold).
+   * @param options.vectorSimilarityColumn - If provided, a new column with this name will be added to the output table containing the vector similarity score (from 0.0 to 1.0) for each row.
    * @param options.outputTable - The name of a new table where the results will be stored. If not provided, the current table will be replaced with the search results.
    * @param options.times - An optional object to track timing information. If provided, it will be updated with detailed timing breakdowns (embeddingStart, embeddingEnd, vectorSearchStart, vectorSearchEnd, bm25Start, bm25End). Useful when calling from aiRAG to get combined timing information.
    * @returns A promise that resolves to a SimpleTable instance containing the search results, ordered by relevance (best matches first).
@@ -1252,6 +1256,24 @@ export default class SimpleTable extends Simple {
    *   }
    * );
    * ```
+   *
+   * @example
+   * ```ts
+   * // Min similarity and min score thresholds
+   * const results = await table.hybridSearch(
+   *   "gluten-free dessert",
+   *   "Dish",
+   *   "Recipe",
+   *   10,
+   *   {
+   *     cache: true,
+   *     vectorMinSimilarity: 0.7, // Only include vector results with at least 70% similarity
+   *     bm25MinScore: 1.5, // Only include BM25 results with a score above 1.5
+   *     bm25ScoreColumn: "bm25_score", // Add BM25 scores to the results
+   *     vectorSimilarityColumn: "vector_similarity", // Add vector similarity scores to the results
+   *   }
+   * );
+   * ```
    */
   async hybridSearch(
     query: string,
@@ -1298,7 +1320,11 @@ export default class SimpleTable extends Simple {
       k?: number;
       b?: number;
       bm25?: boolean;
+      bm25MinScore?: number;
+      bm25ScoreColumn?: string;
       vectorSearch?: boolean;
+      vectorMinSimilarity?: number;
+      vectorSimilarityColumn?: string;
       outputTable?: string;
       efConstruction?: number;
       efSearch?: number;
@@ -1374,7 +1400,11 @@ export default class SimpleTable extends Simple {
    * @param options.k - The BM25 k parameter controlling term frequency saturation. Defaults to `1.2`.
    * @param options.b - The BM25 b parameter controlling document length normalization (0-1 range). Defaults to `0.75`.
    * @param options.bm25 - If `true`, includes BM25 text search in the hybrid search. Defaults to `true`.
+   * @param options.bm25MinScore - A threshold to filter BM25 results. Only rows with a BM25 score above this value will be included in the final results. Defaults to `undefined` (no threshold).
+   * @param options.bm25ScoreColumn - If provided, a new column with this name will be added to the output table containing the BM25 score for each row.
    * @param options.vectorSearch - If `true`, includes vector similarity search in the hybrid search. Defaults to `true`.
+   * @param options.vectorMinSimilarity - A threshold between 0.0 and 1.0 to filter out vector search results that are not similar enough. For example, 0.7 ensures only results with a 70% similarity or higher are included in the final results. Defaults to `undefined` (no threshold).
+   * @param options.vectorSimilarityColumn - If provided, a new column with this name will be added to the output table containing the vector similarity score (from 0.0 to 1.0) for each row.
    * @returns A promise that resolves to the AI's answer to the query based on the retrieved context.
    * @category AI
    *
@@ -1508,6 +1538,23 @@ export default class SimpleTable extends Simple {
    *
    * @example
    * ```ts
+   * // Use RAG with thresholds and adding columns for scores
+   * const answer = await table.aiRAG(
+   *  "I want a gluten-free dessert.",
+   *  "Dish",
+   *  "Recipe",
+   *  10,
+   *  {
+   *    cache: true,
+   *    vectorMinSimilarity: 0.7, // Only include vector results with at least 70% similarity
+   *    bm25MinScore: 1.5, // Only include BM25 results with a score above 1.5
+   *    bm25ScoreColumn: "bm25_score", // Add BM25 scores to the results
+   *    vectorSimilarityColumn: "vector_similarity", // Add vector similarity scores to the results
+   * });
+   * ```
+   *
+   * @example
+   * ```ts
    * // Persist the data and indexes by writing the database to a file
    * // If you don't write the DB to a file, the indexes are not stored
    * // and need to be recreated every time you run your code.
@@ -1600,7 +1647,11 @@ export default class SimpleTable extends Simple {
       k?: number;
       b?: number;
       bm25?: boolean;
+      bm25MinScore?: number;
+      bm25ScoreColumn?: string;
       vectorSearch?: boolean;
+      vectorMinSimilarity?: number;
+      vectorSimilarityColumn?: string;
       efConstruction?: number;
       efSearch?: number;
       M?: number;
@@ -5932,6 +5983,7 @@ export default class SimpleTable extends Simple {
    * You can also use JavaScript syntax for conditions (e.g., `&&`, `||`, `===`, `!==`).
    *
    * @param options - An optional object with configuration options:
+   * @param options.columns - An array of column names to include in the result. If omitted, all columns will be included.
    * @param options.conditions - The filtering conditions specified as a SQL `WHERE` clause (e.g., `"category = 'Book'"`).
    * @returns A promise that resolves to an array of objects, where each object represents a row in the table.
    * @category Getting Data
@@ -5945,13 +5997,21 @@ export default class SimpleTable extends Simple {
    *
    * @example
    * ```ts
-   * // Get data filtered by a condition (using JS syntax)
+   * // Get data filtered by a condition (using JS or SQL syntax)
    * const booksData = await table.getData({ conditions: `category === 'Book'` });
+   * console.log(booksData);
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Get data filtered by a condition and specific columns
+   * const booksData = await table.getData({ columns: ["title", "author"], conditions: `category === 'Book'` });
    * console.log(booksData);
    * ```
    */
   async getData(
     options: {
+      columns?: string | string[];
       conditions?: string;
     } = {},
   ): Promise<
@@ -5959,9 +6019,16 @@ export default class SimpleTable extends Simple {
       [key: string]: string | number | boolean | Date | null;
     }[]
   > {
+    const columns = options.columns
+      ? (typeof options.columns === "string"
+        ? [options.columns]
+        : options.columns)
+      : undefined;
     return (await queryDB(
       this,
-      `SELECT * from "${this.name}"${
+      `SELECT ${
+        columns ? columns.map((d) => `"${d}"`).join(", ") : "*"
+      } from "${this.name}"${
         options.conditions ? ` WHERE ${options.conditions}` : ""
       }`,
       mergeOptions(this, {
@@ -5980,6 +6047,7 @@ export default class SimpleTable extends Simple {
    * You can also use JavaScript syntax for conditions (e.g., `&&`, `||`, `===`, `!==`).
    *
    * @param options - An optional object with configuration options:
+   * @param options.columns - An array of column names to include in the CSV. If omitted, all columns will be included.
    * @param options.conditions - The filtering conditions specified as a SQL `WHERE` clause (e.g., `"category = 'Book'"`).
    * @returns A promise that resolves to a CSV-formatted string representation of the table data.
    * @category Getting Data
@@ -5997,8 +6065,16 @@ export default class SimpleTable extends Simple {
    * const booksDataCSV = await table.getDataAsCSV({ conditions: `category === 'Book'` });
    * console.log(booksDataCSV);
    * ```
+   *
+   * @example
+   * ```ts
+   * // Get data filtered by a condition and specific columns as CSV
+   * const booksDataCSV = await table.getDataAsCSV({ columns: ["title", "author"], conditions: `category === 'Book'` });
+   * console.log(booksDataCSV);
+   * ```
    */
   async getDataAsCSV(options: {
+    columns?: string | string[];
     conditions?: string;
   } = {}): Promise<string> {
     const data = await this.getData(options);

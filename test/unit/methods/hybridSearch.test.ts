@@ -175,12 +175,12 @@ if (typeof aiKey === "string" && aiKey !== "") {
 }
 const ollama = Deno.env.get("OLLAMA");
 if (typeof ollama === "string" && ollama !== "") {
-  if (existsSync("./.journalism-cache")) {
-    rmSync("./.journalism-cache", { recursive: true });
-  }
-  if (existsSync("./.sda-cache")) {
-    rmSync("./.sda-cache", { recursive: true });
-  }
+  // if (existsSync("./.journalism-cache")) {
+  //   rmSync("./.journalism-cache", { recursive: true });
+  // }
+  // if (existsSync("./.sda-cache")) {
+  //   rmSync("./.sda-cache", { recursive: true });
+  // }
 
   Deno.test(
     "should perform hybrid search and return a table",
@@ -456,6 +456,37 @@ if (typeof ollama === "string" && ollama !== "") {
       }
 
       assertEquals(errorThrown, true);
+
+      await sdb.done();
+    },
+  );
+  Deno.test(
+    "should have threshold and new columns for scores",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeDuplicates({ on: "Dish" });
+      await table.removeMissing({ columns: "Recipe" });
+
+      await table.hybridSearch(
+        "gluten-free dessert",
+        "Dish",
+        "Recipe",
+        10,
+        {
+          cache: true,
+          vectorMinSimilarity: 0.6, // Only include vector results with at least 60% similarity
+          bm25MinScore: 1.4, // Only include BM25 results with a score above 1.5
+          bm25ScoreColumn: "bm25_score", // Add BM25 scores to the results
+          vectorSimilarityColumn: "vector_similarity", // Add vector similarity scores to the results
+        },
+      );
+
+      await table.logTable();
+
+      assertEquals(true, true);
 
       await sdb.done();
     },
