@@ -1133,6 +1133,7 @@ export default class SimpleTable extends Simple {
    * @param options.stemmer - The language stemmer to apply for BM25 word normalization. Supports multiple languages or "none" to disable stemming. Defaults to `'porter'`.
    * @param options.k - The BM25 k parameter controlling term frequency saturation. Defaults to `1.2`.
    * @param options.b - The BM25 b parameter controlling document length normalization (0-1 range). Defaults to `0.75`.
+   * @param options.conjunctive - If `true`, all terms in the query string must be present in order for a document to be retrieved during the BM25 search. Defaults to `false`.
    * @param options.bm25 - If `true`, includes BM25 text search in the hybrid search. Defaults to `true`.
    * @param options.bm25MinScore - A threshold to filter BM25 results. Only rows with a BM25 score above this value will be included in the final results. Defaults to `undefined` (no threshold).
    * @param options.bm25ScoreColumn - If provided, a new column with this name will be added to the output table containing the BM25 score for each row.
@@ -1181,6 +1182,7 @@ export default class SimpleTable extends Simple {
    *     stemmer: "english", // Use English stemmer for BM25
    *     k: 1.5, // Adjust term frequency saturation
    *     b: 0.8, // Adjust document length normalization
+   *     conjunctive: true, // Require all query terms to be present in BM25 search
    *   }
    * );
    * ```
@@ -1319,6 +1321,7 @@ export default class SimpleTable extends Simple {
         | "none";
       k?: number;
       b?: number;
+      conjunctive?: boolean;
       bm25?: boolean;
       bm25MinScore?: number;
       bm25ScoreColumn?: string;
@@ -1399,6 +1402,7 @@ export default class SimpleTable extends Simple {
    * @param options.stemmer - The language stemmer to apply for BM25 word normalization. Supports multiple languages or "none" to disable stemming. Defaults to `'porter'`.
    * @param options.k - The BM25 k parameter controlling term frequency saturation. Defaults to `1.2`.
    * @param options.b - The BM25 b parameter controlling document length normalization (0-1 range). Defaults to `0.75`.
+   * @param options.conjunctive - If `true`, all terms in the query string must be present in order for a document to be retrieved during the BM25 search. Defaults to `false`.
    * @param options.bm25 - If `true`, includes BM25 text search in the hybrid search. Defaults to `true`.
    * @param options.bm25MinScore - A threshold to filter BM25 results. Only rows with a BM25 score above this value will be included in the final results. Defaults to `undefined` (no threshold).
    * @param options.bm25ScoreColumn - If provided, a new column with this name will be added to the output table containing the BM25 score for each row.
@@ -1482,6 +1486,7 @@ export default class SimpleTable extends Simple {
    *     stemmer: "english", // Use English stemmer for BM25
    *     k: 1.5, // Adjust term frequency saturation
    *     b: 0.8, // Adjust document length normalization
+   *     conjunctive: true, // Require all query terms to be present in BM25 search
    *   }
    * );
    * ```
@@ -1646,6 +1651,7 @@ export default class SimpleTable extends Simple {
         | "none";
       k?: number;
       b?: number;
+      conjunctive?: boolean;
       bm25?: boolean;
       bm25MinScore?: number;
       bm25ScoreColumn?: string;
