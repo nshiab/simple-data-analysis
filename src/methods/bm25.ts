@@ -44,6 +44,7 @@ export default async function bm25(
     minScore?: number;
     scoreColumn?: string;
     overwriteIndex?: boolean;
+    conjunctive?: boolean;
     outputTable?: string;
     verbose?: boolean;
   } = {},
@@ -73,8 +74,8 @@ export default async function bm25(
       camelCase(simpleTable.name)
     }.match_bm25(${columnId}, '${text.replace(/'/g, "''")}'${
       typeof options.k === "number" ? `, k := ${options.k}` : ""
-    }${
-      typeof options.b === "number" ? `, b := ${options.b}` : ""
+    }${typeof options.b === "number" ? `, b := ${options.b}` : ""}${
+      options.conjunctive === true ? `, conjunctive := 1` : ""
     }) AS score FROM "${simpleTable.name}") sq WHERE score NOT NULL${minScoreCondition} ORDER BY score DESC LIMIT ${nbResults};`,
     mergeOptions(simpleTable, {
       table: simpleTable.name,

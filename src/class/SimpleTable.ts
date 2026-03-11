@@ -1920,6 +1920,7 @@ export default class SimpleTable extends Simple {
    * @param options.b - The BM25 b parameter controlling document length normalization (0-1 range). Defaults to 0.75.
    * @param options.stemmer - The language stemmer to apply for word normalization. Supports multiple languages or "none" to disable stemming. Defaults to 'porter'.
    * @param options.overwriteIndex - If `true`, drops and recreates the FTS index even if it already exists. Defaults to `false`.
+   * @param options.conjunctive - If `true`, all terms in the query string must be present in order for a document to be retrieved. Defaults to `false`.
    * @param options.minScore - A threshold to filter out results with a BM25 score below this value.
    * @param options.scoreColumn - If provided, the BM25 score will be included in the output table under this column name.
    * @returns A promise that resolves to a SimpleTable instance containing the search results, ordered by relevance (best matches first).
@@ -1992,6 +1993,14 @@ export default class SimpleTable extends Simple {
    *   scoreColumn: "bm25_score"
    * });
    * ```
+   *
+   * @example
+   * ```ts
+   * // Use the conjunctive option to require all terms
+   * await table.bm25("italian sauce", "Dish", "Recipe", 5, {
+   *   conjunctive: true,
+   * });
+   * ```
    */
   async bm25(
     text: string,
@@ -2033,6 +2042,7 @@ export default class SimpleTable extends Simple {
         | "turkish"
         | "none";
       overwriteIndex?: boolean;
+      conjunctive?: boolean;
       minScore?: number;
       scoreColumn?: string;
     } = {},
