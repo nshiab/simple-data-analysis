@@ -172,6 +172,52 @@ if (typeof aiKey === "string" && aiKey !== "") {
       await sdb.done();
     },
   );
+
+  Deno.test(
+    "should perform hybrid search with conjunctive option",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeDuplicates({ on: "Dish" });
+      await table.removeMissing({ columns: "Recipe" });
+
+      // Run without conjunctive option
+      // This will only affect the BM25 part of the search
+      const resultsConjunctiveFalse = await table.hybridSearch(
+        "fennel garlic",
+        "Dish",
+        "Recipe",
+        10,
+        {
+          cache: true,
+          outputTable: "results_conjunctive_false",
+        },
+      );
+      await resultsConjunctiveFalse.logTable();
+
+      // Run with conjunctive option
+      // This will only affect the BM25 part of the search
+      const results = await table.hybridSearch(
+        "fennel garlic",
+        "Dish",
+        "Recipe",
+        10,
+        {
+          cache: true,
+          conjunctive: true,
+          outputTable: "results_conjunctive_true",
+        },
+      );
+      await results.logTable();
+
+      const nbRows = await results.getNbRows();
+      assertEquals(nbRows > 0, true);
+
+      await sdb.done();
+    },
+  );
 }
 const ollama = Deno.env.get("OLLAMA");
 if (typeof ollama === "string" && ollama !== "") {
@@ -518,6 +564,52 @@ if (typeof ollama === "string" && ollama !== "") {
       await table.logTable();
 
       assertEquals(true, true);
+
+      await sdb.done();
+    },
+  );
+  Deno.test(
+    "should perform hybrid search with conjunctive option",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeDuplicates({ on: "Dish" });
+      await table.removeMissing({ columns: "Recipe" });
+
+      // Run without conjunctive option
+      // This will only affect the BM25 part of the search
+      const resultsConjunctiveFalse = await table.hybridSearch(
+        "fennel garlic",
+        "Dish",
+        "Recipe",
+        10,
+        {
+          cache: true,
+          outputTable: "results_conjunctive_false",
+        },
+      );
+
+      // Run with conjunctive option
+      // This will only affect the BM25 part of the search
+      const resultsConjunctiveTrue = await table.hybridSearch(
+        "fennel garlic",
+        "Dish",
+        "Recipe",
+        10,
+        {
+          cache: true,
+          conjunctive: true,
+          outputTable: "results_conjunctive_true",
+        },
+      );
+
+      assertEquals(
+        await resultsConjunctiveFalse.getNbRows() > 0 &&
+          await resultsConjunctiveTrue.getNbRows() > 0,
+        true,
+      );
 
       await sdb.done();
     },

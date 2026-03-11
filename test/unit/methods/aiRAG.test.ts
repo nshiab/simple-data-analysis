@@ -234,6 +234,31 @@ if (typeof aiKey === "string" && aiKey !== "") {
       await sdb.done();
     },
   );
+
+  Deno.test(
+    "should answer a question using RAG with conjunctive option",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeDuplicates({ on: "Dish" });
+      await table.removeMissing({ columns: "Recipe" });
+
+      const answer = await table.aiRAG("fennel garlic", "Dish", "Recipe", 3, {
+        cache: true,
+        conjunctive: true,
+        model: "gemini-3-flash-preview",
+        verbose: true,
+      });
+
+      console.log(answer);
+
+      // Just to make sure it doesn't crash for now
+      assertEquals(true, true);
+      await sdb.done();
+    },
+  );
 } else {
   console.log("No AI_KEY or AI_PROJECT in process.env");
 }
@@ -583,6 +608,29 @@ if (typeof ollama === "string" && ollama !== "") {
           vectorSimilarityColumn: "vector_similarity", // Log vector similarities in this column
         },
       );
+
+      console.log(answer);
+
+      // Just to make sure it doesn't crash for now
+      assertEquals(true, true);
+      await sdb.done();
+    },
+  );
+  Deno.test(
+    "should answer a question using RAG with conjunctive option",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeDuplicates({ on: "Dish" });
+      await table.removeMissing({ columns: "Recipe" });
+
+      const answer = await table.aiRAG("fennel garlic", "Dish", "Recipe", 3, {
+        cache: true,
+        conjunctive: true,
+        verbose: true,
+      });
 
       console.log(answer);
 

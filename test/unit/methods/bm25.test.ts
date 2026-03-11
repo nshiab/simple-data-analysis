@@ -193,7 +193,36 @@ Deno.test("should filter out results below minScore", async () => {
   assertEquals(filteredScores.length, 3);
   assertEquals(dishes.length, 3);
 
-  // Verify every returned score respects the minScore condition
   const allValid = filteredScores.every((score) => score >= threshold);
   assertEquals(allValid, true);
+});
+
+Deno.test("should successfully run a search with conjunctive option", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/recipes.parquet");
+  await table.removeDuplicates({ on: "Dish" });
+
+  // "fennel garlic" should match many things with disjunctive (default)
+  await table.bm25("fennel garlic", "Dish", "Recipe", 30, {
+    outputTable: "disjunctive",
+  });
+  const disjunctive = await sdb.getTable("disjunctive");
+  const disjunctiveCount = await disjunctive.getNbRows();
+
+  // With conjunctive, it should only match rows having BOTH tokens
+  await table.bm25("fennel garlic", "Dish", "Recipe", 30, {
+    conjunctive: true,
+    outputTable: "conjunctive",
+  });
+  const conjunctive = await sdb.getTable("conjunctive");
+  const conjunctiveCount = await conjunctive.getNbRows();
+
+  // We expect fewer results with conjunctive for "fennel garlic"
+  console.log({ disjunctiveCount, conjunctiveCount });
+  assertEquals(conjunctiveCount < disjunctiveCount, true);
+  assertEquals(conjunctiveCount > 0, true);
+
+  // Check that one of the results actually has both words (case-insensitive check on content would be ideal but content is not returned by default)
+  // Let's just trust DuckDB's fts extension for now if it doesn't throw.
 });

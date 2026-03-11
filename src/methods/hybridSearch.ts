@@ -48,6 +48,7 @@ export default async function hybridSearch(
       | "none";
     k?: number;
     b?: number;
+    conjunctive?: boolean;
     bm25?: boolean;
     bm25MinScore?: number;
     bm25ScoreColumn?: string;
@@ -189,6 +190,7 @@ export default async function hybridSearch(
         stemmer: options.stemmer,
         k: options.k,
         b: options.b,
+        conjunctive: options.conjunctive,
         outputTable: `${table.name}_bm25_search_results`,
         verbose: options.verbose,
         minScore: options.bm25MinScore,

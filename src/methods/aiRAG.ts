@@ -56,6 +56,7 @@ export default async function aiRAG(
       | "none";
     k?: number;
     b?: number;
+    conjunctive?: boolean;
     bm25?: boolean;
     bm25MinScore?: number;
     bm25ScoreColumn?: string;
@@ -97,6 +98,7 @@ export default async function aiRAG(
       stemmer: options.stemmer,
       k: options.k,
       b: options.b,
+      conjunctive: options.conjunctive,
       bm25: options.bm25,
       bm25MinScore: options.bm25MinScore,
       bm25ScoreColumn: options.bm25ScoreColumn,
