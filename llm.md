@@ -1473,7 +1473,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async hybridSearch(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; embeddingsModelContextWindow?: number; createIndex?: boolean; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; k?: number; b?: number; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; outputTable?: string; efConstruction?: number; efSearch?: number; M?: number; times?: { start?: number; embeddingStart?: number; embeddingEnd?: number; vectorSearchStart?: number; vectorSearchEnd?: number; bm25Start?: number; bm25End?: number } }): Promise<SimpleTable>;
+async hybridSearch(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; embeddingsModelContextWindow?: number; createIndex?: boolean; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; outputTable?: string; efConstruction?: number; efSearch?: number; M?: number; times?: { start?: number; embeddingStart?: number; embeddingEnd?: number; vectorSearchStart?: number; vectorSearchEnd?: number; bm25Start?: number; bm25End?: number } }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -1517,6 +1517,9 @@ async hybridSearch(query: string, columnId: string, columnText: string, nbResult
   Defaults to `1.2`.
 - **`options.b`**: - The BM25 b parameter controlling document length
   normalization (0-1 range). Defaults to `0.75`.
+- **`options.conjunctive`**: - If `true`, all terms in the query string must be
+  present in order for a document to be retrieved during the BM25 search.
+  Defaults to `false`.
 - **`options.bm25`**: - If `true`, includes BM25 text search in the hybrid
   search. Defaults to `true`.
 - **`options.bm25MinScore`**: - A threshold to filter BM25 results. Only rows
@@ -1583,6 +1586,7 @@ await table.hybridSearch(
     stemmer: "english", // Use English stemmer for BM25
     k: 1.5, // Adjust term frequency saturation
     b: 0.8, // Adjust document length normalization
+    conjunctive: true, // Require all query terms to be present in BM25 search
   },
 );
 ```
@@ -1730,7 +1734,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRAG(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; includeThoughts?: boolean; systemPrompt?: string; modelContextWindow?: number; embeddingsModelContextWindow?: number; createIndex?: boolean; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; model?: string; temperature?: number; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; k?: number; b?: number; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; efConstruction?: number; efSearch?: number; M?: number }): Promise<string>;
+async aiRAG(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; includeThoughts?: boolean; systemPrompt?: string; modelContextWindow?: number; embeddingsModelContextWindow?: number; createIndex?: boolean; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; model?: string; temperature?: number; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; efConstruction?: number; efSearch?: number; M?: number }): Promise<string>;
 ```
 
 ##### Parameters
@@ -1799,6 +1803,9 @@ async aiRAG(query: string, columnId: string, columnText: string, nbResults: numb
   Defaults to `1.2`.
 - **`options.b`**: - The BM25 b parameter controlling document length
   normalization (0-1 range). Defaults to `0.75`.
+- **`options.conjunctive`**: - If `true`, all terms in the query string must be
+  present in order for a document to be retrieved during the BM25 search.
+  Defaults to `false`.
 - **`options.bm25`**: - If `true`, includes BM25 text search in the hybrid
   search. Defaults to `true`.
 - **`options.bm25MinScore`**: - A threshold to filter BM25 results. Only rows
@@ -1894,6 +1901,7 @@ const answer = await table.aiRAG(
     stemmer: "english", // Use English stemmer for BM25
     k: 1.5, // Adjust term frequency saturation
     b: 0.8, // Adjust document length normalization
+    conjunctive: true, // Require all query terms to be present in BM25 search
   },
 );
 ```
@@ -2265,7 +2273,7 @@ option is set to `true`.
 ##### Signature
 
 ```typescript
-async bm25(text: string, columnId: string, columnText: string, nbResults: number, options?: { outputTable?: string; verbose?: boolean; k?: number; b?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; overwriteIndex?: boolean; minScore?: number; scoreColumn?: string }): Promise<SimpleTable>;
+async bm25(text: string, columnId: string, columnText: string, nbResults: number, options?: { outputTable?: string; verbose?: boolean; k?: number; b?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; overwriteIndex?: boolean; conjunctive?: boolean; minScore?: number; scoreColumn?: string }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -2290,6 +2298,8 @@ async bm25(text: string, columnId: string, columnText: string, nbResults: number
   'porter'.
 - **`options.overwriteIndex`**: - If `true`, drops and recreates the FTS index
   even if it already exists. Defaults to `false`.
+- **`options.conjunctive`**: - If `true`, all terms in the query string must be
+  present in order for a document to be retrieved. Defaults to `false`.
 - **`options.minScore`**: - A threshold to filter out results with a BM25 score
   below this value.
 - **`options.scoreColumn`**: - If provided, the BM25 score will be included in
@@ -2364,6 +2374,13 @@ const french = await table.bm25("french food", "Dish", "Recipe", 5, {
 await table.bm25("spicy noodles", "Dish", "Recipe", 10, {
   minScore: 5.5,
   scoreColumn: "bm25_score",
+});
+```
+
+```ts
+// Use the conjunctive option to require all terms
+await table.bm25("italian sauce", "Dish", "Recipe", 5, {
+  conjunctive: true,
 });
 ```
 
