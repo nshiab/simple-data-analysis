@@ -1473,7 +1473,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async hybridSearch(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; embeddingsModelContextWindow?: number; createIndex?: boolean; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; outputTable?: string; efConstruction?: number; efSearch?: number; M?: number; times?: { start?: number; embeddingStart?: number; embeddingEnd?: number; vectorSearchStart?: number; vectorSearchEnd?: number; bm25Start?: number; bm25End?: number } }): Promise<SimpleTable>;
+async hybridSearch(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; embeddingsModelContextWindow?: number; createIndex?: boolean; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; outputTable?: string; efConstruction?: number; efSearch?: number; M?: number; times?: { start?: number; embeddingStart?: number; embeddingEnd?: number; vectorSearchStart?: number; vectorSearchEnd?: number; bm25Start?: number; bm25End?: number } }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -1513,6 +1513,14 @@ async hybridSearch(query: string, columnId: string, columnText: string, nbResult
 - **`options.stemmer`**: - The language stemmer to apply for BM25 word
   normalization. Supports multiple languages or "none" to disable stemming.
   Defaults to `'porter'`.
+- **`options.stopwords`**: - The table containing the stopwords to use for the
+  BM25 FTS index. Defaults to "english".
+- **`options.ignore`**: - The regular expression of patterns to be ignored for
+  the BM25 FTS index. Defaults to "(\\.|[^a-z])+".
+- **`options.stripAccents`**: - A boolean indicating whether to remove accents
+  for the BM25 FTS index. Defaults to true.
+- **`options.lower`**: - A boolean indicating whether to convert all text to
+  lowercase for the BM25 FTS index. Defaults to true.
 - **`options.k`**: - The BM25 k parameter controlling term frequency saturation.
   Defaults to `1.2`.
 - **`options.b`**: - The BM25 b parameter controlling document length
@@ -1734,7 +1742,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRAG(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; includeThoughts?: boolean; systemPrompt?: string; modelContextWindow?: number; embeddingsModelContextWindow?: number; createIndex?: boolean; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; model?: string; temperature?: number; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; efConstruction?: number; efSearch?: number; M?: number }): Promise<string>;
+async aiRAG(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; includeThoughts?: boolean; systemPrompt?: string; modelContextWindow?: number; embeddingsModelContextWindow?: number; createIndex?: boolean; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; model?: string; temperature?: number; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; efConstruction?: number; efSearch?: number; M?: number }): Promise<string>;
 ```
 
 ##### Parameters
@@ -1799,6 +1807,14 @@ async aiRAG(query: string, columnId: string, columnText: string, nbResults: numb
 - **`options.stemmer`**: - The language stemmer to apply for BM25 word
   normalization. Supports multiple languages or "none" to disable stemming.
   Defaults to `'porter'`.
+- **`options.stopwords`**: - The table containing the stopwords to use for the
+  BM25 FTS index. Defaults to "english".
+- **`options.ignore`**: - The regular expression of patterns to be ignored for
+  the BM25 FTS index. Defaults to "(\\.|[^a-z])+".
+- **`options.stripAccents`**: - A boolean indicating whether to remove accents
+  for the BM25 FTS index. Defaults to true.
+- **`options.lower`**: - A boolean indicating whether to convert all text to
+  lowercase for the BM25 FTS index. Defaults to true.
 - **`options.k`**: - The BM25 k parameter controlling term frequency saturation.
   Defaults to `1.2`.
 - **`options.b`**: - The BM25 b parameter controlling document length
@@ -2128,7 +2144,7 @@ log a message (when verbose is enabled), unless the `overwrite` option is set to
 ##### Signature
 
 ```typescript
-async createFtsIndex(columnId: string, columnText: string, options?: { stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; overwrite?: boolean; verbose?: boolean }): Promise<SimpleTable>;
+async createFtsIndex(columnId: string, columnText: string, options?: { stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; overwrite?: boolean; verbose?: boolean }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -2144,6 +2160,23 @@ async createFtsIndex(columnId: string, columnText: string, options?: { stemmer?:
   exists. Defaults to `false`.
 - **`options.verbose`**: - If `true`, logs additional debugging information,
   including index creation status. Defaults to `false`.
+- **`columnId`**: - The column containing the document identifiers.
+- **`columnText`**: - The column containing the text to search.
+- **`options`**: - An optional object with configuration options:
+- **`options.stemmer`**: - The stemmer to use for the FTS index. Defaults to
+  "porter".
+- **`options.stopwords`**: - The table containing the stopwords to use for the
+  FTS index. Defaults to "english".
+- **`options.ignore`**: - The regular expression of patterns to be ignored.
+  Defaults to "(\\.|[^a-z])+".
+- **`options.stripAccents`**: - A boolean indicating whether to remove accents.
+  Defaults to true.
+- **`options.lower`**: - A boolean indicating whether to convert all text to
+  lowercase. Defaults to true.
+- **`options.overwrite`**: - A boolean indicating whether to overwrite the
+  existing FTS index. Defaults to false.
+- **`options.verbose`**: - A boolean indicating whether to log additional
+  information. Defaults to false.
 
 ##### Returns
 
@@ -2273,7 +2306,7 @@ option is set to `true`.
 ##### Signature
 
 ```typescript
-async bm25(text: string, columnId: string, columnText: string, nbResults: number, options?: { outputTable?: string; verbose?: boolean; k?: number; b?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; overwriteIndex?: boolean; conjunctive?: boolean; minScore?: number; scoreColumn?: string }): Promise<SimpleTable>;
+async bm25(text: string, columnId: string, columnText: string, nbResults: number, options?: { outputTable?: string; verbose?: boolean; k?: number; b?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; overwriteIndex?: boolean; conjunctive?: boolean; minScore?: number; scoreColumn?: string }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -2296,6 +2329,14 @@ async bm25(text: string, columnId: string, columnText: string, nbResults: number
 - **`options.stemmer`**: - The language stemmer to apply for word normalization.
   Supports multiple languages or "none" to disable stemming. Defaults to
   'porter'.
+- **`options.stopwords`**: - The table containing the stopwords to use for the
+  FTS index. Defaults to "english".
+- **`options.ignore`**: - The regular expression of patterns to be ignored.
+  Defaults to "(\\.|[^a-z])+".
+- **`options.stripAccents`**: - A boolean indicating whether to remove accents.
+  Defaults to true.
+- **`options.lower`**: - A boolean indicating whether to convert all text to
+  lowercase. Defaults to true.
 - **`options.overwriteIndex`**: - If `true`, drops and recreates the FTS index
   even if it already exists. Defaults to `false`.
 - **`options.conjunctive`**: - If `true`, all terms in the query string must be
