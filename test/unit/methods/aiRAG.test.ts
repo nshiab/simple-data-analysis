@@ -639,61 +639,60 @@ if (typeof ollama === "string" && ollama !== "") {
       await sdb.done();
     },
   );
+  Deno.test(
+    "should perform aiRAG with custom BM25 options",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeDuplicates({ on: "Dish" });
+      await table.removeMissing({ columns: "Recipe" });
+
+      // Using custom BM25 options in RAG context
+      const answer = await table.aiRAG("italian food", "Dish", "Recipe", 5, {
+        stemmer: "none",
+        lower: false,
+        stripAccents: false,
+        cache: true,
+        verbose: true,
+      });
+
+      console.log(answer);
+      assertEquals(typeof answer, "string");
+
+      await sdb.done();
+    },
+  );
+
+  Deno.test(
+    "should perform aiRAG with stopwords",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeDuplicates({ on: "Dish" });
+      await table.removeMissing({ columns: "Recipe" });
+
+      const answer = await table.aiRAG(
+        "the a for with dish",
+        "Dish",
+        "Recipe",
+        5,
+        {
+          stopwords: "english",
+          cache: true,
+          verbose: true,
+        },
+      );
+
+      console.log(answer);
+      assertEquals(typeof answer, "string");
+
+      await sdb.done();
+    },
+  );
 } else {
   console.log("No OLLAMA in process.env");
 }
-
-Deno.test(
-  "should perform aiRAG with custom BM25 options",
-  { sanitizeResources: false },
-  async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadData("test/data/files/recipes.parquet");
-    await table.removeDuplicates({ on: "Dish" });
-    await table.removeMissing({ columns: "Recipe" });
-
-    // Using custom BM25 options in RAG context
-    const answer = await table.aiRAG("italian food", "Dish", "Recipe", 5, {
-      stemmer: "none",
-      lower: false,
-      stripAccents: false,
-      cache: true,
-      verbose: true,
-    });
-
-    console.log(answer);
-    assertEquals(typeof answer, "string");
-
-    await sdb.done();
-  },
-);
-
-Deno.test(
-  "should perform aiRAG with stopwords",
-  { sanitizeResources: false },
-  async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadData("test/data/files/recipes.parquet");
-    await table.removeDuplicates({ on: "Dish" });
-    await table.removeMissing({ columns: "Recipe" });
-
-    const answer = await table.aiRAG(
-      "the a for with dish",
-      "Dish",
-      "Recipe",
-      5,
-      {
-        stopwords: "english",
-        cache: true,
-        verbose: true,
-      },
-    );
-
-    console.log(answer);
-    assertEquals(typeof answer, "string");
-
-    await sdb.done();
-  },
-);
