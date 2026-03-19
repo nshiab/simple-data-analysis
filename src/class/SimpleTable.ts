@@ -1131,7 +1131,7 @@ export default class SimpleTable extends Simple {
    * @param options.ollamaEmbeddings - If `true`, forces the use of Ollama for embeddings generation. Defaults to `false`.
    * @param options.embeddingsConcurrent - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
    * @param options.stemmer - The language stemmer to apply for BM25 word normalization. Supports multiple languages or "none" to disable stemming. Defaults to `'porter'`.
-   * @param options.stopwords - The table containing the stopwords to use for the BM25 FTS index. Defaults to "english".
+   * @param options.stopwords - The table containing the stopwords to use for the BM25 FTS index. Supports multiple languages or "none" to disable stopwords. Defaults to "english".
    * @param options.ignore - The regular expression of patterns to be ignored for the BM25 FTS index. Defaults to "(\\.|[^a-z])+".
    * @param options.stripAccents - A boolean indicating whether to remove accents for the BM25 FTS index. Defaults to true.
    * @param options.lower - A boolean indicating whether to convert all text to lowercase for the BM25 FTS index. Defaults to true.
@@ -1408,7 +1408,7 @@ export default class SimpleTable extends Simple {
    * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
    * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
    * @param options.stemmer - The language stemmer to apply for BM25 word normalization. Supports multiple languages or "none" to disable stemming. Defaults to `'porter'`.
-   * @param options.stopwords - The table containing the stopwords to use for the BM25 FTS index. Defaults to "english".
+   * @param options.stopwords - The table containing the stopwords to use for the BM25 FTS index. Supports multiple languages or "none" to disable stopwords. Defaults to "english".
    * @param options.ignore - The regular expression of patterns to be ignored for the BM25 FTS index. Defaults to "(\\.|[^a-z])+".
    * @param options.stripAccents - A boolean indicating whether to remove accents for the BM25 FTS index. Defaults to true.
    * @param options.lower - A boolean indicating whether to convert all text to lowercase for the BM25 FTS index. Defaults to true.
@@ -1779,6 +1779,7 @@ export default class SimpleTable extends Simple {
    * @param columnText - The name of the column containing the text to index.
    * @param options - An optional object with configuration options:
    * @param options.stemmer - The language stemmer to apply for word normalization. Supports multiple languages or "none" to disable stemming. Defaults to 'porter'.
+   * @param options.stopwords - The table containing the stopwords to use for the FTS index. Supports multiple languages or "none" to disable stopwords. Defaults to "english".
    * @param options.overwrite - If `true`, recreates the index even if it already exists. Defaults to `false`.
    * @param options.verbose - If `true`, logs additional debugging information, including index creation status. Defaults to `false`.
    * @returns A promise that resolves to the SimpleTable instance for method chaining.
@@ -1796,8 +1797,8 @@ export default class SimpleTable extends Simple {
    * @param columnId - The column containing the document identifiers.
    * @param columnText - The column containing the text to search.
    * @param options - An optional object with configuration options:
-   * @param options.stemmer - The stemmer to use for the FTS index. Defaults to "porter".
-   * @param options.stopwords - The table containing the stopwords to use for the FTS index. Defaults to "english".
+   * @param options.stemmer - The stemmer to use for the FTS index. Supports multiple languages or "none" to disable stemming. Defaults to "porter".
+   * @param options.stopwords - The table containing the stopwords to use for the FTS index. Supports multiple languages or "none" to disable stopwords. Defaults to "english".
    * @param options.ignore - The regular expression of patterns to be ignored. Defaults to "(\\.|[^a-z])+".
    * @param options.stripAccents - A boolean indicating whether to remove accents. Defaults to true.
    * @param options.lower - A boolean indicating whether to convert all text to lowercase. Defaults to true.
@@ -1956,7 +1957,7 @@ export default class SimpleTable extends Simple {
    * @param options.k - The BM25 k parameter controlling term frequency saturation. Defaults to 1.2.
    * @param options.b - The BM25 b parameter controlling document length normalization (0-1 range). Defaults to 0.75.
    * @param options.stemmer - The language stemmer to apply for word normalization. Supports multiple languages or "none" to disable stemming. Defaults to 'porter'.
-   * @param options.stopwords - The table containing the stopwords to use for the FTS index. Defaults to "english".
+   * @param options.stopwords - The table containing the stopwords to use for the FTS index. Supports multiple languages or "none" to disable stopwords. Defaults to "english".
    * @param options.ignore - The regular expression of patterns to be ignored. Defaults to "(\\.|[^a-z])+".
    * @param options.stripAccents - A boolean indicating whether to remove accents. Defaults to true.
    * @param options.lower - A boolean indicating whether to convert all text to lowercase. Defaults to true.
