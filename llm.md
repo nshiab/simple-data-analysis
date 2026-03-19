@@ -1514,7 +1514,8 @@ async hybridSearch(query: string, columnId: string, columnText: string, nbResult
   normalization. Supports multiple languages or "none" to disable stemming.
   Defaults to `'porter'`.
 - **`options.stopwords`**: - The table containing the stopwords to use for the
-  BM25 FTS index. Defaults to "english".
+  BM25 FTS index. Supports multiple languages or "none" to disable stopwords.
+  Defaults to "english".
 - **`options.ignore`**: - The regular expression of patterns to be ignored for
   the BM25 FTS index. Defaults to "(\\.|[^a-z])+".
 - **`options.stripAccents`**: - A boolean indicating whether to remove accents
@@ -1808,7 +1809,8 @@ async aiRAG(query: string, columnId: string, columnText: string, nbResults: numb
   normalization. Supports multiple languages or "none" to disable stemming.
   Defaults to `'porter'`.
 - **`options.stopwords`**: - The table containing the stopwords to use for the
-  BM25 FTS index. Defaults to "english".
+  BM25 FTS index. Supports multiple languages or "none" to disable stopwords.
+  Defaults to "english".
 - **`options.ignore`**: - The regular expression of patterns to be ignored for
   the BM25 FTS index. Defaults to "(\\.|[^a-z])+".
 - **`options.stripAccents`**: - A boolean indicating whether to remove accents
@@ -2156,6 +2158,9 @@ async createFtsIndex(columnId: string, columnText: string, options?: { stemmer?:
 - **`options.stemmer`**: - The language stemmer to apply for word normalization.
   Supports multiple languages or "none" to disable stemming. Defaults to
   'porter'.
+- **`options.stopwords`**: - The table containing the stopwords to use for the
+  FTS index. Supports multiple languages or "none" to disable stopwords.
+  Defaults to "english".
 - **`options.overwrite`**: - If `true`, recreates the index even if it already
   exists. Defaults to `false`.
 - **`options.verbose`**: - If `true`, logs additional debugging information,
@@ -2163,10 +2168,11 @@ async createFtsIndex(columnId: string, columnText: string, options?: { stemmer?:
 - **`columnId`**: - The column containing the document identifiers.
 - **`columnText`**: - The column containing the text to search.
 - **`options`**: - An optional object with configuration options:
-- **`options.stemmer`**: - The stemmer to use for the FTS index. Defaults to
-  "porter".
+- **`options.stemmer`**: - The stemmer to use for the FTS index. Supports
+  multiple languages or "none" to disable stemming. Defaults to "porter".
 - **`options.stopwords`**: - The table containing the stopwords to use for the
-  FTS index. Defaults to "english".
+  FTS index. Supports multiple languages or "none" to disable stopwords.
+  Defaults to "english".
 - **`options.ignore`**: - The regular expression of patterns to be ignored.
   Defaults to "(\\.|[^a-z])+".
 - **`options.stripAccents`**: - A boolean indicating whether to remove accents.
@@ -2330,7 +2336,8 @@ async bm25(text: string, columnId: string, columnText: string, nbResults: number
   Supports multiple languages or "none" to disable stemming. Defaults to
   'porter'.
 - **`options.stopwords`**: - The table containing the stopwords to use for the
-  FTS index. Defaults to "english".
+  FTS index. Supports multiple languages or "none" to disable stopwords.
+  Defaults to "english".
 - **`options.ignore`**: - The regular expression of patterns to be ignored.
   Defaults to "(\\.|[^a-z])+".
 - **`options.stripAccents`**: - A boolean indicating whether to remove accents.
