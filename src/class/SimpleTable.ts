@@ -1131,6 +1131,10 @@ export default class SimpleTable extends Simple {
    * @param options.ollamaEmbeddings - If `true`, forces the use of Ollama for embeddings generation. Defaults to `false`.
    * @param options.embeddingsConcurrent - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
    * @param options.stemmer - The language stemmer to apply for BM25 word normalization. Supports multiple languages or "none" to disable stemming. Defaults to `'porter'`.
+   * @param options.stopwords - The table containing the stopwords to use for the BM25 FTS index. Defaults to "english".
+   * @param options.ignore - The regular expression of patterns to be ignored for the BM25 FTS index. Defaults to "(\\.|[^a-z])+".
+   * @param options.stripAccents - A boolean indicating whether to remove accents for the BM25 FTS index. Defaults to true.
+   * @param options.lower - A boolean indicating whether to convert all text to lowercase for the BM25 FTS index. Defaults to true.
    * @param options.k - The BM25 k parameter controlling term frequency saturation. Defaults to `1.2`.
    * @param options.b - The BM25 b parameter controlling document length normalization (0-1 range). Defaults to `0.75`.
    * @param options.conjunctive - If `true`, all terms in the query string must be present in order for a document to be retrieved during the BM25 search. Defaults to `false`.
@@ -1319,6 +1323,10 @@ export default class SimpleTable extends Simple {
         | "tamil"
         | "turkish"
         | "none";
+      stopwords?: string;
+      ignore?: string;
+      stripAccents?: boolean;
+      lower?: boolean;
       k?: number;
       b?: number;
       conjunctive?: boolean;
@@ -1400,6 +1408,10 @@ export default class SimpleTable extends Simple {
    * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
    * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
    * @param options.stemmer - The language stemmer to apply for BM25 word normalization. Supports multiple languages or "none" to disable stemming. Defaults to `'porter'`.
+   * @param options.stopwords - The table containing the stopwords to use for the BM25 FTS index. Defaults to "english".
+   * @param options.ignore - The regular expression of patterns to be ignored for the BM25 FTS index. Defaults to "(\\.|[^a-z])+".
+   * @param options.stripAccents - A boolean indicating whether to remove accents for the BM25 FTS index. Defaults to true.
+   * @param options.lower - A boolean indicating whether to convert all text to lowercase for the BM25 FTS index. Defaults to true.
    * @param options.k - The BM25 k parameter controlling term frequency saturation. Defaults to `1.2`.
    * @param options.b - The BM25 b parameter controlling document length normalization (0-1 range). Defaults to `0.75`.
    * @param options.conjunctive - If `true`, all terms in the query string must be present in order for a document to be retrieved during the BM25 search. Defaults to `false`.
@@ -1649,6 +1661,10 @@ export default class SimpleTable extends Simple {
         | "tamil"
         | "turkish"
         | "none";
+      stopwords?: string;
+      ignore?: string;
+      stripAccents?: boolean;
+      lower?: boolean;
       k?: number;
       b?: number;
       conjunctive?: boolean;
@@ -1777,6 +1793,17 @@ export default class SimpleTable extends Simple {
    * await table.createFtsIndex("Dish", "Recipe");
    * ```
    *
+   * @param columnId - The column containing the document identifiers.
+   * @param columnText - The column containing the text to search.
+   * @param options - An optional object with configuration options:
+   * @param options.stemmer - The stemmer to use for the FTS index. Defaults to "porter".
+   * @param options.stopwords - The table containing the stopwords to use for the FTS index. Defaults to "english".
+   * @param options.ignore - The regular expression of patterns to be ignored. Defaults to "(\\.|[^a-z])+".
+   * @param options.stripAccents - A boolean indicating whether to remove accents. Defaults to true.
+   * @param options.lower - A boolean indicating whether to convert all text to lowercase. Defaults to true.
+   * @param options.overwrite - A boolean indicating whether to overwrite the existing FTS index. Defaults to false.
+   * @param options.verbose - A boolean indicating whether to log additional information. Defaults to false.
+   *
    * @example
    * ```ts
    * // Create an index with a specific language stemmer
@@ -1837,6 +1864,10 @@ export default class SimpleTable extends Simple {
         | "tamil"
         | "turkish"
         | "none";
+      stopwords?: string;
+      ignore?: string;
+      stripAccents?: boolean;
+      lower?: boolean;
       overwrite?: boolean;
       verbose?: boolean;
     } = {},
@@ -1925,6 +1956,10 @@ export default class SimpleTable extends Simple {
    * @param options.k - The BM25 k parameter controlling term frequency saturation. Defaults to 1.2.
    * @param options.b - The BM25 b parameter controlling document length normalization (0-1 range). Defaults to 0.75.
    * @param options.stemmer - The language stemmer to apply for word normalization. Supports multiple languages or "none" to disable stemming. Defaults to 'porter'.
+   * @param options.stopwords - The table containing the stopwords to use for the FTS index. Defaults to "english".
+   * @param options.ignore - The regular expression of patterns to be ignored. Defaults to "(\\.|[^a-z])+".
+   * @param options.stripAccents - A boolean indicating whether to remove accents. Defaults to true.
+   * @param options.lower - A boolean indicating whether to convert all text to lowercase. Defaults to true.
    * @param options.overwriteIndex - If `true`, drops and recreates the FTS index even if it already exists. Defaults to `false`.
    * @param options.conjunctive - If `true`, all terms in the query string must be present in order for a document to be retrieved. Defaults to `false`.
    * @param options.minScore - A threshold to filter out results with a BM25 score below this value.
@@ -2047,6 +2082,10 @@ export default class SimpleTable extends Simple {
         | "tamil"
         | "turkish"
         | "none";
+      stopwords?: string;
+      ignore?: string;
+      stripAccents?: boolean;
+      lower?: boolean;
       overwriteIndex?: boolean;
       conjunctive?: boolean;
       minScore?: number;

@@ -174,3 +174,32 @@ Deno.test("should recreate index with verbose logging when overwrite is true", a
   const dishes = await table.getValues("Dish");
   assertEquals(dishes.length, 5);
 });
+
+Deno.test("should successfully create an FTS index with custom parameters", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/recipes.parquet");
+  await table.removeDuplicates({ on: "Dish" });
+
+  // Create FTS index with multiple new parameters
+  await table.createFtsIndex("Dish", "Recipe", {
+    stemmer: "none",
+    lower: false,
+    stripAccents: false,
+    verbose: true,
+  });
+
+  // Index should be in the indexes array
+  assertExists(
+    table.indexes.find((idx) => idx.includes("fts_index")),
+  );
+
+  // Verifying the search still works with these parameters
+  await table.bm25("italian food", "Dish", "Recipe", 5, {
+    stemmer: "none",
+    lower: false,
+    stripAccents: false,
+  });
+  const dishes = await table.getValues("Dish");
+  assertEquals(dishes.length, 5);
+});

@@ -218,6 +218,32 @@ if (typeof aiKey === "string" && aiKey !== "") {
       await sdb.done();
     },
   );
+
+  Deno.test(
+    "should perform hybrid search with FTS options",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      await table.loadData("test/data/files/recipes.parquet");
+      await table.removeDuplicates({ on: "Dish" });
+      await table.removeMissing({ columns: "Recipe" });
+
+      const results = await table.hybridSearch("pasta", "Dish", "Recipe", 5, {
+        cache: true,
+        stopwords: "english",
+        stemmer: "english",
+        lower: true,
+        stripAccents: true,
+        verbose: true,
+      });
+
+      const nbRows = await results.getNbRows();
+      assertEquals(nbRows <= 5, true);
+
+      await sdb.done();
+    },
+  );
 }
 const ollama = Deno.env.get("OLLAMA");
 if (typeof ollama === "string" && ollama !== "") {
@@ -615,3 +641,66 @@ if (typeof ollama === "string" && ollama !== "") {
     },
   );
 }
+
+Deno.test(
+  "should perform hybrid search with custom BM25 options",
+  { sanitizeResources: false },
+  async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadData("test/data/files/recipes.parquet");
+    await table.removeDuplicates({ on: "Dish" });
+    await table.removeMissing({ columns: "Recipe" });
+
+    const results = await table.hybridSearch(
+      "italian food",
+      "Dish",
+      "Recipe",
+      5,
+      {
+        stemmer: "none",
+        lower: false,
+        stripAccents: false,
+        cache: true,
+        verbose: true,
+        outputTable: "custom_bm25_results",
+      },
+    );
+
+    const nbRows = await results.getNbRows();
+    assertEquals(nbRows > 0, true);
+    assertEquals(nbRows <= 5, true);
+
+    await sdb.done();
+  },
+);
+
+Deno.test(
+  "should perform hybrid search with stopwords",
+  { sanitizeResources: false },
+  async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadData("test/data/files/recipes.parquet");
+    await table.removeDuplicates({ on: "Dish" });
+    await table.removeMissing({ columns: "Recipe" });
+
+    const results = await table.hybridSearch(
+      "the a for with dish",
+      "Dish",
+      "Recipe",
+      5,
+      {
+        stopwords: "english",
+        cache: true,
+        verbose: true,
+        outputTable: "stopwords_results",
+      },
+    );
+
+    const nbRows = await results.getNbRows();
+    assertEquals(nbRows <= 5, true);
+
+    await sdb.done();
+  },
+);

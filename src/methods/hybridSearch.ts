@@ -46,6 +46,10 @@ export default async function hybridSearch(
       | "tamil"
       | "turkish"
       | "none";
+    stopwords?: string;
+    ignore?: string;
+    stripAccents?: boolean;
+    lower?: boolean;
     k?: number;
     b?: number;
     conjunctive?: boolean;
@@ -188,6 +192,10 @@ export default async function hybridSearch(
       nbResults,
       {
         stemmer: options.stemmer,
+        stopwords: options.stopwords,
+        ignore: options.ignore,
+        stripAccents: options.stripAccents,
+        lower: options.lower,
         k: options.k,
         b: options.b,
         conjunctive: options.conjunctive,
