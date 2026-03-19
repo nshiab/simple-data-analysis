@@ -35,6 +35,10 @@ export default async function createFtsIndex(
       | "tamil"
       | "turkish"
       | "none";
+    stopwords?: string;
+    ignore?: string;
+    stripAccents?: boolean;
+    lower?: boolean;
     overwrite?: boolean;
     verbose?: boolean;
   } = {},
@@ -64,6 +68,16 @@ export default async function createFtsIndex(
     await simpleTable.sdb.customQuery(
       `PRAGMA create_fts_index("${simpleTable.name}", "${columnId}", "${columnText}"${
         options.stemmer ? `, stemmer = '${options.stemmer}'` : ""
+      }${options.stopwords ? `, stopwords = '${options.stopwords}'` : ""}${
+        options.ignore ? `, ignore = '${options.ignore}'` : ""
+      }${
+        typeof options.stripAccents === "boolean"
+          ? `, strip_accents = ${options.stripAccents ? 1 : 0}`
+          : ""
+      }${
+        typeof options.lower === "boolean"
+          ? `, lower = ${options.lower ? 1 : 0}`
+          : ""
       });`,
     );
 

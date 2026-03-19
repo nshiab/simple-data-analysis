@@ -111,6 +111,21 @@ Deno.test("should not recreate index if already exists", async () => {
   assertEquals(allDishes.length, 336);
 });
 
+Deno.test("should successfully run a search with custom fts options", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  await table.loadData("test/data/files/recipes.parquet");
+  await table.removeDuplicates({ on: "Dish" });
+  await table.bm25("italian food", "Dish", "Recipe", 5, {
+    stemmer: "none",
+    lower: false,
+    stripAccents: false,
+  });
+
+  const dishes = await table.getValues("Dish");
+  assertEquals(dishes.length, 5);
+});
+
 Deno.test("should recreate index with overwriteIndex option", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();

@@ -54,6 +54,10 @@ export default async function aiRAG(
       | "tamil"
       | "turkish"
       | "none";
+    stopwords?: string;
+    ignore?: string;
+    stripAccents?: boolean;
+    lower?: boolean;
     k?: number;
     b?: number;
     conjunctive?: boolean;
@@ -96,6 +100,10 @@ export default async function aiRAG(
       ollamaEmbeddings: options.ollamaEmbeddings,
       embeddingsConcurrent: options.embeddingsConcurrent,
       stemmer: options.stemmer,
+      stopwords: options.stopwords,
+      ignore: options.ignore,
+      stripAccents: options.stripAccents,
+      lower: options.lower,
       k: options.k,
       b: options.b,
       conjunctive: options.conjunctive,
