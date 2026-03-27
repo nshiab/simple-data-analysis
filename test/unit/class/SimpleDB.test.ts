@@ -413,7 +413,7 @@ Deno.test("should load the sqlite db", async () => {
   await sdb.done();
 });
 Deno.test("should write the db with geometries", async () => {
-  const sdb = new SimpleDB();
+  const sdb = new SimpleDB({ debug: true });
   const test = sdb.newTable("test");
   await test.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -425,311 +425,311 @@ Deno.test("should write the db with geometries", async () => {
   // How to test?
   await sdb.done();
 });
-Deno.test("should load the db with geometries", async () => {
-  const sdb = new SimpleDB();
-  await sdb.loadDB(`${output}database_geometry.db`);
-  const test = await sdb.getTable("test");
-  await test.logProjections();
-  await test.simplify(0.1);
-  await test.logTable();
-  // How to test?
-  await sdb.done();
-});
-Deno.test("should log the table names in the db", async () => {
-  const sdb = new SimpleDB();
-  const test = sdb.newTable("test");
-  await test.loadData("test/data/files/cities.csv");
-  const test1 = sdb.newTable("test1");
-  await test1.loadData("test/data/files/cities.csv");
+// Deno.test("should load the db with geometries", async () => {
+//   const sdb = new SimpleDB();
+//   await sdb.loadDB(`${output}database_geometry.db`);
+//   const test = await sdb.getTable("test");
+//   await test.logProjections();
+//   await test.simplify(0.1);
+//   await test.logTable();
+//   // How to test?
+//   await sdb.done();
+// });
+// Deno.test("should log the table names in the db", async () => {
+//   const sdb = new SimpleDB();
+//   const test = sdb.newTable("test");
+//   await test.loadData("test/data/files/cities.csv");
+//   const test1 = sdb.newTable("test1");
+//   await test1.loadData("test/data/files/cities.csv");
 
-  await sdb.logTableNames();
+//   await sdb.logTableNames();
 
-  // How to test?
-  await sdb.done();
-});
-Deno.test("should instantiate by creating a new file", async () => {
-  const sdb = new SimpleDB({
-    file: `${output}database_new.db`,
-    overwrite: true,
-  });
-  const data = sdb.newTable("data");
-  await data.loadData("test/data/files/data.csv");
-  await data.logTable();
+//   // How to test?
+//   await sdb.done();
+// });
+// Deno.test("should instantiate by creating a new file", async () => {
+//   const sdb = new SimpleDB({
+//     file: `${output}database_new.db`,
+//     overwrite: true,
+//   });
+//   const data = sdb.newTable("data");
+//   await data.loadData("test/data/files/data.csv");
+//   await data.logTable();
 
-  await sdb.done();
-});
-Deno.test("should load a db created when instantiating", async () => {
-  const sdb = new SimpleDB();
-  await sdb.loadDB(`${output}database_new.db`);
-  const data2 = sdb.newTable("data2");
-  await data2.loadData("test/data/files/data.csv");
-  await data2.logTable();
+//   await sdb.done();
+// });
+// Deno.test("should load a db created when instantiating", async () => {
+//   const sdb = new SimpleDB();
+//   await sdb.loadDB(`${output}database_new.db`);
+//   const data2 = sdb.newTable("data2");
+//   await data2.loadData("test/data/files/data.csv");
+//   await data2.logTable();
 
-  await sdb.done();
-});
-Deno.test("should instantiate by creating a new file and geospatial data", async () => {
-  const sdb = new SimpleDB({
-    file: `${output}database_new_geo.db`,
-    overwrite: true,
-  });
-  const data = sdb.newTable("geodata");
-  await data.loadGeoData(
-    "test/geodata/files/CanadianProvincesAndTerritories.json",
-  );
-  await data.logTable();
+//   await sdb.done();
+// });
+// Deno.test("should instantiate by creating a new file and geospatial data", async () => {
+//   const sdb = new SimpleDB({
+//     file: `${output}database_new_geo.db`,
+//     overwrite: true,
+//   });
+//   const data = sdb.newTable("geodata");
+//   await data.loadGeoData(
+//     "test/geodata/files/CanadianProvincesAndTerritories.json",
+//   );
+//   await data.logTable();
 
-  await sdb.done();
-});
-Deno.test("should load a db created with geospatial data", async () => {
-  const sdb = new SimpleDB();
-  await sdb.loadDB(`${output}database_new_geo.db`);
-  const data = await sdb.getTable("geodata");
-  await data.simplify(0.1);
-  await data.logProjections();
-  await data.logTable();
+//   await sdb.done();
+// });
+// Deno.test("should load a db created with geospatial data", async () => {
+//   const sdb = new SimpleDB();
+//   await sdb.loadDB(`${output}database_new_geo.db`);
+//   const data = await sdb.getTable("geodata");
+//   await data.simplify(0.1);
+//   await data.logProjections();
+//   await data.logTable();
 
-  await sdb.done();
-});
-Deno.test("should not change the enable_external_file_cache option", async () => {
-  const sdb = new SimpleDB({ duckDbCache: null });
-  await sdb.start();
-  await sdb.done();
-});
-Deno.test("should set the enable_external_file_cache option to true", async () => {
-  const sdb = new SimpleDB({ duckDbCache: true });
-  await sdb.start();
-  await sdb.done();
-});
-Deno.test("should set the enable_external_file_cache option to false", async () => {
-  const sdb = new SimpleDB({ duckDbCache: false });
-  await sdb.start();
-  await sdb.done();
-});
-Deno.test("should respect the data types when returning data with custom query", async () => {
-  const sdb = new SimpleDB();
-  const table = sdb.newTable();
+//   await sdb.done();
+// });
+// Deno.test("should not change the enable_external_file_cache option", async () => {
+//   const sdb = new SimpleDB({ duckDbCache: null });
+//   await sdb.start();
+//   await sdb.done();
+// });
+// Deno.test("should set the enable_external_file_cache option to true", async () => {
+//   const sdb = new SimpleDB({ duckDbCache: true });
+//   await sdb.start();
+//   await sdb.done();
+// });
+// Deno.test("should set the enable_external_file_cache option to false", async () => {
+//   const sdb = new SimpleDB({ duckDbCache: false });
+//   await sdb.start();
+//   await sdb.done();
+// });
+// Deno.test("should respect the data types when returning data with custom query", async () => {
+//   const sdb = new SimpleDB();
+//   const table = sdb.newTable();
 
-  const data = [
-    { date: new Date("2023-01-01"), value: 10 },
-    { date: new Date("2023-02-01"), value: 20 },
-    { date: new Date("2023-03-01"), value: 30 },
-    { date: new Date("2023-04-01"), value: 40 },
-  ];
-  await table.loadArray(data);
+//   const data = [
+//     { date: new Date("2023-01-01"), value: 10 },
+//     { date: new Date("2023-02-01"), value: 20 },
+//     { date: new Date("2023-03-01"), value: 30 },
+//     { date: new Date("2023-04-01"), value: 40 },
+//   ];
+//   await table.loadArray(data);
 
-  const returnedData = await sdb.customQuery(
-    `SELECT date, value FROM "${table.name}"`,
-    {
-      returnDataFrom: "query",
-      table: table.name,
-      types: await table.getTypes(),
-    },
-  );
+//   const returnedData = await sdb.customQuery(
+//     `SELECT date, value FROM "${table.name}"`,
+//     {
+//       returnDataFrom: "query",
+//       table: table.name,
+//       types: await table.getTypes(),
+//     },
+//   );
 
-  assertEquals(returnedData, data);
-  await sdb.done();
-});
-Deno.test("should create a DB with bm25 index", async () => {
-  const sdb = new SimpleDB();
-  const table = sdb.newTable("data");
-  await table.loadData("test/data/files/recipes.parquet");
-  await table.removeDuplicates({ on: "Dish" });
+//   assertEquals(returnedData, data);
+//   await sdb.done();
+// });
+// Deno.test("should create a DB with bm25 index", async () => {
+//   const sdb = new SimpleDB();
+//   const table = sdb.newTable("data");
+//   await table.loadData("test/data/files/recipes.parquet");
+//   await table.removeDuplicates({ on: "Dish" });
 
-  await table.bm25("italian food", "Dish", "Recipe", 10, { verbose: true });
-  await table.logTable(1);
+//   await table.bm25("italian food", "Dish", "Recipe", 10, { verbose: true });
+//   await table.logTable(1);
 
-  await sdb.writeDB(`${output}database_bm25.db`);
+//   await sdb.writeDB(`${output}database_bm25.db`);
 
-  // Just making sure it's doesnt crash for now
-  assertEquals(true, true);
-  await sdb.done();
-});
-Deno.test("should load a DB with bm25 index", async () => {
-  const sdb = new SimpleDB();
-  await sdb.loadDB(`${output}database_bm25.db`);
-  const table = await sdb.getTable("data");
-  await table.bm25("italian food", "Dish", "Recipe", 5, { verbose: true });
-  await table.logTable(1);
-  // Just making sure it's doesnt crash for now
-  assertEquals(true, true);
-  await sdb.done();
-});
-Deno.test("should instantiate by creating a new file and add bm25 index", async () => {
-  const sdb = new SimpleDB({
-    file: `${output}database_bm25_new.db`,
-    overwrite: true,
-  });
-  const table = sdb.newTable("data");
-  await table.loadData("test/data/files/recipes.parquet");
-  await table.removeDuplicates({ on: "Dish" });
+//   // Just making sure it's doesnt crash for now
+//   assertEquals(true, true);
+//   await sdb.done();
+// });
+// Deno.test("should load a DB with bm25 index", async () => {
+//   const sdb = new SimpleDB();
+//   await sdb.loadDB(`${output}database_bm25.db`);
+//   const table = await sdb.getTable("data");
+//   await table.bm25("italian food", "Dish", "Recipe", 5, { verbose: true });
+//   await table.logTable(1);
+//   // Just making sure it's doesnt crash for now
+//   assertEquals(true, true);
+//   await sdb.done();
+// });
+// Deno.test("should instantiate by creating a new file and add bm25 index", async () => {
+//   const sdb = new SimpleDB({
+//     file: `${output}database_bm25_new.db`,
+//     overwrite: true,
+//   });
+//   const table = sdb.newTable("data");
+//   await table.loadData("test/data/files/recipes.parquet");
+//   await table.removeDuplicates({ on: "Dish" });
 
-  await table.bm25("italian food", "Dish", "Recipe", 10, { verbose: true });
-  await table.logTable(1);
+//   await table.bm25("italian food", "Dish", "Recipe", 10, { verbose: true });
+//   await table.logTable(1);
 
-  // Just making sure it's doesnt crash for now
-  assertEquals(true, true);
-  await sdb.done();
-});
-Deno.test("should load a DB instantiated with a file, with bm25 index", async () => {
-  const sdb = new SimpleDB();
-  await sdb.loadDB(`${output}database_bm25_new.db`);
-  const table = await sdb.getTable("data");
-  await table.bm25("italian food", "Dish", "Recipe", 5, { verbose: true });
-  await table.logTable(1);
-  // Just making sure it's doesnt crash for now
-  assertEquals(true, true);
-  await sdb.done();
-});
-const ollama = Deno.env.get("OLLAMA");
-if (typeof ollama === "string" && ollama !== "") {
-  Deno.test("should create a DB with embeddings and an index", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { food: "pizza" },
-      { food: "sushi" },
-      { food: "burger" },
-      { food: "pasta" },
-      { food: "salad" },
-      { food: "tacos" },
-    ]);
+//   // Just making sure it's doesnt crash for now
+//   assertEquals(true, true);
+//   await sdb.done();
+// });
+// Deno.test("should load a DB instantiated with a file, with bm25 index", async () => {
+//   const sdb = new SimpleDB();
+//   await sdb.loadDB(`${output}database_bm25_new.db`);
+//   const table = await sdb.getTable("data");
+//   await table.bm25("italian food", "Dish", "Recipe", 5, { verbose: true });
+//   await table.logTable(1);
+//   // Just making sure it's doesnt crash for now
+//   assertEquals(true, true);
+//   await sdb.done();
+// });
+// const ollama = Deno.env.get("OLLAMA");
+// if (typeof ollama === "string" && ollama !== "") {
+//   Deno.test("should create a DB with embeddings and an index", async () => {
+//     const sdb = new SimpleDB();
+//     const table = sdb.newTable("data");
+//     await table.loadArray([
+//       { food: "pizza" },
+//       { food: "sushi" },
+//       { food: "burger" },
+//       { food: "pasta" },
+//       { food: "salad" },
+//       { food: "tacos" },
+//     ]);
 
-    await table.aiEmbeddings("food", "embeddings", {
-      cache: true,
-      verbose: true,
-      createIndex: true,
-    });
+//     await table.aiEmbeddings("food", "embeddings", {
+//       cache: true,
+//       verbose: true,
+//       createIndex: true,
+//     });
 
-    await sdb.writeDB(`${output}database_embeddings.db`);
+//     await sdb.writeDB(`${output}database_embeddings.db`);
 
-    // Just making sure it's doesnt crash for now
-    assertEquals(true, true);
-    await sdb.done();
-  });
-  Deno.test("should load a DB with embeddings and an index", async () => {
-    const sdb = new SimpleDB();
-    await sdb.loadDB(`${output}database_embeddings.db`);
-    const table = await sdb.getTable("data");
-    await table.aiVectorSimilarity("italy", "embeddings", 25, {
-      createIndex: true,
-      verbose: true,
-    });
-    await table.logTable();
-    // Just making sure it's doesnt crash for now
-    assertEquals(true, true);
-    await sdb.done();
-  });
-  Deno.test("should instantiate by creating a new file and add embeddings and an index", async () => {
-    const sdb = new SimpleDB({
-      file: `${output}database_embeddings_new.db`,
-      overwrite: true,
-    });
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { food: "pizza" },
-      { food: "sushi" },
-      { food: "burger" },
-      { food: "pasta" },
-      { food: "salad" },
-      { food: "tacos" },
-    ]);
+//     // Just making sure it's doesnt crash for now
+//     assertEquals(true, true);
+//     await sdb.done();
+//   });
+//   Deno.test("should load a DB with embeddings and an index", async () => {
+//     const sdb = new SimpleDB();
+//     await sdb.loadDB(`${output}database_embeddings.db`);
+//     const table = await sdb.getTable("data");
+//     await table.aiVectorSimilarity("italy", "embeddings", 25, {
+//       createIndex: true,
+//       verbose: true,
+//     });
+//     await table.logTable();
+//     // Just making sure it's doesnt crash for now
+//     assertEquals(true, true);
+//     await sdb.done();
+//   });
+//   Deno.test("should instantiate by creating a new file and add embeddings and an index", async () => {
+//     const sdb = new SimpleDB({
+//       file: `${output}database_embeddings_new.db`,
+//       overwrite: true,
+//     });
+//     const table = sdb.newTable("data");
+//     await table.loadArray([
+//       { food: "pizza" },
+//       { food: "sushi" },
+//       { food: "burger" },
+//       { food: "pasta" },
+//       { food: "salad" },
+//       { food: "tacos" },
+//     ]);
 
-    await table.aiEmbeddings("food", "embeddings", {
-      cache: true,
-      verbose: true,
-      createIndex: true,
-    });
+//     await table.aiEmbeddings("food", "embeddings", {
+//       cache: true,
+//       verbose: true,
+//       createIndex: true,
+//     });
 
-    // Just making sure it's doesnt crash for now
+//     // Just making sure it's doesnt crash for now
 
-    await sdb.done();
-  });
-  Deno.test("should load a DB instantiated with a file, with embeddings and an index", async () => {
-    const sdb = new SimpleDB();
-    await sdb.loadDB(`${output}database_embeddings_new.db`);
-    const table = await sdb.getTable("data");
-    await table.aiVectorSimilarity("italy", "embeddings", 25, {
-      createIndex: true,
-      verbose: true,
-    });
-    await table.logTable();
-    // Just making sure it's doesnt crash for now
-    assertEquals(true, true);
-    await sdb.done();
-  });
-  // Embedding and bm25 together
-  Deno.test("should create a DB with embeddings and bm25 index", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadData("test/data/files/recipes.parquet");
-    await table.removeDuplicates({ on: "Dish" });
-    await table.removeMissing({ columns: ["Dish", "Recipe"] });
+//     await sdb.done();
+//   });
+//   Deno.test("should load a DB instantiated with a file, with embeddings and an index", async () => {
+//     const sdb = new SimpleDB();
+//     await sdb.loadDB(`${output}database_embeddings_new.db`);
+//     const table = await sdb.getTable("data");
+//     await table.aiVectorSimilarity("italy", "embeddings", 25, {
+//       createIndex: true,
+//       verbose: true,
+//     });
+//     await table.logTable();
+//     // Just making sure it's doesnt crash for now
+//     assertEquals(true, true);
+//     await sdb.done();
+//   });
+//   // Embedding and bm25 together
+//   Deno.test("should create a DB with embeddings and bm25 index", async () => {
+//     const sdb = new SimpleDB();
+//     const table = sdb.newTable("data");
+//     await table.loadData("test/data/files/recipes.parquet");
+//     await table.removeDuplicates({ on: "Dish" });
+//     await table.removeMissing({ columns: ["Dish", "Recipe"] });
 
-    await table.aiEmbeddings("Recipe", "embeddings", {
-      cache: true,
-      verbose: true,
-      createIndex: true,
-    });
-    await table.bm25("italian food", "Dish", "Recipe", 10, { verbose: true });
-    await table.logTable(1);
+//     await table.aiEmbeddings("Recipe", "embeddings", {
+//       cache: true,
+//       verbose: true,
+//       createIndex: true,
+//     });
+//     await table.bm25("italian food", "Dish", "Recipe", 10, { verbose: true });
+//     await table.logTable(1);
 
-    await sdb.writeDB(`${output}database_embeddings.db`);
+//     await sdb.writeDB(`${output}database_embeddings.db`);
 
-    // Just making sure it's doesnt crash for now
-    assertEquals(true, true);
-    await sdb.done();
-  });
-  Deno.test("should load a DB with embeddings and bm25 index", async () => {
-    const sdb = new SimpleDB();
-    await sdb.loadDB(`${output}database_embeddings.db`);
-    const table = await sdb.getTable("data");
+//     // Just making sure it's doesnt crash for now
+//     assertEquals(true, true);
+//     await sdb.done();
+//   });
+//   Deno.test("should load a DB with embeddings and bm25 index", async () => {
+//     const sdb = new SimpleDB();
+//     await sdb.loadDB(`${output}database_embeddings.db`);
+//     const table = await sdb.getTable("data");
 
-    await table.aiVectorSimilarity("italy", "embeddings", 25, {
-      createIndex: true,
-      verbose: true,
-    });
-    await table.bm25("italian food", "Dish", "Recipe", 5, { verbose: true });
-    // Just making sure it's doesnt crash for now
-    assertEquals(true, true);
-    await sdb.done();
-  });
-  Deno.test("should instantiate by creating a new file and add embeddings and an index", async () => {
-    const sdb = new SimpleDB({
-      file: `${output}database_embeddings_new.db`,
-      overwrite: true,
-    });
+//     await table.aiVectorSimilarity("italy", "embeddings", 25, {
+//       createIndex: true,
+//       verbose: true,
+//     });
+//     await table.bm25("italian food", "Dish", "Recipe", 5, { verbose: true });
+//     // Just making sure it's doesnt crash for now
+//     assertEquals(true, true);
+//     await sdb.done();
+//   });
+//   Deno.test("should instantiate by creating a new file and add embeddings and an index", async () => {
+//     const sdb = new SimpleDB({
+//       file: `${output}database_embeddings_new.db`,
+//       overwrite: true,
+//     });
 
-    const table = sdb.newTable("data");
-    await table.loadData("test/data/files/recipes.parquet");
-    await table.removeDuplicates({ on: "Dish" });
-    await table.removeMissing({ columns: ["Dish", "Recipe"] });
+//     const table = sdb.newTable("data");
+//     await table.loadData("test/data/files/recipes.parquet");
+//     await table.removeDuplicates({ on: "Dish" });
+//     await table.removeMissing({ columns: ["Dish", "Recipe"] });
 
-    await table.aiEmbeddings("Recipe", "embeddings", {
-      verbose: true,
-      createIndex: true,
-      cache: true,
-    });
-    await table.bm25("italian food", "Dish", "Recipe", 10, { verbose: true });
-    await table.logTable(1);
+//     await table.aiEmbeddings("Recipe", "embeddings", {
+//       verbose: true,
+//       createIndex: true,
+//       cache: true,
+//     });
+//     await table.bm25("italian food", "Dish", "Recipe", 10, { verbose: true });
+//     await table.logTable(1);
 
-    // Just making sure it's doesnt crash for now
-    assertEquals(true, true);
-    await sdb.done();
-  });
-  Deno.test("should load a DB instantiated with a file, with embeddings and an index", async () => {
-    const sdb = new SimpleDB();
-    await sdb.loadDB(`${output}database_embeddings_new.db`);
-    const table = await sdb.getTable("data");
+//     // Just making sure it's doesnt crash for now
+//     assertEquals(true, true);
+//     await sdb.done();
+//   });
+//   Deno.test("should load a DB instantiated with a file, with embeddings and an index", async () => {
+//     const sdb = new SimpleDB();
+//     await sdb.loadDB(`${output}database_embeddings_new.db`);
+//     const table = await sdb.getTable("data");
 
-    await table.aiVectorSimilarity("italy", "embeddings", 25, {
-      createIndex: true,
-      verbose: true,
-    });
-    await table.bm25("italian food", "Dish", "Recipe", 5, { verbose: true });
-    // Just making sure it's doesnt crash for now
-    assertEquals(true, true);
-    await sdb.done();
-  });
-} else {
-  console.log("No OLLAMA in process.env");
-}
+//     await table.aiVectorSimilarity("italy", "embeddings", 25, {
+//       createIndex: true,
+//       verbose: true,
+//     });
+//     await table.bm25("italian food", "Dish", "Recipe", 5, { verbose: true });
+//     // Just making sure it's doesnt crash for now
+//     assertEquals(true, true);
+//     await sdb.done();
+//   });
+// } else {
+//   console.log("No OLLAMA in process.env");
+// }

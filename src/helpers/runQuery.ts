@@ -22,6 +22,7 @@ export default async function runQuery(
       const reader = await connection.runAndReadAll(
         query,
       );
+
       const rows = reader.getRowObjectsJson() as {
         [key: string]: string | number | boolean | Date | null;
       }[];
