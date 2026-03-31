@@ -78,6 +78,7 @@ import {
 import writeDataAsArrays from "../helpers/writeDataAsArrays.ts";
 import logHistogram from "../methods/logHistogram.ts";
 import logData from "../helpers/logData.ts";
+import fill from "../methods/fill.ts";
 import { readFileSync, writeFileSync } from "node:fs";
 import type { Data } from "@observablehq/plot";
 import loadArray from "../methods/loadArray.ts";
@@ -2504,6 +2505,8 @@ export default class SimpleTable extends Simple {
    * Fills `NULL` values in specified columns with the last non-`NULL` value from the preceding row.
    *
    * @param columns - The column(s) for which to fill `NULL` values.
+   * @param options - An optional object with configuration options:
+   * @param options.categories - A string or an array of strings representing columns to partition the data by. The fill will be applied independently within each category.
    * @returns A promise that resolves when the `NULL` values have been filled.
    * @category Updating Data
    *
@@ -2518,22 +2521,20 @@ export default class SimpleTable extends Simple {
    * // Fill NULL values in multiple columns
    * await table.fill(["columnA", "columnB"]);
    * ```
+   *
+   * @example
+   * ```ts
+   * // Fill NULL values in 'value' independently within each 'group'
+   * await table.fill("value", { categories: "group" });
+   * ```
    */
-  async fill(columns: string | string[]): Promise<void> {
-    await queryDB(
-      this,
-      stringToArray(columns)
-        .map(
-          (col) =>
-            `CREATE OR REPLACE TABLE "${this.name}" AS SELECT * EXCLUDE(${col}), COALESCE(${col}, LAG(${col} IGNORE NULLS) OVER()) as ${col} FROM "${this.name}";`,
-        )
-        .join("\n"),
-      mergeOptions(this, {
-        table: this.name,
-        method: "fill()",
-        parameters: { columns },
-      }),
-    );
+  async fill(
+    columns: string | string[],
+    options: {
+      categories?: string | string[];
+    } = {},
+  ): Promise<void> {
+    await fill(this, columns, options);
   }
 
   /**
