@@ -60,3 +60,45 @@ Deno.test("should fill empty cells for multiple columns", async () => {
   ]);
   await sdb.done();
 });
+
+Deno.test("should fill empty cells with categories (single category)", async () => {
+  const sdb = new SimpleDB();
+  const table = await sdb.newTable().loadArray([
+    { group: "A", value: 1 },
+    { group: "B", value: null },
+    { group: "A", value: null },
+    { group: "B", value: 2 },
+    { group: "A", value: null },
+  ]);
+  await table.fill("value", { categories: "group" });
+  const data = await table.getData();
+  assertEquals(data, [
+    { group: "A", value: 1 },
+    { group: "B", value: null },
+    { group: "A", value: 1 },
+    { group: "B", value: 2 },
+    { group: "A", value: 1 },
+  ]);
+  await sdb.done();
+});
+
+Deno.test("should fill empty cells with categories (multiple categories)", async () => {
+  const sdb = new SimpleDB();
+  const table = await sdb.newTable().loadArray([
+    { group: "A", subgroup: "X", value: 10 },
+    { group: "A", subgroup: "X", value: null },
+    { group: "A", subgroup: "Y", value: null },
+    { group: "B", subgroup: "X", value: 20 },
+    { group: "B", subgroup: "X", value: null },
+  ]);
+  await table.fill("value", { categories: ["group", "subgroup"] });
+  const data = await table.getData();
+  assertEquals(data, [
+    { group: "A", subgroup: "X", value: 10 },
+    { group: "A", subgroup: "X", value: 10 },
+    { group: "A", subgroup: "Y", value: null },
+    { group: "B", subgroup: "X", value: 20 },
+    { group: "B", subgroup: "X", value: 20 },
+  ]);
+  await sdb.done();
+});
