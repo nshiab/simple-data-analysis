@@ -2502,11 +2502,13 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Fills `NULL` values in specified columns with the last non-`NULL` value from the preceding row.
+   * Fills `NULL` values in specified columns. By default, each `NULL` is replaced with the last non-`NULL` value from the preceding row. When `interpolate` is `true`, `NULL` values are replaced using linear interpolation (or extrapolation at the ends). Pass `interpolateBy` alongside `interpolate` to use a real numeric or date column as the X-axis, so that interpolated values are proportional to the actual distances between X-axis values rather than treating every row as equidistant.
    *
    * @param columns - The column(s) for which to fill `NULL` values.
    * @param options - An optional object with configuration options:
    * @param options.categories - A string or an array of strings representing columns to partition the data by. The fill will be applied independently within each category.
+   * @param options.interpolate - If `true`, replaces `NULL` values with linearly interpolated values using DuckDB's `fill()` window function. When `interpolateBy` is not set, row positions are used as the X-axis, treating rows as equidistant. For `NULL` values at the ends, linear extrapolation is used. Both the column values and the X-axis values must support arithmetic. If `false` or omitted, the previous non-`NULL` value is used instead.
+   * @param options.interpolateBy - A column name to use as the X-axis for interpolation instead of equidistant row positions. Only applies when `interpolate` is `true`. Use this when rows are not evenly spaced (e.g., timestamps or non-uniform numeric indices) so that interpolated values are proportional to the actual distance between X-axis values.
    * @returns A promise that resolves when the `NULL` values have been filled.
    * @category Updating Data
    *
@@ -2527,11 +2529,31 @@ export default class SimpleTable extends Simple {
    * // Fill NULL values in 'value' independently within each 'group'
    * await table.fill("value", { categories: "group" });
    * ```
+   *
+   * @example
+   * ```ts
+   * // Fill NULL values in 'value' using linear interpolation
+   * await table.fill("value", { interpolate: true });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Fill NULL values in 'value' using linear interpolation, independently within each 'group'
+   * await table.fill("value", { categories: "group", interpolate: true });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Fill NULL values in 'value' using linear interpolation proportional to 'x' distances
+   * await table.fill("value", { interpolate: true, interpolateBy: "x" });
+   * ```
    */
   async fill(
     columns: string | string[],
     options: {
       categories?: string | string[];
+      interpolate?: boolean;
+      interpolateBy?: string;
     } = {},
   ): Promise<void> {
     await fill(this, columns, options);
