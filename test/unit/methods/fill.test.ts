@@ -102,3 +102,100 @@ Deno.test("should fill empty cells with categories (multiple categories)", async
   ]);
   await sdb.done();
 });
+
+// Linear interpolation
+
+Deno.test("should linearly interpolate NULL values between non-NULL values", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadArray([
+    { val: 1 },
+    { val: null },
+    { val: 3 },
+  ]);
+  await table.fill("val", { interpolate: true });
+  const data = await table.getData();
+  assertEquals(data, [{ val: 1 }, { val: 2 }, { val: 3 }]);
+  await sdb.done();
+});
+
+Deno.test("should linearly interpolate NULL values independently within each category", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadArray([
+    { group: "a", val: 1 },
+    { group: "a", val: null },
+    { group: "a", val: 3 },
+    { group: "b", val: 10 },
+    { group: "b", val: null },
+    { group: "b", val: 30 },
+  ]);
+  await table.fill("val", { categories: "group", interpolate: true });
+  const data = await table.getData();
+  assertEquals(data, [
+    { group: "a", val: 1 },
+    { group: "a", val: 2 },
+    { group: "a", val: 3 },
+    { group: "b", val: 10 },
+    { group: "b", val: 20 },
+    { group: "b", val: 30 },
+  ]);
+  await sdb.done();
+});
+
+Deno.test("should linearly extrapolate NULL values at the end of the table", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadArray([
+    { val: 2 },
+    { val: 4 },
+    { val: null },
+  ]);
+  await table.fill("val", { interpolate: true });
+  const data = await table.getData();
+  assertEquals(data, [{ val: 2 }, { val: 4 }, { val: 6 }]);
+  await sdb.done();
+});
+
+Deno.test("should interpolate proportionally to a non-equidistant x column", async () => {
+  // x=[0,1,3], y=[0,null,6]: y at x=1 should be 2 (1/3 of the way), not 3 (row midpoint)
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadArray([
+    { x: 0, y: 0 },
+    { x: 1, y: null },
+    { x: 3, y: 6 },
+  ]);
+  await table.fill("y", { interpolate: true, interpolateBy: "x" });
+  const data = await table.getData();
+  assertEquals(data, [{ x: 0, y: 0 }, { x: 1, y: 2 }, { x: 3, y: 6 }]);
+  await sdb.done();
+});
+
+Deno.test("should interpolate proportionally to a non-equidistant x column within categories", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadArray([
+    { group: "a", x: 0, y: 0 },
+    { group: "a", x: 1, y: null },
+    { group: "a", x: 3, y: 6 },
+    { group: "b", x: 0, y: 10 },
+    { group: "b", x: 2, y: null },
+    { group: "b", x: 10, y: 50 },
+  ]);
+  await table.fill("y", {
+    interpolate: true,
+    interpolateBy: "x",
+    categories: "group",
+  });
+  const data = await table.getData();
+  assertEquals(data, [
+    { group: "a", x: 0, y: 0 },
+    { group: "b", x: 0, y: 10 },
+    { group: "a", x: 1, y: 2 },
+    { group: "b", x: 2, y: 18 },
+    { group: "a", x: 3, y: 6 },
+    { group: "b", x: 10, y: 50 },
+  ]);
+  await sdb.done();
+});
