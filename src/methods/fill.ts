@@ -17,7 +17,13 @@ export default async function fill(
     : [];
   const tempRowCol = `rowNumberForFill`;
 
-  if (options.interpolate) {
+  if (options.interpolateBy && options.interpolate === false) {
+    throw new Error(
+      `interpolate cannot be false when interpolateBy is set.`,
+    );
+  }
+
+  if (options.interpolate || options.interpolateBy) {
     const cols = stringToArray(columns);
     let orderCol: string;
     let excludeList: string;

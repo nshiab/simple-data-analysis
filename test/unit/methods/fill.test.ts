@@ -199,3 +199,39 @@ Deno.test("should interpolate proportionally to a non-equidistant x column withi
   ]);
   await sdb.done();
 });
+
+Deno.test("should assume interpolate: true when only interpolateBy is set", async () => {
+  // x=[0,1,3], y=[0,null,6]: y at x=1 should be 2 (1/3 of the way), not 3 (row midpoint)
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadArray([
+    { x: 0, y: 0 },
+    { x: 1, y: null },
+    { x: 3, y: 6 },
+  ]);
+  await table.fill("y", { interpolateBy: "x" });
+  const data = await table.getData();
+  assertEquals(data, [{ x: 0, y: 0 }, { x: 1, y: 2 }, { x: 3, y: 6 }]);
+  await sdb.done();
+});
+
+Deno.test("should throw when interpolateBy is set and interpolate is false", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("data");
+  await table.loadArray([
+    { x: 0, y: 0 },
+    { x: 1, y: null },
+    { x: 3, y: 6 },
+  ]);
+  let error: Error | undefined;
+  try {
+    await table.fill("y", { interpolateBy: "x", interpolate: false });
+  } catch (e) {
+    error = e as Error;
+  }
+  assertEquals(
+    error?.message,
+    "interpolate cannot be false when interpolateBy is set.",
+  );
+  await sdb.done();
+});
