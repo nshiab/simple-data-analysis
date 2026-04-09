@@ -114,6 +114,7 @@ import hybridSearch from "../methods/hybridSearch.ts";
 import createFtsIndex from "../methods/createFtsIndex.ts";
 import createVssIndex from "../methods/createVssIndex.ts";
 import bm25 from "../methods/bm25.ts";
+import normalizeString from "../methods/normalizeString.ts";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
@@ -5452,6 +5453,59 @@ export default class SimpleTable extends Simple {
    */
   async getColumns(): Promise<string[]> {
     return await getColumns(this);
+  }
+
+  /**
+   * Normalizes string values in a column by:
+   * 1. Decomposing Unicode accents (NFD) and removing combining marks
+   * 2. Optionally stripping punctuation (default: true)
+   * 3. Converting to lowercase
+   * 4. Normalizing whitespace (multiple spaces/tabs/newlines → single space)
+   * 5. Trimming leading/trailing whitespace
+   *
+   * Produces nearly identical output to `journalism-format`'s `normalizeString()` function for all common cases including accented Latin characters (ÉÑÜéñü). Edge cases with decorative punctuation like ¡¿ may differ.
+   *
+   * This method uses DuckDB's native `strip_accents()` function for efficient accent removal, making it much faster than JavaScript-based alternatives. It works on the server side without requiring JavaScript UDFs.
+   *
+   * @param sourceColumn The column containing the text to normalize
+   * @param targetColumn The column to store the normalized results
+   * @param options Configuration options
+   * @param options.stripPunctuation Strip punctuation and underscores (default: true)
+   *
+   * @returns The same SimpleTable instance for chaining
+   *
+   * @example
+   * ```ts
+   * // Normalize text column and store in new column
+   * await table.normalizeString("Recipe", "recipe_normalized");
+   * // "Épicerie Parisienne!" → "epicerie parisienne"
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Keep punctuation (useful for emails, URLs)
+   * await table.normalizeString("text", "text_normalized", { stripPunctuation: false });
+   * // "Hello, World!" → "hello, world!"
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Produces same results as journalism-format's normalizeString for core cases
+   * await table.normalizeString("Name", "name_normalized");
+   * // "Évènement!" → "evenement" (same as journalism-format)
+   * // "Café?" → "cafe" (same as journalism-format)
+   * ```
+   *
+   * @recommendation Consider using `normalizeString()` to preprocess text columns before search/AI methods for better matching.
+   *
+   * @category Text Processing
+   */
+  async normalizeString(
+    sourceColumn: string,
+    targetColumn: string,
+    options: { stripPunctuation?: boolean } = {},
+  ): Promise<SimpleTable> {
+    return await normalizeString(this, sourceColumn, targetColumn, options);
   }
 
   /**
