@@ -114,6 +114,7 @@ import hybridSearch from "../methods/hybridSearch.ts";
 import createFtsIndex from "../methods/createFtsIndex.ts";
 import createVssIndex from "../methods/createVssIndex.ts";
 import bm25 from "../methods/bm25.ts";
+import normalizeString from "../methods/normalizeString.ts";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
@@ -5452,6 +5453,50 @@ export default class SimpleTable extends Simple {
    */
   async getColumns(): Promise<string[]> {
     return await getColumns(this);
+  }
+
+  /**
+   * Normalizes string values in a column by:
+   * 1. Stripping accents
+   * 2. Optionally stripping punctuation (default: true)
+   * 3. Converting to lowercase
+   * 4. Normalizing whitespace (multiple spaces/tabs/newlines → single space)
+   * 5. Trimming leading/trailing whitespace
+   *
+   * Produces identical output to `journalism-format`'s `normalizeString()` function
+   * for all common cases including accented Latin characters.
+   *
+   * @param column The column containing the text to normalize
+   * @param newColumn The column to store the normalized results
+   * @param options Configuration options
+   * @param options.stripPunctuation Strip punctuation and underscores (default: true)
+   *
+   * @returns A promise that resolves when the operation is complete
+   *
+   * @example
+   * ```ts
+   * // Normalize text column and store in new column
+   * await table.normalizeString("recipeName", "recipeNameNormalized");
+   * // "Épicerie Parisienne!" → "epicerie parisienne"
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Keep punctuation for emails and URLs
+   * await table.normalizeString("email", "emailNormalized", { stripPunctuation: false });
+   * // "User@Example.com" → "user@example.com"
+   * await table.normalizeString("url", "urlNormalized", { stripPunctuation: false });
+   * // "https://Example.com/path" → "https://example.com/path"
+   * ```
+   *
+   * @category Text Processing
+   */
+  async normalizeString(
+    column: string,
+    newColumn: string,
+    options: { stripPunctuation?: boolean } = {},
+  ): Promise<void> {
+    await normalizeString(this, column, newColumn, options);
   }
 
   /**
