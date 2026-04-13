@@ -1,6 +1,6 @@
 {
   "name": "@nshiab/simple-data-analysis",
-  "version": "5.18.10",
+  "version": "5.19.0",
   "exports": {
     ".": "./src/index.ts"
   },
