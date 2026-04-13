@@ -65,6 +65,27 @@ Deno.test("normalizeString - keep punctuation option", async () => {
   assertEquals(results[1].normalized, "100%");
 });
 
+Deno.test("normalizeString - keep punctuation for emails and URLs", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("test");
+  await table.loadArray([
+    { text: "User@Example.com" },
+    { text: "https://example.com/path" },
+  ]);
+
+  await normalizeString(table, "text", "normalized", {
+    stripPunctuation: false,
+  });
+
+  const results = await table.getData() as {
+    text: string;
+    normalized: string;
+  }[];
+
+  assertEquals(results[0].normalized, "user@example.com");
+  assertEquals(results[1].normalized, "https://example.com/path");
+});
+
 Deno.test("normalizeString - trim and normalize whitespace", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable("test");
@@ -214,4 +235,25 @@ Deno.test("normalizeString - matches journalism-format core tests", async () => 
   for (const row of results) {
     assertEquals(row.normalized, row.expected);
   }
+});
+
+Deno.test("normalizeString - complex accented strings", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("test");
+  await table.loadArray([
+    {
+      text: "ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöùúûüýÿ",
+      expected: "aaaaaaceeeeiiiinooooouuuuyaaaaaaceeeeiiiinooooouuuuyy",
+    },
+  ]);
+
+  await normalizeString(table, "text", "normalized");
+
+  const results = await table.getData() as {
+    text: string;
+    normalized: string;
+    expected: string;
+  }[];
+
+  assertEquals(results[0].normalized, results[0].expected);
 });
