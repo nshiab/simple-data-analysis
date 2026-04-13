@@ -37,26 +37,25 @@ Creates a new SimpleDB instance.
 
 #### Parameters
 
-- **`options`**: - Configuration options for the SimpleDB instance.
-- **`options.file`**: - The path to the database file. If not provided, an
+- **`options`**: Configuration options for the SimpleDB instance.
+- **`options.file`**: The path to the database file. If not provided, an
   in-memory database is used.
-- **`options.overwrite`**: - A flag indicating whether to overwrite the database
+- **`options.overwrite`**: A flag indicating whether to overwrite the database
   file if it already exists.
-- **`options.logDuration`**: - A flag indicating whether to log the total
+- **`options.logDuration`**: A flag indicating whether to log the total
   execution duration.
-- **`options.nbRowsToLog`**: - The number of rows to display when logging a
-  table.
-- **`options.nbCharactersToLog`**: - The maximum number of characters to display
+- **`options.nbRowsToLog`**: The number of rows to display when logging a table.
+- **`options.nbCharactersToLog`**: The maximum number of characters to display
   for text-based cells.
-- **`options.types`**: - A flag indicating whether to include data types when
+- **`options.types`**: A flag indicating whether to include data types when
   logging a table.
-- **`options.cacheVerbose`**: - A flag indicating whether to log verbose
+- **`options.cacheVerbose`**: A flag indicating whether to log verbose
   cache-related messages.
-- **`options.debug`**: - A flag indicating whether to log debugging information.
-- **`options.duckDbCache`**: - A flag indicating whether to use DuckDB's
-  external file cache.
-- **`options.progressBar`**: - A flag indicating whether to display a progress
-  bar for long-running operations.
+- **`options.debug`**: A flag indicating whether to log debugging information.
+- **`options.duckDbCache`**: A flag indicating whether to use DuckDB's external
+  file cache.
+- **`options.progressBar`**: A flag indicating whether to display a progress bar
+  for long-running operations.
 
 ### Methods
 
@@ -72,9 +71,9 @@ newTable(name?: string, projections?: Record<string, string>): SimpleTable;
 
 ##### Parameters
 
-- **`name`**: - The name of the new table. If not provided, a default name is
+- **`name`**: The name of the new table. If not provided, a default name is
   generated (e.g., "table1").
-- **`projections`**: - An object mapping column names to their geospatial
+- **`projections`**: An object mapping column names to their geospatial
   projections.
 
 ##### Returns
@@ -105,7 +104,7 @@ async getTable(name: string): Promise<SimpleTable>;
 
 ##### Parameters
 
-- **`name`**: - The name of the table to retrieve.
+- **`name`**: The name of the table to retrieve.
 
 ##### Returns
 
@@ -130,7 +129,7 @@ async removeTables(tables: SimpleTable | string | (SimpleTable | string)[]): Pro
 
 ##### Parameters
 
-- **`tables`**: - A single table or an array of tables to remove, specified by
+- **`tables`**: A single table or an array of tables to remove, specified by
   name or as SimpleTable instances.
 
 ##### Returns
@@ -168,7 +167,7 @@ async selectTables(tables: SimpleTable | string | (SimpleTable | string)[]): Pro
 
 ##### Parameters
 
-- **`tables`**: - A single table or an array of tables to select, specified by
+- **`tables`**: A single table or an array of tables to select, specified by
   name or as SimpleTable instances.
 
 ##### Returns
@@ -272,7 +271,7 @@ async hasTable(table: SimpleTable | string): Promise<boolean>;
 
 ##### Parameters
 
-- **`table`**: - The name of the table or a SimpleTable instance.
+- **`table`**: The name of the table or a SimpleTable instance.
 
 ##### Returns
 
@@ -331,14 +330,13 @@ async customQuery(query: string, options?: { returnDataFrom?: "query" | "none"; 
 
 ##### Parameters
 
-- **`query`**: - The SQL query string to execute.
-- **`options`**: - Configuration options for the query.
-- **`options.returnDataFrom`**: - Specifies whether to return data from the
-  query. Can be `"query"` to return data or `"none"` (default) to not return
-  data.
-- **`options.table`**: - The name of the table associated with the query,
+- **`query`**: The SQL query string to execute.
+- **`options`**: Configuration options for the query.
+- **`options.returnDataFrom`**: Specifies whether to return data from the query.
+  Can be `"query"` to return data or `"none"` (default) to not return data.
+- **`options.table`**: The name of the table associated with the query,
   primarily used for debugging and logging.
-- **`options.types`**: - An optional object specifying data types for the query
+- **`options.types`**: An optional object specifying data types for the query
   parameters.
 
 ##### Returns
@@ -377,12 +375,11 @@ async loadDB(file: string, options?: { name?: string; detach?: boolean }): Promi
 
 ##### Parameters
 
-- **`file`**: - The absolute path to the database file (e.g.,
-  "./my_database.db").
-- **`options`**: - Configuration options for loading the database.
-- **`options.name`**: - The name to assign to the loaded database within the
+- **`file`**: The absolute path to the database file (e.g., "./my_database.db").
+- **`options`**: Configuration options for loading the database.
+- **`options.name`**: The name to assign to the loaded database within the
   DuckDB instance. Defaults to the file name without extension.
-- **`options.detach`**: - If `true` (default), the database is detached after
+- **`options.detach`**: If `true` (default), the database is detached after
   loading its contents into memory. If `false`, the database remains attached.
 
 ##### Returns
@@ -419,11 +416,11 @@ async writeDB(file: string, options?: { noMetaData?: boolean }): Promise<void>;
 
 ##### Parameters
 
-- **`file`**: - The absolute path to the output file (e.g.,
+- **`file`**: The absolute path to the output file (e.g.,
   "./my_exported_database.db").
-- **`options`**: - Configuration options for writing the database.
-- **`options.noMetaData`**: - If `true`, metadata files (projections, indexes)
-  are not created alongside the database file. Defaults to `false`.
+- **`options`**: Configuration options for writing the database.
+- **`options.noMetaData`**: If `true`, metadata files (projections, indexes) are
+  not created alongside the database file. Defaults to `false`.
 
 ##### Returns
 
@@ -508,17 +505,17 @@ Creates an instance of SimpleTable.
 
 #### Parameters
 
-- **`name`**: - The name of the table.
-- **`projections`**: - An object mapping column names to their geospatial
+- **`name`**: The name of the table.
+- **`projections`**: An object mapping column names to their geospatial
   projections.
-- **`simpleDB`**: - The SimpleDB instance that this table belongs to.
-- **`options`**: - An optional object with configuration options:
-- **`options.debug`**: - A boolean indicating whether to enable debug mode.
-- **`options.nbRowsToLog`**: - The number of rows to log when displaying table
+- **`simpleDB`**: The SimpleDB instance that this table belongs to.
+- **`options`**: An optional object with configuration options:
+- **`options.debug`**: A boolean indicating whether to enable debug mode.
+- **`options.nbRowsToLog`**: The number of rows to log when displaying table
   data.
-- **`options.nbCharactersToLog`**: - The maximum number of characters to log for
+- **`options.nbCharactersToLog`**: The maximum number of characters to log for
   strings. Useful to avoid logging large text content.
-- **`options.types`**: - A boolean indicating whether to include data types when
+- **`options.types`**: A boolean indicating whether to include data types when
   logging a table.
 
 ### Methods
@@ -535,7 +532,7 @@ async renameTable(name: string): Promise<void>;
 
 ##### Parameters
 
-- **`name`**: - The new name for the table.
+- **`name`**: The new name for the table.
 
 ##### Returns
 
@@ -562,8 +559,8 @@ async setTypes(types: Record<string, "integer" | "float" | "number" | "string" |
 
 ##### Parameters
 
-- **`types`**: - An object specifying the column names and their target data
-  types (JavaScript or SQL types).
+- **`types`**: An object specifying the column names and their target data types
+  (JavaScript or SQL types).
 
 ##### Returns
 
@@ -592,8 +589,8 @@ async loadArray(arrayOfObjects: Record<string, unknown>[]): Promise<SimpleTable>
 
 ##### Parameters
 
-- **`arrayOfObjects`**: - An array of objects, where each object represents a
-  row and its properties represent columns.
+- **`arrayOfObjects`**: An array of objects, where each object represents a row
+  and its properties represent columns.
 
 ##### Returns
 
@@ -624,48 +621,48 @@ async loadData(files: string | string[], options?: { fileType?: "csv" | "dsv" | 
 
 ##### Parameters
 
-- **`files`**: - The path(s) or URL(s) of the file(s) containing the data to be
+- **`files`**: The path(s) or URL(s) of the file(s) containing the data to be
   loaded.
-- **`options`**: - An optional object with configuration options:
-- **`options.fileType`**: - The type of file to load ("csv", "dsv", "json",
+- **`options`**: An optional object with configuration options:
+- **`options.fileType`**: The type of file to load ("csv", "dsv", "json",
   "parquet", "excel"). Defaults to being inferred from the file extension.
-- **`options.autoDetect`**: - A boolean indicating whether to automatically
-  detect the data format. Defaults to `true`.
-- **`options.limit`**: - A number indicating the maximum number of rows to load.
+- **`options.autoDetect`**: A boolean indicating whether to automatically detect
+  the data format. Defaults to `true`.
+- **`options.limit`**: A number indicating the maximum number of rows to load.
   Defaults to all rows.
-- **`options.fileName`**: - A boolean indicating whether to include the file
-  name as a new column in the loaded data. Defaults to `false`.
-- **`options.unifyColumns`**: - A boolean indicating whether to unify columns
+- **`options.fileName`**: A boolean indicating whether to include the file name
+  as a new column in the loaded data. Defaults to `false`.
+- **`options.unifyColumns`**: A boolean indicating whether to unify columns
   across multiple files when their structures differ. Missing columns will be
   filled with `NULL` values. Defaults to `false`.
-- **`options.columnTypes`**: - An object mapping column names to their expected
+- **`options.columnTypes`**: An object mapping column names to their expected
   data types. By default, types are inferred.
-- **`options.header`**: - A boolean indicating whether the file has a header
-  row. Applicable to CSV files. Defaults to `true`.
-- **`options.allText`**: - A boolean indicating whether all columns should be
+- **`options.header`**: A boolean indicating whether the file has a header row.
+  Applicable to CSV files. Defaults to `true`.
+- **`options.allText`**: A boolean indicating whether all columns should be
   treated as text. Applicable to CSV files. Defaults to `false`.
-- **`options.delim`**: - The delimiter used in the file. Applicable to CSV and
-  DSV files. By default, the delimiter is inferred.
-- **`options.skip`**: - The number of lines to skip at the beginning of the
-  file. Applicable to CSV files. Defaults to `0`.
-- **`options.nullPadding`**: - If `true`, when a row has fewer columns than
+- **`options.delim`**: The delimiter used in the file. Applicable to CSV and DSV
+  files. By default, the delimiter is inferred.
+- **`options.skip`**: The number of lines to skip at the beginning of the file.
+  Applicable to CSV files. Defaults to `0`.
+- **`options.nullPadding`**: If `true`, when a row has fewer columns than
   expected, the remaining columns on the right will be padded with `NULL`
   values. Defaults to `false`.
-- **`options.ignoreErrors`**: - If `true`, parsing errors encountered will be
+- **`options.ignoreErrors`**: If `true`, parsing errors encountered will be
   ignored, and rows with errors will be skipped. Defaults to `false`.
-- **`options.compression`**: - The compression type of the file. Applicable to
-  CSV files. Defaults to `none`.
-- **`options.strict`**: - If `true`, an error will be thrown when encountering
-  any issues. If `false`, structurally incorrect files will be parsed
-  tentatively. Defaults to `true`.
-- **`options.encoding`**: - The encoding of the file. Applicable to CSV files.
+- **`options.compression`**: The compression type of the file. Applicable to CSV
+  files. Defaults to `none`.
+- **`options.strict`**: If `true`, an error will be thrown when encountering any
+  issues. If `false`, structurally incorrect files will be parsed tentatively.
+  Defaults to `true`.
+- **`options.encoding`**: The encoding of the file. Applicable to CSV files.
   Defaults to `utf-8`.
-- **`options.jsonFormat`**: - The format of JSON files ("unstructured",
+- **`options.jsonFormat`**: The format of JSON files ("unstructured",
   "newlineDelimited", "array"). By default, the format is inferred.
-- **`options.records`**: - A boolean indicating whether each line in a
+- **`options.records`**: A boolean indicating whether each line in a
   newline-delimited JSON file represents a record. Applicable to JSON files. By
   default, it's inferred.
-- **`options.sheet`**: - A string indicating a specific sheet to import from an
+- **`options.sheet`**: A string indicating a specific sheet to import from an
   Excel file. By default, the first sheet is imported.
 
 ##### Returns
@@ -716,48 +713,47 @@ async loadDataFromDirectory(directory: string, options?: { fileType?: "csv" | "d
 
 ##### Parameters
 
-- **`directory`**: - The absolute path to the directory containing the data
-  files.
-- **`options`**: - An optional object with configuration options:
-- **`options.fileType`**: - The type of file to load ("csv", "dsv", "json",
+- **`directory`**: The absolute path to the directory containing the data files.
+- **`options`**: An optional object with configuration options:
+- **`options.fileType`**: The type of file to load ("csv", "dsv", "json",
   "parquet", "excel"). Defaults to being inferred from the file extension.
-- **`options.autoDetect`**: - A boolean indicating whether to automatically
-  detect the data format. Defaults to `true`.
-- **`options.limit`**: - A number indicating the maximum number of rows to load.
+- **`options.autoDetect`**: A boolean indicating whether to automatically detect
+  the data format. Defaults to `true`.
+- **`options.limit`**: A number indicating the maximum number of rows to load.
   Defaults to all rows.
-- **`options.fileName`**: - A boolean indicating whether to include the file
-  name as a new column in the loaded data. Defaults to `false`.
-- **`options.unifyColumns`**: - A boolean indicating whether to unify columns
+- **`options.fileName`**: A boolean indicating whether to include the file name
+  as a new column in the loaded data. Defaults to `false`.
+- **`options.unifyColumns`**: A boolean indicating whether to unify columns
   across multiple files when their structures differ. Missing columns will be
   filled with `NULL` values. Defaults to `false`.
-- **`options.columnTypes`**: - An object mapping column names to their expected
+- **`options.columnTypes`**: An object mapping column names to their expected
   data types. By default, types are inferred.
-- **`options.header`**: - A boolean indicating whether the file has a header
-  row. Applicable to CSV files. Defaults to `true`.
-- **`options.allText`**: - A boolean indicating whether all columns should be
+- **`options.header`**: A boolean indicating whether the file has a header row.
+  Applicable to CSV files. Defaults to `true`.
+- **`options.allText`**: A boolean indicating whether all columns should be
   treated as text. Applicable to CSV files. Defaults to `false`.
-- **`options.delim`**: - The delimiter used in the file. Applicable to CSV and
-  DSV files. By default, the delimiter is inferred.
-- **`options.skip`**: - The number of lines to skip at the beginning of the
-  file. Applicable to CSV files. Defaults to `0`.
-- **`options.nullPadding`**: - If `true`, when a row has fewer columns than
+- **`options.delim`**: The delimiter used in the file. Applicable to CSV and DSV
+  files. By default, the delimiter is inferred.
+- **`options.skip`**: The number of lines to skip at the beginning of the file.
+  Applicable to CSV files. Defaults to `0`.
+- **`options.nullPadding`**: If `true`, when a row has fewer columns than
   expected, the remaining columns on the right will be padded with `NULL`
   values. Defaults to `false`.
-- **`options.ignoreErrors`**: - If `true`, parsing errors encountered will be
+- **`options.ignoreErrors`**: If `true`, parsing errors encountered will be
   ignored, and rows with errors will be skipped. Defaults to `false`.
-- **`options.compression`**: - The compression type of the file. Applicable to
-  CSV files. Defaults to `none`.
-- **`options.strict`**: - If `true`, an error will be thrown when encountering
-  any issues. If `false`, structurally incorrect files will be parsed
-  tentatively. Defaults to `true`.
-- **`options.encoding`**: - The encoding of the files. Applicable to CSV files.
+- **`options.compression`**: The compression type of the file. Applicable to CSV
+  files. Defaults to `none`.
+- **`options.strict`**: If `true`, an error will be thrown when encountering any
+  issues. If `false`, structurally incorrect files will be parsed tentatively.
+  Defaults to `true`.
+- **`options.encoding`**: The encoding of the files. Applicable to CSV files.
   Defaults to `utf-8`.
-- **`options.jsonFormat`**: - The format of JSON files ("unstructured",
+- **`options.jsonFormat`**: The format of JSON files ("unstructured",
   "newlineDelimited", "array"). By default, the format is inferred.
-- **`options.records`**: - A boolean indicating whether each line in a
+- **`options.records`**: A boolean indicating whether each line in a
   newline-delimited JSON file represents a record. Applicable to JSON files. By
   default, it's inferred.
-- **`options.sheet`**: - A string indicating a specific sheet to import from an
+- **`options.sheet`**: A string indicating a specific sheet to import from an
   Excel file. By default, the first sheet is imported.
 
 ##### Returns
@@ -786,14 +782,14 @@ async loadGeoData(file: string, options?: { toWGS84?: boolean; from?: string }):
 
 ##### Parameters
 
-- **`file`**: - The URL or absolute path to the external file containing the
+- **`file`**: The URL or absolute path to the external file containing the
   geospatial data.
-- **`options`**: - An optional object with configuration options:
-- **`options.toWGS84`**: - If `true`, the method will attempt to reproject the
+- **`options`**: An optional object with configuration options:
+- **`options.toWGS84`**: If `true`, the method will attempt to reproject the
   data to WGS84 with `[latitude, longitude]` axis order. If the file is `.json`
   or `.geojson`, coordinates are automatically flipped, and this option has no
   additional effect. Defaults to `false`.
-- **`options.from`**: - An optional string specifying the original projection of
+- **`options.from`**: An optional string specifying the original projection of
   the data, if the method is unable to detect it automatically.
 
 ##### Returns
@@ -864,64 +860,63 @@ async aiRowByRow(column: string, newColumn: string | string[], prompt: string, o
 
 ##### Parameters
 
-- **`column`**: - The name of the column to be used as input for the AI prompt.
-- **`newColumn`**: - The name of the new column (or an array of column names)
+- **`column`**: The name of the column to be used as input for the AI prompt.
+- **`newColumn`**: The name of the new column (or an array of column names)
   where the AI's response will be stored.
-- **`prompt`**: - The input string to guide the AI's response.
-- **`options`**: - Configuration options for the AI request.
-- **`options.batchSize`**: - The number of rows to process in each batch.
-  Defaults to `1`.
-- **`options.concurrent`**: - The number of concurrent requests to send.
-  Defaults to `1`.
-- **`options.cache`**: - If `true`, the results will be cached locally. Defaults
+- **`prompt`**: The input string to guide the AI's response.
+- **`options`**: Configuration options for the AI request.
+- **`options.batchSize`**: The number of rows to process in each batch. Defaults
+  to `1`.
+- **`options.concurrent`**: The number of concurrent requests to send. Defaults
+  to `1`.
+- **`options.cache`**: If `true`, the results will be cached locally. Defaults
   to `false`.
-- **`options.test`**: - A function to validate the returned data. If it throws
-  an error, the request will be retried (if `retry` is set). Defaults to
+- **`options.test`**: A function to validate the returned data. If it throws an
+  error, the request will be retried (if `retry` is set). Defaults to
   `undefined`.
-- **`options.retry`**: - The number of times to retry the request in case of
+- **`options.retry`**: The number of times to retry the request in case of
   failure. Defaults to `0`.
-- **`options.rateLimitPerMinute`**: - The rate limit for AI requests in requests
+- **`options.rateLimitPerMinute`**: The rate limit for AI requests in requests
   per minute. The method will wait between requests if necessary. Defaults to
   `undefined` (no limit).
-- **`options.model`**: - The AI model to use. Defaults to the `AI_MODEL`
+- **`options.model`**: The AI model to use. Defaults to the `AI_MODEL`
   environment variable.
-- **`options.temperature`**: - The temperature setting for the AI model,
+- **`options.temperature`**: The temperature setting for the AI model,
   controlling the randomness of the output. Defaults to `0`.
-- **`options.apiKey`**: - The API key for the AI service. Defaults to the
-  `AI_KEY` environment variable.
-- **`options.vertex`**: - If `true`, uses Vertex AI. Automatically set to `true`
+- **`options.apiKey`**: The API key for the AI service. Defaults to the `AI_KEY`
+  environment variable.
+- **`options.vertex`**: If `true`, uses Vertex AI. Automatically set to `true`
   if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to
   `false`.
-- **`options.project`**: - The Google Cloud project ID for Vertex AI. Defaults
-  to the `AI_PROJECT` environment variable.
-- **`options.location`**: - The Google Cloud location for Vertex AI. Defaults to
+- **`options.project`**: The Google Cloud project ID for Vertex AI. Defaults to
+  the `AI_PROJECT` environment variable.
+- **`options.location`**: The Google Cloud location for Vertex AI. Defaults to
   the `AI_LOCATION` environment variable.
-- **`options.ollama`**: - If `true`, uses Ollama. Defaults to the `OLLAMA`
+- **`options.ollama`**: If `true`, uses Ollama. Defaults to the `OLLAMA`
   environment variable. If you want your Ollama instance to be used, you can
   pass it here too.
-- **`options.verbose`**: - If `true`, logs additional debugging information,
+- **`options.verbose`**: If `true`, logs additional debugging information,
   including the full prompt sent to the AI. Defaults to `false`.
-- **`options.clean`**: - A function to clean the AI's response after JSON
-  parsing, testing, caching, and storing. Defaults to `undefined`.
-- **`options.contextWindow`**: - An option to specify the context window size
-  for Ollama models. By default, Ollama sets this depending on the model, which
-  can be lower than the actual maximum context window size of the model.
-- **`options.thinkingBudget`**: - Sets the reasoning token budget: 0 to disable
+- **`options.clean`**: A function to clean the AI's response after JSON parsing,
+  testing, caching, and storing. Defaults to `undefined`.
+- **`options.contextWindow`**: An option to specify the context window size for
+  Ollama models. By default, Ollama sets this depending on the model, which can
+  be lower than the actual maximum context window size of the model.
+- **`options.thinkingBudget`**: Sets the reasoning token budget: 0 to disable
   (default, though some models may reason regardless), -1 for a dynamic budget,
   or > 0 for a fixed budget. For Ollama models, any non-zero value simply
   enables reasoning, ignoring the specific budget amount.
-- **`options.thinkingLevel`**: - Sets the thinking level for reasoning:
-  "minimal", "low", "medium", or "high", which some models expect instead of
+- **`options.thinkingLevel`**: Sets the thinking level for reasoning: "minimal",
+  "low", "medium", or "high", which some models expect instead of
   `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided.
   For Ollama models, any value enables reasoning.
-- **`options.webSearch`**: - (Gemini only) If `true`, enables web search
-  grounding for the AI's responses. Be careful of extra costs. Defaults to
-  `false`.
-- **`options.schemaJson`**: - A Zod JSON schema object for structured output.
-  This overrides the default schema based on the 'newColumn' names.
-- **`options.extraInstructions`**: - Additional instructions to append to the
+- **`options.webSearch`**: (Gemini only) If `true`, enables web search grounding
+  for the AI's responses. Be careful of extra costs. Defaults to `false`.
+- **`options.schemaJson`**: A Zod JSON schema object for structured output. This
+  overrides the default schema based on the 'newColumn' names.
+- **`options.extraInstructions`**: Additional instructions to append to the
   prompt, providing more context or guidance for the AI.
-- **`options.metrics`**: - An object to track cumulative metrics across multiple
+- **`options.metrics`**: An object to track cumulative metrics across multiple
   AI requests. Pass an object with totalCost, totalInputTokens,
   totalOutputTokens, and totalRequests properties (all initialized to 0). The
   function will update these values after each request. Note: totalCost is only
@@ -1044,63 +1039,62 @@ async aiRowByRowPool(column: string, newColumn: string | string[], errorColumn: 
 
 ##### Parameters
 
-- **`column`**: - The name of the column to be used as input for the AI prompt.
-- **`newColumn`**: - The name of the new column (or an array of column names)
+- **`column`**: The name of the column to be used as input for the AI prompt.
+- **`newColumn`**: The name of the new column (or an array of column names)
   where the AI's response will be stored. If an error occurs for a row, the new
   column(s) for that row will be set to `NULL`.
-- **`errorColumn`**: - The name of the column where error messages will be
-  stored. Successful requests will have `NULL` in this column.
-- **`prompt`**: - The input string to guide the AI's response.
-- **`poolSize`**: - The number of concurrent AI requests to run simultaneously
-  in the pool.
-- **`options`**: - Configuration options for the AI request.
-- **`options.cache`**: - If `true`, the results will be cached locally. Defaults
+- **`errorColumn`**: The name of the column where error messages will be stored.
+  Successful requests will have `NULL` in this column.
+- **`prompt`**: The input string to guide the AI's response.
+- **`poolSize`**: The number of concurrent AI requests to run simultaneously in
+  the pool.
+- **`options`**: Configuration options for the AI request.
+- **`options.cache`**: If `true`, the results will be cached locally. Defaults
   to `false`.
-- **`options.batchSize`**: - The number of rows to process in each batch.
-  Defaults to `1`.
-- **`options.logProgress`**: - If `true`, logs progress information during
+- **`options.batchSize`**: The number of rows to process in each batch. Defaults
+  to `1`.
+- **`options.logProgress`**: If `true`, logs progress information during
   processing. Defaults to `false`.
-- **`options.verbose`**: - If `true`, logs additional debugging information,
+- **`options.verbose`**: If `true`, logs additional debugging information,
   including the full prompt sent to the AI. Defaults to `false`.
-- **`options.includeThoughts`**: - If `true`, includes the AI model's reasoning
+- **`options.includeThoughts`**: If `true`, includes the AI model's reasoning
   process in the logged output when using models that support extended thinking.
   Only relevant when used with thinking-capable models. Defaults to `false`.
-- **`options.test`**: - A function to validate the returned data. If it throws
-  an error, the request will be retried (if `retry` is set). Defaults to
+- **`options.test`**: A function to validate the returned data. If it throws an
+  error, the request will be retried (if `retry` is set). Defaults to
   `undefined`.
-- **`options.retry`**: - The number of times to retry the request in case of
+- **`options.retry`**: The number of times to retry the request in case of
   failure. Defaults to `0`.
-- **`options.retryCheck`**: - A function that receives an error and returns a
+- **`options.retryCheck`**: A function that receives an error and returns a
   boolean indicating whether to retry. Useful for conditional retries based on
   error type. Defaults to `undefined`.
-- **`options.extraInstructions`**: - Additional instructions to append to the
+- **`options.extraInstructions`**: Additional instructions to append to the
   prompt, providing more context or guidance for the AI.
-- **`options.minRequestDurationMs`**: - The minimum duration in milliseconds for
+- **`options.minRequestDurationMs`**: The minimum duration in milliseconds for
   each request. Useful for respecting rate limits. Defaults to `undefined` (no
   minimum).
-- **`options.clean`**: - A function to clean the AI's response after JSON
-  parsing, testing, caching, and storing. Defaults to `undefined`.
-- **`options.contextWindow`**: - An option to specify the context window size
-  for Ollama models. By default, Ollama sets this depending on the model, which
-  can be lower than the actual maximum context window size of the model.
-- **`options.thinkingBudget`**: - Sets the reasoning token budget: 0 to disable
+- **`options.clean`**: A function to clean the AI's response after JSON parsing,
+  testing, caching, and storing. Defaults to `undefined`.
+- **`options.contextWindow`**: An option to specify the context window size for
+  Ollama models. By default, Ollama sets this depending on the model, which can
+  be lower than the actual maximum context window size of the model.
+- **`options.thinkingBudget`**: Sets the reasoning token budget: 0 to disable
   (default, though some models may reason regardless), -1 for a dynamic budget,
   or > 0 for a fixed budget. For Ollama models, any non-zero value simply
   enables reasoning, ignoring the specific budget amount.
-- **`options.thinkingLevel`**: - Sets the thinking level for reasoning:
-  "minimal", "low", "medium", or "high", which some models expect instead of
+- **`options.thinkingLevel`**: Sets the thinking level for reasoning: "minimal",
+  "low", "medium", or "high", which some models expect instead of
   `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided.
   For Ollama models, any value enables reasoning.
-- **`options.webSearch`**: - (Gemini only) If `true`, enables web search
-  grounding for the AI's responses. Be careful of extra costs. Defaults to
-  `false`.
-- **`options.schemaJson`**: - A Zod JSON schema object for structured output.
-  This overrides the default schema based on the 'newColumn' names.
-- **`options.model`**: - The AI model to use. Defaults to the `AI_MODEL`
+- **`options.webSearch`**: (Gemini only) If `true`, enables web search grounding
+  for the AI's responses. Be careful of extra costs. Defaults to `false`.
+- **`options.schemaJson`**: A Zod JSON schema object for structured output. This
+  overrides the default schema based on the 'newColumn' names.
+- **`options.model`**: The AI model to use. Defaults to the `AI_MODEL`
   environment variable.
-- **`options.temperature`**: - The temperature setting for the AI model,
+- **`options.temperature`**: The temperature setting for the AI model,
   controlling the randomness of the output. Defaults to `0`.
-- **`options.metrics`**: - An object to track cumulative metrics across multiple
+- **`options.metrics`**: An object to track cumulative metrics across multiple
   AI requests. Pass an object with totalCost, totalInputTokens,
   totalOutputTokens, and totalRequests properties (all initialized to 0). The
   function will update these values after each request. Note: totalCost is only
@@ -1223,50 +1217,50 @@ async aiEmbeddings(column: string, newColumn: string, options?: { createIndex?: 
 
 ##### Parameters
 
-- **`column`**: - The name of the column to be used as input for generating
+- **`column`**: The name of the column to be used as input for generating
   embeddings.
-- **`newColumn`**: - The name of the new column where the generated embeddings
+- **`newColumn`**: The name of the new column where the generated embeddings
   will be stored.
-- **`options`**: - Configuration options for the AI request.
-- **`options.createIndex`**: - If `true`, an index will be created on the new
+- **`options`**: Configuration options for the AI request.
+- **`options.createIndex`**: If `true`, an index will be created on the new
   column. Useful for speeding up the `aiVectorSimilarity` method. Defaults to
   `false`.
-- **`options.overwriteIndex`**: - If `true` and `createIndex` is `true`, drops
-  and recreates the VSS index even if it already exists. Defaults to `false`.
-- **`options.efConstruction`**: - The number of candidate vertices to consider
+- **`options.overwriteIndex`**: If `true` and `createIndex` is `true`, drops and
+  recreates the VSS index even if it already exists. Defaults to `false`.
+- **`options.efConstruction`**: The number of candidate vertices to consider
   during index construction. Higher values result in more accurate indexes but
   increase build time. Defaults to 128.
-- **`options.efSearch`**: - The number of candidate vertices to consider during
+- **`options.efSearch`**: The number of candidate vertices to consider during
   search. Higher values result in more accurate searches but increase search
   time. Defaults to 64.
-- **`options.M`**: - The maximum number of neighbors to keep for each vertex in
+- **`options.M`**: The maximum number of neighbors to keep for each vertex in
   the graph. Higher values result in more accurate indexes but increase build
   time and memory usage. Defaults to 16.
-- **`options.concurrent`**: - The number of concurrent requests to send.
-  Defaults to `1`.
-- **`options.cache`**: - If `true`, the results will be cached locally. Defaults
+- **`options.concurrent`**: The number of concurrent requests to send. Defaults
+  to `1`.
+- **`options.cache`**: If `true`, the results will be cached locally. Defaults
   to `false`.
-- **`options.rateLimitPerMinute`**: - The rate limit for AI requests in requests
+- **`options.rateLimitPerMinute`**: The rate limit for AI requests in requests
   per minute. The method will wait between requests if necessary. Defaults to
   `undefined` (no limit).
-- **`options.model`**: - The AI model to use. Defaults to the
+- **`options.model`**: The AI model to use. Defaults to the
   `AI_EMBEDDINGS_MODEL` environment variable.
-- **`options.apiKey`**: - The API key for the AI service. Defaults to the
-  `AI_KEY` environment variable.
-- **`options.vertex`**: - If `true`, uses Vertex AI. Automatically set to `true`
+- **`options.apiKey`**: The API key for the AI service. Defaults to the `AI_KEY`
+  environment variable.
+- **`options.vertex`**: If `true`, uses Vertex AI. Automatically set to `true`
   if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to
   `false`.
-- **`options.project`**: - The Google Cloud project ID for Vertex AI. Defaults
-  to the `AI_PROJECT` environment variable.
-- **`options.location`**: - The Google Cloud location for Vertex AI. Defaults to
+- **`options.project`**: The Google Cloud project ID for Vertex AI. Defaults to
+  the `AI_PROJECT` environment variable.
+- **`options.location`**: The Google Cloud location for Vertex AI. Defaults to
   the `AI_LOCATION` environment variable.
-- **`options.ollama`**: - If `true`, uses Ollama. Defaults to the `OLLAMA`
+- **`options.ollama`**: If `true`, uses Ollama. Defaults to the `OLLAMA`
   environment variable. If you want your Ollama instance to be used, you can
   pass it here too.
-- **`options.contextWindow`**: - An option to specify the context window size
-  for Ollama models. By default, Ollama sets this depending on the model, which
-  can be lower than the actual maximum context window size of the model.
-- **`options.verbose`**: - If `true`, logs additional debugging information.
+- **`options.contextWindow`**: An option to specify the context window size for
+  Ollama models. By default, Ollama sets this depending on the model, which can
+  be lower than the actual maximum context window size of the model.
+- **`options.verbose`**: If `true`, logs additional debugging information.
   Defaults to `false`.
 
 ##### Returns
@@ -1330,56 +1324,56 @@ async aiVectorSimilarity(text: string, column: string, nbResults: number, option
 
 ##### Parameters
 
-- **`text`**: - The text for which to generate an embedding and find similar
+- **`text`**: The text for which to generate an embedding and find similar
   content.
-- **`column`**: - The name of the column containing the embeddings to be used
-  for the similarity search.
-- **`nbResults`**: - The maximum number of most similar results to return.
-- **`options`**: - An optional object with configuration options:
-- **`options.minSimilarity`**: - A threshold between 0.0 and 1.0 to filter out
+- **`column`**: The name of the column containing the embeddings to be used for
+  the similarity search.
+- **`nbResults`**: The maximum number of most similar results to return.
+- **`options`**: An optional object with configuration options:
+- **`options.minSimilarity`**: A threshold between 0.0 and 1.0 to filter out
   results that are not similar enough. For example, 0.7 ensures only results
   with a 70% similarity or higher are returned. Defaults to `undefined` (no
   threshold).
-- **`options.similarityColumn`**: - If provided, a new column with this name
-  will be added to the output table containing the calculated similarity score
-  (from 0.0 to 1.0) for each row. Defaults to `undefined`.
-- **`options.createIndex`**: - If `true`, an index will be created on the
+- **`options.similarityColumn`**: If provided, a new column with this name will
+  be added to the output table containing the calculated similarity score (from
+  0.0 to 1.0) for each row. Defaults to `undefined`.
+- **`options.createIndex`**: If `true`, an index will be created on the
   embeddings column. Defaults to `false`.
-- **`options.overwriteIndex`**: - If `true` and `createIndex` is `true`, drops
-  and recreates the VSS index even if it already exists. Defaults to `false`.
-- **`options.efConstruction`**: - The number of candidate vertices to consider
+- **`options.overwriteIndex`**: If `true` and `createIndex` is `true`, drops and
+  recreates the VSS index even if it already exists. Defaults to `false`.
+- **`options.efConstruction`**: The number of candidate vertices to consider
   during index construction. Higher values result in more accurate indexes but
   increase build time. Defaults to 128.
-- **`options.efSearch`**: - The number of candidate vertices to consider during
+- **`options.efSearch`**: The number of candidate vertices to consider during
   search. Higher values result in more accurate searches but increase search
   time. Defaults to 64.
-- **`options.M`**: - The maximum number of neighbors to keep for each vertex in
+- **`options.M`**: The maximum number of neighbors to keep for each vertex in
   the graph. Higher values result in more accurate indexes but increase build
   time and memory usage. Defaults to 16.
-- **`options.outputTable`**: - The name of the output table where the results
-  will be stored. If not provided, the current table will be modified. Defaults
-  to `undefined`.
-- **`options.cache`**: - If `true`, the embedding of the input `text` will be
+- **`options.outputTable`**: The name of the output table where the results will
+  be stored. If not provided, the current table will be modified. Defaults to
+  `undefined`.
+- **`options.cache`**: If `true`, the embedding of the input `text` will be
   cached locally. Defaults to `false`.
-- **`options.model`**: - The AI model to use for generating the embedding.
+- **`options.model`**: The AI model to use for generating the embedding.
   Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
-- **`options.apiKey`**: - The API key for the AI service. Defaults to the
-  `AI_KEY` environment variable.
-- **`options.vertex`**: - If `true`, uses Vertex AI. Automatically set to `true`
+- **`options.apiKey`**: The API key for the AI service. Defaults to the `AI_KEY`
+  environment variable.
+- **`options.vertex`**: If `true`, uses Vertex AI. Automatically set to `true`
   if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to
   `false`.
-- **`options.project`**: - The Google Cloud project ID for Vertex AI. Defaults
-  to the `AI_PROJECT` environment variable.
-- **`options.location`**: - The Google Cloud location for Vertex AI. Defaults to
+- **`options.project`**: The Google Cloud project ID for Vertex AI. Defaults to
+  the `AI_PROJECT` environment variable.
+- **`options.location`**: The Google Cloud location for Vertex AI. Defaults to
   the `AI_LOCATION` environment variable.
-- **`options.ollama`**: - If `true`, uses Ollama. Defaults to the `OLLAMA`
+- **`options.ollama`**: If `true`, uses Ollama. Defaults to the `OLLAMA`
   environment variable. If you want your Ollama instance to be used, you can
   pass it here too.
-- **`options.verbose`**: - If `true`, logs additional debugging information.
+- **`options.verbose`**: If `true`, logs additional debugging information.
   Defaults to `false`.
-- **`options.contextWindow`**: - An option to specify the context window size
-  for Ollama models. By default, Ollama sets this depending on the model, which
-  can be lower than the actual maximum context window size of the model.
+- **`options.contextWindow`**: An option to specify the context window size for
+  Ollama models. By default, Ollama sets this depending on the model, which can
+  be lower than the actual maximum context window size of the model.
 
 ##### Returns
 
@@ -1478,77 +1472,77 @@ async hybridSearch(query: string, columnId: string, columnText: string, nbResult
 
 ##### Parameters
 
-- **`query`**: - The search query text.
-- **`columnId`**: - The name of the column containing unique identifiers for
-  each row.
-- **`columnText`**: - The name of the column containing the text content to
-  search through.
-- **`nbResults`**: - The number of most similar rows to retrieve.
-- **`options`**: - Configuration options for the hybrid search.
-- **`options.cache`**: - If `true`, embeddings will be cached locally. Defaults
-  to `false`.
-- **`options.verbose`**: - If `true`, logs additional debugging information.
+- **`query`**: The search query text.
+- **`columnId`**: The name of the column containing unique identifiers for each
+  row.
+- **`columnText`**: The name of the column containing the text content to search
+  through.
+- **`nbResults`**: The number of most similar rows to retrieve.
+- **`options`**: Configuration options for the hybrid search.
+- **`options.cache`**: If `true`, embeddings will be cached locally. Defaults to
+  `false`.
+- **`options.verbose`**: If `true`, logs additional debugging information.
   Defaults to `false`.
-- **`options.embeddingsModelContextWindow`**: - An option to specify the context
+- **`options.embeddingsModelContextWindow`**: An option to specify the context
   window size for the embeddings model when using Ollama. By default, Ollama
   sets this depending on the model, which can be lower than the actual maximum
   context window size of the model.
-- **`options.createIndex`**: - If `true`, both vector and BM25 indexes will be
+- **`options.createIndex`**: If `true`, both vector and BM25 indexes will be
   created for faster retrieval. Defaults to `false`.
-- **`options.efConstruction`**: - The number of candidate vertices to consider
+- **`options.efConstruction`**: The number of candidate vertices to consider
   during index construction. Higher values result in more accurate indexes but
   increase build time. Defaults to 128.
-- **`options.efSearch`**: - The number of candidate vertices to consider during
+- **`options.efSearch`**: The number of candidate vertices to consider during
   search. Higher values result in more accurate searches but increase search
   time. Defaults to 64.
-- **`options.M`**: - The maximum number of neighbors to keep for each vertex in
+- **`options.M`**: The maximum number of neighbors to keep for each vertex in
   the graph. Higher values result in more accurate indexes but increase build
   time and memory usage. Defaults to 16.
-- **`options.embeddingsModel`**: - The model to use for generating embeddings.
+- **`options.embeddingsModel`**: The model to use for generating embeddings.
   Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
-- **`options.ollamaEmbeddings`**: - If `true`, forces the use of Ollama for
+- **`options.ollamaEmbeddings`**: If `true`, forces the use of Ollama for
   embeddings generation. Defaults to `false`.
-- **`options.embeddingsConcurrent`**: - The number of concurrent requests to
-  send to the embeddings service. Defaults to `1`.
-- **`options.stemmer`**: - The language stemmer to apply for BM25 word
+- **`options.embeddingsConcurrent`**: The number of concurrent requests to send
+  to the embeddings service. Defaults to `1`.
+- **`options.stemmer`**: The language stemmer to apply for BM25 word
   normalization. Supports multiple languages or "none" to disable stemming.
   Defaults to `'porter'`.
-- **`options.stopwords`**: - The table containing the stopwords to use for the
+- **`options.stopwords`**: The table containing the stopwords to use for the
   BM25 FTS index. Supports multiple languages or "none" to disable stopwords.
   Defaults to "english".
-- **`options.ignore`**: - The regular expression of patterns to be ignored for
-  the BM25 FTS index. Defaults to "(\\.|[^a-z])+".
-- **`options.stripAccents`**: - A boolean indicating whether to remove accents
-  for the BM25 FTS index. Defaults to true.
-- **`options.lower`**: - A boolean indicating whether to convert all text to
+- **`options.ignore`**: The regular expression of patterns to be ignored for the
+  BM25 FTS index. Defaults to "(\\.|[^a-z])+".
+- **`options.stripAccents`**: A boolean indicating whether to remove accents for
+  the BM25 FTS index. Defaults to true.
+- **`options.lower`**: A boolean indicating whether to convert all text to
   lowercase for the BM25 FTS index. Defaults to true.
-- **`options.k`**: - The BM25 k parameter controlling term frequency saturation.
+- **`options.k`**: The BM25 k parameter controlling term frequency saturation.
   Defaults to `1.2`.
-- **`options.b`**: - The BM25 b parameter controlling document length
+- **`options.b`**: The BM25 b parameter controlling document length
   normalization (0-1 range). Defaults to `0.75`.
-- **`options.conjunctive`**: - If `true`, all terms in the query string must be
+- **`options.conjunctive`**: If `true`, all terms in the query string must be
   present in order for a document to be retrieved during the BM25 search.
   Defaults to `false`.
-- **`options.bm25`**: - If `true`, includes BM25 text search in the hybrid
-  search. Defaults to `true`.
-- **`options.bm25MinScore`**: - A threshold to filter BM25 results. Only rows
-  with a BM25 score above this value will be included in the final results.
-  Defaults to `undefined` (no threshold).
-- **`options.bm25ScoreColumn`**: - If provided, a new column with this name will
+- **`options.bm25`**: If `true`, includes BM25 text search in the hybrid search.
+  Defaults to `true`.
+- **`options.bm25MinScore`**: A threshold to filter BM25 results. Only rows with
+  a BM25 score above this value will be included in the final results. Defaults
+  to `undefined` (no threshold).
+- **`options.bm25ScoreColumn`**: If provided, a new column with this name will
   be added to the output table containing the BM25 score for each row.
-- **`options.vectorSearch`**: - If `true`, includes vector similarity search in
+- **`options.vectorSearch`**: If `true`, includes vector similarity search in
   the hybrid search. Defaults to `true`.
-- **`options.vectorMinSimilarity`**: - A threshold between 0.0 and 1.0 to filter
+- **`options.vectorMinSimilarity`**: A threshold between 0.0 and 1.0 to filter
   out vector search results that are not similar enough. For example, 0.7
   ensures only results with a 70% similarity or higher are included in the final
   results. Defaults to `undefined` (no threshold).
-- **`options.vectorSimilarityColumn`**: - If provided, a new column with this
-  name will be added to the output table containing the vector similarity score
-  (from 0.0 to 1.0) for each row.
-- **`options.outputTable`**: - The name of a new table where the results will be
+- **`options.vectorSimilarityColumn`**: If provided, a new column with this name
+  will be added to the output table containing the vector similarity score (from
+  0.0 to 1.0) for each row.
+- **`options.outputTable`**: The name of a new table where the results will be
   stored. If not provided, the current table will be replaced with the search
   results.
-- **`options.times`**: - An optional object to track timing information. If
+- **`options.times`**: An optional object to track timing information. If
   provided, it will be updated with detailed timing breakdowns (embeddingStart,
   embeddingEnd, vectorSearchStart, vectorSearchEnd, bm25Start, bm25End). Useful
   when calling from aiRAG to get combined timing information.
@@ -1748,98 +1742,97 @@ async aiRAG(query: string, columnId: string, columnText: string, nbResults: numb
 
 ##### Parameters
 
-- **`query`**: - The question or query to answer using the retrieved context.
-- **`columnId`**: - The name of the column containing unique identifiers for
-  each row.
-- **`columnText`**: - The name of the column containing the text content to
-  search through and use as context.
-- **`nbResults`**: - The number of most similar rows to retrieve and use as
+- **`query`**: The question or query to answer using the retrieved context.
+- **`columnId`**: The name of the column containing unique identifiers for each
+  row.
+- **`columnText`**: The name of the column containing the text content to search
+  through and use as context.
+- **`nbResults`**: The number of most similar rows to retrieve and use as
   context for the AI.
-- **`options`**: - Configuration options for the RAG process.
-- **`options.cache`**: - If `true`, embeddings and LLM responses will be cached
+- **`options`**: Configuration options for the RAG process.
+- **`options.cache`**: If `true`, embeddings and LLM responses will be cached
   locally. Defaults to `false`.
-- **`options.verbose`**: - If `true`, logs additional debugging information.
+- **`options.verbose`**: If `true`, logs additional debugging information.
   Defaults to `false`.
-- **`options.includeThoughts`**: - If `true`, includes the AI model's reasoning
+- **`options.includeThoughts`**: If `true`, includes the AI model's reasoning
   process in the logged output when using models that support extended thinking.
   Only relevant when used with thinking-capable models. Defaults to `false`.
-- **`options.systemPrompt`**: - An option to overwrite the LLM system prompt.
-- **`options.modelContextWindow`**: - An option to specify the context window
-  size for the LLM model when using Ollama. By default, Ollama sets this
-  depending on the model, which can be lower than the actual maximum context
-  window size of the model.
-- **`options.embeddingsModelContextWindow`**: - An option to specify the context
+- **`options.systemPrompt`**: An option to overwrite the LLM system prompt.
+- **`options.modelContextWindow`**: An option to specify the context window size
+  for the LLM model when using Ollama. By default, Ollama sets this depending on
+  the model, which can be lower than the actual maximum context window size of
+  the model.
+- **`options.embeddingsModelContextWindow`**: An option to specify the context
   window size for the embeddings model when using Ollama. By default, Ollama
   sets this depending on the model, which can be lower than the actual maximum
   context window size of the model.
-- **`options.thinkingBudget`**: - Sets the reasoning token budget: 0 to disable
+- **`options.thinkingBudget`**: Sets the reasoning token budget: 0 to disable
   (default, though some models may reason regardless), -1 for a dynamic budget,
   or > 0 for a fixed budget. For Ollama models, any non-zero value simply
   enables reasoning, ignoring the specific budget amount.
-- **`options.thinkingLevel`**: - Sets the thinking level for reasoning:
-  "minimal", "low", "medium", or "high", which some models expect instead of
+- **`options.thinkingLevel`**: Sets the thinking level for reasoning: "minimal",
+  "low", "medium", or "high", which some models expect instead of
   `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided.
   For Ollama models, any value enables reasoning.
-- **`options.webSearch`**: - (Gemini only) If `true`, enables web search
-  grounding for the AI's responses. Be careful of extra costs. Defaults to
-  `false`.
-- **`options.model`**: - The LLM model to use for answering the query. Defaults
-  to the `AI_MODEL` environment variable.
-- **`options.temperature`**: - The temperature setting for the AI model,
+- **`options.webSearch`**: (Gemini only) If `true`, enables web search grounding
+  for the AI's responses. Be careful of extra costs. Defaults to `false`.
+- **`options.model`**: The LLM model to use for answering the query. Defaults to
+  the `AI_MODEL` environment variable.
+- **`options.temperature`**: The temperature setting for the AI model,
   controlling the randomness of the output. Defaults to `0`.
-- **`options.embeddingsModel`**: - The model to use for generating embeddings.
+- **`options.embeddingsModel`**: The model to use for generating embeddings.
   Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
-- **`options.ollamaEmbeddings`**: - If `true`, forces the use of Ollama for
+- **`options.ollamaEmbeddings`**: If `true`, forces the use of Ollama for
   embeddings generation, even if Gemini or Vertex is used for the LLM. Defaults
   to `false`.
-- **`options.embeddingsConcurrent`**: - The number of concurrent requests to
-  send to the embeddings service. Defaults to `1`.
-- **`options.createIndex`**: - If `true`, both vector and BM25 indexes will be
+- **`options.embeddingsConcurrent`**: The number of concurrent requests to send
+  to the embeddings service. Defaults to `1`.
+- **`options.createIndex`**: If `true`, both vector and BM25 indexes will be
   created for faster retrieval. Defaults to `false`.
-- **`options.efConstruction`**: - The number of candidate vertices to consider
+- **`options.efConstruction`**: The number of candidate vertices to consider
   during index construction. Higher values result in more accurate indexes but
   increase build time. Defaults to 128.
-- **`options.efSearch`**: - The number of candidate vertices to consider during
+- **`options.efSearch`**: The number of candidate vertices to consider during
   search. Higher values result in more accurate searches but increase search
   time. Defaults to 64.
-- **`options.M`**: - The maximum number of neighbors to keep for each vertex in
+- **`options.M`**: The maximum number of neighbors to keep for each vertex in
   the graph. Higher values result in more accurate indexes but increase build
   time and memory usage. Defaults to 16.
-- **`options.stemmer`**: - The language stemmer to apply for BM25 word
+- **`options.stemmer`**: The language stemmer to apply for BM25 word
   normalization. Supports multiple languages or "none" to disable stemming.
   Defaults to `'porter'`.
-- **`options.stopwords`**: - The table containing the stopwords to use for the
+- **`options.stopwords`**: The table containing the stopwords to use for the
   BM25 FTS index. Supports multiple languages or "none" to disable stopwords.
   Defaults to "english".
-- **`options.ignore`**: - The regular expression of patterns to be ignored for
-  the BM25 FTS index. Defaults to "(\\.|[^a-z])+".
-- **`options.stripAccents`**: - A boolean indicating whether to remove accents
-  for the BM25 FTS index. Defaults to true.
-- **`options.lower`**: - A boolean indicating whether to convert all text to
+- **`options.ignore`**: The regular expression of patterns to be ignored for the
+  BM25 FTS index. Defaults to "(\\.|[^a-z])+".
+- **`options.stripAccents`**: A boolean indicating whether to remove accents for
+  the BM25 FTS index. Defaults to true.
+- **`options.lower`**: A boolean indicating whether to convert all text to
   lowercase for the BM25 FTS index. Defaults to true.
-- **`options.k`**: - The BM25 k parameter controlling term frequency saturation.
+- **`options.k`**: The BM25 k parameter controlling term frequency saturation.
   Defaults to `1.2`.
-- **`options.b`**: - The BM25 b parameter controlling document length
+- **`options.b`**: The BM25 b parameter controlling document length
   normalization (0-1 range). Defaults to `0.75`.
-- **`options.conjunctive`**: - If `true`, all terms in the query string must be
+- **`options.conjunctive`**: If `true`, all terms in the query string must be
   present in order for a document to be retrieved during the BM25 search.
   Defaults to `false`.
-- **`options.bm25`**: - If `true`, includes BM25 text search in the hybrid
-  search. Defaults to `true`.
-- **`options.bm25MinScore`**: - A threshold to filter BM25 results. Only rows
-  with a BM25 score above this value will be included in the final results.
-  Defaults to `undefined` (no threshold).
-- **`options.bm25ScoreColumn`**: - If provided, a new column with this name will
+- **`options.bm25`**: If `true`, includes BM25 text search in the hybrid search.
+  Defaults to `true`.
+- **`options.bm25MinScore`**: A threshold to filter BM25 results. Only rows with
+  a BM25 score above this value will be included in the final results. Defaults
+  to `undefined` (no threshold).
+- **`options.bm25ScoreColumn`**: If provided, a new column with this name will
   be added to the output table containing the BM25 score for each row.
-- **`options.vectorSearch`**: - If `true`, includes vector similarity search in
+- **`options.vectorSearch`**: If `true`, includes vector similarity search in
   the hybrid search. Defaults to `true`.
-- **`options.vectorMinSimilarity`**: - A threshold between 0.0 and 1.0 to filter
+- **`options.vectorMinSimilarity`**: A threshold between 0.0 and 1.0 to filter
   out vector search results that are not similar enough. For example, 0.7
   ensures only results with a 70% similarity or higher are included in the final
   results. Defaults to `undefined` (no threshold).
-- **`options.vectorSimilarityColumn`**: - If provided, a new column with this
-  name will be added to the output table containing the vector similarity score
-  (from 0.0 to 1.0) for each row.
+- **`options.vectorSimilarityColumn`**: If provided, a new column with this name
+  will be added to the output table containing the vector similarity score (from
+  0.0 to 1.0) for each row.
 
 ##### Returns
 
@@ -2060,43 +2053,43 @@ async aiQuery(prompt: string, options?: { extraInstructions?: string; cache?: bo
 
 ##### Parameters
 
-- **`prompt`**: - The input string to guide the AI in generating the SQL query.
-- **`options`**: - Configuration options for the AI request.
-- **`options.extraInstructions`**: - Additional instructions to append to the
+- **`prompt`**: The input string to guide the AI in generating the SQL query.
+- **`options`**: Configuration options for the AI request.
+- **`options.extraInstructions`**: Additional instructions to append to the
   prompt, providing more context or guidance for the AI.
-- **`options.cache`**: - If `true`, the generated query will be cached locally.
+- **`options.cache`**: If `true`, the generated query will be cached locally.
   Defaults to `false`.
-- **`options.model`**: - The AI model to use. Defaults to the `AI_MODEL`
+- **`options.model`**: The AI model to use. Defaults to the `AI_MODEL`
   environment variable.
-- **`options.apiKey`**: - The API key for the AI service. Defaults to the
-  `AI_KEY` environment variable.
-- **`options.vertex`**: - If `true`, uses Vertex AI. Automatically set to `true`
+- **`options.apiKey`**: The API key for the AI service. Defaults to the `AI_KEY`
+  environment variable.
+- **`options.vertex`**: If `true`, uses Vertex AI. Automatically set to `true`
   if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to
   `false`.
-- **`options.project`**: - The Google Cloud project ID for Vertex AI. Defaults
-  to the `AI_PROJECT` environment variable.
-- **`options.location`**: - The Google Cloud location for Vertex AI. Defaults to
+- **`options.project`**: The Google Cloud project ID for Vertex AI. Defaults to
+  the `AI_PROJECT` environment variable.
+- **`options.location`**: The Google Cloud location for Vertex AI. Defaults to
   the `AI_LOCATION` environment variable.
-- **`options.ollama`**: - If `true`, uses Ollama. Defaults to the `OLLAMA`
+- **`options.ollama`**: If `true`, uses Ollama. Defaults to the `OLLAMA`
   environment variable. If you want your Ollama instance to be used, you can
   pass it here too.
-- **`options.contextWindow`**: - An option to specify the context window size
-  for Ollama models. By default, Ollama sets this depending on the model, which
-  can be lower than the actual maximum context window size of the model.
-- **`options.thinkingBudget`**: - Sets the reasoning token budget: 0 to disable
+- **`options.contextWindow`**: An option to specify the context window size for
+  Ollama models. By default, Ollama sets this depending on the model, which can
+  be lower than the actual maximum context window size of the model.
+- **`options.thinkingBudget`**: Sets the reasoning token budget: 0 to disable
   (default, though some models may reason regardless), -1 for a dynamic budget,
   or > 0 for a fixed budget. For Ollama models, any non-zero value simply
   enables reasoning, ignoring the specific budget amount.
-- **`options.thinkingLevel`**: - Sets the thinking level for reasoning:
-  "minimal", "low", "medium", or "high", which some models expect instead of
+- **`options.thinkingLevel`**: Sets the thinking level for reasoning: "minimal",
+  "low", "medium", or "high", which some models expect instead of
   `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided.
   For Ollama models, any value enables reasoning.
-- **`options.outputTable`**: - The name of a new table where the results will be
+- **`options.outputTable`**: The name of a new table where the results will be
   stored. If not provided, the current table will be replaced with the query
   results.
-- **`options.verbose`**: - If `true`, logs additional debugging information,
+- **`options.verbose`**: If `true`, logs additional debugging information,
   including the full prompt sent to the AI. Defaults to `false`.
-- **`options.includeThoughts`**: - If `true`, includes the AI model's reasoning
+- **`options.includeThoughts`**: If `true`, includes the AI model's reasoning
   process in the logged output when using models that support extended thinking.
   Only relevant when used with thinking-capable models. Defaults to `false`.
 
@@ -2151,37 +2144,37 @@ async createFtsIndex(columnId: string, columnText: string, options?: { stemmer?:
 
 ##### Parameters
 
-- **`columnId`**: - The name of the column containing unique identifiers for
-  each row.
-- **`columnText`**: - The name of the column containing the text to index.
-- **`options`**: - An optional object with configuration options:
-- **`options.stemmer`**: - The language stemmer to apply for word normalization.
+- **`columnId`**: The name of the column containing unique identifiers for each
+  row.
+- **`columnText`**: The name of the column containing the text to index.
+- **`options`**: An optional object with configuration options:
+- **`options.stemmer`**: The language stemmer to apply for word normalization.
   Supports multiple languages or "none" to disable stemming. Defaults to
   'porter'.
-- **`options.stopwords`**: - The table containing the stopwords to use for the
-  FTS index. Supports multiple languages or "none" to disable stopwords.
-  Defaults to "english".
-- **`options.overwrite`**: - If `true`, recreates the index even if it already
+- **`options.stopwords`**: The table containing the stopwords to use for the FTS
+  index. Supports multiple languages or "none" to disable stopwords. Defaults to
+  "english".
+- **`options.overwrite`**: If `true`, recreates the index even if it already
   exists. Defaults to `false`.
-- **`options.verbose`**: - If `true`, logs additional debugging information,
+- **`options.verbose`**: If `true`, logs additional debugging information,
   including index creation status. Defaults to `false`.
-- **`columnId`**: - The column containing the document identifiers.
-- **`columnText`**: - The column containing the text to search.
-- **`options`**: - An optional object with configuration options:
-- **`options.stemmer`**: - The stemmer to use for the FTS index. Supports
-  multiple languages or "none" to disable stemming. Defaults to "porter".
-- **`options.stopwords`**: - The table containing the stopwords to use for the
-  FTS index. Supports multiple languages or "none" to disable stopwords.
-  Defaults to "english".
-- **`options.ignore`**: - The regular expression of patterns to be ignored.
+- **`columnId`**: The column containing the document identifiers.
+- **`columnText`**: The column containing the text to search.
+- **`options`**: An optional object with configuration options:
+- **`options.stemmer`**: The stemmer to use for the FTS index. Supports multiple
+  languages or "none" to disable stemming. Defaults to "porter".
+- **`options.stopwords`**: The table containing the stopwords to use for the FTS
+  index. Supports multiple languages or "none" to disable stopwords. Defaults to
+  "english".
+- **`options.ignore`**: The regular expression of patterns to be ignored.
   Defaults to "(\\.|[^a-z])+".
-- **`options.stripAccents`**: - A boolean indicating whether to remove accents.
+- **`options.stripAccents`**: A boolean indicating whether to remove accents.
   Defaults to true.
-- **`options.lower`**: - A boolean indicating whether to convert all text to
+- **`options.lower`**: A boolean indicating whether to convert all text to
   lowercase. Defaults to true.
-- **`options.overwrite`**: - A boolean indicating whether to overwrite the
+- **`options.overwrite`**: A boolean indicating whether to overwrite the
   existing FTS index. Defaults to false.
-- **`options.verbose`**: - A boolean indicating whether to log additional
+- **`options.verbose`**: A boolean indicating whether to log additional
   information. Defaults to false.
 
 ##### Returns
@@ -2239,20 +2232,20 @@ async createVssIndex(column: string, options?: { overwrite?: boolean; verbose?: 
 
 ##### Parameters
 
-- **`column`**: - The name of the column containing vector embeddings (must be
+- **`column`**: The name of the column containing vector embeddings (must be
   FLOAT array type).
-- **`options`**: - An optional object with configuration options:
-- **`options.overwrite`**: - If `true`, drops and recreates the index even if it
+- **`options`**: An optional object with configuration options:
+- **`options.overwrite`**: If `true`, drops and recreates the index even if it
   already exists. Defaults to `false`.
-- **`options.verbose`**: - If `true`, logs additional debugging information,
+- **`options.verbose`**: If `true`, logs additional debugging information,
   including index creation status. Defaults to `false`.
-- **`options.efConstruction`**: - The number of candidate vertices to consider
+- **`options.efConstruction`**: The number of candidate vertices to consider
   during index construction. Higher values result in more accurate indexes but
   increase build time. Defaults to 128.
-- **`options.efSearch`**: - The number of candidate vertices to consider during
+- **`options.efSearch`**: The number of candidate vertices to consider during
   search. Higher values result in more accurate searches but increase search
   time. Defaults to 64.
-- **`options.M`**: - The maximum number of neighbors to keep for each vertex in
+- **`options.M`**: The maximum number of neighbors to keep for each vertex in
   the graph. Higher values result in more accurate indexes but increase build
   time and memory usage. Defaults to 16.
 
@@ -2317,41 +2310,41 @@ async bm25(text: string, columnId: string, columnText: string, nbResults: number
 
 ##### Parameters
 
-- **`text`**: - The search query text to match against the text column.
-- **`columnId`**: - The name of the column containing unique identifiers for
-  each row.
-- **`columnText`**: - The name of the column containing the text to search.
-- **`nbResults`**: - The number of top-ranked results to return.
-- **`options`**: - An optional object with configuration options:
-- **`options.outputTable`**: - The name of a new table where the results will be
+- **`text`**: The search query text to match against the text column.
+- **`columnId`**: The name of the column containing unique identifiers for each
+  row.
+- **`columnText`**: The name of the column containing the text to search.
+- **`nbResults`**: The number of top-ranked results to return.
+- **`options`**: An optional object with configuration options:
+- **`options.outputTable`**: The name of a new table where the results will be
   stored. If not provided, the current table will be replaced with the search
   results.
-- **`options.verbose`**: - If `true`, logs additional debugging information,
+- **`options.verbose`**: If `true`, logs additional debugging information,
   including FTS index creation status. Defaults to `false`.
-- **`options.k`**: - The BM25 k parameter controlling term frequency saturation.
+- **`options.k`**: The BM25 k parameter controlling term frequency saturation.
   Defaults to 1.2.
-- **`options.b`**: - The BM25 b parameter controlling document length
+- **`options.b`**: The BM25 b parameter controlling document length
   normalization (0-1 range). Defaults to 0.75.
-- **`options.stemmer`**: - The language stemmer to apply for word normalization.
+- **`options.stemmer`**: The language stemmer to apply for word normalization.
   Supports multiple languages or "none" to disable stemming. Defaults to
   'porter'.
-- **`options.stopwords`**: - The table containing the stopwords to use for the
-  FTS index. Supports multiple languages or "none" to disable stopwords.
-  Defaults to "english".
-- **`options.ignore`**: - The regular expression of patterns to be ignored.
+- **`options.stopwords`**: The table containing the stopwords to use for the FTS
+  index. Supports multiple languages or "none" to disable stopwords. Defaults to
+  "english".
+- **`options.ignore`**: The regular expression of patterns to be ignored.
   Defaults to "(\\.|[^a-z])+".
-- **`options.stripAccents`**: - A boolean indicating whether to remove accents.
+- **`options.stripAccents`**: A boolean indicating whether to remove accents.
   Defaults to true.
-- **`options.lower`**: - A boolean indicating whether to convert all text to
+- **`options.lower`**: A boolean indicating whether to convert all text to
   lowercase. Defaults to true.
-- **`options.overwriteIndex`**: - If `true`, drops and recreates the FTS index
+- **`options.overwriteIndex`**: If `true`, drops and recreates the FTS index
   even if it already exists. Defaults to `false`.
-- **`options.conjunctive`**: - If `true`, all terms in the query string must be
+- **`options.conjunctive`**: If `true`, all terms in the query string must be
   present in order for a document to be retrieved. Defaults to `false`.
-- **`options.minScore`**: - A threshold to filter out results with a BM25 score
+- **`options.minScore`**: A threshold to filter out results with a BM25 score
   below this value.
-- **`options.scoreColumn`**: - If provided, the BM25 score will be included in
-  the output table under this column name.
+- **`options.scoreColumn`**: If provided, the BM25 score will be included in the
+  output table under this column name.
 
 ##### Returns
 
@@ -2444,7 +2437,7 @@ async insertRows(rows: Record<string, unknown>[]): Promise<void>;
 
 ##### Parameters
 
-- **`rows`**: - An array of objects, where each object represents a row to be
+- **`rows`**: An array of objects, where each object represents a row to be
   inserted and its properties correspond to column names.
 
 ##### Returns
@@ -2476,12 +2469,12 @@ async insertTables(tablesToInsert: SimpleTable | SimpleTable[], options?: { unif
 
 ##### Parameters
 
-- **`tablesToInsert`**: - The name(s) of the table(s) or SimpleTable instance(s)
+- **`tablesToInsert`**: The name(s) of the table(s) or SimpleTable instance(s)
   from which rows will be inserted.
-- **`options`**: - An optional object with configuration options:
-- **`options.unifyColumns`**: - A boolean indicating whether to unify the
-  columns of the tables. If `true`, missing columns in a table will be filled
-  with `NULL` values. Defaults to `false`.
+- **`options`**: An optional object with configuration options:
+- **`options.unifyColumns`**: A boolean indicating whether to unify the columns
+  of the tables. If `true`, missing columns in a table will be filled with
+  `NULL` values. Defaults to `false`.
 
 ##### Returns
 
@@ -2517,16 +2510,16 @@ async cloneTable(nameOrOptions?: string | { outputTable?: string; conditions?: s
 
 ##### Parameters
 
-- **`nameOrOptions`**: - Either a string specifying the name of the new table,
-  or an optional object with configuration options. If not provided, a default
-  name (e.g., "table1", "table2") will be generated.
-- **`nameOrOptions.outputTable`**: - The name of the new table to be created in
+- **`nameOrOptions`**: Either a string specifying the name of the new table, or
+  an optional object with configuration options. If not provided, a default name
+  (e.g., "table1", "table2") will be generated.
+- **`nameOrOptions.outputTable`**: The name of the new table to be created in
   the database. If not provided, a default name (e.g., "table1", "table2") will
   be generated.
-- **`nameOrOptions.conditions`**: - A SQL `WHERE` clause condition to filter the
+- **`nameOrOptions.conditions`**: A SQL `WHERE` clause condition to filter the
   data during cloning. Defaults to no condition (clones all rows).
-- **`nameOrOptions.columns`**: - An array of column names to include in the
-  cloned table. If not provided, all columns will be included.
+- **`nameOrOptions.columns`**: An array of column names to include in the cloned
+  table. If not provided, all columns will be included.
 
 ##### Returns
 
@@ -2582,8 +2575,8 @@ async cloneColumn(originalColumn: string, newColumn: string): Promise<void>;
 
 ##### Parameters
 
-- **`originalColumn`**: - The name of the original column to clone.
-- **`newColumn`**: - The name of the new column to be created.
+- **`originalColumn`**: The name of the original column to clone.
+- **`newColumn`**: The name of the new column to be created.
 
 ##### Returns
 
@@ -2614,16 +2607,15 @@ async cloneColumnWithOffset(originalColumn: string, newColumn: string, options?:
 
 ##### Parameters
 
-- **`originalColumn`**: - The name of the original column.
-- **`newColumn`**: - The name of the new column to be created with offset
-  values.
-- **`options`**: - An optional object with configuration options:
-- **`options.offset`**: - The number of rows to offset the values. A positive
+- **`originalColumn`**: The name of the original column.
+- **`newColumn`**: The name of the new column to be created with offset values.
+- **`options`**: An optional object with configuration options:
+- **`options.offset`**: The number of rows to offset the values. A positive
   number shifts values downwards (later rows), a negative number shifts values
   upwards (earlier rows). Defaults to `1`.
-- **`options.categories`**: - A string or an array of strings representing
-  columns to partition the data by. The offset will be applied independently
-  within each category.
+- **`options.categories`**: A string or an array of strings representing columns
+  to partition the data by. The offset will be applied independently within each
+  category.
 
 ##### Returns
 
@@ -2663,18 +2655,40 @@ await table.cloneColumnWithOffset(
 
 #### `fill`
 
-Fills `NULL` values in specified columns with the last non-`NULL` value from the
-preceding row.
+Fills `NULL` values in specified columns. By default, each `NULL` is replaced
+with the last non-`NULL` value from the preceding row. When `interpolate` is
+`true`, `NULL` values are replaced using linear interpolation (or extrapolation
+at the ends). Pass `interpolateBy` with a real numeric or date column name to
+use it as the X-axis, so that interpolated values are proportional to the actual
+distances between X-axis values rather than treating every row as equidistant.
+When `interpolateBy` is set, `interpolate` is automatically assumed `true`.
 
 ##### Signature
 
 ```typescript
-async fill(columns: string | string[]): Promise<void>;
+async fill(columns: string | string[], options?: { categories?: string | string[]; interpolate?: boolean; interpolateBy?: string }): Promise<void>;
 ```
 
 ##### Parameters
 
-- **`columns`**: - The column(s) for which to fill `NULL` values.
+- **`columns`**: The column(s) for which to fill `NULL` values.
+- **`options`**: An optional object with configuration options:
+- **`options.categories`**: A string or an array of strings representing columns
+  to partition the data by. The fill will be applied independently within each
+  category.
+- **`options.interpolate`**: If `true`, replaces `NULL` values with linearly
+  interpolated values using DuckDB's `fill()` window function. When
+  `interpolateBy` is not set, row positions are used as the X-axis, treating
+  rows as equidistant. For `NULL` values at the ends, linear extrapolation is
+  used. Both the column values and the X-axis values must support arithmetic. If
+  `false` or omitted, the previous non-`NULL` value is used instead.
+  Automatically assumed `true` when `interpolateBy` is set.
+- **`options.interpolateBy`**: A column name to use as the X-axis for
+  interpolation instead of equidistant row positions. When provided,
+  `interpolate` is automatically assumed `true`. Use this when rows are not
+  evenly spaced (e.g., timestamps or non-uniform numeric indices) so that
+  interpolated values are proportional to the actual distance between X-axis
+  values.
 
 ##### Returns
 
@@ -2692,6 +2706,31 @@ await table.fill("column1");
 await table.fill(["columnA", "columnB"]);
 ```
 
+```ts
+// Fill NULL values in 'value' independently within each 'group'
+await table.fill("value", { categories: "group" });
+```
+
+```ts
+// Fill NULL values in 'value' using linear interpolation
+await table.fill("value", { interpolate: true });
+```
+
+```ts
+// Fill NULL values in 'value' using linear interpolation, independently within each 'group'
+await table.fill("value", { categories: "group", interpolate: true });
+```
+
+```ts
+// Fill NULL values in 'value' using linear interpolation proportional to 'x' distances
+await table.fill("value", { interpolate: true, interpolateBy: "x" });
+```
+
+```ts
+// interpolateBy implies interpolate: true, so this is equivalent to the previous example
+await table.fill("value", { interpolateBy: "x" });
+```
+
 #### `sort`
 
 Sorts the rows of the table based on specified column(s) and order(s). If no
@@ -2706,11 +2745,11 @@ async sort(order?: Record<string, "asc" | "desc"> | null, options?: { lang?: Rec
 
 ##### Parameters
 
-- **`order`**: - An object mapping column names to their sorting order: `"asc"`
+- **`order`**: An object mapping column names to their sorting order: `"asc"`
   for ascending or `"desc"` for descending. If `null`, all columns are sorted
   ascendingly.
-- **`options`**: - An optional object with configuration options:
-- **`options.lang`**: - An object mapping column names to language codes for
+- **`options`**: An optional object with configuration options:
+- **`options.lang`**: An object mapping column names to language codes for
   collation (e.g., `{ column1: "fr" }`). See DuckDB Collations documentation for
   more details: https://duckdb.org/docs/sql/expressions/collations.
 
@@ -2752,7 +2791,7 @@ async selectColumns(columns: string | string[]): Promise<void>;
 
 ##### Parameters
 
-- **`columns`**: - The name or an array of names of the columns to be selected.
+- **`columns`**: The name or an array of names of the columns to be selected.
 
 ##### Returns
 
@@ -2782,7 +2821,7 @@ async skip(nbRowsToSkip: number): Promise<void>;
 
 ##### Parameters
 
-- **`nbRowsToSkip`**: - The number of rows to skip from the beginning of the
+- **`nbRowsToSkip`**: The number of rows to skip from the beginning of the
   table.
 
 ##### Returns
@@ -2808,7 +2847,7 @@ async hasColumn(column: string): Promise<boolean>;
 
 ##### Parameters
 
-- **`column`**: - The name of the column to check.
+- **`column`**: The name of the column to check.
 
 ##### Returns
 
@@ -2835,10 +2874,10 @@ async sample(quantity: number | string, options?: { seed?: number }): Promise<vo
 
 ##### Parameters
 
-- **`quantity`**: - The number of rows to select (e.g., `100`) or a percentage
+- **`quantity`**: The number of rows to select (e.g., `100`) or a percentage
   string (e.g., `"10%"`) specifying the sampling size.
-- **`options`**: - An optional object with configuration options:
-- **`options.seed`**: - A number specifying the seed for repeatable sampling.
+- **`options`**: An optional object with configuration options:
+- **`options.seed`**: A number specifying the seed for repeatable sampling.
   Using the same seed will always yield the same random rows. Defaults to a
   random seed.
 
@@ -2876,11 +2915,11 @@ async selectRows(count: number | string, options?: { offset?: number; outputTabl
 
 ##### Parameters
 
-- **`count`**: - The number of rows to select.
-- **`options`**: - An optional object with configuration options:
-- **`options.offset`**: - The number of rows to skip from the beginning of the
+- **`count`**: The number of rows to select.
+- **`options`**: An optional object with configuration options:
+- **`options.offset`**: The number of rows to skip from the beginning of the
   table before selecting. Defaults to `0`.
-- **`options.outputTable`**: - If `true`, the selected rows will be stored in a
+- **`options.outputTable`**: If `true`, the selected rows will be stored in a
   new table with a generated name. If a string, it will be used as the name for
   the new table. If `false` or omitted, the current table will be modified.
   Defaults to `false`.
@@ -2927,8 +2966,8 @@ async removeDuplicates(options?: { on?: string | string[] }): Promise<void>;
 
 ##### Parameters
 
-- **`options`**: - An optional object with configuration options:
-- **`options.on`**: - A column name or an array of column names to consider when
+- **`options`**: An optional object with configuration options:
+- **`options.on`**: A column name or an array of column names to consider when
   identifying duplicates. If specified, duplicates are determined based only on
   the values in these columns. If omitted, all columns are considered.
 
@@ -2967,16 +3006,14 @@ async removeMissing(options?: { columns?: string | string[]; missingValues?: (st
 
 ##### Parameters
 
-- **`options`**: - An optional object with configuration options:
-- **`options.columns`**: - A string or an array of strings specifying the
-  columns to consider for missing values. If omitted, all columns are
-  considered.
-- **`options.missingValues`**: - An array of values to be treated as missing
+- **`options`**: An optional object with configuration options:
+- **`options.columns`**: A string or an array of strings specifying the columns
+  to consider for missing values. If omitted, all columns are considered.
+- **`options.missingValues`**: An array of values to be treated as missing
   values instead of the default ones. Defaults to
   `["undefined", "NaN", "null", "NULL", ""]`.
-- **`options.invert`**: - A boolean indicating whether to invert the condition.
-  If `true`, only rows containing missing values will be kept. Defaults to
-  `false`.
+- **`options.invert`**: A boolean indicating whether to invert the condition. If
+  `true`, only rows containing missing values will be kept. Defaults to `false`.
 
 ##### Returns
 
@@ -3017,13 +3054,13 @@ async trim(columns: string | string[], options?: { character?: string; method?: 
 
 ##### Parameters
 
-- **`columns`**: - The column name or an array of column names to trim.
-- **`options`**: - An optional object with configuration options:
-- **`options.character`**: - The string to trim. Defaults to whitespace
+- **`columns`**: The column name or an array of column names to trim.
+- **`options`**: An optional object with configuration options:
+- **`options.character`**: The string to trim. Defaults to whitespace
   characters.
-- **`options.method`**: - The trimming method to apply: `"leftTrim"` (removes
-  from the beginning), `"rightTrim"` (removes from the end), or `"trim"`
-  (removes from both sides). Defaults to `"trim"`.
+- **`options.method`**: The trimming method to apply: `"leftTrim"` (removes from
+  the beginning), `"rightTrim"` (removes from the end), or `"trim"` (removes
+  from both sides). Defaults to `"trim"`.
 
 ##### Returns
 
@@ -3060,7 +3097,7 @@ async filter(conditions: string): Promise<void>;
 
 ##### Parameters
 
-- **`conditions`**: - The filtering conditions specified as a SQL `WHERE` clause
+- **`conditions`**: The filtering conditions specified as a SQL `WHERE` clause
   (e.g., `"column1 > 10 AND column2 = 'value'"`).
 
 ##### Returns
@@ -3102,7 +3139,7 @@ async keep(columnsAndValues: Record<string, (number | string | Date | boolean | 
 
 ##### Parameters
 
-- **`columnsAndValues`**: - An object where keys are column names and values are
+- **`columnsAndValues`**: An object where keys are column names and values are
   the specific values (or an array of values) to keep in those columns.
 
 ##### Returns
@@ -3133,7 +3170,7 @@ async remove(columnsAndValues: Record<string, (number | string | Date | boolean 
 
 ##### Parameters
 
-- **`columnsAndValues`**: - An object where keys are column names and values are
+- **`columnsAndValues`**: An object where keys are column names and values are
   the specific values (or an array of values) to remove from those columns.
 
 ##### Returns
@@ -3166,7 +3203,7 @@ async removeRows(conditions: string): Promise<void>;
 
 ##### Parameters
 
-- **`conditions`**: - The filtering conditions specified as a SQL `WHERE` clause
+- **`conditions`**: The filtering conditions specified as a SQL `WHERE` clause
   (e.g., `"fruit = 'apple'"`).
 
 ##### Returns
@@ -3209,7 +3246,7 @@ async renameColumns(names: Record<string, string>): Promise<void>;
 
 ##### Parameters
 
-- **`names`**: - An object mapping old column names to their new column names
+- **`names`**: An object mapping old column names to their new column names
   (e.g., `{ "oldName": "newName", "anotherOld": "anotherNew" }`).
 
 ##### Returns
@@ -3274,11 +3311,11 @@ async longer(columns: string[], columnsTo: string, valuesTo: string): Promise<vo
 
 ##### Parameters
 
-- **`columns`**: - An array of strings representing the names of the columns to
-  be stacked (unpivoted).
-- **`columnsTo`**: - The name of the new column that will contain the original
+- **`columns`**: An array of strings representing the names of the columns to be
+  stacked (unpivoted).
+- **`columnsTo`**: The name of the new column that will contain the original
   column names (e.g., "Year").
-- **`valuesTo`**: - The name of the new column that will contain the values from
+- **`valuesTo`**: The name of the new column that will contain the values from
   the stacked columns (e.g., "Employees").
 
 ##### Returns
@@ -3330,9 +3367,9 @@ async wider(columnsFrom: string, valuesFrom: string): Promise<void>;
 
 ##### Parameters
 
-- **`columnsFrom`**: - The name of the column containing the values that will be
+- **`columnsFrom`**: The name of the column containing the values that will be
   transformed into new column headers (e.g., "Year").
-- **`valuesFrom`**: - The name of the column containing the values to be spread
+- **`valuesFrom`**: The name of the column containing the values to be spread
   across the new columns (e.g., "Employees").
 
 ##### Returns
@@ -3377,14 +3414,14 @@ async convert(types: Record<string, "integer" | "float" | "number" | "string" | 
 
 ##### Parameters
 
-- **`types`**: - An object mapping column names to their target data types for
+- **`types`**: An object mapping column names to their target data types for
   conversion.
-- **`options`**: - An optional object with configuration options:
-- **`options.try`**: - If `true`, values that cannot be converted will be
-  replaced by `NULL` instead of throwing an error. Defaults to `false`.
-- **`options.datetimeFormat`**: - A string specifying the format for date and
-  time conversions. Uses `strftime` and `strptime` functions from DuckDB. For
-  format specifiers, see
+- **`options`**: An optional object with configuration options:
+- **`options.try`**: If `true`, values that cannot be converted will be replaced
+  by `NULL` instead of throwing an error. Defaults to `false`.
+- **`options.datetimeFormat`**: A string specifying the format for date and time
+  conversions. Uses `strftime` and `strptime` functions from DuckDB. For format
+  specifiers, see
   [DuckDB's documentation](https://duckdb.org/docs/sql/functions/dateformat).
 
 ##### Returns
@@ -3454,7 +3491,7 @@ async removeColumns(columns: string | string[]): Promise<void>;
 
 ##### Parameters
 
-- **`columns`**: - The name or an array of names of the columns to be removed.
+- **`columns`**: The name or an array of names of the columns to be removed.
 
 ##### Returns
 
@@ -3485,14 +3522,14 @@ async addColumn(newColumn: string, type: "integer" | "float" | "number" | "strin
 
 ##### Parameters
 
-- **`newColumn`**: - The name of the new column to be added.
-- **`type`**: - The data type for the new column. Can be a JavaScript type
-  (e.g., `"number"`, `"string"`) or a SQL type (e.g., `"integer"`, `"varchar"`).
-- **`definition`**: - A SQL expression defining how the values for the new
-  column should be computed (e.g., `"column1 + column2"`,
+- **`newColumn`**: The name of the new column to be added.
+- **`type`**: The data type for the new column. Can be a JavaScript type (e.g.,
+  `"number"`, `"string"`) or a SQL type (e.g., `"integer"`, `"varchar"`).
+- **`definition`**: A SQL expression defining how the values for the new column
+  should be computed (e.g., `"column1 + column2"`,
   `"ST_Centroid(geom_column)"`).
-- **`options`**: - An optional object with configuration options:
-- **`options.projection`**: - Required if the new column stores geometries.
+- **`options`**: An optional object with configuration options:
+- **`options.projection`**: Required if the new column stores geometries.
   Specifies the geospatial projection of the new geometry column. You can reuse
   the projection of an existing geometry column (available in
   `table.projections`).
@@ -3528,7 +3565,7 @@ async addRowNumber(newColumn: string): Promise<void>;
 
 ##### Parameters
 
-- **`newColumn`**: - The name of the new column that will store the row number.
+- **`newColumn`**: The name of the new column that will store the row number.
 
 ##### Returns
 
@@ -3556,9 +3593,9 @@ async crossJoin(rightTable: SimpleTable, options?: { outputTable?: string | bool
 
 ##### Parameters
 
-- **`rightTable`**: - The SimpleTable instance to cross join with.
-- **`options`**: - An optional object with configuration options:
-- **`options.outputTable`**: - If `true`, the results will be stored in a new
+- **`rightTable`**: The SimpleTable instance to cross join with.
+- **`options`**: An optional object with configuration options:
+- **`options.outputTable`**: If `true`, the results will be stored in a new
   table with a generated name. If a string, it will be used as the name for the
   new table. If `false` or omitted, the current table will be overwritten.
   Defaults to `false`.
@@ -3601,15 +3638,15 @@ async join(rightTable: SimpleTable, options?: { commonColumn?: string | string[]
 
 ##### Parameters
 
-- **`rightTable`**: - The SimpleTable instance to be joined with this table.
-- **`options`**: - An optional object with configuration options:
-- **`options.commonColumn`**: - The common column(s) used for the join
-  operation. If omitted, the method automatically searches for a column name
-  that exists in both tables. Can be a single string or an array of strings for
-  multiple join keys.
-- **`options.type`**: - The type of join operation to perform. Possible values
-  are `"inner"`, `"left"` (default), `"right"`, or `"full"`.
-- **`options.outputTable`**: - If `true`, the results will be stored in a new
+- **`rightTable`**: The SimpleTable instance to be joined with this table.
+- **`options`**: An optional object with configuration options:
+- **`options.commonColumn`**: The common column(s) used for the join operation.
+  If omitted, the method automatically searches for a column name that exists in
+  both tables. Can be a single string or an array of strings for multiple join
+  keys.
+- **`options.type`**: The type of join operation to perform. Possible values are
+  `"inner"`, `"left"` (default), `"right"`, or `"full"`.
+- **`options.outputTable`**: If `true`, the results will be stored in a new
   table with a generated name. If a string, it will be used as the name for the
   new table. If `false` or omitted, the current table will be overwritten.
   Defaults to `false`.
@@ -3663,24 +3700,24 @@ async fuzzyJoin(rightTable: SimpleTable, leftColumn: string, rightColumn: string
 
 ##### Parameters
 
-- **`rightTable`**: - The SimpleTable instance to be joined with this table.
-- **`leftColumn`**: - The name of the column in this (left) table containing the
+- **`rightTable`**: The SimpleTable instance to be joined with this table.
+- **`leftColumn`**: The name of the column in this (left) table containing the
   text to compare.
-- **`rightColumn`**: - The name of the column in the right table containing the
+- **`rightColumn`**: The name of the column in the right table containing the
   text to compare.
-- **`options`**: - An optional object with configuration options:
-- **`options.method`**: - The rapidfuzz similarity algorithm to use. Defaults to
+- **`options`**: An optional object with configuration options:
+- **`options.method`**: The rapidfuzz similarity algorithm to use. Defaults to
   `"ratio"`. - `"ratio"`: Overall similarity (Levenshtein-based). -
   `"partial_ratio"`: Best partial/substring similarity. - `"token_sort_ratio"`:
   Similarity after sorting tokens (words), useful for reordered words. -
   `"token_set_ratio"`: Similarity based on sets of tokens, ignoring duplicates
   and word order.
-- **`options.threshold`**: - The minimum similarity score (0–100) required for
-  two rows to be joined. Defaults to `80`.
-- **`options.similarityColumn`**: - If provided, a column with this name is
-  added to the result containing the similarity score (0–100). If omitted, the
-  score is not included in the output.
-- **`options.outputTable`**: - If `true`, the results will be stored in a new
+- **`options.threshold`**: The minimum similarity score (0–100) required for two
+  rows to be joined. Defaults to `80`.
+- **`options.similarityColumn`**: If provided, a column with this name is added
+  to the result containing the similarity score (0–100). If omitted, the score
+  is not included in the output.
+- **`options.outputTable`**: If `true`, the results will be stored in a new
   table with a generated name. If a string, it will be used as the name for the
   new table. If `false` or omitted, the current table will be overwritten.
   Defaults to `false`.
@@ -3736,20 +3773,20 @@ async fuzzyClean(column: string, newColumn: string, options?: { method?: "ratio"
 
 ##### Parameters
 
-- **`column`**: - The name of the column containing the strings to normalize.
-- **`newColumn`**: - The name of the column to write the normalized values to.
-  Use the same name as `column` to normalize in-place.
-- **`options`**: - An optional object with configuration options:
-- **`options.method`**: - The rapidfuzz similarity algorithm to use. Defaults to
+- **`column`**: The name of the column containing the strings to normalize.
+- **`newColumn`**: The name of the column to write the normalized values to. Use
+  the same name as `column` to normalize in-place.
+- **`options`**: An optional object with configuration options:
+- **`options.method`**: The rapidfuzz similarity algorithm to use. Defaults to
   `"ratio"`. - `"ratio"`: Overall similarity. - `"partial_ratio"`: Best
   partial/substring similarity. - `"token_sort_ratio"`: Similarity after sorting
   tokens (words), useful for reordered words. - `"token_set_ratio"`: Similarity
   based on sets of tokens, ignoring duplicates and word order.
-- **`options.threshold`**: - The minimum similarity score (0–100) for two
-  strings to be considered duplicates. Defaults to `80`.
-- **`options.keep`**: - The strategy for choosing the canonical value within
-  each cluster of similar strings. Defaults to `"mostCommon"`. - `"mostCommon"`:
-  Keep the value that appears most frequently in the original column. -
+- **`options.threshold`**: The minimum similarity score (0–100) for two strings
+  to be considered duplicates. Defaults to `80`.
+- **`options.keep`**: The strategy for choosing the canonical value within each
+  cluster of similar strings. Defaults to `"mostCommon"`. - `"mostCommon"`: Keep
+  the value that appears most frequently in the original column. -
   `"longestString"`: Keep the longest string in the cluster. -
   `"shortestString"`: Keep the shortest string in the cluster. -
   `"mostCentral"`: Keep the string with the highest total similarity score to
@@ -3793,15 +3830,15 @@ async replace(columns: string | string[], strings: Record<string, string>, optio
 
 ##### Parameters
 
-- **`columns`**: - The column name or an array of column names where string
+- **`columns`**: The column name or an array of column names where string
   replacements will occur.
-- **`strings`**: - An object mapping old strings to new strings (e.g.,
+- **`strings`**: An object mapping old strings to new strings (e.g.,
   `{ "oldValue": "newValue" }`).
-- **`options`**: - An optional object with configuration options:
-- **`options.entireString`**: - A boolean indicating whether the entire cell
+- **`options`**: An optional object with configuration options:
+- **`options.entireString`**: A boolean indicating whether the entire cell
   content must match the `oldString` for replacement to occur. Defaults to
   `false` (replaces substrings).
-- **`options.regex`**: - A boolean indicating whether the `oldString` should be
+- **`options.regex`**: A boolean indicating whether the `oldString` should be
   treated as a regular expression for global replacement. Cannot be used with
   `entireString: true`. Defaults to `false`.
 
@@ -3846,8 +3883,8 @@ async lower(columns: string | string[]): Promise<void>;
 
 ##### Parameters
 
-- **`columns`**: - The column name or an array of column names to be converted
-  to lowercase.
+- **`columns`**: The column name or an array of column names to be converted to
+  lowercase.
 
 ##### Returns
 
@@ -3877,8 +3914,8 @@ async upper(columns: string | string[]): Promise<void>;
 
 ##### Parameters
 
-- **`columns`**: - The column name or an array of column names to be converted
-  to uppercase.
+- **`columns`**: The column name or an array of column names to be converted to
+  uppercase.
 
 ##### Returns
 
@@ -3909,8 +3946,7 @@ async capitalize(columns: string | string[]): Promise<void>;
 
 ##### Parameters
 
-- **`columns`**: - The column name or an array of column names to be
-  capitalized.
+- **`columns`**: The column name or an array of column names to be capitalized.
 
 ##### Returns
 
@@ -3940,8 +3976,8 @@ async truncate(column: string, length: number): Promise<void>;
 
 ##### Parameters
 
-- **`column`**: - The column name containing strings to be truncated.
-- **`length`**: - The maximum number of characters to keep.
+- **`column`**: The column name containing strings to be truncated.
+- **`length`**: The maximum number of characters to keep.
 
 ##### Returns
 
@@ -3973,13 +4009,13 @@ async splitExtract(column: string, separator: string, index: number, newColumn: 
 
 ##### Parameters
 
-- **`column`**: - The name of the column containing the strings to be split.
-- **`separator`**: - The substring to use as a delimiter for splitting the
+- **`column`**: The name of the column containing the strings to be split.
+- **`separator`**: The substring to use as a delimiter for splitting the
   strings.
-- **`index`**: - The zero-based index of the substring to extract after
-  splitting. For example, `0` for the first part, `1` for the second, etc.
-- **`newColumn`**: - The name of the column where the extracted substrings will
-  be stored. To overwrite the original column, use the same name as `column`.
+- **`index`**: The zero-based index of the substring to extract after splitting.
+  For example, `0` for the first part, `1` for the second, etc.
+- **`newColumn`**: The name of the column where the extracted substrings will be
+  stored. To overwrite the original column, use the same name as `column`.
 
 ##### Returns
 
@@ -4019,13 +4055,13 @@ async splitSpread(column: string, separator: string, newColumns: string[], optio
 
 ##### Parameters
 
-- **`column`**: - The name of the column containing the strings to be split.
-- **`separator`**: - The substring to use as a delimiter for splitting the
+- **`column`**: The name of the column containing the strings to be split.
+- **`separator`**: The substring to use as a delimiter for splitting the
   strings.
-- **`newColumns`**: - An array of column names for the extracted parts.
-- **`options`**: - Optional configuration.
-- **`options.noCheck`**: - If true, skips all validation checks (both max and
-  min parts). Default is false.
+- **`newColumns`**: An array of column names for the extracted parts.
+- **`options`**: Optional configuration.
+- **`options.noCheck`**: If true, skips all validation checks (both max and min
+  parts). Default is false.
 
 ##### Returns
 
@@ -4064,8 +4100,8 @@ async left(column: string, numberOfCharacters: number): Promise<void>;
 
 ##### Parameters
 
-- **`column`**: - The name of the column containing the strings to be modified.
-- **`numberOfCharacters`**: - The number of characters to extract from the left
+- **`column`**: The name of the column containing the strings to be modified.
+- **`numberOfCharacters`**: The number of characters to extract from the left
   side of each string.
 
 ##### Returns
@@ -4093,8 +4129,8 @@ async right(column: string, numberOfCharacters: number): Promise<void>;
 
 ##### Parameters
 
-- **`column`**: - The name of the column containing the strings to be modified.
-- **`numberOfCharacters`**: - The number of characters to extract from the right
+- **`column`**: The name of the column containing the strings to be modified.
+- **`numberOfCharacters`**: The number of characters to extract from the right
   side of each string.
 
 ##### Returns
@@ -4121,9 +4157,9 @@ async replaceNulls(columns: string | string[], value: number | string | Date | b
 
 ##### Parameters
 
-- **`columns`**: - The column name or an array of column names in which to
-  replace `NULL` values.
-- **`value`**: - The value to replace `NULL` occurrences with.
+- **`columns`**: The column name or an array of column names in which to replace
+  `NULL` values.
+- **`value`**: The value to replace `NULL` occurrences with.
 
 ##### Returns
 
@@ -4158,11 +4194,10 @@ async concatenate(columns: string[], newColumn: string, options?: { separator?: 
 
 ##### Parameters
 
-- **`columns`**: - An array of column names whose values will be concatenated.
-- **`newColumn`**: - The name of the new column to store the concatenated
-  values.
-- **`options`**: - An optional object with configuration options:
-- **`options.separator`**: - The string used to separate concatenated values.
+- **`columns`**: An array of column names whose values will be concatenated.
+- **`newColumn`**: The name of the new column to store the concatenated values.
+- **`options`**: An optional object with configuration options:
+- **`options.separator`**: The string used to separate concatenated values.
   Defaults to an empty string (`""`).
 
 ##### Returns
@@ -4204,9 +4239,9 @@ async concatenateRow(columns: string[], newColumn: string): Promise<void>;
 
 ##### Parameters
 
-- **`columns`**: - An array of column names whose values will be concatenated
-  with labels.
-- **`newColumn`**: - The name of the new column to create with the concatenated
+- **`columns`**: An array of column names whose values will be concatenated with
+  labels.
+- **`newColumn`**: The name of the new column to create with the concatenated
   values.
 
 ##### Returns
@@ -4262,9 +4297,9 @@ async unnest(column: string, separator: string): Promise<void>;
 
 ##### Parameters
 
-- **`column`**: - The name of the column containing string values to be split
-  and unnested.
-- **`separator`**: - The delimiter string used to split the column values.
+- **`column`**: The name of the column containing string values to be split and
+  unnested.
+- **`separator`**: The delimiter string used to split the column values.
 
 ##### Returns
 
@@ -4305,10 +4340,10 @@ async nest(column: string, separator: string, categories: string | string[]): Pr
 
 ##### Parameters
 
-- **`column`**: - The name of the column whose values will be aggregated and
+- **`column`**: The name of the column whose values will be aggregated and
   concatenated.
-- **`separator`**: - The delimiter string used to join the column values.
-- **`categories`**: - The column name or an array of column names to group by.
+- **`separator`**: The delimiter string used to join the column values.
+- **`categories`**: The column name or an array of column names to group by.
 
 ##### Returns
 
@@ -4345,12 +4380,12 @@ async round(columns: string | string[], options?: { decimals?: number; method?: 
 
 ##### Parameters
 
-- **`columns`**: - The column name or an array of column names containing
-  numeric values to be rounded.
-- **`options`**: - An optional object with configuration options:
-- **`options.decimals`**: - The number of decimal places to round to. Defaults
-  to `0` (rounds to the nearest integer).
-- **`options.method`**: - The rounding method to use: `"round"` (rounds to the
+- **`columns`**: The column name or an array of column names containing numeric
+  values to be rounded.
+- **`options`**: An optional object with configuration options:
+- **`options.decimals`**: The number of decimal places to round to. Defaults to
+  `0` (rounds to the nearest integer).
+- **`options.method`**: The rounding method to use: `"round"` (rounds to the
   nearest integer, with halves rounding up), `"ceiling"` (rounds up to the
   nearest integer), or `"floor"` (rounds down to the nearest integer). Defaults
   to `"round"`.
@@ -4393,9 +4428,9 @@ async updateColumn(column: string, definition: string): Promise<void>;
 
 ##### Parameters
 
-- **`column`**: - The name of the column to be updated.
-- **`definition`**: - The SQL expression used to set the new values in the
-  column (e.g., `"column1 * 2"`, `"UPPER(column_name)"`).
+- **`column`**: The name of the column to be updated.
+- **`definition`**: The SQL expression used to set the new values in the column
+  (e.g., `"column1 * 2"`, `"UPPER(column_name)"`).
 
 ##### Returns
 
@@ -4433,15 +4468,15 @@ async ranks(values: string, newColumn: string, options?: { order?: "asc" | "desc
 
 ##### Parameters
 
-- **`values`**: - The column containing the values to be used for ranking.
-- **`newColumn`**: - The name of the new column where the ranks will be stored.
-- **`options`**: - An optional object with configuration options:
-- **`options.order`**: - The order of values for ranking: `"asc"` for ascending
+- **`values`**: The column containing the values to be used for ranking.
+- **`newColumn`**: The name of the new column where the ranks will be stored.
+- **`options`**: An optional object with configuration options:
+- **`options.order`**: The order of values for ranking: `"asc"` for ascending
   (default) or `"desc"` for descending.
-- **`options.categories`**: - The column name or an array of column names that
+- **`options.categories`**: The column name or an array of column names that
   define categories for ranking. Ranks will be assigned independently within
   each category.
-- **`options.noGaps`**: - A boolean indicating whether to assign ranks without
+- **`options.noGaps`**: A boolean indicating whether to assign ranks without
   gaps (dense ranking). If `true`, ranks will be consecutive integers (e.g., 1,
   2, 2, 3). If `false` (default), ranks might have gaps (e.g., 1, 2, 2, 4).
 
@@ -4486,14 +4521,14 @@ async quantiles(values: string, nbQuantiles: number, newColumn: string, options?
 
 ##### Parameters
 
-- **`values`**: - The column containing values from which quantiles will be
+- **`values`**: The column containing values from which quantiles will be
   assigned.
-- **`nbQuantiles`**: - The number of quantiles to divide the data into (e.g.,
-  `4` for quartiles, `10` for deciles).
-- **`newColumn`**: - The name of the new column where the assigned quantiles
-  will be stored.
-- **`options`**: - An optional object with configuration options:
-- **`options.categories`**: - The column name or an array of column names that
+- **`nbQuantiles`**: The number of quantiles to divide the data into (e.g., `4`
+  for quartiles, `10` for deciles).
+- **`newColumn`**: The name of the new column where the assigned quantiles will
+  be stored.
+- **`options`**: An optional object with configuration options:
+- **`options.categories`**: The column name or an array of column names that
   define categories for computing quantiles. Quantiles will be assigned
   independently within each category.
 
@@ -4530,11 +4565,11 @@ async bins(values: string, interval: number, newColumn: string, options?: { star
 
 ##### Parameters
 
-- **`values`**: - The column containing values from which bins will be computed.
-- **`interval`**: - The interval size for binning the values.
-- **`newColumn`**: - The name of the new column where the bins will be stored.
-- **`options`**: - An optional object with configuration options:
-- **`options.startValue`**: - The starting value for binning. Defaults to the
+- **`values`**: The column containing values from which bins will be computed.
+- **`interval`**: The interval size for binning the values.
+- **`newColumn`**: The name of the new column where the bins will be stored.
+- **`options`**: An optional object with configuration options:
+- **`options.startValue`**: The starting value for binning. Defaults to the
   minimum value in the specified column.
 
 ##### Returns
@@ -4579,12 +4614,12 @@ async proportionsHorizontal(columns: string[], options?: { suffix?: string; deci
 
 ##### Parameters
 
-- **`columns`**: - An array of column names for which proportions will be
-  computed on each row.
-- **`options`**: - An optional object with configuration options:
-- **`options.suffix`**: - A string suffix to append to the names of the new
+- **`columns`**: An array of column names for which proportions will be computed
+  on each row.
+- **`options`**: An optional object with configuration options:
+- **`options.suffix`**: A string suffix to append to the names of the new
   columns storing the computed proportions. Defaults to `"Perc"`.
-- **`options.decimals`**: - The number of decimal places to round the computed
+- **`options.decimals`**: The number of decimal places to round the computed
   proportions. Defaults to `undefined` (no rounding).
 
 ##### Returns
@@ -4640,16 +4675,16 @@ async proportionsVertical(column: string, newColumn: string, options?: { categor
 
 ##### Parameters
 
-- **`column`**: - The column containing values for which proportions will be
+- **`column`**: The column containing values for which proportions will be
   computed. The proportions are calculated based on the sum of values in the
   specified column.
-- **`newColumn`**: - The name of the new column where the proportions will be
+- **`newColumn`**: The name of the new column where the proportions will be
   stored.
-- **`options`**: - An optional object with configuration options:
-- **`options.categories`**: - The column name or an array of column names that
+- **`options`**: An optional object with configuration options:
+- **`options.categories`**: The column name or an array of column names that
   define categories for computing proportions. Proportions will be calculated
   independently within each category.
-- **`options.decimals`**: - The number of decimal places to round the computed
+- **`options.decimals`**: The number of decimal places to round the computed
   proportions. Defaults to `undefined` (no rounding).
 
 ##### Returns
@@ -4692,29 +4727,28 @@ async summarize(options?: { values?: string | string[]; categories?: string | st
 
 ##### Parameters
 
-- **`options`**: - An object with configuration options for summarization:
-- **`options.values`**: - The column name or an array of column names whose
-  values will be summarized. If omitted, all columns will be summarized.
-- **`options.categories`**: - The column name or an array of column names that
+- **`options`**: An object with configuration options for summarization:
+- **`options.values`**: The column name or an array of column names whose values
+  will be summarized. If omitted, all columns will be summarized.
+- **`options.categories`**: The column name or an array of column names that
   define categories for the summarization. Results will be grouped by these
   categories.
-- **`options.summaries`**: - The summary operations to be performed. Can be a
+- **`options.summaries`**: The summary operations to be performed. Can be a
   single operation (e.g., `"mean"`), an array of operations (e.g.,
   `["min", "max"]`), or an object mapping new column names to operations (e.g.,
   `{ avgSalary: "mean" }`). Supported operations include: `"count"`,
   `"countUnique"`, `"countNull"`, `"min"`, `"max"`, `"mean"`, `"median"`,
   `"sum"`, `"skew"`, `"stdDev"`, `"var"`.
-- **`options.decimals`**: - The number of decimal places to round the summarized
+- **`options.decimals`**: The number of decimal places to round the summarized
   values. Defaults to `undefined` (no rounding).
-- **`options.outputTable`**: - If `true`, the results will be stored in a new
+- **`options.outputTable`**: If `true`, the results will be stored in a new
   table with a generated name. If a string, it will be used as the name for the
   new table. If `false` or omitted, the current table will be overwritten.
   Defaults to `false`.
-- **`options.toMs`**: - If `true`, timestamps, dates, and times will be
-  converted to milliseconds before summarizing. This is useful when summarizing
-  mixed data types (numbers and dates) as values must be of the same type for
-  aggregation.
-- **`options.noColumnValue`**: - If `true`, the default `value` column will be
+- **`options.toMs`**: If `true`, timestamps, dates, and times will be converted
+  to milliseconds before summarizing. This is useful when summarizing mixed data
+  types (numbers and dates) as values must be of the same type for aggregation.
+- **`options.noColumnValue`**: If `true`, the default `value` column will be
   removed. This option only works when summarizing a single column without
   categories. Defaults to `false`.
 
@@ -4831,11 +4865,11 @@ async accumulate(column: string, newColumn: string, options?: { categories?: str
 
 ##### Parameters
 
-- **`column`**: - The name of the column storing the values to be accumulated.
-- **`newColumn`**: - The name of the new column in which the computed cumulative
+- **`column`**: The name of the column storing the values to be accumulated.
+- **`newColumn`**: The name of the new column in which the computed cumulative
   values will be stored.
-- **`options`**: - An optional object with configuration options:
-- **`options.categories`**: - The column name or an array of column names that
+- **`options`**: An optional object with configuration options:
+- **`options.categories`**: The column name or an array of column names that
   define categories for the accumulation. Accumulation will be performed
   independently within each category.
 
@@ -4881,20 +4915,20 @@ async rolling(column: string, newColumn: string, summary: "min" | "max" | "mean"
 
 ##### Parameters
 
-- **`column`**: - The name of the column storing the values to be aggregated.
-- **`newColumn`**: - The name of the new column in which the computed rolling
+- **`column`**: The name of the column storing the values to be aggregated.
+- **`newColumn`**: The name of the new column in which the computed rolling
   values will be stored.
-- **`summary`**: - The aggregation function to apply: `"min"`, `"max"`,
-  `"mean"`, `"median"`, or `"sum"`.
-- **`preceding`**: - The number of preceding rows to include in the rolling
+- **`summary`**: The aggregation function to apply: `"min"`, `"max"`, `"mean"`,
+  `"median"`, or `"sum"`.
+- **`preceding`**: The number of preceding rows to include in the rolling
   window.
-- **`following`**: - The number of following rows to include in the rolling
+- **`following`**: The number of following rows to include in the rolling
   window.
-- **`options`**: - An optional object with configuration options:
-- **`options.categories`**: - The column name or an array of column names that
+- **`options`**: An optional object with configuration options:
+- **`options.categories`**: The column name or an array of column names that
   define categories for the aggregation. Rolling aggregations will be computed
   independently within each category.
-- **`options.decimals`**: - The number of decimal places to round the aggregated
+- **`options.decimals`**: The number of decimal places to round the aggregated
   values. Defaults to `undefined` (no rounding).
 
 ##### Returns
@@ -4938,17 +4972,17 @@ async correlations(options?: { x?: string; y?: string; categories?: string | str
 
 ##### Parameters
 
-- **`options`**: - An optional object with configuration options:
-- **`options.x`**: - The name of the column for the x-values. If omitted,
+- **`options`**: An optional object with configuration options:
+- **`options.x`**: The name of the column for the x-values. If omitted,
   correlations will be computed for all numeric columns.
-- **`options.y`**: - The name of the column for the y-values. If omitted,
+- **`options.y`**: The name of the column for the y-values. If omitted,
   correlations will be computed for all numeric columns.
-- **`options.categories`**: - The column name or an array of column names that
+- **`options.categories`**: The column name or an array of column names that
   define categories. Correlation calculations will be performed independently
   for each category.
-- **`options.decimals`**: - The number of decimal places to round the
-  correlation values. Defaults to `undefined` (no rounding).
-- **`options.outputTable`**: - If `true`, the results will be stored in a new
+- **`options.decimals`**: The number of decimal places to round the correlation
+  values. Defaults to `undefined` (no rounding).
+- **`options.outputTable`**: If `true`, the results will be stored in a new
   table with a generated name. If a string, it will be used as the name for the
   new table. If `false` or omitted, the current table will be overwritten.
   Defaults to `false`.
@@ -5004,19 +5038,18 @@ async linearRegressions(options?: { x?: string; y?: string; categories?: string 
 
 ##### Parameters
 
-- **`options`**: - An optional object with configuration options:
-- **`options.x`**: - The name of the column for the independent variable
+- **`options`**: An optional object with configuration options:
+- **`options.x`**: The name of the column for the independent variable
   (x-values). If omitted, linear regressions will be computed for all numeric
   columns as x.
-- **`options.y`**: - The name of the column for the dependent variable
-  (y-values). If omitted, linear regressions will be computed for all numeric
-  columns as y.
-- **`options.categories`**: - The column name or an array of column names that
+- **`options.y`**: The name of the column for the dependent variable (y-values).
+  If omitted, linear regressions will be computed for all numeric columns as y.
+- **`options.categories`**: The column name or an array of column names that
   define categories. Linear regression analysis will be performed independently
   for each category.
-- **`options.decimals`**: - The number of decimal places to round the regression
+- **`options.decimals`**: The number of decimal places to round the regression
   values (slope, intercept, r-squared). Defaults to `undefined` (no rounding).
-- **`options.outputTable`**: - If `true`, the results will be stored in a new
+- **`options.outputTable`**: If `true`, the results will be stored in a new
   table with a generated name. If a string, it will be used as the name for the
   new table. If `false` or omitted, the current table will be overwritten.
   Defaults to `false`.
@@ -5069,11 +5102,11 @@ async outliersIQR(column: string, newColumn: string, options?: { categories?: st
 
 ##### Parameters
 
-- **`column`**: - The name of the column in which outliers will be identified.
-- **`newColumn`**: - The name of the new column where the boolean results
-  (`TRUE` for outlier, `FALSE` otherwise) will be stored.
-- **`options`**: - An optional object with configuration options:
-- **`options.categories`**: - The column name or an array of column names that
+- **`column`**: The name of the column in which outliers will be identified.
+- **`newColumn`**: The name of the new column where the boolean results (`TRUE`
+  for outlier, `FALSE` otherwise) will be stored.
+- **`options`**: An optional object with configuration options:
+- **`options.categories`**: The column name or an array of column names that
   define categories. Outlier detection will be performed independently within
   each category.
 
@@ -5105,14 +5138,14 @@ async zScore(column: string, newColumn: string, options?: { categories?: string 
 
 ##### Parameters
 
-- **`column`**: - The name of the column for which Z-scores will be calculated.
-- **`newColumn`**: - The name of the new column where the computed Z-scores will
+- **`column`**: The name of the column for which Z-scores will be calculated.
+- **`newColumn`**: The name of the new column where the computed Z-scores will
   be stored.
-- **`options`**: - An optional object with configuration options:
-- **`options.categories`**: - The column name or an array of column names that
+- **`options`**: An optional object with configuration options:
+- **`options.categories`**: The column name or an array of column names that
   define categories. Z-scores will be calculated independently within each
   category.
-- **`options.decimals`**: - The number of decimal places to round the Z-score
+- **`options.decimals`**: The number of decimal places to round the Z-score
   values. Defaults to `undefined` (no rounding).
 
 ##### Returns
@@ -5148,14 +5181,14 @@ async normalize(column: string, newColumn: string, options?: { categories?: stri
 
 ##### Parameters
 
-- **`column`**: - The name of the column in which values will be normalized.
-- **`newColumn`**: - The name of the new column where normalized values will be
+- **`column`**: The name of the column in which values will be normalized.
+- **`newColumn`**: The name of the new column where normalized values will be
   stored.
-- **`options`**: - An optional object with configuration options:
-- **`options.categories`**: - The column name or an array of column names that
+- **`options`**: An optional object with configuration options:
+- **`options.categories`**: The column name or an array of column names that
   define categories for the normalization. Normalization will be performed
   independently within each category.
-- **`options.decimals`**: - The number of decimal places to round the normalized
+- **`options.decimals`**: The number of decimal places to round the normalized
   values. Defaults to `undefined` (no rounding).
 
 ##### Returns
@@ -5195,7 +5228,7 @@ async updateWithJS(dataModifier: ((rows: Record<string, number | string | Date |
 
 ##### Parameters
 
-- **`dataModifier`**: - A synchronous or asynchronous function that takes the
+- **`dataModifier`**: A synchronous or asynchronous function that takes the
   existing rows (as an array of objects) and returns the modified rows (as an
   array of objects).
 
@@ -5321,6 +5354,57 @@ const columns = await table.getColumns();
 console.log(columns); // e.g., ["id", "name", "age"]
 ```
 
+#### `normalizeString`
+
+Normalizes string values in a column by:
+
+1. Stripping accents
+2. Optionally stripping punctuation (default: true)
+3. Converting to lowercase
+4. Normalizing whitespace (multiple spaces/tabs/newlines → single space)
+5. Trimming leading/trailing whitespace
+
+Produces identical output to `journalism-format`'s `normalizeString()` function
+for all common cases including accented Latin characters.
+
+##### Signature
+
+```typescript
+async normalizeString(column: string, newColumn: string, options?: { stripPunctuation?: boolean }): Promise<void>;
+```
+
+##### Parameters
+
+- **`column`**: The column containing the text to normalize
+- **`newColumn`**: The column to store the normalized results
+- **`options`**: Configuration options
+- **`options.stripPunctuation`**: Strip punctuation and underscores (default:
+  true)
+
+##### Returns
+
+A promise that resolves when the operation is complete
+
+##### Examples
+
+```ts
+// Normalize text column and store in new column
+await table.normalizeString("recipeName", "recipeNameNormalized");
+// "Épicerie Parisienne!" → "epicerie parisienne"
+```
+
+```ts
+// Keep punctuation for emails and URLs
+await table.normalizeString("email", "emailNormalized", {
+  stripPunctuation: false,
+});
+// "User@Example.com" → "user@example.com"
+await table.normalizeString("url", "urlNormalized", {
+  stripPunctuation: false,
+});
+// "https://Example.com/path" → "https://example.com/path"
+```
+
 #### `getNbColumns`
 
 Returns the number of columns in the table.
@@ -5355,7 +5439,7 @@ async getNbCharacters(column: string): Promise<number>;
 
 ##### Parameters
 
-- **`column`**: - The name of the string column to count characters from.
+- **`column`**: The name of the string column to count characters from.
 
 ##### Returns
 
@@ -5450,7 +5534,7 @@ async getValues(column: string): Promise<(string | number | boolean | Date | nul
 
 ##### Parameters
 
-- **`column`**: - The name of the column from which to retrieve values.
+- **`column`**: The name of the column from which to retrieve values.
 
 ##### Returns
 
@@ -5477,8 +5561,7 @@ async getMin(column: string): Promise<string | number | boolean | Date | null>;
 
 ##### Parameters
 
-- **`column`**: - The name of the column from which to retrieve the minimum
-  value.
+- **`column`**: The name of the column from which to retrieve the minimum value.
 
 ##### Returns
 
@@ -5504,8 +5587,7 @@ async getMax(column: string): Promise<string | number | boolean | Date | null>;
 
 ##### Parameters
 
-- **`column`**: - The name of the column from which to retrieve the maximum
-  value.
+- **`column`**: The name of the column from which to retrieve the maximum value.
 
 ##### Returns
 
@@ -5532,7 +5614,7 @@ async getExtent(column: string): Promise<[string | number | boolean | Date | nul
 
 ##### Parameters
 
-- **`column`**: - The name of the column from which to retrieve the extent.
+- **`column`**: The name of the column from which to retrieve the extent.
 
 ##### Returns
 
@@ -5559,10 +5641,10 @@ async getMean(column: string, options?: { decimals?: number }): Promise<number>;
 
 ##### Parameters
 
-- **`column`**: - The name of the numeric column from which to retrieve the mean
+- **`column`**: The name of the numeric column from which to retrieve the mean
   value.
-- **`options`**: - An optional object with configuration options:
-- **`options.decimals`**: - The number of decimal places to round the result to.
+- **`options`**: An optional object with configuration options:
+- **`options.decimals`**: The number of decimal places to round the result to.
   Defaults to `undefined` (no rounding).
 
 ##### Returns
@@ -5595,10 +5677,10 @@ async getMedian(column: string, options?: { decimals?: number }): Promise<number
 
 ##### Parameters
 
-- **`column`**: - The name of the numeric column from which to retrieve the
-  median value.
-- **`options`**: - An optional object with configuration options:
-- **`options.decimals`**: - The number of decimal places to round the result to.
+- **`column`**: The name of the numeric column from which to retrieve the median
+  value.
+- **`options`**: An optional object with configuration options:
+- **`options.decimals`**: The number of decimal places to round the result to.
   Defaults to `undefined` (no rounding).
 
 ##### Returns
@@ -5631,7 +5713,7 @@ async getSum(column: string): Promise<number>;
 
 ##### Parameters
 
-- **`column`**: - The name of the numeric column from which to retrieve the sum.
+- **`column`**: The name of the numeric column from which to retrieve the sum.
 
 ##### Returns
 
@@ -5657,10 +5739,10 @@ async getSkew(column: string, options?: { decimals?: number }): Promise<number>;
 
 ##### Parameters
 
-- **`column`**: - The name of the numeric column from which to retrieve the
+- **`column`**: The name of the numeric column from which to retrieve the
   skewness.
-- **`options`**: - An optional object with configuration options:
-- **`options.decimals`**: - The number of decimal places to round the result to.
+- **`options`**: An optional object with configuration options:
+- **`options.decimals`**: The number of decimal places to round the result to.
   Defaults to `undefined` (no rounding).
 
 ##### Returns
@@ -5693,10 +5775,10 @@ async getStdDev(column: string, options?: { decimals?: number }): Promise<number
 
 ##### Parameters
 
-- **`column`**: - The name of the numeric column from which to retrieve the
+- **`column`**: The name of the numeric column from which to retrieve the
   standard deviation.
-- **`options`**: - An optional object with configuration options:
-- **`options.decimals`**: - The number of decimal places to round the result to.
+- **`options`**: An optional object with configuration options:
+- **`options.decimals`**: The number of decimal places to round the result to.
   Defaults to `undefined` (no rounding).
 
 ##### Returns
@@ -5729,10 +5811,10 @@ async getVar(column: string, options?: { decimals?: number }): Promise<number>;
 
 ##### Parameters
 
-- **`column`**: - The name of the numeric column from which to retrieve the
+- **`column`**: The name of the numeric column from which to retrieve the
   variance.
-- **`options`**: - An optional object with configuration options:
-- **`options.decimals`**: - The number of decimal places to round the result to.
+- **`options`**: An optional object with configuration options:
+- **`options.decimals`**: The number of decimal places to round the result to.
   Defaults to `undefined` (no rounding).
 
 ##### Returns
@@ -5766,13 +5848,13 @@ async getQuantile(column: string, quantile: number, options?: { decimals?: numbe
 
 ##### Parameters
 
-- **`column`**: - The name of the numeric column from which to calculate the
+- **`column`**: The name of the numeric column from which to calculate the
   quantile.
-- **`quantile`**: - The quantile to calculate, expressed as a number between 0
-  and 1 (e.g., `0.25` for the first quartile, `0.5` for the median, `0.75` for
-  the third quartile).
-- **`options`**: - An optional object with configuration options:
-- **`options.decimals`**: - The number of decimal places to round the result to.
+- **`quantile`**: The quantile to calculate, expressed as a number between 0 and
+  1 (e.g., `0.25` for the first quartile, `0.5` for the median, `0.75` for the
+  third quartile).
+- **`options`**: An optional object with configuration options:
+- **`options.decimals`**: The number of decimal places to round the result to.
   Defaults to `undefined` (no rounding).
 
 ##### Returns
@@ -5808,7 +5890,7 @@ async getUniques(column: string): Promise<(string | number | boolean | Date | nu
 
 ##### Parameters
 
-- **`column`**: - The name of the column from which to retrieve unique values.
+- **`column`**: The name of the column from which to retrieve unique values.
 
 ##### Returns
 
@@ -5836,9 +5918,9 @@ async getFirstRow(options?: { conditions?: string }): Promise<Record<string, str
 
 ##### Parameters
 
-- **`options`**: - An optional object with configuration options:
-- **`options.conditions`**: - The filtering conditions specified as a SQL
-  `WHERE` clause (e.g., `"category = 'Book'"`).
+- **`options`**: An optional object with configuration options:
+- **`options.conditions`**: The filtering conditions specified as a SQL `WHERE`
+  clause (e.g., `"category = 'Book'"`).
 
 ##### Returns
 
@@ -5874,9 +5956,9 @@ async getLastRow(options?: { conditions?: string }): Promise<Record<string, stri
 
 ##### Parameters
 
-- **`options`**: - An optional object with configuration options:
-- **`options.conditions`**: - The filtering conditions specified as a SQL
-  `WHERE` clause (e.g., `"category = 'Book'"`).
+- **`options`**: An optional object with configuration options:
+- **`options.conditions`**: The filtering conditions specified as a SQL `WHERE`
+  clause (e.g., `"category = 'Book'"`).
 
 ##### Returns
 
@@ -5913,10 +5995,10 @@ async getTop(count: number, options?: { conditions?: string }): Promise<Record<s
 
 ##### Parameters
 
-- **`count`**: - The number of rows to return from the top of the table.
-- **`options`**: - An optional object with configuration options:
-- **`options.conditions`**: - The filtering conditions specified as a SQL
-  `WHERE` clause (e.g., `"category = 'Books'"`).
+- **`count`**: The number of rows to return from the top of the table.
+- **`options`**: An optional object with configuration options:
+- **`options.conditions`**: The filtering conditions specified as a SQL `WHERE`
+  clause (e.g., `"category = 'Books'"`).
 
 ##### Returns
 
@@ -5951,13 +6033,13 @@ async getBottom(count: number, options?: { originalOrder?: boolean; conditions?:
 
 ##### Parameters
 
-- **`count`**: - The number of rows to return from the bottom of the table.
-- **`options`**: - An optional object with configuration options:
-- **`options.originalOrder`**: - A boolean indicating whether the rows should be
+- **`count`**: The number of rows to return from the bottom of the table.
+- **`options`**: An optional object with configuration options:
+- **`options.originalOrder`**: A boolean indicating whether the rows should be
   returned in their original order (`true`) or in reverse order (last row first,
   `false`). Defaults to `false`.
-- **`options.conditions`**: - The filtering conditions specified as a SQL
-  `WHERE` clause (e.g., `"category = 'Books'"`).
+- **`options.conditions`**: The filtering conditions specified as a SQL `WHERE`
+  clause (e.g., `"category = 'Books'"`).
 
 ##### Returns
 
@@ -6001,11 +6083,10 @@ async getRow(conditions: string, options?: { noCheck?: boolean }): Promise<Recor
 
 ##### Parameters
 
-- **`conditions`**: - The conditions to match, specified as a SQL `WHERE`
-  clause.
-- **`options`**: - Optional settings:
-- **`options.noCheck`**: - If `true`, no error will be thrown when no row or
-  more than one row match the condition. Defaults to `false`.
+- **`conditions`**: The conditions to match, specified as a SQL `WHERE` clause.
+- **`options`**: Optional settings:
+- **`options.noCheck`**: If `true`, no error will be thrown when no row or more
+  than one row match the condition. Defaults to `false`.
 
 ##### Returns
 
@@ -6045,11 +6126,11 @@ async getData(options?: { columns?: string | string[]; conditions?: string }): P
 
 ##### Parameters
 
-- **`options`**: - An optional object with configuration options:
-- **`options.columns`**: - An array of column names to include in the result. If
+- **`options`**: An optional object with configuration options:
+- **`options.columns`**: An array of column names to include in the result. If
   omitted, all columns will be included.
-- **`options.conditions`**: - The filtering conditions specified as a SQL
-  `WHERE` clause (e.g., `"category = 'Book'"`).
+- **`options.conditions`**: The filtering conditions specified as a SQL `WHERE`
+  clause (e.g., `"category = 'Book'"`).
 
 ##### Returns
 
@@ -6093,11 +6174,11 @@ async getDataAsCSV(options?: { columns?: string | string[]; conditions?: string 
 
 ##### Parameters
 
-- **`options`**: - An optional object with configuration options:
-- **`options.columns`**: - An array of column names to include in the CSV. If
+- **`options`**: An optional object with configuration options:
+- **`options.columns`**: An array of column names to include in the CSV. If
   omitted, all columns will be included.
-- **`options.conditions`**: - The filtering conditions specified as a SQL
-  `WHERE` clause (e.g., `"category = 'Book'"`).
+- **`options.conditions`**: The filtering conditions specified as a SQL `WHERE`
+  clause (e.g., `"category = 'Book'"`).
 
 ##### Returns
 
@@ -6142,10 +6223,10 @@ async points(columnLat: string, columnLon: string, newColumn: string): Promise<v
 
 ##### Parameters
 
-- **`columnLat`**: - The name of the column storing the latitude values.
-- **`columnLon`**: - The name of the column storing the longitude values.
-- **`newColumn`**: - The name of the new column where the point geometries will
-  be stored.
+- **`columnLat`**: The name of the column storing the latitude values.
+- **`columnLon`**: The name of the column storing the longitude values.
+- **`newColumn`**: The name of the new column where the point geometries will be
+  stored.
 
 ##### Returns
 
@@ -6170,10 +6251,10 @@ async isValidGeo(newColumn: string, options?: { column?: string }): Promise<void
 
 ##### Parameters
 
-- **`newColumn`**: - The name of the new column where the boolean results
-  (`TRUE` for valid, `FALSE` for invalid) will be stored.
-- **`options`**: - An optional object with configuration options:
-- **`options.column`**: - The name of the column storing the geometries to be
+- **`newColumn`**: The name of the new column where the boolean results (`TRUE`
+  for valid, `FALSE` for invalid) will be stored.
+- **`options`**: An optional object with configuration options:
+- **`options.column`**: The name of the column storing the geometries to be
   checked. If omitted, the method will automatically attempt to find a geometry
   column.
 
@@ -6206,10 +6287,10 @@ async nbVertices(newColumn: string, options?: { column?: string }): Promise<void
 
 ##### Parameters
 
-- **`newColumn`**: - The name of the new column where the vertex counts will be
+- **`newColumn`**: The name of the new column where the vertex counts will be
   stored.
-- **`options`**: - An optional object with configuration options:
-- **`options.column`**: - The name of the column storing the geometries. If
+- **`options`**: An optional object with configuration options:
+- **`options.column`**: The name of the column storing the geometries. If
   omitted, the method will automatically attempt to find a geometry column.
 
 ##### Returns
@@ -6241,7 +6322,7 @@ async fixGeo(column?: string): Promise<void>;
 
 ##### Parameters
 
-- **`column`**: - The name of the column storing the geometries to be fixed. If
+- **`column`**: The name of the column storing the geometries to be fixed. If
   omitted, the method will automatically attempt to find a geometry column.
 
 ##### Returns
@@ -6273,10 +6354,10 @@ async isClosedGeo(newColumn: string, options?: { column?: string }): Promise<voi
 
 ##### Parameters
 
-- **`newColumn`**: - The name of the new column where the boolean results
-  (`TRUE` for closed, `FALSE` for open) will be stored.
-- **`options`**: - An optional object with configuration options:
-- **`options.column`**: - The name of the column storing the geometries. If
+- **`newColumn`**: The name of the new column where the boolean results (`TRUE`
+  for closed, `FALSE` for open) will be stored.
+- **`options`**: An optional object with configuration options:
+- **`options.column`**: The name of the column storing the geometries. If
   omitted, the method will automatically attempt to find a geometry column.
 
 ##### Returns
@@ -6308,10 +6389,10 @@ async typeGeo(newColumn: string, options?: { column?: string }): Promise<void>;
 
 ##### Parameters
 
-- **`newColumn`**: - The name of the new column where the geometry types will be
+- **`newColumn`**: The name of the new column where the geometry types will be
   stored.
-- **`options`**: - An optional object with configuration options:
-- **`options.column`**: - The name of the column storing the geometries. If
+- **`options`**: An optional object with configuration options:
+- **`options.column`**: The name of the column storing the geometries. If
   omitted, the method will automatically attempt to find a geometry column.
 
 ##### Returns
@@ -6346,7 +6427,7 @@ async flipCoordinates(column?: string): Promise<void>;
 
 ##### Parameters
 
-- **`column`**: - The name of the column storing the geometries. If omitted, the
+- **`column`**: The name of the column storing the geometries. If omitted, the
   method will automatically attempt to find a geometry column.
 
 ##### Returns
@@ -6378,10 +6459,10 @@ async reducePrecision(decimals: number, options?: { column?: string }): Promise<
 
 ##### Parameters
 
-- **`decimals`**: - The number of decimal places to keep in the coordinates of
-  the geometries.
-- **`options`**: - An optional object with configuration options:
-- **`options.column`**: - The name of the column storing the geometries. If
+- **`decimals`**: The number of decimal places to keep in the coordinates of the
+  geometries.
+- **`options`**: An optional object with configuration options:
+- **`options.column`**: The name of the column storing the geometries. If
   omitted, the method will automatically attempt to find a geometry column.
 
 ##### Returns
@@ -6414,12 +6495,12 @@ async reproject(to: string, options?: { from?: string; column?: string }): Promi
 
 ##### Parameters
 
-- **`to`**: - The target SRS (e.g., `"EPSG:3347"`, `"WGS84"`).
-- **`options`**: - An optional object with configuration options:
-- **`options.from`**: - The original projection of the geometries. If omitted,
-  the method attempts to automatically detect it. Provide this option if
+- **`to`**: The target SRS (e.g., `"EPSG:3347"`, `"WGS84"`).
+- **`options`**: An optional object with configuration options:
+- **`options.from`**: The original projection of the geometries. If omitted, the
+  method attempts to automatically detect it. Provide this option if
   auto-detection fails.
-- **`options.column`**: - The name of the column storing the geometries. If
+- **`options.column`**: The name of the column storing the geometries. If
   omitted, the method will automatically attempt to find a geometry column.
 
 ##### Returns
@@ -6457,12 +6538,12 @@ async area(newColumn: string, options?: { unit?: "m2" | "km2"; column?: string }
 
 ##### Parameters
 
-- **`newColumn`**: - The name of the new column where the computed areas will be
+- **`newColumn`**: The name of the new column where the computed areas will be
   stored.
-- **`options`**: - An optional object with configuration options:
-- **`options.unit`**: - The unit for the computed area: `"m2"` (square meters)
-  or `"km2"` (square kilometers). Defaults to `"m2"`.
-- **`options.column`**: - The name of the column storing the geometries. If
+- **`options`**: An optional object with configuration options:
+- **`options.unit`**: The unit for the computed area: `"m2"` (square meters) or
+  `"km2"` (square kilometers). Defaults to `"m2"`.
+- **`options.column`**: The name of the column storing the geometries. If
   omitted, the method will automatically attempt to find a geometry column.
 
 ##### Returns
@@ -6500,12 +6581,12 @@ async length(newColumn: string, options?: { unit?: "m" | "km"; column?: string }
 
 ##### Parameters
 
-- **`newColumn`**: - The name of the new column where the computed lengths will
-  be stored.
-- **`options`**: - An optional object with configuration options:
-- **`options.unit`**: - The unit for the computed length: `"m"` (meters) or
-  `"km"` (kilometers). Defaults to `"m"`.
-- **`options.column`**: - The name of the column storing the geometries. If
+- **`newColumn`**: The name of the new column where the computed lengths will be
+  stored.
+- **`options`**: An optional object with configuration options:
+- **`options.unit`**: The unit for the computed length: `"m"` (meters) or `"km"`
+  (kilometers). Defaults to `"m"`.
+- **`options.column`**: The name of the column storing the geometries. If
   omitted, the method will automatically attempt to find a geometry column.
 
 ##### Returns
@@ -6543,12 +6624,12 @@ async perimeter(newColumn: string, options?: { unit?: "m" | "km"; column?: strin
 
 ##### Parameters
 
-- **`newColumn`**: - The name of the new column where the computed perimeters
-  will be stored.
-- **`options`**: - An optional object with configuration options:
-- **`options.unit`**: - The unit for the computed perimeter: `"m"` (meters) or
+- **`newColumn`**: The name of the new column where the computed perimeters will
+  be stored.
+- **`options`**: An optional object with configuration options:
+- **`options.unit`**: The unit for the computed perimeter: `"m"` (meters) or
   `"km"` (kilometers). Defaults to `"m"`.
-- **`options.column`**: - The name of the column storing the geometries. If
+- **`options.column`**: The name of the column storing the geometries. If
   omitted, the method will automatically attempt to find a geometry column.
 
 ##### Returns
@@ -6586,12 +6667,12 @@ async buffer(newColumn: string, distance: number, options?: { column?: string })
 
 ##### Parameters
 
-- **`newColumn`**: - The name of the new column where the buffered geometries
-  will be stored.
-- **`distance`**: - The distance for the buffer. This value is in the units of
-  the geometry's SRS.
-- **`options`**: - An optional object with configuration options:
-- **`options.column`**: - The name of the column storing the geometries. If
+- **`newColumn`**: The name of the new column where the buffered geometries will
+  be stored.
+- **`distance`**: The distance for the buffer. This value is in the units of the
+  geometry's SRS.
+- **`options`**: An optional object with configuration options:
+- **`options.column`**: The name of the column storing the geometries. If
   omitted, the method will automatically attempt to find a geometry column.
 
 ##### Returns
@@ -6626,26 +6707,26 @@ async joinGeo(rightTable: SimpleTable, method: "intersect" | "inside" | "within"
 
 ##### Parameters
 
-- **`rightTable`**: - The SimpleTable instance to be joined with this table.
-- **`method`**: - The spatial join method to use: `"intersect"` (geometries
+- **`rightTable`**: The SimpleTable instance to be joined with this table.
+- **`method`**: The spatial join method to use: `"intersect"` (geometries
   overlap), `"inside"` (geometries of the left table are entirely within
   geometries of the right table), or `"within"` (geometries of the left table
   are within a specified distance of geometries in the right table).
-- **`options`**: - An optional object with configuration options:
-- **`options.leftTableColumn`**: - The name of the column storing geometries in
+- **`options`**: An optional object with configuration options:
+- **`options.leftTableColumn`**: The name of the column storing geometries in
   the left table (this table). If omitted, the method attempts to find one.
-- **`options.rightTableColumn`**: - The name of the column storing geometries in
+- **`options.rightTableColumn`**: The name of the column storing geometries in
   the right table. If omitted, the method attempts to find one.
-- **`options.type`**: - The type of join operation to perform: `"inner"`,
-  `"left"` (default), `"right"`, or `"full"`. For some types (like `"inside"`),
-  the table order is important.
-- **`options.distance`**: - Required if `method` is `"within"`. The target
+- **`options.type`**: The type of join operation to perform: `"inner"`, `"left"`
+  (default), `"right"`, or `"full"`. For some types (like `"inside"`), the table
+  order is important.
+- **`options.distance`**: Required if `method` is `"within"`. The target
   distance for the spatial join. The unit depends on `distanceMethod`.
-- **`options.distanceMethod`**: - The method for distance calculations: `"srs"`
+- **`options.distanceMethod`**: The method for distance calculations: `"srs"`
   (default, uses the SRS unit), `"haversine"` (uses meters, requires EPSG:4326
   input), or `"spheroid"` (uses meters, requires EPSG:4326 input, most accurate
   but slowest).
-- **`options.outputTable`**: - If `true`, the results will be stored in a new
+- **`options.outputTable`**: If `true`, the results will be stored in a new
   table with a generated name. If a string, it will be used as the name for the
   new table. If `false` or omitted, the current table will be overwritten.
   Defaults to `false`.
@@ -6705,10 +6786,10 @@ async intersection(column1: string, column2: string, newColumn: string): Promise
 
 ##### Parameters
 
-- **`column1`**: - The name of the first column storing geometries.
-- **`column2`**: - The name of the second column storing geometries. Both
-  columns must have the same projection.
-- **`newColumn`**: - The name of the new column where the computed intersection
+- **`column1`**: The name of the first column storing geometries.
+- **`column2`**: The name of the second column storing geometries. Both columns
+  must have the same projection.
+- **`newColumn`**: The name of the new column where the computed intersection
   geometries will be stored.
 
 ##### Returns
@@ -6735,11 +6816,11 @@ async removeIntersection(column1: string, column2: string, newColumn: string): P
 
 ##### Parameters
 
-- **`column1`**: - The name of the column storing the reference geometries.
-  These geometries will have the intersection removed.
-- **`column2`**: - The name of the column storing the geometries used to compute
+- **`column1`**: The name of the column storing the reference geometries. These
+  geometries will have the intersection removed.
+- **`column2`**: The name of the column storing the geometries used to compute
   the intersection. Both columns must have the same projection.
-- **`newColumn`**: - The name of the new column where the resulting geometries
+- **`newColumn`**: The name of the new column where the resulting geometries
   (without the intersection) will be stored.
 
 ##### Returns
@@ -6765,7 +6846,7 @@ async fillHoles(column?: string): Promise<void>;
 
 ##### Parameters
 
-- **`column`**: - The name of the column storing the geometries. If omitted, the
+- **`column`**: The name of the column storing the geometries. If omitted, the
   method will automatically attempt to find a geometry column.
 
 ##### Returns
@@ -6797,11 +6878,11 @@ async intersect(column1: string, column2: string, newColumn: string): Promise<vo
 
 ##### Parameters
 
-- **`column1`**: - The name of the first column storing geometries.
-- **`column2`**: - The name of the second column storing geometries. Both
-  columns must have the same projection.
-- **`newColumn`**: - The name of the new column where the boolean results
-  (`TRUE` for intersection, `FALSE` otherwise) will be stored.
+- **`column1`**: The name of the first column storing geometries.
+- **`column2`**: The name of the second column storing geometries. Both columns
+  must have the same projection.
+- **`newColumn`**: The name of the new column where the boolean results (`TRUE`
+  for intersection, `FALSE` otherwise) will be stored.
 
 ##### Returns
 
@@ -6827,12 +6908,12 @@ async inside(column1: string, column2: string, newColumn: string): Promise<void>
 
 ##### Parameters
 
-- **`column1`**: - The name of the column storing the geometries to be tested
-  for containment.
-- **`column2`**: - The name of the column storing the geometries to be tested as
+- **`column1`**: The name of the column storing the geometries to be tested for
+  containment.
+- **`column2`**: The name of the column storing the geometries to be tested as
   containers. Both columns must have the same projection.
-- **`newColumn`**: - The name of the new column where the boolean results
-  (`TRUE` for inside, `FALSE` otherwise) will be stored.
+- **`newColumn`**: The name of the new column where the boolean results (`TRUE`
+  for inside, `FALSE` otherwise) will be stored.
 
 ##### Returns
 
@@ -6858,10 +6939,10 @@ async union(column1: string, column2: string, newColumn: string): Promise<void>;
 
 ##### Parameters
 
-- **`column1`**: - The name of the first column storing geometries.
-- **`column2`**: - The name of the second column storing geometries. Both
-  columns must have the same projection.
-- **`newColumn`**: - The name of the new column where the computed union
+- **`column1`**: The name of the first column storing geometries.
+- **`column2`**: The name of the second column storing geometries. Both columns
+  must have the same projection.
+- **`newColumn`**: The name of the new column where the computed union
   geometries will be stored.
 
 ##### Returns
@@ -6889,10 +6970,10 @@ async latLon(column: string, columnLat: string, columnLon: string): Promise<void
 
 ##### Parameters
 
-- **`column`**: - The name of the column storing the point geometries.
-- **`columnLat`**: - The name of the new column where the extracted latitude
+- **`column`**: The name of the column storing the point geometries.
+- **`columnLat`**: The name of the new column where the extracted latitude
   values will be stored.
-- **`columnLon`**: - The name of the new column where the extracted longitude
+- **`columnLon`**: The name of the new column where the extracted longitude
   values will be stored.
 
 ##### Returns
@@ -6919,12 +7000,12 @@ async simplify(tolerance: number, options?: { column?: string; simplifyBoundary?
 
 ##### Parameters
 
-- **`tolerance`**: - A numeric value representing the simplification tolerance.
-  A higher value leads to greater simplification.
-- **`options`**: - An optional object with configuration options:
-- **`options.column`**: - The name of the column storing the geometries. If
+- **`tolerance`**: A numeric value representing the simplification tolerance. A
+  higher value leads to greater simplification.
+- **`options`**: An optional object with configuration options:
+- **`options.column`**: The name of the column storing the geometries. If
   omitted, the method will automatically attempt to find a geometry column.
-- **`options.simplifyBoundary`**: - If `true` (default), the boundary of the
+- **`options.simplifyBoundary`**: If `true` (default), the boundary of the
   geometries will also be simplified. If `false`, only the interior of the
   geometries will be simplified, preserving the original boundary.
 
@@ -6957,10 +7038,10 @@ async centroid(newColumn: string, options?: { column?: string }): Promise<void>;
 
 ##### Parameters
 
-- **`newColumn`**: - The name of the new column where the computed centroid
+- **`newColumn`**: The name of the new column where the computed centroid
   geometries will be stored.
-- **`options`**: - An optional object with configuration options:
-- **`options.column`**: - The name of the column storing the geometries. If
+- **`options`**: An optional object with configuration options:
+- **`options.column`**: The name of the column storing the geometries. If
   omitted, the method will automatically attempt to find a geometry column.
 
 ##### Returns
@@ -6996,17 +7077,17 @@ async distance(column1: string, column2: string, newColumn: string, options?: { 
 
 ##### Parameters
 
-- **`column1`**: - The name of the first column storing geometries.
-- **`column2`**: - The name of the second column storing geometries.
-- **`newColumn`**: - The name of the new column where the computed distances
-  will be stored.
-- **`options`**: - An optional object with configuration options:
-- **`options.method`**: - The method to use for distance calculations: `"srs"`
+- **`column1`**: The name of the first column storing geometries.
+- **`column2`**: The name of the second column storing geometries.
+- **`newColumn`**: The name of the new column where the computed distances will
+  be stored.
+- **`options`**: An optional object with configuration options:
+- **`options.method`**: The method to use for distance calculations: `"srs"`
   (default, uses SRS unit), `"haversine"` (meters, requires EPSG:4326), or
   `"spheroid"` (meters, requires EPSG:4326, most accurate but slowest).
-- **`options.unit`**: - If `method` is `"spheroid"` or `"haversine"`, you can
+- **`options.unit`**: If `method` is `"spheroid"` or `"haversine"`, you can
   choose between `"m"` (meters, default) or `"km"` (kilometers).
-- **`options.decimals`**: - The number of decimal places to round the distance
+- **`options.decimals`**: The number of decimal places to round the distance
   values. Defaults to `undefined` (no rounding).
 
 ##### Returns
@@ -7058,8 +7139,8 @@ async unnestGeo(column?: string): Promise<void>;
 
 ##### Parameters
 
-- **`column`**: - The name of the column storing the geometries to be unnested.
-  If omitted, the method will automatically attempt to find a geometry column.
+- **`column`**: The name of the column storing the geometries to be unnested. If
+  omitted, the method will automatically attempt to find a geometry column.
 
 ##### Returns
 
@@ -7090,17 +7171,17 @@ async aggregateGeo(method: "union" | "intersection", options?: { column?: string
 
 ##### Parameters
 
-- **`method`**: - The aggregation method to apply: `"union"` (combines all
+- **`method`**: The aggregation method to apply: `"union"` (combines all
   geometries into a single multi-geometry) or `"intersection"` (computes the
   intersection of all geometries).
-- **`options`**: - An optional object with configuration options:
-- **`options.column`**: - The name of the column storing the geometries to be
+- **`options`**: An optional object with configuration options:
+- **`options.column`**: The name of the column storing the geometries to be
   aggregated. If omitted, the method will automatically attempt to find a
   geometry column.
-- **`options.categories`**: - The column name or an array of column names that
+- **`options.categories`**: The column name or an array of column names that
   define categories for the aggregation. Aggregation will be performed
   independently within each category.
-- **`options.outputTable`**: - If `true`, the results will be stored in a new
+- **`options.outputTable`**: If `true`, the results will be stored in a new
   table with a generated name. If a string, it will be used as the name for the
   new table. If `false` or omitted, the current table will be overwritten.
   Defaults to `false`.
@@ -7142,7 +7223,7 @@ async linesToPolygons(column?: string): Promise<void>;
 
 ##### Parameters
 
-- **`column`**: - The name of the column storing the linestring geometries. If
+- **`column`**: The name of the column storing the linestring geometries. If
   omitted, the method will automatically attempt to find a geometry column.
 
 ##### Returns
@@ -7176,7 +7257,7 @@ async getBoundingBox(column?: string): Promise<[number, number, number, number]>
 
 ##### Parameters
 
-- **`column`**: - The name of the column storing geometries. If omitted, the
+- **`column`**: The name of the column storing geometries. If omitted, the
   method will automatically attempt to find a geometry column.
 
 ##### Returns
@@ -7214,11 +7295,11 @@ async getGeoData(column?: string, options?: { rewind?: boolean }): Promise<{ typ
 
 ##### Parameters
 
-- **`column`**: - The name of the column storing the geometries. If omitted, the
+- **`column`**: The name of the column storing the geometries. If omitted, the
   method will automatically attempt to find a geometry column.
-- **`options`**: - An optional object with configuration options:
-- **`options.rewind`**: - If `true`, rewinds the coordinates of polygons to
-  follow the spherical winding order (important for D3.js). Defaults to `false`.
+- **`options`**: An optional object with configuration options:
+- **`options.rewind`**: If `true`, rewinds the coordinates of polygons to follow
+  the spherical winding order (important for D3.js). Defaults to `false`.
 
 ##### Returns
 
@@ -7258,20 +7339,20 @@ async writeData(file: string, options?: { compression?: boolean; dataAsArrays?: 
 
 ##### Parameters
 
-- **`file`**: - The absolute path to the output file (e.g., `"./output.csv"`,
+- **`file`**: The absolute path to the output file (e.g., `"./output.csv"`,
   `"./output.json"`).
-- **`options`**: - An optional object with configuration options:
-- **`options.compression`**: - A boolean indicating whether to compress the
-  output file. If `true`, CSV and JSON files will be compressed with GZIP, while
+- **`options`**: An optional object with configuration options:
+- **`options.compression`**: A boolean indicating whether to compress the output
+  file. If `true`, CSV and JSON files will be compressed with GZIP, while
   Parquet files will use ZSTD. Defaults to `false`.
-- **`options.dataAsArrays`**: - For JSON files only. If `true`, JSON files are
+- **`options.dataAsArrays`**: For JSON files only. If `true`, JSON files are
   written as a single object with arrays for each column (e.g.,
   `{ "col1": [v1, v2], "col2": [v3, v4] }`) instead of an array of objects. This
   can reduce file size for web projects. You can use the `arraysToData` function
   from the
   [journalism library](https://jsr.io/@nshiab/journalism/doc/~/arraysToData) to
   convert it back.
-- **`options.formatDates`**: - For CSV and JSON files only. If `true`, date and
+- **`options.formatDates`**: For CSV and JSON files only. If `true`, date and
   timestamp columns will be formatted as ISO 8601 strings (e.g.,
   `"2025-01-01T01:00:00.000Z"`). Defaults to `false`.
 
@@ -7330,20 +7411,20 @@ async writeGeoData(file: string, options?: { precision?: number; compression?: b
 
 ##### Parameters
 
-- **`file`**: - The absolute path to the output file (e.g.,
-  `"./output.geojson"`, `"./output.geoparquet"`).
-- **`options`**: - An optional object with configuration options:
-- **`options.precision`**: - For GeoJSON, the maximum number of figures after
-  the decimal separator to write in coordinates. Defaults to `undefined` (full
+- **`file`**: The absolute path to the output file (e.g., `"./output.geojson"`,
+  `"./output.geoparquet"`).
+- **`options`**: An optional object with configuration options:
+- **`options.precision`**: For GeoJSON, the maximum number of figures after the
+  decimal separator to write in coordinates. Defaults to `undefined` (full
   precision).
-- **`options.compression`**: - For GeoParquet, if `true`, the output will be
-  ZSTD compressed. Defaults to `false`.
-- **`options.rewind`**: - For GeoJSON, if `true`, rewinds the coordinates of
+- **`options.compression`**: For GeoParquet, if `true`, the output will be ZSTD
+  compressed. Defaults to `false`.
+- **`options.rewind`**: For GeoJSON, if `true`, rewinds the coordinates of
   polygons to follow the right-hand rule (RFC 7946). Defaults to `false`.
-- **`options.metadata`**: - For GeoJSON, an object to be added as top-level
+- **`options.metadata`**: For GeoJSON, an object to be added as top-level
   metadata to the GeoJSON output.
-- **`options.formatDates`**: - For GeoJSON, if `true`, formats date and
-  timestamp columns to ISO 8601 strings. Defaults to `false`.
+- **`options.formatDates`**: For GeoJSON, if `true`, formats date and timestamp
+  columns to ISO 8601 strings. Defaults to `false`.
 
 ##### Returns
 
@@ -7391,20 +7472,20 @@ async toSheet(sheetUrl: string, options?: { prepend?: string; lastUpdate?: boole
 
 ##### Parameters
 
-- **`sheetUrl`**: - The URL pointing to a specific Google Sheet (e.g.,
+- **`sheetUrl`**: The URL pointing to a specific Google Sheet (e.g.,
   `"https://docs.google.com/spreadsheets/d/.../edit#gid=0"`).
-- **`options`**: - An optional object with configuration options:
-- **`options.prepend`**: - Text to be added before the data in the sheet.
-- **`options.lastUpdate`**: - If `true`, adds a row before the data with the
-  date of the update.
-- **`options.timeZone`**: - If `lastUpdate` is `true`, this option allows
+- **`options`**: An optional object with configuration options:
+- **`options.prepend`**: Text to be added before the data in the sheet.
+- **`options.lastUpdate`**: If `true`, adds a row before the data with the date
+  of the update.
+- **`options.timeZone`**: If `lastUpdate` is `true`, this option allows
   formatting the date to a specific time zone.
-- **`options.raw`**: - If `true`, Google Sheets will not attempt to guess the
-  data type and will not format or parse the values.
-- **`options.apiEmail`**: - If your API email is stored under a different
+- **`options.raw`**: If `true`, Google Sheets will not attempt to guess the data
+  type and will not format or parse the values.
+- **`options.apiEmail`**: If your API email is stored under a different
   environment variable name, use this option to specify it.
-- **`options.apiKey`**: - If your API key is stored under a different
-  environment variable name, use this option to specify it.
+- **`options.apiKey`**: If your API key is stored under a different environment
+  variable name, use this option to specify it.
 
 ##### Returns
 
@@ -7448,16 +7529,16 @@ async loadSheet(sheetUrl: string, options?: { skip?: number; apiEmail?: string; 
 
 ##### Parameters
 
-- **`sheetUrl`**: - The URL pointing to a specific Google Sheet (e.g.,
+- **`sheetUrl`**: The URL pointing to a specific Google Sheet (e.g.,
   `"https://docs.google.com/spreadsheets/d/.../edit#gid=0"`).
-- **`options`**: - An optional object with configuration options:
-- **`options.skip`**: - The number of rows to skip from the top of the sheet
+- **`options`**: An optional object with configuration options:
+- **`options.skip`**: The number of rows to skip from the top of the sheet
   before reading data. Useful when the sheet contains metadata or headers that
   should not be included in the data.
-- **`options.apiEmail`**: - If your API email is stored under a different
+- **`options.apiEmail`**: If your API email is stored under a different
   environment variable name, use this option to specify it.
-- **`options.apiKey`**: - If your API key is stored under a different
-  environment variable name, use this option to specify it.
+- **`options.apiKey`**: If your API key is stored under a different environment
+  variable name, use this option to specify it.
 
 ##### Returns
 
@@ -7490,10 +7571,10 @@ async cache(run: () => Promise<void>, options?: { ttl?: number }): Promise<void>
 
 ##### Parameters
 
-- **`run`**: - A function wrapping the computations to be cached. This function
+- **`run`**: A function wrapping the computations to be cached. This function
   will be executed on the first run or if the cached data is invalid/expired.
-- **`options`**: - An optional object with configuration options:
-- **`options.ttl`**: - Time to live (in seconds). If the data in the cache is
+- **`options`**: An optional object with configuration options:
+- **`options.ttl`**: Time to live (in seconds). If the data in the cache is
   older than this duration, the `run` function will be executed again to refresh
   the cache. By default, there is no TTL, meaning the cache is only invalidated
   if the `run` function's content changes.
@@ -7573,15 +7654,15 @@ async writeChart(chart: (data: unknown[]) => SVGSVGElement | HTMLElement, path: 
 
 ##### Parameters
 
-- **`chart`**: - A function that takes data (as an array of objects) and returns
+- **`chart`**: A function that takes data (as an array of objects) and returns
   an Observable Plot chart (an `SVGSVGElement` or `HTMLElement`).
-- **`path`**: - The absolute path where the chart image will be saved (e.g.,
+- **`path`**: The absolute path where the chart image will be saved (e.g.,
   `"./output/chart.png"`).
-- **`options`**: - Optional object containing additional settings:
-- **`options.style`**: - A CSS string to customize the chart's appearance. This
-  is applied to a `<div>` element wrapping the Plot chart (which has the id
+- **`options`**: Optional object containing additional settings:
+- **`options.style`**: A CSS string to customize the chart's appearance. This is
+  applied to a `<div>` element wrapping the Plot chart (which has the id
   `chart`). Use this if the Plot `style` option is insufficient.
-- **`options.dark`**: - If `true`, switches the chart to dark mode. Defaults to
+- **`options.dark`**: If `true`, switches the chart to dark mode. Defaults to
   `false`.
 
 ##### Returns
@@ -7624,19 +7705,19 @@ async writeMap(map: (geoData: { features: { properties: Record<string, unknown> 
 
 ##### Parameters
 
-- **`map`**: - A function that takes geospatial data (in GeoJSON format) and
+- **`map`**: A function that takes geospatial data (in GeoJSON format) and
   returns an Observable Plot map (an `SVGSVGElement` or `HTMLElement`).
-- **`path`**: - The absolute path where the map image will be saved (e.g.,
+- **`path`**: The absolute path where the map image will be saved (e.g.,
   `"./output/map.png"`).
-- **`options`**: - An optional object with configuration options:
-- **`options.column`**: - The name of the column storing geometries. If there is
+- **`options`**: An optional object with configuration options:
+- **`options.column`**: The name of the column storing geometries. If there is
   only one geometry column, it will be used by default.
-- **`options.rewind`**: - If `true`, rewinds the coordinates of polygons to
-  follow the spherical winding order (important for D3.js). Defaults to `true`.
-- **`options.style`**: - A CSS string to customize the map's appearance. This is
+- **`options.rewind`**: If `true`, rewinds the coordinates of polygons to follow
+  the spherical winding order (important for D3.js). Defaults to `true`.
+- **`options.style`**: A CSS string to customize the map's appearance. This is
   applied to a `<div>` element wrapping the Plot map (which has the ID `chart`).
   Use this if the Plot `style` option is insufficient.
-- **`options.dark`**: - If `true`, switches the map to dark mode. Defaults to
+- **`options.dark`**: If `true`, switches the map to dark mode. Defaults to
   `false`.
 
 ##### Returns
@@ -7684,13 +7765,13 @@ async logTable(options?: "all" | number | { nbRowsToLog?: number | "all"; types?
 
 ##### Parameters
 
-- **`options`**: - Either the number of rows to log (a specific number or
-  `"all"`) or an object with configuration options:
-- **`options.nbRowsToLog`**: - The number of rows to log. Defaults to 10 or the
+- **`options`**: Either the number of rows to log (a specific number or `"all"`)
+  or an object with configuration options:
+- **`options.nbRowsToLog`**: The number of rows to log. Defaults to 10 or the
   value set in the SimpleDB instance. Use `"all"` to log all rows.
-- **`options.types`**: - If `true`, logs the column types along with the data.
+- **`options.types`**: If `true`, logs the column types along with the data.
   Defaults to `false`.
-- **`options.conditions`**: - A SQL `WHERE` clause condition to filter the data
+- **`options.conditions`**: A SQL `WHERE` clause condition to filter the data
   before logging. Defaults to no condition.
 
 ##### Returns
@@ -7743,26 +7824,26 @@ async logLineChart(x: string, y: string, options?: { formatX?: (d: unknown) => s
 
 ##### Parameters
 
-- **`x`**: - The name of the column to be used for the x-axis. Values must be
+- **`x`**: The name of the column to be used for the x-axis. Values must be
   numbers or Date objects.
-- **`y`**: - The name of the column to be used for the y-axis. Values must be
+- **`y`**: The name of the column to be used for the y-axis. Values must be
   numbers.
-- **`options`**: - An optional object with configuration options:
-- **`options.formatX`**: - A function to format the x-axis values for display.
-  It receives the raw x-value as input and should return a string. If the first
+- **`options`**: An optional object with configuration options:
+- **`options.formatX`**: A function to format the x-axis values for display. It
+  receives the raw x-value as input and should return a string. If the first
   data point's x value is a Date, it defaults to formatting the date as
   "YYYY-MM-DD".
-- **`options.formatY`**: - A function to format the y-axis values for display.
-  It receives the raw y-value as input and should return a string.
-- **`options.smallMultiples`**: - The name of a column to create small multiples
+- **`options.formatY`**: A function to format the y-axis values for display. It
+  receives the raw y-value as input and should return a string.
+- **`options.smallMultiples`**: The name of a column to create small multiples
   (also known as facets or trellis charts). Each unique value in this column
   will generate a separate chart.
-- **`options.fixedScales`**: - If `true`, all small multiples will share the
-  same y-axis scale. Defaults to `false`.
-- **`options.smallMultiplesPerRow`**: - The number of small multiples to display
+- **`options.fixedScales`**: If `true`, all small multiples will share the same
+  y-axis scale. Defaults to `false`.
+- **`options.smallMultiplesPerRow`**: The number of small multiples to display
   per row.
-- **`options.width`**: - The width of the chart in characters.
-- **`options.height`**: - The height of the chart in characters.
+- **`options.width`**: The width of the chart in characters.
+- **`options.height`**: The height of the chart in characters.
 
 ##### Returns
 
@@ -7823,26 +7904,26 @@ async logDotChart(x: string, y: string, options?: { formatX?: (d: unknown) => st
 
 ##### Parameters
 
-- **`x`**: - The name of the column to be used for the x-axis. Values must be
+- **`x`**: The name of the column to be used for the x-axis. Values must be
   numbers or Date objects.
-- **`y`**: - The name of the column to be used for the y-axis. Values must be
+- **`y`**: The name of the column to be used for the y-axis. Values must be
   numbers.
-- **`options`**: - An optional object with configuration options:
-- **`options.formatX`**: - A function to format the x-axis values for display.
-  It receives the raw x-value as input and should return a string. If the first
+- **`options`**: An optional object with configuration options:
+- **`options.formatX`**: A function to format the x-axis values for display. It
+  receives the raw x-value as input and should return a string. If the first
   data point's x value is a Date, it defaults to formatting the date as
   "YYYY-MM-DD".
-- **`options.formatY`**: - A function to format the y-axis values for display.
-  It receives the raw y-value as input and should return a string.
-- **`options.smallMultiples`**: - The name of a column to create small multiples
+- **`options.formatY`**: A function to format the y-axis values for display. It
+  receives the raw y-value as input and should return a string.
+- **`options.smallMultiples`**: The name of a column to create small multiples
   (also known as facets). Each unique value in this column will generate a
   separate chart.
-- **`options.fixedScales`**: - If `true`, all small multiples will share the
-  same y-axis scale. Defaults to `false`.
-- **`options.smallMultiplesPerRow`**: - The number of small multiples to display
+- **`options.fixedScales`**: If `true`, all small multiples will share the same
+  y-axis scale. Defaults to `false`.
+- **`options.smallMultiplesPerRow`**: The number of small multiples to display
   per row.
-- **`options.width`**: - The width of the chart in characters.
-- **`options.height`**: - The height of the chart in characters.
+- **`options.width`**: The width of the chart in characters.
+- **`options.height`**: The height of the chart in characters.
 
 ##### Returns
 
@@ -7896,14 +7977,14 @@ async logBarChart(labels: string, values: string, options?: { formatLabels?: (d:
 
 ##### Parameters
 
-- **`labels`**: - The name of the column to be used for the labels (categories).
-- **`values`**: - The name of the column to be used for the values.
-- **`options`**: - An optional object with configuration options:
-- **`options.formatLabels`**: - A function to format the labels. Defaults to
+- **`labels`**: The name of the column to be used for the labels (categories).
+- **`values`**: The name of the column to be used for the values.
+- **`options`**: An optional object with configuration options:
+- **`options.formatLabels`**: A function to format the labels. Defaults to
   converting the label to a string.
-- **`options.formatValues`**: - A function to format the values. Defaults to
+- **`options.formatValues`**: A function to format the values. Defaults to
   converting the value to a string.
-- **`options.width`**: - The width of the chart in characters. Defaults to 40.
+- **`options.width`**: The width of the chart in characters. Defaults to 40.
 
 ##### Returns
 
@@ -7932,17 +8013,16 @@ async logHistogram(values: string, options?: { bins?: number; formatLabels?: (mi
 
 ##### Parameters
 
-- **`values`**: - The name of the numeric column for which to generate the
+- **`values`**: The name of the numeric column for which to generate the
   histogram.
-- **`options`**: - An optional object with configuration options:
-- **`options.bins`**: - The number of bins (intervals) to use for the histogram.
+- **`options`**: An optional object with configuration options:
+- **`options.bins`**: The number of bins (intervals) to use for the histogram.
   Defaults to 10.
-- **`options.formatLabels`**: - A function to format the labels for the
-  histogram bins. It receives the lower and upper bounds of each bin as
-  arguments.
-- **`options.compact`**: - If `true`, the histogram will be displayed in a more
+- **`options.formatLabels`**: A function to format the labels for the histogram
+  bins. It receives the lower and upper bounds of each bin as arguments.
+- **`options.compact`**: If `true`, the histogram will be displayed in a more
   compact format. Defaults to `false`.
-- **`options.width`**: - The maximum width of the histogram bars in characters.
+- **`options.width`**: The maximum width of the histogram bars in characters.
 
 ##### Returns
 
@@ -8048,10 +8128,10 @@ async logUniques(column: string, options?: { stringify?: boolean }): Promise<Sim
 
 ##### Parameters
 
-- **`column`**: - The name of the column from which to retrieve and log unique
+- **`column`**: The name of the column from which to retrieve and log unique
   values.
-- **`options`**: - An optional object with configuration options:
-- **`options.stringify`**: - If `true`, converts the unique values to a JSON
+- **`options`**: An optional object with configuration options:
+- **`options.stringify`**: If `true`, converts the unique values to a JSON
   string before logging. Defaults to `false`.
 
 ##### Returns
@@ -8084,8 +8164,8 @@ async logColumns(options?: { types?: boolean }): Promise<SimpleTable>;
 
 ##### Parameters
 
-- **`options`**: - An optional object with configuration options:
-- **`options.types`**: - If `true`, logs the column names along with their data
+- **`options`**: An optional object with configuration options:
+- **`options.types`**: If `true`, logs the column names along with their data
   types. Defaults to `false`.
 
 ##### Returns
@@ -8139,11 +8219,11 @@ async logBottom(count?: number, options?: { originalOrder?: boolean }): Promise<
 
 ##### Parameters
 
-- **`count`**: - The number of rows to log from the bottom of the table.
-  Defaults to the table's `nbRowsToLog` option if not specified.
-- **`options`**: - An optional object with logging preferences.
-- **`options.originalOrder`**: - If true, the rows are displayed in their
-  original order (top to bottom). Defaults to false.
+- **`count`**: The number of rows to log from the bottom of the table. Defaults
+  to the table's `nbRowsToLog` option if not specified.
+- **`options`**: An optional object with logging preferences.
+- **`options.originalOrder`**: If true, the rows are displayed in their original
+  order (top to bottom). Defaults to false.
 
 ##### Returns
 
@@ -8178,7 +8258,7 @@ async logExtent(column: string): Promise<void>;
 
 ##### Parameters
 
-- **`column`**: - The name of the numeric column for which to log the extent.
+- **`column`**: The name of the numeric column for which to log the extent.
 
 ##### Returns
 
