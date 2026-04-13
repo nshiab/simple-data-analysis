@@ -6092,6 +6092,11 @@ async getRow(conditions: string, options?: { noCheck?: boolean }): Promise<Recor
 
 A promise that resolves to an object representing the matched row.
 
+##### Throws
+
+- **`Error`**: If `noCheck` is `false` and no row or more than one row matches
+  the conditions.
+
 ##### Examples
 
 ```ts

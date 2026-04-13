@@ -8,6 +8,7 @@ interface JsDocTag {
   name?: string;
   doc?: string;
   type?: string;
+  tsType?: TsTypeDef;
 }
 
 interface JsDoc {
@@ -213,15 +214,6 @@ function generateTypeRepr(tsType?: TsTypeDef): string {
   const ansiRegex = new RegExp(String.fromCharCode(27) + "\\[[0-9;]*m", "g");
   const cleanRepr = tsType.repr?.replace(ansiRegex, "");
 
-  // Don't use repr if we have type parameters to process or if repr is empty
-  // Also skip repr for literal types so they get quoted properly
-  if (
-    cleanRepr && cleanRepr.trim() !== "" && tsType.kind !== "typeRef" &&
-    tsType.kind !== "literal"
-  ) {
-    return cleanRepr;
-  }
-
   // Deno Doc v2 nested the structural type information inside the `value` property
   // We normalize this by mapping `tsType.value` to the property matching its kind
   if (tsType.value !== undefined) {
@@ -347,8 +339,8 @@ function generateTypeRepr(tsType?: TsTypeDef): string {
       return tsType.repr || "any";
     }
     default:
-      // Fallback to repr if available and not empty
-      return (tsType.repr && tsType.repr.trim() !== "") ? tsType.repr : "any";
+      // Fallback to cleanRepr if available and not empty
+      return (cleanRepr && cleanRepr.trim() !== "") ? cleanRepr : "any";
   }
 }
 
@@ -440,7 +432,10 @@ const generateFunctionMarkdown = (node: DocNode): string => {
   if (throws.length > 0) {
     md += "### Throws\n\n";
     throws.forEach((t) => {
-      md += `* **\`${t.type}\`**: ${t.doc?.replace(/\n/g, " ").trim() ?? ""}\n`;
+      const typeLabel = t.tsType ? generateTypeRepr(t.tsType) : (t.type ?? "Error");
+      md += `* **\`${typeLabel}\`**: ${
+        t.doc?.replace(/\n/g, " ").trim() ?? ""
+      }\n`;
     });
     md += "\n";
   }
@@ -569,6 +564,24 @@ const generateClassMarkdown = (node: DocNode): string => {
         )[0];
         if (methodReturns?.doc) {
           md += `##### Returns\n\n${methodReturns.doc.trim()}\n\n`;
+        }
+
+        // Method throws
+        const methodThrows = getJsDocTag(
+          { jsDoc: method.jsDoc } as DocNode,
+          "throws",
+        );
+        if (methodThrows.length > 0) {
+          md += "##### Throws\n\n";
+          methodThrows.forEach((t) => {
+            const typeLabel = t.tsType
+              ? generateTypeRepr(t.tsType)
+              : (t.type ?? "Error");
+            md += `* **\`${typeLabel}\`**: ${
+              t.doc?.replace(/\n/g, " ").trim() ?? ""
+            }\n`;
+          });
+          md += "\n";
         }
 
         // Method examples
