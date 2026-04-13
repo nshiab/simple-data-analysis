@@ -34,6 +34,7 @@ interface TsTypeDef {
     | "typeOperator"
     | "tuple";
   keyword?: string;
+  value?: any; // Added to support Deno Doc v2
   typeRef?: {
     typeName: string;
     typeParams?: TsTypeDef[];
@@ -139,10 +140,64 @@ interface DocNode {
 }
 
 interface DenoDoc {
-  nodes: DocNode[];
+  version?: number;
+  nodes: DocNode[] | Record<string, any>;
 }
 
 // #endregion
+
+/**
+ * Normalizes Deno Doc JSON v2 format to v1 format.
+ * @param data - The Deno Doc JSON data.
+ * @returns An array of DocNode objects.
+ */
+function normalizeDocNodes(data: DenoDoc): DocNode[] {
+  if (Array.isArray(data.nodes)) {
+    return data.nodes;
+  }
+
+  const nodes: DocNode[] = [];
+  
+  for (const [_, fileData] of Object.entries(data.nodes)) {
+    if (fileData.module_doc) {
+      nodes.push({
+        name: "moduleDoc",
+        kind: "moduleDoc",
+        declarationKind: "export",
+        jsDoc: fileData.module_doc,
+      });
+    }
+    
+    if (Array.isArray(fileData.symbols)) {
+      for (const symbol of fileData.symbols) {
+        if (!Array.isArray(symbol.declarations)) continue;
+        
+        for (const decl of symbol.declarations) {
+          const node: DocNode = {
+            name: symbol.name,
+            kind: decl.kind,
+            declarationKind: decl.declarationKind,
+            jsDoc: decl.jsDoc,
+          };
+          
+          if (decl.kind === "function" && decl.def) {
+            node.functionDef = decl.def;
+          } else if (decl.kind === "class" && decl.def) {
+            node.classDef = {
+              isAbstract: decl.def.isAbstract || false,
+              constructors: decl.def.constructors || [],
+              methods: decl.def.methods || [],
+            };
+          }
+          
+          nodes.push(node);
+        }
+      }
+    }
+  }
+
+  return nodes;
+}
 
 /**
  * Recursively generates a string representation for a TypeScript type.
@@ -163,6 +218,25 @@ function generateTypeRepr(tsType?: TsTypeDef): string {
     tsType.kind !== "literal"
   ) {
     return cleanRepr;
+  }
+
+  // Deno Doc v2 nested the structural type information inside the `value` property
+  // We normalize this by mapping `tsType.value` to the property matching its kind
+  if (tsType.value !== undefined) {
+    if (tsType.kind === "typeRef") tsType.typeRef = tsType.value;
+    else if (tsType.kind === "array") tsType.array = tsType.value;
+    else if (tsType.kind === "union") tsType.union = tsType.value;
+    else if (tsType.kind === "intersection") tsType.intersection = tsType.value;
+    else if (tsType.kind === "parenthesized") tsType.parenthesized = tsType.value;
+    else if (tsType.kind === "typeLiteral") tsType.typeLiteral = tsType.value;
+    else if (tsType.kind === "fnOrConstructor") tsType.fnOrConstructor = tsType.value;
+    else if (tsType.kind === "literal") tsType.literal = tsType.value;
+    else if (tsType.kind === "typePredicate") tsType.typePredicate = tsType.value;
+    else if (tsType.kind === "mapped") tsType.mappedType = tsType.value;
+    else if (tsType.kind === "indexedAccess") tsType.indexedAccess = tsType.value;
+    else if (tsType.kind === "typeOperator") tsType.typeOperator = tsType.value;
+    else if (tsType.kind === "tuple") tsType.tuple = tsType.value;
+    else if (tsType.kind === "keyword") tsType.keyword = tsType.value;
   }
 
   switch (tsType.kind) {
@@ -525,16 +599,17 @@ function generateMarkdown(jsonPath: string, outputPath: string) {
   try {
     console.log(`\nReading from ${jsonPath}...`);
     const jsonContent = fs.readFileSync(jsonPath, "utf-8");
-    const docData: DenoDoc = JSON.parse(jsonContent);
+    const rawData = JSON.parse(jsonContent);
+    const docNodes: DocNode[] = normalizeDocNodes(rawData);
 
-    const publicNodes = docData.nodes
-      .filter((node) =>
+    const publicNodes = docNodes
+      .filter((node: DocNode) =>
         node.declarationKind === "export" &&
         (node.kind === "function" || node.kind === "class") &&
         node.jsDoc?.doc &&
-        !node.jsDoc?.tags?.some((tag) => tag.kind === "internal")
+        !node.jsDoc?.tags?.some((tag: JsDocTag) => tag.kind === "internal")
       )
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a: DocNode, b: DocNode) => a.name.localeCompare(b.name));
 
     console.log(
       `Found ${publicNodes.length} public functions/classes to document.`,
@@ -542,9 +617,9 @@ function generateMarkdown(jsonPath: string, outputPath: string) {
 
     let markdownContent = "";
 
-    const moduleDoc = docData.nodes.find((node) => node.kind === "moduleDoc");
+    const moduleDoc = docNodes.find((node: DocNode) => node.kind === "moduleDoc");
     if (moduleDoc?.jsDoc?.tags) {
-      const moduleTag = moduleDoc.jsDoc.tags.find((tag) =>
+      const moduleTag = moduleDoc.jsDoc.tags.find((tag: JsDocTag) =>
         tag.kind === "module"
       );
       if (moduleTag?.name) {
@@ -556,7 +631,7 @@ function generateMarkdown(jsonPath: string, outputPath: string) {
       markdownContent += "# API Reference\n\n";
     }
 
-    publicNodes.forEach((node) => {
+    publicNodes.forEach((node: DocNode) => {
       if (node.kind === "function") {
         markdownContent += generateFunctionMarkdown(node);
       } else if (node.kind === "class") {
