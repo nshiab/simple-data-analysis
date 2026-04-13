@@ -34,6 +34,7 @@ interface TsTypeDef {
     | "typeOperator"
     | "tuple";
   keyword?: string;
+  // deno-lint-ignore no-explicit-any
   value?: any; // Added to support Deno Doc v2
   typeRef?: {
     typeName: string;
@@ -141,6 +142,7 @@ interface DocNode {
 
 interface DenoDoc {
   version?: number;
+  // deno-lint-ignore no-explicit-any
   nodes: DocNode[] | Record<string, any>;
 }
 
@@ -157,7 +159,7 @@ function normalizeDocNodes(data: DenoDoc): DocNode[] {
   }
 
   const nodes: DocNode[] = [];
-  
+
   for (const [_, fileData] of Object.entries(data.nodes)) {
     if (fileData.module_doc) {
       nodes.push({
@@ -167,11 +169,11 @@ function normalizeDocNodes(data: DenoDoc): DocNode[] {
         jsDoc: fileData.module_doc,
       });
     }
-    
+
     if (Array.isArray(fileData.symbols)) {
       for (const symbol of fileData.symbols) {
         if (!Array.isArray(symbol.declarations)) continue;
-        
+
         for (const decl of symbol.declarations) {
           const node: DocNode = {
             name: symbol.name,
@@ -179,7 +181,7 @@ function normalizeDocNodes(data: DenoDoc): DocNode[] {
             declarationKind: decl.declarationKind,
             jsDoc: decl.jsDoc,
           };
-          
+
           if (decl.kind === "function" && decl.def) {
             node.functionDef = decl.def;
           } else if (decl.kind === "class" && decl.def) {
@@ -189,7 +191,7 @@ function normalizeDocNodes(data: DenoDoc): DocNode[] {
               methods: decl.def.methods || [],
             };
           }
-          
+
           nodes.push(node);
         }
       }
@@ -227,15 +229,20 @@ function generateTypeRepr(tsType?: TsTypeDef): string {
     else if (tsType.kind === "array") tsType.array = tsType.value;
     else if (tsType.kind === "union") tsType.union = tsType.value;
     else if (tsType.kind === "intersection") tsType.intersection = tsType.value;
-    else if (tsType.kind === "parenthesized") tsType.parenthesized = tsType.value;
-    else if (tsType.kind === "typeLiteral") tsType.typeLiteral = tsType.value;
-    else if (tsType.kind === "fnOrConstructor") tsType.fnOrConstructor = tsType.value;
-    else if (tsType.kind === "literal") tsType.literal = tsType.value;
-    else if (tsType.kind === "typePredicate") tsType.typePredicate = tsType.value;
-    else if (tsType.kind === "mapped") tsType.mappedType = tsType.value;
-    else if (tsType.kind === "indexedAccess") tsType.indexedAccess = tsType.value;
-    else if (tsType.kind === "typeOperator") tsType.typeOperator = tsType.value;
-    else if (tsType.kind === "tuple") tsType.tuple = tsType.value;
+    else if (tsType.kind === "parenthesized") {
+      tsType.parenthesized = tsType.value;
+    } else if (tsType.kind === "typeLiteral") tsType.typeLiteral = tsType.value;
+    else if (tsType.kind === "fnOrConstructor") {
+      tsType.fnOrConstructor = tsType.value;
+    } else if (tsType.kind === "literal") tsType.literal = tsType.value;
+    else if (tsType.kind === "typePredicate") {
+      tsType.typePredicate = tsType.value;
+    } else if (tsType.kind === "mapped") tsType.mappedType = tsType.value;
+    else if (tsType.kind === "indexedAccess") {
+      tsType.indexedAccess = tsType.value;
+    } else if (tsType.kind === "typeOperator") {
+      tsType.typeOperator = tsType.value;
+    } else if (tsType.kind === "tuple") tsType.tuple = tsType.value;
     else if (tsType.kind === "keyword") tsType.keyword = tsType.value;
   }
 
@@ -617,7 +624,9 @@ function generateMarkdown(jsonPath: string, outputPath: string) {
 
     let markdownContent = "";
 
-    const moduleDoc = docNodes.find((node: DocNode) => node.kind === "moduleDoc");
+    const moduleDoc = docNodes.find((node: DocNode) =>
+      node.kind === "moduleDoc"
+    );
     if (moduleDoc?.jsDoc?.tags) {
       const moduleTag = moduleDoc.jsDoc.tags.find((tag: JsDocTag) =>
         tag.kind === "module"
