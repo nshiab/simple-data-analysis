@@ -432,7 +432,9 @@ const generateFunctionMarkdown = (node: DocNode): string => {
   if (throws.length > 0) {
     md += "### Throws\n\n";
     throws.forEach((t) => {
-      const typeLabel = t.tsType ? generateTypeRepr(t.tsType) : (t.type ?? "Error");
+      const typeLabel = t.tsType
+        ? generateTypeRepr(t.tsType)
+        : (t.type ?? "Error");
       md += `* **\`${typeLabel}\`**: ${
         t.doc?.replace(/\n/g, " ").trim() ?? ""
       }\n`;
