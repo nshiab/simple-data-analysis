@@ -2,6 +2,7 @@ import { askAI } from "@nshiab/journalism-ai";
 import type SimpleTable from "../class/SimpleTable.ts";
 import { prettyDuration } from "@nshiab/journalism-format";
 import hybridSearch from "./hybridSearch.ts";
+import type { Ollama } from "ollama";
 
 export default async function aiRAG(
   table: SimpleTable,
@@ -20,8 +21,20 @@ export default async function aiRAG(
     thinkingBudget?: number;
     thinkingLevel?: "minimal" | "low" | "medium" | "high";
     webSearch?: boolean;
+    safetyEnabled?: boolean;
     model?: string;
     temperature?: number;
+    apiKey?: string;
+    vertex?: boolean;
+    project?: string;
+    location?: string;
+    ollama?: boolean | Ollama;
+    metrics?: {
+      totalCost: number;
+      totalInputTokens: number;
+      totalOutputTokens: number;
+      totalRequests: number;
+    };
     embeddingsModel?: string;
     ollamaEmbeddings?: boolean;
     embeddingsConcurrent?: number;
@@ -163,8 +176,15 @@ Rules of Engagement:
       thinkingBudget: options.thinkingBudget,
       thinkingLevel: options.thinkingLevel,
       webSearch: options.webSearch,
+      safetyEnabled: options.safetyEnabled,
       model: options.model,
       temperature: options.temperature,
+      apiKey: options.apiKey,
+      vertex: options.vertex,
+      project: options.project,
+      location: options.location,
+      ollama: options.ollama,
+      metrics: options.metrics,
     },
   ) as Promise<string>;
 

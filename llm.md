@@ -855,7 +855,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRowByRow(column: string, newColumn: string | string[], prompt: string, options?: { batchSize?: number; concurrent?: number; cache?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; model?: string; temperature?: number; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => unknown; contextWindow?: number; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; extraInstructions?: string; schemaJson?: unknown; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
+async aiRowByRow(column: string, newColumn: string | string[], prompt: string, options?: { batchSize?: number; concurrent?: number; cache?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; model?: string; temperature?: number; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => unknown; contextWindow?: number; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; webSearch?: boolean; extraInstructions?: string; schemaJson?: unknown; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
 ```
 
 ##### Parameters
@@ -910,6 +910,10 @@ async aiRowByRow(column: string, newColumn: string | string[], prompt: string, o
   "low", "medium", or "high", which some models expect instead of
   `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided.
   For Ollama models, any value enables reasoning.
+- **`options.safetyEnabled`**: Controls whether safety filters are enabled. If
+  set to `true`, filters are active; if `false`, they are disabled. By default,
+  this is `false` when using Vertex AI and `true` otherwise. This setting can be
+  explicitly overridden for any model.
 - **`options.webSearch`**: (Gemini only) If `true`, enables web search grounding
   for the AI's responses. Be careful of extra costs. Defaults to `false`.
 - **`options.schemaJson`**: A Zod JSON schema object for structured output. This
@@ -1034,7 +1038,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRowByRowPool(column: string, newColumn: string | string[], errorColumn: string, prompt: string, poolSize: number, options?: { cache?: boolean; batchSize?: number; logProgress?: boolean; verbose?: boolean; includeThoughts?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; retryCheck?: (error: unknown) => Promise<boolean> | boolean; extraInstructions?: string; minRequestDurationMs?: number; clean?: (response: unknown) => unknown; contextWindow?: number; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; schemaJson?: unknown; model?: string; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
+async aiRowByRowPool(column: string, newColumn: string | string[], errorColumn: string, prompt: string, poolSize: number, options?: { cache?: boolean; batchSize?: number; logProgress?: boolean; verbose?: boolean; includeThoughts?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; retryCheck?: (error: unknown) => Promise<boolean> | boolean; extraInstructions?: string; minRequestDurationMs?: number; clean?: (response: unknown) => unknown; contextWindow?: number; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; webSearch?: boolean; schemaJson?: unknown; model?: string; temperature?: number; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
 ```
 
 ##### Parameters
@@ -1086,6 +1090,10 @@ async aiRowByRowPool(column: string, newColumn: string | string[], errorColumn: 
   "low", "medium", or "high", which some models expect instead of
   `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided.
   For Ollama models, any value enables reasoning.
+- **`options.safetyEnabled`**: Controls whether safety filters are enabled. If
+  set to `true`, filters are active; if `false`, they are disabled. By default,
+  this is `false` when using Vertex AI and `true` otherwise. This setting can be
+  explicitly overridden for any model.
 - **`options.webSearch`**: (Gemini only) If `true`, enables web search grounding
   for the AI's responses. Be careful of extra costs. Defaults to `false`.
 - **`options.schemaJson`**: A Zod JSON schema object for structured output. This
@@ -1094,6 +1102,18 @@ async aiRowByRowPool(column: string, newColumn: string | string[], errorColumn: 
   environment variable.
 - **`options.temperature`**: The temperature setting for the AI model,
   controlling the randomness of the output. Defaults to `0`.
+- **`options.apiKey`**: The API key for the AI service. Defaults to the `AI_KEY`
+  environment variable.
+- **`options.vertex`**: If `true`, uses Vertex AI. Automatically set to `true`
+  if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to
+  `false`.
+- **`options.project`**: The Google Cloud project ID for Vertex AI. Defaults to
+  the `AI_PROJECT` environment variable.
+- **`options.location`**: The Google Cloud location for Vertex AI. Defaults to
+  the `AI_LOCATION` environment variable.
+- **`options.ollama`**: If `true`, uses Ollama. Defaults to the `OLLAMA`
+  environment variable. If you want your Ollama instance to be used, you can
+  pass it here too.
 - **`options.metrics`**: An object to track cumulative metrics across multiple
   AI requests. Pass an object with totalCost, totalInputTokens,
   totalOutputTokens, and totalRequests properties (all initialized to 0). The
@@ -1737,7 +1757,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRAG(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; includeThoughts?: boolean; systemPrompt?: string; modelContextWindow?: number; embeddingsModelContextWindow?: number; createIndex?: boolean; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; model?: string; temperature?: number; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; efConstruction?: number; efSearch?: number; M?: number }): Promise<string>;
+async aiRAG(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; includeThoughts?: boolean; systemPrompt?: string; modelContextWindow?: number; embeddingsModelContextWindow?: number; createIndex?: boolean; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; safetyEnabled?: boolean; model?: string; temperature?: number; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number }; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; efConstruction?: number; efSearch?: number; M?: number }): Promise<string>;
 ```
 
 ##### Parameters
@@ -1774,12 +1794,32 @@ async aiRAG(query: string, columnId: string, columnText: string, nbResults: numb
   "low", "medium", or "high", which some models expect instead of
   `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided.
   For Ollama models, any value enables reasoning.
+- **`options.safetyEnabled`**: Controls whether safety filters are enabled. If
+  set to `true`, filters are active; if `false`, they are disabled. By default,
+  this is `false` when using Vertex AI and `true` otherwise. This setting can be
+  explicitly overridden for any model.
 - **`options.webSearch`**: (Gemini only) If `true`, enables web search grounding
   for the AI's responses. Be careful of extra costs. Defaults to `false`.
 - **`options.model`**: The LLM model to use for answering the query. Defaults to
   the `AI_MODEL` environment variable.
 - **`options.temperature`**: The temperature setting for the AI model,
   controlling the randomness of the output. Defaults to `0`.
+- **`options.apiKey`**: Your API key for the AI service. Defaults to the
+  `AI_KEY` environment variable.
+- **`options.vertex`**: Set to `true` to use Vertex AI for authentication.
+  Auto-enables if `AI_PROJECT` and `AI_LOCATION` are set. Defaults to `false`.
+- **`options.project`**: Your Google Cloud project ID. Defaults to the
+  `AI_PROJECT` environment variable.
+- **`options.location`**: Your Google Cloud location for your project. Defaults
+  to the `AI_LOCATION` environment variable.
+- **`options.ollama`**: If `true`, uses Ollama. Defaults to the `OLLAMA`
+  environment variable. If you want your Ollama instance to be used, you can
+  pass it here too.
+- **`options.metrics`**: An object to track cumulative metrics across multiple
+  AI requests. Pass an object with totalCost, totalInputTokens,
+  totalOutputTokens, and totalRequests properties (all initialized to 0). The
+  function will update these values after each request. Note: totalCost is only
+  calculated for Google GenAI models, not for Ollama.
 - **`options.embeddingsModel`**: The model to use for generating embeddings.
   Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
 - **`options.ollamaEmbeddings`**: If `true`, forces the use of Ollama for
@@ -2048,7 +2088,7 @@ and time. Remember to add `.journalism-cache` to your `.gitignore`.
 ##### Signature
 
 ```typescript
-async aiQuery(prompt: string, options?: { extraInstructions?: string; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; includeThoughts?: boolean; location?: string; ollama?: boolean | Ollama; contextWindow?: number; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; outputTable?: string; verbose?: boolean }): Promise<SimpleTable>;
+async aiQuery(prompt: string, options?: { extraInstructions?: string; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; includeThoughts?: boolean; location?: string; ollama?: boolean | Ollama; contextWindow?: number; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; temperature?: number; safetyEnabled?: boolean; outputTable?: string; verbose?: boolean }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -2084,6 +2124,12 @@ async aiQuery(prompt: string, options?: { extraInstructions?: string; cache?: bo
   "low", "medium", or "high", which some models expect instead of
   `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided.
   For Ollama models, any value enables reasoning.
+- **`options.temperature`**: The temperature setting for the AI model,
+  controlling the randomness of the output. Defaults to `0`.
+- **`options.safetyEnabled`**: Controls whether safety filters are enabled. If
+  set to `true`, filters are active; if `false`, they are disabled. By default,
+  this is `false` when using Vertex AI and `true` otherwise. This setting can be
+  explicitly overridden for any model.
 - **`options.outputTable`**: The name of a new table where the results will be
   stored. If not provided, the current table will be replaced with the query
   results.

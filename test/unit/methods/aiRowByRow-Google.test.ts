@@ -80,6 +80,29 @@ if (typeof aiKey === "string" && aiKey !== "") {
     ]);
     await sdb.done();
   });
+  Deno.test("should iterate over rows with a prompt and safetyEnabled", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadArray([
+      { "city": "Marrakech" },
+      { "city": "Kyoto" },
+      { "city": "Auckland" },
+    ]);
+    await table.aiRowByRow(
+      "city",
+      "country",
+      `Give me the country of the city.`,
+      { verbose: true, safetyEnabled: false },
+    );
+    const data = await table.getData();
+
+    assertEquals(data, [
+      { city: "Marrakech", country: "Morocco" },
+      { city: "Kyoto", country: "Japan" },
+      { city: "Auckland", country: "New Zealand" },
+    ]);
+    await sdb.done();
+  });
   Deno.test("should iterate over rows with a prompt and add multiple columns", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");

@@ -19,6 +19,8 @@ export default async function aiQuery(
     contextWindow?: number;
     thinkingBudget?: number;
     thinkingLevel?: "minimal" | "low" | "medium" | "high";
+    temperature?: number;
+    safetyEnabled?: boolean;
     outputTable?: string;
     verbose?: boolean;
   } = {},
@@ -58,6 +60,8 @@ export default async function aiQuery(
     contextWindow: options.contextWindow,
     thinkingBudget: options.thinkingBudget,
     thinkingLevel: options.thinkingLevel,
+    temperature: options.temperature,
+    safetyEnabled: options.safetyEnabled,
     verbose: options.verbose,
     includeThoughts: options.includeThoughts,
     schemaJson,

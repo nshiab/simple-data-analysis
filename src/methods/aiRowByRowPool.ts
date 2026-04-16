@@ -28,9 +28,16 @@ export default async function aiRowByRowPool(
     thinkingBudget?: number;
     thinkingLevel?: "minimal" | "low" | "medium" | "high";
     webSearch?: boolean;
+    safetyEnabled?: boolean;
     schemaJson?: unknown;
     model?: string;
     temperature?: number;
+    apiKey?: string;
+    vertex?: boolean;
+    project?: string;
+    location?: string;
+    // deno-lint-ignore no-explicit-any
+    ollama?: boolean | any;
     metrics?: {
       totalCost: number;
       totalInputTokens: number;
@@ -93,6 +100,12 @@ export default async function aiRowByRowPool(
           verbose: options.verbose,
           includeThoughts: options.includeThoughts,
           temperature: options.temperature,
+          safetyEnabled: options.safetyEnabled,
+          apiKey: options.apiKey,
+          vertex: options.vertex,
+          project: options.project,
+          location: options.location,
+          ollama: options.ollama,
           test: (response: unknown) => {
             if (!Array.isArray(response)) {
               throw new Error(

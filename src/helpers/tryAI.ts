@@ -32,6 +32,7 @@ export default async function tryAI(
     contextWindow?: number;
     thinkingBudget?: number;
     thinkingLevel?: "minimal" | "low" | "medium" | "high";
+    safetyEnabled?: boolean;
     webSearch?: boolean;
     extraInstructions?: string;
     schemaJson?: unknown;
