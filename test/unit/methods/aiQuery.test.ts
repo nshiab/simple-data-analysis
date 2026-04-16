@@ -76,6 +76,23 @@ if (typeof aiKey === "string" && aiKey !== "") {
     assertEquals(true, true);
     await sdb.done();
   });
+  Deno.test("should update a table with natural language and safetyEnabled", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("data");
+    await table.loadData("test/data/files/dailyTemperatures.csv");
+    await table.renameColumns({ t: "temperature", "id": "city" });
+
+    await table.aiQuery(
+      `I want the average temperature for each city with two decimals.`,
+      { safetyEnabled: false, verbose: true },
+    );
+
+    await table.logTable();
+
+    // Just to make sure it doesn't crash for now
+    assertEquals(true, true);
+    await sdb.done();
+  });
   Deno.test("should update a table with natural language and option verbose", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
