@@ -35,6 +35,7 @@ import quantilesQuery from "../methods/quantilesQuery.ts";
 import binsQuery from "../methods/binsQuery.ts";
 import proportionsHorizontalQuery from "../methods/proportionsHorizontalQuery.ts";
 import proportionsVerticalQuery from "../methods/proportionsVerticalQuery.ts";
+import padQuery from "../methods/padQuery.ts";
 import trimQuery from "../methods/trimQuery.ts";
 import removeDuplicatesQuery from "../methods/removeDuplicatesQuery.ts";
 import replaceNullsQuery from "../methods/replaceNullsQuery.ts";
@@ -2975,6 +2976,55 @@ export default class SimpleTable extends Simple {
       mergeOptions(this, {
         table: this.name,
         method: "trim()",
+        parameters: { columns, options },
+      }),
+    );
+  }
+
+  /**
+   * Pads strings in one or more columns to a specified length.
+   *
+   * @param columns - The column name or an array of column names to pad.
+   * @param options - An object with configuration options:
+   * @param options.length - The target length of the padded string.
+   * @param options.character - The character used for padding. Defaults to a space.
+   * @param options.method - The padding method to apply: `"leftPad"` (pads on the left), `"rightPad"` (pads on the right), or `"both"` (pads on both sides, centering the string). Defaults to `"leftPad"`.
+   * @returns A promise that resolves when the padding operation is complete.
+   * @category Updating Data
+   *
+   * @example
+   * ```ts
+   * // Left-pad 'code' column to 5 characters with zeros
+   * await table.pad("code", { length: 5, character: "0" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Right-pad 'name' column to 20 characters
+   * await table.pad("name", { length: 20, method: "rightPad" });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Center-pad 'title' column to 30 characters with dashes
+   * await table.pad("title", { length: 30, character: "-", method: "both" });
+   * ```
+   */
+  async pad(
+    columns: string | string[],
+    options: {
+      length: number;
+      character?: string;
+      method?: "leftPad" | "rightPad" | "both";
+    },
+  ): Promise<void> {
+    options.method = options.method ?? "leftPad";
+    await queryDB(
+      this,
+      padQuery(this.name, stringToArray(columns), options),
+      mergeOptions(this, {
+        table: this.name,
+        method: "pad()",
         parameters: { columns, options },
       }),
     );
