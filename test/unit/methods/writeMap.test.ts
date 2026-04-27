@@ -73,37 +73,6 @@ Deno.test("should write a dark map as png", async () => {
   assertEquals(true, true);
   await sdb.done();
 });
-Deno.test("should write a map as jpeg", async () => {
-  const sdb = new SimpleDB();
-  const table = sdb.newTable();
-
-  await table.loadGeoData(
-    "test/geodata/files/CanadianProvincesAndTerritories.json",
-  );
-
-  const map = (data: {
-    features: unknown[];
-  }) =>
-    plot({
-      projection: {
-        type: "conic-conformal",
-        rotate: [100, -60],
-        domain: data,
-      },
-      marks: [
-        geo(data, { stroke: "black", fill: "lightblue" }),
-      ],
-    });
-
-  const path = output + "map.jpeg";
-
-  await table.writeMap(map, path);
-
-  // How to assert?
-  assertEquals(true, true);
-  await sdb.done();
-});
-
 Deno.test("should write a map as svg", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();

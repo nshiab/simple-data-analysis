@@ -7882,7 +7882,7 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Creates an [Observable Plot](https://github.com/observablehq/plot) chart as an image file (.png, .jpeg, or .svg) from the table data.
+   * Creates an [Observable Plot](https://github.com/observablehq/plot) chart as an image file (.png or .svg) from the table data.
    * To create maps, use the `writeMap` method.
    *
    * @param chart - A function that takes data (as an array of objects) and returns an Observable Plot chart (an `SVGSVGElement` or `HTMLElement`).
@@ -7919,6 +7919,7 @@ export default class SimpleTable extends Simple {
     path: string,
     options: { style?: string; dark?: boolean } = {},
   ): Promise<void> {
+    createDirectory(path);
     await saveChart(
       await this.getData(),
       chart as (data: Data) => SVGSVGElement | HTMLElement, // Not great.
@@ -7928,7 +7929,7 @@ export default class SimpleTable extends Simple {
   }
 
   /**
-   * Creates an [Observable Plot](https://github.com/observablehq/plot) map as an image file (.png, .jpeg, or .svg) from the table's geospatial data.
+   * Creates an [Observable Plot](https://github.com/observablehq/plot) map as an image file (.png or .svg) from the table's geospatial data.
    * To create charts from non-geospatial data, use the `writeChart` method.
    *
    * @param map - A function that takes geospatial data (in GeoJSON format) and returns an Observable Plot map (an `SVGSVGElement` or `HTMLElement`).
@@ -7980,6 +7981,7 @@ export default class SimpleTable extends Simple {
       dark?: boolean;
     } = {},
   ): Promise<void> {
+    createDirectory(path);
     options.rewind = options.rewind ?? true;
     await saveChart(
       await this.getGeoData(options.column, {

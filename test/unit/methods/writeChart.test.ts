@@ -54,26 +54,6 @@ Deno.test("should write a dark chart as a png", async () => {
   await sdb.done();
 });
 
-Deno.test("should write a chart as a jpeg", async () => {
-  const sdb = new SimpleDB();
-  const table = sdb.newTable();
-  await table.loadData("test/data/files/dailyTemperatures.csv");
-  await table.filter(`YEAR(time) === 2020`);
-  await table.writeChart((data: unknown[]) =>
-    plot({
-      title: "My chart",
-      color: { legend: true, type: "diverging" },
-      facet: { data: data, y: "id" },
-      marginRight: 100,
-      marks: [
-        dot(data, { x: "time", y: "t", fill: "t", facet: "auto" }),
-      ],
-    }), output + "temp.jpeg");
-  // How to assert?
-  assertEquals(true, true);
-  await sdb.done();
-});
-
 Deno.test("should write a chart as a svg", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();

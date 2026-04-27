@@ -307,7 +307,7 @@ and
 methods.
 
 But you can also create [Observable Plot](https://github.com/observablehq/plot)
-charts as an image file (`.png`, `.jpeg` or `.svg`) with
+charts as an image file (`.png` or `.svg`) with
 [`writeChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.writeChart).
 
 Here's an example.
