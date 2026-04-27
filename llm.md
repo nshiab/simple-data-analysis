@@ -7694,7 +7694,7 @@ await sdb.done();
 #### `writeChart`
 
 Creates an [Observable Plot](https://github.com/observablehq/plot) chart as an
-image file (.png, .jpeg, or .svg) from the table data. To create maps, use the
+image file (.png or .svg) from the table data. To create maps, use the
 `writeMap` method.
 
 ##### Signature
@@ -7745,8 +7745,8 @@ await table.writeChart(chartFunction, outputPath);
 #### `writeMap`
 
 Creates an [Observable Plot](https://github.com/observablehq/plot) map as an
-image file (.png, .jpeg, or .svg) from the table's geospatial data. To create
-charts from non-geospatial data, use the `writeChart` method.
+image file (.png or .svg) from the table's geospatial data. To create charts
+from non-geospatial data, use the `writeChart` method.
 
 ##### Signature
 
