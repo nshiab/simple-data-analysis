@@ -23,8 +23,8 @@
   "nodeModulesDir": "auto",
   "imports": {
     "@duckdb/node-api": "npm:@duckdb/node-api@1.4.4-r.1",
-    "@nshiab/journalism-ai": "jsr:@nshiab/journalism-ai@^1.2.17",
-    "@nshiab/journalism-dataviz": "jsr:@nshiab/journalism-dataviz@^1.0.9",
+    "@nshiab/journalism-ai": "jsr:@nshiab/journalism-ai@^1.2.18",
+    "@nshiab/journalism-dataviz": "jsr:@nshiab/journalism-dataviz@^1.0.10",
     "@nshiab/journalism-format": "jsr:@nshiab/journalism-format@^1.1.5",
     "@nshiab/journalism-google": "jsr:@nshiab/journalism-google@^1.0.6",
     "@observablehq/plot": "npm:@observablehq/plot@0.6.17",
@@ -45,9 +45,5 @@
       "dom",
       "deno.ns"
     ]
-  },
-  "allowScripts": [
-    "npm:playwright-chromium@1",
-    "npm:protobufjs@7.5.4"
-  ]
+  }
 }
