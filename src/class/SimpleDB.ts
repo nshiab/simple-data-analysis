@@ -3,8 +3,9 @@ import SimpleTable from "./SimpleTable.ts";
 
 /**
  * Manages a DuckDB database instance, providing a simplified interface for database operations.
- * Extends the core SimpleDB to use our extended SimpleTable class which includes
- * additional AI, Google Sheets, and charting methods.
+ * Extends the core [`SimpleDB`](https://github.com/nshiab/simple-data-analysis-core) class
+ * from [`simple-data-analysis-core`](https://github.com/nshiab/simple-data-analysis-core) to use
+ * our extended SimpleTable class which includes additional AI, Google Sheets, and charting methods.
  *
  * @example
  * ```ts

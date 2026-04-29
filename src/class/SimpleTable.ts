@@ -21,7 +21,9 @@ import aiQuery from "../methods/aiQuery.ts";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
- * Extends the core SimpleTable to include additional AI, Google Sheets, and charting methods.
+ * Extends the core [`SimpleTable`](https://github.com/nshiab/simple-data-analysis-core) class
+ * from [`simple-data-analysis-core`](https://github.com/nshiab/simple-data-analysis-core) to include
+ * additional AI, Google Sheets, and charting methods.
  *
  * @category Main
  * @example
