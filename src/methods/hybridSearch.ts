@@ -422,5 +422,5 @@ export default async function hybridSearch(
     console.log(logParts.join("\n") + "\n");
   }
 
-  return outputTableInstance;
+  return outputTableInstance as SimpleTable;
 }

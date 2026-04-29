@@ -2,7 +2,6 @@ import { getEmbedding } from "@nshiab/journalism-ai";
 import type { SimpleTable } from "../index.ts";
 import queryDB from "../helpers/queryDB.ts";
 import mergeOptions from "../helpers/mergeOptions.ts";
-import createVssIndex from "./createVssIndex.ts";
 
 export default async function aiVectorSimilarity(
   simpleTable: SimpleTable,
@@ -35,7 +34,7 @@ export default async function aiVectorSimilarity(
   }
 
   if (options.createIndex) {
-    await createVssIndex(simpleTable, column, {
+    await simpleTable.createVssIndex(column, {
       overwrite: options.overwriteIndex,
       verbose: options.verbose,
       efConstruction: options.efConstruction,
@@ -86,7 +85,7 @@ export default async function aiVectorSimilarity(
     return simpleTable.sdb.newTable(
       options.outputTable,
       structuredClone(simpleTable.projections),
-    );
+    ) as SimpleTable;
   } else {
     return simpleTable;
   }

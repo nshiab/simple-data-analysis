@@ -3,7 +3,6 @@ import sleep from "../helpers/sleep.ts";
 import type { SimpleTable } from "../index.ts";
 import tryEmbedding from "../helpers/tryEmbedding.ts";
 import type { Ollama } from "ollama";
-import createVssIndex from "./createVssIndex.ts";
 
 export default async function aiEmbeddings(
   simpleTable: SimpleTable,
@@ -88,7 +87,7 @@ export default async function aiEmbeddings(
   });
 
   if (options.createIndex) {
-    await createVssIndex(simpleTable, newColumn, {
+    await simpleTable.createVssIndex(newColumn, {
       overwrite: options.overwriteIndex,
       verbose: options.verbose,
       efConstruction: options.efConstruction,
