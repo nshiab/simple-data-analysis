@@ -1,4 +1,5 @@
 import { SimpleTable as SimpleTableCore } from "@nshiab/simple-data-analysis-core";
+import type SimpleDB from "./SimpleDB.ts";
 import {
   logBarChart,
   logDotChart,
@@ -62,41 +63,10 @@ import aiQuery from "../methods/aiQuery.ts";
  */
 export default class SimpleTable extends SimpleTableCore {
   /**
-   * Creates a copy of the current table with an optional new name, conditions, or column selection.
-   * This override ensures the cloned table returns our extended SimpleTable type.
-   *
-   * @param nameOrOptions - Either a string for the new table name, or an options object.
-   * @param options.outputTable - The name for the cloned table.
-   * @param options.conditions - A SQL WHERE clause to filter rows during cloning.
-   * @param options.columns - An array of column names to include in the clone.
-   * @returns A promise that resolves to the cloned SimpleTable instance.
-   * @category Table Management
-   *
-   * @example
-   * ```ts
-   * // Clone the table with a new name
-   * const clone = await table.cloneTable("my_clone");
-   * ```
-   *
-   * @example
-   * ```ts
-   * // Clone with conditions and specific columns
-   * const clone = await table.cloneTable({
-   *   outputTable: "filtered_clone",
-   *   conditions: "age > 30",
-   *   columns: ["name", "age"],
-   * });
-   * ```
+   * The SimpleDB instance this table belongs to.
+   * @internal
    */
-  override cloneTable(
-    nameOrOptions: string | {
-      outputTable?: string;
-      conditions?: string;
-      columns?: string | string[];
-    } = {},
-  ): Promise<SimpleTable> {
-    return super.cloneTable(nameOrOptions) as unknown as Promise<SimpleTable>;
-  }
+  declare sdb: SimpleDB;
 
   // ===================== AI METHODS =====================
 
@@ -612,7 +582,7 @@ export default class SimpleTable extends SimpleTableCore {
       nbResults,
       options,
     );
-    return result as SimpleTable;
+    return result;
   }
 
   /**
@@ -775,7 +745,7 @@ export default class SimpleTable extends SimpleTableCore {
       nbResults,
       options,
     );
-    return result as SimpleTable;
+    return result;
   }
 
   /**
@@ -1041,7 +1011,7 @@ export default class SimpleTable extends SimpleTableCore {
       return this.sdb.newTable(
         options.outputTable,
         structuredClone(this.projections),
-      ) as SimpleTable;
+      );
     } else {
       return this;
     }

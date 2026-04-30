@@ -40,7 +40,7 @@ import SimpleTable from "./SimpleTable.ts";
  * });
  * ```
  */
-export default class SimpleDB extends SimpleDBCore {
+export default class SimpleDB extends SimpleDBCore<SimpleTable> {
   /**
    * The class used to create new table instances. Set to our extended SimpleTable
    * which includes additional AI, Google Sheets, and charting methods.
@@ -81,65 +81,5 @@ export default class SimpleDB extends SimpleDBCore {
     super(options);
     // Use our extended SimpleTable which includes AI, Google Sheets, and charting methods
     this.tableClass = SimpleTable;
-  }
-
-  /**
-   * Creates a new SimpleTable instance within the database.
-   *
-   * @param name - The name of the new table. If not provided, a default name is generated (e.g., "table1").
-   * @param projections - An object mapping column names to their geospatial projections.
-   * @returns A new SimpleTable instance.
-   * @category Table Management
-   *
-   * @example
-   * ```ts
-   * // Create a table with a default name (e.g., "table1", "table2", etc.)
-   * const dataTable = sdb.newTable();
-   * ```
-   *
-   * @example
-   * ```ts
-   * // Create a table with a specific name
-   * const employees = sdb.newTable("employees");
-   * ```
-   */
-  override newTable(
-    name?: string,
-    projections?: { [key: string]: string },
-  ): SimpleTable {
-    return super.newTable(name, projections) as unknown as SimpleTable;
-  }
-
-  /**
-   * Retrieves an existing SimpleTable instance from the database.
-   *
-   * @param name - The name of the table to retrieve.
-   * @returns A promise that resolves to the SimpleTable instance if found.
-   * @category Table Management
-   *
-   * @example
-   * ```ts
-   * // Retrieve the "employees" table
-   * const employees = await sdb.getTable("employees");
-   * ```
-   */
-  override getTable(name: string): Promise<SimpleTable> {
-    return super.getTable(name) as unknown as Promise<SimpleTable>;
-  }
-
-  /**
-   * Returns an array of all SimpleTable instances in the database.
-   *
-   * @returns A promise that resolves to an array of SimpleTable instances.
-   * @category Table Management
-   *
-   * @example
-   * ```ts
-   * // Get all SimpleTable instances
-   * const tables = await sdb.getTables();
-   * ```
-   */
-  override getTables(): Promise<SimpleTable[]> {
-    return super.getTables() as unknown as Promise<SimpleTable[]>;
   }
 }
