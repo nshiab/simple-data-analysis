@@ -3,7 +3,7 @@ import sleep from "../helpers/sleep.ts";
 import type { SimpleTable } from "../index.ts";
 import tryAI from "../helpers/tryAI.ts";
 import type { Ollama } from "ollama";
-import stringToArray from "../helpers/stringToArray.ts";
+import { stringToArray } from "@nshiab/simple-data-analysis-core/helpers";
 
 export default async function aiRowByRow(
   simpleTable: SimpleTable,

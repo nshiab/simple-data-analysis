@@ -10,7 +10,7 @@ import {
 import { getSheetData, overwriteSheetData } from "@nshiab/journalism-google";
 import type { Ollama } from "ollama";
 import type { Data } from "@observablehq/plot";
-import createDirectory from "../helpers/createDirectory.ts";
+import { createDirectory } from "@nshiab/simple-data-analysis-core/helpers";
 import logHistogram from "../methods/logHistogram.ts";
 import aiRowByRow from "../methods/aiRowByRow.ts";
 import aiRowByRowPool from "../methods/aiRowByRowPool.ts";

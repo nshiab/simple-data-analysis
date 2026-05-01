@@ -1,7 +1,9 @@
 import { getEmbedding } from "@nshiab/journalism-ai";
 import type { SimpleTable } from "../index.ts";
-import queryDB from "../helpers/queryDB.ts";
-import mergeOptions from "../helpers/mergeOptions.ts";
+import {
+  mergeOptions,
+  queryDB,
+} from "@nshiab/simple-data-analysis-core/helpers";
 
 export default async function aiVectorSimilarity(
   simpleTable: SimpleTable,

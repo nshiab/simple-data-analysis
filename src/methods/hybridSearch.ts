@@ -1,7 +1,7 @@
 import type SimpleTable from "../class/SimpleTable.ts";
 import { prettyDuration } from "@nshiab/journalism-format";
 import getRRFRanking from "../helpers/getRRFRanking.ts";
-import parseValue from "../helpers/parseValue.ts";
+import { parseValue } from "@nshiab/simple-data-analysis-core/helpers";
 
 export default async function hybridSearch(
   table: SimpleTable,
