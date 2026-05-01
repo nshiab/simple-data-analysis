@@ -22,6 +22,26 @@ problem you encountered: https://github.com/nshiab/simple-data-analysis/issues
 If you want to solve the problem yourself, explain what you have in mind and how
 you want to proceed.
 
+## Library architecture
+
+This repository is the **simple-data-analysis** package, which extends
+**[simple-data-analysis-core](https://github.com/nshiab/simple-data-analysis-core)**.
+
+- **simple-data-analysis-core** contains all core DuckDB-dependent functionality
+  (data loading, filtering, joining, summarizing, geospatial operations, etc.).
+- **simple-data-analysis** (this repo) adds AI methods, Google Sheets
+  integration, and charting/dataviz methods on top of the core.
+
+When contributing, consider where the logic belongs:
+
+- **Core data operations** (new SQL-based methods, new data formats, geospatial
+  features) should go in
+  [simple-data-analysis-core](https://github.com/nshiab/simple-data-analysis-core).
+- **AI, Google Sheets, and charting features** belong in this repository.
+- **Generic utilities** that don't depend on DuckDB can go in `src/helpers/`. If
+  a utility is used by both packages, it should live in core and be exported
+  through its `/helpers` subpath.
+
 ## Do your magic
 
 Clone or fork the repository, create a new branch from your issue if relevant,

@@ -25,6 +25,23 @@ You might also find the
 If you wish to contribute, please check the
 [guidelines](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
 
+## Library structure
+
+SDA is split into two packages:
+
+- **[`simple-data-analysis-core`](https://github.com/nshiab/simple-data-analysis-core)**
+  contains all core functions that depend on DuckDB (data loading, filtering,
+  joining, summarizing, geospatial operations, etc.). If you only need these
+  core data analysis capabilities, you can use this lighter package directly.
+
+- **`simple-data-analysis`** (this package) extends the core with additional
+  features: AI methods (row-by-row processing, embeddings, vector similarity,
+  hybrid search, RAG, natural language queries), Google Sheets integration, and
+  charting/dataviz methods.
+
+Most users will want this package (`simple-data-analysis`), which includes all
+of the core functionality plus the extended features.
+
 ## Quick setup
 
 Create a folder and run [setup-sda](https://github.com/nshiab/setup-sda) in it
