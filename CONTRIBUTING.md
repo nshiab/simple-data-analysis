@@ -30,7 +30,8 @@ This repository is the **simple-data-analysis** package, which extends
 - **simple-data-analysis-core** contains all core DuckDB-dependent functionality
   (data loading, filtering, joining, summarizing, geospatial operations, etc.).
 - **simple-data-analysis** (this repo) adds AI methods, Google Sheets
-  integration, and charting/dataviz methods on top of the core.
+  integration, and charting/dataviz methods on top of the core. **This is the
+  package that most users should install.**
 
 When contributing, consider where the logic belongs:
 

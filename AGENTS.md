@@ -2,6 +2,17 @@
 
 ### Phase 1: Exploration (BEFORE Modifying)
 
+- **Library Architecture:** SDA is split into two packages.
+  - **[`simple-data-analysis-core`](https://github.com/nshiab/simple-data-analysis-core)**
+    contains all core DuckDB-dependent logic (loading, filtering, joining,
+    geospatial, etc.).
+  - **`simple-data-analysis`** (this repo) is an extension adding AI, Google
+    Sheets, and Dataviz features.
+- **Where to contribute:**
+  - If you are adding or fixing a standard data operation, do it in the **core**
+    repo.
+  - If you are adding or fixing AI, Google Sheets, or charting methods, do it
+    **here**.
 - **Analyze Structure:** Review the directory tree to understand the module
   hierarchy.
 - **Check Capabilities:** Read `deno.json` to identify available `tasks` and
@@ -12,7 +23,8 @@
   conventions exactly.
 - **Architectural Placement:** If the logic is a generic utility, place it in
   `src/helpers/`. If the logic is domain-specific, place it within the relevant
-  class/file.
+  class/file. If the utility is potentially useful for core, consider moving it
+  to the core repo instead.
 
 ### Phase 2: Implementation (DURING Development)
 
