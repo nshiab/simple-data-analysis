@@ -1,0 +1,38 @@
+name: Publish to npm
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    # 1. THIS IS REQUIRED FOR OIDC
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Setup Node.js and npm registry
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24.x"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Build npm package using auto-dnt
+        run: deno run -A jsr:@nshiab/deno-to-npm
+
+      # 2. Add the --provenance flag and REMOVE the NODE_AUTH_TOKEN env variable
+      - name: Publish to npm
+        working-directory: ./npm
+        run: npm publish --access public --provenance

@@ -1,4 +1,5 @@
-name: SDA PUBLISH
+name: Publish to JSR
+
 on:
   push:
     tags:
@@ -11,7 +12,7 @@ jobs:
       contents: read
       id-token: write # The OIDC ID token is used for authentication with JSR.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x

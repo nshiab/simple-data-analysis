@@ -1,4 +1,4 @@
-name: SDA RELEASE
+name: RELEASE
 
 on:
   push:

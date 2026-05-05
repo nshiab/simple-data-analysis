@@ -4,7 +4,8 @@ SDA is an easy-to-use and high-performance TypeScript library for data analysis.
 You can use it with tabular and geospatial data.
 
 The library is available on [JSR](https://jsr.io/@nshiab/simple-data-analysis)
-with its [documentation](https://jsr.io/@nshiab/simple-data-analysis/doc).
+with its [documentation](https://jsr.io/@nshiab/simple-data-analysis/doc) and on
+[NPM](https://www.npmjs.com/package/@nshiab/simple-data-analysis).
 
 The documentation is also available as the markdown file
 [llm.md](https://github.com/nshiab/simple-data-analysis/blob/main/llm.md), which
@@ -42,58 +43,37 @@ SDA is split into two packages:
 Most users will want this package (`simple-data-analysis`), which includes all
 of the core functionality plus the extended features.
 
-## Quick setup
+## Installation
 
-Create a folder and run [setup-sda](https://github.com/nshiab/setup-sda) in it
-with:
-
-```bash
-# Deno >= 2.2.x
-deno -A jsr:@nshiab/setup-sda
-
-# Node.js >= 22.6.x
-npx setup-sda
-
-# Bun
-bunx --bun setup-sda
-```
-
-Here are available options:
-
-- `--claude` or `--gemini` or `--copilot`: Adds a `CLAUDE.md` or `GEMINI.md` or
-  `.github/copilot-instructions.md` file and extra documentation in `./docs` to
-  work efficiently with AI agents.
-- `--example`: adds example files
-- `--scrape`: adds web scraping dependencies
-- `--svelte`: adds a Svelte project
-- `--pages`: adds a GitHub Pages Actions workflow (works just with `--svelte`)
-- `--git`: initializes a git repository and commits the initial files
-- `--env`: adds a `.env` file for environment variables and loads them when
-  running
-
-You can combine options, for example, this will install web scraping
-dependencies, set up a Svelte project with example files, initialize a git
-repository, make a first commit, and add a GitHub Pages Actions workflow:
+The library is available on [JSR](https://jsr.io/@nshiab/simple-data-analysis)
+and [NPM](https://www.npmjs.com/package/@nshiab/simple-data-analysis).
 
 ```bash
-deno -A jsr:@nshiab/setup-sda --scrape --svelte --example --pages --git
-```
-
-## Manual installation
-
-If you want to add the library to an existing project, run this:
-
-```bash
-# Deno >= 2.2.x
-deno install --node-modules-dir=auto jsr:@nshiab/simple-data-analysis
-# To run with Deno
-deno run -A main.ts
+# Deno
+deno add jsr:@nshiab/simple-data-analysis
 
 # Node.js
-npx jsr add @nshiab/simple-data-analysis
+npm i @nshiab/simple-data-analysis
 
 # Bun
-bunx jsr add @nshiab/simple-data-analysis
+bun add @nshiab/simple-data-analysis
+```
+
+## Quick setup
+
+To quickly set up a data project with essential folders, configurations, and
+documentation for AI agents, you can use
+[@nshiab/setup-data-project](https://github.com/nshiab/setup-data-project).
+
+```bash
+# Deno
+deno run -A jsr:@nshiab/setup-data-project
+
+# Node
+npx @nshiab/setup-data-project
+
+# Bun
+bunx @nshiab/setup-data-project
 ```
 
 ## Core principles
