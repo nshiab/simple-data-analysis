@@ -7,6 +7,7 @@ import {
   rewind,
   saveChart,
 } from "@nshiab/journalism-dataviz";
+import cleanDatavizGlobals from "../helpers/cleanDatavizGlobals.ts";
 import { getSheetData, overwriteSheetData } from "@nshiab/journalism-google";
 import type { Ollama } from "ollama";
 import type { Data } from "@observablehq/plot";
@@ -1147,6 +1148,8 @@ export default class SimpleTable extends SimpleTableCore {
       );
     } catch (error) {
       console.error(error);
+    } finally {
+      cleanDatavizGlobals();
     }
   }
 
@@ -1218,6 +1221,8 @@ export default class SimpleTable extends SimpleTableCore {
       );
     } catch (error) {
       console.error(error);
+    } finally {
+      cleanDatavizGlobals();
     }
   }
 
