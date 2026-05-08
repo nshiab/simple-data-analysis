@@ -1,5 +1,6 @@
 import { SimpleDB as SimpleDBCore } from "@nshiab/simple-data-analysis-core";
 import SimpleTable from "./SimpleTable.ts";
+import cleanDatavizGlobals from "../helpers/cleanDatavizGlobals.ts";
 
 /**
  * Manages a DuckDB database instance, providing a simplified interface for database operations.
@@ -81,5 +82,14 @@ export default class SimpleDB extends SimpleDBCore<SimpleTable> {
     super(options);
     // Use our extended SimpleTable which includes AI, Google Sheets, and charting methods
     this.tableClass = SimpleTable;
+  }
+
+  /**
+   * Closes the database connection and frees up resources. This method also cleans up global variables that might have been set during chart or map generation.
+   */
+  override async done(): Promise<this> {
+    await super.done();
+    cleanDatavizGlobals();
+    return this;
   }
 }
