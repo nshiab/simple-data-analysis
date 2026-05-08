@@ -7,6 +7,7 @@ import {
   rewind,
   saveChart,
 } from "@nshiab/journalism-dataviz";
+import cleanDatavizGlobals from "../helpers/cleanDatavizGlobals.ts";
 import { getSheetData, overwriteSheetData } from "@nshiab/journalism-google";
 import type { Ollama } from "ollama";
 import type { Data } from "@observablehq/plot";
@@ -1137,13 +1138,19 @@ export default class SimpleTable extends SimpleTableCore {
     path: string,
     options: { style?: string; dark?: boolean } = {},
   ): Promise<void> {
-    createDirectory(path);
-    await saveChart(
-      await this.getData(),
-      chart as (data: Data) => SVGSVGElement | HTMLElement,
-      path,
-      options,
-    );
+    try {
+      createDirectory(path);
+      await saveChart(
+        await this.getData(),
+        chart as (data: Data) => SVGSVGElement | HTMLElement,
+        path,
+        options,
+      );
+    } catch (error) {
+      console.error(error);
+    } finally {
+      cleanDatavizGlobals();
+    }
   }
 
   /**
@@ -1199,18 +1206,24 @@ export default class SimpleTable extends SimpleTableCore {
       dark?: boolean;
     } = {},
   ): Promise<void> {
-    createDirectory(path);
-    options.rewind = options.rewind ?? true;
-    await saveChart(
-      rewind(
-        await this.getGeoData(options.column, {
-          rewind: false,
-        }),
-      ) as unknown as Data,
-      map as unknown as (data: Data) => SVGSVGElement | HTMLElement,
-      path,
-      options,
-    );
+    try {
+      createDirectory(path);
+      options.rewind = options.rewind ?? true;
+      await saveChart(
+        rewind(
+          await this.getGeoData(options.column, {
+            rewind: false,
+          }),
+        ) as unknown as Data,
+        map as unknown as (data: Data) => SVGSVGElement | HTMLElement,
+        path,
+        options,
+      );
+    } catch (error) {
+      console.error(error);
+    } finally {
+      cleanDatavizGlobals();
+    }
   }
 
   /**
