@@ -63,17 +63,6 @@ Creates a new SimpleDB instance.
 
 ### Methods
 
-#### `done`
-
-Closes the database connection and frees up resources. This method also cleans
-up global variables that might have been set during chart or map generation.
-
-##### Signature
-
-```typescript
-async done(): Promise<this>;
-```
-
 #### `newTable`
 
 Creates a new SimpleTable instance within the database.
@@ -451,6 +440,29 @@ await sdb.writeDB("./my_exported_database.db");
 ```ts
 // Write the current database to a SQLite file without metadata
 await sdb.writeDB("./my_exported_database.sqlite", { noMetaData: true });
+```
+
+#### `done`
+
+Frees up memory by closing the database connection and instance, and cleans up
+the cache. If the database is file-based, it also compacts the database file to
+optimize storage.
+
+##### Signature
+
+```typescript
+async done(): Promise<SimpleDB>;
+```
+
+##### Returns
+
+A promise that resolves to the SimpleDB instance after cleanup.
+
+##### Examples
+
+```ts
+// Close the database and clean up resources
+await sdb.done();
 ```
 
 ### Examples
