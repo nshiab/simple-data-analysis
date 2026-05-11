@@ -29,7 +29,7 @@
   },
   "nodeModulesDir": "auto",
   "imports": {
-    "@nshiab/journalism-ai": "jsr:@nshiab/journalism-ai@^1.2.21",
+    "@nshiab/journalism-ai": "jsr:@nshiab/journalism-ai@^1.2.22",
     "@nshiab/journalism-dataviz": "jsr:@nshiab/journalism-dataviz@^1.0.16",
     "@nshiab/journalism-format": "jsr:@nshiab/journalism-format@^1.1.9",
     "@nshiab/journalism-google": "jsr:@nshiab/journalism-google@^1.0.10",
