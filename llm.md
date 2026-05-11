@@ -1848,7 +1848,7 @@ x-axis values for accurate representation.
 ##### Signature
 
 ```typescript
-async logLineChart(x: string, y: string, options?: { formatX?: (d: unknown) => string; formatY?: (d: unknown) => string; smallMultiples?: string; fixedScales?: boolean; smallMultiplesPerRow?: number; width?: number; height?: number }): Promise<void>;
+async logLineChart(x: string, y: string, options?: { formatX?: (d: unknown) => string; formatY?: (d: number) => string; smallMultiples?: string; fixedScales?: boolean; smallMultiplesPerRow?: number; width?: number; height?: number }): Promise<void>;
 ```
 
 ##### Parameters
@@ -1928,7 +1928,7 @@ x-axis values for accurate representation.
 ##### Signature
 
 ```typescript
-async logDotChart(x: string, y: string, options?: { formatX?: (d: unknown) => string; formatY?: (d: unknown) => string; smallMultiples?: string; fixedScales?: boolean; smallMultiplesPerRow?: number; width?: number; height?: number }): Promise<void>;
+async logDotChart(x: string, y: string, options?: { formatX?: (d: unknown) => string; formatY?: (d: number) => string; smallMultiples?: string; fixedScales?: boolean; smallMultiplesPerRow?: number; width?: number; height?: number }): Promise<void>;
 ```
 
 ##### Parameters
@@ -2001,7 +2001,7 @@ Generates and logs a bar chart to the console.
 ##### Signature
 
 ```typescript
-async logBarChart(labels: string, values: string, options?: { formatLabels?: (d: unknown) => string; formatValues?: (d: unknown) => string; width?: number }): Promise<void>;
+async logBarChart(labels: string, values: string, options?: { formatLabels?: (d: unknown) => string; formatValues?: (d: number) => string; showPercentages?: boolean; showTotal?: boolean; totalLabel?: string; compact?: boolean; width?: number }): Promise<void>;
 ```
 
 ##### Parameters
@@ -2013,6 +2013,14 @@ async logBarChart(labels: string, values: string, options?: { formatLabels?: (d:
   converting the label to a string.
 - **`options.formatValues`**: A function to format the values. Defaults to
   converting the value to a string.
+- **`options.showPercentages`**: If `true`, displays the percentage each bar
+  represents relative to the total. Defaults to `false`.
+- **`options.showTotal`**: If `true`, calculates and displays a total summary
+  row. Defaults to `false`.
+- **`options.totalLabel`**: Allows customizing the label used for the total row.
+  Defaults to "Total".
+- **`options.compact`**: Reduces vertical space in the logged output. Defaults
+  to `false`.
 - **`options.width`**: The width of the chart in characters. Defaults to 40.
 
 ##### Returns
@@ -2170,7 +2178,7 @@ formats include CSV, JSON, Parquet, and Excel.
 ##### Signature
 
 ```typescript
-async loadData(files: string | string[], options?: { fileType?: "csv" | "dsv" | "json" | "parquet" | "excel"; autoDetect?: boolean; limit?: number; fileName?: boolean; unifyColumns?: boolean; columnTypes?: Record<string, string>; header?: boolean; allText?: boolean; delim?: string; skip?: number; nullPadding?: boolean; ignoreErrors?: boolean; compression?: "none" | "gzip" | "zstd"; encoding?: string; strict?: boolean; jsonFormat?: "unstructured" | "newlineDelimited" | "array"; records?: boolean; sheet?: string }): Promise<this>;
+async loadData(files: string | string[], options?: { fileType?: "csv" | "dsv" | "json" | "parquet" | "excel"; autoDetect?: boolean; limit?: number; fileName?: boolean; unifyColumns?: boolean; columnTypes?: Record<string, string>; columns?: string[]; header?: boolean; allText?: boolean; delim?: string; skip?: number; nullPadding?: boolean; ignoreErrors?: boolean; compression?: "none" | "gzip" | "zstd"; encoding?: string; strict?: boolean; jsonFormat?: "unstructured" | "newlineDelimited" | "array"; records?: boolean; sheet?: string }): Promise<this>;
 ```
 
 ##### Parameters
@@ -2191,6 +2199,12 @@ async loadData(files: string | string[], options?: { fileType?: "csv" | "dsv" | 
   filled with `NULL` values. Defaults to `false`.
 - **`options.columnTypes`**: An object mapping column names to their expected
   data types. By default, types are inferred.
+- **`options.columns`**: An array of column names to load. When provided, only
+  the specified columns are loaded, reducing memory usage and improving load
+  times. Not supported for Excel files — combining `columns` with Excel files
+  throws an error. If an invalid column name is provided, DuckDB will throw its
+  native error. An empty array behaves the same as omitting the option (loads
+  all columns). Defaults to loading all columns.
 - **`options.header`**: A boolean indicating whether the file has a header row.
   Applicable to CSV files. Defaults to `true`.
 - **`options.allText`**: A boolean indicating whether all columns should be
@@ -2254,6 +2268,11 @@ await table.loadData([
 ], { unifyColumns: true });
 ```
 
+```ts
+// Load only specific columns from a CSV file
+await table.loadData("./employees.csv", { columns: ["name", "salary"] });
+```
+
 #### `loadDataFromDirectory`
 
 Loads data from all supported files (CSV, JSON, Parquet, Excel) within a local
@@ -2262,7 +2281,7 @@ directory into the table.
 ##### Signature
 
 ```typescript
-async loadDataFromDirectory(directory: string, options?: { fileType?: "csv" | "dsv" | "json" | "parquet" | "excel"; autoDetect?: boolean; limit?: number; fileName?: boolean; unifyColumns?: boolean; columnTypes?: Record<string, string>; header?: boolean; allText?: boolean; delim?: string; skip?: number; nullPadding?: boolean; ignoreErrors?: boolean; compression?: "none" | "gzip" | "zstd"; encoding?: "utf-8" | "utf-16" | "latin-1"; strict?: boolean; jsonFormat?: "unstructured" | "newlineDelimited" | "array"; records?: boolean; sheet?: string }): Promise<this>;
+async loadDataFromDirectory(directory: string, options?: { fileType?: "csv" | "dsv" | "json" | "parquet" | "excel"; autoDetect?: boolean; limit?: number; fileName?: boolean; unifyColumns?: boolean; columnTypes?: Record<string, string>; columns?: string[]; header?: boolean; allText?: boolean; delim?: string; skip?: number; nullPadding?: boolean; ignoreErrors?: boolean; compression?: "none" | "gzip" | "zstd"; encoding?: "utf-8" | "utf-16" | "latin-1"; strict?: boolean; jsonFormat?: "unstructured" | "newlineDelimited" | "array"; records?: boolean; sheet?: string }): Promise<this>;
 ```
 
 ##### Parameters
@@ -2282,6 +2301,12 @@ async loadDataFromDirectory(directory: string, options?: { fileType?: "csv" | "d
   filled with `NULL` values. Defaults to `false`.
 - **`options.columnTypes`**: An object mapping column names to their expected
   data types. By default, types are inferred.
+- **`options.columns`**: An array of column names to load. When provided, only
+  the specified columns are loaded, reducing memory usage and improving load
+  times. Not supported for Excel files — combining `columns` with Excel files
+  throws an error. If an invalid column name is provided, DuckDB will throw its
+  native error. An empty array behaves the same as omitting the option (loads
+  all columns). Defaults to loading all columns.
 - **`options.header`**: A boolean indicating whether the file has a header row.
   Applicable to CSV files. Defaults to `true`.
 - **`options.allText`**: A boolean indicating whether all columns should be
@@ -2320,6 +2345,11 @@ loaded.
 ```ts
 // Load all supported data files from the "./data/" directory
 await table.loadDataFromDirectory("./data/");
+```
+
+```ts
+// Load only specific columns from all CSV files in a directory
+await table.loadDataFromDirectory("./data/", { columns: ["name", "salary"] });
 ```
 
 #### `loadGeoData`
@@ -2364,7 +2394,12 @@ await table.loadGeoData("./some-data.geojson");
 ```
 
 ```ts
-// Load geospatial data from a shapefile and reproject to WGS84
+// Load geospatial data from a shapefile (with relevant files in the same folder) and reproject to WGS84
+await table.loadGeoData("./some-data/some-data.shp", { toWGS84: true });
+```
+
+```ts
+// Load geospatial data from a zipped shapefile and reproject to WGS84
 await table.loadGeoData("./some-data.shp.zip", { toWGS84: true });
 ```
 
@@ -3934,7 +3969,7 @@ This operation might create temporary files in a `.tmp` folder; consider adding
 ##### Signature
 
 ```typescript
-async fuzzyJoin(rightTable: SimpleTable, leftColumn: string, rightColumn: string, options?: { method?: "ratio" | "partial_ratio" | "token_sort_ratio" | "token_set_ratio"; threshold?: number; similarityColumn?: string; outputTable?: string | boolean }): Promise<this>;
+async fuzzyJoin(rightTable: SimpleTable, leftColumn: string, rightColumn: string, threshold: number, options?: { method?: "ratio" | "partial_ratio" | "token_sort_ratio" | "token_set_ratio"; similarityColumn?: string; outputTable?: string | boolean; preFilterPrefixLen?: number }): Promise<this>;
 ```
 
 ##### Parameters
@@ -3944,6 +3979,9 @@ async fuzzyJoin(rightTable: SimpleTable, leftColumn: string, rightColumn: string
   text to compare.
 - **`rightColumn`**: The name of the column in the right table containing the
   text to compare.
+- **`threshold`**: The minimum similarity score (0–100) required for two rows to
+  be joined. For `method: "ratio"`, a length-based pre-filter is automatically
+  applied based on the threshold to improve performance without losing accuracy.
 - **`options`**: An optional object with configuration options:
 - **`options.method`**: The rapidfuzz similarity algorithm to use. Defaults to
   `"ratio"`. - `"ratio"`: Overall similarity (Levenshtein-based). -
@@ -3951,8 +3989,6 @@ async fuzzyJoin(rightTable: SimpleTable, leftColumn: string, rightColumn: string
   Similarity after sorting tokens (words), useful for reordered words. -
   `"token_set_ratio"`: Similarity based on sets of tokens, ignoring duplicates
   and word order.
-- **`options.threshold`**: The minimum similarity score (0–100) required for two
-  rows to be joined. Defaults to `80`.
 - **`options.similarityColumn`**: If provided, a column with this name is added
   to the result containing the similarity score (0–100). If omitted, the score
   is not included in the output.
@@ -3960,6 +3996,9 @@ async fuzzyJoin(rightTable: SimpleTable, leftColumn: string, rightColumn: string
   table with a generated name. If a string, it will be used as the name for the
   new table. If `false` or omitted, the current table will be overwritten.
   Defaults to `false`.
+- **`options.preFilterPrefixLen`**: An optional prefix length. Only strings
+  sharing the same first N characters are compared. Note that prefix filtering
+  is lossy (e.g. "John" vs. "Phon" will not match despite high similarity).
 
 ##### Returns
 
@@ -3969,22 +4008,29 @@ A promise that resolves to a table instance containing the fuzzy-joined data
 ##### Examples
 
 ```ts
-// Fuzzy left join tableA with tableB on 'name' (left) and 'standardName' (right) (ratio >= 80)
-await tableA.fuzzyJoin(tableB, "name", "standardName");
+// Fuzzy left join tableA with tableB on 'name' (left) and 'standardName' (right) with a threshold of 80
+// A length-based pre-filter is automatically applied.
+await tableA.fuzzyJoin(tableB, "name", "standardName", 80);
+```
+
+```ts
+// Fuzzy join with a prefix-based pre-filter and a threshold of 80
+await tableA.fuzzyJoin(tableB, "name", "standardName", 80, {
+  preFilterPrefixLen: 3, // Must share the same first 3 characters
+});
 ```
 
 ```ts
 // Fuzzy join with a custom threshold and method, storing results in a new table
-const tableC = await tableA.fuzzyJoin(tableB, "name", "standardName", {
+const tableC = await tableA.fuzzyJoin(tableB, "name", "standardName", 90, {
   method: "token_sort_ratio",
-  threshold: 90,
   outputTable: "tableC",
 });
 ```
 
 ```ts
-// Fuzzy join with a custom similarity column name
-await tableA.fuzzyJoin(tableB, "name", "standardName", {
+// Fuzzy join with a custom similarity column name and a threshold of 80
+await tableA.fuzzyJoin(tableB, "name", "standardName", 80, {
   similarityColumn: "matchScore",
 });
 ```
@@ -4007,7 +4053,7 @@ extension, which is installed and loaded automatically.
 ##### Signature
 
 ```typescript
-async fuzzyClean(column: string, newColumn: string, options?: { method?: "ratio" | "partial_ratio" | "token_sort_ratio" | "token_set_ratio"; threshold?: number; keep?: "mostCommon" | "longestString" | "shortestString" | "mostCentral" | "maxScore" }): Promise<void>;
+async fuzzyClean(column: string, newColumn: string, threshold: number, options?: { method?: "ratio" | "partial_ratio" | "token_sort_ratio" | "token_set_ratio"; keep?: "mostCommon" | "longestString" | "shortestString" | "mostCentral" | "maxScore"; preFilterPrefixLen?: number }): Promise<void>;
 ```
 
 ##### Parameters
@@ -4015,14 +4061,16 @@ async fuzzyClean(column: string, newColumn: string, options?: { method?: "ratio"
 - **`column`**: The name of the column containing the strings to normalize.
 - **`newColumn`**: The name of the column to write the normalized values to. Use
   the same name as `column` to normalize in-place.
+- **`threshold`**: The minimum similarity score (0–100) for two strings to be
+  considered duplicates. For `method: "ratio"`, a length-based pre-filter is
+  automatically applied based on the threshold to improve performance without
+  losing accuracy.
 - **`options`**: An optional object with configuration options:
 - **`options.method`**: The rapidfuzz similarity algorithm to use. Defaults to
   `"ratio"`. - `"ratio"`: Overall similarity. - `"partial_ratio"`: Best
   partial/substring similarity. - `"token_sort_ratio"`: Similarity after sorting
   tokens (words), useful for reordered words. - `"token_set_ratio"`: Similarity
   based on sets of tokens, ignoring duplicates and word order.
-- **`options.threshold`**: The minimum similarity score (0–100) for two strings
-  to be considered duplicates. Defaults to `80`.
 - **`options.keep`**: The strategy for choosing the canonical value within each
   cluster of similar strings. Defaults to `"mostCommon"`. - `"mostCommon"`: Keep
   the value that appears most frequently in the original column. -
@@ -4032,6 +4080,9 @@ async fuzzyClean(column: string, newColumn: string, options?: { method?: "ratio"
   all other cluster members (the most "central" string). - `"maxScore"`: Keep
   the string that participates in the single highest-scoring pairwise match
   within the cluster.
+- **`options.preFilterPrefixLen`**: An optional prefix length. Only strings
+  sharing the same first N characters are compared. Note that prefix filtering
+  is lossy (e.g. "John" vs. "Phon" will not match despite high similarity).
 
 ##### Returns
 
@@ -4040,21 +4091,28 @@ A promise that resolves when the column has been normalized.
 ##### Examples
 
 ```ts
-// Normalize 'city' into a new 'cityClean' column, keeping the most common string per cluster
-await table.fuzzyClean("city", "cityClean");
+// Normalize 'city' into a new 'cityClean' column, keeping the most common string per cluster with a threshold of 80
+// A length-based pre-filter is automatically applied.
+await table.fuzzyClean("city", "cityClean", 80);
 ```
 
 ```ts
-// Normalize 'companyName' into a new column using token_sort_ratio and a stricter threshold
-await table.fuzzyClean("companyName", "companyNameClean", {
-  method: "token_sort_ratio",
-  threshold: 90,
+// Normalize with a prefix-based pre-filter and a threshold of 80
+await table.fuzzyClean("city", "cityClean", 80, {
+  preFilterPrefixLen: 5, // Must share the same first 5 characters
 });
 ```
 
 ```ts
-// Normalize 'category' in-place, keeping the longest string in each cluster
-await table.fuzzyClean("category", "category", { keep: "longestString" });
+// Normalize 'companyName' into a new column using token_sort_ratio and a threshold of 90
+await table.fuzzyClean("companyName", "companyNameClean", 90, {
+  method: "token_sort_ratio",
+});
+```
+
+```ts
+// Normalize 'category' in-place, keeping the longest string in each cluster and a threshold of 80
+await table.fuzzyClean("category", "category", 80, { keep: "longestString" });
 ```
 
 #### `replace`
@@ -4232,6 +4290,57 @@ await table.truncate("description", 50);
 ```ts
 // Truncate strings in 'name' column to 10 characters
 await table.truncate("name", 10);
+```
+
+#### `pad`
+
+Pads the strings in the specified columns to a target length.
+
+The columns must contain string (VARCHAR) values. An error is thrown if any
+column is of a different type. `null` values remain `null`. If any string
+already exceeds the target length, an error is thrown (no silent truncation).
+
+##### Signature
+
+```typescript
+async pad(columns: string | string[], length: number, options?: { method?: "left" | "right"; char?: string }): Promise<void>;
+```
+
+##### Parameters
+
+- **`columns`**: The column name(s) containing strings to be padded.
+- **`length`**: The target length of the padded strings.
+- **`options`**: An optional object with configuration options:
+- **`options.method`**: Which side to pad. `'left'` (default) or `'right'`.
+- **`options.char`**: The character to use for padding. Defaults to `'0'`.
+
+##### Returns
+
+A promise that resolves when the padding operation is complete.
+
+##### Throws
+
+- **`Error`**: If any column is not of string (VARCHAR) type.
+- **`Error`**: If any string value exceeds the target length.
+
+##### Examples
+
+```ts
+// Left-pad 'id' column to 3 characters with zeros (default)
+await table.pad("id", 3);
+// Result: '1' -> '001', '23' -> '023', null -> null
+```
+
+```ts
+// Right-pad 'code' column to 5 characters with spaces
+await table.pad("code", 5, { method: "right", char: " " });
+// Result: '123' -> '123  ', '45' -> '45   ', null -> null
+```
+
+```ts
+// Left-pad multiple columns to 5 characters with dashes
+await table.pad(["id", "code"], 5, { method: "left", char: "-" });
+// Result: '1' -> '----1', '23' -> '---23'
 ```
 
 #### `splitExtract`
@@ -4614,7 +4723,7 @@ Rounds numeric values in specified columns.
 ##### Signature
 
 ```typescript
-async round(columns: string | string[], options?: { decimals?: number; method?: "round" | "ceiling" | "floor" }): Promise<void>;
+async round(columns: string | string[], options?: number | { decimals?: number; method?: "round" | "ceiling" | "floor" }): Promise<void>;
 ```
 
 ##### Parameters
@@ -4653,6 +4762,11 @@ await table.round("column1", { method: "floor" });
 ```ts
 // Round 'columnA' and 'columnB' values to 1 decimal place using ceiling method
 await table.round(["columnA", "columnB"], { decimals: 1, method: "ceiling" });
+```
+
+```ts
+// Round 'column1' values to 2 decimal places using the shorthand
+await table.round("column1", 2);
 ```
 
 #### `updateColumn`
@@ -7639,8 +7753,8 @@ await table.writeData("./output_dates.json", { formatDates: true });
 
 #### `writeGeoData`
 
-Writes the table's geospatial data to a file in GeoJSON or GeoParquet format. If
-the specified path does not exist, it will be created.
+Writes the table's geospatial data to a file in GeoJSON, GeoParquet, or
+Shapefile format. If the specified path does not exist, it will be created.
 
 For GeoJSON files (`.geojson` or `.json`), if the projection is WGS84 or
 EPSG:4326 (`[latitude, longitude]` axis order), the coordinates will be flipped
@@ -7656,7 +7770,7 @@ async writeGeoData(file: string, options?: { precision?: number; compression?: b
 ##### Parameters
 
 - **`file`**: The absolute path to the output file (e.g., `"./output.geojson"`,
-  `"./output.geoparquet"`).
+  `"./output.geoparquet"`, `"./shapefile-folder/output.shp"`).
 - **`options`**: An optional object with configuration options:
 - **`options.precision`**: For GeoJSON, the maximum number of figures after the
   decimal separator to write in coordinates. Defaults to `undefined` (full
@@ -7684,6 +7798,11 @@ await table.writeGeoData("./output.geojson");
 ```ts
 // Write geospatial data to a compressed GeoParquet file
 await table.writeGeoData("./output.geoparquet", { compression: true });
+```
+
+```ts
+// Write geospatial data to a Shapefile with all relevant files  in the same folder
+await table.writeGeoData("./shapefile-folder/output.shp");
 ```
 
 ```ts
