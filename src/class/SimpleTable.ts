@@ -1286,7 +1286,7 @@ export default class SimpleTable extends SimpleTableCore {
     y: string,
     options: {
       formatX?: (d: unknown) => string;
-      formatY?: (d: unknown) => string;
+      formatY?: (d: number) => string;
       smallMultiples?: string;
       fixedScales?: boolean;
       smallMultiplesPerRow?: number;
@@ -1365,7 +1365,7 @@ export default class SimpleTable extends SimpleTableCore {
     y: string,
     options: {
       formatX?: (d: unknown) => string;
-      formatY?: (d: unknown) => string;
+      formatY?: (d: number) => string;
       smallMultiples?: string;
       fixedScales?: boolean;
       smallMultiplesPerRow?: number;
@@ -1392,6 +1392,10 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options - An optional object with configuration options:
    * @param options.formatLabels - A function to format the labels. Defaults to converting the label to a string.
    * @param options.formatValues - A function to format the values. Defaults to converting the value to a string.
+   * @param options.showPercentages - If `true`, displays the percentage each bar represents relative to the total. Defaults to `false`.
+   * @param options.showTotal - If `true`, calculates and displays a total summary row. Defaults to `false`.
+   * @param options.totalLabel - Allows customizing the label used for the total row. Defaults to "Total".
+   * @param options.compact - Reduces vertical space in the logged output. Defaults to `false`.
    * @param options.width - The width of the chart in characters. Defaults to 40.
    * @returns A promise that resolves when the chart has been logged to the console.
    * @category Dataviz
@@ -1411,7 +1415,11 @@ export default class SimpleTable extends SimpleTableCore {
     values: string,
     options: {
       formatLabels?: (d: unknown) => string;
-      formatValues?: (d: unknown) => string;
+      formatValues?: (d: number) => string;
+      showPercentages?: boolean;
+      showTotal?: boolean;
+      totalLabel?: string;
+      compact?: boolean;
       width?: number;
     } = {},
   ): Promise<void> {

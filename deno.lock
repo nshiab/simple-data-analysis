@@ -2,12 +2,12 @@
   "version": "5",
   "specifiers": {
     "jsr:@nshiab/journalism-ai@^1.2.21": "1.2.21",
-    "jsr:@nshiab/journalism-dataviz@^1.0.15": "1.0.15",
+    "jsr:@nshiab/journalism-dataviz@^1.0.16": "1.0.16",
     "jsr:@nshiab/journalism-format@^1.1.3": "1.1.9",
     "jsr:@nshiab/journalism-format@^1.1.7": "1.1.9",
     "jsr:@nshiab/journalism-format@^1.1.9": "1.1.9",
     "jsr:@nshiab/journalism-google@^1.0.10": "1.0.10",
-    "jsr:@nshiab/simple-data-analysis-core@^0.0.19": "0.0.19",
+    "jsr:@nshiab/simple-data-analysis-core@^0.0.21": "0.0.21",
     "jsr:@std/assert@^1.0.19": "1.0.19",
     "jsr:@std/internal@^1.0.12": "1.0.13",
     "npm:@duckdb/node-api@1.4.4-r.1": "1.4.4-r.1",
@@ -36,8 +36,8 @@
         "npm:ollama"
       ]
     },
-    "@nshiab/journalism-dataviz@1.0.15": {
-      "integrity": "667651c16b97cfbc1c3e767938175e94fd7720800c1f7f0a7bf8ce234a795abf",
+    "@nshiab/journalism-dataviz@1.0.16": {
+      "integrity": "a4667f8f8076c0697d1296e6bd4d4db0877af599596ead5dacd68153c4fbfd36",
       "dependencies": [
         "jsr:@nshiab/journalism-format@^1.1.7",
         "npm:@napi-rs/canvas",
@@ -66,8 +66,8 @@
         "npm:google-spreadsheet"
       ]
     },
-    "@nshiab/simple-data-analysis-core@0.0.19": {
-      "integrity": "408543d8c8958e137945fed2d37d0aedc843f10a9b56b6bec10e7330330a1f9e",
+    "@nshiab/simple-data-analysis-core@0.0.21": {
+      "integrity": "a64508ce2943a1467505cbfa77250e170553572d85245e5b410c8be7bb817bc8",
       "dependencies": [
         "npm:@duckdb/node-api"
       ]
@@ -1256,10 +1256,10 @@
   "workspace": {
     "dependencies": [
       "jsr:@nshiab/journalism-ai@^1.2.21",
-      "jsr:@nshiab/journalism-dataviz@^1.0.15",
+      "jsr:@nshiab/journalism-dataviz@^1.0.16",
       "jsr:@nshiab/journalism-format@^1.1.9",
       "jsr:@nshiab/journalism-google@^1.0.10",
-      "jsr:@nshiab/simple-data-analysis-core@^0.0.19",
+      "jsr:@nshiab/simple-data-analysis-core@^0.0.21",
       "jsr:@std/assert@^1.0.19",
       "npm:@observablehq/plot@~0.6.17",
       "npm:ollama@~0.6.3",
