@@ -4703,6 +4703,43 @@ await table.unnest("tags", ",");
 await table.unnest("neighborhoods", " / ");
 ```
 
+#### `repeatRows`
+
+Repeats rows based on the values in a column.
+
+If a row has a value of 3 in the specified column, it will be repeated 3 times.
+If the value is 0 or negative, the row will be removed.
+
+##### Signature
+
+```typescript
+async repeatRows(column: string, options?: { index?: string }): Promise<void>;
+```
+
+##### Parameters
+
+- **`column`**: The name of the column containing the number of times each row
+  should be repeated.
+- **`options`**: An optional object with configuration options:
+- **`options.index`**: The name of a new column to store the index of the
+  repeated row (starting at 0).
+
+##### Examples
+
+```ts
+// Before: [{ id: 1, count: 2, category: "A" }, { id: 2, count: 3, category: "B" }]
+await table.repeatRows("count");
+// After:  [{ id: 1, count: 2, category: "A" }, { id: 1, count: 2, category: "A" },
+//          { id: 2, count: 3, category: "B" }, { id: 2, count: 3, category: "B" }, { id: 2, count: 3, category: "B" }]
+```
+
+```ts
+// With an index column
+await table.repeatRows("count", { index: "copyId" });
+// After:  [{ id: 1, count: 2, category: "A", copyId: 0 }, { id: 1, count: 2, category: "A", copyId: 1 },
+//          { id: 2, count: 3, category: "B", copyId: 0 }, { id: 2, count: 3, category: "B", copyId: 1 }, { id: 2, count: 3, category: "B", copyId: 2 }]
+```
+
 #### `nest`
 
 Nests (collapses) rows by aggregating a column's values into a single string per
