@@ -7450,6 +7450,39 @@ await table.centroid("centerPoint");
 await table.centroid("areaCentroid", { column: "areaGeom" });
 ```
 
+#### `randomPoint`
+
+Generates a random point within the geometries of a specified column.
+
+##### Signature
+
+```typescript
+async randomPoint(newColumn: string, nbPointsToTry: number, options?: { column?: string }): Promise<void>;
+```
+
+##### Parameters
+
+- **`newColumn`**: The name of the new column where the random points will be
+  stored.
+- **`nbPointsToTry`**: The number of points to generate within the bounding box
+  of each geometry to find one that is within the geometry itself.
+- **`options`**: An optional object with configuration options:
+- **`options.column`**: The name of the column storing the geometries within
+  which the random points will be generated. If omitted, the method will
+  automatically attempt to find a geometry column.
+
+##### Examples
+
+```ts
+// Generate a random point for each geometry in the default column, trying 100 points
+await table.randomPoint("randomPoint", 100);
+```
+
+```ts
+// Generate a random point for each geometry in a specific column named 'areaGeom', trying 50 points
+await table.randomPoint("pointInArea", 50, { column: "areaGeom" });
+```
+
 #### `distance`
 
 Computes the distance between geometries in two specified columns. By default,
