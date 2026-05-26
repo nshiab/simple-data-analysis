@@ -3861,17 +3861,22 @@ await table.addColumn("centroid", "geometry", `ST_Centroid("country")`, {
 
 #### `addRowNumber`
 
-Adds a new column to the table containing the row number.
+Adds a new column to the table containing the row number, starting at 0 (like an
+index).
 
 ##### Signature
 
 ```typescript
-async addRowNumber(newColumn: string): Promise<void>;
+async addRowNumber(newColumn: string, options?: { categories?: string | string[] }): Promise<void>;
 ```
 
 ##### Parameters
 
 - **`newColumn`**: The name of the new column that will store the row number.
+- **`options`**: An optional object with configuration options:
+- **`options.categories`**: A string or an array of strings representing columns
+  to partition the data by. The row number will restart at 0 for each unique
+  combination of values in these columns.
 
 ##### Returns
 
@@ -3882,6 +3887,11 @@ A promise that resolves when the row number column has been added.
 ```ts
 // Add a new column named 'rowNumber' with the row number for each row
 await table.addRowNumber("rowNumber");
+```
+
+```ts
+// Add a new column named 'rowNumber' with the row number for each 'category'
+await table.addRowNumber("rowNumber", { categories: "category" });
 ```
 
 #### `crossJoin`
@@ -5883,8 +5893,14 @@ Returns the number of rows in the table.
 ##### Signature
 
 ```typescript
-async getNbRows(): Promise<number>;
+async getNbRows(options?: { conditions?: string }): Promise<number>;
 ```
+
+##### Parameters
+
+- **`options`**: An optional object with configuration options:
+- **`options.conditions`**: The filtering conditions specified as a SQL `WHERE`
+  clause (e.g., `"category = 'Book'"`).
 
 ##### Returns
 
@@ -5896,6 +5912,12 @@ A promise that resolves to a number representing the total count of rows.
 // Get the number of rows in the table
 const nbRows = await table.getNbRows();
 console.log(nbRows); // e.g., 100
+```
+
+```ts
+// Get the number of rows where 'category' is 'Book'
+const nbBooks = await table.getNbRows({ conditions: "category = 'Book'" });
+console.log(nbBooks);
 ```
 
 #### `getNbValues`
@@ -7494,7 +7516,7 @@ Generates a random point within the geometries of a specified column.
 ##### Signature
 
 ```typescript
-async randomPoint(newColumn: string, nbPointsToTry: number, options?: { column?: string }): Promise<void>;
+async randomPoint(newColumn: string, nbPointsToTry: number, options?: { column?: string; try?: boolean }): Promise<void>;
 ```
 
 ##### Parameters
@@ -7507,6 +7529,9 @@ async randomPoint(newColumn: string, nbPointsToTry: number, options?: { column?:
 - **`options.column`**: The name of the column storing the geometries within
   which the random points will be generated. If omitted, the method will
   automatically attempt to find a geometry column.
+- **`options.try`**: If `true`, the method will not throw an error if some
+  points cannot be generated. Corresponding rows will have `NULL` in the new
+  column.
 
 ##### Examples
 
@@ -7518,6 +7543,11 @@ await table.randomPoint("randomPoint", 100);
 ```ts
 // Generate a random point for each geometry in a specific column named 'areaGeom', trying 50 points
 await table.randomPoint("pointInArea", 50, { column: "areaGeom" });
+```
+
+```ts
+// Generate a random point for each geometry, but don't throw if some points cannot be generated
+await table.randomPoint("pointInArea", 1, { try: true });
 ```
 
 #### `distance`
