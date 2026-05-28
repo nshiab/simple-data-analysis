@@ -1011,7 +1011,6 @@ export default class SimpleTable extends SimpleTableCore {
     if (typeof options.outputTable === "string") {
       return this.sdb.newTable(
         options.outputTable,
-        structuredClone(this.projections),
       );
     } else {
       return this;

@@ -327,7 +327,6 @@ export default async function hybridSearch(
   if (typeof options.outputTable === "string") {
     outputTableInstance = table.sdb.newTable(
       options.outputTable,
-      structuredClone(table.projections),
     );
   } else {
     outputTableInstance = table;

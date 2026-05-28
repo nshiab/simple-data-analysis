@@ -70,15 +70,13 @@ Creates a new SimpleTable instance within the database.
 ##### Signature
 
 ```typescript
-newTable(name?: string, projections?: Record<string, string>): Table;
+newTable(name?: string): Table;
 ```
 
 ##### Parameters
 
 - **`name`**: The name of the new table. If not provided, a default name is
   generated (e.g., "table1").
-- **`projections`**: An object mapping column names to their geospatial
-  projections.
 
 ##### Returns
 
@@ -423,8 +421,8 @@ async writeDB(file: string, options?: { noMetaData?: boolean }): Promise<void>;
 - **`file`**: The absolute path to the output file (e.g.,
   "./my_exported_database.db").
 - **`options`**: Configuration options for writing the database.
-- **`options.noMetaData`**: If `true`, metadata files (projections, indexes) are
-  not created alongside the database file. Defaults to `false`.
+- **`options.noMetaData`**: If `true`, metadata files (indexes) are not created
+  alongside the database file. Defaults to `false`.
 
 ##### Returns
 
@@ -512,8 +510,6 @@ Creates an instance of SimpleTable.
 #### Parameters
 
 - **`name`**: The name of the table.
-- **`projections`**: An object mapping column names to their geospatial
-  projections.
 - **`simpleDB`**: The SimpleDB instance that this table belongs to.
 - **`options`**: An optional object with configuration options:
 - **`options.debug`**: A boolean indicating whether to enable debug mode.
@@ -2116,7 +2112,7 @@ will be replaced. To convert the types of an existing table, use the
 ##### Signature
 
 ```typescript
-async setTypes(types: Record<string, "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean" | "geometry">): Promise<void>;
+async setTypes(types: Record<string, "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean" | geometry('${[0m[36mstring[0m}') | GEOMETRY('${[0m[36mstring[0m}')>): Promise<void>;
 ```
 
 ##### Parameters
@@ -2354,14 +2350,12 @@ await table.loadDataFromDirectory("./data/", { columns: ["name", "salary"] });
 
 #### `loadGeoData`
 
-Loads geospatial data from an external file or URL into the table. The
-coordinates of files or URLs ending with `.json` or `.geojson` are automatically
-flipped to `[latitude, longitude]` axis order.
+Loads geospatial data from an external file or URL into the table.
 
 ##### Signature
 
 ```typescript
-async loadGeoData(file: string, options?: { toWGS84?: boolean; from?: string }): Promise<this>;
+async loadGeoData(file: string, options?: { toWGS84?: boolean }): Promise<this>;
 ```
 
 ##### Parameters
@@ -2370,11 +2364,7 @@ async loadGeoData(file: string, options?: { toWGS84?: boolean; from?: string }):
   geospatial data.
 - **`options`**: An optional object with configuration options:
 - **`options.toWGS84`**: If `true`, the method will attempt to reproject the
-  data to WGS84 with `[latitude, longitude]` axis order. If the file is `.json`
-  or `.geojson`, coordinates are automatically flipped, and this option has no
-  additional effect. Defaults to `false`.
-- **`options.from`**: An optional string specifying the original projection of
-  the data, if the method is unable to detect it automatically.
+  data to WGS84.
 
 ##### Returns
 
@@ -3823,7 +3813,7 @@ types) and a SQL definition.
 ##### Signature
 
 ```typescript
-async addColumn(newColumn: string, type: "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean" | "geometry", definition: string, options?: { projection?: string }): Promise<void>;
+async addColumn(newColumn: string, type: "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean" | geometry('${[0m[36mstring[0m}') | GEOMETRY('${[0m[36mstring[0m}'), definition: string): Promise<void>;
 ```
 
 ##### Parameters
@@ -3835,10 +3825,6 @@ async addColumn(newColumn: string, type: "integer" | "float" | "number" | "strin
   should be computed (e.g., `"column1 + column2"`,
   `"ST_Centroid(geom_column)"`).
 - **`options`**: An optional object with configuration options:
-- **`options.projection`**: Required if the new column stores geometries.
-  Specifies the geospatial projection of the new geometry column. You can reuse
-  the projection of an existing geometry column (available in
-  `table.projections`).
 
 ##### Returns
 
@@ -3853,10 +3839,11 @@ await table.addColumn("total", "float", "column1 + column2");
 
 ```ts
 // Add a new geometry column 'centroid' using the centroid of an existing 'country' geometry column
-// The projection of the new 'centroid' column is set to be the same as 'country'.
-await table.addColumn("centroid", "geometry", `ST_Centroid("country")`, {
-  projection: table.projections.country,
-});
+await table.addColumn(
+  "centroid",
+  "geometry('EPSG:4326')",
+  `ST_Centroid("country")`,
+);
 ```
 
 #### `addRowNumber`
@@ -6661,8 +6648,7 @@ console.log(booksDataCSV);
 
 #### `points`
 
-Creates point geometries from longitude and latitude columns. The geometries
-will have `[latitude, longitude]` axis order.
+Creates point geometries from latitude and longitude columns.
 
 ##### Signature
 
@@ -6865,8 +6851,7 @@ await table.typeGeo("featureType", { column: "featureGeom" });
 Flips the coordinate order of geometries in a specified column (e.g., from
 `[lon, lat]` to `[lat, lon]` or vice-versa). **Warning:** This method should be
 used with caution as it directly manipulates coordinate order and can affect the
-accuracy of geospatial operations if not used correctly. It also messes up with
-the projections stored in `table.projections`.
+accuracy of geospatial operations if not used correctly.
 
 ##### Signature
 
@@ -6933,22 +6918,18 @@ await table.reducePrecision(2, { column: "myGeom" });
 #### `reproject`
 
 Reprojects the geometries in a specified column to another Spatial Reference
-System (SRS). If reprojecting to WGS84 (`"WGS84"` or `"EPSG:4326"`), the
-resulting geometries will have `[latitude, longitude]` axis order.
+System (SRS).
 
 ##### Signature
 
 ```typescript
-async reproject(to: string, options?: { from?: string; column?: string }): Promise<void>;
+async reproject(to: string, options?: { column?: string }): Promise<void>;
 ```
 
 ##### Parameters
 
 - **`to`**: The target SRS (e.g., `"EPSG:3347"`, `"WGS84"`).
 - **`options`**: An optional object with configuration options:
-- **`options.from`**: The original projection of the geometries. If omitted, the
-  method attempts to automatically detect it. Provide this option if
-  auto-detection fails.
 - **`options.column`**: The name of the column storing the geometries. If
   omitted, the method will automatically attempt to find a geometry column.
 
@@ -6964,20 +6945,15 @@ await table.reproject("EPSG:3347");
 ```
 
 ```ts
-// Reproject geometries from EPSG:4326 to EPSG:3347, specifying the original projection
-await table.reproject("EPSG:3347", { from: "EPSG:4326" });
-```
-
-```ts
 // Reproject geometries in a specific column named 'myGeom' to EPSG:3347
-await table.reproject("EPSG:3347", { column: "myGeom", from: "EPSG:4326" });
+await table.reproject("EPSG:3347", { column: "myGeom" });
 ```
 
 #### `area`
 
 Computes the area of geometries in square meters (`"m2"`) or optionally square
 kilometers (`"km2"`). The input geometry is assumed to be in the EPSG:4326
-coordinate system (WGS84), with `[latitude, longitude]` axis order.
+coordinate system (WGS84).
 
 ##### Signature
 
@@ -7020,7 +6996,7 @@ await table.area("myGeomArea", { column: "myGeom" });
 
 Computes the length of line geometries in meters (`"m"`) or optionally
 kilometers (`"km"`). The input geometry is assumed to be in the EPSG:4326
-coordinate system (WGS84), with `[latitude, longitude]` axis order.
+coordinate system (WGS84).
 
 ##### Signature
 
@@ -7063,7 +7039,7 @@ await table.length("routeLength", { column: "routeGeom" });
 
 Computes the perimeter of polygon geometries in meters (`"m"`) or optionally
 kilometers (`"km"`). The input geometry is assumed to be in the EPSG:4326
-coordinate system (WGS84), with `[latitude, longitude]` axis order.
+coordinate system (WGS84).
 
 ##### Signature
 
@@ -7408,8 +7384,7 @@ await table.union("geomA", "geomB", "unionGeom");
 #### `latLon`
 
 Extracts the latitude and longitude coordinates from point geometries. The input
-geometry is assumed to be in the EPSG:4326 coordinate system (WGS84), with
-`[latitude, longitude]` axis order.
+geometry is assumed to be in the EPSG:4326 coordinate system (WGS84).
 
 ##### Signature
 
@@ -7557,7 +7532,7 @@ the distance is calculated in the Spatial Reference System (SRS) unit of the
 input geometries. You can optionally specify `"spheroid"` or `"haversine"`
 methods to get results in meters or kilometers. If using `"spheroid"` or
 `"haversine"`, the input geometries must be in the EPSG:4326 coordinate system
-(WGS84), with `[latitude, longitude]` axis order.
+(WGS84).
 
 ##### Signature
 
@@ -7736,8 +7711,7 @@ await table.linesToPolygons("routeLines");
 
 Returns the bounding box of geometries in `[minLat, minLon, maxLat, maxLon]`
 order. By default, the method will try to find the column with the geometries.
-The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84),
-with `[latitude, longitude]` axis order.
+The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84).
 
 ##### Signature
 
@@ -7772,10 +7746,7 @@ console.log(areaBbox);
 #### `getGeoData`
 
 Returns the table's geospatial data as a GeoJSON object. If the table has
-multiple geometry columns, you must specify which one to use. If the geometry
-column's projection is WGS84 or EPSG:4326 (`[latitude, longitude]` axis order),
-the coordinates will be flipped to follow the RFC7946 standard
-(`[longitude, latitude]` axis order) in the output GeoJSON.
+multiple geometry columns, you must specify which one to use.
 
 ##### Signature
 
@@ -7887,11 +7858,6 @@ await table.writeData("./output_dates.json", { formatDates: true });
 
 Writes the table's geospatial data to a file in GeoJSON, GeoParquet, or
 Shapefile format. If the specified path does not exist, it will be created.
-
-For GeoJSON files (`.geojson` or `.json`), if the projection is WGS84 or
-EPSG:4326 (`[latitude, longitude]` axis order), the coordinates will be flipped
-to follow the RFC7946 standard (`[longitude, latitude]` axis order) in the
-output.
 
 ##### Signature
 
@@ -8105,6 +8071,32 @@ console.
 ```ts
 // Log descriptive information for all columns in the table
 await table.logDescription();
+```
+
+#### `getProjection`
+
+Retrieves the projection of a specified geospatial column.
+
+##### Signature
+
+```typescript
+async getProjection(column: string): Promise<string>;
+```
+
+##### Parameters
+
+- **`column`**: The name of the geospatial column for which to retrieve the
+  projection.
+
+##### Returns
+
+A promise that resolves to the projection of the specified column.
+
+##### Examples
+
+```ts
+// Get the projection of the 'geom' column
+const projection = await table.getProjection("geom");
 ```
 
 #### `logProjections`

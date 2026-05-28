@@ -162,6 +162,10 @@ Deno.test("should write a map with multiple layers as a png", async () => {
   });
   await provincesAndFires.addColumn("hectares", "number", `0`);
   await provincesAndFires.addColumn("cause", "string", `''`);
+
+  await fires.logTable({ types: true });
+  await provincesAndFires.logTable({ types: true });
+
   await provincesAndFires.insertTables(fires, { unifyColumns: true });
   await provincesAndFires.addColumn("isFire", "boolean", `hectares > 0`);
 

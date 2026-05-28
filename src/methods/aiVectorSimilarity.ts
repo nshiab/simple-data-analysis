@@ -86,7 +86,6 @@ export default async function aiVectorSimilarity(
   if (typeof options.outputTable === "string") {
     return simpleTable.sdb.newTable(
       options.outputTable,
-      structuredClone(simpleTable.projections),
     );
   } else {
     return simpleTable;
