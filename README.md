@@ -273,12 +273,12 @@ const chart = (data: unknown[]) =>
       }),
     ],
   });
-await firesInsideProvinces.writeChart(chart, "./chart.png");
+await firesInsideProvinces.writeChart(chart, "sda/output/chart.png");
 
 // And we can write the data to a parquet, json or csv file.
 // For geospatial data, you can use writeGeoData to
 // write geojson or geoparquet files.
-await firesInsideProvinces.writeData("./firesInsideProvinces.parquet");
+await firesInsideProvinces.writeData("sda/output/firesInsideProvinces.parquet");
 
 // We close everything.
 await sdb.done();
@@ -347,7 +347,7 @@ const chart = (data: unknown[]) =>
     ],
   });
 
-const path = "./chart.png";
+const path = "sda/output/chart.png";
 
 await table.writeChart(chart, path);
 
@@ -443,7 +443,7 @@ const map = (geoData: {
 };
 
 // This is the path where the map will be saved.
-const path = "./map.png";
+const path = "sda/output/map.png";
 
 // Now we can call writeMap.
 await provincesAndFires.writeMap(map, path);
@@ -461,15 +461,15 @@ computationally expensive operations.
 
 Here's the previous example adapted to cache data. For more information, check
 the
-[cache method documentation](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#cache).
+[cache method documentation](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable#method_cache_0).
 
 The data is cached in the hidden folder `.sda-cache` at the root of your code
 repository. Make sure to add it to your `.gitignore`. If you want to clean your
 cache, just delete the folder.
 
-If you set up with `setup-sda` (see _Quick setup_ at the top), `.sda-cache` is
-automatically added to your `.gitignore` and you can use `npm run clean` or
-`bun run clean` or `deno task clean` to clear the cache.
+If you set up with `@nshiab/setup-data-project` (see _Quick setup_ at the top),
+`.sda-cache` is automatically added to your `.gitignore` and you can use
+`npm run clean` or `bun run clean` or `deno task clean` to clear the cache.
 
 ```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
@@ -528,9 +528,8 @@ const firesInsideProvinces = sdb.newTable("firesInsideProvinces");
 // up-to-date data.
 await firesInsideProvinces.cache(
   async () => {
-    await fires.joinGeo(provinces, "inside", {
-      outputTable: "firesInsideProvinces",
-    });
+    await firesInsideProvinces.insertTables(fires);
+    await firesInsideProvinces.joinGeo(provinces, "inside");
     await firesInsideProvinces.removeMissing();
     await firesInsideProvinces.summarize({
       values: "hectares",
@@ -563,116 +562,146 @@ After the first run, here's what you'll see in your terminal. For each
 The whole script took around a second to complete.
 
 ```
+cache() for fires
 Nothing in cache. Running and storing in cache.
-Duration: 311 ms. Wrote ./.sda-cache/fires.ff...68f.geojson.
+Computations done in 350 ms.
+Wrote in cache in 3 ms.
 
+
+cache() for provinces
 Nothing in cache. Running and storing in cache.
-Duration: 397 ms. Wrote ./.sda-cache/provinces.42...55.geojson.
+Computations done in 247 ms.
+Wrote in cache in 1 ms.
 
+
+cache() for firesInsideProvinces
 Nothing in cache. Running and storing in cache.
-Duration: 49 ms. Wrote ./.sda-cache/firesInsideProvinces.71...a8.parquet.
+Computations done in 68 ms.
+Wrote in cache in 0 ms.
 
-table firesInsideProvinces:
-┌─────────┬────────────┬─────────────────────────────┬─────────┬───────────┐
-│ (index) │ value      │ nameEnglish                 │ nbFires │ burntArea │
-├─────────┼────────────┼─────────────────────────────┼─────────┼───────────┤
-│ 0       │ 'hectares' │ 'Quebec'                    │ 706     │ 5024737   │
-│ 1       │ 'hectares' │ 'Northwest Territories'     │ 314     │ 4253907   │
-│ 2       │ 'hectares' │ 'Alberta'                   │ 1208    │ 3214444   │
-│ 3       │ 'hectares' │ 'British Columbia'          │ 2496    │ 2856625   │
-│ 4       │ 'hectares' │ 'Saskatchewan'              │ 560     │ 1801903   │
-│ 5       │ 'hectares' │ 'Ontario'                   │ 741     │ 441581    │
-│ 6       │ 'hectares' │ 'Yukon'                     │ 227     │ 395461    │
-│ 7       │ 'hectares' │ 'Manitoba'                  │ 301     │ 199200    │
-│ 8       │ 'hectares' │ 'Nova Scotia'               │ 208     │ 25017     │
-│ 9       │ 'hectares' │ 'Newfoundland and Labrador' │ 85      │ 21833     │
-│ 10      │ 'hectares' │ 'Nunavut'                   │ 1       │ 2700      │
-│ 11      │ 'hectares' │ 'New Brunswick'             │ 202     │ 854       │
-│ 12      │ 'hectares' │ null                        │ 124     │ 258       │
-└─────────┴────────────┴─────────────────────────────┴─────────┴───────────┘
-13 rows in total (nbRowsToLog: 13)
 
-SimpleDB - Done in 891 ms
+Table firesInsideProvinces:
+┌────────────────┬───────────────────────────┬────────────────┬───────────────┐
+│ value          │ nameEnglish               │ nbFires        │ burntArea     │
+│ VARCHAR/string │ VARCHAR/string            │ INTEGER/number │ DOUBLE/number │
+├────────────────┼───────────────────────────┼────────────────┼───────────────┤
+│ hectares       │ Quebec                    │ 706            │ 5024737       │
+│ hectares       │ Northwest Territories     │ 314            │ 4253907       │
+│ hectares       │ Alberta                   │ 1208           │ 3214444       │
+│ hectares       │ British Columbia          │ 2496           │ 2856625       │
+│ hectares       │ Saskatchewan              │ 560            │ 1801903       │
+│ hectares       │ Ontario                   │ 741            │ 441581        │
+│ hectares       │ Yukon                     │ 227            │ 395461        │
+│ hectares       │ Manitoba                  │ 301            │ 199200        │
+│ hectares       │ Nova Scotia               │ 208            │ 25017         │
+│ hectares       │ Newfoundland and Labrador │ 85             │ 21833         │
+│ hectares       │ Nunavut                   │ 1              │ 2700          │
+│ hectares       │ New Brunswick             │ 202            │ 854           │
+└────────────────┴───────────────────────────┴────────────────┴───────────────┘
+12 rows in total (nbRowsToLog: 13)
+
+Bar chart of "burntArea" per "nameEnglish":
+                          ┌
+                   Quebec ┤████████████████████████████████████████ 5,024,737
+                          │
+    Northwest Territories ┤██████████████████████████████████ 4,253,907
+                          │
+                  Alberta ┤██████████████████████████ 3,214,444
+                          │
+         British Columbia ┤███████████████████████ 2,856,625
+                          │
+             Saskatchewan ┤██████████████ 1,801,903
+                          │
+                  Ontario ┤████ 441,581
+                          │
+                    Yukon ┤███ 395,461
+                          │
+                 Manitoba ┤██ 199,200
+                          │
+              Nova Scotia ┤ 25,017
+                          │
+Newfoundland and Labrador ┤ 21,833
+                          │
+                  Nunavut ┤ 2,700
+                          │
+            New Brunswick ┤ 854
+                          └
+
+
+SimpleDB - Done in 681 ms / 4 ms spent writing the cache
 ```
 
 If you run the script less than 60 seconds after the first run, here's what
 you'll see.
 
-Thanks to caching, the script ran five times faster!
+Thanks to caching, the script ran 25 times faster!
 
 ```
-Found ./.sda-cache/fires.ff...8f.geojson in cache.
-ttl of 60 sec has not expired. The creation date is July 5, 2024, at 4:25 p.m.. There are 11 sec, 491 ms left.
-Data loaded in 151 ms. Running the computations took 311 ms last time. You saved 160 ms.
+cache() for fires
+Found in cache.
+ttl of 1 min, 0 sec, 0 ms has not expired.
+The creation date is May 28, 2026, at 4:37 p.m..
+There are 54 sec, 941 ms left.
+Data loaded in 21 ms.
+Running computations previously took 312 ms.
+You saved 291 ms.
 
-Found ./.sda-cache/provinces.42...55.geojson in cache.
-Data loaded in 8 ms. Running the computations took 397 ms last time. You saved 389 ms.
 
-Found ./.sda-cache/firesInsideProvinces.71...a8.parquet in cache.
-ttl of 60 sec has not expired. The creation date is July 5, 2024, at 4:25 p.m.. There are 11 sec, 792 ms left.
-Data loaded in 1 ms. Running the computations took 49 ms last time. You saved 48 ms.
+cache() for provinces
+Found in cache.
+Data loaded in 0 ms.
+Running computations previously took 247 ms.
+You saved 247 ms.
 
-table firesInsideProvinces:
-┌─────────┬────────────┬─────────────────────────────┬─────────┬───────────┐
-│ (index) │ value      │ nameEnglish                 │ nbFires │ burntArea │
-├─────────┼────────────┼─────────────────────────────┼─────────┼───────────┤
-│ 0       │ 'hectares' │ 'Quebec'                    │ 706     │ 5024737   │
-│ 1       │ 'hectares' │ 'Northwest Territories'     │ 314     │ 4253907   │
-│ 2       │ 'hectares' │ 'Alberta'                   │ 1208    │ 3214444   │
-│ 3       │ 'hectares' │ 'British Columbia'          │ 2496    │ 2856625   │
-│ 4       │ 'hectares' │ 'Saskatchewan'              │ 560     │ 1801903   │
-│ 5       │ 'hectares' │ 'Ontario'                   │ 741     │ 441581    │
-│ 6       │ 'hectares' │ 'Yukon'                     │ 227     │ 395461    │
-│ 7       │ 'hectares' │ 'Manitoba'                  │ 301     │ 199200    │
-│ 8       │ 'hectares' │ 'Nova Scotia'               │ 208     │ 25017     │
-│ 9       │ 'hectares' │ 'Newfoundland and Labrador' │ 85      │ 21833     │
-│ 10      │ 'hectares' │ 'Nunavut'                   │ 1       │ 2700      │
-│ 11      │ 'hectares' │ 'New Brunswick'             │ 202     │ 854       │
-│ 12      │ 'hectares' │ null                        │ 124     │ 258       │
-└─────────┴────────────┴─────────────────────────────┴─────────┴───────────┘
-13 rows in total (nbRowsToLog: 13)
 
-SimpleDB - Done in 184 ms / You saved 707 ms by using the cache
+cache() for firesInsideProvinces
+Found in cache.
+ttl of 1 min, 0 sec, 0 ms has not expired.
+The creation date is May 28, 2026, at 4:37 p.m..
+There are 54 sec, 972 ms left.
+Data loaded in 0 ms.
+Running computations previously took 50 ms.
+You saved 50 ms.
+
+[Note to readers: I have cut the table and chart.]
+
+SimpleDB - Done in 27 ms / 588 ms saved by using the cache
 ```
 
 And if you run the script 60 seconds later, the fires and join/summary caches
 will have expired, but not the provinces one. Some of the code will have run,
-but not everything. The script still ran 1.5 times faster. This is quite handy
-in complex analysis with big datasets. The less you wait, the more fun you have!
+but not everything. The script still ran roughly 1.5 times faster. This is quite
+handy in complex analysis with big datasets. The less you wait, the more fun you
+have!
 
 ```
-Found ./.sda-cache/fires.ff...8f.geojson in cache
-ttl of 60 sec has expired. The creation date is July 5, 2024, at 4:25 p.m.. It's is 4 min, 1 sec, 172 ms ago.
+cache() for fires
+Found in cache.
+ttl of 1 min, 0 sec, 0 ms has expired.
+The creation date is May 28, 2026, at 4:37 p.m..
+It's is 1 min, 17 sec, 465 ms ago.
 Running and storing in cache.
-Duration: 424 ms. Wrote ./.sda-cache/fires.ff...8f.geojson.
+Computations done in 340 ms.
+Wrote in cache in 3 ms.
 
-Found ./.sda-cache/provinces.42...55.geojson in cache.
-Data loaded in 10 ms. Running the computations took 397 ms last time. You saved 387 ms.
 
-Fond ./.sda-cache/firesInsideProvinces.71...a8.parquet in cache
-ttl of 60 sec has expired. The creation date is July 5, 2024, at 4:25 p.m.. It's is 4 min, 1 sec, 239 ms ago.
+cache() for provinces
+Found in cache.
+Data loaded in 1 ms.
+Running computations previously took 247 ms.
+You saved 246 ms.
+
+
+cache() for firesInsideProvinces
+Found in cache.
+ttl of 1 min, 0 sec, 0 ms has expired.
+The creation date is May 28, 2026, at 4:37 p.m..
+It's is 1 min, 17 sec, 758 ms ago.
 Running and storing in cache.
-Duration: 42 ms. Wrote ./.sda-cache/firesInsideProvinces.71...a8.parquet.
+Computations done in 48 ms.
+Wrote in cache in 1 ms.
 
-table firesInsideProvinces:
-┌─────────┬────────────┬─────────────────────────────┬─────────┬───────────┐
-│ (index) │ value      │ nameEnglish                 │ nbFires │ burntArea │
-├─────────┼────────────┼─────────────────────────────┼─────────┼───────────┤
-│ 0       │ 'hectares' │ 'Quebec'                    │ 706     │ 5024737   │
-│ 1       │ 'hectares' │ 'Northwest Territories'     │ 314     │ 4253907   │
-│ 2       │ 'hectares' │ 'Alberta'                   │ 1208    │ 3214444   │
-│ 3       │ 'hectares' │ 'British Columbia'          │ 2496    │ 2856625   │
-│ 4       │ 'hectares' │ 'Saskatchewan'              │ 560     │ 1801903   │
-│ 5       │ 'hectares' │ 'Ontario'                   │ 741     │ 441581    │
-│ 6       │ 'hectares' │ 'Yukon'                     │ 227     │ 395461    │
-│ 7       │ 'hectares' │ 'Manitoba'                  │ 301     │ 199200    │
-│ 8       │ 'hectares' │ 'Nova Scotia'               │ 208     │ 25017     │
-│ 9       │ 'hectares' │ 'Newfoundland and Labrador' │ 85      │ 21833     │
-│ 10      │ 'hectares' │ 'Nunavut'                   │ 1       │ 2700      │
-│ 11      │ 'hectares' │ 'New Brunswick'             │ 202     │ 854       │
-│ 12      │ 'hectares' │ null                        │ 124     │ 258       │
-└─────────┴────────────┴─────────────────────────────┴─────────┴───────────┘
-13 rows in total (nbRowsToLog: 13)
+[Note to readers: I have cut the table and chart.]
 
-SimpleDB - Done in 594 ms / You saved 297 ms by using the cache
+SimpleDB - Done in 399 ms / 246 ms saved by using the cache / 4 ms spent writing the cache
 ```
