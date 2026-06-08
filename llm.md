@@ -7623,6 +7623,45 @@ await table.unnestGeo();
 await table.unnestGeo("multiGeom");
 ```
 
+#### `boundingBox`
+
+Computes the bounding box of geometries in a specified column, creating four new
+columns: `minLon`, `minLat`, `maxLon`, and `maxLat`.
+
+##### Signature
+
+```typescript
+async boundingBox(options?: { column?: string; decimals?: number }): Promise<void>;
+```
+
+##### Parameters
+
+- **`options`**: An optional object with configuration options:
+- **`options.column`**: The name of the column storing the geometries for which
+  the bounding box will be computed. If omitted, the method will automatically
+  attempt to find a geometry column.
+- **`options.decimals`**: The number of decimal places to round the bounding box
+  coordinates. Defaults to `undefined` (no rounding).
+
+##### Returns
+
+A promise that resolves when the bounding box coordinates have been computed and
+stored in new columns.
+
+##### Examples
+
+```ts
+// Compute the bounding box for geometries in the default column
+await table.boundingBox();
+// The table now has minLon, minLat, maxLon, and maxLat columns.
+```
+
+```ts
+// Compute the bounding box for geometries in 'geom' column and round coordinates to 2 decimal places
+await table.boundingBox({ column: "geom", decimals: 2 });
+// The table now has minLon, minLat, maxLon, and maxLat columns with values rounded to 2 decimal places.
+```
+
 #### `aggregateGeo`
 
 Aggregates geometries in a specified column based on a chosen aggregation
@@ -7709,7 +7748,7 @@ await table.linesToPolygons("routeLines");
 
 #### `getBoundingBox`
 
-Returns the bounding box of geometries in `[minLat, minLon, maxLat, maxLon]`
+Returns the bounding box of geometries in `[minLon, minLat, maxLon, maxLat]`
 order. By default, the method will try to find the column with the geometries.
 The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84).
 
@@ -7726,7 +7765,7 @@ async getBoundingBox(column?: string): Promise<[number, number, number, number]>
 
 ##### Returns
 
-A promise that resolves to an array `[minLat, minLon, maxLat, maxLon]`
+A promise that resolves to an array `[minLon, minLat, maxLon, maxLat]`
 representing the bounding box.
 
 ##### Examples
@@ -7734,7 +7773,7 @@ representing the bounding box.
 ```ts
 // Get the bounding box of geometries in the default column
 const bbox = await table.getBoundingBox();
-console.log(bbox); // e.g., [45.0, -75.0, 46.0, -73.0]
+console.log(bbox); // e.g., [-75.0, 45.0, -73.0, 46.0]
 ```
 
 ```ts
