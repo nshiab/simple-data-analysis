@@ -1,11 +1,16 @@
 import { SimpleTable as SimpleTableCore } from "@nshiab/simple-data-analysis-core";
+import { unlinkSync, writeFileSync } from "node:fs";
 import type SimpleDB from "./SimpleDB.ts";
 import {
+  getDataDW,
   logBarChart,
   logDotChart,
   logLineChart,
+  publishChartDW,
   rewind,
   saveChart,
+  updateDataDW,
+  updateNotesDW,
 } from "@nshiab/journalism-dataviz";
 import cleanDatavizGlobals from "../helpers/cleanDatavizGlobals.ts";
 import { getSheetData, overwriteSheetData } from "@nshiab/journalism-google";
@@ -1095,6 +1100,173 @@ export default class SimpleTable extends SimpleTableCore {
     apiKey?: string;
   } = {}): Promise<void> {
     await this.loadArray(await getSheetData(sheetUrl, options));
+  }
+
+  // ===================== DATAWRAPPER METHODS =====================
+
+  /**
+   * Writes the table data as CSV to a Datawrapper chart or table.
+   *
+   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+   *
+   * @param chartId - The unique ID of the Datawrapper chart or table to update. This ID can be found in the Datawrapper URL or dashboard.
+   * @param options - An optional object with configuration options:
+   * @param options.apiKey - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
+   * @param options.note - A string to update the chart's notes field with (e.g., a last-updated timestamp).
+   * @param options.republish - If `true`, republishes the chart after updating the data. Defaults to `false`.
+   * @returns A promise that resolves when the data has been sent to Datawrapper.
+   * @category Exporting Data
+   *
+   * @example
+   * ```ts
+   * // Update a Datawrapper chart with the table data
+   * await table.toDW("myChartId");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Update data, add a note, and republish
+   * await table.toDW("myChartId", {
+   *   note: `Last updated: ${new Date().toLocaleString()}`,
+   *   republish: true,
+   * });
+   * ```
+   */
+  async toDW(
+    chartId: string,
+    options: {
+      apiKey?: string;
+      note?: string;
+      republish?: boolean;
+    } = {},
+  ): Promise<void> {
+    await updateDataDW(chartId, await this.getDataAsCSV(), {
+      apiKey: options.apiKey,
+    });
+    if (typeof options.note === "string") {
+      await updateNotesDW(chartId, options.note, { apiKey: options.apiKey });
+    }
+    if (options.republish === true) {
+      await publishChartDW(chartId, { apiKey: options.apiKey });
+    }
+  }
+
+  /**
+   * Loads data from a Datawrapper chart or table into the table.
+   *
+   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+   *
+   * @param chartId - The unique ID of the Datawrapper chart or table. This ID can be found in the Datawrapper URL or dashboard.
+   * @param options - An optional object with configuration options:
+   * @param options.apiKey - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
+   * @returns A promise that resolves when the data has been loaded into the table.
+   * @category Loading Data
+   *
+   * @example
+   * ```ts
+   * // Load data from a Datawrapper chart
+   * await table.loadDW("myChartId");
+   * ```
+   */
+  async loadDW(
+    chartId: string,
+    options: {
+      apiKey?: string;
+    } = {},
+  ): Promise<void> {
+    const data = await getDataDW(chartId, {
+      parse: true,
+      apiKey: options.apiKey,
+    });
+    await this.loadArray(data as Record<string, string>[]);
+  }
+
+  /**
+   * Writes the table's geospatial data as GeoJSON to a Datawrapper map.
+   *
+   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+   *
+   * @param chartId - The unique ID of the Datawrapper map to update. This ID can be found in the Datawrapper URL or dashboard.
+   * @param options - An optional object with configuration options:
+   * @param options.apiKey - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
+   * @param options.column - The name of the geometry column to use. If omitted, the method will automatically attempt to find a geometry column.
+   * @param options.note - A string to update the map's notes field with.
+   * @param options.republish - If `true`, republishes the map after updating the data. Defaults to `false`.
+   * @returns A promise that resolves when the data has been sent to Datawrapper.
+   * @category Exporting Data
+   *
+   * @example
+   * ```ts
+   * // Update a Datawrapper map with the table's geo data
+   * await table.toGeoDW("myMapId");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Update data, add a note, and republish
+   * await table.toGeoDW("myMapId", {
+   *   note: `Last updated: ${new Date().toLocaleString()}`,
+   *   republish: true,
+   * });
+   * ```
+   */
+  async toGeoDW(
+    chartId: string,
+    options: {
+      apiKey?: string;
+      column?: string;
+      note?: string;
+      republish?: boolean;
+    } = {},
+  ): Promise<void> {
+    const geoData = await this.getGeoData(options.column);
+    await updateDataDW(chartId, JSON.stringify(geoData), {
+      apiKey: options.apiKey,
+    });
+    if (typeof options.note === "string") {
+      await updateNotesDW(chartId, options.note, { apiKey: options.apiKey });
+    }
+    if (options.republish === true) {
+      await publishChartDW(chartId, { apiKey: options.apiKey });
+    }
+  }
+
+  /**
+   * Loads geospatial data from a Datawrapper map into the table.
+   *
+   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+   *
+   * The data is temporarily written to `.sda-cache/<chartId>.json` and removed after loading. Remember to add `.sda-cache` to your `.gitignore`.
+   *
+   * @param chartId - The unique ID of the Datawrapper map. This ID can be found in the Datawrapper URL or dashboard.
+   * @param options - An optional object with configuration options:
+   * @param options.apiKey - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
+   * @returns A promise that resolves when the data has been loaded into the table.
+   * @category Loading Data
+   *
+   * @example
+   * ```ts
+   * // Load geo data from a Datawrapper map
+   * await table.loadGeoDW("myMapId");
+   * ```
+   */
+  async loadGeoDW(
+    chartId: string,
+    options: {
+      apiKey?: string;
+    } = {},
+  ): Promise<void> {
+    const jsonString = await getDataDW(chartId, {
+      apiKey: options.apiKey,
+    }) as string;
+    const tempPath = `.sda-cache/${chartId}.json`;
+    try {
+      createDirectory(".sda-cache");
+      writeFileSync(tempPath, jsonString);
+      await this.loadGeoData(tempPath);
+    } finally {
+      unlinkSync(tempPath);
+    }
   }
 
   // ===================== CHARTING METHODS =====================
