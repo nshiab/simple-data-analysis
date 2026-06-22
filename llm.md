@@ -1725,6 +1725,166 @@ await table.loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0", {
 });
 ```
 
+#### `toDW`
+
+Writes the table data as CSV to a Datawrapper chart or table.
+
+Authentication is handled via an API key stored in the environment variable
+`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+
+##### Signature
+
+```typescript
+async toDW(chartId: string, options?: { apiKey?: string; note?: string; republish?: boolean }): Promise<void>;
+```
+
+##### Parameters
+
+- **`chartId`**: The unique ID of the Datawrapper chart or table to update. This
+  ID can be found in the Datawrapper URL or dashboard.
+- **`options`**: An optional object with configuration options:
+- **`options.apiKey`**: The name of the environment variable that stores your
+  Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
+  `"DATAWRAPPER_KEY"`.
+- **`options.note`**: A string to update the chart's notes field with (e.g., a
+  last-updated timestamp).
+- **`options.republish`**: If `true`, republishes the chart after updating the
+  data. Defaults to `false`.
+
+##### Returns
+
+A promise that resolves when the data has been sent to Datawrapper.
+
+##### Examples
+
+```ts
+// Update a Datawrapper chart with the table data
+await table.toDW("myChartId");
+```
+
+```ts
+// Update data, add a note, and republish
+await table.toDW("myChartId", {
+  note: `Last updated: ${new Date().toLocaleString()}`,
+  republish: true,
+});
+```
+
+#### `loadDW`
+
+Loads data from a Datawrapper chart or table into the table.
+
+Authentication is handled via an API key stored in the environment variable
+`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+
+##### Signature
+
+```typescript
+async loadDW(chartId: string, options?: { apiKey?: string }): Promise<void>;
+```
+
+##### Parameters
+
+- **`chartId`**: The unique ID of the Datawrapper chart or table. This ID can be
+  found in the Datawrapper URL or dashboard.
+- **`options`**: An optional object with configuration options:
+- **`options.apiKey`**: The name of the environment variable that stores your
+  Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
+  `"DATAWRAPPER_KEY"`.
+
+##### Returns
+
+A promise that resolves when the data has been loaded into the table.
+
+##### Examples
+
+```ts
+// Load data from a Datawrapper chart
+await table.loadDW("myChartId");
+```
+
+#### `toGeoDW`
+
+Writes the table's geospatial data as GeoJSON to a Datawrapper map.
+
+Authentication is handled via an API key stored in the environment variable
+`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+
+##### Signature
+
+```typescript
+async toGeoDW(chartId: string, options?: { apiKey?: string; column?: string; note?: string; republish?: boolean }): Promise<void>;
+```
+
+##### Parameters
+
+- **`chartId`**: The unique ID of the Datawrapper map to update. This ID can be
+  found in the Datawrapper URL or dashboard.
+- **`options`**: An optional object with configuration options:
+- **`options.apiKey`**: The name of the environment variable that stores your
+  Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
+  `"DATAWRAPPER_KEY"`.
+- **`options.column`**: The name of the geometry column to use. If omitted, the
+  method will automatically attempt to find a geometry column.
+- **`options.note`**: A string to update the map's notes field with.
+- **`options.republish`**: If `true`, republishes the map after updating the
+  data. Defaults to `false`.
+
+##### Returns
+
+A promise that resolves when the data has been sent to Datawrapper.
+
+##### Examples
+
+```ts
+// Update a Datawrapper map with the table's geo data
+await table.toGeoDW("myMapId");
+```
+
+```ts
+// Update data, add a note, and republish
+await table.toGeoDW("myMapId", {
+  note: `Last updated: ${new Date().toLocaleString()}`,
+  republish: true,
+});
+```
+
+#### `loadGeoDW`
+
+Loads geospatial data from a Datawrapper map into the table.
+
+Authentication is handled via an API key stored in the environment variable
+`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+
+The data is temporarily written to `.sda-cache/<chartId>.json` and removed after
+loading. Remember to add `.sda-cache` to your `.gitignore`.
+
+##### Signature
+
+```typescript
+async loadGeoDW(chartId: string, options?: { apiKey?: string }): Promise<void>;
+```
+
+##### Parameters
+
+- **`chartId`**: The unique ID of the Datawrapper map. This ID can be found in
+  the Datawrapper URL or dashboard.
+- **`options`**: An optional object with configuration options:
+- **`options.apiKey`**: The name of the environment variable that stores your
+  Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
+  `"DATAWRAPPER_KEY"`.
+
+##### Returns
+
+A promise that resolves when the data has been loaded into the table.
+
+##### Examples
+
+```ts
+// Load geo data from a Datawrapper map
+await table.loadGeoDW("myMapId");
+```
+
 #### `writeChart`
 
 Creates an [Observable Plot](https://github.com/observablehq/plot) chart as an

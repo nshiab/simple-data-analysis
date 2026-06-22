@@ -1,6 +1,6 @@
 {
   "name": "@nshiab/simple-data-analysis",
-  "version": "5.20.9",
+  "version": "5.21.0",
   "description": "Easy-to-use and high-performance TypeScript library for data analysis. Works with tabular, geospatial and vector data.",
   "repository": "https://github.com/nshiab/simple-data-analysis",
   "license": "MIT",
