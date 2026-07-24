@@ -17,9 +17,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const originalNbRows = await table.getNbRows();
 
@@ -58,9 +58,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const results = await table.hybridSearch(
         "spicy vegan lunch",
@@ -86,9 +86,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const results = await table.hybridSearch(
         "italian cuisine",
@@ -119,9 +119,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const results = await table.hybridSearch(
         "french cuisine",
@@ -150,9 +150,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const results = await table.hybridSearch(
         "dessert",
@@ -179,9 +179,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       // Run without conjunctive option
       // This will only affect the BM25 part of the search
@@ -225,9 +225,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const results = await table.hybridSearch("pasta", "Dish", "Recipe", 5, {
         cache: true,
@@ -260,9 +260,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const originalNbRows = await table.getNbRows();
 
@@ -303,9 +303,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const results = await table.hybridSearch(
         "spicy vegan lunch",
@@ -333,9 +333,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const results = await table.hybridSearch(
         "italian cuisine",
@@ -368,9 +368,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const results = await table.hybridSearch(
         "french cuisine",
@@ -401,9 +401,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const results = await table.hybridSearch(
         "dessert",
@@ -433,9 +433,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const results = await table.hybridSearch(
         "dessert",
@@ -466,9 +466,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const results = await table.hybridSearch(
         "healthy breakfast",
@@ -499,9 +499,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       let errorThrown = false;
       try {
@@ -538,9 +538,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       await table.hybridSearch(
         "gluten-free dessert",
@@ -569,9 +569,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       await table.hybridSearch(
         "gluten-free dessert",
@@ -600,9 +600,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       // Run without conjunctive option
       // This will only affect the BM25 part of the search
@@ -647,9 +647,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const results = await table.hybridSearch(
         "italian food",
@@ -680,9 +680,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const results = await table.hybridSearch(
         "the a for with dish",

@@ -4,7 +4,7 @@ import type { Ollama } from "ollama";
 export default async function tryEmbedding(
   i: number,
   rows: {
-    [key: string]: string | number | boolean | Date | null;
+    [key: string]: unknown;
   }[],
   text: string,
   newColumn: string,
@@ -24,5 +24,5 @@ export default async function tryEmbedding(
   return rows[i][newColumn] = await getEmbedding(
     text,
     options,
-  ) as unknown as number;
+  );
 }

@@ -40,7 +40,7 @@ SELECT
   frequency
 FROM histogram
 ORDER BY bin_start;`,
-    { returnDataFrom: "query" },
+    { returnData: true },
   );
 
   logBarChart(

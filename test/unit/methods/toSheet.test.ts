@@ -15,7 +15,7 @@ if (
   }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable();
-    await table.loadArray([
+    table.loadArray([
       { first: "Nael", last: "Shiab" },
       { first: "Andrew", last: "Ryan" },
     ]);

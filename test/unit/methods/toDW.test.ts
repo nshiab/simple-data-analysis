@@ -8,7 +8,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
   }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable();
-    await table.loadArray([
+    table.loadArray([
       { salary: 75000, hireDate: "2022-12-15" },
       { salary: 80000, hireDate: "2023-01-20" },
     ]);
@@ -23,7 +23,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
   }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable();
-    await table.loadArray([
+    table.loadArray([
       { salary: 75000, hireDate: "2022-12-15" },
     ]);
     await table.toDW("ntURh", { note: "Last updated: June 2026" });
@@ -37,7 +37,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
   }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable();
-    await table.loadArray([
+    table.loadArray([
       { salary: 75000, hireDate: "2022-12-15" },
     ]);
     await table.toDW("ntURh", { republish: true });

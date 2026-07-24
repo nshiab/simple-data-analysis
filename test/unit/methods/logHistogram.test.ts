@@ -6,7 +6,7 @@ Deno.test("should log a histogram", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
 
-  await table.loadData("test/data/files/dailyTemperatures.csv");
+  table.loadData("test/data/files/dailyTemperatures.csv");
 
   await table.logHistogram("t");
   // How to test?
@@ -19,7 +19,7 @@ Deno.test("should log a histogram with options", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
 
-  await table.loadData("test/data/files/dailyTemperatures.csv");
+  table.loadData("test/data/files/dailyTemperatures.csv");
 
   await table.logHistogram("t", {
     width: 10,

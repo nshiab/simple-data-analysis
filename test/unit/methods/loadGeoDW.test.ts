@@ -10,7 +10,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
     const table = sdb.newTable();
 
     // First write known geo data to the map.
-    await table.loadGeoData(
+    table.loadGeoData(
       "test/geodata/files/CanadianProvincesAndTerritories.json",
     );
     await table.toGeoDW("lDO6F");

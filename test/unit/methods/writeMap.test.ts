@@ -11,7 +11,7 @@ Deno.test("should write a map as png", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
 
-  await table.loadGeoData(
+  table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
   );
 
@@ -44,7 +44,7 @@ Deno.test("should write a dark map as png", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
 
-  await table.loadGeoData(
+  table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
   );
 
@@ -77,7 +77,7 @@ Deno.test("should write a map as svg", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
 
-  await table.loadGeoData(
+  table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
   );
 
@@ -108,7 +108,7 @@ Deno.test("should write a map in a folder that doesn't exist", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
 
-  await table.loadGeoData(
+  table.loadGeoData(
     "test/geodata/files/CanadianProvincesAndTerritories.json",
   );
 
@@ -140,31 +140,31 @@ Deno.test("should write a map with multiple layers as a png", async () => {
   const sdb = new SimpleDB();
   const provinces = sdb.newTable("provinces");
 
-  await provinces.loadGeoData(
+  provinces.loadGeoData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
   );
 
   const fires = sdb.newTable("fires");
-  await fires.loadData(
+  fires.loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
   );
-  await fires.points("lat", "lon", "geom");
-  await fires.replace("cause", {
+  fires.points("lat", "lon", "geom");
+  fires.replace("cause", {
     "H": "Human",
     "N": "Natural",
     "U": "Unknown",
   });
-  await fires.selectColumns(["geom", "hectares", "cause"]);
-  await fires.filter(`hectares > 0 AND cause != 'Unknown'`);
+  fires.selectColumns(["geom", "hectares", "cause"]);
+  fires.filter(`hectares > 0 AND cause != 'Unknown'`);
 
-  const provincesAndFires = await provinces.cloneTable({
-    outputTable: "provincesAndFires",
+  const provincesAndFires = provinces.cloneTable({
+    name: "provincesAndFires",
   });
-  await provincesAndFires.addColumn("hectares", "number", `0`);
-  await provincesAndFires.addColumn("cause", "string", `''`);
+  provincesAndFires.addColumn("hectares", "number", `0`);
+  provincesAndFires.addColumn("cause", "string", `''`);
 
-  await provincesAndFires.insertTables(fires, { unifyColumns: true });
-  await provincesAndFires.addColumn("isFire", "boolean", `hectares > 0`);
+  provincesAndFires.insertTables(fires, { unifyColumns: true });
+  provincesAndFires.addColumn("isFire", "boolean", `hectares > 0`);
 
   const map = (
     geoData: {

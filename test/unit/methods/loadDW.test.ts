@@ -10,7 +10,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
     const table = sdb.newTable();
 
     // First write known data to the chart.
-    await table.loadArray([
+    table.loadArray([
       { salary: "75000", hireDate: "2022-12-15" },
       { salary: "80000", hireDate: "2023-01-20" },
     ]);

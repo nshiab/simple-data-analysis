@@ -12,8 +12,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should update a table with natural language", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+    table.loadData("test/data/files/dailyTemperatures.csv");
+    table.renameColumns({ t: "temperature", "id": "city" });
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
@@ -28,8 +28,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should update a table with natural language and thinking", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+    table.loadData("test/data/files/dailyTemperatures.csv");
+    table.renameColumns({ t: "temperature", "id": "city" });
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
@@ -45,8 +45,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should update a table with natural language with cache", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+    table.loadData("test/data/files/dailyTemperatures.csv");
+    table.renameColumns({ t: "temperature", "id": "city" });
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
@@ -62,8 +62,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should update a table with natural language with query returned from cache", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+    table.loadData("test/data/files/dailyTemperatures.csv");
+    table.renameColumns({ t: "temperature", "id": "city" });
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
@@ -79,8 +79,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should update a table with natural language and safetyEnabled", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+    table.loadData("test/data/files/dailyTemperatures.csv");
+    table.renameColumns({ t: "temperature", "id": "city" });
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
@@ -96,8 +96,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should update a table with natural language and option verbose", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+    table.loadData("test/data/files/dailyTemperatures.csv");
+    table.renameColumns({ t: "temperature", "id": "city" });
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
@@ -113,8 +113,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should create a new table with aiQuery results using outputTable option", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+    table.loadData("test/data/files/dailyTemperatures.csv");
+    table.renameColumns({ t: "temperature", "id": "city" });
 
     const originalRowCount = await table.getNbRows();
 
@@ -149,8 +149,8 @@ if (typeof ollama === "string" && ollama !== "") {
   }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+    table.loadData("test/data/files/dailyTemperatures.csv");
+    table.renameColumns({ t: "temperature", "id": "city" });
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
@@ -169,8 +169,8 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/dailyTemperatures.csv");
-      await table.renameColumns({ t: "temperature", "id": "city" });
+      table.loadData("test/data/files/dailyTemperatures.csv");
+      table.renameColumns({ t: "temperature", "id": "city" });
 
       await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
@@ -190,8 +190,8 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/dailyTemperatures.csv");
-      await table.renameColumns({ t: "temperature", "id": "city" });
+      table.loadData("test/data/files/dailyTemperatures.csv");
+      table.renameColumns({ t: "temperature", "id": "city" });
 
       const ollama = new Ollama({ host: "http://127.0.0.1:11434" });
 
@@ -215,8 +215,8 @@ if (typeof ollama === "string" && ollama !== "") {
   }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+    table.loadData("test/data/files/dailyTemperatures.csv");
+    table.renameColumns({ t: "temperature", "id": "city" });
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
@@ -235,8 +235,8 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/dailyTemperatures.csv");
-      await table.renameColumns({ t: "temperature", "id": "city" });
+      table.loadData("test/data/files/dailyTemperatures.csv");
+      table.renameColumns({ t: "temperature", "id": "city" });
 
       await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
@@ -256,8 +256,8 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/dailyTemperatures.csv");
-      await table.renameColumns({ t: "temperature", "id": "city" });
+      table.loadData("test/data/files/dailyTemperatures.csv");
+      table.renameColumns({ t: "temperature", "id": "city" });
 
       await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
@@ -277,8 +277,8 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/dailyTemperatures.csv");
-      await table.renameColumns({ t: "temperature", "id": "city" });
+      table.loadData("test/data/files/dailyTemperatures.csv");
+      table.renameColumns({ t: "temperature", "id": "city" });
 
       const originalRowCount = await table.getNbRows();
 

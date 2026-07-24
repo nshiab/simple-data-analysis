@@ -19,7 +19,7 @@ import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
 const table = sdb.newTable("myTable"); // This returns a SimpleTable instance
-await table.loadData("path/to/your/data.csv");
+table.loadData("path/to/your/data.csv");
 
 // You can now perform various data analysis operations on the table.
 
@@ -48,18 +48,24 @@ Creates a new SimpleDB instance.
   file if it already exists.
 - **`options.logDuration`**: A flag indicating whether to log the total
   execution duration.
-- **`options.nbRowsToLog`**: The number of rows to display when logging a table.
-- **`options.nbCharactersToLog`**: The maximum number of characters to display
-  for text-based cells.
-- **`options.types`**: A flag indicating whether to include data types when
+- **`options.rowsToLog`**: The number of rows to display when logging a table.
+- **`options.charsToLog`**: The maximum number of characters to display for
+  text-based cells.
+- **`options.typesToLog`**: A flag indicating whether to include data types when
   logging a table.
 - **`options.cacheVerbose`**: A flag indicating whether to log verbose
   cache-related messages.
-- **`options.debug`**: A flag indicating whether to log debugging information.
+- **`options.logSQL`**: A flag indicating whether to log SQL immediately before
+  execution.
+- **`options.explainSQL`**: A flag indicating whether to log DuckDB query plans
+  for supported statements.
 - **`options.duckDbCache`**: A flag indicating whether to use DuckDB's external
   file cache.
 - **`options.progressBar`**: A flag indicating whether to display a progress bar
   for long-running operations.
+- **`options.memoryLimit`**: The maximum amount of memory DuckDB is allowed to
+  use (for example, `"4GB"`).
+- **`options.tempDir`**: The path to the directory used for temporary files.
 
 ### Methods
 
@@ -476,7 +482,7 @@ const sdb = new SimpleDB();
 // Create a new table named "employees"
 const employees = sdb.newTable("employees");
 // Load data from a CSV file into the "employees" table
-await employees.loadData("./employees.csv");
+employees.loadData("./employees.csv");
 // Log the first few rows of the "employees" table to the console
 await employees.logTable();
 // Close the database connection and clean up resources
@@ -495,8 +501,8 @@ await sdb.done();
 ```ts
 // Create a database instance with custom options
 const sdb = new SimpleDB({
-  debug: true, // Enable debugging output
-  nbRowsToLog: 20, // Set the number of rows to log by default
+  logSQL: true, // Log SQL immediately before execution
+  rowsToLog: 20, // Set the number of rows to log by default
 });
 ```
 
@@ -647,7 +653,7 @@ A promise that resolves when the AI processing is complete.
 
 ```ts
 // New table with a "name" column.
-await table.loadArray([
+table.loadArray([
   { name: "Marie" },
   { name: "John" },
   { name: "Alex" },
@@ -684,7 +690,7 @@ await table.aiRowByRow(
 ```
 
 ```ts
-await table.loadArray([
+table.loadArray([
   { city: "Marrakech" },
   { city: "Kyoto" },
   { city: "Auckland" },
@@ -841,7 +847,7 @@ A promise that resolves when the AI processing is complete.
 
 ```ts
 // New table with a "review" column.
-await table.loadArray([
+table.loadArray([
   { review: "Great product!" },
   { review: "Terrible quality." },
   { review: "Not bad, could be better." },
@@ -882,7 +888,7 @@ await table.aiRowByRowPool(
 ```
 
 ```ts
-await table.loadArray([
+table.loadArray([
   { product: "Laptop" },
   { product: "Smartphone" },
   { product: "Tablet" },
@@ -1004,7 +1010,7 @@ A promise that resolves when the embeddings have been generated and stored.
 
 ```ts
 // New table with a "food" column.
-await table.loadArray([
+table.loadArray([
   { food: "pizza" },
   { food: "sushi" },
   { food: "burger" },
@@ -1117,7 +1123,7 @@ search results.
 
 ```ts
 // New table with a "food" column.
-await table.loadArray([
+table.loadArray([
   { food: "pizza" },
   { food: "sushi" },
   { food: "burger" },
@@ -1291,7 +1297,7 @@ ordered by relevance (best matches first).
 // Load a dataset of recipes
 const sdb = new SimpleDB();
 const table = sdb.newTable("recipes");
-await table.loadData("recipes.parquet");
+table.loadData("recipes.parquet");
 
 // Perform hybrid search - replaces the current table with top 10 results
 await table.hybridSearch(
@@ -1495,7 +1501,7 @@ context.
 // Load a dataset of recipes
 const sdb = new SimpleDB();
 const table = sdb.newTable("recipes");
-await table.loadData("recipes.parquet");
+table.loadData("recipes.parquet");
 
 // Ask a question using hybrid RAG (vector + BM25 search)
 const answer = await table.aiRAG(
@@ -1922,7 +1928,7 @@ import { dot, plot } from "@observablehq/plot";
 const sdb = new SimpleDB();
 const table = sdb.newTable();
 const data = [{ year: 2024, value: 10 }, { year: 2025, value: 15 }];
-await table.loadArray(data);
+table.loadArray(data);
 
 const chartFunction = (plotData: unknown[]) =>
   plot({
@@ -1976,7 +1982,7 @@ import { geo, plot } from "@observablehq/plot";
 
 const sdb = new SimpleDB();
 const table = sdb.newTable();
-await table.loadGeoData("./CanadianProvincesAndTerritories.geojson");
+table.loadGeoData("./CanadianProvincesAndTerritories.geojson");
 
 const mapFunction = (geoJsonData: { features: unknown[] }) =>
   plot({
@@ -2050,8 +2056,8 @@ const data = [
   { date: new Date("2023-03-01"), value: 30 },
   { date: new Date("2023-04-01"), value: 40 },
 ];
-await table.loadArray(data);
-await table.convert({ date: "string" }, { datetimeFormat: "%x" });
+table.loadArray(data);
+table.convert({ date: "string" }, { datetimeFormat: "%x" });
 await table.logLineChart("date", "value");
 ```
 
@@ -2068,8 +2074,8 @@ const data = [
   { date: new Date("2023-03-01"), value: 35, category: "B" },
   { date: new Date("2023-04-01"), value: 45, category: "B" },
 ];
-await table.loadArray(data);
-await table.convert({ date: "string" }, { datetimeFormat: "%x" });
+table.loadArray(data);
+table.convert({ date: "string" }, { datetimeFormat: "%x" });
 await table.logLineChart("date", "value", {
   smallMultiples: "category",
 });
@@ -2130,8 +2136,8 @@ const data = [
   { date: new Date("2023-03-01"), value: 30 },
   { date: new Date("2023-04-01"), value: 40 },
 ];
-await table.loadArray(data);
-await table.convert({ date: "string" }, { datetimeFormat: "%x" });
+table.loadArray(data);
+table.convert({ date: "string" }, { datetimeFormat: "%x" });
 await table.logDotChart("date", "value");
 ```
 
@@ -2148,8 +2154,8 @@ const data = [
   { date: new Date("2023-03-01"), value: 35, category: "B" },
   { date: new Date("2023-04-01"), value: 45, category: "B" },
 ];
-await table.loadArray(data);
-await table.convert({ date: "string" }, { datetimeFormat: "%x" });
+table.loadArray(data);
+table.convert({ date: "string" }, { datetimeFormat: "%x" });
 await table.logDotChart("date", "value", {
   smallMultiples: "category",
 });
@@ -2195,7 +2201,7 @@ const data = [
   { category: "A", value: 10 },
   { category: "B", value: 20 },
 ];
-await table.loadArray(data);
+table.loadArray(data);
 await table.logBarChart("category", "value");
 ```
 
@@ -2277,7 +2283,7 @@ will be replaced. To convert the types of an existing table, use the
 ##### Signature
 
 ```typescript
-async setTypes(types: Record<string, "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean" | geometry('${[0m[36mstring[0m}') | GEOMETRY('${[0m[36mstring[0m}')>): Promise<void>;
+async setTypes(types: Record<string, "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean" | geometry('${string}') | GEOMETRY('${string}')>): Promise<void>;
 ```
 
 ##### Parameters
@@ -4000,7 +4006,7 @@ types) and a SQL definition.
 ##### Signature
 
 ```typescript
-async addColumn(newColumn: string, type: "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean" | geometry('${[0m[36mstring[0m}') | GEOMETRY('${[0m[36mstring[0m}'), definition: string): Promise<void>;
+async addColumn(newColumn: string, type: "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean" | geometry('${string}') | GEOMETRY('${string}'), definition: string): Promise<void>;
 ```
 
 ##### Parameters
@@ -8546,7 +8552,7 @@ const sdb = new SimpleDB();
 const employees = sdb.newTable("employees");
 
 // Load data from a CSV file into the "employees" table
-await employees.loadData("./employees.csv");
+employees.loadData("./employees.csv");
 
 // Log the first few rows of the "employees" table to the console
 await employees.logTable();
@@ -8564,7 +8570,7 @@ const sdb = new SimpleDB();
 const boundaries = sdb.newTable("boundaries");
 
 // Load geospatial data from a GeoJSON file
-await boundaries.loadGeoData("./boundaries.geojson");
+boundaries.loadGeoData("./boundaries.geojson");
 
 // Close the database connection
 await sdb.done();

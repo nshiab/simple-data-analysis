@@ -36,7 +36,7 @@ export default async function aiVectorSimilarity(
   }
 
   if (options.createIndex) {
-    await simpleTable.createVssIndex(column, {
+    simpleTable.createVssIndex(column, {
       overwrite: options.overwriteIndex,
       verbose: options.verbose,
       efConstruction: options.efConstruction,

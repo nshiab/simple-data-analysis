@@ -43,6 +43,25 @@ SDA is split into two packages:
 Most users will want this package (`simple-data-analysis`), which includes all
 of the core functionality plus the extended features.
 
+## Execution model
+
+Starting with v6, core transformation methods are synchronous builders: they
+queue work, return the table, and can be chained. Async observer methods such as
+`getData()`, `logTable()`, and `writeData()` execute the queued work before
+producing their result.
+
+```ts
+const data = await table
+  .loadData("temperatures.csv")
+  .selectColumns(["city", "time", "temperature"])
+  .removeMissing({ columns: "temperature" })
+  .getData();
+```
+
+Call `await table.run()` when a chain ends with transformations and no observer.
+Methods provided by this package that perform external work—such as AI, Google
+Sheets, and Datawrapper methods—remain asynchronous and must still be awaited.
+
 ## Installation
 
 The library is available on [JSR](https://jsr.io/@nshiab/simple-data-analysis)
@@ -200,19 +219,19 @@ const sdb = new SimpleDB();
 // We create a new table
 const fires = sdb.newTable("fires");
 // We fetch the wildfires data. It's a csv.
-await fires.loadData(
+fires.loadData(
   "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
 );
 // We create point geometries from the lat and lon columns
 // and we store the points in the new column geom
-await fires.points("lat", "lon", "geom");
+fires.points("lat", "lon", "geom");
 // We log the fires
 await fires.logTable();
 
 // We create a new table
 const provinces = sdb.newTable("provinces");
 // We fetch the provinces' boundaries. It's a geojson.
-await provinces.loadGeoData(
+provinces.loadGeoData(
   "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
 );
 // We log the provinces
@@ -225,31 +244,31 @@ await provinces.logTable();
 // do a left join, and put the results
 // in the left table. For non-spatial data,
 // you can use the method join.
-const firesInsideProvinces = await fires.joinGeo(provinces, "inside", {
+const firesInsideProvinces = fires.joinGeo(provinces, "inside", {
   outputTable: "firesInsideProvinces",
 });
 
 // We summarize to count the number of fires
 // and sum up the area burnt in each province.
-await firesInsideProvinces.summarize({
+firesInsideProvinces.summarize({
   values: "hectares",
   categories: "nameEnglish",
   summaries: ["count", "sum"],
   decimals: 0,
 });
 // We rename columns.
-await firesInsideProvinces.renameColumns({
+firesInsideProvinces.renameColumns({
   count: "nbFires",
   sum: "burntArea",
 });
 // We want the province with
 // the greatest burnt area first.
-await firesInsideProvinces.sort({ burntArea: "desc" });
+firesInsideProvinces.sort({ burntArea: "desc" });
 
 // We log the results. By default, the method
-// logs the first 10 rows, but there is 13
+// logs the first 10 rows, but there are 12
 // rows in our data. We also log the data types.
-await firesInsideProvinces.logTable({ nbRowsToLog: 13, types: true });
+await firesInsideProvinces.logTable({ rowsToLog: 13, typesToLog: true });
 
 // We can also log a bar chart directly in the terminal...
 await firesInsideProvinces.logBarChart("nameEnglish", "burntArea");
@@ -316,13 +335,13 @@ import { dodgeX, dot, plot } from "@observablehq/plot";
 const sdb = new SimpleDB();
 const table = sdb.newTable();
 
-await table.loadData(
+table.loadData(
   "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
 );
 // We keep only the fires that are larger than 1 hectare.
-await table.filter(`hectares > 1`);
+table.filter(`hectares > 1`);
 // We rename the causes.
-await table.replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" });
+table.replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" });
 await table.logTable();
 
 // Let's create a beeswarm chart with a log scale.
@@ -370,38 +389,38 @@ const sdb = new SimpleDB();
 const provinces = sdb.newTable("provinces");
 
 // We fetch the Canadian provinces boundaries.
-await provinces.loadGeoData(
+provinces.loadGeoData(
   "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
 );
 await provinces.logTable();
 
 // We fetch the fires.
 const fires = sdb.newTable("fires");
-await fires.loadData(
+fires.loadData(
   "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
 );
 // We create a new column to store the points as geometries.
-await fires.points("lat", "lon", "geom");
+fires.points("lat", "lon", "geom");
 // We select the columns of interest and filter out
 // fires less than 1 hectare.
-await fires.replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" });
-await fires.selectColumns(["geom", "hectares", "cause"]);
-await fires.filter(`hectares > 0`);
+fires.replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" });
+fires.selectColumns(["geom", "hectares", "cause"]);
+fires.filter(`hectares > 0`);
 await fires.logTable();
 
 // Now, we want the provinces and the fires in the same table
 // to draw our map with the writeMap method.
 // First, we clone the provinces table.
-const provincesAndFires = await provinces.cloneTable({
-  outputTable: "provincesAndFires",
+const provincesAndFires = provinces.cloneTable({
+  name: "provincesAndFires",
 });
 // Now we can insert the fires into the provincesAndFires table.
 // By default, SDA will throw an error if the tables don't have the
 // same columns. So we set the unifyColumns option to true.
-await provincesAndFires.insertTables(fires, { unifyColumns: true });
+provincesAndFires.insertTables(fires, { unifyColumns: true });
 // To make our lives easier, we add a column to
 // distinguish between provinces and fires.
-await provincesAndFires.addColumn("isFire", "boolean", `hectares > 0`);
+provincesAndFires.addColumn("isFire", "boolean", `hectares > 0`);
 await provincesAndFires.logTable();
 
 // This is our function to draw the map, using the Plot library.
@@ -495,11 +514,11 @@ const fires = sdb.newTable("fires");
 // If you update the code passed to the cache method,
 // everything starts over.
 await fires.cache(
-  async () => {
-    await fires.loadData(
+  () => {
+    fires.loadData(
       "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
     );
-    await fires.points("lat", "lon", "geom");
+    fires.points("lat", "lon", "geom");
   },
   { ttl: 60 },
 );
@@ -511,8 +530,8 @@ const provinces = sdb.newTable("provinces");
 // the hidden folder .sda-cache. Again, if you update
 // the code passed to the cache method, everything
 // starts over.
-await provinces.cache(async () => {
-  await provinces.loadGeoData(
+await provinces.cache(() => {
+  provinces.loadGeoData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
   );
 });
@@ -527,26 +546,26 @@ const firesInsideProvinces = sdb.newTable("firesInsideProvinces");
 // or lower. Otherwise, we won't work with
 // up-to-date data.
 await firesInsideProvinces.cache(
-  async () => {
-    await firesInsideProvinces.insertTables(fires);
-    await firesInsideProvinces.joinGeo(provinces, "inside");
-    await firesInsideProvinces.removeMissing();
-    await firesInsideProvinces.summarize({
+  () => {
+    firesInsideProvinces.insertTables(fires);
+    firesInsideProvinces.joinGeo(provinces, "inside");
+    firesInsideProvinces.removeMissing();
+    firesInsideProvinces.summarize({
       values: "hectares",
       categories: "nameEnglish",
       summaries: ["count", "sum"],
       decimals: 0,
     });
-    await firesInsideProvinces.renameColumns({
+    firesInsideProvinces.renameColumns({
       count: "nbFires",
       sum: "burntArea",
     });
-    await firesInsideProvinces.sort({ burntArea: "desc" });
+    firesInsideProvinces.sort({ burntArea: "desc" });
   },
   { ttl: 60 },
 );
 
-await firesInsideProvinces.logTable({ nbRowsToLog: 13, types: true });
+await firesInsideProvinces.logTable({ rowsToLog: 13, typesToLog: true });
 await firesInsideProvinces.logBarChart("nameEnglish", "burntArea");
 
 // It's important to call done() at the end.
@@ -581,24 +600,24 @@ Wrote in cache in 0 ms.
 
 
 Table firesInsideProvinces:
-┌────────────────┬───────────────────────────┬────────────────┬───────────────┐
-│ value          │ nameEnglish               │ nbFires        │ burntArea     │
-│ VARCHAR/string │ VARCHAR/string            │ INTEGER/number │ DOUBLE/number │
-├────────────────┼───────────────────────────┼────────────────┼───────────────┤
-│ hectares       │ Quebec                    │ 706            │ 5024737       │
-│ hectares       │ Northwest Territories     │ 314            │ 4253907       │
-│ hectares       │ Alberta                   │ 1208           │ 3214444       │
-│ hectares       │ British Columbia          │ 2496           │ 2856625       │
-│ hectares       │ Saskatchewan              │ 560            │ 1801903       │
-│ hectares       │ Ontario                   │ 741            │ 441581        │
-│ hectares       │ Yukon                     │ 227            │ 395461        │
-│ hectares       │ Manitoba                  │ 301            │ 199200        │
-│ hectares       │ Nova Scotia               │ 208            │ 25017         │
-│ hectares       │ Newfoundland and Labrador │ 85             │ 21833         │
-│ hectares       │ Nunavut                   │ 1              │ 2700          │
-│ hectares       │ New Brunswick             │ 202            │ 854           │
-└────────────────┴───────────────────────────┴────────────────┴───────────────┘
-12 rows in total (nbRowsToLog: 13)
+┌───────────────────────────┬────────────────┬───────────────┐
+│ nameEnglish               │ nbFires        │ burntArea     │
+│ VARCHAR/string            │ INTEGER/number │ DOUBLE/number │
+├───────────────────────────┼────────────────┼───────────────┤
+│ Quebec                    │ 706            │ 5024737       │
+│ Northwest Territories     │ 314            │ 4253907       │
+│ Alberta                   │ 1208           │ 3214444       │
+│ British Columbia          │ 2496           │ 2856625       │
+│ Saskatchewan              │ 560            │ 1801903       │
+│ Ontario                   │ 741            │ 441581        │
+│ Yukon                     │ 227            │ 395461        │
+│ Manitoba                  │ 301            │ 199200        │
+│ Nova Scotia               │ 208            │ 25017         │
+│ Newfoundland and Labrador │ 85             │ 21833         │
+│ Nunavut                   │ 1              │ 2700          │
+│ New Brunswick             │ 202            │ 854           │
+└───────────────────────────┴────────────────┴───────────────┘
+12 rows in total (rowsToLog: 13)
 
 Bar chart of "burntArea" per "nameEnglish":
                           ┌

@@ -185,7 +185,7 @@ export default async function hybridSearch(
     if (options.verbose) {
       times.bm25Start = Date.now();
     }
-    const bm25SearchResult = await table.bm25(
+    const bm25SearchResult = table.bm25(
       query,
       columnId,
       columnText,
@@ -205,6 +205,7 @@ export default async function hybridSearch(
         scoreColumn: options.bm25ScoreColumn,
       },
     );
+    await bm25SearchResult.run();
     if (options.verbose) {
       times.bm25End = Date.now();
     }
@@ -213,10 +214,10 @@ export default async function hybridSearch(
 
   let finalIds: string[];
   let vectorSearchSimilarity: {
-    [key: string]: string | number | boolean | Date | null;
+    [key: string]: unknown;
   }[] = [];
   let bm25SearchScores: {
-    [key: string]: string | number | boolean | Date | null;
+    [key: string]: unknown;
   }[] = [];
 
   if (enableVectorSearch && enableBm25) {
@@ -335,13 +336,13 @@ export default async function hybridSearch(
   if (options.vectorSimilarityColumn) {
     if (vectorSearchSimilarity.length === 0) {
       // If there are no similarity scores (e.g. all results were filtered out by minSimilarity), add the column with NULL values
-      await outputTableInstance.addColumn(
+      outputTableInstance.addColumn(
         options.vectorSimilarityColumn,
         "number",
         `NULL`,
       );
     } else {
-      await outputTableInstance.addColumn(
+      outputTableInstance.addColumn(
         options.vectorSimilarityColumn,
         "number",
         `CASE ${
@@ -352,7 +353,7 @@ export default async function hybridSearch(
           ).join(" ")
         } ELSE NULL END`,
       );
-      await outputTableInstance.round(options.vectorSimilarityColumn, {
+      outputTableInstance.round(options.vectorSimilarityColumn, {
         decimals: 4,
       });
     }
@@ -360,13 +361,13 @@ export default async function hybridSearch(
   if (options.bm25ScoreColumn) {
     if (bm25SearchScores.length === 0) {
       // If there are no BM25 scores (e.g. all results were filtered out by minScore), add the column with NULL values
-      await outputTableInstance.addColumn(
+      outputTableInstance.addColumn(
         options.bm25ScoreColumn,
         "number",
         `NULL`,
       );
     } else {
-      await outputTableInstance.addColumn(
+      outputTableInstance.addColumn(
         options.bm25ScoreColumn,
         "number",
         `CASE ${
@@ -377,11 +378,12 @@ export default async function hybridSearch(
           ).join(" ")
         } ELSE NULL END`,
       );
-      await outputTableInstance.round(options.bm25ScoreColumn, {
+      outputTableInstance.round(options.bm25ScoreColumn, {
         decimals: 4,
       });
     }
   }
+  await outputTableInstance.run();
   if (options.verbose) {
     await outputTableInstance.logTable("all");
 

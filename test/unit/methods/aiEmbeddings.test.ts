@@ -11,7 +11,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should create embeddings", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { food: "pizza" },
       { food: "sushi" },
       { food: "burger" },
@@ -37,7 +37,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should retrieve embedding from cache", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { food: "pizza" },
       { food: "sushi" },
       { food: "burger" },
@@ -63,7 +63,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should create embeddings with an index", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { food: "pizza" },
       { food: "sushi" },
       { food: "burger" },
@@ -100,7 +100,7 @@ if (typeof ollama === "string" && ollama !== "") {
   Deno.test("should create embeddings", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { food: "pizza" },
       { food: "sushi" },
       { food: "burger" },
@@ -124,7 +124,7 @@ if (typeof ollama === "string" && ollama !== "") {
   Deno.test("should create embeddings with a different Ollama instance", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { food: "pizza" },
       { food: "sushi" },
       { food: "burger" },
@@ -151,7 +151,7 @@ if (typeof ollama === "string" && ollama !== "") {
   Deno.test("should retrieve embedding from cache", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { food: "pizza" },
       { food: "sushi" },
       { food: "burger" },
@@ -177,7 +177,7 @@ if (typeof ollama === "string" && ollama !== "") {
   Deno.test("should create embeddings with an index", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { food: "pizza" },
       { food: "sushi" },
       { food: "burger" },
@@ -205,7 +205,7 @@ if (typeof ollama === "string" && ollama !== "") {
   Deno.test("should create embeddings with concurrent requests", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { food: "pizza" },
       { food: "sushi" },
       { food: "burger" },

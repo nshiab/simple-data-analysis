@@ -19,7 +19,7 @@
  *
  * const sdb = new SimpleDB();
  * const table = sdb.newTable("myTable"); // This returns a SimpleTable instance
- * await table.loadData("path/to/your/data.csv");
+ * table.loadData("path/to/your/data.csv");
  *
  * // You can now perform various data analysis operations on the table.
  *

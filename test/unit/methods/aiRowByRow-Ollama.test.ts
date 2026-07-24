@@ -14,7 +14,7 @@ if (typeof ollama === "string" && aiKey !== "") {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     // New table with column "name".
-    await table.loadArray([
+    table.loadArray([
       { name: "Marie" },
       { name: "John" },
       { name: "Alex" },
@@ -65,7 +65,7 @@ if (typeof ollama === "string" && aiKey !== "") {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     // New table with column "name".
-    await table.loadArray([
+    table.loadArray([
       { name: "Marie" },
       { name: "John" },
       { name: "Alex" },
@@ -119,7 +119,7 @@ if (typeof ollama === "string" && aiKey !== "") {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     // New table with column "name".
-    await table.loadArray([
+    table.loadArray([
       { name: "Marie" },
       { name: "John" },
       { name: "Alex" },
@@ -171,7 +171,7 @@ if (typeof ollama === "string" && aiKey !== "") {
   }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -203,7 +203,7 @@ if (typeof ollama === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt (ollama)", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -234,7 +234,7 @@ if (typeof ollama === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt and thinking (ollama)", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -268,7 +268,7 @@ if (typeof ollama === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt and a batch size (ollama)", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -318,7 +318,7 @@ if (typeof ollama === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt and a batch size and cache (ollama)", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -369,7 +369,7 @@ if (typeof ollama === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt and a batch size and return from cache (ollama)", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -420,7 +420,7 @@ if (typeof ollama === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt with a batch size and be verbose (ollama)", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -470,7 +470,7 @@ if (typeof ollama === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt, a batch size and concurrent requests (ollama)", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -522,7 +522,7 @@ if (typeof ollama === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt, a batch size and concurrent requests and cache (ollama)", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -576,7 +576,7 @@ if (typeof ollama === "string" && aiKey !== "") {
   }, async () => {
     const sdb = new SimpleDB({ logDuration: true });
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -623,7 +623,7 @@ if (typeof ollama === "string" && aiKey !== "") {
   Deno.test("should accept a Zod JSON schema for structured output", async () => {
     const sdb = new SimpleDB({ logDuration: true });
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -679,7 +679,7 @@ if (typeof ollama === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB({ logDuration: true });
       const table = sdb.newTable("data");
-      await table.loadArray([
+      table.loadArray([
         { "birthday": "2020-01-01" },
         { "birthday": "1990-05-15" },
         { "birthday": "1985-10-30" },
@@ -707,7 +707,7 @@ if (typeof ollama === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB({ logDuration: true });
       const table = sdb.newTable("data");
-      await table.loadArray([
+      table.loadArray([
         { "birthday": "2020-01-01" },
         { "birthday": "1990-05-15" },
         { "birthday": "1985-10-30" },

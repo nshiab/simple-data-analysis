@@ -8,7 +8,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
   }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable();
-    await table.loadGeoData(
+    table.loadGeoData(
       "test/geodata/files/CanadianProvincesAndTerritories.json",
     );
     await table.toGeoDW("lDO6F");
@@ -22,7 +22,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
   }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable();
-    await table.loadGeoData(
+    table.loadGeoData(
       "test/geodata/files/CanadianProvincesAndTerritories.json",
     );
     await table.toGeoDW("lDO6F", { note: "Last updated: June 2026" });
@@ -36,7 +36,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
   }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable();
-    await table.loadGeoData(
+    table.loadGeoData(
       "test/geodata/files/CanadianProvincesAndTerritories.json",
     );
     await table.toGeoDW("lDO6F", { republish: true });

@@ -10,8 +10,8 @@ if (!existsSync(output)) {
 Deno.test("should write a chart as a png", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
-  await table.loadData("test/data/files/dailyTemperatures.csv");
-  await table.filter(`YEAR(time) === 2020`);
+  table.loadData("test/data/files/dailyTemperatures.csv");
+  table.filter(`YEAR(time) === 2020`);
   await table.writeChart((data: unknown[]) =>
     plot({
       title: "My chart",
@@ -31,8 +31,8 @@ Deno.test("should write a chart as a png", async () => {
 Deno.test("should write a dark chart as a png", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
-  await table.loadData("test/data/files/dailyTemperatures.csv");
-  await table.filter(`YEAR(time) === 2020`);
+  table.loadData("test/data/files/dailyTemperatures.csv");
+  table.filter(`YEAR(time) === 2020`);
   await table.writeChart(
     (data: unknown[]) =>
       plot({
@@ -57,8 +57,8 @@ Deno.test("should write a dark chart as a png", async () => {
 Deno.test("should write a chart as a svg", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
-  await table.loadData("test/data/files/dailyTemperatures.csv");
-  await table.filter(`YEAR(time) === 2020`);
+  table.loadData("test/data/files/dailyTemperatures.csv");
+  table.filter(`YEAR(time) === 2020`);
   await table.writeChart((data: unknown[]) =>
     plot({
       title: "My chart",
@@ -77,7 +77,7 @@ Deno.test("should write a chart as a svg", async () => {
 Deno.test("should write a chart (example from docs)", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
-  await table.loadArray([{ year: 2024, value: 10 }, { year: 2025, value: 15 }]);
+  table.loadArray([{ year: 2024, value: 10 }, { year: 2025, value: 15 }]);
 
   await table.writeChart((data: unknown[]) =>
     plot({
@@ -93,8 +93,8 @@ Deno.test("should write a chart (example from docs)", async () => {
 Deno.test("should write a chart in a folder that doesn't exist", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
-  await table.loadData("test/data/files/dailyTemperatures.csv");
-  await table.filter(`YEAR(time) === 2020`);
+  table.loadData("test/data/files/dailyTemperatures.csv");
+  table.filter(`YEAR(time) === 2020`);
   await table.writeChart((data: unknown[]) =>
     plot({
       title: "My chart",

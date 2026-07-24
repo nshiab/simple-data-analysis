@@ -6,7 +6,7 @@ export default async function tryAI(
   i: number,
   batchSize: number,
   rows: {
-    [key: string]: string | number | boolean | Date | null;
+    [key: string]: unknown;
   }[],
   column: string,
   newColumns: string[],

@@ -17,9 +17,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "I want a buttery pastry for breakfast.",
@@ -47,9 +47,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
   }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/recipes.parquet");
-    await table.removeDuplicates({ on: "Dish" });
-    await table.removeMissing({ columns: "Recipe" });
+    table.loadData("test/data/files/recipes.parquet");
+    table.removeDuplicates({ on: "Dish" });
+    table.removeMissing({ columns: "Recipe" });
 
     const answer = await table.aiRAG(
       "I am vegan. What can I eat for lunch that is spicy?",
@@ -78,9 +78,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "I am looking for round dish, but I don't remember the name.",
@@ -111,9 +111,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "I am looking for round dish, but I don't remember the name.",
@@ -144,9 +144,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "Why is the sky blue?",
@@ -176,9 +176,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "What's a quick pasta recipe?",
@@ -208,9 +208,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "I want something healthy for breakfast",
@@ -241,9 +241,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG("fennel garlic", "Dish", "Recipe", 3, {
         cache: true,
@@ -278,9 +278,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "I want a buttery pastry for breakfast.",
@@ -308,8 +308,8 @@ if (typeof ollama === "string" && ollama !== "") {
   }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/recipes.parquet");
-    await table.removeMissing({ columns: "Recipe" });
+    table.loadData("test/data/files/recipes.parquet");
+    table.removeMissing({ columns: "Recipe" });
 
     const answer = await table.aiRAG(
       "I am vegan. What can I eat for lunch that is spicy?",
@@ -338,8 +338,8 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "I am looking for round dish, but I don't remember the name.",
@@ -370,8 +370,8 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "I am looking for round dish, but I don't remember the name.",
@@ -403,8 +403,8 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "Why is the sky blue?",
@@ -444,8 +444,8 @@ if (typeof ollama === "string" && ollama !== "") {
           cacheVerbose: true,
         });
         table = sdb.newTable("data");
-        await table.loadData("test/data/files/recipes.parquet");
-        await table.removeMissing({ columns: "Recipe" });
+        table.loadData("test/data/files/recipes.parquet");
+        table.removeMissing({ columns: "Recipe" });
       } else {
         sdb = new SimpleDB({ cacheVerbose: true });
         await sdb.loadDB("test/output/recipes.db");
@@ -488,8 +488,8 @@ if (typeof ollama === "string" && ollama !== "") {
           cacheVerbose: true,
         });
         table = sdb.newTable("data");
-        await table.loadData("test/data/files/recipes.parquet");
-        await table.removeMissing({ columns: "Recipe" });
+        table.loadData("test/data/files/recipes.parquet");
+        table.removeMissing({ columns: "Recipe" });
       } else {
         sdb = new SimpleDB({ cacheVerbose: true });
         await sdb.loadDB("test/output/recipes.db");
@@ -526,9 +526,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "What's a quick pasta recipe?",
@@ -558,9 +558,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "I want something healthy for breakfast",
@@ -589,9 +589,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "I want something healthy for breakfast",
@@ -622,9 +622,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG("fennel garlic", "Dish", "Recipe", 3, {
         cache: true,
@@ -645,9 +645,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       // Using custom BM25 options in RAG context
       const answer = await table.aiRAG("italian food", "Dish", "Recipe", 5, {
@@ -671,9 +671,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "the a for with dish",

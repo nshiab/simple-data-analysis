@@ -42,7 +42,7 @@ import aiQuery from "../methods/aiQuery.ts";
  * const employees = sdb.newTable("employees");
  *
  * // Load data from a CSV file into the "employees" table
- * await employees.loadData("./employees.csv");
+ * employees.loadData("./employees.csv");
  *
  * // Log the first few rows of the "employees" table to the console
  * await employees.logTable();
@@ -61,7 +61,7 @@ import aiQuery from "../methods/aiQuery.ts";
  * const boundaries = sdb.newTable("boundaries");
  *
  * // Load geospatial data from a GeoJSON file
- * await boundaries.loadGeoData("./boundaries.geojson");
+ * boundaries.loadGeoData("./boundaries.geojson");
  *
  * // Close the database connection
  * await sdb.done();
@@ -128,7 +128,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @example
    * ```ts
    * // New table with a "name" column.
-   * await table.loadArray([
+   * table.loadArray([
    *   { name: "Marie" },
    *   { name: "John" },
    *   { name: "Alex" },
@@ -166,7 +166,7 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * @example
    * ```ts
-   * await table.loadArray([
+   * table.loadArray([
    *   { city: "Marrakech" },
    *   { city: "Kyoto" },
    *   { city: "Auckland" },
@@ -285,7 +285,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @example
    * ```ts
    * // New table with a "review" column.
-   * await table.loadArray([
+   * table.loadArray([
    *   { review: "Great product!" },
    *   { review: "Terrible quality." },
    *   { review: "Not bad, could be better." },
@@ -327,7 +327,7 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * @example
    * ```ts
-   * await table.loadArray([
+   * table.loadArray([
    *   { product: "Laptop" },
    *   { product: "Smartphone" },
    *   { product: "Tablet" },
@@ -449,7 +449,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @example
    * ```ts
    * // New table with a "food" column.
-   * await table.loadArray([
+   * table.loadArray([
    *   { food: "pizza" },
    *   { food: "sushi" },
    *   { food: "burger" },
@@ -527,7 +527,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @example
    * ```ts
    * // New table with a "food" column.
-   * await table.loadArray([
+   * table.loadArray([
    *   { food: "pizza" },
    *   { food: "sushi" },
    *   { food: "burger" },
@@ -655,7 +655,7 @@ export default class SimpleTable extends SimpleTableCore {
    * // Load a dataset of recipes
    * const sdb = new SimpleDB();
    * const table = sdb.newTable("recipes");
-   * await table.loadData("recipes.parquet");
+   * table.loadData("recipes.parquet");
    *
    * // Perform hybrid search - replaces the current table with top 10 results
    * await table.hybridSearch(
@@ -829,7 +829,7 @@ export default class SimpleTable extends SimpleTableCore {
    * // Load a dataset of recipes
    * const sdb = new SimpleDB();
    * const table = sdb.newTable("recipes");
-   * await table.loadData("recipes.parquet");
+   * table.loadData("recipes.parquet");
    *
    * // Ask a question using hybrid RAG (vector + BM25 search)
    * const answer = await table.aiRAG(
@@ -1063,7 +1063,10 @@ export default class SimpleTable extends SimpleTableCore {
     apiEmail?: string;
     apiKey?: string;
   } = {}): Promise<void> {
-    await overwriteSheetData(await this.getData(), sheetUrl, options);
+    const data = await this.getData() as Parameters<
+      typeof overwriteSheetData
+    >[0];
+    await overwriteSheetData(data, sheetUrl, options);
   }
 
   /**
@@ -1099,7 +1102,8 @@ export default class SimpleTable extends SimpleTableCore {
     apiEmail?: string;
     apiKey?: string;
   } = {}): Promise<void> {
-    await this.loadArray(await getSheetData(sheetUrl, options));
+    this.loadArray(await getSheetData(sheetUrl, options));
+    await this.run();
   }
 
   // ===================== DATAWRAPPER METHODS =====================
@@ -1178,7 +1182,8 @@ export default class SimpleTable extends SimpleTableCore {
       parse: true,
       apiKey: options.apiKey,
     });
-    await this.loadArray(data as Record<string, string>[]);
+    this.loadArray(data as Record<string, string>[]);
+    await this.run();
   }
 
   /**
@@ -1263,7 +1268,8 @@ export default class SimpleTable extends SimpleTableCore {
     try {
       createDirectory(".sda-cache");
       writeFileSync(tempPath, jsonString);
-      await this.loadGeoData(tempPath);
+      this.loadGeoData(tempPath);
+      await this.run();
     } finally {
       unlinkSync(tempPath);
     }
@@ -1290,7 +1296,7 @@ export default class SimpleTable extends SimpleTableCore {
    * const sdb = new SimpleDB();
    * const table = sdb.newTable();
    * const data = [{ year: 2024, value: 10 }, { year: 2025, value: 15 }];
-   * await table.loadArray(data);
+   * table.loadArray(data);
    *
    * const chartFunction = (plotData: unknown[]) =>
    *   plot({
@@ -1344,7 +1350,7 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * const sdb = new SimpleDB();
    * const table = sdb.newTable();
-   * await table.loadGeoData("./CanadianProvincesAndTerritories.geojson");
+   * table.loadGeoData("./CanadianProvincesAndTerritories.geojson");
    *
    * const mapFunction = (geoJsonData: { features: unknown[] }) =>
    *   plot({
@@ -1427,8 +1433,8 @@ export default class SimpleTable extends SimpleTableCore {
    *     { date: new Date("2023-03-01"), value: 30 },
    *     { date: new Date("2023-04-01"), value: 40 },
    * ]
-   * await table.loadArray(data)
-   * await table.convert({ date: "string" }, { datetimeFormat: "%x" })
+   * table.loadArray(data)
+   * table.convert({ date: "string" }, { datetimeFormat: "%x" })
    * await table.logLineChart("date", "value")
    * ```
    *
@@ -1445,8 +1451,8 @@ export default class SimpleTable extends SimpleTableCore {
    *     { date: new Date("2023-03-01"), value: 35, category: "B" },
    *     { date: new Date("2023-04-01"), value: 45, category: "B" },
    * ]
-   * await table.loadArray(data)
-   * await table.convert({ date: "string" }, { datetimeFormat: "%x" })
+   * table.loadArray(data)
+   * table.convert({ date: "string" }, { datetimeFormat: "%x" })
    * await table.logLineChart("date", "value", {
    *     smallMultiples: "category",
    * })
@@ -1471,7 +1477,7 @@ export default class SimpleTable extends SimpleTableCore {
           ? `, "${options.smallMultiples}"`
           : ""
       } FROM "${this.name}"`,
-      { returnDataFrom: "query", types: await this.getTypes() },
+      { returnData: true },
     );
     logLineChart(data as { [key: string]: unknown }[], x, y, options);
   }
@@ -1506,8 +1512,8 @@ export default class SimpleTable extends SimpleTableCore {
    *     { date: new Date("2023-03-01"), value: 30 },
    *     { date: new Date("2023-04-01"), value: 40 },
    * ]
-   * await table.loadArray(data)
-   * await table.convert({ date: "string" }, { datetimeFormat: "%x" })
+   * table.loadArray(data)
+   * table.convert({ date: "string" }, { datetimeFormat: "%x" })
    * await table.logDotChart("date", "value")
    * ```
    *
@@ -1524,8 +1530,8 @@ export default class SimpleTable extends SimpleTableCore {
    *     { date: new Date("2023-03-01"), value: 35, category: "B" },
    *     { date: new Date("2023-04-01"), value: 45, category: "B" },
    * ]
-   * await table.loadArray(data)
-   * await table.convert({ date: "string" }, { datetimeFormat: "%x" })
+   * table.loadArray(data)
+   * table.convert({ date: "string" }, { datetimeFormat: "%x" })
    * await table.logDotChart("date", "value", {
    *     smallMultiples: "category",
    * })
@@ -1550,7 +1556,7 @@ export default class SimpleTable extends SimpleTableCore {
           ? `, "${options.smallMultiples}"`
           : ""
       } FROM "${this.name}"`,
-      { returnDataFrom: "query", types: await this.getTypes() },
+      { returnData: true },
     );
     logDotChart(data as { [key: string]: unknown }[], x, y, options);
   }
@@ -1577,7 +1583,7 @@ export default class SimpleTable extends SimpleTableCore {
    *     { category: "A", value: 10 },
    *     { category: "B", value: 20 },
    * ]
-   * await table.loadArray(data)
+   * table.loadArray(data)
    * await table.logBarChart("category", "value")
    * ```
    */
@@ -1596,7 +1602,7 @@ export default class SimpleTable extends SimpleTableCore {
   ): Promise<void> {
     const data = await this.sdb.customQuery(
       `SELECT "${labels}", "${values}" FROM "${this.name}"`,
-      { returnDataFrom: "query" },
+      { returnData: true },
     );
     logBarChart(
       data as { [key: string]: unknown }[],

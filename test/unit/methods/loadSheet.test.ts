@@ -19,7 +19,7 @@ if (
       { first: "Nael", last: "Shiab" },
       { first: "Andrew", last: "Ryan" },
     ];
-    await table.loadArray(data);
+    table.loadArray(data);
     // First, we write some data to the sheet.
     await table.toSheet(
       "https://docs.google.com/spreadsheets/d/1Ar19cP8oGYEzacfrkLWnSH7ZqImILMUrosBwnZ43EQM/edit#gid=0",
@@ -48,7 +48,7 @@ if (
       { first: "Nael", last: "Shiab" },
       { first: "Andrew", last: "Ryan" },
     ];
-    await table.loadArray(data);
+    table.loadArray(data);
     // First, we write some data to the sheet.
     await table.toSheet(
       "https://docs.google.com/spreadsheets/d/1Ar19cP8oGYEzacfrkLWnSH7ZqImILMUrosBwnZ43EQM/edit#gid=0",

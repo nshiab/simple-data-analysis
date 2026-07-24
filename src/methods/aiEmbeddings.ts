@@ -87,12 +87,13 @@ export default async function aiEmbeddings(
   });
 
   if (options.createIndex) {
-    await simpleTable.createVssIndex(newColumn, {
+    simpleTable.createVssIndex(newColumn, {
       overwrite: options.overwriteIndex,
       verbose: options.verbose,
       efConstruction: options.efConstruction,
       efSearch: options.efSearch,
       M: options.M,
     });
+    await simpleTable.run();
   }
 }

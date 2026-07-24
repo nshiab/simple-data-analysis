@@ -12,7 +12,7 @@ Deno.test("should log a dot chart", async () => {
     { date: new Date("2023-03-01"), value: 30 * 1000 },
     { date: new Date("2023-04-01"), value: 40 * 1000 },
   ];
-  await table.loadArray(data);
+  table.loadArray(data);
   await table.logDotChart("date", "value");
 
   // How to test?
@@ -29,7 +29,7 @@ Deno.test("should log a dot chart with formatting options", async () => {
     { date: new Date("2023-03-01"), value: 30 * 1000 },
     { date: new Date("2023-04-01"), value: 40 * 1000 },
   ];
-  await table.loadArray(data);
+  table.loadArray(data);
   await table.logDotChart("date", "value", {
     formatX: (d) => formatDate(d as Date, "Month DD", { utc: true }),
     formatY: (d) => formatNumber(d as number, { abbreviation: true }),
@@ -54,7 +54,7 @@ Deno.test("should log a dot chart with small multiples", async () => {
     { date: new Date("2023-03-01"), value: 35, category: "B" },
     { date: new Date("2023-04-01"), value: 45, category: "B" },
   ];
-  await table.loadArray(data);
+  table.loadArray(data);
   await table.logDotChart("date", "value", {
     smallMultiples: "category",
   });
@@ -67,7 +67,7 @@ Deno.test("should log a line chart with small multiples", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
 
-  await table.loadData("test/data/files/aircraftByEvents.csv");
+  table.loadData("test/data/files/aircraftByEvents.csv");
   await table.logDotChart("occurenceYear", "count", {
     smallMultiples: "aircraftEvent",
   });

@@ -134,7 +134,7 @@ export default async function aiRAG(
     },
   );
 
-  await searchResultsTable.selectColumns([columnId, columnText]);
+  searchResultsTable.selectColumns([columnId, columnText]);
 
   // Get the retrieved data
   const retrievedData = await searchResultsTable.getData() as {

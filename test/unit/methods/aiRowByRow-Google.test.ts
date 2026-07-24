@@ -12,7 +12,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     // New table with column "name".
-    await table.loadArray([
+    table.loadArray([
       { name: "Marie" },
       { name: "John" },
       { name: "Alex" },
@@ -61,7 +61,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -84,7 +84,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt and safetyEnabled", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -107,7 +107,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt and add multiple columns", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -130,7 +130,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt and add multiple columns, with a bactch size greater than 1", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -153,7 +153,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt and metrics", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -183,7 +183,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt with thinking and metrics", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -218,7 +218,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt and a batch size", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -257,7 +257,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt and a batch size and cache", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -296,7 +296,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt and a batch size and return from cache", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -335,7 +335,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt with a batch size and be verbose", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -374,7 +374,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt and respect a rate limit with a batch size", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -418,7 +418,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt, a batch size and concurrent requests", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -457,7 +457,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt, a batch size, concurrent requests and rate limit", async () => {
     const sdb = new SimpleDB({ logDuration: true });
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -502,7 +502,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should iterate over rows with a prompt, a batch size, concurrent requests, rate limit and cache", async () => {
     const sdb = new SimpleDB({ logDuration: true });
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -548,7 +548,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should use the default Zod JSON schema", async () => {
     const sdb = new SimpleDB({ logDuration: true });
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -596,7 +596,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should accept a Zod JSON schema for structured output", async () => {
     const sdb = new SimpleDB({ logDuration: true });
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "city": "Marrakech" },
       { "city": "Kyoto" },
       { "city": "Auckland" },
@@ -650,7 +650,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should not ground using web search", async () => {
     const sdb = new SimpleDB({ logDuration: true });
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "name": "Nael Shiab, CBC News" },
       { "name": "Elizabeth Haggarty, CBC News" },
       { "name": "Graeme Bruce, CBC News" },
@@ -675,7 +675,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should ground using web search", async () => {
     const sdb = new SimpleDB({ logDuration: true });
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "name": "Nael Shiab, CBC News" },
       { "name": "Elizabeth Haggarty, CBC News" },
       { "name": "Graeme Bruce, CBC News" },
@@ -701,7 +701,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should think minimally by default", async () => {
     const sdb = new SimpleDB({ logDuration: true });
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "birthday": "2020-01-01" },
       { "birthday": "1990-05-15" },
       { "birthday": "1985-10-30" },
@@ -726,7 +726,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should use thinking level high", async () => {
     const sdb = new SimpleDB({ logDuration: true });
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { "birthday": "2020-01-01" },
       { "birthday": "1990-05-15" },
       { "birthday": "1985-10-30" },

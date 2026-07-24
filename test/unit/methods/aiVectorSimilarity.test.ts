@@ -15,7 +15,7 @@ if (typeof ollama === "string" && ollama !== "") {
   Deno.test("should sucessfully run the example", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable();
-    await table.loadArray([
+    table.loadArray([
       { food: "pizza" },
       { food: "sushi" },
       { food: "burger" },
@@ -52,7 +52,7 @@ if (typeof ollama === "string" && ollama !== "") {
   Deno.test("should sucessfully run the example with a different Ollama instance", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable();
-    await table.loadArray([
+    table.loadArray([
       { food: "pizza" },
       { food: "sushi" },
       { food: "burger" },
@@ -92,7 +92,7 @@ if (typeof ollama === "string" && ollama !== "") {
   Deno.test("should make a vector similarity search", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { food: "pizza" },
       { food: "sushi" },
       { food: "burger" },
@@ -123,7 +123,7 @@ if (typeof ollama === "string" && ollama !== "") {
   Deno.test("should make a vector similarity search by using the cache", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { food: "pizza" },
       { food: "sushi" },
       { food: "burger" },
@@ -154,7 +154,7 @@ if (typeof ollama === "string" && ollama !== "") {
   Deno.test("should make a vector similarity search after creating an index", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { food: "pizza" },
       { food: "sushi" },
       { food: "burger" },
@@ -186,7 +186,7 @@ if (typeof ollama === "string" && ollama !== "") {
   Deno.test("should make a vector similarity search with an outputable and without creating the index multiple times", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { food: "pizza" },
       { food: "sushi" },
       { food: "burger" },
@@ -237,7 +237,7 @@ if (typeof ollama === "string" && ollama !== "") {
     const table = sdb.newTable("data");
 
     await table.cache(async () => {
-      await table.loadArray([
+      table.loadArray([
         { food: "pizza" },
         { food: "sushi" },
         { food: "burger" },
@@ -289,7 +289,7 @@ if (typeof ollama === "string" && ollama !== "") {
     const table = sdb.newTable("data");
 
     await table.cache(async () => {
-      await table.loadArray([
+      table.loadArray([
         { food: "pizza" },
         { food: "sushi" },
         { food: "burger" },
@@ -339,7 +339,7 @@ if (typeof ollama === "string" && ollama !== "") {
   Deno.test("should add a similarity score column when similarityColumn is provided", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { food: "pizza" },
       { food: "sushi" },
       { food: "burger" },
@@ -381,7 +381,7 @@ if (typeof ollama === "string" && ollama !== "") {
   Deno.test("should filter results based on the minSimilarity threshold", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadArray([
+    table.loadArray([
       { food: "pizza" },
       { food: "sushi" },
       { food: "burger" },
