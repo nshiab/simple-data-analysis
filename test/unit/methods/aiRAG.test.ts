@@ -3,7 +3,10 @@ import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
 
 const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
-if (typeof aiKey === "string" && aiKey !== "") {
+const ollama = Deno.env.get("OLLAMA");
+const hasAiKey = typeof aiKey === "string" && aiKey !== "";
+const hasOllama = typeof ollama === "string" && ollama !== "";
+if (hasAiKey && !hasOllama) {
   if (existsSync("./.journalism-cache")) {
     rmSync("./.journalism-cache", { recursive: true });
   }
@@ -28,7 +31,6 @@ if (typeof aiKey === "string" && aiKey !== "") {
         10,
         {
           cache: true,
-          ollamaEmbeddings: true,
           model: "gemini-3-flash-preview",
           // embeddingsConcurrent: 10,
           verbose: true,
@@ -58,7 +60,6 @@ if (typeof aiKey === "string" && aiKey !== "") {
       10,
       {
         cache: true,
-        ollamaEmbeddings: true,
         model: "gemini-3-flash-preview",
         // verbose: true,
       },
@@ -90,7 +91,6 @@ if (typeof aiKey === "string" && aiKey !== "") {
         {
           cache: true,
           thinkingLevel: "minimal",
-          ollamaEmbeddings: true,
           model: "gemini-3-flash-preview",
           // verbose: true,
         },
@@ -124,7 +124,6 @@ if (typeof aiKey === "string" && aiKey !== "") {
           systemPrompt:
             "Answer the question based on provided data. Make sure it rhymes.",
           cache: true,
-          ollamaEmbeddings: true,
           // verbose: true,
         },
       );
@@ -156,7 +155,6 @@ if (typeof aiKey === "string" && aiKey !== "") {
         {
           cache: true,
           thinkingLevel: "minimal",
-          ollamaEmbeddings: true,
           model: "gemini-3-flash-preview",
           //  verbose: true,
         },
@@ -259,12 +257,11 @@ if (typeof aiKey === "string" && aiKey !== "") {
       await sdb.done();
     },
   );
-} else {
+} else if (!hasAiKey) {
   console.log("No AI_KEY or AI_PROJECT in process.env");
 }
 
-const ollama = Deno.env.get("OLLAMA");
-if (typeof ollama === "string" && ollama !== "") {
+if (hasOllama) {
   if (existsSync("./.journalism-cache")) {
     rmSync("./.journalism-cache", { recursive: true });
   }
