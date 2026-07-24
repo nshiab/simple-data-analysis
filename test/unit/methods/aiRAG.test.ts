@@ -6,7 +6,7 @@ const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
 const ollama = Deno.env.get("OLLAMA");
 const hasAiKey = typeof aiKey === "string" && aiKey !== "";
 const hasOllama = typeof ollama === "string" && ollama !== "";
-if (hasAiKey && !hasOllama) {
+if (hasAiKey) {
   if (existsSync("./.journalism-cache")) {
     rmSync("./.journalism-cache", { recursive: true });
   }
@@ -14,159 +14,170 @@ if (hasAiKey && !hasOllama) {
     rmSync("./.sda-cache", { recursive: true });
   }
 
-  Deno.test(
-    "should answer a question using RAG",
-    { sanitizeResources: false },
-    async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      table.loadData("test/data/files/recipes.parquet");
-      table.removeDuplicates({ on: "Dish" });
-      table.removeMissing({ columns: "Recipe" });
+  if (hasOllama) {
+    Deno.test(
+      "should answer a question using RAG with Gemini/Vertex and Ollama embeddings",
+      { sanitizeResources: false },
+      async () => {
+        const sdb = new SimpleDB();
+        const table = sdb.newTable("data");
+        table.loadData("test/data/files/recipes.parquet");
+        table.removeDuplicates({ on: "Dish" });
+        table.removeMissing({ columns: "Recipe" });
 
-      const answer = await table.aiRAG(
-        "I want a buttery pastry for breakfast.",
-        "Dish",
-        "Recipe",
-        10,
-        {
-          cache: true,
-          model: "gemini-3-flash-preview",
-          // embeddingsConcurrent: 10,
-          verbose: true,
-        },
-      );
+        const answer = await table.aiRAG(
+          "I want a buttery pastry for breakfast.",
+          "Dish",
+          "Recipe",
+          10,
+          {
+            cache: true,
+            ollamaEmbeddings: true,
+            model: "gemini-3-flash-preview",
+            // embeddingsConcurrent: 10,
+            verbose: true,
+          },
+        );
 
-      console.log(answer);
+        console.log(answer);
 
-      // Just to make sure it doesn't crash for now
-      assertEquals(true, true);
-      await sdb.done();
-    },
-  );
-  Deno.test("should answer a question using RAG with a cached table", {
-    sanitizeResources: false,
-  }, async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    table.loadData("test/data/files/recipes.parquet");
-    table.removeDuplicates({ on: "Dish" });
-    table.removeMissing({ columns: "Recipe" });
-
-    const answer = await table.aiRAG(
-      "I am vegan. What can I eat for lunch that is spicy?",
-      "Dish",
-      "Recipe",
-      10,
-      {
-        cache: true,
-        model: "gemini-3-flash-preview",
-        // verbose: true,
+        // Just to make sure it doesn't crash for now
+        assertEquals(true, true);
+        await sdb.done();
       },
     );
+    Deno.test(
+      "should use a cached table with Gemini/Vertex and Ollama embeddings",
+      {
+        sanitizeResources: false,
+      },
+      async () => {
+        const sdb = new SimpleDB();
+        const table = sdb.newTable("data");
+        table.loadData("test/data/files/recipes.parquet");
+        table.removeDuplicates({ on: "Dish" });
+        table.removeMissing({ columns: "Recipe" });
 
-    console.log(answer);
+        const answer = await table.aiRAG(
+          "I am vegan. What can I eat for lunch that is spicy?",
+          "Dish",
+          "Recipe",
+          10,
+          {
+            cache: true,
+            ollamaEmbeddings: true,
+            model: "gemini-3-flash-preview",
+            // verbose: true,
+          },
+        );
 
-    // Just to make sure it doesn't crash for now
-    assertEquals(true, true);
-    await sdb.done();
-  });
-  Deno.test(
-    "should answer a question using RAG with a cached table and minimal thinking",
-    {
-      sanitizeResources: false,
-    },
-    async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      table.loadData("test/data/files/recipes.parquet");
-      table.removeDuplicates({ on: "Dish" });
-      table.removeMissing({ columns: "Recipe" });
+        console.log(answer);
 
-      const answer = await table.aiRAG(
-        "I am looking for round dish, but I don't remember the name.",
-        "Dish",
-        "Recipe",
-        10,
-        {
-          cache: true,
-          thinkingLevel: "minimal",
-          model: "gemini-3-flash-preview",
-          // verbose: true,
-        },
-      );
+        // Just to make sure it doesn't crash for now
+        assertEquals(true, true);
+        await sdb.done();
+      },
+    );
+    Deno.test(
+      "should use minimal thinking with Gemini/Vertex and Ollama embeddings",
+      {
+        sanitizeResources: false,
+      },
+      async () => {
+        const sdb = new SimpleDB();
+        const table = sdb.newTable("data");
+        table.loadData("test/data/files/recipes.parquet");
+        table.removeDuplicates({ on: "Dish" });
+        table.removeMissing({ columns: "Recipe" });
 
-      console.log(answer);
+        const answer = await table.aiRAG(
+          "I am looking for round dish, but I don't remember the name.",
+          "Dish",
+          "Recipe",
+          10,
+          {
+            cache: true,
+            thinkingLevel: "minimal",
+            ollamaEmbeddings: true,
+            model: "gemini-3-flash-preview",
+            // verbose: true,
+          },
+        );
 
-      // Just to make sure it doesn't crash for now
-      assertEquals(true, true);
-      await sdb.done();
-    },
-  );
-  Deno.test(
-    "should answer with a different system prompt",
-    {
-      sanitizeResources: false,
-    },
-    async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      table.loadData("test/data/files/recipes.parquet");
-      table.removeDuplicates({ on: "Dish" });
-      table.removeMissing({ columns: "Recipe" });
+        console.log(answer);
 
-      const answer = await table.aiRAG(
-        "I am looking for round dish, but I don't remember the name.",
-        "Dish",
-        "Recipe",
-        10,
-        {
-          systemPrompt:
-            "Answer the question based on provided data. Make sure it rhymes.",
-          cache: true,
-          // verbose: true,
-        },
-      );
+        // Just to make sure it doesn't crash for now
+        assertEquals(true, true);
+        await sdb.done();
+      },
+    );
+    Deno.test(
+      "should use a different system prompt with Gemini/Vertex and Ollama embeddings",
+      {
+        sanitizeResources: false,
+      },
+      async () => {
+        const sdb = new SimpleDB();
+        const table = sdb.newTable("data");
+        table.loadData("test/data/files/recipes.parquet");
+        table.removeDuplicates({ on: "Dish" });
+        table.removeMissing({ columns: "Recipe" });
 
-      console.log(answer);
+        const answer = await table.aiRAG(
+          "I am looking for round dish, but I don't remember the name.",
+          "Dish",
+          "Recipe",
+          10,
+          {
+            systemPrompt:
+              "Answer the question based on provided data. Make sure it rhymes.",
+            cache: true,
+            ollamaEmbeddings: true,
+            // verbose: true,
+          },
+        );
 
-      // Just to make sure it doesn't crash for now
-      assertEquals(true, true);
-      await sdb.done();
-    },
-  );
-  Deno.test(
-    "should answer that it doesn't know",
-    {
-      sanitizeResources: false,
-    },
-    async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      table.loadData("test/data/files/recipes.parquet");
-      table.removeDuplicates({ on: "Dish" });
-      table.removeMissing({ columns: "Recipe" });
+        console.log(answer);
 
-      const answer = await table.aiRAG(
-        "Why is the sky blue?",
-        "Dish",
-        "Recipe",
-        10,
-        {
-          cache: true,
-          thinkingLevel: "minimal",
-          model: "gemini-3-flash-preview",
-          //  verbose: true,
-        },
-      );
+        // Just to make sure it doesn't crash for now
+        assertEquals(true, true);
+        await sdb.done();
+      },
+    );
+    Deno.test(
+      "should answer that it doesn't know with Gemini/Vertex and Ollama embeddings",
+      {
+        sanitizeResources: false,
+      },
+      async () => {
+        const sdb = new SimpleDB();
+        const table = sdb.newTable("data");
+        table.loadData("test/data/files/recipes.parquet");
+        table.removeDuplicates({ on: "Dish" });
+        table.removeMissing({ columns: "Recipe" });
 
-      console.log(answer);
+        const answer = await table.aiRAG(
+          "Why is the sky blue?",
+          "Dish",
+          "Recipe",
+          10,
+          {
+            cache: true,
+            thinkingLevel: "minimal",
+            ollamaEmbeddings: true,
+            model: "gemini-3-flash-preview",
+            //  verbose: true,
+          },
+        );
 
-      // Just to make sure it doesn't crash for now
-      assertEquals(true, true);
-      await sdb.done();
-    },
-  );
+        console.log(answer);
+
+        // Just to make sure it doesn't crash for now
+        assertEquals(true, true);
+        await sdb.done();
+      },
+    );
+  }
 
   Deno.test(
     "should answer a question using RAG with only BM25",
