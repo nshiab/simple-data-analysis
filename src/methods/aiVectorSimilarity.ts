@@ -1,5 +1,7 @@
 import { getEmbedding } from "@nshiab/journalism-ai";
+import type { EmbeddingProvider } from "../helpers/resolveEmbeddingProvider.ts";
 import type { SimpleTable } from "../index.ts";
+import type { Ollama } from "ollama";
 import {
   mergeOptions,
   queryDB,
@@ -11,6 +13,7 @@ export default async function aiVectorSimilarity(
   column: string,
   nbResults: number,
   options: {
+    provider?: EmbeddingProvider;
     cache?: boolean;
     createIndex?: boolean;
     overwriteIndex?: boolean;
@@ -21,6 +24,13 @@ export default async function aiVectorSimilarity(
     M?: number;
     minSimilarity?: number;
     similarityColumn?: string;
+    model?: string;
+    apiKey?: string;
+    vertex?: boolean;
+    project?: string;
+    location?: string;
+    ollama?: boolean | Ollama;
+    contextWindow?: number;
   } = {},
 ) {
   const textEmbedding = await getEmbedding(text, options);

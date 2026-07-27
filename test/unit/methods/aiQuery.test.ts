@@ -17,6 +17,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
+      { provider: "gemini" },
     );
 
     await table.logTable();
@@ -33,7 +34,12 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { thinkingBudget: 1000, verbose: true, model: "gemini-2.5-flash" },
+      {
+        provider: "gemini",
+        thinkingBudget: 1000,
+        verbose: true,
+        model: "gemini-2.5-flash",
+      },
     );
 
     await table.logTable();
@@ -50,7 +56,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { cache: true, verbose: true },
+      { provider: "gemini", cache: true, verbose: true },
     );
 
     await table.logTable();
@@ -67,7 +73,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { cache: true, verbose: true },
+      { provider: "gemini", cache: true, verbose: true },
     );
 
     await table.logTable();
@@ -84,7 +90,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { safetyEnabled: false, verbose: true },
+      { provider: "gemini", safetyEnabled: false, verbose: true },
     );
 
     await table.logTable();
@@ -101,7 +107,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { verbose: true },
+      { provider: "gemini", verbose: true },
     );
 
     await table.logTable();
@@ -120,7 +126,12 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     const resultTable = await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { outputTable: "avg_temp", cache: true, verbose: true },
+      {
+        provider: "gemini",
+        outputTable: "avg_temp",
+        cache: true,
+        verbose: true,
+      },
     );
 
     // Original table should remain unchanged
@@ -154,7 +165,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { verbose: true },
+      { provider: "ollama", verbose: true },
     );
 
     await table.logTable();
@@ -174,7 +185,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
       await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
-        { verbose: true, thinkingBudget: 1 },
+        { provider: "ollama", verbose: true, thinkingBudget: 1 },
       );
 
       await table.logTable();
@@ -198,6 +209,7 @@ if (typeof ollama === "string" && ollama !== "") {
       await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
         {
+          provider: "ollama",
           ollama,
           verbose: true,
         },
@@ -220,7 +232,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { cache: true, verbose: true },
+      { provider: "ollama", cache: true, verbose: true },
     );
 
     await table.logTable();
@@ -240,7 +252,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
       await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
-        { cache: true, verbose: true },
+        { provider: "ollama", cache: true, verbose: true },
       );
 
       await table.logTable();
@@ -261,7 +273,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
       await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
-        { verbose: true },
+        { provider: "ollama", verbose: true },
       );
 
       await table.logTable();
@@ -284,7 +296,12 @@ if (typeof ollama === "string" && ollama !== "") {
 
       const resultTable = await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
-        { outputTable: "avg_temp_ollama", cache: true, verbose: true },
+        {
+          provider: "ollama",
+          outputTable: "avg_temp_ollama",
+          cache: true,
+          verbose: true,
+        },
       );
 
       // Original table should remain unchanged
@@ -301,5 +318,5 @@ if (typeof ollama === "string" && ollama !== "") {
     },
   );
 } else {
-  console.log("No AI_PROJECT in process.env");
+  console.log("No OLLAMA in process.env");
 }

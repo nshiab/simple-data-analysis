@@ -1,4 +1,5 @@
-import { askAI } from "@nshiab/journalism-ai";
+import askAI from "../helpers/askAI.ts";
+import type { AIProvider } from "../helpers/resolveAIProvider.ts";
 import type { SimpleTable } from "../index.ts";
 import type { Ollama } from "ollama";
 import { object, string, toJSONSchema } from "zod";
@@ -8,6 +9,7 @@ export default async function aiQuery(
   prompt: string,
   options: {
     extraInstructions?: string;
+    provider?: AIProvider;
     cache?: boolean;
     model?: string;
     apiKey?: string;
@@ -34,7 +36,7 @@ export default async function aiQuery(
       options.outputTable
         ? `create a new table named "${tableName}" with the results`
         : `replace the existing "${simpleTable.name}" table`
-    }. This means the query must start with 'CREATE OR REPLACE TABLE "${tableName}"...'. Return just the query, nothing else.${
+    }. This means the query must start with 'CREATE OR REPLACE TABLE "${tableName}"...'. Return a JSON object matching the provided schema, with the SQL query in the "query" property. Do not include markdown or any other text.${
       options.extraInstructions ? `\n${options.extraInstructions}` : ""
     }`;
 
@@ -50,6 +52,7 @@ export default async function aiQuery(
 
   // Types could be improved
   const answer = await askAI(p, {
+    provider: options.provider,
     cache: options.cache,
     model: options.model,
     apiKey: options.apiKey,

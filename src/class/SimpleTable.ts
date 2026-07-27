@@ -25,6 +25,8 @@ import aiVectorSimilarity from "../methods/aiVectorSimilarity.ts";
 import hybridSearch from "../methods/hybridSearch.ts";
 import aiRAG from "../methods/aiRAG.ts";
 import aiQuery from "../methods/aiQuery.ts";
+import type { AIProvider } from "../helpers/resolveAIProvider.ts";
+import type { EmbeddingProvider } from "../helpers/resolveEmbeddingProvider.ts";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
@@ -81,17 +83,15 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * This method automatically appends instructions to your prompt; set `verbose` to `true` to see the full prompt.
    *
-   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or directly via `options`, with `options` taking precedence.
+   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`, `AI_PROVIDER`) or directly via `options`, with `options` taking precedence.
    *
-   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_MODEL` to your desired model name. You can also pass your instance of Ollama to the `ollama` option.
+   * For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set `AI_MODEL` to your desired model name. The legacy `OLLAMA` environment variable remains supported. You can also pass your instance of Ollama to the `ollama` option.
    *
    * To manage rate limits, use `batchSize` to process multiple rows per request and `rateLimitPerMinute` to introduce delays between requests. For higher rate limits (business/professional accounts), `concurrent` allows parallel requests.
    *
    * The `cache` option enables local caching of results in `.journalism-cache` (from the `askAI` function in the [journalism library](https://github.com/nshiab/journalism)). Remember to add `.journalism-cache` to your `.gitignore`.
    *
    * If the AI returns fewer items than expected in a batch, or if a custom `test` function fails, the `retry` option (a number greater than 0) will reattempt the request.
-   *
-   * Temperature is set to 0 for reproducibility, though consistency cannot be guaranteed.
    *
    * This method does not support tables containing geometries.
    *
@@ -104,19 +104,20 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.cache - If `true`, the results will be cached locally. Defaults to `false`.
    * @param options.test - A function to validate the returned data. If it throws an error, the request will be retried (if `retry` is set). Defaults to `undefined`.
    * @param options.retry - The number of times to retry the request in case of failure. Defaults to `0`.
+   * @param options.provider - The generation provider, either `"gemini"` or `"ollama"`. Defaults to `AI_PROVIDER`, then to Ollama when `OLLAMA` is set and Gemini otherwise.
    * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
    * @param options.model - The AI model to use. Defaults to the `AI_MODEL` environment variable.
-   * @param options.temperature - The temperature setting for the AI model, controlling the randomness of the output. Defaults to `0`.
+   * @param options.temperature - The Ollama sampling temperature. This option is ignored for Gemini because journalism-ai v2 does not expose Gemini temperature. Defaults to `0` for Ollama.
    * @param options.apiKey - The API key for the AI service. Defaults to the `AI_KEY` environment variable.
    * @param options.vertex - If `true`, uses Vertex AI. Automatically set to `true` if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to `false`.
    * @param options.project - The Google Cloud project ID for Vertex AI. Defaults to the `AI_PROJECT` environment variable.
    * @param options.location - The Google Cloud location for Vertex AI. Defaults to the `AI_LOCATION` environment variable.
    * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama instance to be used, you can pass it here too.
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
-   * @param options.clean - A function to clean the AI's response after JSON parsing, testing, caching, and storing. Defaults to `undefined`.
+   * @param options.clean - A function to transform the parsed response before validation and caching. Defaults to `undefined`.
    * @param options.contextWindow - An option to specify the context window size for Ollama models. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
-   * @param options.thinkingBudget - Sets the reasoning token budget: 0 to disable (default, though some models may reason regardless), -1 for a dynamic budget, or > 0 for a fixed budget. For Ollama models, any non-zero value simply enables reasoning, ignoring the specific budget amount.
-   * @param options.thinkingLevel - Sets the thinking level for reasoning: "minimal", "low", "medium", or "high", which some models expect instead of `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided. For Ollama models, any value enables reasoning.
+   * @param options.thinkingBudget - Legacy reasoning option. Zero leaves the provider default unchanged; any non-zero value enables low reasoning for Gemini or boolean reasoning for Ollama. Prefer `thinkingLevel` when selecting a specific level.
+   * @param options.thinkingLevel - Sets the reasoning level to "minimal", "low", "medium", or "high" and takes precedence over `thinkingBudget`. For Ollama, "minimal" enables boolean reasoning because Ollama does not support that level.
    * @param options.safetyEnabled - Controls whether safety filters are enabled. If set to `true`, filters are active; if `false`, they are disabled. By default, this is `false` when using Vertex AI and `true` otherwise. This setting can be explicitly overridden for any model.
    * @param options.webSearch - (Gemini only) If `true`, enables web search grounding for the AI's responses. Be careful of extra costs. Defaults to `false`.
    * @param options.schemaJson - A Zod JSON schema object for structured output. This overrides the default schema based on the 'newColumn' names.
@@ -192,6 +193,7 @@ export default class SimpleTable extends SimpleTableCore {
     newColumn: string | string[],
     prompt: string,
     options: {
+      provider?: AIProvider;
       batchSize?: number;
       concurrent?: number;
       cache?: boolean;
@@ -232,9 +234,7 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * This method automatically appends instructions to your prompt; set `verbose` to `true` to see the full prompt.
    *
-   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`).
-   *
-   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_MODEL` to your desired model name.
+   * This method uses Google Gemini or Vertex AI. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`). For Ollama, use `aiRowByRow`, which supports both generation providers.
    *
    * The pool size controls how many concurrent AI requests can run simultaneously. The `batchSize` option processes multiple rows per request. For example, with `poolSize: 5` and `batchSize: 10`, up to 5 requests can run concurrently, each processing 10 rows.
    *
@@ -243,8 +243,6 @@ export default class SimpleTable extends SimpleTableCore {
    * If the AI returns fewer items than expected in a batch, or if a custom `test` function fails, the `retry` option (a number greater than 0) will reattempt the request. The `retryCheck` function allows conditional retries based on error inspection.
    *
    * The `minRequestDurationMs` option sets a minimum duration for each request, useful for respecting rate limits when you know the allowed requests per time period.
-   *
-   * Temperature is set to 0 for reproducibility, though consistency cannot be guaranteed.
    *
    * This method does not support tables containing geometries.
    *
@@ -258,26 +256,21 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.batchSize - The number of rows to process in each batch. Defaults to `1`.
    * @param options.logProgress - If `true`, logs progress information during processing. Defaults to `false`.
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
-   * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.
    * @param options.test - A function to validate the returned data. If it throws an error, the request will be retried (if `retry` is set). Defaults to `undefined`.
    * @param options.retry - The number of times to retry the request in case of failure. Defaults to `0`.
    * @param options.retryCheck - A function that receives an error and returns a boolean indicating whether to retry. Useful for conditional retries based on error type. Defaults to `undefined`.
    * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
    * @param options.minRequestDurationMs - The minimum duration in milliseconds for each request. Useful for respecting rate limits. Defaults to `undefined` (no minimum).
-   * @param options.clean - A function to clean the AI's response after JSON parsing, testing, caching, and storing. Defaults to `undefined`.
-   * @param options.contextWindow - An option to specify the context window size for Ollama models. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
-   * @param options.thinkingBudget - Sets the reasoning token budget: 0 to disable (default, though some models may reason regardless), -1 for a dynamic budget, or > 0 for a fixed budget. For Ollama models, any non-zero value simply enables reasoning, ignoring the specific budget amount.
-   * @param options.thinkingLevel - Sets the thinking level for reasoning: "minimal", "low", "medium", or "high", which some models expect instead of `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided. For Ollama models, any value enables reasoning.
+   * @param options.clean - A function to transform the parsed response before validation and caching. Defaults to `undefined`.
+   * @param options.thinkingLevel - Sets the Gemini thinking level to "minimal", "low", "medium", or "high".
    * @param options.safetyEnabled - Controls whether safety filters are enabled. If set to `true`, filters are active; if `false`, they are disabled. By default, this is `false` when using Vertex AI and `true` otherwise. This setting can be explicitly overridden for any model.
    * @param options.webSearch - (Gemini only) If `true`, enables web search grounding for the AI's responses. Be careful of extra costs. Defaults to `false`.
    * @param options.schemaJson - A Zod JSON schema object for structured output. This overrides the default schema based on the 'newColumn' names.
    * @param options.model - The AI model to use. Defaults to the `AI_MODEL` environment variable.
-   * @param options.temperature - The temperature setting for the AI model, controlling the randomness of the output. Defaults to `0`.
    * @param options.apiKey - The API key for the AI service. Defaults to the `AI_KEY` environment variable.
    * @param options.vertex - If `true`, uses Vertex AI. Automatically set to `true` if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to `false`.
    * @param options.project - The Google Cloud project ID for Vertex AI. Defaults to the `AI_PROJECT` environment variable.
    * @param options.location - The Google Cloud location for Vertex AI. Defaults to the `AI_LOCATION` environment variable.
-   * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama instance to be used, you can pass it here too.
    * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
    * @returns A promise that resolves when the AI processing is complete.
    * @category AI
@@ -368,7 +361,6 @@ export default class SimpleTable extends SimpleTableCore {
       batchSize?: number;
       logProgress?: boolean;
       verbose?: boolean;
-      includeThoughts?: boolean;
       test?: (result: { [key: string]: unknown }) => void;
       retry?: number;
       retryCheck?: (error: unknown) => Promise<boolean> | boolean;
@@ -377,19 +369,15 @@ export default class SimpleTable extends SimpleTableCore {
       clean?: (
         response: unknown,
       ) => unknown;
-      contextWindow?: number;
-      thinkingBudget?: number;
       thinkingLevel?: "minimal" | "low" | "medium" | "high";
       safetyEnabled?: boolean;
       webSearch?: boolean;
       schemaJson?: unknown;
       model?: string;
-      temperature?: number;
       apiKey?: string;
       vertex?: boolean;
       project?: string;
       location?: string;
-      ollama?: boolean | Ollama;
       metrics?: {
         totalCost: number;
         totalInputTokens: number;
@@ -412,9 +400,9 @@ export default class SimpleTable extends SimpleTableCore {
   /**
    * Generates embeddings for a specified text column and stores the results in a new column.
    *
-   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`) or directly via `options`, with `options` taking precedence.
+   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`, `AI_EMBEDDINGS_PROVIDER`) or directly via `options`, with `options` taking precedence.
    *
-   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL` to your desired model name. You can also pass your instance of Ollama to the `ollama` option.
+   * For Ollama, set `AI_EMBEDDINGS_PROVIDER=ollama`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL` to your desired model name. The legacy `OLLAMA` environment variable remains supported. You can also pass your instance of Ollama to the `ollama` option.
    *
    * To manage rate limits, use `rateLimitPerMinute` to introduce delays between requests. For higher rate limits (business/professional accounts), `concurrent` allows parallel requests.
    *
@@ -436,6 +424,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.cache - If `true`, the results will be cached locally. Defaults to `false`.
    * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
    * @param options.model - The AI model to use. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
+   * @param options.provider - The embeddings provider, either `"gemini"` or `"ollama"`. Defaults to `AI_EMBEDDINGS_PROVIDER`, then to Ollama when `OLLAMA` is set and Gemini otherwise.
    * @param options.apiKey - The API key for the AI service. Defaults to the `AI_KEY` environment variable.
    * @param options.vertex - If `true`, uses Vertex AI. Automatically set to `true` if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to `false`.
    * @param options.project - The Google Cloud project ID for Vertex AI. Defaults to the `AI_PROJECT` environment variable.
@@ -468,6 +457,7 @@ export default class SimpleTable extends SimpleTableCore {
    * ```
    */
   async aiEmbeddings(column: string, newColumn: string, options: {
+    provider?: EmbeddingProvider;
     createIndex?: boolean;
     overwriteIndex?: boolean;
     concurrent?: number;
@@ -494,7 +484,7 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * To create the embedding, this method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`) or directly via `options`, with `options` taking precedence.
    *
-   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL` to your desired model name. You can also pass your instance of Ollama to the `ollama` option.
+   * For Ollama, set `AI_EMBEDDINGS_PROVIDER=ollama`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL` to your desired model name. The legacy `OLLAMA` environment variable remains supported. You can also pass your instance of Ollama to the `ollama` option.
    *
    * The `cache` option enables local caching of the specified text's embedding in `.journalism-cache` (from the `getEmbedding` function in the [journalism library](https://github.com/nshiab/journalism)). Remember to add `.journalism-cache` to your `.gitignore`.
    *
@@ -514,6 +504,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.outputTable - The name of the output table where the results will be stored. If not provided, the current table will be modified. Defaults to `undefined`.
    * @param options.cache - If `true`, the embedding of the input `text` will be cached locally. Defaults to `false`.
    * @param options.model - The AI model to use for generating the embedding. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
+   * @param options.provider - The embeddings provider, either `"gemini"` or `"ollama"`. Defaults to `AI_EMBEDDINGS_PROVIDER`, then to Ollama when `OLLAMA` is set and Gemini otherwise.
    * @param options.apiKey - The API key for the AI service. Defaults to the `AI_KEY` environment variable.
    * @param options.vertex - If `true`, uses Vertex AI. Automatically set to `true` if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to `false`.
    * @param options.project - The Google Cloud project ID for Vertex AI. Defaults to the `AI_PROJECT` environment variable.
@@ -562,6 +553,7 @@ export default class SimpleTable extends SimpleTableCore {
     column: string,
     nbResults: number,
     options: {
+      provider?: EmbeddingProvider;
       createIndex?: boolean;
       overwriteIndex?: boolean;
       outputTable?: string;
@@ -608,9 +600,9 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * To delete the cache, simply remove the `.journalism-cache` and/or `.sda-cache` directories in your project or set the cache option to `false`. Remember to add `.journalism-cache` and `.sda-cache` to your `.gitignore`.
    *
-   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`) or directly via `options`, with `options` taking precedence.
+   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`, `AI_EMBEDDINGS_PROVIDER`) or directly via `options`, with `options` taking precedence.
    *
-   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL` to your desired model name. You can also pass your instance of Ollama.
+   * For Ollama, set `AI_EMBEDDINGS_PROVIDER=ollama`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL` to your desired model name. The legacy `OLLAMA` environment variable remains supported. You can also pass your instance of Ollama.
    *
    * If `createIndex` is `true`, both a vector index (using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss)) and a BM25 full-text search index (using the [fts extension](https://duckdb.org/docs/stable/core_extensions/full_text_search)) will be created for faster retrieval.
    *
@@ -629,6 +621,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
    * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
    * @param options.embeddingsModel - The model to use for generating embeddings. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
+   * @param options.embeddingsProvider - The embeddings provider, either `"gemini"` or `"ollama"`. Defaults to `AI_EMBEDDINGS_PROVIDER`, then to Ollama when `OLLAMA` is set and Gemini otherwise.
    * @param options.ollamaEmbeddings - If `true`, forces the use of Ollama for embeddings generation. Defaults to `false`.
    * @param options.embeddingsConcurrent - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
    * @param options.stemmer - The language stemmer to apply for BM25 word normalization. Supports multiple languages or "none" to disable stemming. Defaults to `'porter'`.
@@ -679,6 +672,7 @@ export default class SimpleTable extends SimpleTableCore {
     columnText: string,
     nbResults: number,
     options: {
+      embeddingsProvider?: EmbeddingProvider;
       cache?: boolean;
       verbose?: boolean;
       embeddingsModelContextWindow?: number;
@@ -767,11 +761,11 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * To delete the cache, simply remove the `.journalism-cache` and/or `.sda-cache` directories in your project or set the cache option to `false`. Remember to add `.journalism-cache` and `.sda-cache` to your `.gitignore`.
    *
-   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`, `AI_EMBEDDINGS_MODEL`) or directly via `options`, with `options` taking precedence.
+   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`, `AI_EMBEDDINGS_MODEL`, `AI_PROVIDER`, `AI_EMBEDDINGS_PROVIDER`) or directly via `options`, with `options` taking precedence.
    *
-   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_MODEL` and `AI_EMBEDDINGS_MODEL` to your desired model names. If you are using Google Gemini or Vertex AI for the LLM, you can still use Ollama embeddings via the `ollamaEmbeddings` option.
+   * For Ollama, set `AI_PROVIDER=ollama` and/or `AI_EMBEDDINGS_PROVIDER=ollama`, ensure Ollama is running, and set the corresponding model variables. The legacy `OLLAMA` environment variable remains supported. To combine Google generation with Ollama embeddings, set `AI_PROVIDER=gemini` and `AI_EMBEDDINGS_PROVIDER=ollama`; the `provider` and `embeddingsProvider` options provide per-call overrides.
    *
-   * The LLM temperature is set to 0 for reproducibility, though consistency cannot be guaranteed.
+   * Ollama temperature defaults to 0. Gemini uses the provider's default temperature.
    *
    * If `createIndex` is `true`, both a vector index (using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss)) and a BM25 full-text search index (using the [fts extension](https://duckdb.org/docs/stable/core_extensions/full_text_search)) will be created for faster retrieval.
    *
@@ -788,12 +782,13 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.systemPrompt - An option to overwrite the LLM system prompt.
    * @param options.modelContextWindow - An option to specify the context window size for the LLM model when using Ollama. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
    * @param options.embeddingsModelContextWindow - An option to specify the context window size for the embeddings model when using Ollama. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
-   * @param options.thinkingBudget - Sets the reasoning token budget: 0 to disable (default, though some models may reason regardless), -1 for a dynamic budget, or > 0 for a fixed budget. For Ollama models, any non-zero value simply enables reasoning, ignoring the specific budget amount.
-   * @param options.thinkingLevel - Sets the thinking level for reasoning: "minimal", "low", "medium", or "high", which some models expect instead of `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided. For Ollama models, any value enables reasoning.
+   * @param options.thinkingBudget - Legacy reasoning option. Zero leaves the provider default unchanged; any non-zero value enables low reasoning for Gemini or boolean reasoning for Ollama. Prefer `thinkingLevel` when selecting a specific level.
+   * @param options.thinkingLevel - Sets the reasoning level to "minimal", "low", "medium", or "high" and takes precedence over `thinkingBudget`. For Ollama, "minimal" enables boolean reasoning because Ollama does not support that level.
    * @param options.safetyEnabled - Controls whether safety filters are enabled. If set to `true`, filters are active; if `false`, they are disabled. By default, this is `false` when using Vertex AI and `true` otherwise. This setting can be explicitly overridden for any model.
    * @param options.webSearch - (Gemini only) If `true`, enables web search grounding for the AI's responses. Be careful of extra costs. Defaults to `false`.
    * @param options.model - The LLM model to use for answering the query. Defaults to the `AI_MODEL` environment variable.
-   * @param options.temperature - The temperature setting for the AI model, controlling the randomness of the output. Defaults to `0`.
+   * @param options.provider - The generation provider, either `"gemini"` or `"ollama"`. Defaults to `AI_PROVIDER`, then to Ollama when `OLLAMA` is set and Gemini otherwise.
+   * @param options.temperature - The Ollama sampling temperature. This option is ignored for Gemini because journalism-ai v2 does not expose Gemini temperature. Defaults to `0` for Ollama.
    * @param options.apiKey - Your API key for the AI service. Defaults to the `AI_KEY` environment variable.
    * @param options.vertex - Set to `true` to use Vertex AI for authentication. Auto-enables if `AI_PROJECT` and `AI_LOCATION` are set. Defaults to `false`.
    * @param options.project - Your Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
@@ -801,6 +796,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama instance to be used, you can pass it here too.
    * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
    * @param options.embeddingsModel - The model to use for generating embeddings. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
+   * @param options.embeddingsProvider - The embeddings provider, either `"gemini"` or `"ollama"`. Defaults to `AI_EMBEDDINGS_PROVIDER`, then to Ollama when `OLLAMA` is set and Gemini otherwise.
    * @param options.ollamaEmbeddings - If `true`, forces the use of Ollama for embeddings generation, even if Gemini or Vertex is used for the LLM. Defaults to `false`.
    * @param options.embeddingsConcurrent - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
    * @param options.createIndex - If `true`, both vector and BM25 indexes will be created for faster retrieval. Defaults to `false`.
@@ -854,6 +850,7 @@ export default class SimpleTable extends SimpleTableCore {
     columnText: string,
     nbResults: number,
     options: {
+      provider?: AIProvider;
       cache?: boolean;
       verbose?: boolean;
       includeThoughts?: boolean;
@@ -879,6 +876,7 @@ export default class SimpleTable extends SimpleTableCore {
         totalRequests: number;
       };
       embeddingsModel?: string;
+      embeddingsProvider?: EmbeddingProvider;
       ollamaEmbeddings?: boolean;
       embeddingsConcurrent?: number;
       stemmer?:
@@ -935,17 +933,18 @@ export default class SimpleTable extends SimpleTableCore {
    * Generates and executes a SQL query based on a prompt.
    * Additional instructions, such as column types, are automatically added to your prompt. Set `verbose` to `true` to see the full prompt.
    *
-   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or directly via `options`, with `options` taking precedence.
+   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`, `AI_PROVIDER`) or directly via `options`, with `options` taking precedence.
    *
-   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_MODEL` to your desired model name. You can also pass your instance of Ollama to the `ollama` option.
+   * For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set `AI_MODEL` to your desired model name. The legacy `OLLAMA` environment variable remains supported. You can also pass your instance of Ollama to the `ollama` option.
    *
-   * Temperature is set to 0 to aim for reproducible results. For future consistency, it's recommended to copy the generated query and execute it manually using `await sdb.customQuery(query)` or to cache the query using the `cache` option.
+   * Ollama temperature defaults to 0, while Gemini uses the provider's default. For future consistency, it's recommended to copy the generated query and execute it manually using `await sdb.customQuery(query)` or to cache the query using the `cache` option.
    *
    * When `cache` is `true`, the generated query will be cached locally in `.journalism-cache` (from the `askAI` function in the [journalism library](https://github.com/nshiab/journalism)), saving resources and time. Remember to add `.journalism-cache` to your `.gitignore`.
    *
    * @param prompt - The input string to guide the AI in generating the SQL query.
    * @param options - Configuration options for the AI request.
    * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
+   * @param options.provider - The generation provider, either `"gemini"` or `"ollama"`. Defaults to `AI_PROVIDER`, then to Ollama when `OLLAMA` is set and Gemini otherwise.
    * @param options.cache - If `true`, the generated query will be cached locally. Defaults to `false`.
    * @param options.model - The AI model to use. Defaults to the `AI_MODEL` environment variable.
    * @param options.apiKey - The API key for the AI service. Defaults to the `AI_KEY` environment variable.
@@ -954,9 +953,9 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.location - The Google Cloud location for Vertex AI. Defaults to the `AI_LOCATION` environment variable.
    * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama instance to be used, you can pass it here too.
    * @param options.contextWindow - An option to specify the context window size for Ollama models. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
-   * @param options.thinkingBudget - Sets the reasoning token budget: 0 to disable (default, though some models may reason regardless), -1 for a dynamic budget, or > 0 for a fixed budget. For Ollama models, any non-zero value simply enables reasoning, ignoring the specific budget amount.
-   * @param options.thinkingLevel - Sets the thinking level for reasoning: "minimal", "low", "medium", or "high", which some models expect instead of `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided. For Ollama models, any value enables reasoning.
-   * @param options.temperature - The temperature setting for the AI model, controlling the randomness of the output. Defaults to `0`.
+   * @param options.thinkingBudget - Legacy reasoning option. Zero leaves the provider default unchanged; any non-zero value enables low reasoning for Gemini or boolean reasoning for Ollama. Prefer `thinkingLevel` when selecting a specific level.
+   * @param options.thinkingLevel - Sets the reasoning level to "minimal", "low", "medium", or "high" and takes precedence over `thinkingBudget`. For Ollama, "minimal" enables boolean reasoning because Ollama does not support that level.
+   * @param options.temperature - The Ollama sampling temperature. This option is ignored for Gemini because journalism-ai v2 does not expose Gemini temperature. Defaults to `0` for Ollama.
    * @param options.safetyEnabled - Controls whether safety filters are enabled. If set to `true`, filters are active; if `false`, they are disabled. By default, this is `false` when using Vertex AI and `true` otherwise. This setting can be explicitly overridden for any model.
    * @param options.outputTable - The name of a new table where the results will be stored. If not provided, the current table will be replaced with the query results.
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
@@ -995,6 +994,7 @@ export default class SimpleTable extends SimpleTableCore {
    */
   async aiQuery(prompt: string, options: {
     extraInstructions?: string;
+    provider?: AIProvider;
     cache?: boolean;
     model?: string;
     apiKey?: string;

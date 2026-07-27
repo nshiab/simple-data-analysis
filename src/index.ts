@@ -29,3 +29,5 @@
 
 export { default as SimpleDB } from "./class/SimpleDB.ts";
 export { default as SimpleTable } from "./class/SimpleTable.ts";
+export type { AIProvider } from "./helpers/resolveAIProvider.ts";
+export type { EmbeddingProvider } from "./helpers/resolveEmbeddingProvider.ts";

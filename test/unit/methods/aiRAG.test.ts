@@ -1,11 +1,16 @@
 import { assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
+import createEnvironmentTest from "../helpers/createEnvironmentTest.ts";
 
 const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
 const ollama = Deno.env.get("OLLAMA");
 const hasAiKey = typeof aiKey === "string" && aiKey !== "";
 const hasOllama = typeof ollama === "string" && ollama !== "";
+const mixedProviderTest = createEnvironmentTest({
+  AI_PROVIDER: "gemini",
+  AI_EMBEDDINGS_PROVIDER: "ollama",
+});
 if (hasAiKey) {
   if (existsSync("./.journalism-cache")) {
     rmSync("./.journalism-cache", { recursive: true });
@@ -15,8 +20,8 @@ if (hasAiKey) {
   }
 
   if (hasOllama) {
-    Deno.test(
-      "should answer a question using RAG with Gemini/Vertex and Ollama embeddings",
+    mixedProviderTest(
+      "should select Gemini/Vertex generation and Ollama embeddings from environment variables",
       { sanitizeResources: false },
       async () => {
         const sdb = new SimpleDB();
@@ -32,7 +37,6 @@ if (hasAiKey) {
           10,
           {
             cache: true,
-            ollamaEmbeddings: true,
             model: "gemini-3-flash-preview",
             // embeddingsConcurrent: 10,
             verbose: true,
@@ -65,7 +69,8 @@ if (hasAiKey) {
           10,
           {
             cache: true,
-            ollamaEmbeddings: true,
+            provider: "gemini",
+            embeddingsProvider: "ollama",
             model: "gemini-3-flash-preview",
             // verbose: true,
           },
@@ -98,7 +103,8 @@ if (hasAiKey) {
           {
             cache: true,
             thinkingLevel: "minimal",
-            ollamaEmbeddings: true,
+            provider: "gemini",
+            embeddingsProvider: "ollama",
             model: "gemini-3-flash-preview",
             // verbose: true,
           },
@@ -132,7 +138,8 @@ if (hasAiKey) {
             systemPrompt:
               "Answer the question based on provided data. Make sure it rhymes.",
             cache: true,
-            ollamaEmbeddings: true,
+            provider: "gemini",
+            embeddingsProvider: "ollama",
             // verbose: true,
           },
         );
@@ -164,7 +171,8 @@ if (hasAiKey) {
           {
             cache: true,
             thinkingLevel: "minimal",
-            ollamaEmbeddings: true,
+            provider: "gemini",
+            embeddingsProvider: "ollama",
             model: "gemini-3-flash-preview",
             //  verbose: true,
           },
@@ -195,6 +203,7 @@ if (hasAiKey) {
         "Recipe",
         10,
         {
+          provider: "gemini",
           cache: true,
           vectorSearch: false, // Disable vector search
           bm25: true, // Enable only BM25
@@ -227,6 +236,8 @@ if (hasAiKey) {
         "Recipe",
         10,
         {
+          provider: "gemini",
+          embeddingsProvider: "gemini",
           embeddingsConcurrent: 100,
           cache: true,
           vectorSearch: true, // Enable only vector search
@@ -255,6 +266,8 @@ if (hasAiKey) {
       table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG("fennel garlic", "Dish", "Recipe", 3, {
+        provider: "gemini",
+        embeddingsProvider: "gemini",
         cache: true,
         conjunctive: true,
         model: "gemini-3-flash-preview",
@@ -296,6 +309,8 @@ if (hasOllama) {
         "Recipe",
         10,
         {
+          provider: "ollama",
+          embeddingsProvider: "ollama",
           cache: true,
           modelContextWindow: 128_000,
           embeddingsModelContextWindow: 2_000,
@@ -325,6 +340,8 @@ if (hasOllama) {
       "Recipe",
       10,
       {
+        provider: "ollama",
+        embeddingsProvider: "ollama",
         cache: true,
         modelContextWindow: 128_000,
         embeddingsModelContextWindow: 2_000,
@@ -355,6 +372,8 @@ if (hasOllama) {
         "Recipe",
         10,
         {
+          provider: "ollama",
+          embeddingsProvider: "ollama",
           cache: true,
           thinkingLevel: "minimal",
           modelContextWindow: 128_000,
@@ -387,6 +406,8 @@ if (hasOllama) {
         "Recipe",
         10,
         {
+          provider: "ollama",
+          embeddingsProvider: "ollama",
           systemPrompt:
             "Answer the question based on provided data. Make sure it rhymes.",
           cache: true,
@@ -420,6 +441,8 @@ if (hasOllama) {
         "Recipe",
         10,
         {
+          provider: "ollama",
+          embeddingsProvider: "ollama",
           cache: true,
           thinkingLevel: "minimal",
           modelContextWindow: 128_000,
@@ -468,6 +491,8 @@ if (hasOllama) {
         "Recipe",
         10,
         {
+          provider: "ollama",
+          embeddingsProvider: "ollama",
           cache: true,
           createIndex: true,
           modelContextWindow: 128_000,
@@ -512,6 +537,8 @@ if (hasOllama) {
         "Recipe",
         10,
         {
+          provider: "ollama",
+          embeddingsProvider: "ollama",
           cache: true,
           createIndex: true,
           modelContextWindow: 128_000,
@@ -544,6 +571,8 @@ if (hasOllama) {
         "Recipe",
         10,
         {
+          provider: "ollama",
+          embeddingsProvider: "ollama",
           cache: true,
           ollamaEmbeddings: true,
           vectorSearch: false, // Disable vector search
@@ -576,6 +605,8 @@ if (hasOllama) {
         "Recipe",
         10,
         {
+          provider: "ollama",
+          embeddingsProvider: "ollama",
           cache: true,
           ollamaEmbeddings: true,
           vectorSearch: true, // Enable only vector search
@@ -607,6 +638,8 @@ if (hasOllama) {
         "Recipe",
         10,
         {
+          provider: "ollama",
+          embeddingsProvider: "ollama",
           cache: true,
           ollamaEmbeddings: true,
           verbose: true,
@@ -635,6 +668,8 @@ if (hasOllama) {
       table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG("fennel garlic", "Dish", "Recipe", 3, {
+        provider: "ollama",
+        embeddingsProvider: "ollama",
         cache: true,
         conjunctive: true,
         verbose: true,
@@ -659,6 +694,8 @@ if (hasOllama) {
 
       // Using custom BM25 options in RAG context
       const answer = await table.aiRAG("italian food", "Dish", "Recipe", 5, {
+        provider: "ollama",
+        embeddingsProvider: "ollama",
         stemmer: "none",
         lower: false,
         stripAccents: false,
@@ -689,6 +726,8 @@ if (hasOllama) {
         "Recipe",
         5,
         {
+          provider: "ollama",
+          embeddingsProvider: "ollama",
           stopwords: "english",
           cache: true,
           verbose: true,

@@ -1,4 +1,6 @@
-import { askAI } from "@nshiab/journalism-ai";
+import askAI from "../helpers/askAI.ts";
+import type { AIProvider } from "../helpers/resolveAIProvider.ts";
+import type { EmbeddingProvider } from "../helpers/resolveEmbeddingProvider.ts";
 import type SimpleTable from "../class/SimpleTable.ts";
 import { prettyDuration } from "@nshiab/journalism-format";
 import hybridSearch from "./hybridSearch.ts";
@@ -11,6 +13,7 @@ export default async function aiRAG(
   columnText: string,
   nbResults: number,
   options: {
+    provider?: AIProvider;
     cache?: boolean;
     verbose?: boolean;
     includeThoughts?: boolean;
@@ -36,6 +39,7 @@ export default async function aiRAG(
       totalRequests: number;
     };
     embeddingsModel?: string;
+    embeddingsProvider?: EmbeddingProvider;
     ollamaEmbeddings?: boolean;
     embeddingsConcurrent?: number;
     stemmer?:
@@ -110,6 +114,7 @@ export default async function aiRAG(
       embeddingsModelContextWindow: options.embeddingsModelContextWindow,
       createIndex: options.createIndex,
       embeddingsModel: options.embeddingsModel,
+      embeddingsProvider: options.embeddingsProvider,
       ollamaEmbeddings: options.ollamaEmbeddings,
       embeddingsConcurrent: options.embeddingsConcurrent,
       stemmer: options.stemmer,
@@ -161,6 +166,7 @@ ${
       ).join("\n\n-----\n\n")
     }`,
     {
+      provider: options.provider,
       systemPrompt: options.systemPrompt ??
         `You are a focused research assistant. Your goal is to answer the user's question using ONLY the provided data.
 
@@ -186,7 +192,7 @@ Rules of Engagement:
       ollama: options.ollama,
       metrics: options.metrics,
     },
-  ) as Promise<string>;
+  ) as string;
 
   if (options.verbose) {
     times.llmEnd = Date.now();

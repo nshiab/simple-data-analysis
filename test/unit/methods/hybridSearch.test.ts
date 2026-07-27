@@ -29,6 +29,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "Recipe",
         10,
         {
+          embeddingsProvider: "gemini",
           embeddingsConcurrent: 100,
           cache: true,
           verbose: true,
@@ -68,6 +69,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "Recipe",
         5,
         {
+          embeddingsProvider: "gemini",
           embeddingsConcurrent: 100,
           cache: true,
         },
@@ -96,6 +98,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "Recipe",
         5,
         {
+          embeddingsProvider: "gemini",
           embeddingsConcurrent: 100,
           cache: true,
           outputTable: "italian_search_results",
@@ -129,6 +132,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "Recipe",
         5,
         {
+          embeddingsProvider: "gemini",
           embeddingsConcurrent: 100,
           cache: true,
           stemmer: "french",
@@ -160,6 +164,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "Recipe",
         3,
         {
+          embeddingsProvider: "gemini",
           cache: true,
           createIndex: true,
           verbose: true,
@@ -191,6 +196,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "Recipe",
         10,
         {
+          embeddingsProvider: "gemini",
           cache: true,
           outputTable: "results_conjunctive_false",
         },
@@ -205,6 +211,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "Recipe",
         10,
         {
+          embeddingsProvider: "gemini",
           cache: true,
           conjunctive: true,
           outputTable: "results_conjunctive_true",
@@ -230,6 +237,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       table.removeMissing({ columns: "Recipe" });
 
       const results = await table.hybridSearch("pasta", "Dish", "Recipe", 5, {
+        embeddingsProvider: "gemini",
         cache: true,
         stopwords: "english",
         stemmer: "english",
@@ -529,6 +537,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
       assertEquals(errorThrown, true);
 
+      await sdb.run();
       await sdb.done();
     },
   );

@@ -2,6 +2,7 @@ import type SimpleTable from "../class/SimpleTable.ts";
 import { prettyDuration } from "@nshiab/journalism-format";
 import getRRFRanking from "../helpers/getRRFRanking.ts";
 import { parseValue } from "@nshiab/simple-data-analysis-core/helpers";
+import type { EmbeddingProvider } from "../helpers/resolveEmbeddingProvider.ts";
 
 export default async function hybridSearch(
   table: SimpleTable,
@@ -10,6 +11,7 @@ export default async function hybridSearch(
   columnText: string,
   nbResults: number,
   options: {
+    embeddingsProvider?: EmbeddingProvider;
     cache?: boolean;
     verbose?: boolean;
     embeddingsModelContextWindow?: number;
@@ -123,6 +125,7 @@ export default async function hybridSearch(
             cache: true,
             verbose: options.verbose,
             ollama: options.ollamaEmbeddings,
+            provider: options.embeddingsProvider,
             model: options.embeddingsModel,
             contextWindow: options.embeddingsModelContextWindow,
             concurrent: options.embeddingsConcurrent,
@@ -135,6 +138,7 @@ export default async function hybridSearch(
           createIndex: options.createIndex ?? false,
           verbose: options.verbose,
           ollama: options.ollamaEmbeddings,
+          provider: options.embeddingsProvider,
           model: options.embeddingsModel,
           contextWindow: options.embeddingsModelContextWindow,
           concurrent: options.embeddingsConcurrent,
@@ -165,6 +169,7 @@ export default async function hybridSearch(
         cache: options.cache,
         outputTable: `${table.name}_vector_search_results`,
         ollama: options.ollamaEmbeddings,
+        provider: options.embeddingsProvider,
         model: options.embeddingsModel,
         contextWindow: options.embeddingsModelContextWindow,
         verbose: options.verbose,

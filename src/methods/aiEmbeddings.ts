@@ -3,12 +3,14 @@ import sleep from "../helpers/sleep.ts";
 import type { SimpleTable } from "../index.ts";
 import tryEmbedding from "../helpers/tryEmbedding.ts";
 import type { Ollama } from "ollama";
+import type { EmbeddingProvider } from "../helpers/resolveEmbeddingProvider.ts";
 
 export default async function aiEmbeddings(
   simpleTable: SimpleTable,
   column: string,
   newColumn: string,
   options: {
+    provider?: EmbeddingProvider;
     createIndex?: boolean;
     overwriteIndex?: boolean;
     concurrent?: number;

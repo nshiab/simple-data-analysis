@@ -3,169 +3,182 @@ import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
 import { Ollama } from "ollama";
 import * as z from "zod";
+import createEnvironmentTest from "../helpers/createEnvironmentTest.ts";
 
-const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
+const Deno = {
+  env: globalThis.Deno.env,
+  test: createEnvironmentTest({ AI_PROVIDER: "ollama" }),
+};
 const ollama = Deno.env.get("OLLAMA");
-if (typeof ollama === "string" && aiKey !== "") {
+if (typeof ollama === "string" && ollama !== "") {
   if (existsSync("./.journalism-cache")) {
     rmSync("./.journalism-cache", { recursive: true });
   }
-  Deno.test("should successfully run the code example (ollama)", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    // New table with column "name".
-    table.loadArray([
-      { name: "Marie" },
-      { name: "John" },
-      { name: "Alex" },
-    ]);
+  Deno.test(
+    "should successfully run the code example (ollama)",
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      // New table with column "name".
+      table.loadArray([
+        { name: "Marie" },
+        { name: "John" },
+        { name: "Alex" },
+      ]);
 
-    // Ask the AI to categorize in a new column "gender".
-    await table.aiRowByRow(
-      "name",
-      "gender",
-      `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral". Return an objects with two keys in it: one with the names and the other with the genders.`,
-      {
-        // Cache the results locally
-        cache: true,
-        // Send 10 rows at once to the AI
-        batchSize: 10,
-        // clean: (response: unknown) =>
-        //   (JSON.parse(response as string) as { results: { gender: string }[] })
-        //     .results
-        //     .map((d) => d.gender),
-        // Ensure the response contains only the expected categories
-        // test: (response: unknown) => {
-        //   if (
-        //     typeof response !== "string" ||
-        //     !["Man", "Woman", "Neutral"].includes(response)
-        //   ) {
-        //     throw new Error(`Invalid response ${response}`);
-        //   }
-        // },
-        // Retry up to 3 times if the test fails
-        retry: 3,
-        // Avoid exceeding a rate limit by waiting between requests
-        rateLimitPerMinute: 15,
-        // Log details
-        verbose: true,
-      },
-    );
+      // Ask the AI to categorize in a new column "gender".
+      await table.aiRowByRow(
+        "name",
+        "gender",
+        `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral". Return an objects with two keys in it: one with the names and the other with the genders.`,
+        {
+          // Cache the results locally
+          cache: true,
+          // Send 10 rows at once to the AI
+          batchSize: 10,
+          // clean: (response: unknown) =>
+          //   (JSON.parse(response as string) as { results: { gender: string }[] })
+          //     .results
+          //     .map((d) => d.gender),
+          // Ensure the response contains only the expected categories
+          // test: (response: unknown) => {
+          //   if (
+          //     typeof response !== "string" ||
+          //     !["Man", "Woman", "Neutral"].includes(response)
+          //   ) {
+          //     throw new Error(`Invalid response ${response}`);
+          //   }
+          // },
+          // Retry up to 3 times if the test fails
+          retry: 3,
+          // Avoid exceeding a rate limit by waiting between requests
+          rateLimitPerMinute: 15,
+          // Log details
+          verbose: true,
+        },
+      );
 
-    const data = await table.getData();
+      const data = await table.getData();
 
-    assertEquals(data, [
-      { name: "Marie", gender: "Woman" },
-      { name: "John", gender: "Man" },
-      { name: "Alex", gender: "Neutral" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should successfully run the code example with a different ollama instance (ollama)", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    // New table with column "name".
-    table.loadArray([
-      { name: "Marie" },
-      { name: "John" },
-      { name: "Alex" },
-    ]);
+      assertEquals(data, [
+        { name: "Marie", gender: "Woman" },
+        { name: "John", gender: "Man" },
+        { name: "Alex", gender: "Neutral" },
+      ]);
+      await sdb.done();
+    },
+  );
+  Deno.test(
+    "should successfully run the code example with a different ollama instance (ollama)",
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      // New table with column "name".
+      table.loadArray([
+        { name: "Marie" },
+        { name: "John" },
+        { name: "Alex" },
+      ]);
 
-    const ollama = new Ollama({ host: "http://127.0.0.1:11434" });
+      const ollama = new Ollama({ host: "http://127.0.0.1:11434" });
 
-    // Ask the AI to categorize in a new column "gender".
-    await table.aiRowByRow(
-      "name",
-      "gender",
-      `Guess whether it's a "Man" or a "Woman" from the first names. If it could be both, return "Neutral". Return an objects with two keys in it: one with the names and the other with the genders.`,
-      {
-        // Cache the results locally
-        cache: true,
-        // Send 10 rows at once to the AI
-        batchSize: 10,
-        // clean: (response: unknown) =>
-        //   (JSON.parse(response as string) as { results: { gender: string }[] })
-        //     .results
-        //     .map((d) => d.gender),
-        // Ensure the response contains only the expected categories
-        // test: (response: unknown) => {
-        //   if (
-        //     typeof response !== "string" ||
-        //     !["Man", "Woman", "Neutral"].includes(response)
-        //   ) {
-        //     throw new Error(`Invalid response ${response}`);
-        //   }
-        // },
-        // Retry up to 3 times if the test fails
-        retry: 3,
-        // Avoid exceeding a rate limit by waiting between requests
-        rateLimitPerMinute: 15,
-        // Log details
-        verbose: true,
-        ollama,
-      },
-    );
+      // Ask the AI to categorize in a new column "gender".
+      await table.aiRowByRow(
+        "name",
+        "gender",
+        `Guess whether it's a "Man" or a "Woman" from the first names. If it could be both, return "Neutral". Return an objects with two keys in it: one with the names and the other with the genders.`,
+        {
+          // Cache the results locally
+          cache: true,
+          // Send 10 rows at once to the AI
+          batchSize: 10,
+          // clean: (response: unknown) =>
+          //   (JSON.parse(response as string) as { results: { gender: string }[] })
+          //     .results
+          //     .map((d) => d.gender),
+          // Ensure the response contains only the expected categories
+          // test: (response: unknown) => {
+          //   if (
+          //     typeof response !== "string" ||
+          //     !["Man", "Woman", "Neutral"].includes(response)
+          //   ) {
+          //     throw new Error(`Invalid response ${response}`);
+          //   }
+          // },
+          // Retry up to 3 times if the test fails
+          retry: 3,
+          // Avoid exceeding a rate limit by waiting between requests
+          rateLimitPerMinute: 15,
+          // Log details
+          verbose: true,
+          ollama,
+        },
+      );
 
-    const data = await table.getData();
+      const data = await table.getData();
 
-    assertEquals(data, [
-      { name: "Marie", gender: "Woman" },
-      { name: "John", gender: "Man" },
-      { name: "Alex", gender: "Neutral" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should successfully run the code example by returning data from the cache (ollama)", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    // New table with column "name".
-    table.loadArray([
-      { name: "Marie" },
-      { name: "John" },
-      { name: "Alex" },
-    ]);
+      assertEquals(data, [
+        { name: "Marie", gender: "Woman" },
+        { name: "John", gender: "Man" },
+        { name: "Alex", gender: "Neutral" },
+      ]);
+      await sdb.done();
+    },
+  );
+  Deno.test(
+    "should successfully run the code example by returning data from the cache (ollama)",
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      // New table with column "name".
+      table.loadArray([
+        { name: "Marie" },
+        { name: "John" },
+        { name: "Alex" },
+      ]);
 
-    // Ask the AI to categorize in a new column "gender".
-    await table.aiRowByRow(
-      "name",
-      "gender",
-      `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral". Return an objects with two keys in it: one with the names and the other with the genders.`,
-      {
-        // Cache the results locally
-        cache: true,
-        // Send 10 rows at once to the AI
-        batchSize: 10,
-        // clean: (response: unknown) =>
-        //   (JSON.parse(response as string) as { results: { gender: string }[] })
-        //     .results
-        //     .map((d) => d.gender),
-        // // Ensure the response contains only the expected categories
-        // test: (response: unknown) => {
-        //   if (
-        //     typeof response !== "string" ||
-        //     !["Man", "Woman", "Neutral"].includes(response)
-        //   ) {
-        //     throw new Error(`Invalid response ${response}`);
-        //   }
-        // },
-        // Retry up to 3 times if the test fails
-        retry: 3,
-        // Avoid exceeding a rate limit by waiting between requests
-        rateLimitPerMinute: 15,
-        // Log details
-        verbose: true,
-      },
-    );
+      // Ask the AI to categorize in a new column "gender".
+      await table.aiRowByRow(
+        "name",
+        "gender",
+        `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral". Return an objects with two keys in it: one with the names and the other with the genders.`,
+        {
+          // Cache the results locally
+          cache: true,
+          // Send 10 rows at once to the AI
+          batchSize: 10,
+          // clean: (response: unknown) =>
+          //   (JSON.parse(response as string) as { results: { gender: string }[] })
+          //     .results
+          //     .map((d) => d.gender),
+          // // Ensure the response contains only the expected categories
+          // test: (response: unknown) => {
+          //   if (
+          //     typeof response !== "string" ||
+          //     !["Man", "Woman", "Neutral"].includes(response)
+          //   ) {
+          //     throw new Error(`Invalid response ${response}`);
+          //   }
+          // },
+          // Retry up to 3 times if the test fails
+          retry: 3,
+          // Avoid exceeding a rate limit by waiting between requests
+          rateLimitPerMinute: 15,
+          // Log details
+          verbose: true,
+        },
+      );
 
-    const data = await table.getData();
+      const data = await table.getData();
 
-    assertEquals(data, [
-      { name: "Marie", gender: "Woman" },
-      { name: "John", gender: "Man" },
-      { name: "Alex", gender: "Neutral" },
-    ]);
-    await sdb.done();
-  });
+      assertEquals(data, [
+        { name: "Marie", gender: "Woman" },
+        { name: "John", gender: "Man" },
+        { name: "Alex", gender: "Neutral" },
+      ]);
+      await sdb.done();
+    },
+  );
   Deno.test("should iterate over rows with a prompt (ollama)", {
     sanitizeResources: false,
   }, async () => {
@@ -231,346 +244,367 @@ if (typeof ollama === "string" && aiKey !== "") {
     ]);
     await sdb.done();
   });
-  Deno.test("should iterate over rows with a prompt and thinking (ollama)", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-    ]);
-    await table.aiRowByRow(
-      "city",
-      "country",
-      `Give me the country of the cities.`,
-      {
-        verbose: true,
-        // clean: (response: unknown) => {
-        //   const parsed = JSON.parse(response as string);
-        //   return typeof parsed === "object" && parsed && "countries" in parsed
-        //     ? parsed.countries
-        //     : parsed;
-        // },
-        batchSize: 3,
-        // extraInstructions:
-        //   `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
-      },
-    );
-    const data = await table.getData();
+  Deno.test(
+    "should iterate over rows with a prompt and thinking (ollama)",
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      table.loadArray([
+        { "city": "Marrakech" },
+        { "city": "Kyoto" },
+        { "city": "Auckland" },
+      ]);
+      await table.aiRowByRow(
+        "city",
+        "country",
+        `Give me the country of the cities.`,
+        {
+          verbose: true,
+          // clean: (response: unknown) => {
+          //   const parsed = JSON.parse(response as string);
+          //   return typeof parsed === "object" && parsed && "countries" in parsed
+          //     ? parsed.countries
+          //     : parsed;
+          // },
+          batchSize: 3,
+          // extraInstructions:
+          //   `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
+        },
+      );
+      const data = await table.getData();
 
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should iterate over rows with a prompt and a batch size (ollama)", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
-    await table.aiRowByRow(
-      "city",
-      "country",
-      `Give me the country of the city.`,
-      {
-        batchSize: 10,
-        verbose: true,
-        // clean: (response: unknown) => {
-        //   const parsed = JSON.parse(response as string);
-        //   return typeof parsed === "object" && parsed && "countries" in parsed
-        //     ? parsed.countries
-        //     : parsed;
-        // },
-        // extraInstructions:
-        //   `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
-      },
-    );
-    const data = await table.getData();
+      assertEquals(data, [
+        { city: "Marrakech", country: "Morocco" },
+        { city: "Kyoto", country: "Japan" },
+        { city: "Auckland", country: "New Zealand" },
+      ]);
+      await sdb.done();
+    },
+  );
+  Deno.test(
+    "should iterate over rows with a prompt and a batch size (ollama)",
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      table.loadArray([
+        { "city": "Marrakech" },
+        { "city": "Kyoto" },
+        { "city": "Auckland" },
+        { "city": "Paris" },
+        { "city": "London" },
+        { "city": "New York" },
+        { "city": "Los Angeles" },
+        { "city": "Tokyo" },
+        { "city": "Beijing" },
+        { "city": "Moscow" },
+        { "city": "Berlin" },
+      ]);
+      await table.aiRowByRow(
+        "city",
+        "country",
+        `Give me the country of the city.`,
+        {
+          batchSize: 10,
+          verbose: true,
+          // clean: (response: unknown) => {
+          //   const parsed = JSON.parse(response as string);
+          //   return typeof parsed === "object" && parsed && "countries" in parsed
+          //     ? parsed.countries
+          //     : parsed;
+          // },
+          // extraInstructions:
+          //   `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
+        },
+      );
+      const data = await table.getData();
 
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-      { city: "Paris", country: "France" },
-      { city: "London", country: "United Kingdom" },
-      { city: "New York", country: "United States" },
-      { city: "Los Angeles", country: "United States" },
-      { city: "Tokyo", country: "Japan" },
-      { city: "Beijing", country: "China" },
-      { city: "Moscow", country: "Russia" },
-      { city: "Berlin", country: "Germany" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should iterate over rows with a prompt and a batch size and cache (ollama)", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
-    await table.aiRowByRow(
-      "city",
-      "country",
-      `Give me the country of the city.`,
-      {
-        batchSize: 10,
-        cache: true,
-        verbose: true,
-        // clean: (response: unknown) => {
-        //   const parsed = JSON.parse(response as string);
-        //   return typeof parsed === "object" && parsed && "countries" in parsed
-        //     ? parsed.countries
-        //     : parsed;
-        // },
-        // extraInstructions:
-        //   `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
-      },
-    );
-    const data = await table.getData();
+      assertEquals(data, [
+        { city: "Marrakech", country: "Morocco" },
+        { city: "Kyoto", country: "Japan" },
+        { city: "Auckland", country: "New Zealand" },
+        { city: "Paris", country: "France" },
+        { city: "London", country: "United Kingdom" },
+        { city: "New York", country: "United States" },
+        { city: "Los Angeles", country: "United States" },
+        { city: "Tokyo", country: "Japan" },
+        { city: "Beijing", country: "China" },
+        { city: "Moscow", country: "Russia" },
+        { city: "Berlin", country: "Germany" },
+      ]);
+      await sdb.done();
+    },
+  );
+  Deno.test(
+    "should iterate over rows with a prompt and a batch size and cache (ollama)",
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      table.loadArray([
+        { "city": "Marrakech" },
+        { "city": "Kyoto" },
+        { "city": "Auckland" },
+        { "city": "Paris" },
+        { "city": "London" },
+        { "city": "New York" },
+        { "city": "Los Angeles" },
+        { "city": "Tokyo" },
+        { "city": "Beijing" },
+        { "city": "Moscow" },
+        { "city": "Berlin" },
+      ]);
+      await table.aiRowByRow(
+        "city",
+        "country",
+        `Give me the country of the city.`,
+        {
+          batchSize: 10,
+          cache: true,
+          verbose: true,
+          // clean: (response: unknown) => {
+          //   const parsed = JSON.parse(response as string);
+          //   return typeof parsed === "object" && parsed && "countries" in parsed
+          //     ? parsed.countries
+          //     : parsed;
+          // },
+          // extraInstructions:
+          //   `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
+        },
+      );
+      const data = await table.getData();
 
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-      { city: "Paris", country: "France" },
-      { city: "London", country: "United Kingdom" },
-      { city: "New York", country: "United States" },
-      { city: "Los Angeles", country: "United States" },
-      { city: "Tokyo", country: "Japan" },
-      { city: "Beijing", country: "China" },
-      { city: "Moscow", country: "Russia" },
-      { city: "Berlin", country: "Germany" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should iterate over rows with a prompt and a batch size and return from cache (ollama)", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
-    await table.aiRowByRow(
-      "city",
-      "country",
-      `Give me the country of the city.`,
-      {
-        batchSize: 10,
-        cache: true,
-        verbose: true,
-        // clean: (response: unknown) => {
-        //   const parsed = JSON.parse(response as string);
-        //   return typeof parsed === "object" && parsed && "countries" in parsed
-        //     ? parsed.countries
-        //     : parsed;
-        // },
-        // extraInstructions:
-        //   `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
-      },
-    );
-    const data = await table.getData();
+      assertEquals(data, [
+        { city: "Marrakech", country: "Morocco" },
+        { city: "Kyoto", country: "Japan" },
+        { city: "Auckland", country: "New Zealand" },
+        { city: "Paris", country: "France" },
+        { city: "London", country: "United Kingdom" },
+        { city: "New York", country: "United States" },
+        { city: "Los Angeles", country: "United States" },
+        { city: "Tokyo", country: "Japan" },
+        { city: "Beijing", country: "China" },
+        { city: "Moscow", country: "Russia" },
+        { city: "Berlin", country: "Germany" },
+      ]);
+      await sdb.done();
+    },
+  );
+  Deno.test(
+    "should iterate over rows with a prompt and a batch size and return from cache (ollama)",
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      table.loadArray([
+        { "city": "Marrakech" },
+        { "city": "Kyoto" },
+        { "city": "Auckland" },
+        { "city": "Paris" },
+        { "city": "London" },
+        { "city": "New York" },
+        { "city": "Los Angeles" },
+        { "city": "Tokyo" },
+        { "city": "Beijing" },
+        { "city": "Moscow" },
+        { "city": "Berlin" },
+      ]);
+      await table.aiRowByRow(
+        "city",
+        "country",
+        `Give me the country of the city.`,
+        {
+          batchSize: 10,
+          cache: true,
+          verbose: true,
+          // clean: (response: unknown) => {
+          //   const parsed = JSON.parse(response as string);
+          //   return typeof parsed === "object" && parsed && "countries" in parsed
+          //     ? parsed.countries
+          //     : parsed;
+          // },
+          // extraInstructions:
+          //   `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
+        },
+      );
+      const data = await table.getData();
 
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-      { city: "Paris", country: "France" },
-      { city: "London", country: "United Kingdom" },
-      { city: "New York", country: "United States" },
-      { city: "Los Angeles", country: "United States" },
-      { city: "Tokyo", country: "Japan" },
-      { city: "Beijing", country: "China" },
-      { city: "Moscow", country: "Russia" },
-      { city: "Berlin", country: "Germany" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should iterate over rows with a prompt with a batch size and be verbose (ollama)", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
-    await table.aiRowByRow(
-      "city",
-      "country",
-      `Give me the country of the city.`,
-      {
-        batchSize: 10,
-        verbose: true,
-        // clean: (response: unknown) => {
-        //   const parsed = JSON.parse(response as string);
-        //   return typeof parsed === "object" && parsed && "countries" in parsed
-        //     ? parsed.countries
-        //     : parsed;
-        // },
-        // extraInstructions:
-        //   `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
-      },
-    );
-    const data = await table.getData();
+      assertEquals(data, [
+        { city: "Marrakech", country: "Morocco" },
+        { city: "Kyoto", country: "Japan" },
+        { city: "Auckland", country: "New Zealand" },
+        { city: "Paris", country: "France" },
+        { city: "London", country: "United Kingdom" },
+        { city: "New York", country: "United States" },
+        { city: "Los Angeles", country: "United States" },
+        { city: "Tokyo", country: "Japan" },
+        { city: "Beijing", country: "China" },
+        { city: "Moscow", country: "Russia" },
+        { city: "Berlin", country: "Germany" },
+      ]);
+      await sdb.done();
+    },
+  );
+  Deno.test(
+    "should iterate over rows with a prompt with a batch size and be verbose (ollama)",
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      table.loadArray([
+        { "city": "Marrakech" },
+        { "city": "Kyoto" },
+        { "city": "Auckland" },
+        { "city": "Paris" },
+        { "city": "London" },
+        { "city": "New York" },
+        { "city": "Los Angeles" },
+        { "city": "Tokyo" },
+        { "city": "Beijing" },
+        { "city": "Moscow" },
+        { "city": "Berlin" },
+      ]);
+      await table.aiRowByRow(
+        "city",
+        "country",
+        `Give me the country of the city.`,
+        {
+          batchSize: 10,
+          verbose: true,
+          // clean: (response: unknown) => {
+          //   const parsed = JSON.parse(response as string);
+          //   return typeof parsed === "object" && parsed && "countries" in parsed
+          //     ? parsed.countries
+          //     : parsed;
+          // },
+          // extraInstructions:
+          //   `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
+        },
+      );
+      const data = await table.getData();
 
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-      { city: "Paris", country: "France" },
-      { city: "London", country: "United Kingdom" },
-      { city: "New York", country: "United States" },
-      { city: "Los Angeles", country: "United States" },
-      { city: "Tokyo", country: "Japan" },
-      { city: "Beijing", country: "China" },
-      { city: "Moscow", country: "Russia" },
-      { city: "Berlin", country: "Germany" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should iterate over rows with a prompt, a batch size and concurrent requests (ollama)", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
-    await table.aiRowByRow(
-      "city",
-      "country",
-      `Give me the country of the city.`,
-      {
-        batchSize: 2,
-        concurrent: 2,
-        verbose: true,
-        // clean: (response: unknown) => {
-        //   const parsed = JSON.parse(response as string);
-        //   return typeof parsed === "object" && parsed && "countries" in parsed
-        //     ? parsed.countries
-        //     : parsed;
-        // },
-        // extraInstructions:
-        //   `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
-      },
-    );
-    const data = await table.getData();
+      assertEquals(data, [
+        { city: "Marrakech", country: "Morocco" },
+        { city: "Kyoto", country: "Japan" },
+        { city: "Auckland", country: "New Zealand" },
+        { city: "Paris", country: "France" },
+        { city: "London", country: "United Kingdom" },
+        { city: "New York", country: "United States" },
+        { city: "Los Angeles", country: "United States" },
+        { city: "Tokyo", country: "Japan" },
+        { city: "Beijing", country: "China" },
+        { city: "Moscow", country: "Russia" },
+        { city: "Berlin", country: "Germany" },
+      ]);
+      await sdb.done();
+    },
+  );
+  Deno.test(
+    "should iterate over rows with a prompt, a batch size and concurrent requests (ollama)",
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      table.loadArray([
+        { "city": "Marrakech" },
+        { "city": "Kyoto" },
+        { "city": "Auckland" },
+        { "city": "Paris" },
+        { "city": "London" },
+        { "city": "New York" },
+        { "city": "Los Angeles" },
+        { "city": "Tokyo" },
+        { "city": "Beijing" },
+        { "city": "Moscow" },
+        { "city": "Berlin" },
+      ]);
+      await table.aiRowByRow(
+        "city",
+        "country",
+        `Give me the country of the city.`,
+        {
+          batchSize: 2,
+          concurrent: 2,
+          verbose: true,
+          // clean: (response: unknown) => {
+          //   const parsed = JSON.parse(response as string);
+          //   return typeof parsed === "object" && parsed && "countries" in parsed
+          //     ? parsed.countries
+          //     : parsed;
+          // },
+          // extraInstructions:
+          //   `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
+        },
+      );
+      const data = await table.getData();
 
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-      { city: "Paris", country: "France" },
-      { city: "London", country: "United Kingdom" },
-      { city: "New York", country: "United States" },
-      { city: "Los Angeles", country: "United States" },
-      { city: "Tokyo", country: "Japan" },
-      { city: "Beijing", country: "China" },
-      { city: "Moscow", country: "Russia" },
-      { city: "Berlin", country: "Germany" },
-    ]);
-    await sdb.done();
-  });
+      assertEquals(data, [
+        { city: "Marrakech", country: "Morocco" },
+        { city: "Kyoto", country: "Japan" },
+        { city: "Auckland", country: "New Zealand" },
+        { city: "Paris", country: "France" },
+        { city: "London", country: "United Kingdom" },
+        { city: "New York", country: "United States" },
+        { city: "Los Angeles", country: "United States" },
+        { city: "Tokyo", country: "Japan" },
+        { city: "Beijing", country: "China" },
+        { city: "Moscow", country: "Russia" },
+        { city: "Berlin", country: "Germany" },
+      ]);
+      await sdb.done();
+    },
+  );
 
-  Deno.test("should iterate over rows with a prompt, a batch size and concurrent requests and cache (ollama)", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
-    await table.aiRowByRow(
-      "city",
-      "country",
-      `Give me the country of the city.`,
-      {
-        batchSize: 2,
-        concurrent: 5,
-        cache: true,
-        verbose: true,
-        // clean: (response: unknown) => {
-        //   const parsed = JSON.parse(response as string);
-        //   return typeof parsed === "object" && parsed && "countries" in parsed
-        //     ? parsed.countries
-        //     : parsed;
-        // },
-        // extraInstructions:
-        //   `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
-      },
-    );
-    const data = await table.getData();
+  Deno.test(
+    "should iterate over rows with a prompt, a batch size and concurrent requests and cache (ollama)",
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      table.loadArray([
+        { "city": "Marrakech" },
+        { "city": "Kyoto" },
+        { "city": "Auckland" },
+        { "city": "Paris" },
+        { "city": "London" },
+        { "city": "New York" },
+        { "city": "Los Angeles" },
+        { "city": "Tokyo" },
+        { "city": "Beijing" },
+        { "city": "Moscow" },
+        { "city": "Berlin" },
+      ]);
+      await table.aiRowByRow(
+        "city",
+        "country",
+        `Give me the country of the city.`,
+        {
+          batchSize: 2,
+          concurrent: 5,
+          cache: true,
+          verbose: true,
+          // clean: (response: unknown) => {
+          //   const parsed = JSON.parse(response as string);
+          //   return typeof parsed === "object" && parsed && "countries" in parsed
+          //     ? parsed.countries
+          //     : parsed;
+          // },
+          // extraInstructions:
+          //   `If you return an object, make sure it has a "countries" key with the country names. You answer should have this shape: { countries: string[] }.`,
+        },
+      );
+      const data = await table.getData();
 
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-      { city: "Paris", country: "France" },
-      { city: "London", country: "United Kingdom" },
-      { city: "New York", country: "United States" },
-      { city: "Los Angeles", country: "United States" },
-      { city: "Tokyo", country: "Japan" },
-      { city: "Beijing", country: "China" },
-      { city: "Moscow", country: "Russia" },
-      { city: "Berlin", country: "Germany" },
-    ]);
-    await sdb.done();
-  });
+      assertEquals(data, [
+        { city: "Marrakech", country: "Morocco" },
+        { city: "Kyoto", country: "Japan" },
+        { city: "Auckland", country: "New Zealand" },
+        { city: "Paris", country: "France" },
+        { city: "London", country: "United Kingdom" },
+        { city: "New York", country: "United States" },
+        { city: "Los Angeles", country: "United States" },
+        { city: "Tokyo", country: "Japan" },
+        { city: "Beijing", country: "China" },
+        { city: "Moscow", country: "Russia" },
+        { city: "Berlin", country: "Germany" },
+      ]);
+      await sdb.done();
+    },
+  );
   Deno.test("should use the default Zod JSON schema", {
     sanitizeResources: false,
   }, async () => {
@@ -620,59 +654,62 @@ if (typeof ollama === "string" && aiKey !== "") {
     );
     await sdb.done();
   });
-  Deno.test("should accept a Zod JSON schema for structured output", async () => {
-    const sdb = new SimpleDB({ logDuration: true });
-    const table = sdb.newTable("data");
-    table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
+  Deno.test(
+    "should accept a Zod JSON schema for structured output",
+    async () => {
+      const sdb = new SimpleDB({ logDuration: true });
+      const table = sdb.newTable("data");
+      table.loadArray([
+        { "city": "Marrakech" },
+        { "city": "Kyoto" },
+        { "city": "Auckland" },
+        { "city": "Paris" },
+        { "city": "London" },
+        { "city": "New York" },
+        { "city": "Los Angeles" },
+        { "city": "Tokyo" },
+        { "city": "Beijing" },
+        { "city": "Moscow" },
+        { "city": "Berlin" },
+      ]);
 
-    const schemaJson = z.toJSONSchema(z.array(z.object({
-      country: z.string(),
-      population: z.number(),
-    })));
+      const schemaJson = z.toJSONSchema(z.array(z.object({
+        country: z.string(),
+        population: z.number(),
+      })));
 
-    await table.aiRowByRow(
-      "city",
-      ["country", "population"],
-      `Give me the country and population of the city.`,
-      {
-        batchSize: 100,
-        schemaJson,
-        verbose: true,
-      },
-    );
-    const data = await table.getData();
+      await table.aiRowByRow(
+        "city",
+        ["country", "population"],
+        `Give me the country and population of the city.`,
+        {
+          batchSize: 100,
+          schemaJson,
+          verbose: true,
+        },
+      );
+      const data = await table.getData();
 
-    assertEquals(data.length, 11);
-    assertEquals(
-      data.map((d) => d.city).every((city) => typeof city === "string"),
-      true,
-    );
-    assertEquals(
-      data.map((d) => d.country).every((country) =>
-        typeof country === "string"
-      ),
-      true,
-    );
-    assertEquals(
-      data.map((d) => d.population).every((population) =>
-        typeof population === "number"
-      ),
-      true,
-    );
-    await sdb.done();
-  });
+      assertEquals(data.length, 11);
+      assertEquals(
+        data.map((d) => d.city).every((city) => typeof city === "string"),
+        true,
+      );
+      assertEquals(
+        data.map((d) => d.country).every((country) =>
+          typeof country === "string"
+        ),
+        true,
+      );
+      assertEquals(
+        data.map((d) => d.population).every((population) =>
+          typeof population === "number"
+        ),
+        true,
+      );
+      await sdb.done();
+    },
+  );
   Deno.test(
     "should think minimally",
     { sanitizeResources: false },

@@ -22,6 +22,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
+      provider: "gemini",
       // Cache the results locally
       cache: true,
       // Avoid exceeding a rate limit by waiting between requests
@@ -48,6 +49,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
+      provider: "gemini",
       // Cache the results locally
       cache: true,
       // Avoid exceeding a rate limit by waiting between requests
@@ -74,6 +76,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
+      provider: "gemini",
       // Cache the results locally
       cache: true,
       // Avoid exceeding a rate limit by waiting between requests
@@ -111,6 +114,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
+      provider: "ollama",
       // Cache the results locally
       cache: true,
       // Log details
@@ -137,6 +141,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
+      provider: "ollama",
       // Cache the results locally
       cache: true,
       // Log details
@@ -162,6 +167,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
+      provider: "ollama",
       // Cache the results locally
       cache: true,
       // Avoid exceeding a rate limit by waiting between requests
@@ -188,6 +194,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
+      provider: "ollama",
       // Cache the results locally
       cache: true,
       // Avoid exceeding a rate limit by waiting between requests
@@ -216,6 +223,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
+      provider: "ollama",
       // Cache the results locally
       cache: true,
       // Avoid exceeding a rate limit by waiting between requests

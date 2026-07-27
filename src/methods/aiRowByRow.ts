@@ -4,6 +4,7 @@ import type { SimpleTable } from "../index.ts";
 import tryAI from "../helpers/tryAI.ts";
 import type { Ollama } from "ollama";
 import { stringToArray } from "@nshiab/simple-data-analysis-core/helpers";
+import type { AIProvider } from "../helpers/resolveAIProvider.ts";
 
 export default async function aiRowByRow(
   simpleTable: SimpleTable,
@@ -11,6 +12,7 @@ export default async function aiRowByRow(
   newColumn: string | string[],
   prompt: string,
   options: {
+    provider?: AIProvider;
     batchSize?: number;
     concurrent?: number;
     cache?: boolean;
