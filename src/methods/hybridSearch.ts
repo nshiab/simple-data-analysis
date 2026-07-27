@@ -2,7 +2,122 @@ import type SimpleTable from "../class/SimpleTable.ts";
 import { prettyDuration } from "@nshiab/journalism-format";
 import getRRFRanking from "../helpers/getRRFRanking.ts";
 import { parseValue } from "@nshiab/simple-data-analysis-core/helpers";
-import type { EmbeddingProvider } from "../helpers/resolveEmbeddingProvider.ts";
+import type { EmbeddingOptions } from "../helpers/aiOptions.ts";
+import { getEmbeddingCacheIdentity } from "../helpers/tryEmbedding.ts";
+
+/**
+ * Timing checkpoints populated by `hybridSearch` when verbose logging is enabled.
+ *
+ * @example
+ * ```ts
+ * const times: HybridSearchTimes = { start: Date.now() };
+ * ```
+ */
+export type HybridSearchTimes = {
+  /** Start of the complete hybrid-search operation. */
+  start?: number;
+  /** Start of embedding generation or cache loading. */
+  embeddingStart?: number;
+  /** End of embedding generation or cache loading. */
+  embeddingEnd?: number;
+  /** Start of vector-similarity search. */
+  vectorSearchStart?: number;
+  /** End of vector-similarity search. */
+  vectorSearchEnd?: number;
+  /** Start of BM25 text search. */
+  bm25Start?: number;
+  /** End of BM25 text search. */
+  bm25End?: number;
+};
+
+/**
+ * Options for combining vector similarity and BM25 text search.
+ *
+ * @example
+ * ```ts
+ * const options: HybridSearchOptions = {
+ *   embeddings: { provider: "ollama", cache: true },
+ *   vectorSearch: true,
+ *   bm25: true,
+ * };
+ * ```
+ */
+export type HybridSearchOptions = {
+  /** Options used for both stored row embeddings and the query embedding. */
+  embeddings?: EmbeddingOptions;
+  /** Logs search progress, results, and timing information when enabled. */
+  verbose?: boolean;
+  /** Creates vector and BM25 indexes when enabled. */
+  createIndex?: boolean;
+  /** Maximum number of stored-row embedding requests processed concurrently. */
+  embeddingsConcurrent?: number;
+  /** Language stemmer used by the BM25 full-text index. */
+  stemmer?:
+    | "arabic"
+    | "basque"
+    | "catalan"
+    | "danish"
+    | "dutch"
+    | "english"
+    | "finnish"
+    | "french"
+    | "german"
+    | "greek"
+    | "hindi"
+    | "hungarian"
+    | "indonesian"
+    | "irish"
+    | "italian"
+    | "lithuanian"
+    | "nepali"
+    | "norwegian"
+    | "porter"
+    | "portuguese"
+    | "romanian"
+    | "russian"
+    | "serbian"
+    | "spanish"
+    | "swedish"
+    | "tamil"
+    | "turkish"
+    | "none";
+  /** Stopword table used by the BM25 full-text index. */
+  stopwords?: string;
+  /** Regular expression describing characters ignored by the BM25 index. */
+  ignore?: string;
+  /** Removes accents before BM25 indexing when enabled. */
+  stripAccents?: boolean;
+  /** Lowercases text before BM25 indexing when enabled. */
+  lower?: boolean;
+  /** BM25 term-frequency saturation parameter. */
+  k?: number;
+  /** BM25 document-length normalization parameter. */
+  b?: number;
+  /** Requires every query term to match during BM25 search when enabled. */
+  conjunctive?: boolean;
+  /** Enables BM25 text search. */
+  bm25?: boolean;
+  /** Minimum BM25 score required for a row to be returned. */
+  bm25MinScore?: number;
+  /** Adds BM25 scores under this output column name. */
+  bm25ScoreColumn?: string;
+  /** Enables vector-similarity search. */
+  vectorSearch?: boolean;
+  /** Minimum cosine similarity required for a vector result. */
+  vectorMinSimilarity?: number;
+  /** Adds vector similarity scores under this output column name. */
+  vectorSimilarityColumn?: string;
+  /** Writes results to a new table instead of replacing the current table. */
+  outputTable?: string;
+  /** Candidate count used while constructing the vector index. */
+  efConstruction?: number;
+  /** Candidate count used while searching the vector index. */
+  efSearch?: number;
+  /** Maximum number of graph neighbors retained by the vector index. */
+  M?: number;
+  /** Mutable timing checkpoints shared with `aiRAG`. */
+  times?: HybridSearchTimes;
+};
 
 export default async function hybridSearch(
   table: SimpleTable,
@@ -10,71 +125,7 @@ export default async function hybridSearch(
   columnId: string,
   columnText: string,
   nbResults: number,
-  options: {
-    embeddingsProvider?: EmbeddingProvider;
-    cache?: boolean;
-    verbose?: boolean;
-    embeddingsModelContextWindow?: number;
-    createIndex?: boolean;
-    embeddingsModel?: string;
-    ollamaEmbeddings?: boolean;
-    embeddingsConcurrent?: number;
-    stemmer?:
-      | "arabic"
-      | "basque"
-      | "catalan"
-      | "danish"
-      | "dutch"
-      | "english"
-      | "finnish"
-      | "french"
-      | "german"
-      | "greek"
-      | "hindi"
-      | "hungarian"
-      | "indonesian"
-      | "irish"
-      | "italian"
-      | "lithuanian"
-      | "nepali"
-      | "norwegian"
-      | "porter"
-      | "portuguese"
-      | "romanian"
-      | "russian"
-      | "serbian"
-      | "spanish"
-      | "swedish"
-      | "tamil"
-      | "turkish"
-      | "none";
-    stopwords?: string;
-    ignore?: string;
-    stripAccents?: boolean;
-    lower?: boolean;
-    k?: number;
-    b?: number;
-    conjunctive?: boolean;
-    bm25?: boolean;
-    bm25MinScore?: number;
-    bm25ScoreColumn?: string;
-    vectorSearch?: boolean;
-    vectorMinSimilarity?: number;
-    vectorSimilarityColumn?: string;
-    outputTable?: string;
-    efConstruction?: number;
-    efSearch?: number;
-    M?: number;
-    times?: {
-      start?: number;
-      embeddingStart?: number;
-      embeddingEnd?: number;
-      vectorSearchStart?: number;
-      vectorSearchEnd?: number;
-      bm25Start?: number;
-      bm25End?: number;
-    };
-  } = {},
+  options: HybridSearchOptions = {},
 ): Promise<SimpleTable> {
   const enableVectorSearch = options.vectorSearch !== false;
   const enableBm25 = options.bm25 !== false;
@@ -118,34 +169,37 @@ export default async function hybridSearch(
         table.sdb.cacheVerbose = true;
       }
 
-      options.cache
-        ? await table.cache(async () => {
+      if (options.embeddings?.cache) {
+        const computeEmbeddings = async () => {
           await table.aiEmbeddings(columnText, embeddingColumn, {
             createIndex: options.createIndex ?? false,
-            cache: true,
             verbose: options.verbose,
-            ollama: options.ollamaEmbeddings,
-            provider: options.embeddingsProvider,
-            model: options.embeddingsModel,
-            contextWindow: options.embeddingsModelContextWindow,
+            embeddings: options.embeddings,
             concurrent: options.embeddingsConcurrent,
             efConstruction: options.efConstruction,
             efSearch: options.efSearch,
             M: options.M,
           });
-        })
-        : await table.aiEmbeddings(columnText, embeddingColumn, {
+        };
+        const computeSource: string = Function.prototype.toString.call(
+          computeEmbeddings,
+        );
+        const cacheIdentity = getEmbeddingCacheIdentity(options.embeddings);
+        Object.defineProperty(computeEmbeddings, "toString", {
+          value: (): string => `${computeSource}\n${cacheIdentity}`,
+        });
+        await table.cache(computeEmbeddings);
+      } else {
+        await table.aiEmbeddings(columnText, embeddingColumn, {
           createIndex: options.createIndex ?? false,
           verbose: options.verbose,
-          ollama: options.ollamaEmbeddings,
-          provider: options.embeddingsProvider,
-          model: options.embeddingsModel,
-          contextWindow: options.embeddingsModelContextWindow,
+          embeddings: options.embeddings,
           concurrent: options.embeddingsConcurrent,
           efConstruction: options.efConstruction,
           efSearch: options.efSearch,
           M: options.M,
         });
+      }
 
       table.sdb.cacheVerbose = previousCacheVerbose;
     }
@@ -166,12 +220,8 @@ export default async function hybridSearch(
       nbResults,
       {
         createIndex: options.createIndex ?? false,
-        cache: options.cache,
         outputTable: `${table.name}_vector_search_results`,
-        ollama: options.ollamaEmbeddings,
-        provider: options.embeddingsProvider,
-        model: options.embeddingsModel,
-        contextWindow: options.embeddingsModelContextWindow,
+        embeddings: options.embeddings,
         verbose: options.verbose,
         efConstruction: options.efConstruction,
         efSearch: options.efSearch,

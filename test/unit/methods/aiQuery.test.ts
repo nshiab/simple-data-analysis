@@ -3,6 +3,12 @@ import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
 import { Ollama } from "ollama";
 
+const geminiGeneration = {
+  provider: "gemini",
+  model: "gemini-3-flash-preview",
+} as const;
+const ollamaGeneration = { provider: "ollama" } as const;
+
 const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
 if (typeof aiKey === "string" && aiKey !== "") {
   if (existsSync("./.journalism-cache")) {
@@ -17,7 +23,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { provider: "gemini" },
+      { generation: geminiGeneration },
     );
 
     await table.logTable();
@@ -35,10 +41,11 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
       {
-        provider: "gemini",
-        thinkingBudget: 1000,
+        generation: {
+          ...geminiGeneration,
+          thinkingLevel: "low",
+        },
         verbose: true,
-        model: "gemini-2.5-flash",
       },
     );
 
@@ -56,7 +63,10 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { provider: "gemini", cache: true, verbose: true },
+      {
+        generation: { ...geminiGeneration, cache: true },
+        verbose: true,
+      },
     );
 
     await table.logTable();
@@ -73,7 +83,10 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { provider: "gemini", cache: true, verbose: true },
+      {
+        generation: { ...geminiGeneration, cache: true },
+        verbose: true,
+      },
     );
 
     await table.logTable();
@@ -90,7 +103,10 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { provider: "gemini", safetyEnabled: false, verbose: true },
+      {
+        generation: { ...geminiGeneration, safetyEnabled: false },
+        verbose: true,
+      },
     );
 
     await table.logTable();
@@ -107,7 +123,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { provider: "gemini", verbose: true },
+      { generation: geminiGeneration, verbose: true },
     );
 
     await table.logTable();
@@ -127,9 +143,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
     const resultTable = await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
       {
-        provider: "gemini",
+        generation: { ...geminiGeneration, cache: true },
         outputTable: "avg_temp",
-        cache: true,
         verbose: true,
       },
     );
@@ -165,7 +180,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { provider: "ollama", verbose: true },
+      { generation: ollamaGeneration, verbose: true },
     );
 
     await table.logTable();
@@ -185,7 +200,10 @@ if (typeof ollama === "string" && ollama !== "") {
 
       await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
-        { provider: "ollama", verbose: true, thinkingBudget: 1 },
+        {
+          generation: { ...ollamaGeneration, thinkingLevel: true },
+          verbose: true,
+        },
       );
 
       await table.logTable();
@@ -209,8 +227,7 @@ if (typeof ollama === "string" && ollama !== "") {
       await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
         {
-          provider: "ollama",
-          ollama,
+          generation: { ...ollamaGeneration, ollama },
           verbose: true,
         },
       );
@@ -232,7 +249,10 @@ if (typeof ollama === "string" && ollama !== "") {
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { provider: "ollama", cache: true, verbose: true },
+      {
+        generation: { ...ollamaGeneration, cache: true },
+        verbose: true,
+      },
     );
 
     await table.logTable();
@@ -252,7 +272,10 @@ if (typeof ollama === "string" && ollama !== "") {
 
       await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
-        { provider: "ollama", cache: true, verbose: true },
+        {
+          generation: { ...ollamaGeneration, cache: true },
+          verbose: true,
+        },
       );
 
       await table.logTable();
@@ -273,7 +296,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
       await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
-        { provider: "ollama", verbose: true },
+        { generation: ollamaGeneration, verbose: true },
       );
 
       await table.logTable();
@@ -297,9 +320,8 @@ if (typeof ollama === "string" && ollama !== "") {
       const resultTable = await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
         {
-          provider: "ollama",
+          generation: { ...ollamaGeneration, cache: true },
           outputTable: "avg_temp_ollama",
-          cache: true,
           verbose: true,
         },
       );

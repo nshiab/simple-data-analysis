@@ -1,8 +1,7 @@
 import askAI from "./askAI.ts";
-import type { AIProvider } from "./resolveAIProvider.ts";
-import type { Ollama } from "ollama";
-import { array, object, string, toJSONSchema } from "zod";
 import processAIRowsResponse from "./processAIRowsResponse.ts";
+import type { AIRequestMetrics, GenerationOptions } from "./aiOptions.ts";
+import buildAIRowsRequest from "./buildAIRowsRequest.ts";
 
 export default async function tryAI(
   i: number,
@@ -16,59 +15,26 @@ export default async function tryAI(
   options: {
     batchSize?: number;
     concurrent?: number;
-    cache?: boolean;
     test?: (result: { [key: string]: unknown }) => void;
     retry?: number;
-    provider?: AIProvider;
-    model?: string;
-    temperature?: number;
-    apiKey?: string;
-    vertex?: boolean;
-    project?: string;
-    location?: string;
-    ollama?: boolean | Ollama;
+    generation?: GenerationOptions;
     verbose?: boolean;
     rateLimitPerMinute?: number;
     clean?: (
       response: unknown,
     ) => unknown;
-    contextWindow?: number;
-    thinkingBudget?: number;
-    thinkingLevel?: "minimal" | "low" | "medium" | "high";
-    safetyEnabled?: boolean;
-    webSearch?: boolean;
     extraInstructions?: string;
-    schemaJson?: unknown;
-    metrics?: {
-      totalCost: number;
-      totalInputTokens: number;
-      totalOutputTokens: number;
-      totalRequests: number;
-    };
+    metrics?: AIRequestMetrics;
   } = {},
 ) {
   const batch = rows.slice(i, i + batchSize);
-
-  let schemaJson;
-  if (options.schemaJson) {
-    schemaJson = options.schemaJson;
-  } else {
-    const objectSchema: { [key: string]: unknown } = {};
-    for (const newColumn of newColumns) {
-      objectSchema[newColumn] = string();
-    }
-    schemaJson = toJSONSchema(array(
-      object(objectSchema),
-    ));
-  }
-
-  const systemPrompt =
-    `You will be provided with a JSON array of ${batch.length} string items. You must return a JSON array containing exactly ${batch.length} objects, in the same corresponding order.`;
-
-  const fullPrompt =
-    `${prompt}\n\nHere are the ${column} values as a JSON array:\n${
-      JSON.stringify(batch.map((d) => d[column]), null, 2)
-    }\n\n${options.extraInstructions ? `\n${options.extraInstructions}` : ""}`;
+  const request = buildAIRowsRequest(
+    batch,
+    column,
+    newColumns,
+    prompt,
+    options,
+  );
 
   const retry = options.retry ?? 1;
 
@@ -78,16 +44,18 @@ export default async function tryAI(
   while (!testPassed && iterations <= retry) {
     try {
       newValues = await askAI<{ [key: string]: unknown }[]>(
-        `${fullPrompt}${
+        `${request.prompt}${
           iterations > 1
             ? `\nThis is your attempt #${iterations}. So get it right by following my instructions closely!`
             : ""
         }`,
         {
-          ...options,
+          generation: options.generation,
+          metrics: options.metrics,
+          verbose: options.verbose,
           includeThoughts: options.verbose ? true : false,
-          systemPrompt: systemPrompt,
-          schemaJson,
+          systemPrompt: request.systemPrompt,
+          schemaJson: request.schemaJson,
           processResponse: (rawResponse: unknown) =>
             processAIRowsResponse(
               rawResponse,

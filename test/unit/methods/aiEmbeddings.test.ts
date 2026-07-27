@@ -22,9 +22,12 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
-      provider: "gemini",
-      // Cache the results locally
-      cache: true,
+      embeddings: {
+        provider: "gemini",
+        model: "gemini-embedding-001",
+        // Cache the results locally
+        cache: true,
+      },
       // Avoid exceeding a rate limit by waiting between requests
       rateLimitPerMinute: 15,
       // Log details
@@ -49,9 +52,12 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
-      provider: "gemini",
-      // Cache the results locally
-      cache: true,
+      embeddings: {
+        provider: "gemini",
+        model: "gemini-embedding-001",
+        // Cache the results locally
+        cache: true,
+      },
       // Avoid exceeding a rate limit by waiting between requests
       rateLimitPerMinute: 15,
       // Log details
@@ -76,9 +82,12 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
-      provider: "gemini",
-      // Cache the results locally
-      cache: true,
+      embeddings: {
+        provider: "gemini",
+        model: "gemini-embedding-001",
+        // Cache the results locally
+        cache: true,
+      },
       // Avoid exceeding a rate limit by waiting between requests
       rateLimitPerMinute: 15,
       // Create an index on the new column "embeddings"
@@ -114,9 +123,11 @@ if (typeof ollama === "string" && ollama !== "") {
 
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
-      provider: "ollama",
-      // Cache the results locally
-      cache: true,
+      embeddings: {
+        provider: "ollama",
+        // Cache the results locally
+        cache: true,
+      },
       // Log details
       verbose: true,
     });
@@ -141,12 +152,14 @@ if (typeof ollama === "string" && ollama !== "") {
 
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
-      provider: "ollama",
-      // Cache the results locally
-      cache: true,
+      embeddings: {
+        provider: "ollama",
+        // Cache the results locally
+        cache: true,
+        ollama,
+      },
       // Log details
       verbose: true,
-      ollama,
     });
 
     // Just making sure it's doesnt crash for now
@@ -167,9 +180,11 @@ if (typeof ollama === "string" && ollama !== "") {
 
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
-      provider: "ollama",
-      // Cache the results locally
-      cache: true,
+      embeddings: {
+        provider: "ollama",
+        // Cache the results locally
+        cache: true,
+      },
       // Avoid exceeding a rate limit by waiting between requests
       // rateLimitPerMinute: 15,
       // Log details
@@ -194,9 +209,11 @@ if (typeof ollama === "string" && ollama !== "") {
 
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
-      provider: "ollama",
-      // Cache the results locally
-      cache: true,
+      embeddings: {
+        provider: "ollama",
+        // Cache the results locally
+        cache: true,
+      },
       // Avoid exceeding a rate limit by waiting between requests
       // rateLimitPerMinute: 15,
       // Create an index on the new column "embeddings"
@@ -223,9 +240,11 @@ if (typeof ollama === "string" && ollama !== "") {
 
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
-      provider: "ollama",
-      // Cache the results locally
-      cache: true,
+      embeddings: {
+        provider: "ollama",
+        // Cache the results locally
+        cache: true,
+      },
       // Avoid exceeding a rate limit by waiting between requests
       // rateLimitPerMinute: 15,
       // Create an index on the new column "embeddings"

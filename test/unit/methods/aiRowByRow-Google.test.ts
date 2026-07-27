@@ -8,6 +8,11 @@ const Deno = {
   env: globalThis.Deno.env,
   test: createEnvironmentTest({ AI_PROVIDER: "gemini" }),
 };
+const minimalGemini = {
+  provider: "gemini",
+  model: "gemini-3-flash-preview",
+  thinkingLevel: "minimal",
+} as const;
 const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
 if (typeof aiKey === "string" && aiKey !== "") {
   if (existsSync("./.journalism-cache")) {
@@ -29,8 +34,11 @@ if (typeof aiKey === "string" && aiKey !== "") {
       "gender",
       `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral".`,
       {
-        // Cache the results locally
-        cache: true,
+        generation: {
+          ...minimalGemini,
+          // Cache the results locally
+          cache: true,
+        },
         // Send 10 rows at once to the AI
         batchSize: 10,
         // Ensure the response contains only the expected categories
@@ -48,7 +56,6 @@ if (typeof aiKey === "string" && aiKey !== "") {
         retry: 3,
         // Avoid exceeding a rate limit by waiting between requests
         rateLimitPerMinute: 15,
-        thinkingLevel: "minimal",
         // Log details
         verbose: true,
       },
@@ -75,7 +82,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       "city",
       "country",
       `Give me the country of the city.`,
-      { verbose: true, thinkingLevel: "minimal" },
+      { generation: minimalGemini, verbose: true },
     );
     const data = await table.getData();
 
@@ -100,7 +107,10 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "city",
         "country",
         `Give me the country of the city.`,
-        { verbose: true, safetyEnabled: false, thinkingLevel: "minimal" },
+        {
+          generation: { ...minimalGemini, safetyEnabled: false },
+          verbose: true,
+        },
       );
       const data = await table.getData();
 
@@ -126,7 +136,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "city",
         ["country", "continent"],
         `Give me the country and continent of the city.`,
-        { verbose: true, thinkingLevel: "minimal" },
+        { generation: minimalGemini, verbose: true },
       );
       const data = await table.getData();
 
@@ -152,7 +162,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "city",
         ["country", "continent"],
         `Give me the country and continent of the city.`,
-        { verbose: true, batchSize: 2, thinkingLevel: "minimal" },
+        { generation: minimalGemini, verbose: true, batchSize: 2 },
       );
       const data = await table.getData();
 
@@ -184,7 +194,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "city",
         "country",
         `Give me the country of the city.`,
-        { verbose: true, thinkingLevel: "minimal", metrics },
+        { generation: minimalGemini, verbose: true, metrics },
       );
       console.table(metrics);
       const data = await table.getData();
@@ -218,9 +228,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "country",
         `Give me the country of the city.`,
         {
+          generation: { ...minimalGemini, thinkingLevel: "low" },
           verbose: true,
-          thinkingBudget: 1000,
-          model: "gemini-2.5-flash",
           metrics,
         },
       );
@@ -257,7 +266,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "city",
         "country",
         `Give me the country of the city.`,
-        { batchSize: 10, verbose: true, thinkingLevel: "minimal" },
+        { generation: minimalGemini, batchSize: 10, verbose: true },
       );
       const data = await table.getData();
 
@@ -299,7 +308,11 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "city",
         "country",
         `Give me the country of the city.`,
-        { batchSize: 10, cache: true, verbose: true, thinkingLevel: "minimal" },
+        {
+          generation: { ...minimalGemini, cache: true },
+          batchSize: 10,
+          verbose: true,
+        },
       );
       const data = await table.getData();
 
@@ -341,7 +354,11 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "city",
         "country",
         `Give me the country of the city.`,
-        { batchSize: 10, cache: true, verbose: true, thinkingLevel: "minimal" },
+        {
+          generation: { ...minimalGemini, cache: true },
+          batchSize: 10,
+          verbose: true,
+        },
       );
       const data = await table.getData();
 
@@ -383,7 +400,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "city",
         "country",
         `Give me the country of the city.`,
-        { batchSize: 10, verbose: true, thinkingLevel: "minimal" },
+        { generation: minimalGemini, batchSize: 10, verbose: true },
       );
       const data = await table.getData();
 
@@ -426,10 +443,10 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "country",
         `Give me the country of the city.`,
         {
+          generation: minimalGemini,
           batchSize: 10,
           verbose: true,
           rateLimitPerMinute: 15,
-          thinkingLevel: "minimal",
         },
       );
       const data = await table.getData();
@@ -473,10 +490,10 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "country",
         `Give me the country of the city.`,
         {
+          generation: minimalGemini,
           batchSize: 2,
           concurrent: 2,
           verbose: true,
-          thinkingLevel: "minimal",
         },
       );
       const data = await table.getData();
@@ -520,11 +537,11 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "country",
         `Give me the country of the city.`,
         {
+          generation: minimalGemini,
           batchSize: 2,
           concurrent: 2,
           verbose: true,
           rateLimitPerMinute: 15,
-          thinkingLevel: "minimal",
         },
       );
       const data = await table.getData();
@@ -568,12 +585,11 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "country",
         `Give me the country of the city.`,
         {
+          generation: { ...minimalGemini, cache: true },
           batchSize: 2,
           concurrent: 2,
           verbose: true,
           rateLimitPerMinute: 15,
-          cache: true,
-          thinkingLevel: "minimal",
         },
       );
       const data = await table.getData();
@@ -616,9 +632,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
       ["country", "population"],
       `Give me the country and population of the city.`,
       {
+        generation: minimalGemini,
         batchSize: 100,
         verbose: true,
-        thinkingLevel: "minimal",
       },
     );
     const data = await table.getData();
@@ -671,10 +687,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
         ["country", "population"],
         `Give me the country and population of the city.`,
         {
+          generation: { ...minimalGemini, schemaJson },
           batchSize: 100,
-          schemaJson,
           verbose: true,
-          thinkingLevel: "minimal",
         },
       );
       const data = await table.getData();
@@ -713,9 +728,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
       "bio",
       `Who is this?`,
       {
+        generation: minimalGemini,
         verbose: true,
-        model: "gemini-3-flash-preview",
-        thinkingLevel: "minimal",
       },
     );
 
@@ -738,10 +752,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
       "bio",
       `Who is this?`,
       {
+        generation: { ...minimalGemini, webSearch: true },
         verbose: true,
-        webSearch: true,
-        model: "gemini-3-flash-preview",
-        thinkingLevel: "minimal",
       },
     );
 
@@ -764,9 +776,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
       "age",
       `How old is this person? We are Feb 16, 2025.`,
       {
+        generation: minimalGemini,
         verbose: true,
-        model: "gemini-3-flash-preview",
-        thinkingLevel: "minimal",
       },
     );
 
@@ -789,9 +800,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
       "age",
       `How old is this person? We are Feb 16, 2025.`,
       {
+        generation: { ...minimalGemini, thinkingLevel: "high" },
         verbose: true,
-        model: "gemini-3-flash-preview",
-        thinkingLevel: "high",
       },
     );
 

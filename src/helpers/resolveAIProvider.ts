@@ -1,41 +1,13 @@
 import process from "node:process";
-import { Ollama } from "ollama";
+import resolveProvider, { type Provider } from "./resolveProvider.ts";
 
 /** A provider capable of generating AI responses. */
-export type AIProvider = "gemini" | "ollama";
-
-type AIProviderOptions = {
-  provider?: AIProvider;
-  ollama?: boolean | Ollama;
-};
+export type AIProvider = Provider;
 
 type AIProviderEnvironment = Record<string, string | undefined>;
 
 export default function resolveAIProvider(
-  options: AIProviderOptions = {},
   environment: AIProviderEnvironment = process.env,
 ): AIProvider {
-  if (options.provider) {
-    return options.provider;
-  }
-
-  if (options.ollama === true || options.ollama instanceof Ollama) {
-    return "ollama";
-  }
-
-  if (options.ollama === false) {
-    return "gemini";
-  }
-
-  if (environment.AI_PROVIDER) {
-    if (
-      environment.AI_PROVIDER !== "gemini" &&
-      environment.AI_PROVIDER !== "ollama"
-    ) {
-      throw new Error('AI_PROVIDER must be either "gemini" or "ollama".');
-    }
-    return environment.AI_PROVIDER;
-  }
-
-  return environment.OLLAMA ? "ollama" : "gemini";
+  return resolveProvider("AI_PROVIDER", environment);
 }

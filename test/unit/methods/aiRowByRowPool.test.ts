@@ -1,9 +1,37 @@
-import { assertEquals } from "@std/assert";
+import { assert, assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
 import * as z from "zod";
 
 // Testing just with Gemini
+
+const geminiGeneration = {
+  provider: "gemini",
+  model: "gemini-3-flash-preview",
+} as const;
+
+const cities = [
+  "Marrakech",
+  "Kyoto",
+  "Auckland",
+  "Paris",
+  "London",
+  "New York",
+  "Los Angeles",
+  "Tokyo",
+  "Beijing",
+  "Moscow",
+  "Berlin",
+];
+
+function assertPoolData(data: Record<string, unknown>[]) {
+  assertEquals(data.map((row) => row.city), cities);
+  for (const row of data) {
+    assert(typeof row.country === "string");
+    assert(typeof row.continent === "string");
+    assertEquals(row.errors, null);
+  }
+}
 
 const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
 if (typeof aiKey === "string" && aiKey !== "") {
@@ -13,19 +41,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should use a pool", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
+    table.loadArray(cities.map((city) => ({ city })));
 
     const metrics = {
       totalCost: 0,
@@ -41,8 +57,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `Give me the country and continent of the city.`,
       2,
       {
+        generation: { ...geminiGeneration, cache: true },
         batchSize: 2,
-        cache: true,
         logProgress: true,
         metrics,
       },
@@ -51,92 +67,13 @@ if (typeof aiKey === "string" && aiKey !== "") {
     console.table(metrics);
     const data = await table.getData();
 
-    assertEquals(data, [
-      {
-        city: "Marrakech",
-        country: "Morocco",
-        continent: "Africa",
-        errors: null,
-      },
-      {
-        city: "Kyoto",
-        country: "Japan",
-        continent: "Asia",
-        errors: null,
-      },
-      {
-        city: "Auckland",
-        country: "New Zealand",
-        continent: "Oceania",
-        errors: null,
-      },
-      {
-        city: "Paris",
-        country: "France",
-        continent: "Europe",
-        errors: null,
-      },
-      {
-        city: "London",
-        country: "United Kingdom",
-        continent: "Europe",
-        errors: null,
-      },
-      {
-        city: "New York",
-        country: "United States",
-        continent: "North America",
-        errors: null,
-      },
-      {
-        city: "Los Angeles",
-        country: "United States",
-        continent: "North America",
-        errors: null,
-      },
-      {
-        city: "Tokyo",
-        country: "Japan",
-        continent: "Asia",
-        errors: null,
-      },
-      {
-        city: "Beijing",
-        country: "China",
-        continent: "Asia",
-        errors: null,
-      },
-      {
-        city: "Moscow",
-        country: "Russia",
-        continent: "Europe",
-        errors: null,
-      },
-      {
-        city: "Berlin",
-        country: "Germany",
-        continent: "Europe",
-        errors: null,
-      },
-    ]);
+    assertPoolData(data);
     await sdb.done();
   });
   Deno.test("should use a pool and return cached data", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
+    table.loadArray(cities.map((city) => ({ city })));
 
     const metrics = {
       totalCost: 0,
@@ -152,8 +89,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `Give me the country and continent of the city.`,
       2,
       {
+        generation: { ...geminiGeneration, cache: true },
         batchSize: 2,
-        cache: true,
         logProgress: true,
         metrics,
       },
@@ -162,74 +99,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     console.table(metrics);
     const data = await table.getData();
 
-    assertEquals(data, [
-      {
-        city: "Marrakech",
-        country: "Morocco",
-        continent: "Africa",
-        errors: null,
-      },
-      {
-        city: "Kyoto",
-        country: "Japan",
-        continent: "Asia",
-        errors: null,
-      },
-      {
-        city: "Auckland",
-        country: "New Zealand",
-        continent: "Oceania",
-        errors: null,
-      },
-      {
-        city: "Paris",
-        country: "France",
-        continent: "Europe",
-        errors: null,
-      },
-      {
-        city: "London",
-        country: "United Kingdom",
-        continent: "Europe",
-        errors: null,
-      },
-      {
-        city: "New York",
-        country: "United States",
-        continent: "North America",
-        errors: null,
-      },
-      {
-        city: "Los Angeles",
-        country: "United States",
-        continent: "North America",
-        errors: null,
-      },
-      {
-        city: "Tokyo",
-        country: "Japan",
-        continent: "Asia",
-        errors: null,
-      },
-      {
-        city: "Beijing",
-        country: "China",
-        continent: "Asia",
-        errors: null,
-      },
-      {
-        city: "Moscow",
-        country: "Russia",
-        continent: "Europe",
-        errors: null,
-      },
-      {
-        city: "Berlin",
-        country: "Germany",
-        continent: "Europe",
-        errors: null,
-      },
-    ]);
+    assertPoolData(data);
     await sdb.done();
   });
   Deno.test("should analyze sentiment with test function and retry - docs example 1", async () => {
@@ -251,7 +121,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `Classify the sentiment as "Positive", "Negative", or "Neutral".`,
       2, // poolSize: 2 concurrent requests
       {
-        cache: true,
+        generation: { ...geminiGeneration, cache: true },
         batchSize: 2, // Process 2 rows per request
         logProgress: true,
         test: (data: { [key: string]: unknown }) => {
@@ -301,8 +171,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `For the given product, provide the category and typical price range.`,
       3, // Process up to 3 products concurrently
       {
+        generation: { ...geminiGeneration, cache: true },
         logProgress: true,
-        cache: true,
       },
     );
 
@@ -343,7 +213,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `Give me a result.`,
       2,
       {
-        cache: true,
+        generation: { ...geminiGeneration, cache: true },
         logProgress: true,
         batchSize: 1,
         test: (_data: { [key: string]: unknown }) => {
@@ -389,7 +259,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral".`,
       2,
       {
-        cache: true,
+        generation: { ...geminiGeneration, cache: true },
         batchSize: 1,
         test: (data: { [key: string]: unknown }) => {
           if (
@@ -442,6 +312,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `Give me the country and population of the city.`,
       100,
       {
+        generation: geminiGeneration,
         batchSize: 2,
         logProgress: true,
       },
@@ -495,7 +366,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `Give me the country and population of the city.`,
       100,
       {
-        schemaJson,
+        generation: { ...geminiGeneration, schemaJson },
         batchSize: 2,
         logProgress: true,
         verbose: true,
@@ -538,8 +409,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `Who is this?`,
       100,
       {
+        generation: geminiGeneration,
         verbose: true,
-        model: "gemini-3-flash-preview",
       },
     );
 
@@ -564,9 +435,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `Who is this?`,
       100,
       {
+        generation: { ...geminiGeneration, webSearch: true },
         verbose: true,
-        webSearch: true,
-        model: "gemini-3-flash-preview",
       },
     );
 
@@ -591,8 +461,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `How old is this person? We are Feb 16, 2025.`,
       100,
       {
+        generation: geminiGeneration,
         verbose: true,
-        model: "gemini-3-flash-preview",
       },
     );
 
@@ -617,9 +487,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `How old is this person? We are Feb 16, 2025.`,
       100,
       {
+        generation: { ...geminiGeneration, thinkingLevel: "high" },
         verbose: true,
-        model: "gemini-3-flash-preview",
-        thinkingLevel: "high",
       },
     );
 
@@ -630,4 +499,38 @@ if (typeof aiKey === "string" && aiKey !== "") {
   });
 } else {
   console.log("No AI_KEY or AI_PROJECT in process.env");
+}
+
+const ollama = Deno.env.get("OLLAMA");
+if (typeof ollama === "string" && ollama !== "") {
+  Deno.test(
+    "should use an Ollama generation pool",
+    { sanitizeResources: false },
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("data");
+      table.loadArray([
+        { city: "Marrakech" },
+        { city: "Kyoto" },
+      ]);
+
+      await table.aiRowByRowPool(
+        "city",
+        "country",
+        "error",
+        "Give me the country of the city.",
+        2,
+        {
+          generation: { provider: "ollama" },
+          batchSize: 1,
+        },
+      );
+
+      const data = await table.getData();
+      assertEquals(data.length, 2);
+      assertEquals(data.every((row) => typeof row.country === "string"), true);
+      assertEquals(data.every((row) => row.error === null), true);
+      await sdb.done();
+    },
+  );
 }

@@ -2,6 +2,15 @@ import { assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
 
+const geminiEmbeddings = {
+  provider: "gemini",
+  model: "gemini-embedding-001",
+  cache: true,
+} as const;
+const ollamaEmbeddings = {
+  provider: "ollama",
+} as const;
+
 const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
 if (typeof aiKey === "string" && aiKey !== "") {
   if (existsSync("./.journalism-cache")) {
@@ -29,9 +38,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "Recipe",
         10,
         {
-          embeddingsProvider: "gemini",
+          embeddings: geminiEmbeddings,
           embeddingsConcurrent: 100,
-          cache: true,
           verbose: true,
         },
       );
@@ -69,9 +77,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "Recipe",
         5,
         {
-          embeddingsProvider: "gemini",
+          embeddings: geminiEmbeddings,
           embeddingsConcurrent: 100,
-          cache: true,
         },
       );
 
@@ -98,9 +105,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "Recipe",
         5,
         {
-          embeddingsProvider: "gemini",
+          embeddings: geminiEmbeddings,
           embeddingsConcurrent: 100,
-          cache: true,
           outputTable: "italian_search_results",
         },
       );
@@ -132,9 +138,8 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "Recipe",
         5,
         {
-          embeddingsProvider: "gemini",
+          embeddings: geminiEmbeddings,
           embeddingsConcurrent: 100,
-          cache: true,
           stemmer: "french",
           k: 1.5,
           b: 0.8,
@@ -164,8 +169,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "Recipe",
         3,
         {
-          embeddingsProvider: "gemini",
-          cache: true,
+          embeddings: geminiEmbeddings,
           createIndex: true,
           verbose: true,
         },
@@ -196,8 +200,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "Recipe",
         10,
         {
-          embeddingsProvider: "gemini",
-          cache: true,
+          embeddings: geminiEmbeddings,
           outputTable: "results_conjunctive_false",
         },
       );
@@ -211,8 +214,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "Recipe",
         10,
         {
-          embeddingsProvider: "gemini",
-          cache: true,
+          embeddings: geminiEmbeddings,
           conjunctive: true,
           outputTable: "results_conjunctive_true",
         },
@@ -237,8 +239,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       table.removeMissing({ columns: "Recipe" });
 
       const results = await table.hybridSearch("pasta", "Dish", "Recipe", 5, {
-        embeddingsProvider: "gemini",
-        cache: true,
+        embeddings: geminiEmbeddings,
         stopwords: "english",
         stemmer: "english",
         lower: true,
@@ -280,8 +281,7 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         10,
         {
-          cache: true,
-          ollamaEmbeddings: true,
+          embeddings: ollamaEmbeddings,
           verbose: true,
         },
       );
@@ -321,8 +321,7 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         5,
         {
-          cache: true,
-          ollamaEmbeddings: true,
+          embeddings: ollamaEmbeddings,
         },
       );
 
@@ -351,8 +350,7 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         5,
         {
-          cache: true,
-          ollamaEmbeddings: true,
+          embeddings: ollamaEmbeddings,
           outputTable: "italian_search_results",
         },
       );
@@ -386,8 +384,7 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         5,
         {
-          cache: true,
-          ollamaEmbeddings: true,
+          embeddings: ollamaEmbeddings,
           stemmer: "french",
           k: 1.5,
           b: 0.8,
@@ -419,8 +416,7 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         3,
         {
-          cache: true,
-          ollamaEmbeddings: true,
+          embeddings: ollamaEmbeddings,
           createIndex: true,
           verbose: true,
         },
@@ -451,8 +447,7 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         5,
         {
-          cache: true,
-          ollamaEmbeddings: true,
+          embeddings: ollamaEmbeddings,
           vectorSearch: false, // Disable vector search
           bm25: true, // Enable only BM25
           verbose: true,
@@ -484,8 +479,7 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         5,
         {
-          cache: true,
-          ollamaEmbeddings: true,
+          embeddings: ollamaEmbeddings,
           vectorSearch: true, // Enable only vector search
           bm25: false, // Disable BM25
           verbose: true,
@@ -519,8 +513,7 @@ if (typeof ollama === "string" && ollama !== "") {
           "Recipe",
           5,
           {
-            cache: true,
-            ollamaEmbeddings: true,
+            embeddings: ollamaEmbeddings,
             vectorSearch: false,
             bm25: false,
           },
@@ -557,7 +550,7 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         10,
         {
-          cache: true,
+          embeddings: ollamaEmbeddings,
           vectorMinSimilarity: 0.6, // Only include vector results with at least 60% similarity
           bm25MinScore: 1.4, // Only include BM25 results with a score above 1.5
           bm25ScoreColumn: "bm25_score", // Add BM25 scores to the results
@@ -588,7 +581,7 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         10,
         {
-          cache: true,
+          embeddings: ollamaEmbeddings,
           vectorMinSimilarity: 0.9, // Only include vector results with at least 60% similarity
           bm25MinScore: 2, // Only include BM25 results with a score above 1.5
           bm25ScoreColumn: "bm25_score", // Add BM25 scores to the results
@@ -621,7 +614,7 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         10,
         {
-          cache: true,
+          embeddings: ollamaEmbeddings,
           outputTable: "results_conjunctive_false",
         },
       );
@@ -634,7 +627,7 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         10,
         {
-          cache: true,
+          embeddings: ollamaEmbeddings,
           conjunctive: true,
           outputTable: "results_conjunctive_true",
         },
@@ -669,7 +662,7 @@ if (typeof ollama === "string" && ollama !== "") {
           stemmer: "none",
           lower: false,
           stripAccents: false,
-          cache: true,
+          embeddings: ollamaEmbeddings,
           verbose: true,
           outputTable: "custom_bm25_results",
         },
@@ -700,7 +693,7 @@ if (typeof ollama === "string" && ollama !== "") {
         5,
         {
           stopwords: "english",
-          cache: true,
+          embeddings: ollamaEmbeddings,
           verbose: true,
           outputTable: "stopwords_results",
         },

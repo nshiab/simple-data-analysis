@@ -1,15 +1,32 @@
 import { assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
-import { existsSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync } from "node:fs";
 import createEnvironmentTest from "../helpers/createEnvironmentTest.ts";
 
 const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
 const ollama = Deno.env.get("OLLAMA");
 const hasAiKey = typeof aiKey === "string" && aiKey !== "";
 const hasOllama = typeof ollama === "string" && ollama !== "";
+const geminiGeneration = {
+  provider: "gemini",
+  model: "gemini-3-flash-preview",
+} as const;
+const geminiEmbeddings = {
+  provider: "gemini",
+  model: "gemini-embedding-001",
+} as const;
+const ollamaGeneration = {
+  provider: "ollama",
+  contextWindow: 128_000,
+} as const;
+const ollamaEmbeddings = {
+  provider: "ollama",
+  contextWindow: 2_000,
+} as const;
 const mixedProviderTest = createEnvironmentTest({
   AI_PROVIDER: "gemini",
   AI_EMBEDDINGS_PROVIDER: "ollama",
+  AI_MODEL: "gemini-3-flash-preview",
 });
 if (hasAiKey) {
   if (existsSync("./.journalism-cache")) {
@@ -36,8 +53,6 @@ if (hasAiKey) {
           "Recipe",
           10,
           {
-            cache: true,
-            model: "gemini-3-flash-preview",
             // embeddingsConcurrent: 10,
             verbose: true,
           },
@@ -68,10 +83,8 @@ if (hasAiKey) {
           "Recipe",
           10,
           {
-            cache: true,
-            provider: "gemini",
-            embeddingsProvider: "ollama",
-            model: "gemini-3-flash-preview",
+            generation: { ...geminiGeneration, cache: true },
+            embeddings: { ...ollamaEmbeddings, cache: true },
             // verbose: true,
           },
         );
@@ -101,11 +114,12 @@ if (hasAiKey) {
           "Recipe",
           10,
           {
-            cache: true,
-            thinkingLevel: "minimal",
-            provider: "gemini",
-            embeddingsProvider: "ollama",
-            model: "gemini-3-flash-preview",
+            generation: {
+              ...geminiGeneration,
+              cache: true,
+              thinkingLevel: "minimal",
+            },
+            embeddings: { ...ollamaEmbeddings, cache: true },
             // verbose: true,
           },
         );
@@ -135,11 +149,13 @@ if (hasAiKey) {
           "Recipe",
           10,
           {
-            systemPrompt:
-              "Answer the question based on provided data. Make sure it rhymes.",
-            cache: true,
-            provider: "gemini",
-            embeddingsProvider: "ollama",
+            generation: {
+              ...geminiGeneration,
+              systemPrompt:
+                "Answer the question based on provided data. Make sure it rhymes.",
+              cache: true,
+            },
+            embeddings: { ...ollamaEmbeddings, cache: true },
             // verbose: true,
           },
         );
@@ -169,11 +185,12 @@ if (hasAiKey) {
           "Recipe",
           10,
           {
-            cache: true,
-            thinkingLevel: "minimal",
-            provider: "gemini",
-            embeddingsProvider: "ollama",
-            model: "gemini-3-flash-preview",
+            generation: {
+              ...geminiGeneration,
+              cache: true,
+              thinkingLevel: "minimal",
+            },
+            embeddings: { ...ollamaEmbeddings, cache: true },
             //  verbose: true,
           },
         );
@@ -203,11 +220,9 @@ if (hasAiKey) {
         "Recipe",
         10,
         {
-          provider: "gemini",
-          cache: true,
+          generation: { ...geminiGeneration, cache: true },
           vectorSearch: false, // Disable vector search
           bm25: true, // Enable only BM25
-          model: "gemini-3-flash-preview",
           verbose: true,
         },
       );
@@ -236,13 +251,11 @@ if (hasAiKey) {
         "Recipe",
         10,
         {
-          provider: "gemini",
-          embeddingsProvider: "gemini",
+          generation: { ...geminiGeneration, cache: true },
+          embeddings: { ...geminiEmbeddings, cache: true },
           embeddingsConcurrent: 100,
-          cache: true,
           vectorSearch: true, // Enable only vector search
           bm25: false, // Disable BM25
-          model: "gemini-3-flash-preview",
           verbose: true,
         },
       );
@@ -266,11 +279,9 @@ if (hasAiKey) {
       table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG("fennel garlic", "Dish", "Recipe", 3, {
-        provider: "gemini",
-        embeddingsProvider: "gemini",
-        cache: true,
+        generation: { ...geminiGeneration, cache: true },
+        embeddings: { ...geminiEmbeddings, cache: true },
         conjunctive: true,
-        model: "gemini-3-flash-preview",
         verbose: true,
       });
 
@@ -309,12 +320,12 @@ if (hasOllama) {
         "Recipe",
         10,
         {
-          provider: "ollama",
-          embeddingsProvider: "ollama",
-          cache: true,
-          modelContextWindow: 128_000,
-          embeddingsModelContextWindow: 2_000,
-          thinkingLevel: "minimal",
+          generation: {
+            ...ollamaGeneration,
+            cache: true,
+            thinkingLevel: true,
+          },
+          embeddings: { ...ollamaEmbeddings, cache: true },
           verbose: true,
         },
       );
@@ -340,11 +351,8 @@ if (hasOllama) {
       "Recipe",
       10,
       {
-        provider: "ollama",
-        embeddingsProvider: "ollama",
-        cache: true,
-        modelContextWindow: 128_000,
-        embeddingsModelContextWindow: 2_000,
+        generation: { ...ollamaGeneration, cache: true },
+        embeddings: { ...ollamaEmbeddings, cache: true },
         // verbose: true,
       },
     );
@@ -372,12 +380,12 @@ if (hasOllama) {
         "Recipe",
         10,
         {
-          provider: "ollama",
-          embeddingsProvider: "ollama",
-          cache: true,
-          thinkingLevel: "minimal",
-          modelContextWindow: 128_000,
-          embeddingsModelContextWindow: 2_000,
+          generation: {
+            ...ollamaGeneration,
+            cache: true,
+            thinkingLevel: true,
+          },
+          embeddings: { ...ollamaEmbeddings, cache: true },
           // verbose: true,
         },
       );
@@ -406,13 +414,13 @@ if (hasOllama) {
         "Recipe",
         10,
         {
-          provider: "ollama",
-          embeddingsProvider: "ollama",
-          systemPrompt:
-            "Answer the question based on provided data. Make sure it rhymes.",
-          cache: true,
-          modelContextWindow: 128_000,
-          embeddingsModelContextWindow: 2_000,
+          generation: {
+            ...ollamaGeneration,
+            systemPrompt:
+              "Answer the question based on provided data. Make sure it rhymes.",
+            cache: true,
+          },
+          embeddings: { ...ollamaEmbeddings, cache: true },
           // verbose: true,
         },
       );
@@ -441,12 +449,12 @@ if (hasOllama) {
         "Recipe",
         10,
         {
-          provider: "ollama",
-          embeddingsProvider: "ollama",
-          cache: true,
-          thinkingLevel: "minimal",
-          modelContextWindow: 128_000,
-          embeddingsModelContextWindow: 2_000,
+          generation: {
+            ...ollamaGeneration,
+            cache: true,
+            thinkingLevel: true,
+          },
+          embeddings: { ...ollamaEmbeddings, cache: true },
           // verbose: true,
         },
       );
@@ -462,6 +470,9 @@ if (hasOllama) {
     "should answer a question using RAG with a DB that already exists and store in cache",
     { sanitizeResources: false },
     async () => {
+      if (!existsSync("test/output")) {
+        mkdirSync("test/output", { recursive: true });
+      }
       // First iteration of the test, we remove
       if (existsSync("test/output/recipes.db")) {
         rmSync("test/output/recipes.db");
@@ -476,9 +487,11 @@ if (hasOllama) {
         });
         table = sdb.newTable("data");
         table.loadData("test/data/files/recipes.parquet");
+        table.removeDuplicates({ on: "Dish" });
         table.removeMissing({ columns: "Recipe" });
       } else {
         sdb = new SimpleDB({ cacheVerbose: true });
+        await sdb.customQuery("INSTALL vss; LOAD vss;");
         await sdb.loadDB("test/output/recipes.db");
         table = await sdb.getTable("data");
       }
@@ -491,12 +504,9 @@ if (hasOllama) {
         "Recipe",
         10,
         {
-          provider: "ollama",
-          embeddingsProvider: "ollama",
-          cache: true,
+          generation: { ...ollamaGeneration, cache: true },
+          embeddings: { ...ollamaEmbeddings, cache: true },
           createIndex: true,
-          modelContextWindow: 128_000,
-          embeddingsModelContextWindow: 2_000,
           verbose: true,
         },
       );
@@ -522,9 +532,11 @@ if (hasOllama) {
         });
         table = sdb.newTable("data");
         table.loadData("test/data/files/recipes.parquet");
+        table.removeDuplicates({ on: "Dish" });
         table.removeMissing({ columns: "Recipe" });
       } else {
         sdb = new SimpleDB({ cacheVerbose: true });
+        await sdb.customQuery("INSTALL vss; LOAD vss;");
         await sdb.loadDB("test/output/recipes.db");
         table = await sdb.getTable("data");
       }
@@ -537,12 +549,9 @@ if (hasOllama) {
         "Recipe",
         10,
         {
-          provider: "ollama",
-          embeddingsProvider: "ollama",
-          cache: true,
+          generation: { ...ollamaGeneration, cache: true },
+          embeddings: { ...ollamaEmbeddings, cache: true },
           createIndex: true,
-          modelContextWindow: 128_000,
-          embeddingsModelContextWindow: 2_000,
           verbose: true,
         },
       );
@@ -571,10 +580,8 @@ if (hasOllama) {
         "Recipe",
         10,
         {
-          provider: "ollama",
-          embeddingsProvider: "ollama",
-          cache: true,
-          ollamaEmbeddings: true,
+          generation: { ...ollamaGeneration, cache: true },
+          embeddings: { ...ollamaEmbeddings, cache: true },
           vectorSearch: false, // Disable vector search
           bm25: true, // Enable only BM25
           verbose: true,
@@ -605,10 +612,8 @@ if (hasOllama) {
         "Recipe",
         10,
         {
-          provider: "ollama",
-          embeddingsProvider: "ollama",
-          cache: true,
-          ollamaEmbeddings: true,
+          generation: { ...ollamaGeneration, cache: true },
+          embeddings: { ...ollamaEmbeddings, cache: true },
           vectorSearch: true, // Enable only vector search
           bm25: false, // Disable BM25
           verbose: true,
@@ -638,10 +643,8 @@ if (hasOllama) {
         "Recipe",
         10,
         {
-          provider: "ollama",
-          embeddingsProvider: "ollama",
-          cache: true,
-          ollamaEmbeddings: true,
+          generation: { ...ollamaGeneration, cache: true },
+          embeddings: { ...ollamaEmbeddings, cache: true },
           verbose: true,
           bm25MinScore: 0.1, // Set a low BM25 min score to see more results
           bm25ScoreColumn: "bm25_score", // Log BM25 scores in this column
@@ -668,9 +671,8 @@ if (hasOllama) {
       table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG("fennel garlic", "Dish", "Recipe", 3, {
-        provider: "ollama",
-        embeddingsProvider: "ollama",
-        cache: true,
+        generation: { ...ollamaGeneration, cache: true },
+        embeddings: { ...ollamaEmbeddings, cache: true },
         conjunctive: true,
         verbose: true,
       });
@@ -694,12 +696,11 @@ if (hasOllama) {
 
       // Using custom BM25 options in RAG context
       const answer = await table.aiRAG("italian food", "Dish", "Recipe", 5, {
-        provider: "ollama",
-        embeddingsProvider: "ollama",
+        generation: { ...ollamaGeneration, cache: true },
+        embeddings: { ...ollamaEmbeddings, cache: true },
         stemmer: "none",
         lower: false,
         stripAccents: false,
-        cache: true,
         verbose: true,
       });
 
@@ -721,15 +722,19 @@ if (hasOllama) {
       table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
-        "the a for with dish",
+        "the a for with pasta dish",
         "Dish",
         "Recipe",
         5,
         {
-          provider: "ollama",
-          embeddingsProvider: "ollama",
+          generation: {
+            ...ollamaGeneration,
+            cache: true,
+            contextWindow: 8_000,
+            thinkingLevel: false,
+          },
+          embeddings: { ...ollamaEmbeddings, cache: true },
           stopwords: "english",
-          cache: true,
           verbose: true,
         },
       );

@@ -1,39 +1,53 @@
-import { getEmbedding } from "@nshiab/journalism-ai";
-import type { EmbeddingProvider } from "../helpers/resolveEmbeddingProvider.ts";
 import type { SimpleTable } from "../index.ts";
-import type { Ollama } from "ollama";
 import {
   mergeOptions,
   queryDB,
 } from "@nshiab/simple-data-analysis-core/helpers";
+import type { EmbeddingOptions } from "../helpers/aiOptions.ts";
+import { getEmbeddingForProvider } from "../helpers/tryEmbedding.ts";
+
+/**
+ * Options for embedding a query and finding similar table rows.
+ *
+ * @example
+ * ```ts
+ * const options: AIVectorSimilarityOptions = {
+ *   embeddings: { provider: "gemini", cache: true },
+ *   minSimilarity: 0.7,
+ * };
+ * ```
+ */
+export type AIVectorSimilarityOptions = {
+  /** Options used to embed the query text. */
+  embeddings?: EmbeddingOptions;
+  /** Creates a vector-similarity index on the stored embedding column. */
+  createIndex?: boolean;
+  /** Replaces an existing vector-similarity index when creating one. */
+  overwriteIndex?: boolean;
+  /** Writes results to a new table instead of replacing the current table. */
+  outputTable?: string;
+  /** Logs embedding and index activity when enabled. */
+  verbose?: boolean;
+  /** Candidate count used while constructing the vector index. */
+  efConstruction?: number;
+  /** Candidate count used while searching the vector index. */
+  efSearch?: number;
+  /** Maximum number of graph neighbors retained by the vector index. */
+  M?: number;
+  /** Minimum cosine similarity required for a row to be returned. */
+  minSimilarity?: number;
+  /** Adds cosine similarity scores under this output column name. */
+  similarityColumn?: string;
+};
 
 export default async function aiVectorSimilarity(
   simpleTable: SimpleTable,
   text: string,
   column: string,
   nbResults: number,
-  options: {
-    provider?: EmbeddingProvider;
-    cache?: boolean;
-    createIndex?: boolean;
-    overwriteIndex?: boolean;
-    outputTable?: string;
-    verbose?: boolean;
-    efConstruction?: number;
-    efSearch?: number;
-    M?: number;
-    minSimilarity?: number;
-    similarityColumn?: string;
-    model?: string;
-    apiKey?: string;
-    vertex?: boolean;
-    project?: string;
-    location?: string;
-    ollama?: boolean | Ollama;
-    contextWindow?: number;
-  } = {},
+  options: AIVectorSimilarityOptions = {},
 ) {
-  const textEmbedding = await getEmbedding(text, options);
+  const textEmbedding = await getEmbeddingForProvider(text, options.embeddings);
 
   const types = await simpleTable.getTypes();
   if (types[column] !== `FLOAT[${textEmbedding.length}]`) {

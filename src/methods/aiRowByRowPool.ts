@@ -1,10 +1,51 @@
 import type SimpleTable from "../class/SimpleTable.ts";
 import askAI from "../helpers/askAI.ts";
+import buildAIRowsRequest from "../helpers/buildAIRowsRequest.ts";
 import processAIRowsResponse from "../helpers/processAIRowsResponse.ts";
 import runAIRequestPool from "../helpers/runAIRequestPool.ts";
-import { array, object, string, toJSONSchema } from "zod";
+import type {
+  AIRequestMetrics,
+  GenerationOptions,
+} from "../helpers/aiOptions.ts";
 
 type AIRow = { [key: string]: unknown };
+
+/**
+ * Options for pool-based AI row processing.
+ *
+ * @example
+ * ```ts
+ * const options: AIRowByRowPoolOptions = {
+ *   generation: { provider: "ollama", cache: true },
+ *   batchSize: 10,
+ *   retry: 2,
+ * };
+ * ```
+ */
+export type AIRowByRowPoolOptions = {
+  /** Provider-specific generation options, or options for the environment-selected provider. */
+  generation?: GenerationOptions;
+  /** Number of rows sent in each request. */
+  batchSize?: number;
+  /** Logs pool progress when enabled. */
+  logProgress?: boolean;
+  /** Logs prompts and provider responses when enabled. */
+  verbose?: boolean;
+  /** Validates each processed result and throws to trigger a retry. */
+  test?: (result: AIRow) => void;
+  /** Number of retries after a request or validation failure. */
+  retry?: number;
+  /** Decides whether a failed request should be retried. */
+  retryCheck?: (error: unknown) => Promise<boolean> | boolean;
+  /** Additional instructions appended to the row-processing prompt. */
+  extraInstructions?: string;
+  /** Minimum duration allocated to each pooled request. */
+  minRequestDurationMs?: number;
+  /** Transforms a parsed response before validation and storage. */
+  clean?: (response: unknown) => unknown;
+  /** Mutable aggregate request metrics updated after each provider response. */
+  metrics?: AIRequestMetrics;
+};
 
 export default async function aiRowByRowPool(
   table: SimpleTable,
@@ -13,33 +54,7 @@ export default async function aiRowByRowPool(
   errorColumn: string,
   prompt: string,
   poolSize: number,
-  options: {
-    cache?: boolean;
-    batchSize?: number;
-    logProgress?: boolean;
-    verbose?: boolean;
-    test?: (result: AIRow) => void;
-    retry?: number;
-    retryCheck?: (error: unknown) => Promise<boolean> | boolean;
-    extraInstructions?: string;
-    minRequestDurationMs?: number;
-    clean?: (response: unknown) => unknown;
-    thinkingLevel?: "minimal" | "low" | "medium" | "high";
-    webSearch?: boolean;
-    safetyEnabled?: boolean;
-    schemaJson?: unknown;
-    model?: string;
-    apiKey?: string;
-    vertex?: boolean;
-    project?: string;
-    location?: string;
-    metrics?: {
-      totalCost: number;
-      totalInputTokens: number;
-      totalOutputTokens: number;
-      totalRequests: number;
-    };
-  },
+  options: AIRowByRowPoolOptions,
 ) {
   const newColumns = Array.isArray(newColumn) ? newColumn : [newColumn];
 
@@ -54,26 +69,20 @@ export default async function aiRowByRowPool(
     }
 
     const requests = batches.map((batch) => {
-      const schemaJson = options.schemaJson ?? toJSONSchema(array(object(
-        Object.fromEntries(newColumns.map((name) => [name, string()])),
-      )));
-      const systemPrompt =
-        `You will be provided with a JSON array of ${batch.length} string items. You must return a JSON array containing exactly ${batch.length} objects, in the same corresponding order.`;
-      const batchPrompt =
-        `${prompt}\n\nHere are the ${column} values as a JSON array:\n${
-          JSON.stringify(batch.map((row) => row[column]), null, 2)
-        }\n\n${
-          options.extraInstructions ? `\n${options.extraInstructions}` : ""
-        }`;
+      const request = buildAIRowsRequest(
+        batch,
+        column,
+        newColumns,
+        prompt,
+        options,
+      );
 
       if (options.verbose) {
-        console.log(`\nPrompt:\n${batchPrompt}`);
+        console.log(`\nPrompt:\n${request.prompt}`);
       }
 
       return {
-        prompt: batchPrompt,
-        systemPrompt,
-        schemaJson,
+        ...request,
         processResponse: (response: unknown) =>
           processAIRowsResponse(
             response,
@@ -87,18 +96,9 @@ export default async function aiRowByRowPool(
     const { results, errors } = await runAIRequestPool(
       requests.map((request) => () =>
         askAI<AIRow[]>(request.prompt, {
-          provider: "gemini",
+          generation: options.generation,
           systemPrompt: request.systemPrompt,
-          cache: options.cache,
           schemaJson: request.schemaJson,
-          webSearch: options.webSearch,
-          model: options.model,
-          thinkingLevel: options.thinkingLevel,
-          safetyEnabled: options.safetyEnabled,
-          apiKey: options.apiKey,
-          vertex: options.vertex,
-          project: options.project,
-          location: options.location,
           metrics: options.metrics,
           verbose: options.verbose,
           processResponse: request.processResponse,

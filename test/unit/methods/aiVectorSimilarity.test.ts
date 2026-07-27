@@ -9,6 +9,7 @@ const Deno = {
   env: globalThis.Deno.env,
   test: createEnvironmentTest({ AI_EMBEDDINGS_PROVIDER: "ollama" }),
 };
+const ollamaEmbeddings = { provider: "ollama", cache: true } as const;
 const ollama = Deno.env.get("OLLAMA");
 if (typeof ollama === "string" && ollama !== "") {
   if (existsSync("./.journalism-cache")) {
@@ -32,7 +33,7 @@ if (typeof ollama === "string" && ollama !== "") {
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
       // Cache the results locally
-      cache: true,
+      embeddings: ollamaEmbeddings,
       concurrent: 3,
     });
 
@@ -45,7 +46,7 @@ if (typeof ollama === "string" && ollama !== "") {
         // Create an index on the embeddings column
         createIndex: true,
         // Cache the results locally
-        cache: true,
+        embeddings: ollamaEmbeddings,
       },
     );
 
@@ -71,7 +72,7 @@ if (typeof ollama === "string" && ollama !== "") {
       // Ask the AI to generate embeddings in a new column "embeddings".
       await table.aiEmbeddings("food", "embeddings", {
         // Cache the results locally
-        cache: true,
+        embeddings: ollamaEmbeddings,
         concurrent: 3,
       });
 
@@ -86,8 +87,7 @@ if (typeof ollama === "string" && ollama !== "") {
           // Create an index on the embeddings column
           createIndex: true,
           // Cache the results locally
-          cache: true,
-          ollama,
+          embeddings: { ...ollamaEmbeddings, ollama },
         },
       );
 
@@ -109,7 +109,7 @@ if (typeof ollama === "string" && ollama !== "") {
       { food: "tacos" },
     ]);
     await table.aiEmbeddings("food", "embeddings", {
-      cache: true,
+      embeddings: ollamaEmbeddings,
       concurrent: 4,
     });
 
@@ -118,7 +118,7 @@ if (typeof ollama === "string" && ollama !== "") {
       "embeddings",
       3,
       {
-        cache: true,
+        embeddings: ollamaEmbeddings,
       },
     );
 
@@ -142,7 +142,7 @@ if (typeof ollama === "string" && ollama !== "") {
         { food: "tacos" },
       ]);
       await table.aiEmbeddings("food", "embeddings", {
-        cache: true,
+        embeddings: ollamaEmbeddings,
         concurrent: 6,
       });
 
@@ -151,7 +151,7 @@ if (typeof ollama === "string" && ollama !== "") {
         "embeddings",
         3,
         {
-          cache: true,
+          embeddings: ollamaEmbeddings,
         },
       );
 
@@ -176,7 +176,7 @@ if (typeof ollama === "string" && ollama !== "") {
         { food: "tacos" },
       ]);
       await table.aiEmbeddings("food", "embeddings", {
-        cache: true,
+        embeddings: ollamaEmbeddings,
         concurrent: 10,
       });
 
@@ -185,7 +185,7 @@ if (typeof ollama === "string" && ollama !== "") {
         "embeddings",
         3,
         {
-          cache: true,
+          embeddings: ollamaEmbeddings,
           createIndex: true,
         },
       );
@@ -211,7 +211,7 @@ if (typeof ollama === "string" && ollama !== "") {
         { food: "tacos" },
       ]);
       await table.aiEmbeddings("food", "embeddings", {
-        cache: true,
+        embeddings: ollamaEmbeddings,
         concurrent: 100,
       });
 
@@ -221,7 +221,7 @@ if (typeof ollama === "string" && ollama !== "") {
         3,
         {
           outputTable: "americanFood",
-          cache: true,
+          embeddings: ollamaEmbeddings,
           createIndex: true,
         },
       );
@@ -232,7 +232,7 @@ if (typeof ollama === "string" && ollama !== "") {
         3,
         {
           outputTable: "italianFood",
-          cache: true,
+          embeddings: ollamaEmbeddings,
           createIndex: true,
         },
       );
@@ -265,7 +265,7 @@ if (typeof ollama === "string" && ollama !== "") {
           { food: "tacos" },
         ]);
         await table.aiEmbeddings("food", "embeddings", {
-          cache: true,
+          embeddings: ollamaEmbeddings,
           concurrent: 10,
         });
       });
@@ -276,7 +276,7 @@ if (typeof ollama === "string" && ollama !== "") {
         3,
         {
           outputTable: "americanFood",
-          cache: true,
+          embeddings: ollamaEmbeddings,
           createIndex: true,
         },
       );
@@ -287,7 +287,7 @@ if (typeof ollama === "string" && ollama !== "") {
         3,
         {
           outputTable: "italianFood",
-          cache: true,
+          embeddings: ollamaEmbeddings,
           createIndex: true,
         },
       );
@@ -320,7 +320,7 @@ if (typeof ollama === "string" && ollama !== "") {
           { food: "tacos" },
         ]);
         await table.aiEmbeddings("food", "embeddings", {
-          cache: true,
+          embeddings: ollamaEmbeddings,
           concurrent: 10,
         });
       });
@@ -331,7 +331,7 @@ if (typeof ollama === "string" && ollama !== "") {
         3,
         {
           outputTable: "americanFood",
-          cache: true,
+          embeddings: ollamaEmbeddings,
           createIndex: true,
         },
       );
@@ -342,7 +342,7 @@ if (typeof ollama === "string" && ollama !== "") {
         3,
         {
           outputTable: "italianFood",
-          cache: true,
+          embeddings: ollamaEmbeddings,
           createIndex: true,
         },
       );
@@ -373,7 +373,7 @@ if (typeof ollama === "string" && ollama !== "") {
         { food: "tacos" },
       ]);
       await table.aiEmbeddings("food", "embeddings", {
-        cache: true,
+        embeddings: ollamaEmbeddings,
         concurrent: 4,
       });
 
@@ -382,7 +382,7 @@ if (typeof ollama === "string" && ollama !== "") {
         "embeddings",
         3,
         {
-          cache: true,
+          embeddings: ollamaEmbeddings,
           similarityColumn: "score", // Add the new column
         },
       );
@@ -419,7 +419,7 @@ if (typeof ollama === "string" && ollama !== "") {
       ]);
 
       await table.aiEmbeddings("food", "embeddings", {
-        cache: true,
+        embeddings: ollamaEmbeddings,
         concurrent: 4,
       });
 
@@ -430,7 +430,7 @@ if (typeof ollama === "string" && ollama !== "") {
         3,
         {
           outputTable: "baselineTable",
-          cache: true,
+          embeddings: ollamaEmbeddings,
           similarityColumn: "score",
         },
       );
@@ -450,7 +450,7 @@ if (typeof ollama === "string" && ollama !== "") {
         3, // Still asking for 3
         {
           outputTable: "filteredTable",
-          cache: true,
+          embeddings: ollamaEmbeddings,
           similarityColumn: "filtered_score",
           minSimilarity: dynamicThreshold,
         },

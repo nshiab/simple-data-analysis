@@ -67,6 +67,15 @@ Deno.test("normalizes a fenced array after an opening bracket and newline", () =
   );
 });
 
+Deno.test("extracts a valid object after a malformed Ollama label", () => {
+  assertEquals(
+    parseOllamaStructuredResponse(
+      '"query{\n  "query": "SELECT 1"\n}',
+    ),
+    { query: "SELECT 1" },
+  );
+});
+
 Deno.test("rejects invalid Ollama structured output", () => {
   assertThrows(
     () => parseOllamaStructuredResponse("not JSON"),
@@ -86,14 +95,47 @@ Deno.test("normalizes structured output before journalism-ai v2 parses it", asyn
     } as ChatResponse)) as unknown as Ollama["chat"];
 
   const result = await askAI<{ value: string }[]>("Return one value.", {
-    provider: "ollama",
-    model: "test-model",
-    ollama: client,
+    generation: {
+      provider: "ollama",
+      model: "test-model",
+      ollama: client,
+    },
     schemaJson: toJSONSchema(array(object({ value: string() }))),
     processResponse: (response) => response as { value: string }[],
   });
 
   assertEquals(result, [{ value: "one" }]);
+});
+
+Deno.test("uses environment provider selection with nested generation options", async () => {
+  const previousProvider = Deno.env.get("AI_PROVIDER");
+  const client = new Ollama();
+  client.chat = (() =>
+    Promise.resolve({
+      message: {
+        role: "assistant",
+        content: '{"value":"environment"}',
+      },
+    } as ChatResponse)) as unknown as Ollama["chat"];
+
+  Deno.env.set("AI_PROVIDER", "ollama");
+  try {
+    const result = await askAI<{ value: string }>("Return one value.", {
+      generation: {
+        model: "environment-model",
+        ollama: client,
+      },
+      schemaJson: toJSONSchema(object({ value: string() })),
+    });
+
+    assertEquals(result, { value: "environment" });
+  } finally {
+    if (previousProvider === undefined) {
+      Deno.env.delete("AI_PROVIDER");
+    } else {
+      Deno.env.set("AI_PROVIDER", previousProvider);
+    }
+  }
 });
 
 Deno.test("reprocesses a cached raw response with the current callback", async () => {
@@ -115,21 +157,25 @@ Deno.test("reprocesses a cached raw response with the current callback", async (
     const schemaJson = toJSONSchema(object({ value: string() }));
 
     const first = await askAI<{ value: string }>("Return one value.", {
-      provider: "ollama",
-      model: "cache-test-model",
-      ollama: client,
+      generation: {
+        provider: "ollama",
+        model: "cache-test-model",
+        ollama: client,
+        cache: true,
+      },
       schemaJson,
-      cache: true,
       processResponse: (response) => ({
         value: `${(response as { value: string }).value}-first`,
       }),
     });
     const second = await askAI<{ value: string }>("Return one value.", {
-      provider: "ollama",
-      model: "cache-test-model",
-      ollama: client,
+      generation: {
+        provider: "ollama",
+        model: "cache-test-model",
+        ollama: client,
+        cache: true,
+      },
       schemaJson,
-      cache: true,
       processResponse: (response) => ({
         value: `${(response as { value: string }).value}-second`,
       }),
@@ -165,18 +211,22 @@ Deno.test("keys processed responses by the environment-selected model", async ()
 
     Deno.env.set("AI_MODEL", "first-model");
     const first = await askAI<{ value: string }>("Return the model.", {
-      provider: "ollama",
-      ollama: client,
+      generation: {
+        provider: "ollama",
+        ollama: client,
+        cache: true,
+      },
       schemaJson,
-      cache: true,
       processResponse: (response) => response as { value: string },
     });
     Deno.env.set("AI_MODEL", "second-model");
     const second = await askAI<{ value: string }>("Return the model.", {
-      provider: "ollama",
-      ollama: client,
+      generation: {
+        provider: "ollama",
+        ollama: client,
+        cache: true,
+      },
       schemaJson,
-      cache: true,
       processResponse: (response) => response as { value: string },
     });
 

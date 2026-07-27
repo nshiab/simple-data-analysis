@@ -1,31 +1,36 @@
 import askAI from "../helpers/askAI.ts";
-import type { AIProvider } from "../helpers/resolveAIProvider.ts";
 import type { SimpleTable } from "../index.ts";
-import type { Ollama } from "ollama";
 import { object, string, toJSONSchema } from "zod";
+import type { UnstructuredGenerationOptions } from "../helpers/aiOptions.ts";
+
+/**
+ * Options for generating and executing a SQL query.
+ *
+ * @example
+ * ```ts
+ * const options: AIQueryOptions = {
+ *   generation: { provider: "gemini", cache: true },
+ *   outputTable: "results",
+ * };
+ * ```
+ */
+export type AIQueryOptions = {
+  /** Additional requirements appended to the SQL-generation prompt. */
+  extraInstructions?: string;
+  /** Generation options excluding `schemaJson`, which is owned by SDA. */
+  generation?: UnstructuredGenerationOptions;
+  /** Includes model thoughts in verbose logs when the provider returns them. */
+  includeThoughts?: boolean;
+  /** Writes results to a new table instead of replacing the current table. */
+  outputTable?: string;
+  /** Logs the request and provider response when enabled. */
+  verbose?: boolean;
+};
 
 export default async function aiQuery(
   simpleTable: SimpleTable,
   prompt: string,
-  options: {
-    extraInstructions?: string;
-    provider?: AIProvider;
-    cache?: boolean;
-    model?: string;
-    apiKey?: string;
-    vertex?: boolean;
-    project?: string;
-    includeThoughts?: boolean;
-    location?: string;
-    ollama?: boolean | Ollama;
-    contextWindow?: number;
-    thinkingBudget?: number;
-    thinkingLevel?: "minimal" | "low" | "medium" | "high";
-    temperature?: number;
-    safetyEnabled?: boolean;
-    outputTable?: string;
-    verbose?: boolean;
-  } = {},
+  options: AIQueryOptions = {},
 ) {
   const tableName = options.outputTable ?? simpleTable.name;
 
@@ -52,19 +57,7 @@ export default async function aiQuery(
 
   // Types could be improved
   const answer = await askAI(p, {
-    provider: options.provider,
-    cache: options.cache,
-    model: options.model,
-    apiKey: options.apiKey,
-    vertex: options.vertex,
-    project: options.project,
-    location: options.location,
-    ollama: options.ollama,
-    contextWindow: options.contextWindow,
-    thinkingBudget: options.thinkingBudget,
-    thinkingLevel: options.thinkingLevel,
-    temperature: options.temperature,
-    safetyEnabled: options.safetyEnabled,
+    generation: options.generation,
     verbose: options.verbose,
     includeThoughts: options.includeThoughts,
     schemaJson,

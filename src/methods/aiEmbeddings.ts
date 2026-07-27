@@ -2,32 +2,45 @@ import { formatNumber } from "@nshiab/journalism-format";
 import sleep from "../helpers/sleep.ts";
 import type { SimpleTable } from "../index.ts";
 import tryEmbedding from "../helpers/tryEmbedding.ts";
-import type { Ollama } from "ollama";
-import type { EmbeddingProvider } from "../helpers/resolveEmbeddingProvider.ts";
+import type { EmbeddingOptions } from "../helpers/aiOptions.ts";
+
+/**
+ * Options for generating an embedding column.
+ *
+ * @example
+ * ```ts
+ * const options: AIEmbeddingsOptions = {
+ *   embeddings: { provider: "ollama", cache: true },
+ *   concurrent: 4,
+ * };
+ * ```
+ */
+export type AIEmbeddingsOptions = {
+  /** Provider-specific embedding options, or options for the environment-selected provider. */
+  embeddings?: EmbeddingOptions;
+  /** Creates a vector-similarity index on the generated column. */
+  createIndex?: boolean;
+  /** Replaces an existing vector-similarity index when creating one. */
+  overwriteIndex?: boolean;
+  /** Maximum number of embedding requests processed concurrently. */
+  concurrent?: number;
+  /** Logs embedding progress and index creation when enabled. */
+  verbose?: boolean;
+  /** Maximum request rate used to calculate delays between batches. */
+  rateLimitPerMinute?: number;
+  /** Candidate count used while constructing the vector index. */
+  efConstruction?: number;
+  /** Candidate count used while searching the vector index. */
+  efSearch?: number;
+  /** Maximum number of graph neighbors retained by the vector index. */
+  M?: number;
+};
 
 export default async function aiEmbeddings(
   simpleTable: SimpleTable,
   column: string,
   newColumn: string,
-  options: {
-    provider?: EmbeddingProvider;
-    createIndex?: boolean;
-    overwriteIndex?: boolean;
-    concurrent?: number;
-    cache?: boolean;
-    model?: string;
-    apiKey?: string;
-    vertex?: boolean;
-    project?: string;
-    location?: string;
-    ollama?: boolean | Ollama;
-    verbose?: boolean;
-    rateLimitPerMinute?: number;
-    contextWindow?: number;
-    efConstruction?: number;
-    efSearch?: number;
-    M?: number;
-  } = {},
+  options: AIEmbeddingsOptions = {},
 ) {
   await simpleTable.updateWithJS(async (rows) => {
     if (options.verbose) {

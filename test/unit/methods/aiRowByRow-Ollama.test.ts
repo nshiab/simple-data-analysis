@@ -9,6 +9,7 @@ const Deno = {
   env: globalThis.Deno.env,
   test: createEnvironmentTest({ AI_PROVIDER: "ollama" }),
 };
+const ollamaGeneration = { provider: "ollama" } as const;
 const ollama = Deno.env.get("OLLAMA");
 if (typeof ollama === "string" && ollama !== "") {
   if (existsSync("./.journalism-cache")) {
@@ -32,8 +33,11 @@ if (typeof ollama === "string" && ollama !== "") {
         "gender",
         `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral". Return an objects with two keys in it: one with the names and the other with the genders.`,
         {
-          // Cache the results locally
-          cache: true,
+          generation: {
+            ...ollamaGeneration,
+            // Cache the results locally
+            cache: true,
+          },
           // Send 10 rows at once to the AI
           batchSize: 10,
           // clean: (response: unknown) =>
@@ -88,8 +92,12 @@ if (typeof ollama === "string" && ollama !== "") {
         "gender",
         `Guess whether it's a "Man" or a "Woman" from the first names. If it could be both, return "Neutral". Return an objects with two keys in it: one with the names and the other with the genders.`,
         {
-          // Cache the results locally
-          cache: true,
+          generation: {
+            ...ollamaGeneration,
+            // Cache the results locally
+            cache: true,
+            ollama,
+          },
           // Send 10 rows at once to the AI
           batchSize: 10,
           // clean: (response: unknown) =>
@@ -111,7 +119,6 @@ if (typeof ollama === "string" && ollama !== "") {
           rateLimitPerMinute: 15,
           // Log details
           verbose: true,
-          ollama,
         },
       );
 
@@ -143,8 +150,11 @@ if (typeof ollama === "string" && ollama !== "") {
         "gender",
         `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral". Return an objects with two keys in it: one with the names and the other with the genders.`,
         {
-          // Cache the results locally
-          cache: true,
+          generation: {
+            ...ollamaGeneration,
+            // Cache the results locally
+            cache: true,
+          },
           // Send 10 rows at once to the AI
           batchSize: 10,
           // clean: (response: unknown) =>
@@ -357,8 +367,8 @@ if (typeof ollama === "string" && ollama !== "") {
         "country",
         `Give me the country of the city.`,
         {
+          generation: { ...ollamaGeneration, cache: true },
           batchSize: 10,
-          cache: true,
           verbose: true,
           // clean: (response: unknown) => {
           //   const parsed = JSON.parse(response as string);
@@ -411,8 +421,8 @@ if (typeof ollama === "string" && ollama !== "") {
         "country",
         `Give me the country of the city.`,
         {
+          generation: { ...ollamaGeneration, cache: true },
           batchSize: 10,
-          cache: true,
           verbose: true,
           // clean: (response: unknown) => {
           //   const parsed = JSON.parse(response as string);
@@ -573,9 +583,9 @@ if (typeof ollama === "string" && ollama !== "") {
         "country",
         `Give me the country of the city.`,
         {
+          generation: { ...ollamaGeneration, cache: true },
           batchSize: 2,
           concurrent: 5,
-          cache: true,
           verbose: true,
           // clean: (response: unknown) => {
           //   const parsed = JSON.parse(response as string);
@@ -683,8 +693,8 @@ if (typeof ollama === "string" && ollama !== "") {
         ["country", "population"],
         `Give me the country and population of the city.`,
         {
+          generation: { ...ollamaGeneration, schemaJson },
           batchSize: 100,
-          schemaJson,
           verbose: true,
         },
       );
@@ -727,8 +737,8 @@ if (typeof ollama === "string" && ollama !== "") {
         "age",
         `How old is this person? We are Feb 16, 2025.`,
         {
+          generation: { ...ollamaGeneration, thinkingLevel: true },
           verbose: true,
-          thinkingLevel: "minimal",
         },
       );
 
@@ -755,8 +765,8 @@ if (typeof ollama === "string" && ollama !== "") {
         "age",
         `How old is this person? We are Feb 16, 2025.`,
         {
+          generation: { ...ollamaGeneration, thinkingLevel: "high" },
           verbose: true,
-          thinkingLevel: "high",
         },
       );
 

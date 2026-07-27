@@ -2,48 +2,52 @@ import { formatNumber } from "@nshiab/journalism-format";
 import sleep from "../helpers/sleep.ts";
 import type { SimpleTable } from "../index.ts";
 import tryAI from "../helpers/tryAI.ts";
-import type { Ollama } from "ollama";
 import { stringToArray } from "@nshiab/simple-data-analysis-core/helpers";
-import type { AIProvider } from "../helpers/resolveAIProvider.ts";
+import type {
+  AIRequestMetrics,
+  GenerationOptions,
+} from "../helpers/aiOptions.ts";
+
+/**
+ * Options for applying a generation model to table rows.
+ *
+ * @example
+ * ```ts
+ * const options: AIRowByRowOptions = {
+ *   generation: { provider: "gemini", cache: true },
+ *   batchSize: 10,
+ * };
+ * ```
+ */
+export type AIRowByRowOptions = {
+  /** Provider-specific generation options, or options for the environment-selected provider. */
+  generation?: GenerationOptions;
+  /** Number of rows sent in each request. */
+  batchSize?: number;
+  /** Maximum number of requests processed concurrently. */
+  concurrent?: number;
+  /** Validates each processed result and throws to trigger a retry. */
+  test?: (result: { [key: string]: unknown }) => void;
+  /** Number of retries after a request or validation failure. */
+  retry?: number;
+  /** Logs prompts, progress, and provider responses when enabled. */
+  verbose?: boolean;
+  /** Maximum request rate used to calculate delays between batches. */
+  rateLimitPerMinute?: number;
+  /** Transforms a parsed response before validation and storage. */
+  clean?: (response: unknown) => unknown;
+  /** Additional instructions appended to the row-processing prompt. */
+  extraInstructions?: string;
+  /** Mutable aggregate request metrics updated after each provider response. */
+  metrics?: AIRequestMetrics;
+};
 
 export default async function aiRowByRow(
   simpleTable: SimpleTable,
   column: string,
   newColumn: string | string[],
   prompt: string,
-  options: {
-    provider?: AIProvider;
-    batchSize?: number;
-    concurrent?: number;
-    cache?: boolean;
-    test?: (result: { [key: string]: unknown }) => void;
-    retry?: number;
-    model?: string;
-    temperature?: number;
-    apiKey?: string;
-    vertex?: boolean;
-    project?: string;
-    location?: string;
-    ollama?: boolean | Ollama;
-    verbose?: boolean;
-    rateLimitPerMinute?: number;
-    clean?: (
-      response: unknown,
-    ) => unknown;
-    contextWindow?: number;
-    thinkingBudget?: number;
-    thinkingLevel?: "minimal" | "low" | "medium" | "high";
-    safetyEnabled?: boolean;
-    webSearch?: boolean;
-    extraInstructions?: string;
-    schemaJson?: unknown;
-    metrics?: {
-      totalCost: number;
-      totalInputTokens: number;
-      totalOutputTokens: number;
-      totalRequests: number;
-    };
-  } = {},
+  options: AIRowByRowOptions = {},
 ) {
   const newColumns = stringToArray(newColumn);
 

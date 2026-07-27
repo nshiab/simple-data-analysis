@@ -1,9 +1,51 @@
 import { getEmbedding } from "@nshiab/journalism-ai";
-import type { Ollama } from "ollama";
 import process from "node:process";
-import resolveEmbeddingProvider, {
-  type EmbeddingProvider,
-} from "./resolveEmbeddingProvider.ts";
+import resolveEmbeddingProvider from "./resolveEmbeddingProvider.ts";
+import type { EmbeddingOptions, GetEmbeddingOptions } from "./aiOptions.ts";
+import { withoutProvider } from "./aiOptions.ts";
+
+/** Returns the provider fields that determine a table-level embedding cache. */
+export function getEmbeddingCacheIdentity(
+  embeddings?: EmbeddingOptions,
+): string {
+  return JSON.stringify({
+    provider: embeddings?.provider ?? resolveEmbeddingProvider(),
+    model: embeddings?.model ?? process.env.AI_EMBEDDINGS_MODEL,
+    contextWindow: embeddings?.contextWindow,
+  });
+}
+
+/** Generates an embedding with an explicit provider or environment defaults. */
+export function getEmbeddingForProvider(
+  text: string,
+  embeddings?: EmbeddingOptions,
+): Promise<number[]> {
+  const provider = embeddings?.provider ?? resolveEmbeddingProvider();
+  const providerOptions = embeddings
+    ? withoutProvider(embeddings) as GetEmbeddingOptions
+    : {};
+
+  if (provider === "ollama") {
+    return getEmbedding(text, {
+      ...providerOptions,
+      ollama: providerOptions.ollama === false
+        ? true
+        : providerOptions.ollama ?? true,
+    });
+  }
+
+  const legacyOllama = process.env.OLLAMA;
+  try {
+    delete process.env.OLLAMA;
+    return getEmbedding(text, providerOptions);
+  } finally {
+    if (legacyOllama === undefined) {
+      delete process.env.OLLAMA;
+    } else {
+      process.env.OLLAMA = legacyOllama;
+    }
+  }
+}
 
 export default async function tryEmbedding(
   i: number,
@@ -13,48 +55,12 @@ export default async function tryEmbedding(
   text: string,
   newColumn: string,
   options: {
-    provider?: EmbeddingProvider;
-    cache?: boolean;
-    model?: string;
-    apiKey?: string;
-    vertex?: boolean;
-    project?: string;
-    location?: string;
-    ollama?: boolean | Ollama;
-    verbose?: boolean;
-    contextWindow?: number;
+    embeddings?: EmbeddingOptions;
   } = {},
 ) {
-  const provider = resolveEmbeddingProvider(options);
-  const embeddingOptions = {
-    cache: options.cache,
-    model: options.model,
-    apiKey: options.apiKey,
-    vertex: options.vertex,
-    project: options.project,
-    location: options.location,
-    ollama: provider === "ollama"
-      ? (typeof options.ollama === "object" ? options.ollama : true)
-      : false,
-    verbose: options.verbose,
-    contextWindow: options.contextWindow,
-  };
-
-  let embeddingPromise: Promise<number[]>;
-  const legacyOllama = process.env.OLLAMA;
-  try {
-    if (provider === "gemini") {
-      delete process.env.OLLAMA;
-    }
-    embeddingPromise = getEmbedding(text, embeddingOptions);
-  } finally {
-    if (legacyOllama === undefined) {
-      delete process.env.OLLAMA;
-    } else {
-      process.env.OLLAMA = legacyOllama;
-    }
-  }
-
   // Should be improved...
-  return rows[i][newColumn] = await embeddingPromise;
+  return rows[i][newColumn] = await getEmbeddingForProvider(
+    text,
+    options.embeddings,
+  );
 }
