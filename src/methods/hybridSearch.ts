@@ -3,7 +3,9 @@ import { prettyDuration } from "@nshiab/journalism-format";
 import getRRFRanking from "../helpers/getRRFRanking.ts";
 import { parseValue } from "@nshiab/simple-data-analysis-core/helpers";
 import type { EmbeddingOptions } from "../helpers/aiOptions.ts";
-import { getEmbeddingCacheIdentity } from "../helpers/tryEmbedding.ts";
+import { getEmbeddingIdentity } from "@nshiab/journalism-ai";
+import ensureEmbeddingColumn from "../helpers/ensureEmbeddingColumn.ts";
+import { generateEmbeddingColumn } from "./aiEmbeddings.ts";
 
 /**
  * Timing checkpoints populated by `hybridSearch` when verbose logging is enabled.
@@ -154,53 +156,72 @@ export default async function hybridSearch(
       times.embeddingStart = Date.now();
     }
 
-    if (await table.hasColumn(embeddingColumn)) {
+    const previousCacheVerbose = table.sdb.cacheVerbose;
+    try {
       if (options.verbose) {
-        console.log(
-          `"${embeddingColumn}" in table "${table.name}" already exist. Reusing embeddings...`,
-        );
-      }
-    } else {
-      const previousCacheVerbose = table.sdb.cacheVerbose;
-      if (options.verbose) {
-        console.log(
-          `"${embeddingColumn}" in table "${table.name}" does not exist. Generating embeddings...`,
-        );
         table.sdb.cacheVerbose = true;
       }
 
-      if (options.embeddings?.cache) {
-        const computeEmbeddings = async () => {
-          await table.aiEmbeddings(columnText, embeddingColumn, {
-            createIndex: options.createIndex ?? false,
-            verbose: options.verbose,
-            embeddings: options.embeddings,
-            concurrent: options.embeddingsConcurrent,
-            efConstruction: options.efConstruction,
-            efSearch: options.efSearch,
-            M: options.M,
-          });
-        };
-        const computeSource: string = Function.prototype.toString.call(
-          computeEmbeddings,
+      const embeddingOptions = {
+        verbose: options.verbose,
+        embeddings: options.embeddings,
+        concurrent: options.embeddingsConcurrent,
+      };
+      const computeEmbeddings = async () => {
+        await generateEmbeddingColumn(
+          table,
+          columnText,
+          embeddingColumn,
+          embeddingOptions,
         );
-        const cacheIdentity = getEmbeddingCacheIdentity(options.embeddings);
-        Object.defineProperty(computeEmbeddings, "toString", {
-          value: (): string => `${computeSource}\n${cacheIdentity}`,
-        });
-        await table.cache(computeEmbeddings);
-      } else {
-        await table.aiEmbeddings(columnText, embeddingColumn, {
-          createIndex: options.createIndex ?? false,
+      };
+      const identity = getEmbeddingIdentity(options.embeddings);
+      const embeddingStatus = await ensureEmbeddingColumn(
+        table,
+        columnText,
+        embeddingColumn,
+        identity,
+        async () => {
+          if (!options.embeddings?.cache) {
+            await computeEmbeddings();
+            return;
+          }
+
+          const computeSource = Function.prototype.toString.call(
+            computeEmbeddings,
+          );
+          const cacheProvenance = {
+            identity,
+            sourceColumn: columnText,
+            embeddingColumn,
+          };
+          Object.defineProperty(computeEmbeddings, "toString", {
+            value: (): string =>
+              `${computeSource}\n${JSON.stringify(cacheProvenance)}`,
+          });
+          await table.cache(computeEmbeddings);
+        },
+      );
+
+      if (options.verbose) {
+        console.log(
+          embeddingStatus === "reused"
+            ? `"${embeddingColumn}" in table "${table.name}" has compatible provenance. Reusing embeddings...`
+            : `Generated compatible embeddings in "${embeddingColumn}" for table "${table.name}".`,
+        );
+      }
+
+      if (options.createIndex) {
+        table.createVssIndex(embeddingColumn, {
+          overwrite: false,
           verbose: options.verbose,
-          embeddings: options.embeddings,
-          concurrent: options.embeddingsConcurrent,
           efConstruction: options.efConstruction,
           efSearch: options.efSearch,
           M: options.M,
         });
+        await table.run();
       }
-
+    } finally {
       table.sdb.cacheVerbose = previousCacheVerbose;
     }
 

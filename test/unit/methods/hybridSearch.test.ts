@@ -1,24 +1,183 @@
 import { assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
+import {
+  FakeGeminiEmbeddingFetch,
+  FakeOllamaEmbeddingClient,
+} from "../helpers/fakeEmbeddingClients.ts";
+import {
+  geminiEmbeddingOptions,
+  hasGoogleEmbeddingCredentials,
+} from "../helpers/realEmbeddingOptions.ts";
 
 const geminiEmbeddings = {
-  provider: "gemini",
-  model: "gemini-embedding-001",
+  ...geminiEmbeddingOptions,
   cache: true,
 } as const;
 const ollamaEmbeddings = {
   provider: "ollama",
 } as const;
 
-const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
-if (typeof aiKey === "string" && aiKey !== "") {
-  if (existsSync("./.journalism-cache")) {
-    rmSync("./.journalism-cache", { recursive: true });
+function clearEmbeddingCaches(): void {
+  for (const path of ["./.sda-cache", "./.journalism-cache"]) {
+    if (existsSync(path)) {
+      rmSync(path, { recursive: true });
+    }
   }
-  if (existsSync("./.sda-cache")) {
-    rmSync("./.sda-cache", { recursive: true });
+}
+
+Deno.test(
+  "hybridSearch regenerates embeddings when providers change at equal dimensions",
+  async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("provider_change");
+    table.loadArray([
+      { id: "a", text: "alpha" },
+      { id: "b", text: "beta" },
+    ]);
+
+    const ollamaClient = new FakeOllamaEmbeddingClient(
+      "http://ollama.local:11434",
+      [1, 0],
+    );
+    await table.hybridSearch("alpha", "id", "text", 1, {
+      embeddings: {
+        provider: "ollama",
+        model: "same-model-label",
+        ollama: ollamaClient,
+      },
+      bm25: false,
+      outputTable: "ollama_results",
+    });
+    assertEquals(ollamaClient.requests, 3);
+
+    const originalFetch = globalThis.fetch;
+    const geminiFetch = new FakeGeminiEmbeddingFetch([0, 1]);
+    globalThis.fetch = geminiFetch.fetch;
+    try {
+      await table.hybridSearch("alpha", "id", "text", 1, {
+        embeddings: {
+          provider: "gemini",
+          model: "same-model-label",
+          apiKey: "fake-key",
+        },
+        bm25: false,
+        outputTable: "gemini_results",
+      });
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+    assertEquals(geminiFetch.requests, 3);
+
+    await sdb.done();
+  },
+);
+
+Deno.test("hybridSearch isolates table caches by embedding identity", async () => {
+  clearEmbeddingCaches();
+
+  try {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("cache_identity");
+    table.loadArray([
+      { id: "a", text: "cache alpha" },
+      { id: "b", text: "cache beta" },
+    ]);
+
+    const firstClient = new FakeOllamaEmbeddingClient(
+      "http://cache.local:11434",
+      [1, 0],
+    );
+    await table.hybridSearch("cache alpha", "id", "text", 1, {
+      embeddings: {
+        provider: "ollama",
+        model: "cache-model-a",
+        ollama: firstClient,
+        cache: true,
+      },
+      bm25: false,
+      outputTable: "cache_results_a",
+    });
+
+    const secondClient = new FakeOllamaEmbeddingClient(
+      "http://cache.local:11434",
+      [0, 1],
+    );
+    await table.hybridSearch("cache alpha", "id", "text", 1, {
+      embeddings: {
+        provider: "ollama",
+        model: "cache-model-b",
+        ollama: secondClient,
+        cache: true,
+      },
+      bm25: false,
+      outputTable: "cache_results_b",
+    });
+
+    const sources = JSON.parse(
+      Deno.readTextFileSync("./.sda-cache/sources.json"),
+    ) as Record<string, unknown>;
+    assertEquals(
+      Object.keys(sources).filter((key) => key.startsWith("cache_identity."))
+        .length,
+      2,
+    );
+    await sdb.done();
+  } finally {
+    clearEmbeddingCaches();
   }
+});
+
+Deno.test("hybridSearch isolates table caches by source mapping", async () => {
+  clearEmbeddingCaches();
+
+  try {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("cache_source_mapping");
+    table.loadArray([
+      { id: "a", title: "alpha title", body: "alpha body" },
+      { id: "b", title: "beta title", body: "beta body" },
+    ]);
+    const embeddings = {
+      provider: "ollama",
+      model: "cache-model",
+      ollama: new FakeOllamaEmbeddingClient(
+        "http://cache.local:11434",
+        [1, 0],
+      ),
+      cache: true,
+    } as const;
+
+    await table.hybridSearch("alpha", "id", "title", 1, {
+      embeddings,
+      bm25: false,
+      outputTable: "title_results",
+    });
+    await table.hybridSearch("alpha", "id", "body", 1, {
+      embeddings,
+      bm25: false,
+      outputTable: "body_results",
+    });
+
+    assertEquals(await table.hasColumn("title_embeddings"), true);
+    assertEquals(await table.hasColumn("body_embeddings"), true);
+    const sources = JSON.parse(
+      Deno.readTextFileSync("./.sda-cache/sources.json"),
+    ) as Record<string, unknown>;
+    assertEquals(
+      Object.keys(sources).filter((key) =>
+        key.startsWith("cache_source_mapping.")
+      ).length,
+      2,
+    );
+    await sdb.done();
+  } finally {
+    clearEmbeddingCaches();
+  }
+});
+
+if (hasGoogleEmbeddingCredentials) {
+  clearEmbeddingCaches();
 
   Deno.test(
     "should perform hybrid search and return a table",
@@ -256,12 +415,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
 }
 const ollama = Deno.env.get("OLLAMA");
 if (typeof ollama === "string" && ollama !== "") {
-  if (existsSync("./.journalism-cache")) {
-    rmSync("./.journalism-cache", { recursive: true });
-  }
-  if (existsSync("./.sda-cache")) {
-    rmSync("./.sda-cache", { recursive: true });
-  }
+  clearEmbeddingCaches();
 
   Deno.test(
     "should perform hybrid search and return a table",

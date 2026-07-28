@@ -1,4 +1,26 @@
-import type { askGemini, askOllama, getEmbedding } from "@nshiab/journalism-ai";
+import type {
+  askGemini,
+  askOllama,
+  GetEmbeddingOptions,
+} from "@nshiab/journalism-ai";
+
+export type {
+  EmbeddingBackend,
+  EmbeddingCommonOptions,
+  EmbeddingEnvironment,
+  EmbeddingIdentity,
+  EmbeddingIdentityBase,
+  EmbeddingProvider,
+  EnvironmentEmbeddingOptions,
+  GeminiEmbeddingIdentity,
+  GeminiEmbeddingOptions,
+  GetEmbeddingOptions,
+  OllamaEmbeddingClient,
+  OllamaEmbeddingIdentity,
+  OllamaEmbeddingOptions,
+  VertexEmbeddingIdentity,
+  VertexEmbeddingOptions,
+} from "@nshiab/journalism-ai";
 
 /**
  * Options accepted directly by `askGemini` from journalism-ai.
@@ -22,18 +44,6 @@ export type AskGeminiOptions = NonNullable<
  */
 export type AskOllamaOptions = NonNullable<
   Parameters<typeof askOllama>[1]
->;
-
-/**
- * Options accepted directly by `getEmbedding` from journalism-ai.
- *
- * @example
- * ```ts
- * const options: GetEmbeddingOptions = { model: "gemini-embedding-001" };
- * ```
- */
-export type GetEmbeddingOptions = NonNullable<
-  Parameters<typeof getEmbedding>[1]
 >;
 
 /**
@@ -121,62 +131,6 @@ export type UnstructuredGenerationOptions = WithoutSchemaJson<
 >;
 
 /**
- * Selects Gemini or Vertex AI embeddings and exposes the relevant
- * `getEmbedding` options.
- *
- * @example
- * ```ts
- * const embeddings: GeminiEmbeddingOptions = {
- *   provider: "gemini",
- *   model: "gemini-embedding-001",
- * };
- * ```
- */
-export type GeminiEmbeddingOptions =
-  & Omit<
-    GetEmbeddingOptions,
-    "ollama" | "provider"
-  >
-  & {
-    /** Selects Gemini or Vertex AI for embeddings. */
-    provider: "gemini";
-  };
-
-/**
- * Selects Ollama embeddings and exposes the exact local-model options from
- * `getEmbedding`.
- *
- * @example
- * ```ts
- * const embeddings: OllamaEmbeddingOptions = {
- *   provider: "ollama",
- *   model: "nomic-embed-text",
- *   contextWindow: 8_192,
- * };
- * ```
- */
-export type OllamaEmbeddingOptions = Omit<GetEmbeddingOptions, "provider"> & {
-  /** Selects Ollama for embeddings. */
-  provider: "ollama";
-};
-
-/**
- * Uses environment variables to select the embedding provider while still
- * passing options to `getEmbedding`.
- *
- * @example
- * ```ts
- * const embeddings: EnvironmentEmbeddingOptions = { cache: true };
- * ```
- */
-export type EnvironmentEmbeddingOptions =
-  & Omit<GetEmbeddingOptions, "ollama">
-  & {
-    /** Uses `AI_EMBEDDINGS_PROVIDER` or the legacy `OLLAMA` variable. */
-    provider?: undefined;
-  };
-
-/**
  * Provider-specific or environment-selected embedding options.
  *
  * @example
@@ -187,10 +141,7 @@ export type EnvironmentEmbeddingOptions =
  * };
  * ```
  */
-export type EmbeddingOptions =
-  | GeminiEmbeddingOptions
-  | OllamaEmbeddingOptions
-  | EnvironmentEmbeddingOptions;
+export type EmbeddingOptions = GetEmbeddingOptions;
 
 /**
  * Mutable aggregate metrics populated by SDA generation methods.

@@ -3,6 +3,8 @@ import sleep from "../helpers/sleep.ts";
 import type { SimpleTable } from "../index.ts";
 import tryEmbedding from "../helpers/tryEmbedding.ts";
 import type { EmbeddingOptions } from "../helpers/aiOptions.ts";
+import { getEmbeddingIdentity } from "@nshiab/journalism-ai";
+import ensureEmbeddingColumn from "../helpers/ensureEmbeddingColumn.ts";
 
 /**
  * Options for generating an embedding column.
@@ -42,6 +44,58 @@ export default async function aiEmbeddings(
   newColumn: string,
   options: AIEmbeddingsOptions = {},
 ) {
+  const identity = getEmbeddingIdentity(options.embeddings);
+  const embeddingStatus = await ensureEmbeddingColumn(
+    simpleTable,
+    column,
+    newColumn,
+    identity,
+    () => generateEmbeddingColumn(simpleTable, column, newColumn, options),
+  );
+
+  if (options.verbose && embeddingStatus === "reused") {
+    console.log(
+      `${newColumn} in table ${simpleTable.name} has compatible provenance. Reusing embeddings...`,
+    );
+  }
+
+  if (options.createIndex) {
+    simpleTable.createVssIndex(newColumn, {
+      overwrite: options.overwriteIndex,
+      verbose: options.verbose,
+      efConstruction: options.efConstruction,
+      efSearch: options.efSearch,
+      M: options.M,
+    });
+    await simpleTable.run();
+  }
+}
+
+/**
+ * Generates every vector in an embedding column without managing provenance.
+ * Callers must wrap this operation with `ensureEmbeddingColumn`.
+ *
+ * @param simpleTable Table containing the source rows.
+ * @param column Text column to embed.
+ * @param newColumn Column that receives the generated vectors.
+ * @param options Embedding generation and concurrency options.
+ * @returns A promise that resolves after every row has been embedded.
+ *
+ * @example
+ * ```ts
+ * await generateEmbeddingColumn(table, "text", "text_embeddings", {
+ *   embeddings: { provider: "ollama", model: "nomic-embed-text" },
+ * });
+ * ```
+ *
+ * @internal
+ */
+export async function generateEmbeddingColumn(
+  simpleTable: SimpleTable,
+  column: string,
+  newColumn: string,
+  options: AIEmbeddingsOptions = {},
+): Promise<void> {
   await simpleTable.updateWithJS(async (rows) => {
     if (options.verbose) {
       console.log("\naiEmbeddings()");
@@ -100,15 +154,4 @@ export default async function aiEmbeddings(
 
     return rows;
   });
-
-  if (options.createIndex) {
-    simpleTable.createVssIndex(newColumn, {
-      overwrite: options.overwriteIndex,
-      verbose: options.verbose,
-      efConstruction: options.efConstruction,
-      efSearch: options.efSearch,
-      M: options.M,
-    });
-    await simpleTable.run();
-  }
 }
