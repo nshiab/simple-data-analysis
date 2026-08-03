@@ -1,7 +1,7 @@
 # Simple data analysis (SDA)
 
 SDA is an easy-to-use and high-performance TypeScript library for data analysis.
-You can use it with tabular and geospatial data.
+You can use it with tabular, geospatial, and vector data.
 
 The library is available on [JSR](https://jsr.io/@nshiab/simple-data-analysis)
 with its [documentation](https://jsr.io/@nshiab/simple-data-analysis/doc) and on
@@ -216,26 +216,23 @@ import { barX, plot } from "@observablehq/plot";
 // We start a SimpleDB instance.
 const sdb = new SimpleDB();
 
-// We create a new table
-const fires = sdb.newTable("fires");
-// We fetch the wildfires data. It's a csv.
-fires.loadData(
-  "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
-);
-// We create point geometries from the lat and lon columns
-// and we store the points in the new column geom
-fires.points("lat", "lon", "geom");
-// We log the fires
-await fires.logTable();
+// We create a new table, fetch the wildfires data from a CSV file,
+// and create point geometries from the lat and lon columns.
+const fires = await sdb
+  .newTable("fires")
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
+  )
+  .points("lat", "lon", "geom")
+  .logTable();
 
-// We create a new table
-const provinces = sdb.newTable("provinces");
-// We fetch the provinces' boundaries. It's a geojson.
-provinces.loadGeoData(
-  "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
-);
-// We log the provinces
-await provinces.logTable();
+// We create a new table and fetch the provinces' boundaries from a GeoJSON file.
+const provinces = await sdb
+  .newTable("provinces")
+  .loadGeoData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
+  )
+  .logTable();
 
 // We match fires with provinces
 // and we output the results into a new table.
@@ -244,31 +241,30 @@ await provinces.logTable();
 // do a left join, and put the results
 // in the left table. For non-spatial data,
 // you can use the method join.
-const firesInsideProvinces = fires.joinGeo(provinces, "inside", {
-  outputTable: "firesInsideProvinces",
-});
-
-// We summarize to count the number of fires
-// and sum up the area burnt in each province.
-firesInsideProvinces.summarize({
-  values: "hectares",
-  categories: "nameEnglish",
-  summaries: ["count", "sum"],
-  decimals: 0,
-});
-// We rename columns.
-firesInsideProvinces.renameColumns({
-  count: "nbFires",
-  sum: "burntArea",
-});
-// We want the province with
-// the greatest burnt area first.
-firesInsideProvinces.sort({ burntArea: "desc" });
-
-// We log the results. By default, the method
-// logs the first 10 rows, but there are 12
-// rows in our data. We also log the data types.
-await firesInsideProvinces.logTable({ rowsToLog: 13, typesToLog: true });
+const firesInsideProvinces = await fires
+  .joinGeo(provinces, "inside", {
+    outputTable: "firesInsideProvinces",
+  })
+  // We remove fires that did not match a province.
+  .removeMissing()
+  // We summarize to count the number of fires
+  // and sum up the area burnt in each province.
+  .summarize({
+    values: "hectares",
+    categories: "nameEnglish",
+    summaries: ["count", "sum"],
+    decimals: 0,
+  })
+  // We rename columns.
+  .renameColumns({
+    count: "nbFires",
+    sum: "burntArea",
+  })
+  // We want the province with the greatest burnt area first.
+  .sort({ burntArea: "desc" })
+  // We log the results. By default, the method logs the first 10 rows,
+  // but there are 12 rows in our data. We also log the data types.
+  .logTable({ rowsToLog: 12, types: true });
 
 // We can also log a bar chart directly in the terminal...
 await firesInsideProvinces.logBarChart("nameEnglish", "burntArea");
@@ -303,12 +299,12 @@ await firesInsideProvinces.writeData("sda/output/firesInsideProvinces.parquet");
 await sdb.done();
 ```
 
-Here's what you should see in your console if your run this script.
+Here's what you should see in your console if you run this script.
 
 ![The console tab in VS Code showing the result of simple-data-analysis computations.](./assets/nodejs-console-with-chart.png)
 
 You'll also find a `chart.png` file and a `firesInsideProvinces.parquet` file in
-your folder.
+your `sda/output` folder.
 
 ![A chart showing the burnt area of wildfires in Canadian provinces.](./assets/chart.png)
 
@@ -333,16 +329,16 @@ import { SimpleDB } from "@nshiab/simple-data-analysis";
 import { dodgeX, dot, plot } from "@observablehq/plot";
 
 const sdb = new SimpleDB();
-const table = sdb.newTable();
-
-table.loadData(
-  "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
-);
-// We keep only the fires that are larger than 1 hectare.
-table.filter(`hectares > 1`);
-// We rename the causes.
-table.replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" });
-await table.logTable();
+const table = await sdb
+  .newTable()
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
+  )
+  // We keep only the fires that are larger than 1 hectare.
+  .filter(`hectares > 1`)
+  // We rename the causes.
+  .replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" })
+  .logTable();
 
 // Let's create a beeswarm chart with a log scale.
 // We facet over the causes.
@@ -366,9 +362,7 @@ const chart = (data: unknown[]) =>
     ],
   });
 
-const path = "sda/output/chart.png";
-
-await table.writeChart(chart, path);
+await table.writeChart(chart, "sda/output/chart.png");
 
 await sdb.done();
 ```
@@ -386,45 +380,48 @@ import { SimpleDB } from "@nshiab/simple-data-analysis";
 import { geo, plot } from "@observablehq/plot";
 
 const sdb = new SimpleDB();
-const provinces = sdb.newTable("provinces");
 
 // We fetch the Canadian provinces boundaries.
-provinces.loadGeoData(
-  "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
-);
-await provinces.logTable();
+const provinces = await sdb
+  .newTable("provinces")
+  .loadGeoData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
+  )
+  .logTable();
 
 // We fetch the fires.
-const fires = sdb.newTable("fires");
-fires.loadData(
-  "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
-);
-// We create a new column to store the points as geometries.
-fires.points("lat", "lon", "geom");
-// We select the columns of interest and filter out
-// fires less than 1 hectare.
-fires.replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" });
-fires.selectColumns(["geom", "hectares", "cause"]);
-fires.filter(`hectares > 0`);
-await fires.logTable();
+const fires = await sdb
+  .newTable("fires")
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
+  )
+  // We create a new column to store the points as geometries.
+  .points("lat", "lon", "geom")
+  // We rename the causes, select the columns of interest,
+  // and filter out fires of 0 hectares.
+  .replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" })
+  .selectColumns(["geom", "hectares", "cause"])
+  .filter(`hectares > 0`)
+  .logTable();
 
 // Now, we want the provinces and the fires in the same table
 // to draw our map with the writeMap method.
 // First, we clone the provinces table.
-const provincesAndFires = provinces.cloneTable({
-  name: "provincesAndFires",
-});
-// Now we can insert the fires into the provincesAndFires table.
-// By default, SDA will throw an error if the tables don't have the
-// same columns. So we set the unifyColumns option to true.
-provincesAndFires.insertTables(fires, { unifyColumns: true });
-// To make our lives easier, we add a column to
-// distinguish between provinces and fires.
-provincesAndFires.addColumn("isFire", "boolean", `hectares > 0`);
-await provincesAndFires.logTable();
+const provincesAndFires = await provinces
+  .cloneTable({
+    name: "provincesAndFires",
+  })
+  // Now we can insert the fires into the provincesAndFires table.
+  // By default, SDA will throw an error if the tables don't have the
+  // same columns. So we set the unifyColumns option to true.
+  .insertTables(fires, { unifyColumns: true })
+  // To make our lives easier, we add a column to
+  // distinguish between provinces and fires.
+  .addColumn("isFire", "boolean", `hectares > 0`)
+  .logTable();
 
 // This is our function to draw the map, using the Plot library.
-// The geoData will come from the our provincesAndFires table
+// The geoData will come from our provincesAndFires table
 // as GeoJSON data. Each row of the table is a feature, and each
 // feature has properties matching the columns of the table.
 const map = (geoData: {
@@ -461,11 +458,8 @@ const map = (geoData: {
   });
 };
 
-// This is the path where the map will be saved.
-const path = "sda/output/map.png";
-
 // Now we can call writeMap.
-await provincesAndFires.writeMap(map, path);
+await provincesAndFires.writeMap(map, "sda/output/map.png");
 
 await sdb.done();
 ```
@@ -482,9 +476,13 @@ Here's the previous example adapted to cache data. For more information, check
 the
 [cache method documentation](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable#method_cache_0).
 
-The data is cached in the hidden folder `.sda-cache` at the root of your code
-repository. Make sure to add it to your `.gitignore`. If you want to clean your
-cache, just delete the folder.
+The data is cached in a hidden `.sda-cache` folder relative to the current
+working directory (usually the root of your project). Make sure to add it to
+your `.gitignore`. If you want to clean your cache, just delete the folder.
+
+The `cache()` method is asynchronous, so it must be awaited. Inside its
+callback, synchronous builder methods can be chained without `await` or an
+explicit `run()`; `cache()` executes the queued work before storing the result.
 
 If you set up with `@nshiab/setup-data-project` (see _Quick setup_ at the top),
 `.sda-cache` is automatically added to your `.gitignore` and you can use
@@ -515,10 +513,11 @@ const fires = sdb.newTable("fires");
 // everything starts over.
 await fires.cache(
   () => {
-    fires.loadData(
-      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
-    );
-    fires.points("lat", "lon", "geom");
+    fires
+      .loadData(
+        "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
+      )
+      .points("lat", "lon", "geom");
   },
   { ttl: 60 },
 );
@@ -547,25 +546,26 @@ const firesInsideProvinces = sdb.newTable("firesInsideProvinces");
 // up-to-date data.
 await firesInsideProvinces.cache(
   () => {
-    firesInsideProvinces.insertTables(fires);
-    firesInsideProvinces.joinGeo(provinces, "inside");
-    firesInsideProvinces.removeMissing();
-    firesInsideProvinces.summarize({
-      values: "hectares",
-      categories: "nameEnglish",
-      summaries: ["count", "sum"],
-      decimals: 0,
-    });
-    firesInsideProvinces.renameColumns({
-      count: "nbFires",
-      sum: "burntArea",
-    });
-    firesInsideProvinces.sort({ burntArea: "desc" });
+    firesInsideProvinces
+      .insertTables(fires)
+      .joinGeo(provinces, "inside")
+      .removeMissing()
+      .summarize({
+        values: "hectares",
+        categories: "nameEnglish",
+        summaries: ["count", "sum"],
+        decimals: 0,
+      })
+      .renameColumns({
+        count: "nbFires",
+        sum: "burntArea",
+      })
+      .sort({ burntArea: "desc" });
   },
   { ttl: 60 },
 );
 
-await firesInsideProvinces.logTable({ rowsToLog: 13, typesToLog: true });
+await firesInsideProvinces.logTable({ rowsToLog: 12, types: true });
 await firesInsideProvinces.logBarChart("nameEnglish", "burntArea");
 
 // It's important to call done() at the end.
@@ -617,7 +617,7 @@ Table firesInsideProvinces:
 │ Nunavut                   │ 1              │ 2700          │
 │ New Brunswick             │ 202            │ 854           │
 └───────────────────────────┴────────────────┴───────────────┘
-12 rows in total (rowsToLog: 13)
+12 rows in total (rowsToLog: 12)
 
 Bar chart of "burntArea" per "nameEnglish":
                           ┌
