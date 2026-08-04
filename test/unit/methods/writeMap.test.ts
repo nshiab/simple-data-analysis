@@ -1,10 +1,23 @@
-import { existsSync, mkdirSync } from "node:fs";
-import { assertEquals } from "@std/assert";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs";
+import { assert, assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { geo, plot } from "@observablehq/plot";
 const output = "./test/output/";
+const datavizTempDirectory = ".sda-cache/tmp/dataviz";
 if (!existsSync(output)) {
   mkdirSync(output);
+}
+
+function getDatavizTempFiles(): Set<string> {
+  return new Set(
+    existsSync(datavizTempDirectory) ? readdirSync(datavizTempDirectory) : [],
+  );
 }
 
 Deno.test("should write a map as png", async () => {
@@ -210,4 +223,149 @@ Deno.test("should write a map with multiple layers as a png", async () => {
 
   // How to assert?
   assertEquals(true, true);
+});
+
+Deno.test(
+  "should pass dates and the selected geometry through a temporary GeoJSON file",
+  async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable();
+    table.loadArray([{
+      day: "2026-08-04",
+      moment: "2026-08-04T12:34:56.000Z",
+      latA: 45,
+      lonA: -73,
+      latB: 46,
+      lonB: -74,
+    }]);
+    table.convert({ day: "date", moment: "timestamp" });
+    table.points("latA", "lonA", "geometryA");
+    table.points("latB", "lonB", "geometryB");
+
+    const filesBefore = getDatavizTempFiles();
+    let tempPath: string | undefined;
+
+    await table.writeMap(
+      (data) => {
+        const tempFile = [...getDatavizTempFiles()].find((file) =>
+          !filesBefore.has(file) && file.endsWith(".geojson")
+        );
+        assert(tempFile !== undefined);
+        tempPath = `${datavizTempDirectory}/${tempFile}`;
+
+        const feature = data.features[0] as {
+          geometry: { coordinates: number[]; type: string };
+          properties: Record<string, unknown>;
+        };
+        assert(feature.properties.day instanceof Date);
+        assert(feature.properties.moment instanceof Date);
+        assertEquals(feature.geometry, {
+          type: "Point",
+          coordinates: [-74, 46],
+        });
+
+        return plot({ marks: [geo(data)] });
+      },
+      output + "dates-and-selected-geometry.png",
+      {
+        column: "geometryB",
+      },
+    );
+
+    assert(tempPath !== undefined);
+    assertEquals(existsSync(tempPath), false);
+    await sdb.done();
+  },
+);
+
+Deno.test(
+  "should remove temporary map data after an error",
+  async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable();
+    table.loadArray([{
+      latA: 45,
+      lonA: -73,
+      latB: 46,
+      lonB: -74,
+    }]);
+    table.points("latA", "lonA", "geometryA");
+    table.points("latB", "lonB", "geometryB");
+
+    const tableNamesBefore = (await sdb.getTableNames()).sort();
+    const filesBefore = getDatavizTempFiles();
+    let tempPath: string | undefined;
+    const consoleError = console.error;
+    try {
+      console.error = () => {};
+      await table.writeMap(
+        () => {
+          const tempFile = [...getDatavizTempFiles()].find((file) =>
+            !filesBefore.has(file) && file.endsWith(".geojson")
+          );
+          assert(tempFile !== undefined);
+          tempPath = `${datavizTempDirectory}/${tempFile}`;
+          throw new Error("Expected map error");
+        },
+        output + "expected-map-error.png",
+        { column: "geometryB" },
+      );
+    } finally {
+      console.error = consoleError;
+    }
+
+    assert(tempPath !== undefined);
+    assertEquals(existsSync(tempPath), false);
+    assertEquals((await sdb.getTableNames()).sort(), tableNamesBefore);
+    await sdb.done();
+  },
+);
+
+Deno.test("should rewind polygon coordinates before creating a map", async () => {
+  const inputPath = output + "polygon-to-rewind.geojson";
+  writeFileSync(
+    inputPath,
+    JSON.stringify({
+      type: "FeatureCollection",
+      features: [{
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "Polygon",
+          coordinates: [[
+            [0, 0],
+            [1, 0],
+            [1, 1],
+            [0, 1],
+            [0, 0],
+          ]],
+        },
+      }],
+    }),
+  );
+
+  const sdb = new SimpleDB();
+  try {
+    const table = sdb.newTable();
+    table.loadGeoData(inputPath);
+
+    await table.writeMap((data) => {
+      const feature = data.features[0] as unknown as {
+        geometry: { coordinates: number[][][] };
+      };
+      assertEquals(feature.geometry.coordinates[0], [
+        [0, 0],
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0],
+      ]);
+      return plot({ marks: [geo(data)] });
+    }, output + "rewound-polygon.png");
+  } finally {
+    await sdb.done();
+    if (existsSync(inputPath)) {
+      unlinkSync(inputPath);
+    }
+  }
 });

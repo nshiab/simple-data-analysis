@@ -1,5 +1,4 @@
 import { SimpleTable as SimpleTableCore } from "@nshiab/simple-data-analysis-core";
-import { unlinkSync, writeFileSync } from "node:fs";
 import type SimpleDB from "./SimpleDB.ts";
 import {
   getDataDW,
@@ -7,7 +6,6 @@ import {
   logDotChart,
   logLineChart,
   publishChartDW,
-  rewind,
   saveChart,
   updateDataDW,
   updateNotesDW,
@@ -32,6 +30,11 @@ import hybridSearch, {
 } from "../methods/hybridSearch.ts";
 import aiRAG, { type AIRAGOptions } from "../methods/aiRAG.ts";
 import aiQuery, { type AIQueryOptions } from "../methods/aiQuery.ts";
+import {
+  loadGeoDataFromScratchFile,
+  withDataFromScratchFile,
+  withGeoDataFromScratchFile,
+} from "../helpers/scratchDataTransport.ts";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
@@ -971,7 +974,7 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
    *
-   * The data is temporarily written to `.sda-cache/<chartId>.json` and removed after loading. Remember to add `.sda-cache` to your `.gitignore`.
+   * The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.geojson` and removed after loading. Remember to add `.sda-cache` to your `.gitignore`.
    *
    * @param chartId - The unique ID of the Datawrapper map. This ID can be found in the Datawrapper URL or dashboard.
    * @param options - An optional object with configuration options:
@@ -994,15 +997,7 @@ export default class SimpleTable extends SimpleTableCore {
     const jsonString = await getDataDW(chartId, {
       apiKey: options.apiKey,
     }) as string;
-    const tempPath = `.sda-cache/${chartId}.json`;
-    try {
-      createDirectory(".sda-cache");
-      writeFileSync(tempPath, jsonString);
-      this.loadGeoData(tempPath);
-      await this.run();
-    } finally {
-      unlinkSync(tempPath);
-    }
+    await loadGeoDataFromScratchFile(this, jsonString);
   }
 
   // ===================== CHARTING METHODS =====================
@@ -1010,6 +1005,8 @@ export default class SimpleTable extends SimpleTableCore {
   /**
    * Creates an [Observable Plot](https://github.com/observablehq/plot) chart as an image file (.png or .svg) from the table data.
    * To create maps, use the `writeMap` method.
+   *
+   * The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.json` and removed after rendering. Remember to add `.sda-cache` to your `.gitignore`.
    *
    * @param chart - A function that takes data (as an array of objects) and returns an Observable Plot chart (an `SVGSVGElement` or `HTMLElement`).
    * @param path - The absolute path where the chart image will be saved (e.g., `"./output/chart.png"`).
@@ -1047,12 +1044,14 @@ export default class SimpleTable extends SimpleTableCore {
   ): Promise<void> {
     try {
       createDirectory(path);
-      await saveChart(
-        await this.getData(),
-        chart as (data: Data) => SVGSVGElement | HTMLElement,
-        path,
-        options,
-      );
+      await withDataFromScratchFile(this, {}, async (data) => {
+        await saveChart(
+          data,
+          chart as (data: Data) => SVGSVGElement | HTMLElement,
+          path,
+          options,
+        );
+      });
     } catch (error) {
       console.error(error);
     } finally {
@@ -1063,6 +1062,8 @@ export default class SimpleTable extends SimpleTableCore {
   /**
    * Creates an [Observable Plot](https://github.com/observablehq/plot) map as an image file (.png or .svg) from the table's geospatial data.
    * To create charts from non-geospatial data, use the `writeChart` method.
+   *
+   * The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.geojson` and removed after rendering. Remember to add `.sda-cache` to your `.gitignore`.
    *
    * @param map - A function that takes geospatial data (in GeoJSON format) and returns an Observable Plot map (an `SVGSVGElement` or `HTMLElement`).
    * @param path - The absolute path where the map image will be saved (e.g., `"./output/map.png"`).
@@ -1116,15 +1117,17 @@ export default class SimpleTable extends SimpleTableCore {
     try {
       createDirectory(path);
       options.rewind = options.rewind ?? true;
-      await saveChart(
-        rewind(
-          await this.getGeoData(options.column, {
-            rewind: false,
-          }),
-        ) as unknown as Data,
-        map as unknown as (data: Data) => SVGSVGElement | HTMLElement,
-        path,
-        options,
+      await withGeoDataFromScratchFile(
+        this,
+        { column: options.column, rewind: options.rewind },
+        async (geoData) => {
+          await saveChart(
+            geoData as unknown as Data,
+            map as unknown as (data: Data) => SVGSVGElement | HTMLElement,
+            path,
+            options,
+          );
+        },
       );
     } catch (error) {
       console.error(error);
@@ -1135,6 +1138,8 @@ export default class SimpleTable extends SimpleTableCore {
 
   /**
    * Generates and logs a line chart to the console. The data should be sorted by the x-axis values for accurate representation.
+   *
+   * The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.json` and removed after rendering. Remember to add `.sda-cache` to your `.gitignore`.
    *
    * **Data Type Requirements:**
    * - **X-axis values**: Must be `number` or `Date` objects.
@@ -1201,19 +1206,27 @@ export default class SimpleTable extends SimpleTableCore {
       height?: number;
     } = {},
   ): Promise<void> {
-    const data = await this.sdb.customQuery(
-      `SELECT "${x}", "${y}"${
-        typeof options.smallMultiples === "string"
-          ? `, "${options.smallMultiples}"`
-          : ""
-      } FROM "${this.name}"`,
-      { returnData: true },
+    await withDataFromScratchFile(
+      this,
+      {
+        columns: Array.from(
+          new Set([
+            x,
+            y,
+            ...(typeof options.smallMultiples === "string"
+              ? [options.smallMultiples]
+              : []),
+          ]),
+        ),
+      },
+      (data) => logLineChart(data, x, y, options),
     );
-    logLineChart(data as { [key: string]: unknown }[], x, y, options);
   }
 
   /**
    * Generates and logs a dot chart to the console. The data should be sorted by the x-axis values for accurate representation.
+   *
+   * The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.json` and removed after rendering. Remember to add `.sda-cache` to your `.gitignore`.
    *
    * **Data Type Requirements:**
    * - **X-axis values**: Must be `number` or `Date` objects.
@@ -1280,19 +1293,27 @@ export default class SimpleTable extends SimpleTableCore {
       height?: number;
     } = {},
   ): Promise<void> {
-    const data = await this.sdb.customQuery(
-      `SELECT "${x}", "${y}"${
-        typeof options.smallMultiples === "string"
-          ? `, "${options.smallMultiples}"`
-          : ""
-      } FROM "${this.name}"`,
-      { returnData: true },
+    await withDataFromScratchFile(
+      this,
+      {
+        columns: Array.from(
+          new Set([
+            x,
+            y,
+            ...(typeof options.smallMultiples === "string"
+              ? [options.smallMultiples]
+              : []),
+          ]),
+        ),
+      },
+      (data) => logDotChart(data, x, y, options),
     );
-    logDotChart(data as { [key: string]: unknown }[], x, y, options);
   }
 
   /**
    * Generates and logs a bar chart to the console.
+   *
+   * The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.json` and removed after rendering. Remember to add `.sda-cache` to your `.gitignore`.
    *
    * @param labels - The name of the column to be used for the labels (categories).
    * @param values - The name of the column to be used for the values.
@@ -1330,15 +1351,10 @@ export default class SimpleTable extends SimpleTableCore {
       width?: number;
     } = {},
   ): Promise<void> {
-    const data = await this.sdb.customQuery(
-      `SELECT "${labels}", "${values}" FROM "${this.name}"`,
-      { returnData: true },
-    );
-    logBarChart(
-      data as { [key: string]: unknown }[],
-      labels,
-      values,
-      options,
+    await withDataFromScratchFile(
+      this,
+      { columns: Array.from(new Set([labels, values])) },
+      (data) => logBarChart(data, labels, values, options),
     );
   }
 
