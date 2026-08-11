@@ -29,7 +29,7 @@ function clearEmbeddingCaches(): void {
 Deno.test(
   "hybridSearch regenerates embeddings when providers change at equal dimensions",
   async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable("provider_change");
     table.loadArray([
       { id: "a", text: "alpha" },
@@ -77,7 +77,7 @@ Deno.test("hybridSearch isolates table caches by embedding identity", async () =
   clearEmbeddingCaches();
 
   try {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable("cache_identity");
     table.loadArray([
       { id: "a", text: "cache alpha" },
@@ -132,7 +132,7 @@ Deno.test("hybridSearch isolates table caches by source mapping", async () => {
   clearEmbeddingCaches();
 
   try {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable("cache_source_mapping");
     table.loadArray([
       { id: "a", title: "alpha title", body: "alpha body" },
@@ -183,7 +183,7 @@ if (hasGoogleEmbeddingCredentials) {
     "should perform hybrid search and return a table",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -224,7 +224,7 @@ if (hasGoogleEmbeddingCredentials) {
     "should perform hybrid search with cached embeddings",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -252,7 +252,7 @@ if (hasGoogleEmbeddingCredentials) {
     "should perform hybrid search with custom output table",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -285,7 +285,7 @@ if (hasGoogleEmbeddingCredentials) {
     "should perform hybrid search with custom BM25 parameters",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -316,7 +316,7 @@ if (hasGoogleEmbeddingCredentials) {
     "should perform hybrid search with index creation",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -345,7 +345,7 @@ if (hasGoogleEmbeddingCredentials) {
     "should perform hybrid search with conjunctive option",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -391,7 +391,7 @@ if (hasGoogleEmbeddingCredentials) {
     "should perform hybrid search with FTS options",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -421,7 +421,7 @@ if (typeof ollama === "string" && ollama !== "") {
     "should perform hybrid search and return a table",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -463,7 +463,7 @@ if (typeof ollama === "string" && ollama !== "") {
     "should perform hybrid search with cached embeddings",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -492,7 +492,7 @@ if (typeof ollama === "string" && ollama !== "") {
     "should perform hybrid search with custom output table",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -526,7 +526,7 @@ if (typeof ollama === "string" && ollama !== "") {
     "should perform hybrid search with custom BM25 parameters",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -558,7 +558,7 @@ if (typeof ollama === "string" && ollama !== "") {
     "should perform hybrid search with index creation",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -589,7 +589,7 @@ if (typeof ollama === "string" && ollama !== "") {
     "should perform hybrid search with only BM25",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -621,7 +621,7 @@ if (typeof ollama === "string" && ollama !== "") {
     "should perform hybrid search with only vector search",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -653,7 +653,7 @@ if (typeof ollama === "string" && ollama !== "") {
     "should throw error when both search methods are disabled",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -692,7 +692,7 @@ if (typeof ollama === "string" && ollama !== "") {
     "should have threshold and new columns for scores",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -723,7 +723,7 @@ if (typeof ollama === "string" && ollama !== "") {
     "should should not throw an error when nothing is returned with strict thresholds and score columns",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -754,7 +754,7 @@ if (typeof ollama === "string" && ollama !== "") {
     "should perform hybrid search with conjunctive option",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -801,7 +801,7 @@ if (typeof ollama === "string" && ollama !== "") {
     "should perform hybrid search with custom BM25 options",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -834,7 +834,7 @@ if (typeof ollama === "string" && ollama !== "") {
     "should perform hybrid search with stopwords",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });

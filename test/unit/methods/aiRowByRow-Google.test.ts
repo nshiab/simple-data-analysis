@@ -14,7 +14,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   geminiTest(
     "Gemini row processing supports safety controls and metrics",
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("gemini_safety");
       table.loadArray([
         { city: "Marrakech" },
@@ -50,7 +50,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   );
 
   geminiTest("Gemini row processing supports web grounding", async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable("gemini_grounding");
     table.loadArray([{ city: "Marrakech" }]);
     await table.aiRowByRow(
@@ -68,7 +68,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   });
 
   geminiTest("Gemini row processing supports high thinking", async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable("gemini_thinking");
     table.loadArray([{ city: "Kyoto" }]);
     await table.aiRowByRow(

@@ -13,7 +13,7 @@ if (
   Deno.test("should write the data to a google sheet", {
     sanitizeResources: false,
   }, async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable();
     table.loadArray([
       { first: "Nael", last: "Shiab" },

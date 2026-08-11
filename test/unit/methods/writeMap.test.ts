@@ -1,27 +1,14 @@
-import {
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  unlinkSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, mkdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { assert, assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { geo, plot } from "@observablehq/plot";
 const output = "./test/output/";
-const datavizTempDirectory = ".sda-cache/tmp/dataviz";
 if (!existsSync(output)) {
   mkdirSync(output);
 }
 
-function getDatavizTempFiles(): Set<string> {
-  return new Set(
-    existsSync(datavizTempDirectory) ? readdirSync(datavizTempDirectory) : [],
-  );
-}
-
 Deno.test("should write a map as png", async () => {
-  const sdb = new SimpleDB();
+  const sdb = new SimpleDB({ dataTransport: "file" });
   const table = sdb.newTable();
 
   table.loadGeoData(
@@ -54,7 +41,7 @@ Deno.test("should write a map as png", async () => {
   await sdb.done();
 });
 Deno.test("should write a dark map as png", async () => {
-  const sdb = new SimpleDB();
+  const sdb = new SimpleDB({ dataTransport: "file" });
   const table = sdb.newTable();
 
   table.loadGeoData(
@@ -87,7 +74,7 @@ Deno.test("should write a dark map as png", async () => {
   await sdb.done();
 });
 Deno.test("should write a map as svg", async () => {
-  const sdb = new SimpleDB();
+  const sdb = new SimpleDB({ dataTransport: "file" });
   const table = sdb.newTable();
 
   table.loadGeoData(
@@ -118,7 +105,7 @@ Deno.test("should write a map as svg", async () => {
 });
 
 Deno.test("should write a map in a folder that doesn't exist", async () => {
-  const sdb = new SimpleDB();
+  const sdb = new SimpleDB({ dataTransport: "file" });
   const table = sdb.newTable();
 
   table.loadGeoData(
@@ -150,7 +137,7 @@ Deno.test("should write a map in a folder that doesn't exist", async () => {
 
 Deno.test("should write a map with multiple layers as a png", async () => {
   // From the README example
-  const sdb = new SimpleDB();
+  const sdb = new SimpleDB({ dataTransport: "file" });
   const provinces = sdb.newTable("provinces");
 
   provinces.loadGeoData(
@@ -226,9 +213,9 @@ Deno.test("should write a map with multiple layers as a png", async () => {
 });
 
 Deno.test(
-  "should pass dates and the selected geometry through a temporary GeoJSON file",
+  "should pass dates and the selected geometry to a map",
   async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable();
     table.loadArray([{
       day: "2026-08-04",
@@ -242,17 +229,8 @@ Deno.test(
     table.points("latA", "lonA", "geometryA");
     table.points("latB", "lonB", "geometryB");
 
-    const filesBefore = getDatavizTempFiles();
-    let tempPath: string | undefined;
-
     await table.writeMap(
       (data) => {
-        const tempFile = [...getDatavizTempFiles()].find((file) =>
-          !filesBefore.has(file) && file.endsWith(".geojson")
-        );
-        assert(tempFile !== undefined);
-        tempPath = `${datavizTempDirectory}/${tempFile}`;
-
         const feature = data.features[0] as {
           geometry: { coordinates: number[]; type: string };
           properties: Record<string, unknown>;
@@ -272,51 +250,6 @@ Deno.test(
       },
     );
 
-    assert(tempPath !== undefined);
-    assertEquals(existsSync(tempPath), false);
-    await sdb.done();
-  },
-);
-
-Deno.test(
-  "should remove temporary map data after an error",
-  async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable();
-    table.loadArray([{
-      latA: 45,
-      lonA: -73,
-      latB: 46,
-      lonB: -74,
-    }]);
-    table.points("latA", "lonA", "geometryA");
-    table.points("latB", "lonB", "geometryB");
-
-    const tableNamesBefore = (await sdb.getTableNames()).sort();
-    const filesBefore = getDatavizTempFiles();
-    let tempPath: string | undefined;
-    const consoleError = console.error;
-    try {
-      console.error = () => {};
-      await table.writeMap(
-        () => {
-          const tempFile = [...getDatavizTempFiles()].find((file) =>
-            !filesBefore.has(file) && file.endsWith(".geojson")
-          );
-          assert(tempFile !== undefined);
-          tempPath = `${datavizTempDirectory}/${tempFile}`;
-          throw new Error("Expected map error");
-        },
-        output + "expected-map-error.png",
-        { column: "geometryB" },
-      );
-    } finally {
-      console.error = consoleError;
-    }
-
-    assert(tempPath !== undefined);
-    assertEquals(existsSync(tempPath), false);
-    assertEquals((await sdb.getTableNames()).sort(), tableNamesBefore);
     await sdb.done();
   },
 );
@@ -344,7 +277,7 @@ Deno.test("should rewind polygon coordinates before creating a map", async () =>
     }),
   );
 
-  const sdb = new SimpleDB();
+  const sdb = new SimpleDB({ dataTransport: "file" });
   try {
     const table = sdb.newTable();
     table.loadGeoData(inputPath);

@@ -66,6 +66,11 @@ Creates a new SimpleDB instance.
 - **`options.memoryLimit`**: The maximum amount of memory DuckDB is allowed to
   use (for example, `"4GB"`).
 - **`options.tempDir`**: The path to the directory used for temporary files.
+- **`options.dataTransport`**: The transport used to retrieve data from DuckDB.
+  Defaults to `"direct"`. The experimental `"file"` option works around
+  [Deno issue #36538](https://github.com/denoland/deno/issues/36538), but adds
+  serialization, disk I/O, and parsing; it requires filesystem permissions and
+  is not a streaming or low-memory mode.
 
 ### Methods
 
@@ -504,6 +509,11 @@ const sdb = new SimpleDB({
   logSQL: true, // Log SQL immediately before execution
   rowsToLog: 20, // Set the number of rows to log by default
 });
+```
+
+```ts
+// Work around Deno result-chunk finalization crashes with file transport
+const sdb = new SimpleDB({ dataTransport: "file" });
 ```
 
 ## class SimpleTable
@@ -1737,9 +1747,6 @@ Creates an [Observable Plot](https://github.com/observablehq/plot) chart as an
 image file (.png or .svg) from the table data. To create maps, use the
 `writeMap` method.
 
-The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.json` and
-removed after rendering. Remember to add `.sda-cache` to your `.gitignore`.
-
 ##### Signature
 
 ```typescript
@@ -1790,9 +1797,6 @@ await table.writeChart(chartFunction, outputPath);
 Creates an [Observable Plot](https://github.com/observablehq/plot) map as an
 image file (.png or .svg) from the table's geospatial data. To create charts
 from non-geospatial data, use the `writeChart` method.
-
-The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.geojson` and
-removed after rendering. Remember to add `.sda-cache` to your `.gitignore`.
 
 ##### Signature
 
@@ -1851,9 +1855,6 @@ await table.writeMap(mapFunction, outputPath);
 
 Generates and logs a line chart to the console. The data should be sorted by the
 x-axis values for accurate representation.
-
-The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.json` and
-removed after rendering. Remember to add `.sda-cache` to your `.gitignore`.
 
 **Data Type Requirements:**
 
@@ -1935,9 +1936,6 @@ await table.logLineChart("date", "value", {
 Generates and logs a dot chart to the console. The data should be sorted by the
 x-axis values for accurate representation.
 
-The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.json` and
-removed after rendering. Remember to add `.sda-cache` to your `.gitignore`.
-
 **Data Type Requirements:**
 
 - **X-axis values**: Must be `number` or `Date` objects.
@@ -2016,9 +2014,6 @@ await table.logDotChart("date", "value", {
 #### `logBarChart`
 
 Generates and logs a bar chart to the console.
-
-The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.json` and
-removed after rendering. Remember to add `.sda-cache` to your `.gitignore`.
 
 ##### Signature
 
@@ -2138,7 +2133,7 @@ will be replaced. To convert the types of an existing table, use the
 ##### Signature
 
 ```typescript
-async setTypes(types: Record<string, "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean" | geometry('${[0m[36mstring[0m}') | GEOMETRY('${[0m[36mstring[0m}')>): Promise<void>;
+async setTypes(types: Record<string, "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean" | geometry('${string}') | GEOMETRY('${string}')>): Promise<void>;
 ```
 
 ##### Parameters
@@ -3861,7 +3856,7 @@ types) and a SQL definition.
 ##### Signature
 
 ```typescript
-async addColumn(newColumn: string, type: "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean" | geometry('${[0m[36mstring[0m}') | GEOMETRY('${[0m[36mstring[0m}'), definition: string): Promise<void>;
+async addColumn(newColumn: string, type: "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean" | geometry('${string}') | GEOMETRY('${string}'), definition: string): Promise<void>;
 ```
 
 ##### Parameters

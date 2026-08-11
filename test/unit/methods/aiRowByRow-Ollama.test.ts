@@ -8,7 +8,7 @@ const hasOllama = Deno.env.get("OLLAMA");
 
 if (typeof hasOllama === "string" && hasOllama !== "") {
   ollamaTest("Ollama row processing supports a custom client", async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable("ollama_client");
     table.loadArray([
       { city: "Marrakech" },
@@ -36,7 +36,7 @@ if (typeof hasOllama === "string" && hasOllama !== "") {
   });
 
   ollamaTest("Ollama row processing supports high thinking", async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable("ollama_thinking");
     table.loadArray([{ city: "Kyoto" }]);
     await table.aiRowByRow(

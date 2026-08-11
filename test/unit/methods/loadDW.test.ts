@@ -6,7 +6,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
   Deno.test("should load data from a Datawrapper chart", {
     sanitizeResources: false,
   }, async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable();
 
     // First write known data to the chart.

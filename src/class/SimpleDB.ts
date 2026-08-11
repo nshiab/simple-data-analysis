@@ -39,6 +39,12 @@ import SimpleTable from "./SimpleTable.ts";
  *   rowsToLog: 20 // Set the number of rows to log by default
  * });
  * ```
+ *
+ * @example
+ * ```ts
+ * // Work around Deno result-chunk finalization crashes with file transport
+ * const sdb = new SimpleDB({ dataTransport: "file" });
+ * ```
  */
 export default class SimpleDB extends SimpleDBCore<SimpleTable> {
   /**
@@ -65,6 +71,7 @@ export default class SimpleDB extends SimpleDBCore<SimpleTable> {
    * @param options.progressBar - A flag indicating whether to display a progress bar for long-running operations.
    * @param options.memoryLimit - The maximum amount of memory DuckDB is allowed to use (for example, `"4GB"`).
    * @param options.tempDir - The path to the directory used for temporary files.
+   * @param options.dataTransport - The transport used to retrieve data from DuckDB. Defaults to `"direct"`. The experimental `"file"` option works around [Deno issue #36538](https://github.com/denoland/deno/issues/36538), but adds serialization, disk I/O, and parsing; it requires filesystem permissions and is not a streaming or low-memory mode.
    * @category Constructor
    */
   constructor(
@@ -82,6 +89,7 @@ export default class SimpleDB extends SimpleDBCore<SimpleTable> {
       progressBar?: boolean;
       memoryLimit?: string;
       tempDir?: string;
+      dataTransport?: "direct" | "file";
     } = {},
   ) {
     super(options);

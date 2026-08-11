@@ -39,7 +39,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     rmSync("./.journalism-cache", { recursive: true });
   }
   Deno.test("should use a pool", async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable("data");
     table.loadArray(cities.map((city) => ({ city })));
 
@@ -71,7 +71,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await sdb.done();
   });
   Deno.test("should use a pool and return cached data", async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable("data");
     table.loadArray(cities.map((city) => ({ city })));
 
@@ -103,7 +103,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await sdb.done();
   });
   Deno.test("should analyze sentiment with test function and retry - docs example 1", async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable("data");
     // New table with a "review" column.
     table.loadArray([
@@ -155,7 +155,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   });
 
   Deno.test("should extract multiple properties - docs example 2", async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable("data");
     table.loadArray([
       { product: "Laptop" },
@@ -191,7 +191,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   });
 
   Deno.test("should handle errors gracefully without throwing", async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable("data");
     table.loadArray([
       { text: "Valid input" },
@@ -244,7 +244,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   });
 
   Deno.test("should work with single column output and batch size 1", async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable("data");
     table.loadArray([
       { name: "Marie" },
@@ -289,7 +289,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await sdb.done();
   });
   Deno.test("should use the default Zod JSON schema", async () => {
-    const sdb = new SimpleDB({ logDuration: true });
+    const sdb = new SimpleDB({ dataTransport: "file", logDuration: true });
     const table = sdb.newTable("data");
     table.loadArray([
       { "city": "Marrakech" },
@@ -339,7 +339,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await sdb.done();
   });
   Deno.test("should accept a Zod JSON schema for structured output", async () => {
-    const sdb = new SimpleDB({ logDuration: true });
+    const sdb = new SimpleDB({ dataTransport: "file", logDuration: true });
     const table = sdb.newTable("data");
     table.loadArray([
       { "city": "Marrakech" },
@@ -394,7 +394,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await sdb.done();
   });
   Deno.test("should not ground using web search", async () => {
-    const sdb = new SimpleDB({ logDuration: true });
+    const sdb = new SimpleDB({ dataTransport: "file", logDuration: true });
     const table = sdb.newTable("data");
     table.loadArray([
       { "name": "Nael Shiab, CBC News" },
@@ -420,7 +420,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await sdb.done();
   });
   Deno.test("should ground using web search", async () => {
-    const sdb = new SimpleDB({ logDuration: true });
+    const sdb = new SimpleDB({ dataTransport: "file", logDuration: true });
     const table = sdb.newTable("data");
     table.loadArray([
       { "name": "Nael Shiab, CBC News" },
@@ -446,7 +446,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await sdb.done();
   });
   Deno.test("should think minimally by default", async () => {
-    const sdb = new SimpleDB({ logDuration: true });
+    const sdb = new SimpleDB({ dataTransport: "file", logDuration: true });
     const table = sdb.newTable("data");
     table.loadArray([
       { "birthday": "2020-01-01" },
@@ -472,7 +472,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await sdb.done();
   });
   Deno.test("should use thinking level high", async () => {
-    const sdb = new SimpleDB({ logDuration: true });
+    const sdb = new SimpleDB({ dataTransport: "file", logDuration: true });
     const table = sdb.newTable("data");
     table.loadArray([
       { "birthday": "2020-01-01" },
@@ -507,7 +507,7 @@ if (typeof ollama === "string" && ollama !== "") {
     "should use an Ollama generation pool",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadArray([
         { city: "Marrakech" },

@@ -6,7 +6,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
   Deno.test("should write the data to a Datawrapper chart", {
     sanitizeResources: false,
   }, async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable();
     table.loadArray([
       { salary: 75000, hireDate: "2022-12-15" },
@@ -21,7 +21,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
   Deno.test("should write the data to a Datawrapper chart with a note", {
     sanitizeResources: false,
   }, async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable();
     table.loadArray([
       { salary: 75000, hireDate: "2022-12-15" },
@@ -35,7 +35,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
   Deno.test("should write the data to a Datawrapper chart and republish", {
     sanitizeResources: false,
   }, async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable();
     table.loadArray([
       { salary: 75000, hireDate: "2022-12-15" },

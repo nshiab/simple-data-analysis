@@ -2,7 +2,7 @@ import { assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
 Deno.test("should log a bar chart", async () => {
-  const sdb = new SimpleDB();
+  const sdb = new SimpleDB({ dataTransport: "file" });
   const table = sdb.newTable();
 
   const data = [
@@ -18,7 +18,7 @@ Deno.test("should log a bar chart", async () => {
 });
 
 Deno.test("should log a bar chart with options", async () => {
-  const sdb = new SimpleDB();
+  const sdb = new SimpleDB({ dataTransport: "file" });
   const table = sdb.newTable();
 
   const data = [

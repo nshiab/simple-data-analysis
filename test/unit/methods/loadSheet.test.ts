@@ -13,7 +13,7 @@ if (
   Deno.test("should load data from a google sheet", {
     sanitizeResources: false,
   }, async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable();
     const data = [
       { first: "Nael", last: "Shiab" },
@@ -42,7 +42,7 @@ if (
   Deno.test("should load data from a google sheet and skip rows", {
     sanitizeResources: false,
   }, async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable();
     const data = [
       { first: "Nael", last: "Shiab" },

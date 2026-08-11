@@ -34,7 +34,7 @@ const mixedProviderTest = createEnvironmentTest({
 });
 
 Deno.test("aiRAG regenerates incompatible managed embeddings", async () => {
-  const sdb = new SimpleDB();
+  const sdb = new SimpleDB({ dataTransport: "file" });
   const table = sdb.newTable("rag_provenance");
   table.loadArray([
     { id: "a", text: "alpha" },
@@ -98,7 +98,7 @@ if (hasAiKey) {
       "should select Gemini/Vertex generation and Ollama embeddings from environment variables",
       { sanitizeResources: false },
       async () => {
-        const sdb = new SimpleDB();
+        const sdb = new SimpleDB({ dataTransport: "file" });
         const table = sdb.newTable("data");
         table.loadData("test/data/files/recipes.parquet");
         table.removeDuplicates({ on: "Dish" });
@@ -128,7 +128,7 @@ if (hasAiKey) {
         sanitizeResources: false,
       },
       async () => {
-        const sdb = new SimpleDB();
+        const sdb = new SimpleDB({ dataTransport: "file" });
         const table = sdb.newTable("data");
         table.loadData("test/data/files/recipes.parquet");
         table.removeDuplicates({ on: "Dish" });
@@ -159,7 +159,7 @@ if (hasAiKey) {
         sanitizeResources: false,
       },
       async () => {
-        const sdb = new SimpleDB();
+        const sdb = new SimpleDB({ dataTransport: "file" });
         const table = sdb.newTable("data");
         table.loadData("test/data/files/recipes.parquet");
         table.removeDuplicates({ on: "Dish" });
@@ -194,7 +194,7 @@ if (hasAiKey) {
         sanitizeResources: false,
       },
       async () => {
-        const sdb = new SimpleDB();
+        const sdb = new SimpleDB({ dataTransport: "file" });
         const table = sdb.newTable("data");
         table.loadData("test/data/files/recipes.parquet");
         table.removeDuplicates({ on: "Dish" });
@@ -230,7 +230,7 @@ if (hasAiKey) {
         sanitizeResources: false,
       },
       async () => {
-        const sdb = new SimpleDB();
+        const sdb = new SimpleDB({ dataTransport: "file" });
         const table = sdb.newTable("data");
         table.loadData("test/data/files/recipes.parquet");
         table.removeDuplicates({ on: "Dish" });
@@ -265,7 +265,7 @@ if (hasAiKey) {
     "should answer a question using RAG with only BM25",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -296,7 +296,7 @@ if (hasAiKey) {
     "should answer a question using RAG with only vector search",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -329,7 +329,7 @@ if (hasAiKey) {
     "should answer a question using RAG with conjunctive option",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -365,7 +365,7 @@ if (hasOllama) {
     "should answer a question using RAG",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -397,7 +397,7 @@ if (hasOllama) {
   Deno.test("should answer a question using RAG with a cached table", {
     sanitizeResources: false,
   }, async () => {
-    const sdb = new SimpleDB();
+    const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable("data");
     table.loadData("test/data/files/recipes.parquet");
     table.removeMissing({ columns: "Recipe" });
@@ -426,7 +426,7 @@ if (hasOllama) {
       sanitizeResources: false,
     },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeMissing({ columns: "Recipe" });
@@ -460,7 +460,7 @@ if (hasOllama) {
       sanitizeResources: false,
     },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeMissing({ columns: "Recipe" });
@@ -495,7 +495,7 @@ if (hasOllama) {
       sanitizeResources: false,
     },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeMissing({ columns: "Recipe" });
@@ -539,6 +539,7 @@ if (hasOllama) {
       let table;
       if (!existsSync("test/output/recipes.db")) {
         sdb = new SimpleDB({
+          dataTransport: "file",
           file: "test/output/recipes.db",
           cacheVerbose: true,
         });
@@ -547,7 +548,7 @@ if (hasOllama) {
         table.removeDuplicates({ on: "Dish" });
         table.removeMissing({ columns: "Recipe" });
       } else {
-        sdb = new SimpleDB({ cacheVerbose: true });
+        sdb = new SimpleDB({ dataTransport: "file", cacheVerbose: true });
         await sdb.customQuery("INSTALL vss; LOAD vss;");
         await sdb.loadDB("test/output/recipes.db");
         table = await sdb.getTable("data");
@@ -584,6 +585,7 @@ if (hasOllama) {
       let table;
       if (!existsSync("test/output/recipes.db")) {
         sdb = new SimpleDB({
+          dataTransport: "file",
           file: "test/output/recipes.db",
           cacheVerbose: true,
         });
@@ -592,7 +594,7 @@ if (hasOllama) {
         table.removeDuplicates({ on: "Dish" });
         table.removeMissing({ columns: "Recipe" });
       } else {
-        sdb = new SimpleDB({ cacheVerbose: true });
+        sdb = new SimpleDB({ dataTransport: "file", cacheVerbose: true });
         await sdb.customQuery("INSTALL vss; LOAD vss;");
         await sdb.loadDB("test/output/recipes.db");
         table = await sdb.getTable("data");
@@ -625,7 +627,7 @@ if (hasOllama) {
     "should answer a question using RAG with only BM25",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -657,7 +659,7 @@ if (hasOllama) {
     "should answer a question using RAG with only vector search",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -688,7 +690,7 @@ if (hasOllama) {
     "should answer a question using RAG and log scores",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -721,7 +723,7 @@ if (hasOllama) {
     "should answer a question using RAG with conjunctive option",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -745,7 +747,7 @@ if (hasOllama) {
     "should perform aiRAG with custom BM25 options",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });
@@ -772,7 +774,7 @@ if (hasOllama) {
     "should perform aiRAG with stopwords",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("data");
       table.loadData("test/data/files/recipes.parquet");
       table.removeDuplicates({ on: "Dish" });

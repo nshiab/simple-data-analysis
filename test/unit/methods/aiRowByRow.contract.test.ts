@@ -138,7 +138,7 @@ function registerRowProcessingContract(
   Deno.test(`aiRowByRow shared batching contract (${provider})`, async () => {
     const fixture = createFixture();
     await fixture.run(async () => {
-      const sdb = new SimpleDB();
+      const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable(`row_contract_${provider}`);
       table.loadArray([
         { city: "Marrakech" },
@@ -177,7 +177,7 @@ function registerRowProcessingContract(
       const fixture = createFixture();
       await fixture.run(async () => {
         for (const tableName of ["first", "second"]) {
-          const sdb = new SimpleDB();
+          const sdb = new SimpleDB({ dataTransport: "file" });
           const table = sdb.newTable(`row_cache_${provider}_${tableName}`);
           table.loadArray([{ city: "Marrakech" }, { city: "Kyoto" }]);
           await table.aiRowByRow(
@@ -206,7 +206,7 @@ function registerRowProcessingContract(
     async () => {
       const fixture = createFixture();
       await fixture.run(async () => {
-        const sdb = new SimpleDB();
+        const sdb = new SimpleDB({ dataTransport: "file" });
         const table = sdb.newTable(`row_columns_${provider}`);
         table.loadArray([{ city: "Marrakech" }, { city: "Kyoto" }]);
 
@@ -231,7 +231,7 @@ function registerRowProcessingContract(
     async () => {
       const fixture = createFixture();
       await fixture.run(async () => {
-        const sdb = new SimpleDB();
+        const sdb = new SimpleDB({ dataTransport: "file" });
         const table = sdb.newTable(`row_schema_${provider}`);
         table.loadArray([{ city: "Marrakech" }, { city: "Kyoto" }]);
         const schemaJson = z.toJSONSchema(z.array(z.object({
