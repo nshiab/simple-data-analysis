@@ -51,10 +51,10 @@ import loadGeoDataFromScratchFile from "../helpers/loadGeoDataFromScratchFile.ts
  * employees.loadData("./employees.csv");
  *
  * // Log the first few rows of the "employees" table to the console
- * await employees.logTable();
+ * await employees.log();
  *
  * // Close the database connection and free up resources
- * await sdb.done();
+ * await sdb.close();
  * ```
  *
  * @example
@@ -70,7 +70,7 @@ import loadGeoDataFromScratchFile from "../helpers/loadGeoDataFromScratchFile.ts
  * boundaries.loadGeoData("./boundaries.geojson");
  *
  * // Close the database connection
- * await sdb.done();
+ * await sdb.close();
  * ```
  */
 export default class SimpleTable extends SimpleTableCore {
@@ -460,7 +460,7 @@ export default class SimpleTable extends SimpleTableCore {
    * );
    *
    * // Log the results
-   * await similarFoods.logTable();
+   * await similarFoods.log();
    * ```
    */
   async aiVectorSimilarity(
@@ -559,7 +559,7 @@ export default class SimpleTable extends SimpleTableCore {
    * );
    *
    * // Table now contains only the most relevant recipes
-   * await table.logTable();
+   * await table.log();
    * ```
    */
   async hybridSearch(
@@ -728,11 +728,11 @@ export default class SimpleTable extends SimpleTableCore {
    * );
    *
    * // Original table remains unchanged
-   * const allEmployees = await table.getNbRows();
+   * const allEmployees = await table.getRowCount();
    * console.log(allEmployees); // All employees
    *
    * // New table contains only query results
-   * const topEmployees = await results.getNbRows();
+   * const topEmployees = await results.getRowCount();
    * console.log(topEmployees); // 10
    * ```
    */

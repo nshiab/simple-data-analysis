@@ -88,7 +88,7 @@ Deno.test("aiEmbeddings reuses only a compatible managed column", async () => {
   assertEquals(changedModelClient.requests, 2);
   assertEquals((await table.getTypes()).text_embeddings, "FLOAT[3]");
 
-  await sdb.done();
+  await sdb.close();
 });
 
 Deno.test("aiEmbeddings regenerates a legacy column without provenance", async () => {
@@ -112,7 +112,7 @@ Deno.test("aiEmbeddings regenerates a legacy column without provenance", async (
   });
 
   assertEquals(client.requests, 2);
-  await sdb.done();
+  await sdb.close();
 });
 
 Deno.test("embedding provenance survives reopening a DuckDB database", async () => {
@@ -134,7 +134,7 @@ Deno.test("embedding provenance survives reopening a DuckDB database", async () 
       },
     });
     assertEquals(firstClient.requests, 2);
-    await firstDb.done();
+    await firstDb.close();
 
     const reopenedDb = new SimpleDB({ dataTransport: "file" });
     await reopenedDb.loadDB(databaseFile);
@@ -151,7 +151,7 @@ Deno.test("embedding provenance survives reopening a DuckDB database", async () 
       },
     });
     assertEquals(compatibleClient.requests, 0);
-    await reopenedDb.done();
+    await reopenedDb.close();
   } finally {
     await Deno.remove(directory, { recursive: true });
   }
@@ -266,7 +266,7 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
   }
   assertEquals(geminiFetch.requests, 2);
   assertEquals(table.indexes, []);
-  await sdb.done();
+  await sdb.close();
 });
 
 Deno.test("failed regeneration is retried and restores cache logging", async () => {
@@ -320,7 +320,7 @@ Deno.test("failed regeneration is retried and restores cache logging", async () 
     },
   });
   assertEquals(retryClient.requests, 2);
-  await sdb.done();
+  await sdb.close();
 });
 
 if (hasGoogleEmbeddingCredentials) {
@@ -354,7 +354,7 @@ if (hasGoogleEmbeddingCredentials) {
 
     // Just making sure it's doesnt crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should retrieve embedding from cache", async () => {
     const sdb = new SimpleDB({ dataTransport: "file" });
@@ -383,7 +383,7 @@ if (hasGoogleEmbeddingCredentials) {
 
     // Just making sure it's doesnt crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should create embeddings with an index", async () => {
     const sdb = new SimpleDB({ dataTransport: "file" });
@@ -414,7 +414,7 @@ if (hasGoogleEmbeddingCredentials) {
 
     // Just making sure it's doesnt crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
 } else {
   console.log("No AI_KEY in process.env");
@@ -450,7 +450,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
     // Just making sure it's doesnt crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should create embeddings with a different Ollama instance", async () => {
     const sdb = new SimpleDB({ dataTransport: "file" });
@@ -480,7 +480,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
     // Just making sure it's doesnt crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should retrieve embedding from cache", async () => {
     const sdb = new SimpleDB({ dataTransport: "file" });
@@ -509,7 +509,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
     // Just making sure it's doesnt crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should create embeddings with an index", async () => {
     const sdb = new SimpleDB({ dataTransport: "file" });
@@ -540,7 +540,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
     // Just making sure it's doesnt crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should create embeddings with concurrent requests", async () => {
     const sdb = new SimpleDB({ dataTransport: "file" });
@@ -573,7 +573,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
     // Just making sure it's doesnt crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
 } else {
   console.log("No OLLAMA in process.env");

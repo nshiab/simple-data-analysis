@@ -63,12 +63,12 @@ if (typeof aiKey === "string" && aiKey !== "") {
         metrics,
       },
     );
-    await table.logTable();
+    await table.log();
     console.table(metrics);
     const data = await table.getData();
 
     assertPoolData(data);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should use a pool and return cached data", async () => {
     const sdb = new SimpleDB({ dataTransport: "file" });
@@ -95,12 +95,12 @@ if (typeof aiKey === "string" && aiKey !== "") {
         metrics,
       },
     );
-    await table.logTable();
+    await table.log();
     console.table(metrics);
     const data = await table.getData();
 
     assertPoolData(data);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should analyze sentiment with test function and retry - docs example 1", async () => {
     const sdb = new SimpleDB({ dataTransport: "file" });
@@ -151,7 +151,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       );
     }
 
-    await sdb.done();
+    await sdb.close();
   });
 
   Deno.test("should extract multiple properties - docs example 2", async () => {
@@ -187,7 +187,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       assertEquals(row.error, null);
     }
 
-    await sdb.done();
+    await sdb.close();
   });
 
   Deno.test("should handle errors gracefully without throwing", async () => {
@@ -240,7 +240,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     }
 
     console.table(metrics);
-    await sdb.done();
+    await sdb.close();
   });
 
   Deno.test("should work with single column output and batch size 1", async () => {
@@ -286,7 +286,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       );
     }
 
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should use the default Zod JSON schema", async () => {
     const sdb = new SimpleDB({ dataTransport: "file", logDuration: true });
@@ -336,7 +336,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       ),
       true,
     );
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should accept a Zod JSON schema for structured output", async () => {
     const sdb = new SimpleDB({ dataTransport: "file", logDuration: true });
@@ -391,7 +391,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       ),
       true,
     );
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should not ground using web search", async () => {
     const sdb = new SimpleDB({ dataTransport: "file", logDuration: true });
@@ -414,10 +414,10 @@ if (typeof aiKey === "string" && aiKey !== "") {
       },
     );
 
-    await table.logTable();
+    await table.log();
 
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should ground using web search", async () => {
     const sdb = new SimpleDB({ dataTransport: "file", logDuration: true });
@@ -440,10 +440,10 @@ if (typeof aiKey === "string" && aiKey !== "") {
       },
     );
 
-    await table.logTable();
+    await table.log();
 
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should think minimally by default", async () => {
     const sdb = new SimpleDB({ dataTransport: "file", logDuration: true });
@@ -466,10 +466,10 @@ if (typeof aiKey === "string" && aiKey !== "") {
       },
     );
 
-    await table.logTable();
+    await table.log();
 
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should use thinking level high", async () => {
     const sdb = new SimpleDB({ dataTransport: "file", logDuration: true });
@@ -492,10 +492,10 @@ if (typeof aiKey === "string" && aiKey !== "") {
       },
     );
 
-    await table.logTable();
+    await table.log();
 
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
 } else {
   console.log("No AI_KEY or AI_PROJECT in process.env");
@@ -530,7 +530,7 @@ if (typeof ollama === "string" && ollama !== "") {
       assertEquals(data.length, 2);
       assertEquals(data.every((row) => typeof row.country === "string"), true);
       assertEquals(data.every((row) => row.error === null), true);
-      await sdb.done();
+      await sdb.close();
     },
   );
 }

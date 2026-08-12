@@ -165,7 +165,7 @@ function registerRowProcessingContract(
         { city: "Paris", country: "France" },
       ]);
       assertEquals(fixture.requestCount(), 2);
-      await sdb.done();
+      await sdb.close();
     });
   });
 
@@ -190,7 +190,7 @@ function registerRowProcessingContract(
             },
           );
           assertEquals(await table.getValues("country"), ["Morocco", "Japan"]);
-          await sdb.done();
+          await sdb.close();
         }
         assertEquals(fixture.requestCount(), 1);
       });
@@ -221,7 +221,7 @@ function registerRowProcessingContract(
           { city: "Marrakech", country: "Morocco", continent: "Africa" },
           { city: "Kyoto", country: "Japan", continent: "Asia" },
         ]);
-        await sdb.done();
+        await sdb.close();
       });
     },
   );
@@ -253,7 +253,7 @@ function registerRowProcessingContract(
           { city: "Marrakech", country: "Morocco", population: 929_987 },
           { city: "Kyoto", country: "Japan", population: 1_463_723 },
         ]);
-        await sdb.done();
+        await sdb.close();
       });
     },
   );

@@ -82,7 +82,7 @@ Deno.test("aiRAG regenerates incompatible managed embeddings", async () => {
 
   assertEquals(changedClient.requests, 3);
   assertEquals(response, "grounded answer");
-  await sdb.done();
+  await sdb.close();
 });
 
 if (hasAiKey) {
@@ -119,7 +119,7 @@ if (hasAiKey) {
 
         // Just to make sure it doesn't crash for now
         assertEquals(true, true);
-        await sdb.done();
+        await sdb.close();
       },
     );
     Deno.test(
@@ -150,7 +150,7 @@ if (hasAiKey) {
 
         // Just to make sure it doesn't crash for now
         assertEquals(true, true);
-        await sdb.done();
+        await sdb.close();
       },
     );
     Deno.test(
@@ -185,7 +185,7 @@ if (hasAiKey) {
 
         // Just to make sure it doesn't crash for now
         assertEquals(true, true);
-        await sdb.done();
+        await sdb.close();
       },
     );
     Deno.test(
@@ -221,7 +221,7 @@ if (hasAiKey) {
 
         // Just to make sure it doesn't crash for now
         assertEquals(true, true);
-        await sdb.done();
+        await sdb.close();
       },
     );
     Deno.test(
@@ -256,7 +256,7 @@ if (hasAiKey) {
 
         // Just to make sure it doesn't crash for now
         assertEquals(true, true);
-        await sdb.done();
+        await sdb.close();
       },
     );
   }
@@ -288,7 +288,7 @@ if (hasAiKey) {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -321,7 +321,7 @@ if (hasAiKey) {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -346,7 +346,7 @@ if (hasAiKey) {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
 } else if (!hasAiKey) {
@@ -391,7 +391,7 @@ if (hasOllama) {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test("should answer a question using RAG with a cached table", {
@@ -418,7 +418,7 @@ if (hasOllama) {
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test(
     "should answer a question using RAG with a cached table and minimal thinking",
@@ -451,7 +451,7 @@ if (hasOllama) {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -486,7 +486,7 @@ if (hasOllama) {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -520,7 +520,7 @@ if (hasOllama) {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -554,7 +554,7 @@ if (hasOllama) {
         table = await sdb.getTable("data");
       }
 
-      // await table.logTable();
+      // await table.log();
 
       const answer = await table.aiRAG(
         "I want a buttery pastry for breakfast.",
@@ -573,7 +573,7 @@ if (hasOllama) {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -600,7 +600,7 @@ if (hasOllama) {
         table = await sdb.getTable("data");
       }
 
-      // await table.logTable();
+      // await table.log();
 
       const answer = await table.aiRAG(
         "I want a buttery pastry for breakfast.",
@@ -619,7 +619,7 @@ if (hasOllama) {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -651,7 +651,7 @@ if (hasOllama) {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -683,7 +683,7 @@ if (hasOllama) {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -716,7 +716,7 @@ if (hasOllama) {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -740,7 +740,7 @@ if (hasOllama) {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -766,7 +766,7 @@ if (hasOllama) {
       console.log(answer);
       assertEquals(typeof answer, "string");
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -801,7 +801,7 @@ if (hasOllama) {
       console.log(answer);
       assertEquals(typeof answer, "string");
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 } else {

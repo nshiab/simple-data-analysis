@@ -23,7 +23,7 @@
  *
  * // You can now perform various data analysis operations on the table.
  *
- * await sdb.done(); // Ensure to call done when you're finished.
+ * await sdb.close(); // Ensure to call done when you're finished.
  * ```
  */
 

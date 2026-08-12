@@ -45,7 +45,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         { city: "Auckland", country: "New Zealand" },
       ]);
       assertEquals(metrics.totalRequests, 1);
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -64,7 +64,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     assertEquals(await table.getData(), [
       { city: "Marrakech", country: "Morocco" },
     ]);
-    await sdb.done();
+    await sdb.close();
   });
 
   geminiTest("Gemini row processing supports high thinking", async () => {
@@ -80,7 +80,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       },
     );
     assertEquals(await table.getData(), [{ city: "Kyoto", country: "Japan" }]);
-    await sdb.done();
+    await sdb.close();
   });
 } else {
   console.log("No AI_KEY or AI_PROJECT in process.env");

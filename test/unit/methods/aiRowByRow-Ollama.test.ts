@@ -32,7 +32,7 @@ if (typeof hasOllama === "string" && hasOllama !== "") {
       { city: "Kyoto", country: "Japan" },
       { city: "Auckland", country: "New Zealand" },
     ]);
-    await sdb.done();
+    await sdb.close();
   });
 
   ollamaTest("Ollama row processing supports high thinking", async () => {
@@ -48,7 +48,7 @@ if (typeof hasOllama === "string" && hasOllama !== "") {
       },
     );
     assertEquals(await table.getData(), [{ city: "Kyoto", country: "Japan" }]);
-    await sdb.done();
+    await sdb.close();
   });
 } else {
   console.log("No OLLAMA in process.env");

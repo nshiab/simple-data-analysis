@@ -126,7 +126,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
     // Just making sure it's doesnt crash for now
     assertEquals(values, ["pizza", "pasta", "salad"]);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test(
     "should make a vector similarity search by using the cache",
@@ -159,7 +159,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
       // Just making sure it's doesnt crash for now
       assertEquals(values, ["pizza", "pasta", "salad"]);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -194,7 +194,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
       // Just making sure it's doesnt crash for now
       assertEquals(values, ["pizza", "pasta", "salad"]);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -246,7 +246,7 @@ if (typeof ollama === "string" && ollama !== "") {
         italianFood: ["pizza", "pasta", "salad"],
         originalData: ["pizza", "sushi", "burger", "pasta", "salad", "tacos"],
       });
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -301,7 +301,7 @@ if (typeof ollama === "string" && ollama !== "") {
         italianFood: ["pizza", "pasta", "salad"],
         originalData: ["pizza", "sushi", "burger", "pasta", "salad", "tacos"],
       });
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -356,7 +356,7 @@ if (typeof ollama === "string" && ollama !== "") {
         italianFood: ["pizza", "pasta", "salad"],
         originalData: ["pizza", "sushi", "burger", "pasta", "salad", "tacos"],
       });
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -400,7 +400,7 @@ if (typeof ollama === "string" && ollama !== "") {
       // Ensure the array is sorted descending by similarity (highest score first)
       assertEquals((scores[0] as number) >= (scores[1] as number), true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -470,7 +470,7 @@ if (typeof ollama === "string" && ollama !== "") {
       );
       assertEquals(allRespectThreshold, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 } else {

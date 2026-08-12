@@ -461,7 +461,7 @@ export default async function hybridSearch(
   }
   await outputTableInstance.run();
   if (options.verbose) {
-    await outputTableInstance.logTable("all");
+    await outputTableInstance.log("all");
 
     const logParts = [`\nHybrid search times:`];
 

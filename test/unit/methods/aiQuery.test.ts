@@ -26,11 +26,11 @@ if (typeof aiKey === "string" && aiKey !== "") {
       { generation: geminiGeneration },
     );
 
-    await table.logTable();
+    await table.log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should update a table with natural language and thinking", async () => {
     const sdb = new SimpleDB({ dataTransport: "file" });
@@ -49,11 +49,11 @@ if (typeof aiKey === "string" && aiKey !== "") {
       },
     );
 
-    await table.logTable();
+    await table.log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should update a table with natural language with cache", async () => {
     const sdb = new SimpleDB({ dataTransport: "file" });
@@ -69,11 +69,11 @@ if (typeof aiKey === "string" && aiKey !== "") {
       },
     );
 
-    await table.logTable();
+    await table.log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should update a table with natural language with query returned from cache", async () => {
     const sdb = new SimpleDB({ dataTransport: "file" });
@@ -89,11 +89,11 @@ if (typeof aiKey === "string" && aiKey !== "") {
       },
     );
 
-    await table.logTable();
+    await table.log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should update a table with natural language and safetyEnabled", async () => {
     const sdb = new SimpleDB({ dataTransport: "file" });
@@ -109,11 +109,11 @@ if (typeof aiKey === "string" && aiKey !== "") {
       },
     );
 
-    await table.logTable();
+    await table.log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should update a table with natural language and option verbose", async () => {
     const sdb = new SimpleDB({ dataTransport: "file" });
@@ -126,11 +126,11 @@ if (typeof aiKey === "string" && aiKey !== "") {
       { generation: geminiGeneration, verbose: true },
     );
 
-    await table.logTable();
+    await table.log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should create a new table with aiQuery results using outputTable option", async () => {
     const sdb = new SimpleDB({ dataTransport: "file" });
@@ -138,7 +138,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     table.loadData("test/data/files/dailyTemperatures.csv");
     table.renameColumns({ t: "temperature", "id": "city" });
 
-    const originalRowCount = await table.getNbRows();
+    const originalRowCount = await table.getRowCount();
 
     const resultTable = await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
@@ -150,16 +150,16 @@ if (typeof aiKey === "string" && aiKey !== "") {
     );
 
     // Original table should remain unchanged
-    const currentRowCount = await table.getNbRows();
+    const currentRowCount = await table.getRowCount();
     assertEquals(currentRowCount, originalRowCount);
 
     // Result table should have the aggregated data
-    const resultRowCount = await resultTable.getNbRows();
+    const resultRowCount = await resultTable.getRowCount();
     assertEquals(resultTable.name, "avg_temp");
     // We expect fewer rows since we're aggregating by city
     assertEquals(resultRowCount < originalRowCount, true);
 
-    await sdb.done();
+    await sdb.close();
   });
 } else {
   console.log("No AI_PROJECT in process.env");
@@ -183,11 +183,11 @@ if (typeof ollama === "string" && ollama !== "") {
       { generation: ollamaGeneration, verbose: true },
     );
 
-    await table.logTable();
+    await table.log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test(
     "should update a table with natural language and thinking (Ollama)",
@@ -206,11 +206,11 @@ if (typeof ollama === "string" && ollama !== "") {
         },
       );
 
-      await table.logTable();
+      await table.log();
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -232,11 +232,11 @@ if (typeof ollama === "string" && ollama !== "") {
         },
       );
 
-      await table.logTable();
+      await table.log();
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test("should update a table with natural language with cache (Ollama)", {
@@ -255,11 +255,11 @@ if (typeof ollama === "string" && ollama !== "") {
       },
     );
 
-    await table.logTable();
+    await table.log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test(
     "should update a table with natural language with query returned from cache (Ollama)",
@@ -278,11 +278,11 @@ if (typeof ollama === "string" && ollama !== "") {
         },
       );
 
-      await table.logTable();
+      await table.log();
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -299,11 +299,11 @@ if (typeof ollama === "string" && ollama !== "") {
         { generation: ollamaGeneration, verbose: true },
       );
 
-      await table.logTable();
+      await table.log();
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -315,7 +315,7 @@ if (typeof ollama === "string" && ollama !== "") {
       table.loadData("test/data/files/dailyTemperatures.csv");
       table.renameColumns({ t: "temperature", "id": "city" });
 
-      const originalRowCount = await table.getNbRows();
+      const originalRowCount = await table.getRowCount();
 
       const resultTable = await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
@@ -327,16 +327,16 @@ if (typeof ollama === "string" && ollama !== "") {
       );
 
       // Original table should remain unchanged
-      const currentRowCount = await table.getNbRows();
+      const currentRowCount = await table.getRowCount();
       assertEquals(currentRowCount, originalRowCount);
 
       // Result table should have the aggregated data
-      const resultRowCount = await resultTable.getNbRows();
+      const resultRowCount = await resultTable.getRowCount();
       assertEquals(resultTable.name, "avg_temp_ollama");
       // We expect fewer rows since we're aggregating by city
       assertEquals(resultRowCount < originalRowCount, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 } else {

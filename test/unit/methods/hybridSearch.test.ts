@@ -69,7 +69,7 @@ Deno.test(
     }
     assertEquals(geminiFetch.requests, 3);
 
-    await sdb.done();
+    await sdb.close();
   },
 );
 
@@ -122,7 +122,7 @@ Deno.test("hybridSearch isolates table caches by embedding identity", async () =
         .length,
       2,
     );
-    await sdb.done();
+    await sdb.close();
   } finally {
     clearEmbeddingCaches();
   }
@@ -170,7 +170,7 @@ Deno.test("hybridSearch isolates table caches by source mapping", async () => {
       ).length,
       2,
     );
-    await sdb.done();
+    await sdb.close();
   } finally {
     clearEmbeddingCaches();
   }
@@ -189,7 +189,7 @@ if (hasGoogleEmbeddingCredentials) {
       table.removeDuplicates({ on: "Dish" });
       table.removeMissing({ columns: "Recipe" });
 
-      const originalNbRows = await table.getNbRows();
+      const originalNbRows = await table.getRowCount();
 
       const results = await table.hybridSearch(
         "buttery pastry for breakfast",
@@ -207,7 +207,7 @@ if (hasGoogleEmbeddingCredentials) {
       assertEquals(results, table);
 
       // Table should be modified to contain only the search results
-      const nbRows = await table.getNbRows();
+      const nbRows = await table.getRowCount();
       assertEquals(nbRows <= 10, true);
       assertEquals(nbRows < originalNbRows, true);
 
@@ -216,7 +216,7 @@ if (hasGoogleEmbeddingCredentials) {
       assertEquals(columns.includes("Dish"), true);
       assertEquals(columns.includes("Recipe"), true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -241,10 +241,10 @@ if (hasGoogleEmbeddingCredentials) {
         },
       );
 
-      const nbRows = await results.getNbRows();
+      const nbRows = await results.getRowCount();
       assertEquals(nbRows <= 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -274,10 +274,10 @@ if (hasGoogleEmbeddingCredentials) {
       assertEquals(results.name, "italian_search_results");
 
       // Verify original table is unchanged
-      const originalNbRows = await table.getNbRows();
+      const originalNbRows = await table.getRowCount();
       assertEquals(originalNbRows > 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -305,10 +305,10 @@ if (hasGoogleEmbeddingCredentials) {
         },
       );
 
-      const nbRows = await results.getNbRows();
+      const nbRows = await results.getRowCount();
       assertEquals(nbRows <= 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -334,10 +334,10 @@ if (hasGoogleEmbeddingCredentials) {
         },
       );
 
-      const nbRows = await results.getNbRows();
+      const nbRows = await results.getRowCount();
       assertEquals(nbRows <= 3, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -363,7 +363,7 @@ if (hasGoogleEmbeddingCredentials) {
           outputTable: "results_conjunctive_false",
         },
       );
-      await resultsConjunctiveFalse.logTable();
+      await resultsConjunctiveFalse.log();
 
       // Run with conjunctive option
       // This will only affect the BM25 part of the search
@@ -378,12 +378,12 @@ if (hasGoogleEmbeddingCredentials) {
           outputTable: "results_conjunctive_true",
         },
       );
-      await results.logTable();
+      await results.log();
 
-      const nbRows = await results.getNbRows();
+      const nbRows = await results.getRowCount();
       assertEquals(nbRows > 0, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -406,10 +406,10 @@ if (hasGoogleEmbeddingCredentials) {
         verbose: true,
       });
 
-      const nbRows = await results.getNbRows();
+      const nbRows = await results.getRowCount();
       assertEquals(nbRows <= 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 }
@@ -427,7 +427,7 @@ if (typeof ollama === "string" && ollama !== "") {
       table.removeDuplicates({ on: "Dish" });
       table.removeMissing({ columns: "Recipe" });
 
-      const originalNbRows = await table.getNbRows();
+      const originalNbRows = await table.getRowCount();
 
       const results = await table.hybridSearch(
         "buttery pastry for breakfast",
@@ -440,13 +440,13 @@ if (typeof ollama === "string" && ollama !== "") {
         },
       );
 
-      await results.logTable();
+      await results.log();
 
       // Should return the same table instance when no outputTable is specified
       assertEquals(results, table);
 
       // Table should be modified to contain only the search results
-      const nbRows = await table.getNbRows();
+      const nbRows = await table.getRowCount();
       assertEquals(nbRows <= 10, true);
       assertEquals(nbRows < originalNbRows, true);
 
@@ -455,7 +455,7 @@ if (typeof ollama === "string" && ollama !== "") {
       assertEquals(columns.includes("Dish"), true);
       assertEquals(columns.includes("Recipe"), true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -479,12 +479,12 @@ if (typeof ollama === "string" && ollama !== "") {
         },
       );
 
-      await results.logTable();
+      await results.log();
 
-      const nbRows = await results.getNbRows();
+      const nbRows = await results.getRowCount();
       assertEquals(nbRows <= 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -509,16 +509,16 @@ if (typeof ollama === "string" && ollama !== "") {
         },
       );
 
-      await results.logTable();
+      await results.log();
 
       // Verify the output table name
       assertEquals(results.name, "italian_search_results");
 
       // Verify original table is unchanged
-      const originalNbRows = await table.getNbRows();
+      const originalNbRows = await table.getRowCount();
       assertEquals(originalNbRows > 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -545,12 +545,12 @@ if (typeof ollama === "string" && ollama !== "") {
         },
       );
 
-      await results.logTable();
+      await results.log();
 
-      const nbRows = await results.getNbRows();
+      const nbRows = await results.getRowCount();
       assertEquals(nbRows <= 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -576,12 +576,12 @@ if (typeof ollama === "string" && ollama !== "") {
         },
       );
 
-      await results.logTable();
+      await results.log();
 
-      const nbRows = await results.getNbRows();
+      const nbRows = await results.getRowCount();
       assertEquals(nbRows <= 3, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -608,12 +608,12 @@ if (typeof ollama === "string" && ollama !== "") {
         },
       );
 
-      await results.logTable();
+      await results.log();
 
-      const nbRows = await results.getNbRows();
+      const nbRows = await results.getRowCount();
       assertEquals(nbRows <= 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -640,12 +640,12 @@ if (typeof ollama === "string" && ollama !== "") {
         },
       );
 
-      await results.logTable();
+      await results.log();
 
-      const nbRows = await results.getNbRows();
+      const nbRows = await results.getRowCount();
       assertEquals(nbRows <= 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -685,7 +685,7 @@ if (typeof ollama === "string" && ollama !== "") {
       assertEquals(errorThrown, true);
 
       await sdb.run();
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -712,11 +712,11 @@ if (typeof ollama === "string" && ollama !== "") {
         },
       );
 
-      await table.logTable();
+      await table.log();
 
       assertEquals(true, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -743,11 +743,11 @@ if (typeof ollama === "string" && ollama !== "") {
         },
       );
 
-      await table.logTable();
+      await table.log();
 
       assertEquals(true, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -788,12 +788,12 @@ if (typeof ollama === "string" && ollama !== "") {
       );
 
       assertEquals(
-        await resultsConjunctiveFalse.getNbRows() > 0 &&
-          await resultsConjunctiveTrue.getNbRows() > 0,
+        await resultsConjunctiveFalse.getRowCount() > 0 &&
+          await resultsConjunctiveTrue.getRowCount() > 0,
         true,
       );
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -822,11 +822,11 @@ if (typeof ollama === "string" && ollama !== "") {
         },
       );
 
-      const nbRows = await results.getNbRows();
+      const nbRows = await results.getRowCount();
       assertEquals(nbRows > 0, true);
       assertEquals(nbRows <= 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -853,10 +853,10 @@ if (typeof ollama === "string" && ollama !== "") {
         },
       );
 
-      const nbRows = await results.getNbRows();
+      const nbRows = await results.getRowCount();
       assertEquals(nbRows <= 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 } else {

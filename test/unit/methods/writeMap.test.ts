@@ -38,7 +38,7 @@ Deno.test("should write a map as png", async () => {
 
   // How to assert?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });
 Deno.test("should write a dark map as png", async () => {
   const sdb = new SimpleDB({ dataTransport: "file" });
@@ -71,7 +71,7 @@ Deno.test("should write a dark map as png", async () => {
 
   // How to assert?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });
 Deno.test("should write a map as svg", async () => {
   const sdb = new SimpleDB({ dataTransport: "file" });
@@ -101,7 +101,7 @@ Deno.test("should write a map as svg", async () => {
 
   // How to assert?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });
 
 Deno.test("should write a map in a folder that doesn't exist", async () => {
@@ -132,7 +132,7 @@ Deno.test("should write a map in a folder that doesn't exist", async () => {
 
   // How to assert?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });
 
 Deno.test("should write a map with multiple layers as a png", async () => {
@@ -206,7 +206,7 @@ Deno.test("should write a map with multiple layers as a png", async () => {
 
   await provincesAndFires.writeMap(map, path);
 
-  await sdb.done();
+  await sdb.close();
 
   // How to assert?
   assertEquals(true, true);
@@ -250,7 +250,7 @@ Deno.test(
       },
     );
 
-    await sdb.done();
+    await sdb.close();
   },
 );
 
@@ -296,7 +296,7 @@ Deno.test("should rewind polygon coordinates before creating a map", async () =>
       return plot({ marks: [geo(data)] });
     }, output + "rewound-polygon.png");
   } finally {
-    await sdb.done();
+    await sdb.close();
     if (existsSync(inputPath)) {
       unlinkSync(inputPath);
     }

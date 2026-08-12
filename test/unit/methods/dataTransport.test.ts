@@ -10,7 +10,7 @@ Deno.test("default direct data transport smoke test", async () => {
 
     assertEquals(await table.getData(), [{ value: 1 }]);
   } finally {
-    await sdb.done();
+    await sdb.close();
   }
 });
 
@@ -19,6 +19,6 @@ Deno.test("forwards file data transport to core", async () => {
   try {
     assertEquals(sdb.dataTransport, "file");
   } finally {
-    await sdb.done();
+    await sdb.close();
   }
 });

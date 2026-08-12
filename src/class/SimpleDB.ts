@@ -16,9 +16,9 @@ import SimpleTable from "./SimpleTable.ts";
  * // Load data from a CSV file into the "employees" table
  * employees.loadData("./employees.csv");
  * // Log the first few rows of the "employees" table to the console
- * await employees.logTable();
+ * await employees.log();
  * // Close the database connection and clean up resources
- * await sdb.done();
+ * await sdb.close();
  * ```
  *
  * @example
@@ -28,7 +28,7 @@ import SimpleTable from "./SimpleTable.ts";
  * const sdb = new SimpleDB({ file: "./my_database.db" });
  * // Perform database operations...
  * // Close the database connection, which saves changes to the specified file
- * await sdb.done();
+ * await sdb.close();
  * ```
  *
  * @example

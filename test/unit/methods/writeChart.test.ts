@@ -26,7 +26,7 @@ Deno.test("should write a chart as a png", async () => {
     }), output + "temp.png");
   // How to assert?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });
 Deno.test("should write a dark chart as a png", async () => {
   const sdb = new SimpleDB({ dataTransport: "file" });
@@ -51,7 +51,7 @@ Deno.test("should write a dark chart as a png", async () => {
   );
   // How to assert?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });
 
 Deno.test("should write a chart as a svg", async () => {
@@ -71,7 +71,7 @@ Deno.test("should write a chart as a svg", async () => {
     }), output + "temp.svg");
   // How to assert?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });
 
 Deno.test("should write a chart (example from docs)", async () => {
@@ -87,7 +87,7 @@ Deno.test("should write a chart (example from docs)", async () => {
     }), output + "example.png");
   // How to assert?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });
 
 Deno.test("should write a chart in a folder that doesn't exist", async () => {
@@ -107,7 +107,7 @@ Deno.test("should write a chart in a folder that doesn't exist", async () => {
     }), output + "/test/temp.png");
   // How to assert?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });
 
 Deno.test(
@@ -137,6 +137,6 @@ Deno.test(
       });
     }, output + "dates.png");
 
-    await sdb.done();
+    await sdb.close();
   },
 );

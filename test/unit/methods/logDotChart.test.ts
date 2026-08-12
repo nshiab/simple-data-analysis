@@ -17,7 +17,7 @@ Deno.test("should log a dot chart", async () => {
 
   // How to test?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });
 Deno.test("should log a dot chart with formatting options", async () => {
   const sdb = new SimpleDB({ dataTransport: "file" });
@@ -37,7 +37,7 @@ Deno.test("should log a dot chart with formatting options", async () => {
 
   // How to test?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });
 
 Deno.test("should log a dot chart with small multiples", async () => {
@@ -61,7 +61,7 @@ Deno.test("should log a dot chart with small multiples", async () => {
 
   // How to test?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });
 
 Deno.test("should log a line chart with small multiples", async () => {
@@ -75,5 +75,5 @@ Deno.test("should log a line chart with small multiples", async () => {
 
   // How to test?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });

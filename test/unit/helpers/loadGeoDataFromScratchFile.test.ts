@@ -27,6 +27,6 @@ Deno.test("loads a GeoJSON string through a scratch file", async () => {
       }],
     });
   } finally {
-    await sdb.done();
+    await sdb.close();
   }
 });

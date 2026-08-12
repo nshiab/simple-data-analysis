@@ -23,7 +23,7 @@ table.loadData("path/to/your/data.csv");
 
 // You can now perform various data analysis operations on the table.
 
-await sdb.done(); // Ensure to call done when you're finished.
+await sdb.close(); // Ensure to call done when you're finished.
 ```
 
 ## class SimpleDB
@@ -476,7 +476,7 @@ A promise that resolves to the SimpleDB instance after cleanup.
 
 ```ts
 // Close the database and clean up resources
-await sdb.done();
+await sdb.close();
 ```
 
 ### Examples
@@ -489,9 +489,9 @@ const employees = sdb.newTable("employees");
 // Load data from a CSV file into the "employees" table
 employees.loadData("./employees.csv");
 // Log the first few rows of the "employees" table to the console
-await employees.logTable();
+await employees.log();
 // Close the database connection and clean up resources
-await sdb.done();
+await sdb.close();
 ```
 
 ```ts
@@ -500,7 +500,7 @@ await sdb.done();
 const sdb = new SimpleDB({ file: "./my_database.db" });
 // Perform database operations...
 // Close the database connection, which saves changes to the specified file
-await sdb.done();
+await sdb.close();
 ```
 
 ```ts
@@ -1065,7 +1065,7 @@ const similarFoods = await table.aiVectorSimilarity(
 );
 
 // Log the results
-await similarFoods.logTable();
+await similarFoods.log();
 ```
 
 #### `hybridSearch`
@@ -1222,7 +1222,7 @@ await table.hybridSearch(
 );
 
 // Table now contains only the most relevant recipes
-await table.logTable();
+await table.log();
 ```
 
 #### `aiRAG`
@@ -1474,11 +1474,11 @@ const results = await table.aiQuery(
 );
 
 // Original table remains unchanged
-const allEmployees = await table.getNbRows();
+const allEmployees = await table.getRowCount();
 console.log(allEmployees); // All employees
 
 // New table contains only query results
-const topEmployees = await results.getNbRows();
+const topEmployees = await results.getRowCount();
 console.log(topEmployees); // 10
 ```
 
@@ -5950,7 +5950,7 @@ A promise that resolves to a number representing the total count of rows.
 
 ```ts
 // Get the number of rows in the table
-const nbRows = await table.getNbRows();
+const nbRows = await table.getRowCount();
 console.log(nbRows); // e.g., 100
 ```
 
@@ -8047,7 +8047,7 @@ await table.cache(async () => {
 
 // It's important to call done() on the SimpleDB instance to clean up the cache.
 // This prevents the cache from growing indefinitely.
-await sdb.done();
+await sdb.close();
 ```
 
 ```ts
@@ -8065,7 +8065,7 @@ await table.cache(async () => {
   });
 }, { ttl: 60 });
 
-await sdb.done();
+await sdb.close();
 ```
 
 ```ts
@@ -8082,7 +8082,7 @@ await table.cache(async () => {
   });
 });
 
-await sdb.done();
+await sdb.close();
 ```
 
 #### `logTable`
@@ -8117,7 +8117,7 @@ A promise that resolves when the table data has been logged.
 
 ```ts
 // Log the first 10 rows (default behavior)
-await table.logTable();
+await table.log();
 ```
 
 ```ts
@@ -8405,10 +8405,10 @@ const employees = sdb.newTable("employees");
 employees.loadData("./employees.csv");
 
 // Log the first few rows of the "employees" table to the console
-await employees.logTable();
+await employees.log();
 
 // Close the database connection and free up resources
-await sdb.done();
+await sdb.close();
 ```
 
 ```ts
@@ -8423,5 +8423,5 @@ const boundaries = sdb.newTable("boundaries");
 boundaries.loadGeoData("./boundaries.geojson");
 
 // Close the database connection
-await sdb.done();
+await sdb.close();
 ```

@@ -224,7 +224,7 @@ const fires = await sdb
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
   )
   .points("lat", "lon", "geom")
-  .logTable();
+  .log();
 
 // We create a new table and fetch the provinces' boundaries from a GeoJSON file.
 const provinces = await sdb
@@ -232,7 +232,7 @@ const provinces = await sdb
   .loadGeoData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
   )
-  .logTable();
+  .log();
 
 // We match fires with provinces
 // and we output the results into a new table.
@@ -296,7 +296,7 @@ await firesInsideProvinces.writeChart(chart, "sda/output/chart.png");
 await firesInsideProvinces.writeData("sda/output/firesInsideProvinces.parquet");
 
 // We close everything.
-await sdb.done();
+await sdb.close();
 ```
 
 Here's what you should see in your console if you run this script.
@@ -338,7 +338,7 @@ const table = await sdb
   .filter(`hectares > 1`)
   // We rename the causes.
   .replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" })
-  .logTable();
+  .log();
 
 // Let's create a beeswarm chart with a log scale.
 // We facet over the causes.
@@ -364,7 +364,7 @@ const chart = (data: unknown[]) =>
 
 await table.writeChart(chart, "sda/output/chart.png");
 
-await sdb.done();
+await sdb.close();
 ```
 
 ![Beeswarm chart showing the size of wildfires in Canada in 2023.](./assets/beeswarm.png)
@@ -387,7 +387,7 @@ const provinces = await sdb
   .loadGeoData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
   )
-  .logTable();
+  .log();
 
 // We fetch the fires.
 const fires = await sdb
@@ -402,7 +402,7 @@ const fires = await sdb
   .replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" })
   .selectColumns(["geom", "hectares", "cause"])
   .filter(`hectares > 0`)
-  .logTable();
+  .log();
 
 // Now, we want the provinces and the fires in the same table
 // to draw our map with the writeMap method.
@@ -418,7 +418,7 @@ const provincesAndFires = await provinces
   // To make our lives easier, we add a column to
   // distinguish between provinces and fires.
   .addColumn("isFire", "boolean", `hectares > 0`)
-  .logTable();
+  .log();
 
 // This is our function to draw the map, using the Plot library.
 // The geoData will come from our provincesAndFires table
@@ -461,7 +461,7 @@ const map = (geoData: {
 // Now we can call writeMap.
 await provincesAndFires.writeMap(map, "sda/output/map.png");
 
-await sdb.done();
+await sdb.close();
 ```
 
 ![Map showing the wildfires in Canada in 2023.](./assets/map.png)
@@ -572,7 +572,7 @@ await firesInsideProvinces.logBarChart("nameEnglish", "burntArea");
 // This method will remove the unused files
 // in the cache. It will also log the total duration
 // if the logDuration option was set to true.
-await sdb.done();
+await sdb.close();
 ```
 
 After the first run, here's what you'll see in your terminal. For each

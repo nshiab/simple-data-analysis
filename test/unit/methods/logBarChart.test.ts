@@ -14,7 +14,7 @@ Deno.test("should log a bar chart", async () => {
 
   // How to test?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });
 
 Deno.test("should log a bar chart with options", async () => {
@@ -33,5 +33,5 @@ Deno.test("should log a bar chart with options", async () => {
 
   // How to test?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });

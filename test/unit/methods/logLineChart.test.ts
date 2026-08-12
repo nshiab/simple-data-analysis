@@ -17,7 +17,7 @@ Deno.test("should log a line chart", async () => {
 
   // How to test?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });
 Deno.test("should log a line chart with formatting options", async () => {
   const sdb = new SimpleDB({ dataTransport: "file" });
@@ -37,7 +37,7 @@ Deno.test("should log a line chart with formatting options", async () => {
 
   // How to test?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });
 Deno.test("should log a line chart with small multiples", async () => {
   const sdb = new SimpleDB({ dataTransport: "file" });
@@ -60,7 +60,7 @@ Deno.test("should log a line chart with small multiples", async () => {
 
   // How to test?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });
 
 Deno.test("should log another line chart with small multiples", async () => {
@@ -68,12 +68,12 @@ Deno.test("should log another line chart with small multiples", async () => {
   const table = sdb.newTable();
 
   table.loadData("test/data/files/aircraftByEvents.csv");
-  await table.logTable();
+  await table.log();
   await table.logLineChart("occurenceYear", "count", {
     smallMultiples: "aircraftEvent",
   });
 
   // How to test?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });
