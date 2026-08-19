@@ -11,7 +11,7 @@ import {
   updateNotesDW,
 } from "@nshiab/journalism-dataviz";
 import cleanDatavizGlobals from "../helpers/cleanDatavizGlobals.ts";
-import { getSheetData, overwriteSheetData } from "@nshiab/journalism-google";
+import { getSheetData, pushToSheet } from "@nshiab/journalism-google";
 import type { Data } from "@observablehq/plot";
 import { createDirectory } from "@nshiab/simple-data-analysis-core/helpers";
 import logHistogram from "../methods/logHistogram.ts";
@@ -755,18 +755,21 @@ export default class SimpleTable extends SimpleTableCore {
 
   /**
    * Writes the table data to a Google Sheet.
-   * This method uses the `overwriteSheetData` function from the [journalism library](https://jsr.io/@nshiab/journalism). Refer to its documentation for more details.
+   * This method uses the `pushToSheet` function from the [journalism-google library](https://jsr.io/@nshiab/journalism-google). Refer to its documentation for more details.
    *
-   * By default, authentication is handled via environment variables (GOOGLE_PRIVATE_KEY and GOOGLE_SERVICE_ACCOUNT_EMAIL). Alternatively, you can use GOOGLE_APPLICATION_CREDENTIALS pointing to a service account JSON file. For detailed setup instructions, refer to the node-google-spreadsheet authentication guide: https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
+   * By default, the selected tab is overwritten and values are written without Google Sheets interpretation. Authentication is handled via environment variables (GOOGLE_PRIVATE_KEY and GOOGLE_SERVICE_ACCOUNT_EMAIL). Alternatively, you can use GOOGLE_APPLICATION_CREDENTIALS pointing to a service account JSON file. For detailed setup instructions, refer to the node-google-spreadsheet authentication guide: https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
    *
-   * @param sheetUrl - The URL pointing to a specific Google Sheet (e.g., `"https://docs.google.com/spreadsheets/d/.../edit#gid=0"`).
+   * @param sheetUrl - A Google Sheets URL. It can point to a spreadsheet or a specific tab.
    * @param options - An optional object with configuration options:
-   * @param options.prepend - A string to prepend to the sheet data (e.g., a title or header).
-   * @param options.lastUpdate - If `true`, adds a timestamp of the last update to the sheet.
-   * @param options.timeZone - The time zone to use for the last update timestamp.
-   * @param options.raw - If `true`, writes the data as raw values without formatting.
-   * @param options.apiEmail - If your API email is stored under a different environment variable name, use this option to specify it.
-   * @param options.apiKey - If your API key is stored under a different environment variable name, use this option to specify it.
+   * @param options.mode - Whether to overwrite the tab or append rows. Defaults to `"overwrite"`.
+   * @param options.tabTitle - Selects a tab by title instead of using the URL's `gid`.
+   * @param options.create - If `true`, creates a missing tab selected by `tabTitle`. Defaults to `false`.
+   * @param options.prepend - Text to add above the header row in overwrite mode.
+   * @param options.lastUpdate - If `true`, adds a UTC timestamp. Pass a Canadian time zone to use it for the timestamp. Available only in overwrite mode.
+   * @param options.raw - If `true`, writes values without Google Sheets interpretation. Defaults to `true`.
+   * @param options.credentials - Explicit Google service-account credentials. These override credentials provided through environment variables or GOOGLE_APPLICATION_CREDENTIALS.
+   * @param options.credentials.email - The Google service-account email.
+   * @param options.credentials.privateKey - The Google service-account private key.
    * @returns A promise that resolves when the data has been written to the sheet.
    * @category Exporting Data
    *
@@ -775,11 +778,57 @@ export default class SimpleTable extends SimpleTableCore {
    * // Write the table data to a Google Sheet
    * await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
    * ```
+   *
+   * @example
+   * ```ts
+   * // Append rows to a tab selected by title
+   * await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit", {
+   *   mode: "append",
+   *   tabTitle: "Election results",
+   * });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Create a missing tab and add context above the data
+   * await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit", {
+   *   tabTitle: "Election results",
+   *   create: true,
+   *   prepend: "Preliminary results",
+   *   lastUpdate: "Canada/Eastern",
+   * });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Let Google Sheets interpret values, such as formulas and dates
+   * await table.toSheet(
+   *   "https://docs.google.com/spreadsheets/d/.../edit#gid=0",
+   *   { raw: false },
+   * );
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Pass service-account credentials explicitly
+   * await table.toSheet(
+   *   "https://docs.google.com/spreadsheets/d/.../edit#gid=0",
+   *   {
+   *     credentials: {
+   *       email: "service-account@example.iam.gserviceaccount.com",
+   *       privateKey: "-----BEGIN PRIVATE KEY-----\\n...",
+   *     },
+   *   },
+   * );
+   * ```
    */
   async toSheet(sheetUrl: string, options: {
+    mode?: "overwrite" | "append";
+    tabTitle?: string;
+    create?: boolean;
     prepend?: string;
-    lastUpdate?: boolean;
-    timeZone?:
+    lastUpdate?:
+      | boolean
       | "Canada/Atlantic"
       | "Canada/Central"
       | "Canada/Eastern"
@@ -789,13 +838,15 @@ export default class SimpleTable extends SimpleTableCore {
       | "Canada/Saskatchewan"
       | "Canada/Yukon";
     raw?: boolean;
-    apiEmail?: string;
-    apiKey?: string;
+    credentials?: {
+      email: string;
+      privateKey: string;
+    };
   } = {}): Promise<void> {
     const data = await this.getData() as Parameters<
-      typeof overwriteSheetData
+      typeof pushToSheet
     >[0];
-    await overwriteSheetData(data, sheetUrl, options);
+    await pushToSheet(data, sheetUrl, options);
   }
 
   /**

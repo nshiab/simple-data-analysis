@@ -54,8 +54,7 @@ if (
       "https://docs.google.com/spreadsheets/d/1Ar19cP8oGYEzacfrkLWnSH7ZqImILMUrosBwnZ43EQM/edit#gid=0",
       {
         prepend: "Hi!",
-        lastUpdate: true,
-        timeZone: "Canada/Eastern",
+        lastUpdate: "Canada/Eastern",
       },
     );
 
