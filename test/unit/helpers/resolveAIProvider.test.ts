@@ -5,15 +5,8 @@ Deno.test("defaults to Gemini", () => {
   assertEquals(resolveAIProvider({}), "gemini");
 });
 
-Deno.test("uses OLLAMA as the legacy default", () => {
-  assertEquals(resolveAIProvider({ OLLAMA: "true" }), "ollama");
-});
-
-Deno.test("uses AI_PROVIDER before the OLLAMA fallback", () => {
-  assertEquals(
-    resolveAIProvider({ AI_PROVIDER: "gemini", OLLAMA: "true" }),
-    "gemini",
-  );
+Deno.test("ignores OLLAMA", () => {
+  assertEquals(resolveAIProvider({ OLLAMA: "true" }), "gemini");
 });
 
 Deno.test("rejects an invalid AI_PROVIDER", () => {

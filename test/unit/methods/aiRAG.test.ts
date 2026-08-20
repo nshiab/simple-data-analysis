@@ -9,9 +9,9 @@ import {
   hasGoogleEmbeddingCredentials,
 } from "../helpers/realEmbeddingOptions.ts";
 
-const ollama = Deno.env.get("OLLAMA");
 const hasAiKey = hasGoogleEmbeddingCredentials;
-const hasOllama = typeof ollama === "string" && ollama !== "";
+const hasOllama = Deno.env.get("AI_PROVIDER") === "ollama" ||
+  Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama";
 const geminiGeneration = {
   provider: "gemini",
   model: "gemini-3-flash-preview",
@@ -805,5 +805,7 @@ if (hasOllama) {
     },
   );
 } else {
-  console.log("No OLLAMA in process.env");
+  console.log(
+    "Neither AI_PROVIDER nor AI_EMBEDDINGS_PROVIDER is set to ollama",
+  );
 }

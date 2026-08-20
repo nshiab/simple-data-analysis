@@ -107,7 +107,7 @@ export async function generateEmbeddingColumn(
     for (let i = 0; i < rows.length; i++) {
       if (options.verbose) {
         console.log(
-          `\nProcessing row ${i + 1} of ${rows.length}... (${
+          `Processing row ${i + 1} of ${rows.length}... (${
             formatNumber(
               (i + 1) / rows.length * 100,
               {

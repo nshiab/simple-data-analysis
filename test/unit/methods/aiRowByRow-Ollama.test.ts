@@ -4,9 +4,9 @@ import { Ollama } from "ollama";
 import createEnvironmentTest from "../helpers/createEnvironmentTest.ts";
 
 const ollamaTest = createEnvironmentTest({ AI_PROVIDER: "ollama" });
-const hasOllama = Deno.env.get("OLLAMA");
+const hasOllama = Deno.env.get("AI_PROVIDER") === "ollama";
 
-if (typeof hasOllama === "string" && hasOllama !== "") {
+if (hasOllama) {
   ollamaTest("Ollama row processing supports a custom client", async () => {
     const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable("ollama_client");
@@ -51,5 +51,5 @@ if (typeof hasOllama === "string" && hasOllama !== "") {
     await sdb.close();
   });
 } else {
-  console.log("No OLLAMA in process.env");
+  console.log("AI_PROVIDER is not set to ollama");
 }

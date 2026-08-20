@@ -10,8 +10,7 @@ const Deno = {
   test: createEnvironmentTest({ AI_EMBEDDINGS_PROVIDER: "ollama" }),
 };
 const ollamaEmbeddings = { provider: "ollama", cache: true } as const;
-const ollama = Deno.env.get("OLLAMA");
-if (typeof ollama === "string" && ollama !== "") {
+if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
   if (existsSync("./.journalism-cache")) {
     rmSync("./.journalism-cache", { recursive: true });
   }
@@ -474,5 +473,5 @@ if (typeof ollama === "string" && ollama !== "") {
     },
   );
 } else {
-  console.log("No OLLAMA in process.env");
+  console.log("AI_EMBEDDINGS_PROVIDER is not set to ollama");
 }

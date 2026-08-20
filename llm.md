@@ -476,7 +476,7 @@ A promise that resolves to the SimpleDB instance after cleanup.
 
 ```ts
 // Close the database and clean up resources
-await sdb.close();
+await sdb.done();
 ```
 
 ### Examples
@@ -555,10 +555,9 @@ This method automatically appends instructions to your prompt; set `verbose` to
 `true` to see the full prompt.
 
 This method supports Gemini, Vertex AI, and Ollama. Set `generation.provider`
-explicitly, or omit it to use `AI_PROVIDER` (or the legacy `OLLAMA` variable).
-All other `generation` fields match the selected `askGemini` or `askOllama`
-function from journalism-ai. Model and credentials can also come from
-environment variables.
+explicitly, or omit it to use `AI_PROVIDER`. All other `generation` fields match
+the selected `askGemini` or `askOllama` function from journalism-ai. Model and
+credentials can also come from environment variables.
 
 For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set
 `AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
@@ -579,7 +578,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRowByRow(column: string, newColumn: string | string[], prompt: string, options?: AIRowByRowOptions): Promise<void>;
+async aiRowByRow(column: string, newColumn: string | string[], prompt: string, options?: { generation?: { systemPrompt?: string; model?: string; schemaJson?: unknown; cache?: boolean; processResponse?: (response: unknown) => unknown | Promise<unknown>; temperature?: number } & ({ provider: "gemini"; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider: "ollama"; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never } | { provider?: undefined; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider?: undefined; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never }); batchSize?: number; concurrent?: number; test?: (result: Record<string, unknown>) => void; retry?: number; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => unknown; extraInstructions?: string; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
 ```
 
 ##### Parameters
@@ -686,6 +685,13 @@ await table.aiRowByRow(
 // ]
 ```
 
+```ts
+// Process rows with a local Ollama model.
+await table.aiRowByRow("name", "description", "Describe this name.", {
+  generation: { provider: "ollama", model: "gemma3:4b" },
+});
+```
+
 #### `aiRowByRowPool`
 
 Applies a prompt to the value of each row in a specified column using a
@@ -724,7 +730,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRowByRowPool(column: string, newColumn: string | string[], errorColumn: string, prompt: string, poolSize: number, options?: AIRowByRowPoolOptions): Promise<void>;
+async aiRowByRowPool(column: string, newColumn: string | string[], errorColumn: string, prompt: string, poolSize: number, options?: { generation?: { systemPrompt?: string; model?: string; schemaJson?: unknown; cache?: boolean; processResponse?: (response: unknown) => unknown | Promise<unknown>; temperature?: number } & ({ provider: "gemini"; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider: "ollama"; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never } | { provider?: undefined; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider?: undefined; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never }); batchSize?: number; logProgress?: boolean; verbose?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; retryCheck?: (error: unknown) => Promise<boolean> | boolean; extraInstructions?: string; minRequestDurationMs?: number; clean?: (response: unknown) => unknown; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
 ```
 
 ##### Parameters
@@ -852,15 +858,27 @@ await table.aiRowByRowPool(
 // ]
 ```
 
+```ts
+// Process rows concurrently with a local Ollama model.
+await table.aiRowByRowPool(
+  "product",
+  "category",
+  "error",
+  "Categorize this product.",
+  3,
+  { generation: { provider: "ollama", model: "gemma3:4b" } },
+);
+```
+
 #### `aiEmbeddings`
 
 Generates embeddings for a specified text column and stores the results in a new
 column.
 
 This method supports Gemini, Vertex AI, and Ollama embeddings. Set
-`embeddings.provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER` (or
-the legacy `OLLAMA` variable); all other fields match `getEmbedding` from
-journalism-ai. Model and credentials can also come from environment variables.
+`embeddings.provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`; all
+other fields match `getEmbedding` from journalism-ai. Model and credentials can
+also come from environment variables.
 
 For Ollama, set `AI_EMBEDDINGS_PROVIDER=ollama`, ensure Ollama is running, and
 set `AI_EMBEDDINGS_MODEL`, or pass `{ provider: "ollama", ... }` through
@@ -889,7 +907,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiEmbeddings(column: string, newColumn: string, options?: AIEmbeddingsOptions): Promise<void>;
+async aiEmbeddings(column: string, newColumn: string, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; createIndex?: boolean; overwriteIndex?: boolean; concurrent?: number; verbose?: boolean; rateLimitPerMinute?: number; efConstruction?: number; efSearch?: number; M?: number }): Promise<void>;
 ```
 
 ##### Parameters
@@ -954,6 +972,13 @@ await table.aiEmbeddings("food", "embeddings", {
 });
 ```
 
+```ts
+// Generate embeddings with a local Ollama model.
+await table.aiEmbeddings("food", "embeddings", {
+  embeddings: { provider: "ollama", model: "nomic-embed-text" },
+});
+```
+
 #### `aiVectorSimilarity`
 
 Creates an embedding from a specified text and returns the most similar text
@@ -979,7 +1004,7 @@ up processing. If the index already exists, it will not be recreated unless
 ##### Signature
 
 ```typescript
-async aiVectorSimilarity(text: string, column: string, nbResults: number, options?: AIVectorSimilarityOptions): Promise<SimpleTable>;
+async aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; createIndex?: boolean; overwriteIndex?: boolean; outputTable?: string; verbose?: boolean; efConstruction?: number; efSearch?: number; M?: number; minSimilarity?: number; similarityColumn?: string }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -1068,6 +1093,18 @@ const similarFoods = await table.aiVectorSimilarity(
 await similarFoods.log();
 ```
 
+```ts
+// Query an embedding column created with the same Ollama model.
+const results = await table.aiVectorSimilarity(
+  "italian food",
+  "embeddings",
+  3,
+  {
+    embeddings: { provider: "ollama", model: "nomic-embed-text" },
+  },
+);
+```
+
 #### `hybridSearch`
 
 Performs hybrid text search combining vector similarity and BM25 text search
@@ -1119,7 +1156,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async hybridSearch(query: string, columnId: string, columnText: string, nbResults: number, options?: HybridSearchOptions): Promise<SimpleTable>;
+async hybridSearch(query: string, columnId: string, columnText: string, nbResults: number, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; verbose?: boolean; createIndex?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; outputTable?: string; efConstruction?: number; efSearch?: number; M?: number; times?: { start?: number; embeddingStart?: number; embeddingEnd?: number; vectorSearchStart?: number; vectorSearchEnd?: number; bm25Start?: number; bm25End?: number } }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -1225,6 +1262,13 @@ await table.hybridSearch(
 await table.log();
 ```
 
+```ts
+// Run hybrid search with local Ollama embeddings.
+await table.hybridSearch("buttery pastry", "Dish", "Recipe", 10, {
+  embeddings: { provider: "ollama", model: "nomic-embed-text" },
+});
+```
+
 #### `aiRAG`
 
 Performs Retrieval-Augmented Generation (RAG) by combining semantic vector
@@ -1281,7 +1325,7 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRAG(query: string, columnId: string, columnText: string, nbResults: number, options?: AIRAGOptions): Promise<string>;
+async aiRAG(query: string, columnId: string, columnText: string, nbResults: number, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; verbose?: boolean; createIndex?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; efConstruction?: number; efSearch?: number; M?: number; generation?: { systemPrompt?: string; model?: string; cache?: boolean; processResponse?: (response: unknown) => unknown | Promise<unknown>; temperature?: number } & ({ provider: "gemini"; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider: "ollama"; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never } | { provider?: undefined; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider?: undefined; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never }); includeThoughts?: boolean; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<string>;
 ```
 
 ##### Parameters
@@ -1398,6 +1442,20 @@ console.log(answer);
 // They are a classic buttery pastry perfect for breakfast..."
 ```
 
+```ts
+// Use Ollama for both retrieval embeddings and answer generation.
+const answer = await table.aiRAG(
+  "I want a buttery pastry for breakfast.",
+  "Dish",
+  "Recipe",
+  10,
+  {
+    generation: { provider: "ollama", model: "gemma3:4b" },
+    embeddings: { provider: "ollama", model: "nomic-embed-text" },
+  },
+);
+```
+
 #### `aiQuery`
 
 Generates and executes a SQL query based on a prompt. Additional instructions,
@@ -1420,7 +1478,7 @@ When `generation.cache` is `true`, the generated query is cached locally in
 ##### Signature
 
 ```typescript
-async aiQuery(prompt: string, options?: AIQueryOptions): Promise<SimpleTable>;
+async aiQuery(prompt: string, options?: { extraInstructions?: string; generation?: { systemPrompt?: string; model?: string; cache?: boolean; processResponse?: (response: unknown) => unknown | Promise<unknown>; temperature?: number } & ({ provider: "gemini"; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider: "ollama"; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never } | { provider?: undefined; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider?: undefined; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never }); includeThoughts?: boolean; outputTable?: string; verbose?: boolean }): Promise<SimpleTable>;
 ```
 
 ##### Parameters
@@ -1482,42 +1540,55 @@ const topEmployees = await results.getRowCount();
 console.log(topEmployees); // 10
 ```
 
+```ts
+// Generate and execute the query with a local Ollama model.
+await table.aiQuery("Give me the average salary by department", {
+  generation: { provider: "ollama", model: "gemma3:4b" },
+});
+```
+
 #### `toSheet`
 
-Writes the table data to a Google Sheet. This method uses the
-`overwriteSheetData` function from the
-[journalism library](https://jsr.io/@nshiab/journalism). Refer to its
-documentation for more details.
+Writes the table data to a Google Sheet. This method uses the `pushToSheet`
+function from the
+[journalism-google library](https://jsr.io/@nshiab/journalism-google). Refer to
+its documentation for more details.
 
-By default, authentication is handled via environment variables
-(GOOGLE_PRIVATE_KEY and GOOGLE_SERVICE_ACCOUNT_EMAIL). Alternatively, you can
-use GOOGLE_APPLICATION_CREDENTIALS pointing to a service account JSON file. For
-detailed setup instructions, refer to the node-google-spreadsheet authentication
-guide:
+By default, the selected tab is overwritten and values are written without
+Google Sheets interpretation. Authentication is handled via environment
+variables (GOOGLE_PRIVATE_KEY and GOOGLE_SERVICE_ACCOUNT_EMAIL). Alternatively,
+you can use GOOGLE_APPLICATION_CREDENTIALS pointing to a service account JSON
+file. For detailed setup instructions, refer to the node-google-spreadsheet
+authentication guide:
 https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
 
 ##### Signature
 
 ```typescript
-async toSheet(sheetUrl: string, options?: { prepend?: string; lastUpdate?: boolean; timeZone?: "Canada/Atlantic" | "Canada/Central" | "Canada/Eastern" | "Canada/Mountain" | "Canada/Newfoundland" | "Canada/Pacific" | "Canada/Saskatchewan" | "Canada/Yukon"; raw?: boolean; apiEmail?: string; apiKey?: string }): Promise<void>;
+async toSheet(sheetUrl: string, options?: { mode?: "overwrite" | "append"; tabTitle?: string; create?: boolean; prepend?: string; lastUpdate?: boolean | "Canada/Atlantic" | "Canada/Central" | "Canada/Eastern" | "Canada/Mountain" | "Canada/Newfoundland" | "Canada/Pacific" | "Canada/Saskatchewan" | "Canada/Yukon"; raw?: boolean; credentials?: { email: string; privateKey: string } }): Promise<void>;
 ```
 
 ##### Parameters
 
-- **`sheetUrl`**: The URL pointing to a specific Google Sheet (e.g.,
-  `"https://docs.google.com/spreadsheets/d/.../edit#gid=0"`).
+- **`sheetUrl`**: A Google Sheets URL. It can point to a spreadsheet or a
+  specific tab.
 - **`options`**: An optional object with configuration options:
-- **`options.prepend`**: A string to prepend to the sheet data (e.g., a title or
-  header).
-- **`options.lastUpdate`**: If `true`, adds a timestamp of the last update to
-  the sheet.
-- **`options.timeZone`**: The time zone to use for the last update timestamp.
-- **`options.raw`**: If `true`, writes the data as raw values without
-  formatting.
-- **`options.apiEmail`**: If your API email is stored under a different
-  environment variable name, use this option to specify it.
-- **`options.apiKey`**: If your API key is stored under a different environment
-  variable name, use this option to specify it.
+- **`options.mode`**: Whether to overwrite the tab or append rows. Defaults to
+  `"overwrite"`.
+- **`options.tabTitle`**: Selects a tab by title instead of using the URL's
+  `gid`.
+- **`options.create`**: If `true`, creates a missing tab selected by `tabTitle`.
+  Defaults to `false`.
+- **`options.prepend`**: Text to add above the header row in overwrite mode.
+- **`options.lastUpdate`**: If `true`, adds a UTC timestamp. Pass a Canadian
+  time zone to use it for the timestamp. Available only in overwrite mode.
+- **`options.raw`**: If `true`, writes values without Google Sheets
+  interpretation. Defaults to `true`.
+- **`options.credentials`**: Explicit Google service-account credentials. These
+  override credentials provided through environment variables or
+  GOOGLE_APPLICATION_CREDENTIALS.
+- **`options.credentials.email`**: The Google service-account email.
+- **`options.credentials.privateKey`**: The Google service-account private key.
 
 ##### Returns
 
@@ -1528,6 +1599,45 @@ A promise that resolves when the data has been written to the sheet.
 ```ts
 // Write the table data to a Google Sheet
 await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+```
+
+```ts
+// Append rows to a tab selected by title
+await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit", {
+  mode: "append",
+  tabTitle: "Election results",
+});
+```
+
+```ts
+// Create a missing tab and add context above the data
+await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit", {
+  tabTitle: "Election results",
+  create: true,
+  prepend: "Preliminary results",
+  lastUpdate: "Canada/Eastern",
+});
+```
+
+```ts
+// Let Google Sheets interpret values, such as formulas and dates
+await table.toSheet(
+  "https://docs.google.com/spreadsheets/d/.../edit#gid=0",
+  { raw: false },
+);
+```
+
+```ts
+// Pass service-account credentials explicitly
+await table.toSheet(
+  "https://docs.google.com/spreadsheets/d/.../edit#gid=0",
+  {
+    credentials: {
+      email: "service-account@example.iam.gserviceaccount.com",
+      privateKey: "-----BEGIN PRIVATE KEY-----\\n...",
+    },
+  },
+);
 ```
 
 #### `loadSheet`
@@ -5950,7 +6060,7 @@ A promise that resolves to a number representing the total count of rows.
 
 ```ts
 // Get the number of rows in the table
-const nbRows = await table.getRowCount();
+const nbRows = await table.getNbRows();
 console.log(nbRows); // e.g., 100
 ```
 
@@ -8047,7 +8157,7 @@ await table.cache(async () => {
 
 // It's important to call done() on the SimpleDB instance to clean up the cache.
 // This prevents the cache from growing indefinitely.
-await sdb.close();
+await sdb.done();
 ```
 
 ```ts
@@ -8065,7 +8175,7 @@ await table.cache(async () => {
   });
 }, { ttl: 60 });
 
-await sdb.close();
+await sdb.done();
 ```
 
 ```ts
@@ -8082,7 +8192,7 @@ await table.cache(async () => {
   });
 });
 
-await sdb.close();
+await sdb.done();
 ```
 
 #### `logTable`
@@ -8117,7 +8227,7 @@ A promise that resolves when the table data has been logged.
 
 ```ts
 // Log the first 10 rows (default behavior)
-await table.log();
+await table.logTable();
 ```
 
 ```ts

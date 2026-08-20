@@ -413,8 +413,7 @@ if (hasGoogleEmbeddingCredentials) {
     },
   );
 }
-const ollama = Deno.env.get("OLLAMA");
-if (typeof ollama === "string" && ollama !== "") {
+if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
   clearEmbeddingCaches();
 
   Deno.test(

@@ -11,6 +11,40 @@ import {
   hasGoogleEmbeddingCredentials,
 } from "../helpers/realEmbeddingOptions.ts";
 
+Deno.test("aiEmbeddings verbose progress does not add blank lines", async () => {
+  const sdb = new SimpleDB({ dataTransport: "file" });
+  const table = sdb.newTable("embedding_progress");
+  table.loadArray([{ text: "alpha" }, { text: "beta" }]);
+  const client = new FakeOllamaEmbeddingClient(
+    "http://progress.local:11434",
+    [1, 0],
+  );
+  const logs: string[] = [];
+  const originalLog = console.log;
+  console.log = (...values: unknown[]) =>
+    logs.push(values.map(String).join(" "));
+
+  try {
+    await table.aiEmbeddings("text", "text_embeddings", {
+      embeddings: {
+        provider: "ollama",
+        model: "model-a",
+        ollama: client,
+      },
+      verbose: true,
+    });
+  } finally {
+    console.log = originalLog;
+    await sdb.close();
+  }
+
+  assertEquals(logs, [
+    "\naiEmbeddings()",
+    "Processing row 1 of 2... (50%)",
+    "Processing row 2 of 2... (100%)",
+  ]);
+});
+
 Deno.test("aiEmbeddings reuses only a compatible managed column", async () => {
   const sdb = new SimpleDB({ dataTransport: "file" });
   const table = sdb.newTable("embedding_provenance");
@@ -420,8 +454,7 @@ if (hasGoogleEmbeddingCredentials) {
   console.log("No AI_KEY in process.env");
 }
 
-const ollama = Deno.env.get("OLLAMA");
-if (typeof ollama === "string" && ollama !== "") {
+if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
   if (existsSync("./.journalism-cache")) {
     rmSync("./.journalism-cache", { recursive: true });
   }
@@ -576,5 +609,5 @@ if (typeof ollama === "string" && ollama !== "") {
     await sdb.close();
   });
 } else {
-  console.log("No OLLAMA in process.env");
+  console.log("AI_EMBEDDINGS_PROVIDER is not set to ollama");
 }

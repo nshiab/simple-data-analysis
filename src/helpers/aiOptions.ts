@@ -92,7 +92,7 @@ export type OllamaGenerationOptions = AskOllamaOptions & {
 export type EnvironmentGenerationOptions =
   & (AskGeminiOptions | AskOllamaOptions)
   & {
-    /** Uses `AI_PROVIDER` or the legacy `OLLAMA` environment variable. */
+    /** Uses `AI_PROVIDER` to select the generation provider. */
     provider?: undefined;
   };
 

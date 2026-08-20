@@ -501,8 +501,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   console.log("No AI_KEY or AI_PROJECT in process.env");
 }
 
-const ollama = Deno.env.get("OLLAMA");
-if (typeof ollama === "string" && ollama !== "") {
+if (Deno.env.get("AI_PROVIDER") === "ollama") {
   Deno.test(
     "should use an Ollama generation pool",
     { sanitizeResources: false },

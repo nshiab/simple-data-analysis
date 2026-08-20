@@ -7,12 +7,12 @@
     contains all core DuckDB-dependent logic (loading, filtering, joining,
     geospatial, etc.).
   - **`simple-data-analysis`** (this repo) is an extension adding AI, Google
-    Sheets, and Dataviz features.
+    Sheets, and Dataviz features and more.
 - **Where to contribute:**
-  - If you are adding or fixing a standard data operation, do it in the **core**
-    repo.
-  - If you are adding or fixing AI, Google Sheets, or charting methods, do it
-    **here**.
+  - Prefer `simple-data-analysis-core` for features that depend only on DuckDB
+    or have no external runtime dependencies.
+  - Prefer `simple-data-analysis` for features requiring a runtime library
+    beyond DuckDB, such as AI, Google Sheets, or charting integrations.
 - **Analyze Structure:** Review the directory tree to understand the module
   hierarchy.
 - **Check Capabilities:** Read `deno.json` to identify available `tasks` and
@@ -28,6 +28,16 @@
 
 ### Phase 2: Implementation (DURING Development)
 
+- **Public API Organization:** Give every public method a matching
+  implementation file at `src/methods/<methodName>.ts` and test file at
+  `test/unit/methods/<methodName>.test.ts`. Shared internal logic may live in a
+  separate module whose filename matches its exported function.
+- **Inline Public Types:** Define the complete type of every object-shaped
+  public parameter inline in the public signature. Recursively inline nested
+  object-shaped types, aliases, and interfaces within options. Public option
+  signatures must not reference named application types. Built-in types such as
+  `Promise`, `Date`, and `URL` may remain named. Implementation-only functions
+  may use reusable named aliases.
 - **Strict Typing:** Avoid `any`. Use explicit interfaces and types.
 - **Documentation:** Every new public property, method, or parameter must have a
   JSDoc block.
@@ -44,7 +54,7 @@
   without warnings.
 - **Testing:**
   - Update existing tests in `test/unit/` or create a new `.test.ts` file if
-    none exists.
+    none exists. The `test/unit/` folder should mirror the `test/src/` folder.
   - Run tests using `deno test` (or the specific `deno task` defined in
     `deno.json`).
 - **Documentation Integrity:** Ensure JSDoc remains accurate if you have to

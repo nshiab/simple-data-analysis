@@ -15,21 +15,13 @@ import { getSheetData, pushToSheet } from "@nshiab/journalism-google";
 import type { Data } from "@observablehq/plot";
 import { createDirectory } from "@nshiab/simple-data-analysis-core/helpers";
 import logHistogram from "../methods/logHistogram.ts";
-import aiRowByRow, { type AIRowByRowOptions } from "../methods/aiRowByRow.ts";
-import aiRowByRowPool, {
-  type AIRowByRowPoolOptions,
-} from "../methods/aiRowByRowPool.ts";
-import aiEmbeddings, {
-  type AIEmbeddingsOptions,
-} from "../methods/aiEmbeddings.ts";
-import aiVectorSimilarity, {
-  type AIVectorSimilarityOptions,
-} from "../methods/aiVectorSimilarity.ts";
-import hybridSearch, {
-  type HybridSearchOptions,
-} from "../methods/hybridSearch.ts";
-import aiRAG, { type AIRAGOptions } from "../methods/aiRAG.ts";
-import aiQuery, { type AIQueryOptions } from "../methods/aiQuery.ts";
+import aiRowByRow from "../methods/aiRowByRow.ts";
+import aiRowByRowPool from "../methods/aiRowByRowPool.ts";
+import aiEmbeddings from "../methods/aiEmbeddings.ts";
+import aiVectorSimilarity from "../methods/aiVectorSimilarity.ts";
+import hybridSearch from "../methods/hybridSearch.ts";
+import aiRAG from "../methods/aiRAG.ts";
+import aiQuery from "../methods/aiQuery.ts";
 import loadGeoDataFromScratchFile from "../helpers/loadGeoDataFromScratchFile.ts";
 
 /**
@@ -87,7 +79,7 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * This method automatically appends instructions to your prompt; set `verbose` to `true` to see the full prompt.
    *
-   * This method supports Gemini, Vertex AI, and Ollama. Set `generation.provider` explicitly, or omit it to use `AI_PROVIDER` (or the legacy `OLLAMA` variable). All other `generation` fields match the selected `askGemini` or `askOllama` function from journalism-ai. Model and credentials can also come from environment variables.
+   * This method supports Gemini, Vertex AI, and Ollama. Set `generation.provider` explicitly, or omit it to use `AI_PROVIDER`. All other `generation` fields match the selected `askGemini` or `askOllama` function from journalism-ai. Model and credentials can also come from environment variables.
    *
    * For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set `AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
    *
@@ -181,12 +173,118 @@ export default class SimpleTable extends SimpleTableCore {
    * //   { city: "Auckland", country: "New Zealand", continent: "Oceania" },
    * // ]
    * ```
+   *
+   * @example
+   * ```ts
+   * // Process rows with a local Ollama model.
+   * await table.aiRowByRow("name", "description", "Describe this name.", {
+   *   generation: { provider: "ollama", model: "gemma3:4b" },
+   * });
+   * ```
    */
   async aiRowByRow(
     column: string,
     newColumn: string | string[],
     prompt: string,
-    options: AIRowByRowOptions = {},
+    options: {
+      generation?:
+        & {
+          systemPrompt?: string;
+          model?: string;
+          schemaJson?: unknown;
+          cache?: boolean;
+          processResponse?: (
+            response: unknown,
+          ) => unknown | Promise<unknown>;
+          temperature?: number;
+        }
+        & (
+          | {
+            provider: "gemini";
+            apiKey?: string;
+            vertex?: boolean;
+            project?: string;
+            location?: string;
+            webSearch?: boolean;
+            files?: {
+              path: string;
+              type: "image" | "video" | "audio" | "pdf" | "text";
+            }[];
+            thinkingBudget?: number;
+            thinkingLevel?: "minimal" | "low" | "medium" | "high";
+            safetyEnabled?: boolean;
+            geminiParameters?: unknown;
+            ollama?: never;
+            contextWindow?: never;
+            ollamaParameters?: never;
+          }
+          | {
+            provider: "ollama";
+            ollama?: unknown;
+            files?: { path: string; type: "image" | "text" }[];
+            contextWindow?: number;
+            thinkingLevel?: boolean | "low" | "medium" | "high";
+            ollamaParameters?: unknown;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
+            webSearch?: never;
+            thinkingBudget?: never;
+            safetyEnabled?: never;
+            geminiParameters?: never;
+          }
+          | {
+            provider?: undefined;
+            apiKey?: string;
+            vertex?: boolean;
+            project?: string;
+            location?: string;
+            webSearch?: boolean;
+            files?: {
+              path: string;
+              type: "image" | "video" | "audio" | "pdf" | "text";
+            }[];
+            thinkingBudget?: number;
+            thinkingLevel?: "minimal" | "low" | "medium" | "high";
+            safetyEnabled?: boolean;
+            geminiParameters?: unknown;
+            ollama?: never;
+            contextWindow?: never;
+            ollamaParameters?: never;
+          }
+          | {
+            provider?: undefined;
+            ollama?: unknown;
+            files?: { path: string; type: "image" | "text" }[];
+            contextWindow?: number;
+            thinkingLevel?: boolean | "low" | "medium" | "high";
+            ollamaParameters?: unknown;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
+            webSearch?: never;
+            thinkingBudget?: never;
+            safetyEnabled?: never;
+            geminiParameters?: never;
+          }
+        );
+      batchSize?: number;
+      concurrent?: number;
+      test?: (result: { [key: string]: unknown }) => void;
+      retry?: number;
+      verbose?: boolean;
+      rateLimitPerMinute?: number;
+      clean?: (response: unknown) => unknown;
+      extraInstructions?: string;
+      metrics?: {
+        totalCost: number;
+        totalInputTokens: number;
+        totalOutputTokens: number;
+        totalRequests: number;
+      };
+    } = {},
   ): Promise<void> {
     await aiRowByRow(this, column, newColumn, prompt, options);
   }
@@ -306,6 +404,19 @@ export default class SimpleTable extends SimpleTableCore {
    * //   { product: "Tablet", category: "Electronics", typical_price_range: "$200-$800", error: null },
    * // ]
    * ```
+   *
+   * @example
+   * ```ts
+   * // Process rows concurrently with a local Ollama model.
+   * await table.aiRowByRowPool(
+   *   "product",
+   *   "category",
+   *   "error",
+   *   "Categorize this product.",
+   *   3,
+   *   { generation: { provider: "ollama", model: "gemma3:4b" } },
+   * );
+   * ```
    */
   async aiRowByRowPool(
     column: string,
@@ -313,7 +424,106 @@ export default class SimpleTable extends SimpleTableCore {
     errorColumn: string,
     prompt: string,
     poolSize: number,
-    options: AIRowByRowPoolOptions = {},
+    options: {
+      generation?:
+        & {
+          systemPrompt?: string;
+          model?: string;
+          schemaJson?: unknown;
+          cache?: boolean;
+          processResponse?: (
+            response: unknown,
+          ) => unknown | Promise<unknown>;
+          temperature?: number;
+        }
+        & (
+          | {
+            provider: "gemini";
+            apiKey?: string;
+            vertex?: boolean;
+            project?: string;
+            location?: string;
+            webSearch?: boolean;
+            files?: {
+              path: string;
+              type: "image" | "video" | "audio" | "pdf" | "text";
+            }[];
+            thinkingBudget?: number;
+            thinkingLevel?: "minimal" | "low" | "medium" | "high";
+            safetyEnabled?: boolean;
+            geminiParameters?: unknown;
+            ollama?: never;
+            contextWindow?: never;
+            ollamaParameters?: never;
+          }
+          | {
+            provider: "ollama";
+            ollama?: unknown;
+            files?: { path: string; type: "image" | "text" }[];
+            contextWindow?: number;
+            thinkingLevel?: boolean | "low" | "medium" | "high";
+            ollamaParameters?: unknown;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
+            webSearch?: never;
+            thinkingBudget?: never;
+            safetyEnabled?: never;
+            geminiParameters?: never;
+          }
+          | {
+            provider?: undefined;
+            apiKey?: string;
+            vertex?: boolean;
+            project?: string;
+            location?: string;
+            webSearch?: boolean;
+            files?: {
+              path: string;
+              type: "image" | "video" | "audio" | "pdf" | "text";
+            }[];
+            thinkingBudget?: number;
+            thinkingLevel?: "minimal" | "low" | "medium" | "high";
+            safetyEnabled?: boolean;
+            geminiParameters?: unknown;
+            ollama?: never;
+            contextWindow?: never;
+            ollamaParameters?: never;
+          }
+          | {
+            provider?: undefined;
+            ollama?: unknown;
+            files?: { path: string; type: "image" | "text" }[];
+            contextWindow?: number;
+            thinkingLevel?: boolean | "low" | "medium" | "high";
+            ollamaParameters?: unknown;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
+            webSearch?: never;
+            thinkingBudget?: never;
+            safetyEnabled?: never;
+            geminiParameters?: never;
+          }
+        );
+      batchSize?: number;
+      logProgress?: boolean;
+      verbose?: boolean;
+      test?: (result: { [key: string]: unknown }) => void;
+      retry?: number;
+      retryCheck?: (error: unknown) => Promise<boolean> | boolean;
+      extraInstructions?: string;
+      minRequestDurationMs?: number;
+      clean?: (response: unknown) => unknown;
+      metrics?: {
+        totalCost: number;
+        totalInputTokens: number;
+        totalOutputTokens: number;
+        totalRequests: number;
+      };
+    } = {},
   ) {
     await aiRowByRowPool(
       this,
@@ -329,7 +539,7 @@ export default class SimpleTable extends SimpleTableCore {
   /**
    * Generates embeddings for a specified text column and stores the results in a new column.
    *
-   * This method supports Gemini, Vertex AI, and Ollama embeddings. Set `embeddings.provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER` (or the legacy `OLLAMA` variable); all other fields match `getEmbedding` from journalism-ai. Model and credentials can also come from environment variables.
+   * This method supports Gemini, Vertex AI, and Ollama embeddings. Set `embeddings.provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`; all other fields match `getEmbedding` from journalism-ai. Model and credentials can also come from environment variables.
    *
    * For Ollama, set `AI_EMBEDDINGS_PROVIDER=ollama`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL`, or pass `{ provider: "ollama", ... }` through `embeddings`.
    *
@@ -382,11 +592,84 @@ export default class SimpleTable extends SimpleTableCore {
    *   verbose: true, // Log detailed information
    * });
    * ```
+   *
+   * @example
+   * ```ts
+   * // Generate embeddings with a local Ollama model.
+   * await table.aiEmbeddings("food", "embeddings", {
+   *   embeddings: { provider: "ollama", model: "nomic-embed-text" },
+   * });
+   * ```
    */
   async aiEmbeddings(
     column: string,
     newColumn: string,
-    options: AIEmbeddingsOptions = {},
+    options: {
+      embeddings?:
+        | {
+          provider?: never;
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          apiKey?: never;
+          vertex?: never;
+          project?: never;
+          location?: never;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "gemini";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          vertex?: false;
+          apiKey?: string;
+          project?: never;
+          location?: never;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "gemini";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          vertex: true;
+          apiKey?: string;
+          project?: string;
+          location?: string;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "ollama";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          ollama?: {
+            embeddingEndpoint?: string;
+            embed(request: {
+              model: string;
+              input: string;
+              options?: { num_ctx?: number };
+            }): Promise<{ embeddings: number[][] }>;
+          };
+          contextWindow?: number;
+          apiKey?: never;
+          vertex?: never;
+          project?: never;
+          location?: never;
+        };
+      createIndex?: boolean;
+      overwriteIndex?: boolean;
+      concurrent?: number;
+      verbose?: boolean;
+      rateLimitPerMinute?: number;
+      efConstruction?: number;
+      efSearch?: number;
+      M?: number;
+    } = {},
   ): Promise<void> {
     await aiEmbeddings(this, column, newColumn, options);
   }
@@ -462,12 +745,91 @@ export default class SimpleTable extends SimpleTableCore {
    * // Log the results
    * await similarFoods.log();
    * ```
+   *
+   * @example
+   * ```ts
+   * // Query an embedding column created with the same Ollama model.
+   * const results = await table.aiVectorSimilarity(
+   *   "italian food",
+   *   "embeddings",
+   *   3,
+   *   {
+   *     embeddings: { provider: "ollama", model: "nomic-embed-text" },
+   *   },
+   * );
+   * ```
    */
   async aiVectorSimilarity(
     text: string,
     column: string,
     nbResults: number,
-    options: AIVectorSimilarityOptions = {},
+    options: {
+      embeddings?:
+        | {
+          provider?: never;
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          apiKey?: never;
+          vertex?: never;
+          project?: never;
+          location?: never;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "gemini";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          vertex?: false;
+          apiKey?: string;
+          project?: never;
+          location?: never;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "gemini";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          vertex: true;
+          apiKey?: string;
+          project?: string;
+          location?: string;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "ollama";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          ollama?: {
+            embeddingEndpoint?: string;
+            embed(request: {
+              model: string;
+              input: string;
+              options?: { num_ctx?: number };
+            }): Promise<{ embeddings: number[][] }>;
+          };
+          contextWindow?: number;
+          apiKey?: never;
+          vertex?: never;
+          project?: never;
+          location?: never;
+        };
+      createIndex?: boolean;
+      overwriteIndex?: boolean;
+      outputTable?: string;
+      verbose?: boolean;
+      efConstruction?: number;
+      efSearch?: number;
+      M?: number;
+      minSimilarity?: number;
+      similarityColumn?: string;
+    } = {},
   ): Promise<SimpleTable> {
     const result = await aiVectorSimilarity(
       this,
@@ -561,13 +923,136 @@ export default class SimpleTable extends SimpleTableCore {
    * // Table now contains only the most relevant recipes
    * await table.log();
    * ```
+   *
+   * @example
+   * ```ts
+   * // Run hybrid search with local Ollama embeddings.
+   * await table.hybridSearch("buttery pastry", "Dish", "Recipe", 10, {
+   *   embeddings: { provider: "ollama", model: "nomic-embed-text" },
+   * });
+   * ```
    */
   async hybridSearch(
     query: string,
     columnId: string,
     columnText: string,
     nbResults: number,
-    options: HybridSearchOptions = {},
+    options: {
+      embeddings?:
+        | {
+          provider?: never;
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          apiKey?: never;
+          vertex?: never;
+          project?: never;
+          location?: never;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "gemini";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          vertex?: false;
+          apiKey?: string;
+          project?: never;
+          location?: never;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "gemini";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          vertex: true;
+          apiKey?: string;
+          project?: string;
+          location?: string;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "ollama";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          ollama?: {
+            embeddingEndpoint?: string;
+            embed(request: {
+              model: string;
+              input: string;
+              options?: { num_ctx?: number };
+            }): Promise<{ embeddings: number[][] }>;
+          };
+          contextWindow?: number;
+          apiKey?: never;
+          vertex?: never;
+          project?: never;
+          location?: never;
+        };
+      verbose?: boolean;
+      createIndex?: boolean;
+      embeddingsConcurrent?: number;
+      stemmer?:
+        | "arabic"
+        | "basque"
+        | "catalan"
+        | "danish"
+        | "dutch"
+        | "english"
+        | "finnish"
+        | "french"
+        | "german"
+        | "greek"
+        | "hindi"
+        | "hungarian"
+        | "indonesian"
+        | "irish"
+        | "italian"
+        | "lithuanian"
+        | "nepali"
+        | "norwegian"
+        | "porter"
+        | "portuguese"
+        | "romanian"
+        | "russian"
+        | "serbian"
+        | "spanish"
+        | "swedish"
+        | "tamil"
+        | "turkish"
+        | "none";
+      stopwords?: string;
+      ignore?: string;
+      stripAccents?: boolean;
+      lower?: boolean;
+      k?: number;
+      b?: number;
+      conjunctive?: boolean;
+      bm25?: boolean;
+      bm25MinScore?: number;
+      bm25ScoreColumn?: string;
+      vectorSearch?: boolean;
+      vectorMinSimilarity?: number;
+      vectorSimilarityColumn?: string;
+      outputTable?: string;
+      efConstruction?: number;
+      efSearch?: number;
+      M?: number;
+      times?: {
+        start?: number;
+        embeddingStart?: number;
+        embeddingEnd?: number;
+        vectorSearchStart?: number;
+        vectorSearchEnd?: number;
+        bm25Start?: number;
+        bm25End?: number;
+      };
+    } = {},
   ): Promise<SimpleTable> {
     const result = await hybridSearch(
       this,
@@ -667,13 +1152,222 @@ export default class SimpleTable extends SimpleTableCore {
    * // Example output: "I recommend croissants.
    * // They are a classic buttery pastry perfect for breakfast..."
    * ```
+   *
+   * @example
+   * ```ts
+   * // Use Ollama for both retrieval embeddings and answer generation.
+   * const answer = await table.aiRAG(
+   *   "I want a buttery pastry for breakfast.",
+   *   "Dish",
+   *   "Recipe",
+   *   10,
+   *   {
+   *     generation: { provider: "ollama", model: "gemma3:4b" },
+   *     embeddings: { provider: "ollama", model: "nomic-embed-text" },
+   *   },
+   * );
+   * ```
    */
   async aiRAG(
     query: string,
     columnId: string,
     columnText: string,
     nbResults: number,
-    options: AIRAGOptions = {},
+    options: {
+      embeddings?:
+        | {
+          provider?: never;
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          apiKey?: never;
+          vertex?: never;
+          project?: never;
+          location?: never;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "gemini";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          vertex?: false;
+          apiKey?: string;
+          project?: never;
+          location?: never;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "gemini";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          vertex: true;
+          apiKey?: string;
+          project?: string;
+          location?: string;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "ollama";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          ollama?: {
+            embeddingEndpoint?: string;
+            embed(request: {
+              model: string;
+              input: string;
+              options?: { num_ctx?: number };
+            }): Promise<{ embeddings: number[][] }>;
+          };
+          contextWindow?: number;
+          apiKey?: never;
+          vertex?: never;
+          project?: never;
+          location?: never;
+        };
+      verbose?: boolean;
+      createIndex?: boolean;
+      embeddingsConcurrent?: number;
+      stemmer?:
+        | "arabic"
+        | "basque"
+        | "catalan"
+        | "danish"
+        | "dutch"
+        | "english"
+        | "finnish"
+        | "french"
+        | "german"
+        | "greek"
+        | "hindi"
+        | "hungarian"
+        | "indonesian"
+        | "irish"
+        | "italian"
+        | "lithuanian"
+        | "nepali"
+        | "norwegian"
+        | "porter"
+        | "portuguese"
+        | "romanian"
+        | "russian"
+        | "serbian"
+        | "spanish"
+        | "swedish"
+        | "tamil"
+        | "turkish"
+        | "none";
+      stopwords?: string;
+      ignore?: string;
+      stripAccents?: boolean;
+      lower?: boolean;
+      k?: number;
+      b?: number;
+      conjunctive?: boolean;
+      bm25?: boolean;
+      bm25MinScore?: number;
+      bm25ScoreColumn?: string;
+      vectorSearch?: boolean;
+      vectorMinSimilarity?: number;
+      vectorSimilarityColumn?: string;
+      efConstruction?: number;
+      efSearch?: number;
+      M?: number;
+      generation?:
+        & {
+          systemPrompt?: string;
+          model?: string;
+          cache?: boolean;
+          processResponse?: (
+            response: unknown,
+          ) => unknown | Promise<unknown>;
+          temperature?: number;
+        }
+        & (
+          | {
+            provider: "gemini";
+            apiKey?: string;
+            vertex?: boolean;
+            project?: string;
+            location?: string;
+            webSearch?: boolean;
+            files?: {
+              path: string;
+              type: "image" | "video" | "audio" | "pdf" | "text";
+            }[];
+            thinkingBudget?: number;
+            thinkingLevel?: "minimal" | "low" | "medium" | "high";
+            safetyEnabled?: boolean;
+            geminiParameters?: unknown;
+            ollama?: never;
+            contextWindow?: never;
+            ollamaParameters?: never;
+          }
+          | {
+            provider: "ollama";
+            ollama?: unknown;
+            files?: { path: string; type: "image" | "text" }[];
+            contextWindow?: number;
+            thinkingLevel?: boolean | "low" | "medium" | "high";
+            ollamaParameters?: unknown;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
+            webSearch?: never;
+            thinkingBudget?: never;
+            safetyEnabled?: never;
+            geminiParameters?: never;
+          }
+          | {
+            provider?: undefined;
+            apiKey?: string;
+            vertex?: boolean;
+            project?: string;
+            location?: string;
+            webSearch?: boolean;
+            files?: {
+              path: string;
+              type: "image" | "video" | "audio" | "pdf" | "text";
+            }[];
+            thinkingBudget?: number;
+            thinkingLevel?: "minimal" | "low" | "medium" | "high";
+            safetyEnabled?: boolean;
+            geminiParameters?: unknown;
+            ollama?: never;
+            contextWindow?: never;
+            ollamaParameters?: never;
+          }
+          | {
+            provider?: undefined;
+            ollama?: unknown;
+            files?: { path: string; type: "image" | "text" }[];
+            contextWindow?: number;
+            thinkingLevel?: boolean | "low" | "medium" | "high";
+            ollamaParameters?: unknown;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
+            webSearch?: never;
+            thinkingBudget?: never;
+            safetyEnabled?: never;
+            geminiParameters?: never;
+          }
+        );
+      includeThoughts?: boolean;
+      metrics?: {
+        totalCost: number;
+        totalInputTokens: number;
+        totalOutputTokens: number;
+        totalRequests: number;
+      };
+    } = {},
   ): Promise<string> {
     return await aiRAG(this, query, columnId, columnText, nbResults, options);
   }
@@ -735,10 +1429,105 @@ export default class SimpleTable extends SimpleTableCore {
    * const topEmployees = await results.getRowCount();
    * console.log(topEmployees); // 10
    * ```
+   *
+   * @example
+   * ```ts
+   * // Generate and execute the query with a local Ollama model.
+   * await table.aiQuery("Give me the average salary by department", {
+   *   generation: { provider: "ollama", model: "gemma3:4b" },
+   * });
+   * ```
    */
   async aiQuery(
     prompt: string,
-    options: AIQueryOptions = {},
+    options: {
+      extraInstructions?: string;
+      generation?:
+        & {
+          systemPrompt?: string;
+          model?: string;
+          cache?: boolean;
+          processResponse?: (
+            response: unknown,
+          ) => unknown | Promise<unknown>;
+          temperature?: number;
+        }
+        & (
+          | {
+            provider: "gemini";
+            apiKey?: string;
+            vertex?: boolean;
+            project?: string;
+            location?: string;
+            webSearch?: boolean;
+            files?: {
+              path: string;
+              type: "image" | "video" | "audio" | "pdf" | "text";
+            }[];
+            thinkingBudget?: number;
+            thinkingLevel?: "minimal" | "low" | "medium" | "high";
+            safetyEnabled?: boolean;
+            geminiParameters?: unknown;
+            ollama?: never;
+            contextWindow?: never;
+            ollamaParameters?: never;
+          }
+          | {
+            provider: "ollama";
+            ollama?: unknown;
+            files?: { path: string; type: "image" | "text" }[];
+            contextWindow?: number;
+            thinkingLevel?: boolean | "low" | "medium" | "high";
+            ollamaParameters?: unknown;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
+            webSearch?: never;
+            thinkingBudget?: never;
+            safetyEnabled?: never;
+            geminiParameters?: never;
+          }
+          | {
+            provider?: undefined;
+            apiKey?: string;
+            vertex?: boolean;
+            project?: string;
+            location?: string;
+            webSearch?: boolean;
+            files?: {
+              path: string;
+              type: "image" | "video" | "audio" | "pdf" | "text";
+            }[];
+            thinkingBudget?: number;
+            thinkingLevel?: "minimal" | "low" | "medium" | "high";
+            safetyEnabled?: boolean;
+            geminiParameters?: unknown;
+            ollama?: never;
+            contextWindow?: never;
+            ollamaParameters?: never;
+          }
+          | {
+            provider?: undefined;
+            ollama?: unknown;
+            files?: { path: string; type: "image" | "text" }[];
+            contextWindow?: number;
+            thinkingLevel?: boolean | "low" | "medium" | "high";
+            ollamaParameters?: unknown;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
+            webSearch?: never;
+            thinkingBudget?: never;
+            safetyEnabled?: never;
+            geminiParameters?: never;
+          }
+        );
+      includeThoughts?: boolean;
+      outputTable?: string;
+      verbose?: boolean;
+    } = {},
   ): Promise<SimpleTable> {
     await aiQuery(this, prompt, options);
 

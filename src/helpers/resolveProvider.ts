@@ -2,7 +2,7 @@ type ProviderEnvironment = Record<string, string | undefined>;
 
 export type Provider = "gemini" | "ollama";
 
-/** Resolves a provider variable with validation and the legacy Ollama fallback. */
+/** Resolves a provider variable with validation. */
 export default function resolveProvider(
   variable: "AI_PROVIDER" | "AI_EMBEDDINGS_PROVIDER",
   environment: ProviderEnvironment,
@@ -15,5 +15,5 @@ export default function resolveProvider(
     return configuredProvider;
   }
 
-  return environment.OLLAMA ? "ollama" : "gemini";
+  return "gemini";
 }
