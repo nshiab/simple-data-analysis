@@ -12,7 +12,6 @@ import {
 
 const geminiEmbeddings = {
   ...geminiEmbeddingOptions,
-  cache: true,
 } as const;
 const ollamaEmbeddings = {
   provider: "ollama",
@@ -45,6 +44,7 @@ Deno.test(
         provider: "ollama",
         model: "same-model-label",
         ollama: ollamaClient,
+        cache: false,
       },
       bm25: false,
       outputTable: "ollama_results",
@@ -60,6 +60,7 @@ Deno.test(
           provider: "gemini",
           model: "same-model-label",
           apiKey: "fake-key",
+          cache: false,
         },
         bm25: false,
         outputTable: "gemini_results",
@@ -73,7 +74,7 @@ Deno.test(
   },
 );
 
-Deno.test("hybridSearch isolates table caches by embedding identity", async () => {
+Deno.test("hybridSearch caches tables by default for each embedding identity", async () => {
   clearEmbeddingCaches();
 
   try {
@@ -93,7 +94,6 @@ Deno.test("hybridSearch isolates table caches by embedding identity", async () =
         provider: "ollama",
         model: "cache-model-a",
         ollama: firstClient,
-        cache: true,
       },
       bm25: false,
       outputTable: "cache_results_a",
@@ -108,7 +108,6 @@ Deno.test("hybridSearch isolates table caches by embedding identity", async () =
         provider: "ollama",
         model: "cache-model-b",
         ollama: secondClient,
-        cache: true,
       },
       bm25: false,
       outputTable: "cache_results_b",
@@ -122,6 +121,39 @@ Deno.test("hybridSearch isolates table caches by embedding identity", async () =
         .length,
       2,
     );
+    await sdb.close();
+  } finally {
+    clearEmbeddingCaches();
+  }
+});
+
+Deno.test("hybridSearch does not cache tables when disabled", async () => {
+  clearEmbeddingCaches();
+
+  try {
+    const sdb = new SimpleDB({ dataTransport: "file" });
+    const table = sdb.newTable("cache_disabled");
+    table.loadArray([
+      { id: "a", text: "alpha" },
+      { id: "b", text: "beta" },
+    ]);
+
+    await table.hybridSearch("alpha", "id", "text", 1, {
+      embeddings: {
+        provider: "ollama",
+        model: "no-cache-model",
+        ollama: new FakeOllamaEmbeddingClient(
+          "http://no-cache.local:11434",
+          [1, 0],
+        ),
+        cache: false,
+      },
+      bm25: false,
+      outputTable: "no_cache_results",
+    });
+
+    assertEquals(existsSync("./.sda-cache"), false);
+    assertEquals(existsSync("./.journalism-cache"), false);
     await sdb.close();
   } finally {
     clearEmbeddingCaches();
@@ -145,7 +177,6 @@ Deno.test("hybridSearch isolates table caches by source mapping", async () => {
         "http://cache.local:11434",
         [1, 0],
       ),
-      cache: true,
     } as const;
 
     await table.hybridSearch("alpha", "id", "title", 1, {

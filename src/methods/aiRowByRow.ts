@@ -14,7 +14,7 @@ import type {
  * @example
  * ```ts
  * const options: AIRowByRowOptions = {
- *   generation: { provider: "gemini", cache: true },
+ *   generation: { provider: "gemini" },
  *   batchSize: 10,
  * };
  * ```

@@ -2,7 +2,7 @@
   "version": "5",
   "specifiers": {
     "jsr:@nshiab/deno-docs-to-md@*": "0.1.12",
-    "jsr:@nshiab/journalism-ai@2.0.2": "2.0.2",
+    "jsr:@nshiab/journalism-ai@2.0.4": "2.0.4",
     "jsr:@nshiab/journalism-dataviz@^1.0.18": "1.0.18",
     "jsr:@nshiab/journalism-format@^1.1.9": "1.1.9",
     "jsr:@nshiab/journalism-google@^1.1.0": "1.1.0",
@@ -30,8 +30,8 @@
     "@nshiab/deno-docs-to-md@0.1.12": {
       "integrity": "bfd7872bc6631b071c2785f29bf1fcfd9c5d69ecd109ea45afe912379ef58292"
     },
-    "@nshiab/journalism-ai@2.0.2": {
-      "integrity": "93a659cc03e8b82c172f2036e469c43d255090d67fbc71b0568113babec9494e",
+    "@nshiab/journalism-ai@2.0.4": {
+      "integrity": "eb634a4e767c2bc6da9f8edc68932ea5c6f26a4a42517a760ff4f5947ade9ca5",
       "dependencies": [
         "jsr:@nshiab/journalism-format",
         "npm:@google/genai",
@@ -1337,7 +1337,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@nshiab/journalism-ai@2.0.2",
+      "jsr:@nshiab/journalism-ai@2.0.4",
       "jsr:@nshiab/journalism-dataviz@^1.0.18",
       "jsr:@nshiab/journalism-format@^1.1.9",
       "jsr:@nshiab/journalism-google@^1.1.0",

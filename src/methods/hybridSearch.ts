@@ -38,7 +38,7 @@ export type HybridSearchTimes = {
  * @example
  * ```ts
  * const options: HybridSearchOptions = {
- *   embeddings: { provider: "ollama", cache: true },
+ *   embeddings: { provider: "ollama" },
  *   vectorSearch: true,
  *   bm25: true,
  * };
@@ -182,7 +182,7 @@ export default async function hybridSearch(
         embeddingColumn,
         identity,
         async () => {
-          if (!options.embeddings?.cache) {
+          if (options.embeddings?.cache === false) {
             await computeEmbeddings();
             return;
           }

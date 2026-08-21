@@ -13,8 +13,8 @@ import type {
  * @example
  * ```ts
  * const options: AIRAGOptions = {
- *   generation: { provider: "gemini", cache: true },
- *   embeddings: { provider: "ollama", cache: true },
+ *   generation: { provider: "gemini" },
+ *   embeddings: { provider: "ollama" },
  * };
  * ```
  */

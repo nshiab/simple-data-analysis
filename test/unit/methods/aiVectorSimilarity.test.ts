@@ -9,7 +9,7 @@ const Deno = {
   env: globalThis.Deno.env,
   test: createEnvironmentTest({ AI_EMBEDDINGS_PROVIDER: "ollama" }),
 };
-const ollamaEmbeddings = { provider: "ollama", cache: true } as const;
+const ollamaEmbeddings = { provider: "ollama" } as const;
 if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
   if (existsSync("./.journalism-cache")) {
     rmSync("./.journalism-cache", { recursive: true });

@@ -12,7 +12,7 @@ import { getEmbeddingForProvider } from "../helpers/tryEmbedding.ts";
  * @example
  * ```ts
  * const options: AIVectorSimilarityOptions = {
- *   embeddings: { provider: "gemini", cache: true },
+ *   embeddings: { provider: "gemini" },
  *   minSimilarity: 0.7,
  * };
  * ```

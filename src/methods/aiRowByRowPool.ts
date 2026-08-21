@@ -16,7 +16,7 @@ type AIRow = { [key: string]: unknown };
  * @example
  * ```ts
  * const options: AIRowByRowPoolOptions = {
- *   generation: { provider: "ollama", cache: true },
+ *   generation: { provider: "ollama" },
  *   batchSize: 10,
  *   retry: 2,
  * };

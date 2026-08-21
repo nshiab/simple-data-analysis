@@ -48,7 +48,8 @@ export default async function askAI<TResponse = unknown>(
       JSON.stringify(schemaJson)
     }`
     : prompt;
-  const processedCacheFile = generationOptions.cache && options.processResponse
+  const processedCacheFile = generationOptions.cache !== false &&
+      options.processResponse
     ? getAIResponseCacheFile({
       provider,
       prompt: promptWithSchema,

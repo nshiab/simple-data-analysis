@@ -152,7 +152,7 @@ function registerRowProcessingContract(
         "country",
         "Give me the country of the city.",
         {
-          generation: fixture.generation,
+          generation: { ...fixture.generation, cache: false },
           batchSize: 2,
           concurrent: 2,
         },
@@ -185,7 +185,7 @@ function registerRowProcessingContract(
             "country",
             "Give me the country of the city.",
             {
-              generation: { ...fixture.generation, cache: true },
+              generation: { ...fixture.generation },
               batchSize: 2,
             },
           );

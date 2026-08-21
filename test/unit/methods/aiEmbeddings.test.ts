@@ -30,6 +30,7 @@ Deno.test("aiEmbeddings verbose progress does not add blank lines", async () => 
         provider: "ollama",
         model: "model-a",
         ollama: client,
+        cache: false,
       },
       verbose: true,
     });
@@ -62,6 +63,7 @@ Deno.test("aiEmbeddings reuses only a compatible managed column", async () => {
       provider: "ollama",
       model: "model-a",
       ollama: firstClient,
+      cache: false,
     },
   });
   assertEquals(firstClient.requests, 2);
@@ -75,6 +77,7 @@ Deno.test("aiEmbeddings reuses only a compatible managed column", async () => {
       provider: "ollama",
       model: "model-a",
       ollama: compatibleClient,
+      cache: false,
     },
   });
   assertEquals(compatibleClient.requests, 0);
@@ -90,6 +93,7 @@ Deno.test("aiEmbeddings reuses only a compatible managed column", async () => {
       model: "model-a",
       contextWindow: 8_192,
       ollama: changedSemanticOptionsClient,
+      cache: false,
     },
   });
   assertEquals(changedSemanticOptionsClient.requests, 2);
@@ -104,6 +108,7 @@ Deno.test("aiEmbeddings reuses only a compatible managed column", async () => {
       model: "model-a",
       contextWindow: 8_192,
       ollama: changedSourceClient,
+      cache: false,
     },
   });
   assertEquals(changedSourceClient.requests, 2);
@@ -117,6 +122,7 @@ Deno.test("aiEmbeddings reuses only a compatible managed column", async () => {
       provider: "ollama",
       model: "model-b",
       ollama: changedModelClient,
+      cache: false,
     },
   });
   assertEquals(changedModelClient.requests, 2);
@@ -142,6 +148,7 @@ Deno.test("aiEmbeddings regenerates a legacy column without provenance", async (
       provider: "ollama",
       model: "model-a",
       ollama: client,
+      cache: false,
     },
   });
 
@@ -165,6 +172,7 @@ Deno.test("embedding provenance survives reopening a DuckDB database", async () 
         provider: "ollama",
         model: "model-a",
         ollama: firstClient,
+        cache: false,
       },
     });
     assertEquals(firstClient.requests, 2);
@@ -182,6 +190,7 @@ Deno.test("embedding provenance survives reopening a DuckDB database", async () 
         provider: "ollama",
         model: "model-a",
         ollama: compatibleClient,
+        cache: false,
       },
     });
     assertEquals(compatibleClient.requests, 0);
@@ -204,6 +213,7 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
       provider: "ollama",
       model: "model-a",
       ollama: firstClient,
+      cache: false,
     },
     createIndex: true,
   });
@@ -219,6 +229,7 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
       model: "model-a",
       contextWindow: 8_192,
       ollama: semanticChangeClient,
+      cache: false,
     },
   });
   assertEquals(semanticChangeClient.requests, 2);
@@ -230,6 +241,7 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
       model: "model-a",
       contextWindow: 8_192,
       ollama: semanticChangeClient,
+      cache: false,
     },
     createIndex: true,
   });
@@ -244,6 +256,7 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
       provider: "ollama",
       model: "model-b",
       ollama: modelChangeClient,
+      cache: false,
     },
   });
   assertEquals(modelChangeClient.requests, 2);
@@ -254,6 +267,7 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
       provider: "ollama",
       model: "model-b",
       ollama: modelChangeClient,
+      cache: false,
     },
     createIndex: true,
   });
@@ -268,6 +282,7 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
       provider: "ollama",
       model: "model-c",
       ollama: dimensionChangeClient,
+      cache: false,
     },
   });
   assertEquals(dimensionChangeClient.requests, 2);
@@ -279,6 +294,7 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
       provider: "ollama",
       model: "model-c",
       ollama: dimensionChangeClient,
+      cache: false,
     },
     createIndex: true,
   });
@@ -293,6 +309,7 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
         provider: "gemini",
         model: "model-c",
         apiKey: "fake-key",
+        cache: false,
       },
     });
   } finally {
@@ -319,6 +336,7 @@ Deno.test("failed regeneration is retried and restores cache logging", async () 
       provider: "ollama",
       model: "model-a",
       ollama: firstClient,
+      cache: false,
     },
   });
 
@@ -351,6 +369,7 @@ Deno.test("failed regeneration is retried and restores cache logging", async () 
       provider: "ollama",
       model: "model-a",
       ollama: retryClient,
+      cache: false,
     },
   });
   assertEquals(retryClient.requests, 2);
@@ -377,8 +396,6 @@ if (hasGoogleEmbeddingCredentials) {
     await table.aiEmbeddings("food", "embeddings", {
       embeddings: {
         ...geminiEmbeddingOptions,
-        // Cache the results locally
-        cache: true,
       },
       // Avoid exceeding a rate limit by waiting between requests
       rateLimitPerMinute: 15,
@@ -406,8 +423,6 @@ if (hasGoogleEmbeddingCredentials) {
     await table.aiEmbeddings("food", "embeddings", {
       embeddings: {
         ...geminiEmbeddingOptions,
-        // Cache the results locally
-        cache: true,
       },
       // Avoid exceeding a rate limit by waiting between requests
       rateLimitPerMinute: 15,
@@ -435,8 +450,6 @@ if (hasGoogleEmbeddingCredentials) {
     await table.aiEmbeddings("food", "embeddings", {
       embeddings: {
         ...geminiEmbeddingOptions,
-        // Cache the results locally
-        cache: true,
       },
       // Avoid exceeding a rate limit by waiting between requests
       rateLimitPerMinute: 15,
@@ -474,8 +487,6 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
     await table.aiEmbeddings("food", "embeddings", {
       embeddings: {
         provider: "ollama",
-        // Cache the results locally
-        cache: true,
       },
       // Log details
       verbose: true,
@@ -503,8 +514,6 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
     await table.aiEmbeddings("food", "embeddings", {
       embeddings: {
         provider: "ollama",
-        // Cache the results locally
-        cache: true,
         ollama,
       },
       // Log details
@@ -531,8 +540,6 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
     await table.aiEmbeddings("food", "embeddings", {
       embeddings: {
         provider: "ollama",
-        // Cache the results locally
-        cache: true,
       },
       // Avoid exceeding a rate limit by waiting between requests
       // rateLimitPerMinute: 15,
@@ -560,8 +567,6 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
     await table.aiEmbeddings("food", "embeddings", {
       embeddings: {
         provider: "ollama",
-        // Cache the results locally
-        cache: true,
       },
       // Avoid exceeding a rate limit by waiting between requests
       // rateLimitPerMinute: 15,
@@ -591,8 +596,6 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
     await table.aiEmbeddings("food", "embeddings", {
       embeddings: {
         provider: "ollama",
-        // Cache the results locally
-        cache: true,
       },
       // Avoid exceeding a rate limit by waiting between requests
       // rateLimitPerMinute: 15,

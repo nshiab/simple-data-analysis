@@ -86,7 +86,7 @@ export type OllamaGenerationOptions = AskOllamaOptions & {
  *
  * @example
  * ```ts
- * const generation: EnvironmentGenerationOptions = { cache: true };
+ * const generation: EnvironmentGenerationOptions = { cache: false };
  * ```
  */
 export type EnvironmentGenerationOptions =

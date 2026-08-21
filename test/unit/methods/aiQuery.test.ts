@@ -64,7 +64,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
       {
-        generation: { ...geminiGeneration, cache: true },
+        generation: { ...geminiGeneration },
         verbose: true,
       },
     );
@@ -84,7 +84,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
       {
-        generation: { ...geminiGeneration, cache: true },
+        generation: { ...geminiGeneration },
         verbose: true,
       },
     );
@@ -143,7 +143,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     const resultTable = await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
       {
-        generation: { ...geminiGeneration, cache: true },
+        generation: { ...geminiGeneration },
         outputTable: "avg_temp",
         verbose: true,
       },
@@ -249,7 +249,7 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
       {
-        generation: { ...ollamaGeneration, cache: true },
+        generation: { ...ollamaGeneration },
         verbose: true,
       },
     );
@@ -272,7 +272,7 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
       await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
         {
-          generation: { ...ollamaGeneration, cache: true },
+          generation: { ...ollamaGeneration },
           verbose: true,
         },
       );
@@ -319,7 +319,7 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
       const resultTable = await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
         {
-          generation: { ...ollamaGeneration, cache: true },
+          generation: { ...ollamaGeneration },
           outputTable: "avg_temp_ollama",
           verbose: true,
         },

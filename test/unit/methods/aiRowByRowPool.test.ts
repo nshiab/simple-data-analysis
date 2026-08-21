@@ -57,7 +57,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `Give me the country and continent of the city.`,
       2,
       {
-        generation: { ...geminiGeneration, cache: true },
+        generation: { ...geminiGeneration },
         batchSize: 2,
         logProgress: true,
         metrics,
@@ -89,7 +89,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `Give me the country and continent of the city.`,
       2,
       {
-        generation: { ...geminiGeneration, cache: true },
+        generation: { ...geminiGeneration },
         batchSize: 2,
         logProgress: true,
         metrics,
@@ -121,7 +121,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `Classify the sentiment as "Positive", "Negative", or "Neutral".`,
       2, // poolSize: 2 concurrent requests
       {
-        generation: { ...geminiGeneration, cache: true },
+        generation: { ...geminiGeneration },
         batchSize: 2, // Process 2 rows per request
         logProgress: true,
         test: (data: { [key: string]: unknown }) => {
@@ -171,7 +171,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `For the given product, provide the category and typical price range.`,
       3, // Process up to 3 products concurrently
       {
-        generation: { ...geminiGeneration, cache: true },
+        generation: { ...geminiGeneration },
         logProgress: true,
       },
     );
@@ -213,7 +213,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `Give me a result.`,
       2,
       {
-        generation: { ...geminiGeneration, cache: true },
+        generation: { ...geminiGeneration },
         logProgress: true,
         batchSize: 1,
         test: (_data: { [key: string]: unknown }) => {
@@ -259,7 +259,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral".`,
       2,
       {
-        generation: { ...geminiGeneration, cache: true },
+        generation: { ...geminiGeneration },
         batchSize: 1,
         test: (data: { [key: string]: unknown }) => {
           if (

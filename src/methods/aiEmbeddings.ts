@@ -12,7 +12,7 @@ import ensureEmbeddingColumn from "../helpers/ensureEmbeddingColumn.ts";
  * @example
  * ```ts
  * const options: AIEmbeddingsOptions = {
- *   embeddings: { provider: "ollama", cache: true },
+ *   embeddings: { provider: "ollama" },
  *   concurrent: 4,
  * };
  * ```

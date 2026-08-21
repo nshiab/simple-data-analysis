@@ -49,6 +49,7 @@ Deno.test("aiRAG regenerates incompatible managed embeddings", async () => {
       provider: "ollama",
       model: "rag-model-a",
       ollama: firstClient,
+      cache: false,
     },
   });
 
@@ -71,11 +72,13 @@ Deno.test("aiRAG regenerates incompatible managed embeddings", async () => {
       provider: "ollama",
       model: "rag-model-b",
       ollama: changedClient,
+      cache: false,
     },
     generation: {
       provider: "ollama",
       model: "fake-generation",
       ollama: generationClient,
+      cache: false,
     },
     bm25: false,
   });
@@ -140,8 +143,8 @@ if (hasAiKey) {
           "Recipe",
           10,
           {
-            generation: { ...geminiGeneration, cache: true },
-            embeddings: { ...ollamaEmbeddings, cache: true },
+            generation: { ...geminiGeneration },
+            embeddings: { ...ollamaEmbeddings },
             // verbose: true,
           },
         );
@@ -173,10 +176,9 @@ if (hasAiKey) {
           {
             generation: {
               ...geminiGeneration,
-              cache: true,
               thinkingLevel: "minimal",
             },
-            embeddings: { ...ollamaEmbeddings, cache: true },
+            embeddings: { ...ollamaEmbeddings },
             // verbose: true,
           },
         );
@@ -210,9 +212,8 @@ if (hasAiKey) {
               ...geminiGeneration,
               systemPrompt:
                 "Answer the question based on provided data. Make sure it rhymes.",
-              cache: true,
             },
-            embeddings: { ...ollamaEmbeddings, cache: true },
+            embeddings: { ...ollamaEmbeddings },
             // verbose: true,
           },
         );
@@ -244,10 +245,9 @@ if (hasAiKey) {
           {
             generation: {
               ...geminiGeneration,
-              cache: true,
               thinkingLevel: "minimal",
             },
-            embeddings: { ...ollamaEmbeddings, cache: true },
+            embeddings: { ...ollamaEmbeddings },
             //  verbose: true,
           },
         );
@@ -277,7 +277,7 @@ if (hasAiKey) {
         "Recipe",
         10,
         {
-          generation: { ...geminiGeneration, cache: true },
+          generation: { ...geminiGeneration },
           vectorSearch: false, // Disable vector search
           bm25: true, // Enable only BM25
           verbose: true,
@@ -308,8 +308,8 @@ if (hasAiKey) {
         "Recipe",
         10,
         {
-          generation: { ...geminiGeneration, cache: true },
-          embeddings: { ...geminiEmbeddings, cache: true },
+          generation: { ...geminiGeneration },
+          embeddings: { ...geminiEmbeddings },
           embeddingsConcurrent: 100,
           vectorSearch: true, // Enable only vector search
           bm25: false, // Disable BM25
@@ -336,8 +336,8 @@ if (hasAiKey) {
       table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG("fennel garlic", "Dish", "Recipe", 3, {
-        generation: { ...geminiGeneration, cache: true },
-        embeddings: { ...geminiEmbeddings, cache: true },
+        generation: { ...geminiGeneration },
+        embeddings: { ...geminiEmbeddings },
         conjunctive: true,
         verbose: true,
       });
@@ -379,10 +379,9 @@ if (hasOllama) {
         {
           generation: {
             ...ollamaGeneration,
-            cache: true,
             thinkingLevel: true,
           },
-          embeddings: { ...ollamaEmbeddings, cache: true },
+          embeddings: { ...ollamaEmbeddings },
           verbose: true,
         },
       );
@@ -408,8 +407,8 @@ if (hasOllama) {
       "Recipe",
       10,
       {
-        generation: { ...ollamaGeneration, cache: true },
-        embeddings: { ...ollamaEmbeddings, cache: true },
+        generation: { ...ollamaGeneration },
+        embeddings: { ...ollamaEmbeddings },
         // verbose: true,
       },
     );
@@ -439,10 +438,9 @@ if (hasOllama) {
         {
           generation: {
             ...ollamaGeneration,
-            cache: true,
             thinkingLevel: true,
           },
-          embeddings: { ...ollamaEmbeddings, cache: true },
+          embeddings: { ...ollamaEmbeddings },
           // verbose: true,
         },
       );
@@ -475,9 +473,8 @@ if (hasOllama) {
             ...ollamaGeneration,
             systemPrompt:
               "Answer the question based on provided data. Make sure it rhymes.",
-            cache: true,
           },
-          embeddings: { ...ollamaEmbeddings, cache: true },
+          embeddings: { ...ollamaEmbeddings },
           // verbose: true,
         },
       );
@@ -508,10 +505,9 @@ if (hasOllama) {
         {
           generation: {
             ...ollamaGeneration,
-            cache: true,
             thinkingLevel: true,
           },
-          embeddings: { ...ollamaEmbeddings, cache: true },
+          embeddings: { ...ollamaEmbeddings },
           // verbose: true,
         },
       );
@@ -562,8 +558,8 @@ if (hasOllama) {
         "Recipe",
         10,
         {
-          generation: { ...ollamaGeneration, cache: true },
-          embeddings: { ...ollamaEmbeddings, cache: true },
+          generation: { ...ollamaGeneration },
+          embeddings: { ...ollamaEmbeddings },
           createIndex: true,
           verbose: true,
         },
@@ -608,8 +604,8 @@ if (hasOllama) {
         "Recipe",
         10,
         {
-          generation: { ...ollamaGeneration, cache: true },
-          embeddings: { ...ollamaEmbeddings, cache: true },
+          generation: { ...ollamaGeneration },
+          embeddings: { ...ollamaEmbeddings },
           createIndex: true,
           verbose: true,
         },
@@ -639,8 +635,8 @@ if (hasOllama) {
         "Recipe",
         10,
         {
-          generation: { ...ollamaGeneration, cache: true },
-          embeddings: { ...ollamaEmbeddings, cache: true },
+          generation: { ...ollamaGeneration },
+          embeddings: { ...ollamaEmbeddings },
           vectorSearch: false, // Disable vector search
           bm25: true, // Enable only BM25
           verbose: true,
@@ -671,8 +667,8 @@ if (hasOllama) {
         "Recipe",
         10,
         {
-          generation: { ...ollamaGeneration, cache: true },
-          embeddings: { ...ollamaEmbeddings, cache: true },
+          generation: { ...ollamaGeneration },
+          embeddings: { ...ollamaEmbeddings },
           vectorSearch: true, // Enable only vector search
           bm25: false, // Disable BM25
           verbose: true,
@@ -702,8 +698,8 @@ if (hasOllama) {
         "Recipe",
         10,
         {
-          generation: { ...ollamaGeneration, cache: true },
-          embeddings: { ...ollamaEmbeddings, cache: true },
+          generation: { ...ollamaGeneration },
+          embeddings: { ...ollamaEmbeddings },
           verbose: true,
           bm25MinScore: 0.1, // Set a low BM25 min score to see more results
           bm25ScoreColumn: "bm25_score", // Log BM25 scores in this column
@@ -730,8 +726,8 @@ if (hasOllama) {
       table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG("fennel garlic", "Dish", "Recipe", 3, {
-        generation: { ...ollamaGeneration, cache: true },
-        embeddings: { ...ollamaEmbeddings, cache: true },
+        generation: { ...ollamaGeneration },
+        embeddings: { ...ollamaEmbeddings },
         conjunctive: true,
         verbose: true,
       });
@@ -755,8 +751,8 @@ if (hasOllama) {
 
       // Using custom BM25 options in RAG context
       const answer = await table.aiRAG("italian food", "Dish", "Recipe", 5, {
-        generation: { ...ollamaGeneration, cache: true },
-        embeddings: { ...ollamaEmbeddings, cache: true },
+        generation: { ...ollamaGeneration },
+        embeddings: { ...ollamaEmbeddings },
         stemmer: "none",
         lower: false,
         stripAccents: false,
@@ -788,11 +784,10 @@ if (hasOllama) {
         {
           generation: {
             ...ollamaGeneration,
-            cache: true,
             contextWindow: 8_000,
             thinkingLevel: false,
           },
-          embeddings: { ...ollamaEmbeddings, cache: true },
+          embeddings: { ...ollamaEmbeddings },
           stopwords: "english",
           verbose: true,
         },

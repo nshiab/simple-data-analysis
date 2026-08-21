@@ -9,7 +9,7 @@ import type { UnstructuredGenerationOptions } from "../helpers/aiOptions.ts";
  * @example
  * ```ts
  * const options: AIQueryOptions = {
- *   generation: { provider: "gemini", cache: true },
+ *   generation: { provider: "gemini" },
  *   outputTable: "results",
  * };
  * ```
