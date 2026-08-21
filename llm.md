@@ -901,9 +901,7 @@ without provenance are treated as legacy and regenerated safely.
 If `createIndex` is `true`, an HNSW index will be created on the new column
 using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is
 useful for speeding up the `aiVectorSimilarity` method. If the index already
-exists, it will not be recreated unless `overwriteIndex` is `true`. The physical
-index is not stored in DuckDB cache artifacts; it is recreated from
-`SimpleTable.indexes` on cache hits.
+exists, it will not be recreated unless `overwriteIndex` is `true`.
 
 This method does not support tables containing geometries.
 
@@ -1002,8 +1000,7 @@ The query embedding is cached in `.journalism-cache` by default. Set
 If `createIndex` is `true`, an HNSW index will be created on the embeddings
 column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss) to
 speed up processing. If the index already exists, it will not be recreated
-unless `overwriteIndex` is `true`. The physical index is not stored in DuckDB
-cache artifacts; it is recreated from `SimpleTable.indexes` on cache hits.
+unless `overwriteIndex` is `true`.
 
 ##### Signature
 
@@ -1141,14 +1138,9 @@ The selected embedding provider is used for both stored row embeddings and the
 query embedding.
 
 When BM25 search is enabled, its required full-text search index is created or
-reused automatically. The physical FTS index is stored in DuckDB cache artifacts
-and restored directly on cache hits.
-
-When vector search is enabled, set `createIndex` to `true` to also create an
-HNSW index using the
-[duckdb-vss extension](https://github.com/duckdb/duckdb-vss). The physical HNSW
-index is not stored in cache artifacts; it is recreated from
-`SimpleTable.indexes` on cache hits.
+reused automatically. When vector search is enabled, set `createIndex` to `true`
+to also create an HNSW index using the
+[duckdb-vss extension](https://github.com/duckdb/duckdb-vss).
 
 This method does not support tables containing geometries.
 
@@ -1302,14 +1294,9 @@ Ollama temperature defaults to 0. Gemini uses the provider's default
 temperature.
 
 When BM25 search is enabled, its required full-text search index is created or
-reused automatically. The physical FTS index is stored in DuckDB cache artifacts
-and restored directly on cache hits.
-
-When vector search is enabled, set `createIndex` to `true` to also create an
-HNSW index using the
-[duckdb-vss extension](https://github.com/duckdb/duckdb-vss). The physical HNSW
-index is not stored in cache artifacts; it is recreated from
-`SimpleTable.indexes` on cache hits.
+reused automatically. When vector search is enabled, set `createIndex` to `true`
+to also create an HNSW index using the
+[duckdb-vss extension](https://github.com/duckdb/duckdb-vss).
 
 This method does not support tables containing geometries.
 
