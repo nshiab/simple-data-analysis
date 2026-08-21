@@ -84,7 +84,7 @@ async function dropManagedVssIndexes(table: SimpleTable): Promise<void> {
     );
   }
   const dropped = new Set(managedIndexes.map(({ index_name }) => index_name));
-  table.indexes = table.indexes.filter((index) => !dropped.has(index));
+  table.indexes = table.indexes.filter((index) => !dropped.has(index.name));
 }
 
 async function writeMetadata(

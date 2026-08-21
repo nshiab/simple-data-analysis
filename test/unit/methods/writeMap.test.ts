@@ -157,7 +157,7 @@ Deno.test("should write a map with multiple layers as a png", async () => {
   fires.selectColumns(["geom", "hectares", "cause"]);
   fires.filter(`hectares > 0 AND cause != 'Unknown'`);
 
-  const provincesAndFires = provinces.cloneTable({
+  const provincesAndFires = provinces.clone({
     name: "provincesAndFires",
   });
   provincesAndFires.addColumn("hectares", "number", `0`);

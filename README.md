@@ -408,7 +408,7 @@ const fires = await sdb
 // to draw our map with the writeMap method.
 // First, we clone the provinces table.
 const provincesAndFires = await provinces
-  .cloneTable({
+  .clone({
     name: "provincesAndFires",
   })
   // Now we can insert the fires into the provincesAndFires table.

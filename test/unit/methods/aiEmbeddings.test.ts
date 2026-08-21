@@ -1,5 +1,6 @@
 import { assertEquals, assertRejects } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
+import type SimpleTable from "../../../src/class/SimpleTable.ts";
 import { existsSync, rmSync } from "node:fs";
 import { Ollama } from "ollama";
 import {
@@ -10,6 +11,29 @@ import {
   geminiEmbeddingOptions,
   hasGoogleEmbeddingCredentials,
 } from "../helpers/realEmbeddingOptions.ts";
+
+async function cacheIndexedEmbeddings(
+  table: SimpleTable,
+  client: FakeOllamaEmbeddingClient,
+): Promise<void> {
+  await table.cache(async () => {
+    table.loadArray([
+      { id: "a", text: "alpha" },
+      { id: "b", text: "beta" },
+    ]);
+    await table.aiEmbeddings("text", "text_embeddings", {
+      embeddings: {
+        provider: "ollama",
+        model: "cache-index-model",
+        ollama: client,
+        cache: false,
+      },
+      createIndex: true,
+    });
+    table.createFtsIndex("id", "text");
+    await table.run();
+  });
+}
 
 Deno.test("aiEmbeddings verbose progress does not add blank lines", async () => {
   const sdb = new SimpleDB({ dataTransport: "file" });
@@ -318,6 +342,96 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
   assertEquals(geminiFetch.requests, 2);
   assertEquals(table.indexes, []);
   await sdb.close();
+});
+
+Deno.test("stale VSS cleanup preserves unrelated structured index definitions", async () => {
+  const sdb = new SimpleDB({ dataTransport: "file" });
+  const table = sdb.newTable("mixed_indexes");
+  table.loadArray([
+    { id: "a", text: "alpha" },
+    { id: "b", text: "beta" },
+  ]);
+  table.createFtsIndex("id", "text");
+  await table.run();
+
+  await table.aiEmbeddings("text", "text_embeddings", {
+    embeddings: {
+      provider: "ollama",
+      model: "model-a",
+      ollama: new FakeOllamaEmbeddingClient(
+        "http://mixed.local:11434",
+        [1, 0],
+      ),
+      cache: false,
+    },
+    createIndex: true,
+  });
+  assertEquals(table.indexes.map(({ kind }) => kind).sort(), ["fts", "vss"]);
+
+  await table.aiEmbeddings("text", "text_embeddings", {
+    embeddings: {
+      provider: "ollama",
+      model: "model-b",
+      ollama: new FakeOllamaEmbeddingClient(
+        "http://mixed.local:11434",
+        [0, 1],
+      ),
+      cache: false,
+    },
+  });
+
+  assertEquals(table.indexes.map(({ kind }) => kind), ["fts"]);
+  await sdb.close();
+});
+
+Deno.test("DuckDB cache restores FTS and rebuilds HNSW from structured definitions", async () => {
+  if (existsSync("./.sda-cache")) {
+    rmSync("./.sda-cache", { recursive: true });
+  }
+
+  try {
+    const firstDb = new SimpleDB({ dataTransport: "file" });
+    const firstTable = firstDb.newTable("indexed_cache");
+    const firstClient = new FakeOllamaEmbeddingClient(
+      "http://indexed-cache.local:11434",
+      [1, 0],
+    );
+    await cacheIndexedEmbeddings(firstTable, firstClient);
+    assertEquals(firstClient.requests, 2);
+    await firstDb.close();
+
+    const cachedDb = new SimpleDB({ dataTransport: "file" });
+    const cachedTable = cachedDb.newTable("indexed_cache");
+    const cachedClient = new FakeOllamaEmbeddingClient(
+      "http://indexed-cache.local:11434",
+      [0, 1],
+    );
+    await cacheIndexedEmbeddings(cachedTable, cachedClient);
+
+    assertEquals(cachedClient.requests, 0);
+    assertEquals(cachedTable.indexes.map(({ kind }) => kind).sort(), [
+      "fts",
+      "vss",
+    ]);
+    const physicalVssIndexes = await cachedDb.customQuery(
+      `SELECT index_name FROM duckdb_indexes()
+      WHERE table_name = 'indexed_cache'
+        AND index_name LIKE 'vss_cosine_index_%';`,
+      { returnData: true },
+    ) as { index_name: string }[];
+    const physicalFtsSchemas = await cachedDb.customQuery(
+      `SELECT schema_name FROM duckdb_schemas()
+      WHERE schema_name LIKE 'fts_main_indexed_cache%';`,
+      { returnData: true },
+    ) as { schema_name: string }[];
+    assertEquals(physicalVssIndexes.length, 1);
+    assertEquals(physicalFtsSchemas.length, 1);
+    await cachedDb.close();
+  } finally {
+    if (existsSync("./.sda-cache")) {
+      rmSync("./.sda-cache", { recursive: true });
+    }
+  }
 });
 
 Deno.test("failed regeneration is retried and restores cache logging", async () => {

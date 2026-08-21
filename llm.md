@@ -898,10 +898,14 @@ existing column is reused; changing its embedding identity or source mapping
 regenerates the vectors and invalidates a stale VSS index. Existing columns
 without provenance are treated as legacy and regenerated safely.
 
-If `createIndex` is `true`, an index will be created on the new column using the
-[duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful for
-speeding up the `aiVectorSimilarity` method. If the index already exists, it
-will not be recreated unless `overwriteIndex` is `true`.
+If `createIndex` is `true`, an HNSW index will be created on the new column
+using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is
+useful for speeding up the `aiVectorSimilarity` method. If the index already
+exists, it will not be recreated unless `overwriteIndex` is `true`.
+
+`SimpleTable.indexes` is the source of truth for the HNSW index. The physical
+index is not stored in the DuckDB cache artifact and is recreated from its
+definition on every cache hit.
 
 This method does not support tables containing geometries.
 
@@ -918,9 +922,10 @@ async aiEmbeddings(column: string, newColumn: string, options?: { embeddings?: {
 - **`newColumn`**: The name of the new column where the generated embeddings
   will be stored.
 - **`options`**: Configuration options for the AI request.
-- **`options.createIndex`**: If `true`, an index will be created on the new
-  column. Useful for speeding up the `aiVectorSimilarity` method. Defaults to
-  `false`.
+- **`options.createIndex`**: If `true`, an HNSW index will be created on the new
+  column. Its definition is retained in `SimpleTable.indexes`, and the physical
+  index is recreated on DuckDB cache hits. Useful for speeding up the
+  `aiVectorSimilarity` method. Defaults to `false`.
 - **`options.overwriteIndex`**: If `true` and `createIndex` is `true`, drops and
   recreates the VSS index even if it already exists. Defaults to `false`.
 - **`options.efConstruction`**: The number of candidate vertices to consider
@@ -997,10 +1002,14 @@ The query embedding is cached locally in `.journalism-cache` by default. Set
 `embeddings.cache` to `false` to disable caching, and remember to add
 `.journalism-cache` to your `.gitignore`.
 
-If `createIndex` is `true`, an index will be created on the embeddings column
-using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss) to speed
-up processing. If the index already exists, it will not be recreated unless
-`overwriteIndex` is `true`.
+If `createIndex` is `true`, an HNSW index will be created on the embeddings
+column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss) to
+speed up processing. If the index already exists, it will not be recreated
+unless `overwriteIndex` is `true`.
+
+`SimpleTable.indexes` is the source of truth for the HNSW index. The physical
+index is not stored in the DuckDB cache artifact and is recreated from its
+definition on every cache hit.
 
 ##### Signature
 
@@ -1023,8 +1032,9 @@ async aiVectorSimilarity(text: string, column: string, nbResults: number, option
 - **`options.similarityColumn`**: If provided, a new column with this name will
   be added to the output table containing the calculated similarity score (from
   0.0 to 1.0) for each row. Defaults to `undefined`.
-- **`options.createIndex`**: If `true`, an index will be created on the
-  embeddings column. Defaults to `false`.
+- **`options.createIndex`**: If `true`, an HNSW index will be created on the
+  embeddings column. Its definition is retained in `SimpleTable.indexes`, and
+  the physical index is recreated on DuckDB cache hits. Defaults to `false`.
 - **`options.overwriteIndex`**: If `true` and `createIndex` is `true`, drops and
   recreates the VSS index even if it already exists. Defaults to `false`.
 - **`options.efConstruction`**: The number of candidate vertices to consider
@@ -1144,11 +1154,16 @@ other fields match `getEmbedding` from journalism-ai.
 The selected embedding provider is used for both stored row embeddings and the
 query embedding.
 
-If `createIndex` is `true`, both a vector index (using the
+If `createIndex` is `true`, both an HNSW vector index (using the
 [duckdb-vss extension](https://github.com/duckdb/duckdb-vss)) and a BM25
 full-text search index (using the
 [fts extension](https://duckdb.org/docs/stable/core_extensions/full_text_search))
 will be created for faster retrieval.
+
+`SimpleTable.indexes` is the source of truth for both indexes. The FTS index is
+physically stored in the DuckDB cache artifact and restored directly on cache
+hits, while the HNSW index is not stored in the artifact and is recreated from
+its definition on every cache hit.
 
 This method does not support tables containing geometries.
 
@@ -1172,8 +1187,10 @@ async hybridSearch(query: string, columnId: string, columnText: string, nbResult
   fields match `getEmbedding` from journalism-ai.
 - **`options.verbose`**: If `true`, logs additional debugging information.
   Defaults to `false`.
-- **`options.createIndex`**: If `true`, both vector and BM25 indexes will be
-  created for faster retrieval. Defaults to `false`.
+- **`options.createIndex`**: If `true`, both HNSW vector and BM25 FTS indexes
+  will be created for faster retrieval. Their definitions are retained in
+  `SimpleTable.indexes`; on DuckDB cache hits, FTS is restored directly and HNSW
+  is recreated. Defaults to `false`.
 - **`options.efConstruction`**: The number of candidate vertices to consider
   during index construction. Higher values result in more accurate indexes but
   increase build time. Defaults to 128.
@@ -1313,11 +1330,16 @@ is `"ollama"`. Environment-only mixed providers use `AI_PROVIDER` and
 Ollama temperature defaults to 0. Gemini uses the provider's default
 temperature.
 
-If `createIndex` is `true`, both a vector index (using the
+If `createIndex` is `true`, both an HNSW vector index (using the
 [duckdb-vss extension](https://github.com/duckdb/duckdb-vss)) and a BM25
 full-text search index (using the
 [fts extension](https://duckdb.org/docs/stable/core_extensions/full_text_search))
 will be created for faster retrieval.
+
+`SimpleTable.indexes` is the source of truth for both indexes. The FTS index is
+physically stored in the DuckDB cache artifact and restored directly on cache
+hits, while the HNSW index is not stored in the artifact and is recreated from
+its definition on every cache hit.
 
 This method does not support tables containing geometries.
 
@@ -1355,8 +1377,10 @@ async aiRAG(query: string, columnId: string, columnText: string, nbResults: numb
   calculated for Google GenAI models, not for Ollama.
 - **`options.embeddingsConcurrent`**: The number of concurrent requests to send
   to the embeddings service. Defaults to `1`.
-- **`options.createIndex`**: If `true`, both vector and BM25 indexes will be
-  created for faster retrieval. Defaults to `false`.
+- **`options.createIndex`**: If `true`, both HNSW vector and BM25 FTS indexes
+  will be created for faster retrieval. Their definitions are retained in
+  `SimpleTable.indexes`; on DuckDB cache hits, FTS is restored directly and HNSW
+  is recreated. Defaults to `false`.
 - **`options.efConstruction`**: The number of candidate vertices to consider
   during index construction. Higher values result in more accurate indexes but
   increase build time. Defaults to 128.
