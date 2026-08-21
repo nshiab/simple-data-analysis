@@ -49,7 +49,7 @@ export type HybridSearchOptions = {
   embeddings?: EmbeddingOptions;
   /** Logs search progress, results, and timing information when enabled. */
   verbose?: boolean;
-  /** Creates vector and BM25 indexes when enabled. */
+  /** Creates an HNSW index when vector search is enabled. BM25 manages its FTS index automatically. */
   createIndex?: boolean;
   /** Maximum number of stored-row embedding requests processed concurrently. */
   embeddingsConcurrent?: number;
