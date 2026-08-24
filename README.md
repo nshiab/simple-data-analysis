@@ -38,29 +38,13 @@ SDA is split into two packages:
 - **`simple-data-analysis`** (this package) extends the core with additional
   features: AI methods (row-by-row processing, embeddings, vector similarity,
   hybrid search, RAG, natural language queries), Google Sheets integration, and
-  charting/dataviz methods.
+  charting/dataviz methods. These features are built respectively on the
+  [`journalism-ai`](https://jsr.io/@nshiab/journalism-ai),
+  [`journalism-google`](https://jsr.io/@nshiab/journalism-google), and
+  [`journalism-dataviz`](https://jsr.io/@nshiab/journalism-dataviz) libraries.
 
 Most users will want this package (`simple-data-analysis`), which includes all
 of the core functionality plus the extended features.
-
-## Execution model
-
-Starting with v6, core transformation methods are synchronous builders: they
-queue work, return the table, and can be chained. Async observer methods such as
-`getData()`, `logTable()`, and `writeData()` execute the queued work before
-producing their result.
-
-```ts
-const data = await table
-  .loadData("temperatures.csv")
-  .selectColumns(["city", "time", "temperature"])
-  .removeMissing({ columns: "temperature" })
-  .getData();
-```
-
-Call `await table.run()` when a chain ends with transformations and no observer.
-Methods provided by this package that perform external work—such as AI, Google
-Sheets, and Datawrapper methods—remain asynchronous and must still be awaited.
 
 ## Installation
 
@@ -107,32 +91,30 @@ The missing piece in the JavaScript/TypeScript ecosystem was an easy-to-use and
 performant library for data analysis. This is why SDA was created.
 
 The library is based on [DuckDB](https://duckdb.org/), a fast in-process
-analytical database. Under the hood, SDA sends SQL queries to be executed by
-DuckDB. We use [duckdb-node-neo](https://github.com/duckdb/duckdb-node-neo). For
-geospatial computations, we rely on the
-[duckdb_spatial](https://github.com/duckdb/duckdb_spatial) extension.
+analytical database. Under the hood, SDA executes SQL queries in DuckDB through
+[duckdb-node-neo](https://github.com/duckdb/duckdb-node-neo). SDA also uses
+[DuckDB extensions](https://duckdb.org/docs/current/extensions/overview) for
+additional capabilities, including
+[duckdb_spatial](https://github.com/duckdb/duckdb-spatial) for geospatial
+computations and other extensions for fuzzy matching, full-text search, vector
+indexes, and more. These extensions are loaded lazily, only when the
+corresponding features are used.
+
+To keep data pipelines concise and fast, SDA queues core transformations instead
+of executing each one immediately. Consecutive compatible operations are fused
+into a single DuckDB statement, reducing database round trips. Transformation
+methods are synchronous and chainable; async observer methods such as
+`getData()`, `log()`, and `writeData()` flush the queue before producing their
+result. This means only the final observer needs to be awaited.
+
+Methods that perform external work—such as AI, Google Sheets, and Datawrapper
+methods—remain asynchronous and must still be awaited.
 
 The syntax and the available methods were inspired by
 [Pandas](https://github.com/pandas-dev/pandas) (Python) and the
-[Tidyverse](https://www.tidyverse.org/) (R).
-
-You can also write your own SQL queries if you want to (check the
-[customQuery method](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleDB.prototype.customQuery))
-or use JavaScript to process your data (check the
-[updateWithJS method](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.updateWithJS)).
-
-Several methods can also leverage LLMs (large language models). See
-[aiRowByRow](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiRowByRow)
-for cleaning, extracting, or categorizing data, and
-[aiQuery](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiQuery)
-for interacting with your data using natural language. For embeddings and
-semantic search, have a look at
-[aiEmbeddings](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiEmbeddings)
-and
-[aiVectorSimilarity](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiVectorSimilarity).
-
-Feel free to start a conversation or open an issue. Check how you can
-[contribute](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
+[Tidyverse](https://www.tidyverse.org/) (R). Method and option names are kept
+simple and descriptive, so anyone can read an SDA pipeline and understand what
+is happening step by step.
 
 ## Performance
 
@@ -201,23 +183,49 @@ DuckDB, which powers SDA, can also be used with
 
 ## Examples
 
-In this example, we load a CSV file with the latitude and longitude of 2023
-wildfires in Canada, create point geometries from it, do a spatial join with
-provinces' boundaries, and then compute the number of fires and the total area
-burnt per province. We create charts and write the results to a file.
+### Tabular data
 
-If you are using Deno, make sure to install and enable the
-[Deno extension](https://docs.deno.com/runtime/getting_started/setup_your_environment/).
+In this example, we load daily temperatures for three Canadian weather stations,
+remove missing values, and compute the average temperature for each station. We
+then log the results and write them to a CSV file.
 
 ```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
-import { barX, plot } from "@observablehq/plot";
 
-// We start a SimpleDB instance.
 const sdb = new SimpleDB();
 
-// We create a new table, fetch the wildfires data from a CSV file,
-// and create point geometries from the lat and lon columns.
+const data = await sdb
+  .newTable("temperatures")
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/dailyTemperatures.csv",
+  )
+  .renameColumns({ t: "temperature", id: "station" })
+  .removeMissing({ columns: "temperature" })
+  .summarize({
+    columns: "temperature",
+    by: "station",
+    stats: "mean",
+    decimals: 2,
+  })
+  .sort({ mean: "desc" })
+  .log();
+
+await data.writeData("sda/output/averageTemperatures.csv");
+await sdb.close();
+```
+
+### Geospatial data
+
+In this example, we load a CSV file with the latitude and longitude of 2023
+wildfires in Canada, create point geometries from it, do a spatial join with
+provinces' boundaries, write the joined data to a GeoJSON file, and then compute
+the number of fires and the total area burnt per province.
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+
 const fires = await sdb
   .newTable("fires")
   .loadData(
@@ -226,7 +234,6 @@ const fires = await sdb
   .points("lat", "lon", "geom")
   .log();
 
-// We create a new table and fetch the provinces' boundaries from a GeoJSON file.
 const provinces = await sdb
   .newTable("provinces")
   .loadGeoData(
@@ -234,83 +241,38 @@ const provinces = await sdb
   )
   .log();
 
-// We match fires with provinces
-// and we output the results into a new table.
-// By default, joinGeo will automatically look
-// for columns storing geometries in the tables,
-// do a left join, and put the results
-// in the left table. For non-spatial data,
-// you can use the method join.
 const firesInsideProvinces = await fires
   .joinGeo(provinces, "inside", {
     outputTable: "firesInsideProvinces",
   })
-  // We remove fires that did not match a province.
   .removeMissing()
-  // We summarize to count the number of fires
-  // and sum up the area burnt in each province.
+  .removeColumns("geomProvinces")
+  .log();
+
+// Each fire now has a province value.
+await firesInsideProvinces.writeGeoData(
+  "sda/output/firesInsideProvinces.geojson",
+);
+
+// We can use any other method, such as summarize.
+await firesInsideProvinces
   .summarize({
-    values: "hectares",
-    categories: "nameEnglish",
-    summaries: ["count", "sum"],
+    columns: "hectares",
+    by: "nameEnglish",
+    stats: { nbFires: "count", burntArea: "sum" },
     decimals: 0,
   })
-  // We rename columns.
-  .renameColumns({
-    count: "nbFires",
-    sum: "burntArea",
-  })
-  // We want the province with the greatest burnt area first.
   .sort({ burntArea: "desc" })
-  // We log the results. By default, the method logs the first 10 rows,
-  // but there are 12 rows in our data. We also log the data types.
-  .logTable({ rowsToLog: 12, types: true });
+  .log();
 
-// We can also log a bar chart directly in the terminal...
-await firesInsideProvinces.logBarChart("nameEnglish", "burntArea");
-
-// ... or make a fancier chart or map
-// with Observable Plot (don't forget to install it)
-// and save it to a file.
-const chart = (data: unknown[]) =>
-  plot({
-    marginLeft: 170,
-    grid: true,
-    x: { tickFormat: (d) => `${d / 1_000_000}M`, label: "Burnt area (ha)" },
-    y: { label: null },
-    color: { scheme: "Reds" },
-    marks: [
-      barX(data, {
-        x: "burntArea",
-        y: "nameEnglish",
-        fill: "burntArea",
-        sort: { y: "-x" },
-      }),
-    ],
-  });
-await firesInsideProvinces.writeChart(chart, "sda/output/chart.png");
-
-// And we can write the data to a parquet, json or csv file.
-// For geospatial data, you can use writeGeoData to
-// write geojson or geoparquet files.
-await firesInsideProvinces.writeData("sda/output/firesInsideProvinces.parquet");
-
-// We close everything.
 await sdb.close();
 ```
 
-Here's what you should see in your console if you run this script.
+### Data visualisations
 
-![The console tab in VS Code showing the result of simple-data-analysis computations.](./assets/nodejs-console-with-chart.png)
+#### Charts
 
-You'll also find a `chart.png` file and a `firesInsideProvinces.parquet` file in
-your `sda/output` folder.
-
-![A chart showing the burnt area of wildfires in Canadian provinces.](./assets/chart.png)
-
-## More on charts and maps
-
-You can easily display charts and maps directly in the terminal with the
+You can easily display charts directly in the terminal with the
 [`logBarChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logBarChart),
 [`logDotChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logDotChart),
 [`logLineChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logLineChart)
@@ -321,9 +283,6 @@ methods.
 But you can also create [Observable Plot](https://github.com/observablehq/plot)
 charts as an image file (`.png` or `.svg`) with
 [`writeChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.writeChart).
-The chart function runs in the same context as the rest of your code, so import
-Plot marks, formatters, and other helpers normally and use values from the
-surrounding scope as needed.
 
 Here's an example.
 
@@ -337,46 +296,44 @@ const table = await sdb
   .loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
   )
-  // We keep only the fires that are larger than 1 hectare.
   .filter(`hectares > 1`)
-  // We rename the causes.
   .replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" })
   .log();
 
-// Let's create a beeswarm chart with a log scale.
-// We facet over the causes.
-const chart = (data: unknown[]) =>
-  plot({
-    height: 600,
-    width: 800,
-    color: { legend: true },
-    y: { type: "log", label: "Hectares" },
-    r: { range: [1, 20] },
-    marks: [
-      dot(
-        data,
-        dodgeX("middle", {
-          fx: "cause",
-          y: "hectares",
-          fill: "cause",
-          r: "hectares",
-        }),
-      ),
-    ],
-  });
-
-await table.writeChart(chart, "sda/output/chart.png");
+// We create a beeswarm chart with a log scale, faceted by cause.
+await table.writeChart(
+  (data) =>
+    plot({
+      height: 600,
+      width: 800,
+      color: { legend: true },
+      y: { type: "log", label: "Hectares" },
+      r: { range: [1, 20] },
+      marks: [
+        dot(
+          data,
+          dodgeX("middle", {
+            fx: "cause",
+            y: "hectares",
+            fill: "cause",
+            r: "hectares",
+          }),
+        ),
+      ],
+    }),
+  "sda/output/chart.png",
+);
 
 await sdb.close();
 ```
 
 ![Beeswarm chart showing the size of wildfires in Canada in 2023.](./assets/beeswarm.png)
 
+#### Maps
+
 If you want to create [Observable Plot](https://github.com/observablehq/plot)
 maps, you can use
 [`writeMap`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.writeMap).
-As with `writeChart`, imports and values from the surrounding scope are
-available inside the map function.
 
 Here's an example.
 
@@ -386,7 +343,6 @@ import { geo, plot } from "@observablehq/plot";
 
 const sdb = new SimpleDB();
 
-// We fetch the Canadian provinces boundaries.
 const provinces = await sdb
   .newTable("provinces")
   .loadGeoData(
@@ -394,128 +350,226 @@ const provinces = await sdb
   )
   .log();
 
-// We fetch the fires.
 const fires = await sdb
   .newTable("fires")
   .loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
   )
-  // We create a new column to store the points as geometries.
   .points("lat", "lon", "geom")
-  // We rename the causes, select the columns of interest,
-  // and filter out fires of 0 hectares.
   .replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" })
   .selectColumns(["geom", "hectares", "cause"])
   .filter(`hectares > 0`)
   .log();
 
-// Now, we want the provinces and the fires in the same table
-// to draw our map with the writeMap method.
-// First, we clone the provinces table.
+// We put the provinces and fires in the same table and add an isFire column
+// to easily distinguish between them.
 const provincesAndFires = await provinces
   .clone({
     name: "provincesAndFires",
   })
-  // Now we can insert the fires into the provincesAndFires table.
-  // By default, SDA will throw an error if the tables don't have the
-  // same columns. So we set the unifyColumns option to true.
   .insertTables(fires, { unifyColumns: true })
-  // To make our lives easier, we add a column to
-  // distinguish between provinces and fires.
   .addColumn("isFire", "boolean", `hectares > 0`)
   .log();
 
-// This is our function to draw the map, using the Plot library.
-// The geoData will come from our provincesAndFires table
-// as GeoJSON data. Each row of the table is a feature, and each
-// feature has properties matching the columns of the table.
-const map = (geoData: {
-  features: {
-    properties: { [key: string]: unknown };
-  }[];
-}) => {
-  const fires = geoData.features.filter((d) => d.properties.isFire);
-  const provinces = geoData.features.filter((d) => !d.properties.isFire);
+await provincesAndFires.writeMap(
+  (geoData) => {
+    const fires = geoData.features.filter((d) => d.properties.isFire);
+    const provinces = geoData.features.filter((d) => !d.properties.isFire);
 
-  return plot({
-    projection: {
-      type: "conic-conformal",
-      rotate: [100, -60],
-      domain: geoData,
-    },
-    color: {
-      legend: true,
-    },
-    r: { range: [0.5, 25] },
-    marks: [
-      geo(provinces, {
-        stroke: "lightgray",
-        fill: "whitesmoke",
-      }),
-      geo(fires, {
-        r: "hectares",
-        fill: "cause",
-        fillOpacity: 0.25,
-        stroke: "cause",
-        strokeOpacity: 0.5,
-      }),
-    ],
-  });
-};
-
-// Now we can call writeMap.
-await provincesAndFires.writeMap(map, "sda/output/map.png");
+    return plot({
+      projection: {
+        type: "conic-conformal",
+        rotate: [100, -60],
+        domain: geoData,
+      },
+      color: {
+        legend: true,
+      },
+      r: { range: [0.5, 25] },
+      marks: [
+        geo(provinces, {
+          stroke: "lightgray",
+          fill: "whitesmoke",
+        }),
+        geo(fires, {
+          r: "hectares",
+          fill: "cause",
+          fillOpacity: 0.25,
+          stroke: "cause",
+          strokeOpacity: 0.5,
+        }),
+      ],
+    });
+  },
+  "sda/output/map.png",
+);
 
 await sdb.close();
 ```
 
 ![Map showing the wildfires in Canada in 2023.](./assets/map.png)
 
-## Caching fetched and computed data
+### AI
+
+SDA can use LLMs and embedding models to enrich data, search text, and answer
+questions based on the contents of a table. The examples below rely on
+environment variables to connect to an AI provider and select a model. Click the
+relevant documentation links below for more information.
+
+SDA's AI capabilities come from
+[`journalism-ai`](https://jsr.io/@nshiab/journalism-ai). By default, LLM
+responses and embeddings are cached in the hidden `.journalism-cache` folder,
+avoiding repeated model calls for the same request.
+
+#### Enrich rows with AI
+
+The
+[`aiRowByRow`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiRowByRow)
+method sends the values of a column to an LLM and stores the structured
+responses in one or more new columns. It is useful for cleaning, extracting,
+classifying, and enriching data row by row.
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+const cities = await sdb
+  .newTable("cities")
+  .loadArray([
+    { city: "Marrakech" },
+    { city: "Kyoto" },
+    { city: "Auckland" },
+  ])
+  .aiRowByRow(
+    "city",
+    ["country", "continent"],
+    "Give me the country and continent of the city.",
+  );
+
+await cities.log();
+await sdb.close();
+```
+
+#### Semantic search
+
+The
+[`hybridSearch`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.hybridSearch)
+method lets you find exact keyword matches and semantically similar matches
+together. SDA generates the embeddings using the provider and model configured
+through environment variables. For keyword search or vector search alone, the
+[`bm25`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.bm25)
+and
+[`aiVectorSimilarity`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiVectorSimilarity)
+methods used by `hybridSearch` are also available directly.
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+const recipes = sdb
+  .newTable("recipes")
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/recipesClean.parquet",
+  );
+
+// We search both the meaning and the wording of each recipe.
+const results = await recipes.hybridSearch(
+  "buttery pastry for breakfast",
+  "Dish",
+  "Recipe",
+  5,
+  { outputTable: "results" },
+);
+
+await results.log(); // For example: "Butter Pie" (keyword) and "Croissant" (semantic).
+await sdb.close();
+```
+
+#### Retrieval-augmented generation (RAG)
+
+The
+[`aiRAG`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiRAG)
+method first retrieves relevant rows with hybrid search, then asks an LLM to
+answer using only those rows.
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+const recipes = sdb
+  .newTable("recipes")
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/recipesClean.parquet",
+  );
+
+// We retrieve the most relevant recipes and ask the AI to answer
+// based only on their contents.
+const answer = await recipes.aiRAG(
+  "I am vegan. What can I eat for lunch that is spicy?",
+  "Dish",
+  "Recipe",
+  10,
+);
+
+console.log(answer);
+await sdb.close();
+```
+
+#### Natural language query
+
+The
+[`aiQuery`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiQuery)
+method turns a natural-language instruction into a SQL query and executes it on
+the table.
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+const temperatures = sdb
+  .newTable("temperatures")
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/dailyTemperatures.csv",
+  )
+  .renameColumns({ t: "temperature", id: "station" });
+
+await temperatures.aiQuery(
+  "Compute the average temperature for each station with two decimals.",
+);
+
+await temperatures.log();
+await sdb.close();
+```
+
+### Caching fetched and computed data
 
 Instead of running the same code over and over again, you can cache the results.
 This can speed up your workflow, especially when fetching data or performing
 computationally expensive operations.
 
-Here's the previous example adapted to cache data. For more information, check
-the
-[cache method documentation](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable#method_cache_0).
+When you use the
+[cache method](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.cache),
+the data is cached in a hidden `.sda-cache` folder.
 
-The data is cached in a hidden `.sda-cache` folder relative to the current
-working directory (usually the root of your project). Make sure to add it to
-your `.gitignore`. If you want to clean your cache, just delete the folder.
-
-The `cache()` method is asynchronous, so it must be awaited. Inside its
-callback, synchronous builder methods can be chained without `await` or an
-explicit `run()`; `cache()` executes the queued work before storing the result.
-
-If you set up with `@nshiab/setup-data-project` (see _Quick setup_ at the top),
-`.sda-cache` is automatically added to your `.gitignore` and you can use
-`npm run clean` or `bun run clean` or `deno task clean` to clear the cache.
+Here's an example caching fetched data and the result of a spatial join.
 
 ```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
-// We enable two options to make our lives easier.
-// cacheVerbose will log information about the cached
-// data, and logDuration will log the total duration between
-// the creation of this SimpleDB instance and its last operation.
 const sdb = new SimpleDB({ cacheVerbose: true, logDuration: true });
+
+const provinces = sdb.newTable("provinces");
+
+// Cache the data until the code inside cache() changes.
+await provinces.cache(() => {
+  provinces.loadGeoData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
+  );
+});
 
 const fires = sdb.newTable("fires");
 
-// We cache these steps with a ttl of 60 seconds.
-// On the first run, the data will be fetched
-// and stored in the hidden folder .sda-cache.
-// If you rerun the script less than 60 seconds
-// later, the data won't be fetched but loaded
-// from the local cache. However, if you run the
-// code after 60 seconds, the data will be
-// considered outdated and fetched again.
-// After another 60 seconds, the new data in the cache will
-// expire again. This is useful when working with scraped data.
-// If you update the code passed to the cache method,
-// everything starts over.
+// Cache the data for 60 seconds or until the code inside cache() changes.
 await fires.cache(
   () => {
     fires
@@ -527,28 +581,9 @@ await fires.cache(
   { ttl: 60 },
 );
 
-const provinces = sdb.newTable("provinces");
-
-// Same thing here, except there is no ttl option,
-// so the cached data will never expire unless you delete
-// the hidden folder .sda-cache. Again, if you update
-// the code passed to the cache method, everything
-// starts over.
-await provinces.cache(() => {
-  provinces.loadGeoData(
-    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
-  );
-});
-
 const firesInsideProvinces = sdb.newTable("firesInsideProvinces");
 
-// While caching is quite useful when fetching data,
-// it's also handy for computationally expensive
-// operations like joins and summaries.
-// Since the fires table has a ttl of 60 seconds
-// and we depend on it here, we need a ttl equal
-// or lower. Otherwise, we won't work with
-// up-to-date data.
+// Refresh this cache when either input table changes.
 await firesInsideProvinces.cache(
   () => {
     firesInsideProvinces
@@ -556,27 +591,19 @@ await firesInsideProvinces.cache(
       .joinGeo(provinces, "inside")
       .removeMissing()
       .summarize({
-        values: "hectares",
-        categories: "nameEnglish",
-        summaries: ["count", "sum"],
+        columns: "hectares",
+        by: "nameEnglish",
+        stats: { nbFires: "count", burntArea: "sum" },
         decimals: 0,
-      })
-      .renameColumns({
-        count: "nbFires",
-        sum: "burntArea",
       })
       .sort({ burntArea: "desc" });
   },
-  { ttl: 60 },
+  { inputs: [fires, provinces] },
 );
 
-await firesInsideProvinces.logTable({ rowsToLog: 12, types: true });
+await firesInsideProvinces.log("all");
 await firesInsideProvinces.logBarChart("nameEnglish", "burntArea");
 
-// It's important to call done() at the end.
-// This method will remove the unused files
-// in the cache. It will also log the total duration
-// if the logDuration option was set to true.
 await sdb.close();
 ```
 
@@ -586,16 +613,16 @@ After the first run, here's what you'll see in your terminal. For each
 The whole script took around a second to complete.
 
 ```
-cache() for fires
-Nothing in cache. Running and storing in cache.
-Computations done in 350 ms.
-Wrote in cache in 3 ms.
-
-
 cache() for provinces
 Nothing in cache. Running and storing in cache.
 Computations done in 247 ms.
 Wrote in cache in 1 ms.
+
+
+cache() for fires
+Nothing in cache. Running and storing in cache.
+Computations done in 350 ms.
+Wrote in cache in 3 ms.
 
 
 cache() for firesInsideProvinces
@@ -607,7 +634,6 @@ Wrote in cache in 0 ms.
 Table firesInsideProvinces:
 ┌───────────────────────────┬────────────────┬───────────────┐
 │ nameEnglish               │ nbFires        │ burntArea     │
-│ VARCHAR/string            │ INTEGER/number │ DOUBLE/number │
 ├───────────────────────────┼────────────────┼───────────────┤
 │ Quebec                    │ 706            │ 5024737       │
 │ Northwest Territories     │ 314            │ 4253907       │
@@ -622,7 +648,7 @@ Table firesInsideProvinces:
 │ Nunavut                   │ 1              │ 2700          │
 │ New Brunswick             │ 202            │ 854           │
 └───────────────────────────┴────────────────┴───────────────┘
-12 rows in total (rowsToLog: 12)
+12 rows in total (count: 12)
 
 Bar chart of "burntArea" per "nameEnglish":
                           ┌
@@ -652,15 +678,22 @@ Newfoundland and Labrador ┤ 21,833
                           └
 
 
-SimpleDB - Done in 681 ms / 4 ms spent writing the cache
+SimpleDB - Closed in 681 ms / 4 ms spent writing the cache
 ```
 
 If you run the script less than 60 seconds after the first run, here's what
 you'll see.
 
-Thanks to caching, the script ran 25 times faster!
+Most computations are skipped and their cached data is loaded instead.
 
 ```
+cache() for provinces
+Found in cache.
+Data loaded in 0 ms.
+Running computations previously took 247 ms.
+You saved 247 ms.
+
+
 cache() for fires
 Found in cache.
 ttl of 1 min, 0 sec, 0 ms has not expired.
@@ -671,34 +704,29 @@ Running computations previously took 312 ms.
 You saved 291 ms.
 
 
-cache() for provinces
-Found in cache.
-Data loaded in 0 ms.
-Running computations previously took 247 ms.
-You saved 247 ms.
-
-
 cache() for firesInsideProvinces
 Found in cache.
-ttl of 1 min, 0 sec, 0 ms has not expired.
-The creation date is May 28, 2026, at 4:37 p.m..
-There are 54 sec, 972 ms left.
 Data loaded in 0 ms.
 Running computations previously took 50 ms.
 You saved 50 ms.
 
 [Note to readers: I have cut the table and chart.]
 
-SimpleDB - Done in 27 ms / 588 ms saved by using the cache
+SimpleDB - Closed in 27 ms / 588 ms saved by using the cache
 ```
 
-And if you run the script 60 seconds later, the fires and join/summary caches
-will have expired, but not the provinces one. Some of the code will have run,
-but not everything. The script still ran roughly 1.5 times faster. This is quite
-handy in complex analysis with big datasets. The less you wait, the more fun you
-have!
+After 60 seconds, the fires cache expires while the provinces cache is reused.
+Because `firesInsideProvinces` lists both tables as inputs, its cache refreshes
+automatically when the fires table changes.
 
 ```
+cache() for provinces
+Found in cache.
+Data loaded in 1 ms.
+Running computations previously took 247 ms.
+You saved 246 ms.
+
+
 cache() for fires
 Found in cache.
 ttl of 1 min, 0 sec, 0 ms has expired.
@@ -709,23 +737,12 @@ Computations done in 340 ms.
 Wrote in cache in 3 ms.
 
 
-cache() for provinces
-Found in cache.
-Data loaded in 1 ms.
-Running computations previously took 247 ms.
-You saved 246 ms.
-
-
 cache() for firesInsideProvinces
-Found in cache.
-ttl of 1 min, 0 sec, 0 ms has expired.
-The creation date is May 28, 2026, at 4:37 p.m..
-It's is 1 min, 17 sec, 758 ms ago.
-Running and storing in cache.
+Nothing in cache. Running and storing in cache.
 Computations done in 48 ms.
 Wrote in cache in 1 ms.
 
 [Note to readers: I have cut the table and chart.]
 
-SimpleDB - Done in 399 ms / 246 ms saved by using the cache / 4 ms spent writing the cache
+SimpleDB - Closed in 399 ms / 246 ms saved by using the cache / 4 ms spent writing the cache
 ```
