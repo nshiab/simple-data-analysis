@@ -549,7 +549,8 @@ computationally expensive operations.
 
 When you use the
 [cache method](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.cache),
-the data is cached in a hidden `.sda-cache` folder.
+the data is cached in a hidden `.sda-cache` folder. With `cacheVerbose` enabled,
+the logs explain whether the compute function and inputs match the cached entry.
 
 Here's an example caching fetched data and the result of a spatial join.
 
@@ -614,19 +615,25 @@ The whole script took around a second to complete.
 
 ```
 cache() for provinces
-Nothing in cache. Running and storing in cache.
+Cache miss.
+No matching cache entry exists for this computation.
+Running computations and storing a new cache entry.
 Computations done in 247 ms.
 Wrote in cache in 1 ms.
 
 
 cache() for fires
-Nothing in cache. Running and storing in cache.
+Cache miss.
+No matching cache entry exists for this computation.
+Running computations and storing a new cache entry.
 Computations done in 350 ms.
 Wrote in cache in 3 ms.
 
 
 cache() for firesInsideProvinces
-Nothing in cache. Running and storing in cache.
+Cache miss.
+No matching cache entry exists for this computation.
+Running computations and storing a new cache entry.
 Computations done in 68 ms.
 Wrote in cache in 0 ms.
 
@@ -678,25 +685,29 @@ Newfoundland and Labrador ┤ 21,833
                           └
 
 
-SimpleDB - Closed in 681 ms / 4 ms spent writing the cache
+SimpleDB ran for 681 ms / 4 ms spent writing the cache
 ```
 
 If you run the script less than 60 seconds after the first run, here's what
 you'll see.
 
-Most computations are skipped and their cached data is loaded instead.
+Most computations are skipped and their cached data is loaded instead. In this
+example, the total runtime drops from 681 ms to 27 ms, making the second run
+around 25 times faster.
 
 ```
 cache() for provinces
-Found in cache.
+Cache hit.
+Compute function unchanged.
 Data loaded in 0 ms.
 Running computations previously took 247 ms.
 You saved 247 ms.
 
 
 cache() for fires
-Found in cache.
-ttl of 1 min, 0 sec, 0 ms has not expired.
+Cache hit.
+Compute function unchanged.
+TTL of 1 min, 0 sec, 0 ms has not expired.
 The creation date is May 28, 2026, at 4:37 p.m..
 There are 54 sec, 941 ms left.
 Data loaded in 21 ms.
@@ -705,14 +716,16 @@ You saved 291 ms.
 
 
 cache() for firesInsideProvinces
-Found in cache.
+Cache hit.
+Compute function unchanged.
+Inputs unchanged (2 checked).
 Data loaded in 0 ms.
 Running computations previously took 50 ms.
 You saved 50 ms.
 
 [Note to readers: I have cut the table and chart.]
 
-SimpleDB - Closed in 27 ms / 588 ms saved by using the cache
+SimpleDB ran for 27 ms / 588 ms saved by using the cache
 ```
 
 After 60 seconds, the fires cache expires while the provinces cache is reused.
@@ -721,28 +734,33 @@ automatically when the fires table changes.
 
 ```
 cache() for provinces
-Found in cache.
+Cache hit.
+Compute function unchanged.
 Data loaded in 1 ms.
 Running computations previously took 247 ms.
 You saved 246 ms.
 
 
 cache() for fires
-Found in cache.
-ttl of 1 min, 0 sec, 0 ms has expired.
+Cache entry is stale.
+Compute function unchanged.
+TTL of 1 min, 0 sec, 0 ms has expired.
 The creation date is May 28, 2026, at 4:37 p.m..
-It's is 1 min, 17 sec, 465 ms ago.
-Running and storing in cache.
+It was created 1 min, 17 sec, 465 ms ago.
+Running computations and refreshing the cache entry.
 Computations done in 340 ms.
 Wrote in cache in 3 ms.
 
 
 cache() for firesInsideProvinces
-Nothing in cache. Running and storing in cache.
+Cache miss.
+Compute function unchanged.
+Inputs changed: table "fires" changed.
+Running computations and storing a new cache entry.
 Computations done in 48 ms.
 Wrote in cache in 1 ms.
 
 [Note to readers: I have cut the table and chart.]
 
-SimpleDB - Closed in 399 ms / 246 ms saved by using the cache / 4 ms spent writing the cache
+SimpleDB ran for 399 ms / 246 ms saved by using the cache / 4 ms spent writing the cache
 ```
