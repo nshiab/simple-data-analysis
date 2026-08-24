@@ -1844,12 +1844,11 @@ async writeChart(chart: (data: unknown[]) => SVGSVGElement | HTMLElement, path: 
 
 - **`chart`**: A function that takes data (as an array of objects) and returns
   an Observable Plot chart (an `SVGSVGElement` or `HTMLElement`).
-- **`path`**: The absolute path where the chart image will be saved (e.g.,
-  `"./output/chart.png"`).
+- **`path`**: The path where the chart will be saved. The file extension must be
+  `.png` or `.svg` (e.g., `"./output/chart.png"`).
 - **`options`**: Optional object containing additional settings:
-- **`options.style`**: A CSS string to customize the chart's appearance. This is
-  applied to a `<div>` element wrapping the Plot chart (which has the id
-  `chart`). Use this if the Plot `style` option is insufficient.
+- **`options.style`**: A CSS string inserted into the generated SVG to customize
+  the chart's appearance. Use this if the Plot `style` option is insufficient.
 - **`options.dark`**: If `true`, switches the chart to dark mode. Defaults to
   `false`.
 
@@ -1895,16 +1894,15 @@ async writeMap(map: (geoData: { features: { properties: Record<string, unknown> 
 
 - **`map`**: A function that takes geospatial data (in GeoJSON format) and
   returns an Observable Plot map (an `SVGSVGElement` or `HTMLElement`).
-- **`path`**: The absolute path where the map image will be saved (e.g.,
-  `"./output/map.png"`).
+- **`path`**: The path where the map will be saved. The file extension must be
+  `.png` or `.svg` (e.g., `"./output/map.png"`).
 - **`options`**: An optional object with configuration options:
 - **`options.column`**: The name of the column storing geometries. If there is
   only one geometry column, it will be used by default.
 - **`options.rewind`**: If `true`, rewinds the coordinates of polygons to follow
   the spherical winding order (important for D3.js). Defaults to `true`.
-- **`options.style`**: A CSS string to customize the map's appearance. This is
-  applied to a `<div>` element wrapping the Plot map (which has the ID `chart`).
-  Use this if the Plot `style` option is insufficient.
+- **`options.style`**: A CSS string inserted into the generated SVG to customize
+  the map's appearance. Use this if the Plot `style` option is insufficient.
 - **`options.dark`**: If `true`, switches the map to dark mode. Defaults to
   `false`.
 

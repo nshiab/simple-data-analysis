@@ -90,6 +90,30 @@ Deno.test("should write a chart (example from docs)", async () => {
   await sdb.close();
 });
 
+Deno.test("should use functions and values from the surrounding scope", async () => {
+  const sdb = new SimpleDB({ dataTransport: "file" });
+  const table = sdb.newTable();
+  table.loadArray([{ year: 2024, value: 10 }, { year: 2025, value: 15 }]);
+
+  const fill = "steelblue";
+  const getRadius = (value: unknown) => Number(value) * 0.5;
+
+  await table.writeChart((data: unknown[]) =>
+    plot({
+      marks: [
+        dot(data, {
+          x: "year",
+          y: "value",
+          fill,
+          r: (d) => getRadius(d.value),
+        }),
+      ],
+    }), output + "surrounding-scope.png");
+
+  assert(existsSync(output + "surrounding-scope.png"));
+  await sdb.close();
+});
+
 Deno.test("should write a chart in a folder that doesn't exist", async () => {
   const sdb = new SimpleDB({ dataTransport: "file" });
   const table = sdb.newTable();

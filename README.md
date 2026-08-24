@@ -321,6 +321,9 @@ methods.
 But you can also create [Observable Plot](https://github.com/observablehq/plot)
 charts as an image file (`.png` or `.svg`) with
 [`writeChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.writeChart).
+The chart function runs in the same context as the rest of your code, so import
+Plot marks, formatters, and other helpers normally and use values from the
+surrounding scope as needed.
 
 Here's an example.
 
@@ -372,6 +375,8 @@ await sdb.close();
 If you want to create [Observable Plot](https://github.com/observablehq/plot)
 maps, you can use
 [`writeMap`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.writeMap).
+As with `writeChart`, imports and values from the surrounding scope are
+available inside the map function.
 
 Here's an example.
 

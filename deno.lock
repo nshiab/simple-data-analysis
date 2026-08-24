@@ -3,7 +3,7 @@
   "specifiers": {
     "jsr:@nshiab/deno-docs-to-md@*": "0.1.12",
     "jsr:@nshiab/journalism-ai@2.0.4": "2.0.4",
-    "jsr:@nshiab/journalism-dataviz@^1.0.18": "1.0.18",
+    "jsr:@nshiab/journalism-dataviz@^1.0.19": "1.0.19",
     "jsr:@nshiab/journalism-format@^1.1.9": "1.1.9",
     "jsr:@nshiab/journalism-google@^1.1.0": "1.1.0",
     "jsr:@nshiab/simple-data-analysis-core@2.0.0-rc.12": "2.0.0-rc.12",
@@ -39,12 +39,11 @@
         "npm:zod"
       ]
     },
-    "@nshiab/journalism-dataviz@1.0.18": {
-      "integrity": "ec770414983f30cb98200570205bada4b43844eabdd36d269541003a04d01fb1",
+    "@nshiab/journalism-dataviz@1.0.19": {
+      "integrity": "3567e2e4bd9249aab35297ae2429169667565cb04c1923262a862b510b170727",
       "dependencies": [
         "jsr:@nshiab/journalism-format",
         "npm:@napi-rs/canvas",
-        "npm:@observablehq/plot",
         "npm:@resvg/resvg-js",
         "npm:@types/d3-geo",
         "npm:d3-array",
@@ -1338,7 +1337,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@nshiab/journalism-ai@2.0.4",
-      "jsr:@nshiab/journalism-dataviz@^1.0.18",
+      "jsr:@nshiab/journalism-dataviz@^1.0.19",
       "jsr:@nshiab/journalism-format@^1.1.9",
       "jsr:@nshiab/journalism-google@^1.1.0",
       "jsr:@nshiab/simple-data-analysis-core@2.0.0-rc.12",
