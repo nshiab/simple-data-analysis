@@ -37,7 +37,9 @@
   object-shaped types, aliases, and interfaces within options. Public option
   signatures must not reference named application types. Built-in types such as
   `Promise`, `Date`, and `URL` may remain named. Implementation-only functions
-  may use reusable named aliases.
+  may use reusable named aliases. Keep internal named types colocated with the
+  implementation that owns them, and do not re-export them from public
+  `index.ts` files.
 - **Strict Typing:** Avoid `any`. Use explicit interfaces and types.
 - **Documentation:** Every new public property, method, or parameter must have a
   JSDoc block.
