@@ -552,8 +552,9 @@ When you use the
 the data is cached in a hidden `.sda-cache` folder. With `cacheVerbose` enabled,
 the logs explain whether the callback, the table, and any additional inputs
 match the cached entry. `cache()` passes the table to its callback and
-automatically tracks changes made to that table before the cached step. Other
-tables used by the callback should be listed in `inputs`.
+automatically tracks changes made to that table before the cached step, as well
+as changes to other `SimpleTable`s used by the callback. Use `inputs` for other
+values that should invalidate the cache, such as numbers or strings.
 
 Here's an example caching fetched data and the result of a spatial join.
 
@@ -582,7 +583,7 @@ const fires = await sdb.newTable("fires").cache(
 );
 
 // Refresh this cache when the callback, the firesInsideProvinces table,
-// or either input table changes.
+// or either table used by the callback changes.
 const firesInsideProvinces = await sdb.newTable("firesInsideProvinces").cache(
   (table) => {
     table
@@ -597,7 +598,6 @@ const firesInsideProvinces = await sdb.newTable("firesInsideProvinces").cache(
       })
       .sort({ burntArea: "desc" });
   },
-  { inputs: [fires, provinces] },
 );
 
 await firesInsideProvinces.log("all");
@@ -637,22 +637,22 @@ Wrote in cache in 0 ms.
 
 
 Table firesInsideProvinces:
-┌───────────────────────────┬────────────────┬───────────────┐
-│ nameEnglish               │ nbFires        │ burntArea     │
-├───────────────────────────┼────────────────┼───────────────┤
-│ Quebec                    │ 706            │ 5024737       │
-│ Northwest Territories     │ 314            │ 4253907       │
-│ Alberta                   │ 1208           │ 3214444       │
-│ British Columbia          │ 2496           │ 2856625       │
-│ Saskatchewan              │ 560            │ 1801903       │
-│ Ontario                   │ 741            │ 441581        │
-│ Yukon                     │ 227            │ 395461        │
-│ Manitoba                  │ 301            │ 199200        │
-│ Nova Scotia               │ 208            │ 25017         │
-│ Newfoundland and Labrador │ 85             │ 21833         │
-│ Nunavut                   │ 1              │ 2700          │
-│ New Brunswick             │ 202            │ 854           │
-└───────────────────────────┴────────────────┴───────────────┘
+┌───────────────────────────┬─────────┬───────────┐
+│ nameEnglish               │ nbFires │ burntArea │
+├───────────────────────────┼─────────┼───────────┤
+│ Quebec                    │ 706     │ 5024737   │
+│ Northwest Territories     │ 314     │ 4253907   │
+│ Alberta                   │ 1208    │ 3214444   │
+│ British Columbia          │ 2496    │ 2856625   │
+│ Saskatchewan              │ 560     │ 1801903   │
+│ Ontario                   │ 741     │ 441581    │
+│ Yukon                     │ 227     │ 395461    │
+│ Manitoba                  │ 301     │ 199200    │
+│ Nova Scotia               │ 208     │ 25017     │
+│ Newfoundland and Labrador │ 85      │ 21833     │
+│ Nunavut                   │ 1       │ 2700      │
+│ New Brunswick             │ 202     │ 854       │
+└───────────────────────────┴─────────┴───────────┘
 12 rows in total (count: 12)
 
 Bar chart of "burntArea" per "nameEnglish":
@@ -716,7 +716,7 @@ You saved 291 ms.
 cache() for firesInsideProvinces
 Cache hit.
 Compute function unchanged.
-Inputs unchanged (2 checked).
+Table dependencies unchanged: "fires", "provinces".
 Data loaded in 0 ms.
 Running computations previously took 50 ms.
 You saved 50 ms.
@@ -727,8 +727,8 @@ SimpleDB ran for 27 ms / 588 ms saved by using the cache
 ```
 
 After 60 seconds, the fires cache expires while the provinces cache is reused.
-Because `firesInsideProvinces` lists both tables as inputs, its cache refreshes
-automatically when the fires table changes.
+Because `firesInsideProvinces` uses both tables in its callback, its cache
+refreshes automatically when the fires table changes.
 
 ```
 cache() for provinces
@@ -753,7 +753,8 @@ Wrote in cache in 3 ms.
 cache() for firesInsideProvinces
 Cache miss.
 Compute function unchanged.
-Inputs changed: table "fires" changed.
+Table dependencies changed: "fires".
+Table dependencies unchanged: "provinces".
 Running computations and storing a new cache entry.
 Computations done in 48 ms.
 Wrote in cache in 1 ms.
