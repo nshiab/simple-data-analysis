@@ -231,7 +231,7 @@ const fires = await sdb
   .loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
   )
-  .points("lat", "lon", "geom")
+  .createPoints("lat", "lon", "geom")
   .log();
 
 const provinces = await sdb
@@ -355,7 +355,7 @@ const fires = await sdb
   .loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
   )
-  .points("lat", "lon", "geom")
+  .createPoints("lat", "lon", "geom")
   .replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" })
   .selectColumns(["geom", "hectares", "cause"])
   .filter(`hectares > 0`)
@@ -550,7 +550,10 @@ computationally expensive operations.
 When you use the
 [cache method](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.cache),
 the data is cached in a hidden `.sda-cache` folder. With `cacheVerbose` enabled,
-the logs explain whether the compute function and inputs match the cached entry.
+the logs explain whether the callback, the table, and any additional inputs
+match the cached entry. `cache()` passes the table to its callback and
+automatically tracks changes made to that table before the cached step. Other
+tables used by the callback should be listed in `inputs`.
 
 Here's an example caching fetched data and the result of a spatial join.
 
@@ -559,35 +562,30 @@ import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB({ cacheVerbose: true, logDuration: true });
 
-const provinces = sdb.newTable("provinces");
-
-// Cache the data until the code inside cache() changes.
-await provinces.cache(() => {
-  provinces.loadGeoData(
+// Cache the data until the callback or table changes.
+const provinces = await sdb.newTable("provinces").cache((table) => {
+  table.loadGeoData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
   );
 });
 
-const fires = sdb.newTable("fires");
-
-// Cache the data for 60 seconds or until the code inside cache() changes.
-await fires.cache(
-  () => {
-    fires
+// Cache the data for 60 seconds or until the callback or table changes.
+const fires = await sdb.newTable("fires").cache(
+  (table) => {
+    table
       .loadData(
         "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
       )
-      .points("lat", "lon", "geom");
+      .createPoints("lat", "lon", "geom");
   },
   { ttl: 60 },
 );
 
-const firesInsideProvinces = sdb.newTable("firesInsideProvinces");
-
-// Refresh this cache when either input table changes.
-await firesInsideProvinces.cache(
-  () => {
-    firesInsideProvinces
+// Refresh this cache when the callback, the firesInsideProvinces table,
+// or either input table changes.
+const firesInsideProvinces = await sdb.newTable("firesInsideProvinces").cache(
+  (table) => {
+    table
       .insertTables(fires)
       .joinGeo(provinces, "inside")
       .removeMissing()
