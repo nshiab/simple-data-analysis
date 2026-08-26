@@ -90,6 +90,8 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * This method does not support tables containing geometries.
    *
+   * This method queues the AI processing; requests are sent when an async observer method (like `getData()` or `log()`) is awaited, or when `run()` is called.
+   *
    * @param column - The name of the column to be used as input for the AI prompt.
    * @param newColumn - The name of the new column (or an array of column names) where the AI's response will be stored.
    * @param prompt - The input string to guide the AI's response.
@@ -104,42 +106,42 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.clean - A function to transform the parsed response before validation and caching. Defaults to `undefined`.
    * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
    * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
-   * @returns A promise that resolves when the AI processing is complete.
+   * @returns The table, so methods can be chained.
    * @category AI
    *
    * @example
    * ```ts
-   * // New table with a "name" column.
-   * table.loadArray([
-   *   { name: "Marie" },
-   *   { name: "John" },
-   *   { name: "Alex" },
-   * ]);
-   *
-   * // Ask the AI to categorize names into a new "gender" column.
-   * await table.aiRowByRow(
-   *   "name",
-   *   "gender",
-   *   `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral".`,
-   *   {
-   *     generation: {
-   *       provider: "gemini",
-   *       model: "gemini-3-flash-preview",
+   * const people = await sdb
+   *   .newTable("people")
+   *   .loadArray([
+   *     { name: "Marie" },
+   *     { name: "John" },
+   *     { name: "Alex" },
+   *   ])
+   *   .aiRowByRow(
+   *     "name",
+   *     "gender",
+   *     `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral".`,
+   *     {
+   *       generation: {
+   *         provider: "gemini",
+   *         model: "gemini-3-flash-preview",
+   *       },
+   *       batchSize: 10, // Process 10 rows at once
+   *       test: (data: { [key: string]: unknown }) => { // Validate AI's response
+   *         if (
+   *           typeof data.gender !== "string" ||
+   *           !["Man", "Woman", "Neutral"].includes(data.gender)
+   *         ) {
+   *           throw new Error(`Invalid response: ${data.gender}`);
+   *         }
+   *       },
+   *       retry: 3, // Retry up to 3 times on failure
+   *       rateLimitPerMinute: 15, // Limit requests to 15 per minute
+   *       verbose: true, // Log detailed information
    *     },
-   *     batchSize: 10, // Process 10 rows at once
-   *     test: (data: { [key: string]: unknown }) => { // Validate AI's response
-   *       if (
-   *         typeof data.gender !== "string" ||
-   *         !["Man", "Woman", "Neutral"].includes(data.gender)
-   *       ) {
-   *         throw new Error(`Invalid response: ${data.gender}`);
-   *       }
-   *     },
-   *     retry: 3, // Retry up to 3 times on failure
-   *     rateLimitPerMinute: 15, // Limit requests to 15 per minute
-   *     verbose: true, // Log detailed information
-   *   },
-   * );
+   *   )
+   *   .log();
    *
    * // Example results:
    * // [
@@ -151,18 +153,20 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * @example
    * ```ts
-   * table.loadArray([
-   *   { city: "Marrakech" },
-   *   { city: "Kyoto" },
-   *   { city: "Auckland" },
-   * ]);
-   *
-   * await table.aiRowByRow(
-   *   "city",
-   *   ["country", "continent"], // Multiple new columns
-   *   `Give me the country and continent of the city.`,
-   *   { verbose: true },
-   * );
+   * const cities = await sdb
+   *   .newTable("cities")
+   *   .loadArray([
+   *     { city: "Marrakech" },
+   *     { city: "Kyoto" },
+   *     { city: "Auckland" },
+   *   ])
+   *   .aiRowByRow(
+   *     "city",
+   *     ["country", "continent"], // Multiple new columns
+   *     `Give me the country and continent of the city.`,
+   *     { verbose: true },
+   *   )
+   *   .log();
    *
    * // Example results:
    * // [
@@ -174,13 +178,16 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * @example
    * ```ts
-   * // Process rows with a local Ollama model.
-   * await table.aiRowByRow("name", "description", "Describe this name.", {
-   *   generation: { provider: "ollama", model: "gemma3:4b" },
-   * });
+   * const names = await sdb
+   *   .newTable("names")
+   *   .loadArray([{ name: "Marie" }, { name: "John" }])
+   *   .aiRowByRow("name", "description", "Describe this name.", {
+   *     generation: { provider: "ollama", model: "gemma3:4b" },
+   *   })
+   *   .log();
    * ```
    */
-  async aiRowByRow(
+  aiRowByRow(
     column: string,
     newColumn: string | string[],
     prompt: string,
@@ -283,8 +290,9 @@ export default class SimpleTable extends SimpleTableCore {
         totalRequests: number;
       };
     } = {},
-  ): Promise<void> {
-    await aiRowByRow(this, column, newColumn, prompt, options);
+  ): this {
+    aiRowByRow(this, column, newColumn, prompt, options);
+    return this;
   }
 
   /**
@@ -304,6 +312,8 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * This method does not support tables containing geometries.
    *
+   * This method queues the AI processing; requests are sent when an async observer method (like `getData()` or `log()`) is awaited, or when `run()` is called.
+   *
    * @param column - The name of the column to be used as input for the AI prompt.
    * @param newColumn - The name of the new column (or an array of column names) where the AI's response will be stored. If an error occurs for a row, the new column(s) for that row will be set to `NULL`.
    * @param errorColumn - The name of the column where error messages will be stored. Successful requests will have `NULL` in this column.
@@ -321,45 +331,45 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.minRequestDurationMs - The minimum duration in milliseconds for each request. Useful for respecting rate limits. Defaults to `undefined` (no minimum).
    * @param options.clean - A function to transform the parsed response before validation and caching. Defaults to `undefined`.
    * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
-   * @returns A promise that resolves when the AI processing is complete.
+   * @returns The table, so methods can be chained.
    * @category AI
    *
    * @example
    * ```ts
-   * // New table with a "review" column.
-   * table.loadArray([
-   *   { review: "Great product!" },
-   *   { review: "Terrible quality." },
-   *   { review: "Not bad, could be better." },
-   *   { review: "Excellent service!" },
-   * ]);
-   *
-   * // Analyze sentiment using a pool with 2 concurrent workers, batch size of 2
-   * await table.aiRowByRowPool(
-   *   "review",
-   *   "sentiment",
-   *   "error",
-   *   `Classify the sentiment as "Positive", "Negative", or "Neutral".`,
-   *   2, // poolSize: 2 concurrent requests
-   *   {
-   *     generation: {
-   *       provider: "gemini",
-   *       model: "gemini-3-flash-preview",
+   * const reviews = await sdb
+   *   .newTable("reviews")
+   *   .loadArray([
+   *     { review: "Great product!" },
+   *     { review: "Terrible quality." },
+   *     { review: "Not bad, could be better." },
+   *     { review: "Excellent service!" },
+   *   ])
+   *   .aiRowByRowPool(
+   *     "review",
+   *     "sentiment",
+   *     "error",
+   *     `Classify the sentiment as "Positive", "Negative", or "Neutral".`,
+   *     2, // poolSize: 2 concurrent requests
+   *     {
+   *       generation: {
+   *         provider: "gemini",
+   *         model: "gemini-3-flash-preview",
+   *       },
+   *       batchSize: 2, // Process 2 rows per request
+   *       logProgress: true,
+   *       test: (data: { [key: string]: unknown }) => {
+   *         if (
+   *           typeof data.sentiment !== "string" ||
+   *           !["Positive", "Negative", "Neutral"].includes(data.sentiment)
+   *         ) {
+   *           throw new Error(`Invalid sentiment: ${data.sentiment}`);
+   *         }
+   *       },
+   *       retry: 2,
+   *       minRequestDurationMs: 1000, // Respect rate limits: at least 1 second per request
    *     },
-   *     batchSize: 2, // Process 2 rows per request
-   *     logProgress: true,
-   *     test: (data: { [key: string]: unknown }) => {
-   *       if (
-   *         typeof data.sentiment !== "string" ||
-   *         !["Positive", "Negative", "Neutral"].includes(data.sentiment)
-   *       ) {
-   *         throw new Error(`Invalid sentiment: ${data.sentiment}`);
-   *       }
-   *     },
-   *     retry: 2,
-   *     minRequestDurationMs: 1000, // Respect rate limits: at least 1 second per request
-   *   },
-   * );
+   *   )
+   *   .log();
    *
    * // Example results:
    * // [
@@ -372,27 +382,28 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * @example
    * ```ts
-   * table.loadArray([
-   *   { product: "Laptop" },
-   *   { product: "Smartphone" },
-   *   { product: "Tablet" },
-   * ]);
-   *
-   * // Extract multiple properties using pool-based processing
-   * await table.aiRowByRowPool(
-   *   "product",
-   *   ["category", "typical_price_range"],
-   *   "error",
-   *   `For the given product, provide the category and typical price range.`,
-   *   3, // Process up to 3 products concurrently
-   *   {
-   *     logProgress: true,
-   *     retryCheck: (error) => {
-   *       // Retry only for specific error types
-   *       return error instanceof Error && error.message.includes("rate limit");
+   * const products = await sdb
+   *   .newTable("products")
+   *   .loadArray([
+   *     { product: "Laptop" },
+   *     { product: "Smartphone" },
+   *     { product: "Tablet" },
+   *   ])
+   *   .aiRowByRowPool(
+   *     "product",
+   *     ["category", "typical_price_range"],
+   *     "error",
+   *     `For the given product, provide the category and typical price range.`,
+   *     3, // Process up to 3 products concurrently
+   *     {
+   *       logProgress: true,
+   *       retryCheck: (error) => {
+   *         // Retry only for specific error types
+   *         return error instanceof Error && error.message.includes("rate limit");
+   *       },
    *     },
-   *   },
-   * );
+   *   )
+   *   .log();
    *
    * // Example results:
    * // [
@@ -404,18 +415,21 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * @example
    * ```ts
-   * // Process rows concurrently with a local Ollama model.
-   * await table.aiRowByRowPool(
-   *   "product",
-   *   "category",
-   *   "error",
-   *   "Categorize this product.",
-   *   3,
-   *   { generation: { provider: "ollama", model: "gemma3:4b" } },
-   * );
+   * const products = await sdb
+   *   .newTable("products")
+   *   .loadArray([{ product: "Laptop" }, { product: "Tablet" }])
+   *   .aiRowByRowPool(
+   *     "product",
+   *     "category",
+   *     "error",
+   *     "Categorize this product.",
+   *     3,
+   *     { generation: { provider: "ollama", model: "gemma3:4b" } },
+   *   )
+   *   .log();
    * ```
    */
-  async aiRowByRowPool(
+  aiRowByRowPool(
     column: string,
     newColumn: string | string[],
     errorColumn: string,
@@ -521,8 +535,8 @@ export default class SimpleTable extends SimpleTableCore {
         totalRequests: number;
       };
     } = {},
-  ) {
-    await aiRowByRowPool(
+  ): this {
+    aiRowByRowPool(
       this,
       column,
       newColumn,
@@ -531,6 +545,7 @@ export default class SimpleTable extends SimpleTableCore {
       poolSize,
       options,
     );
+    return this;
   }
 
   /**

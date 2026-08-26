@@ -148,7 +148,7 @@ Deno.test("should write a map with multiple layers as a png", async () => {
   fires.loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
   );
-  fires.points("lat", "lon", "geom");
+  fires.createPoints("lat", "lon", "geom");
   fires.replace("cause", {
     "H": "Human",
     "N": "Natural",
@@ -226,8 +226,8 @@ Deno.test(
       lonB: -74,
     }]);
     table.convert({ day: "date", moment: "timestamp" });
-    table.points("latA", "lonA", "geometryA");
-    table.points("latB", "lonB", "geometryB");
+    table.createPoints("latA", "lonA", "geometryA");
+    table.createPoints("latB", "lonB", "geometryB");
 
     await table.writeMap(
       (data) => {

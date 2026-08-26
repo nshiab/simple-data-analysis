@@ -42,16 +42,22 @@ export type AIRowByRowOptions = {
   metrics?: AIRequestMetrics;
 };
 
-export default async function aiRowByRow(
+export default function aiRowByRow(
   simpleTable: SimpleTable,
   column: string,
   newColumn: string | string[],
   prompt: string,
   options: AIRowByRowOptions = {},
-) {
-  const newColumns = stringToArray(newColumn);
+): void {
+  const newColumns = [...stringToArray(newColumn)];
+  options = {
+    ...options,
+    generation: options.generation === undefined
+      ? undefined
+      : { ...options.generation },
+  };
 
-  await simpleTable.updateWithJS(async (rows) => {
+  simpleTable.updateWithJS(async (rows) => {
     if (options.verbose) {
       console.log("\naiRowByRow()");
     }

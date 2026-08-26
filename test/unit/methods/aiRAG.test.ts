@@ -15,6 +15,7 @@ const hasOllama = Deno.env.get("AI_PROVIDER") === "ollama" ||
 const geminiGeneration = {
   provider: "gemini",
   model: "gemini-3-flash-preview",
+  cache: false,
 } as const;
 const geminiEmbeddings = {
   ...geminiEmbeddingOptions,
@@ -22,10 +23,12 @@ const geminiEmbeddings = {
 const ollamaGeneration = {
   provider: "ollama",
   contextWindow: 128_000,
+  cache: false,
 } as const;
 const ollamaEmbeddings = {
   provider: "ollama",
   contextWindow: 2_000,
+  cache: false,
 } as const;
 const mixedProviderTest = createEnvironmentTest({
   AI_PROVIDER: "gemini",
@@ -144,7 +147,7 @@ if (hasAiKey) {
           10,
           {
             generation: { ...geminiGeneration },
-            embeddings: { ...ollamaEmbeddings },
+            embeddings: { ...ollamaEmbeddings, cache: true },
             // verbose: true,
           },
         );
@@ -408,7 +411,7 @@ if (hasOllama) {
       10,
       {
         generation: { ...ollamaGeneration },
-        embeddings: { ...ollamaEmbeddings },
+        embeddings: { ...ollamaEmbeddings, cache: true },
         // verbose: true,
       },
     );
@@ -440,7 +443,7 @@ if (hasOllama) {
             ...ollamaGeneration,
             thinkingLevel: true,
           },
-          embeddings: { ...ollamaEmbeddings },
+          embeddings: { ...ollamaEmbeddings, cache: true },
           // verbose: true,
         },
       );
@@ -559,7 +562,7 @@ if (hasOllama) {
         10,
         {
           generation: { ...ollamaGeneration },
-          embeddings: { ...ollamaEmbeddings },
+          embeddings: { ...ollamaEmbeddings, cache: true },
           createIndex: true,
           verbose: true,
         },
@@ -605,7 +608,7 @@ if (hasOllama) {
         10,
         {
           generation: { ...ollamaGeneration },
-          embeddings: { ...ollamaEmbeddings },
+          embeddings: { ...ollamaEmbeddings, cache: true },
           createIndex: true,
           verbose: true,
         },

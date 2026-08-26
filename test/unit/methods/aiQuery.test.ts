@@ -6,8 +6,9 @@ import { Ollama } from "ollama";
 const geminiGeneration = {
   provider: "gemini",
   model: "gemini-3-flash-preview",
+  cache: false,
 } as const;
-const ollamaGeneration = { provider: "ollama" } as const;
+const ollamaGeneration = { provider: "ollama", cache: false } as const;
 
 const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
 if (typeof aiKey === "string" && aiKey !== "") {
@@ -64,7 +65,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
       {
-        generation: { ...geminiGeneration },
+        generation: { ...geminiGeneration, cache: true },
         verbose: true,
       },
     );
@@ -84,7 +85,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
       {
-        generation: { ...geminiGeneration },
+        generation: { ...geminiGeneration, cache: true },
         verbose: true,
       },
     );
@@ -249,7 +250,7 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
       {
-        generation: { ...ollamaGeneration },
+        generation: { ...ollamaGeneration, cache: true },
         verbose: true,
       },
     );
@@ -272,7 +273,7 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
       await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
         {
-          generation: { ...ollamaGeneration },
+          generation: { ...ollamaGeneration, cache: true },
           verbose: true,
         },
       );

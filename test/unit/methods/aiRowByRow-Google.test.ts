@@ -8,6 +8,7 @@ const geminiGeneration = {
   provider: "gemini",
   model: "gemini-3-flash-preview",
   thinkingLevel: "minimal",
+  cache: false,
 } as const;
 
 if (typeof aiKey === "string" && aiKey !== "") {
@@ -37,7 +38,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
           batchSize: 3,
           metrics,
         },
-      );
+      ).log();
 
       assertEquals(await table.getData(), [
         { city: "Marrakech", country: "Morocco" },
@@ -60,7 +61,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       {
         generation: { ...geminiGeneration, webSearch: true },
       },
-    );
+    ).log();
     assertEquals(await table.getData(), [
       { city: "Marrakech", country: "Morocco" },
     ]);
@@ -78,7 +79,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       {
         generation: { ...geminiGeneration, thinkingLevel: "high" },
       },
-    );
+    ).log();
     assertEquals(await table.getData(), [{ city: "Kyoto", country: "Japan" }]);
     await sdb.close();
   });

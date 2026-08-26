@@ -22,10 +22,10 @@ if (hasOllama) {
       "country",
       "Give me the country of the city.",
       {
-        generation: { provider: "ollama", ollama },
+        generation: { provider: "ollama", ollama, cache: false },
         batchSize: 3,
       },
-    );
+    ).run();
 
     assertEquals(await table.getData(), [
       { city: "Marrakech", country: "Morocco" },
@@ -44,9 +44,13 @@ if (hasOllama) {
       "country",
       "Give me the country of the city.",
       {
-        generation: { provider: "ollama", thinkingLevel: "high" },
+        generation: {
+          provider: "ollama",
+          thinkingLevel: "high",
+          cache: false,
+        },
       },
-    );
+    ).run();
     assertEquals(await table.getData(), [{ city: "Kyoto", country: "Japan" }]);
     await sdb.close();
   });

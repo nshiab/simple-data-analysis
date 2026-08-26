@@ -47,7 +47,7 @@ export type AIRowByRowPoolOptions = {
   metrics?: AIRequestMetrics;
 };
 
-export default async function aiRowByRowPool(
+export default function aiRowByRowPool(
   table: SimpleTable,
   column: string,
   newColumn: string | string[],
@@ -55,10 +55,16 @@ export default async function aiRowByRowPool(
   prompt: string,
   poolSize: number,
   options: AIRowByRowPoolOptions,
-) {
-  const newColumns = Array.isArray(newColumn) ? newColumn : [newColumn];
+): void {
+  const newColumns = Array.isArray(newColumn) ? [...newColumn] : [newColumn];
+  options = {
+    ...options,
+    generation: options.generation === undefined
+      ? undefined
+      : { ...options.generation },
+  };
 
-  await table.updateWithJS(async (rows) => {
+  table.updateWithJS(async (rows) => {
     if (options.verbose) {
       console.log("\naiRowByRowPool()");
     }

@@ -9,7 +9,7 @@ const Deno = {
   env: globalThis.Deno.env,
   test: createEnvironmentTest({ AI_EMBEDDINGS_PROVIDER: "ollama" }),
 };
-const ollamaEmbeddings = { provider: "ollama" } as const;
+const ollamaEmbeddings = { provider: "ollama", cache: false } as const;
 if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
   if (existsSync("./.journalism-cache")) {
     rmSync("./.journalism-cache", { recursive: true });
@@ -31,7 +31,6 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
 
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
-      // Cache the results locally
       embeddings: ollamaEmbeddings,
       concurrent: 3,
     });
@@ -44,7 +43,6 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       {
         // Create an index on the embeddings column
         createIndex: true,
-        // Cache the results locally
         embeddings: ollamaEmbeddings,
       },
     );
@@ -70,7 +68,6 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
 
       // Ask the AI to generate embeddings in a new column "embeddings".
       await table.aiEmbeddings("food", "embeddings", {
-        // Cache the results locally
         embeddings: ollamaEmbeddings,
         concurrent: 3,
       });
@@ -85,7 +82,6 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
         {
           // Create an index on the embeddings column
           createIndex: true,
-          // Cache the results locally
           embeddings: { ...ollamaEmbeddings, ollama },
         },
       );
@@ -141,7 +137,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
         { food: "tacos" },
       ]);
       await table.aiEmbeddings("food", "embeddings", {
-        embeddings: ollamaEmbeddings,
+        embeddings: { ...ollamaEmbeddings, cache: true },
         concurrent: 6,
       });
 
@@ -150,7 +146,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
         "embeddings",
         3,
         {
-          embeddings: ollamaEmbeddings,
+          embeddings: { ...ollamaEmbeddings, cache: true },
         },
       );
 

@@ -576,10 +576,13 @@ request.
 
 This method does not support tables containing geometries.
 
+This method queues the AI processing; requests are sent when an async observer
+method (like `getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async aiRowByRow(column: string, newColumn: string | string[], prompt: string, options?: { generation?: { systemPrompt?: string; model?: string; schemaJson?: unknown; cache?: boolean; processResponse?: (response: unknown) => unknown | Promise<unknown>; temperature?: number } & ({ provider: "gemini"; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider: "ollama"; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never } | { provider?: undefined; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider?: undefined; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never }); batchSize?: number; concurrent?: number; test?: (result: Record<string, unknown>) => void; retry?: number; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => unknown; extraInstructions?: string; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
+aiRowByRow(column: string, newColumn: string | string[], prompt: string, options?: { generation?: { systemPrompt?: string; model?: string; schemaJson?: unknown; cache?: boolean; processResponse?: (response: unknown) => unknown | Promise<unknown>; temperature?: number } & ({ provider: "gemini"; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider: "ollama"; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never } | { provider?: undefined; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider?: undefined; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never }); batchSize?: number; concurrent?: number; test?: (result: Record<string, unknown>) => void; retry?: number; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => unknown; extraInstructions?: string; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): this;
 ```
 
 ##### Parameters
@@ -618,42 +621,42 @@ async aiRowByRow(column: string, newColumn: string | string[], prompt: string, o
 
 ##### Returns
 
-A promise that resolves when the AI processing is complete.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
-// New table with a "name" column.
-table.loadArray([
-  { name: "Marie" },
-  { name: "John" },
-  { name: "Alex" },
-]);
-
-// Ask the AI to categorize names into a new "gender" column.
-await table.aiRowByRow(
-  "name",
-  "gender",
-  `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral".`,
-  {
-    generation: {
-      provider: "gemini",
-      model: "gemini-3-flash-preview",
+const people = await sdb
+  .newTable("people")
+  .loadArray([
+    { name: "Marie" },
+    { name: "John" },
+    { name: "Alex" },
+  ])
+  .aiRowByRow(
+    "name",
+    "gender",
+    `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral".`,
+    {
+      generation: {
+        provider: "gemini",
+        model: "gemini-3-flash-preview",
+      },
+      batchSize: 10, // Process 10 rows at once
+      test: (data: { [key: string]: unknown }) => { // Validate AI's response
+        if (
+          typeof data.gender !== "string" ||
+          !["Man", "Woman", "Neutral"].includes(data.gender)
+        ) {
+          throw new Error(`Invalid response: ${data.gender}`);
+        }
+      },
+      retry: 3, // Retry up to 3 times on failure
+      rateLimitPerMinute: 15, // Limit requests to 15 per minute
+      verbose: true, // Log detailed information
     },
-    batchSize: 10, // Process 10 rows at once
-    test: (data: { [key: string]: unknown }) => { // Validate AI's response
-      if (
-        typeof data.gender !== "string" ||
-        !["Man", "Woman", "Neutral"].includes(data.gender)
-      ) {
-        throw new Error(`Invalid response: ${data.gender}`);
-      }
-    },
-    retry: 3, // Retry up to 3 times on failure
-    rateLimitPerMinute: 15, // Limit requests to 15 per minute
-    verbose: true, // Log detailed information
-  },
-);
+  )
+  .log();
 
 // Example results:
 // [
@@ -664,18 +667,20 @@ await table.aiRowByRow(
 ```
 
 ```ts
-table.loadArray([
-  { city: "Marrakech" },
-  { city: "Kyoto" },
-  { city: "Auckland" },
-]);
-
-await table.aiRowByRow(
-  "city",
-  ["country", "continent"], // Multiple new columns
-  `Give me the country and continent of the city.`,
-  { verbose: true },
-);
+const cities = await sdb
+  .newTable("cities")
+  .loadArray([
+    { city: "Marrakech" },
+    { city: "Kyoto" },
+    { city: "Auckland" },
+  ])
+  .aiRowByRow(
+    "city",
+    ["country", "continent"], // Multiple new columns
+    `Give me the country and continent of the city.`,
+    { verbose: true },
+  )
+  .log();
 
 // Example results:
 // [
@@ -686,10 +691,13 @@ await table.aiRowByRow(
 ```
 
 ```ts
-// Process rows with a local Ollama model.
-await table.aiRowByRow("name", "description", "Describe this name.", {
-  generation: { provider: "ollama", model: "gemma3:4b" },
-});
+const names = await sdb
+  .newTable("names")
+  .loadArray([{ name: "Marie" }, { name: "John" }])
+  .aiRowByRow("name", "description", "Describe this name.", {
+    generation: { provider: "ollama", model: "gemma3:4b" },
+  })
+  .log();
 ```
 
 #### `aiRowByRowPool`
@@ -728,10 +736,13 @@ period.
 
 This method does not support tables containing geometries.
 
+This method queues the AI processing; requests are sent when an async observer
+method (like `getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async aiRowByRowPool(column: string, newColumn: string | string[], errorColumn: string, prompt: string, poolSize: number, options?: { generation?: { systemPrompt?: string; model?: string; schemaJson?: unknown; cache?: boolean; processResponse?: (response: unknown) => unknown | Promise<unknown>; temperature?: number } & ({ provider: "gemini"; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider: "ollama"; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never } | { provider?: undefined; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider?: undefined; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never }); batchSize?: number; logProgress?: boolean; verbose?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; retryCheck?: (error: unknown) => Promise<boolean> | boolean; extraInstructions?: string; minRequestDurationMs?: number; clean?: (response: unknown) => unknown; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
+aiRowByRowPool(column: string, newColumn: string | string[], errorColumn: string, prompt: string, poolSize: number, options?: { generation?: { systemPrompt?: string; model?: string; schemaJson?: unknown; cache?: boolean; processResponse?: (response: unknown) => unknown | Promise<unknown>; temperature?: number } & ({ provider: "gemini"; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider: "ollama"; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never } | { provider?: undefined; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider?: undefined; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never }); batchSize?: number; logProgress?: boolean; verbose?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; retryCheck?: (error: unknown) => Promise<boolean> | boolean; extraInstructions?: string; minRequestDurationMs?: number; clean?: (response: unknown) => unknown; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): this;
 ```
 
 ##### Parameters
@@ -778,45 +789,45 @@ async aiRowByRowPool(column: string, newColumn: string | string[], errorColumn: 
 
 ##### Returns
 
-A promise that resolves when the AI processing is complete.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
-// New table with a "review" column.
-table.loadArray([
-  { review: "Great product!" },
-  { review: "Terrible quality." },
-  { review: "Not bad, could be better." },
-  { review: "Excellent service!" },
-]);
-
-// Analyze sentiment using a pool with 2 concurrent workers, batch size of 2
-await table.aiRowByRowPool(
-  "review",
-  "sentiment",
-  "error",
-  `Classify the sentiment as "Positive", "Negative", or "Neutral".`,
-  2, // poolSize: 2 concurrent requests
-  {
-    generation: {
-      provider: "gemini",
-      model: "gemini-3-flash-preview",
+const reviews = await sdb
+  .newTable("reviews")
+  .loadArray([
+    { review: "Great product!" },
+    { review: "Terrible quality." },
+    { review: "Not bad, could be better." },
+    { review: "Excellent service!" },
+  ])
+  .aiRowByRowPool(
+    "review",
+    "sentiment",
+    "error",
+    `Classify the sentiment as "Positive", "Negative", or "Neutral".`,
+    2, // poolSize: 2 concurrent requests
+    {
+      generation: {
+        provider: "gemini",
+        model: "gemini-3-flash-preview",
+      },
+      batchSize: 2, // Process 2 rows per request
+      logProgress: true,
+      test: (data: { [key: string]: unknown }) => {
+        if (
+          typeof data.sentiment !== "string" ||
+          !["Positive", "Negative", "Neutral"].includes(data.sentiment)
+        ) {
+          throw new Error(`Invalid sentiment: ${data.sentiment}`);
+        }
+      },
+      retry: 2,
+      minRequestDurationMs: 1000, // Respect rate limits: at least 1 second per request
     },
-    batchSize: 2, // Process 2 rows per request
-    logProgress: true,
-    test: (data: { [key: string]: unknown }) => {
-      if (
-        typeof data.sentiment !== "string" ||
-        !["Positive", "Negative", "Neutral"].includes(data.sentiment)
-      ) {
-        throw new Error(`Invalid sentiment: ${data.sentiment}`);
-      }
-    },
-    retry: 2,
-    minRequestDurationMs: 1000, // Respect rate limits: at least 1 second per request
-  },
-);
+  )
+  .log();
 
 // Example results:
 // [
@@ -828,27 +839,28 @@ await table.aiRowByRowPool(
 ```
 
 ```ts
-table.loadArray([
-  { product: "Laptop" },
-  { product: "Smartphone" },
-  { product: "Tablet" },
-]);
-
-// Extract multiple properties using pool-based processing
-await table.aiRowByRowPool(
-  "product",
-  ["category", "typical_price_range"],
-  "error",
-  `For the given product, provide the category and typical price range.`,
-  3, // Process up to 3 products concurrently
-  {
-    logProgress: true,
-    retryCheck: (error) => {
-      // Retry only for specific error types
-      return error instanceof Error && error.message.includes("rate limit");
+const products = await sdb
+  .newTable("products")
+  .loadArray([
+    { product: "Laptop" },
+    { product: "Smartphone" },
+    { product: "Tablet" },
+  ])
+  .aiRowByRowPool(
+    "product",
+    ["category", "typical_price_range"],
+    "error",
+    `For the given product, provide the category and typical price range.`,
+    3, // Process up to 3 products concurrently
+    {
+      logProgress: true,
+      retryCheck: (error) => {
+        // Retry only for specific error types
+        return error instanceof Error && error.message.includes("rate limit");
+      },
     },
-  },
-);
+  )
+  .log();
 
 // Example results:
 // [
@@ -859,15 +871,18 @@ await table.aiRowByRowPool(
 ```
 
 ```ts
-// Process rows concurrently with a local Ollama model.
-await table.aiRowByRowPool(
-  "product",
-  "category",
-  "error",
-  "Categorize this product.",
-  3,
-  { generation: { provider: "ollama", model: "gemma3:4b" } },
-);
+const products = await sdb
+  .newTable("products")
+  .loadArray([{ product: "Laptop" }, { product: "Tablet" }])
+  .aiRowByRowPool(
+    "product",
+    "category",
+    "error",
+    "Categorize this product.",
+    3,
+    { generation: { provider: "ollama", model: "gemma3:4b" } },
+  )
+  .log();
 ```
 
 #### `aiEmbeddings`

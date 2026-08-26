@@ -1,6 +1,7 @@
 import { assert, assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
+import { Ollama } from "ollama";
 import * as z from "zod";
 
 // Testing just with Gemini
@@ -8,6 +9,7 @@ import * as z from "zod";
 const geminiGeneration = {
   provider: "gemini",
   model: "gemini-3-flash-preview",
+  cache: false,
 } as const;
 
 const cities = [
@@ -32,6 +34,58 @@ function assertPoolData(data: Record<string, unknown>[]) {
     assertEquals(row.errors, null);
   }
 }
+
+Deno.test("aiRowByRowPool is deferred and chainable", async () => {
+  let requests = 0;
+  const ollama = new Ollama({ host: "http://unused.local:11434" });
+  Object.defineProperty(ollama, "chat", {
+    configurable: true,
+    writable: true,
+    value: () => {
+      requests++;
+      return Promise.resolve({
+        message: {
+          role: "assistant",
+          content: JSON.stringify([{ country: "Morocco" }]),
+        },
+        prompt_eval_count: 1,
+        eval_count: 1,
+      });
+    },
+  });
+
+  const sdb = new SimpleDB({ dataTransport: "file" });
+  const table = sdb.newTable("deferredPool");
+  table.loadArray([{ city: "Marrakech" }]);
+
+  const returned = table
+    .aiRowByRowPool(
+      "city",
+      "country",
+      "error",
+      "Give me the country of the city.",
+      1,
+      {
+        generation: {
+          provider: "ollama",
+          model: "fake-ollama-generation",
+          ollama,
+          cache: false,
+        },
+      },
+    )
+    .filter("country = 'Morocco'");
+
+  assertEquals(returned, table);
+  assertEquals(requests, 0);
+  assertEquals(await returned.getData(), [{
+    city: "Marrakech",
+    country: "Morocco",
+    error: null,
+  }]);
+  assertEquals(requests, 1);
+  await sdb.close();
+});
 
 const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
 if (typeof aiKey === "string" && aiKey !== "") {
@@ -62,7 +116,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         logProgress: true,
         metrics,
       },
-    );
+    ).run();
     await table.log();
     console.table(metrics);
     const data = await table.getData();
@@ -89,12 +143,12 @@ if (typeof aiKey === "string" && aiKey !== "") {
       `Give me the country and continent of the city.`,
       2,
       {
-        generation: { ...geminiGeneration },
+        generation: { ...geminiGeneration, cache: true },
         batchSize: 2,
         logProgress: true,
         metrics,
       },
-    );
+    ).run();
     await table.log();
     console.table(metrics);
     const data = await table.getData();
@@ -135,7 +189,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         retry: 2,
         minRequestDurationMs: 1000, // Respect rate limits: at least 1 second per request
       },
-    );
+    ).run();
 
     const data = await table.getData();
 
@@ -174,7 +228,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         generation: { ...geminiGeneration },
         logProgress: true,
       },
-    );
+    ).run();
 
     const data = await table.getData();
 
@@ -222,7 +276,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         retry: 1, // Try once more
         metrics,
       },
-    );
+    ).run();
 
     const data = await table.getData();
 
@@ -271,7 +325,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         },
         retry: 3,
       },
-    );
+    ).run();
 
     const data = await table.getData();
 
@@ -316,7 +370,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         batchSize: 2,
         logProgress: true,
       },
-    );
+    ).run();
     const data = await table.getData();
 
     assertEquals(data.length, 11);
@@ -371,7 +425,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         logProgress: true,
         verbose: true,
       },
-    );
+    ).run();
     const data = await table.getData();
 
     assertEquals(data.length, 11);
@@ -412,7 +466,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         generation: geminiGeneration,
         verbose: true,
       },
-    );
+    ).run();
 
     await table.log();
 
@@ -438,7 +492,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         generation: { ...geminiGeneration, webSearch: true },
         verbose: true,
       },
-    );
+    ).run();
 
     await table.log();
 
@@ -464,7 +518,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         generation: geminiGeneration,
         verbose: true,
       },
-    );
+    ).run();
 
     await table.log();
 
@@ -490,7 +544,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         generation: { ...geminiGeneration, thinkingLevel: "high" },
         verbose: true,
       },
-    );
+    ).run();
 
     await table.log();
 
@@ -520,10 +574,10 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
         "Give me the country of the city.",
         2,
         {
-          generation: { provider: "ollama" },
+          generation: { provider: "ollama", cache: false },
           batchSize: 1,
         },
-      );
+      ).run();
 
       const data = await table.getData();
       assertEquals(data.length, 2);

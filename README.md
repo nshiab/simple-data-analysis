@@ -424,10 +424,11 @@ avoiding repeated model calls for the same request.
 #### Enrich rows with AI
 
 The
-[`aiRowByRow`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiRowByRow)
+[`aiRowByRowPool`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiRowByRowPool)
 method sends the values of a column to an LLM and stores the structured
-responses in one or more new columns. It is useful for cleaning, extracting,
-classifying, and enriching data row by row.
+responses in one or more new columns. It processes requests concurrently and
+records row-level errors, making it useful for cleaning, extracting,
+classifying, and enriching data at scale.
 
 ```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
@@ -440,13 +441,15 @@ const cities = await sdb
     { city: "Kyoto" },
     { city: "Auckland" },
   ])
-  .aiRowByRow(
+  .aiRowByRowPool(
     "city",
     ["country", "continent"],
+    "error",
     "Give me the country and continent of the city.",
-  );
+    5,
+  )
+  .log();
 
-await cities.log();
 await sdb.close();
 ```
 

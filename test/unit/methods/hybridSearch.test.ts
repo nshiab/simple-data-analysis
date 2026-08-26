@@ -15,6 +15,7 @@ const geminiEmbeddings = {
 } as const;
 const ollamaEmbeddings = {
   provider: "ollama",
+  cache: false,
 } as const;
 
 function clearEmbeddingCaches(): void {
@@ -267,7 +268,7 @@ if (hasGoogleEmbeddingCredentials) {
         "Recipe",
         5,
         {
-          embeddings: geminiEmbeddings,
+          embeddings: { ...geminiEmbeddings, cache: true },
           embeddingsConcurrent: 100,
         },
       );
@@ -505,7 +506,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
         "Recipe",
         5,
         {
-          embeddings: ollamaEmbeddings,
+          embeddings: { ...ollamaEmbeddings, cache: true },
         },
       );
 

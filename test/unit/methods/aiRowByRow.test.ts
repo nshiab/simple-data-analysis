@@ -147,18 +147,22 @@ function registerRowProcessingContract(
         { city: "Paris" },
       ]);
 
-      await table.aiRowByRow(
-        "city",
-        "country",
-        "Give me the country of the city.",
-        {
-          generation: { ...fixture.generation, cache: false },
-          batchSize: 2,
-          concurrent: 2,
-        },
-      );
+      const returned = table
+        .aiRowByRow(
+          "city",
+          "country",
+          "Give me the country of the city.",
+          {
+            generation: { ...fixture.generation, cache: false },
+            batchSize: 2,
+            concurrent: 2,
+          },
+        )
+        .filter("country IS NOT NULL");
 
-      assertEquals(await table.getData(), [
+      assertEquals(returned, table);
+      assertEquals(fixture.requestCount(), 0);
+      assertEquals(await returned.getData(), [
         { city: "Marrakech", country: "Morocco" },
         { city: "Kyoto", country: "Japan" },
         { city: "Auckland", country: "New Zealand" },
@@ -188,7 +192,7 @@ function registerRowProcessingContract(
               generation: { ...fixture.generation },
               batchSize: 2,
             },
-          );
+          ).run();
           assertEquals(await table.getValues("country"), ["Morocco", "Japan"]);
           await sdb.close();
         }
@@ -215,7 +219,7 @@ function registerRowProcessingContract(
           ["country", "continent"],
           "Give me the country and continent of the city.",
           { generation: fixture.generation, batchSize: 2 },
-        );
+        ).run();
 
         assertEquals(await table.getData(), [
           { city: "Marrakech", country: "Morocco", continent: "Africa" },
@@ -247,7 +251,7 @@ function registerRowProcessingContract(
             generation: { ...fixture.generation, schemaJson },
             batchSize: 2,
           },
-        );
+        ).run();
 
         assertEquals(await table.getData(), [
           { city: "Marrakech", country: "Morocco", population: 929_987 },

@@ -537,6 +537,7 @@ if (hasGoogleEmbeddingCredentials) {
     await table.aiEmbeddings("food", "embeddings", {
       embeddings: {
         ...geminiEmbeddingOptions,
+        cache: true,
       },
       // Avoid exceeding a rate limit by waiting between requests
       rateLimitPerMinute: 15,
@@ -601,6 +602,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
     await table.aiEmbeddings("food", "embeddings", {
       embeddings: {
         provider: "ollama",
+        cache: false,
       },
       // Log details
       verbose: true,
@@ -629,6 +631,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       embeddings: {
         provider: "ollama",
         ollama,
+        cache: false,
       },
       // Log details
       verbose: true,
@@ -654,6 +657,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
     await table.aiEmbeddings("food", "embeddings", {
       embeddings: {
         provider: "ollama",
+        cache: true,
       },
       // Avoid exceeding a rate limit by waiting between requests
       // rateLimitPerMinute: 15,
@@ -681,6 +685,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
     await table.aiEmbeddings("food", "embeddings", {
       embeddings: {
         provider: "ollama",
+        cache: false,
       },
       // Avoid exceeding a rate limit by waiting between requests
       // rateLimitPerMinute: 15,
@@ -710,6 +715,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
     await table.aiEmbeddings("food", "embeddings", {
       embeddings: {
         provider: "ollama",
+        cache: false,
       },
       // Avoid exceeding a rate limit by waiting between requests
       // rateLimitPerMinute: 15,
