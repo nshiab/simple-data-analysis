@@ -33,10 +33,10 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
     await table.aiEmbeddings("food", "embeddings", {
       embeddings: ollamaEmbeddings,
       concurrent: 3,
-    });
+    }).run();
 
     // Ask the AI to find the 3 most similar foods to "italian food" in the column "food".
-    await table.aiVectorSimilarity(
+    const values = await table.aiVectorSimilarity(
       "italian food",
       "embeddings",
       3,
@@ -45,9 +45,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
         createIndex: true,
         embeddings: ollamaEmbeddings,
       },
-    );
-
-    const values = await table.getValues("food");
+    ).getValues("food");
 
     // Just making sure it's doesnt crash for now
     assertEquals(values, ["pizza", "pasta", "salad"]);
@@ -70,12 +68,12 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       await table.aiEmbeddings("food", "embeddings", {
         embeddings: ollamaEmbeddings,
         concurrent: 3,
-      });
+      }).run();
 
       const ollama = new Ollama({ host: "http://127.0.0.1:11434" });
 
       // Ask the AI to find the 3 most similar foods to "italian food" in the column "food".
-      await table.aiVectorSimilarity(
+      const values = await table.aiVectorSimilarity(
         "italian foods",
         "embeddings",
         3,
@@ -84,9 +82,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           createIndex: true,
           embeddings: { ...ollamaEmbeddings, ollama },
         },
-      );
-
-      const values = await table.getValues("food");
+      ).getValues("food");
 
       // Just making sure it's doesnt crash for now
       assertEquals(values, ["pasta", "pizza", "salad"]);
@@ -106,18 +102,16 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
     await table.aiEmbeddings("food", "embeddings", {
       embeddings: ollamaEmbeddings,
       concurrent: 4,
-    });
+    }).run();
 
-    await table.aiVectorSimilarity(
+    const values = await table.aiVectorSimilarity(
       "italian food",
       "embeddings",
       3,
       {
         embeddings: ollamaEmbeddings,
       },
-    );
-
-    const values = await table.getValues("food");
+    ).getValues("food");
 
     // Just making sure it's doesnt crash for now
     assertEquals(values, ["pizza", "pasta", "salad"]);
@@ -139,18 +133,16 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       await table.aiEmbeddings("food", "embeddings", {
         embeddings: { ...ollamaEmbeddings, cache: true },
         concurrent: 6,
-      });
+      }).run();
 
-      await table.aiVectorSimilarity(
+      const values = await table.aiVectorSimilarity(
         "italian food",
         "embeddings",
         3,
         {
           embeddings: { ...ollamaEmbeddings, cache: true },
         },
-      );
-
-      const values = await table.getValues("food");
+      ).getValues("food");
 
       // Just making sure it's doesnt crash for now
       assertEquals(values, ["pizza", "pasta", "salad"]);
@@ -173,9 +165,9 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       await table.aiEmbeddings("food", "embeddings", {
         embeddings: ollamaEmbeddings,
         concurrent: 10,
-      });
+      }).run();
 
-      await table.aiVectorSimilarity(
+      const values = await table.aiVectorSimilarity(
         "italian food",
         "embeddings",
         3,
@@ -183,9 +175,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           embeddings: ollamaEmbeddings,
           createIndex: true,
         },
-      );
-
-      const values = await table.getValues("food");
+      ).getValues("food");
 
       // Just making sure it's doesnt crash for now
       assertEquals(values, ["pizza", "pasta", "salad"]);
@@ -208,7 +198,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       await table.aiEmbeddings("food", "embeddings", {
         embeddings: ollamaEmbeddings,
         concurrent: 100,
-      });
+      }).run();
 
       const americanFood = await table.aiVectorSimilarity(
         "american food",
@@ -219,7 +209,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           embeddings: ollamaEmbeddings,
           createIndex: true,
         },
-      );
+      ).getValues("food");
 
       const italianFood = await table.aiVectorSimilarity(
         "italian food",
@@ -230,11 +220,11 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           embeddings: ollamaEmbeddings,
           createIndex: true,
         },
-      );
+      ).getValues("food");
 
       assertEquals({
-        americanFood: await americanFood.getValues("food"),
-        italianFood: await italianFood.getValues("food"),
+        americanFood: americanFood,
+        italianFood: italianFood,
         originalData: await table.getValues("food"),
       }, {
         americanFood: ["burger", "salad", "pizza"],
@@ -262,7 +252,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
         await table.aiEmbeddings("food", "embeddings", {
           embeddings: ollamaEmbeddings,
           concurrent: 10,
-        });
+        }).run();
       });
 
       const americanFood = await table.aiVectorSimilarity(
@@ -274,7 +264,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           embeddings: ollamaEmbeddings,
           createIndex: true,
         },
-      );
+      ).getValues("food");
 
       const italianFood = await table.aiVectorSimilarity(
         "italian food",
@@ -285,11 +275,11 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           embeddings: ollamaEmbeddings,
           createIndex: true,
         },
-      );
+      ).getValues("food");
 
       assertEquals({
-        americanFood: await americanFood.getValues("food"),
-        italianFood: await italianFood.getValues("food"),
+        americanFood: americanFood,
+        italianFood: italianFood,
         originalData: await table.getValues("food"),
       }, {
         americanFood: ["burger", "salad", "pizza"],
@@ -317,7 +307,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
         await table.aiEmbeddings("food", "embeddings", {
           embeddings: ollamaEmbeddings,
           concurrent: 10,
-        });
+        }).run();
       });
 
       const americanFood = await table.aiVectorSimilarity(
@@ -329,7 +319,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           embeddings: ollamaEmbeddings,
           createIndex: true,
         },
-      );
+      ).getValues("food");
 
       const italianFood = await table.aiVectorSimilarity(
         "italian food",
@@ -340,11 +330,11 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           embeddings: ollamaEmbeddings,
           createIndex: true,
         },
-      );
+      ).getValues("food");
 
       assertEquals({
-        americanFood: await americanFood.getValues("food"),
-        italianFood: await italianFood.getValues("food"),
+        americanFood: americanFood,
+        italianFood: italianFood,
         originalData: await table.getValues("food"),
       }, {
         americanFood: ["burger", "salad", "pizza"],
@@ -370,9 +360,9 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       await table.aiEmbeddings("food", "embeddings", {
         embeddings: ollamaEmbeddings,
         concurrent: 4,
-      });
+      }).run();
 
-      await table.aiVectorSimilarity(
+      const scores = await table.aiVectorSimilarity(
         "italian food",
         "embeddings",
         3,
@@ -380,9 +370,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           embeddings: ollamaEmbeddings,
           similarityColumn: "score", // Add the new column
         },
-      );
-
-      const scores = await table.getValues("score");
+      ).getValues("score");
 
       // We asked for 3 results
       assertEquals(scores.length, 3);
@@ -416,10 +404,10 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       await table.aiEmbeddings("food", "embeddings", {
         embeddings: ollamaEmbeddings,
         concurrent: 4,
-      });
+      }).run();
 
       // 1. Run a baseline search to get the actual scores for the current model
-      const baseline = await table.aiVectorSimilarity(
+      const baselineScores = await table.aiVectorSimilarity(
         "italian food",
         "embeddings",
         3,
@@ -428,9 +416,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           embeddings: ollamaEmbeddings,
           similarityColumn: "score",
         },
-      );
-
-      const baselineScores = await baseline.getValues("score") as number[];
+      ).getValues("score") as number[];
       const highestScore = baselineScores[0];
       const lowestScoreInTop3 = baselineScores[2];
 
@@ -439,7 +425,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
         ((highestScore - lowestScoreInTop3) / 2);
 
       // 2. Run the search again with our dynamic minSimilarity threshold applied
-      const filteredTable = await table.aiVectorSimilarity(
+      const filteredScores = await table.aiVectorSimilarity(
         "italian food",
         "embeddings",
         3, // Still asking for 3
@@ -449,11 +435,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           similarityColumn: "filtered_score",
           minSimilarity: dynamicThreshold,
         },
-      );
-
-      const filteredScores = await filteredTable.getValues(
-        "filtered_score",
-      ) as number[];
+      ).getValues("filtered_score") as number[];
 
       // Ensure the filter worked: we should have fewer than 3 results now
       assertEquals(filteredScores.length < 3, true);

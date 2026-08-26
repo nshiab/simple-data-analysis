@@ -476,15 +476,15 @@ const recipes = sdb
   );
 
 // We search both the meaning and the wording of each recipe.
-const results = await recipes.hybridSearch(
-  "buttery pastry for breakfast",
-  "Dish",
-  "Recipe",
-  5,
-  { outputTable: "results" },
-);
-
-await results.log(); // For example: "Butter Pie" (keyword) and "Croissant" (semantic).
+const results = await recipes
+  .hybridSearch(
+    "buttery pastry for breakfast",
+    "Dish",
+    "Recipe",
+    5,
+    { outputTable: "results" },
+  )
+  .log(); // For example: "Butter Pie" (keyword) and "Croissant" (semantic).
 await sdb.close();
 ```
 
@@ -536,11 +536,11 @@ const temperatures = sdb
   )
   .renameColumns({ t: "temperature", id: "station" });
 
-await temperatures.aiQuery(
-  "Compute the average temperature for each station with two decimals.",
-);
-
-await temperatures.log();
+const averageTemperatures = await temperatures
+  .aiQuery(
+    "Compute the average temperature for each station with two decimals.",
+  )
+  .log();
 await sdb.close();
 ```
 

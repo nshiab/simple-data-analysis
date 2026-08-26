@@ -918,12 +918,13 @@ using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is
 useful for speeding up the `aiVectorSimilarity` method. If the index already
 exists, it will not be recreated unless `overwriteIndex` is `true`.
 
-This method does not support tables containing geometries.
+This method does not support tables containing geometries. The work is queued
+and runs in chain order at the next awaited observer or `run()` call.
 
 ##### Signature
 
 ```typescript
-async aiEmbeddings(column: string, newColumn: string, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; createIndex?: boolean; overwriteIndex?: boolean; concurrent?: number; verbose?: boolean; rateLimitPerMinute?: number; efConstruction?: number; efSearch?: number; M?: number }): Promise<void>;
+aiEmbeddings(column: string, newColumn: string, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; createIndex?: boolean; overwriteIndex?: boolean; concurrent?: number; verbose?: boolean; rateLimitPerMinute?: number; efConstruction?: number; efSearch?: number; M?: number }): SimpleTable;
 ```
 
 ##### Parameters
@@ -960,38 +961,40 @@ async aiEmbeddings(column: string, newColumn: string, options?: { embeddings?: {
 
 ##### Returns
 
-A promise that resolves when the embeddings have been generated and stored.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
-// New table with a "food" column.
-table.loadArray([
-  { food: "pizza" },
-  { food: "sushi" },
-  { food: "burger" },
-  { food: "pasta" },
-  { food: "salad" },
-  { food: "tacos" },
-]);
-
-// Generate embeddings for the "food" column and store them in a new "embeddings" column.
-await table.aiEmbeddings("food", "embeddings", {
-  embeddings: {
-    provider: "gemini",
-    model: "gemini-embedding-001",
-  },
-  rateLimitPerMinute: 15, // Limit requests to 15 per minute
-  createIndex: true, // Create an index on the new column for faster similarity searches
-  verbose: true, // Log detailed information
-});
+const food = await sdb
+  .newTable("food")
+  .loadArray([
+    { food: "pizza" },
+    { food: "sushi" },
+    { food: "burger" },
+    { food: "pasta" },
+    { food: "salad" },
+    { food: "tacos" },
+  ])
+  .aiEmbeddings("food", "embeddings", {
+    embeddings: {
+      provider: "gemini",
+      model: "gemini-embedding-001",
+    },
+    rateLimitPerMinute: 15,
+    createIndex: true,
+    verbose: true,
+  })
+  .log();
 ```
 
 ```ts
 // Generate embeddings with a local Ollama model.
-await table.aiEmbeddings("food", "embeddings", {
-  embeddings: { provider: "ollama", model: "nomic-embed-text" },
-});
+const food = await table
+  .aiEmbeddings("food", "embeddings", {
+    embeddings: { provider: "ollama", model: "nomic-embed-text" },
+  })
+  .log();
 ```
 
 #### `aiVectorSimilarity`
@@ -1015,12 +1018,13 @@ The query embedding is cached in `.journalism-cache` by default. Set
 If `createIndex` is `true`, an HNSW index will be created on the embeddings
 column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss) to
 speed up processing. If the index already exists, it will not be recreated
-unless `overwriteIndex` is `true`.
+unless `overwriteIndex` is `true`. The work is queued and runs in chain order at
+the next awaited observer or `run()` call.
 
 ##### Signature
 
 ```typescript
-async aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; createIndex?: boolean; overwriteIndex?: boolean; outputTable?: string; verbose?: boolean; efConstruction?: number; efSearch?: number; M?: number; minSimilarity?: number; similarityColumn?: string }): Promise<SimpleTable>;
+aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; createIndex?: boolean; overwriteIndex?: boolean; outputTable?: string; verbose?: boolean; efConstruction?: number; efSearch?: number; M?: number; minSimilarity?: number; similarityColumn?: string }): SimpleTable;
 ```
 
 ##### Parameters
@@ -1062,61 +1066,46 @@ async aiVectorSimilarity(text: string, column: string, nbResults: number, option
 
 ##### Returns
 
-A promise that resolves to the SimpleTable instance containing the similarity
-search results.
+The table that will contain the similarity results, so methods can be chained.
 
 ##### Examples
 
 ```ts
-// New table with a "food" column.
-table.loadArray([
-  { food: "pizza" },
-  { food: "sushi" },
-  { food: "burger" },
-  { food: "pasta" },
-  { food: "salad" },
-  { food: "tacos" },
-]);
-
-// Generate embeddings for the "food" column.
-await table.aiEmbeddings("food", "embeddings", {
-  embeddings: {
-    provider: "gemini",
-    model: "gemini-embedding-001",
-  },
-});
-
-// Find the 3 most similar foods to "italian food" based on embeddings.
-// We only want results with at least 60% similarity and we want to see the score.
-const similarFoods = await table.aiVectorSimilarity(
-  "italian food",
-  "embeddings",
-  3,
-  {
-    createIndex: true, // Create an index on the embeddings column for faster searches
+const similarFood = await sdb
+  .newTable("food")
+  .loadArray([
+    { food: "pizza" },
+    { food: "sushi" },
+    { food: "burger" },
+    { food: "pasta" },
+    { food: "salad" },
+    { food: "tacos" },
+  ])
+  .aiEmbeddings("food", "embeddings", {
     embeddings: {
       provider: "gemini",
       model: "gemini-embedding-001",
     },
-    minSimilarity: 0.6, // Filter out anything below 0.6 similarity
-    similarityColumn: "score", // Add a new column named "score" with the similarity math
-  },
-);
-
-// Log the results
-await similarFoods.log();
+  })
+  .aiVectorSimilarity("italian food", "embeddings", 3, {
+    createIndex: true,
+    embeddings: {
+      provider: "gemini",
+      model: "gemini-embedding-001",
+    },
+    minSimilarity: 0.6,
+    similarityColumn: "score",
+  })
+  .log();
 ```
 
 ```ts
 // Query an embedding column created with the same Ollama model.
-const results = await table.aiVectorSimilarity(
-  "italian food",
-  "embeddings",
-  3,
-  {
+const similarFood = await table
+  .aiVectorSimilarity("italian food", "embeddings", 3, {
     embeddings: { provider: "ollama", model: "nomic-embed-text" },
-  },
-);
+  })
+  .log();
 ```
 
 #### `hybridSearch`
@@ -1157,12 +1146,13 @@ reused automatically. When vector search is enabled, set `createIndex` to `true`
 to also create an HNSW index using the
 [duckdb-vss extension](https://github.com/duckdb/duckdb-vss).
 
-This method does not support tables containing geometries.
+This method does not support tables containing geometries. The work is queued
+and runs in chain order at the next awaited observer or `run()` call.
 
 ##### Signature
 
 ```typescript
-async hybridSearch(query: string, columnId: string, columnText: string, nbResults: number, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; verbose?: boolean; createIndex?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; outputTable?: string; efConstruction?: number; efSearch?: number; M?: number; times?: { start?: number; embeddingStart?: number; embeddingEnd?: number; vectorSearchStart?: number; vectorSearchEnd?: number; bm25Start?: number; bm25End?: number } }): Promise<SimpleTable>;
+hybridSearch(query: string, columnId: string, columnText: string, nbResults: number, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; verbose?: boolean; createIndex?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; outputTable?: string; efConstruction?: number; efSearch?: number; M?: number; times?: { start?: number; embeddingStart?: number; embeddingEnd?: number; vectorSearchStart?: number; vectorSearchEnd?: number; bm25Start?: number; bm25End?: number } }): SimpleTable;
 ```
 
 ##### Parameters
@@ -1238,41 +1228,33 @@ async hybridSearch(query: string, columnId: string, columnText: string, nbResult
 
 ##### Returns
 
-A promise that resolves to a SimpleTable instance containing the search results,
-ordered by relevance (best matches first).
+The table that will contain the search results, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Load a dataset of recipes
 const sdb = new SimpleDB();
-const table = sdb.newTable("recipes");
-table.loadData("recipes.parquet");
-
-// Perform hybrid search - replaces the current table with top 10 results
-await table.hybridSearch(
-  "buttery pastry for breakfast",
-  "Dish", // Column with unique IDs
-  "Recipe", // Column with text to search
-  10, // Return top 10 results
-  {
+const results = await sdb
+  .newTable("recipes")
+  .loadData("recipes.parquet")
+  .hybridSearch("buttery pastry for breakfast", "Dish", "Recipe", 10, {
     embeddings: {
       provider: "gemini",
       model: "gemini-embedding-001",
     },
-    verbose: true, // Log debugging information
-  },
-);
-
-// Table now contains only the most relevant recipes
-await table.log();
+    verbose: true,
+  })
+  .log();
 ```
 
 ```ts
 // Run hybrid search with local Ollama embeddings.
-await table.hybridSearch("buttery pastry", "Dish", "Recipe", 10, {
-  embeddings: { provider: "ollama", model: "nomic-embed-text" },
-});
+const results = await table
+  .hybridSearch("buttery pastry", "Dish", "Recipe", 10, {
+    embeddings: { provider: "ollama", model: "nomic-embed-text" },
+  })
+  .log();
 ```
 
 #### `aiRAG`
@@ -1466,12 +1448,13 @@ Provider-specific controls live under `generation`.
 
 The generated query is cached locally in `.journalism-cache` by default. Set
 `generation.cache` to `false` to disable caching, and remember to add
-`.journalism-cache` to your `.gitignore`.
+`.journalism-cache` to your `.gitignore`. The work is queued and runs in chain
+order at the next awaited observer or `run()` call.
 
 ##### Signature
 
 ```typescript
-async aiQuery(prompt: string, options?: { extraInstructions?: string; generation?: { systemPrompt?: string; model?: string; cache?: boolean; processResponse?: (response: unknown) => unknown | Promise<unknown>; temperature?: number } & ({ provider: "gemini"; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider: "ollama"; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never } | { provider?: undefined; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider?: undefined; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never }); includeThoughts?: boolean; outputTable?: string; verbose?: boolean }): Promise<SimpleTable>;
+aiQuery(prompt: string, options?: { extraInstructions?: string; generation?: { systemPrompt?: string; model?: string; cache?: boolean; processResponse?: (response: unknown) => unknown | Promise<unknown>; temperature?: number } & ({ provider: "gemini"; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider: "ollama"; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never } | { provider?: undefined; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider?: undefined; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never }); includeThoughts?: boolean; outputTable?: string; verbose?: boolean }): SimpleTable;
 ```
 
 ##### Parameters
@@ -1494,8 +1477,7 @@ async aiQuery(prompt: string, options?: { extraInstructions?: string; generation
 
 ##### Returns
 
-A promise that resolves to the SimpleTable instance containing the query results
-(either the modified current table or a new table).
+The table that will contain the query results, so methods can be chained.
 
 ##### Examples
 
@@ -1504,39 +1486,39 @@ A promise that resolves to the SimpleTable instance containing the query results
 // the result will replace the existing table.
 // If run again, it will use the previous query from the cache.
 // Don't forget to add .journalism-cache to your .gitignore file!
-await table.aiQuery(
-  "Give me the average salary by department",
-  {
+const averageSalaryByDepartment = await table
+  .aiQuery("Give me the average salary by department", {
     generation: {
       provider: "gemini",
       model: "gemini-3-flash-preview",
     },
     verbose: true,
-  },
-);
+  })
+  .log();
 ```
 
 ```ts
 // Save results to a new table without modifying the original
-const results = await table.aiQuery(
-  "Give me the top 10 employees by salary",
-  { outputTable: "top_employees" },
-);
-
 // Original table remains unchanged
 const allEmployees = await table.getRowCount();
 console.log(allEmployees); // All employees
 
-// New table contains only query results
-const topEmployees = await results.getRowCount();
-console.log(topEmployees); // 10
+// Generate the query in chain order and observe the new table.
+const topEmployees = await table
+  .aiQuery("Give me the top 10 employees by salary", {
+    outputTable: "top_employees",
+  })
+  .log();
+console.log(await topEmployees.getRowCount()); // 10
 ```
 
 ```ts
 // Generate and execute the query with a local Ollama model.
-await table.aiQuery("Give me the average salary by department", {
-  generation: { provider: "ollama", model: "gemma3:4b" },
-});
+const averageSalaryByDepartment = await table
+  .aiQuery("Give me the average salary by department", {
+    generation: { provider: "ollama", model: "gemma3:4b" },
+  })
+  .log();
 ```
 
 #### `toSheet`
@@ -1645,11 +1627,13 @@ use GOOGLE_APPLICATION_CREDENTIALS pointing to a service account JSON file. For
 detailed setup instructions, refer to the node-google-spreadsheet authentication
 guide:
 https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
+The download is queued and runs in chain order at the next awaited observer or
+`run()` call.
 
 ##### Signature
 
 ```typescript
-async loadSheet(sheetUrl: string, options?: { skip?: number; apiEmail?: string; apiKey?: string }): Promise<void>;
+loadSheet(sheetUrl: string, options?: { skip?: number; apiEmail?: string; apiKey?: string }): SimpleTable;
 ```
 
 ##### Parameters
@@ -1667,20 +1651,25 @@ async loadSheet(sheetUrl: string, options?: { skip?: number; apiEmail?: string; 
 
 ##### Returns
 
-A promise that resolves when the data has been loaded into the table.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Load data from a Google Sheet
-await table.loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+const sheetData = await sdb
+  .newTable("sheetData")
+  .loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0")
+  .log();
 ```
 
 ```ts
 // Load data from a Google Sheet, skipping the first 2 rows (e.g., to skip a prepended message and timestamp)
-await table.loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0", {
-  skip: 2,
-});
+const sheetData = await table
+  .loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0", {
+    skip: 2,
+  })
+  .log();
 ```
 
 #### `toDW`
@@ -1733,12 +1722,13 @@ await table.toDW("myChartId", {
 Loads data from a Datawrapper chart or table into the table.
 
 Authentication is handled via an API key stored in the environment variable
-`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`. The download
+is queued and runs in chain order at the next awaited observer or `run()` call.
 
 ##### Signature
 
 ```typescript
-async loadDW(chartId: string, options?: { apiKey?: string }): Promise<void>;
+loadDW(chartId: string, options?: { apiKey?: string }): SimpleTable;
 ```
 
 ##### Parameters
@@ -1752,13 +1742,16 @@ async loadDW(chartId: string, options?: { apiKey?: string }): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the data has been loaded into the table.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Load data from a Datawrapper chart
-await table.loadDW("myChartId");
+const chartData = await sdb
+  .newTable("chartData")
+  .loadDW("myChartId")
+  .log();
 ```
 
 #### `toGeoDW`
@@ -1815,12 +1808,14 @@ Authentication is handled via an API key stored in the environment variable
 `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
 
 The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.geojson` and
-removed after loading. Remember to add `.sda-cache` to your `.gitignore`.
+removed after loading. Remember to add `.sda-cache` to your `.gitignore`. The
+download is queued and runs in chain order at the next awaited observer or
+`run()` call.
 
 ##### Signature
 
 ```typescript
-async loadGeoDW(chartId: string, options?: { apiKey?: string }): Promise<void>;
+loadGeoDW(chartId: string, options?: { apiKey?: string }): SimpleTable;
 ```
 
 ##### Parameters
@@ -1834,13 +1829,16 @@ async loadGeoDW(chartId: string, options?: { apiKey?: string }): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the data has been loaded into the table.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Load geo data from a Datawrapper map
-await table.loadGeoDW("myMapId");
+const mapData = await sdb
+  .newTable("mapData")
+  .loadGeoDW("myMapId")
+  .log();
 ```
 
 #### `writeChart`

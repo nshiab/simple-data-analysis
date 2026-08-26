@@ -40,7 +40,7 @@ Deno.test(
       "http://ollama.local:11434",
       [1, 0],
     );
-    await table.hybridSearch("alpha", "id", "text", 1, {
+    const ollamaResults = table.hybridSearch("alpha", "id", "text", 1, {
       embeddings: {
         provider: "ollama",
         model: "same-model-label",
@@ -49,7 +49,8 @@ Deno.test(
       },
       bm25: false,
       outputTable: "ollama_results",
-    });
+    }).selectColumns("id");
+    await ollamaResults.run();
     assertEquals(ollamaClient.requests, 3);
 
     const originalFetch = globalThis.fetch;
@@ -65,7 +66,7 @@ Deno.test(
         },
         bm25: false,
         outputTable: "gemini_results",
-      });
+      }).run();
     } finally {
       globalThis.fetch = originalFetch;
     }
@@ -98,7 +99,7 @@ Deno.test("hybridSearch caches tables by default for each embedding identity", a
       },
       bm25: false,
       outputTable: "cache_results_a",
-    });
+    }).run();
 
     const secondClient = new FakeOllamaEmbeddingClient(
       "http://cache.local:11434",
@@ -112,7 +113,7 @@ Deno.test("hybridSearch caches tables by default for each embedding identity", a
       },
       bm25: false,
       outputTable: "cache_results_b",
-    });
+    }).run();
 
     const sources = JSON.parse(
       Deno.readTextFileSync("./.sda-cache/sources.json"),
@@ -151,7 +152,7 @@ Deno.test("hybridSearch does not cache tables when disabled", async () => {
       },
       bm25: false,
       outputTable: "no_cache_results",
-    });
+    }).run();
 
     assertEquals(existsSync("./.sda-cache"), false);
     assertEquals(existsSync("./.journalism-cache"), false);
@@ -184,12 +185,12 @@ Deno.test("hybridSearch isolates table caches by source mapping", async () => {
       embeddings,
       bm25: false,
       outputTable: "title_results",
-    });
+    }).run();
     await table.hybridSearch("alpha", "id", "body", 1, {
       embeddings,
       bm25: false,
       outputTable: "body_results",
-    });
+    }).run();
 
     assertEquals(await table.hasColumn("title_embeddings"), true);
     assertEquals(await table.hasColumn("body_embeddings"), true);
@@ -223,7 +224,7 @@ if (hasGoogleEmbeddingCredentials) {
 
       const originalNbRows = await table.getRowCount();
 
-      const results = await table.hybridSearch(
+      await table.hybridSearch(
         "buttery pastry for breakfast",
         "Dish",
         "Recipe",
@@ -233,7 +234,8 @@ if (hasGoogleEmbeddingCredentials) {
           embeddingsConcurrent: 100,
           verbose: true,
         },
-      );
+      ).run();
+      const results = table;
 
       // Should return the same table instance when no outputTable is specified
       assertEquals(results, table);
@@ -262,7 +264,7 @@ if (hasGoogleEmbeddingCredentials) {
       table.removeDuplicates({ on: "Dish" });
       table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "spicy vegan lunch",
         "Dish",
         "Recipe",
@@ -271,9 +273,7 @@ if (hasGoogleEmbeddingCredentials) {
           embeddings: { ...geminiEmbeddings, cache: true },
           embeddingsConcurrent: 100,
         },
-      );
-
-      const nbRows = await results.getRowCount();
+      ).getRowCount();
       assertEquals(nbRows <= 5, true);
 
       await sdb.close();
@@ -290,7 +290,7 @@ if (hasGoogleEmbeddingCredentials) {
       table.removeDuplicates({ on: "Dish" });
       table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      await table.hybridSearch(
         "italian cuisine",
         "Dish",
         "Recipe",
@@ -300,7 +300,8 @@ if (hasGoogleEmbeddingCredentials) {
           embeddingsConcurrent: 100,
           outputTable: "italian_search_results",
         },
-      );
+      ).run();
+      const results = await sdb.getTable("italian_search_results");
 
       // Verify the output table name
       assertEquals(results.name, "italian_search_results");
@@ -323,7 +324,7 @@ if (hasGoogleEmbeddingCredentials) {
       table.removeDuplicates({ on: "Dish" });
       table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "french cuisine",
         "Dish",
         "Recipe",
@@ -335,9 +336,7 @@ if (hasGoogleEmbeddingCredentials) {
           k: 1.5,
           b: 0.8,
         },
-      );
-
-      const nbRows = await results.getRowCount();
+      ).getRowCount();
       assertEquals(nbRows <= 5, true);
 
       await sdb.close();
@@ -354,7 +353,7 @@ if (hasGoogleEmbeddingCredentials) {
       table.removeDuplicates({ on: "Dish" });
       table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "dessert",
         "Dish",
         "Recipe",
@@ -364,9 +363,7 @@ if (hasGoogleEmbeddingCredentials) {
           createIndex: true,
           verbose: true,
         },
-      );
-
-      const nbRows = await results.getRowCount();
+      ).getRowCount();
       assertEquals(nbRows <= 3, true);
 
       await sdb.close();
@@ -385,7 +382,7 @@ if (hasGoogleEmbeddingCredentials) {
 
       // Run without conjunctive option
       // This will only affect the BM25 part of the search
-      const resultsConjunctiveFalse = await table.hybridSearch(
+      await table.hybridSearch(
         "fennel garlic",
         "Dish",
         "Recipe",
@@ -394,12 +391,11 @@ if (hasGoogleEmbeddingCredentials) {
           embeddings: geminiEmbeddings,
           outputTable: "results_conjunctive_false",
         },
-      );
-      await resultsConjunctiveFalse.log();
+      ).log();
 
       // Run with conjunctive option
       // This will only affect the BM25 part of the search
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "fennel garlic",
         "Dish",
         "Recipe",
@@ -409,10 +405,7 @@ if (hasGoogleEmbeddingCredentials) {
           conjunctive: true,
           outputTable: "results_conjunctive_true",
         },
-      );
-      await results.log();
-
-      const nbRows = await results.getRowCount();
+      ).getRowCount();
       assertEquals(nbRows > 0, true);
 
       await sdb.close();
@@ -429,16 +422,14 @@ if (hasGoogleEmbeddingCredentials) {
       table.removeDuplicates({ on: "Dish" });
       table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch("pasta", "Dish", "Recipe", 5, {
+      const nbRows = await table.hybridSearch("pasta", "Dish", "Recipe", 5, {
         embeddings: geminiEmbeddings,
         stopwords: "english",
         stemmer: "english",
         lower: true,
         stripAccents: true,
         verbose: true,
-      });
-
-      const nbRows = await results.getRowCount();
+      }).getRowCount();
       assertEquals(nbRows <= 5, true);
 
       await sdb.close();
@@ -460,7 +451,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
 
       const originalNbRows = await table.getRowCount();
 
-      const results = await table.hybridSearch(
+      await table.hybridSearch(
         "buttery pastry for breakfast",
         "Dish",
         "Recipe",
@@ -469,9 +460,8 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           embeddings: ollamaEmbeddings,
           verbose: true,
         },
-      );
-
-      await results.log();
+      ).run();
+      const results = table;
 
       // Should return the same table instance when no outputTable is specified
       assertEquals(results, table);
@@ -500,7 +490,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       table.removeDuplicates({ on: "Dish" });
       table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "spicy vegan lunch",
         "Dish",
         "Recipe",
@@ -508,11 +498,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
         {
           embeddings: { ...ollamaEmbeddings, cache: true },
         },
-      );
-
-      await results.log();
-
-      const nbRows = await results.getRowCount();
+      ).getRowCount();
       assertEquals(nbRows <= 5, true);
 
       await sdb.close();
@@ -529,7 +515,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       table.removeDuplicates({ on: "Dish" });
       table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      await table.hybridSearch(
         "italian cuisine",
         "Dish",
         "Recipe",
@@ -538,9 +524,8 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           embeddings: ollamaEmbeddings,
           outputTable: "italian_search_results",
         },
-      );
-
-      await results.log();
+      ).run();
+      const results = await sdb.getTable("italian_search_results");
 
       // Verify the output table name
       assertEquals(results.name, "italian_search_results");
@@ -563,7 +548,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       table.removeDuplicates({ on: "Dish" });
       table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "french cuisine",
         "Dish",
         "Recipe",
@@ -574,11 +559,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           k: 1.5,
           b: 0.8,
         },
-      );
-
-      await results.log();
-
-      const nbRows = await results.getRowCount();
+      ).getRowCount();
       assertEquals(nbRows <= 5, true);
 
       await sdb.close();
@@ -595,7 +576,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       table.removeDuplicates({ on: "Dish" });
       table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "dessert",
         "Dish",
         "Recipe",
@@ -605,11 +586,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           createIndex: true,
           verbose: true,
         },
-      );
-
-      await results.log();
-
-      const nbRows = await results.getRowCount();
+      ).getRowCount();
       assertEquals(nbRows <= 3, true);
 
       await sdb.close();
@@ -626,7 +603,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       table.removeDuplicates({ on: "Dish" });
       table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "dessert",
         "Dish",
         "Recipe",
@@ -637,11 +614,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           bm25: true, // Enable only BM25
           verbose: true,
         },
-      );
-
-      await results.log();
-
-      const nbRows = await results.getRowCount();
+      ).getRowCount();
       assertEquals(nbRows <= 5, true);
 
       await sdb.close();
@@ -658,7 +631,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       table.removeDuplicates({ on: "Dish" });
       table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "healthy breakfast",
         "Dish",
         "Recipe",
@@ -669,11 +642,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           bm25: false, // Disable BM25
           verbose: true,
         },
-      );
-
-      await results.log();
-
-      const nbRows = await results.getRowCount();
+      ).getRowCount();
       assertEquals(nbRows <= 5, true);
 
       await sdb.close();
@@ -702,7 +671,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
             vectorSearch: false,
             bm25: false,
           },
-        );
+        ).run();
       } catch (error) {
         errorThrown = true;
         assertEquals(
@@ -741,9 +710,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           bm25ScoreColumn: "bm25_score", // Add BM25 scores to the results
           vectorSimilarityColumn: "vector_similarity", // Add vector similarity scores to the results
         },
-      );
-
-      await table.log();
+      ).log();
 
       assertEquals(true, true);
 
@@ -772,9 +739,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           bm25ScoreColumn: "bm25_score", // Add BM25 scores to the results
           vectorSimilarityColumn: "vector_similarity", // Add vector similarity scores to the results
         },
-      );
-
-      await table.log();
+      ).log();
 
       assertEquals(true, true);
 
@@ -802,7 +767,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           embeddings: ollamaEmbeddings,
           outputTable: "results_conjunctive_false",
         },
-      );
+      ).getRowCount();
 
       // Run with conjunctive option
       // This will only affect the BM25 part of the search
@@ -816,11 +781,10 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           conjunctive: true,
           outputTable: "results_conjunctive_true",
         },
-      );
+      ).getRowCount();
 
       assertEquals(
-        await resultsConjunctiveFalse.getRowCount() > 0 &&
-          await resultsConjunctiveTrue.getRowCount() > 0,
+        resultsConjunctiveFalse > 0 && resultsConjunctiveTrue > 0,
         true,
       );
 
@@ -838,7 +802,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       table.removeDuplicates({ on: "Dish" });
       table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "italian food",
         "Dish",
         "Recipe",
@@ -851,9 +815,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           verbose: true,
           outputTable: "custom_bm25_results",
         },
-      );
-
-      const nbRows = await results.getRowCount();
+      ).getRowCount();
       assertEquals(nbRows > 0, true);
       assertEquals(nbRows <= 5, true);
 
@@ -871,7 +833,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       table.removeDuplicates({ on: "Dish" });
       table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "the a for with dish",
         "Dish",
         "Recipe",
@@ -882,9 +844,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
           verbose: true,
           outputTable: "stopwords_results",
         },
-      );
-
-      const nbRows = await results.getRowCount();
+      ).getRowCount();
       assertEquals(nbRows <= 5, true);
 
       await sdb.close();

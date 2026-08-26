@@ -54,7 +54,7 @@ Deno.test("aiRAG regenerates incompatible managed embeddings", async () => {
       ollama: firstClient,
       cache: false,
     },
-  });
+  }).run();
 
   const changedClient = new FakeOllamaEmbeddingClient(
     "http://rag.local:11434",

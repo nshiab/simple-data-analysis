@@ -18,9 +18,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
 
     // Then load it back.
     const table2 = sdb.newTable();
-    await table2.loadDW("ntURh");
-
-    assertEquals(await table2.getData(), [
+    assertEquals(await table2.loadDW("ntURh").getData(), [
       { salary: "75000", hireDate: "2022-12-15" },
       { salary: "80000", hireDate: "2023-01-20" },
     ]);

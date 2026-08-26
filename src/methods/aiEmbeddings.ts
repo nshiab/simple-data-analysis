@@ -5,6 +5,7 @@ import tryEmbedding from "../helpers/tryEmbedding.ts";
 import type { EmbeddingOptions } from "../helpers/aiOptions.ts";
 import { getEmbeddingIdentity } from "@nshiab/journalism-ai";
 import ensureEmbeddingColumn from "../helpers/ensureEmbeddingColumn.ts";
+import { queueOp } from "@nshiab/simple-data-analysis-core/helpers";
 
 /**
  * Options for generating an embedding column.
@@ -38,12 +39,33 @@ export type AIEmbeddingsOptions = {
   M?: number;
 };
 
-export default async function aiEmbeddings(
+export default function aiEmbeddings(
   simpleTable: SimpleTable,
   column: string,
   newColumn: string,
   options: AIEmbeddingsOptions = {},
-) {
+): SimpleTable {
+  options = {
+    ...options,
+    embeddings: options.embeddings === undefined
+      ? undefined
+      : { ...options.embeddings },
+  };
+  queueOp(simpleTable, {
+    kind: "asyncBarrier",
+    method: "aiEmbeddings()",
+    parameters: { column, newColumn },
+    execute: () => runAIEmbeddings(simpleTable, column, newColumn, options),
+  });
+  return simpleTable;
+}
+
+async function runAIEmbeddings(
+  simpleTable: SimpleTable,
+  column: string,
+  newColumn: string,
+  options: AIEmbeddingsOptions,
+): Promise<void> {
   const identity = getEmbeddingIdentity(options.embeddings);
   const embeddingStatus = await ensureEmbeddingColumn(
     simpleTable,

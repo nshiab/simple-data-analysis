@@ -2,6 +2,7 @@ import type { SimpleTable } from "../index.ts";
 import {
   mergeOptions,
   queryDB,
+  queueOp,
 } from "@nshiab/simple-data-analysis-core/helpers";
 import type { EmbeddingOptions } from "../helpers/aiOptions.ts";
 import { getEmbeddingForProvider } from "../helpers/tryEmbedding.ts";
@@ -40,13 +41,46 @@ export type AIVectorSimilarityOptions = {
   similarityColumn?: string;
 };
 
-export default async function aiVectorSimilarity(
+export default function aiVectorSimilarity(
   simpleTable: SimpleTable,
   text: string,
   column: string,
   nbResults: number,
   options: AIVectorSimilarityOptions = {},
-) {
+): SimpleTable {
+  options = {
+    ...options,
+    embeddings: options.embeddings === undefined
+      ? undefined
+      : { ...options.embeddings },
+  };
+  const outputTable = options.outputTable === undefined
+    ? simpleTable
+    : simpleTable.sdb.newTable(options.outputTable);
+  queueOp(outputTable, {
+    kind: "asyncBarrier",
+    method: "aiVectorSimilarity()",
+    parameters: { text, column, nbResults, outputTable: options.outputTable },
+    execute: () =>
+      runAIVectorSimilarity(
+        simpleTable,
+        text,
+        column,
+        nbResults,
+        options,
+      ),
+  });
+  return outputTable;
+}
+
+/** @internal */
+export async function runAIVectorSimilarity(
+  simpleTable: SimpleTable,
+  text: string,
+  column: string,
+  nbResults: number,
+  options: AIVectorSimilarityOptions,
+): Promise<void> {
   const textEmbedding = await getEmbeddingForProvider(text, options.embeddings);
 
   const types = await simpleTable.getTypes();
@@ -106,12 +140,4 @@ export default async function aiVectorSimilarity(
       },
     }),
   );
-
-  if (typeof options.outputTable === "string") {
-    return simpleTable.sdb.newTable(
-      options.outputTable,
-    );
-  } else {
-    return simpleTable;
-  }
 }

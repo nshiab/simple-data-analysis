@@ -25,9 +25,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
       { generation: geminiGeneration },
-    );
-
-    await table.log();
+    ).log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
@@ -48,9 +46,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         },
         verbose: true,
       },
-    );
-
-    await table.log();
+    ).log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
@@ -68,9 +64,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         generation: { ...geminiGeneration, cache: true },
         verbose: true,
       },
-    );
-
-    await table.log();
+    ).log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
@@ -88,9 +82,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         generation: { ...geminiGeneration, cache: true },
         verbose: true,
       },
-    );
-
-    await table.log();
+    ).log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
@@ -108,9 +100,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
         generation: { ...geminiGeneration, safetyEnabled: false },
         verbose: true,
       },
-    );
-
-    await table.log();
+    ).log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
@@ -125,9 +115,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
       { generation: geminiGeneration, verbose: true },
-    );
-
-    await table.log();
+    ).log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
@@ -141,21 +129,21 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
     const originalRowCount = await table.getRowCount();
 
-    const resultTable = await table.aiQuery(
+    const resultRowCount = await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
       {
         generation: { ...geminiGeneration },
         outputTable: "avg_temp",
         verbose: true,
       },
-    );
+    ).getRowCount();
 
     // Original table should remain unchanged
     const currentRowCount = await table.getRowCount();
     assertEquals(currentRowCount, originalRowCount);
 
     // Result table should have the aggregated data
-    const resultRowCount = await resultTable.getRowCount();
+    const resultTable = await sdb.getTable("avg_temp");
     assertEquals(resultTable.name, "avg_temp");
     // We expect fewer rows since we're aggregating by city
     assertEquals(resultRowCount < originalRowCount, true);
@@ -181,9 +169,7 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
       { generation: ollamaGeneration, verbose: true },
-    );
-
-    await table.log();
+    ).log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
@@ -204,9 +190,7 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
           generation: { ...ollamaGeneration, thinkingLevel: true },
           verbose: true,
         },
-      );
-
-      await table.log();
+      ).log();
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
@@ -230,9 +214,7 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
           generation: { ...ollamaGeneration, ollama },
           verbose: true,
         },
-      );
-
-      await table.log();
+      ).log();
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
@@ -253,9 +235,7 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
         generation: { ...ollamaGeneration, cache: true },
         verbose: true,
       },
-    );
-
-    await table.log();
+    ).log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
@@ -276,9 +256,7 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
           generation: { ...ollamaGeneration, cache: true },
           verbose: true,
         },
-      );
-
-      await table.log();
+      ).log();
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
@@ -297,9 +275,7 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
       await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
         { generation: ollamaGeneration, verbose: true },
-      );
-
-      await table.log();
+      ).log();
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
@@ -317,21 +293,21 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
 
       const originalRowCount = await table.getRowCount();
 
-      const resultTable = await table.aiQuery(
+      const resultRowCount = await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
         {
           generation: { ...ollamaGeneration },
           outputTable: "avg_temp_ollama",
           verbose: true,
         },
-      );
+      ).getRowCount();
 
       // Original table should remain unchanged
       const currentRowCount = await table.getRowCount();
       assertEquals(currentRowCount, originalRowCount);
 
       // Result table should have the aggregated data
-      const resultRowCount = await resultTable.getRowCount();
+      const resultTable = await sdb.getTable("avg_temp_ollama");
       assertEquals(resultTable.name, "avg_temp_ollama");
       // We expect fewer rows since we're aggregating by city
       assertEquals(resultRowCount < originalRowCount, true);

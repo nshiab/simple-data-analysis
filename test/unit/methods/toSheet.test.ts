@@ -31,9 +31,8 @@ if (
     await additionalRows.toSheet(sheetUrl, { mode: "append" });
 
     const writtenData = sdb.newTable();
-    await writtenData.loadSheet(sheetUrl, { skip: 2 });
     assertEquals(
-      await writtenData.getData(),
+      await writtenData.loadSheet(sheetUrl, { skip: 2 }).getData(),
       [
         { first: "Nael", last: "Shiab" },
         { first: "Andrew", last: "Ryan" },

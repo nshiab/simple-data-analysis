@@ -17,9 +17,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
 
     // Then load it back.
     const table2 = sdb.newTable();
-    await table2.loadGeoDW("lDO6F");
-
-    const geoData = await table2.getGeoData();
+    const geoData = await table2.loadGeoDW("lDO6F").getGeoData();
     assertEquals(geoData.type, "FeatureCollection");
     assertEquals(Array.isArray(geoData.features), true);
   });

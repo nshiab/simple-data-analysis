@@ -29,9 +29,7 @@ async function cacheIndexedEmbeddings(
         cache: false,
       },
       createIndex: true,
-    });
-    table.createFtsIndex("id", "text");
-    await table.run();
+    }).createFtsIndex("id", "text").run();
   });
 }
 
@@ -49,7 +47,7 @@ Deno.test("aiEmbeddings verbose progress does not add blank lines", async () => 
     logs.push(values.map(String).join(" "));
 
   try {
-    await table.aiEmbeddings("text", "text_embeddings", {
+    const returned = table.aiEmbeddings("text", "text_embeddings", {
       embeddings: {
         provider: "ollama",
         model: "model-a",
@@ -57,7 +55,10 @@ Deno.test("aiEmbeddings verbose progress does not add blank lines", async () => 
         cache: false,
       },
       verbose: true,
-    });
+    }).selectColumns(["text", "text_embeddings"]);
+    assertEquals(returned === table, true);
+    assertEquals(client.requests, 0);
+    await returned.run();
   } finally {
     console.log = originalLog;
     await sdb.close();
@@ -89,7 +90,7 @@ Deno.test("aiEmbeddings reuses only a compatible managed column", async () => {
       ollama: firstClient,
       cache: false,
     },
-  });
+  }).run();
   assertEquals(firstClient.requests, 2);
 
   const compatibleClient = new FakeOllamaEmbeddingClient(
@@ -103,7 +104,7 @@ Deno.test("aiEmbeddings reuses only a compatible managed column", async () => {
       ollama: compatibleClient,
       cache: false,
     },
-  });
+  }).run();
   assertEquals(compatibleClient.requests, 0);
   assertEquals((await table.getTypes()).text_embeddings, "FLOAT[2]");
 
@@ -119,7 +120,7 @@ Deno.test("aiEmbeddings reuses only a compatible managed column", async () => {
       ollama: changedSemanticOptionsClient,
       cache: false,
     },
-  });
+  }).run();
   assertEquals(changedSemanticOptionsClient.requests, 2);
 
   const changedSourceClient = new FakeOllamaEmbeddingClient(
@@ -134,7 +135,7 @@ Deno.test("aiEmbeddings reuses only a compatible managed column", async () => {
       ollama: changedSourceClient,
       cache: false,
     },
-  });
+  }).run();
   assertEquals(changedSourceClient.requests, 2);
 
   const changedModelClient = new FakeOllamaEmbeddingClient(
@@ -148,7 +149,7 @@ Deno.test("aiEmbeddings reuses only a compatible managed column", async () => {
       ollama: changedModelClient,
       cache: false,
     },
-  });
+  }).run();
   assertEquals(changedModelClient.requests, 2);
   assertEquals((await table.getTypes()).text_embeddings, "FLOAT[3]");
 
@@ -174,7 +175,7 @@ Deno.test("aiEmbeddings regenerates a legacy column without provenance", async (
       ollama: client,
       cache: false,
     },
-  });
+  }).run();
 
   assertEquals(client.requests, 2);
   await sdb.close();
@@ -198,7 +199,7 @@ Deno.test("embedding provenance survives reopening a DuckDB database", async () 
         ollama: firstClient,
         cache: false,
       },
-    });
+    }).run();
     assertEquals(firstClient.requests, 2);
     await firstDb.close();
 
@@ -216,7 +217,7 @@ Deno.test("embedding provenance survives reopening a DuckDB database", async () 
         ollama: compatibleClient,
         cache: false,
       },
-    });
+    }).run();
     assertEquals(compatibleClient.requests, 0);
     await reopenedDb.close();
   } finally {
@@ -240,7 +241,7 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
       cache: false,
     },
     createIndex: true,
-  });
+  }).run();
   assertEquals(table.indexes.length, 1);
 
   const semanticChangeClient = new FakeOllamaEmbeddingClient(
@@ -255,7 +256,7 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
       ollama: semanticChangeClient,
       cache: false,
     },
-  });
+  }).run();
   assertEquals(semanticChangeClient.requests, 2);
   assertEquals(table.indexes, []);
 
@@ -268,7 +269,7 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
       cache: false,
     },
     createIndex: true,
-  });
+  }).run();
   assertEquals(table.indexes.length, 1);
 
   const modelChangeClient = new FakeOllamaEmbeddingClient(
@@ -282,7 +283,7 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
       ollama: modelChangeClient,
       cache: false,
     },
-  });
+  }).run();
   assertEquals(modelChangeClient.requests, 2);
   assertEquals(table.indexes, []);
 
@@ -294,7 +295,7 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
       cache: false,
     },
     createIndex: true,
-  });
+  }).run();
   assertEquals(table.indexes.length, 1);
 
   const dimensionChangeClient = new FakeOllamaEmbeddingClient(
@@ -308,7 +309,7 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
       ollama: dimensionChangeClient,
       cache: false,
     },
-  });
+  }).run();
   assertEquals(dimensionChangeClient.requests, 2);
   assertEquals((await table.getTypes()).text_embeddings, "FLOAT[3]");
   assertEquals(table.indexes, []);
@@ -321,7 +322,7 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
       cache: false,
     },
     createIndex: true,
-  });
+  }).run();
   assertEquals(table.indexes.length, 1);
 
   const originalFetch = globalThis.fetch;
@@ -335,7 +336,7 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
         apiKey: "fake-key",
         cache: false,
       },
-    });
+    }).run();
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -365,7 +366,7 @@ Deno.test("stale VSS cleanup preserves unrelated structured index definitions", 
       cache: false,
     },
     createIndex: true,
-  });
+  }).run();
   assertEquals(table.indexes.map(({ kind }) => kind).sort(), ["fts", "vss"]);
 
   await table.aiEmbeddings("text", "text_embeddings", {
@@ -378,7 +379,7 @@ Deno.test("stale VSS cleanup preserves unrelated structured index definitions", 
       ),
       cache: false,
     },
-  });
+  }).run();
 
   assertEquals(table.indexes.map(({ kind }) => kind), ["fts"]);
   await sdb.close();
@@ -452,7 +453,7 @@ Deno.test("failed regeneration is retried and restores cache logging", async () 
       ollama: firstClient,
       cache: false,
     },
-  });
+  }).run();
 
   const failingClient = {
     embeddingEndpoint: "http://failure.local:11434",
@@ -468,7 +469,7 @@ Deno.test("failed regeneration is retried and restores cache logging", async () 
         },
         bm25: false,
         verbose: true,
-      }),
+      }).run(),
     Error,
     "embedding failed",
   );
@@ -485,7 +486,7 @@ Deno.test("failed regeneration is retried and restores cache logging", async () 
       ollama: retryClient,
       cache: false,
     },
-  });
+  }).run();
   assertEquals(retryClient.requests, 2);
   await sdb.close();
 });
@@ -515,7 +516,7 @@ if (hasGoogleEmbeddingCredentials) {
       rateLimitPerMinute: 15,
       // Log details
       verbose: true,
-    });
+    }).run();
 
     // Just making sure it's doesnt crash for now
     assertEquals(true, true);
@@ -543,7 +544,7 @@ if (hasGoogleEmbeddingCredentials) {
       rateLimitPerMinute: 15,
       // Log details
       verbose: true,
-    });
+    }).run();
 
     // Just making sure it's doesnt crash for now
     assertEquals(true, true);
@@ -572,7 +573,7 @@ if (hasGoogleEmbeddingCredentials) {
       createIndex: true,
       // Log details
       verbose: true,
-    });
+    }).run();
 
     // Just making sure it's doesnt crash for now
     assertEquals(true, true);
@@ -606,7 +607,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       },
       // Log details
       verbose: true,
-    });
+    }).run();
 
     // Just making sure it's doesnt crash for now
     assertEquals(true, true);
@@ -635,7 +636,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       },
       // Log details
       verbose: true,
-    });
+    }).run();
 
     // Just making sure it's doesnt crash for now
     assertEquals(true, true);
@@ -663,7 +664,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       // rateLimitPerMinute: 15,
       // Log details
       verbose: true,
-    });
+    }).run();
 
     // Just making sure it's doesnt crash for now
     assertEquals(true, true);
@@ -693,7 +694,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       createIndex: true,
       // Log details
       verbose: true,
-    });
+    }).run();
 
     // Just making sure it's doesnt crash for now
     assertEquals(true, true);
@@ -725,7 +726,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       concurrent: 2,
       // Log details
       verbose: true,
-    });
+    }).run();
 
     // Just making sure it's doesnt crash for now
     assertEquals(true, true);

@@ -45,26 +45,64 @@ const invalidEnvironment: EnvironmentEmbeddingOptions = {
 };
 
 function checkPublicMethodOptions(table: SimpleTable): void {
+  const embeddingsTable: SimpleTable = table.aiEmbeddings(
+    "text",
+    "text_embeddings",
+    {
+      embeddings: vertexOptions,
+    },
+  ).selectColumns("*");
+  const vectorTable: SimpleTable = table.aiVectorSimilarity(
+    "query",
+    "text_embeddings",
+    5,
+  ).selectColumns("*");
+  const hybridTable: SimpleTable = table.hybridSearch(
+    "query",
+    "id",
+    "text",
+    5,
+    {
+      embeddings: ollamaOptions,
+    },
+  ).selectColumns("*");
+  const queryTable: SimpleTable = table.aiQuery("select rows").selectColumns(
+    "*",
+  );
+  const sheetTable: SimpleTable = table.loadSheet("https://example.com/sheet")
+    .selectColumns("*");
+  const dwTable: SimpleTable = table.loadDW("chart-id").selectColumns("*");
+  const geoDwTable: SimpleTable = table.loadGeoDW("map-id").selectColumns("*");
+  void [
+    embeddingsTable,
+    vectorTable,
+    hybridTable,
+    queryTable,
+    sheetTable,
+    dwTable,
+    geoDwTable,
+  ];
+
   void table.aiEmbeddings("text", "text_embeddings", {
     embeddings: vertexOptions,
-  });
+  }).run();
   void table.hybridSearch("query", "id", "text", 5, {
     embeddings: ollamaOptions,
-  });
+  }).run();
   void table.aiEmbeddings("text", "text_embeddings", {
     embeddings: {
       provider: "ollama",
       // @ts-expect-error SDA methods preserve upstream provider restrictions.
       apiKey: "key",
     },
-  });
+  }).run();
   void table.hybridSearch("query", "id", "text", 5, {
     embeddings: {
       provider: "gemini",
       // @ts-expect-error SDA methods preserve upstream provider restrictions.
       contextWindow: 8_192,
     },
-  });
+  }).run();
 }
 void checkPublicMethodOptions;
 

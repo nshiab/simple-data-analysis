@@ -6,7 +6,7 @@
     "jsr:@nshiab/journalism-dataviz@^1.0.19": "1.0.19",
     "jsr:@nshiab/journalism-format@^1.1.9": "1.1.9",
     "jsr:@nshiab/journalism-google@^1.1.0": "1.1.0",
-    "jsr:@nshiab/simple-data-analysis-core@2.0.0-rc.14": "2.0.0-rc.14",
+    "jsr:@nshiab/simple-data-analysis-core@2.0.0-rc.15": "2.0.0-rc.15",
     "jsr:@std/assert@^1.0.19": "1.0.19",
     "jsr:@std/internal@^1.0.12": "1.0.13",
     "npm:@duckdb/node-api@1.5.5-r.4": "1.5.5-r.4",
@@ -69,8 +69,8 @@
         "npm:google-spreadsheet"
       ]
     },
-    "@nshiab/simple-data-analysis-core@2.0.0-rc.14": {
-      "integrity": "26cc0ea4faa8d1b12b387a166781e398c86d66f92005dee3a0cdb66a8a9506fb",
+    "@nshiab/simple-data-analysis-core@2.0.0-rc.15": {
+      "integrity": "455c01f100f5d8046d5e84fa0671d630e7b0dd6956674243a84e1cf06e3f76a4",
       "dependencies": [
         "npm:@duckdb/node-api"
       ]
@@ -1340,7 +1340,7 @@
       "jsr:@nshiab/journalism-dataviz@^1.0.19",
       "jsr:@nshiab/journalism-format@^1.1.9",
       "jsr:@nshiab/journalism-google@^1.1.0",
-      "jsr:@nshiab/simple-data-analysis-core@2.0.0-rc.14",
+      "jsr:@nshiab/simple-data-analysis-core@2.0.0-rc.15",
       "jsr:@std/assert@^1.0.19",
       "npm:@observablehq/plot@~0.6.17",
       "npm:ollama@~0.6.3",

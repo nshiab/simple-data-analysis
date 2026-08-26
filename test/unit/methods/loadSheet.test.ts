@@ -25,18 +25,14 @@ if (
       "https://docs.google.com/spreadsheets/d/1Ar19cP8oGYEzacfrkLWnSH7ZqImILMUrosBwnZ43EQM/edit#gid=0",
     );
 
-    // Then we load it
-    await table.loadSheet(
-      "https://docs.google.com/spreadsheets/d/1Ar19cP8oGYEzacfrkLWnSH7ZqImILMUrosBwnZ43EQM/edit#gid=0",
-    );
-
-    // Just for now.
     assertEquals(
       [
         { first: "Nael", last: "Shiab" },
         { first: "Andrew", last: "Ryan" },
       ],
-      await table.getData(),
+      await table.loadSheet(
+        "https://docs.google.com/spreadsheets/d/1Ar19cP8oGYEzacfrkLWnSH7ZqImILMUrosBwnZ43EQM/edit#gid=0",
+      ).getData(),
     );
   });
   Deno.test("should load data from a google sheet and skip rows", {
@@ -58,19 +54,15 @@ if (
       },
     );
 
-    // Then we load it
-    await table.loadSheet(
-      "https://docs.google.com/spreadsheets/d/1Ar19cP8oGYEzacfrkLWnSH7ZqImILMUrosBwnZ43EQM/edit#gid=0",
-      { skip: 2 },
-    );
-
-    // Just for now.
     assertEquals(
       [
         { first: "Nael", last: "Shiab" },
         { first: "Andrew", last: "Ryan" },
       ],
-      await table.getData(),
+      await table.loadSheet(
+        "https://docs.google.com/spreadsheets/d/1Ar19cP8oGYEzacfrkLWnSH7ZqImILMUrosBwnZ43EQM/edit#gid=0",
+        { skip: 2 },
+      ).getData(),
     );
   });
 } else {

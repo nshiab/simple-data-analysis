@@ -1,7 +1,6 @@
 import { SimpleTable as SimpleTableCore } from "@nshiab/simple-data-analysis-core";
 import type SimpleDB from "./SimpleDB.ts";
 import {
-  getDataDW,
   logBarChart,
   logDotChart,
   logLineChart,
@@ -10,7 +9,7 @@ import {
   updateDataDW,
   updateNotesDW,
 } from "@nshiab/journalism-dataviz";
-import { getSheetData, pushToSheet } from "@nshiab/journalism-google";
+import { pushToSheet } from "@nshiab/journalism-google";
 import type { Data } from "@observablehq/plot";
 import { createDirectory } from "@nshiab/simple-data-analysis-core/helpers";
 import logHistogram from "../methods/logHistogram.ts";
@@ -21,7 +20,9 @@ import aiVectorSimilarity from "../methods/aiVectorSimilarity.ts";
 import hybridSearch from "../methods/hybridSearch.ts";
 import aiRAG from "../methods/aiRAG.ts";
 import aiQuery from "../methods/aiQuery.ts";
-import loadGeoDataFromScratchFile from "../helpers/loadGeoDataFromScratchFile.ts";
+import loadSheet from "../methods/loadSheet.ts";
+import loadDW from "../methods/loadDW.ts";
+import loadGeoDW from "../methods/loadGeoDW.ts";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
@@ -564,6 +565,7 @@ export default class SimpleTable extends SimpleTableCore {
    * If `createIndex` is `true`, an HNSW index will be created on the new column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful for speeding up the `aiVectorSimilarity` method. If the index already exists, it will not be recreated unless `overwriteIndex` is `true`.
    *
    * This method does not support tables containing geometries.
+   * The work is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param column - The name of the column to be used as input for generating embeddings.
    * @param newColumn - The name of the new column where the generated embeddings will be stored.
@@ -577,42 +579,44 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use environment selection; all other fields match `getEmbedding` from journalism-ai.
    * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
-   * @returns A promise that resolves when the embeddings have been generated and stored.
+   * @returns The table, so methods can be chained.
    * @category AI
    *
    * @example
    * ```ts
-   * // New table with a "food" column.
-   * table.loadArray([
-   *   { food: "pizza" },
-   *   { food: "sushi" },
-   *   { food: "burger" },
-   *   { food: "pasta" },
-   *   { food: "salad" },
-   *   { food: "tacos" }
-   * ]);
-   *
-   * // Generate embeddings for the "food" column and store them in a new "embeddings" column.
-   * await table.aiEmbeddings("food", "embeddings", {
-   *   embeddings: {
-   *     provider: "gemini",
-   *     model: "gemini-embedding-001",
-   *   },
-   *   rateLimitPerMinute: 15, // Limit requests to 15 per minute
-   *   createIndex: true, // Create an index on the new column for faster similarity searches
-   *   verbose: true, // Log detailed information
-   * });
+   * const food = await sdb
+   *   .newTable("food")
+   *   .loadArray([
+   *     { food: "pizza" },
+   *     { food: "sushi" },
+   *     { food: "burger" },
+   *     { food: "pasta" },
+   *     { food: "salad" },
+   *     { food: "tacos" },
+   *   ])
+   *   .aiEmbeddings("food", "embeddings", {
+   *     embeddings: {
+   *       provider: "gemini",
+   *       model: "gemini-embedding-001",
+   *     },
+   *     rateLimitPerMinute: 15,
+   *     createIndex: true,
+   *     verbose: true,
+   *   })
+   *   .log();
    * ```
    *
    * @example
    * ```ts
    * // Generate embeddings with a local Ollama model.
-   * await table.aiEmbeddings("food", "embeddings", {
-   *   embeddings: { provider: "ollama", model: "nomic-embed-text" },
-   * });
+   * const food = await table
+   *   .aiEmbeddings("food", "embeddings", {
+   *     embeddings: { provider: "ollama", model: "nomic-embed-text" },
+   *   })
+   *   .log();
    * ```
    */
-  async aiEmbeddings(
+  aiEmbeddings(
     column: string,
     newColumn: string,
     options: {
@@ -681,8 +685,8 @@ export default class SimpleTable extends SimpleTableCore {
       efSearch?: number;
       M?: number;
     } = {},
-  ): Promise<void> {
-    await aiEmbeddings(this, column, newColumn, options);
+  ): SimpleTable {
+    return aiEmbeddings(this, column, newColumn, options);
   }
 
   /**
@@ -696,6 +700,7 @@ export default class SimpleTable extends SimpleTableCore {
    * The query embedding is cached in `.journalism-cache` by default. Set `embeddings.cache` to `false` to disable this request cache, and remember to add `.journalism-cache` to your `.gitignore`.
    *
    * If `createIndex` is `true`, an HNSW index will be created on the embeddings column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss) to speed up processing. If the index already exists, it will not be recreated unless `overwriteIndex` is `true`.
+   * The work is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param text - The text for which to generate an embedding and find similar content.
    * @param column - The name of the column containing the embeddings to be used for the similarity search.
@@ -711,64 +716,50 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.outputTable - The name of the output table where the results will be stored. If not provided, the current table will be modified. Defaults to `undefined`.
    * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use environment selection; all other fields match `getEmbedding` from journalism-ai.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
-   * @returns A promise that resolves to the SimpleTable instance containing the similarity search results.
+   * @returns The table that will contain the similarity results, so methods can be chained.
    * @category AI
    *
    * @example
    * ```ts
-   * // New table with a "food" column.
-   * table.loadArray([
-   *   { food: "pizza" },
-   *   { food: "sushi" },
-   *   { food: "burger" },
-   *   { food: "pasta" },
-   *   { food: "salad" },
-   *   { food: "tacos" }
-   * ]);
-   *
-   * // Generate embeddings for the "food" column.
-   * await table.aiEmbeddings("food", "embeddings", {
-   *   embeddings: {
-   *     provider: "gemini",
-   *     model: "gemini-embedding-001",
-   *   },
-   * });
-   *
-   * // Find the 3 most similar foods to "italian food" based on embeddings.
-   * // We only want results with at least 60% similarity and we want to see the score.
-   * const similarFoods = await table.aiVectorSimilarity(
-   *   "italian food",
-   *   "embeddings",
-   *   3,
-   *   {
-   *     createIndex: true, // Create an index on the embeddings column for faster searches
+   * const similarFood = await sdb
+   *   .newTable("food")
+   *   .loadArray([
+   *     { food: "pizza" },
+   *     { food: "sushi" },
+   *     { food: "burger" },
+   *     { food: "pasta" },
+   *     { food: "salad" },
+   *     { food: "tacos" },
+   *   ])
+   *   .aiEmbeddings("food", "embeddings", {
    *     embeddings: {
    *       provider: "gemini",
    *       model: "gemini-embedding-001",
    *     },
-   *     minSimilarity: 0.6, // Filter out anything below 0.6 similarity
-   *     similarityColumn: "score" // Add a new column named "score" with the similarity math
-   *   }
-   * );
-   *
-   * // Log the results
-   * await similarFoods.log();
+   *   })
+   *   .aiVectorSimilarity("italian food", "embeddings", 3, {
+   *     createIndex: true,
+   *     embeddings: {
+   *       provider: "gemini",
+   *       model: "gemini-embedding-001",
+   *     },
+   *     minSimilarity: 0.6,
+   *     similarityColumn: "score",
+   *   })
+   *   .log();
    * ```
    *
    * @example
    * ```ts
    * // Query an embedding column created with the same Ollama model.
-   * const results = await table.aiVectorSimilarity(
-   *   "italian food",
-   *   "embeddings",
-   *   3,
-   *   {
+   * const similarFood = await table
+   *   .aiVectorSimilarity("italian food", "embeddings", 3, {
    *     embeddings: { provider: "ollama", model: "nomic-embed-text" },
-   *   },
-   * );
+   *   })
+   *   .log();
    * ```
    */
-  async aiVectorSimilarity(
+  aiVectorSimilarity(
     text: string,
     column: string,
     nbResults: number,
@@ -839,15 +830,14 @@ export default class SimpleTable extends SimpleTableCore {
       minSimilarity?: number;
       similarityColumn?: string;
     } = {},
-  ): Promise<SimpleTable> {
-    const result = await aiVectorSimilarity(
+  ): SimpleTable {
+    return aiVectorSimilarity(
       this,
       text,
       column,
       nbResults,
       options,
     );
-    return result;
   }
 
   /**
@@ -872,6 +862,7 @@ export default class SimpleTable extends SimpleTableCore {
    * When BM25 search is enabled, its required full-text search index is created or reused automatically. When vector search is enabled, set `createIndex` to `true` to also create an HNSW index using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss).
    *
    * This method does not support tables containing geometries.
+   * The work is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param query - The search query text.
    * @param columnId - The name of the column containing unique identifiers for each row.
@@ -901,44 +892,37 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.vectorSimilarityColumn - If provided, a new column with this name will be added to the output table containing the vector similarity score (from 0.0 to 1.0) for each row.
    * @param options.outputTable - The name of a new table where the results will be stored. If not provided, the current table will be replaced with the search results.
    * @param options.times - An optional object to track timing information. If provided, it will be updated with detailed timing breakdowns (embeddingStart, embeddingEnd, vectorSearchStart, vectorSearchEnd, bm25Start, bm25End). Useful when calling from aiRAG to get combined timing information.
-   * @returns A promise that resolves to a SimpleTable instance containing the search results, ordered by relevance (best matches first).
+   * @returns The table that will contain the search results, so methods can be chained.
    * @category AI
    *
    * @example
    * ```ts
    * // Load a dataset of recipes
    * const sdb = new SimpleDB();
-   * const table = sdb.newTable("recipes");
-   * table.loadData("recipes.parquet");
-   *
-   * // Perform hybrid search - replaces the current table with top 10 results
-   * await table.hybridSearch(
-   *   "buttery pastry for breakfast",
-   *   "Dish", // Column with unique IDs
-   *   "Recipe", // Column with text to search
-   *   10, // Return top 10 results
-   *   {
+   * const results = await sdb
+   *   .newTable("recipes")
+   *   .loadData("recipes.parquet")
+   *   .hybridSearch("buttery pastry for breakfast", "Dish", "Recipe", 10, {
    *     embeddings: {
    *       provider: "gemini",
    *       model: "gemini-embedding-001",
    *     },
-   *     verbose: true, // Log debugging information
-   *   }
-   * );
-   *
-   * // Table now contains only the most relevant recipes
-   * await table.log();
+   *     verbose: true,
+   *   })
+   *   .log();
    * ```
    *
    * @example
    * ```ts
    * // Run hybrid search with local Ollama embeddings.
-   * await table.hybridSearch("buttery pastry", "Dish", "Recipe", 10, {
-   *   embeddings: { provider: "ollama", model: "nomic-embed-text" },
-   * });
+   * const results = await table
+   *   .hybridSearch("buttery pastry", "Dish", "Recipe", 10, {
+   *     embeddings: { provider: "ollama", model: "nomic-embed-text" },
+   *   })
+   *   .log();
    * ```
    */
-  async hybridSearch(
+  hybridSearch(
     query: string,
     columnId: string,
     columnText: string,
@@ -1059,8 +1043,8 @@ export default class SimpleTable extends SimpleTableCore {
         bm25End?: number;
       };
     } = {},
-  ): Promise<SimpleTable> {
-    const result = await hybridSearch(
+  ): SimpleTable {
+    return hybridSearch(
       this,
       query,
       columnId,
@@ -1068,7 +1052,6 @@ export default class SimpleTable extends SimpleTableCore {
       nbResults,
       options,
     );
-    return result;
   }
 
   /**
@@ -1383,6 +1366,7 @@ export default class SimpleTable extends SimpleTableCore {
    * Ollama temperature defaults to 0, while Gemini uses the provider's default. Provider-specific controls live under `generation`.
    *
    * The generated query is cached locally in `.journalism-cache` by default. Set `generation.cache` to `false` to disable caching, and remember to add `.journalism-cache` to your `.gitignore`.
+   * The work is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param prompt - The input string to guide the AI in generating the SQL query.
    * @param options - Configuration options for the AI request.
@@ -1391,7 +1375,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.outputTable - The name of a new table where the results will be stored. If not provided, the current table will be replaced with the query results.
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
    * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.
-   * @returns A promise that resolves to the SimpleTable instance containing the query results (either the modified current table or a new table).
+   * @returns The table that will contain the query results, so methods can be chained.
    * @category AI
    *
    * @example
@@ -1400,44 +1384,44 @@ export default class SimpleTable extends SimpleTableCore {
    * // the result will replace the existing table.
    * // If run again, it will use the previous query from the cache.
    * // Don't forget to add .journalism-cache to your .gitignore file!
-   * await table.aiQuery(
-   *    "Give me the average salary by department",
-   *     {
+   * const averageSalaryByDepartment = await table
+   *   .aiQuery("Give me the average salary by department", {
    *       generation: {
    *         provider: "gemini",
    *         model: "gemini-3-flash-preview",
    *       },
    *       verbose: true,
-   *     }
-   * );
+   *   })
+   *   .log();
    * ```
    *
    * @example
    * ```ts
    * // Save results to a new table without modifying the original
-   * const results = await table.aiQuery(
-   *    "Give me the top 10 employees by salary",
-   *     { outputTable: "top_employees" }
-   * );
-   *
    * // Original table remains unchanged
    * const allEmployees = await table.getRowCount();
    * console.log(allEmployees); // All employees
    *
-   * // New table contains only query results
-   * const topEmployees = await results.getRowCount();
-   * console.log(topEmployees); // 10
+   * // Generate the query in chain order and observe the new table.
+   * const topEmployees = await table
+   *   .aiQuery("Give me the top 10 employees by salary", {
+   *     outputTable: "top_employees",
+   *   })
+   *   .log();
+   * console.log(await topEmployees.getRowCount()); // 10
    * ```
    *
    * @example
    * ```ts
    * // Generate and execute the query with a local Ollama model.
-   * await table.aiQuery("Give me the average salary by department", {
-   *   generation: { provider: "ollama", model: "gemma3:4b" },
-   * });
+   * const averageSalaryByDepartment = await table
+   *   .aiQuery("Give me the average salary by department", {
+   *     generation: { provider: "ollama", model: "gemma3:4b" },
+   *   })
+   *   .log();
    * ```
    */
-  async aiQuery(
+  aiQuery(
     prompt: string,
     options: {
       extraInstructions?: string;
@@ -1527,16 +1511,8 @@ export default class SimpleTable extends SimpleTableCore {
       outputTable?: string;
       verbose?: boolean;
     } = {},
-  ): Promise<SimpleTable> {
-    await aiQuery(this, prompt, options);
-
-    if (typeof options.outputTable === "string") {
-      return this.sdb.newTable(
-        options.outputTable,
-      );
-    } else {
-      return this;
-    }
+  ): SimpleTable {
+    return aiQuery(this, prompt, options);
   }
 
   // ===================== GOOGLE SHEETS METHODS =====================
@@ -1642,36 +1618,41 @@ export default class SimpleTable extends SimpleTableCore {
    * This method uses the `getSheetData` function from the [journalism library](https://jsr.io/@nshiab/journalism). Refer to its documentation for more details.
    *
    * By default, authentication is handled via environment variables (GOOGLE_PRIVATE_KEY and GOOGLE_SERVICE_ACCOUNT_EMAIL). Alternatively, you can use GOOGLE_APPLICATION_CREDENTIALS pointing to a service account JSON file. For detailed setup instructions, refer to the node-google-spreadsheet authentication guide: https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
+   * The download is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param sheetUrl - The URL pointing to a specific Google Sheet (e.g., `"https://docs.google.com/spreadsheets/d/.../edit#gid=0"`).
    * @param options - An optional object with configuration options:
    * @param options.skip - The number of rows to skip from the top of the sheet before reading data. Useful when the sheet contains metadata or headers that should not be included in the data.
    * @param options.apiEmail - If your API email is stored under a different environment variable name, use this option to specify it.
    * @param options.apiKey - If your API key is stored under a different environment variable name, use this option to specify it.
-   * @returns A promise that resolves when the data has been loaded into the table.
+   * @returns The table, so methods can be chained.
    * @category Loading Data
    *
    * @example
    * ```ts
    * // Load data from a Google Sheet
-   * await table.loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+   * const sheetData = await sdb
+   *   .newTable("sheetData")
+   *   .loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0")
+   *   .log();
    * ```
    *
    * @example
    * ```ts
    * // Load data from a Google Sheet, skipping the first 2 rows (e.g., to skip a prepended message and timestamp)
-   * await table.loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0", {
-   *   skip: 2,
-   * });
+   * const sheetData = await table
+   *   .loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0", {
+   *     skip: 2,
+   *   })
+   *   .log();
    * ```
    */
-  async loadSheet(sheetUrl: string, options: {
+  loadSheet(sheetUrl: string, options: {
     skip?: number;
     apiEmail?: string;
     apiKey?: string;
-  } = {}): Promise<void> {
-    this.loadArray(await getSheetData(sheetUrl, options));
-    await this.run();
+  } = {}): SimpleTable {
+    return loadSheet(this, sheetUrl, options);
   }
 
   // ===================== DATAWRAPPER METHODS =====================
@@ -1727,31 +1708,30 @@ export default class SimpleTable extends SimpleTableCore {
    * Loads data from a Datawrapper chart or table into the table.
    *
    * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+   * The download is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param chartId - The unique ID of the Datawrapper chart or table. This ID can be found in the Datawrapper URL or dashboard.
    * @param options - An optional object with configuration options:
    * @param options.apiKey - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
-   * @returns A promise that resolves when the data has been loaded into the table.
+   * @returns The table, so methods can be chained.
    * @category Loading Data
    *
    * @example
    * ```ts
    * // Load data from a Datawrapper chart
-   * await table.loadDW("myChartId");
+   * const chartData = await sdb
+   *   .newTable("chartData")
+   *   .loadDW("myChartId")
+   *   .log();
    * ```
    */
-  async loadDW(
+  loadDW(
     chartId: string,
     options: {
       apiKey?: string;
     } = {},
-  ): Promise<void> {
-    const data = await getDataDW(chartId, {
-      parse: true,
-      apiKey: options.apiKey,
-    });
-    this.loadArray(data as Record<string, string>[]);
-    await this.run();
+  ): SimpleTable {
+    return loadDW(this, chartId, options);
   }
 
   /**
@@ -1810,29 +1790,30 @@ export default class SimpleTable extends SimpleTableCore {
    * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
    *
    * The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.geojson` and removed after loading. Remember to add `.sda-cache` to your `.gitignore`.
+   * The download is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param chartId - The unique ID of the Datawrapper map. This ID can be found in the Datawrapper URL or dashboard.
    * @param options - An optional object with configuration options:
    * @param options.apiKey - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
-   * @returns A promise that resolves when the data has been loaded into the table.
+   * @returns The table, so methods can be chained.
    * @category Loading Data
    *
    * @example
    * ```ts
    * // Load geo data from a Datawrapper map
-   * await table.loadGeoDW("myMapId");
+   * const mapData = await sdb
+   *   .newTable("mapData")
+   *   .loadGeoDW("myMapId")
+   *   .log();
    * ```
    */
-  async loadGeoDW(
+  loadGeoDW(
     chartId: string,
     options: {
       apiKey?: string;
     } = {},
-  ): Promise<void> {
-    const jsonString = await getDataDW(chartId, {
-      apiKey: options.apiKey,
-    }) as string;
-    await loadGeoDataFromScratchFile(this, jsonString);
+  ): SimpleTable {
+    return loadGeoDW(this, chartId, options);
   }
 
   // ===================== CHARTING METHODS =====================

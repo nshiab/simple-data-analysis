@@ -1,11 +1,12 @@
 import type SimpleTable from "../class/SimpleTable.ts";
 import { prettyDuration } from "@nshiab/journalism-format";
 import getRRFRanking from "../helpers/getRRFRanking.ts";
-import { parseValue } from "@nshiab/simple-data-analysis-core/helpers";
+import { parseValue, queueOp } from "@nshiab/simple-data-analysis-core/helpers";
 import type { EmbeddingOptions } from "../helpers/aiOptions.ts";
 import { getEmbeddingIdentity } from "@nshiab/journalism-ai";
 import ensureEmbeddingColumn from "../helpers/ensureEmbeddingColumn.ts";
 import { generateEmbeddingColumn } from "./aiEmbeddings.ts";
+import { runAIVectorSimilarity } from "./aiVectorSimilarity.ts";
 
 /**
  * Timing checkpoints populated by `hybridSearch` when verbose logging is enabled.
@@ -121,14 +122,56 @@ export type HybridSearchOptions = {
   times?: HybridSearchTimes;
 };
 
-export default async function hybridSearch(
+export default function hybridSearch(
   table: SimpleTable,
   query: string,
   columnId: string,
   columnText: string,
   nbResults: number,
   options: HybridSearchOptions = {},
-): Promise<SimpleTable> {
+): SimpleTable {
+  options = {
+    ...options,
+    embeddings: options.embeddings === undefined
+      ? undefined
+      : { ...options.embeddings },
+  };
+  const outputTable = options.outputTable === undefined
+    ? table
+    : table.sdb.newTable(options.outputTable);
+  queueOp(outputTable, {
+    kind: "asyncBarrier",
+    method: "hybridSearch()",
+    parameters: {
+      query,
+      columnId,
+      columnText,
+      nbResults,
+      outputTable: options.outputTable,
+    },
+    execute: () =>
+      runHybridSearch(
+        table,
+        query,
+        columnId,
+        columnText,
+        nbResults,
+        options,
+        outputTable,
+      ),
+  });
+  return outputTable;
+}
+
+async function runHybridSearch(
+  table: SimpleTable,
+  query: string,
+  columnId: string,
+  columnText: string,
+  nbResults: number,
+  options: HybridSearchOptions,
+  outputTableInstance: SimpleTable,
+): Promise<void> {
   const enableVectorSearch = options.vectorSearch !== false;
   const enableBm25 = options.bm25 !== false;
 
@@ -235,7 +278,11 @@ export default async function hybridSearch(
     if (options.verbose) {
       times.vectorSearchStart = Date.now();
     }
-    const vectorSearchResult = await table.aiVectorSimilarity(
+    const vectorSearchResult = table.sdb.newTable(
+      `${table.name}_vector_search_results`,
+    );
+    await runAIVectorSimilarity(
+      table,
       query,
       embeddingColumn,
       nbResults,
@@ -400,15 +447,6 @@ export default async function hybridSearch(
     );
   }
 
-  let outputTableInstance;
-  if (typeof options.outputTable === "string") {
-    outputTableInstance = table.sdb.newTable(
-      options.outputTable,
-    );
-  } else {
-    outputTableInstance = table;
-  }
-
   if (options.vectorSimilarityColumn) {
     if (vectorSearchSimilarity.length === 0) {
       // If there are no similarity scores (e.g. all results were filtered out by minSimilarity), add the column with NULL values
@@ -498,6 +536,4 @@ export default async function hybridSearch(
     );
     console.log(logParts.join("\n") + "\n");
   }
-
-  return outputTableInstance;
 }
