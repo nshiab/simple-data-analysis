@@ -7,6 +7,7 @@ import type {
   AIRequestMetrics,
   GenerationOptions,
 } from "../helpers/aiOptions.ts";
+import { snapshotAIOptions } from "../helpers/aiOptions.ts";
 
 /**
  * Options for applying a generation model to table rows.
@@ -50,12 +51,7 @@ export default function aiRowByRow(
   options: AIRowByRowOptions = {},
 ): void {
   const newColumns = [...stringToArray(newColumn)];
-  options = {
-    ...options,
-    generation: options.generation === undefined
-      ? undefined
-      : { ...options.generation },
-  };
+  options = snapshotAIOptions(options);
 
   simpleTable.updateWithJS(async (rows) => {
     if (options.verbose) {

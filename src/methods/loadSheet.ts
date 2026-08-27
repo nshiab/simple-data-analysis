@@ -1,5 +1,5 @@
 import { getSheetData } from "@nshiab/journalism-google";
-import { queueOp } from "@nshiab/simple-data-analysis-core/helpers";
+import { queueAsyncBarrier } from "@nshiab/simple-data-analysis-core/helpers";
 import type SimpleTable from "../class/SimpleTable.ts";
 
 type LoadSheetOptions = {
@@ -14,8 +14,7 @@ export default function loadSheet(
   options: LoadSheetOptions = {},
 ): SimpleTable {
   options = { ...options };
-  queueOp(table, {
-    kind: "asyncBarrier",
+  queueAsyncBarrier(table, {
     method: "loadSheet()",
     parameters: { sheetUrl, options },
     execute: async () => {

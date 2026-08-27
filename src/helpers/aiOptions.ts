@@ -167,6 +167,60 @@ export type AIRequestMetrics = {
   totalRequests: number;
 };
 
+const preservedOptionReferences = new Set(["metrics", "ollama", "times"]);
+
+function cloneAIOptionValue(
+  value: unknown,
+  key: string | undefined,
+  seen: WeakMap<object, unknown>,
+): unknown {
+  if (key !== undefined && preservedOptionReferences.has(key)) {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    const existing = seen.get(value);
+    if (existing !== undefined) {
+      return existing;
+    }
+    const clone: unknown[] = [];
+    seen.set(value, clone);
+    for (const item of value) {
+      clone.push(cloneAIOptionValue(item, undefined, seen));
+    }
+    return clone;
+  }
+  if (value === null || typeof value !== "object") {
+    return value;
+  }
+  const prototype = Object.getPrototypeOf(value);
+  if (prototype !== Object.prototype && prototype !== null) {
+    return value;
+  }
+  const existing = seen.get(value);
+  if (existing !== undefined) {
+    return existing;
+  }
+  const clone: { [key: string]: unknown } = {};
+  seen.set(value, clone);
+  for (const [childKey, childValue] of Object.entries(value)) {
+    clone[childKey] = cloneAIOptionValue(childValue, childKey, seen);
+  }
+  return clone;
+}
+
+/**
+ * Captures mutable AI configuration for deferred execution.
+ * Plain objects and arrays are copied recursively. Provider clients and the
+ * documented `metrics` and `times` accumulator objects retain their identity.
+ *
+ * @param options AI method options to capture.
+ * @returns A snapshot safe to close over from a queued operation.
+ * @internal
+ */
+export function snapshotAIOptions<T extends object>(options: T): T {
+  return cloneAIOptionValue(options, undefined, new WeakMap()) as T;
+}
+
 /** Removes SDA's provider discriminator before calling journalism-ai. */
 export function withoutProvider<T extends { provider?: string }>(
   options: T,

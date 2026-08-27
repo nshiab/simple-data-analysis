@@ -685,8 +685,9 @@ export default class SimpleTable extends SimpleTableCore {
       efSearch?: number;
       M?: number;
     } = {},
-  ): SimpleTable {
-    return aiEmbeddings(this, column, newColumn, options);
+  ): this {
+    aiEmbeddings(this, column, newColumn, options);
+    return this;
   }
 
   /**
@@ -830,14 +831,14 @@ export default class SimpleTable extends SimpleTableCore {
       minSimilarity?: number;
       similarityColumn?: string;
     } = {},
-  ): SimpleTable {
+  ): this {
     return aiVectorSimilarity(
       this,
       text,
       column,
       nbResults,
       options,
-    );
+    ) as this;
   }
 
   /**
@@ -1043,7 +1044,7 @@ export default class SimpleTable extends SimpleTableCore {
         bm25End?: number;
       };
     } = {},
-  ): SimpleTable {
+  ): this {
     return hybridSearch(
       this,
       query,
@@ -1051,7 +1052,7 @@ export default class SimpleTable extends SimpleTableCore {
       columnText,
       nbResults,
       options,
-    );
+    ) as this;
   }
 
   /**
@@ -1511,8 +1512,8 @@ export default class SimpleTable extends SimpleTableCore {
       outputTable?: string;
       verbose?: boolean;
     } = {},
-  ): SimpleTable {
-    return aiQuery(this, prompt, options);
+  ): this {
+    return aiQuery(this, prompt, options) as this;
   }
 
   // ===================== GOOGLE SHEETS METHODS =====================
@@ -1651,8 +1652,9 @@ export default class SimpleTable extends SimpleTableCore {
     skip?: number;
     apiEmail?: string;
     apiKey?: string;
-  } = {}): SimpleTable {
-    return loadSheet(this, sheetUrl, options);
+  } = {}): this {
+    loadSheet(this, sheetUrl, options);
+    return this;
   }
 
   // ===================== DATAWRAPPER METHODS =====================
@@ -1730,8 +1732,9 @@ export default class SimpleTable extends SimpleTableCore {
     options: {
       apiKey?: string;
     } = {},
-  ): SimpleTable {
-    return loadDW(this, chartId, options);
+  ): this {
+    loadDW(this, chartId, options);
+    return this;
   }
 
   /**
@@ -1812,8 +1815,9 @@ export default class SimpleTable extends SimpleTableCore {
     options: {
       apiKey?: string;
     } = {},
-  ): SimpleTable {
-    return loadGeoDW(this, chartId, options);
+  ): this {
+    loadGeoDW(this, chartId, options);
+    return this;
   }
 
   // ===================== CHARTING METHODS =====================

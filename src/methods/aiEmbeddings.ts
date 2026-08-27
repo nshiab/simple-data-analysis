@@ -2,10 +2,13 @@ import { formatNumber } from "@nshiab/journalism-format";
 import sleep from "../helpers/sleep.ts";
 import type { SimpleTable } from "../index.ts";
 import tryEmbedding from "../helpers/tryEmbedding.ts";
-import type { EmbeddingOptions } from "../helpers/aiOptions.ts";
+import {
+  type EmbeddingOptions,
+  snapshotAIOptions,
+} from "../helpers/aiOptions.ts";
 import { getEmbeddingIdentity } from "@nshiab/journalism-ai";
 import ensureEmbeddingColumn from "../helpers/ensureEmbeddingColumn.ts";
-import { queueOp } from "@nshiab/simple-data-analysis-core/helpers";
+import { queueAsyncBarrier } from "@nshiab/simple-data-analysis-core/helpers";
 
 /**
  * Options for generating an embedding column.
@@ -45,14 +48,8 @@ export default function aiEmbeddings(
   newColumn: string,
   options: AIEmbeddingsOptions = {},
 ): SimpleTable {
-  options = {
-    ...options,
-    embeddings: options.embeddings === undefined
-      ? undefined
-      : { ...options.embeddings },
-  };
-  queueOp(simpleTable, {
-    kind: "asyncBarrier",
+  options = snapshotAIOptions(options);
+  queueAsyncBarrier(simpleTable, {
     method: "aiEmbeddings()",
     parameters: { column, newColumn },
     execute: () => runAIEmbeddings(simpleTable, column, newColumn, options),

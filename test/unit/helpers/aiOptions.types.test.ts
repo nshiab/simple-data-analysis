@@ -5,7 +5,13 @@ import type {
   OllamaEmbeddingOptions,
   VertexEmbeddingOptions,
 } from "../../../src/index.ts";
-import type SimpleTable from "../../../src/class/SimpleTable.ts";
+import SimpleTable from "../../../src/class/SimpleTable.ts";
+
+class _SpecializedTable extends SimpleTable {
+  specializedMethod(): this {
+    return this;
+  }
+}
 
 const environmentOptions: EnvironmentEmbeddingOptions = {
   model: "environment-model",
@@ -105,6 +111,35 @@ function checkPublicMethodOptions(table: SimpleTable): void {
   }).run();
 }
 void checkPublicMethodOptions;
+
+function checkPolymorphicBuilderTypes(table: _SpecializedTable): void {
+  table.aiEmbeddings("text", "text_embeddings").specializedMethod();
+  table.aiVectorSimilarity("query", "text_embeddings", 5)
+    .specializedMethod();
+  table.hybridSearch("query", "id", "text", 5).specializedMethod();
+  table.aiQuery("select rows").specializedMethod();
+  table.loadSheet("https://example.com/sheet").specializedMethod();
+  table.loadDW("chart-id").specializedMethod();
+  table.loadGeoDW("map-id").specializedMethod();
+
+  table.aiVectorSimilarity(
+    "query",
+    "text_embeddings",
+    5,
+    { outputTable: "vector-output" },
+  ).specializedMethod();
+  table.hybridSearch(
+    "query",
+    "id",
+    "text",
+    5,
+    { outputTable: "hybrid-output" },
+  ).specializedMethod();
+  table.aiQuery("select rows", {
+    outputTable: "query-output",
+  }).specializedMethod();
+}
+void checkPolymorphicBuilderTypes;
 
 Deno.test("SDA exports provider-specific embedding option types", () => {
   assertEquals(

@@ -1,8 +1,14 @@
 import type SimpleTable from "../class/SimpleTable.ts";
 import { prettyDuration } from "@nshiab/journalism-format";
 import getRRFRanking from "../helpers/getRRFRanking.ts";
-import { parseValue, queueOp } from "@nshiab/simple-data-analysis-core/helpers";
-import type { EmbeddingOptions } from "../helpers/aiOptions.ts";
+import {
+  parseValue,
+  queueAsyncBarrier,
+} from "@nshiab/simple-data-analysis-core/helpers";
+import {
+  type EmbeddingOptions,
+  snapshotAIOptions,
+} from "../helpers/aiOptions.ts";
 import { getEmbeddingIdentity } from "@nshiab/journalism-ai";
 import ensureEmbeddingColumn from "../helpers/ensureEmbeddingColumn.ts";
 import { generateEmbeddingColumn } from "./aiEmbeddings.ts";
@@ -130,17 +136,11 @@ export default function hybridSearch(
   nbResults: number,
   options: HybridSearchOptions = {},
 ): SimpleTable {
-  options = {
-    ...options,
-    embeddings: options.embeddings === undefined
-      ? undefined
-      : { ...options.embeddings },
-  };
+  options = snapshotAIOptions(options);
   const outputTable = options.outputTable === undefined
     ? table
     : table.sdb.newTable(options.outputTable);
-  queueOp(outputTable, {
-    kind: "asyncBarrier",
+  queueAsyncBarrier(outputTable, {
     method: "hybridSearch()",
     parameters: {
       query,

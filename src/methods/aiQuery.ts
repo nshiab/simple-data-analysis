@@ -1,8 +1,11 @@
 import askAI from "../helpers/askAI.ts";
 import type { SimpleTable } from "../index.ts";
 import { object, string, toJSONSchema } from "zod";
-import type { UnstructuredGenerationOptions } from "../helpers/aiOptions.ts";
-import { queueOp } from "@nshiab/simple-data-analysis-core/helpers";
+import {
+  snapshotAIOptions,
+  type UnstructuredGenerationOptions,
+} from "../helpers/aiOptions.ts";
+import { queueAsyncBarrier } from "@nshiab/simple-data-analysis-core/helpers";
 
 /**
  * Options for generating and executing a SQL query.
@@ -33,17 +36,11 @@ export default function aiQuery(
   prompt: string,
   options: AIQueryOptions = {},
 ): SimpleTable {
-  options = {
-    ...options,
-    generation: options.generation === undefined
-      ? undefined
-      : { ...options.generation },
-  };
+  options = snapshotAIOptions(options);
   const outputTable = options.outputTable === undefined
     ? simpleTable
     : simpleTable.sdb.newTable(options.outputTable);
-  queueOp(outputTable, {
-    kind: "asyncBarrier",
+  queueAsyncBarrier(outputTable, {
     method: "aiQuery()",
     parameters: { prompt, outputTable: options.outputTable },
     execute: () => runAIQuery(simpleTable, prompt, options),

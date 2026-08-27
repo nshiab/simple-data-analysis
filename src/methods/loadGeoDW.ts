@@ -1,5 +1,5 @@
 import { getDataDW } from "@nshiab/journalism-dataviz";
-import { queueOp } from "@nshiab/simple-data-analysis-core/helpers";
+import { queueAsyncBarrier } from "@nshiab/simple-data-analysis-core/helpers";
 import type SimpleTable from "../class/SimpleTable.ts";
 import loadGeoDataFromScratchFile from "../helpers/loadGeoDataFromScratchFile.ts";
 
@@ -13,8 +13,7 @@ export default function loadGeoDW(
   options: LoadGeoDWOptions = {},
 ): SimpleTable {
   options = { ...options };
-  queueOp(table, {
-    kind: "asyncBarrier",
+  queueAsyncBarrier(table, {
     method: "loadGeoDW()",
     parameters: { chartId, options },
     execute: async () => {

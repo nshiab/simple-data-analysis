@@ -7,6 +7,7 @@ import type {
   AIRequestMetrics,
   GenerationOptions,
 } from "../helpers/aiOptions.ts";
+import { snapshotAIOptions } from "../helpers/aiOptions.ts";
 
 type AIRow = { [key: string]: unknown };
 
@@ -57,12 +58,7 @@ export default function aiRowByRowPool(
   options: AIRowByRowPoolOptions,
 ): void {
   const newColumns = Array.isArray(newColumn) ? [...newColumn] : [newColumn];
-  options = {
-    ...options,
-    generation: options.generation === undefined
-      ? undefined
-      : { ...options.generation },
-  };
+  options = snapshotAIOptions(options);
 
   table.updateWithJS(async (rows) => {
     if (options.verbose) {

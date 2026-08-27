@@ -2,9 +2,12 @@ import type { SimpleTable } from "../index.ts";
 import {
   mergeOptions,
   queryDB,
-  queueOp,
+  queueAsyncBarrier,
 } from "@nshiab/simple-data-analysis-core/helpers";
-import type { EmbeddingOptions } from "../helpers/aiOptions.ts";
+import {
+  type EmbeddingOptions,
+  snapshotAIOptions,
+} from "../helpers/aiOptions.ts";
 import { getEmbeddingForProvider } from "../helpers/tryEmbedding.ts";
 
 /**
@@ -48,17 +51,11 @@ export default function aiVectorSimilarity(
   nbResults: number,
   options: AIVectorSimilarityOptions = {},
 ): SimpleTable {
-  options = {
-    ...options,
-    embeddings: options.embeddings === undefined
-      ? undefined
-      : { ...options.embeddings },
-  };
+  options = snapshotAIOptions(options);
   const outputTable = options.outputTable === undefined
     ? simpleTable
     : simpleTable.sdb.newTable(options.outputTable);
-  queueOp(outputTable, {
-    kind: "asyncBarrier",
+  queueAsyncBarrier(outputTable, {
     method: "aiVectorSimilarity()",
     parameters: { text, column, nbResults, outputTable: options.outputTable },
     execute: () =>
