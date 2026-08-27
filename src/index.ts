@@ -59,7 +59,6 @@ export type { AIEmbeddingsOptions } from "./methods/aiEmbeddings.ts";
 export type { AIQueryOptions } from "./methods/aiQuery.ts";
 export type { AIRAGOptions } from "./methods/aiRAG.ts";
 export type { AIRowByRowOptions } from "./methods/aiRowByRow.ts";
-export type { AIRowByRowPoolOptions } from "./methods/aiRowByRowPool.ts";
 export type { AIVectorSimilarityOptions } from "./methods/aiVectorSimilarity.ts";
 export type {
   HybridSearchOptions,

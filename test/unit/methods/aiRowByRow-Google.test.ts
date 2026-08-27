@@ -1,4 +1,4 @@
-import { assertEquals } from "@std/assert";
+import { assert, assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import createEnvironmentTest from "../helpers/createEnvironmentTest.ts";
 
@@ -13,7 +13,7 @@ const geminiGeneration = {
 
 if (typeof aiKey === "string" && aiKey !== "") {
   geminiTest(
-    "Gemini row processing supports safety controls and metrics",
+    "aiRowByRow rate-limits live Gemini requests",
     async () => {
       const sdb = new SimpleDB({ dataTransport: "file" });
       const table = sdb.newTable("gemini_safety");
@@ -28,29 +28,51 @@ if (typeof aiKey === "string" && aiKey !== "") {
         totalOutputTokens: 0,
         totalRequests: 0,
       };
+      const requestStarts: number[] = [];
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = (
+        input: string | URL | Request,
+        init?: RequestInit,
+      ) => {
+        const url = input instanceof Request ? input.url : String(input);
+        if (url.includes("generateContent")) {
+          requestStarts.push(performance.now());
+        }
+        return originalFetch(input, init);
+      };
 
-      await table.aiRowByRow(
-        "city",
-        "country",
-        "Give me the country of the city.",
-        {
-          generation: { ...geminiGeneration, safetyEnabled: false },
-          batchSize: 3,
-          metrics,
-        },
-      ).log();
+      try {
+        await table.aiRowByRow(
+          "city",
+          "country",
+          "Give me the country of the city.",
+          {
+            generation: { ...geminiGeneration, safetyEnabled: false },
+            batchSize: 1,
+            concurrent: 3,
+            errorColumn: "error",
+            metrics,
+            rateLimitPerMinute: 120,
+          },
+        ).log();
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
 
       assertEquals(await table.getData(), [
-        { city: "Marrakech", country: "Morocco" },
-        { city: "Kyoto", country: "Japan" },
-        { city: "Auckland", country: "New Zealand" },
+        { city: "Marrakech", country: "Morocco", error: null },
+        { city: "Kyoto", country: "Japan", error: null },
+        { city: "Auckland", country: "New Zealand", error: null },
       ]);
-      assertEquals(metrics.totalRequests, 1);
+      assertEquals(metrics.totalRequests, 3);
+      assertEquals(requestStarts.length, 3);
+      assert(requestStarts[1] - requestStarts[0] >= 400);
+      assert(requestStarts[2] - requestStarts[1] >= 400);
       await sdb.close();
     },
   );
 
-  geminiTest("Gemini row processing supports web grounding", async () => {
+  geminiTest("aiRowByRow supports Gemini web grounding", async () => {
     const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable("gemini_grounding");
     table.loadArray([{ city: "Marrakech" }]);
@@ -60,15 +82,16 @@ if (typeof aiKey === "string" && aiKey !== "") {
       "Give me the country of the city.",
       {
         generation: { ...geminiGeneration, webSearch: true },
+        errorColumn: "error",
       },
     ).log();
     assertEquals(await table.getData(), [
-      { city: "Marrakech", country: "Morocco" },
+      { city: "Marrakech", country: "Morocco", error: null },
     ]);
     await sdb.close();
   });
 
-  geminiTest("Gemini row processing supports high thinking", async () => {
+  geminiTest("aiRowByRow supports Gemini high thinking", async () => {
     const sdb = new SimpleDB({ dataTransport: "file" });
     const table = sdb.newTable("gemini_thinking");
     table.loadArray([{ city: "Kyoto" }]);
@@ -78,9 +101,14 @@ if (typeof aiKey === "string" && aiKey !== "") {
       "Give me the country of the city.",
       {
         generation: { ...geminiGeneration, thinkingLevel: "high" },
+        errorColumn: "error",
       },
     ).log();
-    assertEquals(await table.getData(), [{ city: "Kyoto", country: "Japan" }]);
+    assertEquals(await table.getData(), [{
+      city: "Kyoto",
+      country: "Japan",
+      error: null,
+    }]);
     await sdb.close();
   });
 } else {

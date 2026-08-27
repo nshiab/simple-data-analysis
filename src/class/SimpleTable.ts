@@ -14,7 +14,6 @@ import type { Data } from "@observablehq/plot";
 import { createDirectory } from "@nshiab/simple-data-analysis-core/helpers";
 import logHistogram from "../methods/logHistogram.ts";
 import aiRowByRow from "../methods/aiRowByRow.ts";
-import aiRowByRowPool from "../methods/aiRowByRowPool.ts";
 import aiEmbeddings from "../methods/aiEmbeddings.ts";
 import aiVectorSimilarity from "../methods/aiVectorSimilarity.ts";
 import hybridSearch from "../methods/hybridSearch.ts";
@@ -75,7 +74,7 @@ export default class SimpleTable extends SimpleTableCore {
   // ===================== AI METHODS =====================
 
   /**
-   * Applies a prompt to the value of each row in a specified column, storing the AI's response in a new column. This method can send requests concurrently and in batches, but is not using a pool, so it may not be the most efficient method for processing very large tables. Check `aiRowByRowPool` for a different approach, especially regarding error handling.
+   * Applies a prompt to the value of each row in a specified column, storing the AI's response in one or more new columns. Requests are processed by a worker pool with configurable batching and concurrency.
    *
    * This method automatically appends instructions to your prompt; set `verbose` to `true` to see the full prompt.
    *
@@ -83,11 +82,13 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set `AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
    *
-   * To manage rate limits, use `batchSize` to process multiple rows per request and `rateLimitPerMinute` to introduce delays between requests. For higher rate limits (business/professional accounts), `concurrent` allows parallel requests.
+   * To manage rate limits, use `batchSize` to process multiple rows per request and `rateLimitPerMinute` to pace requests across the worker pool. The `concurrent` option controls how many requests may run in parallel.
    *
    * Results are cached locally in `.journalism-cache` by default. Set `generation.cache` to `false` to disable caching, and remember to add `.journalism-cache` to your `.gitignore`.
    *
-   * If the AI returns fewer items than expected in a batch, or if a custom `test` function fails, the `retry` option (a number greater than 0) will reattempt the request.
+   * If the AI returns fewer items than expected in a batch, or if a custom `test` function fails, the `retry` option will reattempt the request. The `retryCheck` function can restrict which errors are retried.
+   *
+   * By default, a failed batch throws. Set `errorColumn` to store the error on every row in the failed batch, set its output columns to `NULL`, and continue processing other batches. Successful rows contain `NULL` in the error column.
    *
    * This method does not support tables containing geometries.
    *
@@ -99,10 +100,13 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options - Configuration options for the AI request.
    * @param options.batchSize - The number of rows to process in each batch. Defaults to `1`.
    * @param options.concurrent - The number of concurrent requests to send. Defaults to `1`.
+   * @param options.errorColumn - The optional column where per-row error messages are stored. When omitted, a failed batch throws.
+   * @param options.logProgress - If `true`, logs request-pool progress. Defaults to `false`.
    * @param options.generation - Gemini or Ollama generation configuration. Set `provider` explicitly or omit it to use environment selection; all other fields match the selected journalism-ai function.
    * @param options.test - A function to validate the returned data. If it throws an error, the request will be retried (if `retry` is set). Defaults to `undefined`.
    * @param options.retry - The number of times to retry the request in case of failure. Defaults to `0`.
-   * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
+   * @param options.retryCheck - A function that receives an error and returns whether it should be retried. Defaults to `undefined`.
+   * @param options.rateLimitPerMinute - The maximum number of provider requests started per minute. Request starts are spaced across the worker pool; cached responses bypass the limit. Defaults to `undefined` (no limit).
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
    * @param options.clean - A function to transform the parsed response before validation and caching. Defaults to `undefined`.
    * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
@@ -129,6 +133,8 @@ export default class SimpleTable extends SimpleTableCore {
    *         model: "gemini-3-flash-preview",
    *       },
    *       batchSize: 10, // Process 10 rows at once
+   *       concurrent: 5, // Process up to 5 requests concurrently
+   *       errorColumn: "error", // Store failed rows instead of throwing
    *       test: (data: { [key: string]: unknown }) => { // Validate AI's response
    *         if (
    *           typeof data.gender !== "string" ||
@@ -278,8 +284,11 @@ export default class SimpleTable extends SimpleTableCore {
         );
       batchSize?: number;
       concurrent?: number;
+      errorColumn?: string;
+      logProgress?: boolean;
       test?: (result: { [key: string]: unknown }) => void;
       retry?: number;
+      retryCheck?: (error: unknown) => Promise<boolean> | boolean;
       verbose?: boolean;
       rateLimitPerMinute?: number;
       clean?: (response: unknown) => unknown;
@@ -293,259 +302,6 @@ export default class SimpleTable extends SimpleTableCore {
     } = {},
   ): this {
     aiRowByRow(this, column, newColumn, prompt, options);
-    return this;
-  }
-
-  /**
-   * Applies a prompt to the value of each row in a specified column using a pool-based approach, storing the AI's response in new columns and any errors in a designated error column. Unlike `aiRowByRow`, this method uses a worker pool for better control over concurrent requests and stores errors instead of throwing them, making it ideal for processing large tables where some rows may fail.
-   *
-   * This method automatically appends instructions to your prompt; set `verbose` to `true` to see the full prompt.
-   *
-   * This method supports Gemini, Vertex AI, and Ollama. Set `generation.provider` explicitly or omit it to use environment selection; all other fields match `askGemini` or `askOllama` from journalism-ai.
-   *
-   * The pool size controls how many concurrent AI requests can run simultaneously. The `batchSize` option processes multiple rows per request. For example, with `poolSize: 5` and `batchSize: 10`, up to 5 requests can run concurrently, each processing 10 rows.
-   *
-   * Results are cached locally in `.journalism-cache` by default. Set `generation.cache` to `false` to disable caching, and remember to add `.journalism-cache` to your `.gitignore`.
-   *
-   * If the AI returns fewer items than expected in a batch, or if a custom `test` function fails, the `retry` option (a number greater than 0) will reattempt the request. The `retryCheck` function allows conditional retries based on error inspection.
-   *
-   * The `minRequestDurationMs` option sets a minimum duration for each request, useful for respecting rate limits when you know the allowed requests per time period.
-   *
-   * This method does not support tables containing geometries.
-   *
-   * This method queues the AI processing; requests are sent when an async observer method (like `getData()` or `log()`) is awaited, or when `run()` is called.
-   *
-   * @param column - The name of the column to be used as input for the AI prompt.
-   * @param newColumn - The name of the new column (or an array of column names) where the AI's response will be stored. If an error occurs for a row, the new column(s) for that row will be set to `NULL`.
-   * @param errorColumn - The name of the column where error messages will be stored. Successful requests will have `NULL` in this column.
-   * @param prompt - The input string to guide the AI's response.
-   * @param poolSize - The number of concurrent AI requests to run simultaneously in the pool.
-   * @param options - Configuration options for the AI request.
-   * @param options.generation - Gemini or Ollama generation configuration. Set `provider` explicitly or omit it to use environment selection; all other fields match the selected journalism-ai function.
-   * @param options.batchSize - The number of rows to process in each batch. Defaults to `1`.
-   * @param options.logProgress - If `true`, logs progress information during processing. Defaults to `false`.
-   * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
-   * @param options.test - A function to validate the returned data. If it throws an error, the request will be retried (if `retry` is set). Defaults to `undefined`.
-   * @param options.retry - The number of times to retry the request in case of failure. Defaults to `0`.
-   * @param options.retryCheck - A function that receives an error and returns a boolean indicating whether to retry. Useful for conditional retries based on error type. Defaults to `undefined`.
-   * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
-   * @param options.minRequestDurationMs - The minimum duration in milliseconds for each request. Useful for respecting rate limits. Defaults to `undefined` (no minimum).
-   * @param options.clean - A function to transform the parsed response before validation and caching. Defaults to `undefined`.
-   * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
-   * @returns The table, so methods can be chained.
-   * @category AI
-   *
-   * @example
-   * ```ts
-   * const reviews = await sdb
-   *   .newTable("reviews")
-   *   .loadArray([
-   *     { review: "Great product!" },
-   *     { review: "Terrible quality." },
-   *     { review: "Not bad, could be better." },
-   *     { review: "Excellent service!" },
-   *   ])
-   *   .aiRowByRowPool(
-   *     "review",
-   *     "sentiment",
-   *     "error",
-   *     `Classify the sentiment as "Positive", "Negative", or "Neutral".`,
-   *     2, // poolSize: 2 concurrent requests
-   *     {
-   *       generation: {
-   *         provider: "gemini",
-   *         model: "gemini-3-flash-preview",
-   *       },
-   *       batchSize: 2, // Process 2 rows per request
-   *       logProgress: true,
-   *       test: (data: { [key: string]: unknown }) => {
-   *         if (
-   *           typeof data.sentiment !== "string" ||
-   *           !["Positive", "Negative", "Neutral"].includes(data.sentiment)
-   *         ) {
-   *           throw new Error(`Invalid sentiment: ${data.sentiment}`);
-   *         }
-   *       },
-   *       retry: 2,
-   *       minRequestDurationMs: 1000, // Respect rate limits: at least 1 second per request
-   *     },
-   *   )
-   *   .log();
-   *
-   * // Example results:
-   * // [
-   * //   { review: "Great product!", sentiment: "Positive", error: null },
-   * //   { review: "Terrible quality.", sentiment: "Negative", error: null },
-   * //   { review: "Not bad, could be better.", sentiment: "Neutral", error: null },
-   * //   { review: "Excellent service!", sentiment: "Positive", error: null },
-   * // ]
-   * ```
-   *
-   * @example
-   * ```ts
-   * const products = await sdb
-   *   .newTable("products")
-   *   .loadArray([
-   *     { product: "Laptop" },
-   *     { product: "Smartphone" },
-   *     { product: "Tablet" },
-   *   ])
-   *   .aiRowByRowPool(
-   *     "product",
-   *     ["category", "typical_price_range"],
-   *     "error",
-   *     `For the given product, provide the category and typical price range.`,
-   *     3, // Process up to 3 products concurrently
-   *     {
-   *       logProgress: true,
-   *       retryCheck: (error) => {
-   *         // Retry only for specific error types
-   *         return error instanceof Error && error.message.includes("rate limit");
-   *       },
-   *     },
-   *   )
-   *   .log();
-   *
-   * // Example results:
-   * // [
-   * //   { product: "Laptop", category: "Electronics", typical_price_range: "$500-$2000", error: null },
-   * //   { product: "Smartphone", category: "Electronics", typical_price_range: "$200-$1200", error: null },
-   * //   { product: "Tablet", category: "Electronics", typical_price_range: "$200-$800", error: null },
-   * // ]
-   * ```
-   *
-   * @example
-   * ```ts
-   * const products = await sdb
-   *   .newTable("products")
-   *   .loadArray([{ product: "Laptop" }, { product: "Tablet" }])
-   *   .aiRowByRowPool(
-   *     "product",
-   *     "category",
-   *     "error",
-   *     "Categorize this product.",
-   *     3,
-   *     { generation: { provider: "ollama", model: "gemma3:4b" } },
-   *   )
-   *   .log();
-   * ```
-   */
-  aiRowByRowPool(
-    column: string,
-    newColumn: string | string[],
-    errorColumn: string,
-    prompt: string,
-    poolSize: number,
-    options: {
-      generation?:
-        & {
-          systemPrompt?: string;
-          model?: string;
-          schemaJson?: unknown;
-          cache?: boolean;
-          processResponse?: (
-            response: unknown,
-          ) => unknown | Promise<unknown>;
-          temperature?: number;
-        }
-        & (
-          | {
-            provider: "gemini";
-            apiKey?: string;
-            vertex?: boolean;
-            project?: string;
-            location?: string;
-            webSearch?: boolean;
-            files?: {
-              path: string;
-              type: "image" | "video" | "audio" | "pdf" | "text";
-            }[];
-            thinkingBudget?: number;
-            thinkingLevel?: "minimal" | "low" | "medium" | "high";
-            safetyEnabled?: boolean;
-            geminiParameters?: unknown;
-            ollama?: never;
-            contextWindow?: never;
-            ollamaParameters?: never;
-          }
-          | {
-            provider: "ollama";
-            ollama?: unknown;
-            files?: { path: string; type: "image" | "text" }[];
-            contextWindow?: number;
-            thinkingLevel?: boolean | "low" | "medium" | "high";
-            ollamaParameters?: unknown;
-            apiKey?: never;
-            vertex?: never;
-            project?: never;
-            location?: never;
-            webSearch?: never;
-            thinkingBudget?: never;
-            safetyEnabled?: never;
-            geminiParameters?: never;
-          }
-          | {
-            provider?: undefined;
-            apiKey?: string;
-            vertex?: boolean;
-            project?: string;
-            location?: string;
-            webSearch?: boolean;
-            files?: {
-              path: string;
-              type: "image" | "video" | "audio" | "pdf" | "text";
-            }[];
-            thinkingBudget?: number;
-            thinkingLevel?: "minimal" | "low" | "medium" | "high";
-            safetyEnabled?: boolean;
-            geminiParameters?: unknown;
-            ollama?: never;
-            contextWindow?: never;
-            ollamaParameters?: never;
-          }
-          | {
-            provider?: undefined;
-            ollama?: unknown;
-            files?: { path: string; type: "image" | "text" }[];
-            contextWindow?: number;
-            thinkingLevel?: boolean | "low" | "medium" | "high";
-            ollamaParameters?: unknown;
-            apiKey?: never;
-            vertex?: never;
-            project?: never;
-            location?: never;
-            webSearch?: never;
-            thinkingBudget?: never;
-            safetyEnabled?: never;
-            geminiParameters?: never;
-          }
-        );
-      batchSize?: number;
-      logProgress?: boolean;
-      verbose?: boolean;
-      test?: (result: { [key: string]: unknown }) => void;
-      retry?: number;
-      retryCheck?: (error: unknown) => Promise<boolean> | boolean;
-      extraInstructions?: string;
-      minRequestDurationMs?: number;
-      clean?: (response: unknown) => unknown;
-      metrics?: {
-        totalCost: number;
-        totalInputTokens: number;
-        totalOutputTokens: number;
-        totalRequests: number;
-      };
-    } = {},
-  ): this {
-    aiRowByRowPool(
-      this,
-      column,
-      newColumn,
-      errorColumn,
-      prompt,
-      poolSize,
-      options,
-    );
     return this;
   }
 

@@ -1,13 +1,15 @@
-import { formatNumber } from "@nshiab/journalism-format";
-import sleep from "../helpers/sleep.ts";
-import type { SimpleTable } from "../index.ts";
-import tryAI from "../helpers/tryAI.ts";
-import { stringToArray } from "@nshiab/simple-data-analysis-core/helpers";
+import type SimpleTable from "../class/SimpleTable.ts";
 import type {
   AIRequestMetrics,
   GenerationOptions,
 } from "../helpers/aiOptions.ts";
 import { snapshotAIOptions } from "../helpers/aiOptions.ts";
+import askAI from "../helpers/askAI.ts";
+import buildAIRowsRequest from "../helpers/buildAIRowsRequest.ts";
+import processAIRowsResponse from "../helpers/processAIRowsResponse.ts";
+import runAIRequestPool from "../helpers/runAIRequestPool.ts";
+
+type AIRow = { [key: string]: unknown };
 
 /**
  * Options for applying a generation model to table rows.
@@ -17,6 +19,8 @@ import { snapshotAIOptions } from "../helpers/aiOptions.ts";
  * const options: AIRowByRowOptions = {
  *   generation: { provider: "gemini" },
  *   batchSize: 10,
+ *   concurrent: 5,
+ *   errorColumn: "error",
  * };
  * ```
  */
@@ -27,13 +31,19 @@ export type AIRowByRowOptions = {
   batchSize?: number;
   /** Maximum number of requests processed concurrently. */
   concurrent?: number;
+  /** Column used to store request errors instead of throwing them. */
+  errorColumn?: string;
+  /** Logs request-pool progress when enabled. */
+  logProgress?: boolean;
   /** Validates each processed result and throws to trigger a retry. */
   test?: (result: { [key: string]: unknown }) => void;
   /** Number of retries after a request or validation failure. */
   retry?: number;
-  /** Logs prompts, progress, and provider responses when enabled. */
+  /** Decides whether a failed request should be retried. */
+  retryCheck?: (error: unknown) => Promise<boolean> | boolean;
+  /** Logs prompts and provider responses when enabled. */
   verbose?: boolean;
-  /** Maximum request rate used to calculate delays between batches. */
+  /** Maximum number of provider requests started per minute. Cached responses bypass this limit. */
   rateLimitPerMinute?: number;
   /** Transforms a parsed response before validation and storage. */
   clean?: (response: unknown) => unknown;
@@ -44,84 +54,125 @@ export type AIRowByRowOptions = {
 };
 
 export default function aiRowByRow(
-  simpleTable: SimpleTable,
+  table: SimpleTable,
   column: string,
   newColumn: string | string[],
   prompt: string,
   options: AIRowByRowOptions = {},
 ): void {
-  const newColumns = [...stringToArray(newColumn)];
+  const newColumns = Array.isArray(newColumn) ? [...newColumn] : [newColumn];
   options = snapshotAIOptions(options);
 
-  simpleTable.updateWithJS(async (rows) => {
+  table.updateWithJS(async (rows) => {
     if (options.verbose) {
       console.log("\naiRowByRow()");
     }
 
     const batchSize = options.batchSize ?? 1;
     const concurrent = options.concurrent ?? 1;
+    if (!Number.isInteger(batchSize) || batchSize < 1) {
+      throw new Error("batchSize must be a positive integer.");
+    }
+    if (
+      options.rateLimitPerMinute !== undefined &&
+      (!Number.isFinite(options.rateLimitPerMinute) ||
+        options.rateLimitPerMinute <= 0)
+    ) {
+      throw new Error("rateLimitPerMinute must be greater than 0.");
+    }
 
-    let requests = [];
-    let requestsNb = 1;
+    const batches: AIRow[][] = [];
     for (let i = 0; i < rows.length; i += batchSize) {
+      batches.push(rows.slice(i, i + batchSize));
+    }
+
+    const requests = batches.map((batch) => {
+      const request = buildAIRowsRequest(
+        batch,
+        column,
+        newColumns,
+        prompt,
+        options,
+      );
+
       if (options.verbose) {
-        console.log(
-          `\nRequest ${requestsNb} - Processing rows ${i + 1} to ${
-            Math.min(
-              i + batchSize,
-              rows.length,
-            )
-          }... (${
-            formatNumber(
-              (Math.min(
-                i + batchSize,
-                rows.length,
-              )) / rows.length * 100,
-              {
-                significantDigits: 3,
-                suffix: "%",
-              },
-            )
-          })`,
-        );
-        requestsNb++;
+        console.log(`\nPrompt:\n${request.prompt}`);
       }
 
-      if (requests.length < concurrent) {
-        requests.push(
-          tryAI(
-            i,
-            batchSize,
-            rows,
-            column,
+      return {
+        ...request,
+        processResponse: (response: unknown) =>
+          processAIRowsResponse(
+            response,
+            batch.length,
             newColumns,
-            prompt,
             options,
           ),
-        );
-      }
+      };
+    });
 
-      if (requests.length === concurrent || i + batchSize >= rows.length) {
-        const start = new Date();
-        await Promise.all(requests);
-        const end = new Date();
+    const { results, errors } = await runAIRequestPool(
+      requests.map((request) => (beforeRequest) =>
+        askAI<AIRow[]>(request.prompt, {
+          generation: options.generation,
+          systemPrompt: request.systemPrompt,
+          schemaJson: request.schemaJson,
+          metrics: options.metrics,
+          verbose: options.verbose,
+          processResponse: request.processResponse,
+          beforeRequest,
+        })
+      ),
+      concurrent,
+      {
+        retry: options.retry,
+        retryCheck: options.retryCheck,
+        minRequestIntervalMs: options.rateLimitPerMinute === undefined
+          ? undefined
+          : 60_000 / options.rateLimitPerMinute,
+        logProgress: options.logProgress,
+      },
+    );
 
-        const duration = end.getTime() - start.getTime();
-        // If duration is less than 10ms per request, it should means data comes from cache and we don't need to wait
-        if (
-          typeof options.rateLimitPerMinute === "number" &&
-          duration > 10 * requests.length && i + batchSize < rows.length
-        ) {
-          const delay = Math.round(
-            (60 / (options.rateLimitPerMinute / concurrent)) * 1000,
-          );
-          await sleep(delay, { start, log: options.verbose });
-        }
-
-        requests = [];
+    if (options.errorColumn === undefined) {
+      const error = errors.find((item) => item !== undefined);
+      if (error !== undefined) {
+        throw error;
       }
     }
 
-    return rows;
+    const newRows: AIRow[] = [];
+    for (let i = 0; i < batches.length; i++) {
+      const result = results[i];
+      if (result !== undefined) {
+        for (let j = 0; j < result.length; j++) {
+          newRows.push({
+            ...batches[i][j],
+            ...result[j],
+            ...(options.errorColumn === undefined
+              ? {}
+              : { [options.errorColumn]: null }),
+          });
+        }
+        continue;
+      }
+
+      const error = errors[i];
+      const errorMessage = error instanceof Error && error.message
+        ? error.message
+        : String(error);
+      const emptyResult = Object.fromEntries(
+        newColumns.map((name) => [name, null]),
+      );
+      for (const row of batches[i]) {
+        newRows.push({
+          ...row,
+          ...emptyResult,
+          [options.errorColumn as string]: errorMessage,
+        });
+      }
+    }
+
+    return newRows;
   });
 }

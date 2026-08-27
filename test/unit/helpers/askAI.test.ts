@@ -144,6 +144,7 @@ Deno.test("reprocesses a cached raw response with the current callback", async (
   Deno.chdir(temporaryDirectory);
   try {
     let calls = 0;
+    let beforeRequests = 0;
     const client = new Ollama();
     client.chat = (() => {
       calls++;
@@ -167,6 +168,10 @@ Deno.test("reprocesses a cached raw response with the current callback", async (
       processResponse: (response) => ({
         value: `${(response as { value: string }).value}-first`,
       }),
+      beforeRequest: () => {
+        beforeRequests++;
+        return Promise.resolve();
+      },
     });
     const second = await askAI<{ value: string }>("Return one value.", {
       generation: {
@@ -179,11 +184,16 @@ Deno.test("reprocesses a cached raw response with the current callback", async (
       processResponse: (response) => ({
         value: `${(response as { value: string }).value}-second`,
       }),
+      beforeRequest: () => {
+        beforeRequests++;
+        return Promise.resolve();
+      },
     });
 
     assertEquals(first, { value: "one-first" });
     assertEquals(second, { value: "one-second" });
     assertEquals(calls, 1);
+    assertEquals(beforeRequests, 1);
   } finally {
     Deno.chdir(previousDirectory);
     await Deno.remove(temporaryDirectory, { recursive: true });

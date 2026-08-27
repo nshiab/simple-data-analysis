@@ -31,6 +31,7 @@ type AskAIOptions<TResponse = unknown> = {
   includeThoughts?: boolean;
   metrics?: AIRequestMetrics;
   processResponse?: (response: unknown) => TResponse | Promise<TResponse>;
+  beforeRequest?: () => Promise<void>;
 };
 
 export default async function askAI<TResponse = unknown>(
@@ -82,6 +83,8 @@ export default async function askAI<TResponse = unknown>(
       }
     }
   }
+
+  await options.beforeRequest?.();
 
   const result = provider === "ollama"
     ? await askOllamaAdapter(promptWithSchema, {
