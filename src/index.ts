@@ -29,38 +29,3 @@
 
 export { default as SimpleDB } from "./class/SimpleDB.ts";
 export { default as SimpleTable } from "./class/SimpleTable.ts";
-export type {
-  AIRequestMetrics,
-  AskGeminiOptions,
-  AskOllamaOptions,
-  EmbeddingBackend,
-  EmbeddingCommonOptions,
-  EmbeddingEnvironment,
-  EmbeddingIdentity,
-  EmbeddingIdentityBase,
-  EmbeddingOptions,
-  EmbeddingProvider,
-  EnvironmentEmbeddingOptions,
-  EnvironmentGenerationOptions,
-  GeminiEmbeddingIdentity,
-  GeminiEmbeddingOptions,
-  GeminiGenerationOptions,
-  GenerationOptions,
-  GetEmbeddingOptions,
-  OllamaEmbeddingClient,
-  OllamaEmbeddingIdentity,
-  OllamaEmbeddingOptions,
-  OllamaGenerationOptions,
-  UnstructuredGenerationOptions,
-  VertexEmbeddingIdentity,
-  VertexEmbeddingOptions,
-} from "./helpers/aiOptions.ts";
-export type { AIEmbeddingsOptions } from "./methods/aiEmbeddings.ts";
-export type { AIQueryOptions } from "./methods/aiQuery.ts";
-export type { AIRAGOptions } from "./methods/aiRAG.ts";
-export type { AIRowByRowOptions } from "./methods/aiRowByRow.ts";
-export type { AIVectorSimilarityOptions } from "./methods/aiVectorSimilarity.ts";
-export type {
-  HybridSearchOptions,
-  HybridSearchTimes,
-} from "./methods/hybridSearch.ts";

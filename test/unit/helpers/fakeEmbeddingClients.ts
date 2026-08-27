@@ -1,4 +1,4 @@
-import type { OllamaEmbeddingClient } from "../../../src/index.ts";
+import type { OllamaEmbeddingClient } from "@nshiab/journalism-ai";
 
 export class FakeOllamaEmbeddingClient implements OllamaEmbeddingClient {
   readonly embeddingEndpoint: string;

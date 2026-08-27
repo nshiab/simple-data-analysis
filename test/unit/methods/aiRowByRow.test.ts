@@ -1,7 +1,7 @@
 import { assert, assertEquals, assertRejects } from "@std/assert";
 import { existsSync, rmSync } from "node:fs";
 import { Ollama } from "ollama";
-import type { GenerationOptions } from "../../../src/index.ts";
+import type { GenerationOptions } from "../../../src/helpers/aiOptions.ts";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { z } from "zod";
 

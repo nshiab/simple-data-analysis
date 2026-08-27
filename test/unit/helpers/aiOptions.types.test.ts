@@ -1,10 +1,4 @@
 import { assertEquals } from "@std/assert";
-import type {
-  EnvironmentEmbeddingOptions,
-  GeminiEmbeddingOptions,
-  OllamaEmbeddingOptions,
-  VertexEmbeddingOptions,
-} from "../../../src/index.ts";
 import SimpleTable from "../../../src/class/SimpleTable.ts";
 
 class _SpecializedTable extends SimpleTable {
@@ -13,42 +7,27 @@ class _SpecializedTable extends SimpleTable {
   }
 }
 
-const environmentOptions: EnvironmentEmbeddingOptions = {
+const environmentOptions = {
   model: "environment-model",
   cache: true,
 };
-const geminiOptions: GeminiEmbeddingOptions = {
+const geminiOptions = {
   provider: "gemini",
   model: "gemini-model",
   apiKey: "key",
-};
-const vertexOptions: VertexEmbeddingOptions = {
+} as const;
+const vertexOptions = {
   provider: "gemini",
   vertex: true,
   model: "vertex-model",
   project: "project",
   location: "location",
-};
-const ollamaOptions: OllamaEmbeddingOptions = {
+} as const;
+const ollamaOptions = {
   provider: "ollama",
   model: "ollama-model",
   contextWindow: 8_192,
-};
-
-const invalidGemini: GeminiEmbeddingOptions = {
-  provider: "gemini",
-  // @ts-expect-error Gemini embedding requests cannot use Ollama options.
-  contextWindow: 8_192,
-};
-const invalidOllama: OllamaEmbeddingOptions = {
-  provider: "ollama",
-  // @ts-expect-error Ollama embedding requests cannot use Google credentials.
-  apiKey: "key",
-};
-const invalidEnvironment: EnvironmentEmbeddingOptions = {
-  // @ts-expect-error Environment-selected requests expose common fields only.
-  contextWindow: 8_192,
-};
+} as const;
 
 function checkPublicMethodOptions(table: SimpleTable): void {
   const embeddingsTable: SimpleTable = table.aiEmbeddings(
@@ -109,6 +88,12 @@ function checkPublicMethodOptions(table: SimpleTable): void {
       contextWindow: 8_192,
     },
   }).run();
+  void table.aiEmbeddings("text", "text_embeddings", {
+    // @ts-expect-error Environment-selected requests expose common fields only.
+    embeddings: {
+      contextWindow: 8_192,
+    },
+  }).run();
 }
 void checkPublicMethodOptions;
 
@@ -141,17 +126,21 @@ function checkPolymorphicBuilderTypes(table: _SpecializedTable): void {
 }
 void checkPolymorphicBuilderTypes;
 
-Deno.test("SDA exports provider-specific embedding option types", () => {
+Deno.test("public AI methods preserve provider-specific embedding options", () => {
   assertEquals(
     [
       environmentOptions,
       geminiOptions,
       vertexOptions,
       ollamaOptions,
-      invalidGemini,
-      invalidOllama,
-      invalidEnvironment,
     ].length,
-    7,
+    4,
   );
+});
+
+Deno.test("the public index does not export type aliases", async () => {
+  const indexSource = await Deno.readTextFile(
+    new URL("../../../src/index.ts", import.meta.url),
+  );
+  assertEquals(/\bexport\s+type\b/.test(indexSource), false);
 });
