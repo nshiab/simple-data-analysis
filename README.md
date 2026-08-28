@@ -1,7 +1,10 @@
 # Simple data analysis (SDA)
 
 SDA is an easy-to-use and high-performance TypeScript library for data analysis.
-You can use it with tabular, geospatial, and vector data.
+You can use it with tabular, geospatial, and vector data. It can also
+automatically pull data from public sources such as Statistics Canada and
+OpenStreetMap when your analysis runs. See the
+[public data source examples](#public-data-sources).
 
 The library is available on [JSR](https://jsr.io/@nshiab/simple-data-analysis)
 with its [documentation](https://jsr.io/@nshiab/simple-data-analysis/doc) and on
@@ -267,6 +270,64 @@ await firesInsideProvinces
 
 await sdb.close();
 ```
+
+### Public data sources
+
+SDA can download data directly from established public sources. Retrieved data
+is cached locally by default, making it easy to build reproducible workflows
+without repeatedly downloading the same datasets.
+
+#### Statistics Canada
+
+Use `loadStatCanData` with a Statistics Canada table identifier:
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+
+await sdb
+  .newTable("population")
+  .loadStatCanData("17-10-0005-01")
+  .filter("GEO = 'Canada'")
+  .log();
+
+await sdb.close();
+```
+
+#### OpenStreetMap
+
+Use `loadOSM` with a bounding box and one or more OpenStreetMap tags:
+
+The default endpoint is a shared public service. Follow the
+[Overpass public-instance usage guidelines](https://dev.overpass-api.de/overpass-doc/en/preface/commons.html),
+and configure another endpoint or run your own instance for high-volume usage.
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+
+await sdb
+  .newTable("schools")
+  .loadOSM(
+    {
+      west: -73.587799,
+      south: 45.445078,
+      east: -73.552265,
+      north: 45.471086,
+    },
+    { filters: ["amenity", "school"] },
+  )
+  .log();
+
+await sdb.close();
+```
+
+Is there another reliable and broadly useful public data source you would like
+SDA to support directly?
+[Open an issue](https://github.com/nshiab/simple-data-analysis/issues/new) with
+a link to the source and an example of the data you would like to retrieve.
 
 ### Data visualisations
 
