@@ -8,7 +8,7 @@ if (!existsSync(output)) {
 }
 
 Deno.test("should write a map as png", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
 
   table.loadGeoData(
@@ -41,7 +41,7 @@ Deno.test("should write a map as png", async () => {
   await sdb.close();
 });
 Deno.test("should write a dark map as png", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
 
   table.loadGeoData(
@@ -74,7 +74,7 @@ Deno.test("should write a dark map as png", async () => {
   await sdb.close();
 });
 Deno.test("should write a map as svg", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
 
   table.loadGeoData(
@@ -105,7 +105,7 @@ Deno.test("should write a map as svg", async () => {
 });
 
 Deno.test("should write a map in a folder that doesn't exist", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
 
   table.loadGeoData(
@@ -137,7 +137,7 @@ Deno.test("should write a map in a folder that doesn't exist", async () => {
 
 Deno.test("should write a map with multiple layers as a png", async () => {
   // From the README example
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const provinces = sdb.newTable("provinces");
 
   provinces.loadGeoData(
@@ -215,7 +215,7 @@ Deno.test("should write a map with multiple layers as a png", async () => {
 Deno.test(
   "should pass dates and the selected geometry to a map",
   async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable();
     table.loadArray([{
       day: "2026-08-04",
@@ -277,7 +277,7 @@ Deno.test("should rewind polygon coordinates before creating a map", async () =>
     }),
   );
 
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   try {
     const table = sdb.newTable();
     table.loadGeoData(inputPath);

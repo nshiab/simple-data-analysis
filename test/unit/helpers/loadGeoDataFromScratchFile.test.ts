@@ -3,7 +3,7 @@ import SimpleDB from "../../../src/class/SimpleDB.ts";
 import loadGeoDataFromScratchFile from "../../../src/helpers/loadGeoDataFromScratchFile.ts";
 
 Deno.test("loads a GeoJSON string through a scratch file", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   try {
     const table = sdb.newTable();
     await loadGeoDataFromScratchFile(

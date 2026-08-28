@@ -13,7 +13,7 @@ if (
   Deno.test("should write the data to a google sheet", {
     sanitizeResources: false,
   }, async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const sheetUrl =
       "https://docs.google.com/spreadsheets/d/1Ar19cP8oGYEzacfrkLWnSH7ZqImILMUrosBwnZ43EQM/edit#gid=0";
     const table = sdb.newTable();

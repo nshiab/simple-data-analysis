@@ -66,11 +66,6 @@ Creates a new SimpleDB instance.
 - **`options.memoryLimit`**: The maximum amount of memory DuckDB is allowed to
   use (for example, `"4GB"`).
 - **`options.tempDir`**: The path to the directory used for temporary files.
-- **`options.dataTransport`**: The transport used to retrieve data from DuckDB.
-  Defaults to `"direct"`. The experimental `"file"` option works around
-  [Deno issue #36538](https://github.com/denoland/deno/issues/36538), but adds
-  serialization, disk I/O, and parsing; it requires filesystem permissions and
-  is not a streaming or low-memory mode.
 
 ### Methods
 
@@ -509,11 +504,6 @@ const sdb = new SimpleDB({
   logSQL: true, // Log SQL immediately before execution
   rowsToLog: 20, // Set the number of rows to log by default
 });
-```
-
-```ts
-// Work around Deno result-chunk finalization crashes with file transport
-const sdb = new SimpleDB({ dataTransport: "file" });
 ```
 
 ## class SimpleTable

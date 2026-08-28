@@ -8,7 +8,7 @@ if (!existsSync(output)) {
 }
 
 Deno.test("should write a chart as a png", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   table.loadData("test/data/files/dailyTemperatures.csv");
   table.filter(`YEAR(time) === 2020`);
@@ -29,7 +29,7 @@ Deno.test("should write a chart as a png", async () => {
   await sdb.close();
 });
 Deno.test("should write a dark chart as a png", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   table.loadData("test/data/files/dailyTemperatures.csv");
   table.filter(`YEAR(time) === 2020`);
@@ -55,7 +55,7 @@ Deno.test("should write a dark chart as a png", async () => {
 });
 
 Deno.test("should write a chart as a svg", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   table.loadData("test/data/files/dailyTemperatures.csv");
   table.filter(`YEAR(time) === 2020`);
@@ -75,7 +75,7 @@ Deno.test("should write a chart as a svg", async () => {
 });
 
 Deno.test("should write a chart (example from docs)", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   table.loadArray([{ year: 2024, value: 10 }, { year: 2025, value: 15 }]);
 
@@ -91,7 +91,7 @@ Deno.test("should write a chart (example from docs)", async () => {
 });
 
 Deno.test("should use functions and values from the surrounding scope", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   table.loadArray([{ year: 2024, value: 10 }, { year: 2025, value: 15 }]);
 
@@ -115,7 +115,7 @@ Deno.test("should use functions and values from the surrounding scope", async ()
 });
 
 Deno.test("should write a chart in a folder that doesn't exist", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
   table.loadData("test/data/files/dailyTemperatures.csv");
   table.filter(`YEAR(time) === 2020`);
@@ -137,7 +137,7 @@ Deno.test("should write a chart in a folder that doesn't exist", async () => {
 Deno.test(
   "should pass dates to a chart",
   async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable();
     table.loadArray([{
       day: "2026-08-04",

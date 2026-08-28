@@ -34,7 +34,7 @@ async function cacheIndexedEmbeddings(
 }
 
 Deno.test("aiEmbeddings verbose progress does not add blank lines", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable("embedding_progress");
   table.loadArray([{ text: "alpha" }, { text: "beta" }]);
   const client = new FakeOllamaEmbeddingClient(
@@ -72,7 +72,7 @@ Deno.test("aiEmbeddings verbose progress does not add blank lines", async () => 
 });
 
 Deno.test("aiEmbeddings reuses only a compatible managed column", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable("embedding_provenance");
   table.loadArray([
     { text: "alpha", alternate_text: "first" },
@@ -157,7 +157,7 @@ Deno.test("aiEmbeddings reuses only a compatible managed column", async () => {
 });
 
 Deno.test("aiEmbeddings regenerates a legacy column without provenance", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable("legacy_embeddings");
   table.loadArray([
     { text: "alpha", text_embeddings: [9, 9] },
@@ -185,7 +185,7 @@ Deno.test("embedding provenance survives reopening a DuckDB database", async () 
   const directory = await Deno.makeTempDir();
   const databaseFile = `${directory}/embedding-provenance.db`;
   try {
-    const firstDb = new SimpleDB({ dataTransport: "file", file: databaseFile });
+    const firstDb = new SimpleDB({ file: databaseFile });
     const firstTable = firstDb.newTable("persistent_embeddings");
     firstTable.loadArray([{ text: "alpha" }, { text: "beta" }]);
     const firstClient = new FakeOllamaEmbeddingClient(
@@ -203,7 +203,7 @@ Deno.test("embedding provenance survives reopening a DuckDB database", async () 
     assertEquals(firstClient.requests, 2);
     await firstDb.close();
 
-    const reopenedDb = new SimpleDB({ dataTransport: "file" });
+    const reopenedDb = new SimpleDB();
     await reopenedDb.loadDB(databaseFile);
     const reopenedTable = await reopenedDb.getTable("persistent_embeddings");
     const compatibleClient = new FakeOllamaEmbeddingClient(
@@ -226,7 +226,7 @@ Deno.test("embedding provenance survives reopening a DuckDB database", async () 
 });
 
 Deno.test("every incompatible identity transition invalidates a stale VSS index", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable("indexed_embeddings");
   table.loadArray([{ text: "alpha" }, { text: "beta" }]);
   const firstClient = new FakeOllamaEmbeddingClient(
@@ -346,7 +346,7 @@ Deno.test("every incompatible identity transition invalidates a stale VSS index"
 });
 
 Deno.test("stale VSS cleanup preserves unrelated structured index definitions", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable("mixed_indexes");
   table.loadArray([
     { id: "a", text: "alpha" },
@@ -391,7 +391,7 @@ Deno.test("DuckDB cache restores FTS and rebuilds HNSW from structured definitio
   }
 
   try {
-    const firstDb = new SimpleDB({ dataTransport: "file" });
+    const firstDb = new SimpleDB();
     const firstTable = firstDb.newTable("indexed_cache");
     const firstClient = new FakeOllamaEmbeddingClient(
       "http://indexed-cache.local:11434",
@@ -401,7 +401,7 @@ Deno.test("DuckDB cache restores FTS and rebuilds HNSW from structured definitio
     assertEquals(firstClient.requests, 2);
     await firstDb.close();
 
-    const cachedDb = new SimpleDB({ dataTransport: "file" });
+    const cachedDb = new SimpleDB();
     const cachedTable = cachedDb.newTable("indexed_cache");
     const cachedClient = new FakeOllamaEmbeddingClient(
       "http://indexed-cache.local:11434",
@@ -436,7 +436,7 @@ Deno.test("DuckDB cache restores FTS and rebuilds HNSW from structured definitio
 });
 
 Deno.test("failed regeneration is retried and restores cache logging", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable("failed_embeddings");
   table.loadArray([
     { id: "a", text: "alpha" },
@@ -496,7 +496,7 @@ if (hasGoogleEmbeddingCredentials) {
     rmSync("./.journalism-cache", { recursive: true });
   }
   Deno.test("should create embeddings", async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     table.loadArray([
       { food: "pizza" },
@@ -523,7 +523,7 @@ if (hasGoogleEmbeddingCredentials) {
     await sdb.close();
   });
   Deno.test("should retrieve embedding from cache", async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     table.loadArray([
       { food: "pizza" },
@@ -551,7 +551,7 @@ if (hasGoogleEmbeddingCredentials) {
     await sdb.close();
   });
   Deno.test("should create embeddings with an index", async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     table.loadArray([
       { food: "pizza" },
@@ -588,7 +588,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
     rmSync("./.journalism-cache", { recursive: true });
   }
   Deno.test("should create embeddings", async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     table.loadArray([
       { food: "pizza" },
@@ -614,7 +614,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
     await sdb.close();
   });
   Deno.test("should create embeddings with a different Ollama instance", async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     table.loadArray([
       { food: "pizza" },
@@ -643,7 +643,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
     await sdb.close();
   });
   Deno.test("should retrieve embedding from cache", async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     table.loadArray([
       { food: "pizza" },
@@ -671,7 +671,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
     await sdb.close();
   });
   Deno.test("should create embeddings with an index", async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     table.loadArray([
       { food: "pizza" },
@@ -701,7 +701,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
     await sdb.close();
   });
   Deno.test("should create embeddings with concurrent requests", async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     table.loadArray([
       { food: "pizza" },

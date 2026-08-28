@@ -170,7 +170,7 @@ function registerRowProcessingContract(
   Deno.test(`aiRowByRow shared batching contract (${provider})`, async () => {
     const fixture = createFixture();
     await fixture.run(async () => {
-      const sdb = new SimpleDB({ dataTransport: "file" });
+      const sdb = new SimpleDB();
       const table = sdb.newTable(`row_contract_${provider}`);
       table.loadArray([
         { city: "Marrakech" },
@@ -221,7 +221,7 @@ function registerRowProcessingContract(
       const fixture = createFixture();
       await fixture.run(async () => {
         for (const tableName of ["first", "second"]) {
-          const sdb = new SimpleDB({ dataTransport: "file" });
+          const sdb = new SimpleDB();
           const table = sdb.newTable(`row_cache_${provider}_${tableName}`);
           table.loadArray([{ city: "Marrakech" }, { city: "Kyoto" }]);
           const start = performance.now();
@@ -259,7 +259,7 @@ function registerRowProcessingContract(
     async () => {
       const fixture = createFixture();
       await fixture.run(async () => {
-        const sdb = new SimpleDB({ dataTransport: "file" });
+        const sdb = new SimpleDB();
         const table = sdb.newTable(`row_columns_${provider}`);
         table.loadArray([{ city: "Marrakech" }, { city: "Kyoto" }]);
 
@@ -284,7 +284,7 @@ function registerRowProcessingContract(
     async () => {
       const fixture = createFixture();
       await fixture.run(async () => {
-        const sdb = new SimpleDB({ dataTransport: "file" });
+        const sdb = new SimpleDB();
         const table = sdb.newTable(`row_schema_${provider}`);
         table.loadArray([{ city: "Marrakech" }, { city: "Kyoto" }]);
         const schemaJson = z.toJSONSchema(z.array(z.object({
@@ -323,7 +323,7 @@ Deno.test("aiRowByRow stores failed batches and continues", async () => {
     }
     return ollamaResponse([{ country: places[city].country }]);
   });
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable("row_errors");
   table.loadArray([
     { city: "Marrakech" },
@@ -359,7 +359,7 @@ Deno.test("aiRowByRow throws a failed batch without errorColumn", async () => {
   const client = createOllamaClient(() => {
     throw new Error("provider failed");
   });
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable("row_throw");
   table.loadArray([{ city: "Marrakech" }]);
   table.aiRowByRow(
@@ -390,7 +390,7 @@ Deno.test("aiRowByRow retries when retryCheck accepts the error", async () => {
     }
     return ollamaResponse([{ country: "Morocco" }]);
   });
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable("row_retry");
   table.loadArray([{ city: "Marrakech" }]);
 
@@ -430,7 +430,7 @@ Deno.test("aiRowByRow bounds concurrent requests", async () => {
     const city = extractValues(prompt)[0];
     return ollamaResponse([{ country: places[city].country }]);
   });
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable("row_concurrent");
   table.loadArray(Object.keys(places).map((city) => ({ city })));
 
@@ -460,7 +460,7 @@ Deno.test("aiRowByRow globally spaces provider request starts", async () => {
     const city = extractValues(prompt)[0];
     return ollamaResponse([{ country: places[city].country }]);
   });
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable("row_rate_limit");
   table.loadArray([
     { city: "Marrakech" },

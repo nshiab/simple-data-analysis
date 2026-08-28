@@ -6,7 +6,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
   Deno.test("should write geo data to a Datawrapper map", {
     sanitizeResources: false,
   }, async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable();
     table.loadGeoData(
       "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -20,7 +20,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
   Deno.test("should write geo data to a Datawrapper map with a note", {
     sanitizeResources: false,
   }, async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable();
     table.loadGeoData(
       "test/geodata/files/CanadianProvincesAndTerritories.json",
@@ -34,7 +34,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
   Deno.test("should write geo data to a Datawrapper map and republish", {
     sanitizeResources: false,
   }, async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable();
     table.loadGeoData(
       "test/geodata/files/CanadianProvincesAndTerritories.json",

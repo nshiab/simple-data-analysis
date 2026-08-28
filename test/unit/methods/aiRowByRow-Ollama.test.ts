@@ -10,7 +10,7 @@ if (hasOllama) {
   ollamaTest(
     "aiRowByRow rate-limits live Ollama requests",
     async () => {
-      const sdb = new SimpleDB({ dataTransport: "file" });
+      const sdb = new SimpleDB();
       const table = sdb.newTable("ollama_client");
       table.loadArray([
         { city: "Marrakech" },
@@ -55,7 +55,7 @@ if (hasOllama) {
   );
 
   ollamaTest("aiRowByRow supports Ollama high thinking", async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable("ollama_thinking");
     table.loadArray([{ city: "Kyoto" }]);
     await table.aiRowByRow(

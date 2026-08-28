@@ -6,7 +6,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
   Deno.test("should load geo data from a Datawrapper map", {
     sanitizeResources: false,
   }, async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable();
 
     // First write known geo data to the map.

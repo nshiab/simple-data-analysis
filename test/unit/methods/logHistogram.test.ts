@@ -3,7 +3,7 @@ import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { formatNumber } from "@nshiab/journalism-format";
 
 Deno.test("should log a histogram", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
 
   table.loadData("test/data/files/dailyTemperatures.csv");
@@ -16,7 +16,7 @@ Deno.test("should log a histogram", async () => {
 });
 
 Deno.test("should log a histogram with options", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
 
   table.loadData("test/data/files/dailyTemperatures.csv");

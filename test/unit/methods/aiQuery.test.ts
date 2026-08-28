@@ -17,7 +17,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
   }
 
   Deno.test("should update a table with natural language", async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     table.loadData("test/data/files/dailyTemperatures.csv");
     table.renameColumns({ t: "temperature", "id": "city" });
@@ -32,7 +32,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await sdb.close();
   });
   Deno.test("should update a table with natural language and thinking", async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     table.loadData("test/data/files/dailyTemperatures.csv");
     table.renameColumns({ t: "temperature", "id": "city" });
@@ -53,7 +53,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await sdb.close();
   });
   Deno.test("should update a table with natural language with cache", async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     table.loadData("test/data/files/dailyTemperatures.csv");
     table.renameColumns({ t: "temperature", "id": "city" });
@@ -71,7 +71,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await sdb.close();
   });
   Deno.test("should update a table with natural language with query returned from cache", async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     table.loadData("test/data/files/dailyTemperatures.csv");
     table.renameColumns({ t: "temperature", "id": "city" });
@@ -89,7 +89,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await sdb.close();
   });
   Deno.test("should update a table with natural language and safetyEnabled", async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     table.loadData("test/data/files/dailyTemperatures.csv");
     table.renameColumns({ t: "temperature", "id": "city" });
@@ -107,7 +107,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await sdb.close();
   });
   Deno.test("should update a table with natural language and option verbose", async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     table.loadData("test/data/files/dailyTemperatures.csv");
     table.renameColumns({ t: "temperature", "id": "city" });
@@ -122,7 +122,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
     await sdb.close();
   });
   Deno.test("should create a new table with aiQuery results using outputTable option", async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     table.loadData("test/data/files/dailyTemperatures.csv");
     table.renameColumns({ t: "temperature", "id": "city" });
@@ -161,7 +161,7 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
   Deno.test("should update a table with natural language (Ollama)", {
     sanitizeResources: false,
   }, async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     table.loadData("test/data/files/dailyTemperatures.csv");
     table.renameColumns({ t: "temperature", "id": "city" });
@@ -179,7 +179,7 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
     "should update a table with natural language and thinking (Ollama)",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB({ dataTransport: "file" });
+      const sdb = new SimpleDB();
       const table = sdb.newTable("data");
       table.loadData("test/data/files/dailyTemperatures.csv");
       table.renameColumns({ t: "temperature", "id": "city" });
@@ -201,7 +201,7 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
     "should update a table with natural language with a different Ollama instance",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB({ dataTransport: "file" });
+      const sdb = new SimpleDB();
       const table = sdb.newTable("data");
       table.loadData("test/data/files/dailyTemperatures.csv");
       table.renameColumns({ t: "temperature", "id": "city" });
@@ -224,7 +224,7 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
   Deno.test("should update a table with natural language with cache (Ollama)", {
     sanitizeResources: false,
   }, async () => {
-    const sdb = new SimpleDB({ dataTransport: "file" });
+    const sdb = new SimpleDB();
     const table = sdb.newTable("data");
     table.loadData("test/data/files/dailyTemperatures.csv");
     table.renameColumns({ t: "temperature", "id": "city" });
@@ -245,7 +245,7 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
     "should update a table with natural language with query returned from cache (Ollama)",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB({ dataTransport: "file" });
+      const sdb = new SimpleDB();
       const table = sdb.newTable("data");
       table.loadData("test/data/files/dailyTemperatures.csv");
       table.renameColumns({ t: "temperature", "id": "city" });
@@ -267,7 +267,7 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
     "should update a table with natural language and option verbose (Ollama)",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB({ dataTransport: "file" });
+      const sdb = new SimpleDB();
       const table = sdb.newTable("data");
       table.loadData("test/data/files/dailyTemperatures.csv");
       table.renameColumns({ t: "temperature", "id": "city" });
@@ -286,7 +286,7 @@ if (Deno.env.get("AI_PROVIDER") === "ollama") {
     "should create a new table with aiQuery results using outputTable option (Ollama)",
     { sanitizeResources: false },
     async () => {
-      const sdb = new SimpleDB({ dataTransport: "file" });
+      const sdb = new SimpleDB();
       const table = sdb.newTable("data");
       table.loadData("test/data/files/dailyTemperatures.csv");
       table.renameColumns({ t: "temperature", "id": "city" });

@@ -3,7 +3,7 @@ import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { formatDate, formatNumber } from "@nshiab/journalism-format";
 
 Deno.test("should log a line chart", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
 
   const data = [
@@ -20,7 +20,7 @@ Deno.test("should log a line chart", async () => {
   await sdb.close();
 });
 Deno.test("should log a line chart with formatting options", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
 
   const data = [
@@ -40,7 +40,7 @@ Deno.test("should log a line chart with formatting options", async () => {
   await sdb.close();
 });
 Deno.test("should log a line chart with small multiples", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
 
   const data = [
@@ -64,7 +64,7 @@ Deno.test("should log a line chart with small multiples", async () => {
 });
 
 Deno.test("should log another line chart with small multiples", async () => {
-  const sdb = new SimpleDB({ dataTransport: "file" });
+  const sdb = new SimpleDB();
   const table = sdb.newTable();
 
   table.loadData("test/data/files/aircraftByEvents.csv");
