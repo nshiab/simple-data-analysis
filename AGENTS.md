@@ -45,6 +45,16 @@
   JSDoc block.
   - Include a clear description.
   - Include at least one `@example`.
+  - In examples that produce a table, chain table operations and finish the
+    chain with `.log()`. If direct chaining is unavailable, finish the example
+    with `await table.log()`.
+
+    ```ts
+    await table
+      .selectColumns(["name", "salary"])
+      .log();
+    ```
+
   - Update `@param` and `@returns` tags accurately.
   - Match existing JSDoc block styling.
   - If modifying existing code, ensure all related JSDoc remains synchronized
