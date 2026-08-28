@@ -18,8 +18,10 @@
  * import { SimpleDB } from "@nshiab/simple-data-analysis";
  *
  * const sdb = new SimpleDB();
- * const table = sdb.newTable("myTable"); // This returns a SimpleTable instance
- * table.loadData("path/to/your/data.csv");
+ * const table = await sdb
+ *   .newTable("myTable")
+ *   .loadData("path/to/your/data.csv")
+ *   .log();
  *
  * // You can now perform various data analysis operations on the table.
  *

@@ -11,12 +11,11 @@ import SimpleTable from "./SimpleTable.ts";
  * ```ts
  * // Create an in-memory database instance
  * const sdb = new SimpleDB();
- * // Create a new table named "employees"
- * const employees = sdb.newTable("employees");
- * // Load data from a CSV file into the "employees" table
- * employees.loadData("./employees.csv");
- * // Log the first few rows of the "employees" table to the console
- * await employees.log();
+ * // Create a table, load a CSV file, and log its first few rows
+ * const employees = await sdb
+ *   .newTable("employees")
+ *   .loadData("./employees.csv")
+ *   .log();
  * // Close the database connection and clean up resources
  * await sdb.close();
  * ```

@@ -468,14 +468,12 @@ methods used by `hybridSearch` are also available directly.
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
-const recipes = sdb
+// We search both the meaning and the wording of each recipe.
+const results = await sdb
   .newTable("recipes")
   .loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/recipesClean.parquet",
-  );
-
-// We search both the meaning and the wording of each recipe.
-const results = await recipes
+  )
   .hybridSearch(
     "buttery pastry for breakfast",
     "Dish",
@@ -498,20 +496,19 @@ answer using only those rows.
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
-const recipes = sdb
+// We retrieve the most relevant recipes and ask the AI to answer
+// based only on their contents.
+const answer = await sdb
   .newTable("recipes")
   .loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/recipesClean.parquet",
+  )
+  .aiRAG(
+    "I am vegan. What can I eat for lunch that is spicy?",
+    "Dish",
+    "Recipe",
+    10,
   );
-
-// We retrieve the most relevant recipes and ask the AI to answer
-// based only on their contents.
-const answer = await recipes.aiRAG(
-  "I am vegan. What can I eat for lunch that is spicy?",
-  "Dish",
-  "Recipe",
-  10,
-);
 
 console.log(answer);
 await sdb.close();
@@ -528,14 +525,12 @@ the table.
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
-const temperatures = sdb
+const averageTemperatures = await sdb
   .newTable("temperatures")
   .loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/dailyTemperatures.csv",
   )
-  .renameColumns({ t: "temperature", id: "station" });
-
-const averageTemperatures = await temperatures
+  .renameColumns({ t: "temperature", id: "station" })
   .aiQuery(
     "Compute the average temperature for each station with two decimals.",
   )

@@ -18,8 +18,10 @@ To start, create a SimpleDB instance and then a SimpleTable from this instance:
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
-const table = sdb.newTable("myTable"); // This returns a SimpleTable instance
-table.loadData("path/to/your/data.csv");
+const table = await sdb
+  .newTable("myTable")
+  .loadData("path/to/your/data.csv")
+  .log();
 
 // You can now perform various data analysis operations on the table.
 
@@ -479,12 +481,11 @@ await sdb.done();
 ```ts
 // Create an in-memory database instance
 const sdb = new SimpleDB();
-// Create a new table named "employees"
-const employees = sdb.newTable("employees");
-// Load data from a CSV file into the "employees" table
-employees.loadData("./employees.csv");
-// Log the first few rows of the "employees" table to the console
-await employees.log();
+// Create a table, load a CSV file, and log its first few rows
+const employees = await sdb
+  .newTable("employees")
+  .loadData("./employees.csv")
+  .log();
 // Close the database connection and clean up resources
 await sdb.close();
 ```
@@ -1204,27 +1205,26 @@ context.
 ```ts
 // Load a dataset of recipes
 const sdb = new SimpleDB();
-const table = sdb.newTable("recipes");
-table.loadData("recipes.parquet");
-
-// Ask a question using hybrid RAG (vector + BM25 search)
-const answer = await table.aiRAG(
-  "I want a buttery pastry for breakfast.",
-  "Dish", // Column with unique IDs
-  "Recipe", // Column with text to search
-  10, // The 10 most relevant recipes passed to the LLM
-  {
-    generation: {
-      provider: "gemini",
-      model: "gemini-3-flash-preview",
+const answer = await sdb
+  .newTable("recipes")
+  .loadData("recipes.parquet")
+  .aiRAG(
+    "I want a buttery pastry for breakfast.",
+    "Dish", // Column with unique IDs
+    "Recipe", // Column with text to search
+    10, // The 10 most relevant recipes passed to the LLM
+    {
+      generation: {
+        provider: "gemini",
+        model: "gemini-3-flash-preview",
+      },
+      embeddings: {
+        provider: "ollama",
+        model: "nomic-embed-text",
+      },
+      verbose: true, // Log debugging information and timings
     },
-    embeddings: {
-      provider: "ollama",
-      model: "nomic-embed-text",
-    },
-    verbose: true, // Log debugging information and timings
-  },
-);
+  );
 
 console.log(answer);
 // Example output: "I recommend croissants.
@@ -1690,9 +1690,7 @@ A promise that resolves when the chart image has been saved.
 import { dot, plot } from "@observablehq/plot";
 
 const sdb = new SimpleDB();
-const table = sdb.newTable();
 const data = [{ year: 2024, value: 10 }, { year: 2025, value: 15 }];
-table.loadArray(data);
 
 const chartFunction = (plotData: unknown[]) =>
   plot({
@@ -1703,7 +1701,10 @@ const chartFunction = (plotData: unknown[]) =>
 
 const outputPath = "output/chart.png";
 
-await table.writeChart(chartFunction, outputPath);
+await sdb
+  .newTable()
+  .loadArray(data)
+  .writeChart(chartFunction, outputPath);
 ```
 
 #### `writeMap`
@@ -1744,9 +1745,6 @@ A promise that resolves when the map image has been saved.
 import { geo, plot } from "@observablehq/plot";
 
 const sdb = new SimpleDB();
-const table = sdb.newTable();
-table.loadGeoData("./CanadianProvincesAndTerritories.geojson");
-
 const mapFunction = (geoJsonData: { features: unknown[] }) =>
   plot({
     projection: {
@@ -1761,7 +1759,10 @@ const mapFunction = (geoJsonData: { features: unknown[] }) =>
 
 const outputPath = "./output/map.png";
 
-await table.writeMap(mapFunction, outputPath);
+await sdb
+  .newTable()
+  .loadGeoData("./CanadianProvincesAndTerritories.geojson")
+  .writeMap(mapFunction, outputPath);
 ```
 
 #### `logLineChart`
@@ -1819,9 +1820,10 @@ const data = [
   { date: new Date("2023-03-01"), value: 30 },
   { date: new Date("2023-04-01"), value: 40 },
 ];
-table.loadArray(data);
-table.convert({ date: "string" }, { datetimeFormat: "%x" });
-await table.logLineChart("date", "value");
+await table
+  .loadArray(data)
+  .convert({ date: "string" }, { datetimeFormat: "%x" })
+  .logLineChart("date", "value");
 ```
 
 // Line chart with small multiples
@@ -1837,11 +1839,12 @@ const data = [
   { date: new Date("2023-03-01"), value: 35, category: "B" },
   { date: new Date("2023-04-01"), value: 45, category: "B" },
 ];
-table.loadArray(data);
-table.convert({ date: "string" }, { datetimeFormat: "%x" });
-await table.logLineChart("date", "value", {
-  smallMultiples: "category",
-});
+await table
+  .loadArray(data)
+  .convert({ date: "string" }, { datetimeFormat: "%x" })
+  .logLineChart("date", "value", {
+    smallMultiples: "category",
+  });
 ```
 
 #### `logDotChart`
@@ -1899,9 +1902,10 @@ const data = [
   { date: new Date("2023-03-01"), value: 30 },
   { date: new Date("2023-04-01"), value: 40 },
 ];
-table.loadArray(data);
-table.convert({ date: "string" }, { datetimeFormat: "%x" });
-await table.logDotChart("date", "value");
+await table
+  .loadArray(data)
+  .convert({ date: "string" }, { datetimeFormat: "%x" })
+  .logDotChart("date", "value");
 ```
 
 // Dot chart with small multiples
@@ -1917,11 +1921,12 @@ const data = [
   { date: new Date("2023-03-01"), value: 35, category: "B" },
   { date: new Date("2023-04-01"), value: 45, category: "B" },
 ];
-table.loadArray(data);
-table.convert({ date: "string" }, { datetimeFormat: "%x" });
-await table.logDotChart("date", "value", {
-  smallMultiples: "category",
-});
+await table
+  .loadArray(data)
+  .convert({ date: "string" }, { datetimeFormat: "%x" })
+  .logDotChart("date", "value", {
+    smallMultiples: "category",
+  });
 ```
 
 #### `logBarChart`
@@ -1964,8 +1969,9 @@ const data = [
   { category: "A", value: 10 },
   { category: "B", value: 20 },
 ];
-table.loadArray(data);
-await table.logBarChart("category", "value");
+await table
+  .loadArray(data)
+  .logBarChart("category", "value");
 ```
 
 #### `logHistogram`
@@ -8311,14 +8317,11 @@ await table.logExtent("price");
 // Create a SimpleDB instance (in-memory by default)
 const sdb = new SimpleDB();
 
-// Create a new table named "employees" within the database
-const employees = sdb.newTable("employees");
-
-// Load data from a CSV file into the "employees" table
-employees.loadData("./employees.csv");
-
-// Log the first few rows of the "employees" table to the console
-await employees.log();
+// Create a table, load a CSV file, and log its first few rows
+const employees = await sdb
+  .newTable("employees")
+  .loadData("./employees.csv")
+  .log();
 
 // Close the database connection and free up resources
 await sdb.close();
@@ -8329,11 +8332,11 @@ await sdb.close();
 // Create a SimpleDB instance
 const sdb = new SimpleDB();
 
-// Create a new table for geospatial data
-const boundaries = sdb.newTable("boundaries");
-
-// Load geospatial data from a GeoJSON file
-boundaries.loadGeoData("./boundaries.geojson");
+// Create a table and load geospatial data from a GeoJSON file
+const boundaries = await sdb
+  .newTable("boundaries")
+  .loadGeoData("./boundaries.geojson")
+  .log();
 
 // Close the database connection
 await sdb.close();
