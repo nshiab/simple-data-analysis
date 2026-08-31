@@ -10,10 +10,20 @@ The library is available on [JSR](https://jsr.io/@nshiab/simple-data-analysis)
 with its [documentation](https://jsr.io/@nshiab/simple-data-analysis/doc) and on
 [NPM](https://www.npmjs.com/package/@nshiab/simple-data-analysis).
 
+> [!NOTE]
+> SDA's `SimpleDB` and `SimpleTable` inherit all core methods, but JSR currently
+> omits inherited methods from their documentation because of an
+> [upstream limitation](https://github.com/jsr-io/jsr/issues/747). For those
+> methods, see the core
+> [`SimpleDB` reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleDB)
+> and
+> [`SimpleTable` reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable).
+> You can call these methods directly on SDA instances.
+
 The documentation is also available as the markdown file
 [llm.md](https://github.com/nshiab/simple-data-analysis/blob/main/llm.md), which
-can be passed as context to improve the use of the library by AI coding
-assistants or agents.
+combines core and SDA documentation and can be passed as context to improve the
+use of the library by AI coding assistants or agents.
 
 The library is maintained by [Nael Shiab](http://naelshiab.com/), computational
 journalist and senior data producer for [CBC News](https://www.cbc.ca/news).

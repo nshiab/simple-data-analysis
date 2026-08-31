@@ -52,10 +52,17 @@ try {
 
 Manages a DuckDB database instance, providing a simplified interface for
 database operations. Extends the core
-[`SimpleDB`](https://github.com/nshiab/simple-data-analysis-core) class from
+[`SimpleDB`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleDB)
+class from
 [`simple-data-analysis-core`](https://github.com/nshiab/simple-data-analysis-core)
 to use our extended SimpleTable class which includes additional AI, Google
 Sheets, and charting methods.
+
+All core methods are available on this class. JSR currently omits inherited
+methods from subclass reference pages because of an
+[upstream limitation](https://github.com/jsr-io/jsr/issues/747). See the
+[core SimpleDB reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleDB)
+for inherited methods such as `newTable()` and `close()`.
 
 ### Constructor
 
@@ -605,11 +612,18 @@ const sdb = new SimpleDB({
 
 Represents a table within a SimpleDB database, capable of handling tabular,
 geospatial, and vector data. Extends the core
-[`SimpleTable`](https://github.com/nshiab/simple-data-analysis-core) class from
+[`SimpleTable`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable)
+class from
 [`simple-data-analysis-core`](https://github.com/nshiab/simple-data-analysis-core)
 to include additional AI, Google Sheets, and charting methods. Integration
 dependencies load only when their operations execute, and are reused by
 subsequent calls. Core-only pipelines do not load these dependencies.
+
+All core methods are available on this class. JSR currently omits inherited
+methods from subclass reference pages because of an
+[upstream limitation](https://github.com/jsr-io/jsr/issues/747). See the
+[core SimpleTable reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable)
+for inherited methods such as `loadData()`, `filter()`, and `log()`.
 
 ### Constructor
 

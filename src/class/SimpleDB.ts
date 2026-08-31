@@ -3,9 +3,14 @@ import SimpleTable from "./SimpleTable.ts";
 
 /**
  * Manages a DuckDB database instance, providing a simplified interface for database operations.
- * Extends the core [`SimpleDB`](https://github.com/nshiab/simple-data-analysis-core) class
+ * Extends the core [`SimpleDB`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleDB) class
  * from [`simple-data-analysis-core`](https://github.com/nshiab/simple-data-analysis-core) to use
  * our extended SimpleTable class which includes additional AI, Google Sheets, and charting methods.
+ *
+ * All core methods are available on this class. JSR currently omits inherited methods
+ * from subclass reference pages because of an [upstream limitation](https://github.com/jsr-io/jsr/issues/747).
+ * See the [core SimpleDB reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleDB)
+ * for inherited methods such as `newTable()` and `close()`.
  *
  * @example
  * ```ts
