@@ -1,4 +1,4 @@
-import { assertEquals, assertRejects } from "@std/assert";
+import { assertArrayIncludes, assertEquals, assertRejects } from "@std/assert";
 import { calls, loaded } from "./state.ts";
 import { SimpleDB } from "../../../src/index.ts";
 
@@ -43,12 +43,18 @@ try {
       assertEquals(loaded.includes("dataviz"), false);
       break;
     }
-    case "observers": {
+    case "observers":
+    case "observers-reversed": {
+      const reverse = Deno.args[0] === "observers-reversed";
+      const firstRead = Promise.withResolvers<void>();
       let value = 1;
       let requests = 0;
       table.getData = () => {
         requests++;
-        return Promise.resolve([{ value }]);
+        const data = [{ value }];
+        return reverse && requests === 1
+          ? firstRead.promise.then(() => data)
+          : Promise.resolve(data);
       };
       const first = table.writeChart(
         () => ({} as HTMLElement),
@@ -65,11 +71,26 @@ try {
         `${Deno.args[1]}/second.png`,
       );
       assertEquals(requests, 2);
+      if (reverse) {
+        await second;
+        firstRead.resolve();
+      }
       await Promise.all([first, second]);
       assertEquals(loaded, ["dataviz"]);
-      assertEquals(calls, [
-        { method: "saveChart", value: [{ value: 1 }] },
-        { method: "saveChart", value: [{ value: 2 }] },
+      // Concurrent exports may finish in either order, but each destination
+      // must receive the data requested when its observer was called.
+      assertEquals(calls.length, 2);
+      assertArrayIncludes(calls, [
+        {
+          method: "saveChart",
+          value: [{ value: 1 }],
+          path: `${Deno.args[1]}/first.png`,
+        },
+        {
+          method: "saveChart",
+          value: [{ value: 2 }],
+          path: `${Deno.args[1]}/second.png`,
+        },
       ]);
       const sheet = table.toSheet("fixture");
       assertEquals(

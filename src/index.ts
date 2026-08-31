@@ -25,7 +25,7 @@
  *
  * // You can now perform various data analysis operations on the table.
  *
- * await sdb.close(); // Ensure to call done when you're finished.
+ * await sdb.close(); // Close the database when you're finished.
  * ```
  */
 

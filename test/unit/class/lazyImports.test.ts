@@ -5,7 +5,16 @@ import { join } from "node:path";
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const fixtures = new URL("../../fixtures/lazyImports/", import.meta.url);
 
-for (const scenario of ["core", "queued", "ai", "observers", "failure"]) {
+for (
+  const scenario of [
+    "core",
+    "queued",
+    "ai",
+    "observers",
+    "observers-reversed",
+    "failure",
+  ]
+) {
   Deno.test(`lazy integrations: ${scenario}`, async () => {
     const directory = await Deno.makeTempDir();
     try {

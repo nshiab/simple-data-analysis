@@ -156,8 +156,15 @@ methods are synchronous and chainable; async observer methods such as
 `getData()`, `log()`, and `writeData()` flush the queue before producing their
 result. This means only the final observer needs to be awaited.
 
-Methods that perform external work—such as AI, Google Sheets, and Datawrapper
-methods—remain asynchronous and must still be awaited.
+Methods that load or transform data—including `aiRowByRow()`, `aiEmbeddings()`,
+`aiVectorSimilarity()`, `hybridSearch()`, `aiQuery()`, `loadSheet()`,
+`loadDW()`, and `loadGeoDW()`—are also synchronous builders. Their external work
+runs when an observer executes the queue. Await a final observer or call
+`.run()` to execute a chain without reading or exporting its result.
+
+Methods that return an answer or export data, such as `aiRAG()`, `toSheet()`,
+`toDW()`, `toGeoDW()`, `writeChart()`, and `writeMap()`, remain asynchronous and
+must be awaited.
 
 The syntax and the available methods were inspired by
 [Pandas](https://github.com/pandas-dev/pandas) (Python) and the

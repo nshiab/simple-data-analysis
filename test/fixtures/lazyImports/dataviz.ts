@@ -1,8 +1,8 @@
 import { calls, loaded } from "./state.ts";
 loaded.push("dataviz");
 
-export function saveChart(data: unknown) {
-  calls.push({ method: "saveChart", value: data });
+export function saveChart(data: unknown, _chart: unknown, path: string) {
+  calls.push({ method: "saveChart", value: data, path });
   return Promise.resolve();
 }
 
