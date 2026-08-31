@@ -9,6 +9,7 @@
   },
   "tasks": {
     "all-tests": "deno fmt --check && deno lint && deno check src/index.ts && deno publish --allow-dirty --dry-run && rm -rf test/output && deno test -A --env-file --fail-fast && deno task llm",
+    "benchmark": "deno run -A benchmarks/run.ts",
     "llm": "deno run -A jsr:@nshiab/deno-docs-to-md --jsr=@nshiab/simple-data-analysis-core && deno fmt llm.md",
     "test-coverage": "deno test -A --env-file --fail-fast --coverage=cov_profile && deno coverage cov_profile",
     "patch-no-tests": "deno run -A jsr:@nshiab/bump-version patch",
@@ -23,17 +24,19 @@
   "publish": {
     "exclude": [
       "test",
+      "benchmarks",
       ".github",
       "npm"
     ]
   },
   "nodeModulesDir": "auto",
   "imports": {
+    "@duckdb/node-api": "npm:@duckdb/node-api@1.5.5-r.4",
     "@nshiab/journalism-ai": "jsr:@nshiab/journalism-ai@2.0.6",
     "@nshiab/journalism-dataviz": "jsr:@nshiab/journalism-dataviz@^1.0.21",
     "@nshiab/journalism-format": "jsr:@nshiab/journalism-format@^1.1.10",
     "@nshiab/journalism-google": "jsr:@nshiab/journalism-google@^1.1.2",
-    "@nshiab/simple-data-analysis-core": "jsr:@nshiab/simple-data-analysis-core@2.0.0-rc.17",
+    "@nshiab/simple-data-analysis-core": "jsr:@nshiab/simple-data-analysis-core@2.0.0-rc.19",
     "@observablehq/plot": "npm:@observablehq/plot@^0.6.17",
     "@std/assert": "jsr:@std/assert@^1.0.19",
     "ollama": "npm:ollama@^0.6.3",
@@ -42,6 +45,8 @@
   "fmt": {
     "exclude": [
       ".sda-cache",
+      "benchmarks/.work",
+      "benchmarks/data",
       "test/output"
     ]
   },

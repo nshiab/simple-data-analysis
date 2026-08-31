@@ -3,6 +3,10 @@ dist/
 test/output/
 .DS_Store
 .tmp
+benchmarks/.work/
+benchmarks/data/
+__pycache__/
+*.pyc
 .sda-cache
 testRoot.csv
 cov_profile

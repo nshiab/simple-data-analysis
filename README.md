@@ -82,6 +82,49 @@ npx @nshiab/setup-data-project
 bunx @nshiab/setup-data-project
 ```
 
+## Performance
+
+SDA uses DuckDB to handle large tabular and geospatial analyses efficiently,
+often outperforming traditional dataframe tools while keeping the code simple
+and readable.
+
+### Tabular data
+
+Using 22,051,025 temperature records (`ahccd.csv`, 1.77 GB, in
+`benchmarks/data/`), we remove missing temperatures, convert dates and numbers,
+save the cleaned data, then calculate average temperatures by station and decade
+and export the sorted results.
+
+We ran the same analysis with SDA, pandas, the tidyverse, and raw DuckDB. SDA
+stays close to raw DuckDB while keeping the code simple and readable.
+
+<!-- benchmark-tabular:start -->
+
+![Horizontal bars comparing mean duration for the tabular workload; lower is better](./assets/benchmark-tabular-duration.png)
+
+![Horizontal bars comparing mean peak memory for the tabular workload; lower is better](./assets/benchmark-tabular-memory.png)
+
+<!-- benchmark-tabular:end -->
+
+### Geospatial data
+
+Using 335,024 Montreal public trees (`arbres-publics.csv`, 135.5 MB) and 91
+neighbourhood boundaries (`quartierreferencehabitation.geojson`, 1.14 MB), both
+in `benchmarks/data/`, we remove missing coordinates, create points, join trees
+to neighbourhoods, then count trees per neighbourhood and export the sorted
+results.
+
+We ran the same analysis with SDA, GeoPandas, sf, and raw DuckDB. SDA brings
+DuckDB's geospatial tools to the same simple, chainable API.
+
+<!-- benchmark-spatial:start -->
+
+![Horizontal bars comparing mean duration for the spatial workload; lower is better](./assets/benchmark-spatial-duration.png)
+
+![Horizontal bars comparing mean peak memory for the spatial workload; lower is better](./assets/benchmark-spatial-memory.png)
+
+<!-- benchmark-spatial:end -->
+
 ## Core principles
 
 SDA is born out of the frustration of switching between Python, R, and
@@ -118,71 +161,6 @@ The syntax and the available methods were inspired by
 [Tidyverse](https://www.tidyverse.org/) (R). Method and option names are kept
 simple and descriptive, so anyone can read an SDA pipeline and understand what
 is happening step by step.
-
-## Performance
-
-### Tabular data
-
-To test and compare the library's performance, we calculated the average
-temperature per decade and city with the daily temperatures from the
-[Adjusted and Homogenized Canadian Climate Data](https://api.weather.gc.ca/collections/ahccd-annual).
-See [this repository](https://github.com/nshiab/simple-data-analysis-benchmarks)
-for the code.
-
-We ran the same calculations with **simple-data-analysis** (Node.js, Bun, and
-Deno), **Pandas (Python)**, and the **tidyverse (R)**.
-
-In each script, we:
-
-1. Loaded a CSV file (_Importing_)
-2. Selected four columns, removed rows with missing temperature, converted date
-   strings to date and temperature strings to float (_Cleaning_)
-3. Added a new column _decade_ and calculated the decade (_Modifying_)
-4. Calculated the average temperature per decade and city (_Summarizing_)
-5. Wrote the cleaned-up data that we computed the averages from in a new CSV
-   file (_Writing_)
-
-Each script has been run ten times on a MacBook Pro (Apple M4 Max / 64 GB).
-
-With _ahccd.csv_:
-
-- 1.7 GB
-- 773 cities
-- 20 columns
-- 22,051,025 rows
-
-Thanks to DuckDB, **simple-data-analysis** is the fastest option.
-
-![A chart showing the processing duration of multiple scripts in various languages](./assets/big-file.png)
-
-### Geospatial data
-
-To test the geospatial computation speed, we performed a spatial join to match
-each public tree in Montreal to its neighbourhood. We then counted the number of
-trees in each neighbourhood. For more information, check this
-[repository](https://github.com/nshiab/simple-data-analysis-spatial-benchmarks).
-
-With _trees.csv_:
-
-- 128 MB
-- 316,321 trees
-- 33 columns
-
-And _neighbourhoods.geojson_:
-
-- 991 KB
-- 91 neighbourhoods
-- 6 columns
-
-Each script has been run ten times on a MacBook Pro (Apple M4 Max / 64 GB).
-
-As we can see, **simple-data-analysis** is also the fastest option here.
-
-![A chart showing the processing duration of multiple scripts in various languages, for geospatial computations](./assets/spatial.png)
-
-DuckDB, which powers SDA, can also be used with
-[Python](https://duckdb.org/docs/api/python/overview.html) and
-[R](https://duckdb.org/docs/api/r).
 
 ## Examples
 

@@ -22,11 +22,10 @@ import SimpleTable from "./SimpleTable.ts";
  *
  * @example
  * ```ts
- * // Create a persistent database instance, saving data to a file
- * // To load an existing database, use the `loadDB` method instead
+ * // Open an existing DuckDB file, or create it on first use
  * const sdb = new SimpleDB({ file: "./my_database.db" });
  * // Perform database operations...
- * // Close the database connection, which saves changes to the specified file
+ * // Execute pending work, save metadata, and close the database connection
  * await sdb.close();
  * ```
  *
@@ -51,8 +50,9 @@ export default class SimpleDB extends SimpleDBCore<SimpleTable> {
    * Creates a new SimpleDB instance.
    *
    * @param options - Configuration options for the SimpleDB instance.
-   * @param options.file - The path to the database file. If not provided, an in-memory database is used.
-   * @param options.overwrite - A flag indicating whether to overwrite the database file if it already exists.
+   * @param options.file - The path to a persistent DuckDB file, opened or created on first use. If not provided, an in-memory database is used.
+   * @param options.overwrite - Whether to replace an existing DuckDB file on first use instead of opening it. Defaults to false.
+   * @param options.readOnly - Opens an existing DuckDB file read-only. Defaults to false. Requires a file and cannot be combined with overwrite.
    * @param options.logDuration - A flag indicating whether to log the total execution duration.
    * @param options.rowsToLog - The number of rows to display when logging a table.
    * @param options.charsToLog - The maximum number of characters to display for text-based cells.
@@ -65,11 +65,19 @@ export default class SimpleDB extends SimpleDBCore<SimpleTable> {
    * @param options.memoryLimit - The maximum amount of memory DuckDB is allowed to use (for example, `"4GB"`).
    * @param options.tempDir - The path to the directory used for temporary files.
    * @category Constructor
+   * @example
+   * ```ts
+   * const sdb = new SimpleDB({ file: "./archive.duckdb", readOnly: true });
+   * const table = await sdb.getTable("employees");
+   * await table.log();
+   * await sdb.close();
+   * ```
    */
   constructor(
     options: {
       file?: string;
       overwrite?: boolean;
+      readOnly?: boolean;
       logDuration?: boolean;
       rowsToLog?: number;
       charsToLog?: number;

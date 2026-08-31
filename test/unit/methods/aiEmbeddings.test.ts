@@ -203,8 +203,7 @@ Deno.test("embedding provenance survives reopening a DuckDB database", async () 
     assertEquals(firstClient.requests, 2);
     await firstDb.close();
 
-    const reopenedDb = new SimpleDB();
-    await reopenedDb.loadDB(databaseFile);
+    const reopenedDb = new SimpleDB({ file: databaseFile });
     const reopenedTable = await reopenedDb.getTable("persistent_embeddings");
     const compatibleClient = new FakeOllamaEmbeddingClient(
       "http://persistent.local:11434",

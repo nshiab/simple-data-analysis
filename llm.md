@@ -44,10 +44,12 @@ Creates a new SimpleDB instance.
 #### Parameters
 
 - **`options`**: Configuration options for the SimpleDB instance.
-- **`options.file`**: The path to the database file. If not provided, an
-  in-memory database is used.
-- **`options.overwrite`**: A flag indicating whether to overwrite the database
-  file if it already exists.
+- **`options.file`**: The path to a persistent DuckDB file, opened or created on
+  first use. If not provided, an in-memory database is used.
+- **`options.overwrite`**: Whether to replace an existing DuckDB file on first
+  use instead of opening it. Defaults to false.
+- **`options.readOnly`**: Opens an existing DuckDB file read-only. Defaults to
+  false. Requires a file and cannot be combined with overwrite.
 - **`options.logDuration`**: A flag indicating whether to log the total
   execution duration.
 - **`options.rowsToLog`**: The number of rows to display when logging a table.
@@ -491,11 +493,10 @@ await sdb.close();
 ```
 
 ```ts
-// Create a persistent database instance, saving data to a file
-// To load an existing database, use the `loadDB` method instead
+// Open an existing DuckDB file, or create it on first use
 const sdb = new SimpleDB({ file: "./my_database.db" });
 // Perform database operations...
-// Close the database connection, which saves changes to the specified file
+// Execute pending work, save metadata, and close the database connection
 await sdb.close();
 ```
 
