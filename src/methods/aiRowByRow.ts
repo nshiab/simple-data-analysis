@@ -4,10 +4,7 @@ import type {
   GenerationOptions,
 } from "../helpers/aiOptions.ts";
 import { snapshotAIOptions } from "../helpers/aiOptions.ts";
-import askAI from "../helpers/askAI.ts";
-import buildAIRowsRequest from "../helpers/buildAIRowsRequest.ts";
 import processAIRowsResponse from "../helpers/processAIRowsResponse.ts";
-import runAIRequestPool from "../helpers/runAIRequestPool.ts";
 
 type AIRow = { [key: string]: unknown };
 
@@ -80,6 +77,16 @@ export default function aiRowByRow(
     ) {
       throw new Error("rateLimitPerMinute must be greater than 0.");
     }
+
+    const [
+      { default: askAI },
+      { default: buildAIRowsRequest },
+      { default: runAIRequestPool },
+    ] = await Promise.all([
+      import("../helpers/askAI.ts"),
+      import("../helpers/buildAIRowsRequest.ts"),
+      import("../helpers/runAIRequestPool.ts"),
+    ]);
 
     const batches: AIRow[][] = [];
     for (let i = 0; i < rows.length; i += batchSize) {

@@ -1,12 +1,8 @@
-import { formatNumber } from "@nshiab/journalism-format";
-import sleep from "../helpers/sleep.ts";
 import type { SimpleTable } from "../index.ts";
-import tryEmbedding from "../helpers/tryEmbedding.ts";
 import {
   type EmbeddingOptions,
   snapshotAIOptions,
 } from "../helpers/aiOptions.ts";
-import { getEmbeddingIdentity } from "@nshiab/journalism-ai";
 import ensureEmbeddingColumn from "../helpers/ensureEmbeddingColumn.ts";
 import { queueAsyncBarrier } from "@nshiab/simple-data-analysis-core/helpers";
 
@@ -63,6 +59,7 @@ async function runAIEmbeddings(
   newColumn: string,
   options: AIEmbeddingsOptions,
 ): Promise<void> {
+  const { getEmbeddingIdentity } = await import("@nshiab/journalism-ai");
   const identity = getEmbeddingIdentity(options.embeddings);
   const embeddingStatus = await ensureEmbeddingColumn(
     simpleTable,
@@ -116,6 +113,12 @@ export async function generateEmbeddingColumn(
   options: AIEmbeddingsOptions = {},
 ): Promise<void> {
   await simpleTable.updateWithJS(async (rows) => {
+    const [{ formatNumber }, { default: sleep }, { default: tryEmbedding }] =
+      await Promise.all([
+        import("@nshiab/journalism-format"),
+        import("../helpers/sleep.ts"),
+        import("../helpers/tryEmbedding.ts"),
+      ]);
     if (options.verbose) {
       console.log("\naiEmbeddings()");
     }

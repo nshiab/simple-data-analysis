@@ -1,6 +1,4 @@
-import askAI from "../helpers/askAI.ts";
 import type SimpleTable from "../class/SimpleTable.ts";
-import { prettyDuration } from "@nshiab/journalism-format";
 import hybridSearch, { type HybridSearchOptions } from "./hybridSearch.ts";
 import type {
   AIRequestMetrics,
@@ -81,6 +79,7 @@ export default async function aiRAG(
     times.llmStart = Date.now();
   }
 
+  const { default: askAI } = await import("../helpers/askAI.ts");
   const response = await askAI(
     `Answer the following:
 - ${query}
@@ -111,6 +110,7 @@ Rules of Engagement:
 
   if (searchOptions.verbose) {
     times.llmEnd = Date.now();
+    const { prettyDuration } = await import("@nshiab/journalism-format");
     const enableVectorSearch = searchOptions.vectorSearch !== false;
     const enableBm25 = searchOptions.bm25 !== false;
     const parallelLabel = enableVectorSearch && enableBm25 ? " (parallel)" : "";

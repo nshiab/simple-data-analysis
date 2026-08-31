@@ -514,7 +514,9 @@ Represents a table within a SimpleDB database, capable of handling tabular,
 geospatial, and vector data. Extends the core
 [`SimpleTable`](https://github.com/nshiab/simple-data-analysis-core) class from
 [`simple-data-analysis-core`](https://github.com/nshiab/simple-data-analysis-core)
-to include additional AI, Google Sheets, and charting methods.
+to include additional AI, Google Sheets, and charting methods. Integration
+dependencies load only when their operations execute, and are reused by
+subsequent calls. Core-only pipelines do not load these dependencies.
 
 ### Constructor
 

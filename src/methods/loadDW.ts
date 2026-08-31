@@ -1,4 +1,3 @@
-import { getDataDW } from "@nshiab/journalism-dataviz";
 import { queueAsyncBarrier } from "@nshiab/simple-data-analysis-core/helpers";
 import type SimpleTable from "../class/SimpleTable.ts";
 
@@ -16,6 +15,7 @@ export default function loadDW(
     method: "loadDW()",
     parameters: { chartId, options },
     execute: async () => {
+      const { getDataDW } = await import("@nshiab/journalism-dataviz");
       const data = await getDataDW(chartId, {
         parse: true,
         apiKey: options.apiKey,

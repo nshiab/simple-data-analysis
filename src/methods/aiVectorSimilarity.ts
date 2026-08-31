@@ -8,7 +8,6 @@ import {
   type EmbeddingOptions,
   snapshotAIOptions,
 } from "../helpers/aiOptions.ts";
-import { getEmbeddingForProvider } from "../helpers/tryEmbedding.ts";
 
 /**
  * Options for embedding a query and finding similar table rows.
@@ -78,6 +77,9 @@ export async function runAIVectorSimilarity(
   nbResults: number,
   options: AIVectorSimilarityOptions,
 ): Promise<void> {
+  const { getEmbeddingForProvider } = await import(
+    "../helpers/tryEmbedding.ts"
+  );
   const textEmbedding = await getEmbeddingForProvider(text, options.embeddings);
 
   const types = await simpleTable.getTypes();

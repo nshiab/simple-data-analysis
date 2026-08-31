@@ -1,15 +1,5 @@
 import { SimpleTable as SimpleTableCore } from "@nshiab/simple-data-analysis-core";
 import type SimpleDB from "./SimpleDB.ts";
-import {
-  logBarChart,
-  logDotChart,
-  logLineChart,
-  publishChartDW,
-  saveChart,
-  updateDataDW,
-  updateNotesDW,
-} from "@nshiab/journalism-dataviz";
-import { pushToSheet } from "@nshiab/journalism-google";
 import type { Data } from "@observablehq/plot";
 import { createDirectory } from "@nshiab/simple-data-analysis-core/helpers";
 import logHistogram from "../methods/logHistogram.ts";
@@ -28,6 +18,8 @@ import loadGeoDW from "../methods/loadGeoDW.ts";
  * Extends the core [`SimpleTable`](https://github.com/nshiab/simple-data-analysis-core) class
  * from [`simple-data-analysis-core`](https://github.com/nshiab/simple-data-analysis-core) to include
  * additional AI, Google Sheets, and charting methods.
+ * Integration dependencies load only when their operations execute, and are reused
+ * by subsequent calls. Core-only pipelines do not load these dependencies.
  *
  * @category Main
  * @example
@@ -1361,8 +1353,9 @@ export default class SimpleTable extends SimpleTableCore {
     };
   } = {}): Promise<void> {
     const data = await this.getData() as Parameters<
-      typeof pushToSheet
+      typeof import("@nshiab/journalism-google").pushToSheet
     >[0];
+    const { pushToSheet } = await import("@nshiab/journalism-google");
     await pushToSheet(data, sheetUrl, options);
   }
 
@@ -1447,7 +1440,11 @@ export default class SimpleTable extends SimpleTableCore {
       republish?: boolean;
     } = {},
   ): Promise<void> {
-    await updateDataDW(chartId, await this.getDataAsCSV(), {
+    const data = await this.getDataAsCSV();
+    const { updateDataDW, updateNotesDW, publishChartDW } = await import(
+      "@nshiab/journalism-dataviz"
+    );
+    await updateDataDW(chartId, data, {
       apiKey: options.apiKey,
     });
     if (typeof options.note === "string") {
@@ -1528,6 +1525,9 @@ export default class SimpleTable extends SimpleTableCore {
     } = {},
   ): Promise<void> {
     const geoData = await this.getGeoData(options.column);
+    const { updateDataDW, updateNotesDW, publishChartDW } = await import(
+      "@nshiab/journalism-dataviz"
+    );
     await updateDataDW(chartId, JSON.stringify(geoData), {
       apiKey: options.apiKey,
     });
@@ -1616,6 +1616,7 @@ export default class SimpleTable extends SimpleTableCore {
     try {
       createDirectory(path);
       const data = await this.getData();
+      const { saveChart } = await import("@nshiab/journalism-dataviz");
       await saveChart(
         data,
         chart as (data: Data) => SVGSVGElement | HTMLElement,
@@ -1686,6 +1687,7 @@ export default class SimpleTable extends SimpleTableCore {
       const geoData = await this.getGeoData(options.column, {
         rewind: options.rewind,
       });
+      const { saveChart } = await import("@nshiab/journalism-dataviz");
       await saveChart(
         geoData as unknown as Data,
         map as unknown as (data: Data) => SVGSVGElement | HTMLElement,
@@ -1778,6 +1780,7 @@ export default class SimpleTable extends SimpleTableCore {
         ]),
       ),
     });
+    const { logLineChart } = await import("@nshiab/journalism-dataviz");
     logLineChart(data, x, y, options);
   }
 
@@ -1862,6 +1865,7 @@ export default class SimpleTable extends SimpleTableCore {
         ]),
       ),
     });
+    const { logDotChart } = await import("@nshiab/journalism-dataviz");
     logDotChart(data, x, y, options);
   }
 
@@ -1908,6 +1912,7 @@ export default class SimpleTable extends SimpleTableCore {
     const data = await this.getData({
       columns: Array.from(new Set([labels, values])),
     });
+    const { logBarChart } = await import("@nshiab/journalism-dataviz");
     logBarChart(data, labels, values, options);
   }
 

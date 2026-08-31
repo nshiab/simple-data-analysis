@@ -49,6 +49,9 @@ SDA is split into two packages:
 Most users will want this package (`simple-data-analysis`), which includes all
 of the core functionality plus the extended features.
 
+AI, Google Sheets, and charting dependencies load only when those operations
+run. If you only use core methods, you don't pay their startup cost.
+
 ## Installation
 
 The library is available on [JSR](https://jsr.io/@nshiab/simple-data-analysis)

@@ -1,4 +1,3 @@
-import { getSheetData } from "@nshiab/journalism-google";
 import { queueAsyncBarrier } from "@nshiab/simple-data-analysis-core/helpers";
 import type SimpleTable from "../class/SimpleTable.ts";
 
@@ -18,6 +17,7 @@ export default function loadSheet(
     method: "loadSheet()",
     parameters: { sheetUrl, options },
     execute: async () => {
+      const { getSheetData } = await import("@nshiab/journalism-google");
       table.loadArray(await getSheetData(sheetUrl, options));
     },
   });

@@ -1,5 +1,4 @@
 import type SimpleTable from "../class/SimpleTable.ts";
-import { prettyDuration } from "@nshiab/journalism-format";
 import getRRFRanking from "../helpers/getRRFRanking.ts";
 import {
   parseValue,
@@ -9,7 +8,6 @@ import {
   type EmbeddingOptions,
   snapshotAIOptions,
 } from "../helpers/aiOptions.ts";
-import { getEmbeddingIdentity } from "@nshiab/journalism-ai";
 import ensureEmbeddingColumn from "../helpers/ensureEmbeddingColumn.ts";
 import { generateEmbeddingColumn } from "./aiEmbeddings.ts";
 import { runAIVectorSimilarity } from "./aiVectorSimilarity.ts";
@@ -195,6 +193,7 @@ async function runHybridSearch(
 
   // Only generate embeddings if vector search is enabled
   if (enableVectorSearch) {
+    const { getEmbeddingIdentity } = await import("@nshiab/journalism-ai");
     if (options.verbose) {
       times.embeddingStart = Date.now();
     }
@@ -500,6 +499,7 @@ async function runHybridSearch(
   await outputTableInstance.run();
   if (options.verbose) {
     await outputTableInstance.log("all");
+    const { prettyDuration } = await import("@nshiab/journalism-format");
 
     const logParts = [`\nHybrid search times:`];
 

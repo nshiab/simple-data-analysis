@@ -1,6 +1,4 @@
-import askAI from "../helpers/askAI.ts";
 import type { SimpleTable } from "../index.ts";
-import { object, string, toJSONSchema } from "zod";
 import {
   snapshotAIOptions,
   type UnstructuredGenerationOptions,
@@ -70,6 +68,11 @@ async function runAIQuery(
     console.log("\naiQuery()");
   }
 
+  const [{ object, string, toJSONSchema }, { default: askAI }] = await Promise
+    .all([
+      import("zod"),
+      import("../helpers/askAI.ts"),
+    ]);
   const schemaJson = toJSONSchema(
     object({
       query: string(),
