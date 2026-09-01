@@ -21,6 +21,7 @@ const denoConfig = JSON.parse(
 ) as {
   name: string;
   version: string;
+  keywords: string[];
   exports: Record<string, string>;
 };
 
@@ -173,12 +174,23 @@ try {
       }),
     ),
   );
+  const generatedPackage = JSON.parse(
+    await Deno.readTextFile(new URL("package.json", new URL("npm/", root))),
+  ) as { keywords?: string[] };
+  if (
+    JSON.stringify(generatedPackage.keywords) !==
+      JSON.stringify(denoConfig.keywords)
+  ) {
+    throw new Error("npm package keywords do not match deno.json");
+  }
   const paths = new Set(packReport.files.map(({ path }) => path));
   for (
     const required of [
       "package.json",
       "README.md",
       "LICENSE",
+      "llm.md",
+      "llms.txt",
       "esm/index.js",
       "esm/index.d.ts",
       "script/index.js",

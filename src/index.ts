@@ -10,7 +10,7 @@
  *
  * To install the library with Node.js, use:
  * ```bash
- * npx jsr add @nshiab/simple-data-analysis
+ * npm i @nshiab/simple-data-analysis
  * ```
  *
  * To start, create a SimpleDB instance and then a SimpleTable from this instance:

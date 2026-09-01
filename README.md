@@ -20,10 +20,11 @@ with its [documentation](https://jsr.io/@nshiab/simple-data-analysis/doc) and on
 > [`SimpleTable` reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable).
 > You can call these methods directly on SDA instances.
 
-The documentation is also available as the markdown file
+AI coding assistants and agents can start with the concise
+[llms.txt](https://github.com/nshiab/simple-data-analysis/blob/main/llms.txt)
+index. The complete generated API reference is available in
 [llm.md](https://github.com/nshiab/simple-data-analysis/blob/main/llm.md), which
-combines core and SDA documentation and can be passed as context to improve the
-use of the library by AI coding assistants or agents.
+combines core and SDA documentation.
 
 The library is maintained by [Nael Shiab](http://naelshiab.com/), computational
 journalist and senior data producer for [CBC News](https://www.cbc.ca/news).
