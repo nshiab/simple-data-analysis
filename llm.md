@@ -664,16 +664,16 @@ pool with configurable batching and concurrency.
 This method automatically appends instructions to your prompt; set `verbose` to
 `true` to see the full prompt.
 
-This method supports Gemini, Vertex AI, and Ollama. When the corresponding
-`generation` options are omitted, configuration comes from `AI_PROVIDER`
-(`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_MODEL` (for example,
-`"gemini-3-flash-preview"` or `"gemma3:4b"`), and, for Gemini, either `AI_KEY`
-(for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example,
-`"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`).
-Explicit `generation` options override the corresponding environment variables.
+This method supports Gemini, Vertex AI, and Ollama.
 
-For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set
-`AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
+Environment variables are named configuration values supplied to the running
+process. By default, this method reads `AI_PROVIDER` (`"gemini"` or `"ollama"`;
+defaults to `"gemini"`), `AI_MODEL` (for example, `"gemini-3-flash-preview"` or
+`"gemma3:4b"`), and, for Gemini, either `AI_KEY` (for example,
+`"your-gemini-api-key"`) or both `AI_PROJECT` (for example,
+`"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`).
+Values passed through `generation` override the corresponding environment
+values. When using Ollama, ensure it is running.
 
 To manage rate limits, use `batchSize` to process multiple rows per request and
 `rateLimitPerMinute` to pace requests across the worker pool. The `concurrency`
@@ -717,9 +717,7 @@ aiRowByRow(column: string, newColumn: string | string[], prompt: string, options
   are stored. When omitted, a failed batch throws.
 - **`options.logProgress`**: If `true`, logs request-pool progress. Defaults to
   `false`.
-- **`options.generation`**: Gemini or Ollama generation configuration. Set
-  `provider` explicitly or omit it to use `AI_PROVIDER`. Values provided here
-  override the corresponding environment variables.
+- **`options.generation`**: Optional Gemini or Ollama generation configuration.
 - **`options.test`**: A function to validate the returned data. If it throws an
   error, the request will be retried (if `retry` is set). Defaults to
   `undefined`.
@@ -834,18 +832,16 @@ const names = await sdb
 Generates embeddings for a specified text column and stores the results in a new
 column.
 
-This method supports Gemini, Vertex AI, and Ollama embeddings. When the
-corresponding `embeddings` options are omitted, configuration comes from
-`AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`),
-`AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or
-`"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example,
-`"your-gemini-api-key"`) or both `AI_PROJECT` (for example,
-`"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`).
-Explicit `embeddings` options override the corresponding environment variables.
+This method supports Gemini, Vertex AI, and Ollama embeddings.
 
-For Ollama, set `AI_EMBEDDINGS_PROVIDER=ollama`, ensure Ollama is running, and
-set `AI_EMBEDDINGS_MODEL`, or pass `{ provider: "ollama", ... }` through
-`embeddings`.
+Environment variables are named configuration values supplied to the running
+process. By default, this method reads `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or
+`"ollama"`; defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example,
+`"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either
+`AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for
+example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example,
+`"us-central1"`). Values passed through `embeddings` override the corresponding
+environment values. When using Ollama, ensure it is running.
 
 To manage rate limits, use `rateLimitPerMinute` to introduce delays between
 requests. For higher rate limits (business/professional accounts), `concurrency`
@@ -898,9 +894,7 @@ aiEmbeddings(column: string, newColumn: string, options?: { embeddings?: { provi
   time and memory usage. Defaults to 16.
 - **`options.concurrency`**: The number of concurrent requests to send. Defaults
   to `1`.
-- **`options.embeddings`**: Gemini or Ollama embedding configuration. Set
-  `provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`. Values
-  provided here override the corresponding environment variables.
+- **`options.embeddings`**: Optional Gemini or Ollama embedding configuration.
 - **`options.rateLimitPerMinute`**: The rate limit for AI requests in requests
   per minute. The method will wait between requests if necessary. Defaults to
   `undefined` (no limit).
@@ -952,15 +946,14 @@ content based on their embeddings. This method is useful for semantic search and
 text similarity tasks, computing cosine distance and sorting results by
 similarity.
 
-To create the query embedding, pass `embeddings` options directly or use
-environment variables. When the corresponding `embeddings` options are omitted,
-configuration comes from `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`;
-defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example,
+Environment variables are named configuration values supplied to the running
+process. By default, this method reads `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or
+`"ollama"`; defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example,
 `"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either
 `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for
 example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example,
-`"us-central1"`). Explicit `embeddings` options override the corresponding
-environment variables.
+`"us-central1"`). Values passed through `embeddings` override the corresponding
+environment values.
 
 Gemini, Vertex AI, and Ollama are supported. The selected provider and model
 must match those used to create the stored embedding column so the vectors share
@@ -1013,9 +1006,7 @@ aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { 
 - **`options.outputTable`**: The name of the output table where the results will
   be stored. If not provided, the current table will be modified. Defaults to
   `undefined`.
-- **`options.embeddings`**: Gemini or Ollama embedding configuration. Set
-  `provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`. Values
-  provided here override the corresponding environment variables.
+- **`options.embeddings`**: Optional Gemini or Ollama embedding configuration.
 - **`options.verbose`**: If `true`, logs additional debugging information.
   Defaults to `false`.
 
@@ -1084,14 +1075,16 @@ before replacement. This provenance survives reopening a DuckDB database.
 Remove `.journalism-cache` and `.sda-cache` to clear existing cache entries.
 Remember to add both directories to your `.gitignore`.
 
-This method supports Gemini, Vertex AI, and Ollama embeddings. When the
-corresponding `embeddings` options are omitted, configuration comes from
-`AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`),
-`AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or
-`"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example,
-`"your-gemini-api-key"`) or both `AI_PROJECT` (for example,
-`"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`).
-Explicit `embeddings` options override the corresponding environment variables.
+This method supports Gemini, Vertex AI, and Ollama embeddings.
+
+Environment variables are named configuration values supplied to the running
+process. By default, this method reads `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or
+`"ollama"`; defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example,
+`"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either
+`AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for
+example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example,
+`"us-central1"`). Values passed through `embeddings` override the corresponding
+environment values.
 
 The selected embedding provider is used for both stored row embeddings and the
 query embedding.
@@ -1119,9 +1112,7 @@ hybridSearch(query: string, idColumn: string, textColumn: string, nbResults: num
   through.
 - **`nbResults`**: The number of most similar rows to retrieve.
 - **`options`**: Configuration options for the hybrid search.
-- **`options.embeddings`**: Gemini or Ollama embedding configuration. Set
-  `provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`. Values
-  provided here override the corresponding environment variables.
+- **`options.embeddings`**: Optional Gemini or Ollama embedding configuration.
 - **`options.verbose`**: If `true`, logs additional debugging information.
   Defaults to `false`.
 - **`options.createIndex`**: If `true`, creates an HNSW index when vector search
@@ -1234,16 +1225,18 @@ corresponding caches.
 Remove `.journalism-cache` and `.sda-cache` to clear existing cache entries.
 Remember to add both directories to your `.gitignore`.
 
-Generation and embeddings are independently configurable. When the corresponding
-options are omitted, generation uses `AI_PROVIDER` (`"gemini"` or `"ollama"`;
+Generation and embeddings are independently configurable.
+
+Environment variables are named configuration values supplied to the running
+process. By default, generation reads `AI_PROVIDER` (`"gemini"` or `"ollama"`;
 defaults to `"gemini"`) and `AI_MODEL` (for example, `"gemini-3-flash-preview"`
-or `"gemma3:4b"`), while embeddings use `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or
+or `"gemma3:4b"`), while embeddings read `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or
 `"ollama"`; defaults to `"gemini"`) and `AI_EMBEDDINGS_MODEL` (for example,
 `"gemini-embedding-001"` or `"nomic-embed-text"`). Gemini generation and
-embeddings use either `AI_KEY` (for example, `"your-gemini-api-key"`) or both
-`AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for
-example, `"us-central1"`). Explicit nested options override the corresponding
-environment variables.
+embeddings also read either `AI_KEY` (for example, `"your-gemini-api-key"`) or
+both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION`
+(for example, `"us-central1"`). Values passed through either option override its
+environment defaults.
 
 For example, `generation.provider` can be `"gemini"` while `embeddings.provider`
 is `"ollama"`; the same mix can be selected through `AI_PROVIDER=gemini` and
@@ -1275,12 +1268,8 @@ async aiRAG(query: string, idColumn: string, textColumn: string, nbResults: numb
 - **`nbResults`**: The number of most similar rows to retrieve and use as
   context for the AI.
 - **`options`**: Configuration options for the RAG process.
-- **`options.generation`**: Gemini or Ollama generation configuration. Set
-  `provider` explicitly or omit it to use `AI_PROVIDER`. Values provided here
-  override the corresponding environment variables.
-- **`options.embeddings`**: Gemini or Ollama embedding configuration. Set
-  `provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`. Values
-  provided here override the corresponding environment variables.
+- **`options.generation`**: Optional Gemini or Ollama generation configuration.
+- **`options.embeddings`**: Optional Gemini or Ollama embedding configuration.
 - **`options.verbose`**: If `true`, logs additional debugging information.
   Defaults to `false`.
 - **`options.includeThoughts`**: If `true`, includes the AI model's reasoning
@@ -1393,16 +1382,16 @@ Generates and executes a SQL query based on a prompt. Additional instructions,
 such as column types, are automatically added to your prompt. Set `verbose` to
 `true` to see the full prompt.
 
-This method supports Gemini, Vertex AI, and Ollama. When the corresponding
-`generation` options are omitted, configuration comes from `AI_PROVIDER`
-(`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_MODEL` (for example,
-`"gemini-3-flash-preview"` or `"gemma3:4b"`), and, for Gemini, either `AI_KEY`
-(for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example,
-`"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`).
-Explicit `generation` options override the corresponding environment variables.
+This method supports Gemini, Vertex AI, and Ollama.
 
-For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set
-`AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
+Environment variables are named configuration values supplied to the running
+process. By default, this method reads `AI_PROVIDER` (`"gemini"` or `"ollama"`;
+defaults to `"gemini"`), `AI_MODEL` (for example, `"gemini-3-flash-preview"` or
+`"gemma3:4b"`), and, for Gemini, either `AI_KEY` (for example,
+`"your-gemini-api-key"`) or both `AI_PROJECT` (for example,
+`"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`).
+Values passed through `generation` override the corresponding environment
+values. When using Ollama, ensure it is running.
 
 Ollama temperature defaults to 0, while Gemini uses the provider's default.
 Provider-specific controls live under `generation`.
@@ -1424,9 +1413,7 @@ aiQuery(prompt: string, options?: { extraInstructions?: string; generation?: { s
 - **`options`**: Configuration options for the AI request.
 - **`options.extraInstructions`**: Additional instructions to append to the
   prompt, providing more context or guidance for the AI.
-- **`options.generation`**: Gemini or Ollama generation configuration. Set
-  `provider` explicitly or omit it to use `AI_PROVIDER`. Values provided here
-  override the corresponding environment variables.
+- **`options.generation`**: Optional Gemini or Ollama generation configuration.
 - **`options.outputTable`**: The name of a new table where the results will be
   stored. If not provided, the current table will be replaced with the query
   results.
@@ -1490,13 +1477,16 @@ function from the
 its documentation for more details.
 
 By default, the selected tab is overwritten and values are written without
-Google Sheets interpretation. Authentication uses `GOOGLE_SERVICE_ACCOUNT_EMAIL`
+Google Sheets interpretation.
+
+Environment variables are named configuration values supplied to the running
+process. For authentication, this method reads `GOOGLE_SERVICE_ACCOUNT_EMAIL`
 (for example, `"service-account@example.iam.gserviceaccount.com"`) with
 `GOOGLE_PRIVATE_KEY` (for example, `"-----BEGIN PRIVATE KEY-----\n..."`).
 Alternatively, set `GOOGLE_APPLICATION_CREDENTIALS` to a service-account JSON
-path (for example, `"./service-account.json"`). Explicit `options.credentials`
-override these environment variables. For detailed setup instructions, refer to
-the node-google-spreadsheet authentication guide:
+path (for example, `"./service-account.json"`). Values passed through
+`options.credentials` override these environment values. For detailed setup
+instructions, refer to the node-google-spreadsheet authentication guide:
 https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
 
 ##### Signature
@@ -1521,9 +1511,7 @@ async toSheet(sheetUrl: string, options?: { mode?: "overwrite" | "append"; tabTi
   time zone to use it for the timestamp. Available only in overwrite mode.
 - **`options.raw`**: If `true`, writes values without Google Sheets
   interpretation. Defaults to `true`.
-- **`options.credentials`**: Explicit Google service-account credentials. These
-  override credentials provided through environment variables or
-  GOOGLE_APPLICATION_CREDENTIALS.
+- **`options.credentials`**: Optional Google service-account credentials.
 - **`options.credentials.email`**: The Google service-account email.
 - **`options.credentials.privateKey`**: The Google service-account private key.
 
@@ -1591,14 +1579,13 @@ Loads data from a Google Sheet into the table. This method uses the
 [journalism library](https://jsr.io/@nshiab/journalism). Refer to its
 documentation for more details.
 
-By default, authentication uses `GOOGLE_SERVICE_ACCOUNT_EMAIL` (for example,
-`"service-account@example.iam.gserviceaccount.com"`) with `GOOGLE_PRIVATE_KEY`
-(for example, `"-----BEGIN PRIVATE KEY-----\n..."`). Alternatively, set
-`GOOGLE_APPLICATION_CREDENTIALS` to a service-account JSON path (for example,
-`"./service-account.json"`). Use `options.apiEmailEnvVar` and
-`options.apiKeyEnvVar` to read the email and private key from custom variable
-names instead. The download is queued and runs in chain order at the next
-awaited observer or `run()` call.
+Environment variables are named configuration values supplied to the running
+process. By default, this method reads `GOOGLE_SERVICE_ACCOUNT_EMAIL` (for
+example, `"service-account@example.iam.gserviceaccount.com"`) with
+`GOOGLE_PRIVATE_KEY` (for example, `"-----BEGIN PRIVATE KEY-----\n..."`).
+Alternatively, set `GOOGLE_APPLICATION_CREDENTIALS` to a service-account JSON
+path (for example, `"./service-account.json"`). The download is queued and runs
+in chain order at the next awaited observer or `run()` call.
 
 ##### Signature
 
@@ -1614,12 +1601,12 @@ loadSheet(sheetUrl: string, options?: { skip?: number; apiEmailEnvVar?: string; 
 - **`options.skip`**: The number of rows to skip from the top of the sheet
   before reading data. Useful when the sheet contains metadata or headers that
   should not be included in the data.
-- **`options.apiEmailEnvVar`**: The name of the environment variable that stores
-  your Google service-account email (for example, `"MY_GOOGLE_EMAIL"`). Defaults
-  to `"GOOGLE_SERVICE_ACCOUNT_EMAIL"`.
-- **`options.apiKeyEnvVar`**: The name of the environment variable that stores
-  your Google service-account private key (for example,
-  `"MY_GOOGLE_PRIVATE_KEY"`). Defaults to `"GOOGLE_PRIVATE_KEY"`.
+- **`options.apiEmailEnvVar`**: A custom environment-variable name from which to
+  read the Google service-account email. Defaults to
+  `"GOOGLE_SERVICE_ACCOUNT_EMAIL"`.
+- **`options.apiKeyEnvVar`**: A custom environment-variable name from which to
+  read the Google service-account private key. Defaults to
+  `"GOOGLE_PRIVATE_KEY"`.
 
 ##### Returns
 
@@ -1651,9 +1638,9 @@ const sheetData = await table
 
 Writes the table data as CSV to a Datawrapper chart or table.
 
-Authentication uses the API key in `DATAWRAPPER_KEY` (for example,
-`"your-datawrapper-api-key"`). Set `options.apiKeyEnvVar` to read the key from a
-custom environment variable instead.
+Environment variables are named configuration values supplied to the running
+process. By default, this method reads the API key from `DATAWRAPPER_KEY` (for
+example, `"your-datawrapper-api-key"`).
 
 ##### Signature
 
@@ -1666,9 +1653,8 @@ async toDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; note?: s
 - **`chartId`**: The unique ID of the Datawrapper chart or table to update. This
   ID can be found in the Datawrapper URL or dashboard.
 - **`options`**: An optional object with configuration options:
-- **`options.apiKeyEnvVar`**: The name of the environment variable that stores
-  your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
-  `"DATAWRAPPER_KEY"`.
+- **`options.apiKeyEnvVar`**: A custom environment-variable name from which to
+  read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
 - **`options.note`**: A string to update the chart's notes field with (e.g., a
   last-updated timestamp).
 - **`options.republish`**: If `true`, republishes the chart after updating the
@@ -1702,9 +1688,9 @@ await table.toDatawrapper("myChartId", {
 
 Loads data from a Datawrapper chart or table into the table.
 
-Authentication uses the API key in `DATAWRAPPER_KEY` (for example,
-`"your-datawrapper-api-key"`). Set `options.apiKeyEnvVar` to read the key from a
-custom environment variable instead. The download is queued and runs in chain
+Environment variables are named configuration values supplied to the running
+process. By default, this method reads the API key from `DATAWRAPPER_KEY` (for
+example, `"your-datawrapper-api-key"`). The download is queued and runs in chain
 order at the next awaited observer or `run()` call.
 
 ##### Signature
@@ -1718,9 +1704,8 @@ loadDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string }): this;
 - **`chartId`**: The unique ID of the Datawrapper chart or table. This ID can be
   found in the Datawrapper URL or dashboard.
 - **`options`**: An optional object with configuration options:
-- **`options.apiKeyEnvVar`**: The name of the environment variable that stores
-  your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
-  `"DATAWRAPPER_KEY"`.
+- **`options.apiKeyEnvVar`**: A custom environment-variable name from which to
+  read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
 
 ##### Returns
 
@@ -1741,9 +1726,9 @@ const chartData = await sdb
 
 Writes the table's geospatial data as GeoJSON to a Datawrapper map.
 
-Authentication uses the API key in `DATAWRAPPER_KEY` (for example,
-`"your-datawrapper-api-key"`). Set `options.apiKeyEnvVar` to read the key from a
-custom environment variable instead.
+Environment variables are named configuration values supplied to the running
+process. By default, this method reads the API key from `DATAWRAPPER_KEY` (for
+example, `"your-datawrapper-api-key"`).
 
 ##### Signature
 
@@ -1756,9 +1741,8 @@ async toGeoDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; colum
 - **`chartId`**: The unique ID of the Datawrapper map to update. This ID can be
   found in the Datawrapper URL or dashboard.
 - **`options`**: An optional object with configuration options:
-- **`options.apiKeyEnvVar`**: The name of the environment variable that stores
-  your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
-  `"DATAWRAPPER_KEY"`.
+- **`options.apiKeyEnvVar`**: A custom environment-variable name from which to
+  read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
 - **`options.column`**: The name of the geometry column to use. If omitted, the
   method will automatically attempt to find a geometry column.
 - **`options.note`**: A string to update the map's notes field with.
@@ -1793,9 +1777,9 @@ await table.toGeoDatawrapper("myMapId", {
 
 Loads geospatial data from a Datawrapper map into the table.
 
-Authentication uses the API key in `DATAWRAPPER_KEY` (for example,
-`"your-datawrapper-api-key"`). Set `options.apiKeyEnvVar` to read the key from a
-custom environment variable instead.
+Environment variables are named configuration values supplied to the running
+process. By default, this method reads the API key from `DATAWRAPPER_KEY` (for
+example, `"your-datawrapper-api-key"`).
 
 The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.geojson` and
 removed after loading. Remember to add `.sda-cache` to your `.gitignore`. The
@@ -1813,9 +1797,8 @@ loadGeoDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string }): this;
 - **`chartId`**: The unique ID of the Datawrapper map. This ID can be found in
   the Datawrapper URL or dashboard.
 - **`options`**: An optional object with configuration options:
-- **`options.apiKeyEnvVar`**: The name of the environment variable that stores
-  your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
-  `"DATAWRAPPER_KEY"`.
+- **`options.apiKeyEnvVar`**: A custom environment-variable name from which to
+  read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
 
 ##### Returns
 

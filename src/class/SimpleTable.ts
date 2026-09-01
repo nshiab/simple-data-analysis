@@ -74,9 +74,9 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * This method automatically appends instructions to your prompt; set `verbose` to `true` to see the full prompt.
    *
-   * This method supports Gemini, Vertex AI, and Ollama. When the corresponding `generation` options are omitted, configuration comes from `AI_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_MODEL` (for example, `"gemini-3-flash-preview"` or `"gemma3:4b"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Explicit `generation` options override the corresponding environment variables.
+   * This method supports Gemini, Vertex AI, and Ollama.
    *
-   * For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set `AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
+   * Environment variables are named configuration values supplied to the running process. By default, this method reads `AI_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_MODEL` (for example, `"gemini-3-flash-preview"` or `"gemma3:4b"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Values passed through `generation` override the corresponding environment values. When using Ollama, ensure it is running.
    *
    * To manage rate limits, use `batchSize` to process multiple rows per request and `rateLimitPerMinute` to pace requests across the worker pool. The `concurrency` option controls how many requests may run in parallel.
    *
@@ -98,7 +98,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.concurrency - The number of concurrent requests to send. Defaults to `1`.
    * @param options.errorColumn - The optional column where per-row error messages are stored. When omitted, a failed batch throws.
    * @param options.logProgress - If `true`, logs request-pool progress. Defaults to `false`.
-   * @param options.generation - Gemini or Ollama generation configuration. Set `provider` explicitly or omit it to use `AI_PROVIDER`. Values provided here override the corresponding environment variables.
+   * @param options.generation - Optional Gemini or Ollama generation configuration.
    * @param options.test - A function to validate the returned data. If it throws an error, the request will be retried (if `retry` is set). Defaults to `undefined`.
    * @param options.retry - The number of times to retry the request in case of failure. Defaults to `0`.
    * @param options.retryCheck - A function that receives an error and returns whether it should be retried. Defaults to `undefined`.
@@ -308,9 +308,9 @@ export default class SimpleTable extends SimpleTableCore {
   /**
    * Generates embeddings for a specified text column and stores the results in a new column.
    *
-   * This method supports Gemini, Vertex AI, and Ollama embeddings. When the corresponding `embeddings` options are omitted, configuration comes from `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Explicit `embeddings` options override the corresponding environment variables.
+   * This method supports Gemini, Vertex AI, and Ollama embeddings.
    *
-   * For Ollama, set `AI_EMBEDDINGS_PROVIDER=ollama`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL`, or pass `{ provider: "ollama", ... }` through `embeddings`.
+   * Environment variables are named configuration values supplied to the running process. By default, this method reads `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Values passed through `embeddings` override the corresponding environment values. When using Ollama, ensure it is running.
    *
    * To manage rate limits, use `rateLimitPerMinute` to introduce delays between requests. For higher rate limits (business/professional accounts), `concurrency` allows parallel requests.
    *
@@ -332,7 +332,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
    * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
    * @param options.concurrency - The number of concurrent requests to send. Defaults to `1`.
-   * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`. Values provided here override the corresponding environment variables.
+   * @param options.embeddings - Optional Gemini or Ollama embedding configuration.
    * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
    * @returns The table, so methods can be chained.
@@ -450,7 +450,7 @@ export default class SimpleTable extends SimpleTableCore {
    * Creates an embedding from a specified text and returns the most similar text content based on their embeddings.
    * This method is useful for semantic search and text similarity tasks, computing cosine distance and sorting results by similarity.
    *
-   * To create the query embedding, pass `embeddings` options directly or use environment variables. When the corresponding `embeddings` options are omitted, configuration comes from `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Explicit `embeddings` options override the corresponding environment variables.
+   * Environment variables are named configuration values supplied to the running process. By default, this method reads `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Values passed through `embeddings` override the corresponding environment values.
    *
    * Gemini, Vertex AI, and Ollama are supported. The selected provider and model must match those used to create the stored embedding column so the vectors share the same dimensions and embedding space.
    *
@@ -471,7 +471,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
    * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
    * @param options.outputTable - The name of the output table where the results will be stored. If not provided, the current table will be modified. Defaults to `undefined`.
-   * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`. Values provided here override the corresponding environment variables.
+   * @param options.embeddings - Optional Gemini or Ollama embedding configuration.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
    * @returns The table that will contain the similarity results, so methods can be chained.
    * @category AI
@@ -607,7 +607,9 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * Remove `.journalism-cache` and `.sda-cache` to clear existing cache entries. Remember to add both directories to your `.gitignore`.
    *
-   * This method supports Gemini, Vertex AI, and Ollama embeddings. When the corresponding `embeddings` options are omitted, configuration comes from `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Explicit `embeddings` options override the corresponding environment variables.
+   * This method supports Gemini, Vertex AI, and Ollama embeddings.
+   *
+   * Environment variables are named configuration values supplied to the running process. By default, this method reads `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Values passed through `embeddings` override the corresponding environment values.
    *
    * The selected embedding provider is used for both stored row embeddings and the query embedding.
    *
@@ -621,7 +623,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param textColumn - The name of the column containing the text content to search through.
    * @param nbResults - The number of most similar rows to retrieve.
    * @param options - Configuration options for the hybrid search.
-   * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`. Values provided here override the corresponding environment variables.
+   * @param options.embeddings - Optional Gemini or Ollama embedding configuration.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
    * @param options.createIndex - If `true`, creates an HNSW index when vector search is enabled. The BM25 FTS index is managed automatically whenever BM25 search is enabled. Defaults to `false`.
    * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
@@ -815,7 +817,9 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * Remove `.journalism-cache` and `.sda-cache` to clear existing cache entries. Remember to add both directories to your `.gitignore`.
    *
-   * Generation and embeddings are independently configurable. When the corresponding options are omitted, generation uses `AI_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`) and `AI_MODEL` (for example, `"gemini-3-flash-preview"` or `"gemma3:4b"`), while embeddings use `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`) and `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`). Gemini generation and embeddings use either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Explicit nested options override the corresponding environment variables.
+   * Generation and embeddings are independently configurable.
+   *
+   * Environment variables are named configuration values supplied to the running process. By default, generation reads `AI_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`) and `AI_MODEL` (for example, `"gemini-3-flash-preview"` or `"gemma3:4b"`), while embeddings read `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`) and `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`). Gemini generation and embeddings also read either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Values passed through either option override its environment defaults.
    *
    * For example, `generation.provider` can be `"gemini"` while `embeddings.provider` is `"ollama"`; the same mix can be selected through `AI_PROVIDER=gemini` and `AI_EMBEDDINGS_PROVIDER=ollama`.
    *
@@ -830,8 +834,8 @@ export default class SimpleTable extends SimpleTableCore {
    * @param textColumn - The name of the column containing the text content to search through and use as context.
    * @param nbResults - The number of most similar rows to retrieve and use as context for the AI.
    * @param options - Configuration options for the RAG process.
-   * @param options.generation - Gemini or Ollama generation configuration. Set `provider` explicitly or omit it to use `AI_PROVIDER`. Values provided here override the corresponding environment variables.
-   * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`. Values provided here override the corresponding environment variables.
+   * @param options.generation - Optional Gemini or Ollama generation configuration.
+   * @param options.embeddings - Optional Gemini or Ollama embedding configuration.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
    * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.
    * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
@@ -1106,9 +1110,9 @@ export default class SimpleTable extends SimpleTableCore {
    * Generates and executes a SQL query based on a prompt.
    * Additional instructions, such as column types, are automatically added to your prompt. Set `verbose` to `true` to see the full prompt.
    *
-   * This method supports Gemini, Vertex AI, and Ollama. When the corresponding `generation` options are omitted, configuration comes from `AI_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_MODEL` (for example, `"gemini-3-flash-preview"` or `"gemma3:4b"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Explicit `generation` options override the corresponding environment variables.
+   * This method supports Gemini, Vertex AI, and Ollama.
    *
-   * For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set `AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
+   * Environment variables are named configuration values supplied to the running process. By default, this method reads `AI_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_MODEL` (for example, `"gemini-3-flash-preview"` or `"gemma3:4b"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Values passed through `generation` override the corresponding environment values. When using Ollama, ensure it is running.
    *
    * Ollama temperature defaults to 0, while Gemini uses the provider's default. Provider-specific controls live under `generation`.
    *
@@ -1118,7 +1122,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param prompt - The input string to guide the AI in generating the SQL query.
    * @param options - Configuration options for the AI request.
    * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
-   * @param options.generation - Gemini or Ollama generation configuration. Set `provider` explicitly or omit it to use `AI_PROVIDER`. Values provided here override the corresponding environment variables.
+   * @param options.generation - Optional Gemini or Ollama generation configuration.
    * @param options.outputTable - The name of a new table where the results will be stored. If not provided, the current table will be replaced with the query results.
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
    * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.
@@ -1268,7 +1272,9 @@ export default class SimpleTable extends SimpleTableCore {
    * Writes the table data to a Google Sheet.
    * This method uses the `pushToSheet` function from the [journalism-google library](https://jsr.io/@nshiab/journalism-google). Refer to its documentation for more details.
    *
-   * By default, the selected tab is overwritten and values are written without Google Sheets interpretation. Authentication uses `GOOGLE_SERVICE_ACCOUNT_EMAIL` (for example, `"service-account@example.iam.gserviceaccount.com"`) with `GOOGLE_PRIVATE_KEY` (for example, `"-----BEGIN PRIVATE KEY-----\n..."`). Alternatively, set `GOOGLE_APPLICATION_CREDENTIALS` to a service-account JSON path (for example, `"./service-account.json"`). Explicit `options.credentials` override these environment variables. For detailed setup instructions, refer to the node-google-spreadsheet authentication guide: https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
+   * By default, the selected tab is overwritten and values are written without Google Sheets interpretation.
+   *
+   * Environment variables are named configuration values supplied to the running process. For authentication, this method reads `GOOGLE_SERVICE_ACCOUNT_EMAIL` (for example, `"service-account@example.iam.gserviceaccount.com"`) with `GOOGLE_PRIVATE_KEY` (for example, `"-----BEGIN PRIVATE KEY-----\n..."`). Alternatively, set `GOOGLE_APPLICATION_CREDENTIALS` to a service-account JSON path (for example, `"./service-account.json"`). Values passed through `options.credentials` override these environment values. For detailed setup instructions, refer to the node-google-spreadsheet authentication guide: https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
    *
    * @param sheetUrl - A Google Sheets URL. It can point to a spreadsheet or a specific tab.
    * @param options - An optional object with configuration options:
@@ -1278,7 +1284,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.prepend - Text to add above the header row in overwrite mode.
    * @param options.lastUpdate - If `true`, adds a UTC timestamp. Pass a Canadian time zone to use it for the timestamp. Available only in overwrite mode.
    * @param options.raw - If `true`, writes values without Google Sheets interpretation. Defaults to `true`.
-   * @param options.credentials - Explicit Google service-account credentials. These override credentials provided through environment variables or GOOGLE_APPLICATION_CREDENTIALS.
+   * @param options.credentials - Optional Google service-account credentials.
    * @param options.credentials.email - The Google service-account email.
    * @param options.credentials.privateKey - The Google service-account private key.
    * @returns A promise that resolves when the data has been written to the sheet.
@@ -1372,14 +1378,14 @@ export default class SimpleTable extends SimpleTableCore {
    * Loads data from a Google Sheet into the table.
    * This method uses the `getSheetData` function from the [journalism library](https://jsr.io/@nshiab/journalism). Refer to its documentation for more details.
    *
-   * By default, authentication uses `GOOGLE_SERVICE_ACCOUNT_EMAIL` (for example, `"service-account@example.iam.gserviceaccount.com"`) with `GOOGLE_PRIVATE_KEY` (for example, `"-----BEGIN PRIVATE KEY-----\n..."`). Alternatively, set `GOOGLE_APPLICATION_CREDENTIALS` to a service-account JSON path (for example, `"./service-account.json"`). Use `options.apiEmailEnvVar` and `options.apiKeyEnvVar` to read the email and private key from custom variable names instead.
+   * Environment variables are named configuration values supplied to the running process. By default, this method reads `GOOGLE_SERVICE_ACCOUNT_EMAIL` (for example, `"service-account@example.iam.gserviceaccount.com"`) with `GOOGLE_PRIVATE_KEY` (for example, `"-----BEGIN PRIVATE KEY-----\n..."`). Alternatively, set `GOOGLE_APPLICATION_CREDENTIALS` to a service-account JSON path (for example, `"./service-account.json"`).
    * The download is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param sheetUrl - The URL pointing to a specific Google Sheet (e.g., `"https://docs.google.com/spreadsheets/d/.../edit#gid=0"`).
    * @param options - An optional object with configuration options:
    * @param options.skip - The number of rows to skip from the top of the sheet before reading data. Useful when the sheet contains metadata or headers that should not be included in the data.
-   * @param options.apiEmailEnvVar - The name of the environment variable that stores your Google service-account email (for example, `"MY_GOOGLE_EMAIL"`). Defaults to `"GOOGLE_SERVICE_ACCOUNT_EMAIL"`.
-   * @param options.apiKeyEnvVar - The name of the environment variable that stores your Google service-account private key (for example, `"MY_GOOGLE_PRIVATE_KEY"`). Defaults to `"GOOGLE_PRIVATE_KEY"`.
+   * @param options.apiEmailEnvVar - A custom environment-variable name from which to read the Google service-account email. Defaults to `"GOOGLE_SERVICE_ACCOUNT_EMAIL"`.
+   * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Google service-account private key. Defaults to `"GOOGLE_PRIVATE_KEY"`.
    * @returns The table, so methods can be chained.
    * @category Loading Data
    *
@@ -1419,11 +1425,11 @@ export default class SimpleTable extends SimpleTableCore {
   /**
    * Writes the table data as CSV to a Datawrapper chart or table.
    *
-   * Authentication uses the API key in `DATAWRAPPER_KEY` (for example, `"your-datawrapper-api-key"`). Set `options.apiKeyEnvVar` to read the key from a custom environment variable instead.
+   * Environment variables are named configuration values supplied to the running process. By default, this method reads the API key from `DATAWRAPPER_KEY` (for example, `"your-datawrapper-api-key"`).
    *
    * @param chartId - The unique ID of the Datawrapper chart or table to update. This ID can be found in the Datawrapper URL or dashboard.
    * @param options - An optional object with configuration options:
-   * @param options.apiKeyEnvVar - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
+   * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
    * @param options.note - A string to update the chart's notes field with (e.g., a last-updated timestamp).
    * @param options.republish - If `true`, republishes the chart after updating the data. Defaults to `false`.
    * @returns A promise that resolves when the data has been sent to Datawrapper.
@@ -1463,12 +1469,12 @@ export default class SimpleTable extends SimpleTableCore {
   /**
    * Loads data from a Datawrapper chart or table into the table.
    *
-   * Authentication uses the API key in `DATAWRAPPER_KEY` (for example, `"your-datawrapper-api-key"`). Set `options.apiKeyEnvVar` to read the key from a custom environment variable instead.
+   * Environment variables are named configuration values supplied to the running process. By default, this method reads the API key from `DATAWRAPPER_KEY` (for example, `"your-datawrapper-api-key"`).
    * The download is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param chartId - The unique ID of the Datawrapper chart or table. This ID can be found in the Datawrapper URL or dashboard.
    * @param options - An optional object with configuration options:
-   * @param options.apiKeyEnvVar - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
+   * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
    * @returns The table, so methods can be chained.
    * @category Loading Data
    *
@@ -1495,11 +1501,11 @@ export default class SimpleTable extends SimpleTableCore {
   /**
    * Writes the table's geospatial data as GeoJSON to a Datawrapper map.
    *
-   * Authentication uses the API key in `DATAWRAPPER_KEY` (for example, `"your-datawrapper-api-key"`). Set `options.apiKeyEnvVar` to read the key from a custom environment variable instead.
+   * Environment variables are named configuration values supplied to the running process. By default, this method reads the API key from `DATAWRAPPER_KEY` (for example, `"your-datawrapper-api-key"`).
    *
    * @param chartId - The unique ID of the Datawrapper map to update. This ID can be found in the Datawrapper URL or dashboard.
    * @param options - An optional object with configuration options:
-   * @param options.apiKeyEnvVar - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
+   * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
    * @param options.column - The name of the geometry column to use. If omitted, the method will automatically attempt to find a geometry column.
    * @param options.note - A string to update the map's notes field with.
    * @param options.republish - If `true`, republishes the map after updating the data. Defaults to `false`.
@@ -1541,14 +1547,14 @@ export default class SimpleTable extends SimpleTableCore {
   /**
    * Loads geospatial data from a Datawrapper map into the table.
    *
-   * Authentication uses the API key in `DATAWRAPPER_KEY` (for example, `"your-datawrapper-api-key"`). Set `options.apiKeyEnvVar` to read the key from a custom environment variable instead.
+   * Environment variables are named configuration values supplied to the running process. By default, this method reads the API key from `DATAWRAPPER_KEY` (for example, `"your-datawrapper-api-key"`).
    *
    * The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.geojson` and removed after loading. Remember to add `.sda-cache` to your `.gitignore`.
    * The download is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param chartId - The unique ID of the Datawrapper map. This ID can be found in the Datawrapper URL or dashboard.
    * @param options - An optional object with configuration options:
-   * @param options.apiKeyEnvVar - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
+   * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
    * @returns The table, so methods can be chained.
    * @category Loading Data
    *

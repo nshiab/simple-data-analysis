@@ -474,6 +474,12 @@ await sdb.close();
 
 ![Map showing the wildfires in Canada in 2023.](./assets/map.png)
 
+Google Sheets, Datawrapper, and AI methods can read configuration from
+environment variables: named values made available to the running program. A
+`.env` file is one way to define them, but your runtime must load the file. For
+example, with Deno, run `deno run -A --env-file=.env analysis.ts`. Do not commit
+real credentials to source control.
+
 ### Google Sheets
 
 The
@@ -554,10 +560,8 @@ await sdb.close();
 ### AI
 
 SDA can use LLMs and embedding models to enrich data, search text, and answer
-questions based on the contents of a table. The examples below read their AI
-configuration from environment variables. Put one of the following
-configurations in your `.env` file and make sure your runtime loads it. For
-example, with Deno, run `deno run -A --env-file=.env analysis.ts`.
+questions based on the contents of a table. Choose one of the following `.env`
+configurations.
 
 For the Gemini API:
 
@@ -590,10 +594,10 @@ AI_EMBEDDINGS_MODEL=nomic-embed-text
 ```
 
 `AI_PROVIDER` and `AI_MODEL` configure generation, while their `AI_EMBEDDINGS_*`
-counterparts configure vector search; `aiRAG()` uses both. Gemini authenticates
-with `AI_KEY`, or with `AI_PROJECT` and `AI_LOCATION` for Vertex AI. Method
-options override environment variables. Do not commit real credentials to source
-control.
+counterparts configure embeddings, including embeddings used for vector search;
+`aiRAG()` uses both pairs. Gemini authenticates with `AI_KEY`, or with
+`AI_PROJECT` and `AI_LOCATION` for Vertex AI. Method options override the
+corresponding environment values.
 
 SDA's AI capabilities come from
 [`journalism-ai`](https://jsr.io/@nshiab/journalism-ai). By default, LLM
