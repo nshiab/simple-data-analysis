@@ -1,6 +1,6 @@
 {
   "name": "@nshiab/simple-data-analysis",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "description": "Fast DuckDB-powered TypeScript library for tabular, geospatial, vector, AI, Google Sheets, and data visualization workflows on Deno, Node.js, and Bun.",
   "keywords": [
     "data-analysis",
