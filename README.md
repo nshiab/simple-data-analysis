@@ -476,9 +476,48 @@ await sdb.close();
 ### AI
 
 SDA can use LLMs and embedding models to enrich data, search text, and answer
-questions based on the contents of a table. The examples below rely on
-environment variables to connect to an AI provider and select a model. Click the
-relevant documentation links below for more information.
+questions based on the contents of a table. The examples below read their AI
+configuration from environment variables. Put one of the following
+configurations in your `.env` file and make sure your runtime loads it. For
+example, with Deno, run `deno run -A --env-file=.env analysis.ts`.
+
+For the Gemini API:
+
+```dotenv
+AI_PROVIDER=gemini
+AI_MODEL=gemini-3-flash-preview
+AI_EMBEDDINGS_PROVIDER=gemini
+AI_EMBEDDINGS_MODEL=gemini-embedding-001
+AI_KEY=your-gemini-api-key
+```
+
+For Vertex AI, replace `AI_KEY` with your Google Cloud project and location:
+
+```dotenv
+AI_PROVIDER=gemini
+AI_MODEL=gemini-3-flash-preview
+AI_EMBEDDINGS_PROVIDER=gemini
+AI_EMBEDDINGS_MODEL=gemini-embedding-001
+AI_PROJECT=my-google-cloud-project
+AI_LOCATION=us-central1
+```
+
+For local Ollama models:
+
+```dotenv
+AI_PROVIDER=ollama
+AI_MODEL=gemma3:4b
+AI_EMBEDDINGS_PROVIDER=ollama
+AI_EMBEDDINGS_MODEL=nomic-embed-text
+```
+
+`aiRowByRow()` and `aiQuery()` use `AI_PROVIDER` and `AI_MODEL`.
+`aiEmbeddings()`, `aiVectorSimilarity()`, and the vector-search portion of
+`hybridSearch()` use `AI_EMBEDDINGS_PROVIDER` and `AI_EMBEDDINGS_MODEL`.
+`aiRAG()` uses both pairs. Gemini methods authenticate with `AI_KEY`, or with
+both `AI_PROJECT` and `AI_LOCATION` for Vertex AI. Options passed directly to a
+method override the corresponding environment variables. Do not commit real
+credentials to source control.
 
 SDA's AI capabilities come from
 [`journalism-ai`](https://jsr.io/@nshiab/journalism-ai). By default, LLM
@@ -495,6 +534,7 @@ record row-level errors, making it useful for cleaning, extracting, classifying,
 and enriching data at scale.
 
 ```ts
+// Uses AI_PROVIDER, AI_MODEL, and any required credentials from .env.
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
@@ -529,6 +569,8 @@ and
 methods used by `hybridSearch` are also available directly.
 
 ```ts
+// Uses AI_EMBEDDINGS_PROVIDER, AI_EMBEDDINGS_MODEL, and any required credentials
+// from .env.
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
@@ -557,6 +599,7 @@ method first retrieves relevant rows with hybrid search, then asks an LLM to
 answer using only those rows.
 
 ```ts
+// Uses both AI provider/model pairs and any required credentials from .env.
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
@@ -586,6 +629,7 @@ method turns a natural-language instruction into a SQL query and executes it on
 the table.
 
 ```ts
+// Uses AI_PROVIDER, AI_MODEL, and any required credentials from .env.
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
