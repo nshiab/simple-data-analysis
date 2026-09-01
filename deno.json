@@ -31,11 +31,11 @@
     "llm": "deno run -A scripts/generateLlm.ts && deno fmt llm.md",
     "npm-smoke": "deno run -A scripts/npmSmoke.ts",
     "test-coverage": "deno test -A --env-file --fail-fast --coverage=cov_profile && deno coverage cov_profile",
-    "patch-no-tests": "deno run -A jsr:@nshiab/bump-version patch",
-    "patch": "deno task all-tests && deno run -A jsr:@nshiab/bump-version patch",
-    "minor": "deno task all-tests && deno run -A jsr:@nshiab/bump-version minor",
-    "minor-no-tests": "deno run -A jsr:@nshiab/bump-version minor",
-    "major": "deno task all-tests && deno run -A jsr:@nshiab/bump-version major"
+    "patch-no-tests": "deno run --no-lock -A jsr:@nshiab/bump-version patch",
+    "patch": "deno task all-tests && deno run --no-lock -A jsr:@nshiab/bump-version patch",
+    "minor": "deno task all-tests && deno run --no-lock -A jsr:@nshiab/bump-version minor",
+    "minor-no-tests": "deno run --no-lock -A jsr:@nshiab/bump-version minor",
+    "major": "deno task all-tests && deno run --no-lock -A jsr:@nshiab/bump-version major"
   },
   "exclude": [
     "npm/"
