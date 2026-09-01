@@ -511,13 +511,11 @@ AI_EMBEDDINGS_PROVIDER=ollama
 AI_EMBEDDINGS_MODEL=nomic-embed-text
 ```
 
-`aiRowByRow()` and `aiQuery()` use `AI_PROVIDER` and `AI_MODEL`.
-`aiEmbeddings()`, `aiVectorSimilarity()`, and the vector-search portion of
-`hybridSearch()` use `AI_EMBEDDINGS_PROVIDER` and `AI_EMBEDDINGS_MODEL`.
-`aiRAG()` uses both pairs. Gemini methods authenticate with `AI_KEY`, or with
-both `AI_PROJECT` and `AI_LOCATION` for Vertex AI. Options passed directly to a
-method override the corresponding environment variables. Do not commit real
-credentials to source control.
+`AI_PROVIDER` and `AI_MODEL` configure generation, while their `AI_EMBEDDINGS_*`
+counterparts configure vector search; `aiRAG()` uses both. Gemini authenticates
+with `AI_KEY`, or with `AI_PROJECT` and `AI_LOCATION` for Vertex AI. Method
+options override environment variables. Do not commit real credentials to source
+control.
 
 SDA's AI capabilities come from
 [`journalism-ai`](https://jsr.io/@nshiab/journalism-ai). By default, LLM
