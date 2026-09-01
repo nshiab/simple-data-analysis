@@ -74,7 +74,7 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * This method automatically appends instructions to your prompt; set `verbose` to `true` to see the full prompt.
    *
-   * This method supports Gemini, Vertex AI, and Ollama. When the corresponding `generation` options are omitted, configuration comes from `AI_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_MODEL` (for example, `"gemini-3-flash-preview"` or `"gemma3:4b"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Explicit `generation` options override the corresponding environment variables; all other fields match the selected `askGemini` or `askOllama` function from journalism-ai.
+   * This method supports Gemini, Vertex AI, and Ollama. When the corresponding `generation` options are omitted, configuration comes from `AI_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_MODEL` (for example, `"gemini-3-flash-preview"` or `"gemma3:4b"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Explicit `generation` options override the corresponding environment variables.
    *
    * For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set `AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
    *
@@ -98,7 +98,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.concurrency - The number of concurrent requests to send. Defaults to `1`.
    * @param options.errorColumn - The optional column where per-row error messages are stored. When omitted, a failed batch throws.
    * @param options.logProgress - If `true`, logs request-pool progress. Defaults to `false`.
-   * @param options.generation - Gemini or Ollama generation configuration. Set `provider` explicitly or omit it to use environment selection; all other fields match the selected journalism-ai function.
+   * @param options.generation - Gemini or Ollama generation configuration. Set `provider` explicitly or omit it to use `AI_PROVIDER`. Values provided here override the corresponding environment variables.
    * @param options.test - A function to validate the returned data. If it throws an error, the request will be retried (if `retry` is set). Defaults to `undefined`.
    * @param options.retry - The number of times to retry the request in case of failure. Defaults to `0`.
    * @param options.retryCheck - A function that receives an error and returns whether it should be retried. Defaults to `undefined`.
@@ -308,7 +308,7 @@ export default class SimpleTable extends SimpleTableCore {
   /**
    * Generates embeddings for a specified text column and stores the results in a new column.
    *
-   * This method supports Gemini, Vertex AI, and Ollama embeddings. When the corresponding `embeddings` options are omitted, configuration comes from `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Explicit `embeddings` options override the corresponding environment variables; all other fields match `getEmbedding` from journalism-ai.
+   * This method supports Gemini, Vertex AI, and Ollama embeddings. When the corresponding `embeddings` options are omitted, configuration comes from `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Explicit `embeddings` options override the corresponding environment variables.
    *
    * For Ollama, set `AI_EMBEDDINGS_PROVIDER=ollama`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL`, or pass `{ provider: "ollama", ... }` through `embeddings`.
    *
@@ -332,7 +332,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
    * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
    * @param options.concurrency - The number of concurrent requests to send. Defaults to `1`.
-   * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use environment selection; all other fields match `getEmbedding` from journalism-ai.
+   * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`. Values provided here override the corresponding environment variables.
    * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
    * @returns The table, so methods can be chained.
@@ -450,7 +450,7 @@ export default class SimpleTable extends SimpleTableCore {
    * Creates an embedding from a specified text and returns the most similar text content based on their embeddings.
    * This method is useful for semantic search and text similarity tasks, computing cosine distance and sorting results by similarity.
    *
-   * To create the query embedding, pass provider-specific options matching `getEmbedding` from journalism-ai or use environment variables. When the corresponding `embeddings` options are omitted, configuration comes from `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Explicit `embeddings` options override the corresponding environment variables.
+   * To create the query embedding, pass `embeddings` options directly or use environment variables. When the corresponding `embeddings` options are omitted, configuration comes from `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Explicit `embeddings` options override the corresponding environment variables.
    *
    * Gemini, Vertex AI, and Ollama are supported. The selected provider and model must match those used to create the stored embedding column so the vectors share the same dimensions and embedding space.
    *
@@ -471,7 +471,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
    * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
    * @param options.outputTable - The name of the output table where the results will be stored. If not provided, the current table will be modified. Defaults to `undefined`.
-   * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use environment selection; all other fields match `getEmbedding` from journalism-ai.
+   * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`. Values provided here override the corresponding environment variables.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
    * @returns The table that will contain the similarity results, so methods can be chained.
    * @category AI
@@ -607,7 +607,7 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * Remove `.journalism-cache` and `.sda-cache` to clear existing cache entries. Remember to add both directories to your `.gitignore`.
    *
-   * This method supports Gemini, Vertex AI, and Ollama embeddings. When the corresponding `embeddings` options are omitted, configuration comes from `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Explicit `embeddings` options override the corresponding environment variables; all other fields match `getEmbedding` from journalism-ai.
+   * This method supports Gemini, Vertex AI, and Ollama embeddings. When the corresponding `embeddings` options are omitted, configuration comes from `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Explicit `embeddings` options override the corresponding environment variables.
    *
    * The selected embedding provider is used for both stored row embeddings and the query embedding.
    *
@@ -621,7 +621,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param textColumn - The name of the column containing the text content to search through.
    * @param nbResults - The number of most similar rows to retrieve.
    * @param options - Configuration options for the hybrid search.
-   * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use environment selection; all other fields match `getEmbedding` from journalism-ai.
+   * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`. Values provided here override the corresponding environment variables.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
    * @param options.createIndex - If `true`, creates an HNSW index when vector search is enabled. The BM25 FTS index is managed automatically whenever BM25 search is enabled. Defaults to `false`.
    * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
@@ -815,7 +815,7 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * Remove `.journalism-cache` and `.sda-cache` to clear existing cache entries. Remember to add both directories to your `.gitignore`.
    *
-   * Generation and embeddings are independently configurable. When the corresponding options are omitted, generation uses `AI_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`) and `AI_MODEL` (for example, `"gemini-3-flash-preview"` or `"gemma3:4b"`), while embeddings use `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`) and `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`). Gemini generation and embeddings use either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Explicit nested options override the corresponding environment variables; all remaining fields match journalism-ai.
+   * Generation and embeddings are independently configurable. When the corresponding options are omitted, generation uses `AI_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`) and `AI_MODEL` (for example, `"gemini-3-flash-preview"` or `"gemma3:4b"`), while embeddings use `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`) and `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`). Gemini generation and embeddings use either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Explicit nested options override the corresponding environment variables.
    *
    * For example, `generation.provider` can be `"gemini"` while `embeddings.provider` is `"ollama"`; the same mix can be selected through `AI_PROVIDER=gemini` and `AI_EMBEDDINGS_PROVIDER=ollama`.
    *
@@ -830,8 +830,8 @@ export default class SimpleTable extends SimpleTableCore {
    * @param textColumn - The name of the column containing the text content to search through and use as context.
    * @param nbResults - The number of most similar rows to retrieve and use as context for the AI.
    * @param options - Configuration options for the RAG process.
-   * @param options.generation - Gemini or Ollama generation configuration. Set `provider` explicitly or omit it to use environment selection; all other relevant fields match the selected journalism-ai function.
-   * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use environment selection; all other fields match `getEmbedding` from journalism-ai.
+   * @param options.generation - Gemini or Ollama generation configuration. Set `provider` explicitly or omit it to use `AI_PROVIDER`. Values provided here override the corresponding environment variables.
+   * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`. Values provided here override the corresponding environment variables.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
    * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.
    * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
@@ -1106,7 +1106,7 @@ export default class SimpleTable extends SimpleTableCore {
    * Generates and executes a SQL query based on a prompt.
    * Additional instructions, such as column types, are automatically added to your prompt. Set `verbose` to `true` to see the full prompt.
    *
-   * This method supports Gemini, Vertex AI, and Ollama. When the corresponding `generation` options are omitted, configuration comes from `AI_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_MODEL` (for example, `"gemini-3-flash-preview"` or `"gemma3:4b"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Explicit `generation` options override the corresponding environment variables; all other relevant fields match `askGemini` or `askOllama` from journalism-ai.
+   * This method supports Gemini, Vertex AI, and Ollama. When the corresponding `generation` options are omitted, configuration comes from `AI_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_MODEL` (for example, `"gemini-3-flash-preview"` or `"gemma3:4b"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Explicit `generation` options override the corresponding environment variables.
    *
    * For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set `AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
    *
@@ -1118,7 +1118,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param prompt - The input string to guide the AI in generating the SQL query.
    * @param options - Configuration options for the AI request.
    * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
-   * @param options.generation - Gemini or Ollama generation configuration. Set `provider` explicitly or omit it to use environment selection; all other relevant fields match the selected journalism-ai function.
+   * @param options.generation - Gemini or Ollama generation configuration. Set `provider` explicitly or omit it to use `AI_PROVIDER`. Values provided here override the corresponding environment variables.
    * @param options.outputTable - The name of a new table where the results will be stored. If not provided, the current table will be replaced with the query results.
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
    * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.

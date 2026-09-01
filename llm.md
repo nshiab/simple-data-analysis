@@ -669,9 +669,7 @@ This method supports Gemini, Vertex AI, and Ollama. When the corresponding
 `"gemini-3-flash-preview"` or `"gemma3:4b"`), and, for Gemini, either `AI_KEY`
 (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example,
 `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`).
-Explicit `generation` options override the corresponding environment variables;
-all other fields match the selected `askGemini` or `askOllama` function from
-journalism-ai.
+Explicit `generation` options override the corresponding environment variables.
 
 For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set
 `AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
@@ -719,8 +717,8 @@ aiRowByRow(column: string, newColumn: string | string[], prompt: string, options
 - **`options.logProgress`**: If `true`, logs request-pool progress. Defaults to
   `false`.
 - **`options.generation`**: Gemini or Ollama generation configuration. Set
-  `provider` explicitly or omit it to use environment selection; all other
-  fields match the selected journalism-ai function.
+  `provider` explicitly or omit it to use `AI_PROVIDER`. Values provided here
+  override the corresponding environment variables.
 - **`options.test`**: A function to validate the returned data. If it throws an
   error, the request will be retried (if `retry` is set). Defaults to
   `undefined`.
@@ -842,8 +840,7 @@ corresponding `embeddings` options are omitted, configuration comes from
 `"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example,
 `"your-gemini-api-key"`) or both `AI_PROJECT` (for example,
 `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`).
-Explicit `embeddings` options override the corresponding environment variables;
-all other fields match `getEmbedding` from journalism-ai.
+Explicit `embeddings` options override the corresponding environment variables.
 
 For Ollama, set `AI_EMBEDDINGS_PROVIDER=ollama`, ensure Ollama is running, and
 set `AI_EMBEDDINGS_MODEL`, or pass `{ provider: "ollama", ... }` through
@@ -901,8 +898,8 @@ aiEmbeddings(column: string, newColumn: string, options?: { embeddings?: { provi
 - **`options.concurrency`**: The number of concurrent requests to send. Defaults
   to `1`.
 - **`options.embeddings`**: Gemini or Ollama embedding configuration. Set
-  `provider` explicitly or omit it to use environment selection; all other
-  fields match `getEmbedding` from journalism-ai.
+  `provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`. Values
+  provided here override the corresponding environment variables.
 - **`options.rateLimitPerMinute`**: The rate limit for AI requests in requests
   per minute. The method will wait between requests if necessary. Defaults to
   `undefined` (no limit).
@@ -954,15 +951,15 @@ content based on their embeddings. This method is useful for semantic search and
 text similarity tasks, computing cosine distance and sorting results by
 similarity.
 
-To create the query embedding, pass provider-specific options matching
-`getEmbedding` from journalism-ai or use environment variables. When the
-corresponding `embeddings` options are omitted, configuration comes from
-`AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`),
-`AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or
-`"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example,
-`"your-gemini-api-key"`) or both `AI_PROJECT` (for example,
-`"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`).
-Explicit `embeddings` options override the corresponding environment variables.
+To create the query embedding, pass `embeddings` options directly or use
+environment variables. When the corresponding `embeddings` options are omitted,
+configuration comes from `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`;
+defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example,
+`"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either
+`AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for
+example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example,
+`"us-central1"`). Explicit `embeddings` options override the corresponding
+environment variables.
 
 Gemini, Vertex AI, and Ollama are supported. The selected provider and model
 must match those used to create the stored embedding column so the vectors share
@@ -1016,8 +1013,8 @@ aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { 
   be stored. If not provided, the current table will be modified. Defaults to
   `undefined`.
 - **`options.embeddings`**: Gemini or Ollama embedding configuration. Set
-  `provider` explicitly or omit it to use environment selection; all other
-  fields match `getEmbedding` from journalism-ai.
+  `provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`. Values
+  provided here override the corresponding environment variables.
 - **`options.verbose`**: If `true`, logs additional debugging information.
   Defaults to `false`.
 
@@ -1093,8 +1090,7 @@ corresponding `embeddings` options are omitted, configuration comes from
 `"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example,
 `"your-gemini-api-key"`) or both `AI_PROJECT` (for example,
 `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`).
-Explicit `embeddings` options override the corresponding environment variables;
-all other fields match `getEmbedding` from journalism-ai.
+Explicit `embeddings` options override the corresponding environment variables.
 
 The selected embedding provider is used for both stored row embeddings and the
 query embedding.
@@ -1123,8 +1119,8 @@ hybridSearch(query: string, idColumn: string, textColumn: string, nbResults: num
 - **`nbResults`**: The number of most similar rows to retrieve.
 - **`options`**: Configuration options for the hybrid search.
 - **`options.embeddings`**: Gemini or Ollama embedding configuration. Set
-  `provider` explicitly or omit it to use environment selection; all other
-  fields match `getEmbedding` from journalism-ai.
+  `provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`. Values
+  provided here override the corresponding environment variables.
 - **`options.verbose`**: If `true`, logs additional debugging information.
   Defaults to `false`.
 - **`options.createIndex`**: If `true`, creates an HNSW index when vector search
@@ -1246,7 +1242,7 @@ or `"gemma3:4b"`), while embeddings use `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or
 embeddings use either `AI_KEY` (for example, `"your-gemini-api-key"`) or both
 `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for
 example, `"us-central1"`). Explicit nested options override the corresponding
-environment variables; all remaining fields match journalism-ai.
+environment variables.
 
 For example, `generation.provider` can be `"gemini"` while `embeddings.provider`
 is `"ollama"`; the same mix can be selected through `AI_PROVIDER=gemini` and
@@ -1279,11 +1275,11 @@ async aiRAG(query: string, idColumn: string, textColumn: string, nbResults: numb
   context for the AI.
 - **`options`**: Configuration options for the RAG process.
 - **`options.generation`**: Gemini or Ollama generation configuration. Set
-  `provider` explicitly or omit it to use environment selection; all other
-  relevant fields match the selected journalism-ai function.
+  `provider` explicitly or omit it to use `AI_PROVIDER`. Values provided here
+  override the corresponding environment variables.
 - **`options.embeddings`**: Gemini or Ollama embedding configuration. Set
-  `provider` explicitly or omit it to use environment selection; all other
-  fields match `getEmbedding` from journalism-ai.
+  `provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`. Values
+  provided here override the corresponding environment variables.
 - **`options.verbose`**: If `true`, logs additional debugging information.
   Defaults to `false`.
 - **`options.includeThoughts`**: If `true`, includes the AI model's reasoning
@@ -1402,8 +1398,7 @@ This method supports Gemini, Vertex AI, and Ollama. When the corresponding
 `"gemini-3-flash-preview"` or `"gemma3:4b"`), and, for Gemini, either `AI_KEY`
 (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example,
 `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`).
-Explicit `generation` options override the corresponding environment variables;
-all other relevant fields match `askGemini` or `askOllama` from journalism-ai.
+Explicit `generation` options override the corresponding environment variables.
 
 For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set
 `AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
@@ -1429,8 +1424,8 @@ aiQuery(prompt: string, options?: { extraInstructions?: string; generation?: { s
 - **`options.extraInstructions`**: Additional instructions to append to the
   prompt, providing more context or guidance for the AI.
 - **`options.generation`**: Gemini or Ollama generation configuration. Set
-  `provider` explicitly or omit it to use environment selection; all other
-  relevant fields match the selected journalism-ai function.
+  `provider` explicitly or omit it to use `AI_PROVIDER`. Values provided here
+  override the corresponding environment variables.
 - **`options.outputTable`**: The name of a new table where the results will be
   stored. If not provided, the current table will be replaced with the query
   results.
