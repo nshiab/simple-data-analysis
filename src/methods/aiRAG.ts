@@ -1,90 +1,44 @@
-import { askAI } from "@nshiab/journalism-ai";
 import type SimpleTable from "../class/SimpleTable.ts";
-import { prettyDuration } from "@nshiab/journalism-format";
-import hybridSearch from "./hybridSearch.ts";
-import type { Ollama } from "ollama";
+import hybridSearch, { type HybridSearchOptions } from "./hybridSearch.ts";
+import type {
+  AIRequestMetrics,
+  UnstructuredGenerationOptions,
+} from "../helpers/aiOptions.ts";
+
+/**
+ * Options for retrieval and the final generation request in `aiRAG`.
+ *
+ * @example
+ * ```ts
+ * const options: AIRAGOptions = {
+ *   generation: { provider: "gemini" },
+ *   embeddings: { provider: "ollama" },
+ * };
+ * ```
+ */
+export type AIRAGOptions =
+  & Omit<
+    HybridSearchOptions,
+    "outputTable" | "times"
+  >
+  & {
+    /** Generation options excluding `schemaJson`, because `aiRAG` returns text. */
+    generation?: UnstructuredGenerationOptions;
+    /** Includes model thoughts in verbose logs when the provider returns them. */
+    includeThoughts?: boolean;
+    /** Mutable aggregate request metrics updated after the final provider response. */
+    metrics?: AIRequestMetrics;
+  };
 
 export default async function aiRAG(
   table: SimpleTable,
   query: string,
-  columnId: string,
-  columnText: string,
+  idColumn: string,
+  textColumn: string,
   nbResults: number,
-  options: {
-    cache?: boolean;
-    verbose?: boolean;
-    includeThoughts?: boolean;
-    systemPrompt?: string;
-    modelContextWindow?: number;
-    embeddingsModelContextWindow?: number;
-    createIndex?: boolean;
-    thinkingBudget?: number;
-    thinkingLevel?: "minimal" | "low" | "medium" | "high";
-    webSearch?: boolean;
-    safetyEnabled?: boolean;
-    model?: string;
-    temperature?: number;
-    apiKey?: string;
-    vertex?: boolean;
-    project?: string;
-    location?: string;
-    ollama?: boolean | Ollama;
-    metrics?: {
-      totalCost: number;
-      totalInputTokens: number;
-      totalOutputTokens: number;
-      totalRequests: number;
-    };
-    embeddingsModel?: string;
-    ollamaEmbeddings?: boolean;
-    embeddingsConcurrent?: number;
-    stemmer?:
-      | "arabic"
-      | "basque"
-      | "catalan"
-      | "danish"
-      | "dutch"
-      | "english"
-      | "finnish"
-      | "french"
-      | "german"
-      | "greek"
-      | "hindi"
-      | "hungarian"
-      | "indonesian"
-      | "irish"
-      | "italian"
-      | "lithuanian"
-      | "nepali"
-      | "norwegian"
-      | "porter"
-      | "portuguese"
-      | "romanian"
-      | "russian"
-      | "serbian"
-      | "spanish"
-      | "swedish"
-      | "tamil"
-      | "turkish"
-      | "none";
-    stopwords?: string;
-    ignore?: string;
-    stripAccents?: boolean;
-    lower?: boolean;
-    k?: number;
-    b?: number;
-    conjunctive?: boolean;
-    bm25?: boolean;
-    bm25MinScore?: number;
-    bm25ScoreColumn?: string;
-    vectorSearch?: boolean;
-    vectorMinSimilarity?: number;
-    vectorSimilarityColumn?: string;
-    efConstruction?: number;
-    efSearch?: number;
-    M?: number;
-  } = {},
+  options: AIRAGOptions = {},
 ) {
+  const { generation, includeThoughts, metrics, ...searchOptions } = options;
   const times = {
     start: Date.now(),
     embeddingStart: 0,
@@ -101,40 +55,17 @@ export default async function aiRAG(
   const searchResultsTable = await hybridSearch(
     table,
     query,
-    columnId,
-    columnText,
+    idColumn,
+    textColumn,
     nbResults,
     {
-      cache: options.cache,
-      verbose: options.verbose,
-      embeddingsModelContextWindow: options.embeddingsModelContextWindow,
-      createIndex: options.createIndex,
-      embeddingsModel: options.embeddingsModel,
-      ollamaEmbeddings: options.ollamaEmbeddings,
-      embeddingsConcurrent: options.embeddingsConcurrent,
-      stemmer: options.stemmer,
-      stopwords: options.stopwords,
-      ignore: options.ignore,
-      stripAccents: options.stripAccents,
-      lower: options.lower,
-      k: options.k,
-      b: options.b,
-      conjunctive: options.conjunctive,
-      bm25: options.bm25,
-      bm25MinScore: options.bm25MinScore,
-      bm25ScoreColumn: options.bm25ScoreColumn,
-      vectorSearch: options.vectorSearch,
-      vectorMinSimilarity: options.vectorMinSimilarity,
-      vectorSimilarityColumn: options.vectorSimilarityColumn,
+      ...searchOptions,
       outputTable: `${table.name}_rag_search_results`,
-      efConstruction: options.efConstruction,
-      efSearch: options.efSearch,
-      M: options.M,
-      times: times,
+      times,
     },
   );
 
-  await searchResultsTable.selectColumns([columnId, columnText]);
+  searchResultsTable.selectColumns([idColumn, textColumn]);
 
   // Get the retrieved data
   const retrievedData = await searchResultsTable.getData() as {
@@ -144,10 +75,11 @@ export default async function aiRAG(
   // Clean up the temporary table
   await searchResultsTable.removeTable();
 
-  if (options.verbose) {
+  if (searchOptions.verbose) {
     times.llmStart = Date.now();
   }
 
+  const { default: askAI } = await import("../helpers/askAI.ts");
   const response = await askAI(
     `Answer the following:
 - ${query}
@@ -155,13 +87,14 @@ export default async function aiRAG(
 Base your answer only on the following data:\n
 ${
       retrievedData.map((entry) =>
-        `${columnId}: ${entry[columnId]}\n\n${columnText}:\n\n${
-          entry[columnText]
+        `${idColumn}: ${entry[idColumn]}\n\n${textColumn}:\n\n${
+          entry[textColumn]
         }`
       ).join("\n\n-----\n\n")
     }`,
     {
-      systemPrompt: options.systemPrompt ??
+      generation,
+      systemPrompt: generation?.systemPrompt ??
         `You are a focused research assistant. Your goal is to answer the user's question using ONLY the provided data.
 
 Rules of Engagement:
@@ -169,29 +102,17 @@ Rules of Engagement:
 - Strict Relevance: Only include information that directly addresses the user's query. If an entry is irrelevant, ignore it entirely.
 - Ambiguity & Contradiction: If sources conflict, present both views clearly. If the data is incomplete, state what is known and explicitly identify what is missing.
 - Groundedness: If the provided data does not contain the answer, your only response must be: "I do not have data to answer this question." Do not use outside knowledge.`,
-      cache: options.cache,
-      verbose: options.verbose,
-      includeThoughts: options.includeThoughts,
-      contextWindow: options.modelContextWindow,
-      thinkingBudget: options.thinkingBudget,
-      thinkingLevel: options.thinkingLevel,
-      webSearch: options.webSearch,
-      safetyEnabled: options.safetyEnabled,
-      model: options.model,
-      temperature: options.temperature,
-      apiKey: options.apiKey,
-      vertex: options.vertex,
-      project: options.project,
-      location: options.location,
-      ollama: options.ollama,
-      metrics: options.metrics,
+      verbose: searchOptions.verbose,
+      includeThoughts,
+      metrics,
     },
-  ) as Promise<string>;
+  ) as string;
 
-  if (options.verbose) {
+  if (searchOptions.verbose) {
     times.llmEnd = Date.now();
-    const enableVectorSearch = options.vectorSearch !== false;
-    const enableBm25 = options.bm25 !== false;
+    const { prettyDuration } = await import("@nshiab/journalism-format");
+    const enableVectorSearch = searchOptions.vectorSearch !== false;
+    const enableBm25 = searchOptions.bm25 !== false;
     const parallelLabel = enableVectorSearch && enableBm25 ? " (parallel)" : "";
 
     const logParts = [`\nRAG process times:`];

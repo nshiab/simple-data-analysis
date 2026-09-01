@@ -1,0 +1,19 @@
+# The Simple Data Analysis Library
+
+> Fast DuckDB-powered TypeScript library for tabular, geospatial, vector, AI, Google Sheets, and data visualization workflows on Deno, Node.js, and Bun.
+
+Install with Deno: `deno add jsr:@nshiab/simple-data-analysis`
+
+Install with Node.js: `npm i @nshiab/simple-data-analysis`
+
+Install with Bun: `bun add @nshiab/simple-data-analysis`
+
+## Documentation
+
+- [README](https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/README.md): Installation, quick start, concepts, and examples.
+- [Complete API reference](https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/llm.md): Generated documentation for public classes, methods, parameters, and examples.
+- [JSR API reference](https://jsr.io/@nshiab/simple-data-analysis/doc): Searchable documentation for the published package.
+
+## Optional
+
+- [Source repository](https://github.com/nshiab/simple-data-analysis): Source code, issues, releases, and contribution guidance.

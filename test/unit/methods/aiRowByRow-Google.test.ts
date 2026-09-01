@@ -1,753 +1,116 @@
-import { assertEquals } from "@std/assert";
+import { assert, assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
-import { existsSync, rmSync } from "node:fs";
-import * as z from "zod";
+import createEnvironmentTest from "../helpers/createEnvironmentTest.ts";
 
+const geminiTest = createEnvironmentTest({ AI_PROVIDER: "gemini" });
 const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
+const geminiGeneration = {
+  provider: "gemini",
+  model: "gemini-3-flash-preview",
+  thinkingLevel: "minimal",
+  cache: false,
+} as const;
+
 if (typeof aiKey === "string" && aiKey !== "") {
-  if (existsSync("./.journalism-cache")) {
-    rmSync("./.journalism-cache", { recursive: true });
-  }
-  Deno.test("should successfully run the code example", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    // New table with column "name".
-    await table.loadArray([
-      { name: "Marie" },
-      { name: "John" },
-      { name: "Alex" },
-    ]);
+  geminiTest(
+    "aiRowByRow rate-limits live Gemini requests",
+    async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable("gemini_safety");
+      table.loadArray([
+        { city: "Marrakech" },
+        { city: "Kyoto" },
+        { city: "Auckland" },
+      ]);
+      const metrics = {
+        totalCost: 0,
+        totalInputTokens: 0,
+        totalOutputTokens: 0,
+        totalRequests: 0,
+      };
+      const requestStarts: number[] = [];
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = (
+        input: string | URL | Request,
+        init?: RequestInit,
+      ) => {
+        const url = input instanceof Request ? input.url : String(input);
+        if (url.includes("generateContent")) {
+          requestStarts.push(performance.now());
+        }
+        return originalFetch(input, init);
+      };
 
-    // Ask the AI to categorize in a new column "gender".
+      try {
+        await table.aiRowByRow(
+          "city",
+          "country",
+          "Give me the country of the city.",
+          {
+            generation: { ...geminiGeneration, safetyEnabled: false },
+            batchSize: 1,
+            concurrency: 3,
+            errorColumn: "error",
+            metrics,
+            rateLimitPerMinute: 120,
+          },
+        ).log();
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+
+      assertEquals(await table.getData(), [
+        { city: "Marrakech", country: "Morocco", error: null },
+        { city: "Kyoto", country: "Japan", error: null },
+        { city: "Auckland", country: "New Zealand", error: null },
+      ]);
+      assertEquals(metrics.totalRequests, 3);
+      assertEquals(requestStarts.length, 3);
+      assert(requestStarts[1] - requestStarts[0] >= 400);
+      assert(requestStarts[2] - requestStarts[1] >= 400);
+      await sdb.close();
+    },
+  );
+
+  geminiTest("aiRowByRow supports Gemini web grounding", async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("gemini_grounding");
+    table.loadArray([{ city: "Marrakech" }]);
     await table.aiRowByRow(
-      "name",
-      "gender",
-      `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral".`,
+      "city",
+      "country",
+      "Give me the country of the city.",
       {
-        // Cache the results locally
-        cache: true,
-        // Send 10 rows at once to the AI
-        batchSize: 10,
-        // Ensure the response contains only the expected categories
-        test: (data: {
-          [key: string]: unknown;
-        }) => {
-          if (
-            typeof data.gender !== "string" ||
-            !["Man", "Woman", "Neutral"].includes(data.gender)
-          ) {
-            throw new Error(`Invalid response ${data.gender}`);
-          }
-        },
-        // Retry up to 3 times if the test fails
-        retry: 3,
-        // Avoid exceeding a rate limit by waiting between requests
-        rateLimitPerMinute: 15,
-        thinkingLevel: "minimal",
-        // Log details
-        verbose: true,
+        generation: { ...geminiGeneration, webSearch: true },
+        errorColumn: "error",
       },
-    );
-
-    const data = await table.getData();
-
-    assertEquals(data, [
-      { name: "Marie", gender: "Woman" },
-      { name: "John", gender: "Man" },
-      { name: "Alex", gender: "Neutral" },
+    ).log();
+    assertEquals(await table.getData(), [
+      { city: "Marrakech", country: "Morocco", error: null },
     ]);
-    await sdb.done();
+    await sdb.close();
   });
-  Deno.test("should iterate over rows with a prompt", async () => {
+
+  geminiTest("aiRowByRow supports Gemini high thinking", async () => {
     const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-    ]);
+    const table = sdb.newTable("gemini_thinking");
+    table.loadArray([{ city: "Kyoto" }]);
     await table.aiRowByRow(
       "city",
       "country",
-      `Give me the country of the city.`,
-      { verbose: true, thinkingLevel: "minimal" },
-    );
-    const data = await table.getData();
-
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should iterate over rows with a prompt and safetyEnabled", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-    ]);
-    await table.aiRowByRow(
-      "city",
-      "country",
-      `Give me the country of the city.`,
-      { verbose: true, safetyEnabled: false, thinkingLevel: "minimal" },
-    );
-    const data = await table.getData();
-
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should iterate over rows with a prompt and add multiple columns", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-    ]);
-    await table.aiRowByRow(
-      "city",
-      ["country", "continent"],
-      `Give me the country and continent of the city.`,
-      { verbose: true, thinkingLevel: "minimal" },
-    );
-    const data = await table.getData();
-
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco", continent: "Africa" },
-      { city: "Kyoto", country: "Japan", continent: "Asia" },
-      { city: "Auckland", country: "New Zealand", continent: "Oceania" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should iterate over rows with a prompt and add multiple columns, with a bactch size greater than 1", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-    ]);
-    await table.aiRowByRow(
-      "city",
-      ["country", "continent"],
-      `Give me the country and continent of the city.`,
-      { verbose: true, batchSize: 2, thinkingLevel: "minimal" },
-    );
-    const data = await table.getData();
-
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco", continent: "Africa" },
-      { city: "Kyoto", country: "Japan", continent: "Asia" },
-      { city: "Auckland", country: "New Zealand", continent: "Oceania" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should iterate over rows with a prompt and metrics", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-    ]);
-    const metrics = {
-      totalCost: 0,
-      totalInputTokens: 0,
-      totalOutputTokens: 0,
-      totalRequests: 0,
-    };
-    await table.aiRowByRow(
-      "city",
-      "country",
-      `Give me the country of the city.`,
-      { verbose: true, thinkingLevel: "minimal", metrics },
-    );
-    console.table(metrics);
-    const data = await table.getData();
-
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should iterate over rows with a prompt with thinking and metrics", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-    ]);
-    const metrics = {
-      totalCost: 0,
-      totalInputTokens: 0,
-      totalOutputTokens: 0,
-      totalRequests: 0,
-    };
-    await table.aiRowByRow(
-      "city",
-      "country",
-      `Give me the country of the city.`,
+      "Give me the country of the city.",
       {
-        verbose: true,
-        thinkingBudget: 1000,
-        model: "gemini-2.5-flash",
-        metrics,
+        generation: { ...geminiGeneration, thinkingLevel: "high" },
+        errorColumn: "error",
       },
-    );
-    console.table(metrics);
-    const data = await table.getData();
-
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should iterate over rows with a prompt and a batch size", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
-    await table.aiRowByRow(
-      "city",
-      "country",
-      `Give me the country of the city.`,
-      { batchSize: 10, verbose: true, thinkingLevel: "minimal" },
-    );
-    const data = await table.getData();
-
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-      { city: "Paris", country: "France" },
-      { city: "London", country: "United Kingdom" },
-      { city: "New York", country: "United States" },
-      { city: "Los Angeles", country: "United States" },
-      { city: "Tokyo", country: "Japan" },
-      { city: "Beijing", country: "China" },
-      { city: "Moscow", country: "Russia" },
-      { city: "Berlin", country: "Germany" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should iterate over rows with a prompt and a batch size and cache", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
-    await table.aiRowByRow(
-      "city",
-      "country",
-      `Give me the country of the city.`,
-      { batchSize: 10, cache: true, verbose: true, thinkingLevel: "minimal" },
-    );
-    const data = await table.getData();
-
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-      { city: "Paris", country: "France" },
-      { city: "London", country: "United Kingdom" },
-      { city: "New York", country: "United States" },
-      { city: "Los Angeles", country: "United States" },
-      { city: "Tokyo", country: "Japan" },
-      { city: "Beijing", country: "China" },
-      { city: "Moscow", country: "Russia" },
-      { city: "Berlin", country: "Germany" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should iterate over rows with a prompt and a batch size and return from cache", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
-    await table.aiRowByRow(
-      "city",
-      "country",
-      `Give me the country of the city.`,
-      { batchSize: 10, cache: true, verbose: true, thinkingLevel: "minimal" },
-    );
-    const data = await table.getData();
-
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-      { city: "Paris", country: "France" },
-      { city: "London", country: "United Kingdom" },
-      { city: "New York", country: "United States" },
-      { city: "Los Angeles", country: "United States" },
-      { city: "Tokyo", country: "Japan" },
-      { city: "Beijing", country: "China" },
-      { city: "Moscow", country: "Russia" },
-      { city: "Berlin", country: "Germany" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should iterate over rows with a prompt with a batch size and be verbose", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
-    await table.aiRowByRow(
-      "city",
-      "country",
-      `Give me the country of the city.`,
-      { batchSize: 10, verbose: true, thinkingLevel: "minimal" },
-    );
-    const data = await table.getData();
-
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-      { city: "Paris", country: "France" },
-      { city: "London", country: "United Kingdom" },
-      { city: "New York", country: "United States" },
-      { city: "Los Angeles", country: "United States" },
-      { city: "Tokyo", country: "Japan" },
-      { city: "Beijing", country: "China" },
-      { city: "Moscow", country: "Russia" },
-      { city: "Berlin", country: "Germany" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should iterate over rows with a prompt and respect a rate limit with a batch size", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
-    await table.aiRowByRow(
-      "city",
-      "country",
-      `Give me the country of the city.`,
-      {
-        batchSize: 10,
-        verbose: true,
-        rateLimitPerMinute: 15,
-        thinkingLevel: "minimal",
-      },
-    );
-    const data = await table.getData();
-
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-      { city: "Paris", country: "France" },
-      { city: "London", country: "United Kingdom" },
-      { city: "New York", country: "United States" },
-      { city: "Los Angeles", country: "United States" },
-      { city: "Tokyo", country: "Japan" },
-      { city: "Beijing", country: "China" },
-      { city: "Moscow", country: "Russia" },
-      { city: "Berlin", country: "Germany" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should iterate over rows with a prompt, a batch size and concurrent requests", async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
-    await table.aiRowByRow(
-      "city",
-      "country",
-      `Give me the country of the city.`,
-      { batchSize: 2, concurrent: 2, verbose: true, thinkingLevel: "minimal" },
-    );
-    const data = await table.getData();
-
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-      { city: "Paris", country: "France" },
-      { city: "London", country: "United Kingdom" },
-      { city: "New York", country: "United States" },
-      { city: "Los Angeles", country: "United States" },
-      { city: "Tokyo", country: "Japan" },
-      { city: "Beijing", country: "China" },
-      { city: "Moscow", country: "Russia" },
-      { city: "Berlin", country: "Germany" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should iterate over rows with a prompt, a batch size, concurrent requests and rate limit", async () => {
-    const sdb = new SimpleDB({ logDuration: true });
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
-    await table.aiRowByRow(
-      "city",
-      "country",
-      `Give me the country of the city.`,
-      {
-        batchSize: 2,
-        concurrent: 2,
-        verbose: true,
-        rateLimitPerMinute: 15,
-        thinkingLevel: "minimal",
-      },
-    );
-    const data = await table.getData();
-
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-      { city: "Paris", country: "France" },
-      { city: "London", country: "United Kingdom" },
-      { city: "New York", country: "United States" },
-      { city: "Los Angeles", country: "United States" },
-      { city: "Tokyo", country: "Japan" },
-      { city: "Beijing", country: "China" },
-      { city: "Moscow", country: "Russia" },
-      { city: "Berlin", country: "Germany" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should iterate over rows with a prompt, a batch size, concurrent requests, rate limit and cache", async () => {
-    const sdb = new SimpleDB({ logDuration: true });
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
-    await table.aiRowByRow(
-      "city",
-      "country",
-      `Give me the country of the city.`,
-      {
-        batchSize: 2,
-        concurrent: 2,
-        verbose: true,
-        rateLimitPerMinute: 15,
-        cache: true,
-        thinkingLevel: "minimal",
-      },
-    );
-    const data = await table.getData();
-
-    assertEquals(data, [
-      { city: "Marrakech", country: "Morocco" },
-      { city: "Kyoto", country: "Japan" },
-      { city: "Auckland", country: "New Zealand" },
-      { city: "Paris", country: "France" },
-      { city: "London", country: "United Kingdom" },
-      { city: "New York", country: "United States" },
-      { city: "Los Angeles", country: "United States" },
-      { city: "Tokyo", country: "Japan" },
-      { city: "Beijing", country: "China" },
-      { city: "Moscow", country: "Russia" },
-      { city: "Berlin", country: "Germany" },
-    ]);
-    await sdb.done();
-  });
-  Deno.test("should use the default Zod JSON schema", async () => {
-    const sdb = new SimpleDB({ logDuration: true });
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
-
-    await table.aiRowByRow(
-      "city",
-      ["country", "population"],
-      `Give me the country and population of the city.`,
-      {
-        batchSize: 100,
-        verbose: true,
-        thinkingLevel: "minimal",
-      },
-    );
-    const data = await table.getData();
-
-    assertEquals(data.length, 11);
-    assertEquals(
-      data.map((d) => d.city).every((city) => typeof city === "string"),
-      true,
-    );
-    assertEquals(
-      data.map((d) => d.country).every((country) =>
-        typeof country === "string"
-      ),
-      true,
-    );
-    assertEquals(
-      data.map((d) => d.population).every((population) =>
-        typeof population === "string"
-      ),
-      true,
-    );
-    await sdb.done();
-  });
-  Deno.test("should accept a Zod JSON schema for structured output", async () => {
-    const sdb = new SimpleDB({ logDuration: true });
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "city": "Marrakech" },
-      { "city": "Kyoto" },
-      { "city": "Auckland" },
-      { "city": "Paris" },
-      { "city": "London" },
-      { "city": "New York" },
-      { "city": "Los Angeles" },
-      { "city": "Tokyo" },
-      { "city": "Beijing" },
-      { "city": "Moscow" },
-      { "city": "Berlin" },
-    ]);
-
-    const schemaJson = z.toJSONSchema(z.array(z.object({
-      country: z.string(),
-      population: z.number(),
-    })));
-
-    await table.aiRowByRow(
-      "city",
-      ["country", "population"],
-      `Give me the country and population of the city.`,
-      {
-        batchSize: 100,
-        schemaJson,
-        verbose: true,
-        thinkingLevel: "minimal",
-      },
-    );
-    const data = await table.getData();
-
-    assertEquals(data.length, 11);
-    assertEquals(
-      data.map((d) => d.city).every((city) => typeof city === "string"),
-      true,
-    );
-    assertEquals(
-      data.map((d) => d.country).every((country) =>
-        typeof country === "string"
-      ),
-      true,
-    );
-    assertEquals(
-      data.map((d) => d.population).every((population) =>
-        typeof population === "number"
-      ),
-      true,
-    );
-    await sdb.done();
-  });
-  Deno.test("should not ground using web search", async () => {
-    const sdb = new SimpleDB({ logDuration: true });
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "name": "Nael Shiab, CBC News" },
-      { "name": "Elizabeth Haggarty, CBC News" },
-      { "name": "Graeme Bruce, CBC News" },
-    ]);
-
-    await table.aiRowByRow(
-      "name",
-      "bio",
-      `Who is this?`,
-      {
-        verbose: true,
-        model: "gemini-3-flash-preview",
-        thinkingLevel: "minimal",
-      },
-    );
-
-    await table.logTable();
-
-    assertEquals(true, true);
-    await sdb.done();
-  });
-  Deno.test("should ground using web search", async () => {
-    const sdb = new SimpleDB({ logDuration: true });
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "name": "Nael Shiab, CBC News" },
-      { "name": "Elizabeth Haggarty, CBC News" },
-      { "name": "Graeme Bruce, CBC News" },
-    ]);
-
-    await table.aiRowByRow(
-      "name",
-      "bio",
-      `Who is this?`,
-      {
-        verbose: true,
-        webSearch: true,
-        model: "gemini-3-flash-preview",
-        thinkingLevel: "minimal",
-      },
-    );
-
-    await table.logTable();
-
-    assertEquals(true, true);
-    await sdb.done();
-  });
-  Deno.test("should think minimally by default", async () => {
-    const sdb = new SimpleDB({ logDuration: true });
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "birthday": "2020-01-01" },
-      { "birthday": "1990-05-15" },
-      { "birthday": "1985-10-30" },
-    ]);
-
-    await table.aiRowByRow(
-      "birthday",
-      "age",
-      `How old is this person? We are Feb 16, 2025.`,
-      {
-        verbose: true,
-        model: "gemini-3-flash-preview",
-        thinkingLevel: "minimal",
-      },
-    );
-
-    await table.logTable();
-
-    assertEquals(true, true);
-    await sdb.done();
-  });
-  Deno.test("should use thinking level high", async () => {
-    const sdb = new SimpleDB({ logDuration: true });
-    const table = sdb.newTable("data");
-    await table.loadArray([
-      { "birthday": "2020-01-01" },
-      { "birthday": "1990-05-15" },
-      { "birthday": "1985-10-30" },
-    ]);
-
-    await table.aiRowByRow(
-      "birthday",
-      "age",
-      `How old is this person? We are Feb 16, 2025.`,
-      {
-        verbose: true,
-        model: "gemini-3-flash-preview",
-        thinkingLevel: "high",
-      },
-    );
-
-    await table.logTable();
-
-    assertEquals(true, true);
-    await sdb.done();
+    ).log();
+    assertEquals(await table.getData(), [{
+      city: "Kyoto",
+      country: "Japan",
+      error: null,
+    }]);
+    await sdb.close();
   });
 } else {
-  console.log("No AI_PROJECT in process.env");
+  console.log("No AI_KEY or AI_PROJECT in process.env");
 }

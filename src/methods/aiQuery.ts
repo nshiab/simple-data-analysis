@@ -1,30 +1,56 @@
-import { askAI } from "@nshiab/journalism-ai";
 import type { SimpleTable } from "../index.ts";
-import type { Ollama } from "ollama";
-import { object, string, toJSONSchema } from "zod";
+import {
+  snapshotAIOptions,
+  type UnstructuredGenerationOptions,
+} from "../helpers/aiOptions.ts";
+import { queueAsyncBarrier } from "@nshiab/simple-data-analysis-core/helpers";
 
-export default async function aiQuery(
+/**
+ * Options for generating and executing a SQL query.
+ *
+ * @example
+ * ```ts
+ * const options: AIQueryOptions = {
+ *   generation: { provider: "gemini" },
+ *   outputTable: "results",
+ * };
+ * ```
+ */
+export type AIQueryOptions = {
+  /** Additional requirements appended to the SQL-generation prompt. */
+  extraInstructions?: string;
+  /** Generation options excluding `schemaJson`, which is owned by SDA. */
+  generation?: UnstructuredGenerationOptions;
+  /** Includes model thoughts in verbose logs when the provider returns them. */
+  includeThoughts?: boolean;
+  /** Writes results to a new table instead of replacing the current table. */
+  outputTable?: string;
+  /** Logs the request and provider response when enabled. */
+  verbose?: boolean;
+};
+
+export default function aiQuery(
   simpleTable: SimpleTable,
   prompt: string,
-  options: {
-    extraInstructions?: string;
-    cache?: boolean;
-    model?: string;
-    apiKey?: string;
-    vertex?: boolean;
-    project?: string;
-    includeThoughts?: boolean;
-    location?: string;
-    ollama?: boolean | Ollama;
-    contextWindow?: number;
-    thinkingBudget?: number;
-    thinkingLevel?: "minimal" | "low" | "medium" | "high";
-    temperature?: number;
-    safetyEnabled?: boolean;
-    outputTable?: string;
-    verbose?: boolean;
-  } = {},
-) {
+  options: AIQueryOptions = {},
+): SimpleTable {
+  options = snapshotAIOptions(options);
+  const outputTable = options.outputTable === undefined
+    ? simpleTable
+    : simpleTable.sdb.newTable(options.outputTable);
+  queueAsyncBarrier(outputTable, {
+    method: "aiQuery()",
+    parameters: { prompt, outputTable: options.outputTable },
+    execute: () => runAIQuery(simpleTable, prompt, options),
+  });
+  return outputTable;
+}
+
+async function runAIQuery(
+  simpleTable: SimpleTable,
+  prompt: string,
+  options: AIQueryOptions,
+): Promise<void> {
   const tableName = options.outputTable ?? simpleTable.name;
 
   const p =
@@ -34,7 +60,7 @@ export default async function aiQuery(
       options.outputTable
         ? `create a new table named "${tableName}" with the results`
         : `replace the existing "${simpleTable.name}" table`
-    }. This means the query must start with 'CREATE OR REPLACE TABLE "${tableName}"...'. Return just the query, nothing else.${
+    }. This means the query must start with 'CREATE OR REPLACE TABLE "${tableName}"...'. Return a JSON object matching the provided schema, with the SQL query in the "query" property. Do not include markdown or any other text.${
       options.extraInstructions ? `\n${options.extraInstructions}` : ""
     }`;
 
@@ -42,6 +68,11 @@ export default async function aiQuery(
     console.log("\naiQuery()");
   }
 
+  const [{ object, string, toJSONSchema }, { default: askAI }] = await Promise
+    .all([
+      import("zod"),
+      import("../helpers/askAI.ts"),
+    ]);
   const schemaJson = toJSONSchema(
     object({
       query: string(),
@@ -50,18 +81,7 @@ export default async function aiQuery(
 
   // Types could be improved
   const answer = await askAI(p, {
-    cache: options.cache,
-    model: options.model,
-    apiKey: options.apiKey,
-    vertex: options.vertex,
-    project: options.project,
-    location: options.location,
-    ollama: options.ollama,
-    contextWindow: options.contextWindow,
-    thinkingBudget: options.thinkingBudget,
-    thinkingLevel: options.thinkingLevel,
-    temperature: options.temperature,
-    safetyEnabled: options.safetyEnabled,
+    generation: options.generation,
     verbose: options.verbose,
     includeThoughts: options.includeThoughts,
     schemaJson,

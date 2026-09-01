@@ -1,44 +1,135 @@
-import { formatNumber } from "@nshiab/journalism-format";
-import sleep from "../helpers/sleep.ts";
 import type { SimpleTable } from "../index.ts";
-import tryEmbedding from "../helpers/tryEmbedding.ts";
-import type { Ollama } from "ollama";
+import {
+  type EmbeddingOptions,
+  snapshotAIOptions,
+} from "../helpers/aiOptions.ts";
+import ensureEmbeddingColumn from "../helpers/ensureEmbeddingColumn.ts";
+import { queueAsyncBarrier } from "@nshiab/simple-data-analysis-core/helpers";
 
-export default async function aiEmbeddings(
+/**
+ * Options for generating an embedding column.
+ *
+ * @example
+ * ```ts
+ * const options: AIEmbeddingsOptions = {
+ *   embeddings: { provider: "ollama" },
+ *   concurrency: 4,
+ * };
+ * ```
+ */
+export type AIEmbeddingsOptions = {
+  /** Provider-specific embedding options, or options for the environment-selected provider. */
+  embeddings?: EmbeddingOptions;
+  /** Creates a vector-similarity index on the generated column. */
+  createIndex?: boolean;
+  /** Replaces an existing vector-similarity index when creating one. */
+  overwriteIndex?: boolean;
+  /** Maximum number of embedding requests processed concurrently. */
+  concurrency?: number;
+  /** Logs embedding progress and index creation when enabled. */
+  verbose?: boolean;
+  /** Maximum request rate used to calculate delays between batches. */
+  rateLimitPerMinute?: number;
+  /** Candidate count used while constructing the vector index. */
+  efConstruction?: number;
+  /** Candidate count used while searching the vector index. */
+  efSearch?: number;
+  /** Maximum number of graph neighbors retained by the vector index. */
+  M?: number;
+};
+
+export default function aiEmbeddings(
   simpleTable: SimpleTable,
   column: string,
   newColumn: string,
-  options: {
-    createIndex?: boolean;
-    overwriteIndex?: boolean;
-    concurrent?: number;
-    cache?: boolean;
-    model?: string;
-    apiKey?: string;
-    vertex?: boolean;
-    project?: string;
-    location?: string;
-    ollama?: boolean | Ollama;
-    verbose?: boolean;
-    rateLimitPerMinute?: number;
-    contextWindow?: number;
-    efConstruction?: number;
-    efSearch?: number;
-    M?: number;
-  } = {},
-) {
+  options: AIEmbeddingsOptions = {},
+): SimpleTable {
+  options = snapshotAIOptions(options);
+  queueAsyncBarrier(simpleTable, {
+    method: "aiEmbeddings()",
+    parameters: { column, newColumn },
+    execute: () => runAIEmbeddings(simpleTable, column, newColumn, options),
+  });
+  return simpleTable;
+}
+
+async function runAIEmbeddings(
+  simpleTable: SimpleTable,
+  column: string,
+  newColumn: string,
+  options: AIEmbeddingsOptions,
+): Promise<void> {
+  const { getEmbeddingIdentity } = await import("@nshiab/journalism-ai");
+  const identity = getEmbeddingIdentity(options.embeddings);
+  const embeddingStatus = await ensureEmbeddingColumn(
+    simpleTable,
+    column,
+    newColumn,
+    identity,
+    () => generateEmbeddingColumn(simpleTable, column, newColumn, options),
+  );
+
+  if (options.verbose && embeddingStatus === "reused") {
+    console.log(
+      `${newColumn} in table ${simpleTable.name} has compatible provenance. Reusing embeddings...`,
+    );
+  }
+
+  if (options.createIndex) {
+    simpleTable.createVssIndex(newColumn, {
+      overwrite: options.overwriteIndex,
+      verbose: options.verbose,
+      efConstruction: options.efConstruction,
+      efSearch: options.efSearch,
+      M: options.M,
+    });
+    await simpleTable.run();
+  }
+}
+
+/**
+ * Generates every vector in an embedding column without managing provenance.
+ * Callers must wrap this operation with `ensureEmbeddingColumn`.
+ *
+ * @param simpleTable Table containing the source rows.
+ * @param column Text column to embed.
+ * @param newColumn Column that receives the generated vectors.
+ * @param options Embedding generation and concurrency options.
+ * @returns A promise that resolves after every row has been embedded.
+ *
+ * @example
+ * ```ts
+ * await generateEmbeddingColumn(table, "text", "text_embeddings", {
+ *   embeddings: { provider: "ollama", model: "nomic-embed-text" },
+ * });
+ * ```
+ *
+ * @internal
+ */
+export async function generateEmbeddingColumn(
+  simpleTable: SimpleTable,
+  column: string,
+  newColumn: string,
+  options: AIEmbeddingsOptions = {},
+): Promise<void> {
   await simpleTable.updateWithJS(async (rows) => {
+    const [{ formatNumber }, { default: sleep }, { default: tryEmbedding }] =
+      await Promise.all([
+        import("@nshiab/journalism-format"),
+        import("../helpers/sleep.ts"),
+        import("../helpers/tryEmbedding.ts"),
+      ]);
     if (options.verbose) {
       console.log("\naiEmbeddings()");
     }
 
-    const concurrent = options.concurrent ?? 1;
+    const concurrency = options.concurrency ?? 1;
 
     let requests = [];
     for (let i = 0; i < rows.length; i++) {
       if (options.verbose) {
         console.log(
-          `\nProcessing row ${i + 1} of ${rows.length}... (${
+          `Processing row ${i + 1} of ${rows.length}... (${
             formatNumber(
               (i + 1) / rows.length * 100,
               {
@@ -50,7 +141,7 @@ export default async function aiEmbeddings(
         );
       }
 
-      if (requests.length < concurrent) {
+      if (requests.length < concurrency) {
         const text = rows[i][column];
         if (typeof text !== "string") {
           throw new Error(
@@ -62,7 +153,7 @@ export default async function aiEmbeddings(
         );
       }
 
-      if (requests.length === concurrent || i + 1 >= rows.length) {
+      if (requests.length === concurrency || i + 1 >= rows.length) {
         const start = new Date();
         await Promise.all(requests);
         const end = new Date();
@@ -74,7 +165,7 @@ export default async function aiEmbeddings(
           duration > 10 * requests.length && i + 1 < rows.length
         ) {
           const delay = Math.round(
-            (60 / (options.rateLimitPerMinute / concurrent)) * 1000,
+            (60 / (options.rateLimitPerMinute / concurrency)) * 1000,
           );
           await sleep(delay, { start, log: options.verbose });
         }
@@ -85,14 +176,4 @@ export default async function aiEmbeddings(
 
     return rows;
   });
-
-  if (options.createIndex) {
-    await simpleTable.createVssIndex(newColumn, {
-      overwrite: options.overwriteIndex,
-      verbose: options.verbose,
-      efConstruction: options.efConstruction,
-      efSearch: options.efSearch,
-      M: options.M,
-    });
-  }
 }

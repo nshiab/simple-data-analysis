@@ -1,15 +1,216 @@
 import { assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
+import {
+  FakeGeminiEmbeddingFetch,
+  FakeOllamaEmbeddingClient,
+} from "../helpers/fakeEmbeddingClients.ts";
+import {
+  geminiEmbeddingOptions,
+  hasGoogleEmbeddingCredentials,
+} from "../helpers/realEmbeddingOptions.ts";
 
-const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
-if (typeof aiKey === "string" && aiKey !== "") {
-  if (existsSync("./.journalism-cache")) {
-    rmSync("./.journalism-cache", { recursive: true });
+const geminiEmbeddings = {
+  ...geminiEmbeddingOptions,
+} as const;
+const ollamaEmbeddings = {
+  provider: "ollama",
+  cache: false,
+} as const;
+
+function clearEmbeddingCaches(): void {
+  for (const path of ["./.sda-cache", "./.journalism-cache"]) {
+    if (existsSync(path)) {
+      rmSync(path, { recursive: true });
+    }
   }
-  if (existsSync("./.sda-cache")) {
-    rmSync("./.sda-cache", { recursive: true });
+}
+
+Deno.test(
+  "hybridSearch regenerates embeddings when providers change at equal dimensions",
+  async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("provider_change");
+    table.loadArray([
+      { id: "a", text: "alpha" },
+      { id: "b", text: "beta" },
+    ]);
+
+    const ollamaClient = new FakeOllamaEmbeddingClient(
+      "http://ollama.local:11434",
+      [1, 0],
+    );
+    const ollamaResults = table.hybridSearch("alpha", "id", "text", 1, {
+      embeddings: {
+        provider: "ollama",
+        model: "same-model-label",
+        ollama: ollamaClient,
+        cache: false,
+      },
+      bm25: false,
+      outputTable: "ollama_results",
+    }).selectColumns("id");
+    await ollamaResults.run();
+    assertEquals(ollamaClient.requests, 3);
+
+    const originalFetch = globalThis.fetch;
+    const geminiFetch = new FakeGeminiEmbeddingFetch([0, 1]);
+    globalThis.fetch = geminiFetch.fetch;
+    try {
+      await table.hybridSearch("alpha", "id", "text", 1, {
+        embeddings: {
+          provider: "gemini",
+          model: "same-model-label",
+          apiKey: "fake-key",
+          cache: false,
+        },
+        bm25: false,
+        outputTable: "gemini_results",
+      }).run();
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+    assertEquals(geminiFetch.requests, 3);
+
+    await sdb.close();
+  },
+);
+
+Deno.test("hybridSearch caches tables by default for each embedding identity", async () => {
+  clearEmbeddingCaches();
+
+  try {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("cache_identity");
+    table.loadArray([
+      { id: "a", text: "cache alpha" },
+      { id: "b", text: "cache beta" },
+    ]);
+
+    const firstClient = new FakeOllamaEmbeddingClient(
+      "http://cache.local:11434",
+      [1, 0],
+    );
+    await table.hybridSearch("cache alpha", "id", "text", 1, {
+      embeddings: {
+        provider: "ollama",
+        model: "cache-model-a",
+        ollama: firstClient,
+      },
+      bm25: false,
+      outputTable: "cache_results_a",
+    }).run();
+
+    const secondClient = new FakeOllamaEmbeddingClient(
+      "http://cache.local:11434",
+      [0, 1],
+    );
+    await table.hybridSearch("cache alpha", "id", "text", 1, {
+      embeddings: {
+        provider: "ollama",
+        model: "cache-model-b",
+        ollama: secondClient,
+      },
+      bm25: false,
+      outputTable: "cache_results_b",
+    }).run();
+
+    const sources = JSON.parse(
+      Deno.readTextFileSync("./.sda-cache/sources.json"),
+    ) as Record<string, unknown>;
+    assertEquals(
+      Object.keys(sources).filter((key) => key.startsWith("cache_identity."))
+        .length,
+      2,
+    );
+    await sdb.close();
+  } finally {
+    clearEmbeddingCaches();
   }
+});
+
+Deno.test("hybridSearch does not cache tables when disabled", async () => {
+  clearEmbeddingCaches();
+
+  try {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("cache_disabled");
+    table.loadArray([
+      { id: "a", text: "alpha" },
+      { id: "b", text: "beta" },
+    ]);
+
+    await table.hybridSearch("alpha", "id", "text", 1, {
+      embeddings: {
+        provider: "ollama",
+        model: "no-cache-model",
+        ollama: new FakeOllamaEmbeddingClient(
+          "http://no-cache.local:11434",
+          [1, 0],
+        ),
+        cache: false,
+      },
+      bm25: false,
+      outputTable: "no_cache_results",
+    }).run();
+
+    assertEquals(existsSync("./.sda-cache"), false);
+    assertEquals(existsSync("./.journalism-cache"), false);
+    await sdb.close();
+  } finally {
+    clearEmbeddingCaches();
+  }
+});
+
+Deno.test("hybridSearch isolates table caches by source mapping", async () => {
+  clearEmbeddingCaches();
+
+  try {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("cache_source_mapping");
+    table.loadArray([
+      { id: "a", title: "alpha title", body: "alpha body" },
+      { id: "b", title: "beta title", body: "beta body" },
+    ]);
+    const embeddings = {
+      provider: "ollama",
+      model: "cache-model",
+      ollama: new FakeOllamaEmbeddingClient(
+        "http://cache.local:11434",
+        [1, 0],
+      ),
+    } as const;
+
+    await table.hybridSearch("alpha", "id", "title", 1, {
+      embeddings,
+      bm25: false,
+      outputTable: "title_results",
+    }).run();
+    await table.hybridSearch("alpha", "id", "body", 1, {
+      embeddings,
+      bm25: false,
+      outputTable: "body_results",
+    }).run();
+
+    assertEquals(await table.hasColumn("title_embeddings"), true);
+    assertEquals(await table.hasColumn("body_embeddings"), true);
+    const sources = JSON.parse(
+      Deno.readTextFileSync("./.sda-cache/sources.json"),
+    ) as Record<string, unknown>;
+    assertEquals(
+      Object.keys(sources).filter((key) =>
+        key.startsWith("cache_source_mapping.")
+      ).length,
+      2,
+    );
+    await sdb.close();
+  } finally {
+    clearEmbeddingCaches();
+  }
+});
+
+if (hasGoogleEmbeddingCredentials) {
+  clearEmbeddingCaches();
 
   Deno.test(
     "should perform hybrid search and return a table",
@@ -17,29 +218,30 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
-      const originalNbRows = await table.getNbRows();
+      const originalNbRows = await table.getRowCount();
 
-      const results = await table.hybridSearch(
+      await table.hybridSearch(
         "buttery pastry for breakfast",
         "Dish",
         "Recipe",
         10,
         {
-          embeddingsConcurrent: 100,
-          cache: true,
+          embeddings: geminiEmbeddings,
+          embeddingsConcurrency: 100,
           verbose: true,
         },
-      );
+      ).run();
+      const results = table;
 
       // Should return the same table instance when no outputTable is specified
       assertEquals(results, table);
 
       // Table should be modified to contain only the search results
-      const nbRows = await table.getNbRows();
+      const nbRows = await table.getRowCount();
       assertEquals(nbRows <= 10, true);
       assertEquals(nbRows < originalNbRows, true);
 
@@ -48,7 +250,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
       assertEquals(columns.includes("Dish"), true);
       assertEquals(columns.includes("Recipe"), true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -58,25 +260,23 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "spicy vegan lunch",
         "Dish",
         "Recipe",
         5,
         {
-          embeddingsConcurrent: 100,
-          cache: true,
+          embeddings: { ...geminiEmbeddings, cache: true },
+          embeddingsConcurrency: 100,
         },
-      );
-
-      const nbRows = await results.getNbRows();
+      ).getRowCount();
       assertEquals(nbRows <= 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -86,30 +286,31 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      await table.hybridSearch(
         "italian cuisine",
         "Dish",
         "Recipe",
         5,
         {
-          embeddingsConcurrent: 100,
-          cache: true,
+          embeddings: geminiEmbeddings,
+          embeddingsConcurrency: 100,
           outputTable: "italian_search_results",
         },
-      );
+      ).run();
+      const results = await sdb.getTable("italian_search_results");
 
       // Verify the output table name
       assertEquals(results.name, "italian_search_results");
 
       // Verify original table is unchanged
-      const originalNbRows = await table.getNbRows();
+      const originalNbRows = await table.getRowCount();
       assertEquals(originalNbRows > 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -119,28 +320,26 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "french cuisine",
         "Dish",
         "Recipe",
         5,
         {
-          embeddingsConcurrent: 100,
-          cache: true,
+          embeddings: geminiEmbeddings,
+          embeddingsConcurrency: 100,
           stemmer: "french",
           k: 1.5,
           b: 0.8,
         },
-      );
-
-      const nbRows = await results.getNbRows();
+      ).getRowCount();
       assertEquals(nbRows <= 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -150,26 +349,24 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "dessert",
         "Dish",
         "Recipe",
         3,
         {
-          cache: true,
+          embeddings: geminiEmbeddings,
           createIndex: true,
           verbose: true,
         },
-      );
-
-      const nbRows = await results.getNbRows();
+      ).getRowCount();
       assertEquals(nbRows <= 3, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -179,43 +376,39 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       // Run without conjunctive option
       // This will only affect the BM25 part of the search
-      const resultsConjunctiveFalse = await table.hybridSearch(
+      await table.hybridSearch(
         "fennel garlic",
         "Dish",
         "Recipe",
         10,
         {
-          cache: true,
+          embeddings: geminiEmbeddings,
           outputTable: "results_conjunctive_false",
         },
-      );
-      await resultsConjunctiveFalse.logTable();
+      ).log();
 
       // Run with conjunctive option
       // This will only affect the BM25 part of the search
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "fennel garlic",
         "Dish",
         "Recipe",
         10,
         {
-          cache: true,
+          embeddings: geminiEmbeddings,
           conjunctive: true,
           outputTable: "results_conjunctive_true",
         },
-      );
-      await results.logTable();
-
-      const nbRows = await results.getNbRows();
+      ).getRowCount();
       assertEquals(nbRows > 0, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -225,34 +418,26 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch("pasta", "Dish", "Recipe", 5, {
-        cache: true,
+      const nbRows = await table.hybridSearch("pasta", "Dish", "Recipe", 5, {
+        embeddings: geminiEmbeddings,
         stopwords: "english",
         stemmer: "english",
         lower: true,
         stripAccents: true,
         verbose: true,
-      });
-
-      const nbRows = await results.getNbRows();
+      }).getRowCount();
       assertEquals(nbRows <= 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 }
-const ollama = Deno.env.get("OLLAMA");
-if (typeof ollama === "string" && ollama !== "") {
-  if (existsSync("./.journalism-cache")) {
-    rmSync("./.journalism-cache", { recursive: true });
-  }
-  if (existsSync("./.sda-cache")) {
-    rmSync("./.sda-cache", { recursive: true });
-  }
+if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
+  clearEmbeddingCaches();
 
   Deno.test(
     "should perform hybrid search and return a table",
@@ -260,31 +445,29 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
-      const originalNbRows = await table.getNbRows();
+      const originalNbRows = await table.getRowCount();
 
-      const results = await table.hybridSearch(
+      await table.hybridSearch(
         "buttery pastry for breakfast",
         "Dish",
         "Recipe",
         10,
         {
-          cache: true,
-          ollamaEmbeddings: true,
+          embeddings: ollamaEmbeddings,
           verbose: true,
         },
-      );
-
-      await results.logTable();
+      ).run();
+      const results = table;
 
       // Should return the same table instance when no outputTable is specified
       assertEquals(results, table);
 
       // Table should be modified to contain only the search results
-      const nbRows = await table.getNbRows();
+      const nbRows = await table.getRowCount();
       assertEquals(nbRows <= 10, true);
       assertEquals(nbRows < originalNbRows, true);
 
@@ -293,7 +476,7 @@ if (typeof ollama === "string" && ollama !== "") {
       assertEquals(columns.includes("Dish"), true);
       assertEquals(columns.includes("Recipe"), true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -303,27 +486,22 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "spicy vegan lunch",
         "Dish",
         "Recipe",
         5,
         {
-          cache: true,
-          ollamaEmbeddings: true,
+          embeddings: { ...ollamaEmbeddings, cache: true },
         },
-      );
-
-      await results.logTable();
-
-      const nbRows = await results.getNbRows();
+      ).getRowCount();
       assertEquals(nbRows <= 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -333,32 +511,30 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      await table.hybridSearch(
         "italian cuisine",
         "Dish",
         "Recipe",
         5,
         {
-          cache: true,
-          ollamaEmbeddings: true,
+          embeddings: ollamaEmbeddings,
           outputTable: "italian_search_results",
         },
-      );
-
-      await results.logTable();
+      ).run();
+      const results = await sdb.getTable("italian_search_results");
 
       // Verify the output table name
       assertEquals(results.name, "italian_search_results");
 
       // Verify original table is unchanged
-      const originalNbRows = await table.getNbRows();
+      const originalNbRows = await table.getRowCount();
       assertEquals(originalNbRows > 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -368,30 +544,25 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "french cuisine",
         "Dish",
         "Recipe",
         5,
         {
-          cache: true,
-          ollamaEmbeddings: true,
+          embeddings: ollamaEmbeddings,
           stemmer: "french",
           k: 1.5,
           b: 0.8,
         },
-      );
-
-      await results.logTable();
-
-      const nbRows = await results.getNbRows();
+      ).getRowCount();
       assertEquals(nbRows <= 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -401,29 +572,24 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "dessert",
         "Dish",
         "Recipe",
         3,
         {
-          cache: true,
-          ollamaEmbeddings: true,
+          embeddings: ollamaEmbeddings,
           createIndex: true,
           verbose: true,
         },
-      );
-
-      await results.logTable();
-
-      const nbRows = await results.getNbRows();
+      ).getRowCount();
       assertEquals(nbRows <= 3, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -433,30 +599,25 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "dessert",
         "Dish",
         "Recipe",
         5,
         {
-          cache: true,
-          ollamaEmbeddings: true,
+          embeddings: ollamaEmbeddings,
           vectorSearch: false, // Disable vector search
           bm25: true, // Enable only BM25
           verbose: true,
         },
-      );
-
-      await results.logTable();
-
-      const nbRows = await results.getNbRows();
+      ).getRowCount();
       assertEquals(nbRows <= 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -466,30 +627,25 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "healthy breakfast",
         "Dish",
         "Recipe",
         5,
         {
-          cache: true,
-          ollamaEmbeddings: true,
+          embeddings: ollamaEmbeddings,
           vectorSearch: true, // Enable only vector search
           bm25: false, // Disable BM25
           verbose: true,
         },
-      );
-
-      await results.logTable();
-
-      const nbRows = await results.getNbRows();
+      ).getRowCount();
       assertEquals(nbRows <= 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -499,9 +655,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       let errorThrown = false;
       try {
@@ -511,12 +667,11 @@ if (typeof ollama === "string" && ollama !== "") {
           "Recipe",
           5,
           {
-            cache: true,
-            ollamaEmbeddings: true,
+            embeddings: ollamaEmbeddings,
             vectorSearch: false,
             bm25: false,
           },
-        );
+        ).run();
       } catch (error) {
         errorThrown = true;
         assertEquals(
@@ -529,7 +684,8 @@ if (typeof ollama === "string" && ollama !== "") {
 
       assertEquals(errorThrown, true);
 
-      await sdb.done();
+      await sdb.run();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -538,9 +694,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       await table.hybridSearch(
         "gluten-free dessert",
@@ -548,19 +704,17 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         10,
         {
-          cache: true,
+          embeddings: ollamaEmbeddings,
           vectorMinSimilarity: 0.6, // Only include vector results with at least 60% similarity
           bm25MinScore: 1.4, // Only include BM25 results with a score above 1.5
           bm25ScoreColumn: "bm25_score", // Add BM25 scores to the results
           vectorSimilarityColumn: "vector_similarity", // Add vector similarity scores to the results
         },
-      );
-
-      await table.logTable();
+      ).log();
 
       assertEquals(true, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -569,9 +723,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       await table.hybridSearch(
         "gluten-free dessert",
@@ -579,19 +733,17 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         10,
         {
-          cache: true,
+          embeddings: ollamaEmbeddings,
           vectorMinSimilarity: 0.9, // Only include vector results with at least 60% similarity
           bm25MinScore: 2, // Only include BM25 results with a score above 1.5
           bm25ScoreColumn: "bm25_score", // Add BM25 scores to the results
           vectorSimilarityColumn: "vector_similarity", // Add vector similarity scores to the results
         },
-      );
-
-      await table.logTable();
+      ).log();
 
       assertEquals(true, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -600,9 +752,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       // Run without conjunctive option
       // This will only affect the BM25 part of the search
@@ -612,10 +764,10 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         10,
         {
-          cache: true,
+          embeddings: ollamaEmbeddings,
           outputTable: "results_conjunctive_false",
         },
-      );
+      ).getRowCount();
 
       // Run with conjunctive option
       // This will only affect the BM25 part of the search
@@ -625,19 +777,18 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         10,
         {
-          cache: true,
+          embeddings: ollamaEmbeddings,
           conjunctive: true,
           outputTable: "results_conjunctive_true",
         },
-      );
+      ).getRowCount();
 
       assertEquals(
-        await resultsConjunctiveFalse.getNbRows() > 0 &&
-          await resultsConjunctiveTrue.getNbRows() > 0,
+        resultsConjunctiveFalse > 0 && resultsConjunctiveTrue > 0,
         true,
       );
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -647,11 +798,11 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "italian food",
         "Dish",
         "Recipe",
@@ -660,17 +811,15 @@ if (typeof ollama === "string" && ollama !== "") {
           stemmer: "none",
           lower: false,
           stripAccents: false,
-          cache: true,
+          embeddings: ollamaEmbeddings,
           verbose: true,
           outputTable: "custom_bm25_results",
         },
-      );
-
-      const nbRows = await results.getNbRows();
+      ).getRowCount();
       assertEquals(nbRows > 0, true);
       assertEquals(nbRows <= 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -680,27 +829,25 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
-      const results = await table.hybridSearch(
+      const nbRows = await table.hybridSearch(
         "the a for with dish",
         "Dish",
         "Recipe",
         5,
         {
           stopwords: "english",
-          cache: true,
+          embeddings: ollamaEmbeddings,
           verbose: true,
           outputTable: "stopwords_results",
         },
-      );
-
-      const nbRows = await results.getNbRows();
+      ).getRowCount();
       assertEquals(nbRows <= 5, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 } else {

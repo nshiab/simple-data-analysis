@@ -1,21 +1,41 @@
 {
   "name": "@nshiab/simple-data-analysis",
   "version": "5.21.1",
-  "description": "Easy-to-use and high-performance TypeScript library for data analysis. Works with tabular, geospatial and vector data.",
+  "description": "Fast DuckDB-powered TypeScript library for tabular, geospatial, vector, AI, Google Sheets, and data visualization workflows on Deno, Node.js, and Bun.",
+  "keywords": [
+    "data-analysis",
+    "typescript",
+    "duckdb",
+    "dataframe",
+    "tabular",
+    "csv",
+    "parquet",
+    "geospatial",
+    "spatial-analysis",
+    "vector-search",
+    "rag",
+    "data-visualization",
+    "google-sheets",
+    "deno",
+    "nodejs",
+    "bun"
+  ],
   "repository": "https://github.com/nshiab/simple-data-analysis",
   "license": "MIT",
   "exports": {
     ".": "./src/index.ts"
   },
   "tasks": {
-    "all-tests": "deno fmt --check && deno lint && deno check src/index.ts && deno publish --allow-dirty --dry-run && rm -rf test/output && deno test -A --env-file --fail-fast && deno task llm",
-    "llm": "deno run -A jsr:@nshiab/deno-docs-to-md --jsr=@nshiab/simple-data-analysis-core && deno fmt llm.md",
+    "all-tests": "deno fmt --check && deno lint && deno check src/index.ts && deno doc --lint src/index.ts && deno publish --allow-dirty --dry-run && rm -rf test/output && deno test -A --env-file --fail-fast && deno task npm-smoke && deno task llm",
+    "benchmark": "deno run -A benchmarks/run.ts",
+    "llm": "deno run -A scripts/generateLlm.ts && deno fmt llm.md",
+    "npm-smoke": "deno run -A scripts/npmSmoke.ts",
     "test-coverage": "deno test -A --env-file --fail-fast --coverage=cov_profile && deno coverage cov_profile",
-    "patch-no-tests": "deno run -A jsr:@nshiab/bump-version patch",
-    "patch": "deno task all-tests && deno run -A jsr:@nshiab/bump-version patch",
-    "minor": "deno task all-tests && deno run -A jsr:@nshiab/bump-version minor",
-    "minor-no-tests": "deno run -A jsr:@nshiab/bump-version minor",
-    "major": "deno task all-tests && deno run -A jsr:@nshiab/bump-version major"
+    "patch-no-tests": "deno run --no-lock -A jsr:@nshiab/bump-version patch",
+    "patch": "deno task all-tests && deno run --no-lock -A jsr:@nshiab/bump-version patch",
+    "minor": "deno task all-tests && deno run --no-lock -A jsr:@nshiab/bump-version minor",
+    "minor-no-tests": "deno run --no-lock -A jsr:@nshiab/bump-version minor",
+    "major": "deno task all-tests && deno run --no-lock -A jsr:@nshiab/bump-version major"
   },
   "exclude": [
     "npm/"
@@ -23,17 +43,20 @@
   "publish": {
     "exclude": [
       "test",
+      "benchmarks",
+      "scripts",
       ".github",
       "npm"
     ]
   },
   "nodeModulesDir": "auto",
   "imports": {
-    "@nshiab/journalism-ai": "jsr:@nshiab/journalism-ai@^1.2.23",
-    "@nshiab/journalism-dataviz": "jsr:@nshiab/journalism-dataviz@^1.0.17",
-    "@nshiab/journalism-format": "jsr:@nshiab/journalism-format@^1.1.9",
-    "@nshiab/journalism-google": "jsr:@nshiab/journalism-google@^1.0.10",
-    "@nshiab/simple-data-analysis-core": "jsr:@nshiab/simple-data-analysis-core@^1.0.1",
+    "@duckdb/node-api": "npm:@duckdb/node-api@1.5.5-r.4",
+    "@nshiab/journalism-ai": "jsr:@nshiab/journalism-ai@2.0.6",
+    "@nshiab/journalism-dataviz": "jsr:@nshiab/journalism-dataviz@^1.0.21",
+    "@nshiab/journalism-format": "jsr:@nshiab/journalism-format@^1.1.10",
+    "@nshiab/journalism-google": "jsr:@nshiab/journalism-google@^1.1.2",
+    "@nshiab/simple-data-analysis-core": "jsr:@nshiab/simple-data-analysis-core@2.0.2",
     "@observablehq/plot": "npm:@observablehq/plot@^0.6.17",
     "@std/assert": "jsr:@std/assert@^1.0.19",
     "ollama": "npm:ollama@^0.6.3",
@@ -42,6 +65,8 @@
   "fmt": {
     "exclude": [
       ".sda-cache",
+      "benchmarks/.work",
+      "benchmarks/data",
       "test/output"
     ]
   },

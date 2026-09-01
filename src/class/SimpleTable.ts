@@ -1,36 +1,32 @@
 import { SimpleTable as SimpleTableCore } from "@nshiab/simple-data-analysis-core";
-import { unlinkSync, writeFileSync } from "node:fs";
 import type SimpleDB from "./SimpleDB.ts";
-import {
-  getDataDW,
-  logBarChart,
-  logDotChart,
-  logLineChart,
-  publishChartDW,
-  rewind,
-  saveChart,
-  updateDataDW,
-  updateNotesDW,
-} from "@nshiab/journalism-dataviz";
-import cleanDatavizGlobals from "../helpers/cleanDatavizGlobals.ts";
-import { getSheetData, overwriteSheetData } from "@nshiab/journalism-google";
-import type { Ollama } from "ollama";
 import type { Data } from "@observablehq/plot";
 import { createDirectory } from "@nshiab/simple-data-analysis-core/helpers";
 import logHistogram from "../methods/logHistogram.ts";
 import aiRowByRow from "../methods/aiRowByRow.ts";
-import aiRowByRowPool from "../methods/aiRowByRowPool.ts";
 import aiEmbeddings from "../methods/aiEmbeddings.ts";
 import aiVectorSimilarity from "../methods/aiVectorSimilarity.ts";
 import hybridSearch from "../methods/hybridSearch.ts";
 import aiRAG from "../methods/aiRAG.ts";
 import aiQuery from "../methods/aiQuery.ts";
+import loadSheet from "../methods/loadSheet.ts";
+import loadDatawrapper from "../methods/loadDatawrapper.ts";
+import loadGeoDatawrapper from "../methods/loadGeoDatawrapper.ts";
+import toDatawrapper from "../methods/toDatawrapper.ts";
+import toGeoDatawrapper from "../methods/toGeoDatawrapper.ts";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
- * Extends the core [`SimpleTable`](https://github.com/nshiab/simple-data-analysis-core) class
+ * Extends the core [`SimpleTable`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable) class
  * from [`simple-data-analysis-core`](https://github.com/nshiab/simple-data-analysis-core) to include
  * additional AI, Google Sheets, and charting methods.
+ * Integration dependencies load only when their operations execute, and are reused
+ * by subsequent calls. Core-only pipelines do not load these dependencies.
+ *
+ * All core methods are available on this class. JSR currently omits inherited methods
+ * from subclass reference pages because of an [upstream limitation](https://github.com/jsr-io/jsr/issues/747).
+ * See the [core SimpleTable reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable)
+ * for inherited methods such as `loadData()`, `filter()`, and `log()`.
  *
  * @category Main
  * @example
@@ -38,17 +34,14 @@ import aiQuery from "../methods/aiQuery.ts";
  * // Create a SimpleDB instance (in-memory by default)
  * const sdb = new SimpleDB();
  *
- * // Create a new table named "employees" within the database
- * const employees = sdb.newTable("employees");
- *
- * // Load data from a CSV file into the "employees" table
- * await employees.loadData("./employees.csv");
- *
- * // Log the first few rows of the "employees" table to the console
- * await employees.logTable();
+ * // Create a table, load a CSV file, and log its first few rows
+ * const employees = await sdb
+ *   .newTable("employees")
+ *   .loadData("./employees.csv")
+ *   .log();
  *
  * // Close the database connection and free up resources
- * await sdb.done();
+ * await sdb.close();
  * ```
  *
  * @example
@@ -57,14 +50,14 @@ import aiQuery from "../methods/aiQuery.ts";
  * // Create a SimpleDB instance
  * const sdb = new SimpleDB();
  *
- * // Create a new table for geospatial data
- * const boundaries = sdb.newTable("boundaries");
- *
- * // Load geospatial data from a GeoJSON file
- * await boundaries.loadGeoData("./boundaries.geojson");
+ * // Create a table and load geospatial data from a GeoJSON file
+ * const boundaries = await sdb
+ *   .newTable("boundaries")
+ *   .loadGeoData("./boundaries.geojson")
+ *   .log();
  *
  * // Close the database connection
- * await sdb.done();
+ * await sdb.close();
  * ```
  */
 export default class SimpleTable extends SimpleTableCore {
@@ -77,84 +70,81 @@ export default class SimpleTable extends SimpleTableCore {
   // ===================== AI METHODS =====================
 
   /**
-   * Applies a prompt to the value of each row in a specified column, storing the AI's response in a new column. This method can send requests concurrently and in batches, but is not using a pool, so it may not be the most efficient method for processing very large tables. Check `aiRowByRowPool` for a different approach, especially regarding error handling.
+   * Applies a prompt to the value of each row in a specified column, storing the AI's response in one or more new columns. Requests are processed by a worker pool with configurable batching and concurrency.
    *
    * This method automatically appends instructions to your prompt; set `verbose` to `true` to see the full prompt.
    *
-   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or directly via `options`, with `options` taking precedence.
+   * This method supports Gemini, Vertex AI, and Ollama. Set `generation.provider` explicitly, or omit it to use `AI_PROVIDER`. All other `generation` fields match the selected `askGemini` or `askOllama` function from journalism-ai. Model and credentials can also come from environment variables.
    *
-   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_MODEL` to your desired model name. You can also pass your instance of Ollama to the `ollama` option.
+   * For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set `AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
    *
-   * To manage rate limits, use `batchSize` to process multiple rows per request and `rateLimitPerMinute` to introduce delays between requests. For higher rate limits (business/professional accounts), `concurrent` allows parallel requests.
+   * To manage rate limits, use `batchSize` to process multiple rows per request and `rateLimitPerMinute` to pace requests across the worker pool. The `concurrency` option controls how many requests may run in parallel.
    *
-   * The `cache` option enables local caching of results in `.journalism-cache` (from the `askAI` function in the [journalism library](https://github.com/nshiab/journalism)). Remember to add `.journalism-cache` to your `.gitignore`.
+   * Results are cached locally in `.journalism-cache` by default. Set `generation.cache` to `false` to disable caching, and remember to add `.journalism-cache` to your `.gitignore`.
    *
-   * If the AI returns fewer items than expected in a batch, or if a custom `test` function fails, the `retry` option (a number greater than 0) will reattempt the request.
+   * If the AI returns fewer items than expected in a batch, or if a custom `test` function fails, the `retry` option will reattempt the request. The `retryCheck` function can restrict which errors are retried.
    *
-   * Temperature is set to 0 for reproducibility, though consistency cannot be guaranteed.
+   * By default, a failed batch throws. Set `errorColumn` to store the error on every row in the failed batch, set its output columns to `NULL`, and continue processing other batches. Successful rows contain `NULL` in the error column.
    *
    * This method does not support tables containing geometries.
+   *
+   * This method queues the AI processing; requests are sent when an async observer method (like `getData()` or `log()`) is awaited, or when `run()` is called.
    *
    * @param column - The name of the column to be used as input for the AI prompt.
    * @param newColumn - The name of the new column (or an array of column names) where the AI's response will be stored.
    * @param prompt - The input string to guide the AI's response.
    * @param options - Configuration options for the AI request.
    * @param options.batchSize - The number of rows to process in each batch. Defaults to `1`.
-   * @param options.concurrent - The number of concurrent requests to send. Defaults to `1`.
-   * @param options.cache - If `true`, the results will be cached locally. Defaults to `false`.
+   * @param options.concurrency - The number of concurrent requests to send. Defaults to `1`.
+   * @param options.errorColumn - The optional column where per-row error messages are stored. When omitted, a failed batch throws.
+   * @param options.logProgress - If `true`, logs request-pool progress. Defaults to `false`.
+   * @param options.generation - Gemini or Ollama generation configuration. Set `provider` explicitly or omit it to use environment selection; all other fields match the selected journalism-ai function.
    * @param options.test - A function to validate the returned data. If it throws an error, the request will be retried (if `retry` is set). Defaults to `undefined`.
    * @param options.retry - The number of times to retry the request in case of failure. Defaults to `0`.
-   * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
-   * @param options.model - The AI model to use. Defaults to the `AI_MODEL` environment variable.
-   * @param options.temperature - The temperature setting for the AI model, controlling the randomness of the output. Defaults to `0`.
-   * @param options.apiKey - The API key for the AI service. Defaults to the `AI_KEY` environment variable.
-   * @param options.vertex - If `true`, uses Vertex AI. Automatically set to `true` if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to `false`.
-   * @param options.project - The Google Cloud project ID for Vertex AI. Defaults to the `AI_PROJECT` environment variable.
-   * @param options.location - The Google Cloud location for Vertex AI. Defaults to the `AI_LOCATION` environment variable.
-   * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama instance to be used, you can pass it here too.
+   * @param options.retryCheck - A function that receives an error and returns whether it should be retried. Defaults to `undefined`.
+   * @param options.rateLimitPerMinute - The maximum number of provider requests started per minute. Request starts are spaced across the worker pool; cached responses bypass the limit. Defaults to `undefined` (no limit).
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
-   * @param options.clean - A function to clean the AI's response after JSON parsing, testing, caching, and storing. Defaults to `undefined`.
-   * @param options.contextWindow - An option to specify the context window size for Ollama models. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
-   * @param options.thinkingBudget - Sets the reasoning token budget: 0 to disable (default, though some models may reason regardless), -1 for a dynamic budget, or > 0 for a fixed budget. For Ollama models, any non-zero value simply enables reasoning, ignoring the specific budget amount.
-   * @param options.thinkingLevel - Sets the thinking level for reasoning: "minimal", "low", "medium", or "high", which some models expect instead of `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided. For Ollama models, any value enables reasoning.
-   * @param options.safetyEnabled - Controls whether safety filters are enabled. If set to `true`, filters are active; if `false`, they are disabled. By default, this is `false` when using Vertex AI and `true` otherwise. This setting can be explicitly overridden for any model.
-   * @param options.webSearch - (Gemini only) If `true`, enables web search grounding for the AI's responses. Be careful of extra costs. Defaults to `false`.
-   * @param options.schemaJson - A Zod JSON schema object for structured output. This overrides the default schema based on the 'newColumn' names.
+   * @param options.clean - A function to transform the parsed response before validation and caching. Defaults to `undefined`.
    * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
    * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
-   * @returns A promise that resolves when the AI processing is complete.
+   * @returns The table, so methods can be chained.
    * @category AI
    *
    * @example
    * ```ts
-   * // New table with a "name" column.
-   * await table.loadArray([
-   *   { name: "Marie" },
-   *   { name: "John" },
-   *   { name: "Alex" },
-   * ]);
-   *
-   * // Ask the AI to categorize names into a new "gender" column.
-   * await table.aiRowByRow(
-   *   "name",
-   *   "gender",
-   *   `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral".`,
-   *   {
-   *     cache: true, // Cache results locally
-   *     batchSize: 10, // Process 10 rows at once
-   *     test: (data: { [key: string]: unknown }) => { // Validate AI's response
-   *       if (
-   *         typeof data.gender !== "string" ||
-   *         !["Man", "Woman", "Neutral"].includes(data.gender)
-   *       ) {
-   *         throw new Error(`Invalid response: ${data.gender}`);
-   *       }
+   * const people = await sdb
+   *   .newTable("people")
+   *   .loadArray([
+   *     { name: "Marie" },
+   *     { name: "John" },
+   *     { name: "Alex" },
+   *   ])
+   *   .aiRowByRow(
+   *     "name",
+   *     "gender",
+   *     `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral".`,
+   *     {
+   *       generation: {
+   *         provider: "gemini",
+   *         model: "gemini-3-flash-preview",
+   *       },
+   *       batchSize: 10, // Process 10 rows at once
+   *       concurrency: 5, // Process up to 5 requests concurrently
+   *       errorColumn: "error", // Store failed rows instead of throwing
+   *       test: (data: { [key: string]: unknown }) => { // Validate AI's response
+   *         if (
+   *           typeof data.gender !== "string" ||
+   *           !["Man", "Woman", "Neutral"].includes(data.gender)
+   *         ) {
+   *           throw new Error(`Invalid response: ${data.gender}`);
+   *         }
+   *       },
+   *       retry: 3, // Retry up to 3 times on failure
+   *       rateLimitPerMinute: 15, // Limit requests to 15 per minute
+   *       verbose: true, // Log detailed information
    *     },
-   *     retry: 3, // Retry up to 3 times on failure
-   *     rateLimitPerMinute: 15, // Limit requests to 15 per minute
-   *     verbose: true, // Log detailed information
-   *   },
-   * );
+   *   )
+   *   .log();
    *
    * // Example results:
    * // [
@@ -166,18 +156,20 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * @example
    * ```ts
-   * await table.loadArray([
-   *   { city: "Marrakech" },
-   *   { city: "Kyoto" },
-   *   { city: "Auckland" },
-   * ]);
-   *
-   * await table.aiRowByRow(
-   *   "city",
-   *   ["country", "continent"], // Multiple new columns
-   *   `Give me the country and continent of the city.`,
-   *   { verbose: true },
-   * );
+   * const cities = await sdb
+   *   .newTable("cities")
+   *   .loadArray([
+   *     { city: "Marrakech" },
+   *     { city: "Kyoto" },
+   *     { city: "Auckland" },
+   *   ])
+   *   .aiRowByRow(
+   *     "city",
+   *     ["country", "continent"], // Multiple new columns
+   *     `Give me the country and continent of the city.`,
+   *     { verbose: true },
+   *   )
+   *   .log();
    *
    * // Example results:
    * // [
@@ -186,210 +178,117 @@ export default class SimpleTable extends SimpleTableCore {
    * //   { city: "Auckland", country: "New Zealand", continent: "Oceania" },
    * // ]
    * ```
+   *
+   * @example
+   * ```ts
+   * const names = await sdb
+   *   .newTable("names")
+   *   .loadArray([{ name: "Marie" }, { name: "John" }])
+   *   .aiRowByRow("name", "description", "Describe this name.", {
+   *     generation: { provider: "ollama", model: "gemma3:4b" },
+   *   })
+   *   .log();
+   * ```
    */
-  async aiRowByRow(
+  aiRowByRow(
     column: string,
     newColumn: string | string[],
     prompt: string,
     options: {
+      generation?:
+        & {
+          systemPrompt?: string;
+          model?: string;
+          schemaJson?: unknown;
+          cache?: boolean;
+          processResponse?: (
+            response: unknown,
+          ) => unknown | Promise<unknown>;
+          temperature?: number;
+        }
+        & (
+          | {
+            provider: "gemini";
+            apiKey?: string;
+            vertex?: boolean;
+            project?: string;
+            location?: string;
+            webSearch?: boolean;
+            files?: {
+              path: string;
+              type: "image" | "video" | "audio" | "pdf" | "text";
+            }[];
+            thinkingBudget?: number;
+            thinkingLevel?: "minimal" | "low" | "medium" | "high";
+            safetyEnabled?: boolean;
+            geminiParameters?: unknown;
+            ollama?: never;
+            contextWindow?: never;
+            ollamaParameters?: never;
+          }
+          | {
+            provider: "ollama";
+            ollama?: unknown;
+            files?: { path: string; type: "image" | "text" }[];
+            contextWindow?: number;
+            thinkingLevel?: boolean | "low" | "medium" | "high";
+            ollamaParameters?: unknown;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
+            webSearch?: never;
+            thinkingBudget?: never;
+            safetyEnabled?: never;
+            geminiParameters?: never;
+          }
+          | {
+            provider?: undefined;
+            apiKey?: string;
+            vertex?: boolean;
+            project?: string;
+            location?: string;
+            webSearch?: boolean;
+            files?: {
+              path: string;
+              type: "image" | "video" | "audio" | "pdf" | "text";
+            }[];
+            thinkingBudget?: number;
+            thinkingLevel?: "minimal" | "low" | "medium" | "high";
+            safetyEnabled?: boolean;
+            geminiParameters?: unknown;
+            ollama?: never;
+            contextWindow?: never;
+            ollamaParameters?: never;
+          }
+          | {
+            provider?: undefined;
+            ollama?: unknown;
+            files?: { path: string; type: "image" | "text" }[];
+            contextWindow?: number;
+            thinkingLevel?: boolean | "low" | "medium" | "high";
+            ollamaParameters?: unknown;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
+            webSearch?: never;
+            thinkingBudget?: never;
+            safetyEnabled?: never;
+            geminiParameters?: never;
+          }
+        );
       batchSize?: number;
-      concurrent?: number;
-      cache?: boolean;
-      test?: (result: { [key: string]: unknown }) => void;
-      retry?: number;
-      model?: string;
-      temperature?: number;
-      apiKey?: string;
-      vertex?: boolean;
-      project?: string;
-      location?: string;
-      ollama?: boolean | Ollama;
-      verbose?: boolean;
-      rateLimitPerMinute?: number;
-      clean?: (
-        response: unknown,
-      ) => unknown;
-      contextWindow?: number;
-      thinkingBudget?: number;
-      thinkingLevel?: "minimal" | "low" | "medium" | "high";
-      safetyEnabled?: boolean;
-      webSearch?: boolean;
-      extraInstructions?: string;
-      schemaJson?: unknown;
-      metrics?: {
-        totalCost: number;
-        totalInputTokens: number;
-        totalOutputTokens: number;
-        totalRequests: number;
-      };
-    } = {},
-  ): Promise<void> {
-    await aiRowByRow(this, column, newColumn, prompt, options);
-  }
-
-  /**
-   * Applies a prompt to the value of each row in a specified column using a pool-based approach, storing the AI's response in new columns and any errors in a designated error column. Unlike `aiRowByRow`, this method uses a worker pool for better control over concurrent requests and stores errors instead of throwing them, making it ideal for processing large tables where some rows may fail.
-   *
-   * This method automatically appends instructions to your prompt; set `verbose` to `true` to see the full prompt.
-   *
-   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`).
-   *
-   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_MODEL` to your desired model name.
-   *
-   * The pool size controls how many concurrent AI requests can run simultaneously. The `batchSize` option processes multiple rows per request. For example, with `poolSize: 5` and `batchSize: 10`, up to 5 requests can run concurrently, each processing 10 rows.
-   *
-   * The `cache` option enables local caching of results in `.journalism-cache` (from the `askAI` function in the [journalism library](https://github.com/nshiab/journalism)). Remember to add `.journalism-cache` to your `.gitignore`.
-   *
-   * If the AI returns fewer items than expected in a batch, or if a custom `test` function fails, the `retry` option (a number greater than 0) will reattempt the request. The `retryCheck` function allows conditional retries based on error inspection.
-   *
-   * The `minRequestDurationMs` option sets a minimum duration for each request, useful for respecting rate limits when you know the allowed requests per time period.
-   *
-   * Temperature is set to 0 for reproducibility, though consistency cannot be guaranteed.
-   *
-   * This method does not support tables containing geometries.
-   *
-   * @param column - The name of the column to be used as input for the AI prompt.
-   * @param newColumn - The name of the new column (or an array of column names) where the AI's response will be stored. If an error occurs for a row, the new column(s) for that row will be set to `NULL`.
-   * @param errorColumn - The name of the column where error messages will be stored. Successful requests will have `NULL` in this column.
-   * @param prompt - The input string to guide the AI's response.
-   * @param poolSize - The number of concurrent AI requests to run simultaneously in the pool.
-   * @param options - Configuration options for the AI request.
-   * @param options.cache - If `true`, the results will be cached locally. Defaults to `false`.
-   * @param options.batchSize - The number of rows to process in each batch. Defaults to `1`.
-   * @param options.logProgress - If `true`, logs progress information during processing. Defaults to `false`.
-   * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
-   * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.
-   * @param options.test - A function to validate the returned data. If it throws an error, the request will be retried (if `retry` is set). Defaults to `undefined`.
-   * @param options.retry - The number of times to retry the request in case of failure. Defaults to `0`.
-   * @param options.retryCheck - A function that receives an error and returns a boolean indicating whether to retry. Useful for conditional retries based on error type. Defaults to `undefined`.
-   * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
-   * @param options.minRequestDurationMs - The minimum duration in milliseconds for each request. Useful for respecting rate limits. Defaults to `undefined` (no minimum).
-   * @param options.clean - A function to clean the AI's response after JSON parsing, testing, caching, and storing. Defaults to `undefined`.
-   * @param options.contextWindow - An option to specify the context window size for Ollama models. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
-   * @param options.thinkingBudget - Sets the reasoning token budget: 0 to disable (default, though some models may reason regardless), -1 for a dynamic budget, or > 0 for a fixed budget. For Ollama models, any non-zero value simply enables reasoning, ignoring the specific budget amount.
-   * @param options.thinkingLevel - Sets the thinking level for reasoning: "minimal", "low", "medium", or "high", which some models expect instead of `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided. For Ollama models, any value enables reasoning.
-   * @param options.safetyEnabled - Controls whether safety filters are enabled. If set to `true`, filters are active; if `false`, they are disabled. By default, this is `false` when using Vertex AI and `true` otherwise. This setting can be explicitly overridden for any model.
-   * @param options.webSearch - (Gemini only) If `true`, enables web search grounding for the AI's responses. Be careful of extra costs. Defaults to `false`.
-   * @param options.schemaJson - A Zod JSON schema object for structured output. This overrides the default schema based on the 'newColumn' names.
-   * @param options.model - The AI model to use. Defaults to the `AI_MODEL` environment variable.
-   * @param options.temperature - The temperature setting for the AI model, controlling the randomness of the output. Defaults to `0`.
-   * @param options.apiKey - The API key for the AI service. Defaults to the `AI_KEY` environment variable.
-   * @param options.vertex - If `true`, uses Vertex AI. Automatically set to `true` if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to `false`.
-   * @param options.project - The Google Cloud project ID for Vertex AI. Defaults to the `AI_PROJECT` environment variable.
-   * @param options.location - The Google Cloud location for Vertex AI. Defaults to the `AI_LOCATION` environment variable.
-   * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama instance to be used, you can pass it here too.
-   * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
-   * @returns A promise that resolves when the AI processing is complete.
-   * @category AI
-   *
-   * @example
-   * ```ts
-   * // New table with a "review" column.
-   * await table.loadArray([
-   *   { review: "Great product!" },
-   *   { review: "Terrible quality." },
-   *   { review: "Not bad, could be better." },
-   *   { review: "Excellent service!" },
-   * ]);
-   *
-   * // Analyze sentiment using a pool with 2 concurrent workers, batch size of 2
-   * await table.aiRowByRowPool(
-   *   "review",
-   *   "sentiment",
-   *   "error",
-   *   `Classify the sentiment as "Positive", "Negative", or "Neutral".`,
-   *   2, // poolSize: 2 concurrent requests
-   *   {
-   *     cache: true,
-   *     batchSize: 2, // Process 2 rows per request
-   *     logProgress: true,
-   *     test: (data: { [key: string]: unknown }) => {
-   *       if (
-   *         typeof data.sentiment !== "string" ||
-   *         !["Positive", "Negative", "Neutral"].includes(data.sentiment)
-   *       ) {
-   *         throw new Error(`Invalid sentiment: ${data.sentiment}`);
-   *       }
-   *     },
-   *     retry: 2,
-   *     minRequestDurationMs: 1000, // Respect rate limits: at least 1 second per request
-   *   },
-   * );
-   *
-   * // Example results:
-   * // [
-   * //   { review: "Great product!", sentiment: "Positive", error: null },
-   * //   { review: "Terrible quality.", sentiment: "Negative", error: null },
-   * //   { review: "Not bad, could be better.", sentiment: "Neutral", error: null },
-   * //   { review: "Excellent service!", sentiment: "Positive", error: null },
-   * // ]
-   * ```
-   *
-   * @example
-   * ```ts
-   * await table.loadArray([
-   *   { product: "Laptop" },
-   *   { product: "Smartphone" },
-   *   { product: "Tablet" },
-   * ]);
-   *
-   * // Extract multiple properties using pool-based processing
-   * await table.aiRowByRowPool(
-   *   "product",
-   *   ["category", "typical_price_range"],
-   *   "error",
-   *   `For the given product, provide the category and typical price range.`,
-   *   3, // Process up to 3 products concurrently
-   *   {
-   *     logProgress: true,
-   *     retryCheck: (error) => {
-   *       // Retry only for specific error types
-   *       return error instanceof Error && error.message.includes("rate limit");
-   *     },
-   *   },
-   * );
-   *
-   * // Example results:
-   * // [
-   * //   { product: "Laptop", category: "Electronics", typical_price_range: "$500-$2000", error: null },
-   * //   { product: "Smartphone", category: "Electronics", typical_price_range: "$200-$1200", error: null },
-   * //   { product: "Tablet", category: "Electronics", typical_price_range: "$200-$800", error: null },
-   * // ]
-   * ```
-   */
-  async aiRowByRowPool(
-    column: string,
-    newColumn: string | string[],
-    errorColumn: string,
-    prompt: string,
-    poolSize: number,
-    options: {
-      cache?: boolean;
-      batchSize?: number;
+      concurrency?: number;
+      errorColumn?: string;
       logProgress?: boolean;
-      verbose?: boolean;
-      includeThoughts?: boolean;
       test?: (result: { [key: string]: unknown }) => void;
       retry?: number;
       retryCheck?: (error: unknown) => Promise<boolean> | boolean;
+      verbose?: boolean;
+      rateLimitPerMinute?: number;
+      clean?: (response: unknown) => unknown;
       extraInstructions?: string;
-      minRequestDurationMs?: number;
-      clean?: (
-        response: unknown,
-      ) => unknown;
-      contextWindow?: number;
-      thinkingBudget?: number;
-      thinkingLevel?: "minimal" | "low" | "medium" | "high";
-      safetyEnabled?: boolean;
-      webSearch?: boolean;
-      schemaJson?: unknown;
-      model?: string;
-      temperature?: number;
-      apiKey?: string;
-      vertex?: boolean;
-      project?: string;
-      location?: string;
-      ollama?: boolean | Ollama;
       metrics?: {
         totalCost: number;
         totalInputTokens: number;
@@ -397,108 +296,164 @@ export default class SimpleTable extends SimpleTableCore {
         totalRequests: number;
       };
     } = {},
-  ) {
-    await aiRowByRowPool(
-      this,
-      column,
-      newColumn,
-      errorColumn,
-      prompt,
-      poolSize,
-      options,
-    );
+  ): this {
+    aiRowByRow(this, column, newColumn, prompt, options);
+    return this;
   }
 
   /**
    * Generates embeddings for a specified text column and stores the results in a new column.
    *
-   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`) or directly via `options`, with `options` taking precedence.
+   * This method supports Gemini, Vertex AI, and Ollama embeddings. Set `embeddings.provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`; all other fields match `getEmbedding` from journalism-ai. Model and credentials can also come from environment variables.
    *
-   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL` to your desired model name. You can also pass your instance of Ollama to the `ollama` option.
+   * For Ollama, set `AI_EMBEDDINGS_PROVIDER=ollama`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL`, or pass `{ provider: "ollama", ... }` through `embeddings`.
    *
-   * To manage rate limits, use `rateLimitPerMinute` to introduce delays between requests. For higher rate limits (business/professional accounts), `concurrent` allows parallel requests.
+   * To manage rate limits, use `rateLimitPerMinute` to introduce delays between requests. For higher rate limits (business/professional accounts), `concurrency` allows parallel requests.
    *
-   * The `cache` option enables local caching of results in `.journalism-cache` (from the `getEmbedding` function in the [journalism library](https://github.com/nshiab/journalism)). Remember to add `.journalism-cache` to your `.gitignore`.
+   * Individual embedding responses are cached in `.journalism-cache` by default. Set `embeddings.cache` to `false` to disable this request cache, and remember to add `.journalism-cache` to your `.gitignore`.
    *
-   * If `createIndex` is `true`, an index will be created on the new column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful for speeding up the `aiVectorSimilarity` method. If the index already exists, it will not be recreated unless `overwriteIndex` is `true`.
+   * SDA records the canonical provider, backend, model, semantic options, source column, and vector dimensions for columns generated by this method. A compatible existing column is reused; changing its embedding identity or source mapping regenerates the vectors and invalidates a stale VSS index. Existing columns without provenance are treated as legacy and regenerated safely.
+   *
+   * If `createIndex` is `true`, an HNSW index will be created on the new column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful for speeding up the `aiVectorSimilarity` method. If the index already exists, it will not be recreated unless `overwriteIndex` is `true`.
    *
    * This method does not support tables containing geometries.
+   * The work is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param column - The name of the column to be used as input for generating embeddings.
    * @param newColumn - The name of the new column where the generated embeddings will be stored.
    * @param options - Configuration options for the AI request.
-   * @param options.createIndex - If `true`, an index will be created on the new column. Useful for speeding up the `aiVectorSimilarity` method. Defaults to `false`.
+   * @param options.createIndex - If `true`, an HNSW index will be created on the new column. Useful for speeding up the `aiVectorSimilarity` method. Defaults to `false`.
    * @param options.overwriteIndex - If `true` and `createIndex` is `true`, drops and recreates the VSS index even if it already exists. Defaults to `false`.
    * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
    * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
    * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
-   * @param options.concurrent - The number of concurrent requests to send. Defaults to `1`.
-   * @param options.cache - If `true`, the results will be cached locally. Defaults to `false`.
+   * @param options.concurrency - The number of concurrent requests to send. Defaults to `1`.
+   * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use environment selection; all other fields match `getEmbedding` from journalism-ai.
    * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
-   * @param options.model - The AI model to use. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
-   * @param options.apiKey - The API key for the AI service. Defaults to the `AI_KEY` environment variable.
-   * @param options.vertex - If `true`, uses Vertex AI. Automatically set to `true` if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to `false`.
-   * @param options.project - The Google Cloud project ID for Vertex AI. Defaults to the `AI_PROJECT` environment variable.
-   * @param options.location - The Google Cloud location for Vertex AI. Defaults to the `AI_LOCATION` environment variable.
-   * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama instance to be used, you can pass it here too.
-   * @param options.contextWindow - An option to specify the context window size for Ollama models. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
-   * @returns A promise that resolves when the embeddings have been generated and stored.
+   * @returns The table, so methods can be chained.
    * @category AI
    *
    * @example
    * ```ts
-   * // New table with a "food" column.
-   * await table.loadArray([
-   *   { food: "pizza" },
-   *   { food: "sushi" },
-   *   { food: "burger" },
-   *   { food: "pasta" },
-   *   { food: "salad" },
-   *   { food: "tacos" }
-   * ]);
+   * const food = await sdb
+   *   .newTable("food")
+   *   .loadArray([
+   *     { food: "pizza" },
+   *     { food: "sushi" },
+   *     { food: "burger" },
+   *     { food: "pasta" },
+   *     { food: "salad" },
+   *     { food: "tacos" },
+   *   ])
+   *   .aiEmbeddings("food", "embeddings", {
+   *     embeddings: {
+   *       provider: "gemini",
+   *       model: "gemini-embedding-001",
+   *     },
+   *     rateLimitPerMinute: 15,
+   *     createIndex: true,
+   *     verbose: true,
+   *   })
+   *   .log();
+   * ```
    *
-   * // Generate embeddings for the "food" column and store them in a new "embeddings" column.
-   * await table.aiEmbeddings("food", "embeddings", {
-   *   cache: true, // Cache results locally
-   *   rateLimitPerMinute: 15, // Limit requests to 15 per minute
-   *   createIndex: true, // Create an index on the new column for faster similarity searches
-   *   verbose: true, // Log detailed information
-   * });
+   * @example
+   * ```ts
+   * // Generate embeddings with a local Ollama model.
+   * const food = await table
+   *   .aiEmbeddings("food", "embeddings", {
+   *     embeddings: { provider: "ollama", model: "nomic-embed-text" },
+   *   })
+   *   .log();
    * ```
    */
-  async aiEmbeddings(column: string, newColumn: string, options: {
-    createIndex?: boolean;
-    overwriteIndex?: boolean;
-    concurrent?: number;
-    cache?: boolean;
-    model?: string;
-    apiKey?: string;
-    vertex?: boolean;
-    project?: string;
-    location?: string;
-    ollama?: boolean | Ollama;
-    verbose?: boolean;
-    rateLimitPerMinute?: number;
-    contextWindow?: number;
-    efConstruction?: number;
-    efSearch?: number;
-    M?: number;
-  } = {}): Promise<void> {
-    await aiEmbeddings(this, column, newColumn, options);
+  aiEmbeddings(
+    column: string,
+    newColumn: string,
+    options: {
+      embeddings?:
+        | {
+          provider?: never;
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          apiKey?: never;
+          vertex?: never;
+          project?: never;
+          location?: never;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "gemini";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          vertex?: false;
+          apiKey?: string;
+          project?: never;
+          location?: never;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "gemini";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          vertex: true;
+          apiKey?: string;
+          project?: string;
+          location?: string;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "ollama";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          ollama?: {
+            embeddingEndpoint?: string;
+            embed(request: {
+              model: string;
+              input: string;
+              options?: { num_ctx?: number };
+            }): Promise<{ embeddings: number[][] }>;
+          };
+          contextWindow?: number;
+          apiKey?: never;
+          vertex?: never;
+          project?: never;
+          location?: never;
+        };
+      createIndex?: boolean;
+      overwriteIndex?: boolean;
+      concurrency?: number;
+      verbose?: boolean;
+      rateLimitPerMinute?: number;
+      efConstruction?: number;
+      efSearch?: number;
+      M?: number;
+    } = {},
+  ): this {
+    aiEmbeddings(this, column, newColumn, options);
+    return this;
   }
 
   /**
    * Creates an embedding from a specified text and returns the most similar text content based on their embeddings.
    * This method is useful for semantic search and text similarity tasks, computing cosine distance and sorting results by similarity.
    *
-   * To create the embedding, this method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`) or directly via `options`, with `options` taking precedence.
+   * To create the query embedding, omit `embeddings` to use environment variables or pass provider-specific options matching `getEmbedding` from journalism-ai.
    *
-   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL` to your desired model name. You can also pass your instance of Ollama to the `ollama` option.
+   * Gemini, Vertex AI, and Ollama are supported. The selected provider and model must match those used to create the stored embedding column so the vectors share the same dimensions and embedding space.
    *
-   * The `cache` option enables local caching of the specified text's embedding in `.journalism-cache` (from the `getEmbedding` function in the [journalism library](https://github.com/nshiab/journalism)). Remember to add `.journalism-cache` to your `.gitignore`.
+   * The query embedding is cached in `.journalism-cache` by default. Set `embeddings.cache` to `false` to disable this request cache, and remember to add `.journalism-cache` to your `.gitignore`.
    *
-   * If `createIndex` is `true`, an index will be created on the embeddings column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss) to speed up processing. If the index already exists, it will not be recreated unless `overwriteIndex` is `true`.
+   * If `createIndex` is `true`, an HNSW index will be created on the embeddings column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss) to speed up processing. If the index already exists, it will not be recreated unless `overwriteIndex` is `true`.
+   * The work is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param text - The text for which to generate an embedding and find similar content.
    * @param column - The name of the column containing the embeddings to be used for the similarity search.
@@ -506,73 +461,121 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options - An optional object with configuration options:
    * @param options.minSimilarity - A threshold between 0.0 and 1.0 to filter out results that are not similar enough. For example, 0.7 ensures only results with a 70% similarity or higher are returned. Defaults to `undefined` (no threshold).
    * @param options.similarityColumn - If provided, a new column with this name will be added to the output table containing the calculated similarity score (from 0.0 to 1.0) for each row. Defaults to `undefined`.
-   * @param options.createIndex - If `true`, an index will be created on the embeddings column. Defaults to `false`.
+   * @param options.createIndex - If `true`, an HNSW index will be created on the embeddings column. Defaults to `false`.
    * @param options.overwriteIndex - If `true` and `createIndex` is `true`, drops and recreates the VSS index even if it already exists. Defaults to `false`.
    * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
    * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
    * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
    * @param options.outputTable - The name of the output table where the results will be stored. If not provided, the current table will be modified. Defaults to `undefined`.
-   * @param options.cache - If `true`, the embedding of the input `text` will be cached locally. Defaults to `false`.
-   * @param options.model - The AI model to use for generating the embedding. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
-   * @param options.apiKey - The API key for the AI service. Defaults to the `AI_KEY` environment variable.
-   * @param options.vertex - If `true`, uses Vertex AI. Automatically set to `true` if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to `false`.
-   * @param options.project - The Google Cloud project ID for Vertex AI. Defaults to the `AI_PROJECT` environment variable.
-   * @param options.location - The Google Cloud location for Vertex AI. Defaults to the `AI_LOCATION` environment variable.
-   * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama instance to be used, you can pass it here too.
+   * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use environment selection; all other fields match `getEmbedding` from journalism-ai.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
-   * @param options.contextWindow - An option to specify the context window size for Ollama models. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
-   * @returns A promise that resolves to the SimpleTable instance containing the similarity search results.
+   * @returns The table that will contain the similarity results, so methods can be chained.
    * @category AI
    *
    * @example
    * ```ts
-   * // New table with a "food" column.
-   * await table.loadArray([
-   *   { food: "pizza" },
-   *   { food: "sushi" },
-   *   { food: "burger" },
-   *   { food: "pasta" },
-   *   { food: "salad" },
-   *   { food: "tacos" }
-   * ]);
+   * const similarFood = await sdb
+   *   .newTable("food")
+   *   .loadArray([
+   *     { food: "pizza" },
+   *     { food: "sushi" },
+   *     { food: "burger" },
+   *     { food: "pasta" },
+   *     { food: "salad" },
+   *     { food: "tacos" },
+   *   ])
+   *   .aiEmbeddings("food", "embeddings", {
+   *     embeddings: {
+   *       provider: "gemini",
+   *       model: "gemini-embedding-001",
+   *     },
+   *   })
+   *   .aiVectorSimilarity("italian food", "embeddings", 3, {
+   *     createIndex: true,
+   *     embeddings: {
+   *       provider: "gemini",
+   *       model: "gemini-embedding-001",
+   *     },
+   *     minSimilarity: 0.6,
+   *     similarityColumn: "score",
+   *   })
+   *   .log();
+   * ```
    *
-   * // Generate embeddings for the "food" column.
-   * await table.aiEmbeddings("food", "embeddings", { cache: true });
-   *
-   * // Find the 3 most similar foods to "italian food" based on embeddings.
-   * // We only want results with at least 60% similarity and we want to see the score.
-   * const similarFoods = await table.aiVectorSimilarity(
-   *   "italian food",
-   *   "embeddings",
-   *   3,
-   *   {
-   *     createIndex: true, // Create an index on the embeddings column for faster searches
-   *     cache: true, // Cache the embedding of "italian food"
-   *     minSimilarity: 0.6, // Filter out anything below 0.6 similarity
-   *     similarityColumn: "score" // Add a new column named "score" with the similarity math
-   *   }
-   * );
-   *
-   * // Log the results
-   * await similarFoods.logTable();
+   * @example
+   * ```ts
+   * // Query an embedding column created with the same Ollama model.
+   * const similarFood = await table
+   *   .aiVectorSimilarity("italian food", "embeddings", 3, {
+   *     embeddings: { provider: "ollama", model: "nomic-embed-text" },
+   *   })
+   *   .log();
    * ```
    */
-  async aiVectorSimilarity(
+  aiVectorSimilarity(
     text: string,
     column: string,
     nbResults: number,
     options: {
+      embeddings?:
+        | {
+          provider?: never;
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          apiKey?: never;
+          vertex?: never;
+          project?: never;
+          location?: never;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "gemini";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          vertex?: false;
+          apiKey?: string;
+          project?: never;
+          location?: never;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "gemini";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          vertex: true;
+          apiKey?: string;
+          project?: string;
+          location?: string;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "ollama";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          ollama?: {
+            embeddingEndpoint?: string;
+            embed(request: {
+              model: string;
+              input: string;
+              options?: { num_ctx?: number };
+            }): Promise<{ embeddings: number[][] }>;
+          };
+          contextWindow?: number;
+          apiKey?: never;
+          vertex?: never;
+          project?: never;
+          location?: never;
+        };
       createIndex?: boolean;
       overwriteIndex?: boolean;
       outputTable?: string;
-      cache?: boolean;
-      model?: string;
-      apiKey?: string;
-      vertex?: boolean;
-      project?: string;
-      location?: string;
-      ollama?: boolean | Ollama;
-      contextWindow?: number;
       verbose?: boolean;
       efConstruction?: number;
       efSearch?: number;
@@ -580,57 +583,52 @@ export default class SimpleTable extends SimpleTableCore {
       minSimilarity?: number;
       similarityColumn?: string;
     } = {},
-  ): Promise<SimpleTable> {
-    const result = await aiVectorSimilarity(
+  ): this {
+    return aiVectorSimilarity(
       this,
       text,
       column,
       nbResults,
       options,
-    );
-    return result;
+    ) as this;
   }
 
   /**
    * Performs hybrid text search combining vector similarity and BM25 text search using Reciprocal Rank Fusion (RRF).
    *
    * This method:
-   * 1. Generates embeddings for the text column if they don't already exist
+   * 1. Ensures compatible embeddings exist for the text column
    * 2. Runs vector similarity search and BM25 text search in parallel
    * 3. Fuses the results using Reciprocal Rank Fusion to get the best matches
    * 4. Returns a new table with the top results ordered by relevance
    *
-   * The embeddings are cached at two levels:
-   * * At the table level, so renaming the table will invalidate the cache and regenerate embeddings. For often updated tables, you can pass a timestamp to the table name (e.g., `mytable_20240901`) to keep the cache valid until the next update.
-   * * At the row level, so if the text content is different or not cached, the embedding will be generated and cached for that specific text. If the text content has been previously cached, the existing embedding will be reused, even if the table has been renamed (as long as the text content is unchanged).
+   * When vector search is enabled, embedding responses are cached in `.journalism-cache`, and the table with its generated embedding column is cached in `.sda-cache`. Set `embeddings.cache` to `false` to disable both caches.
    *
-   * Also, the method creates the column `{columnText}_embeddings` to store the generated embeddings. If you wrote your DB to a file, and if the column already exists, it will reuse the existing embeddings column directly, before even checking the cache, since the DB file itself serves as a cache. Similarly, the embeddings and BM25 index are reused if they already exist.
+   * Also, the method creates the column `{textColumn}_embeddings` to store the generated embeddings and persists its canonical embedding provenance inside DuckDB. A stored column is reused only when its provider/backend/model identity, semantic options, source mapping, and dimensions remain compatible. Legacy or incompatible columns are regenerated, and stale vector indexes are invalidated before replacement. This provenance survives reopening a DuckDB database.
    *
-   * To delete the cache, simply remove the `.journalism-cache` and/or `.sda-cache` directories in your project or set the cache option to `false`. Remember to add `.journalism-cache` and `.sda-cache` to your `.gitignore`.
+   * Remove `.journalism-cache` and `.sda-cache` to clear existing cache entries. Remember to add both directories to your `.gitignore`.
    *
-   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`) or directly via `options`, with `options` taking precedence.
+   * This method supports Gemini, Vertex AI, and Ollama embeddings. Set `embeddings.provider` explicitly or omit it to use environment selection; all other fields match `getEmbedding` from journalism-ai.
    *
-   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL` to your desired model name. You can also pass your instance of Ollama.
+   * The selected embedding provider is used for both stored row embeddings and the query embedding.
    *
-   * If `createIndex` is `true`, both a vector index (using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss)) and a BM25 full-text search index (using the [fts extension](https://duckdb.org/docs/stable/core_extensions/full_text_search)) will be created for faster retrieval.
+   * When BM25 search is enabled, its required full-text search index is created or reused automatically. When vector search is enabled, set `createIndex` to `true` to also create an HNSW index using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss).
    *
    * This method does not support tables containing geometries.
+   * The work is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param query - The search query text.
-   * @param columnId - The name of the column containing unique identifiers for each row.
-   * @param columnText - The name of the column containing the text content to search through.
+   * @param idColumn - The name of the column containing unique identifiers for each row.
+   * @param textColumn - The name of the column containing the text content to search through.
    * @param nbResults - The number of most similar rows to retrieve.
    * @param options - Configuration options for the hybrid search.
-   * @param options.cache - If `true`, embeddings will be cached locally. Defaults to `false`.
+   * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use environment selection; all other fields match `getEmbedding` from journalism-ai.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
-   * @param options.embeddingsModelContextWindow - An option to specify the context window size for the embeddings model when using Ollama. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
-   * @param options.createIndex - If `true`, both vector and BM25 indexes will be created for faster retrieval. Defaults to `false`.
+   * @param options.createIndex - If `true`, creates an HNSW index when vector search is enabled. The BM25 FTS index is managed automatically whenever BM25 search is enabled. Defaults to `false`.
    * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
    * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
    * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
-   * @param options.embeddingsModel - The model to use for generating embeddings. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
-   * @param options.ollamaEmbeddings - If `true`, forces the use of Ollama for embeddings generation. Defaults to `false`.
-   * @param options.embeddingsConcurrent - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
+   * @param options.embeddingsConcurrency - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
    * @param options.stemmer - The language stemmer to apply for BM25 word normalization. Supports multiple languages or "none" to disable stemming. Defaults to `'porter'`.
    * @param options.stopwords - The table containing the stopwords to use for the BM25 FTS index. Supports multiple languages or "none" to disable stopwords. Defaults to "english".
    * @param options.ignore - The regular expression of patterns to be ignored for the BM25 FTS index. Defaults to "(\\.|[^a-z])+".
@@ -647,45 +645,101 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.vectorSimilarityColumn - If provided, a new column with this name will be added to the output table containing the vector similarity score (from 0.0 to 1.0) for each row.
    * @param options.outputTable - The name of a new table where the results will be stored. If not provided, the current table will be replaced with the search results.
    * @param options.times - An optional object to track timing information. If provided, it will be updated with detailed timing breakdowns (embeddingStart, embeddingEnd, vectorSearchStart, vectorSearchEnd, bm25Start, bm25End). Useful when calling from aiRAG to get combined timing information.
-   * @returns A promise that resolves to a SimpleTable instance containing the search results, ordered by relevance (best matches first).
+   * @returns The table that will contain the search results, so methods can be chained.
    * @category AI
    *
    * @example
    * ```ts
    * // Load a dataset of recipes
    * const sdb = new SimpleDB();
-   * const table = sdb.newTable("recipes");
-   * await table.loadData("recipes.parquet");
+   * const results = await sdb
+   *   .newTable("recipes")
+   *   .loadData("recipes.parquet")
+   *   .hybridSearch("buttery pastry for breakfast", "Dish", "Recipe", 10, {
+   *     embeddings: {
+   *       provider: "gemini",
+   *       model: "gemini-embedding-001",
+   *     },
+   *     verbose: true,
+   *   })
+   *   .log();
+   * ```
    *
-   * // Perform hybrid search - replaces the current table with top 10 results
-   * await table.hybridSearch(
-   *   "buttery pastry for breakfast",
-   *   "Dish", // Column with unique IDs
-   *   "Recipe", // Column with text to search
-   *   10, // Return top 10 results
-   *   {
-   *     cache: true, // Cache embeddings
-   *     verbose: true, // Log debugging information
-   *   }
-   * );
-   *
-   * // Table now contains only the most relevant recipes
-   * await table.logTable();
+   * @example
+   * ```ts
+   * // Run hybrid search with local Ollama embeddings.
+   * const results = await table
+   *   .hybridSearch("buttery pastry", "Dish", "Recipe", 10, {
+   *     embeddings: { provider: "ollama", model: "nomic-embed-text" },
+   *   })
+   *   .log();
    * ```
    */
-  async hybridSearch(
+  hybridSearch(
     query: string,
-    columnId: string,
-    columnText: string,
+    idColumn: string,
+    textColumn: string,
     nbResults: number,
     options: {
-      cache?: boolean;
+      embeddings?:
+        | {
+          provider?: never;
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          apiKey?: never;
+          vertex?: never;
+          project?: never;
+          location?: never;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "gemini";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          vertex?: false;
+          apiKey?: string;
+          project?: never;
+          location?: never;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "gemini";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          vertex: true;
+          apiKey?: string;
+          project?: string;
+          location?: string;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "ollama";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          ollama?: {
+            embeddingEndpoint?: string;
+            embed(request: {
+              model: string;
+              input: string;
+              options?: { num_ctx?: number };
+            }): Promise<{ embeddings: number[][] }>;
+          };
+          contextWindow?: number;
+          apiKey?: never;
+          vertex?: never;
+          project?: never;
+          location?: never;
+        };
       verbose?: boolean;
-      embeddingsModelContextWindow?: number;
       createIndex?: boolean;
-      embeddingsModel?: string;
-      ollamaEmbeddings?: boolean;
-      embeddingsConcurrent?: number;
+      embeddingsConcurrency?: number;
       stemmer?:
         | "arabic"
         | "basque"
@@ -742,16 +796,15 @@ export default class SimpleTable extends SimpleTableCore {
         bm25End?: number;
       };
     } = {},
-  ): Promise<SimpleTable> {
-    const result = await hybridSearch(
+  ): this {
+    return hybridSearch(
       this,
       query,
-      columnId,
-      columnText,
+      idColumn,
+      textColumn,
       nbResults,
       options,
-    );
-    return result;
+    ) as this;
   }
 
   /**
@@ -759,51 +812,32 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * Internally, this method uses the `hybridSearch` method to retrieve relevant rows. If you want to perform hybrid search without the LLM step (i.e., to get the table of results directly), use `hybridSearch` instead.
    *
-   * The embeddings are cached at two levels:
-   * * At the table level, so renaming the table will invalidate the cache and regenerate embeddings. For often updated tables, you can pass a timestamp to the table name (e.g., `mytable_20240901`) to keep the cache valid until the next update.
-   * * At the row level, so if the text content is different or not cached, the embedding will be generated and cached for that specific text. If the text content has been previously cached, the existing embedding will be reused, even if the table has been renamed (as long as the text content is unchanged).
+   * When vector search is enabled, retrieval caches embedding responses in `.journalism-cache` and the table with its generated embedding column in `.sda-cache`. The final generated answer is also cached in `.journalism-cache`. Set `embeddings.cache` or `generation.cache` to `false` to disable the corresponding caches.
    *
-   * Also, the method creates the column `{columnText}_embeddings` to store the generated embeddings. If you wrote your DB to a file, and if the column already exists, it will reuse the existing embeddings column directly, before even checking the cache, since the DB file itself serves as a cache. Similarly, the embeddings and BM25 index are reused if they already exist.
+   * Remove `.journalism-cache` and `.sda-cache` to clear existing cache entries. Remember to add both directories to your `.gitignore`.
    *
-   * To delete the cache, simply remove the `.journalism-cache` and/or `.sda-cache` directories in your project or set the cache option to `false`. Remember to add `.journalism-cache` and `.sda-cache` to your `.gitignore`.
+   * Generation and embeddings are independently configurable. Set either nested `provider` explicitly or omit it to use that provider's environment selection; all remaining fields match journalism-ai.
    *
-   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`, `AI_EMBEDDINGS_MODEL`) or directly via `options`, with `options` taking precedence.
+   * For example, `generation.provider` can be `"gemini"` while `embeddings.provider` is `"ollama"`. Environment-only mixed providers use `AI_PROVIDER` and `AI_EMBEDDINGS_PROVIDER`.
    *
-   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_MODEL` and `AI_EMBEDDINGS_MODEL` to your desired model names. If you are using Google Gemini or Vertex AI for the LLM, you can still use Ollama embeddings via the `ollamaEmbeddings` option.
+   * Ollama temperature defaults to 0. Gemini uses the provider's default temperature.
    *
-   * The LLM temperature is set to 0 for reproducibility, though consistency cannot be guaranteed.
-   *
-   * If `createIndex` is `true`, both a vector index (using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss)) and a BM25 full-text search index (using the [fts extension](https://duckdb.org/docs/stable/core_extensions/full_text_search)) will be created for faster retrieval.
+   * When BM25 search is enabled, its required full-text search index is created or reused automatically. When vector search is enabled, set `createIndex` to `true` to also create an HNSW index using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss).
    *
    * This method does not support tables containing geometries.
    *
    * @param query - The question or query to answer using the retrieved context.
-   * @param columnId - The name of the column containing unique identifiers for each row.
-   * @param columnText - The name of the column containing the text content to search through and use as context.
+   * @param idColumn - The name of the column containing unique identifiers for each row.
+   * @param textColumn - The name of the column containing the text content to search through and use as context.
    * @param nbResults - The number of most similar rows to retrieve and use as context for the AI.
    * @param options - Configuration options for the RAG process.
-   * @param options.cache - If `true`, embeddings and LLM responses will be cached locally. Defaults to `false`.
+   * @param options.generation - Gemini or Ollama generation configuration. Set `provider` explicitly or omit it to use environment selection; all other relevant fields match the selected journalism-ai function.
+   * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use environment selection; all other fields match `getEmbedding` from journalism-ai.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
    * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.
-   * @param options.systemPrompt - An option to overwrite the LLM system prompt.
-   * @param options.modelContextWindow - An option to specify the context window size for the LLM model when using Ollama. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
-   * @param options.embeddingsModelContextWindow - An option to specify the context window size for the embeddings model when using Ollama. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
-   * @param options.thinkingBudget - Sets the reasoning token budget: 0 to disable (default, though some models may reason regardless), -1 for a dynamic budget, or > 0 for a fixed budget. For Ollama models, any non-zero value simply enables reasoning, ignoring the specific budget amount.
-   * @param options.thinkingLevel - Sets the thinking level for reasoning: "minimal", "low", "medium", or "high", which some models expect instead of `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided. For Ollama models, any value enables reasoning.
-   * @param options.safetyEnabled - Controls whether safety filters are enabled. If set to `true`, filters are active; if `false`, they are disabled. By default, this is `false` when using Vertex AI and `true` otherwise. This setting can be explicitly overridden for any model.
-   * @param options.webSearch - (Gemini only) If `true`, enables web search grounding for the AI's responses. Be careful of extra costs. Defaults to `false`.
-   * @param options.model - The LLM model to use for answering the query. Defaults to the `AI_MODEL` environment variable.
-   * @param options.temperature - The temperature setting for the AI model, controlling the randomness of the output. Defaults to `0`.
-   * @param options.apiKey - Your API key for the AI service. Defaults to the `AI_KEY` environment variable.
-   * @param options.vertex - Set to `true` to use Vertex AI for authentication. Auto-enables if `AI_PROJECT` and `AI_LOCATION` are set. Defaults to `false`.
-   * @param options.project - Your Google Cloud project ID. Defaults to the `AI_PROJECT` environment variable.
-   * @param options.location - Your Google Cloud location for your project. Defaults to the `AI_LOCATION` environment variable.
-   * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama instance to be used, you can pass it here too.
    * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
-   * @param options.embeddingsModel - The model to use for generating embeddings. Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
-   * @param options.ollamaEmbeddings - If `true`, forces the use of Ollama for embeddings generation, even if Gemini or Vertex is used for the LLM. Defaults to `false`.
-   * @param options.embeddingsConcurrent - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
-   * @param options.createIndex - If `true`, both vector and BM25 indexes will be created for faster retrieval. Defaults to `false`.
+   * @param options.embeddingsConcurrency - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
+   * @param options.createIndex - If `true`, creates an HNSW index when vector search is enabled. The BM25 FTS index is managed automatically whenever BM25 search is enabled. Defaults to `false`.
    * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
    * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
    * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
@@ -828,59 +862,112 @@ export default class SimpleTable extends SimpleTableCore {
    * ```ts
    * // Load a dataset of recipes
    * const sdb = new SimpleDB();
-   * const table = sdb.newTable("recipes");
-   * await table.loadData("recipes.parquet");
-   *
-   * // Ask a question using hybrid RAG (vector + BM25 search)
-   * const answer = await table.aiRAG(
-   *   "I want a buttery pastry for breakfast.",
-   *   "Dish", // Column with unique IDs
-   *   "Recipe", // Column with text to search
-   *   10, // The 10 most relevant recipes passed to the LLM
-   *   {
-   *     cache: true, // Cache embeddings
-   *     verbose: true, // Log debugging information and timings
-   *   }
-   * );
+   * const answer = await sdb
+   *   .newTable("recipes")
+   *   .loadData("recipes.parquet")
+   *   .aiRAG(
+   *     "I want a buttery pastry for breakfast.",
+   *     "Dish", // Column with unique IDs
+   *     "Recipe", // Column with text to search
+   *     10, // The 10 most relevant recipes passed to the LLM
+   *     {
+   *       generation: {
+   *         provider: "gemini",
+   *         model: "gemini-3-flash-preview",
+   *       },
+   *       embeddings: {
+   *         provider: "ollama",
+   *         model: "nomic-embed-text",
+   *       },
+   *       verbose: true, // Log debugging information and timings
+   *     },
+   *   );
    *
    * console.log(answer);
    * // Example output: "I recommend croissants.
    * // They are a classic buttery pastry perfect for breakfast..."
    * ```
+   *
+   * @example
+   * ```ts
+   * // Use Ollama for both retrieval embeddings and answer generation.
+   * const answer = await table.aiRAG(
+   *   "I want a buttery pastry for breakfast.",
+   *   "Dish",
+   *   "Recipe",
+   *   10,
+   *   {
+   *     generation: { provider: "ollama", model: "gemma3:4b" },
+   *     embeddings: { provider: "ollama", model: "nomic-embed-text" },
+   *   },
+   * );
+   * ```
    */
   async aiRAG(
     query: string,
-    columnId: string,
-    columnText: string,
+    idColumn: string,
+    textColumn: string,
     nbResults: number,
     options: {
-      cache?: boolean;
+      embeddings?:
+        | {
+          provider?: never;
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          apiKey?: never;
+          vertex?: never;
+          project?: never;
+          location?: never;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "gemini";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          vertex?: false;
+          apiKey?: string;
+          project?: never;
+          location?: never;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "gemini";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          vertex: true;
+          apiKey?: string;
+          project?: string;
+          location?: string;
+          ollama?: never;
+          contextWindow?: never;
+        }
+        | {
+          provider: "ollama";
+          model?: string;
+          cache?: boolean;
+          verbose?: boolean;
+          ollama?: {
+            embeddingEndpoint?: string;
+            embed(request: {
+              model: string;
+              input: string;
+              options?: { num_ctx?: number };
+            }): Promise<{ embeddings: number[][] }>;
+          };
+          contextWindow?: number;
+          apiKey?: never;
+          vertex?: never;
+          project?: never;
+          location?: never;
+        };
       verbose?: boolean;
-      includeThoughts?: boolean;
-      systemPrompt?: string;
-      modelContextWindow?: number;
-      embeddingsModelContextWindow?: number;
       createIndex?: boolean;
-      thinkingBudget?: number;
-      thinkingLevel?: "minimal" | "low" | "medium" | "high";
-      webSearch?: boolean;
-      safetyEnabled?: boolean;
-      model?: string;
-      temperature?: number;
-      apiKey?: string;
-      vertex?: boolean;
-      project?: string;
-      location?: string;
-      ollama?: boolean | Ollama;
-      metrics?: {
-        totalCost: number;
-        totalInputTokens: number;
-        totalOutputTokens: number;
-        totalRequests: number;
-      };
-      embeddingsModel?: string;
-      ollamaEmbeddings?: boolean;
-      embeddingsConcurrent?: number;
+      embeddingsConcurrency?: number;
       stemmer?:
         | "arabic"
         | "basque"
@@ -926,42 +1013,121 @@ export default class SimpleTable extends SimpleTableCore {
       efConstruction?: number;
       efSearch?: number;
       M?: number;
+      generation?:
+        & {
+          systemPrompt?: string;
+          model?: string;
+          cache?: boolean;
+          processResponse?: (
+            response: unknown,
+          ) => unknown | Promise<unknown>;
+          temperature?: number;
+        }
+        & (
+          | {
+            provider: "gemini";
+            apiKey?: string;
+            vertex?: boolean;
+            project?: string;
+            location?: string;
+            webSearch?: boolean;
+            files?: {
+              path: string;
+              type: "image" | "video" | "audio" | "pdf" | "text";
+            }[];
+            thinkingBudget?: number;
+            thinkingLevel?: "minimal" | "low" | "medium" | "high";
+            safetyEnabled?: boolean;
+            geminiParameters?: unknown;
+            ollama?: never;
+            contextWindow?: never;
+            ollamaParameters?: never;
+          }
+          | {
+            provider: "ollama";
+            ollama?: unknown;
+            files?: { path: string; type: "image" | "text" }[];
+            contextWindow?: number;
+            thinkingLevel?: boolean | "low" | "medium" | "high";
+            ollamaParameters?: unknown;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
+            webSearch?: never;
+            thinkingBudget?: never;
+            safetyEnabled?: never;
+            geminiParameters?: never;
+          }
+          | {
+            provider?: undefined;
+            apiKey?: string;
+            vertex?: boolean;
+            project?: string;
+            location?: string;
+            webSearch?: boolean;
+            files?: {
+              path: string;
+              type: "image" | "video" | "audio" | "pdf" | "text";
+            }[];
+            thinkingBudget?: number;
+            thinkingLevel?: "minimal" | "low" | "medium" | "high";
+            safetyEnabled?: boolean;
+            geminiParameters?: unknown;
+            ollama?: never;
+            contextWindow?: never;
+            ollamaParameters?: never;
+          }
+          | {
+            provider?: undefined;
+            ollama?: unknown;
+            files?: { path: string; type: "image" | "text" }[];
+            contextWindow?: number;
+            thinkingLevel?: boolean | "low" | "medium" | "high";
+            ollamaParameters?: unknown;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
+            webSearch?: never;
+            thinkingBudget?: never;
+            safetyEnabled?: never;
+            geminiParameters?: never;
+          }
+        );
+      includeThoughts?: boolean;
+      metrics?: {
+        totalCost: number;
+        totalInputTokens: number;
+        totalOutputTokens: number;
+        totalRequests: number;
+      };
     } = {},
   ): Promise<string> {
-    return await aiRAG(this, query, columnId, columnText, nbResults, options);
+    return await aiRAG(this, query, idColumn, textColumn, nbResults, options);
   }
 
   /**
    * Generates and executes a SQL query based on a prompt.
    * Additional instructions, such as column types, are automatically added to your prompt. Set `verbose` to `true` to see the full prompt.
    *
-   * This method supports Google Gemini, Vertex AI, and local models running with Ollama. Credentials and model selection are determined by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or directly via `options`, with `options` taking precedence.
+   * This method supports Gemini, Vertex AI, and Ollama. Set `generation.provider` explicitly or omit it to use environment selection; all other relevant fields match `askGemini` or `askOllama` from journalism-ai.
    *
-   * For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is running, and set `AI_MODEL` to your desired model name. You can also pass your instance of Ollama to the `ollama` option.
+   * For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set `AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
    *
-   * Temperature is set to 0 to aim for reproducible results. For future consistency, it's recommended to copy the generated query and execute it manually using `await sdb.customQuery(query)` or to cache the query using the `cache` option.
+   * Ollama temperature defaults to 0, while Gemini uses the provider's default. Provider-specific controls live under `generation`.
    *
-   * When `cache` is `true`, the generated query will be cached locally in `.journalism-cache` (from the `askAI` function in the [journalism library](https://github.com/nshiab/journalism)), saving resources and time. Remember to add `.journalism-cache` to your `.gitignore`.
+   * The generated query is cached locally in `.journalism-cache` by default. Set `generation.cache` to `false` to disable caching, and remember to add `.journalism-cache` to your `.gitignore`.
+   * The work is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param prompt - The input string to guide the AI in generating the SQL query.
    * @param options - Configuration options for the AI request.
    * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
-   * @param options.cache - If `true`, the generated query will be cached locally. Defaults to `false`.
-   * @param options.model - The AI model to use. Defaults to the `AI_MODEL` environment variable.
-   * @param options.apiKey - The API key for the AI service. Defaults to the `AI_KEY` environment variable.
-   * @param options.vertex - If `true`, uses Vertex AI. Automatically set to `true` if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to `false`.
-   * @param options.project - The Google Cloud project ID for Vertex AI. Defaults to the `AI_PROJECT` environment variable.
-   * @param options.location - The Google Cloud location for Vertex AI. Defaults to the `AI_LOCATION` environment variable.
-   * @param options.ollama - If `true`, uses Ollama. Defaults to the `OLLAMA` environment variable. If you want your Ollama instance to be used, you can pass it here too.
-   * @param options.contextWindow - An option to specify the context window size for Ollama models. By default, Ollama sets this depending on the model, which can be lower than the actual maximum context window size of the model.
-   * @param options.thinkingBudget - Sets the reasoning token budget: 0 to disable (default, though some models may reason regardless), -1 for a dynamic budget, or > 0 for a fixed budget. For Ollama models, any non-zero value simply enables reasoning, ignoring the specific budget amount.
-   * @param options.thinkingLevel - Sets the thinking level for reasoning: "minimal", "low", "medium", or "high", which some models expect instead of `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided. For Ollama models, any value enables reasoning.
-   * @param options.temperature - The temperature setting for the AI model, controlling the randomness of the output. Defaults to `0`.
-   * @param options.safetyEnabled - Controls whether safety filters are enabled. If set to `true`, filters are active; if `false`, they are disabled. By default, this is `false` when using Vertex AI and `true` otherwise. This setting can be explicitly overridden for any model.
+   * @param options.generation - Gemini or Ollama generation configuration. Set `provider` explicitly or omit it to use environment selection; all other relevant fields match the selected journalism-ai function.
    * @param options.outputTable - The name of a new table where the results will be stored. If not provided, the current table will be replaced with the query results.
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
    * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.
-   * @returns A promise that resolves to the SimpleTable instance containing the query results (either the modified current table or a new table).
+   * @returns The table that will contain the query results, so methods can be chained.
    * @category AI
    *
    * @example
@@ -970,87 +1136,219 @@ export default class SimpleTable extends SimpleTableCore {
    * // the result will replace the existing table.
    * // If run again, it will use the previous query from the cache.
    * // Don't forget to add .journalism-cache to your .gitignore file!
-   * await table.aiQuery(
-   *    "Give me the average salary by department",
-   *     { cache: true, verbose: true }
-   * );
+   * const averageSalaryByDepartment = await table
+   *   .aiQuery("Give me the average salary by department", {
+   *       generation: {
+   *         provider: "gemini",
+   *         model: "gemini-3-flash-preview",
+   *       },
+   *       verbose: true,
+   *   })
+   *   .log();
    * ```
    *
    * @example
    * ```ts
    * // Save results to a new table without modifying the original
-   * const results = await table.aiQuery(
-   *    "Give me the top 10 employees by salary",
-   *     { outputTable: "top_employees" }
-   * );
-   *
    * // Original table remains unchanged
-   * const allEmployees = await table.getNbRows();
+   * const allEmployees = await table.getRowCount();
    * console.log(allEmployees); // All employees
    *
-   * // New table contains only query results
-   * const topEmployees = await results.getNbRows();
-   * console.log(topEmployees); // 10
+   * // Generate the query in chain order and observe the new table.
+   * const topEmployees = await table
+   *   .aiQuery("Give me the top 10 employees by salary", {
+   *     outputTable: "top_employees",
+   *   })
+   *   .log();
+   * console.log(await topEmployees.getRowCount()); // 10
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Generate and execute the query with a local Ollama model.
+   * const averageSalaryByDepartment = await table
+   *   .aiQuery("Give me the average salary by department", {
+   *     generation: { provider: "ollama", model: "gemma3:4b" },
+   *   })
+   *   .log();
    * ```
    */
-  async aiQuery(prompt: string, options: {
-    extraInstructions?: string;
-    cache?: boolean;
-    model?: string;
-    apiKey?: string;
-    vertex?: boolean;
-    project?: string;
-    includeThoughts?: boolean;
-    location?: string;
-    ollama?: boolean | Ollama;
-    contextWindow?: number;
-    thinkingBudget?: number;
-    thinkingLevel?: "minimal" | "low" | "medium" | "high";
-    temperature?: number;
-    safetyEnabled?: boolean;
-    outputTable?: string;
-    verbose?: boolean;
-  } = {}): Promise<SimpleTable> {
-    await aiQuery(this, prompt, options);
-
-    if (typeof options.outputTable === "string") {
-      return this.sdb.newTable(
-        options.outputTable,
-      );
-    } else {
-      return this;
-    }
+  aiQuery(
+    prompt: string,
+    options: {
+      extraInstructions?: string;
+      generation?:
+        & {
+          systemPrompt?: string;
+          model?: string;
+          cache?: boolean;
+          processResponse?: (
+            response: unknown,
+          ) => unknown | Promise<unknown>;
+          temperature?: number;
+        }
+        & (
+          | {
+            provider: "gemini";
+            apiKey?: string;
+            vertex?: boolean;
+            project?: string;
+            location?: string;
+            webSearch?: boolean;
+            files?: {
+              path: string;
+              type: "image" | "video" | "audio" | "pdf" | "text";
+            }[];
+            thinkingBudget?: number;
+            thinkingLevel?: "minimal" | "low" | "medium" | "high";
+            safetyEnabled?: boolean;
+            geminiParameters?: unknown;
+            ollama?: never;
+            contextWindow?: never;
+            ollamaParameters?: never;
+          }
+          | {
+            provider: "ollama";
+            ollama?: unknown;
+            files?: { path: string; type: "image" | "text" }[];
+            contextWindow?: number;
+            thinkingLevel?: boolean | "low" | "medium" | "high";
+            ollamaParameters?: unknown;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
+            webSearch?: never;
+            thinkingBudget?: never;
+            safetyEnabled?: never;
+            geminiParameters?: never;
+          }
+          | {
+            provider?: undefined;
+            apiKey?: string;
+            vertex?: boolean;
+            project?: string;
+            location?: string;
+            webSearch?: boolean;
+            files?: {
+              path: string;
+              type: "image" | "video" | "audio" | "pdf" | "text";
+            }[];
+            thinkingBudget?: number;
+            thinkingLevel?: "minimal" | "low" | "medium" | "high";
+            safetyEnabled?: boolean;
+            geminiParameters?: unknown;
+            ollama?: never;
+            contextWindow?: never;
+            ollamaParameters?: never;
+          }
+          | {
+            provider?: undefined;
+            ollama?: unknown;
+            files?: { path: string; type: "image" | "text" }[];
+            contextWindow?: number;
+            thinkingLevel?: boolean | "low" | "medium" | "high";
+            ollamaParameters?: unknown;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
+            webSearch?: never;
+            thinkingBudget?: never;
+            safetyEnabled?: never;
+            geminiParameters?: never;
+          }
+        );
+      includeThoughts?: boolean;
+      outputTable?: string;
+      verbose?: boolean;
+    } = {},
+  ): this {
+    return aiQuery(this, prompt, options) as this;
   }
 
   // ===================== GOOGLE SHEETS METHODS =====================
 
   /**
    * Writes the table data to a Google Sheet.
-   * This method uses the `overwriteSheetData` function from the [journalism library](https://jsr.io/@nshiab/journalism). Refer to its documentation for more details.
+   * This method uses the `pushToSheet` function from the [journalism-google library](https://jsr.io/@nshiab/journalism-google). Refer to its documentation for more details.
    *
-   * By default, authentication is handled via environment variables (GOOGLE_PRIVATE_KEY and GOOGLE_SERVICE_ACCOUNT_EMAIL). Alternatively, you can use GOOGLE_APPLICATION_CREDENTIALS pointing to a service account JSON file. For detailed setup instructions, refer to the node-google-spreadsheet authentication guide: https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
+   * By default, the selected tab is overwritten and values are written without Google Sheets interpretation. Authentication is handled via environment variables (GOOGLE_PRIVATE_KEY and GOOGLE_SERVICE_ACCOUNT_EMAIL). Alternatively, you can use GOOGLE_APPLICATION_CREDENTIALS pointing to a service account JSON file. For detailed setup instructions, refer to the node-google-spreadsheet authentication guide: https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
    *
-   * @param sheetUrl - The URL pointing to a specific Google Sheet (e.g., `"https://docs.google.com/spreadsheets/d/.../edit#gid=0"`).
+   * @param sheetUrl - A Google Sheets URL. It can point to a spreadsheet or a specific tab.
    * @param options - An optional object with configuration options:
-   * @param options.prepend - A string to prepend to the sheet data (e.g., a title or header).
-   * @param options.lastUpdate - If `true`, adds a timestamp of the last update to the sheet.
-   * @param options.timeZone - The time zone to use for the last update timestamp.
-   * @param options.raw - If `true`, writes the data as raw values without formatting.
-   * @param options.apiEmail - If your API email is stored under a different environment variable name, use this option to specify it.
-   * @param options.apiKey - If your API key is stored under a different environment variable name, use this option to specify it.
+   * @param options.mode - Whether to overwrite the tab or append rows. Defaults to `"overwrite"`.
+   * @param options.tabTitle - Selects a tab by title instead of using the URL's `gid`.
+   * @param options.create - If `true`, creates a missing tab selected by `tabTitle`. Defaults to `false`.
+   * @param options.prepend - Text to add above the header row in overwrite mode.
+   * @param options.lastUpdate - If `true`, adds a UTC timestamp. Pass a Canadian time zone to use it for the timestamp. Available only in overwrite mode.
+   * @param options.raw - If `true`, writes values without Google Sheets interpretation. Defaults to `true`.
+   * @param options.credentials - Explicit Google service-account credentials. These override credentials provided through environment variables or GOOGLE_APPLICATION_CREDENTIALS.
+   * @param options.credentials.email - The Google service-account email.
+   * @param options.credentials.privateKey - The Google service-account private key.
    * @returns A promise that resolves when the data has been written to the sheet.
    * @category Exporting Data
    *
    * @example
    * ```ts
-   * // Write the table data to a Google Sheet
-   * await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+   * // Load, transform, and write data to a Google Sheet
+   * await sdb
+   *   .newTable()
+   *   .loadData("sales.csv")
+   *   .selectColumns(["date", "revenue"])
+   *   .toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Append rows to a tab selected by title
+   * await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit", {
+   *   mode: "append",
+   *   tabTitle: "Election results",
+   * });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Create a missing tab and add context above the data
+   * await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit", {
+   *   tabTitle: "Election results",
+   *   create: true,
+   *   prepend: "Preliminary results",
+   *   lastUpdate: "Canada/Eastern",
+   * });
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Let Google Sheets interpret values, such as formulas and dates
+   * await table.toSheet(
+   *   "https://docs.google.com/spreadsheets/d/.../edit#gid=0",
+   *   { raw: false },
+   * );
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Pass service-account credentials explicitly
+   * await table.toSheet(
+   *   "https://docs.google.com/spreadsheets/d/.../edit#gid=0",
+   *   {
+   *     credentials: {
+   *       email: "service-account@example.iam.gserviceaccount.com",
+   *       privateKey: "-----BEGIN PRIVATE KEY-----\\n...",
+   *     },
+   *   },
+   * );
    * ```
    */
   async toSheet(sheetUrl: string, options: {
+    mode?: "overwrite" | "append";
+    tabTitle?: string;
+    create?: boolean;
     prepend?: string;
-    lastUpdate?: boolean;
-    timeZone?:
+    lastUpdate?:
+      | boolean
       | "Canada/Atlantic"
       | "Canada/Central"
       | "Canada/Eastern"
@@ -1060,10 +1358,16 @@ export default class SimpleTable extends SimpleTableCore {
       | "Canada/Saskatchewan"
       | "Canada/Yukon";
     raw?: boolean;
-    apiEmail?: string;
-    apiKey?: string;
+    credentials?: {
+      email: string;
+      privateKey: string;
+    };
   } = {}): Promise<void> {
-    await overwriteSheetData(await this.getData(), sheetUrl, options);
+    const data = await this.getData() as Parameters<
+      typeof import("@nshiab/journalism-google").pushToSheet
+    >[0];
+    const { pushToSheet } = await import("@nshiab/journalism-google");
+    await pushToSheet(data, sheetUrl, options);
   }
 
   /**
@@ -1071,35 +1375,42 @@ export default class SimpleTable extends SimpleTableCore {
    * This method uses the `getSheetData` function from the [journalism library](https://jsr.io/@nshiab/journalism). Refer to its documentation for more details.
    *
    * By default, authentication is handled via environment variables (GOOGLE_PRIVATE_KEY and GOOGLE_SERVICE_ACCOUNT_EMAIL). Alternatively, you can use GOOGLE_APPLICATION_CREDENTIALS pointing to a service account JSON file. For detailed setup instructions, refer to the node-google-spreadsheet authentication guide: https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
+   * The download is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param sheetUrl - The URL pointing to a specific Google Sheet (e.g., `"https://docs.google.com/spreadsheets/d/.../edit#gid=0"`).
    * @param options - An optional object with configuration options:
    * @param options.skip - The number of rows to skip from the top of the sheet before reading data. Useful when the sheet contains metadata or headers that should not be included in the data.
-   * @param options.apiEmail - If your API email is stored under a different environment variable name, use this option to specify it.
-   * @param options.apiKey - If your API key is stored under a different environment variable name, use this option to specify it.
-   * @returns A promise that resolves when the data has been loaded into the table.
+   * @param options.apiEmailEnvVar - The name of the environment variable that stores your API email.
+   * @param options.apiKeyEnvVar - The name of the environment variable that stores your API key.
+   * @returns The table, so methods can be chained.
    * @category Loading Data
    *
    * @example
    * ```ts
    * // Load data from a Google Sheet
-   * await table.loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+   * const sheetData = await sdb
+   *   .newTable("sheetData")
+   *   .loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0")
+   *   .log();
    * ```
    *
    * @example
    * ```ts
    * // Load data from a Google Sheet, skipping the first 2 rows (e.g., to skip a prepended message and timestamp)
-   * await table.loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0", {
-   *   skip: 2,
-   * });
+   * const sheetData = await table
+   *   .loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0", {
+   *     skip: 2,
+   *   })
+   *   .log();
    * ```
    */
-  async loadSheet(sheetUrl: string, options: {
+  loadSheet(sheetUrl: string, options: {
     skip?: number;
-    apiEmail?: string;
-    apiKey?: string;
-  } = {}): Promise<void> {
-    await this.loadArray(await getSheetData(sheetUrl, options));
+    apiEmailEnvVar?: string;
+    apiKeyEnvVar?: string;
+  } = {}): this {
+    loadSheet(this, sheetUrl, options);
+    return this;
   }
 
   // ===================== DATAWRAPPER METHODS =====================
@@ -1107,11 +1418,11 @@ export default class SimpleTable extends SimpleTableCore {
   /**
    * Writes the table data as CSV to a Datawrapper chart or table.
    *
-   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`.
    *
    * @param chartId - The unique ID of the Datawrapper chart or table to update. This ID can be found in the Datawrapper URL or dashboard.
    * @param options - An optional object with configuration options:
-   * @param options.apiKey - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
+   * @param options.apiKeyEnvVar - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
    * @param options.note - A string to update the chart's notes field with (e.g., a last-updated timestamp).
    * @param options.republish - If `true`, republishes the chart after updating the data. Defaults to `false`.
    * @returns A promise that resolves when the data has been sent to Datawrapper.
@@ -1119,76 +1430,73 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * @example
    * ```ts
-   * // Update a Datawrapper chart with the table data
-   * await table.toDW("myChartId");
+   * // Load, transform, and send data to a Datawrapper chart
+   * await sdb
+   *   .newTable()
+   *   .loadData("sales.csv")
+   *   .selectColumns(["date", "revenue"])
+   *   .toDatawrapper("myChartId");
    * ```
    *
    * @example
    * ```ts
    * // Update data, add a note, and republish
-   * await table.toDW("myChartId", {
+   * await table.toDatawrapper("myChartId", {
    *   note: `Last updated: ${new Date().toLocaleString()}`,
    *   republish: true,
    * });
    * ```
    */
-  async toDW(
+  async toDatawrapper(
     chartId: string,
     options: {
-      apiKey?: string;
+      apiKeyEnvVar?: string;
       note?: string;
       republish?: boolean;
     } = {},
   ): Promise<void> {
-    await updateDataDW(chartId, await this.getDataAsCSV(), {
-      apiKey: options.apiKey,
-    });
-    if (typeof options.note === "string") {
-      await updateNotesDW(chartId, options.note, { apiKey: options.apiKey });
-    }
-    if (options.republish === true) {
-      await publishChartDW(chartId, { apiKey: options.apiKey });
-    }
+    await toDatawrapper(this, chartId, options);
   }
 
   /**
    * Loads data from a Datawrapper chart or table into the table.
    *
-   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`.
+   * The download is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param chartId - The unique ID of the Datawrapper chart or table. This ID can be found in the Datawrapper URL or dashboard.
    * @param options - An optional object with configuration options:
-   * @param options.apiKey - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
-   * @returns A promise that resolves when the data has been loaded into the table.
+   * @param options.apiKeyEnvVar - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
+   * @returns The table, so methods can be chained.
    * @category Loading Data
    *
    * @example
    * ```ts
    * // Load data from a Datawrapper chart
-   * await table.loadDW("myChartId");
+   * const chartData = await sdb
+   *   .newTable("chartData")
+   *   .loadDatawrapper("myChartId")
+   *   .log();
    * ```
    */
-  async loadDW(
+  loadDatawrapper(
     chartId: string,
     options: {
-      apiKey?: string;
+      apiKeyEnvVar?: string;
     } = {},
-  ): Promise<void> {
-    const data = await getDataDW(chartId, {
-      parse: true,
-      apiKey: options.apiKey,
-    });
-    await this.loadArray(data as Record<string, string>[]);
+  ): this {
+    loadDatawrapper(this, chartId, options);
+    return this;
   }
 
   /**
    * Writes the table's geospatial data as GeoJSON to a Datawrapper map.
    *
-   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`.
    *
    * @param chartId - The unique ID of the Datawrapper map to update. This ID can be found in the Datawrapper URL or dashboard.
    * @param options - An optional object with configuration options:
-   * @param options.apiKey - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
+   * @param options.apiKeyEnvVar - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
    * @param options.column - The name of the geometry column to use. If omitted, the method will automatically attempt to find a geometry column.
    * @param options.note - A string to update the map's notes field with.
    * @param options.republish - If `true`, republishes the map after updating the data. Defaults to `false`.
@@ -1197,76 +1505,66 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * @example
    * ```ts
-   * // Update a Datawrapper map with the table's geo data
-   * await table.toGeoDW("myMapId");
+   * // Load, transform, and send geospatial data to a Datawrapper map
+   * await sdb
+   *   .newTable()
+   *   .loadGeoData("regions.geojson")
+   *   .selectColumns(["name", "population", "geometry"])
+   *   .toGeoDatawrapper("myMapId");
    * ```
    *
    * @example
    * ```ts
    * // Update data, add a note, and republish
-   * await table.toGeoDW("myMapId", {
+   * await table.toGeoDatawrapper("myMapId", {
    *   note: `Last updated: ${new Date().toLocaleString()}`,
    *   republish: true,
    * });
    * ```
    */
-  async toGeoDW(
+  async toGeoDatawrapper(
     chartId: string,
     options: {
-      apiKey?: string;
+      apiKeyEnvVar?: string;
       column?: string;
       note?: string;
       republish?: boolean;
     } = {},
   ): Promise<void> {
-    const geoData = await this.getGeoData(options.column);
-    await updateDataDW(chartId, JSON.stringify(geoData), {
-      apiKey: options.apiKey,
-    });
-    if (typeof options.note === "string") {
-      await updateNotesDW(chartId, options.note, { apiKey: options.apiKey });
-    }
-    if (options.republish === true) {
-      await publishChartDW(chartId, { apiKey: options.apiKey });
-    }
+    await toGeoDatawrapper(this, chartId, options);
   }
 
   /**
    * Loads geospatial data from a Datawrapper map into the table.
    *
-   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`.
    *
-   * The data is temporarily written to `.sda-cache/<chartId>.json` and removed after loading. Remember to add `.sda-cache` to your `.gitignore`.
+   * The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.geojson` and removed after loading. Remember to add `.sda-cache` to your `.gitignore`.
+   * The download is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param chartId - The unique ID of the Datawrapper map. This ID can be found in the Datawrapper URL or dashboard.
    * @param options - An optional object with configuration options:
-   * @param options.apiKey - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
-   * @returns A promise that resolves when the data has been loaded into the table.
+   * @param options.apiKeyEnvVar - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
+   * @returns The table, so methods can be chained.
    * @category Loading Data
    *
    * @example
    * ```ts
    * // Load geo data from a Datawrapper map
-   * await table.loadGeoDW("myMapId");
+   * const mapData = await sdb
+   *   .newTable("mapData")
+   *   .loadGeoDatawrapper("myMapId")
+   *   .log();
    * ```
    */
-  async loadGeoDW(
+  loadGeoDatawrapper(
     chartId: string,
     options: {
-      apiKey?: string;
+      apiKeyEnvVar?: string;
     } = {},
-  ): Promise<void> {
-    const jsonString = await getDataDW(chartId, {
-      apiKey: options.apiKey,
-    }) as string;
-    const tempPath = `.sda-cache/${chartId}.json`;
-    try {
-      createDirectory(".sda-cache");
-      writeFileSync(tempPath, jsonString);
-      await this.loadGeoData(tempPath);
-    } finally {
-      unlinkSync(tempPath);
-    }
+  ): this {
+    loadGeoDatawrapper(this, chartId, options);
+    return this;
   }
 
   // ===================== CHARTING METHODS =====================
@@ -1276,9 +1574,9 @@ export default class SimpleTable extends SimpleTableCore {
    * To create maps, use the `writeMap` method.
    *
    * @param chart - A function that takes data (as an array of objects) and returns an Observable Plot chart (an `SVGSVGElement` or `HTMLElement`).
-   * @param path - The absolute path where the chart image will be saved (e.g., `"./output/chart.png"`).
+   * @param path - The path where the chart will be saved. The file extension must be `.png` or `.svg` (e.g., `"./output/chart.png"`).
    * @param options - Optional object containing additional settings:
-   * @param options.style - A CSS string to customize the chart's appearance. This is applied to a `<div>` element wrapping the Plot chart (which has the id `chart`). Use this if the Plot `style` option is insufficient.
+   * @param options.style - A CSS string inserted into the generated SVG to customize the chart's appearance. Use this if the Plot `style` option is insufficient.
    * @param options.dark - If `true`, switches the chart to dark mode. Defaults to `false`.
    * @returns A promise that resolves when the chart image has been saved.
    * @category Dataviz
@@ -1288,9 +1586,7 @@ export default class SimpleTable extends SimpleTableCore {
    * import { dot, plot } from "@observablehq/plot";
    *
    * const sdb = new SimpleDB();
-   * const table = sdb.newTable();
    * const data = [{ year: 2024, value: 10 }, { year: 2025, value: 15 }];
-   * await table.loadArray(data);
    *
    * const chartFunction = (plotData: unknown[]) =>
    *   plot({
@@ -1301,7 +1597,10 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * const outputPath = "output/chart.png";
    *
-   * await table.writeChart(chartFunction, outputPath);
+   * await sdb
+   *   .newTable()
+   *   .loadArray(data)
+   *   .writeChart(chartFunction, outputPath);
    * ```
    */
   async writeChart(
@@ -1309,19 +1608,15 @@ export default class SimpleTable extends SimpleTableCore {
     path: string,
     options: { style?: string; dark?: boolean } = {},
   ): Promise<void> {
-    try {
-      createDirectory(path);
-      await saveChart(
-        await this.getData(),
-        chart as (data: Data) => SVGSVGElement | HTMLElement,
-        path,
-        options,
-      );
-    } catch (error) {
-      console.error(error);
-    } finally {
-      cleanDatavizGlobals();
-    }
+    createDirectory(path);
+    const data = await this.getData();
+    const { saveChart } = await import("@nshiab/journalism-dataviz");
+    await saveChart(
+      data,
+      chart as (data: Data) => SVGSVGElement | HTMLElement,
+      path,
+      options,
+    );
   }
 
   /**
@@ -1329,11 +1624,11 @@ export default class SimpleTable extends SimpleTableCore {
    * To create charts from non-geospatial data, use the `writeChart` method.
    *
    * @param map - A function that takes geospatial data (in GeoJSON format) and returns an Observable Plot map (an `SVGSVGElement` or `HTMLElement`).
-   * @param path - The absolute path where the map image will be saved (e.g., `"./output/map.png"`).
+   * @param path - The path where the map will be saved. The file extension must be `.png` or `.svg` (e.g., `"./output/map.png"`).
    * @param options - An optional object with configuration options:
    * @param options.column - The name of the column storing geometries. If there is only one geometry column, it will be used by default.
    * @param options.rewind - If `true`, rewinds the coordinates of polygons to follow the spherical winding order (important for D3.js). Defaults to `true`.
-   * @param options.style - A CSS string to customize the map's appearance. This is applied to a `<div>` element wrapping the Plot map (which has the ID `chart`). Use this if the Plot `style` option is insufficient.
+   * @param options.style - A CSS string inserted into the generated SVG to customize the map's appearance. Use this if the Plot `style` option is insufficient.
    * @param options.dark - If `true`, switches the map to dark mode. Defaults to `false`.
    * @returns A promise that resolves when the map image has been saved.
    * @category Dataviz
@@ -1343,9 +1638,6 @@ export default class SimpleTable extends SimpleTableCore {
    * import { geo, plot } from "@observablehq/plot";
    *
    * const sdb = new SimpleDB();
-   * const table = sdb.newTable();
-   * await table.loadGeoData("./CanadianProvincesAndTerritories.geojson");
-   *
    * const mapFunction = (geoJsonData: { features: unknown[] }) =>
    *   plot({
    *     projection: {
@@ -1360,7 +1652,10 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * const outputPath = "./output/map.png";
    *
-   * await table.writeMap(mapFunction, outputPath);
+   * await sdb
+   *   .newTable()
+   *   .loadGeoData("./CanadianProvincesAndTerritories.geojson")
+   *   .writeMap(mapFunction, outputPath);
    * ```
    */
   async writeMap(
@@ -1377,24 +1672,18 @@ export default class SimpleTable extends SimpleTableCore {
       dark?: boolean;
     } = {},
   ): Promise<void> {
-    try {
-      createDirectory(path);
-      options.rewind = options.rewind ?? true;
-      await saveChart(
-        rewind(
-          await this.getGeoData(options.column, {
-            rewind: false,
-          }),
-        ) as unknown as Data,
-        map as unknown as (data: Data) => SVGSVGElement | HTMLElement,
-        path,
-        options,
-      );
-    } catch (error) {
-      console.error(error);
-    } finally {
-      cleanDatavizGlobals();
-    }
+    createDirectory(path);
+    options.rewind = options.rewind ?? true;
+    const geoData = await this.getGeoData(options.column, {
+      rewind: options.rewind,
+    });
+    const { saveChart } = await import("@nshiab/journalism-dataviz");
+    await saveChart(
+      geoData as unknown as Data,
+      map as unknown as (data: Data) => SVGSVGElement | HTMLElement,
+      path,
+      options,
+    );
   }
 
   /**
@@ -1427,9 +1716,10 @@ export default class SimpleTable extends SimpleTableCore {
    *     { date: new Date("2023-03-01"), value: 30 },
    *     { date: new Date("2023-04-01"), value: 40 },
    * ]
-   * await table.loadArray(data)
-   * await table.convert({ date: "string" }, { datetimeFormat: "%x" })
-   * await table.logLineChart("date", "value")
+   * await table
+   *   .loadArray(data)
+   *   .convert({ date: "string" }, { datetimeFormat: "%x" })
+   *   .logLineChart("date", "value")
    * ```
    *
    * @example
@@ -1445,11 +1735,12 @@ export default class SimpleTable extends SimpleTableCore {
    *     { date: new Date("2023-03-01"), value: 35, category: "B" },
    *     { date: new Date("2023-04-01"), value: 45, category: "B" },
    * ]
-   * await table.loadArray(data)
-   * await table.convert({ date: "string" }, { datetimeFormat: "%x" })
-   * await table.logLineChart("date", "value", {
+   * await table
+   *   .loadArray(data)
+   *   .convert({ date: "string" }, { datetimeFormat: "%x" })
+   *   .logLineChart("date", "value", {
    *     smallMultiples: "category",
-   * })
+   *   })
    * ```
    */
   async logLineChart(
@@ -1465,15 +1756,19 @@ export default class SimpleTable extends SimpleTableCore {
       height?: number;
     } = {},
   ): Promise<void> {
-    const data = await this.sdb.customQuery(
-      `SELECT "${x}", "${y}"${
-        typeof options.smallMultiples === "string"
-          ? `, "${options.smallMultiples}"`
-          : ""
-      } FROM "${this.name}"`,
-      { returnDataFrom: "query", types: await this.getTypes() },
-    );
-    logLineChart(data as { [key: string]: unknown }[], x, y, options);
+    const data = await this.getData({
+      columns: Array.from(
+        new Set([
+          x,
+          y,
+          ...(typeof options.smallMultiples === "string"
+            ? [options.smallMultiples]
+            : []),
+        ]),
+      ),
+    });
+    const { logLineChart } = await import("@nshiab/journalism-dataviz");
+    logLineChart(data, x, y, options);
   }
 
   /**
@@ -1506,9 +1801,10 @@ export default class SimpleTable extends SimpleTableCore {
    *     { date: new Date("2023-03-01"), value: 30 },
    *     { date: new Date("2023-04-01"), value: 40 },
    * ]
-   * await table.loadArray(data)
-   * await table.convert({ date: "string" }, { datetimeFormat: "%x" })
-   * await table.logDotChart("date", "value")
+   * await table
+   *   .loadArray(data)
+   *   .convert({ date: "string" }, { datetimeFormat: "%x" })
+   *   .logDotChart("date", "value")
    * ```
    *
    * @example
@@ -1524,11 +1820,12 @@ export default class SimpleTable extends SimpleTableCore {
    *     { date: new Date("2023-03-01"), value: 35, category: "B" },
    *     { date: new Date("2023-04-01"), value: 45, category: "B" },
    * ]
-   * await table.loadArray(data)
-   * await table.convert({ date: "string" }, { datetimeFormat: "%x" })
-   * await table.logDotChart("date", "value", {
+   * await table
+   *   .loadArray(data)
+   *   .convert({ date: "string" }, { datetimeFormat: "%x" })
+   *   .logDotChart("date", "value", {
    *     smallMultiples: "category",
-   * })
+   *   })
    * ```
    */
   async logDotChart(
@@ -1544,15 +1841,19 @@ export default class SimpleTable extends SimpleTableCore {
       height?: number;
     } = {},
   ): Promise<void> {
-    const data = await this.sdb.customQuery(
-      `SELECT "${x}", "${y}"${
-        typeof options.smallMultiples === "string"
-          ? `, "${options.smallMultiples}"`
-          : ""
-      } FROM "${this.name}"`,
-      { returnDataFrom: "query", types: await this.getTypes() },
-    );
-    logDotChart(data as { [key: string]: unknown }[], x, y, options);
+    const data = await this.getData({
+      columns: Array.from(
+        new Set([
+          x,
+          y,
+          ...(typeof options.smallMultiples === "string"
+            ? [options.smallMultiples]
+            : []),
+        ]),
+      ),
+    });
+    const { logDotChart } = await import("@nshiab/journalism-dataviz");
+    logDotChart(data, x, y, options);
   }
 
   /**
@@ -1577,8 +1878,9 @@ export default class SimpleTable extends SimpleTableCore {
    *     { category: "A", value: 10 },
    *     { category: "B", value: 20 },
    * ]
-   * await table.loadArray(data)
-   * await table.logBarChart("category", "value")
+   * await table
+   *   .loadArray(data)
+   *   .logBarChart("category", "value")
    * ```
    */
   async logBarChart(
@@ -1594,16 +1896,11 @@ export default class SimpleTable extends SimpleTableCore {
       width?: number;
     } = {},
   ): Promise<void> {
-    const data = await this.sdb.customQuery(
-      `SELECT "${labels}", "${values}" FROM "${this.name}"`,
-      { returnDataFrom: "query" },
-    );
-    logBarChart(
-      data as { [key: string]: unknown }[],
-      labels,
-      values,
-      options,
-    );
+    const data = await this.getData({
+      columns: Array.from(new Set([labels, values])),
+    });
+    const { logBarChart } = await import("@nshiab/journalism-dataviz");
+    logBarChart(data, labels, values, options);
   }
 
   /**

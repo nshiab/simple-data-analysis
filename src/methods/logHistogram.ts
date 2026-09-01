@@ -1,4 +1,3 @@
-import { logBarChart } from "@nshiab/journalism-dataviz";
 import type SimpleTable from "../class/SimpleTable.ts";
 
 export default async function logHistogram(
@@ -40,9 +39,10 @@ SELECT
   frequency
 FROM histogram
 ORDER BY bin_start;`,
-    { returnDataFrom: "query" },
+    { returnData: true },
   );
 
+  const { logBarChart } = await import("@nshiab/journalism-dataviz");
   logBarChart(
     (data as { [key: string]: unknown }[]).map((d) => ({
       binRange: formatLabels(

@@ -10,16 +10,14 @@ if (typeof apiKey === "string" && apiKey !== "") {
     const table = sdb.newTable();
 
     // First write known geo data to the map.
-    await table.loadGeoData(
+    table.loadGeoData(
       "test/geodata/files/CanadianProvincesAndTerritories.json",
     );
-    await table.toGeoDW("lDO6F");
+    await table.toGeoDatawrapper("lDO6F");
 
     // Then load it back.
     const table2 = sdb.newTable();
-    await table2.loadGeoDW("lDO6F");
-
-    const geoData = await table2.getGeoData();
+    const geoData = await table2.loadGeoDatawrapper("lDO6F").getGeoData();
     assertEquals(geoData.type, "FeatureCollection");
     assertEquals(Array.isArray(geoData.features), true);
   });

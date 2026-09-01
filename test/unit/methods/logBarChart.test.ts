@@ -9,12 +9,12 @@ Deno.test("should log a bar chart", async () => {
     { category: "A", value: 10 },
     { category: "B", value: 20 },
   ];
-  await table.loadArray(data);
+  table.loadArray(data);
   await table.logBarChart("category", "value");
 
   // How to test?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });
 
 Deno.test("should log a bar chart with options", async () => {
@@ -25,7 +25,7 @@ Deno.test("should log a bar chart with options", async () => {
     { category: "A", value: 10 },
     { category: "B", value: 20 },
   ];
-  await table.loadArray(data);
+  table.loadArray(data);
   await table.logBarChart("category", "value", {
     formatLabels: (label: unknown) => (label as string).toUpperCase(),
     formatValues: (value: unknown) => "$" + (value as number),
@@ -33,5 +33,5 @@ Deno.test("should log a bar chart with options", async () => {
 
   // How to test?
   assertEquals(true, true);
-  await sdb.done();
+  await sdb.close();
 });

@@ -1,9 +1,97 @@
 import { assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
-import { existsSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync } from "node:fs";
+import createEnvironmentTest from "../helpers/createEnvironmentTest.ts";
+import { Ollama } from "ollama";
+import { FakeOllamaEmbeddingClient } from "../helpers/fakeEmbeddingClients.ts";
+import {
+  geminiEmbeddingOptions,
+  hasGoogleEmbeddingCredentials,
+} from "../helpers/realEmbeddingOptions.ts";
 
-const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
-if (typeof aiKey === "string" && aiKey !== "") {
+const hasAiKey = hasGoogleEmbeddingCredentials;
+const hasOllama = Deno.env.get("AI_PROVIDER") === "ollama" ||
+  Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama";
+const geminiGeneration = {
+  provider: "gemini",
+  model: "gemini-3-flash-preview",
+  cache: false,
+} as const;
+const geminiEmbeddings = {
+  ...geminiEmbeddingOptions,
+} as const;
+const ollamaGeneration = {
+  provider: "ollama",
+  contextWindow: 128_000,
+  cache: false,
+} as const;
+const ollamaEmbeddings = {
+  provider: "ollama",
+  contextWindow: 2_000,
+  cache: false,
+} as const;
+const mixedProviderTest = createEnvironmentTest({
+  AI_PROVIDER: "gemini",
+  AI_EMBEDDINGS_PROVIDER: "ollama",
+  AI_MODEL: "gemini-3-flash-preview",
+});
+
+Deno.test("aiRAG regenerates incompatible managed embeddings", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("rag_provenance");
+  table.loadArray([
+    { id: "a", text: "alpha" },
+    { id: "b", text: "beta" },
+  ]);
+  const firstClient = new FakeOllamaEmbeddingClient(
+    "http://rag.local:11434",
+    [1, 0],
+  );
+  await table.aiEmbeddings("text", "text_embeddings", {
+    embeddings: {
+      provider: "ollama",
+      model: "rag-model-a",
+      ollama: firstClient,
+      cache: false,
+    },
+  }).run();
+
+  const changedClient = new FakeOllamaEmbeddingClient(
+    "http://rag.local:11434",
+    [0, 1],
+  );
+  const generationClient = new Ollama({ host: "http://unused.local:11434" });
+  Object.defineProperty(generationClient, "chat", {
+    value: () =>
+      Promise.resolve({
+        message: { role: "assistant", content: "grounded answer" },
+        prompt_eval_count: 1,
+        eval_count: 1,
+      }),
+  });
+
+  const response = await table.aiRAG("alpha", "id", "text", 1, {
+    embeddings: {
+      provider: "ollama",
+      model: "rag-model-b",
+      ollama: changedClient,
+      cache: false,
+    },
+    generation: {
+      provider: "ollama",
+      model: "fake-generation",
+      ollama: generationClient,
+      cache: false,
+    },
+    bm25: false,
+  });
+
+  assertEquals(changedClient.requests, 3);
+  assertEquals(response, "grounded answer");
+  await sdb.close();
+});
+
+if (hasAiKey) {
   if (existsSync("./.journalism-cache")) {
     rmSync("./.journalism-cache", { recursive: true });
   }
@@ -11,164 +99,170 @@ if (typeof aiKey === "string" && aiKey !== "") {
     rmSync("./.sda-cache", { recursive: true });
   }
 
-  Deno.test(
-    "should answer a question using RAG",
-    { sanitizeResources: false },
-    async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+  if (hasOllama) {
+    mixedProviderTest(
+      "should select Gemini/Vertex generation and Ollama embeddings from environment variables",
+      { sanitizeResources: false },
+      async () => {
+        const sdb = new SimpleDB();
+        const table = sdb.newTable("data");
+        table.loadData("test/data/files/recipes.parquet");
+        table.removeDuplicates({ on: "Dish" });
+        table.removeMissing({ columns: "Recipe" });
 
-      const answer = await table.aiRAG(
-        "I want a buttery pastry for breakfast.",
-        "Dish",
-        "Recipe",
-        10,
-        {
-          cache: true,
-          ollamaEmbeddings: true,
-          model: "gemini-3-flash-preview",
-          // embeddingsConcurrent: 10,
-          verbose: true,
-        },
-      );
+        const answer = await table.aiRAG(
+          "I want a buttery pastry for breakfast.",
+          "Dish",
+          "Recipe",
+          10,
+          {
+            // embeddingsConcurrency: 10,
+            verbose: true,
+          },
+        );
 
-      console.log(answer);
+        console.log(answer);
 
-      // Just to make sure it doesn't crash for now
-      assertEquals(true, true);
-      await sdb.done();
-    },
-  );
-  Deno.test("should answer a question using RAG with a cached table", {
-    sanitizeResources: false,
-  }, async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable("data");
-    await table.loadData("test/data/files/recipes.parquet");
-    await table.removeDuplicates({ on: "Dish" });
-    await table.removeMissing({ columns: "Recipe" });
-
-    const answer = await table.aiRAG(
-      "I am vegan. What can I eat for lunch that is spicy?",
-      "Dish",
-      "Recipe",
-      10,
-      {
-        cache: true,
-        ollamaEmbeddings: true,
-        model: "gemini-3-flash-preview",
-        // verbose: true,
+        // Just to make sure it doesn't crash for now
+        assertEquals(true, true);
+        await sdb.close();
       },
     );
+    Deno.test(
+      "should use a cached table with Gemini/Vertex and Ollama embeddings",
+      {
+        sanitizeResources: false,
+      },
+      async () => {
+        const sdb = new SimpleDB();
+        const table = sdb.newTable("data");
+        table.loadData("test/data/files/recipes.parquet");
+        table.removeDuplicates({ on: "Dish" });
+        table.removeMissing({ columns: "Recipe" });
 
-    console.log(answer);
+        const answer = await table.aiRAG(
+          "I am vegan. What can I eat for lunch that is spicy?",
+          "Dish",
+          "Recipe",
+          10,
+          {
+            generation: { ...geminiGeneration },
+            embeddings: { ...ollamaEmbeddings, cache: true },
+            // verbose: true,
+          },
+        );
 
-    // Just to make sure it doesn't crash for now
-    assertEquals(true, true);
-    await sdb.done();
-  });
-  Deno.test(
-    "should answer a question using RAG with a cached table and minimal thinking",
-    {
-      sanitizeResources: false,
-    },
-    async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+        console.log(answer);
 
-      const answer = await table.aiRAG(
-        "I am looking for round dish, but I don't remember the name.",
-        "Dish",
-        "Recipe",
-        10,
-        {
-          cache: true,
-          thinkingLevel: "minimal",
-          ollamaEmbeddings: true,
-          model: "gemini-3-flash-preview",
-          // verbose: true,
-        },
-      );
+        // Just to make sure it doesn't crash for now
+        assertEquals(true, true);
+        await sdb.close();
+      },
+    );
+    Deno.test(
+      "should use minimal thinking with Gemini/Vertex and Ollama embeddings",
+      {
+        sanitizeResources: false,
+      },
+      async () => {
+        const sdb = new SimpleDB();
+        const table = sdb.newTable("data");
+        table.loadData("test/data/files/recipes.parquet");
+        table.removeDuplicates({ on: "Dish" });
+        table.removeMissing({ columns: "Recipe" });
 
-      console.log(answer);
+        const answer = await table.aiRAG(
+          "I am looking for round dish, but I don't remember the name.",
+          "Dish",
+          "Recipe",
+          10,
+          {
+            generation: {
+              ...geminiGeneration,
+              thinkingLevel: "minimal",
+            },
+            embeddings: { ...ollamaEmbeddings },
+            // verbose: true,
+          },
+        );
 
-      // Just to make sure it doesn't crash for now
-      assertEquals(true, true);
-      await sdb.done();
-    },
-  );
-  Deno.test(
-    "should answer with a different system prompt",
-    {
-      sanitizeResources: false,
-    },
-    async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+        console.log(answer);
 
-      const answer = await table.aiRAG(
-        "I am looking for round dish, but I don't remember the name.",
-        "Dish",
-        "Recipe",
-        10,
-        {
-          systemPrompt:
-            "Answer the question based on provided data. Make sure it rhymes.",
-          cache: true,
-          ollamaEmbeddings: true,
-          // verbose: true,
-        },
-      );
+        // Just to make sure it doesn't crash for now
+        assertEquals(true, true);
+        await sdb.close();
+      },
+    );
+    Deno.test(
+      "should use a different system prompt with Gemini/Vertex and Ollama embeddings",
+      {
+        sanitizeResources: false,
+      },
+      async () => {
+        const sdb = new SimpleDB();
+        const table = sdb.newTable("data");
+        table.loadData("test/data/files/recipes.parquet");
+        table.removeDuplicates({ on: "Dish" });
+        table.removeMissing({ columns: "Recipe" });
 
-      console.log(answer);
+        const answer = await table.aiRAG(
+          "I am looking for round dish, but I don't remember the name.",
+          "Dish",
+          "Recipe",
+          10,
+          {
+            generation: {
+              ...geminiGeneration,
+              systemPrompt:
+                "Answer the question based on provided data. Make sure it rhymes.",
+            },
+            embeddings: { ...ollamaEmbeddings },
+            // verbose: true,
+          },
+        );
 
-      // Just to make sure it doesn't crash for now
-      assertEquals(true, true);
-      await sdb.done();
-    },
-  );
-  Deno.test(
-    "should answer that it doesn't know",
-    {
-      sanitizeResources: false,
-    },
-    async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+        console.log(answer);
 
-      const answer = await table.aiRAG(
-        "Why is the sky blue?",
-        "Dish",
-        "Recipe",
-        10,
-        {
-          cache: true,
-          thinkingLevel: "minimal",
-          ollamaEmbeddings: true,
-          model: "gemini-3-flash-preview",
-          //  verbose: true,
-        },
-      );
+        // Just to make sure it doesn't crash for now
+        assertEquals(true, true);
+        await sdb.close();
+      },
+    );
+    Deno.test(
+      "should answer that it doesn't know with Gemini/Vertex and Ollama embeddings",
+      {
+        sanitizeResources: false,
+      },
+      async () => {
+        const sdb = new SimpleDB();
+        const table = sdb.newTable("data");
+        table.loadData("test/data/files/recipes.parquet");
+        table.removeDuplicates({ on: "Dish" });
+        table.removeMissing({ columns: "Recipe" });
 
-      console.log(answer);
+        const answer = await table.aiRAG(
+          "Why is the sky blue?",
+          "Dish",
+          "Recipe",
+          10,
+          {
+            generation: {
+              ...geminiGeneration,
+              thinkingLevel: "minimal",
+            },
+            embeddings: { ...ollamaEmbeddings },
+            //  verbose: true,
+          },
+        );
 
-      // Just to make sure it doesn't crash for now
-      assertEquals(true, true);
-      await sdb.done();
-    },
-  );
+        console.log(answer);
+
+        // Just to make sure it doesn't crash for now
+        assertEquals(true, true);
+        await sdb.close();
+      },
+    );
+  }
 
   Deno.test(
     "should answer a question using RAG with only BM25",
@@ -176,9 +270,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "What's a quick pasta recipe?",
@@ -186,10 +280,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "Recipe",
         10,
         {
-          cache: true,
+          generation: { ...geminiGeneration },
           vectorSearch: false, // Disable vector search
           bm25: true, // Enable only BM25
-          model: "gemini-3-flash-preview",
           verbose: true,
         },
       );
@@ -198,7 +291,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -208,9 +301,9 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "I want something healthy for breakfast",
@@ -218,11 +311,11 @@ if (typeof aiKey === "string" && aiKey !== "") {
         "Recipe",
         10,
         {
-          embeddingsConcurrent: 100,
-          cache: true,
+          generation: { ...geminiGeneration },
+          embeddings: { ...geminiEmbeddings },
+          embeddingsConcurrency: 100,
           vectorSearch: true, // Enable only vector search
           bm25: false, // Disable BM25
-          model: "gemini-3-flash-preview",
           verbose: true,
         },
       );
@@ -231,7 +324,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -241,14 +334,14 @@ if (typeof aiKey === "string" && aiKey !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG("fennel garlic", "Dish", "Recipe", 3, {
-        cache: true,
+        generation: { ...geminiGeneration },
+        embeddings: { ...geminiEmbeddings },
         conjunctive: true,
-        model: "gemini-3-flash-preview",
         verbose: true,
       });
 
@@ -256,15 +349,14 @@ if (typeof aiKey === "string" && aiKey !== "") {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
-} else {
+} else if (!hasAiKey) {
   console.log("No AI_KEY or AI_PROJECT in process.env");
 }
 
-const ollama = Deno.env.get("OLLAMA");
-if (typeof ollama === "string" && ollama !== "") {
+if (hasOllama) {
   if (existsSync("./.journalism-cache")) {
     rmSync("./.journalism-cache", { recursive: true });
   }
@@ -278,9 +370,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "I want a buttery pastry for breakfast.",
@@ -288,10 +380,11 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         10,
         {
-          cache: true,
-          modelContextWindow: 128_000,
-          embeddingsModelContextWindow: 2_000,
-          thinkingLevel: "minimal",
+          generation: {
+            ...ollamaGeneration,
+            thinkingLevel: true,
+          },
+          embeddings: { ...ollamaEmbeddings },
           verbose: true,
         },
       );
@@ -300,7 +393,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test("should answer a question using RAG with a cached table", {
@@ -308,8 +401,8 @@ if (typeof ollama === "string" && ollama !== "") {
   }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/recipes.parquet");
-    await table.removeMissing({ columns: "Recipe" });
+    table.loadData("test/data/files/recipes.parquet");
+    table.removeMissing({ columns: "Recipe" });
 
     const answer = await table.aiRAG(
       "I am vegan. What can I eat for lunch that is spicy?",
@@ -317,9 +410,8 @@ if (typeof ollama === "string" && ollama !== "") {
       "Recipe",
       10,
       {
-        cache: true,
-        modelContextWindow: 128_000,
-        embeddingsModelContextWindow: 2_000,
+        generation: { ...ollamaGeneration },
+        embeddings: { ...ollamaEmbeddings, cache: true },
         // verbose: true,
       },
     );
@@ -328,7 +420,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test(
     "should answer a question using RAG with a cached table and minimal thinking",
@@ -338,8 +430,8 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "I am looking for round dish, but I don't remember the name.",
@@ -347,10 +439,11 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         10,
         {
-          cache: true,
-          thinkingLevel: "minimal",
-          modelContextWindow: 128_000,
-          embeddingsModelContextWindow: 2_000,
+          generation: {
+            ...ollamaGeneration,
+            thinkingLevel: true,
+          },
+          embeddings: { ...ollamaEmbeddings, cache: true },
           // verbose: true,
         },
       );
@@ -359,7 +452,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -370,8 +463,8 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "I am looking for round dish, but I don't remember the name.",
@@ -379,11 +472,12 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         10,
         {
-          systemPrompt:
-            "Answer the question based on provided data. Make sure it rhymes.",
-          cache: true,
-          modelContextWindow: 128_000,
-          embeddingsModelContextWindow: 2_000,
+          generation: {
+            ...ollamaGeneration,
+            systemPrompt:
+              "Answer the question based on provided data. Make sure it rhymes.",
+          },
+          embeddings: { ...ollamaEmbeddings },
           // verbose: true,
         },
       );
@@ -392,7 +486,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -403,8 +497,8 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "Why is the sky blue?",
@@ -412,10 +506,11 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         10,
         {
-          cache: true,
-          thinkingLevel: "minimal",
-          modelContextWindow: 128_000,
-          embeddingsModelContextWindow: 2_000,
+          generation: {
+            ...ollamaGeneration,
+            thinkingLevel: true,
+          },
+          embeddings: { ...ollamaEmbeddings },
           // verbose: true,
         },
       );
@@ -424,13 +519,16 @@ if (typeof ollama === "string" && ollama !== "") {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
     "should answer a question using RAG with a DB that already exists and store in cache",
     { sanitizeResources: false },
     async () => {
+      if (!existsSync("test/output")) {
+        mkdirSync("test/output", { recursive: true });
+      }
       // First iteration of the test, we remove
       if (existsSync("test/output/recipes.db")) {
         rmSync("test/output/recipes.db");
@@ -444,15 +542,17 @@ if (typeof ollama === "string" && ollama !== "") {
           cacheVerbose: true,
         });
         table = sdb.newTable("data");
-        await table.loadData("test/data/files/recipes.parquet");
-        await table.removeMissing({ columns: "Recipe" });
+        table.loadData("test/data/files/recipes.parquet");
+        table.removeDuplicates({ on: "Dish" });
+        table.removeMissing({ columns: "Recipe" });
       } else {
         sdb = new SimpleDB({ cacheVerbose: true });
+        await sdb.customQuery("INSTALL vss; LOAD vss;");
         await sdb.loadDB("test/output/recipes.db");
         table = await sdb.getTable("data");
       }
 
-      // await table.logTable();
+      // await table.log();
 
       const answer = await table.aiRAG(
         "I want a buttery pastry for breakfast.",
@@ -460,10 +560,9 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         10,
         {
-          cache: true,
+          generation: { ...ollamaGeneration },
+          embeddings: { ...ollamaEmbeddings, cache: true },
           createIndex: true,
-          modelContextWindow: 128_000,
-          embeddingsModelContextWindow: 2_000,
           verbose: true,
         },
       );
@@ -472,7 +571,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -488,15 +587,17 @@ if (typeof ollama === "string" && ollama !== "") {
           cacheVerbose: true,
         });
         table = sdb.newTable("data");
-        await table.loadData("test/data/files/recipes.parquet");
-        await table.removeMissing({ columns: "Recipe" });
+        table.loadData("test/data/files/recipes.parquet");
+        table.removeDuplicates({ on: "Dish" });
+        table.removeMissing({ columns: "Recipe" });
       } else {
         sdb = new SimpleDB({ cacheVerbose: true });
+        await sdb.customQuery("INSTALL vss; LOAD vss;");
         await sdb.loadDB("test/output/recipes.db");
         table = await sdb.getTable("data");
       }
 
-      // await table.logTable();
+      // await table.log();
 
       const answer = await table.aiRAG(
         "I want a buttery pastry for breakfast.",
@@ -504,10 +605,9 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         10,
         {
-          cache: true,
+          generation: { ...ollamaGeneration },
+          embeddings: { ...ollamaEmbeddings, cache: true },
           createIndex: true,
-          modelContextWindow: 128_000,
-          embeddingsModelContextWindow: 2_000,
           verbose: true,
         },
       );
@@ -516,7 +616,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -526,9 +626,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "What's a quick pasta recipe?",
@@ -536,8 +636,8 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         10,
         {
-          cache: true,
-          ollamaEmbeddings: true,
+          generation: { ...ollamaGeneration },
+          embeddings: { ...ollamaEmbeddings },
           vectorSearch: false, // Disable vector search
           bm25: true, // Enable only BM25
           verbose: true,
@@ -548,7 +648,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -558,9 +658,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "I want something healthy for breakfast",
@@ -568,8 +668,8 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         10,
         {
-          cache: true,
-          ollamaEmbeddings: true,
+          generation: { ...ollamaGeneration },
+          embeddings: { ...ollamaEmbeddings },
           vectorSearch: true, // Enable only vector search
           bm25: false, // Disable BM25
           verbose: true,
@@ -580,7 +680,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -589,9 +689,9 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
         "I want something healthy for breakfast",
@@ -599,8 +699,8 @@ if (typeof ollama === "string" && ollama !== "") {
         "Recipe",
         10,
         {
-          cache: true,
-          ollamaEmbeddings: true,
+          generation: { ...ollamaGeneration },
+          embeddings: { ...ollamaEmbeddings },
           verbose: true,
           bm25MinScore: 0.1, // Set a low BM25 min score to see more results
           bm25ScoreColumn: "bm25_score", // Log BM25 scores in this column
@@ -613,7 +713,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -622,12 +722,13 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG("fennel garlic", "Dish", "Recipe", 3, {
-        cache: true,
+        generation: { ...ollamaGeneration },
+        embeddings: { ...ollamaEmbeddings },
         conjunctive: true,
         verbose: true,
       });
@@ -636,7 +737,7 @@ if (typeof ollama === "string" && ollama !== "") {
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -645,23 +746,24 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       // Using custom BM25 options in RAG context
       const answer = await table.aiRAG("italian food", "Dish", "Recipe", 5, {
+        generation: { ...ollamaGeneration },
+        embeddings: { ...ollamaEmbeddings },
         stemmer: "none",
         lower: false,
         stripAccents: false,
-        cache: true,
         verbose: true,
       });
 
       console.log(answer);
       assertEquals(typeof answer, "string");
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 
@@ -671,18 +773,23 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/recipes.parquet");
-      await table.removeDuplicates({ on: "Dish" });
-      await table.removeMissing({ columns: "Recipe" });
+      table.loadData("test/data/files/recipes.parquet");
+      table.removeDuplicates({ on: "Dish" });
+      table.removeMissing({ columns: "Recipe" });
 
       const answer = await table.aiRAG(
-        "the a for with dish",
+        "the a for with pasta dish",
         "Dish",
         "Recipe",
         5,
         {
+          generation: {
+            ...ollamaGeneration,
+            contextWindow: 8_000,
+            thinkingLevel: false,
+          },
+          embeddings: { ...ollamaEmbeddings },
           stopwords: "english",
-          cache: true,
           verbose: true,
         },
       );
@@ -690,9 +797,11 @@ if (typeof ollama === "string" && ollama !== "") {
       console.log(answer);
       assertEquals(typeof answer, "string");
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 } else {
-  console.log("No OLLAMA in process.env");
+  console.log(
+    "Neither AI_PROVIDER nor AI_EMBEDDINGS_PROVIDER is set to ollama",
+  );
 }

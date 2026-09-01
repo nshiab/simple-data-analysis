@@ -8,11 +8,11 @@ if (typeof apiKey === "string" && apiKey !== "") {
   }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable();
-    await table.loadArray([
+    table.loadArray([
       { salary: 75000, hireDate: "2022-12-15" },
       { salary: 80000, hireDate: "2023-01-20" },
     ]);
-    await table.toDW("ntURh");
+    await table.toDatawrapper("ntURh");
 
     // Just making sure it doesn't crash for now.
     assertEquals(true, true);
@@ -23,10 +23,10 @@ if (typeof apiKey === "string" && apiKey !== "") {
   }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable();
-    await table.loadArray([
+    table.loadArray([
       { salary: 75000, hireDate: "2022-12-15" },
     ]);
-    await table.toDW("ntURh", { note: "Last updated: June 2026" });
+    await table.toDatawrapper("ntURh", { note: "Last updated: June 2026" });
 
     // Just making sure it doesn't crash for now.
     assertEquals(true, true);
@@ -37,10 +37,10 @@ if (typeof apiKey === "string" && apiKey !== "") {
   }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable();
-    await table.loadArray([
+    table.loadArray([
       { salary: 75000, hireDate: "2022-12-15" },
     ]);
-    await table.toDW("ntURh", { republish: true });
+    await table.toDatawrapper("ntURh", { republish: true });
 
     // Just making sure it doesn't crash for now.
     assertEquals(true, true);

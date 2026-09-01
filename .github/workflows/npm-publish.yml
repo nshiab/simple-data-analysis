@@ -30,7 +30,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Build npm package using auto-dnt
-        run: deno run -A jsr:@nshiab/deno-to-npm
+        run: deno run --no-lock --min-dep-age=0 -A jsr:@nshiab/deno-to-npm
 
       # 2. Add the --provenance flag and REMOVE the NODE_AUTH_TOKEN env variable
       - name: Publish to npm

@@ -1,29 +1,86 @@
-import { getEmbedding } from "@nshiab/journalism-ai";
 import type { SimpleTable } from "../index.ts";
 import {
   mergeOptions,
   queryDB,
+  queueAsyncBarrier,
 } from "@nshiab/simple-data-analysis-core/helpers";
+import {
+  type EmbeddingOptions,
+  snapshotAIOptions,
+} from "../helpers/aiOptions.ts";
 
-export default async function aiVectorSimilarity(
+/**
+ * Options for embedding a query and finding similar table rows.
+ *
+ * @example
+ * ```ts
+ * const options: AIVectorSimilarityOptions = {
+ *   embeddings: { provider: "gemini" },
+ *   minSimilarity: 0.7,
+ * };
+ * ```
+ */
+export type AIVectorSimilarityOptions = {
+  /** Options used to embed the query text. */
+  embeddings?: EmbeddingOptions;
+  /** Creates a vector-similarity index on the stored embedding column. */
+  createIndex?: boolean;
+  /** Replaces an existing vector-similarity index when creating one. */
+  overwriteIndex?: boolean;
+  /** Writes results to a new table instead of replacing the current table. */
+  outputTable?: string;
+  /** Logs embedding and index activity when enabled. */
+  verbose?: boolean;
+  /** Candidate count used while constructing the vector index. */
+  efConstruction?: number;
+  /** Candidate count used while searching the vector index. */
+  efSearch?: number;
+  /** Maximum number of graph neighbors retained by the vector index. */
+  M?: number;
+  /** Minimum cosine similarity required for a row to be returned. */
+  minSimilarity?: number;
+  /** Adds cosine similarity scores under this output column name. */
+  similarityColumn?: string;
+};
+
+export default function aiVectorSimilarity(
   simpleTable: SimpleTable,
   text: string,
   column: string,
   nbResults: number,
-  options: {
-    cache?: boolean;
-    createIndex?: boolean;
-    overwriteIndex?: boolean;
-    outputTable?: string;
-    verbose?: boolean;
-    efConstruction?: number;
-    efSearch?: number;
-    M?: number;
-    minSimilarity?: number;
-    similarityColumn?: string;
-  } = {},
-) {
-  const textEmbedding = await getEmbedding(text, options);
+  options: AIVectorSimilarityOptions = {},
+): SimpleTable {
+  options = snapshotAIOptions(options);
+  const outputTable = options.outputTable === undefined
+    ? simpleTable
+    : simpleTable.sdb.newTable(options.outputTable);
+  queueAsyncBarrier(outputTable, {
+    method: "aiVectorSimilarity()",
+    parameters: { text, column, nbResults, outputTable: options.outputTable },
+    execute: () =>
+      runAIVectorSimilarity(
+        simpleTable,
+        text,
+        column,
+        nbResults,
+        options,
+      ),
+  });
+  return outputTable;
+}
+
+/** @internal */
+export async function runAIVectorSimilarity(
+  simpleTable: SimpleTable,
+  text: string,
+  column: string,
+  nbResults: number,
+  options: AIVectorSimilarityOptions,
+): Promise<void> {
+  const { getEmbeddingForProvider } = await import(
+    "../helpers/tryEmbedding.ts"
+  );
+  const textEmbedding = await getEmbeddingForProvider(text, options.embeddings);
 
   const types = await simpleTable.getTypes();
   if (types[column] !== `FLOAT[${textEmbedding.length}]`) {
@@ -36,7 +93,7 @@ export default async function aiVectorSimilarity(
   }
 
   if (options.createIndex) {
-    await simpleTable.createVssIndex(column, {
+    simpleTable.createVssIndex(column, {
       overwrite: options.overwriteIndex,
       verbose: options.verbose,
       efConstruction: options.efConstruction,
@@ -82,12 +139,4 @@ export default async function aiVectorSimilarity(
       },
     }),
   );
-
-  if (typeof options.outputTable === "string") {
-    return simpleTable.sdb.newTable(
-      options.outputTable,
-    );
-  } else {
-    return simpleTable;
-  }
 }

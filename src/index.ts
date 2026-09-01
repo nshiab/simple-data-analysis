@@ -10,7 +10,7 @@
  *
  * To install the library with Node.js, use:
  * ```bash
- * npx jsr add @nshiab/simple-data-analysis
+ * npm i @nshiab/simple-data-analysis
  * ```
  *
  * To start, create a SimpleDB instance and then a SimpleTable from this instance:
@@ -18,12 +18,14 @@
  * import { SimpleDB } from "@nshiab/simple-data-analysis";
  *
  * const sdb = new SimpleDB();
- * const table = sdb.newTable("myTable"); // This returns a SimpleTable instance
- * await table.loadData("path/to/your/data.csv");
+ * const table = await sdb
+ *   .newTable("myTable")
+ *   .loadData("path/to/your/data.csv")
+ *   .log();
  *
  * // You can now perform various data analysis operations on the table.
  *
- * await sdb.done(); // Ensure to call done when you're finished.
+ * await sdb.close(); // Close the database when you're finished.
  * ```
  */
 

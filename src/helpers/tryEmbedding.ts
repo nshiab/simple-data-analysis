@@ -1,28 +1,28 @@
 import { getEmbedding } from "@nshiab/journalism-ai";
-import type { Ollama } from "ollama";
+import type { EmbeddingOptions } from "./aiOptions.ts";
+
+/** Generates an embedding with an explicit provider or environment defaults. */
+export function getEmbeddingForProvider(
+  text: string,
+  embeddings?: EmbeddingOptions,
+): Promise<number[]> {
+  return getEmbedding(text, embeddings);
+}
 
 export default async function tryEmbedding(
   i: number,
   rows: {
-    [key: string]: string | number | boolean | Date | null;
+    [key: string]: unknown;
   }[],
   text: string,
   newColumn: string,
   options: {
-    cache?: boolean;
-    model?: string;
-    apiKey?: string;
-    vertex?: boolean;
-    project?: string;
-    location?: string;
-    ollama?: boolean | Ollama;
-    verbose?: boolean;
-    contextWindow?: number;
+    embeddings?: EmbeddingOptions;
   } = {},
 ) {
   // Should be improved...
-  return rows[i][newColumn] = await getEmbedding(
+  return rows[i][newColumn] = await getEmbeddingForProvider(
     text,
-    options,
-  ) as unknown as number;
+    options.embeddings,
+  );
 }

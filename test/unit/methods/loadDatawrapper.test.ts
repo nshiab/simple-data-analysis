@@ -10,17 +10,15 @@ if (typeof apiKey === "string" && apiKey !== "") {
     const table = sdb.newTable();
 
     // First write known data to the chart.
-    await table.loadArray([
+    table.loadArray([
       { salary: "75000", hireDate: "2022-12-15" },
       { salary: "80000", hireDate: "2023-01-20" },
     ]);
-    await table.toDW("ntURh");
+    await table.toDatawrapper("ntURh");
 
     // Then load it back.
     const table2 = sdb.newTable();
-    await table2.loadDW("ntURh");
-
-    assertEquals(await table2.getData(), [
+    assertEquals(await table2.loadDatawrapper("ntURh").getData(), [
       { salary: "75000", hireDate: "2022-12-15" },
       { salary: "80000", hireDate: "2023-01-20" },
     ]);

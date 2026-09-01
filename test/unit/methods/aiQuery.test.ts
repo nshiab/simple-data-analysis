@@ -3,6 +3,13 @@ import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
 import { Ollama } from "ollama";
 
+const geminiGeneration = {
+  provider: "gemini",
+  model: "gemini-3-flash-preview",
+  cache: false,
+} as const;
+const ollamaGeneration = { provider: "ollama", cache: false } as const;
+
 const aiKey = Deno.env.get("AI_KEY") ?? Deno.env.get("AI_PROJECT");
 if (typeof aiKey === "string" && aiKey !== "") {
   if (existsSync("./.journalism-cache")) {
@@ -12,135 +19,142 @@ if (typeof aiKey === "string" && aiKey !== "") {
   Deno.test("should update a table with natural language", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+    table.loadData("test/data/files/dailyTemperatures.csv");
+    table.renameColumns({ t: "temperature", "id": "city" });
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-    );
-
-    await table.logTable();
+      { generation: geminiGeneration },
+    ).log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should update a table with natural language and thinking", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+    table.loadData("test/data/files/dailyTemperatures.csv");
+    table.renameColumns({ t: "temperature", "id": "city" });
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { thinkingBudget: 1000, verbose: true, model: "gemini-2.5-flash" },
-    );
-
-    await table.logTable();
+      {
+        generation: {
+          ...geminiGeneration,
+          thinkingLevel: "low",
+        },
+        verbose: true,
+      },
+    ).log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should update a table with natural language with cache", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+    table.loadData("test/data/files/dailyTemperatures.csv");
+    table.renameColumns({ t: "temperature", "id": "city" });
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { cache: true, verbose: true },
-    );
-
-    await table.logTable();
+      {
+        generation: { ...geminiGeneration, cache: true },
+        verbose: true,
+      },
+    ).log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should update a table with natural language with query returned from cache", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+    table.loadData("test/data/files/dailyTemperatures.csv");
+    table.renameColumns({ t: "temperature", "id": "city" });
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { cache: true, verbose: true },
-    );
-
-    await table.logTable();
+      {
+        generation: { ...geminiGeneration, cache: true },
+        verbose: true,
+      },
+    ).log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should update a table with natural language and safetyEnabled", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+    table.loadData("test/data/files/dailyTemperatures.csv");
+    table.renameColumns({ t: "temperature", "id": "city" });
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { safetyEnabled: false, verbose: true },
-    );
-
-    await table.logTable();
+      {
+        generation: { ...geminiGeneration, safetyEnabled: false },
+        verbose: true,
+      },
+    ).log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should update a table with natural language and option verbose", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+    table.loadData("test/data/files/dailyTemperatures.csv");
+    table.renameColumns({ t: "temperature", "id": "city" });
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { verbose: true },
-    );
-
-    await table.logTable();
+      { generation: geminiGeneration, verbose: true },
+    ).log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test("should create a new table with aiQuery results using outputTable option", async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+    table.loadData("test/data/files/dailyTemperatures.csv");
+    table.renameColumns({ t: "temperature", "id": "city" });
 
-    const originalRowCount = await table.getNbRows();
+    const originalRowCount = await table.getRowCount();
 
-    const resultTable = await table.aiQuery(
+    const resultRowCount = await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { outputTable: "avg_temp", cache: true, verbose: true },
-    );
+      {
+        generation: { ...geminiGeneration },
+        outputTable: "avg_temp",
+        verbose: true,
+      },
+    ).getRowCount();
 
     // Original table should remain unchanged
-    const currentRowCount = await table.getNbRows();
+    const currentRowCount = await table.getRowCount();
     assertEquals(currentRowCount, originalRowCount);
 
     // Result table should have the aggregated data
-    const resultRowCount = await resultTable.getNbRows();
+    const resultTable = await sdb.getTable("avg_temp");
     assertEquals(resultTable.name, "avg_temp");
     // We expect fewer rows since we're aggregating by city
     assertEquals(resultRowCount < originalRowCount, true);
 
-    await sdb.done();
+    await sdb.close();
   });
 } else {
   console.log("No AI_PROJECT in process.env");
 }
 
-const ollama = Deno.env.get("OLLAMA");
-if (typeof ollama === "string" && ollama !== "") {
+if (Deno.env.get("AI_PROVIDER") === "ollama") {
   if (existsSync("./.journalism-cache")) {
     rmSync("./.journalism-cache", { recursive: true });
   }
@@ -149,19 +163,17 @@ if (typeof ollama === "string" && ollama !== "") {
   }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+    table.loadData("test/data/files/dailyTemperatures.csv");
+    table.renameColumns({ t: "temperature", "id": "city" });
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { verbose: true },
-    );
-
-    await table.logTable();
+      { generation: ollamaGeneration, verbose: true },
+    ).log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test(
     "should update a table with natural language and thinking (Ollama)",
@@ -169,19 +181,20 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/dailyTemperatures.csv");
-      await table.renameColumns({ t: "temperature", "id": "city" });
+      table.loadData("test/data/files/dailyTemperatures.csv");
+      table.renameColumns({ t: "temperature", "id": "city" });
 
       await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
-        { verbose: true, thinkingBudget: 1 },
-      );
-
-      await table.logTable();
+        {
+          generation: { ...ollamaGeneration, thinkingLevel: true },
+          verbose: true,
+        },
+      ).log();
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -190,24 +203,22 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/dailyTemperatures.csv");
-      await table.renameColumns({ t: "temperature", "id": "city" });
+      table.loadData("test/data/files/dailyTemperatures.csv");
+      table.renameColumns({ t: "temperature", "id": "city" });
 
       const ollama = new Ollama({ host: "http://127.0.0.1:11434" });
 
       await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
         {
-          ollama,
+          generation: { ...ollamaGeneration, ollama },
           verbose: true,
         },
-      );
-
-      await table.logTable();
+      ).log();
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test("should update a table with natural language with cache (Ollama)", {
@@ -215,19 +226,20 @@ if (typeof ollama === "string" && ollama !== "") {
   }, async () => {
     const sdb = new SimpleDB();
     const table = sdb.newTable("data");
-    await table.loadData("test/data/files/dailyTemperatures.csv");
-    await table.renameColumns({ t: "temperature", "id": "city" });
+    table.loadData("test/data/files/dailyTemperatures.csv");
+    table.renameColumns({ t: "temperature", "id": "city" });
 
     await table.aiQuery(
       `I want the average temperature for each city with two decimals.`,
-      { cache: true, verbose: true },
-    );
-
-    await table.logTable();
+      {
+        generation: { ...ollamaGeneration, cache: true },
+        verbose: true,
+      },
+    ).log();
 
     // Just to make sure it doesn't crash for now
     assertEquals(true, true);
-    await sdb.done();
+    await sdb.close();
   });
   Deno.test(
     "should update a table with natural language with query returned from cache (Ollama)",
@@ -235,19 +247,20 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/dailyTemperatures.csv");
-      await table.renameColumns({ t: "temperature", "id": "city" });
+      table.loadData("test/data/files/dailyTemperatures.csv");
+      table.renameColumns({ t: "temperature", "id": "city" });
 
       await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
-        { cache: true, verbose: true },
-      );
-
-      await table.logTable();
+        {
+          generation: { ...ollamaGeneration, cache: true },
+          verbose: true,
+        },
+      ).log();
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -256,19 +269,17 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/dailyTemperatures.csv");
-      await table.renameColumns({ t: "temperature", "id": "city" });
+      table.loadData("test/data/files/dailyTemperatures.csv");
+      table.renameColumns({ t: "temperature", "id": "city" });
 
       await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
-        { verbose: true },
-      );
-
-      await table.logTable();
+        { generation: ollamaGeneration, verbose: true },
+      ).log();
 
       // Just to make sure it doesn't crash for now
       assertEquals(true, true);
-      await sdb.done();
+      await sdb.close();
     },
   );
   Deno.test(
@@ -277,29 +288,33 @@ if (typeof ollama === "string" && ollama !== "") {
     async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
-      await table.loadData("test/data/files/dailyTemperatures.csv");
-      await table.renameColumns({ t: "temperature", "id": "city" });
+      table.loadData("test/data/files/dailyTemperatures.csv");
+      table.renameColumns({ t: "temperature", "id": "city" });
 
-      const originalRowCount = await table.getNbRows();
+      const originalRowCount = await table.getRowCount();
 
-      const resultTable = await table.aiQuery(
+      const resultRowCount = await table.aiQuery(
         `I want the average temperature for each city with two decimals.`,
-        { outputTable: "avg_temp_ollama", cache: true, verbose: true },
-      );
+        {
+          generation: { ...ollamaGeneration },
+          outputTable: "avg_temp_ollama",
+          verbose: true,
+        },
+      ).getRowCount();
 
       // Original table should remain unchanged
-      const currentRowCount = await table.getNbRows();
+      const currentRowCount = await table.getRowCount();
       assertEquals(currentRowCount, originalRowCount);
 
       // Result table should have the aggregated data
-      const resultRowCount = await resultTable.getNbRows();
+      const resultTable = await sdb.getTable("avg_temp_ollama");
       assertEquals(resultTable.name, "avg_temp_ollama");
       // We expect fewer rows since we're aggregating by city
       assertEquals(resultRowCount < originalRowCount, true);
 
-      await sdb.done();
+      await sdb.close();
     },
   );
 } else {
-  console.log("No AI_PROJECT in process.env");
+  console.log("AI_PROVIDER is not set to ollama");
 }

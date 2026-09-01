@@ -9,7 +9,7 @@ deno add jsr:@nshiab/simple-data-analysis
 To install the library with Node.js, use:
 
 ```bash
-npx jsr add @nshiab/simple-data-analysis
+npm i @nshiab/simple-data-analysis
 ```
 
 To start, create a SimpleDB instance and then a SimpleTable from this instance:
@@ -18,22 +18,63 @@ To start, create a SimpleDB instance and then a SimpleTable from this instance:
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
-const table = sdb.newTable("myTable"); // This returns a SimpleTable instance
-await table.loadData("path/to/your/data.csv");
+const table = await sdb
+  .newTable("myTable")
+  .loadData("path/to/your/data.csv")
+  .log();
 
 // You can now perform various data analysis operations on the table.
 
-await sdb.done(); // Ensure to call done when you're finished.
+await sdb.close(); // Close the database when you're finished.
+```
+
+## class SDAError
+
+An error thrown when a SQL query fails. It carries the SDA method that triggered
+the query, the parameters passed to it, the SQL query itself, and the original
+error as `cause`.
+
+### Constructor
+
+Creates an error that preserves the failing query and its original cause.
+
+#### Parameters
+
+- **`options`**: Details of the failed query.
+- **`options.method`**: The SDA method that triggered the query, or `null`.
+- **`options.parameters`**: The method's arguments, or `null`.
+- **`options.query`**: The SQL statement that failed.
+- **`options.cause`**: The original error thrown while executing the query.
+
+### Examples
+
+```ts
+try {
+  await table.selectColumns("aColumnThatDoesNotExist").run();
+} catch (error) {
+  if (error instanceof SDAError) {
+    console.log(error.method); // "selectColumns()"
+    console.log(error.query); // The SQL query that failed
+    console.log(error.cause); // The original DuckDB error
+  }
+}
 ```
 
 ## class SimpleDB
 
 Manages a DuckDB database instance, providing a simplified interface for
 database operations. Extends the core
-[`SimpleDB`](https://github.com/nshiab/simple-data-analysis-core) class from
+[`SimpleDB`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleDB)
+class from
 [`simple-data-analysis-core`](https://github.com/nshiab/simple-data-analysis-core)
 to use our extended SimpleTable class which includes additional AI, Google
 Sheets, and charting methods.
+
+All core methods are available on this class. JSR currently omits inherited
+methods from subclass reference pages because of an
+[upstream limitation](https://github.com/jsr-io/jsr/issues/747). See the
+[core SimpleDB reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleDB)
+for inherited methods such as `newTable()` and `close()`.
 
 ### Constructor
 
@@ -42,24 +83,32 @@ Creates a new SimpleDB instance.
 #### Parameters
 
 - **`options`**: Configuration options for the SimpleDB instance.
-- **`options.file`**: The path to the database file. If not provided, an
-  in-memory database is used.
-- **`options.overwrite`**: A flag indicating whether to overwrite the database
-  file if it already exists.
+- **`options.file`**: The path to a persistent DuckDB file, opened or created on
+  first use. If not provided, an in-memory database is used.
+- **`options.overwrite`**: Whether to replace an existing DuckDB file on first
+  use instead of opening it. Defaults to false.
+- **`options.readOnly`**: Opens an existing DuckDB file read-only. Defaults to
+  false. Requires a file and cannot be combined with overwrite.
 - **`options.logDuration`**: A flag indicating whether to log the total
   execution duration.
-- **`options.nbRowsToLog`**: The number of rows to display when logging a table.
-- **`options.nbCharactersToLog`**: The maximum number of characters to display
-  for text-based cells.
-- **`options.types`**: A flag indicating whether to include data types when
+- **`options.rowsToLog`**: The number of rows to display when logging a table.
+- **`options.charsToLog`**: The maximum number of characters to display for
+  text-based cells.
+- **`options.typesToLog`**: A flag indicating whether to include data types when
   logging a table.
 - **`options.cacheVerbose`**: A flag indicating whether to log verbose
   cache-related messages.
-- **`options.debug`**: A flag indicating whether to log debugging information.
+- **`options.logSQL`**: A flag indicating whether to log SQL immediately before
+  execution.
+- **`options.explainSQL`**: A flag indicating whether to log DuckDB query plans
+  for supported statements.
 - **`options.duckDbCache`**: A flag indicating whether to use DuckDB's external
   file cache.
 - **`options.progressBar`**: A flag indicating whether to display a progress bar
   for long-running operations.
+- **`options.memoryLimit`**: The maximum amount of memory DuckDB is allowed to
+  use (for example, `"4GB"`).
+- **`options.tempDir`**: The path to the directory used for temporary files.
 
 ### Methods
 
@@ -86,12 +135,18 @@ A new table instance.
 
 ```ts
 // Create a table with a default name (e.g., "table1", "table2", etc.)
-const dataTable = sdb.newTable();
+const dataTable = await sdb
+  .newTable()
+  .loadArray([{ value: 1 }])
+  .log();
 ```
 
 ```ts
 // Create a table with a specific name
-const employees = sdb.newTable("employees");
+const employees = await sdb
+  .newTable("employees")
+  .loadData("employees.csv")
+  .log();
 ```
 
 #### `getTable`
@@ -117,6 +172,7 @@ A promise that resolves to the SimpleTable instance if found.
 ```ts
 // Retrieve the "employees" table
 const employees = await sdb.getTable("employees");
+await employees.log();
 ```
 
 #### `removeTables`
@@ -126,7 +182,7 @@ Removes one or more tables from the database.
 ##### Signature
 
 ```typescript
-async removeTables(tables: Table | string | (Table | string)[]): Promise<void>;
+async removeTables(tables: Table | string | (Table | string)[]): Promise<this>;
 ```
 
 ##### Parameters
@@ -136,7 +192,7 @@ async removeTables(tables: Table | string | (Table | string)[]): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the tables have been removed.
+A promise that resolves to the database, so methods can be chained.
 
 ##### Examples
 
@@ -169,7 +225,7 @@ Selects one or more tables to keep in the database, removing all others.
 ##### Signature
 
 ```typescript
-async selectTables(tables: Table | string | (Table | string)[]): Promise<void>;
+async selectTables(tables: Table | string | (Table | string)[]): Promise<this>;
 ```
 
 ##### Parameters
@@ -179,7 +235,7 @@ async selectTables(tables: Table | string | (Table | string)[]): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the tables have been selected.
+A promise that resolves to the database, so methods can be chained.
 
 ##### Examples
 
@@ -230,12 +286,12 @@ alphabetically.
 ##### Signature
 
 ```typescript
-async logTableNames(): Promise<void>;
+async logTableNames(): Promise<this>;
 ```
 
 ##### Returns
 
-A promise that resolves when the table names have been logged.
+A promise that resolves to the database, so methods can be chained.
 
 ##### Examples
 
@@ -249,21 +305,24 @@ await sdb.logTableNames();
 
 Returns an array of all SimpleTable instances in the database.
 
+The returned array is a snapshot and cannot mutate the database's internal table
+registry.
+
 ##### Signature
 
 ```typescript
-async getTables(): Promise<Table[]>;
+getTables(): readonly Table[];
 ```
 
 ##### Returns
 
-A promise that resolves to an array of SimpleTable instances.
+A read-only array of SimpleTable instances.
 
 ##### Examples
 
 ```ts
 // Get all SimpleTable instances
-const tables = await sdb.getTables();
+const tables = sdb.getTables();
 ```
 
 #### `hasTable`
@@ -306,7 +365,7 @@ Returns a list of installed DuckDB extensions.
 ##### Signature
 
 ```typescript
-async getExtensions(): Promise<Record<string, string | number | boolean | Date | null>[]>;
+async getExtensions(): Promise<Record<string, unknown>[]>;
 ```
 
 ##### Returns
@@ -324,32 +383,35 @@ console.log(extensions); // Output: [{ extension_name: "spatial", loaded: true, 
 
 #### `customQuery`
 
-Executes a custom SQL query directly against the DuckDB instance.
+Executes a custom SQL query directly against the DuckDB instance. Queries run in
+UTC. When data is returned, temporal values use the same JavaScript
+representations as `SimpleTable.getData()`.
 
-If you want to force the returned data to match the types of the columns, you
-can use the `types` option.
+`customQuery()` bypasses the dependency and table-generation tracking used by
+`SimpleTable.cache()`. Reading or changing a table with `customQuery()` can
+therefore cause `cache()` to return stale data. Include a value that identifies
+the custom query's dependencies in the cache's `options.inputs` (such as a table
+content hash), or use tracked `SimpleTable` methods.
 
 ##### Signature
 
 ```typescript
-async customQuery(query: string, options?: { returnDataFrom?: "query" | "none"; table?: string; types?: Record<string, string> }): Promise<Record<string, string | number | boolean | Date | null>[] | null>;
+async customQuery(query: string, options?: { returnData?: boolean; table?: string }): Promise<Record<string, unknown>[] | null>;
 ```
 
 ##### Parameters
 
 - **`query`**: The SQL query string to execute.
 - **`options`**: Configuration options for the query.
-- **`options.returnDataFrom`**: Specifies whether to return data from the query.
-  Can be `"query"` to return data or `"none"` (default) to not return data.
+- **`options.returnData`**: If `true`, the query result is returned. Defaults to
+  `false`.
 - **`options.table`**: The name of the table associated with the query,
   primarily used for debugging and logging.
-- **`options.types`**: An optional object specifying data types for the query
-  parameters.
 
 ##### Returns
 
 A promise that resolves to the query result as an array of objects if
-`returnDataFrom` is `"query"`, otherwise `null`.
+`returnData` is `true`, otherwise `null`.
 
 ##### Examples
 
@@ -364,34 +426,37 @@ await sdb.customQuery(
 // Execute a query and return the results
 const youngEmployees = await sdb.customQuery(
   "SELECT * FROM employees WHERE age < 30",
-  { returnDataFrom: "query" },
+  { returnData: true },
 );
 console.log(youngEmployees);
 ```
 
 #### `loadDB`
 
-Loads a database from a specified file into the current SimpleDB instance.
-Supported file types are `.db` (DuckDB) and `.sqlite` (SQLite).
+Imports a copy of a `.db` or `.duckdb` (DuckDB) or `.sqlite` (SQLite) file into
+the current database. The source is opened read-only and detached after
+importing; subsequent transformations do not modify the source file. Imports
+work with in-memory and writable persistent databases. Existing table-name
+conflicts are rejected and a failed copy is rolled back.
+
+DuckDB files restore embedded SDA index definitions when present. SQLite imports
+copy data without SDA index metadata. The `__sda` schema is reserved for SDA
+metadata. To edit an existing DuckDB file in place, use
+`new SimpleDB({ file })`.
 
 ##### Signature
 
 ```typescript
-async loadDB(file: string, options?: { name?: string; detach?: boolean }): Promise<void>;
+async loadDB(file: string): Promise<this>;
 ```
 
 ##### Parameters
 
-- **`file`**: The absolute path to the database file (e.g., "./my_database.db").
-- **`options`**: Configuration options for loading the database.
-- **`options.name`**: The name to assign to the loaded database within the
-  DuckDB instance. Defaults to the file name without extension.
-- **`options.detach`**: If `true` (default), the database is detached after
-  loading its contents into memory. If `false`, the database remains attached.
+- **`file`**: The relative or absolute path to the database file.
 
 ##### Returns
 
-A promise that resolves when the database has been loaded.
+A promise that resolves to the database, so methods can be chained.
 
 ##### Examples
 
@@ -401,37 +466,52 @@ await sdb.loadDB("./my_database.db");
 ```
 
 ```ts
-// Load a SQLite database file and keep it attached
-await sdb.loadDB("./my_database.sqlite", { detach: false });
+// Import SQLite tables without modifying the original file
+await sdb.loadDB("./my_database.sqlite");
 ```
 
 ```ts
-// Load a database with a custom name
-await sdb.loadDB("./archive.db", { name: "archive_db" });
+// Import a copy into a persistent DuckDB database
+const sdb = new SimpleDB({ file: "./analysis.duckdb" });
+await sdb.loadDB("./archive.db");
+await sdb.close();
 ```
 
 #### `writeDB`
 
-Writes the current state of the database to a specified file. Supported output
-file types are `.db` (DuckDB) and `.sqlite` (SQLite).
+Exports a snapshot of the current database after executing pending work. Does
+not change the working database or where subsequent changes persist. DuckDB
+outputs (`.db` and `.duckdb`) preserve database objects and embed SDA index
+definitions in the reserved `__sda` schema.
+
+SQLite output (`.sqlite`) materializes main-schema tables and views as tables.
+It does not preserve DuckDB schemas, indexes, constraints, or SDA metadata, and
+SQLite type conversion may lose type information. Unsupported conversions fail
+without replacing an existing destination.
+
+Existing files require explicit overwrite permission. The completed export is
+published only after its connection is detached. Database files attached to this
+instance, directories, and symbolic links cannot be replaced.
 
 ##### Signature
 
 ```typescript
-async writeDB(file: string, options?: { noMetaData?: boolean }): Promise<void>;
+async writeDB(file: string, options?: { overwrite?: boolean; metadata?: boolean }): Promise<this>;
 ```
 
 ##### Parameters
 
-- **`file`**: The absolute path to the output file (e.g.,
-  "./my_exported_database.db").
+- **`file`**: The relative or absolute path to the output file.
 - **`options`**: Configuration options for writing the database.
-- **`options.noMetaData`**: If `true`, metadata files (indexes) are not created
-  alongside the database file. Defaults to `false`.
+- **`options.overwrite`**: If true, permits atomic replacement of an existing
+  output file. Defaults to false.
+- **`options.metadata`**: If false, omits logical SDA index definitions from
+  DuckDB exports. Defaults to true. Does not control physical indexes; SQLite
+  exports never include SDA metadata.
 
 ##### Returns
 
-A promise that resolves when the database has been written to the file.
+A promise that resolves to the database, so methods can be chained.
 
 ##### Examples
 
@@ -441,31 +521,73 @@ await sdb.writeDB("./my_exported_database.db");
 ```
 
 ```ts
-// Write the current database to a SQLite file without metadata
-await sdb.writeDB("./my_exported_database.sqlite", { noMetaData: true });
+// Explicitly replace an earlier snapshot
+await sdb.writeDB("./my_exported_database.duckdb", { overwrite: true });
 ```
 
-#### `done`
+```ts
+// Export table data for use with SQLite
+await sdb.writeDB("./my_exported_database.sqlite");
+```
 
-Frees up memory by closing the database connection and instance, and cleans up
-the cache. If the database is file-based, it also compacts the database file to
-optimize storage.
+#### `run`
+
+Executes all queued methods across every table in the database. Sync builder
+methods (like `filter()` or `convert()`) only queue their operation; execution
+happens when an async observer method (like `getData()`, `log()`, or
+`writeData()`) is awaited. Use `run()` when your script ends in pure mutations
+with nothing to observe and you want the work done now.
+
+The whole database is flushed in program order, so operations on different
+tables execute exactly in the order they were queued. This is the database-level
+counterpart to `SimpleTable.run()`.
 
 ##### Signature
 
 ```typescript
-async done(): Promise<SimpleDB>;
+async run(): Promise<SimpleDB>;
+```
+
+##### Returns
+
+A promise that resolves to the SimpleDB instance once the queued methods have
+been executed.
+
+##### Examples
+
+```ts
+// Nothing is observed after the mutations, so run() executes them.
+table1.loadData("data1.csv").convert({ price: "number" });
+table2.loadData("data2.csv").filter(`price > 0`);
+await sdb.run();
+```
+
+#### `close`
+
+Executes pending transformations, saves SDA metadata for writable persistent
+databases, and closes the connection and instance. Also cleans up temporary
+files and the cache. Does not copy, compact, or replace the database file.
+
+##### Signature
+
+```typescript
+async close(): Promise<SimpleDB>;
 ```
 
 ##### Returns
 
 A promise that resolves to the SimpleDB instance after cleanup.
 
+##### Throws
+
+- **`Error`**: An error after cleanup when pending execution or cleanup fails.
+
 ##### Examples
 
 ```ts
-// Close the database and clean up resources
-await sdb.done();
+// close() executes queued transformations before cleaning up resources.
+table.loadData("data.csv").convert({ price: "number" });
+await sdb.close();
 ```
 
 ### Examples
@@ -473,30 +595,28 @@ await sdb.done();
 ```ts
 // Create an in-memory database instance
 const sdb = new SimpleDB();
-// Create a new table named "employees"
-const employees = sdb.newTable("employees");
-// Load data from a CSV file into the "employees" table
-await employees.loadData("./employees.csv");
-// Log the first few rows of the "employees" table to the console
-await employees.logTable();
+// Create a table, load a CSV file, and log its first few rows
+const employees = await sdb
+  .newTable("employees")
+  .loadData("./employees.csv")
+  .log();
 // Close the database connection and clean up resources
-await sdb.done();
+await sdb.close();
 ```
 
 ```ts
-// Create a persistent database instance, saving data to a file
-// To load an existing database, use the `loadDB` method instead
+// Open an existing DuckDB file, or create it on first use
 const sdb = new SimpleDB({ file: "./my_database.db" });
 // Perform database operations...
-// Close the database connection, which saves changes to the specified file
-await sdb.done();
+// Execute pending work, save metadata, and close the database connection
+await sdb.close();
 ```
 
 ```ts
 // Create a database instance with custom options
 const sdb = new SimpleDB({
-  debug: true, // Enable debugging output
-  nbRowsToLog: 20, // Set the number of rows to log by default
+  logSQL: true, // Log SQL immediately before execution
+  rowsToLog: 20, // Set the number of rows to log by default
 });
 ```
 
@@ -504,9 +624,18 @@ const sdb = new SimpleDB({
 
 Represents a table within a SimpleDB database, capable of handling tabular,
 geospatial, and vector data. Extends the core
-[`SimpleTable`](https://github.com/nshiab/simple-data-analysis-core) class from
+[`SimpleTable`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable)
+class from
 [`simple-data-analysis-core`](https://github.com/nshiab/simple-data-analysis-core)
-to include additional AI, Google Sheets, and charting methods.
+to include additional AI, Google Sheets, and charting methods. Integration
+dependencies load only when their operations execute, and are reused by
+subsequent calls. Core-only pipelines do not load these dependencies.
+
+All core methods are available on this class. JSR currently omits inherited
+methods from subclass reference pages because of an
+[upstream limitation](https://github.com/jsr-io/jsr/issues/747). See the
+[core SimpleTable reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable)
+for inherited methods such as `loadData()`, `filter()`, and `log()`.
 
 ### Constructor
 
@@ -517,58 +646,56 @@ Creates an instance of SimpleTable.
 - **`name`**: The name of the table.
 - **`simpleDB`**: The SimpleDB instance that this table belongs to.
 - **`options`**: An optional object with configuration options:
-- **`options.debug`**: A boolean indicating whether to enable debug mode.
-- **`options.nbRowsToLog`**: The number of rows to log when displaying table
-  data.
-- **`options.nbCharactersToLog`**: The maximum number of characters to log for
-  strings. Useful to avoid logging large text content.
-- **`options.types`**: A boolean indicating whether to include data types when
-  logging a table.
+- **`options.rowsToLog`**: The number of rows to log when displaying table data.
+- **`options.charsToLog`**: The maximum number of characters to log for strings.
+  Useful to avoid logging large text content.
+- **`options.typesToLog`**: A boolean indicating whether to include data types
+  when logging a table.
 
 ### Methods
 
 #### `aiRowByRow`
 
 Applies a prompt to the value of each row in a specified column, storing the
-AI's response in a new column. This method can send requests concurrently and in
-batches, but is not using a pool, so it may not be the most efficient method for
-processing very large tables. Check `aiRowByRowPool` for a different approach,
-especially regarding error handling.
+AI's response in one or more new columns. Requests are processed by a worker
+pool with configurable batching and concurrency.
 
 This method automatically appends instructions to your prompt; set `verbose` to
 `true` to see the full prompt.
 
-This method supports Google Gemini, Vertex AI, and local models running with
-Ollama. Credentials and model selection are determined by environment variables
-(`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or directly via `options`,
-with `options` taking precedence.
+This method supports Gemini, Vertex AI, and Ollama. Set `generation.provider`
+explicitly, or omit it to use `AI_PROVIDER`. All other `generation` fields match
+the selected `askGemini` or `askOllama` function from journalism-ai. Model and
+credentials can also come from environment variables.
 
-For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is
-running, and set `AI_MODEL` to your desired model name. You can also pass your
-instance of Ollama to the `ollama` option.
+For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set
+`AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
 
 To manage rate limits, use `batchSize` to process multiple rows per request and
-`rateLimitPerMinute` to introduce delays between requests. For higher rate
-limits (business/professional accounts), `concurrent` allows parallel requests.
+`rateLimitPerMinute` to pace requests across the worker pool. The `concurrency`
+option controls how many requests may run in parallel.
 
-The `cache` option enables local caching of results in `.journalism-cache` (from
-the `askAI` function in the
-[journalism library](https://github.com/nshiab/journalism)). Remember to add
+Results are cached locally in `.journalism-cache` by default. Set
+`generation.cache` to `false` to disable caching, and remember to add
 `.journalism-cache` to your `.gitignore`.
 
 If the AI returns fewer items than expected in a batch, or if a custom `test`
-function fails, the `retry` option (a number greater than 0) will reattempt the
-request.
+function fails, the `retry` option will reattempt the request. The `retryCheck`
+function can restrict which errors are retried.
 
-Temperature is set to 0 for reproducibility, though consistency cannot be
-guaranteed.
+By default, a failed batch throws. Set `errorColumn` to store the error on every
+row in the failed batch, set its output columns to `NULL`, and continue
+processing other batches. Successful rows contain `NULL` in the error column.
 
 This method does not support tables containing geometries.
+
+This method queues the AI processing; requests are sent when an async observer
+method (like `getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async aiRowByRow(column: string, newColumn: string | string[], prompt: string, options?: { batchSize?: number; concurrent?: number; cache?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; model?: string; temperature?: number; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => unknown; contextWindow?: number; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; webSearch?: boolean; extraInstructions?: string; schemaJson?: unknown; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
+aiRowByRow(column: string, newColumn: string | string[], prompt: string, options?: { generation?: { systemPrompt?: string; model?: string; schemaJson?: unknown; cache?: boolean; processResponse?: (response: unknown) => unknown | Promise<unknown>; temperature?: number } & ({ provider: "gemini"; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider: "ollama"; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never } | { provider?: undefined; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider?: undefined; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never }); batchSize?: number; concurrency?: number; errorColumn?: string; logProgress?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; retryCheck?: (error: unknown) => Promise<boolean> | boolean; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => unknown; extraInstructions?: string; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): this;
 ```
 
 ##### Parameters
@@ -580,57 +707,29 @@ async aiRowByRow(column: string, newColumn: string | string[], prompt: string, o
 - **`options`**: Configuration options for the AI request.
 - **`options.batchSize`**: The number of rows to process in each batch. Defaults
   to `1`.
-- **`options.concurrent`**: The number of concurrent requests to send. Defaults
+- **`options.concurrency`**: The number of concurrent requests to send. Defaults
   to `1`.
-- **`options.cache`**: If `true`, the results will be cached locally. Defaults
-  to `false`.
+- **`options.errorColumn`**: The optional column where per-row error messages
+  are stored. When omitted, a failed batch throws.
+- **`options.logProgress`**: If `true`, logs request-pool progress. Defaults to
+  `false`.
+- **`options.generation`**: Gemini or Ollama generation configuration. Set
+  `provider` explicitly or omit it to use environment selection; all other
+  fields match the selected journalism-ai function.
 - **`options.test`**: A function to validate the returned data. If it throws an
   error, the request will be retried (if `retry` is set). Defaults to
   `undefined`.
 - **`options.retry`**: The number of times to retry the request in case of
   failure. Defaults to `0`.
-- **`options.rateLimitPerMinute`**: The rate limit for AI requests in requests
-  per minute. The method will wait between requests if necessary. Defaults to
-  `undefined` (no limit).
-- **`options.model`**: The AI model to use. Defaults to the `AI_MODEL`
-  environment variable.
-- **`options.temperature`**: The temperature setting for the AI model,
-  controlling the randomness of the output. Defaults to `0`.
-- **`options.apiKey`**: The API key for the AI service. Defaults to the `AI_KEY`
-  environment variable.
-- **`options.vertex`**: If `true`, uses Vertex AI. Automatically set to `true`
-  if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to
-  `false`.
-- **`options.project`**: The Google Cloud project ID for Vertex AI. Defaults to
-  the `AI_PROJECT` environment variable.
-- **`options.location`**: The Google Cloud location for Vertex AI. Defaults to
-  the `AI_LOCATION` environment variable.
-- **`options.ollama`**: If `true`, uses Ollama. Defaults to the `OLLAMA`
-  environment variable. If you want your Ollama instance to be used, you can
-  pass it here too.
+- **`options.retryCheck`**: A function that receives an error and returns
+  whether it should be retried. Defaults to `undefined`.
+- **`options.rateLimitPerMinute`**: The maximum number of provider requests
+  started per minute. Request starts are spaced across the worker pool; cached
+  responses bypass the limit. Defaults to `undefined` (no limit).
 - **`options.verbose`**: If `true`, logs additional debugging information,
   including the full prompt sent to the AI. Defaults to `false`.
-- **`options.clean`**: A function to clean the AI's response after JSON parsing,
-  testing, caching, and storing. Defaults to `undefined`.
-- **`options.contextWindow`**: An option to specify the context window size for
-  Ollama models. By default, Ollama sets this depending on the model, which can
-  be lower than the actual maximum context window size of the model.
-- **`options.thinkingBudget`**: Sets the reasoning token budget: 0 to disable
-  (default, though some models may reason regardless), -1 for a dynamic budget,
-  or > 0 for a fixed budget. For Ollama models, any non-zero value simply
-  enables reasoning, ignoring the specific budget amount.
-- **`options.thinkingLevel`**: Sets the thinking level for reasoning: "minimal",
-  "low", "medium", or "high", which some models expect instead of
-  `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided.
-  For Ollama models, any value enables reasoning.
-- **`options.safetyEnabled`**: Controls whether safety filters are enabled. If
-  set to `true`, filters are active; if `false`, they are disabled. By default,
-  this is `false` when using Vertex AI and `true` otherwise. This setting can be
-  explicitly overridden for any model.
-- **`options.webSearch`**: (Gemini only) If `true`, enables web search grounding
-  for the AI's responses. Be careful of extra costs. Defaults to `false`.
-- **`options.schemaJson`**: A Zod JSON schema object for structured output. This
-  overrides the default schema based on the 'newColumn' names.
+- **`options.clean`**: A function to transform the parsed response before
+  validation and caching. Defaults to `undefined`.
 - **`options.extraInstructions`**: Additional instructions to append to the
   prompt, providing more context or guidance for the AI.
 - **`options.metrics`**: An object to track cumulative metrics across multiple
@@ -641,39 +740,44 @@ async aiRowByRow(column: string, newColumn: string | string[], prompt: string, o
 
 ##### Returns
 
-A promise that resolves when the AI processing is complete.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
-// New table with a "name" column.
-await table.loadArray([
-  { name: "Marie" },
-  { name: "John" },
-  { name: "Alex" },
-]);
-
-// Ask the AI to categorize names into a new "gender" column.
-await table.aiRowByRow(
-  "name",
-  "gender",
-  `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral".`,
-  {
-    cache: true, // Cache results locally
-    batchSize: 10, // Process 10 rows at once
-    test: (data: { [key: string]: unknown }) => { // Validate AI's response
-      if (
-        typeof data.gender !== "string" ||
-        !["Man", "Woman", "Neutral"].includes(data.gender)
-      ) {
-        throw new Error(`Invalid response: ${data.gender}`);
-      }
+const people = await sdb
+  .newTable("people")
+  .loadArray([
+    { name: "Marie" },
+    { name: "John" },
+    { name: "Alex" },
+  ])
+  .aiRowByRow(
+    "name",
+    "gender",
+    `Guess whether it's a "Man" or a "Woman". If it could be both, return "Neutral".`,
+    {
+      generation: {
+        provider: "gemini",
+        model: "gemini-3-flash-preview",
+      },
+      batchSize: 10, // Process 10 rows at once
+      concurrency: 5, // Process up to 5 requests concurrently
+      errorColumn: "error", // Store failed rows instead of throwing
+      test: (data: { [key: string]: unknown }) => { // Validate AI's response
+        if (
+          typeof data.gender !== "string" ||
+          !["Man", "Woman", "Neutral"].includes(data.gender)
+        ) {
+          throw new Error(`Invalid response: ${data.gender}`);
+        }
+      },
+      retry: 3, // Retry up to 3 times on failure
+      rateLimitPerMinute: 15, // Limit requests to 15 per minute
+      verbose: true, // Log detailed information
     },
-    retry: 3, // Retry up to 3 times on failure
-    rateLimitPerMinute: 15, // Limit requests to 15 per minute
-    verbose: true, // Log detailed information
-  },
-);
+  )
+  .log();
 
 // Example results:
 // [
@@ -684,18 +788,20 @@ await table.aiRowByRow(
 ```
 
 ```ts
-await table.loadArray([
-  { city: "Marrakech" },
-  { city: "Kyoto" },
-  { city: "Auckland" },
-]);
-
-await table.aiRowByRow(
-  "city",
-  ["country", "continent"], // Multiple new columns
-  `Give me the country and continent of the city.`,
-  { verbose: true },
-);
+const cities = await sdb
+  .newTable("cities")
+  .loadArray([
+    { city: "Marrakech" },
+    { city: "Kyoto" },
+    { city: "Auckland" },
+  ])
+  .aiRowByRow(
+    "city",
+    ["country", "continent"], // Multiple new columns
+    `Give me the country and continent of the city.`,
+    { verbose: true },
+  )
+  .log();
 
 // Example results:
 // [
@@ -705,211 +811,14 @@ await table.aiRowByRow(
 // ]
 ```
 
-#### `aiRowByRowPool`
-
-Applies a prompt to the value of each row in a specified column using a
-pool-based approach, storing the AI's response in new columns and any errors in
-a designated error column. Unlike `aiRowByRow`, this method uses a worker pool
-for better control over concurrent requests and stores errors instead of
-throwing them, making it ideal for processing large tables where some rows may
-fail.
-
-This method automatically appends instructions to your prompt; set `verbose` to
-`true` to see the full prompt.
-
-This method supports Google Gemini, Vertex AI, and local models running with
-Ollama. Credentials and model selection are determined by environment variables
-(`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`).
-
-For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is
-running, and set `AI_MODEL` to your desired model name.
-
-The pool size controls how many concurrent AI requests can run simultaneously.
-The `batchSize` option processes multiple rows per request. For example, with
-`poolSize: 5` and `batchSize: 10`, up to 5 requests can run concurrently, each
-processing 10 rows.
-
-The `cache` option enables local caching of results in `.journalism-cache` (from
-the `askAI` function in the
-[journalism library](https://github.com/nshiab/journalism)). Remember to add
-`.journalism-cache` to your `.gitignore`.
-
-If the AI returns fewer items than expected in a batch, or if a custom `test`
-function fails, the `retry` option (a number greater than 0) will reattempt the
-request. The `retryCheck` function allows conditional retries based on error
-inspection.
-
-The `minRequestDurationMs` option sets a minimum duration for each request,
-useful for respecting rate limits when you know the allowed requests per time
-period.
-
-Temperature is set to 0 for reproducibility, though consistency cannot be
-guaranteed.
-
-This method does not support tables containing geometries.
-
-##### Signature
-
-```typescript
-async aiRowByRowPool(column: string, newColumn: string | string[], errorColumn: string, prompt: string, poolSize: number, options?: { cache?: boolean; batchSize?: number; logProgress?: boolean; verbose?: boolean; includeThoughts?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; retryCheck?: (error: unknown) => Promise<boolean> | boolean; extraInstructions?: string; minRequestDurationMs?: number; clean?: (response: unknown) => unknown; contextWindow?: number; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; webSearch?: boolean; schemaJson?: unknown; model?: string; temperature?: number; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<void>;
-```
-
-##### Parameters
-
-- **`column`**: The name of the column to be used as input for the AI prompt.
-- **`newColumn`**: The name of the new column (or an array of column names)
-  where the AI's response will be stored. If an error occurs for a row, the new
-  column(s) for that row will be set to `NULL`.
-- **`errorColumn`**: The name of the column where error messages will be stored.
-  Successful requests will have `NULL` in this column.
-- **`prompt`**: The input string to guide the AI's response.
-- **`poolSize`**: The number of concurrent AI requests to run simultaneously in
-  the pool.
-- **`options`**: Configuration options for the AI request.
-- **`options.cache`**: If `true`, the results will be cached locally. Defaults
-  to `false`.
-- **`options.batchSize`**: The number of rows to process in each batch. Defaults
-  to `1`.
-- **`options.logProgress`**: If `true`, logs progress information during
-  processing. Defaults to `false`.
-- **`options.verbose`**: If `true`, logs additional debugging information,
-  including the full prompt sent to the AI. Defaults to `false`.
-- **`options.includeThoughts`**: If `true`, includes the AI model's reasoning
-  process in the logged output when using models that support extended thinking.
-  Only relevant when used with thinking-capable models. Defaults to `false`.
-- **`options.test`**: A function to validate the returned data. If it throws an
-  error, the request will be retried (if `retry` is set). Defaults to
-  `undefined`.
-- **`options.retry`**: The number of times to retry the request in case of
-  failure. Defaults to `0`.
-- **`options.retryCheck`**: A function that receives an error and returns a
-  boolean indicating whether to retry. Useful for conditional retries based on
-  error type. Defaults to `undefined`.
-- **`options.extraInstructions`**: Additional instructions to append to the
-  prompt, providing more context or guidance for the AI.
-- **`options.minRequestDurationMs`**: The minimum duration in milliseconds for
-  each request. Useful for respecting rate limits. Defaults to `undefined` (no
-  minimum).
-- **`options.clean`**: A function to clean the AI's response after JSON parsing,
-  testing, caching, and storing. Defaults to `undefined`.
-- **`options.contextWindow`**: An option to specify the context window size for
-  Ollama models. By default, Ollama sets this depending on the model, which can
-  be lower than the actual maximum context window size of the model.
-- **`options.thinkingBudget`**: Sets the reasoning token budget: 0 to disable
-  (default, though some models may reason regardless), -1 for a dynamic budget,
-  or > 0 for a fixed budget. For Ollama models, any non-zero value simply
-  enables reasoning, ignoring the specific budget amount.
-- **`options.thinkingLevel`**: Sets the thinking level for reasoning: "minimal",
-  "low", "medium", or "high", which some models expect instead of
-  `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided.
-  For Ollama models, any value enables reasoning.
-- **`options.safetyEnabled`**: Controls whether safety filters are enabled. If
-  set to `true`, filters are active; if `false`, they are disabled. By default,
-  this is `false` when using Vertex AI and `true` otherwise. This setting can be
-  explicitly overridden for any model.
-- **`options.webSearch`**: (Gemini only) If `true`, enables web search grounding
-  for the AI's responses. Be careful of extra costs. Defaults to `false`.
-- **`options.schemaJson`**: A Zod JSON schema object for structured output. This
-  overrides the default schema based on the 'newColumn' names.
-- **`options.model`**: The AI model to use. Defaults to the `AI_MODEL`
-  environment variable.
-- **`options.temperature`**: The temperature setting for the AI model,
-  controlling the randomness of the output. Defaults to `0`.
-- **`options.apiKey`**: The API key for the AI service. Defaults to the `AI_KEY`
-  environment variable.
-- **`options.vertex`**: If `true`, uses Vertex AI. Automatically set to `true`
-  if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to
-  `false`.
-- **`options.project`**: The Google Cloud project ID for Vertex AI. Defaults to
-  the `AI_PROJECT` environment variable.
-- **`options.location`**: The Google Cloud location for Vertex AI. Defaults to
-  the `AI_LOCATION` environment variable.
-- **`options.ollama`**: If `true`, uses Ollama. Defaults to the `OLLAMA`
-  environment variable. If you want your Ollama instance to be used, you can
-  pass it here too.
-- **`options.metrics`**: An object to track cumulative metrics across multiple
-  AI requests. Pass an object with totalCost, totalInputTokens,
-  totalOutputTokens, and totalRequests properties (all initialized to 0). The
-  function will update these values after each request. Note: totalCost is only
-  calculated for Google GenAI models, not for Ollama.
-
-##### Returns
-
-A promise that resolves when the AI processing is complete.
-
-##### Examples
-
 ```ts
-// New table with a "review" column.
-await table.loadArray([
-  { review: "Great product!" },
-  { review: "Terrible quality." },
-  { review: "Not bad, could be better." },
-  { review: "Excellent service!" },
-]);
-
-// Analyze sentiment using a pool with 2 concurrent workers, batch size of 2
-await table.aiRowByRowPool(
-  "review",
-  "sentiment",
-  "error",
-  `Classify the sentiment as "Positive", "Negative", or "Neutral".`,
-  2, // poolSize: 2 concurrent requests
-  {
-    cache: true,
-    batchSize: 2, // Process 2 rows per request
-    logProgress: true,
-    test: (data: { [key: string]: unknown }) => {
-      if (
-        typeof data.sentiment !== "string" ||
-        !["Positive", "Negative", "Neutral"].includes(data.sentiment)
-      ) {
-        throw new Error(`Invalid sentiment: ${data.sentiment}`);
-      }
-    },
-    retry: 2,
-    minRequestDurationMs: 1000, // Respect rate limits: at least 1 second per request
-  },
-);
-
-// Example results:
-// [
-//   { review: "Great product!", sentiment: "Positive", error: null },
-//   { review: "Terrible quality.", sentiment: "Negative", error: null },
-//   { review: "Not bad, could be better.", sentiment: "Neutral", error: null },
-//   { review: "Excellent service!", sentiment: "Positive", error: null },
-// ]
-```
-
-```ts
-await table.loadArray([
-  { product: "Laptop" },
-  { product: "Smartphone" },
-  { product: "Tablet" },
-]);
-
-// Extract multiple properties using pool-based processing
-await table.aiRowByRowPool(
-  "product",
-  ["category", "typical_price_range"],
-  "error",
-  `For the given product, provide the category and typical price range.`,
-  3, // Process up to 3 products concurrently
-  {
-    logProgress: true,
-    retryCheck: (error) => {
-      // Retry only for specific error types
-      return error instanceof Error && error.message.includes("rate limit");
-    },
-  },
-);
-
-// Example results:
-// [
-//   { product: "Laptop", category: "Electronics", typical_price_range: "$500-$2000", error: null },
-//   { product: "Smartphone", category: "Electronics", typical_price_range: "$200-$1200", error: null },
-//   { product: "Tablet", category: "Electronics", typical_price_range: "$200-$800", error: null },
-// ]
+const names = await sdb
+  .newTable("names")
+  .loadArray([{ name: "Marie" }, { name: "John" }])
+  .aiRowByRow("name", "description", "Describe this name.", {
+    generation: { provider: "ollama", model: "gemma3:4b" },
+  })
+  .log();
 ```
 
 #### `aiEmbeddings`
@@ -917,35 +826,41 @@ await table.aiRowByRowPool(
 Generates embeddings for a specified text column and stores the results in a new
 column.
 
-This method supports Google Gemini, Vertex AI, and local models running with
-Ollama. Credentials and model selection are determined by environment variables
-(`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`) or directly via
-`options`, with `options` taking precedence.
+This method supports Gemini, Vertex AI, and Ollama embeddings. Set
+`embeddings.provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`; all
+other fields match `getEmbedding` from journalism-ai. Model and credentials can
+also come from environment variables.
 
-For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is
-running, and set `AI_EMBEDDINGS_MODEL` to your desired model name. You can also
-pass your instance of Ollama to the `ollama` option.
+For Ollama, set `AI_EMBEDDINGS_PROVIDER=ollama`, ensure Ollama is running, and
+set `AI_EMBEDDINGS_MODEL`, or pass `{ provider: "ollama", ... }` through
+`embeddings`.
 
 To manage rate limits, use `rateLimitPerMinute` to introduce delays between
-requests. For higher rate limits (business/professional accounts), `concurrent`
+requests. For higher rate limits (business/professional accounts), `concurrency`
 allows parallel requests.
 
-The `cache` option enables local caching of results in `.journalism-cache` (from
-the `getEmbedding` function in the
-[journalism library](https://github.com/nshiab/journalism)). Remember to add
+Individual embedding responses are cached in `.journalism-cache` by default. Set
+`embeddings.cache` to `false` to disable this request cache, and remember to add
 `.journalism-cache` to your `.gitignore`.
 
-If `createIndex` is `true`, an index will be created on the new column using the
-[duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful for
-speeding up the `aiVectorSimilarity` method. If the index already exists, it
-will not be recreated unless `overwriteIndex` is `true`.
+SDA records the canonical provider, backend, model, semantic options, source
+column, and vector dimensions for columns generated by this method. A compatible
+existing column is reused; changing its embedding identity or source mapping
+regenerates the vectors and invalidates a stale VSS index. Existing columns
+without provenance are treated as legacy and regenerated safely.
 
-This method does not support tables containing geometries.
+If `createIndex` is `true`, an HNSW index will be created on the new column
+using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is
+useful for speeding up the `aiVectorSimilarity` method. If the index already
+exists, it will not be recreated unless `overwriteIndex` is `true`.
+
+This method does not support tables containing geometries. The work is queued
+and runs in chain order at the next awaited observer or `run()` call.
 
 ##### Signature
 
 ```typescript
-async aiEmbeddings(column: string, newColumn: string, options?: { createIndex?: boolean; overwriteIndex?: boolean; concurrent?: number; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; verbose?: boolean; rateLimitPerMinute?: number; contextWindow?: number; efConstruction?: number; efSearch?: number; M?: number }): Promise<void>;
+aiEmbeddings(column: string, newColumn: string, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; createIndex?: boolean; overwriteIndex?: boolean; concurrency?: number; verbose?: boolean; rateLimitPerMinute?: number; efConstruction?: number; efSearch?: number; M?: number }): this;
 ```
 
 ##### Parameters
@@ -955,7 +870,7 @@ async aiEmbeddings(column: string, newColumn: string, options?: { createIndex?: 
 - **`newColumn`**: The name of the new column where the generated embeddings
   will be stored.
 - **`options`**: Configuration options for the AI request.
-- **`options.createIndex`**: If `true`, an index will be created on the new
+- **`options.createIndex`**: If `true`, an HNSW index will be created on the new
   column. Useful for speeding up the `aiVectorSimilarity` method. Defaults to
   `false`.
 - **`options.overwriteIndex`**: If `true` and `createIndex` is `true`, drops and
@@ -969,57 +884,53 @@ async aiEmbeddings(column: string, newColumn: string, options?: { createIndex?: 
 - **`options.M`**: The maximum number of neighbors to keep for each vertex in
   the graph. Higher values result in more accurate indexes but increase build
   time and memory usage. Defaults to 16.
-- **`options.concurrent`**: The number of concurrent requests to send. Defaults
+- **`options.concurrency`**: The number of concurrent requests to send. Defaults
   to `1`.
-- **`options.cache`**: If `true`, the results will be cached locally. Defaults
-  to `false`.
+- **`options.embeddings`**: Gemini or Ollama embedding configuration. Set
+  `provider` explicitly or omit it to use environment selection; all other
+  fields match `getEmbedding` from journalism-ai.
 - **`options.rateLimitPerMinute`**: The rate limit for AI requests in requests
   per minute. The method will wait between requests if necessary. Defaults to
   `undefined` (no limit).
-- **`options.model`**: The AI model to use. Defaults to the
-  `AI_EMBEDDINGS_MODEL` environment variable.
-- **`options.apiKey`**: The API key for the AI service. Defaults to the `AI_KEY`
-  environment variable.
-- **`options.vertex`**: If `true`, uses Vertex AI. Automatically set to `true`
-  if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to
-  `false`.
-- **`options.project`**: The Google Cloud project ID for Vertex AI. Defaults to
-  the `AI_PROJECT` environment variable.
-- **`options.location`**: The Google Cloud location for Vertex AI. Defaults to
-  the `AI_LOCATION` environment variable.
-- **`options.ollama`**: If `true`, uses Ollama. Defaults to the `OLLAMA`
-  environment variable. If you want your Ollama instance to be used, you can
-  pass it here too.
-- **`options.contextWindow`**: An option to specify the context window size for
-  Ollama models. By default, Ollama sets this depending on the model, which can
-  be lower than the actual maximum context window size of the model.
 - **`options.verbose`**: If `true`, logs additional debugging information.
   Defaults to `false`.
 
 ##### Returns
 
-A promise that resolves when the embeddings have been generated and stored.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
-// New table with a "food" column.
-await table.loadArray([
-  { food: "pizza" },
-  { food: "sushi" },
-  { food: "burger" },
-  { food: "pasta" },
-  { food: "salad" },
-  { food: "tacos" },
-]);
+const food = await sdb
+  .newTable("food")
+  .loadArray([
+    { food: "pizza" },
+    { food: "sushi" },
+    { food: "burger" },
+    { food: "pasta" },
+    { food: "salad" },
+    { food: "tacos" },
+  ])
+  .aiEmbeddings("food", "embeddings", {
+    embeddings: {
+      provider: "gemini",
+      model: "gemini-embedding-001",
+    },
+    rateLimitPerMinute: 15,
+    createIndex: true,
+    verbose: true,
+  })
+  .log();
+```
 
-// Generate embeddings for the "food" column and store them in a new "embeddings" column.
-await table.aiEmbeddings("food", "embeddings", {
-  cache: true, // Cache results locally
-  rateLimitPerMinute: 15, // Limit requests to 15 per minute
-  createIndex: true, // Create an index on the new column for faster similarity searches
-  verbose: true, // Log detailed information
-});
+```ts
+// Generate embeddings with a local Ollama model.
+const food = await table
+  .aiEmbeddings("food", "embeddings", {
+    embeddings: { provider: "ollama", model: "nomic-embed-text" },
+  })
+  .log();
 ```
 
 #### `aiVectorSimilarity`
@@ -1029,30 +940,27 @@ content based on their embeddings. This method is useful for semantic search and
 text similarity tasks, computing cosine distance and sorting results by
 similarity.
 
-To create the embedding, this method supports Google Gemini, Vertex AI, and
-local models running with Ollama. Credentials and model selection are determined
-by environment variables (`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`,
-`AI_EMBEDDINGS_MODEL`) or directly via `options`, with `options` taking
-precedence.
+To create the query embedding, omit `embeddings` to use environment variables or
+pass provider-specific options matching `getEmbedding` from journalism-ai.
 
-For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is
-running, and set `AI_EMBEDDINGS_MODEL` to your desired model name. You can also
-pass your instance of Ollama to the `ollama` option.
+Gemini, Vertex AI, and Ollama are supported. The selected provider and model
+must match those used to create the stored embedding column so the vectors share
+the same dimensions and embedding space.
 
-The `cache` option enables local caching of the specified text's embedding in
-`.journalism-cache` (from the `getEmbedding` function in the
-[journalism library](https://github.com/nshiab/journalism)). Remember to add
+The query embedding is cached in `.journalism-cache` by default. Set
+`embeddings.cache` to `false` to disable this request cache, and remember to add
 `.journalism-cache` to your `.gitignore`.
 
-If `createIndex` is `true`, an index will be created on the embeddings column
-using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss) to speed
-up processing. If the index already exists, it will not be recreated unless
-`overwriteIndex` is `true`.
+If `createIndex` is `true`, an HNSW index will be created on the embeddings
+column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss) to
+speed up processing. If the index already exists, it will not be recreated
+unless `overwriteIndex` is `true`. The work is queued and runs in chain order at
+the next awaited observer or `run()` call.
 
 ##### Signature
 
 ```typescript
-async aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { createIndex?: boolean; overwriteIndex?: boolean; outputTable?: string; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; contextWindow?: number; verbose?: boolean; efConstruction?: number; efSearch?: number; M?: number; minSimilarity?: number; similarityColumn?: string }): Promise<SimpleTable>;
+aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; createIndex?: boolean; overwriteIndex?: boolean; outputTable?: string; verbose?: boolean; efConstruction?: number; efSearch?: number; M?: number; minSimilarity?: number; similarityColumn?: string }): this;
 ```
 
 ##### Parameters
@@ -1070,7 +978,7 @@ async aiVectorSimilarity(text: string, column: string, nbResults: number, option
 - **`options.similarityColumn`**: If provided, a new column with this name will
   be added to the output table containing the calculated similarity score (from
   0.0 to 1.0) for each row. Defaults to `undefined`.
-- **`options.createIndex`**: If `true`, an index will be created on the
+- **`options.createIndex`**: If `true`, an HNSW index will be created on the
   embeddings column. Defaults to `false`.
 - **`options.overwriteIndex`**: If `true` and `createIndex` is `true`, drops and
   recreates the VSS index even if it already exists. Defaults to `false`.
@@ -1086,65 +994,54 @@ async aiVectorSimilarity(text: string, column: string, nbResults: number, option
 - **`options.outputTable`**: The name of the output table where the results will
   be stored. If not provided, the current table will be modified. Defaults to
   `undefined`.
-- **`options.cache`**: If `true`, the embedding of the input `text` will be
-  cached locally. Defaults to `false`.
-- **`options.model`**: The AI model to use for generating the embedding.
-  Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
-- **`options.apiKey`**: The API key for the AI service. Defaults to the `AI_KEY`
-  environment variable.
-- **`options.vertex`**: If `true`, uses Vertex AI. Automatically set to `true`
-  if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to
-  `false`.
-- **`options.project`**: The Google Cloud project ID for Vertex AI. Defaults to
-  the `AI_PROJECT` environment variable.
-- **`options.location`**: The Google Cloud location for Vertex AI. Defaults to
-  the `AI_LOCATION` environment variable.
-- **`options.ollama`**: If `true`, uses Ollama. Defaults to the `OLLAMA`
-  environment variable. If you want your Ollama instance to be used, you can
-  pass it here too.
+- **`options.embeddings`**: Gemini or Ollama embedding configuration. Set
+  `provider` explicitly or omit it to use environment selection; all other
+  fields match `getEmbedding` from journalism-ai.
 - **`options.verbose`**: If `true`, logs additional debugging information.
   Defaults to `false`.
-- **`options.contextWindow`**: An option to specify the context window size for
-  Ollama models. By default, Ollama sets this depending on the model, which can
-  be lower than the actual maximum context window size of the model.
 
 ##### Returns
 
-A promise that resolves to the SimpleTable instance containing the similarity
-search results.
+The table that will contain the similarity results, so methods can be chained.
 
 ##### Examples
 
 ```ts
-// New table with a "food" column.
-await table.loadArray([
-  { food: "pizza" },
-  { food: "sushi" },
-  { food: "burger" },
-  { food: "pasta" },
-  { food: "salad" },
-  { food: "tacos" },
-]);
+const similarFood = await sdb
+  .newTable("food")
+  .loadArray([
+    { food: "pizza" },
+    { food: "sushi" },
+    { food: "burger" },
+    { food: "pasta" },
+    { food: "salad" },
+    { food: "tacos" },
+  ])
+  .aiEmbeddings("food", "embeddings", {
+    embeddings: {
+      provider: "gemini",
+      model: "gemini-embedding-001",
+    },
+  })
+  .aiVectorSimilarity("italian food", "embeddings", 3, {
+    createIndex: true,
+    embeddings: {
+      provider: "gemini",
+      model: "gemini-embedding-001",
+    },
+    minSimilarity: 0.6,
+    similarityColumn: "score",
+  })
+  .log();
+```
 
-// Generate embeddings for the "food" column.
-await table.aiEmbeddings("food", "embeddings", { cache: true });
-
-// Find the 3 most similar foods to "italian food" based on embeddings.
-// We only want results with at least 60% similarity and we want to see the score.
-const similarFoods = await table.aiVectorSimilarity(
-  "italian food",
-  "embeddings",
-  3,
-  {
-    createIndex: true, // Create an index on the embeddings column for faster searches
-    cache: true, // Cache the embedding of "italian food"
-    minSimilarity: 0.6, // Filter out anything below 0.6 similarity
-    similarityColumn: "score", // Add a new column named "score" with the similarity math
-  },
-);
-
-// Log the results
-await similarFoods.logTable();
+```ts
+// Query an embedding column created with the same Ollama model.
+const similarFood = await table
+  .aiVectorSimilarity("italian food", "embeddings", 3, {
+    embeddings: { provider: "ollama", model: "nomic-embed-text" },
+  })
+  .log();
 ```
 
 #### `hybridSearch`
@@ -1154,74 +1051,63 @@ using Reciprocal Rank Fusion (RRF).
 
 This method:
 
-1. Generates embeddings for the text column if they don't already exist
+1. Ensures compatible embeddings exist for the text column
 2. Runs vector similarity search and BM25 text search in parallel
 3. Fuses the results using Reciprocal Rank Fusion to get the best matches
 4. Returns a new table with the top results ordered by relevance
 
-The embeddings are cached at two levels:
+When vector search is enabled, embedding responses are cached in
+`.journalism-cache`, and the table with its generated embedding column is cached
+in `.sda-cache`. Set `embeddings.cache` to `false` to disable both caches.
 
-- At the table level, so renaming the table will invalidate the cache and
-  regenerate embeddings. For often updated tables, you can pass a timestamp to
-  the table name (e.g., `mytable_20240901`) to keep the cache valid until the
-  next update.
-- At the row level, so if the text content is different or not cached, the
-  embedding will be generated and cached for that specific text. If the text
-  content has been previously cached, the existing embedding will be reused,
-  even if the table has been renamed (as long as the text content is unchanged).
+Also, the method creates the column `{textColumn}_embeddings` to store the
+generated embeddings and persists its canonical embedding provenance inside
+DuckDB. A stored column is reused only when its provider/backend/model identity,
+semantic options, source mapping, and dimensions remain compatible. Legacy or
+incompatible columns are regenerated, and stale vector indexes are invalidated
+before replacement. This provenance survives reopening a DuckDB database.
 
-Also, the method creates the column `{columnText}_embeddings` to store the
-generated embeddings. If you wrote your DB to a file, and if the column already
-exists, it will reuse the existing embeddings column directly, before even
-checking the cache, since the DB file itself serves as a cache. Similarly, the
-embeddings and BM25 index are reused if they already exist.
+Remove `.journalism-cache` and `.sda-cache` to clear existing cache entries.
+Remember to add both directories to your `.gitignore`.
 
-To delete the cache, simply remove the `.journalism-cache` and/or `.sda-cache`
-directories in your project or set the cache option to `false`. Remember to add
-`.journalism-cache` and `.sda-cache` to your `.gitignore`.
+This method supports Gemini, Vertex AI, and Ollama embeddings. Set
+`embeddings.provider` explicitly or omit it to use environment selection; all
+other fields match `getEmbedding` from journalism-ai.
 
-This method supports Google Gemini, Vertex AI, and local models running with
-Ollama. Credentials and model selection are determined by environment variables
-(`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_EMBEDDINGS_MODEL`) or directly via
-`options`, with `options` taking precedence.
+The selected embedding provider is used for both stored row embeddings and the
+query embedding.
 
-For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is
-running, and set `AI_EMBEDDINGS_MODEL` to your desired model name. You can also
-pass your instance of Ollama.
+When BM25 search is enabled, its required full-text search index is created or
+reused automatically. When vector search is enabled, set `createIndex` to `true`
+to also create an HNSW index using the
+[duckdb-vss extension](https://github.com/duckdb/duckdb-vss).
 
-If `createIndex` is `true`, both a vector index (using the
-[duckdb-vss extension](https://github.com/duckdb/duckdb-vss)) and a BM25
-full-text search index (using the
-[fts extension](https://duckdb.org/docs/stable/core_extensions/full_text_search))
-will be created for faster retrieval.
-
-This method does not support tables containing geometries.
+This method does not support tables containing geometries. The work is queued
+and runs in chain order at the next awaited observer or `run()` call.
 
 ##### Signature
 
 ```typescript
-async hybridSearch(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; embeddingsModelContextWindow?: number; createIndex?: boolean; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; outputTable?: string; efConstruction?: number; efSearch?: number; M?: number; times?: { start?: number; embeddingStart?: number; embeddingEnd?: number; vectorSearchStart?: number; vectorSearchEnd?: number; bm25Start?: number; bm25End?: number } }): Promise<SimpleTable>;
+hybridSearch(query: string, idColumn: string, textColumn: string, nbResults: number, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; verbose?: boolean; createIndex?: boolean; embeddingsConcurrency?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; outputTable?: string; efConstruction?: number; efSearch?: number; M?: number; times?: { start?: number; embeddingStart?: number; embeddingEnd?: number; vectorSearchStart?: number; vectorSearchEnd?: number; bm25Start?: number; bm25End?: number } }): this;
 ```
 
 ##### Parameters
 
 - **`query`**: The search query text.
-- **`columnId`**: The name of the column containing unique identifiers for each
+- **`idColumn`**: The name of the column containing unique identifiers for each
   row.
-- **`columnText`**: The name of the column containing the text content to search
+- **`textColumn`**: The name of the column containing the text content to search
   through.
 - **`nbResults`**: The number of most similar rows to retrieve.
 - **`options`**: Configuration options for the hybrid search.
-- **`options.cache`**: If `true`, embeddings will be cached locally. Defaults to
-  `false`.
+- **`options.embeddings`**: Gemini or Ollama embedding configuration. Set
+  `provider` explicitly or omit it to use environment selection; all other
+  fields match `getEmbedding` from journalism-ai.
 - **`options.verbose`**: If `true`, logs additional debugging information.
   Defaults to `false`.
-- **`options.embeddingsModelContextWindow`**: An option to specify the context
-  window size for the embeddings model when using Ollama. By default, Ollama
-  sets this depending on the model, which can be lower than the actual maximum
-  context window size of the model.
-- **`options.createIndex`**: If `true`, both vector and BM25 indexes will be
-  created for faster retrieval. Defaults to `false`.
+- **`options.createIndex`**: If `true`, creates an HNSW index when vector search
+  is enabled. The BM25 FTS index is managed automatically whenever BM25 search
+  is enabled. Defaults to `false`.
 - **`options.efConstruction`**: The number of candidate vertices to consider
   during index construction. Higher values result in more accurate indexes but
   increase build time. Defaults to 128.
@@ -1231,11 +1117,7 @@ async hybridSearch(query: string, columnId: string, columnText: string, nbResult
 - **`options.M`**: The maximum number of neighbors to keep for each vertex in
   the graph. Higher values result in more accurate indexes but increase build
   time and memory usage. Defaults to 16.
-- **`options.embeddingsModel`**: The model to use for generating embeddings.
-  Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
-- **`options.ollamaEmbeddings`**: If `true`, forces the use of Ollama for
-  embeddings generation. Defaults to `false`.
-- **`options.embeddingsConcurrent`**: The number of concurrent requests to send
+- **`options.embeddingsConcurrency`**: The number of concurrent requests to send
   to the embeddings service. Defaults to `1`.
 - **`options.stemmer`**: The language stemmer to apply for BM25 word
   normalization. Supports multiple languages or "none" to disable stemming.
@@ -1282,31 +1164,33 @@ async hybridSearch(query: string, columnId: string, columnText: string, nbResult
 
 ##### Returns
 
-A promise that resolves to a SimpleTable instance containing the search results,
-ordered by relevance (best matches first).
+The table that will contain the search results, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Load a dataset of recipes
 const sdb = new SimpleDB();
-const table = sdb.newTable("recipes");
-await table.loadData("recipes.parquet");
+const results = await sdb
+  .newTable("recipes")
+  .loadData("recipes.parquet")
+  .hybridSearch("buttery pastry for breakfast", "Dish", "Recipe", 10, {
+    embeddings: {
+      provider: "gemini",
+      model: "gemini-embedding-001",
+    },
+    verbose: true,
+  })
+  .log();
+```
 
-// Perform hybrid search - replaces the current table with top 10 results
-await table.hybridSearch(
-  "buttery pastry for breakfast",
-  "Dish", // Column with unique IDs
-  "Recipe", // Column with text to search
-  10, // Return top 10 results
-  {
-    cache: true, // Cache embeddings
-    verbose: true, // Log debugging information
-  },
-);
-
-// Table now contains only the most relevant recipes
-await table.logTable();
+```ts
+// Run hybrid search with local Ollama embeddings.
+const results = await table
+  .hybridSearch("buttery pastry", "Dish", "Recipe", 10, {
+    embeddings: { provider: "ollama", model: "nomic-embed-text" },
+  })
+  .log();
 ```
 
 #### `aiRAG`
@@ -1322,123 +1206,70 @@ Internally, this method uses the `hybridSearch` method to retrieve relevant
 rows. If you want to perform hybrid search without the LLM step (i.e., to get
 the table of results directly), use `hybridSearch` instead.
 
-The embeddings are cached at two levels:
+When vector search is enabled, retrieval caches embedding responses in
+`.journalism-cache` and the table with its generated embedding column in
+`.sda-cache`. The final generated answer is also cached in `.journalism-cache`.
+Set `embeddings.cache` or `generation.cache` to `false` to disable the
+corresponding caches.
 
-- At the table level, so renaming the table will invalidate the cache and
-  regenerate embeddings. For often updated tables, you can pass a timestamp to
-  the table name (e.g., `mytable_20240901`) to keep the cache valid until the
-  next update.
-- At the row level, so if the text content is different or not cached, the
-  embedding will be generated and cached for that specific text. If the text
-  content has been previously cached, the existing embedding will be reused,
-  even if the table has been renamed (as long as the text content is unchanged).
+Remove `.journalism-cache` and `.sda-cache` to clear existing cache entries.
+Remember to add both directories to your `.gitignore`.
 
-Also, the method creates the column `{columnText}_embeddings` to store the
-generated embeddings. If you wrote your DB to a file, and if the column already
-exists, it will reuse the existing embeddings column directly, before even
-checking the cache, since the DB file itself serves as a cache. Similarly, the
-embeddings and BM25 index are reused if they already exist.
+Generation and embeddings are independently configurable. Set either nested
+`provider` explicitly or omit it to use that provider's environment selection;
+all remaining fields match journalism-ai.
 
-To delete the cache, simply remove the `.journalism-cache` and/or `.sda-cache`
-directories in your project or set the cache option to `false`. Remember to add
-`.journalism-cache` and `.sda-cache` to your `.gitignore`.
+For example, `generation.provider` can be `"gemini"` while `embeddings.provider`
+is `"ollama"`. Environment-only mixed providers use `AI_PROVIDER` and
+`AI_EMBEDDINGS_PROVIDER`.
 
-This method supports Google Gemini, Vertex AI, and local models running with
-Ollama. Credentials and model selection are determined by environment variables
-(`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`, `AI_EMBEDDINGS_MODEL`) or
-directly via `options`, with `options` taking precedence.
+Ollama temperature defaults to 0. Gemini uses the provider's default
+temperature.
 
-For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is
-running, and set `AI_MODEL` and `AI_EMBEDDINGS_MODEL` to your desired model
-names. If you are using Google Gemini or Vertex AI for the LLM, you can still
-use Ollama embeddings via the `ollamaEmbeddings` option.
-
-The LLM temperature is set to 0 for reproducibility, though consistency cannot
-be guaranteed.
-
-If `createIndex` is `true`, both a vector index (using the
-[duckdb-vss extension](https://github.com/duckdb/duckdb-vss)) and a BM25
-full-text search index (using the
-[fts extension](https://duckdb.org/docs/stable/core_extensions/full_text_search))
-will be created for faster retrieval.
+When BM25 search is enabled, its required full-text search index is created or
+reused automatically. When vector search is enabled, set `createIndex` to `true`
+to also create an HNSW index using the
+[duckdb-vss extension](https://github.com/duckdb/duckdb-vss).
 
 This method does not support tables containing geometries.
 
 ##### Signature
 
 ```typescript
-async aiRAG(query: string, columnId: string, columnText: string, nbResults: number, options?: { cache?: boolean; verbose?: boolean; includeThoughts?: boolean; systemPrompt?: string; modelContextWindow?: number; embeddingsModelContextWindow?: number; createIndex?: boolean; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; webSearch?: boolean; safetyEnabled?: boolean; model?: string; temperature?: number; apiKey?: string; vertex?: boolean; project?: string; location?: string; ollama?: boolean | Ollama; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number }; embeddingsModel?: string; ollamaEmbeddings?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; efConstruction?: number; efSearch?: number; M?: number }): Promise<string>;
+async aiRAG(query: string, idColumn: string, textColumn: string, nbResults: number, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; verbose?: boolean; createIndex?: boolean; embeddingsConcurrency?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; efConstruction?: number; efSearch?: number; M?: number; generation?: { systemPrompt?: string; model?: string; cache?: boolean; processResponse?: (response: unknown) => unknown | Promise<unknown>; temperature?: number } & ({ provider: "gemini"; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider: "ollama"; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never } | { provider?: undefined; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider?: undefined; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never }); includeThoughts?: boolean; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<string>;
 ```
 
 ##### Parameters
 
 - **`query`**: The question or query to answer using the retrieved context.
-- **`columnId`**: The name of the column containing unique identifiers for each
+- **`idColumn`**: The name of the column containing unique identifiers for each
   row.
-- **`columnText`**: The name of the column containing the text content to search
+- **`textColumn`**: The name of the column containing the text content to search
   through and use as context.
 - **`nbResults`**: The number of most similar rows to retrieve and use as
   context for the AI.
 - **`options`**: Configuration options for the RAG process.
-- **`options.cache`**: If `true`, embeddings and LLM responses will be cached
-  locally. Defaults to `false`.
+- **`options.generation`**: Gemini or Ollama generation configuration. Set
+  `provider` explicitly or omit it to use environment selection; all other
+  relevant fields match the selected journalism-ai function.
+- **`options.embeddings`**: Gemini or Ollama embedding configuration. Set
+  `provider` explicitly or omit it to use environment selection; all other
+  fields match `getEmbedding` from journalism-ai.
 - **`options.verbose`**: If `true`, logs additional debugging information.
   Defaults to `false`.
 - **`options.includeThoughts`**: If `true`, includes the AI model's reasoning
   process in the logged output when using models that support extended thinking.
   Only relevant when used with thinking-capable models. Defaults to `false`.
-- **`options.systemPrompt`**: An option to overwrite the LLM system prompt.
-- **`options.modelContextWindow`**: An option to specify the context window size
-  for the LLM model when using Ollama. By default, Ollama sets this depending on
-  the model, which can be lower than the actual maximum context window size of
-  the model.
-- **`options.embeddingsModelContextWindow`**: An option to specify the context
-  window size for the embeddings model when using Ollama. By default, Ollama
-  sets this depending on the model, which can be lower than the actual maximum
-  context window size of the model.
-- **`options.thinkingBudget`**: Sets the reasoning token budget: 0 to disable
-  (default, though some models may reason regardless), -1 for a dynamic budget,
-  or > 0 for a fixed budget. For Ollama models, any non-zero value simply
-  enables reasoning, ignoring the specific budget amount.
-- **`options.thinkingLevel`**: Sets the thinking level for reasoning: "minimal",
-  "low", "medium", or "high", which some models expect instead of
-  `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided.
-  For Ollama models, any value enables reasoning.
-- **`options.safetyEnabled`**: Controls whether safety filters are enabled. If
-  set to `true`, filters are active; if `false`, they are disabled. By default,
-  this is `false` when using Vertex AI and `true` otherwise. This setting can be
-  explicitly overridden for any model.
-- **`options.webSearch`**: (Gemini only) If `true`, enables web search grounding
-  for the AI's responses. Be careful of extra costs. Defaults to `false`.
-- **`options.model`**: The LLM model to use for answering the query. Defaults to
-  the `AI_MODEL` environment variable.
-- **`options.temperature`**: The temperature setting for the AI model,
-  controlling the randomness of the output. Defaults to `0`.
-- **`options.apiKey`**: Your API key for the AI service. Defaults to the
-  `AI_KEY` environment variable.
-- **`options.vertex`**: Set to `true` to use Vertex AI for authentication.
-  Auto-enables if `AI_PROJECT` and `AI_LOCATION` are set. Defaults to `false`.
-- **`options.project`**: Your Google Cloud project ID. Defaults to the
-  `AI_PROJECT` environment variable.
-- **`options.location`**: Your Google Cloud location for your project. Defaults
-  to the `AI_LOCATION` environment variable.
-- **`options.ollama`**: If `true`, uses Ollama. Defaults to the `OLLAMA`
-  environment variable. If you want your Ollama instance to be used, you can
-  pass it here too.
 - **`options.metrics`**: An object to track cumulative metrics across multiple
   AI requests. Pass an object with totalCost, totalInputTokens,
   totalOutputTokens, and totalRequests properties (all initialized to 0). The
   function will update these values after each request. Note: totalCost is only
   calculated for Google GenAI models, not for Ollama.
-- **`options.embeddingsModel`**: The model to use for generating embeddings.
-  Defaults to the `AI_EMBEDDINGS_MODEL` environment variable.
-- **`options.ollamaEmbeddings`**: If `true`, forces the use of Ollama for
-  embeddings generation, even if Gemini or Vertex is used for the LLM. Defaults
-  to `false`.
-- **`options.embeddingsConcurrent`**: The number of concurrent requests to send
+- **`options.embeddingsConcurrency`**: The number of concurrent requests to send
   to the embeddings service. Defaults to `1`.
-- **`options.createIndex`**: If `true`, both vector and BM25 indexes will be
-  created for faster retrieval. Defaults to `false`.
+- **`options.createIndex`**: If `true`, creates an HNSW index when vector search
+  is enabled. The BM25 FTS index is managed automatically whenever BM25 search
+  is enabled. Defaults to `false`.
 - **`options.efConstruction`**: The number of candidate vertices to consider
   during index construction. Higher values result in more accurate indexes but
   increase build time. Defaults to 128.
@@ -1494,24 +1325,44 @@ context.
 ```ts
 // Load a dataset of recipes
 const sdb = new SimpleDB();
-const table = sdb.newTable("recipes");
-await table.loadData("recipes.parquet");
-
-// Ask a question using hybrid RAG (vector + BM25 search)
-const answer = await table.aiRAG(
-  "I want a buttery pastry for breakfast.",
-  "Dish", // Column with unique IDs
-  "Recipe", // Column with text to search
-  10, // The 10 most relevant recipes passed to the LLM
-  {
-    cache: true, // Cache embeddings
-    verbose: true, // Log debugging information and timings
-  },
-);
+const answer = await sdb
+  .newTable("recipes")
+  .loadData("recipes.parquet")
+  .aiRAG(
+    "I want a buttery pastry for breakfast.",
+    "Dish", // Column with unique IDs
+    "Recipe", // Column with text to search
+    10, // The 10 most relevant recipes passed to the LLM
+    {
+      generation: {
+        provider: "gemini",
+        model: "gemini-3-flash-preview",
+      },
+      embeddings: {
+        provider: "ollama",
+        model: "nomic-embed-text",
+      },
+      verbose: true, // Log debugging information and timings
+    },
+  );
 
 console.log(answer);
 // Example output: "I recommend croissants.
 // They are a classic buttery pastry perfect for breakfast..."
+```
+
+```ts
+// Use Ollama for both retrieval embeddings and answer generation.
+const answer = await table.aiRAG(
+  "I want a buttery pastry for breakfast.",
+  "Dish",
+  "Recipe",
+  10,
+  {
+    generation: { provider: "ollama", model: "gemma3:4b" },
+    embeddings: { provider: "ollama", model: "nomic-embed-text" },
+  },
+);
 ```
 
 #### `aiQuery`
@@ -1520,28 +1371,25 @@ Generates and executes a SQL query based on a prompt. Additional instructions,
 such as column types, are automatically added to your prompt. Set `verbose` to
 `true` to see the full prompt.
 
-This method supports Google Gemini, Vertex AI, and local models running with
-Ollama. Credentials and model selection are determined by environment variables
-(`AI_KEY`, `AI_PROJECT`, `AI_LOCATION`, `AI_MODEL`) or directly via `options`,
-with `options` taking precedence.
+This method supports Gemini, Vertex AI, and Ollama. Set `generation.provider`
+explicitly or omit it to use environment selection; all other relevant fields
+match `askGemini` or `askOllama` from journalism-ai.
 
-For Ollama, set the `OLLAMA` environment variable to `true`, ensure Ollama is
-running, and set `AI_MODEL` to your desired model name. You can also pass your
-instance of Ollama to the `ollama` option.
+For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set
+`AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
 
-Temperature is set to 0 to aim for reproducible results. For future consistency,
-it's recommended to copy the generated query and execute it manually using
-`await sdb.customQuery(query)` or to cache the query using the `cache` option.
+Ollama temperature defaults to 0, while Gemini uses the provider's default.
+Provider-specific controls live under `generation`.
 
-When `cache` is `true`, the generated query will be cached locally in
-`.journalism-cache` (from the `askAI` function in the
-[journalism library](https://github.com/nshiab/journalism)), saving resources
-and time. Remember to add `.journalism-cache` to your `.gitignore`.
+The generated query is cached locally in `.journalism-cache` by default. Set
+`generation.cache` to `false` to disable caching, and remember to add
+`.journalism-cache` to your `.gitignore`. The work is queued and runs in chain
+order at the next awaited observer or `run()` call.
 
 ##### Signature
 
 ```typescript
-async aiQuery(prompt: string, options?: { extraInstructions?: string; cache?: boolean; model?: string; apiKey?: string; vertex?: boolean; project?: string; includeThoughts?: boolean; location?: string; ollama?: boolean | Ollama; contextWindow?: number; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; temperature?: number; safetyEnabled?: boolean; outputTable?: string; verbose?: boolean }): Promise<SimpleTable>;
+aiQuery(prompt: string, options?: { extraInstructions?: string; generation?: { systemPrompt?: string; model?: string; cache?: boolean; processResponse?: (response: unknown) => unknown | Promise<unknown>; temperature?: number } & ({ provider: "gemini"; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider: "ollama"; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never } | { provider?: undefined; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider?: undefined; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never }); includeThoughts?: boolean; outputTable?: string; verbose?: boolean }): this;
 ```
 
 ##### Parameters
@@ -1550,39 +1398,9 @@ async aiQuery(prompt: string, options?: { extraInstructions?: string; cache?: bo
 - **`options`**: Configuration options for the AI request.
 - **`options.extraInstructions`**: Additional instructions to append to the
   prompt, providing more context or guidance for the AI.
-- **`options.cache`**: If `true`, the generated query will be cached locally.
-  Defaults to `false`.
-- **`options.model`**: The AI model to use. Defaults to the `AI_MODEL`
-  environment variable.
-- **`options.apiKey`**: The API key for the AI service. Defaults to the `AI_KEY`
-  environment variable.
-- **`options.vertex`**: If `true`, uses Vertex AI. Automatically set to `true`
-  if `AI_PROJECT` and `AI_LOCATION` are set in the environment. Defaults to
-  `false`.
-- **`options.project`**: The Google Cloud project ID for Vertex AI. Defaults to
-  the `AI_PROJECT` environment variable.
-- **`options.location`**: The Google Cloud location for Vertex AI. Defaults to
-  the `AI_LOCATION` environment variable.
-- **`options.ollama`**: If `true`, uses Ollama. Defaults to the `OLLAMA`
-  environment variable. If you want your Ollama instance to be used, you can
-  pass it here too.
-- **`options.contextWindow`**: An option to specify the context window size for
-  Ollama models. By default, Ollama sets this depending on the model, which can
-  be lower than the actual maximum context window size of the model.
-- **`options.thinkingBudget`**: Sets the reasoning token budget: 0 to disable
-  (default, though some models may reason regardless), -1 for a dynamic budget,
-  or > 0 for a fixed budget. For Ollama models, any non-zero value simply
-  enables reasoning, ignoring the specific budget amount.
-- **`options.thinkingLevel`**: Sets the thinking level for reasoning: "minimal",
-  "low", "medium", or "high", which some models expect instead of
-  `thinkingBudget`. Takes precedence over `thinkingBudget` if both are provided.
-  For Ollama models, any value enables reasoning.
-- **`options.temperature`**: The temperature setting for the AI model,
-  controlling the randomness of the output. Defaults to `0`.
-- **`options.safetyEnabled`**: Controls whether safety filters are enabled. If
-  set to `true`, filters are active; if `false`, they are disabled. By default,
-  this is `false` when using Vertex AI and `true` otherwise. This setting can be
-  explicitly overridden for any model.
+- **`options.generation`**: Gemini or Ollama generation configuration. Set
+  `provider` explicitly or omit it to use environment selection; all other
+  relevant fields match the selected journalism-ai function.
 - **`options.outputTable`**: The name of a new table where the results will be
   stored. If not provided, the current table will be replaced with the query
   results.
@@ -1594,8 +1412,7 @@ async aiQuery(prompt: string, options?: { extraInstructions?: string; cache?: bo
 
 ##### Returns
 
-A promise that resolves to the SimpleTable instance containing the query results
-(either the modified current table or a new table).
+The table that will contain the query results, so methods can be chained.
 
 ##### Examples
 
@@ -1604,64 +1421,83 @@ A promise that resolves to the SimpleTable instance containing the query results
 // the result will replace the existing table.
 // If run again, it will use the previous query from the cache.
 // Don't forget to add .journalism-cache to your .gitignore file!
-await table.aiQuery(
-  "Give me the average salary by department",
-  { cache: true, verbose: true },
-);
+const averageSalaryByDepartment = await table
+  .aiQuery("Give me the average salary by department", {
+    generation: {
+      provider: "gemini",
+      model: "gemini-3-flash-preview",
+    },
+    verbose: true,
+  })
+  .log();
 ```
 
 ```ts
 // Save results to a new table without modifying the original
-const results = await table.aiQuery(
-  "Give me the top 10 employees by salary",
-  { outputTable: "top_employees" },
-);
-
 // Original table remains unchanged
-const allEmployees = await table.getNbRows();
+const allEmployees = await table.getRowCount();
 console.log(allEmployees); // All employees
 
-// New table contains only query results
-const topEmployees = await results.getNbRows();
-console.log(topEmployees); // 10
+// Generate the query in chain order and observe the new table.
+const topEmployees = await table
+  .aiQuery("Give me the top 10 employees by salary", {
+    outputTable: "top_employees",
+  })
+  .log();
+console.log(await topEmployees.getRowCount()); // 10
+```
+
+```ts
+// Generate and execute the query with a local Ollama model.
+const averageSalaryByDepartment = await table
+  .aiQuery("Give me the average salary by department", {
+    generation: { provider: "ollama", model: "gemma3:4b" },
+  })
+  .log();
 ```
 
 #### `toSheet`
 
-Writes the table data to a Google Sheet. This method uses the
-`overwriteSheetData` function from the
-[journalism library](https://jsr.io/@nshiab/journalism). Refer to its
-documentation for more details.
+Writes the table data to a Google Sheet. This method uses the `pushToSheet`
+function from the
+[journalism-google library](https://jsr.io/@nshiab/journalism-google). Refer to
+its documentation for more details.
 
-By default, authentication is handled via environment variables
-(GOOGLE_PRIVATE_KEY and GOOGLE_SERVICE_ACCOUNT_EMAIL). Alternatively, you can
-use GOOGLE_APPLICATION_CREDENTIALS pointing to a service account JSON file. For
-detailed setup instructions, refer to the node-google-spreadsheet authentication
-guide:
+By default, the selected tab is overwritten and values are written without
+Google Sheets interpretation. Authentication is handled via environment
+variables (GOOGLE_PRIVATE_KEY and GOOGLE_SERVICE_ACCOUNT_EMAIL). Alternatively,
+you can use GOOGLE_APPLICATION_CREDENTIALS pointing to a service account JSON
+file. For detailed setup instructions, refer to the node-google-spreadsheet
+authentication guide:
 https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
 
 ##### Signature
 
 ```typescript
-async toSheet(sheetUrl: string, options?: { prepend?: string; lastUpdate?: boolean; timeZone?: "Canada/Atlantic" | "Canada/Central" | "Canada/Eastern" | "Canada/Mountain" | "Canada/Newfoundland" | "Canada/Pacific" | "Canada/Saskatchewan" | "Canada/Yukon"; raw?: boolean; apiEmail?: string; apiKey?: string }): Promise<void>;
+async toSheet(sheetUrl: string, options?: { mode?: "overwrite" | "append"; tabTitle?: string; create?: boolean; prepend?: string; lastUpdate?: boolean | "Canada/Atlantic" | "Canada/Central" | "Canada/Eastern" | "Canada/Mountain" | "Canada/Newfoundland" | "Canada/Pacific" | "Canada/Saskatchewan" | "Canada/Yukon"; raw?: boolean; credentials?: { email: string; privateKey: string } }): Promise<void>;
 ```
 
 ##### Parameters
 
-- **`sheetUrl`**: The URL pointing to a specific Google Sheet (e.g.,
-  `"https://docs.google.com/spreadsheets/d/.../edit#gid=0"`).
+- **`sheetUrl`**: A Google Sheets URL. It can point to a spreadsheet or a
+  specific tab.
 - **`options`**: An optional object with configuration options:
-- **`options.prepend`**: A string to prepend to the sheet data (e.g., a title or
-  header).
-- **`options.lastUpdate`**: If `true`, adds a timestamp of the last update to
-  the sheet.
-- **`options.timeZone`**: The time zone to use for the last update timestamp.
-- **`options.raw`**: If `true`, writes the data as raw values without
-  formatting.
-- **`options.apiEmail`**: If your API email is stored under a different
-  environment variable name, use this option to specify it.
-- **`options.apiKey`**: If your API key is stored under a different environment
-  variable name, use this option to specify it.
+- **`options.mode`**: Whether to overwrite the tab or append rows. Defaults to
+  `"overwrite"`.
+- **`options.tabTitle`**: Selects a tab by title instead of using the URL's
+  `gid`.
+- **`options.create`**: If `true`, creates a missing tab selected by `tabTitle`.
+  Defaults to `false`.
+- **`options.prepend`**: Text to add above the header row in overwrite mode.
+- **`options.lastUpdate`**: If `true`, adds a UTC timestamp. Pass a Canadian
+  time zone to use it for the timestamp. Available only in overwrite mode.
+- **`options.raw`**: If `true`, writes values without Google Sheets
+  interpretation. Defaults to `true`.
+- **`options.credentials`**: Explicit Google service-account credentials. These
+  override credentials provided through environment variables or
+  GOOGLE_APPLICATION_CREDENTIALS.
+- **`options.credentials.email`**: The Google service-account email.
+- **`options.credentials.privateKey`**: The Google service-account private key.
 
 ##### Returns
 
@@ -1670,8 +1506,51 @@ A promise that resolves when the data has been written to the sheet.
 ##### Examples
 
 ```ts
-// Write the table data to a Google Sheet
-await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+// Load, transform, and write data to a Google Sheet
+await sdb
+  .newTable()
+  .loadData("sales.csv")
+  .selectColumns(["date", "revenue"])
+  .toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+```
+
+```ts
+// Append rows to a tab selected by title
+await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit", {
+  mode: "append",
+  tabTitle: "Election results",
+});
+```
+
+```ts
+// Create a missing tab and add context above the data
+await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit", {
+  tabTitle: "Election results",
+  create: true,
+  prepend: "Preliminary results",
+  lastUpdate: "Canada/Eastern",
+});
+```
+
+```ts
+// Let Google Sheets interpret values, such as formulas and dates
+await table.toSheet(
+  "https://docs.google.com/spreadsheets/d/.../edit#gid=0",
+  { raw: false },
+);
+```
+
+```ts
+// Pass service-account credentials explicitly
+await table.toSheet(
+  "https://docs.google.com/spreadsheets/d/.../edit#gid=0",
+  {
+    credentials: {
+      email: "service-account@example.iam.gserviceaccount.com",
+      privateKey: "-----BEGIN PRIVATE KEY-----\\n...",
+    },
+  },
+);
 ```
 
 #### `loadSheet`
@@ -1687,11 +1566,13 @@ use GOOGLE_APPLICATION_CREDENTIALS pointing to a service account JSON file. For
 detailed setup instructions, refer to the node-google-spreadsheet authentication
 guide:
 https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
+The download is queued and runs in chain order at the next awaited observer or
+`run()` call.
 
 ##### Signature
 
 ```typescript
-async loadSheet(sheetUrl: string, options?: { skip?: number; apiEmail?: string; apiKey?: string }): Promise<void>;
+loadSheet(sheetUrl: string, options?: { skip?: number; apiEmailEnvVar?: string; apiKeyEnvVar?: string }): this;
 ```
 
 ##### Parameters
@@ -1702,40 +1583,45 @@ async loadSheet(sheetUrl: string, options?: { skip?: number; apiEmail?: string; 
 - **`options.skip`**: The number of rows to skip from the top of the sheet
   before reading data. Useful when the sheet contains metadata or headers that
   should not be included in the data.
-- **`options.apiEmail`**: If your API email is stored under a different
-  environment variable name, use this option to specify it.
-- **`options.apiKey`**: If your API key is stored under a different environment
-  variable name, use this option to specify it.
+- **`options.apiEmailEnvVar`**: The name of the environment variable that stores
+  your API email.
+- **`options.apiKeyEnvVar`**: The name of the environment variable that stores
+  your API key.
 
 ##### Returns
 
-A promise that resolves when the data has been loaded into the table.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Load data from a Google Sheet
-await table.loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+const sheetData = await sdb
+  .newTable("sheetData")
+  .loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0")
+  .log();
 ```
 
 ```ts
 // Load data from a Google Sheet, skipping the first 2 rows (e.g., to skip a prepended message and timestamp)
-await table.loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0", {
-  skip: 2,
-});
+const sheetData = await table
+  .loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0", {
+    skip: 2,
+  })
+  .log();
 ```
 
-#### `toDW`
+#### `toDatawrapper`
 
 Writes the table data as CSV to a Datawrapper chart or table.
 
 Authentication is handled via an API key stored in the environment variable
-`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`.
 
 ##### Signature
 
 ```typescript
-async toDW(chartId: string, options?: { apiKey?: string; note?: string; republish?: boolean }): Promise<void>;
+async toDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; note?: string; republish?: boolean }): Promise<void>;
 ```
 
 ##### Parameters
@@ -1743,8 +1629,8 @@ async toDW(chartId: string, options?: { apiKey?: string; note?: string; republis
 - **`chartId`**: The unique ID of the Datawrapper chart or table to update. This
   ID can be found in the Datawrapper URL or dashboard.
 - **`options`**: An optional object with configuration options:
-- **`options.apiKey`**: The name of the environment variable that stores your
-  Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
+- **`options.apiKeyEnvVar`**: The name of the environment variable that stores
+  your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
   `"DATAWRAPPER_KEY"`.
 - **`options.note`**: A string to update the chart's notes field with (e.g., a
   last-updated timestamp).
@@ -1758,29 +1644,35 @@ A promise that resolves when the data has been sent to Datawrapper.
 ##### Examples
 
 ```ts
-// Update a Datawrapper chart with the table data
-await table.toDW("myChartId");
+// Load, transform, and send data to a Datawrapper chart
+await sdb
+  .newTable()
+  .loadData("sales.csv")
+  .selectColumns(["date", "revenue"])
+  .toDatawrapper("myChartId");
 ```
 
 ```ts
 // Update data, add a note, and republish
-await table.toDW("myChartId", {
+await table.toDatawrapper("myChartId", {
   note: `Last updated: ${new Date().toLocaleString()}`,
   republish: true,
 });
 ```
 
-#### `loadDW`
+#### `loadDatawrapper`
 
 Loads data from a Datawrapper chart or table into the table.
 
 Authentication is handled via an API key stored in the environment variable
-`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`. The
+download is queued and runs in chain order at the next awaited observer or
+`run()` call.
 
 ##### Signature
 
 ```typescript
-async loadDW(chartId: string, options?: { apiKey?: string }): Promise<void>;
+loadDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string }): this;
 ```
 
 ##### Parameters
@@ -1788,32 +1680,35 @@ async loadDW(chartId: string, options?: { apiKey?: string }): Promise<void>;
 - **`chartId`**: The unique ID of the Datawrapper chart or table. This ID can be
   found in the Datawrapper URL or dashboard.
 - **`options`**: An optional object with configuration options:
-- **`options.apiKey`**: The name of the environment variable that stores your
-  Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
+- **`options.apiKeyEnvVar`**: The name of the environment variable that stores
+  your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
   `"DATAWRAPPER_KEY"`.
 
 ##### Returns
 
-A promise that resolves when the data has been loaded into the table.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Load data from a Datawrapper chart
-await table.loadDW("myChartId");
+const chartData = await sdb
+  .newTable("chartData")
+  .loadDatawrapper("myChartId")
+  .log();
 ```
 
-#### `toGeoDW`
+#### `toGeoDatawrapper`
 
 Writes the table's geospatial data as GeoJSON to a Datawrapper map.
 
 Authentication is handled via an API key stored in the environment variable
-`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`.
 
 ##### Signature
 
 ```typescript
-async toGeoDW(chartId: string, options?: { apiKey?: string; column?: string; note?: string; republish?: boolean }): Promise<void>;
+async toGeoDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; column?: string; note?: string; republish?: boolean }): Promise<void>;
 ```
 
 ##### Parameters
@@ -1821,8 +1716,8 @@ async toGeoDW(chartId: string, options?: { apiKey?: string; column?: string; not
 - **`chartId`**: The unique ID of the Datawrapper map to update. This ID can be
   found in the Datawrapper URL or dashboard.
 - **`options`**: An optional object with configuration options:
-- **`options.apiKey`**: The name of the environment variable that stores your
-  Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
+- **`options.apiKeyEnvVar`**: The name of the environment variable that stores
+  your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
   `"DATAWRAPPER_KEY"`.
 - **`options.column`**: The name of the geometry column to use. If omitted, the
   method will automatically attempt to find a geometry column.
@@ -1837,32 +1732,38 @@ A promise that resolves when the data has been sent to Datawrapper.
 ##### Examples
 
 ```ts
-// Update a Datawrapper map with the table's geo data
-await table.toGeoDW("myMapId");
+// Load, transform, and send geospatial data to a Datawrapper map
+await sdb
+  .newTable()
+  .loadGeoData("regions.geojson")
+  .selectColumns(["name", "population", "geometry"])
+  .toGeoDatawrapper("myMapId");
 ```
 
 ```ts
 // Update data, add a note, and republish
-await table.toGeoDW("myMapId", {
+await table.toGeoDatawrapper("myMapId", {
   note: `Last updated: ${new Date().toLocaleString()}`,
   republish: true,
 });
 ```
 
-#### `loadGeoDW`
+#### `loadGeoDatawrapper`
 
 Loads geospatial data from a Datawrapper map into the table.
 
 Authentication is handled via an API key stored in the environment variable
-`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`.
 
-The data is temporarily written to `.sda-cache/<chartId>.json` and removed after
-loading. Remember to add `.sda-cache` to your `.gitignore`.
+The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.geojson` and
+removed after loading. Remember to add `.sda-cache` to your `.gitignore`. The
+download is queued and runs in chain order at the next awaited observer or
+`run()` call.
 
 ##### Signature
 
 ```typescript
-async loadGeoDW(chartId: string, options?: { apiKey?: string }): Promise<void>;
+loadGeoDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string }): this;
 ```
 
 ##### Parameters
@@ -1870,19 +1771,22 @@ async loadGeoDW(chartId: string, options?: { apiKey?: string }): Promise<void>;
 - **`chartId`**: The unique ID of the Datawrapper map. This ID can be found in
   the Datawrapper URL or dashboard.
 - **`options`**: An optional object with configuration options:
-- **`options.apiKey`**: The name of the environment variable that stores your
-  Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
+- **`options.apiKeyEnvVar`**: The name of the environment variable that stores
+  your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
   `"DATAWRAPPER_KEY"`.
 
 ##### Returns
 
-A promise that resolves when the data has been loaded into the table.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Load geo data from a Datawrapper map
-await table.loadGeoDW("myMapId");
+const mapData = await sdb
+  .newTable("mapData")
+  .loadGeoDatawrapper("myMapId")
+  .log();
 ```
 
 #### `writeChart`
@@ -1901,12 +1805,11 @@ async writeChart(chart: (data: unknown[]) => SVGSVGElement | HTMLElement, path: 
 
 - **`chart`**: A function that takes data (as an array of objects) and returns
   an Observable Plot chart (an `SVGSVGElement` or `HTMLElement`).
-- **`path`**: The absolute path where the chart image will be saved (e.g.,
-  `"./output/chart.png"`).
+- **`path`**: The path where the chart will be saved. The file extension must be
+  `.png` or `.svg` (e.g., `"./output/chart.png"`).
 - **`options`**: Optional object containing additional settings:
-- **`options.style`**: A CSS string to customize the chart's appearance. This is
-  applied to a `<div>` element wrapping the Plot chart (which has the id
-  `chart`). Use this if the Plot `style` option is insufficient.
+- **`options.style`**: A CSS string inserted into the generated SVG to customize
+  the chart's appearance. Use this if the Plot `style` option is insufficient.
 - **`options.dark`**: If `true`, switches the chart to dark mode. Defaults to
   `false`.
 
@@ -1920,9 +1823,7 @@ A promise that resolves when the chart image has been saved.
 import { dot, plot } from "@observablehq/plot";
 
 const sdb = new SimpleDB();
-const table = sdb.newTable();
 const data = [{ year: 2024, value: 10 }, { year: 2025, value: 15 }];
-await table.loadArray(data);
 
 const chartFunction = (plotData: unknown[]) =>
   plot({
@@ -1933,7 +1834,10 @@ const chartFunction = (plotData: unknown[]) =>
 
 const outputPath = "output/chart.png";
 
-await table.writeChart(chartFunction, outputPath);
+await sdb
+  .newTable()
+  .loadArray(data)
+  .writeChart(chartFunction, outputPath);
 ```
 
 #### `writeMap`
@@ -1952,16 +1856,15 @@ async writeMap(map: (geoData: { features: { properties: Record<string, unknown> 
 
 - **`map`**: A function that takes geospatial data (in GeoJSON format) and
   returns an Observable Plot map (an `SVGSVGElement` or `HTMLElement`).
-- **`path`**: The absolute path where the map image will be saved (e.g.,
-  `"./output/map.png"`).
+- **`path`**: The path where the map will be saved. The file extension must be
+  `.png` or `.svg` (e.g., `"./output/map.png"`).
 - **`options`**: An optional object with configuration options:
 - **`options.column`**: The name of the column storing geometries. If there is
   only one geometry column, it will be used by default.
 - **`options.rewind`**: If `true`, rewinds the coordinates of polygons to follow
   the spherical winding order (important for D3.js). Defaults to `true`.
-- **`options.style`**: A CSS string to customize the map's appearance. This is
-  applied to a `<div>` element wrapping the Plot map (which has the ID `chart`).
-  Use this if the Plot `style` option is insufficient.
+- **`options.style`**: A CSS string inserted into the generated SVG to customize
+  the map's appearance. Use this if the Plot `style` option is insufficient.
 - **`options.dark`**: If `true`, switches the map to dark mode. Defaults to
   `false`.
 
@@ -1975,9 +1878,6 @@ A promise that resolves when the map image has been saved.
 import { geo, plot } from "@observablehq/plot";
 
 const sdb = new SimpleDB();
-const table = sdb.newTable();
-await table.loadGeoData("./CanadianProvincesAndTerritories.geojson");
-
 const mapFunction = (geoJsonData: { features: unknown[] }) =>
   plot({
     projection: {
@@ -1992,7 +1892,10 @@ const mapFunction = (geoJsonData: { features: unknown[] }) =>
 
 const outputPath = "./output/map.png";
 
-await table.writeMap(mapFunction, outputPath);
+await sdb
+  .newTable()
+  .loadGeoData("./CanadianProvincesAndTerritories.geojson")
+  .writeMap(mapFunction, outputPath);
 ```
 
 #### `logLineChart`
@@ -2050,9 +1953,10 @@ const data = [
   { date: new Date("2023-03-01"), value: 30 },
   { date: new Date("2023-04-01"), value: 40 },
 ];
-await table.loadArray(data);
-await table.convert({ date: "string" }, { datetimeFormat: "%x" });
-await table.logLineChart("date", "value");
+await table
+  .loadArray(data)
+  .convert({ date: "string" }, { datetimeFormat: "%x" })
+  .logLineChart("date", "value");
 ```
 
 // Line chart with small multiples
@@ -2068,11 +1972,12 @@ const data = [
   { date: new Date("2023-03-01"), value: 35, category: "B" },
   { date: new Date("2023-04-01"), value: 45, category: "B" },
 ];
-await table.loadArray(data);
-await table.convert({ date: "string" }, { datetimeFormat: "%x" });
-await table.logLineChart("date", "value", {
-  smallMultiples: "category",
-});
+await table
+  .loadArray(data)
+  .convert({ date: "string" }, { datetimeFormat: "%x" })
+  .logLineChart("date", "value", {
+    smallMultiples: "category",
+  });
 ```
 
 #### `logDotChart`
@@ -2130,9 +2035,10 @@ const data = [
   { date: new Date("2023-03-01"), value: 30 },
   { date: new Date("2023-04-01"), value: 40 },
 ];
-await table.loadArray(data);
-await table.convert({ date: "string" }, { datetimeFormat: "%x" });
-await table.logDotChart("date", "value");
+await table
+  .loadArray(data)
+  .convert({ date: "string" }, { datetimeFormat: "%x" })
+  .logDotChart("date", "value");
 ```
 
 // Dot chart with small multiples
@@ -2148,11 +2054,12 @@ const data = [
   { date: new Date("2023-03-01"), value: 35, category: "B" },
   { date: new Date("2023-04-01"), value: 45, category: "B" },
 ];
-await table.loadArray(data);
-await table.convert({ date: "string" }, { datetimeFormat: "%x" });
-await table.logDotChart("date", "value", {
-  smallMultiples: "category",
-});
+await table
+  .loadArray(data)
+  .convert({ date: "string" }, { datetimeFormat: "%x" })
+  .logDotChart("date", "value", {
+    smallMultiples: "category",
+  });
 ```
 
 #### `logBarChart`
@@ -2195,8 +2102,9 @@ const data = [
   { category: "A", value: 10 },
   { category: "B", value: 20 },
 ];
-await table.loadArray(data);
-await table.logBarChart("category", "value");
+await table
+  .loadArray(data)
+  .logBarChart("category", "value");
 ```
 
 #### `logHistogram`
@@ -2243,6 +2151,55 @@ await table.logHistogram("age", {
 });
 ```
 
+#### `name`
+
+Name of the table in the database.
+
+##### Signature
+
+```typescript
+name(): string;
+```
+
+##### Examples
+
+```ts
+console.log(table.name); // e.g., "employees"
+```
+
+#### `run`
+
+Executes all queued methods across every table in the database, not just this
+table. Sync builder methods (like `filter()` or `convert()`) only queue their
+operation; execution happens when an async observer method (like `getData()`,
+`log()`, or `writeData()`) is awaited. Use `run()` when a chain ends in pure
+mutations with nothing to observe and you want the work done now.
+
+Because the whole database is flushed in program order, this behaves identically
+to `SimpleDB.run()`; call `sdb.run()` when your intent is to flush the database
+rather than this specific table.
+
+##### Signature
+
+```typescript
+async run(): Promise<this>;
+```
+
+##### Returns
+
+A promise that resolves to the table once the queued methods have been executed.
+
+##### Examples
+
+```ts
+// Nothing is observed after convert(), so run() executes the chain.
+await table
+  .loadData("data.csv")
+  .convert({ price: "number" })
+  .run();
+await table.log();
+```
+
 #### `renameTable`
 
 Renames the current table.
@@ -2250,7 +2207,7 @@ Renames the current table.
 ##### Signature
 
 ```typescript
-async renameTable(name: string): Promise<void>;
+async renameTable(name: string): Promise<this>;
 ```
 
 ##### Parameters
@@ -2259,13 +2216,14 @@ async renameTable(name: string): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the table has been renamed.
+A promise that resolves to the renamed table.
 
 ##### Examples
 
 ```ts
 // Rename the table to "new_employees"
 await table.renameTable("new_employees");
+await table.log();
 ```
 
 #### `setTypes`
@@ -2274,10 +2232,13 @@ Sets the data types for columns in a new table. If the table already exists, it
 will be replaced. To convert the types of an existing table, use the
 `.convert()` method instead.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async setTypes(types: Record<string, "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean" | geometry('${[0m[36mstring[0m}') | GEOMETRY('${[0m[36mstring[0m}')>): Promise<void>;
+setTypes(types: Record<string, "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean" | geometry('${string}') | GEOMETRY('${string}')>): this;
 ```
 
 ##### Parameters
@@ -2287,7 +2248,7 @@ async setTypes(types: Record<string, "integer" | "float" | "number" | "string" |
 
 ##### Returns
 
-A promise that resolves when the types have been set.
+The table, so methods can be chained.
 
 ##### Examples
 
@@ -2297,28 +2258,34 @@ await table.setTypes({
   name: "string",
   salary: "integer",
   raise: "float",
-});
+}).log();
 ```
 
 #### `loadArray`
 
-Loads an array of JavaScript objects into the table.
+Loads an array of JavaScript objects into the table. This method queues the
+load; it runs when an async observer method (like `getData()` or `log()`) is
+awaited, or when `run()` is called.
+
+JavaScript `Date` values are inferred as DuckDB `TIMESTAMP` values. Their
+instant is preserved, but JavaScript `Date` does not retain the timezone or
+offset originally used to construct it. String values remain `VARCHAR`; use
+`convert()` to parse them as temporal values.
 
 ##### Signature
 
 ```typescript
-async loadArray(arrayOfObjects: Record<string, unknown>[]): Promise<this>;
+loadArray(rows: Record<string, unknown>[]): this;
 ```
 
 ##### Parameters
 
-- **`arrayOfObjects`**: An array of objects, where each object represents a row
-  and its properties represent columns.
+- **`rows`**: An array of objects, where each object represents a row and its
+  properties represent columns.
 
 ##### Returns
 
-A promise that resolves to the SimpleTable instance after the data has been
-loaded.
+The table, so methods can be chained.
 
 ##### Examples
 
@@ -2328,18 +2295,28 @@ const data = [
   { letter: "a", number: 1 },
   { letter: "b", number: 2 },
 ];
-await table.loadArray(data);
+await table.loadArray(data).log();
+```
+
+```ts
+// The offset determines the instant; the loaded TIMESTAMP is returned as
+// the equivalent UTC JavaScript Date.
+await table.loadArray([{
+  observedAt: new Date("2024-04-07T13:00:00-04:00"),
+}]).log();
 ```
 
 #### `loadData`
 
 Loads data from one or more local or remote files into the table. Supported file
-formats include CSV, JSON, Parquet, and Excel.
+formats include CSV, JSON, Parquet, and Excel. This method queues the load; it
+runs when an async observer method (like `getData()` or `log()`) is awaited, or
+when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async loadData(files: string | string[], options?: { fileType?: "csv" | "dsv" | "json" | "parquet" | "excel"; autoDetect?: boolean; limit?: number; fileName?: boolean; unifyColumns?: boolean; columnTypes?: Record<string, string>; columns?: string[]; header?: boolean; allText?: boolean; delim?: string; skip?: number; nullPadding?: boolean; ignoreErrors?: boolean; compression?: "none" | "gzip" | "zstd"; encoding?: string; strict?: boolean; jsonFormat?: "unstructured" | "newlineDelimited" | "array"; records?: boolean; sheet?: string }): Promise<this>;
+loadData(files: string | string[], options?: { fileType?: "csv" | "dsv" | "json" | "parquet" | "excel"; autoDetect?: boolean; conditions?: string; limit?: number; includeFilename?: boolean; unifyColumns?: boolean; columnTypes?: Record<string, string>; columns?: string[]; header?: boolean; allText?: boolean; delim?: string; skip?: number; nullPadding?: boolean; ignoreErrors?: boolean; compression?: "none" | "gzip" | "zstd"; encoding?: string; strict?: boolean; jsonFormat?: "unstructured" | "newlineDelimited" | "array"; records?: boolean; sheet?: string }): this;
 ```
 
 ##### Parameters
@@ -2351,10 +2328,16 @@ async loadData(files: string | string[], options?: { fileType?: "csv" | "dsv" | 
   "parquet", "excel"). Defaults to being inferred from the file extension.
 - **`options.autoDetect`**: A boolean indicating whether to automatically detect
   the data format. Defaults to `true`.
-- **`options.limit`**: A number indicating the maximum number of rows to load.
-  Defaults to all rows.
-- **`options.fileName`**: A boolean indicating whether to include the file name
-  as a new column in the loaded data. Defaults to `false`.
+- **`options.conditions`**: A SQL `WHERE` clause expression, without the `WHERE`
+  keyword, to filter source rows before applying `limit`. Uses the same syntax
+  as `filter()`, including JavaScript operators. Can reference source columns
+  excluded from `columns`. Defaults to no filtering; an empty string behaves the
+  same as omitting this option.
+- **`options.limit`**: A number indicating the maximum number of matching rows
+  to load, after applying `conditions` if provided. Defaults to all matching
+  rows.
+- **`options.includeFilename`**: A boolean indicating whether to include the
+  filename as a new column in the loaded data. Defaults to `false`.
 - **`options.unifyColumns`**: A boolean indicating whether to unify columns
   across multiple files when their structures differ. Missing columns will be
   filled with `NULL` values. Defaults to `false`.
@@ -2396,19 +2379,18 @@ async loadData(files: string | string[], options?: { fileType?: "csv" | "dsv" | 
 
 ##### Returns
 
-A promise that resolves to the SimpleTable instance after the data has been
-loaded.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Load data from a single local CSV file
-await table.loadData("./some-data.csv");
+await table.loadData("./some-data.csv").log();
 ```
 
 ```ts
 // Load data from a remote Parquet file
-await table.loadData("https://some-website.com/some-data.parquet");
+await table.loadData("https://some-website.com/some-data.parquet").log();
 ```
 
 ```ts
@@ -2417,110 +2399,99 @@ await table.loadData([
   "./some-data1.json",
   "./some-data2.json",
   "./some-data3.json",
-]);
+]).log();
 ```
 
 ```ts
-// Load data from multiple remote Parquet files with column unification
-await table.loadData([
-  "https://some-website.com/some-data1.parquet",
-  "https://some-website.com/some-data2.parquet",
-  "https://some-website.com/some-data3.parquet",
-], { unifyColumns: true });
+// Load multiple CSV files and unify columns that differ between files
+await table.loadData("./data/*.csv", { unifyColumns: true }).log();
+```
+
+```ts
+// Keep the source filename when loading multiple files
+await table
+  .loadData("./data/*.csv", { includeFilename: true })
+  .log();
 ```
 
 ```ts
 // Load only specific columns from a CSV file
-await table.loadData("./employees.csv", { columns: ["name", "salary"] });
+await table.loadData("./employees.csv", { columns: ["name", "salary"] }).log();
 ```
 
-#### `loadDataFromDirectory`
+```ts
+// Load up to 100 matching employees, keeping only their names
+await table
+  .loadData("./employees.parquet", {
+    conditions: "salary > 100000",
+    columns: ["name"],
+    limit: 100,
+  })
+  .log();
+```
 
-Loads data from all supported files (CSV, JSON, Parquet, Excel) within a local
-directory into the table.
+#### `loadStatCanData`
+
+Downloads a complete Statistics Canada table and loads it into this table. The
+method queues the download and load; they run when an async observer method
+(like `getData()` or `log()`) is awaited, or when `run()` is called.
+
+Results are cached as Parquet files in `.sda-cache/statcan` by default. Cached
+data does not expire unless a TTL is provided.
 
 ##### Signature
 
 ```typescript
-async loadDataFromDirectory(directory: string, options?: { fileType?: "csv" | "dsv" | "json" | "parquet" | "excel"; autoDetect?: boolean; limit?: number; fileName?: boolean; unifyColumns?: boolean; columnTypes?: Record<string, string>; columns?: string[]; header?: boolean; allText?: boolean; delim?: string; skip?: number; nullPadding?: boolean; ignoreErrors?: boolean; compression?: "none" | "gzip" | "zstd"; encoding?: "utf-8" | "utf-16" | "latin-1"; strict?: boolean; jsonFormat?: "unstructured" | "newlineDelimited" | "array"; records?: boolean; sheet?: string }): Promise<this>;
+loadStatCanData(pid: string, options?: { lang?: "en" | "fr"; cache?: boolean; ttl?: number }): this;
 ```
 
 ##### Parameters
 
-- **`directory`**: The absolute path to the directory containing the data files.
-- **`options`**: An optional object with configuration options:
-- **`options.fileType`**: The type of file to load ("csv", "dsv", "json",
-  "parquet", "excel"). Defaults to being inferred from the file extension.
-- **`options.autoDetect`**: A boolean indicating whether to automatically detect
-  the data format. Defaults to `true`.
-- **`options.limit`**: A number indicating the maximum number of rows to load.
-  Defaults to all rows.
-- **`options.fileName`**: A boolean indicating whether to include the file name
-  as a new column in the loaded data. Defaults to `false`.
-- **`options.unifyColumns`**: A boolean indicating whether to unify columns
-  across multiple files when their structures differ. Missing columns will be
-  filled with `NULL` values. Defaults to `false`.
-- **`options.columnTypes`**: An object mapping column names to their expected
-  data types. By default, types are inferred.
-- **`options.columns`**: An array of column names to load. When provided, only
-  the specified columns are loaded, reducing memory usage and improving load
-  times. Not supported for Excel files — combining `columns` with Excel files
-  throws an error. If an invalid column name is provided, DuckDB will throw its
-  native error. An empty array behaves the same as omitting the option (loads
-  all columns). Defaults to loading all columns.
-- **`options.header`**: A boolean indicating whether the file has a header row.
-  Applicable to CSV files. Defaults to `true`.
-- **`options.allText`**: A boolean indicating whether all columns should be
-  treated as text. Applicable to CSV files. Defaults to `false`.
-- **`options.delim`**: The delimiter used in the file. Applicable to CSV and DSV
-  files. By default, the delimiter is inferred.
-- **`options.skip`**: The number of lines to skip at the beginning of the file.
-  Applicable to CSV files. Defaults to `0`.
-- **`options.nullPadding`**: If `true`, when a row has fewer columns than
-  expected, the remaining columns on the right will be padded with `NULL`
-  values. Defaults to `false`.
-- **`options.ignoreErrors`**: If `true`, parsing errors encountered will be
-  ignored, and rows with errors will be skipped. Defaults to `false`.
-- **`options.compression`**: The compression type of the file. Applicable to CSV
-  files. Defaults to `none`.
-- **`options.strict`**: If `true`, an error will be thrown when encountering any
-  issues. If `false`, structurally incorrect files will be parsed tentatively.
-  Defaults to `true`.
-- **`options.encoding`**: The encoding of the files. Applicable to CSV files.
-  Defaults to `utf-8`.
-- **`options.jsonFormat`**: The format of JSON files ("unstructured",
-  "newlineDelimited", "array"). By default, the format is inferred.
-- **`options.records`**: A boolean indicating whether each line in a
-  newline-delimited JSON file represents a record. Applicable to JSON files. By
-  default, it's inferred.
-- **`options.sheet`**: A string indicating a specific sheet to import from an
-  Excel file. By default, the first sheet is imported.
+- **`pid`**: The Statistics Canada Product ID. Eight-digit PIDs, ten-digit view
+  PIDs, and hyphenated table identifiers are accepted.
+- **`options`**: Optional retrieval and cache settings.
+- **`options.lang`**: The language of the table data. Defaults to `"en"`.
+- **`options.cache`**: Whether to read and write the cache. Defaults to `true`.
+- **`options.ttl`**: Cache time to live in seconds. By default, cached data does
+  not expire. Use `0` to refresh and replace the cache entry.
 
 ##### Returns
 
-A promise that resolves to the SimpleTable instance after the data has been
-loaded.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
-// Load all supported data files from the "./data/" directory
-await table.loadDataFromDirectory("./data/");
+await sdb
+  .newTable("population")
+  .loadStatCanData("17-10-0005-01")
+  .filter("GEO = 'Canada'")
+  .log();
 ```
 
 ```ts
-// Load only specific columns from all CSV files in a directory
-await table.loadDataFromDirectory("./data/", { columns: ["name", "salary"] });
+// Refresh French data when the cached table is at least one day old.
+await table
+  .loadStatCanData("17-10-0005", {
+    lang: "fr",
+    ttl: 24 * 60 * 60,
+  })
+  .log();
 ```
 
 #### `loadGeoData`
 
-Loads geospatial data from an external file or URL into the table.
+Loads geospatial data from an external file or URL into the table. OpenStreetMap
+`.osm` and `.osm.pbf` files are loaded through DuckDB's Osmium community
+extension.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async loadGeoData(file: string, options?: { toWGS84?: boolean }): Promise<this>;
+loadGeoData(file: string, options?: { toEPSG4326?: boolean; columns?: string[]; conditions?: string }): this;
 ```
 
 ##### Parameters
@@ -2528,34 +2499,158 @@ async loadGeoData(file: string, options?: { toWGS84?: boolean }): Promise<this>;
 - **`file`**: The URL or absolute path to the external file containing the
   geospatial data.
 - **`options`**: An optional object with configuration options:
-- **`options.toWGS84`**: If `true`, the method will attempt to reproject the
-  data to WGS84.
+- **`options.toEPSG4326`**: If `true`, the method will attempt to reproject the
+  data to EPSG:4326 (WGS84).
+- **`options.columns`**: The columns to load. Include the geometry column that
+  should remain in the resulting table, usually `"geom"`. By default, all
+  columns are loaded.
+- **`options.conditions`**: A SQL `WHERE` clause expression, without the `WHERE`
+  keyword, to filter source rows before materialization and reprojection. Uses
+  the same syntax as `filter()`, including JavaScript operators. Can reference
+  source columns excluded from `columns`. Geometry conditions use the source
+  coordinate system; OSM geometry is available as `geom` in EPSG:4326. Defaults
+  to no filtering; an empty string behaves the same as omitting this option.
 
 ##### Returns
 
-A promise that resolves to the SimpleTable instance after the geospatial data
-has been loaded.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Load geospatial data from a URL
-await table.loadGeoData("https://some-website.com/some-data.geojson");
+await table.loadGeoData("https://some-website.com/some-data.geojson").log();
 ```
 
 ```ts
 // Load geospatial data from a local file
-await table.loadGeoData("./some-data.geojson");
+await table.loadGeoData("./some-data.geojson").log();
 ```
 
 ```ts
-// Load geospatial data from a shapefile (with relevant files in the same folder) and reproject to WGS84
-await table.loadGeoData("./some-data/some-data.shp", { toWGS84: true });
+// Load only the name and geometry columns
+await table
+  .loadGeoData("./boundaries.geojson", {
+    columns: ["name", "geom"],
+  })
+  .log();
 ```
 
 ```ts
-// Load geospatial data from a zipped shapefile and reproject to WGS84
-await table.loadGeoData("./some-data.shp.zip", { toWGS84: true });
+// Load geospatial data from a shapefile (with relevant files in the same folder) and reproject to EPSG:4326 (WGS84)
+await table.loadGeoData("./some-data/some-data.shp", { toEPSG4326: true })
+  .log();
+```
+
+```ts
+// Load geospatial data from a zipped shapefile and reproject to EPSG:4326 (WGS84)
+await table.loadGeoData("./some-data.shp.zip", { toEPSG4326: true }).log();
+```
+
+```ts
+// Load OpenStreetMap XML or PBF data
+await table.loadGeoData("./montreal.osm.pbf").log();
+```
+
+```ts
+// Filter on a source property without retaining it in the table
+await table
+  .loadGeoData("./boundaries.geojson", {
+    conditions: "population > 100000",
+    columns: ["name", "geom"],
+  })
+  .log();
+```
+
+#### `loadOSM`
+
+Downloads OpenStreetMap data and loads it as a geospatial table. The method
+queues the download and load; they run when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
+DuckDB's
+[Osmium community extension](https://duckdb.org/community_extensions/extensions/osmium)
+reconstructs the geometries, which are stored with the EPSG:4326 projection.
+
+Filters use the standard
+[Overpass QL filter syntax](https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL#Filters).
+Equality filters are passed as `[key, value]` tuples and serialized by the
+method. A raw filter fragment string can be used for advanced Overpass filters.
+
+The default endpoint is a shared public service. Follow the
+[Overpass public-instance usage guidelines](https://dev.overpass-api.de/overpass-doc/en/preface/commons.html),
+and configure another endpoint or run your own instance for high-volume usage.
+
+OpenStreetMap data is licensed under the
+[Open Data Commons Open Database License](https://www.openstreetmap.org/copyright).
+Public use requires
+[OpenStreetMap attribution](https://osmfoundation.org/wiki/Licence/Attribution_Guidelines),
+and distributing OSM or derivative databases can trigger the licence's
+share-alike requirements.
+
+##### Signature
+
+```typescript
+loadOSM(bbox: { west: number; south: number; east: number; north: number }, options: { filters: string | [string, string] | [string, string][]; endpoint?: string; timeout?: number; cache?: boolean }): this;
+```
+
+##### Parameters
+
+- **`bbox`**: The bounding box to query.
+- **`bbox.west`**: The western longitude, between -180 and 180 and less than
+  `east`.
+- **`bbox.south`**: The southern latitude, between -90 and 90 and less than
+  `north`.
+- **`bbox.east`**: The eastern longitude, between -180 and 180 and greater than
+  `west`.
+- **`bbox.north`**: The northern latitude, between -90 and 90 and greater than
+  `south`.
+- **`options`**: Overpass request options.
+- **`options.filters`**: One `[key, value]` tuple or an array of tuples. Array
+  entries are combined as a union. A raw Overpass QL filter fragment string is
+  also accepted.
+- **`options.endpoint`**: The Overpass interpreter endpoint. Defaults to
+  `https://overpass-api.de/api/interpreter`.
+- **`options.timeout`**: A positive integer timeout in seconds, applied to both
+  the Overpass query and HTTP request. If omitted, the endpoint's default query
+  timeout applies and no HTTP request timeout is set.
+- **`options.cache`**: If `true`, reads and writes the processed GeoParquet
+  cache in `.sda-cache/osm`, which remains available until that directory is
+  removed. If `false`, always requests fresh data and does not read or write the
+  cache. Defaults to `true`.
+
+##### Returns
+
+The table, so methods can be chained.
+
+##### Examples
+
+```ts
+// Load features matching one equality filter
+const schools = await table
+  .loadOSM(
+    { west: -73.587799, south: 45.445078, east: -73.552265, north: 45.471086 },
+    { filters: ["amenity", "school"] },
+  )
+  .log();
+```
+
+```ts
+// Load features matching either equality filter
+await table.loadOSM(
+  { west: -73.587799, south: 45.445078, east: -73.552265, north: 45.471086 },
+  {
+    filters: [["amenity", "school"], ["amenity", "college"]],
+  },
+).log();
+```
+
+```ts
+// Use a raw Overpass filter fragment for an advanced filter
+await table.loadOSM(
+  { west: -73.587799, south: 45.445078, east: -73.552265, north: 45.471086 },
+  { filters: `["amenity"~"school|college"]` },
+).log();
 ```
 
 #### `createFtsIndex`
@@ -2565,32 +2660,24 @@ Creates a full-text search (FTS) index on a specified text column using DuckDB's
 
 If an FTS index already exists on the table, this method will skip creation and
 log a message (when verbose is enabled), unless the `overwrite` option is set to
-`true`.
+`true`. The index definition is recorded in {@link indexes}. The {@link bm25}
+method requires an FTS index and creates one automatically when needed. DuckDB
+FTS indexes do not update automatically when the table changes; use
+`overwrite: true` to rebuild the index after modifying the table.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async createFtsIndex(columnId: string, columnText: string, options?: { stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; overwrite?: boolean; verbose?: boolean }): Promise<this>;
+createFtsIndex(idColumn: string, textColumn: string, options?: { stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; overwrite?: boolean; verbose?: boolean }): this;
 ```
 
 ##### Parameters
 
-- **`columnId`**: The name of the column containing unique identifiers for each
-  row.
-- **`columnText`**: The name of the column containing the text to index.
-- **`options`**: An optional object with configuration options:
-- **`options.stemmer`**: The language stemmer to apply for word normalization.
-  Supports multiple languages or "none" to disable stemming. Defaults to
-  'porter'.
-- **`options.stopwords`**: The table containing the stopwords to use for the FTS
-  index. Supports multiple languages or "none" to disable stopwords. Defaults to
-  "english".
-- **`options.overwrite`**: If `true`, recreates the index even if it already
-  exists. Defaults to `false`.
-- **`options.verbose`**: If `true`, logs additional debugging information,
-  including index creation status. Defaults to `false`.
-- **`columnId`**: The column containing the document identifiers.
-- **`columnText`**: The column containing the text to search.
+- **`idColumn`**: The column containing the document identifiers.
+- **`textColumn`**: The column containing the text to search.
 - **`options`**: An optional object with configuration options:
 - **`options.stemmer`**: The stemmer to use for the FTS index. Supports multiple
   languages or "none" to disable stemming. Defaults to "porter".
@@ -2605,28 +2692,27 @@ async createFtsIndex(columnId: string, columnText: string, options?: { stemmer?:
   lowercase. Defaults to true.
 - **`options.overwrite`**: A boolean indicating whether to overwrite the
   existing FTS index. Defaults to false.
-- **`options.verbose`**: A boolean indicating whether to log additional
-  information. Defaults to false.
+- **`options.verbose`**: If `true`, logs FTS index creation status. Defaults to
+  `false`.
 
 ##### Returns
 
-A promise that resolves to the SimpleTable instance for method chaining.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
-// Load a dataset and create an FTS index
-await table.loadData("recipes.parquet");
-
-// Create FTS index for later searches
-await table.createFtsIndex("Dish", "Recipe");
+// Load a dataset and create an FTS index for later searches
+await table
+  .loadData("recipes.parquet")
+  .createFtsIndex("Dish", "Recipe").log();
 ```
 
 ```ts
 // Create an index with a specific language stemmer
 await table.createFtsIndex("Dish", "Recipe", {
   stemmer: "french",
-});
+}).log();
 ```
 
 ```ts
@@ -2634,15 +2720,15 @@ await table.createFtsIndex("Dish", "Recipe", {
 await table.createFtsIndex("Dish", "Recipe", {
   stemmer: "english",
   overwrite: true,
-});
+}).log();
 ```
 
 ```ts
 // Create index with verbose logging
 await table.createFtsIndex("Dish", "Recipe", {
   verbose: true,
-});
-// Logs: "Creating FTS index on 'Recipe' column..."
+}).log();
+// Logs: 'Creating FTS index on "Recipe" column...'
 // Logs: "FTS index created successfully."
 ```
 
@@ -2653,12 +2739,15 @@ DuckDB's [VSS extension](https://duckdb.org/docs/stable/extensions/vss).
 
 If a VSS index already exists on the table, this method will skip creation and
 log a message (when verbose is enabled), unless the `overwrite` option is set to
-`true`.
+`true`. The index definition is recorded in {@link indexes}.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async createVssIndex(column: string, options?: { overwrite?: boolean; verbose?: boolean; efConstruction?: number; efSearch?: number; M?: number }): Promise<this>;
+createVssIndex(column: string, options?: { overwrite?: boolean; verbose?: boolean; efConstruction?: number; efSearch?: number; M?: number }): this;
 ```
 
 ##### Parameters
@@ -2668,8 +2757,8 @@ async createVssIndex(column: string, options?: { overwrite?: boolean; verbose?: 
 - **`options`**: An optional object with configuration options:
 - **`options.overwrite`**: If `true`, drops and recreates the index even if it
   already exists. Defaults to `false`.
-- **`options.verbose`**: If `true`, logs additional debugging information,
-  including index creation status. Defaults to `false`.
+- **`options.verbose`**: If `true`, logs VSS index creation status. Defaults to
+  `false`.
 - **`options.efConstruction`**: The number of candidate vertices to consider
   during index construction. Higher values result in more accurate indexes but
   increase build time. Defaults to 128.
@@ -2682,31 +2771,30 @@ async createVssIndex(column: string, options?: { overwrite?: boolean; verbose?: 
 
 ##### Returns
 
-A promise that resolves to the SimpleTable instance for method chaining.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Load data that already contains an embedding column
-await table.loadData("data.csv");
-
-// Create VSS index for fast similarity searches
-await table.createVssIndex("embedding_column");
+await table
+  .loadData("data.csv")
+  .createVssIndex("embedding_column").log();
 ```
 
 ```ts
 // Recreate an existing index
 await table.createVssIndex("embedding_column", {
   overwrite: true,
-});
+}).log();
 ```
 
 ```ts
 // Create index with verbose logging
 await table.createVssIndex("embedding_column", {
   verbose: true,
-});
-// Logs: "Creating VSS index on 'embedding_column' column..."
+}).log();
+// Logs: 'Creating VSS index on "embedding_column" column...'
 // Logs: "VSS index created successfully."
 ```
 
@@ -2716,41 +2804,42 @@ await table.createVssIndex("embedding_column", {
   efConstruction: 256,
   efSearch: 128,
   M: 32,
-});
+}).log();
 ```
 
 #### `bm25`
 
-Performs BM25 full-text search on a text column to find the most relevant
-results. BM25 (Best Matching 25) is a ranking function used in information
-retrieval that calculates relevance scores based on term frequency and document
-length normalization.
+Searches a text column using DuckDB's BM25 ranking function, which scores
+matches using factors including term frequency and document length.
 
-This method creates a full-text search index on the specified text column using
-DuckDB's
+This method creates the required index with DuckDB's
 [FTS extension](https://duckdb.org/docs/stable/core_extensions/full_text_search).
-If the index already exists, it will be reused unless the `overwriteIndex`
-option is set to `true`.
+It reuses the table's existing FTS index unless `overwriteIndex` is `true`.
+DuckDB FTS indexes do not update automatically when the source table changes;
+use `overwriteIndex: true` to rebuild the index after modifying the table.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async bm25(text: string, columnId: string, columnText: string, nbResults: number, options?: { outputTable?: string; verbose?: boolean; k?: number; b?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; overwriteIndex?: boolean; conjunctive?: boolean; minScore?: number; scoreColumn?: string }): Promise<this>;
+bm25(text: string, idColumn: string, textColumn: string, count: number, options?: { outputTable?: string; verbose?: boolean; k?: number; b?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; overwriteIndex?: boolean; conjunctive?: boolean; minScore?: number; scoreColumn?: string }): this;
 ```
 
 ##### Parameters
 
 - **`text`**: The search query text to match against the text column.
-- **`columnId`**: The name of the column containing unique identifiers for each
+- **`idColumn`**: The name of the column containing unique identifiers for each
   row.
-- **`columnText`**: The name of the column containing the text to search.
-- **`nbResults`**: The number of top-ranked results to return.
+- **`textColumn`**: The name of the column containing the text to search.
+- **`count`**: The number of top-ranked results to return.
 - **`options`**: An optional object with configuration options:
 - **`options.outputTable`**: The name of a new table where the results will be
   stored. If not provided, the current table will be replaced with the search
   results.
-- **`options.verbose`**: If `true`, logs additional debugging information,
-  including FTS index creation status. Defaults to `false`.
+- **`options.verbose`**: If `true`, logs FTS index creation status. Defaults to
+  `false`.
 - **`options.k`**: The BM25 k parameter controlling term frequency saturation.
   Defaults to 1.2.
 - **`options.b`**: The BM25 b parameter controlling document length
@@ -2778,28 +2867,25 @@ async bm25(text: string, columnId: string, columnText: string, nbResults: number
 
 ##### Returns
 
-A promise that resolves to a SimpleTable instance containing the search results,
-ordered by relevance (best matches first).
+A table instance containing the search results, ordered by relevance (best
+matches first), so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Load a dataset of recipes
-await table.loadData("recipes.parquet");
-
-// Search for "italian food" in the Recipe column, return top 5 results
-await table.bm25("italian food", "Dish", "Recipe", 5);
-
-// Check the results
-const dishes = await table.getValues("Dish");
-// Returns: ["Carbonara", "Pizza", "Risotto", "Tiramisu", "Escarole Soup"]
+const dishes = await table
+  .loadData("recipes.parquet")
+  .bm25("italian food", "Dish", "Recipe", 5)
+  .log();
+// Logs the five most relevant dishes.
 ```
 
 ```ts
 // Search with a specific language stemmer
 await table.bm25("french food", "Dish", "Recipe", 5, {
   stemmer: "french",
-});
+}).log();
 ```
 
 ```ts
@@ -2807,14 +2893,14 @@ await table.bm25("french food", "Dish", "Recipe", 5, {
 await table.bm25("italian food", "Dish", "Recipe", 5, {
   stemmer: "english",
   overwriteIndex: true,
-});
+}).log();
 ```
 
 ```ts
 // Save results to a new table without modifying the original
 const italianDishes = await table.bm25("italian food", "Dish", "Recipe", 5, {
   outputTable: "italian_results",
-});
+}).log();
 
 // Original table remains unchanged
 const allDishes = await table.getValues("Dish");
@@ -2830,39 +2916,40 @@ console.log(italianOnly.length); // 5 (top results)
 // The first search creates the index
 const italian = await table.bm25("italian food", "Dish", "Recipe", 5, {
   outputTable: "italian",
-});
+}).log();
 
 // The second search reuses the existing index, so it's faster
 const french = await table.bm25("french food", "Dish", "Recipe", 5, {
   outputTable: "french",
-});
+}).log();
 ```
-
-- @example
 
 ```ts
 // Filter results by a minimum BM25 score and include the score in the output
 await table.bm25("spicy noodles", "Dish", "Recipe", 10, {
   minScore: 5.5,
   scoreColumn: "bm25_score",
-});
+}).log();
 ```
 
 ```ts
 // Use the conjunctive option to require all terms
 await table.bm25("italian sauce", "Dish", "Recipe", 5, {
   conjunctive: true,
-});
+}).log();
 ```
 
 #### `insertRows`
 
 Inserts rows, provided as an array of JavaScript objects, into the table.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async insertRows(rows: Record<string, unknown>[]): Promise<void>;
+insertRows(rows: Record<string, unknown>[]): this;
 ```
 
 ##### Parameters
@@ -2872,7 +2959,7 @@ async insertRows(rows: Record<string, unknown>[]): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the rows have been inserted.
+The table, so methods can be chained.
 
 ##### Examples
 
@@ -2882,25 +2969,27 @@ const newRows = [
   { letter: "c", number: 3 },
   { letter: "d", number: 4 },
 ];
-await table.insertRows(newRows);
+await table.insertRows(newRows).log();
 ```
 
 #### `insertTables`
 
 Inserts all rows from one or more other tables into this table. If tables do not
 have the same columns, an error will be thrown unless the `unifyColumns` option
-is set to `true`.
+is set to `true`. This method queues the operation; it runs when an async
+observer method (like `getData()` or `log()`) is awaited, or when `run()` is
+called.
 
 ##### Signature
 
 ```typescript
-async insertTables(tablesToInsert: SimpleTable | SimpleTable[], options?: { unifyColumns?: boolean }): Promise<this>;
+insertTables(tables: SimpleTable | SimpleTable[], options?: { unifyColumns?: boolean }): this;
 ```
 
 ##### Parameters
 
-- **`tablesToInsert`**: The name(s) of the table(s) or SimpleTable instance(s)
-  from which rows will be inserted.
+- **`tables`**: The name(s) of the table(s) or SimpleTable instance(s) from
+  which rows will be inserted.
 - **`options`**: An optional object with configuration options:
 - **`options.unifyColumns`**: A boolean indicating whether to unify the columns
   of the tables. If `true`, missing columns in a table will be filled with
@@ -2908,33 +2997,36 @@ async insertTables(tablesToInsert: SimpleTable | SimpleTable[], options?: { unif
 
 ##### Returns
 
-The table itself, allowing for method chaining.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Insert all rows from 'tableB' into 'tableA'.
-await tableA.insertTables("tableB");
+await tableA.insertTables("tableB").log();
 ```
 
 ```ts
 // Insert all rows from 'tableB' and 'tableC' into 'tableA'.
-await tableA.insertTables(["tableB", "tableC"]);
+await tableA.insertTables(["tableB", "tableC"]).log();
 ```
 
 ```ts
 // Insert rows from multiple tables, unifying columns. Missing columns will be filled with NULL.
-await tableA.insertTables(["tableB", "tableC"], { unifyColumns: true });
+await tableA.insertTables(["tableB", "tableC"], { unifyColumns: true }).log();
 ```
 
 #### `loadSample`
 
 Fetches sample data from the simple-data-analysis-core GitHub repository.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async loadSample(sample: "fires" | "recipes" | "temperatures" | "temperaturesCities" | "canada" | "firesGeo"): Promise<this>;
+loadSample(sample: "fires" | "recipes" | "temperatures" | "temperaturesCities" | "canada" | "firesGeo"): this;
 ```
 
 ##### Parameters
@@ -2956,24 +3048,27 @@ async loadSample(sample: "fires" | "recipes" | "temperatures" | "temperaturesCit
 
 ```ts
 // Load the fires sample data
-await table.loadSample("fires");
+await table.loadSample("fires").log();
 ```
 
-#### `cloneTable`
+#### `clone`
 
 Returns a new table with the same structure and data as this table. The data can
 be optionally filtered, limited to a specific number of rows, and offset.
 
-If `conditions`, `nbRows`, and `offset` are all used, they are applied in this
-order: `conditions` (WHERE clause) first, then `offset`, and finally `nbRows`
+If `conditions`, `limit`, and `offset` are all used, they are applied in this
+order: `conditions` (WHERE clause) first, then `offset`, and finally `limit`
 (LIMIT).
 
 Note that cloning large tables can be a slow operation.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async cloneTable(nameOrOptions?: string | { outputTable?: string; conditions?: string; columns?: string | string[]; nbRows?: number; offset?: number }): Promise<this>;
+clone(nameOrOptions?: string | { name?: string; conditions?: string; columns?: string | string[]; limit?: number; offset?: number }): this;
 ```
 
 ##### Parameters
@@ -2981,14 +3076,14 @@ async cloneTable(nameOrOptions?: string | { outputTable?: string; conditions?: s
 - **`nameOrOptions`**: Either a string specifying the name of the new table, or
   an optional object with configuration options. If not provided, a default name
   (e.g., "table1", "table2") will be generated.
-- **`nameOrOptions.outputTable`**: The name of the new table to be created in
-  the database. If not provided, a default name (e.g., "table1", "table2") will
-  be generated.
+- **`nameOrOptions.name`**: The name of the new table to be created in the
+  database. If not provided, a default name (e.g., "table1", "table2") will be
+  generated.
 - **`nameOrOptions.conditions`**: A SQL `WHERE` clause condition to filter the
   data during cloning. Defaults to no condition (clones all rows).
 - **`nameOrOptions.columns`**: An array of column names to include in the cloned
   table. If not provided, all columns will be included.
-- **`nameOrOptions.nbRows`**: The number of rows to include in the cloned table.
+- **`nameOrOptions.limit`**: The number of rows to include in the cloned table.
   If provided, only the first X rows (potentially after filtering and offset)
   will be cloned.
 - **`nameOrOptions.offset`**: The number of rows to skip before starting to
@@ -2996,53 +3091,53 @@ async cloneTable(nameOrOptions?: string | { outputTable?: string; conditions?: s
 
 ##### Returns
 
-A promise that resolves to a new table instance containing the cloned data.
+A new table instance containing the cloned data, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Clone tableA to a new table with a default generated name (e.g., "table1")
-const tableB = await tableA.cloneTable();
+const tableB = await tableA.clone().log();
 ```
 
 ```ts
 // Clone tableA to a new table named "my_cloned_table" using string parameter
-const tableB = await tableA.cloneTable("my_cloned_table");
+const tableB = await tableA.clone("my_cloned_table").log();
 ```
 
 ```ts
 // Clone tableA to a new table named "my_cloned_table" using options object
-const tableB = await tableA.cloneTable({ outputTable: "my_cloned_table" });
+const tableB = await tableA.clone({ name: "my_cloned_table" }).log();
 ```
 
 ```ts
 // Clone tableA, including only rows where 'column1' is greater than 10
-const tableB = await tableA.cloneTable({ conditions: `column1 > 10` });
+const tableB = await tableA.clone({ conditions: `column1 > 10` }).log();
 ```
 
 ```ts
 // Clone tableA with only specific columns
-const tableB = await tableA.cloneTable({ columns: ["name", "age", "city"] });
+const tableB = await tableA.clone({ columns: ["name", "age", "city"] }).log();
 ```
 
 ```ts
 // Clone only the first 10 rows of tableA
-const tableB = await tableA.cloneTable({ nbRows: 10 });
+const tableB = await tableA.clone({ limit: 10 }).log();
 ```
 
 ```ts
 // Clone 10 rows after skipping the first 5 rows
-const tableB = await tableA.cloneTable({ nbRows: 10, offset: 5 });
+const tableB = await tableA.clone({ limit: 10, offset: 5 }).log();
 ```
 
 ```ts
 // Clone tableA to a specific table name with filtered data, specific columns, and limited rows
-const tableB = await tableA.cloneTable({
-  outputTable: "filtered_data",
+const tableB = await tableA.clone({
+  name: "filtered_data",
   conditions: `status = 'active' AND created_date >= '2023-01-01'`,
   columns: ["name", "status", "created_date"],
-  nbRows: 100,
-});
+  limit: 100,
+}).log();
 ```
 
 #### `cloneColumn`
@@ -3050,26 +3145,29 @@ const tableB = await tableA.cloneTable({
 Clones an existing column in this table, creating a new column with identical
 values.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async cloneColumn(originalColumn: string, newColumn: string): Promise<void>;
+cloneColumn(column: string, newColumn: string): this;
 ```
 
 ##### Parameters
 
-- **`originalColumn`**: The name of the original column to clone.
+- **`column`**: The name of the original column to clone.
 - **`newColumn`**: The name of the new column to be created.
 
 ##### Returns
 
-A promise that resolves when the column has been cloned.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Clone 'firstName' column as 'contactName'
-await table.cloneColumn("firstName", "contactName");
+await table.cloneColumn("firstName", "contactName").log();
 ```
 
 #### `cloneColumnWithOffset`
@@ -3082,46 +3180,49 @@ different time points.
 table. For meaningful results, ensure your data is sorted appropriately (e.g.,
 by date/time for time-series analysis) before calling this method.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async cloneColumnWithOffset(originalColumn: string, newColumn: string, options?: { offset?: number; categories?: string | string[] }): Promise<void>;
+cloneColumnWithOffset(column: string, newColumn: string, options?: { offset?: number; by?: string | string[] }): this;
 ```
 
 ##### Parameters
 
-- **`originalColumn`**: The name of the original column.
+- **`column`**: The name of the original column.
 - **`newColumn`**: The name of the new column to be created with offset values.
 - **`options`**: An optional object with configuration options:
 - **`options.offset`**: The number of rows to offset the values. A positive
   number shifts values downwards (later rows), a negative number shifts values
   upwards (earlier rows). Defaults to `1`.
-- **`options.categories`**: A string or an array of strings representing columns
-  to partition the data by. The offset will be applied independently within each
-  category.
+- **`options.by`**: A column name or an array of column names to partition by.
+  The offset is applied independently within each group.
 
 ##### Returns
 
-A promise that resolves when the column has been cloned with offset values.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Clone 'value' as 'previous_value', offsetting by 1 row (value of row N-1 goes to row N)
-await table.cloneColumnWithOffset("value", "previous_value");
+await table.cloneColumnWithOffset("value", "previous_value").log();
 ```
 
 ```ts
 // Clone 'sales' as 'sales_2_days_ago', offsetting by 2 rows
-await table.cloneColumnWithOffset("sales", "sales_2_days_ago", { offset: 2 });
+await table.cloneColumnWithOffset("sales", "sales_2_days_ago", { offset: 2 })
+  .log();
 ```
 
 ```ts
 // Clone 'temperature' as 'prev_temp_by_city', offsetting by 1 row within each 'city' category
 await table.cloneColumnWithOffset("temperature", "prev_temp_by_city", {
   offset: 1,
-  categories: "city",
-});
+  by: "city",
+}).log();
 ```
 
 ```ts
@@ -3131,9 +3232,9 @@ await table.cloneColumnWithOffset(
   "prev_price_by_stock_and_exchange",
   {
     offset: 1,
-    categories: ["stock_symbol", "exchange"],
+    by: ["stock_symbol", "exchange"],
   },
-);
+).log();
 ```
 
 #### `fill`
@@ -3146,19 +3247,21 @@ use it as the X-axis, so that interpolated values are proportional to the actual
 distances between X-axis values rather than treating every row as equidistant.
 When `interpolateBy` is set, `interpolate` is automatically assumed `true`.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async fill(columns: string | string[], options?: { categories?: string | string[]; interpolate?: boolean; interpolateBy?: string }): Promise<void>;
+fill(columns: string | string[], options?: { by?: string | string[]; interpolate?: boolean; interpolateBy?: string }): this;
 ```
 
 ##### Parameters
 
 - **`columns`**: The column(s) for which to fill `NULL` values.
 - **`options`**: An optional object with configuration options:
-- **`options.categories`**: A string or an array of strings representing columns
-  to partition the data by. The fill will be applied independently within each
-  category.
+- **`options.by`**: A column name or an array of column names to partition by.
+  The fill is applied independently within each group.
 - **`options.interpolate`**: If `true`, replaces `NULL` values with linearly
   interpolated values using DuckDB's `fill()` window function. When
   `interpolateBy` is not set, row positions are used as the X-axis, treating
@@ -3175,43 +3278,43 @@ async fill(columns: string | string[], options?: { categories?: string | string[
 
 ##### Returns
 
-A promise that resolves when the `NULL` values have been filled.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Fill NULL values in 'column1' with the previous non-NULL value
-await table.fill("column1");
+await table.fill("column1").log();
 ```
 
 ```ts
 // Fill NULL values in multiple columns
-await table.fill(["columnA", "columnB"]);
+await table.fill(["columnA", "columnB"]).log();
 ```
 
 ```ts
 // Fill NULL values in 'value' independently within each 'group'
-await table.fill("value", { categories: "group" });
+await table.fill("value", { by: "group" }).log();
 ```
 
 ```ts
 // Fill NULL values in 'value' using linear interpolation
-await table.fill("value", { interpolate: true });
+await table.fill("value", { interpolate: true }).log();
 ```
 
 ```ts
 // Fill NULL values in 'value' using linear interpolation, independently within each 'group'
-await table.fill("value", { categories: "group", interpolate: true });
+await table.fill("value", { by: "group", interpolate: true }).log();
 ```
 
 ```ts
 // Fill NULL values in 'value' using linear interpolation proportional to 'x' distances
-await table.fill("value", { interpolate: true, interpolateBy: "x" });
+await table.fill("value", { interpolate: true, interpolateBy: "x" }).log();
 ```
 
 ```ts
 // interpolateBy implies interpolate: true, so this is equivalent to the previous example
-await table.fill("value", { interpolateBy: "x" });
+await table.fill("value", { interpolateBy: "x" }).log();
 ```
 
 #### `sort`
@@ -3220,10 +3323,16 @@ Sorts the rows of the table based on specified column(s) and order(s). If no
 columns are specified, all columns are sorted from left to right in ascending
 order.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called. Order-preserving
+transformations queued after a sort retain that order. Operations such as joins,
+grouping, aggregation, and sampling do not guarantee input order; chain `sort()`
+after them when deterministic output order matters.
+
 ##### Signature
 
 ```typescript
-async sort(order?: Record<string, "asc" | "desc"> | null, options?: { lang?: Record<string, string> }): Promise<void>;
+sort(order?: Record<string, "asc" | "desc"> | null, options?: { lang?: Record<string, string> }): this;
 ```
 
 ##### Parameters
@@ -3238,38 +3347,40 @@ async sort(order?: Record<string, "asc" | "desc"> | null, options?: { lang?: Rec
 
 ##### Returns
 
-A promise that resolves when the table has been sorted.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Sort all columns from left to right in ascending order
-await table.sort();
+await table.sort().log();
 ```
 
 ```ts
 // Sort 'column1' in ascending order
-await table.sort({ column1: "asc" });
+await table.sort({ column1: "asc" }).log();
 ```
 
 ```ts
 // Sort 'column1' ascendingly, then 'column2' descendingly
-await table.sort({ column1: "asc", column2: "desc" });
+await table.sort({ column1: "asc", column2: "desc" }).log();
 ```
 
 ```ts
 // Sort 'column1' considering French accents
-await table.sort({ column1: "asc" }, { lang: { column1: "fr" } });
+await table.sort({ column1: "asc" }, { lang: { column1: "fr" } }).log();
 ```
 
 #### `selectColumns`
 
-Selects specific columns in the table, removing all others.
+Selects specific columns in the table, removing all others. This method queues
+the operation; it runs when an async observer method (like `getData()` or
+`log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async selectColumns(columns: string | string[]): Promise<void>;
+selectColumns(columns: string | string[]): this;
 ```
 
 ##### Parameters
@@ -3278,44 +3389,46 @@ async selectColumns(columns: string | string[]): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the columns have been selected.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Select only the 'firstName' and 'lastName' columns, removing all other columns.
-await table.selectColumns(["firstName", "lastName"]);
+await table.selectColumns(["firstName", "lastName"]).log();
 ```
 
 ```ts
 // Select only the 'productName' column.
-await table.selectColumns("productName");
+await table.selectColumns("productName").log();
 ```
 
 #### `skip`
 
 Skips the first `n` rows of the table, effectively removing them.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async skip(nbRowsToSkip: number): Promise<void>;
+skip(count: number): this;
 ```
 
 ##### Parameters
 
-- **`nbRowsToSkip`**: The number of rows to skip from the beginning of the
-  table.
+- **`count`**: The number of rows to skip from the beginning of the table.
 
 ##### Returns
 
-A promise that resolves when the rows have been skipped.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Skip the first 10 rows of the table
-await table.skip(10);
+await table.skip(10).log();
 ```
 
 #### `hasColumn`
@@ -3349,16 +3462,19 @@ console.log(hasAgeColumn); // Output: true or false
 Selects random rows from the table, removing all others. You can optionally
 specify a seed to ensure repeatable sampling.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async sample(quantity: number | string, options?: { seed?: number }): Promise<void>;
+sample(count: number | string, options?: { seed?: number }): this;
 ```
 
 ##### Parameters
 
-- **`quantity`**: The number of rows to select (e.g., `100`) or a percentage
-  string (e.g., `"10%"`) specifying the sampling size.
+- **`count`**: The number of rows to select (e.g., `100`) or a percentage string
+  (e.g., `"10%"`) specifying the sampling size.
 - **`options`**: An optional object with configuration options:
 - **`options.seed`**: A number specifying the seed for repeatable sampling.
   Using the same seed will always yield the same random rows. Defaults to a
@@ -3366,23 +3482,23 @@ async sample(quantity: number | string, options?: { seed?: number }): Promise<vo
 
 ##### Returns
 
-A promise that resolves when the sampling is complete.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Select 100 random rows from the table
-await table.sample(100);
+await table.sample(100).log();
 ```
 
 ```ts
 // Select 10% of the rows randomly
-await table.sample("10%");
+await table.sample("10%").log();
 ```
 
 ```ts
 // Select random rows with a specific seed for repeatable results
-await table.sample("10%", { seed: 123 });
+await table.sample("10%", { seed: 123 }).log();
 ```
 
 #### `selectRows`
@@ -3390,10 +3506,13 @@ await table.sample("10%", { seed: 123 });
 Selects a specified number of rows from this table. An offset can be applied to
 skip initial rows, and the results can be output to a new table.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async selectRows(count: number | string, options?: { offset?: number; outputTable?: string | boolean }): Promise<this>;
+selectRows(count: number | string, options?: { offset?: number; outputTable?: string | boolean }): this;
 ```
 
 ##### Parameters
@@ -3409,31 +3528,31 @@ async selectRows(count: number | string, options?: { offset?: number; outputTabl
 
 ##### Returns
 
-A promise that resolves to a table instance containing the selected rows (either
-the modified current table or a new table).
+A table instance containing the selected rows (either the current table or a new
+table), so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Select the first 100 rows of the current table
-await table.selectRows(100);
+await table.selectRows(100).log();
 ```
 
 ```ts
 // Select 100 rows after skipping the first 50 rows
-await table.selectRows(100, { offset: 50 });
+await table.selectRows(100, { offset: 50 }).log();
 ```
 
 ```ts
 // Select 50 rows and store them in a new table with a generated name
-const newTable = await table.selectRows(50, { outputTable: true });
+const newTable = await table.selectRows(50, { outputTable: true }).log();
 ```
 
 ```ts
 // Select 75 rows and store them in a new table named "top_customers"
 const topCustomersTable = await table.selectRows(75, {
   outputTable: "top_customers",
-});
+}).log();
 ```
 
 #### `removeDuplicates`
@@ -3441,10 +3560,13 @@ const topCustomersTable = await table.selectRows(75, {
 Removes duplicate rows from this table, keeping only unique rows. Note that the
 resulting data order might differ from the original.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async removeDuplicates(options?: { on?: string | string[] }): Promise<void>;
+removeDuplicates(options?: { on?: string | string[] }): this;
 ```
 
 ##### Parameters
@@ -3456,35 +3578,37 @@ async removeDuplicates(options?: { on?: string | string[] }): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the duplicate rows have been removed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Remove duplicate rows based on all columns
-await table.removeDuplicates();
+await table.removeDuplicates().log();
 ```
 
 ```ts
 // Remove duplicate rows based only on the 'email' column
-await table.removeDuplicates({ on: "email" });
+await table.removeDuplicates({ on: "email" }).log();
 ```
 
 ```ts
 // Remove duplicate rows based on 'firstName' and 'lastName' columns
-await table.removeDuplicates({ on: ["firstName", "lastName"] });
+await table.removeDuplicates({ on: ["firstName", "lastName"] }).log();
 ```
 
 #### `removeMissing`
 
 Removes rows with missing values from this table. By default, missing values
 include SQL `NULL`, as well as string representations like `"NULL"`, `"null"`,
-`"NaN"`, `"undefined"`, and empty strings `""`.
+`"NaN"`, `"undefined"`, and empty strings `""`. This method queues the
+operation; it runs when an async observer method (like `getData()` or `log()`)
+is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async removeMissing(options?: { columns?: string | string[]; missingValues?: (string | number)[]; invert?: boolean }): Promise<void>;
+removeMissing(options?: { columns?: string | string[]; missingValues?: (string | number)[]; invert?: boolean }): this;
 ```
 
 ##### Parameters
@@ -3500,39 +3624,41 @@ async removeMissing(options?: { columns?: string | string[]; missingValues?: (st
 
 ##### Returns
 
-A promise that resolves when the rows with missing values have been removed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Remove rows with missing values in any column
-await table.removeMissing();
+await table.removeMissing().log();
 ```
 
 ```ts
 // Remove rows with missing values only in 'firstName' or 'lastName' columns
-await table.removeMissing({ columns: ["firstName", "lastName"] });
+await table.removeMissing({ columns: ["firstName", "lastName"] }).log();
 ```
 
 ```ts
 // Keep only rows with missing values in any column
-await table.removeMissing({ invert: true });
+await table.removeMissing({ invert: true }).log();
 ```
 
 ```ts
 // Remove rows where 'age' is missing or is equal to -1
-await table.removeMissing({ columns: "age", missingValues: [-1] });
+await table.removeMissing({ columns: "age", missingValues: [-1] }).log();
 ```
 
 #### `trim`
 
 Trims specified characters from the beginning, end, or both sides of string
-values in the given columns.
+values in the given columns. This method queues the operation; it runs when an
+async observer method (like `getData()` or `log()`) is awaited, or when `run()`
+is called.
 
 ##### Signature
 
 ```typescript
-async trim(columns: string | string[], options?: { character?: string; method?: "leftTrim" | "rightTrim" | "trim" }): Promise<void>;
+trim(columns: string | string[], options?: { character?: string; side?: "left" | "right" | "both" }): this;
 ```
 
 ##### Parameters
@@ -3541,41 +3667,43 @@ async trim(columns: string | string[], options?: { character?: string; method?: 
 - **`options`**: An optional object with configuration options:
 - **`options.character`**: The string to trim. Defaults to whitespace
   characters.
-- **`options.method`**: The trimming method to apply: `"leftTrim"` (removes from
-  the beginning), `"rightTrim"` (removes from the end), or `"trim"` (removes
-  from both sides). Defaults to `"trim"`.
+- **`options.side`**: The side to trim: `"left"` (removes from the beginning),
+  `"right"` (removes from the end), or `"both"` (removes from both sides).
+  Defaults to `"both"`.
 
 ##### Returns
 
-A promise that resolves when the trimming operation is complete.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Trim whitespace from 'column1'
-await table.trim("column1");
+await table.trim("column1").log();
 ```
 
 ```ts
 // Trim leading and trailing asterisks from 'productCode'
-await table.trim("productCode", { character: "*" });
+await table.trim("productCode", { character: "*" }).log();
 ```
 
 ```ts
 // Right-trim whitespace from 'description' and 'notes' columns
-await table.trim(["description", "notes"], { method: "rightTrim" });
+await table.trim(["description", "notes"], { side: "right" }).log();
 ```
 
 #### `filter`
 
 Filters rows from this table based on SQL conditions. Note that it's often
 faster to use the `removeRows` method for simple removals. You can also use
-JavaScript syntax for conditions (e.g., `&&`, `||`, `===`, `!==`).
+JavaScript syntax for conditions (e.g., `&&`, `||`, `===`, `!==`). This method
+queues the operation; it runs when an async observer method (like `getData()` or
+`log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async filter(conditions: string): Promise<void>;
+filter(conditions: string): this;
 ```
 
 ##### Parameters
@@ -3585,91 +3713,113 @@ async filter(conditions: string): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the rows have been filtered.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Keep only rows where the 'fruit' column is not 'apple'
-await table.filter(`fruit != 'apple'`);
+await table.filter(`fruit != 'apple'`).log();
 ```
 
 ```ts
 // Keep rows where 'price' is greater than 100 AND 'quantity' is greater than 0
-await table.filter(`price > 100 && quantity > 0`); // Using JS syntax
+await table.filter(`price > 100 && quantity > 0`).log(); // Using JS syntax
 ```
 
 ```ts
 // Keep rows where 'category' is 'Electronics' OR 'Appliances'
-await table.filter(`category === 'Electronics' || category === 'Appliances'`); // Using JS syntax
+await table.filter(`category === 'Electronics' || category === 'Appliances'`)
+  .log(); // Using JS syntax
 ```
 
 ```ts
 // Keep rows where 'lastPurchaseDate' is on or after '2023-01-01'
-await table.filter(`lastPurchaseDate >= '2023-01-01'`);
+await table.filter(`lastPurchaseDate >= '2023-01-01'`).log();
 ```
 
-#### `keep`
+#### `keepValues`
 
 Keeps rows in this table that have specific values in specified columns,
 removing all other rows.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async keep(columnsAndValues: Record<string, (number | string | Date | boolean | null)[] | (number | string | Date | boolean | null)>): Promise<void>;
+keepValues(columnsAndValues: Record<string, unknown>): this;
 ```
 
 ##### Parameters
 
 - **`columnsAndValues`**: An object where keys are column names and values are
-  the specific values (or an array of values) to keep in those columns.
+  the specific values (or an array of values) to keep in those columns. Use
+  `null` to keep rows where a column is `NULL`.
 
 ##### Returns
 
-A promise that resolves when the rows have been filtered.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Keep only rows where 'job' is 'accountant' or 'developer', AND 'city' is 'Montreal'
-await table.keep({ job: ["accountant", "developer"], city: "Montreal" });
+await table.keepValues({ job: ["accountant", "developer"], city: "Montreal" })
+  .log();
 ```
 
 ```ts
 // Keep only rows where 'status' is 'active'
-await table.keep({ status: "active" });
+await table.keepValues({ status: "active" }).log();
 ```
 
-#### `remove`
+```ts
+// Keep only rows where 'status' is NULL
+await table.keepValues({ status: null }).log();
+```
+
+#### `removeValues`
 
 Removes rows from this table that have specific values in specified columns.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async remove(columnsAndValues: Record<string, (number | string | Date | boolean | null)[] | (number | string | Date | boolean | null)>): Promise<void>;
+removeValues(columnsAndValues: Record<string, unknown>): this;
 ```
 
 ##### Parameters
 
 - **`columnsAndValues`**: An object where keys are column names and values are
-  the specific values (or an array of values) to remove from those columns.
+  the specific values (or an array of values) to remove from those columns. Use
+  `null` to remove rows where a column is `NULL`; otherwise, `NULL` rows are
+  retained.
 
 ##### Returns
 
-A promise that resolves when the rows have been removed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Remove rows where 'job' is 'accountant' or 'developer', AND 'city' is 'Montreal'
-await table.remove({ job: ["accountant", "developer"], city: "Montreal" });
+await table.removeValues({ job: ["accountant", "developer"], city: "Montreal" })
+  .log();
 ```
 
 ```ts
 // Remove rows where 'status' is 'inactive'
-await table.remove({ status: "inactive" });
+await table.removeValues({ status: "inactive" }).log();
+```
+
+```ts
+// Remove rows where 'status' is NULL
+await table.removeValues({ status: null }).log();
 ```
 
 #### `removeRows`
@@ -3678,10 +3828,13 @@ Removes rows from this table based on SQL conditions. This method is similar to
 `filter()`, but removes rows instead of keeping them. You can also use
 JavaScript syntax for conditions (e.g., `&&`, `||`, `===`, `!==`).
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async removeRows(conditions: string): Promise<void>;
+removeRows(conditions: string): this;
 ```
 
 ##### Parameters
@@ -3691,61 +3844,76 @@ async removeRows(conditions: string): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the rows have been removed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Remove rows where the 'fruit' column is 'apple'
-await table.removeRows(`fruit = 'apple'`);
+await table.removeRows(`fruit = 'apple'`).log();
 ```
 
 ```ts
 // Remove rows where 'quantity' is less than 5
-await table.removeRows(`quantity < 5`);
+await table.removeRows(`quantity < 5`).log();
 ```
 
 ```ts
 // Remove rows where 'price' is less than 100 AND 'quantity' is 0
-await table.removeRows(`price < 100 && quantity === 0`); // Using JS syntax
+await table.removeRows(`price < 100 && quantity === 0`).log(); // Using JS syntax
 ```
 
 ```ts
 // Remove rows where 'category' is 'Electronics' OR 'Appliances'
 await table.removeRows(
   `category === 'Electronics' || category === 'Appliances'`,
-); // Using JS syntax
+).log(); // Using JS syntax
 ```
 
 #### `renameColumns`
 
-Renames one or more columns in the table.
+Renames one or more columns in the table. Throws if a source column does not
+exist, so a typo fails loudly instead of being silently ignored.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async renameColumns(names: Record<string, string>): Promise<void>;
+renameColumns(names: Record<string, string>, options?: { strict?: boolean }): this;
 ```
 
 ##### Parameters
 
 - **`names`**: An object mapping old column names to their new column names
   (e.g., `{ "oldName": "newName", "anotherOld": "anotherNew" }`).
+- **`options`**: Configuration options.
+- **`options.strict`**: Whether to verify the source columns exist before
+  renaming. Defaults to `true`. Set to `false` to skip the check and its schema
+  lookup when you know the columns exist and are renaming across many tables
+  where the extra round-trip adds up.
 
 ##### Returns
 
-A promise that resolves when the columns have been renamed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Rename "How old?" to "age" and "Man or woman?" to "sex"
-await table.renameColumns({ "How old?": "age", "Man or woman?": "sex" });
+await table.renameColumns({ "How old?": "age", "Man or woman?": "sex" }).log();
 ```
 
 ```ts
 // Rename a single column
-await table.renameColumns({ "product_id": "productId" });
+await table.renameColumns({ "product_id": "productId" }).log();
+```
+
+```ts
+// Skip the existence check when renaming across many tables
+await table.renameColumns({ "product_id": "productId" }, { strict: false })
+  .log();
 ```
 
 #### `cleanColumnNames`
@@ -3753,22 +3921,25 @@ await table.renameColumns({ "product_id": "productId" });
 Cleans column names by removing non-alphanumeric characters and formatting them
 to camel case.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async cleanColumnNames(): Promise<void>;
+cleanColumnNames(): this;
 ```
 
 ##### Returns
 
-A promise that resolves when the column names have been cleaned.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Clean all column names in the table
 // e.g., "First Name" becomes "firstName", "Product ID" becomes "productId"
-await table.cleanColumnNames();
+await table.cleanColumnNames().log();
 ```
 
 #### `longer`
@@ -3789,27 +3960,27 @@ and their corresponding employee counts into a new column named `Employees`.
 ##### Signature
 
 ```typescript
-async longer(columns: string[], columnsTo: string, valuesTo: string): Promise<void>;
+longer(columns: string[], namesTo: string, valuesTo: string): this;
 ```
 
 ##### Parameters
 
 - **`columns`**: An array of strings representing the names of the columns to be
   stacked (unpivoted).
-- **`columnsTo`**: The name of the new column that will contain the original
+- **`namesTo`**: The name of the new column that will contain the original
   column names (e.g., "Year").
 - **`valuesTo`**: The name of the new column that will contain the values from
   the stacked columns (e.g., "Employees").
 
 ##### Returns
 
-A promise that resolves when the table has been restructured.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Restructure the table by stacking year columns into 'year' and 'employees'
-await table.longer(["2021", "2022", "2023"], "year", "employees");
+await table.longer(["2021", "2022", "2023"], "year", "employees").log();
 ```
 
 The table will then look like this:
@@ -3822,6 +3993,9 @@ The table will then look like this:
 | Sales      | 2021 | 52        |
 | Sales      | 2022 | 75        |
 | Sales      | 2023 | 98        |
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 #### `wider`
 
@@ -3845,25 +4019,29 @@ employee counts as values.
 ##### Signature
 
 ```typescript
-async wider(columnsFrom: string, valuesFrom: string): Promise<void>;
+wider(namesFrom: string, valuesFrom: string, options?: { stat?: "sum" | "count" | "min" | "max" | "mean" | "median" | "first" }): this;
 ```
 
 ##### Parameters
 
-- **`columnsFrom`**: The name of the column containing the values that will be
+- **`namesFrom`**: The name of the column containing the values that will be
   transformed into new column headers (e.g., "Year").
 - **`valuesFrom`**: The name of the column containing the values to be spread
   across the new columns (e.g., "Employees").
+- **`options`**: An optional object with configuration options:
+- **`options.stat`**: The stat function applied when multiple rows share the
+  same `namesFrom`/grouping combination: `"sum"`, `"count"`, `"min"`, `"max"`,
+  `"mean"`, `"median"`, or `"first"`. Defaults to `"sum"`.
 
 ##### Returns
 
-A promise that resolves when the table has been restructured.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Restructure the table by pivoting 'Year' into new columns with 'Employees' as values
-await table.wider("Year", "Employees");
+await table.wider("Year", "Employees").log();
 ```
 
 The table will then look like this:
@@ -3873,14 +4051,24 @@ The table will then look like this:
 | Accounting | 10   | 9    | 15   |
 | Sales      | 52   | 75   | 98   |
 
+When multiple rows share the same `namesFrom`/grouping combination, their
+`valuesFrom` values are combined with the `options.stat` function (`"sum"` by
+default).
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 #### `convert`
 
 Converts data types of specified columns to target types (JavaScript or SQL
 types).
 
-When converting timestamps, dates, or times to/from strings, you must provide a
+When converting non-standard timestamp, date, or time strings, provide a
 `datetimeFormat` option using
 [DuckDB's format specifiers](https://duckdb.org/docs/sql/functions/dateformat).
+Strings converted to `datetimeTz` or `timestamp with time zone` use an explicit
+`Z` or numeric offset when present; strings without an offset are interpreted as
+UTC. Returned `TIMESTAMP WITH TIME ZONE` values are rendered as UTC strings.
 
 When converting timestamps, dates, or times to/from numbers, the numerical
 representation will be in milliseconds since the Unix epoch (1970-01-01 00:00:00
@@ -3889,10 +4077,14 @@ UTC).
 When converting strings to numbers, commas (often used as thousand separators)
 will be automatically removed before conversion.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called. If a column
+doesn't exist, the error is thrown at that point too.
+
 ##### Signature
 
 ```typescript
-async convert(types: Record<string, "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean">, options?: { try?: boolean; datetimeFormat?: string }): Promise<void>;
+convert(types: Record<string, "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean">, options?: { strict?: boolean; datetimeFormat?: string }): this;
 ```
 
 ##### Parameters
@@ -3900,8 +4092,8 @@ async convert(types: Record<string, "integer" | "float" | "number" | "string" | 
 - **`types`**: An object mapping column names to their target data types for
   conversion.
 - **`options`**: An optional object with configuration options:
-- **`options.try`**: If `true`, values that cannot be converted will be replaced
-  by `NULL` instead of throwing an error. Defaults to `false`.
+- **`options.strict`**: If `false`, values that cannot be converted will be
+  replaced by `NULL` instead of throwing an error. Defaults to `true`.
 - **`options.datetimeFormat`**: A string specifying the format for date and time
   conversions. Uses `strftime` and `strptime` functions from DuckDB. For format
   specifiers, see
@@ -3909,35 +4101,46 @@ async convert(types: Record<string, "integer" | "float" | "number" | "string" | 
 
 ##### Returns
 
-A promise that resolves when the column types have been converted.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Convert 'column1' to string and 'column2' to integer (JavaScript types)
-await table.convert({ column1: "string", column2: "integer" });
+await table.convert({ column1: "string", column2: "integer" }).log();
 ```
 
 ```ts
 // Convert 'column1' to VARCHAR and 'column2' to BIGINT (SQL types)
-await table.convert({ column1: "varchar", column2: "bigint" });
+await table.convert({ column1: "varchar", column2: "bigint" }).log();
 ```
 
 ```ts
 // Convert strings in 'column3' to datetime using a specific format
-await table.convert({ column3: "datetime" }, { datetimeFormat: "%Y-%m-%d" });
+await table.convert({ column3: "datetime" }, { datetimeFormat: "%Y-%m-%d" })
+  .log();
+```
+
+```ts
+// Both values identify instants and are rendered in UTC.
+await table
+  .loadArray([
+    { observedAt: "2024-04-07T13:00:00-04:00" },
+    { observedAt: "2024-04-07T17:00:00Z" },
+  ])
+  .convert({ observedAt: "datetimeTz" }).log();
 ```
 
 ```ts
 // Convert datetime values in 'column3' to strings using a specific format
 await table.convert({ column3: "string" }, {
   datetimeFormat: "%Y-%m-%d %H:%M:%S",
-});
+}).log();
 ```
 
 ```ts
 // Convert 'amount' to float, replacing unconvertible values with NULL
-await table.convert({ amount: "float" }, { try: true });
+await table.convert({ amount: "float" }, { strict: false }).log();
 ```
 
 #### `removeTable`
@@ -3948,12 +4151,12 @@ this SimpleTable instance will result in an error.
 ##### Signature
 
 ```typescript
-async removeTable(): Promise<void>;
+async removeTable(): Promise<this>;
 ```
 
 ##### Returns
 
-A promise that resolves when the table has been removed.
+A promise that resolves after the table is removed.
 
 ##### Examples
 
@@ -3964,12 +4167,14 @@ await table.removeTable();
 
 #### `removeColumns`
 
-Removes one or more columns from this table.
+Removes one or more columns from this table. This method queues the operation;
+it runs when an async observer method (like `getData()` or `log()`) is awaited,
+or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async removeColumns(columns: string | string[]): Promise<void>;
+removeColumns(columns: string | string[]): this;
 ```
 
 ##### Parameters
@@ -3978,29 +4183,31 @@ async removeColumns(columns: string | string[]): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the columns have been removed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Remove 'column1' and 'column2' from the table
-await table.removeColumns(["column1", "column2"]);
+await table.removeColumns(["column1", "column2"]).log();
 ```
 
 ```ts
 // Remove a single column named 'tempColumn'
-await table.removeColumns("tempColumn");
+await table.removeColumns("tempColumn").log();
 ```
 
 #### `addColumn`
 
 Adds a new column to the table based on a specified data type (JavaScript or SQL
-types) and a SQL definition.
+types) and a SQL definition. This method queues the operation; it runs when an
+async observer method (like `getData()` or `log()`) is awaited, or when `run()`
+is called.
 
 ##### Signature
 
 ```typescript
-async addColumn(newColumn: string, type: "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean" | geometry('${[0m[36mstring[0m}') | GEOMETRY('${[0m[36mstring[0m}'), definition: string): Promise<void>;
+addColumn(newColumn: string, type: "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean" | geometry('${string}') | GEOMETRY('${string}'), definition: string): this;
 ```
 
 ##### Parameters
@@ -4011,17 +4218,16 @@ async addColumn(newColumn: string, type: "integer" | "float" | "number" | "strin
 - **`definition`**: A SQL expression defining how the values for the new column
   should be computed (e.g., `"column1 + column2"`,
   `"ST_Centroid(geom_column)"`).
-- **`options`**: An optional object with configuration options:
 
 ##### Returns
 
-A promise that resolves when the new column has been added.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Add a new column 'total' as a float, calculated from 'column1' and 'column2'
-await table.addColumn("total", "float", "column1 + column2");
+await table.addColumn("total", "float", "column1 + column2").log();
 ```
 
 ```ts
@@ -4030,7 +4236,55 @@ await table.addColumn(
   "centroid",
   "geometry('EPSG:4326')",
   `ST_Centroid("country")`,
-);
+).log();
+```
+
+#### `extractDatePart`
+
+Extracts one or more components from a temporal column into new columns. Pass a
+single part to create a column with that part's name, or pass an object mapping
+custom new-column names to parts. Existing columns are not overwritten.
+
+`dayOfWeek` uses Sunday as `0` through Saturday as `6`. `week` follows ISO week
+numbering, and `dayOfYear` starts at `1`. DuckDB `DATE`, `TIME`, `TIMESTAMP`,
+and `TIMESTAMP WITH TIME ZONE` columns are supported when the requested
+component applies to that type: date parts apply to dates and timestamps, while
+time parts apply to times and timestamps. `NULL` input values produce `NULL`
+extracted values. Parts extracted from `TIMESTAMP WITH TIME ZONE` values use
+UTC.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
+##### Signature
+
+```typescript
+extractDatePart(column: string, parts: "year" | "quarter" | "month" | "week" | "day" | "dayOfWeek" | "dayOfYear" | "hour" | "minute" | "second" | Record<string, "year" | "quarter" | "month" | "week" | "day" | "dayOfWeek" | "dayOfYear" | "hour" | "minute" | "second">): this;
+```
+
+##### Parameters
+
+- **`column`**: The temporal column from which to extract components.
+- **`parts`**: A part to extract using its name as the new column, or an object
+  mapping each custom new-column name to the part it should contain.
+
+##### Returns
+
+The table, so methods can be chained.
+
+##### Examples
+
+```ts
+// Add a column named 'year' from the 'publishedAt' timestamp
+await table.extractDatePart("publishedAt", "year").log();
+```
+
+```ts
+// Extract multiple components with custom column names
+await table.extractDatePart("publishedAt", {
+  publicationYear: "year",
+  publicationMonth: "month",
+}).log();
 ```
 
 #### `addRowNumber`
@@ -4038,34 +4292,36 @@ await table.addColumn(
 Adds a new column to the table containing the row number, starting at 0 (like an
 index).
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async addRowNumber(newColumn: string, options?: { categories?: string | string[] }): Promise<void>;
+addRowNumber(newColumn: string, options?: { by?: string | string[] }): this;
 ```
 
 ##### Parameters
 
 - **`newColumn`**: The name of the new column that will store the row number.
 - **`options`**: An optional object with configuration options:
-- **`options.categories`**: A string or an array of strings representing columns
-  to partition the data by. The row number will restart at 0 for each unique
-  combination of values in these columns.
+- **`options.by`**: A column name or an array of column names to partition by.
+  The row number restarts at 0 within each group.
 
 ##### Returns
 
-A promise that resolves when the row number column has been added.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Add a new column named 'rowNumber' with the row number for each row
-await table.addRowNumber("rowNumber");
+await table.addRowNumber("rowNumber").log();
 ```
 
 ```ts
 // Add a new column named 'rowNumber' with the row number for each 'category'
-await table.addRowNumber("rowNumber", { categories: "category" });
+await table.addRowNumber("rowNumber", { by: "category" }).log();
 ```
 
 #### `crossJoin`
@@ -4075,10 +4331,13 @@ Cartesian product of the rows from both tables, meaning all possible pairs of
 rows will be in the resulting table. This means that if the left table has `n`
 rows and the right table has `m` rows, the result will have `n * m` rows.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async crossJoin(rightTable: SimpleTable, options?: { outputTable?: string | boolean }): Promise<this>;
+crossJoin(rightTable: SimpleTable, options?: { outputTable?: string | boolean }): this;
 ```
 
 ##### Parameters
@@ -4092,24 +4351,24 @@ async crossJoin(rightTable: SimpleTable, options?: { outputTable?: string | bool
 
 ##### Returns
 
-A promise that resolves to a table instance containing the cross-joined data
-(either the modified current table or a new table).
+A table instance containing the cross-joined data (either the current table or a
+new table), so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Perform a cross join with 'tableB', overwriting the current table (tableA)
-await tableA.crossJoin(tableB);
+await tableA.crossJoin(tableB).log();
 ```
 
 ```ts
 // Perform a cross join with 'tableB' and store the results in a new table with a generated name
-const tableC = await tableA.crossJoin(tableB, { outputTable: true });
+const tableC = await tableA.crossJoin(tableB, { outputTable: true }).log();
 ```
 
 ```ts
 // Perform a cross join with 'tableB' and store the results in a new table named 'tableC'
-const tableC = await tableA.crossJoin(tableB, { outputTable: "tableC" });
+const tableC = await tableA.crossJoin(tableB, { outputTable: "tableC" }).log();
 ```
 
 #### `join`
@@ -4118,22 +4377,24 @@ Merges the data of this table (considered the left table) with another table
 (the right table) based on a common column or multiple columns. Note that the
 order of rows in the returned data is not guaranteed to be the same as in the
 original tables. This operation might create temporary files in a `.tmp` folder;
-consider adding `.tmp` to your `.gitignore`.
+consider adding `.tmp` to your `.gitignore`. This method queues the operation;
+it runs when an async observer method (like `getData()` or `log()`) is awaited,
+or when `run()` is called. The join uses the other table's state as of this
+call: operations queued on it afterwards run after the join.
 
 ##### Signature
 
 ```typescript
-async join(rightTable: SimpleTable, options?: { commonColumn?: string | string[]; type?: "inner" | "left" | "right" | "full"; outputTable?: string | boolean }): Promise<this>;
+join(rightTable: SimpleTable, options?: { on?: string | string[]; type?: "inner" | "left" | "right" | "full"; outputTable?: string | boolean }): this;
 ```
 
 ##### Parameters
 
 - **`rightTable`**: The SimpleTable instance to be joined with this table.
 - **`options`**: An optional object with configuration options:
-- **`options.commonColumn`**: The common column(s) used for the join operation.
-  If omitted, the method automatically searches for a column name that exists in
-  both tables. Can be a single string or an array of strings for multiple join
-  keys.
+- **`options.on`**: The column(s) to join on. If omitted, the method
+  automatically searches for a column name that exists in both tables. Can be a
+  single string or an array of strings for multiple join keys.
 - **`options.type`**: The type of join operation to perform. Possible values are
   `"inner"`, `"left"` (default), `"right"`, or `"full"`.
 - **`options.outputTable`**: If `true`, the results will be stored in a new
@@ -4143,28 +4404,28 @@ async join(rightTable: SimpleTable, options?: { commonColumn?: string | string[]
 
 ##### Returns
 
-A promise that resolves to a table instance containing the joined data (either
-the modified current table or a new table).
+A table instance containing the joined data (either the current table or a new
+table), so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Perform a left join with 'tableB' on a common column (auto-detected), overwriting tableA
-await tableA.join(tableB);
+await tableA.join(tableB).log();
 ```
 
 ```ts
 // Perform an inner join with 'tableB' on the 'id' column, storing results in a new table named 'tableC'
 const tableC = await tableA.join(tableB, {
-  commonColumn: "id",
+  on: "id",
   type: "inner",
   outputTable: "tableC",
-});
+}).log();
 ```
 
 ```ts
 // Perform a join on multiple columns ('name' and 'category')
-await tableA.join(tableB, { commonColumn: ["name", "category"] });
+await tableA.join(tableB, { on: ["name", "category"] }).log();
 ```
 
 #### `fuzzyJoin`
@@ -4182,10 +4443,15 @@ order alphabetically by the left column and then by the right column.
 This operation might create temporary files in a `.tmp` folder; consider adding
 `.tmp` to your `.gitignore`.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called. The join uses the
+other table's state as of this call: operations queued on it afterwards run
+after the join.
+
 ##### Signature
 
 ```typescript
-async fuzzyJoin(rightTable: SimpleTable, leftColumn: string, rightColumn: string, threshold: number, options?: { method?: "ratio" | "partial_ratio" | "token_sort_ratio" | "token_set_ratio"; similarityColumn?: string; outputTable?: string | boolean; preFilterPrefixLen?: number }): Promise<this>;
+fuzzyJoin(rightTable: SimpleTable, leftColumn: string, rightColumn: string, threshold: number, options?: { method?: "ratio" | "partial_ratio" | "token_sort_ratio" | "token_set_ratio"; similarityColumn?: string; outputTable?: string | boolean; prefilterPrefixLength?: number }): this;
 ```
 
 ##### Parameters
@@ -4212,28 +4478,28 @@ async fuzzyJoin(rightTable: SimpleTable, leftColumn: string, rightColumn: string
   table with a generated name. If a string, it will be used as the name for the
   new table. If `false` or omitted, the current table will be overwritten.
   Defaults to `false`.
-- **`options.preFilterPrefixLen`**: An optional prefix length. Only strings
+- **`options.prefilterPrefixLength`**: An optional prefix length. Only strings
   sharing the same first N characters are compared. Note that prefix filtering
   is lossy (e.g. "John" vs. "Phon" will not match despite high similarity).
 
 ##### Returns
 
-A promise that resolves to a table instance containing the fuzzy-joined data
-(either the modified current table or a new table).
+A table instance containing the fuzzy-joined data (either the current table or a
+new table), so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Fuzzy left join tableA with tableB on 'name' (left) and 'standardName' (right) with a threshold of 80
 // A length-based pre-filter is automatically applied.
-await tableA.fuzzyJoin(tableB, "name", "standardName", 80);
+await tableA.fuzzyJoin(tableB, "name", "standardName", 80).log();
 ```
 
 ```ts
 // Fuzzy join with a prefix-based pre-filter and a threshold of 80
 await tableA.fuzzyJoin(tableB, "name", "standardName", 80, {
-  preFilterPrefixLen: 3, // Must share the same first 3 characters
-});
+  prefilterPrefixLength: 3, // Must share the same first 3 characters
+}).log();
 ```
 
 ```ts
@@ -4241,14 +4507,14 @@ await tableA.fuzzyJoin(tableB, "name", "standardName", 80, {
 const tableC = await tableA.fuzzyJoin(tableB, "name", "standardName", 90, {
   method: "token_sort_ratio",
   outputTable: "tableC",
-});
+}).log();
 ```
 
 ```ts
 // Fuzzy join with a custom similarity column name and a threshold of 80
 await tableA.fuzzyJoin(tableB, "name", "standardName", 80, {
   similarityColumn: "matchScore",
-});
+}).log();
 ```
 
 #### `fuzzyClean`
@@ -4260,16 +4526,19 @@ Similar strings are grouped into clusters. Matching is transitive: if
 `"New York"` is similar to `"New Yorke"` and `"New Yorke"` is similar to
 `"New Yorkk"`, all three land in the same cluster even if `"New York"` and
 `"New Yorkk"` would not match directly. Each cluster is then collapsed to one
-representative value based on the `keep` strategy.
+representative value based on the `strategy` option.
 
 Similarity is computed using the
 [rapidfuzz](https://query.farm/duckdb_extension_rapidfuzz) DuckDB community
 extension, which is installed and loaded automatically.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async fuzzyClean(column: string, newColumn: string, threshold: number, options?: { method?: "ratio" | "partial_ratio" | "token_sort_ratio" | "token_set_ratio"; keep?: "mostCommon" | "longestString" | "shortestString" | "mostCentral" | "maxScore"; preFilterPrefixLen?: number }): Promise<void>;
+fuzzyClean(column: string, newColumn: string, threshold: number, options?: { method?: "ratio" | "partial_ratio" | "token_sort_ratio" | "token_set_ratio"; strategy?: "mostCommon" | "longestString" | "shortestString" | "mostCentral" | "maxScore"; prefilterPrefixLength?: number }): this;
 ```
 
 ##### Parameters
@@ -4287,65 +4556,70 @@ async fuzzyClean(column: string, newColumn: string, threshold: number, options?:
   partial/substring similarity. - `"token_sort_ratio"`: Similarity after sorting
   tokens (words), useful for reordered words. - `"token_set_ratio"`: Similarity
   based on sets of tokens, ignoring duplicates and word order.
-- **`options.keep`**: The strategy for choosing the canonical value within each
-  cluster of similar strings. Defaults to `"mostCommon"`. - `"mostCommon"`: Keep
-  the value that appears most frequently in the original column. -
+- **`options.strategy`**: The strategy for choosing the canonical value within
+  each cluster of similar strings. Defaults to `"mostCommon"`. - `"mostCommon"`:
+  Keep the value that appears most frequently in the original column. -
   `"longestString"`: Keep the longest string in the cluster. -
   `"shortestString"`: Keep the shortest string in the cluster. -
   `"mostCentral"`: Keep the string with the highest total similarity score to
   all other cluster members (the most "central" string). - `"maxScore"`: Keep
   the string that participates in the single highest-scoring pairwise match
   within the cluster.
-- **`options.preFilterPrefixLen`**: An optional prefix length. Only strings
+- **`options.prefilterPrefixLength`**: An optional prefix length. Only strings
   sharing the same first N characters are compared. Note that prefix filtering
   is lossy (e.g. "John" vs. "Phon" will not match despite high similarity).
 
 ##### Returns
 
-A promise that resolves when the column has been normalized.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Normalize 'city' into a new 'cityClean' column, keeping the most common string per cluster with a threshold of 80
 // A length-based pre-filter is automatically applied.
-await table.fuzzyClean("city", "cityClean", 80);
+await table.fuzzyClean("city", "cityClean", 80).log();
 ```
 
 ```ts
 // Normalize with a prefix-based pre-filter and a threshold of 80
 await table.fuzzyClean("city", "cityClean", 80, {
-  preFilterPrefixLen: 5, // Must share the same first 5 characters
-});
+  prefilterPrefixLength: 5, // Must share the same first 5 characters
+}).log();
 ```
 
 ```ts
 // Normalize 'companyName' into a new column using token_sort_ratio and a threshold of 90
 await table.fuzzyClean("companyName", "companyNameClean", 90, {
   method: "token_sort_ratio",
-});
+}).log();
 ```
 
 ```ts
 // Normalize 'category' in-place, keeping the longest string in each cluster and a threshold of 80
-await table.fuzzyClean("category", "category", 80, { keep: "longestString" });
+await table.fuzzyClean("category", "category", 80, {
+  strategy: "longestString",
+}).log();
 ```
 
 #### `replace`
 
 Replaces specified strings in the selected columns.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async replace(columns: "all" | string | string[], strings: Record<string, string>, options?: { entireString?: boolean; regex?: boolean }): Promise<void>;
+replace(columns: "all" | string | string[], replacements: Record<string, string>, options?: { entireString?: boolean; regex?: boolean }): this;
 ```
 
 ##### Parameters
 
 - **`columns`**: The column name, an array of column names, or `"all"` to apply
   the replacement to every column in the table.
-- **`strings`**: An object mapping old strings to new strings (e.g.,
+- **`replacements`**: An object mapping old strings to new strings (e.g.,
   `{ "oldValue": "newValue" }`).
 - **`options`**: An optional object with configuration options:
 - **`options.entireString`**: A boolean indicating whether the entire cell
@@ -4357,13 +4631,13 @@ async replace(columns: "all" | string | string[], strings: Record<string, string
 
 ##### Returns
 
-A promise that resolves when the string replacements are complete.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Replace all occurrences of "kilograms" with "kg" in 'column1'
-await table.replace("column1", { "kilograms": "kg" });
+await table.replace("column1", { "kilograms": "kg" }).log();
 ```
 
 ```ts
@@ -4371,32 +4645,35 @@ await table.replace("column1", { "kilograms": "kg" });
 await table.replace(["column1", "column2"], {
   "kilograms": "kg",
   "liters": "l",
-});
+}).log();
 ```
 
 ```ts
 // Replace only if the entire string in 'column1' is "kilograms"
-await table.replace("column1", { "kilograms": "kg" }, { entireString: true });
+await table.replace("column1", { "kilograms": "kg" }, { entireString: true })
+  .log();
 ```
 
 ```ts
 // Replace any sequence of one or more digits with a hyphen in 'column1' using regex
-await table.replace("column1", { "\d+": "-" }, { regex: true });
+await table.replace("column1", { "\d+": "-" }, { regex: true }).log();
 ```
 
 ```ts
 // Replace "%" with "" in all columns
-await table.replace("all", { "%": "" });
+await table.replace("all", { "%": "" }).log();
 ```
 
 #### `lower`
 
-Converts string values in the specified columns to lowercase.
+Converts string values in the specified columns to lowercase. This method queues
+the operation; it runs when an async observer method (like `getData()` or
+`log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async lower(columns: string | string[]): Promise<void>;
+lower(columns: string | string[]): this;
 ```
 
 ##### Parameters
@@ -4406,28 +4683,30 @@ async lower(columns: string | string[]): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the strings have been converted to lowercase.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Convert strings in 'column1' to lowercase
-await table.lower("column1");
+await table.lower("column1").log();
 ```
 
 ```ts
 // Convert strings in 'column1' and 'column2' to lowercase
-await table.lower(["column1", "column2"]);
+await table.lower(["column1", "column2"]).log();
 ```
 
 #### `upper`
 
-Converts string values in the specified columns to uppercase.
+Converts string values in the specified columns to uppercase. This method queues
+the operation; it runs when an async observer method (like `getData()` or
+`log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async upper(columns: string | string[]): Promise<void>;
+upper(columns: string | string[]): this;
 ```
 
 ##### Parameters
@@ -4437,29 +4716,31 @@ async upper(columns: string | string[]): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the strings have been converted to uppercase.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Convert strings in 'column1' to uppercase
-await table.upper("column1");
+await table.upper("column1").log();
 ```
 
 ```ts
 // Convert strings in 'column1' and 'column2' to uppercase
-await table.upper(["column1", "column2"]);
+await table.upper(["column1", "column2"]).log();
 ```
 
 #### `capitalize`
 
 Capitalizes the first letter of each string in the specified columns and
-converts the rest of the string to lowercase.
+converts the rest of the string to lowercase. This method queues the operation;
+it runs when an async observer method (like `getData()` or `log()`) is awaited,
+or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async capitalize(columns: string | string[]): Promise<void>;
+capitalize(columns: string | string[]): this;
 ```
 
 ##### Parameters
@@ -4468,28 +4749,31 @@ async capitalize(columns: string | string[]): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the strings have been capitalized.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Capitalize strings in 'column1' (e.g., "hello world" becomes "Hello world")
-await table.capitalize("column1");
+await table.capitalize("column1").log();
 ```
 
 ```ts
 // Capitalize strings in 'column1' and 'column2'
-await table.capitalize(["column1", "column2"]);
+await table.capitalize(["column1", "column2"]).log();
 ```
 
 #### `truncate`
 
 Truncates string values in a specified column to a maximum number of characters.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async truncate(column: string, length: number): Promise<void>;
+truncate(column: string, length: number): this;
 ```
 
 ##### Parameters
@@ -4499,18 +4783,18 @@ async truncate(column: string, length: number): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the strings have been truncated.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Truncate strings in 'description' column to 50 characters
-await table.truncate("description", 50);
+await table.truncate("description", 50).log();
 ```
 
 ```ts
 // Truncate strings in 'name' column to 10 characters
-await table.truncate("name", 10);
+await table.truncate("name", 10).log();
 ```
 
 #### `pad`
@@ -4521,10 +4805,13 @@ The columns must contain string (VARCHAR) values. An error is thrown if any
 column is of a different type. `null` values remain `null`. If any string
 already exceeds the target length, an error is thrown (no silent truncation).
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async pad(columns: string | string[], length: number, options?: { method?: "left" | "right"; char?: string }): Promise<void>;
+pad(columns: string | string[], length: number, options?: { side?: "left" | "right"; character?: string }): this;
 ```
 
 ##### Parameters
@@ -4532,12 +4819,12 @@ async pad(columns: string | string[], length: number, options?: { method?: "left
 - **`columns`**: The column name(s) containing strings to be padded.
 - **`length`**: The target length of the padded strings.
 - **`options`**: An optional object with configuration options:
-- **`options.method`**: Which side to pad. `'left'` (default) or `'right'`.
-- **`options.char`**: The character to use for padding. Defaults to `'0'`.
+- **`options.side`**: Which side to pad. `'left'` (default) or `'right'`.
+- **`options.character`**: The character to use for padding. Defaults to `'0'`.
 
 ##### Returns
 
-A promise that resolves when the padding operation is complete.
+The table, so methods can be chained.
 
 ##### Throws
 
@@ -4548,19 +4835,19 @@ A promise that resolves when the padding operation is complete.
 
 ```ts
 // Left-pad 'id' column to 3 characters with zeros (default)
-await table.pad("id", 3);
+await table.pad("id", 3).log();
 // Result: '1' -> '001', '23' -> '023', null -> null
 ```
 
 ```ts
 // Right-pad 'code' column to 5 characters with spaces
-await table.pad("code", 5, { method: "right", char: " " });
+await table.pad("code", 5, { side: "right", character: " " }).log();
 // Result: '123' -> '123  ', '45' -> '45   ', null -> null
 ```
 
 ```ts
 // Left-pad multiple columns to 5 characters with dashes
-await table.pad(["id", "code"], 5, { method: "left", char: "-" });
+await table.pad(["id", "code"], 5, { side: "left", character: "-" }).log();
 // Result: '1' -> '----1', '23' -> '---23'
 ```
 
@@ -4570,10 +4857,13 @@ Splits strings in a specified column by a separator and extracts a substring at
 a given index, storing the result in a new or existing column. If the index is
 out of bounds, an empty string will be returned for that row.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async splitExtract(column: string, separator: string, index: number, newColumn: string): Promise<void>;
+splitExtract(column: string, separator: string, index: number, newColumn: string): this;
 ```
 
 ##### Parameters
@@ -4588,20 +4878,20 @@ async splitExtract(column: string, separator: string, index: number, newColumn: 
 
 ##### Returns
 
-A promise that resolves when the strings have been split and extracted.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Split 'address' by comma and extract the second part (index 1) into a new 'city' column
 // e.g., "123 Main St, Anytown, USA" -> "Anytown"
-await table.splitExtract("address", ",", 1, "city");
+await table.splitExtract("address", ",", 1, "city").log();
 ```
 
 ```ts
-// Split 'fileName' by dot and extract the first part (index 0), overwriting 'fileName'
+// Split 'filename' by dot and extract the first part (index 0), overwriting 'filename'
 // e.g., "document.pdf" -> "document"
-await table.splitExtract("fileName", ".", 0, "fileName");
+await table.splitExtract("filename", ".", 0, "filename").log();
 ```
 
 #### `splitSpread`
@@ -4612,14 +4902,17 @@ parts into multiple new columns.
 Each part of the split string will be stored in a separate column. The number of
 columns created is determined by the length of the `newColumns` array. If a row
 has fewer parts than the number of new columns, a warning will be logged and the
-extra columns will contain empty strings (unless `noCheck` is set to true). If a
-row has more parts than the number of new columns, an error will be thrown
-unless `noCheck` is set to true.
+extra columns will contain empty strings (unless `strict` is set to `false`). If
+a row has more parts than the number of new columns, an error will be thrown
+unless `strict` is set to `false`.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async splitSpread(column: string, separator: string, newColumns: string[], options?: { noCheck?: boolean }): Promise<void>;
+splitSpread(column: string, separator: string, newColumns: string[], options?: { strict?: boolean }): this;
 ```
 
 ##### Parameters
@@ -4629,99 +4922,107 @@ async splitSpread(column: string, separator: string, newColumns: string[], optio
   strings.
 - **`newColumns`**: An array of column names for the extracted parts.
 - **`options`**: Optional configuration.
-- **`options.noCheck`**: If true, skips all validation checks (both max and min
-  parts). Default is false.
+- **`options.strict`**: If `false`, skips all validation checks (both max and
+  min parts). Defaults to `true`.
 
 ##### Returns
 
-A promise that resolves when the strings have been split and spread into new
-columns.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Split 'fullName' by comma and spread into 'lastName' and 'firstName'
 // e.g., "Shiab, Nael" -> lastName: "Shiab", firstName: "Nael"
-await table.splitSpread("fullName", ",", ["lastName", "firstName"]);
+await table.splitSpread("fullName", ",", ["lastName", "firstName"]).log();
 ```
 
 ```ts
 // Split 'address' by comma and spread into three columns
 // e.g., "123 Main St, Anytown, USA" -> street: "123 Main St", city: "Anytown", country: "USA"
-await table.splitSpread("address", ",", ["street", "city", "country"]);
+await table.splitSpread("address", ",", ["street", "city", "country"]).log();
 ```
 
 ```ts
-// Skip validation for performance with noCheck option
-await table.splitSpread("data", "|", ["col1", "col2"], { noCheck: true });
+// Skip validation for performance
+await table.splitSpread("data", "|", ["col1", "col2"], { strict: false }).log();
 ```
 
-#### `left`
+#### `firstChars`
 
 Extracts a specific number of characters from the beginning (left side) of
 string values in the specified column.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async left(column: string, numberOfCharacters: number): Promise<void>;
+firstChars(column: string, count: number): this;
 ```
 
 ##### Parameters
 
 - **`column`**: The name of the column containing the strings to be modified.
-- **`numberOfCharacters`**: The number of characters to extract from the left
-  side of each string.
+- **`count`**: The number of characters to extract from the left side of each
+  string.
 
 ##### Returns
 
-A promise that resolves when the strings have been updated.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Replace strings in 'productCode' with their first two characters
 // e.g., "ABC-123" becomes "AB"
-await table.left("productCode", 2);
+await table.firstChars("productCode", 2).log();
 ```
 
-#### `right`
+#### `lastChars`
 
 Extracts a specific number of characters from the end (right side) of string
 values in the specified column.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async right(column: string, numberOfCharacters: number): Promise<void>;
+lastChars(column: string, count: number): this;
 ```
 
 ##### Parameters
 
 - **`column`**: The name of the column containing the strings to be modified.
-- **`numberOfCharacters`**: The number of characters to extract from the right
-  side of each string.
+- **`count`**: The number of characters to extract from the right side of each
+  string.
 
 ##### Returns
 
-A promise that resolves when the strings have been updated.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Replace strings in 'productCode' with their last two characters
 // e.g., "ABC-123" becomes "23"
-await table.right("productCode", 2);
+await table.lastChars("productCode", 2).log();
 ```
 
 #### `replaceNulls`
 
 Replaces `NULL` values in the specified columns with a given value.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async replaceNulls(columns: "all" | string | string[], value: number | string | Date | boolean): Promise<void>;
+replaceNulls(columns: "all" | string | string[], value: unknown): this;
 ```
 
 ##### Parameters
@@ -4732,38 +5033,41 @@ async replaceNulls(columns: "all" | string | string[], value: number | string | 
 
 ##### Returns
 
-A promise that resolves when the `NULL` values have been replaced.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Replace NULL values in 'column1' with 0
-await table.replaceNulls("column1", 0);
+await table.replaceNulls("column1", 0).log();
 ```
 
 ```ts
 // Replace NULL values in 'columnA' and 'columnB' with the string "N/A"
-await table.replaceNulls(["columnA", "columnB"], "N/A");
+await table.replaceNulls(["columnA", "columnB"], "N/A").log();
 ```
 
 ```ts
 // Replace NULL values in 'dateColumn' with a specific date
-await table.replaceNulls("dateColumn", new Date("2023-01-01"));
+await table.replaceNulls("dateColumn", new Date("2023-01-01")).log();
 ```
 
 ```ts
 // Replace NULL values in all columns with 0
-await table.replaceNulls("all", 0);
+await table.replaceNulls("all", 0).log();
 ```
 
 #### `concatenate`
 
 Concatenates values from specified columns into a new column.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async concatenate(columns: string[], newColumn: string, options?: { separator?: string }): Promise<void>;
+concatenate(columns: string[], newColumn: string, options?: { separator?: string }): this;
 ```
 
 ##### Parameters
@@ -4776,21 +5080,22 @@ async concatenate(columns: string[], newColumn: string, options?: { separator?: 
 
 ##### Returns
 
-A promise that resolves when the concatenation is complete.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Concatenate 'firstName' and 'lastName' into a new 'fullName' column
-await table.concatenate(["firstName", "lastName"], "fullName");
+await table.concatenate(["firstName", "lastName"], "fullName").log();
 ```
 
 ```ts
 // Concatenate 'city' and 'country' into 'location', separated by a comma and space
-await table.concatenate(["city", "country"], "location", { separator: ", " });
+await table.concatenate(["city", "country"], "location", { separator: ", " })
+  .log();
 ```
 
-#### `concatenateRow`
+#### `rowToText`
 
 Concatenates values from multiple columns into a new column with labeled rows.
 
@@ -4805,10 +5110,13 @@ All values must be string, otherwise an error will be thrown. Use the
 If a column value is `NULL`, it will be replaced by `'Unknown'` in the
 concatenated result.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async concatenateRow(columns: string[], newColumn: string): Promise<void>;
+rowToText(columns: string[], newColumn: string): this;
 ```
 
 ##### Parameters
@@ -4820,16 +5128,16 @@ async concatenateRow(columns: string[], newColumn: string): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the concatenation is complete.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Concatenate multiple string columns into a labeled text field
-await table.concatenateRow(
+await table.rowToText(
   ["summary", "findings", "context", "date", "quote"],
   "fullText",
-);
+).log();
 // Result in "fullText" will look like:
 // summary:
 // [value]
@@ -4850,8 +5158,9 @@ await table.concatenateRow(
 ```ts
 // Convert numeric columns to strings first, then concatenate
 // NULL values will appear as 'Unknown'
-await table.convert({ age: "string", salary: "string" });
-await table.concatenateRow(["name", "age", "salary"], "profile");
+await table
+  .convert({ age: "string", salary: "string" })
+  .rowToText(["name", "age", "salary"], "profile").log();
 ```
 
 #### `unnest`
@@ -4863,10 +5172,13 @@ Each value in the specified column is split using the provided separator, and a
 new row is created for each resulting substring. All other column values are
 duplicated across the newly created rows.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async unnest(column: string, separator: string): Promise<void>;
+unnest(column: string, separator: string): this;
 ```
 
 ##### Parameters
@@ -4877,7 +5189,7 @@ async unnest(column: string, separator: string): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the unnesting is complete.
+The table, so methods can be chained.
 
 ##### Examples
 
@@ -4885,7 +5197,7 @@ A promise that resolves when the unnesting is complete.
 // Unnest 'tags' column separated by commas
 // Before: [{ id: 1, tags: "red,blue,green" }]
 // After:  [{ id: 1, tags: "red" }, { id: 1, tags: "blue" }, { id: 1, tags: "green" }]
-await table.unnest("tags", ",");
+await table.unnest("tags", ",").log();
 ```
 
 ```ts
@@ -4894,7 +5206,7 @@ await table.unnest("tags", ",");
 // After:  [{ city: "Montreal", neighborhoods: "Old Montreal" },
 //         { city: "Montreal", neighborhoods: "Chinatown" },
 //         { city: "Montreal", neighborhoods: "Griffintown" }]
-await table.unnest("neighborhoods", " / ");
+await table.unnest("neighborhoods", " / ").log();
 ```
 
 #### `repeatRows`
@@ -4904,10 +5216,13 @@ Repeats rows based on the values in a column.
 If a row has a value of 3 in the specified column, it will be repeated 3 times.
 If the value is 0 or negative, the row will be removed.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async repeatRows(column: string, options?: { index?: string }): Promise<void>;
+repeatRows(column: string, options?: { index?: string }): this;
 ```
 
 ##### Parameters
@@ -4918,18 +5233,22 @@ async repeatRows(column: string, options?: { index?: string }): Promise<void>;
 - **`options.index`**: The name of a new column to store the index of the
   repeated row (starting at 0).
 
+##### Returns
+
+The table, so methods can be chained.
+
 ##### Examples
 
 ```ts
 // Before: [{ id: 1, count: 2, category: "A" }, { id: 2, count: 3, category: "B" }]
-await table.repeatRows("count");
+await table.repeatRows("count").log();
 // After:  [{ id: 1, count: 2, category: "A" }, { id: 1, count: 2, category: "A" },
 //          { id: 2, count: 3, category: "B" }, { id: 2, count: 3, category: "B" }, { id: 2, count: 3, category: "B" }]
 ```
 
 ```ts
 // With an index column
-await table.repeatRows("count", { index: "copyId" });
+await table.repeatRows("count", { index: "copyId" }).log();
 // After:  [{ id: 1, count: 2, category: "A", copyId: 0 }, { id: 1, count: 2, category: "A", copyId: 1 },
 //          { id: 2, count: 3, category: "B", copyId: 0 }, { id: 2, count: 3, category: "B", copyId: 1 }, { id: 2, count: 3, category: "B", copyId: 2 }]
 ```
@@ -4943,10 +5262,13 @@ This is the inverse operation of `unnest()`. Multiple rows are combined into
 fewer rows by grouping on specified category columns and concatenating the
 target column values with a separator.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async nest(column: string, separator: string, categories: string | string[]): Promise<void>;
+nest(column: string, separator: string, by: string | string[]): this;
 ```
 
 ##### Parameters
@@ -4954,11 +5276,11 @@ async nest(column: string, separator: string, categories: string | string[]): Pr
 - **`column`**: The name of the column whose values will be aggregated and
   concatenated.
 - **`separator`**: The delimiter string used to join the column values.
-- **`categories`**: The column name or an array of column names to group by.
+- **`by`**: The column name or an array of column names to group by.
 
 ##### Returns
 
-A promise that resolves when the nesting is complete.
+The table, so methods can be chained.
 
 ##### Examples
 
@@ -4968,7 +5290,7 @@ A promise that resolves when the nesting is complete.
 //         { city: "Montreal", neighborhoods: "Chinatown" },
 //         { city: "Montreal", neighborhoods: "Griffintown" }]
 // After:  [{ city: "Montreal", neighborhoods: "Old Montreal / Chinatown / Griffintown" }]
-await table.nest("neighborhoods", " / ", "city");
+await table.nest("neighborhoods", " / ", "city").log();
 ```
 
 ```ts
@@ -4976,24 +5298,28 @@ await table.nest("neighborhoods", " / ", "city");
 // Before: [{ country: "Canada", city: "Montreal", tags: "red" },
 //         { country: "Canada", city: "Montreal", tags: "blue" }]
 // After:  [{ country: "Canada", city: "Montreal", tags: "red,blue" }]
-await table.nest("tags", ",", ["country", "city"]);
+await table.nest("tags", ",", ["country", "city"]).log();
 ```
 
 #### `round`
 
 Rounds numeric values in specified columns.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async round(columns: string | string[], options?: number | { decimals?: number; method?: "round" | "ceiling" | "floor" }): Promise<void>;
+round(columns: string | string[], options?: number | { decimals?: number; method?: "round" | "ceiling" | "floor" }): this;
 ```
 
 ##### Parameters
 
 - **`columns`**: The column name or an array of column names containing numeric
   values to be rounded.
-- **`options`**: An optional object with configuration options:
+- **`options`**: An optional integer specifying the number of decimal places, or
+  an object with configuration options:
 - **`options.decimals`**: The number of decimal places to round to. Defaults to
   `0` (rounds to the nearest integer).
 - **`options.method`**: The rounding method to use: `"round"` (rounds to the
@@ -5003,43 +5329,47 @@ async round(columns: string | string[], options?: number | { decimals?: number; 
 
 ##### Returns
 
-A promise that resolves when the numeric values have been rounded.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Round 'column1' values to the nearest integer
-await table.round("column1");
+await table.round("column1").log();
 ```
 
 ```ts
 // Round 'column1' values to 2 decimal places
-await table.round("column1", { decimals: 2 });
+await table.round("column1", { decimals: 2 }).log();
 ```
 
 ```ts
 // Round 'column1' values down to the nearest integer (floor)
-await table.round("column1", { method: "floor" });
+await table.round("column1", { method: "floor" }).log();
 ```
 
 ```ts
 // Round 'columnA' and 'columnB' values to 1 decimal place using ceiling method
-await table.round(["columnA", "columnB"], { decimals: 1, method: "ceiling" });
+await table.round(["columnA", "columnB"], { decimals: 1, method: "ceiling" })
+  .log();
 ```
 
 ```ts
 // Round 'column1' values to 2 decimal places using the shorthand
-await table.round("column1", 2);
+await table.round("column1", 2).log();
 ```
 
 #### `updateColumn`
 
 Updates values in a specified column using a SQL expression.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async updateColumn(column: string, definition: string): Promise<void>;
+updateColumn(column: string, definition: string): this;
 ```
 
 ##### Parameters
@@ -5050,18 +5380,18 @@ async updateColumn(column: string, definition: string): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the column has been updated.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Update 'column1' with the left 5 characters of 'column2'
-await table.updateColumn("column1", `LEFT(column2, 5)`);
+await table.updateColumn("column1", `LEFT(column2, 5)`).log();
 ```
 
 ```ts
 // Double the values in 'price' column
-await table.updateColumn("price", `price * 2`);
+await table.updateColumn("price", `price * 2`).log();
 ```
 
 ```ts
@@ -5069,119 +5399,124 @@ await table.updateColumn("price", `price * 2`);
 await table.updateColumn(
   "status",
   `CASE WHEN isActive THEN 'active' ELSE 'inactive' END`,
-);
+).log();
 ```
 
 #### `ranks`
 
 Assigns ranks to rows in a new column based on the values of a specified column.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async ranks(values: string, newColumn: string, options?: { order?: "asc" | "desc"; categories?: string | string[]; noGaps?: boolean }): Promise<void>;
+ranks(column: string, newColumn: string, options?: { order?: "asc" | "desc"; by?: string | string[]; dense?: boolean }): this;
 ```
 
 ##### Parameters
 
-- **`values`**: The column containing the values to be used for ranking.
+- **`column`**: The column containing the values to be used for ranking.
 - **`newColumn`**: The name of the new column where the ranks will be stored.
 - **`options`**: An optional object with configuration options:
 - **`options.order`**: The order of values for ranking: `"asc"` for ascending
   (default) or `"desc"` for descending.
-- **`options.categories`**: The column name or an array of column names that
-  define categories for ranking. Ranks will be assigned independently within
-  each category.
-- **`options.noGaps`**: A boolean indicating whether to assign ranks without
-  gaps (dense ranking). If `true`, ranks will be consecutive integers (e.g., 1,
-  2, 2, 3). If `false` (default), ranks might have gaps (e.g., 1, 2, 2, 4).
+- **`options.by`**: The column name or an array of column names to rank by.
+  Ranks are assigned independently within each group.
+- **`options.dense`**: A boolean indicating whether to use dense ranking (no
+  gaps). If `true`, ranks will be consecutive integers (e.g., 1, 2, 2, 3). If
+  `false` (default), ranks might have gaps (e.g., 1, 2, 2, 4).
 
 ##### Returns
 
-A promise that resolves when the ranks have been assigned.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Compute ranks in a new 'rank' column based on 'score' values (ascending)
-await table.ranks("score", "rank");
+await table.ranks("score", "rank").log();
 ```
 
 ```ts
 // Compute ranks in a new 'descRank' column based on 'score' values (descending)
-await table.ranks("score", "descRank", { order: "desc" });
+await table.ranks("score", "descRank", { order: "desc" }).log();
 ```
 
 ```ts
-// Compute ranks within 'department' categories, based on 'salary' values, without gaps
-await table.ranks("salary", "salaryRank", {
-  categories: "department",
-  noGaps: true,
-});
+// Compute ranks by 'department', based on 'salary' values, without gaps
+await table.ranks("salary", "salaryRank", { by: "department", dense: true })
+  .log();
 ```
 
 ```ts
-// Compute ranks within multiple categories ('department' and 'city')
-await table.ranks("sales", "salesRank", { categories: ["department", "city"] });
+// Compute ranks by both 'department' and 'city'
+await table.ranks("sales", "salesRank", { by: ["department", "city"] }).log();
 ```
 
 #### `quantiles`
 
 Assigns quantiles to rows in a new column based on specified column values.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async quantiles(values: string, nbQuantiles: number, newColumn: string, options?: { categories?: string | string[] }): Promise<void>;
+quantiles(column: string, count: number, newColumn: string, options?: { by?: string | string[] }): this;
 ```
 
 ##### Parameters
 
-- **`values`**: The column containing values from which quantiles will be
+- **`column`**: The column containing values from which quantiles will be
   assigned.
-- **`nbQuantiles`**: The number of quantiles to divide the data into (e.g., `4`
-  for quartiles, `10` for deciles).
+- **`count`**: The number of quantiles to divide the data into (e.g., `4` for
+  quartiles, `10` for deciles).
 - **`newColumn`**: The name of the new column where the assigned quantiles will
   be stored.
 - **`options`**: An optional object with configuration options:
-- **`options.categories`**: The column name or an array of column names that
-  define categories for computing quantiles. Quantiles will be assigned
-  independently within each category.
+- **`options.by`**: The column name or an array of column names to partition by.
+  Quantiles are assigned independently within each group.
 
 ##### Returns
 
-A promise that resolves when the quantiles have been assigned.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Assigns a quantile from 1 to 10 for each row in a new 'quantiles' column, based on 'column1' values.
-await table.quantiles("column1", 10, "quantiles");
+await table.quantiles("column1", 10, "quantiles").log();
 ```
 
 ```ts
-// Assigns quantiles within 'column2' categories, based on 'column1' values.
-await table.quantiles("column1", 10, "quantiles", { categories: "column2" });
+// Assign quantiles by 'column2', based on 'column1' values.
+await table.quantiles("column1", 10, "quantiles", { by: "column2" }).log();
 ```
 
 ```ts
 // Assigns quartiles (4 quantiles) to 'sales' data, storing results in 'salesQuartile'
-await table.quantiles("sales", 4, "salesQuartile");
+await table.quantiles("sales", 4, "salesQuartile").log();
 ```
 
 #### `bins`
 
 Assigns bins for specified column values based on an interval size.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async bins(values: string, interval: number, newColumn: string, options?: { startValue?: number }): Promise<void>;
+bins(column: string, interval: number, newColumn: string, options?: { startValue?: number }): this;
 ```
 
 ##### Parameters
 
-- **`values`**: The column containing values from which bins will be computed.
+- **`column`**: The column containing values from which bins will be computed.
 - **`interval`**: The interval size for binning the values.
 - **`newColumn`**: The name of the new column where the bins will be stored.
 - **`options`**: An optional object with configuration options:
@@ -5190,23 +5525,23 @@ async bins(values: string, interval: number, newColumn: string, options?: { star
 
 ##### Returns
 
-A promise that resolves when the bins have been assigned.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Assigns a bin for each row in a new 'bins' column based on 'column1' values, with an interval of 10.
 // If the minimum value in 'column1' is 5, the bins will follow this pattern: "[5-14]", "[15-24]", etc.
-await table.bins("column1", 10, "bins");
+await table.bins("column1", 10, "bins").log();
 ```
 
 ```ts
 // Assigns bins starting at a specific value (0) with an interval of 10.
 // The bins will follow this pattern: "[0-9]", "[10-19]", "[20-29]", etc.
-await table.bins("column1", 10, "bins", { startValue: 0 });
+await table.bins("column1", 10, "bins", { startValue: 0 }).log();
 ```
 
-#### `proportionsHorizontal`
+#### `rowProportions`
 
 Computes proportions horizontally across specified columns for each row.
 
@@ -5225,7 +5560,7 @@ each row, adding new columns for these proportions.
 ##### Signature
 
 ```typescript
-async proportionsHorizontal(columns: string[], options?: { suffix?: string; decimals?: number }): Promise<void>;
+rowProportions(columns: string[], options?: { suffix?: string; decimals?: number }): this;
 ```
 
 ##### Parameters
@@ -5240,15 +5575,14 @@ async proportionsHorizontal(columns: string[], options?: { suffix?: string; deci
 
 ##### Returns
 
-A promise that resolves when the horizontal proportions have been computed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Compute horizontal proportions for 'Men', 'Women', and 'NonBinary' columns, rounded to 2 decimal places
-await table.proportionsHorizontal(["Men", "Women", "NonBinary"], {
-  decimals: 2,
-});
+await table.rowProportions(["Men", "Women", "NonBinary"], { decimals: 2 })
+  .log();
 ```
 
 The table will then look like this:
@@ -5264,10 +5598,10 @@ customize this suffix using the `suffix` option.
 
 ```ts
 // Compute horizontal proportions with a custom suffix "Prop"
-await table.proportionsHorizontal(["Men", "Women", "NonBinary"], {
+await table.rowProportions(["Men", "Women", "NonBinary"], {
   suffix: "Prop",
   decimals: 2,
-});
+}).log();
 ```
 
 The table will then look like this:
@@ -5278,15 +5612,82 @@ The table will then look like this:
 | 2022 | 354 | 278   | 56        | 0.51    | 0.4       | 0.08          |
 | 2023 | 856 | 321   | 221       | 0.61    | 0.23      | 0.16          |
 
-#### `proportionsVertical`
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
-Computes proportions vertically over a column's values, relative to the sum of
-all values in that column (or within specified categories).
+#### `rowRanks`
+
+Selects a ranked numeric value within each row and adds its source column name,
+its value, or both as new columns.
+
+Values are ranked from highest to lowest by default. Null values are ignored. By
+default, a tie at the requested rank throws an error. Set `options.ties` to
+`"first"` to select the first tied column in the supplied order, or to `"all"`
+to produce one row for each tied column. The `"all"` option can therefore
+increase the table's row count. If null values leave a row without the requested
+rank, the new columns contain null.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async proportionsVertical(column: string, newColumn: string, options?: { categories?: string | string[]; decimals?: number }): Promise<void>;
+rowRanks(columns: string[], options: ({ nameColumn: string; valueColumn?: string } | { nameColumn?: string; valueColumn: string }) & { rank?: number; order?: "asc" | "desc"; ties?: "strict" | "first" | "all" }): this;
+```
+
+##### Parameters
+
+- **`columns`**: The numeric columns to rank within each row.
+- **`options`**: The output columns and ranking configuration. At least one of
+  `nameColumn` or `valueColumn` is required.
+- **`options.nameColumn`**: The name of a new column containing the selected
+  source column's name.
+- **`options.valueColumn`**: The name of a new column containing the selected
+  source column's value.
+- **`options.rank`**: The one-based rank to select. Must not exceed the number
+  of supplied columns. Defaults to `1`.
+- **`options.order`**: The ranking order: `"desc"` ranks the highest value first
+  and `"asc"` ranks the lowest value first. Defaults to `"desc"`.
+- **`options.ties`**: How to handle a tie at the requested rank: `"strict"`
+  throws, `"first"` selects the first supplied column, and `"all"` produces one
+  row per tied column. Defaults to `"strict"`.
+
+##### Returns
+
+The table, so methods can be chained.
+
+##### Examples
+
+```ts
+// Add the name and value of the highest-scoring party on each row.
+await table.rowRanks(["CAQ", "PLQ", "PQ"], {
+  nameColumn: "winner",
+  valueColumn: "winningVotes",
+}).log();
+```
+
+```ts
+// Add only the second-lowest value on each row.
+await table.rowRanks(["CAQ", "PLQ", "PQ"], {
+  valueColumn: "secondLowestVotes",
+  rank: 2,
+  order: "asc",
+}).log();
+```
+
+#### `columnProportions`
+
+Computes proportions vertically over a column's values, relative to the sum of
+all values in that column or group.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
+##### Signature
+
+```typescript
+columnProportions(column: string, newColumn: string, options?: { by?: string | string[]; decimals?: number }): this;
 ```
 
 ##### Parameters
@@ -5297,175 +5698,221 @@ async proportionsVertical(column: string, newColumn: string, options?: { categor
 - **`newColumn`**: The name of the new column where the proportions will be
   stored.
 - **`options`**: An optional object with configuration options:
-- **`options.categories`**: The column name or an array of column names that
-  define categories for computing proportions. Proportions will be calculated
-  independently within each category.
+- **`options.by`**: The column name or an array of column names to partition by.
+  Proportions are calculated independently within each group.
 - **`options.decimals`**: The number of decimal places to round the computed
   proportions. Defaults to `undefined` (no rounding).
 
 ##### Returns
 
-A promise that resolves when the vertical proportions have been computed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Add a new column 'perc' with each 'column1' value divided by the sum of all 'column1' values
-await table.proportionsVertical("column1", "perc");
+await table.columnProportions("column1", "perc").log();
 ```
 
 ```ts
-// Compute proportions for 'column1' within 'column2' categories, rounded to two decimal places
-await table.proportionsVertical("column1", "perc", {
-  categories: "column2",
-  decimals: 2,
-});
+// Compute proportions for 'column1' by 'column2', rounded to two decimal places
+await table.columnProportions("column1", "perc", { by: "column2", decimals: 2 })
+  .log();
 ```
 
 ```ts
-// Compute proportions for 'sales' within 'region' and 'product_type' categories
-await table.proportionsVertical("sales", "sales_proportion", {
-  categories: ["region", "product_type"],
-});
+// Compute proportions for 'sales' by 'region' and 'product_type'
+await table.columnProportions("sales", "sales_proportion", {
+  by: ["region", "product_type"],
+}).log();
 ```
 
 #### `summarize`
 
-Creates a summary table based on specified values, categories, and summary
-operations. This method allows you to aggregate data, calculate statistics
-(e.g., count, mean, sum), and group results by categorical columns.
+Creates a summary table from selected columns, optionally grouped by other
+columns. This method allows you to aggregate data, calculate statistics (e.g.,
+count, mean, sum), and group results by categorical columns.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async summarize(options?: { values?: string | string[]; categories?: string | string[]; summaries?: ("count" | "countUnique" | "countNull" | "min" | "max" | "mean" | "median" | "sum" | "skew" | "stdDev" | "var") | ("count" | "countUnique" | "countNull" | "min" | "max" | "mean" | "median" | "sum" | "skew" | "stdDev" | "var")[] | Record<string, "count" | "countUnique" | "countNull" | "min" | "max" | "mean" | "median" | "sum" | "skew" | "stdDev" | "var">; decimals?: number; outputTable?: string | boolean; toMs?: boolean; noColumnValue?: boolean }): Promise<this>;
+summarize(options?: { columns?: string | string[]; by?: string | string[]; stats?: ("count" | "countDistinct" | "countNull" | "min" | "max" | "mean" | "median" | "sum" | "skew" | "stdDev" | "variance") | ("count" | "countDistinct" | "countNull" | "min" | "max" | "mean" | "median" | "sum" | "skew" | "stdDev" | "variance")[] | Record<string, "count" | "countDistinct" | "countNull" | "min" | "max" | "mean" | "median" | "sum" | "skew" | "stdDev" | "variance">; decimals?: number; outputTable?: string | boolean; datesToMs?: boolean }): this;
 ```
 
 ##### Parameters
 
 - **`options`**: An object with configuration options for summarization:
-- **`options.values`**: The column name or an array of column names whose values
-  will be summarized. If omitted, all columns will be summarized.
-- **`options.categories`**: The column name or an array of column names that
-  define categories for the summarization. Results will be grouped by these
-  categories.
-- **`options.summaries`**: The summary operations to be performed. Can be a
-  single operation (e.g., `"mean"`), an array of operations (e.g.,
-  `["min", "max"]`), or an object mapping new column names to operations (e.g.,
-  `{ avgSalary: "mean" }`). Supported operations include: `"count"`,
-  `"countUnique"`, `"countNull"`, `"min"`, `"max"`, `"mean"`, `"median"`,
-  `"sum"`, `"skew"`, `"stdDev"`, `"var"`.
+- **`options.columns`**: The column name or an array of column names to
+  summarize. If omitted, only the row count is returned.
+- **`options.by`**: The column name or an array of column names to group by.
+- **`options.stats`**: The statistics to compute. Can be a single statistic
+  (e.g., `"mean"`), an array (e.g., `["min", "max"]`), or an object mapping
+  output column names to statistics (e.g., `{ avgSalary: "mean" }`). Supported
+  statistics are `"count"`, `"countDistinct"`, `"countNull"`, `"min"`, `"max"`,
+  `"mean"`, `"median"`, `"sum"`, `"skew"`, `"stdDev"`, and `"variance"`.
 - **`options.decimals`**: The number of decimal places to round the summarized
-  values. Defaults to `undefined` (no rounding).
+  columns. Defaults to `undefined` (no rounding).
 - **`options.outputTable`**: If `true`, the results will be stored in a new
   table with a generated name. If a string, it will be used as the name for the
   new table. If `false` or omitted, the current table will be overwritten.
   Defaults to `false`.
-- **`options.toMs`**: If `true`, timestamps, dates, and times will be converted
-  to milliseconds before summarizing. This is useful when summarizing mixed data
-  types (numbers and dates) as values must be of the same type for aggregation.
-- **`options.noColumnValue`**: If `true`, the default `value` column will be
-  removed. This option only works when summarizing a single column without
-  categories. Defaults to `false`.
+- **`options.datesToMs`**: If `true`, timestamps, dates, and times will be
+  converted to milliseconds before summarizing. This is useful when summarizing
+  mixed data types (numbers and dates) as columns must be of the same type for
+  aggregation.
 
 ##### Returns
 
-A promise that resolves to a table instance containing the summarized data
-(either the modified current table or a new table).
+A table instance containing the summarized data (either the current table or a
+new table), so methods can be chained. When summarizing more than one column, a
+`column` column identifies which input column each row summarizes.
 
 ##### Examples
 
 ```ts
-// Summarize all columns with all available summary operations, overwriting the current table
+// Summarize all columns with all available statistics, overwriting the current table
 const columns = await table.getColumns();
-await table.summarize({ values: columns });
+await table.summarize({ columns }).log();
 ```
 
 ```ts
 // Summarize all columns and store the results in a new table with a generated name
 const columns = await table.getColumns();
-const summaryTable = await table.summarize({
-  values: columns,
-  outputTable: true,
-});
+const summaryTable = await table.summarize({ columns, outputTable: true })
+  .log();
 ```
 
 ```ts
 // Summarize all columns and store the results in a new table named 'mySummary'
 const columns = await table.getColumns();
 const mySummaryTable = await table.summarize({
-  values: columns,
+  columns,
   outputTable: "mySummary",
-});
+}).log();
 ```
 
 ```ts
-// Summarize a single column ('sales') with all available summary operations
-await table.summarize({ values: "sales" });
+// Summarize a single column ('sales') with all available statistics
+await table.summarize({ columns: "sales" }).log();
 ```
 
 ```ts
-// Summarize multiple columns ('sales' and 'profit') with all available summary operations
-await table.summarize({ values: ["sales", "profit"] });
+// Summarize multiple columns ('sales' and 'profit') with all available statistics
+await table.summarize({ columns: ["sales", "profit"] }).log();
 ```
 
 ```ts
 // Summarize 'sales' by 'region' (single category)
-await table.summarize({ values: "sales", categories: "region" });
+await table.summarize({ columns: "sales", by: "region" }).log();
 ```
 
 ```ts
-// Summarize 'sales' by 'region' and 'product_type' (multiple categories)
+// Summarize 'sales' by 'region' and 'product_type'
+await table.summarize({ columns: "sales", by: ["region", "product_type"] })
+  .log();
+```
+
+```ts
+// Summarize 'sales' by 'region' with a specific statistic (mean)
+await table.summarize({ columns: "sales", by: "region", stats: "mean" }).log();
+```
+
+```ts
+// Summarize 'sales' by 'region' with specific statistics (mean and sum)
 await table.summarize({
-  values: "sales",
-  categories: ["region", "product_type"],
-});
+  columns: "sales",
+  by: "region",
+  stats: ["mean", "sum"],
+}).log();
 ```
 
 ```ts
-// Summarize 'sales' by 'region' with a specific summary operation (mean)
+// Summarize 'sales' by 'region' with custom named statistics
 await table.summarize({
-  values: "sales",
-  categories: "region",
-  summaries: "mean",
-});
+  columns: "sales",
+  by: "region",
+  stats: { averageSales: "mean", totalSales: "sum" },
+}).log();
 ```
 
 ```ts
-// Summarize 'sales' by 'region' with specific summary operations (mean and sum)
-await table.summarize({
-  values: "sales",
-  categories: "region",
-  summaries: ["mean", "sum"],
-});
-```
-
-```ts
-// Summarize 'sales' by 'region' with custom named summary operations
-await table.summarize({
-  values: "sales",
-  categories: "region",
-  summaries: { averageSales: "mean", totalSales: "sum" },
-});
-```
-
-```ts
-// Summarize 'price' and 'cost', rounding aggregated values to 2 decimal places
-await table.summarize({ values: ["price", "cost"], decimals: 2 });
+// Summarize 'price' and 'cost', rounding aggregated columns to 2 decimal places
+await table.summarize({ columns: ["price", "cost"], decimals: 2 }).log();
 ```
 
 ```ts
 // Summarize 'timestamp_column' by converting to milliseconds first
 await table.summarize({
-  values: "timestamp_column",
-  toMs: true,
-  summaries: "mean",
-});
+  columns: "timestamp_column",
+  datesToMs: true,
+  stats: "mean",
+}).log();
+```
+
+#### `addSummaryRows`
+
+Adds one or more summary rows to the table. Each row is calculated from the
+original rows before any summary rows are added. This is useful for preparing
+totals and other statistics before exporting tabular data.
+
+Passing `"all"` selects every numeric column. Columns that are neither
+summarized nor used for labels contain `NULL` in the added rows. A stat string
+is also used as its row label; pass an object to customize that label. If
+`options.stats` is omitted, every supported stat is added.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
+##### Signature
+
+```typescript
+addSummaryRows(columns: "all" | string | string[], labelColumn: string, options?: { stats?: "countDistinct" | "countNull" | "min" | "max" | "mean" | "median" | "sum" | "skew" | "stdDev" | "variance" | { stat: "countDistinct" | "countNull" | "min" | "max" | "mean" | "median" | "sum" | "skew" | "stdDev" | "variance"; label?: string } | ("countDistinct" | "countNull" | "min" | "max" | "mean" | "median" | "sum" | "skew" | "stdDev" | "variance" | { stat: "countDistinct" | "countNull" | "min" | "max" | "mean" | "median" | "sum" | "skew" | "stdDev" | "variance"; label?: string })[]; position?: "top" | "bottom" }): this;
+```
+
+##### Parameters
+
+- **`columns`**: The numeric column name, an array of numeric column names, or
+  `"all"` to summarize every numeric column.
+- **`labelColumn`**: The existing string column in which stat row labels will be
+  written.
+- **`options`**: An optional object with configuration options:
+- **`options.stats`**: A stat, stat configuration, or array of either. Supported
+  stats are `"countDistinct"`, `"countNull"`, `"min"`, `"max"`, `"mean"`,
+  `"median"`, `"sum"`, `"skew"`, `"stdDev"`, and `"variance"`. An object's
+  `label` defaults to its `stat`. If omitted, all supported stats are added.
+- **`options.position`**: Whether to add the summary rows at the `"top"` or
+  `"bottom"` of the table. Defaults to `"bottom"`.
+
+##### Returns
+
+The table, so methods can be chained.
+
+##### Examples
+
+```ts
+// Add a total row for every numeric column, labelled "sum" in "region".
+await table.addSummaryRows("all", "region", { stats: "sum" }).log();
 ```
 
 ```ts
-// Summarize a single column 'value_column' without the default 'value' column in the output
-await table.summarize({ values: "value_column", noColumnValue: true });
+// Add two summary rows with default labels.
+await table.addSummaryRows(["sales", "expenses"], "region", {
+  stats: ["sum", "mean"],
+  position: "top",
+}).log();
+```
+
+```ts
+// Customize the labels written to the label column.
+await table.addSummaryRows("all", "region", {
+  stats: [
+    { stat: "sum", label: "Total" },
+    { stat: "mean", label: "Average" },
+  ],
+}).log();
 ```
 
 #### `accumulate`
@@ -5473,10 +5920,13 @@ await table.summarize({ values: "value_column", noColumnValue: true });
 Computes the cumulative sum of values in a column. For this method to work
 properly, ensure your data is sorted first.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async accumulate(column: string, newColumn: string, options?: { categories?: string | string[] }): Promise<void>;
+accumulate(column: string, newColumn: string, options?: { by?: string | string[] }): this;
 ```
 
 ##### Parameters
@@ -5485,35 +5935,33 @@ async accumulate(column: string, newColumn: string, options?: { categories?: str
 - **`newColumn`**: The name of the new column in which the computed cumulative
   values will be stored.
 - **`options`**: An optional object with configuration options:
-- **`options.categories`**: The column name or an array of column names that
-  define categories for the accumulation. Accumulation will be performed
-  independently within each category.
+- **`options.by`**: The column name or an array of column names to partition by.
+  Accumulation is performed independently within each group.
 
 ##### Returns
 
-A promise that resolves when the cumulative sum has been computed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Compute the cumulative sum of 'sales' in a new 'cumulativeSales' column
 // Ensure the table is sorted by a relevant column (e.g., date) before calling this method.
-await table.accumulate("sales", "cumulativeSales");
+await table.accumulate("sales", "cumulativeSales").log();
 ```
 
 ```ts
-// Compute the cumulative sum of 'orders' within 'customer_id' categories
+// Compute the cumulative sum of 'orders' by 'customer_id'
 // Ensure the table is sorted by 'customer_id' and then by a relevant order column (e.g., order_date).
-await table.accumulate("orders", "cumulativeOrders", {
-  categories: "customer_id",
-});
+await table.accumulate("orders", "cumulativeOrders", { by: "customer_id" })
+  .log();
 ```
 
 ```ts
-// Compute the cumulative sum of 'revenue' within 'region' and 'product_category' categories
+// Compute the cumulative sum of 'revenue' by 'region' and 'product_category'
 await table.accumulate("revenue", "cumulativeRevenue", {
-  categories: ["region", "product_category"],
-});
+  by: ["region", "product_category"],
+}).log();
 ```
 
 #### `rolling`
@@ -5523,10 +5971,13 @@ column. For rows without enough preceding or following rows to form a complete
 window, `NULL` will be returned. For this method to work properly, ensure your
 data is sorted by the relevant column(s) first.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async rolling(column: string, newColumn: string, summary: "min" | "max" | "mean" | "median" | "sum", preceding: number, following: number, options?: { categories?: string | string[]; decimals?: number }): Promise<void>;
+rolling(column: string, newColumn: string, stat: "min" | "max" | "mean" | "median" | "sum", preceding: number, following: number, options?: { by?: string | string[]; decimals?: number }): this;
 ```
 
 ##### Parameters
@@ -5534,43 +5985,42 @@ async rolling(column: string, newColumn: string, summary: "min" | "max" | "mean"
 - **`column`**: The name of the column storing the values to be aggregated.
 - **`newColumn`**: The name of the new column in which the computed rolling
   values will be stored.
-- **`summary`**: The aggregation function to apply: `"min"`, `"max"`, `"mean"`,
+- **`stat`**: The aggregation function to apply: `"min"`, `"max"`, `"mean"`,
   `"median"`, or `"sum"`.
 - **`preceding`**: The number of preceding rows to include in the rolling
   window.
 - **`following`**: The number of following rows to include in the rolling
   window.
 - **`options`**: An optional object with configuration options:
-- **`options.categories`**: The column name or an array of column names that
-  define categories for the aggregation. Rolling aggregations will be computed
-  independently within each category.
+- **`options.by`**: The column name or an array of column names to partition by.
+  Rolling statistics are computed independently within each group.
 - **`options.decimals`**: The number of decimal places to round the aggregated
   values. Defaults to `undefined` (no rounding).
 
 ##### Returns
 
-A promise that resolves when the rolling aggregation is complete.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Compute a 7-day rolling average of 'sales' with 3 preceding and 3 following rows
 // (total window size of 7: 3 preceding + current + 3 following)
-await table.rolling("sales", "rollingAvgSales", "mean", 3, 3);
+await table.rolling("sales", "rollingAvgSales", "mean", 3, 3).log();
 ```
 
 ```ts
-// Compute a rolling sum of 'transactions' within 'customer_id' categories
+// Compute a rolling sum of 'transactions' by 'customer_id'
 await table.rolling("transactions", "rollingSumTransactions", "sum", 5, 0, {
-  categories: "customer_id",
-});
+  by: "customer_id",
+}).log();
 ```
 
 ```ts
 // Compute a rolling maximum of 'temperature' rounded to 1 decimal place
 await table.rolling("temperature", "rollingMaxTemp", "max", 2, 2, {
   decimals: 1,
-});
+}).log();
 ```
 
 #### `correlations`
@@ -5580,10 +6030,13 @@ specified, the method computes the correlations for all numeric column
 combinations. Note that correlation is symmetrical: the correlation of `x` with
 `y` is the same as `y` with `x`.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async correlations(options?: { x?: string; y?: string; categories?: string | string[]; decimals?: number; outputTable?: string | boolean }): Promise<this>;
+correlations(options?: { x?: string; y?: string; by?: string | string[]; decimals?: number; outputTable?: string | boolean }): this;
 ```
 
 ##### Parameters
@@ -5591,11 +6044,11 @@ async correlations(options?: { x?: string; y?: string; categories?: string | str
 - **`options`**: An optional object with configuration options:
 - **`options.x`**: The name of the column for the x-values. If omitted,
   correlations will be computed for all numeric columns.
-- **`options.y`**: The name of the column for the y-values. If omitted,
-  correlations will be computed for all numeric columns.
-- **`options.categories`**: The column name or an array of column names that
-  define categories. Correlation calculations will be performed independently
-  for each category.
+- **`options.y`**: The name of the column for the y-values. It can be provided
+  only when `options.x` is also set. If both are omitted, correlations will be
+  computed for all numeric column pairs.
+- **`options.by`**: The column name or an array of column names to group by.
+  Correlations are calculated independently within each group.
 - **`options.decimals`**: The number of decimal places to round the correlation
   values. Defaults to `undefined` (no rounding).
 - **`options.outputTable`**: If `true`, the results will be stored in a new
@@ -5605,37 +6058,37 @@ async correlations(options?: { x?: string; y?: string; categories?: string | str
 
 ##### Returns
 
-A promise that resolves to a table instance containing the correlation results
-(either the modified current table or a new table).
+A table instance containing the correlation results (either the current table or
+a new table), so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Compute correlations between all numeric columns, overwriting the current table
-await table.correlations();
+await table.correlations().log();
 ```
 
 ```ts
 // Compute correlations between 'column1' and all other numeric columns
-await table.correlations({ x: "column1" });
+await table.correlations({ x: "column1" }).log();
 ```
 
 ```ts
 // Compute the correlation between 'column1' and 'column2'
-await table.correlations({ x: "column1", y: "column2" });
+await table.correlations({ x: "column1", y: "column2" }).log();
 ```
 
 ```ts
 // Compute correlations within 'categoryColumn' and store results in a new table
 const correlationTable = await table.correlations({
-  categories: "categoryColumn",
+  by: "categoryColumn",
   outputTable: true,
-});
+}).log();
 ```
 
 ```ts
 // Compute correlations, rounded to 2 decimal places
-await table.correlations({ decimals: 2 });
+await table.correlations({ decimals: 2 }).log();
 ```
 
 #### `linearRegressions`
@@ -5646,10 +6099,13 @@ the method computes linear regression analysis for all numeric column
 permutations. Note that linear regression analysis is asymmetrical: the linear
 regression of `x` over `y` is not the same as `y` over `x`.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async linearRegressions(options?: { x?: string; y?: string; categories?: string | string[]; decimals?: number; outputTable?: string | boolean }): Promise<this>;
+linearRegressions(options?: { x?: string; y?: string; by?: string | string[]; decimals?: number; outputTable?: string | boolean }): this;
 ```
 
 ##### Parameters
@@ -5659,10 +6115,10 @@ async linearRegressions(options?: { x?: string; y?: string; categories?: string 
   (x-values). If omitted, linear regressions will be computed for all numeric
   columns as x.
 - **`options.y`**: The name of the column for the dependent variable (y-values).
-  If omitted, linear regressions will be computed for all numeric columns as y.
-- **`options.categories`**: The column name or an array of column names that
-  define categories. Linear regression analysis will be performed independently
-  for each category.
+  It can be provided only when `options.x` is also set. If both are omitted,
+  linear regressions will be computed for all numeric column permutations.
+- **`options.by`**: The column name or an array of column names to group by.
+  Linear regressions are calculated independently within each group.
 - **`options.decimals`**: The number of decimal places to round the regression
   values (slope, intercept, r-squared). Defaults to `undefined` (no rounding).
 - **`options.outputTable`**: If `true`, the results will be stored in a new
@@ -5672,37 +6128,37 @@ async linearRegressions(options?: { x?: string; y?: string; categories?: string 
 
 ##### Returns
 
-A promise that resolves to a table instance containing the linear regression
-results (either the modified current table or a new table).
+A table instance containing the linear regression results (either the current
+table or a new table), so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Compute all linear regressions between all numeric columns, overwriting the current table
-await table.linearRegressions();
+await table.linearRegressions().log();
 ```
 
 ```ts
 // Compute linear regressions with 'column1' as the independent variable and all other numeric columns as dependent variables
-await table.linearRegressions({ x: "column1" });
+await table.linearRegressions({ x: "column1" }).log();
 ```
 
 ```ts
 // Compute the linear regression of 'sales' (y) over 'advertising' (x)
-await table.linearRegressions({ x: "advertising", y: "sales" });
+await table.linearRegressions({ x: "advertising", y: "sales" }).log();
 ```
 
 ```ts
-// Compute linear regressions within 'region' categories and store results in a new table
+// Compute linear regressions by 'region' and store results in a new table
 const regressionTable = await table.linearRegressions({
-  categories: "region",
+  by: "region",
   outputTable: true,
-});
+}).log();
 ```
 
 ```ts
 // Compute linear regressions, rounded to 3 decimal places
-await table.linearRegressions({ decimals: 3 });
+await table.linearRegressions({ decimals: 3 }).log();
 ```
 
 #### `outliersIQR`
@@ -5710,10 +6166,13 @@ await table.linearRegressions({ decimals: 3 });
 Identifies outliers in a specified column using the Interquartile Range (IQR)
 method.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async outliersIQR(column: string, newColumn: string, options?: { categories?: string | string[] }): Promise<void>;
+outliersIQR(column: string, newColumn: string, options?: { by?: string | string[] }): this;
 ```
 
 ##### Parameters
@@ -5722,34 +6181,36 @@ async outliersIQR(column: string, newColumn: string, options?: { categories?: st
 - **`newColumn`**: The name of the new column where the boolean results (`TRUE`
   for outlier, `FALSE` otherwise) will be stored.
 - **`options`**: An optional object with configuration options:
-- **`options.categories`**: The column name or an array of column names that
-  define categories. Outlier detection will be performed independently within
-  each category.
+- **`options.by`**: The column name or an array of column names to partition by.
+  Outliers are detected independently within each group.
 
 ##### Returns
 
-A promise that resolves when the outliers have been identified.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Look for outliers in the 'age' column and store results in a new 'isOutlier' column
-await table.outliersIQR("age", "isOutlier");
+await table.outliersIQR("age", "isOutlier").log();
 ```
 
 ```ts
-// Look for outliers in 'salary' within 'gender' categories
-await table.outliersIQR("salary", "salaryOutlier", { categories: "gender" });
+// Look for outliers in 'salary' by 'gender'
+await table.outliersIQR("salary", "salaryOutlier", { by: "gender" }).log();
 ```
 
 #### `zScore`
 
 Computes the Z-score for values in a specified column.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async zScore(column: string, newColumn: string, options?: { categories?: string | string[]; decimals?: number }): Promise<void>;
+zScore(column: string, newColumn: string, options?: { by?: string | string[]; decimals?: number }): this;
 ```
 
 ##### Parameters
@@ -5758,41 +6219,43 @@ async zScore(column: string, newColumn: string, options?: { categories?: string 
 - **`newColumn`**: The name of the new column where the computed Z-scores will
   be stored.
 - **`options`**: An optional object with configuration options:
-- **`options.categories`**: The column name or an array of column names that
-  define categories. Z-scores will be calculated independently within each
-  category.
+- **`options.by`**: The column name or an array of column names to partition by.
+  Z-scores are calculated independently within each group.
 - **`options.decimals`**: The number of decimal places to round the Z-score
   values. Defaults to `undefined` (no rounding).
 
 ##### Returns
 
-A promise that resolves when the Z-scores have been computed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Calculate the Z-score for 'age' values and store results in a new 'ageZScore' column
-await table.zScore("age", "ageZScore");
+await table.zScore("age", "ageZScore").log();
 ```
 
 ```ts
-// Calculate Z-scores for 'salary' within 'department' categories
-await table.zScore("salary", "salaryZScore", { categories: "department" });
+// Calculate Z-scores for 'salary' by 'department'
+await table.zScore("salary", "salaryZScore", { by: "department" }).log();
 ```
 
 ```ts
 // Calculate Z-scores for 'score', rounded to 2 decimal places
-await table.zScore("score", "scoreZScore", { decimals: 2 });
+await table.zScore("score", "scoreZScore", { decimals: 2 }).log();
 ```
 
 #### `normalize`
 
 Normalizes the values in a column using min-max normalization.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async normalize(column: string, newColumn: string, options?: { categories?: string | string[]; decimals?: number }): Promise<void>;
+normalize(column: string, newColumn: string, options?: { by?: string | string[]; decimals?: number; range?: [number, number] }): this;
 ```
 
 ##### Parameters
@@ -5801,31 +6264,132 @@ async normalize(column: string, newColumn: string, options?: { categories?: stri
 - **`newColumn`**: The name of the new column where normalized values will be
   stored.
 - **`options`**: An optional object with configuration options:
-- **`options.categories`**: The column name or an array of column names that
-  define categories for the normalization. Normalization will be performed
-  independently within each category.
+- **`options.by`**: The column name or an array of column names to partition by.
+  Normalization is performed independently within each group.
 - **`options.decimals`**: The number of decimal places to round the normalized
   values. Defaults to `undefined` (no rounding).
+- **`options.range`**: The inclusive range to scale normalized values to, as
+  `[minimum, maximum]`. Both values must be finite and the minimum must be less
+  than the maximum. Defaults to `[0, 1]`.
 
 ##### Returns
 
-A promise that resolves when the values have been normalized.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Normalize the values in 'column1' and store them in a new 'normalizedColumn1' column
-await table.normalize("column1", "normalizedColumn1");
+await table.normalize("column1", "normalizedColumn1").log();
 ```
 
 ```ts
-// Normalize 'value' within 'group' categories
-await table.normalize("value", "normalizedValue", { categories: "group" });
+// Normalize 'value' by 'group'
+await table.normalize("value", "normalizedValue", { by: "group" }).log();
 ```
 
 ```ts
 // Normalize 'data' values, rounded to 2 decimal places
-await table.normalize("data", "normalizedData", { decimals: 2 });
+await table.normalize("data", "normalizedData", { decimals: 2 }).log();
+```
+
+```ts
+// Normalize 'score' values to a range from 0 to 10
+await table.normalize("score", "scaledScore", { range: [0, 10] }).log();
+```
+
+#### `indexValues`
+
+Indexes a numeric column by dividing each value by a reference value and
+multiplying the result by a base value.
+
+The reference can be calculated from the indexed column with a statistic, read
+from exactly one row selected by another column's value, or read from the unique
+row where another column reaches its minimum or maximum. With `options.by`,
+references are calculated or selected independently within each group. Null
+values in the indexed column remain null when their group has a valid reference.
+The operation throws when a group has no unique selected row or its reference
+value is null or zero.
+
+Exact temporal references are compared at their full DuckDB precision.
+JavaScript `Date` objects only have millisecond precision and always represent
+an instant. Construct them with an explicit timezone, such as
+`new Date("2001-01-01T00:00:00Z")`; date-time strings without `Z` or an offset
+use the user's local timezone.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
+##### Signature
+
+```typescript
+indexValues(column: string, newColumn: string, reference: { stat: "min" | "max" | "mean" | "median"; column?: never; equals?: never; at?: never } | { column: string; equals: string | number | bigint | boolean | Date; stat?: never; at?: never } | { column: string; at: "min" | "max"; stat?: never; equals?: never }, options?: { by?: string | string[]; base?: number; decimals?: number }): this;
+```
+
+##### Parameters
+
+- **`column`**: The numeric column containing the values to index.
+- **`newColumn`**: The name of the new column where indexed values will be
+  stored.
+- **`reference`**: A statistic calculated from `column`, a column and exact
+  non-null `equals` value selecting a row, or a column and `at` set to `min` or
+  `max` selecting its unique extreme row. The selected row's `column` value
+  becomes the reference.
+- **`reference.stat`**: The statistic used to calculate the reference directly
+  from the indexed column.
+- **`reference.column`**: The column used to select an exact reference row or
+  its unique minimum or maximum row.
+- **`reference.equals`**: The non-null value used to select an exact reference
+  row. Its JavaScript type must be compatible with the reference column's DuckDB
+  type; string, numeric, boolean, and temporal values are not coerced across
+  type families. Date values should be constructed with an explicit timezone.
+- **`reference.at`**: Selects the unique row where `reference.column` reaches
+  its minimum or maximum.
+- **`options`**: An optional object with configuration options.
+- **`options.by`**: A column name or an array of column names to partition by.
+  The reference is calculated independently within each group.
+- **`options.base`**: The finite positive value assigned to the reference.
+  Defaults to `100`.
+- **`options.decimals`**: A finite non-negative integer specifying the number of
+  decimal places to retain. By default, values are not rounded.
+
+##### Returns
+
+The table, so methods can be chained.
+
+##### Examples
+
+```ts
+// Index each country's average home price to its January 2001 value.
+await table.indexValues(
+  "homePrice",
+  "homePriceIndexed",
+  {
+    column: "date",
+    equals: new Date("2001-01-01T00:00:00Z"),
+  },
+  {
+    by: "country",
+    base: 100,
+    decimals: 1,
+  },
+).log();
+```
+
+```ts
+// Index each value against the mean of its group.
+await table.indexValues("homePrice", "homePriceIndexed", { stat: "mean" }, {
+  by: "country",
+}).log();
+```
+
+```ts
+// Index each country's average home price to its earliest value.
+// This throws if multiple rows share the earliest date in a country.
+await table.indexValues("homePrice", "homePriceIndexed", {
+  column: "date",
+  at: "min",
+}, { by: "country" }).log();
 ```
 
 #### `updateWithJS`
@@ -5836,10 +6400,14 @@ array of objects. This method offers high flexibility for data manipulation but
 can be slow for large tables as it involves transferring data between DuckDB and
 JavaScript. This method does not work with tables containing geometries.
 
+This method queues the update; the dataModifier function runs when an async
+observer method (like `getData()` or `log()`) is awaited, or when `run()` is
+called.
+
 ##### Signature
 
 ```typescript
-async updateWithJS(dataModifier: ((rows: Record<string, number | string | Date | boolean | null>[]) => Promise<Record<string, number | string | Date | boolean | null>[]>) | ((rows: Record<string, number | string | Date | boolean | null>[]) => Record<string, number | string | Date | boolean | null>[])): Promise<void>;
+updateWithJS(dataModifier: ((rows: Record<string, unknown>[]) => Promise<Record<string, unknown>[]>) | ((rows: Record<string, unknown>[]) => Record<string, unknown>[]), options?: { batchSize?: number }): this;
 ```
 
 ##### Parameters
@@ -5847,35 +6415,48 @@ async updateWithJS(dataModifier: ((rows: Record<string, number | string | Date |
 - **`dataModifier`**: A synchronous or asynchronous function that takes the
   existing rows (as an array of objects) and returns the modified rows (as an
   array of objects).
+- **`options`**: An optional object with configuration options:
+- **`options.batchSize`**: If provided, rows are processed in batches of this
+  size instead of all at once, so large tables don't have to be materialized
+  entirely in memory. The modifier function is called once per batch.
 
 ##### Returns
 
-A promise that resolves when the data has been updated.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
-// Add 1 to values in 'column1'. If values are not numbers, they are replaced by null.
-await table.updateWithJS((rows) => {
-  const modifiedRows = rows.map((d) => ({
-    ...d,
-    column1: typeof d.column1 === "number" ? d.column1 + 1 : null,
-  }));
-  return modifiedRows;
-});
+// Count words correctly across multilingual article text.
+const segmenter = new Intl.Segmenter(undefined, { granularity: "word" });
+const table = await sdb
+  .newTable()
+  .loadData("articles.csv")
+  .updateWithJS((rows) => {
+    return rows.map((row) => ({
+      ...row,
+      wordCount: typeof row.text === "string"
+        ? [...segmenter.segment(row.text)].filter((part) => part.isWordLike)
+          .length
+        : null,
+    }));
+  })
+  .log();
 ```
 
 ```ts
-// Convert a date string to a Date object in 'dateColumn'
-await table.updateWithJS((rows) => {
-  const modifiedRows = rows.map((d) => ({
-    ...d,
-    dateColumn: typeof d.dateColumn === "string"
-      ? new Date(d.dateColumn)
-      : d.dateColumn,
-  }));
-  return modifiedRows;
-});
+// Enrich reviews with scores from an external service, 100 at a time.
+const reviews = await table
+  .updateWithJS(async (rows) => {
+    const response = await fetch("https://api.example.com/score", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(rows.map((row) => row.review)),
+    });
+    const scores = await response.json() as number[];
+    return rows.map((row, index) => ({ ...row, score: scores[index] }));
+  }, { batchSize: 100 })
+  .log();
 ```
 
 #### `getSchema`
@@ -5925,14 +6506,14 @@ const description = await table.getDescription();
 console.table(description);
 ```
 
-#### `getTableName`
+#### `getName`
 
 Returns the name of the table.
 
 ##### Signature
 
 ```typescript
-getTableName(): string;
+getName(): string;
 ```
 
 ##### Returns
@@ -5943,7 +6524,7 @@ The name of the table as a string.
 
 ```ts
 // Get the table name
-const tableName = table.getTableName();
+const tableName = table.getName();
 console.log(tableName); // e.g., "employees"
 ```
 
@@ -5983,10 +6564,13 @@ Normalizes string values in a column by:
 Produces identical output to `journalism-format`'s `normalizeString()` function
 for all common cases including accented Latin characters.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async normalizeString(column: string, newColumn: string, options?: { stripPunctuation?: boolean }): Promise<void>;
+normalizeString(column: string, newColumn: string, options?: { stripPunctuation?: boolean }): this;
 ```
 
 ##### Parameters
@@ -5999,13 +6583,13 @@ async normalizeString(column: string, newColumn: string, options?: { stripPunctu
 
 ##### Returns
 
-A promise that resolves when the operation is complete
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Normalize text column and store in new column
-await table.normalizeString("recipeName", "recipeNameNormalized");
+await table.normalizeString("recipeName", "recipeNameNormalized").log();
 // "Épicerie Parisienne!" → "epicerie parisienne"
 ```
 
@@ -6013,22 +6597,21 @@ await table.normalizeString("recipeName", "recipeNameNormalized");
 // Keep punctuation for emails and URLs
 await table.normalizeString("email", "emailNormalized", {
   stripPunctuation: false,
-});
+}).log();
 // "User@Example.com" → "user@example.com"
-await table.normalizeString("url", "urlNormalized", {
-  stripPunctuation: false,
-});
+await table.normalizeString("url", "urlNormalized", { stripPunctuation: false })
+  .log();
 // "https://Example.com/path" → "https://example.com/path"
 ```
 
-#### `getNbColumns`
+#### `getColumnCount`
 
 Returns the number of columns in the table.
 
 ##### Signature
 
 ```typescript
-async getNbColumns(): Promise<number>;
+async getColumnCount(): Promise<number>;
 ```
 
 ##### Returns
@@ -6039,18 +6622,18 @@ A promise that resolves to a number representing the total count of columns.
 
 ```ts
 // Get the number of columns in the table
-const nbColumns = await table.getNbColumns();
-console.log(nbColumns); // e.g., 3
+const columnCount = await table.getColumnCount();
+console.log(columnCount); // e.g., 3
 ```
 
-#### `getNbCharacters`
+#### `getCharacterCount`
 
 Returns the total number of characters in a column storing strings.
 
 ##### Signature
 
 ```typescript
-async getNbCharacters(column: string): Promise<number>;
+async getCharacterCount(column: string): Promise<number>;
 ```
 
 ##### Parameters
@@ -6066,18 +6649,18 @@ specified column.
 
 ```ts
 // Get the total number of characters in the 'name' column
-const totalChars = await table.getNbCharacters("name");
+const totalChars = await table.getCharacterCount("name");
 console.log(totalChars); // e.g., 523
 ```
 
-#### `getNbRows`
+#### `getRowCount`
 
 Returns the number of rows in the table.
 
 ##### Signature
 
 ```typescript
-async getNbRows(options?: { conditions?: string }): Promise<number>;
+async getRowCount(options?: { conditions?: string }): Promise<number>;
 ```
 
 ##### Parameters
@@ -6094,17 +6677,17 @@ A promise that resolves to a number representing the total count of rows.
 
 ```ts
 // Get the number of rows in the table
-const nbRows = await table.getNbRows();
-console.log(nbRows); // e.g., 100
+const rowCount = await table.getRowCount();
+console.log(rowCount); // e.g., 100
 ```
 
 ```ts
 // Get the number of rows where 'category' is 'Book'
-const nbBooks = await table.getNbRows({ conditions: "category = 'Book'" });
-console.log(nbBooks);
+const bookCount = await table.getRowCount({ conditions: "category = 'Book'" });
+console.log(bookCount);
 ```
 
-#### `getNbValues`
+#### `getValueCount`
 
 Returns the total number of values in the table (number of columns multiplied by
 the number of rows).
@@ -6112,7 +6695,7 @@ the number of rows).
 ##### Signature
 
 ```typescript
-async getNbValues(): Promise<number>;
+async getValueCount(): Promise<number>;
 ```
 
 ##### Returns
@@ -6123,8 +6706,8 @@ A promise that resolves to a number representing the total count of values.
 
 ```ts
 // Get the total number of values in the table
-const nbValues = await table.getNbValues();
-console.log(nbValues); // e.g., 300 (if 3 columns and 100 rows)
+const valueCount = await table.getValueCount();
+console.log(valueCount); // e.g., 300 (if 3 columns and 100 rows)
 ```
 
 #### `getTypes`
@@ -6150,14 +6733,38 @@ const dataTypes = await table.getTypes();
 console.log(dataTypes);
 ```
 
-#### `getValues`
+#### `getHash`
 
-Returns all values from a specific column.
+Returns a deterministic hash of the table's ordered schema and contents. Pending
+operations are executed before the hash is calculated. Computing the hash scans
+the complete table inside DuckDB without transferring its rows to JavaScript.
 
 ##### Signature
 
 ```typescript
-async getValues(column: string): Promise<(string | number | boolean | Date | null)[]>;
+async getHash(): Promise<string>;
+```
+
+##### Returns
+
+A promise that resolves to a SHA-256 hash string.
+
+##### Examples
+
+```ts
+const hash = await table.getHash();
+console.log(hash); // e.g., "8f14e45fceea..."
+```
+
+#### `getValues`
+
+Returns all values from a specific column. Temporal values use the same
+JavaScript representations as `getData()`.
+
+##### Signature
+
+```typescript
+async getValues(column: string): Promise<unknown[]>;
 ```
 
 ##### Parameters
@@ -6179,12 +6786,13 @@ console.log(productNames); // e.g., ["Laptop", "Mouse", "Keyboard"]
 
 #### `getMin`
 
-Returns the minimum value from a specific column.
+Returns the minimum value from a specific column. Temporal values use the same
+JavaScript representations as `getData()`.
 
 ##### Signature
 
 ```typescript
-async getMin(column: string): Promise<string | number | boolean | Date | null>;
+async getMin(column: string): Promise<unknown>;
 ```
 
 ##### Parameters
@@ -6205,12 +6813,13 @@ console.log(minPrice); // e.g., 10.50
 
 #### `getMax`
 
-Returns the maximum value from a specific column.
+Returns the maximum value from a specific column. Temporal values use the same
+JavaScript representations as `getData()`.
 
 ##### Signature
 
 ```typescript
-async getMax(column: string): Promise<string | number | boolean | Date | null>;
+async getMax(column: string): Promise<unknown>;
 ```
 
 ##### Parameters
@@ -6232,12 +6841,12 @@ console.log(maxPrice); // e.g., 99.99
 #### `getExtent`
 
 Returns the extent (minimum and maximum values) of a specific column as an
-array.
+array. Temporal values use the same JavaScript representations as `getData()`.
 
 ##### Signature
 
 ```typescript
-async getExtent(column: string): Promise<[string | number | boolean | Date | null, string | number | boolean | Date | null]>;
+async getExtent(column: string): Promise<[unknown, unknown]>;
 ```
 
 ##### Parameters
@@ -6427,14 +7036,14 @@ const scoreStdDev = await table.getStdDev("score", { decimals: 3 });
 console.log(scoreStdDev); // e.g., 12.345
 ```
 
-#### `getVar`
+#### `getVariance`
 
 Returns the variance of values from a specific numeric column.
 
 ##### Signature
 
 ```typescript
-async getVar(column: string, options?: { decimals?: number }): Promise<number>;
+async getVariance(column: string, options?: { decimals?: number }): Promise<number>;
 ```
 
 ##### Parameters
@@ -6453,13 +7062,13 @@ A promise that resolves to the variance value of the specified column.
 
 ```ts
 // Get the variance of the 'data' column
-const dataVariance = await table.getVar("data");
+const dataVariance = await table.getVariance("data");
 console.log(dataVariance); // e.g., 25.5
 ```
 
 ```ts
 // Get the variance of the 'values' column, rounded to 2 decimal places
-const valuesVariance = await table.getVar("values", { decimals: 2 });
+const valuesVariance = await table.getVariance("values", { decimals: 2 });
 console.log(valuesVariance); // e.g., 10.23
 ```
 
@@ -6508,12 +7117,13 @@ console.log(ninetiethPercentile); // e.g., 88.55
 #### `getUniques`
 
 Returns unique values from a specific column. The values are returned in
-ascending order.
+ascending order. Temporal values use the same JavaScript representations as
+`getData()`.
 
 ##### Signature
 
 ```typescript
-async getUniques(column: string): Promise<(string | number | boolean | Date | null)[]>;
+async getUniques(column: string): Promise<unknown[]>;
 ```
 
 ##### Parameters
@@ -6537,11 +7147,12 @@ console.log(uniqueCategories); // e.g., ["Books", "Clothing", "Electronics"]
 
 Returns the first row of the table, optionally filtered by SQL conditions. You
 can also use JavaScript syntax for conditions (e.g., `&&`, `||`, `===`, `!==`).
+Temporal values use the same JavaScript representations as `getData()`.
 
 ##### Signature
 
 ```typescript
-async getFirstRow(options?: { conditions?: string }): Promise<Record<string, string | number | boolean | Date | null>>;
+async getFirstRow(options?: { conditions?: string }): Promise<Record<string, unknown> | null>;
 ```
 
 ##### Parameters
@@ -6575,11 +7186,12 @@ console.log(firstRowBooks);
 
 Returns the last row of the table, optionally filtered by SQL conditions. You
 can also use JavaScript syntax for conditions (e.g., `&&`, `||`, `===`, `!==`).
+Temporal values use the same JavaScript representations as `getData()`.
 
 ##### Signature
 
 ```typescript
-async getLastRow(options?: { conditions?: string }): Promise<Record<string, string | number | boolean | Date | null>>;
+async getLastRow(options?: { conditions?: string }): Promise<Record<string, unknown> | null>;
 ```
 
 ##### Parameters
@@ -6613,12 +7225,12 @@ console.log(lastRowBooks);
 
 Returns the top `n` rows of the table, optionally filtered by SQL conditions.
 You can also use JavaScript syntax for conditions (e.g., `&&`, `||`, `===`,
-`!==`).
+`!==`). Temporal values use the same JavaScript representations as `getData()`.
 
 ##### Signature
 
 ```typescript
-async getTop(count: number, options?: { conditions?: string }): Promise<Record<string, string | number | boolean | Date | null>[]>;
+async getTop(count: number, options?: { conditions?: string }): Promise<Record<string, unknown>[]>;
 ```
 
 ##### Parameters
@@ -6651,12 +7263,13 @@ console.log(top5Books);
 Returns the bottom `n` rows of the table, optionally filtered by SQL conditions.
 By default, the last row will be returned first. To preserve the original order,
 use the `originalOrder` option. You can also use JavaScript syntax for
-conditions (e.g., `&&`, `||`, `===`, `!==`).
+conditions (e.g., `&&`, `||`, `===`, `!==`). Temporal values use the same
+JavaScript representations as `getData()`.
 
 ##### Signature
 
 ```typescript
-async getBottom(count: number, options?: { originalOrder?: boolean; conditions?: string }): Promise<Record<string, string | number | boolean | Date | null>[]>;
+async getBottom(count: number, options?: { originalOrder?: boolean; conditions?: string }): Promise<Record<string, unknown>[]>;
 ```
 
 ##### Parameters
@@ -6701,29 +7314,32 @@ console.log(bottom5Books);
 
 Returns a single row that matches the specified conditions. If no row matches or
 if more than one row matches, an error is thrown by default. You can also use
-JavaScript syntax for conditions (e.g., `AND`, `||`, `===`, `!==`).
+JavaScript syntax for conditions (e.g., `AND`, `||`, `===`, `!==`). Temporal
+values use the same JavaScript representations as `getData()`.
 
 ##### Signature
 
 ```typescript
-async getRow(conditions: string, options?: { noCheck?: boolean }): Promise<Record<string, string | number | boolean | Date | null> | undefined>;
+async getRow(conditions: string, options?: { strict?: boolean }): Promise<Record<string, unknown> | null>;
 ```
 
 ##### Parameters
 
 - **`conditions`**: The conditions to match, specified as a SQL `WHERE` clause.
 - **`options`**: Optional settings:
-- **`options.noCheck`**: If `true`, no error will be thrown when no row or more
-  than one row match the condition. Defaults to `false`.
+- **`options.strict`**: If `false`, no error will be thrown when no row or more
+  than one row match the condition. With no match, `null` is returned; with
+  multiple matches, the first row is returned. Defaults to `true`.
 
 ##### Returns
 
-A promise that resolves to an object representing the matched row.
+A promise that resolves to an object representing the matched row, or `null` if
+`strict` is `false` and no row matches.
 
 ##### Throws
 
-- **`Error`**: If `noCheck` is `false` and no row or more than one row matches
-  the conditions.
+- **`Error`**: If `strict` is `true` and no row or more than one row matches the
+  conditions.
 
 ##### Examples
 
@@ -6741,7 +7357,7 @@ console.log(rowById);
 
 ```ts
 // Get a row without throwing an error if multiple matches or no match
-const flexibleRow = await table.getRow(`status = 'pending'`, { noCheck: true });
+const flexibleRow = await table.getRow(`status = 'pending'`, { strict: false });
 console.log(flexibleRow);
 ```
 
@@ -6751,10 +7367,15 @@ Returns the data from the table as an array of objects, optionally filtered by
 SQL conditions. You can also use JavaScript syntax for conditions (e.g., `&&`,
 `||`, `===`, `!==`).
 
+Top-level DuckDB `DATE` and `TIMESTAMP` columns are returned as JavaScript
+`Date` objects interpreted in UTC. `TIMESTAMP WITH TIME ZONE` values are
+returned as UTC strings, preserving DuckDB's microsecond precision; JavaScript
+`Date` supports only milliseconds.
+
 ##### Signature
 
 ```typescript
-async getData(options?: { columns?: string | string[]; conditions?: string }): Promise<Record<string, string | number | boolean | Date | null>[]>;
+async getData(options?: { columns?: string | string[]; conditions?: string; limit?: number }): Promise<Record<string, unknown>[]>;
 ```
 
 ##### Parameters
@@ -6764,6 +7385,8 @@ async getData(options?: { columns?: string | string[]; conditions?: string }): P
   omitted, all columns will be included.
 - **`options.conditions`**: The filtering conditions specified as a SQL `WHERE`
   clause (e.g., `"category = 'Book'"`).
+- **`options.limit`**: The maximum number of rows to return. Must be an integer
+  greater than or equal to `0`.
 
 ##### Returns
 
@@ -6793,11 +7416,65 @@ const booksData = await table.getData({
 console.log(booksData);
 ```
 
+```ts
+// Return at most two rows.
+const preview = await table.getData({ limit: 2 });
+```
+
+#### `stream`
+
+Streams the table rows one by one as an async iterator, without materializing
+the whole table in memory. Values are converted to JavaScript types the same way
+as `getData()`.
+
+The underlying DuckDB result is streamed chunk by chunk, so tables larger than
+the available memory can be iterated. Avoid running other queries on the same
+database while iterating.
+
+##### Signature
+
+```typescript
+stream(options?: { columns?: string | string[]; conditions?: string }): AsyncGenerator<Record<string, unknown>, void, undefined>;
+```
+
+##### Parameters
+
+- **`options`**: An optional object with configuration options:
+- **`options.columns`**: The column name or an array of column names to include.
+  If omitted, all columns are streamed.
+- **`options.conditions`**: A SQL `WHERE` clause condition to filter the rows.
+
+##### Returns
+
+An async generator yielding one row object at a time.
+
+##### Examples
+
+```ts
+// Stream all rows
+for await (const row of table.stream()) {
+  console.log(row);
+}
+```
+
+```ts
+// Stream specific columns and rows
+for await (
+  const row of table.stream({
+    columns: "temperature",
+    conditions: `temperature > 20`,
+  })
+) {
+  console.log(row);
+}
+```
+
 #### `getDataAsCSV`
 
 Returns the data from the table as a CSV string, optionally filtered by SQL
 conditions. You can also use JavaScript syntax for conditions (e.g., `&&`, `||`,
-`===`, `!==`).
+`===`, `!==`). Temporal values are first converted as they are in `getData()`,
+then serialized using UTC date and timestamp text.
 
 ##### Signature
 
@@ -6843,42 +7520,60 @@ const booksDataCSV = await table.getDataAsCSV({
 console.log(booksDataCSV);
 ```
 
-#### `points`
+#### `createPoints`
 
-Creates point geometries from latitude and longitude columns.
+Creates point geometries from latitude (y) and longitude (x) columns.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async points(columnLat: string, columnLon: string, newColumn: string): Promise<void>;
+createPoints(latColumn: string, lonColumn: string, newColumn: string, options?: { projection?: string }): this;
 ```
 
 ##### Parameters
 
-- **`columnLat`**: The name of the column storing the latitude values.
-- **`columnLon`**: The name of the column storing the longitude values.
+- **`latColumn`**: The name of the column storing the latitude (y-coordinate)
+  values.
+- **`lonColumn`**: The name of the column storing the longitude (x-coordinate)
+  values.
 - **`newColumn`**: The name of the new column where the point geometries will be
   stored.
+- **`options`**: An optional object with configuration options:
+- **`options.projection`**: The projection of the coordinates. Defaults to
+  EPSG:4326 (WGS84), passed as `"EPSG:4326"`.
 
 ##### Returns
 
-A promise that resolves when the point geometries have been created.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
-// Create point geometries in a new 'geom' column using 'lat' and 'lon' columns
-await table.points("lat", "lon", "geom");
+// Create point geometries in a new 'geom' column using latitude (y) and longitude (x) columns.
+// The resulting coordinates are ordered as [longitude, latitude], or [x, y].
+// The projection is assumed to be EPSG:4326 (WGS84).
+await table.createPoints("lat", "lon", "geom").log();
 ```
 
-#### `isValidGeo`
+```ts
+// Create point geometries from coordinates in a projected coordinate system
+await table.createPoints("y", "x", "geom", { projection: "EPSG:3347" }).log();
+```
+
+#### `addGeoValidity`
 
 Adds a column with boolean values indicating the validity of geometries.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async isValidGeo(newColumn: string, options?: { column?: string }): Promise<void>;
+addGeoValidity(newColumn: string, options?: { column?: string }): this;
 ```
 
 ##### Parameters
@@ -6892,29 +7587,32 @@ async isValidGeo(newColumn: string, options?: { column?: string }): Promise<void
 
 ##### Returns
 
-A promise that resolves when the validity check is complete.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Check if geometries are valid and store results in a new 'isValid' column
 // The method will automatically detect the geometry column.
-await table.isValidGeo("isValid");
+await table.addGeoValidity("isValid").log();
 ```
 
 ```ts
 // Check validity of geometries in a specific column named 'myGeom'
-await table.isValidGeo("isValidMyGeom", { column: "myGeom" });
+await table.addGeoValidity("isValidMyGeom", { column: "myGeom" }).log();
 ```
 
-#### `nbVertices`
+#### `addVertexCount`
 
 Adds a column with the number of vertices (points) in each geometry.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async nbVertices(newColumn: string, options?: { column?: string }): Promise<void>;
+addVertexCount(newColumn: string, options?: { column?: string }): this;
 ```
 
 ##### Parameters
@@ -6927,29 +7625,32 @@ async nbVertices(newColumn: string, options?: { column?: string }): Promise<void
 
 ##### Returns
 
-A promise that resolves when the vertex counts have been added.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Add a new column 'vertexCount' with the number of vertices for each geometry
 // The method will automatically detect the geometry column.
-await table.nbVertices("vertexCount");
+await table.addVertexCount("vertexCount").log();
 ```
 
 ```ts
 // Add vertex counts for geometries in a specific column named 'myGeom'
-await table.nbVertices("myGeomVertices", { column: "myGeom" });
+await table.addVertexCount("myGeomVertices", { column: "myGeom" }).log();
 ```
 
 #### `fixGeo`
 
 Attempts to make invalid geometries valid without removing any vertices.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async fixGeo(column?: string): Promise<void>;
+fixGeo(column?: string): this;
 ```
 
 ##### Parameters
@@ -6959,29 +7660,32 @@ async fixGeo(column?: string): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the geometries have been processed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Fix invalid geometries in the default geometry column
-await table.fixGeo();
+await table.fixGeo().log();
 ```
 
 ```ts
 // Fix invalid geometries in a specific column named 'myGeom'
-await table.fixGeo("myGeom");
+await table.fixGeo("myGeom").log();
 ```
 
-#### `isClosedGeo`
+#### `addGeoClosedStatus`
 
 Adds a column with boolean values indicating whether geometries are closed
 (e.g., polygons) or open (e.g., linestrings).
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async isClosedGeo(newColumn: string, options?: { column?: string }): Promise<void>;
+addGeoClosedStatus(newColumn: string, options?: { column?: string }): this;
 ```
 
 ##### Parameters
@@ -6994,29 +7698,33 @@ async isClosedGeo(newColumn: string, options?: { column?: string }): Promise<voi
 
 ##### Returns
 
-A promise that resolves when the closed geometry check is complete.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Check if geometries are closed and store results in a new 'isClosed' column
-await table.isClosedGeo("isClosed");
+await table.addGeoClosedStatus("isClosed").log();
 ```
 
 ```ts
 // Check closed status of geometries in a specific column named 'boundaryGeom'
-await table.isClosedGeo("boundaryClosed", { column: "boundaryGeom" });
+await table.addGeoClosedStatus("boundaryClosed", { column: "boundaryGeom" })
+  .log();
 ```
 
-#### `typeGeo`
+#### `addGeoType`
 
 Adds a column with the geometry type (e.g., `"POINT"`, `"LINESTRING"`,
 `"POLYGON"`) for each geometry.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async typeGeo(newColumn: string, options?: { column?: string }): Promise<void>;
+addGeoType(newColumn: string, options?: { column?: string }): this;
 ```
 
 ##### Parameters
@@ -7029,31 +7737,35 @@ async typeGeo(newColumn: string, options?: { column?: string }): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the geometry types have been added.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Add a new column 'geometryType' with the type of each geometry
-await table.typeGeo("geometryType");
+await table.addGeoType("geometryType").log();
 ```
 
 ```ts
 // Get the geometry type for geometries in a specific column named 'featureGeom'
-await table.typeGeo("featureType", { column: "featureGeom" });
+await table.addGeoType("featureType", { column: "featureGeom" }).log();
 ```
 
 #### `flipCoordinates`
 
 Flips the coordinate order of geometries in a specified column (e.g., from
-`[lon, lat]` to `[lat, lon]` or vice-versa). **Warning:** This method should be
-used with caution as it directly manipulates coordinate order and can affect the
-accuracy of geospatial operations if not used correctly.
+`[longitude (x), latitude (y)]` to `[latitude (y), longitude (x)]` or
+vice-versa). **Warning:** This method should be used with caution as it directly
+manipulates coordinate order and can affect the accuracy of geospatial
+operations if not used correctly.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async flipCoordinates(column?: string): Promise<void>;
+flipCoordinates(column?: string): this;
 ```
 
 ##### Parameters
@@ -7063,18 +7775,18 @@ async flipCoordinates(column?: string): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the coordinates have been flipped.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Flip coordinates in the default geometry column
-await table.flipCoordinates();
+await table.flipCoordinates().log();
 ```
 
 ```ts
 // Flip coordinates in a specific column named 'myGeom'
-await table.flipCoordinates("myGeom");
+await table.flipCoordinates("myGeom").log();
 ```
 
 #### `reducePrecision`
@@ -7082,10 +7794,13 @@ await table.flipCoordinates("myGeom");
 Reduces the precision of geometries in a specified column to a given number of
 decimal places.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async reducePrecision(decimals: number, options?: { column?: string }): Promise<void>;
+reducePrecision(decimals: number, options?: { column?: string }): this;
 ```
 
 ##### Parameters
@@ -7098,18 +7813,18 @@ async reducePrecision(decimals: number, options?: { column?: string }): Promise<
 
 ##### Returns
 
-A promise that resolves when the precision of the geometries has been reduced.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Reduce the precision of geometries in the default column to 3 decimal places
-await table.reducePrecision(3);
+await table.reducePrecision(3).log();
 ```
 
 ```ts
 // Reduce the precision of geometries in a specific column named 'myGeom' to 2 decimal places
-await table.reducePrecision(2, { column: "myGeom" });
+await table.reducePrecision(2, { column: "myGeom" }).log();
 ```
 
 #### `reproject`
@@ -7117,45 +7832,51 @@ await table.reducePrecision(2, { column: "myGeom" });
 Reprojects the geometries in a specified column to another Spatial Reference
 System (SRS).
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async reproject(to: string, options?: { column?: string }): Promise<void>;
+reproject(crs: string, options?: { column?: string }): this;
 ```
 
 ##### Parameters
 
-- **`to`**: The target SRS (e.g., `"EPSG:3347"`, `"WGS84"`).
+- **`crs`**: The target SRS (e.g., `"EPSG:3347"`, or `"EPSG:4326"` for EPSG:4326
+  (WGS84)).
 - **`options`**: An optional object with configuration options:
 - **`options.column`**: The name of the column storing the geometries. If
   omitted, the method will automatically attempt to find a geometry column.
 
 ##### Returns
 
-A promise that resolves when the geometries have been reprojected.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Reproject geometries in the default column to EPSG:3347 (NAD83/Statistics Canada Lambert)
-await table.reproject("EPSG:3347");
+await table.reproject("EPSG:3347").log();
 ```
 
 ```ts
 // Reproject geometries in a specific column named 'myGeom' to EPSG:3347
-await table.reproject("EPSG:3347", { column: "myGeom" });
+await table.reproject("EPSG:3347", { column: "myGeom" }).log();
 ```
 
 #### `area`
 
 Computes the area of geometries in square meters (`"m2"`) or optionally square
-kilometers (`"km2"`). The input geometry is assumed to be in the EPSG:4326
-coordinate system (WGS84).
+kilometers (`"km2"`). The input geometry is assumed to be in EPSG:4326 (WGS84).
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async area(newColumn: string, options?: { unit?: "m2" | "km2"; column?: string }): Promise<void>;
+area(newColumn: string, options?: { unit?: "m2" | "km2"; column?: string; decimals?: number }): this;
 ```
 
 ##### Parameters
@@ -7167,38 +7888,47 @@ async area(newColumn: string, options?: { unit?: "m2" | "km2"; column?: string }
   `"km2"` (square kilometers). Defaults to `"m2"`.
 - **`options.column`**: The name of the column storing the geometries. If
   omitted, the method will automatically attempt to find a geometry column.
+- **`options.decimals`**: The number of decimal places to round the computed
+  areas. Defaults to `undefined` (no rounding).
 
 ##### Returns
 
-A promise that resolves when the areas have been computed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Compute the area of geometries in square meters and store in 'area_m2'
-await table.area("area_m2");
+await table.area("area_m2").log();
 ```
 
 ```ts
 // Compute the area of geometries in square kilometers and store in 'area_km2'
-await table.area("area_km2", { unit: "km2" });
+await table.area("area_km2", { unit: "km2" }).log();
+```
+
+```ts
+// Compute areas in square kilometers rounded to two decimal places
+await table.area("area_km2", { unit: "km2", decimals: 2 }).log();
 ```
 
 ```ts
 // Compute the area of geometries in a specific column named 'myGeom'
-await table.area("myGeomArea", { column: "myGeom" });
+await table.area("myGeomArea", { column: "myGeom" }).log();
 ```
 
 #### `length`
 
 Computes the length of line geometries in meters (`"m"`) or optionally
-kilometers (`"km"`). The input geometry is assumed to be in the EPSG:4326
-coordinate system (WGS84).
+kilometers (`"km"`). The input geometry is assumed to be in EPSG:4326 (WGS84).
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async length(newColumn: string, options?: { unit?: "m" | "km"; column?: string }): Promise<void>;
+length(newColumn: string, options?: { unit?: "m" | "km"; column?: string; decimals?: number }): this;
 ```
 
 ##### Parameters
@@ -7210,38 +7940,47 @@ async length(newColumn: string, options?: { unit?: "m" | "km"; column?: string }
   (kilometers). Defaults to `"m"`.
 - **`options.column`**: The name of the column storing the geometries. If
   omitted, the method will automatically attempt to find a geometry column.
+- **`options.decimals`**: The number of decimal places to round the computed
+  lengths. Defaults to `undefined` (no rounding).
 
 ##### Returns
 
-A promise that resolves when the lengths have been computed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Compute the length of line geometries in meters and store in 'length_m'
-await table.length("length_m");
+await table.length("length_m").log();
 ```
 
 ```ts
 // Compute the length of line geometries in kilometers and store in 'length_km'
-await table.length("length_km", { unit: "km" });
+await table.length("length_km", { unit: "km" }).log();
+```
+
+```ts
+// Compute lengths in kilometers rounded to two decimal places
+await table.length("length_km", { unit: "km", decimals: 2 }).log();
 ```
 
 ```ts
 // Compute the length of geometries in a specific column named 'routeGeom'
-await table.length("routeLength", { column: "routeGeom" });
+await table.length("routeLength", { column: "routeGeom" }).log();
 ```
 
 #### `perimeter`
 
 Computes the perimeter of polygon geometries in meters (`"m"`) or optionally
-kilometers (`"km"`). The input geometry is assumed to be in the EPSG:4326
-coordinate system (WGS84).
+kilometers (`"km"`). The input geometry is assumed to be in EPSG:4326 (WGS84).
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async perimeter(newColumn: string, options?: { unit?: "m" | "km"; column?: string }): Promise<void>;
+perimeter(newColumn: string, options?: { unit?: "m" | "km"; column?: string; decimals?: number }): this;
 ```
 
 ##### Parameters
@@ -7253,26 +7992,34 @@ async perimeter(newColumn: string, options?: { unit?: "m" | "km"; column?: strin
   `"km"` (kilometers). Defaults to `"m"`.
 - **`options.column`**: The name of the column storing the geometries. If
   omitted, the method will automatically attempt to find a geometry column.
+- **`options.decimals`**: The number of decimal places to round the computed
+  perimeters. Defaults to `undefined` (no rounding).
 
 ##### Returns
 
-A promise that resolves when the perimeters have been computed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Compute the perimeter of polygon geometries in meters and store in 'perimeter_m'
-await table.perimeter("perimeter_m");
+await table.perimeter("perimeter_m").log();
 ```
 
 ```ts
 // Compute the perimeter of polygon geometries in kilometers and store in 'perimeter_km'
-await table.perimeter("perimeter_km", { unit: "km" });
+await table.perimeter("perimeter_km", { unit: "km" }).log();
+```
+
+```ts
+// Compute perimeters in kilometers rounded to two decimal places
+await table.perimeter("perimeter_km", { unit: "km", decimals: 2 }).log();
 ```
 
 ```ts
 // Compute the perimeter of geometries in a specific column named 'landParcelGeom'
-await table.perimeter("landParcelPerimeter", { column: "landParcelGeom" });
+await table.perimeter("landParcelPerimeter", { column: "landParcelGeom" })
+  .log();
 ```
 
 #### `buffer`
@@ -7281,10 +8028,13 @@ Computes a buffer (a polygon representing a specified distance around a
 geometry) for geometries in a specified column. The distance is in the Spatial
 Reference System (SRS) unit of the input geometries.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async buffer(newColumn: string, distance: number, options?: { column?: string }): Promise<void>;
+buffer(newColumn: string, distance: number, options?: { column?: string }): this;
 ```
 
 ##### Parameters
@@ -7299,18 +8049,18 @@ async buffer(newColumn: string, distance: number, options?: { column?: string })
 
 ##### Returns
 
-A promise that resolves when the buffers have been computed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Create a buffer of 1 unit around geometries in the default column, storing results in 'bufferedGeom'
-await table.buffer("bufferedGeom", 1);
+await table.buffer("bufferedGeom", 1).log();
 ```
 
 ```ts
 // Create a buffer of 10 units around geometries in a specific column named 'pointsGeom'
-await table.buffer("pointsBuffer", 10, { column: "pointsGeom" });
+await table.buffer("pointsBuffer", 10, { column: "pointsGeom" }).log();
 ```
 
 #### `joinGeo`
@@ -7319,12 +8069,15 @@ Merges the data of this table (considered the left table) with another table
 (the right table) based on a spatial relationship. Note that the order of rows
 in the returned data is not guaranteed to be the same as in the original tables.
 This operation might create temporary files in a `.tmp` folder; consider adding
-`.tmp` to your `.gitignore`.
+`.tmp` to your `.gitignore`. This method queues the operation; it runs when an
+async observer method (like `getData()` or `log()`) is awaited, or when `run()`
+is called. The join uses the other table's state as of this call: operations
+queued on it afterwards run after the join.
 
 ##### Signature
 
 ```typescript
-async joinGeo(rightTable: SimpleTable, method: "intersect" | "inside" | "within", options?: { leftTableColumn?: string; rightTableColumn?: string; type?: "inner" | "left" | "right" | "full"; distance?: number; distanceMethod?: "srs" | "haversine" | "spheroid"; outputTable?: string | boolean }): Promise<this>;
+joinGeo(rightTable: SimpleTable, method: "intersect" | "inside" | "withinDistance", options?: { leftColumn?: string; rightColumn?: string; type?: "inner" | "left" | "right" | "full"; distance?: number; distanceMethod?: "srs" | "haversine" | "spheroid"; excludeLeftGeometry?: boolean; excludeRightGeometry?: boolean; outputTable?: string | boolean }): this;
 ```
 
 ##### Parameters
@@ -7332,22 +8085,26 @@ async joinGeo(rightTable: SimpleTable, method: "intersect" | "inside" | "within"
 - **`rightTable`**: The SimpleTable instance to be joined with this table.
 - **`method`**: The spatial join method to use: `"intersect"` (geometries
   overlap), `"inside"` (geometries of the left table are entirely within
-  geometries of the right table), or `"within"` (geometries of the left table
-  are within a specified distance of geometries in the right table).
+  geometries of the right table), or `"withinDistance"` (geometries of the left
+  table are within a specified distance of geometries in the right table).
 - **`options`**: An optional object with configuration options:
-- **`options.leftTableColumn`**: The name of the column storing geometries in
-  the left table (this table). If omitted, the method attempts to find one.
-- **`options.rightTableColumn`**: The name of the column storing geometries in
-  the right table. If omitted, the method attempts to find one.
+- **`options.leftColumn`**: The name of the column storing geometries in the
+  left table (this table). If omitted, the method attempts to find one.
+- **`options.rightColumn`**: The name of the column storing geometries in the
+  right table. If omitted, the method attempts to find one.
 - **`options.type`**: The type of join operation to perform: `"inner"`, `"left"`
   (default), `"right"`, or `"full"`. For some types (like `"inside"`), the table
   order is important.
-- **`options.distance`**: Required if `method` is `"within"`. The target
+- **`options.distance`**: Required if `method` is `"withinDistance"`. The target
   distance for the spatial join. The unit depends on `distanceMethod`.
 - **`options.distanceMethod`**: The method for distance calculations: `"srs"`
   (default, uses the SRS unit), `"haversine"` (uses meters, requires EPSG:4326
-  input), or `"spheroid"` (uses meters, requires EPSG:4326 input, most accurate
-  but slowest).
+  (WGS84) input), or `"spheroid"` (uses meters, requires EPSG:4326 (WGS84)
+  input, most accurate but slowest).
+- **`options.excludeLeftGeometry`**: Whether to exclude the selected
+  `leftColumn` geometry from the result. Defaults to `false`.
+- **`options.excludeRightGeometry`**: Whether to exclude the selected
+  `rightColumn` geometry from the result. Defaults to `false`.
 - **`options.outputTable`**: If `true`, the results will be stored in a new
   table with a generated name. If a string, it will be used as the name for the
   new table. If `false` or omitted, the current table will be overwritten.
@@ -7355,44 +8112,52 @@ async joinGeo(rightTable: SimpleTable, method: "intersect" | "inside" | "within"
 
 ##### Returns
 
-A promise that resolves to a table instance containing the spatially joined data
-(either the modified current table or a new table).
+A table instance containing the spatially joined data (either the current table
+or a new table), so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Merge data based on intersecting geometries, overwriting tableA
-await tableA.joinGeo(tableB, "intersect");
+await tableA.joinGeo(tableB, "intersect").log();
 ```
 
 ```ts
 // Merge data where geometries in tableA are inside geometries in tableB
-await tableA.joinGeo(tableB, "inside");
+await tableA.joinGeo(tableB, "inside").log();
+```
+
+```ts
+// Join using both geometries without copying them into the result
+await tableA.joinGeo(tableB, "intersect", {
+  excludeLeftGeometry: true,
+  excludeRightGeometry: true,
+}).log();
 ```
 
 ```ts
 // Merge data where geometries in tableA are within 10 units (SRS) of geometries in tableB
-await tableA.joinGeo(tableB, "within", { distance: 10 });
+await tableA.joinGeo(tableB, "withinDistance", { distance: 10 }).log();
 ```
 
 ```ts
 // Merge data where geometries in tableA are within 10 kilometers (Haversine) of geometries in tableB
-// Input geometries must be in EPSG:4326.
-await tableA.joinGeo(tableB, "within", {
+// Input geometries must be in EPSG:4326 (WGS84).
+await tableA.joinGeo(tableB, "withinDistance", {
   distance: 10,
   distanceMethod: "haversine",
   unit: "km",
-});
+}).log();
 ```
 
 ```ts
 // Merge data with specific geometry columns and an inner join type, storing results in a new table
 const tableC = await tableA.joinGeo(tableB, "intersect", {
-  leftTableColumn: "geometriesA",
-  rightTableColumn: "geometriesB",
+  leftColumn: "geometriesA",
+  rightColumn: "geometriesB",
   type: "inner",
   outputTable: true,
-});
+}).log();
 ```
 
 #### `intersection`
@@ -7400,10 +8165,13 @@ const tableC = await tableA.joinGeo(tableB, "intersect", {
 Computes the intersection of two sets of geometries, creating new geometries
 where they overlap.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async intersection(column1: string, column2: string, newColumn: string): Promise<void>;
+intersection(column1: string, column2: string, newColumn: string): this;
 ```
 
 ##### Parameters
@@ -7416,54 +8184,60 @@ async intersection(column1: string, column2: string, newColumn: string): Promise
 
 ##### Returns
 
-A promise that resolves when the intersection geometries have been computed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Compute the intersection of geometries in 'geomA' and 'geomB' columns, storing results in 'intersectGeom'
-await table.intersection("geomA", "geomB", "intersectGeom");
+await table.intersection("geomA", "geomB", "intersectGeom").log();
 ```
 
-#### `removeIntersection`
+#### `difference`
 
-Removes the intersection of two geometries from the first geometry, effectively
-computing the geometric difference.
+Computes the geometric difference between two geometries, returning the portion
+of the first geometry that does not intersect the second.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async removeIntersection(column1: string, column2: string, newColumn: string): Promise<void>;
+difference(column1: string, column2: string, newColumn: string): this;
 ```
 
 ##### Parameters
 
-- **`column1`**: The name of the column storing the reference geometries. These
-  geometries will have the intersection removed.
-- **`column2`**: The name of the column storing the geometries used to compute
-  the intersection. Both columns must have the same projection.
-- **`newColumn`**: The name of the new column where the resulting geometries
-  (without the intersection) will be stored.
+- **`column1`**: The name of the column storing the geometries from which the
+  second geometries will be subtracted.
+- **`column2`**: The name of the column storing the geometries to subtract. Both
+  columns must have the same projection.
+- **`newColumn`**: The name of the new column where the geometric differences
+  will be stored.
 
 ##### Returns
 
-A promise that resolves when the geometries have been processed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
-// Remove the intersection of 'geomB' from 'geomA', storing the result in 'geomA_minus_geomB'
-await table.removeIntersection("geomA", "geomB", "geomA_minus_geomB");
+// Subtract 'geomB' from 'geomA', storing the result in 'geomA_minus_geomB'
+await table.difference("geomA", "geomB", "geomA_minus_geomB").log();
 ```
 
 #### `fillHoles`
 
 Fills holes in polygon geometries.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async fillHoles(column?: string): Promise<void>;
+fillHoles(column?: string): this;
 ```
 
 ##### Parameters
@@ -7473,29 +8247,32 @@ async fillHoles(column?: string): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the holes have been filled.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Fill holes in geometries in the default geometry column
-await table.fillHoles();
+await table.fillHoles().log();
 ```
 
 ```ts
 // Fill holes in geometries in a specific column named 'polygonGeom'
-await table.fillHoles("polygonGeom");
+await table.fillHoles("polygonGeom").log();
 ```
 
-#### `intersect`
+#### `intersects`
 
 Returns `TRUE` if two geometries intersect (overlap in any way), and `FALSE`
 otherwise.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async intersect(column1: string, column2: string, newColumn: string): Promise<void>;
+intersects(column1: string, column2: string, newColumn: string): this;
 ```
 
 ##### Parameters
@@ -7508,44 +8285,47 @@ async intersect(column1: string, column2: string, newColumn: string): Promise<vo
 
 ##### Returns
 
-A promise that resolves when the intersection check is complete.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Check if geometries in 'geomA' and 'geomB' intersect, storing results in 'doIntersect'
-await table.intersect("geomA", "geomB", "doIntersect");
+await table.intersects("geomA", "geomB", "doIntersect").log();
 ```
 
-#### `inside`
+#### `coveredBy`
 
-Returns `TRUE` if all points of a geometry in `column1` lie inside a geometry in
-`column2`, and `FALSE` otherwise.
+Returns `TRUE` if every point of a geometry in `column` is covered by a geometry
+in `containerColumn`, including their boundaries, and `FALSE` otherwise.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async inside(column1: string, column2: string, newColumn: string): Promise<void>;
+coveredBy(column: string, containerColumn: string, newColumn: string): this;
 ```
 
 ##### Parameters
 
-- **`column1`**: The name of the column storing the geometries to be tested for
+- **`column`**: The name of the column storing the geometries to be tested for
   containment.
-- **`column2`**: The name of the column storing the geometries to be tested as
-  containers. Both columns must have the same projection.
+- **`containerColumn`**: The name of the column storing the geometries to be
+  tested as containers. Both columns must have the same projection.
 - **`newColumn`**: The name of the new column where the boolean results (`TRUE`
-  for inside, `FALSE` otherwise) will be stored.
+  when covered, `FALSE` otherwise) will be stored.
 
 ##### Returns
 
-A promise that resolves when the containment check is complete.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
-// Check if geometries in 'pointGeom' are inside 'polygonGeom', storing results in 'isInsidePolygon'
-await table.inside("pointGeom", "polygonGeom", "isInsidePolygon");
+// Check if geometries in 'pointGeom' are covered by 'polygonGeom', storing results in 'isCovered'
+await table.coveredBy("pointGeom", "polygonGeom", "isCovered").log();
 ```
 
 #### `union`
@@ -7553,10 +8333,13 @@ await table.inside("pointGeom", "polygonGeom", "isInsidePolygon");
 Computes the union of two geometries, creating a new geometry that represents
 the merged area of both.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async union(column1: string, column2: string, newColumn: string): Promise<void>;
+union(column1: string, column2: string, newColumn: string): this;
 ```
 
 ##### Parameters
@@ -7569,43 +8352,46 @@ async union(column1: string, column2: string, newColumn: string): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the union geometries have been computed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Compute the union of geometries in 'geomA' and 'geomB', storing results in 'unionGeom'
-await table.union("geomA", "geomB", "unionGeom");
+await table.union("geomA", "geomB", "unionGeom").log();
 ```
 
-#### `latLon`
+#### `extractLatLon`
 
-Extracts the latitude and longitude coordinates from point geometries. The input
-geometry is assumed to be in the EPSG:4326 coordinate system (WGS84).
+Extracts the latitude (y) and longitude (x) coordinates from point geometries.
+The input geometry is assumed to be in EPSG:4326 (WGS84).
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async latLon(column: string, columnLat: string, columnLon: string): Promise<void>;
+extractLatLon(column: string, latColumn: string, lonColumn: string): this;
 ```
 
 ##### Parameters
 
 - **`column`**: The name of the column storing the point geometries.
-- **`columnLat`**: The name of the new column where the extracted latitude
-  values will be stored.
-- **`columnLon`**: The name of the new column where the extracted longitude
-  values will be stored.
+- **`latColumn`**: The name of the new column where the extracted latitude
+  (y-coordinate) values will be stored.
+- **`lonColumn`**: The name of the new column where the extracted longitude
+  (x-coordinate) values will be stored.
 
 ##### Returns
 
-A promise that resolves when the latitude and longitude have been extracted.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
-// Extract latitude and longitude from 'geom' column into new 'lat' and 'lon' columns
-await table.latLon("geom", "lat", "lon");
+// Extract latitude (y) and longitude (x) from 'geom' into new 'lat' and 'lon' columns.
+await table.extractLatLon("geom", "lat", "lon").log();
 ```
 
 #### `simplify`
@@ -7613,10 +8399,13 @@ await table.latLon("geom", "lat", "lon");
 Simplifies geometries while preserving their overall coverage. A higher
 tolerance results in more significant simplification.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async simplify(tolerance: number, options?: { column?: string; simplifyBoundary?: boolean }): Promise<void>;
+simplify(tolerance: number, options?: { column?: string; simplifyBoundary?: boolean }): this;
 ```
 
 ##### Parameters
@@ -7632,18 +8421,18 @@ async simplify(tolerance: number, options?: { column?: string; simplifyBoundary?
 
 ##### Returns
 
-A promise that resolves when the geometries have been simplified.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Simplify geometries in the default column with a tolerance of 0.1
-await table.simplify(0.1);
+await table.simplify(0.1).log();
 ```
 
 ```ts
 // Simplify geometries in 'myGeom' column, preserving the boundary
-await table.simplify(0.05, { column: "myGeom", simplifyBoundary: false });
+await table.simplify(0.05, { column: "myGeom", simplifyBoundary: false }).log();
 ```
 
 #### `centroid`
@@ -7651,10 +8440,13 @@ await table.simplify(0.05, { column: "myGeom", simplifyBoundary: false });
 Computes the centroid of geometries. The values are returned in the SRS unit of
 the input geometries.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async centroid(newColumn: string, options?: { column?: string }): Promise<void>;
+centroid(newColumn: string, options?: { column?: string }): this;
 ```
 
 ##### Parameters
@@ -7667,59 +8459,62 @@ async centroid(newColumn: string, options?: { column?: string }): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the centroids have been computed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Compute the centroid of geometries in the default column, storing results in 'centerPoint'
-await table.centroid("centerPoint");
+await table.centroid("centerPoint").log();
 ```
 
 ```ts
 // Compute the centroid of geometries in a specific column named 'areaGeom'
-await table.centroid("areaCentroid", { column: "areaGeom" });
+await table.centroid("areaCentroid", { column: "areaGeom" }).log();
 ```
 
 #### `randomPoint`
 
 Generates a random point within the geometries of a specified column.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async randomPoint(newColumn: string, nbPointsToTry: number, options?: { column?: string; try?: boolean }): Promise<void>;
+randomPoint(newColumn: string, tries: number, options?: { column?: string; strict?: boolean }): this;
 ```
 
 ##### Parameters
 
 - **`newColumn`**: The name of the new column where the random points will be
   stored.
-- **`nbPointsToTry`**: The number of points to generate within the bounding box
-  of each geometry to find one that is within the geometry itself.
+- **`tries`**: The number of points to generate within the bounding box of each
+  geometry to find one that is within the geometry itself.
 - **`options`**: An optional object with configuration options:
 - **`options.column`**: The name of the column storing the geometries within
   which the random points will be generated. If omitted, the method will
   automatically attempt to find a geometry column.
-- **`options.try`**: If `true`, the method will not throw an error if some
+- **`options.strict`**: If `false`, the method will not throw an error if some
   points cannot be generated. Corresponding rows will have `NULL` in the new
-  column.
+  column. Defaults to `true`.
 
 ##### Examples
 
 ```ts
 // Generate a random point for each geometry in the default column, trying 100 points
-await table.randomPoint("randomPoint", 100);
+await table.randomPoint("randomPoint", 100).log();
 ```
 
 ```ts
 // Generate a random point for each geometry in a specific column named 'areaGeom', trying 50 points
-await table.randomPoint("pointInArea", 50, { column: "areaGeom" });
+await table.randomPoint("pointInArea", 50, { column: "areaGeom" }).log();
 ```
 
 ```ts
 // Generate a random point for each geometry, but don't throw if some points cannot be generated
-await table.randomPoint("pointInArea", 1, { try: true });
+await table.randomPoint("pointInArea", 1, { strict: false }).log();
 ```
 
 #### `distance`
@@ -7728,13 +8523,15 @@ Computes the distance between geometries in two specified columns. By default,
 the distance is calculated in the Spatial Reference System (SRS) unit of the
 input geometries. You can optionally specify `"spheroid"` or `"haversine"`
 methods to get results in meters or kilometers. If using `"spheroid"` or
-`"haversine"`, the input geometries must be in the EPSG:4326 coordinate system
-(WGS84).
+`"haversine"`, the input geometries must be in EPSG:4326 (WGS84).
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async distance(column1: string, column2: string, newColumn: string, options?: { unit?: "m" | "km"; method?: "srs" | "haversine" | "spheroid"; decimals?: number }): Promise<void>;
+distance(column1: string, column2: string, newColumn: string, options?: { unit?: "m" | "km"; method?: "srs" | "haversine" | "spheroid"; decimals?: number }): this;
 ```
 
 ##### Parameters
@@ -7745,8 +8542,9 @@ async distance(column1: string, column2: string, newColumn: string, options?: { 
   be stored.
 - **`options`**: An optional object with configuration options:
 - **`options.method`**: The method to use for distance calculations: `"srs"`
-  (default, uses SRS unit), `"haversine"` (meters, requires EPSG:4326), or
-  `"spheroid"` (meters, requires EPSG:4326, most accurate but slowest).
+  (default, uses SRS unit), `"haversine"` (meters, requires EPSG:4326 (WGS84)),
+  or `"spheroid"` (meters, requires EPSG:4326 (WGS84), most accurate but
+  slowest).
 - **`options.unit`**: If `method` is `"spheroid"` or `"haversine"`, you can
   choose between `"m"` (meters, default) or `"km"` (kilometers).
 - **`options.decimals`**: The number of decimal places to round the distance
@@ -7754,38 +8552,39 @@ async distance(column1: string, column2: string, newColumn: string, options?: { 
 
 ##### Returns
 
-A promise that resolves when the distances have been computed.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Compute distance between 'geomA' and 'geomB' in SRS units, store in 'distance_srs'
-await table.distance("geomA", "geomB", "distance_srs");
+await table.distance("geomA", "geomB", "distance_srs").log();
 ```
 
 ```ts
 // Compute Haversine distance in meters between 'point1' and 'point2', store in 'distance_m'
-// Input geometries must be in EPSG:4326.
-await table.distance("point1", "point2", "distance_m", { method: "haversine" });
+// Input geometries must be in EPSG:4326 (WGS84).
+await table.distance("point1", "point2", "distance_m", { method: "haversine" })
+  .log();
 ```
 
 ```ts
 // Compute Haversine distance in kilometers, rounded to 2 decimal places
-// Input geometries must be in EPSG:4326.
+// Input geometries must be in EPSG:4326 (WGS84).
 await table.distance("point1", "point2", "distance_km", {
   method: "haversine",
   unit: "km",
   decimals: 2,
-});
+}).log();
 ```
 
 ```ts
 // Compute Spheroid distance in kilometers
-// Input geometries must be in EPSG:4326.
+// Input geometries must be in EPSG:4326 (WGS84).
 await table.distance("area1", "area2", "distance_spheroid_km", {
   method: "spheroid",
   unit: "km",
-});
+}).log();
 ```
 
 #### `unnestGeo`
@@ -7793,10 +8592,13 @@ await table.distance("area1", "area2", "distance_spheroid_km", {
 Unnests geometries recursively, transforming multi-part geometries (e.g.,
 MultiPolygon) into individual single-part geometries (e.g., Polygon).
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async unnestGeo(column?: string): Promise<void>;
+unnestGeo(column?: string): this;
 ```
 
 ##### Parameters
@@ -7806,29 +8608,32 @@ async unnestGeo(column?: string): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the geometries have been unnested.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Unnest geometries in the default column
-await table.unnestGeo();
+await table.unnestGeo().log();
 ```
 
 ```ts
 // Unnest geometries in a specific column named 'multiGeom'
-await table.unnestGeo("multiGeom");
+await table.unnestGeo("multiGeom").log();
 ```
 
-#### `boundingBox`
+#### `addBoundingBox`
 
-Computes the bounding box of geometries in a specified column, creating four new
-columns: `minLon`, `minLat`, `maxLon`, and `maxLat`.
+Adds the bounding box coordinates of geometries in a specified column as four
+new columns: `minLon`, `minLat`, `maxLon`, and `maxLat`.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
 
 ##### Signature
 
 ```typescript
-async boundingBox(options?: { column?: string; decimals?: number }): Promise<void>;
+addBoundingBox(options?: { column?: string; decimals?: number }): this;
 ```
 
 ##### Parameters
@@ -7842,20 +8647,19 @@ async boundingBox(options?: { column?: string; decimals?: number }): Promise<voi
 
 ##### Returns
 
-A promise that resolves when the bounding box coordinates have been computed and
-stored in new columns.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Compute the bounding box for geometries in the default column
-await table.boundingBox();
+await table.addBoundingBox().log();
 // The table now has minLon, minLat, maxLon, and maxLat columns.
 ```
 
 ```ts
 // Compute the bounding box for geometries in 'geom' column and round coordinates to 2 decimal places
-await table.boundingBox({ column: "geom", decimals: 2 });
+await table.addBoundingBox({ column: "geom", decimals: 2 }).log();
 // The table now has minLon, minLat, maxLon, and maxLat columns with values rounded to 2 decimal places.
 ```
 
@@ -7864,10 +8668,13 @@ await table.boundingBox({ column: "geom", decimals: 2 });
 Aggregates geometries in a specified column based on a chosen aggregation
 method.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async aggregateGeo(method: "union" | "intersection", options?: { column?: string; categories?: string | string[]; outputTable?: string | boolean }): Promise<this>;
+aggregateGeo(method: "union" | "intersection", options?: { column?: string; by?: string | string[]; outputTable?: string | boolean }): this;
 ```
 
 ##### Parameters
@@ -7879,9 +8686,8 @@ async aggregateGeo(method: "union" | "intersection", options?: { column?: string
 - **`options.column`**: The name of the column storing the geometries to be
   aggregated. If omitted, the method will automatically attempt to find a
   geometry column.
-- **`options.categories`**: The column name or an array of column names that
-  define categories for the aggregation. Aggregation will be performed
-  independently within each category.
+- **`options.by`**: The column name or an array of column names to group by.
+  Geometries are aggregated independently within each group.
 - **`options.outputTable`**: If `true`, the results will be stored in a new
   table with a generated name. If a string, it will be used as the name for the
   new table. If `false` or omitted, the current table will be overwritten.
@@ -7889,19 +8695,19 @@ async aggregateGeo(method: "union" | "intersection", options?: { column?: string
 
 ##### Returns
 
-A promise that resolves to a table instance containing the aggregated geometries
-(either the modified current table or a new table).
+A table instance containing the aggregated geometries (either the current table
+or a new table), so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Aggregate all geometries in the default column into a single union geometry
-await table.aggregateGeo("union");
+await table.aggregateGeo("union").log();
 ```
 
 ```ts
 // Aggregate geometries by 'country' and compute their union
-await table.aggregateGeo("union", { categories: "country" });
+await table.aggregateGeo("union", { by: "country" }).log();
 ```
 
 ```ts
@@ -7909,17 +8715,20 @@ await table.aggregateGeo("union", { categories: "country" });
 const intersectionTable = await table.aggregateGeo("intersection", {
   column: "regions",
   outputTable: true,
-});
+}).log();
 ```
 
 #### `linesToPolygons`
 
 Transforms closed linestring geometries into polygon geometries.
 
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
 ##### Signature
 
 ```typescript
-async linesToPolygons(column?: string): Promise<void>;
+linesToPolygons(column?: string): this;
 ```
 
 ##### Parameters
@@ -7929,25 +8738,25 @@ async linesToPolygons(column?: string): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the transformation is complete.
+The table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Transform closed linestrings in the default geometry column into polygons
-await table.linesToPolygons();
+await table.linesToPolygons().log();
 ```
 
 ```ts
 // Transform closed linestrings in a specific column named 'routeLines' into polygons
-await table.linesToPolygons("routeLines");
+await table.linesToPolygons("routeLines").log();
 ```
 
 #### `getBoundingBox`
 
 Returns the bounding box of geometries in `[minLon, minLat, maxLon, maxLat]`
 order. By default, the method will try to find the column with the geometries.
-The input geometry is assumed to be in the EPSG:4326 coordinate system (WGS84).
+The input geometry is assumed to be in EPSG:4326 (WGS84).
 
 ##### Signature
 
@@ -8031,7 +8840,7 @@ DuckDB, SQLite). If the specified path does not exist, it will be created.
 ##### Signature
 
 ```typescript
-async writeData(file: string, options?: { compression?: boolean; dataAsArrays?: boolean; formatDates?: boolean }): Promise<void>;
+async writeData(file: string, options?: { compression?: boolean; dataAsArrays?: boolean; formatDates?: boolean }): Promise<this>;
 ```
 
 ##### Parameters
@@ -8055,7 +8864,7 @@ async writeData(file: string, options?: { compression?: boolean; dataAsArrays?: 
 
 ##### Returns
 
-A promise that resolves when the data has been written to the file.
+A promise that resolves to the table, so methods can be chained.
 
 ##### Examples
 
@@ -8098,19 +8907,27 @@ Shapefile format. If the specified path does not exist, it will be created.
 ##### Signature
 
 ```typescript
-async writeGeoData(file: string, options?: { precision?: number; compression?: boolean; rewind?: boolean; metadata?: unknown; formatDates?: boolean }): Promise<void>;
+async writeGeoData(file: string, options?: { precision?: number; compression?: boolean; rewind?: boolean; metadata?: unknown; formatDates?: boolean }): Promise<this>;
 ```
 
 ##### Parameters
 
 - **`file`**: The absolute path to the output file (e.g., `"./output.geojson"`,
-  `"./output.geoparquet"`, `"./shapefile-folder/output.shp"`).
+  `"./output.geoparquet"`, `"./shapefile-folder/output.shp"`,
+  `"./output.shp.zip"`). A `.shp.zip` extension writes a ZIP archive using fast
+  DEFLATE compression. Creating the archive temporarily requires enough disk
+  space for both the uncompressed Shapefile and the ZIP, and ZIP archives are
+  limited to 4 GB.
 - **`options`**: An optional object with configuration options:
 - **`options.precision`**: For GeoJSON, the maximum number of figures after the
   decimal separator to write in coordinates. Defaults to `undefined` (full
   precision).
-- **`options.compression`**: For GeoParquet, if `true`, the output will be ZSTD
-  compressed. Defaults to `false`.
+- **`options.compression`**: For GeoParquet, if `true`, uses ZSTD compression;
+  otherwise, uses DuckDB's default SNAPPY compression. SNAPPY prioritizes faster
+  compression, while ZSTD typically produces smaller files but takes longer to
+  write. Read performance depends on the data and storage because smaller files
+  can reduce I/O. This option is not supported for GeoJSON or Shapefiles.
+  Defaults to `false`.
 - **`options.rewind`**: For GeoJSON, if `true`, rewinds the coordinates of
   polygons to follow the right-hand rule (RFC 7946). Defaults to `false`.
 - **`options.metadata`**: For GeoJSON, an object to be added as top-level
@@ -8120,7 +8937,7 @@ async writeGeoData(file: string, options?: { precision?: number; compression?: b
 
 ##### Returns
 
-A promise that resolves when the geospatial data has been written to the file.
+A promise that resolves to the table, so methods can be chained.
 
 ##### Examples
 
@@ -8130,13 +8947,18 @@ await table.writeGeoData("./output.geojson");
 ```
 
 ```ts
-// Write geospatial data to a compressed GeoParquet file
+// Write geospatial data to a ZSTD-compressed GeoParquet file
 await table.writeGeoData("./output.geoparquet", { compression: true });
 ```
 
 ```ts
 // Write geospatial data to a Shapefile with all relevant files  in the same folder
 await table.writeGeoData("./shapefile-folder/output.shp");
+```
+
+```ts
+// Write a Shapefile and its related files to output.shp.zip
+await table.writeGeoData("./output.shp.zip");
 ```
 
 ```ts
@@ -8152,84 +8974,124 @@ await table.writeGeoData("./output_high_precision.geojson", {
 Caches the results of computations in `./.sda-cache`. You should add
 `./.sda-cache` to your `.gitignore` file.
 
+Cache entries are stored as DuckDB database files. Full-text search (FTS)
+indexes are persisted in the cache file and restored directly on a cache hit.
+Vector similarity search (VSS/HNSW) indexes are not persisted in the cache file;
+their definitions are stored as metadata and used to rebuild the indexes on
+every cache hit. If loading the entry or restoring its indexes fails, the
+computation runs again and replaces the cache entry.
+
+`cache()` automatically tracks whether earlier SDA operations changed the table.
+It also records every other already registered `SimpleTable` read through
+`SimpleTable` methods while `compute` runs and invalidates the cached step when
+any of their generations change. Tables created inside `compute` are part of the
+computation itself and are not dependencies.
+
+`SimpleDB.customQuery()` bypasses this tracking. Reading or changing a table
+with `customQuery()` can therefore return stale cached data. Include a value
+that identifies the custom query's dependencies in `options.inputs` (such as a
+table content hash), or use tracked `SimpleTable` methods.
+
+`compute` may modify only the table being cached. Other tables that existed
+before `compute` must remain read-only. Temporary tables may be created and
+modified inside `compute`, but they must be removed before it finishes because a
+cache hit does not run `compute` again.
+
 ##### Signature
 
 ```typescript
-async cache(run: () => Promise<void>, options?: { ttl?: number }): Promise<void>;
+async cache(compute: (table: this) => void | Promise<void>, options?: { inputs?: readonly unknown[]; ttl?: number }): Promise<this>;
 ```
 
 ##### Parameters
 
-- **`run`**: A function wrapping the computations to be cached. This function
-  will be executed on the first run or if the cached data is invalid/expired.
+- **`compute`**: A function wrapping the computations to be cached. It receives
+  the table on which `cache()` was called. This function will be executed on the
+  first run or if the cached data is invalid/expired.
 - **`options`**: An optional object with configuration options:
+- **`options.inputs`**: An ordered array of additional values captured by
+  `compute` that affect its result. Each position is compared structurally
+  across runs, so adding, removing, moving, or changing an input invalidates the
+  cache. Functions and class constructors are compared by source. `SimpleTable`
+  dependencies read by `compute` are tracked automatically, and the table being
+  cached is already tracked, so neither needs to be included here.
 - **`options.ttl`**: Time to live (in seconds). If the data in the cache is
-  older than this duration, the `run` function will be executed again to refresh
-  the cache. By default, there is no TTL, meaning the cache is only invalidated
-  if the `run` function's content changes.
+  older than this duration, the `compute` function will be executed again to
+  refresh the cache. By default, there is no TTL; the cache is invalidated when
+  the `compute` function, the table, or an input changes.
 
 ##### Returns
 
-A promise that resolves when the computations are complete or the data is loaded
-from cache.
+A promise that resolves to the table, so methods can be chained.
 
 ##### Examples
 
 ```ts
-// Basic usage: computations are cached and re-run only if the function content changes
+// Computations are re-run if the callback changes or earlier operations modify the table
 const sdb = new SimpleDB();
-const table = sdb.newTable();
-
-await table.cache(async () => {
-  await table.loadData("items.csv");
-  await table.summarize({
-    values: "price",
-    categories: "department",
-    summaries: ["min", "max", "mean"],
-  });
+const items = await sdb.newTable("items").cache((table) => {
+  table
+    .loadData("items.csv")
+    .summarize({
+      columns: "price",
+      by: "department",
+      stats: ["min", "max", "mean"],
+    });
 });
+await items.log();
 
-// It's important to call done() on the SimpleDB instance to clean up the cache.
+// It's important to call close() on the SimpleDB instance to clean up the cache.
 // This prevents the cache from growing indefinitely.
-await sdb.done();
+await sdb.close();
 ```
 
 ```ts
 // Cache with a Time-To-Live (TTL) of 60 seconds
-// The computations will be re-run if the cached data is older than 1 minute or if the function content changes.
+// The computations will be re-run if the cached data is older than 1 minute, the callback changes, or the table changes.
 const sdb = new SimpleDB();
-const table = sdb.newTable();
-
-await table.cache(async () => {
-  await table.loadData("items.csv");
-  await table.summarize({
-    values: "price",
-    categories: "department",
-    summaries: ["min", "max", "mean"],
-  });
+const table = await sdb.newTable().cache((table) => {
+  table
+    .loadData("items.csv")
+    .summarize({
+      columns: "price",
+      by: "department",
+      stats: ["min", "max", "mean"],
+    });
 }, { ttl: 60 });
+await table.log();
 
-await sdb.done();
+await sdb.close();
 ```
 
 ```ts
 // Enable verbose logging for cache operations via SimpleDB instance
 const sdb = new SimpleDB({ cacheVerbose: true });
-const table = sdb.newTable();
-
-await table.cache(async () => {
-  await table.loadData("items.csv");
-  await table.summarize({
-    values: "price",
-    categories: "department",
-    summaries: ["min", "max", "mean"],
-  });
+const table = await sdb.newTable().cache((table) => {
+  table
+    .loadData("items.csv")
+    .summarize({
+      columns: "price",
+      by: "department",
+      stats: ["min", "max", "mean"],
+    });
 });
+await table.log();
 
-await sdb.done();
+await sdb.close();
 ```
 
-#### `logTable`
+```ts
+// Read-only table dependencies are tracked automatically. Other captured values go in inputs.
+const year = 2026;
+const summary = await sdb.newTable("summary").cache(async (table) => {
+  table.loadArray(
+    await fires.getData({ conditions: `year = ${year}` }),
+  );
+}, { inputs: [year] });
+await summary.log();
+```
+
+#### `log`
 
 Logs a specified number of rows from the table to the console. By default, the
 first 10 rows are logged. You can optionally log the column types and filter the
@@ -8239,49 +9101,49 @@ data based on conditions. You can also use JavaScript syntax for conditions
 ##### Signature
 
 ```typescript
-async logTable(options?: "all" | number | { nbRowsToLog?: number | "all"; types?: boolean; conditions?: string }): Promise<void>;
+async log(options?: "all" | number | { count?: number | "all"; types?: boolean; conditions?: string }): Promise<this>;
 ```
 
 ##### Parameters
 
 - **`options`**: Either the number of rows to log (a specific number or `"all"`)
   or an object with configuration options:
-- **`options.nbRowsToLog`**: The number of rows to log. Defaults to 10 or the
-  value set in the SimpleDB instance. Use `"all"` to log all rows.
-- **`options.types`**: If `true`, logs the column types along with the data.
-  Defaults to `false`.
+- **`options.count`**: The number of rows to log. Defaults to 10 or the value
+  set in the SimpleDB instance. Use `"all"` to log all rows.
+- **`options.types`**: Whether to log the column types along with the data.
+  Defaults to the value set in the SimpleDB instance.
 - **`options.conditions`**: A SQL `WHERE` clause condition to filter the data
   before logging. Defaults to no condition.
 
 ##### Returns
 
-A promise that resolves when the table data has been logged.
+A promise that resolves to the table, so methods can be chained.
 
 ##### Examples
 
 ```ts
 // Log the first 10 rows (default behavior)
-await table.logTable();
+await table.log();
 ```
 
 ```ts
 // Log the first 50 rows
-await table.logTable(50);
+await table.log(50);
 ```
 
 ```ts
 // Log all rows
-await table.logTable("all");
+await table.log("all");
 ```
 
 ```ts
 // Log the first 20 rows and include column types
-await table.logTable({ nbRowsToLog: 20, types: true });
+await table.log({ count: 20, types: true });
 ```
 
 ```ts
 // Log rows where 'status' is 'active' (using JS syntax for conditions)
-await table.logTable({ conditions: `status === 'active'` });
+await table.log({ conditions: `status === 'active'` });
 ```
 
 #### `logDescription`
@@ -8294,13 +9156,12 @@ to retrieve the descriptive statistics.
 ##### Signature
 
 ```typescript
-async logDescription(): Promise<void>;
+async logDescription(): Promise<this>;
 ```
 
 ##### Returns
 
-A promise that resolves when the column description has been logged to the
-console.
+A promise that resolves to the table, so methods can be chained.
 
 ##### Examples
 
@@ -8449,14 +9310,14 @@ await table.logColumns();
 await table.logColumns({ types: true });
 ```
 
-#### `logNbRows`
+#### `logRowCount`
 
 Logs the total number of rows in the table to the console.
 
 ##### Signature
 
 ```typescript
-async logNbRows(): Promise<this>;
+async logRowCount(): Promise<this>;
 ```
 
 ##### Returns
@@ -8467,7 +9328,7 @@ A promise that resolves to the SimpleTable instance after logging the row count.
 
 ```ts
 // Log the total number of rows in the table
-await table.logNbRows();
+await table.logRowCount();
 ```
 
 #### `logBottom`
@@ -8479,25 +9340,25 @@ option.
 ##### Signature
 
 ```typescript
-async logBottom(count?: number, options?: { originalOrder?: boolean }): Promise<void>;
+async logBottom(count?: number, options?: { originalOrder?: boolean }): Promise<this>;
 ```
 
 ##### Parameters
 
 - **`count`**: The number of rows to log from the bottom of the table. Defaults
-  to the table's `nbRowsToLog` option if not specified.
+  to the table's `rowsToLog` option if not specified.
 - **`options`**: An optional object with logging preferences.
 - **`options.originalOrder`**: If true, the rows are displayed in their original
   order (top to bottom). Defaults to false.
 
 ##### Returns
 
-A promise that resolves when the rows have been logged to the console.
+A promise that resolves to the table, so methods can be chained.
 
 ##### Examples
 
 ```ts
-// Log bottom rows with default count (uses table's nbRowsToLog option)
+// Log bottom rows with default count (uses table's rowsToLog option)
 await table.logBottom();
 ```
 
@@ -8518,7 +9379,7 @@ Logs the extent (minimum and maximum values) of a numeric column to the console.
 ##### Signature
 
 ```typescript
-async logExtent(column: string): Promise<void>;
+async logExtent(column: string): Promise<this>;
 ```
 
 ##### Parameters
@@ -8527,7 +9388,7 @@ async logExtent(column: string): Promise<void>;
 
 ##### Returns
 
-A promise that resolves when the column extent has been logged to the console.
+A promise that resolves to the table, so methods can be chained.
 
 ##### Examples
 
@@ -8542,17 +9403,14 @@ await table.logExtent("price");
 // Create a SimpleDB instance (in-memory by default)
 const sdb = new SimpleDB();
 
-// Create a new table named "employees" within the database
-const employees = sdb.newTable("employees");
-
-// Load data from a CSV file into the "employees" table
-await employees.loadData("./employees.csv");
-
-// Log the first few rows of the "employees" table to the console
-await employees.logTable();
+// Create a table, load a CSV file, and log its first few rows
+const employees = await sdb
+  .newTable("employees")
+  .loadData("./employees.csv")
+  .log();
 
 // Close the database connection and free up resources
-await sdb.done();
+await sdb.close();
 ```
 
 ```ts
@@ -8560,12 +9418,12 @@ await sdb.done();
 // Create a SimpleDB instance
 const sdb = new SimpleDB();
 
-// Create a new table for geospatial data
-const boundaries = sdb.newTable("boundaries");
-
-// Load geospatial data from a GeoJSON file
-await boundaries.loadGeoData("./boundaries.geojson");
+// Create a table and load geospatial data from a GeoJSON file
+const boundaries = await sdb
+  .newTable("boundaries")
+  .loadGeoData("./boundaries.geojson")
+  .log();
 
 // Close the database connection
-await sdb.done();
+await sdb.close();
 ```
