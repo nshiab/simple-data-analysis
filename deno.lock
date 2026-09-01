@@ -5,12 +5,11 @@
     "jsr:@nshiab/journalism-dataviz@^1.0.21": "1.0.21",
     "jsr:@nshiab/journalism-format@^1.1.10": "1.1.10",
     "jsr:@nshiab/journalism-google@^1.1.2": "1.1.2",
-    "jsr:@nshiab/simple-data-analysis-core@2.0.1": "2.0.1",
+    "jsr:@nshiab/simple-data-analysis-core@2.0.2": "2.0.2",
     "jsr:@std/assert@^1.0.19": "1.0.19",
     "jsr:@std/internal@^1.0.12": "1.0.14",
     "npm:@duckdb/node-api@1.5.5-r.4": "1.5.5-r.4",
     "npm:@google-cloud/storage@^8.0.1": "8.0.1",
-    "npm:@google/genai@2.19.0": "2.19.0",
     "npm:@google/genai@^2.19.0": "2.19.0",
     "npm:@napi-rs/canvas@^1.0.8": "1.0.8",
     "npm:@observablehq/plot@~0.6.17": "0.6.17",
@@ -26,7 +25,7 @@
     "@nshiab/journalism-ai@2.0.6": {
       "integrity": "e7ae4972b310cea0ea5039e24ea18c882dd82fbef965499682ab2bd58d0fd9cf",
       "dependencies": [
-        "npm:@google/genai@^2.19.0",
+        "npm:@google/genai",
         "npm:ollama",
         "npm:zod"
       ]
@@ -51,8 +50,8 @@
         "npm:google-spreadsheet"
       ]
     },
-    "@nshiab/simple-data-analysis-core@2.0.1": {
-      "integrity": "806a75ee50a993ba7eb6433d03cd751dc1172a0034d9562d31bd9302e619f3d9",
+    "@nshiab/simple-data-analysis-core@2.0.2": {
+      "integrity": "83b19e4eb89e5d28bcb3a7af63b1664d62e6242a3985eaa43a62d0c8be01afad",
       "dependencies": [
         "npm:@duckdb/node-api"
       ]
@@ -1152,7 +1151,7 @@
       "jsr:@nshiab/journalism-dataviz@^1.0.21",
       "jsr:@nshiab/journalism-format@^1.1.10",
       "jsr:@nshiab/journalism-google@^1.1.2",
-      "jsr:@nshiab/simple-data-analysis-core@2.0.1",
+      "jsr:@nshiab/simple-data-analysis-core@2.0.2",
       "jsr:@std/assert@^1.0.19",
       "npm:@duckdb/node-api@1.5.5-r.4",
       "npm:@observablehq/plot@~0.6.17",
