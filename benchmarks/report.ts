@@ -141,10 +141,11 @@ function chart(
   const unit = metric === "duration" ? "seconds" : "MB";
   const max = Math.max(...rows.map((row) => row.value));
   return plot({
-    width: 960,
+    width: 760,
     height: 330,
-    marginLeft: 115,
-    marginRight: 120,
+    marginLeft: 125,
+    marginRight: 150,
+    style: { fontSize: "12px" },
     title: `${workload} workload: mean ${measure}`,
     subtitle: "Lower is better. Percentages are compared with SDA.",
     x: {

@@ -686,7 +686,7 @@ const answer = await sdb
     { verbose: true },
   );
 
-console.log(answer);
+console.log(`${answer}\n`);
 
 await sdb.close();
 ```
