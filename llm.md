@@ -663,10 +663,15 @@ pool with configurable batching and concurrency.
 This method automatically appends instructions to your prompt; set `verbose` to
 `true` to see the full prompt.
 
-This method supports Gemini, Vertex AI, and Ollama. Set `generation.provider`
-explicitly, or omit it to use `AI_PROVIDER`. All other `generation` fields match
-the selected `askGemini` or `askOllama` function from journalism-ai. Model and
-credentials can also come from environment variables.
+This method supports Gemini, Vertex AI, and Ollama. When the corresponding
+`generation` options are omitted, configuration comes from `AI_PROVIDER`
+(`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_MODEL` (for example,
+`"gemini-3-flash-preview"` or `"gemma3:4b"`), and, for Gemini, either `AI_KEY`
+(for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example,
+`"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`).
+Explicit `generation` options override the corresponding environment variables;
+all other fields match the selected `askGemini` or `askOllama` function from
+journalism-ai.
 
 For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set
 `AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
@@ -788,6 +793,10 @@ const people = await sdb
 ```
 
 ```ts
+// Set these environment variables before running:
+// AI_PROVIDER=gemini
+// AI_MODEL=gemini-3-flash-preview
+// AI_KEY=your-gemini-api-key
 const cities = await sdb
   .newTable("cities")
   .loadArray([
@@ -826,10 +835,15 @@ const names = await sdb
 Generates embeddings for a specified text column and stores the results in a new
 column.
 
-This method supports Gemini, Vertex AI, and Ollama embeddings. Set
-`embeddings.provider` explicitly or omit it to use `AI_EMBEDDINGS_PROVIDER`; all
-other fields match `getEmbedding` from journalism-ai. Model and credentials can
-also come from environment variables.
+This method supports Gemini, Vertex AI, and Ollama embeddings. When the
+corresponding `embeddings` options are omitted, configuration comes from
+`AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`),
+`AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or
+`"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example,
+`"your-gemini-api-key"`) or both `AI_PROJECT` (for example,
+`"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`).
+Explicit `embeddings` options override the corresponding environment variables;
+all other fields match `getEmbedding` from journalism-ai.
 
 For Ollama, set `AI_EMBEDDINGS_PROVIDER=ollama`, ensure Ollama is running, and
 set `AI_EMBEDDINGS_MODEL`, or pass `{ provider: "ollama", ... }` through
@@ -902,6 +916,10 @@ The table, so methods can be chained.
 ##### Examples
 
 ```ts
+// Set these environment variables before running:
+// AI_EMBEDDINGS_PROVIDER=gemini
+// AI_EMBEDDINGS_MODEL=gemini-embedding-001
+// AI_KEY=your-gemini-api-key
 const food = await sdb
   .newTable("food")
   .loadArray([
@@ -913,10 +931,6 @@ const food = await sdb
     { food: "tacos" },
   ])
   .aiEmbeddings("food", "embeddings", {
-    embeddings: {
-      provider: "gemini",
-      model: "gemini-embedding-001",
-    },
     rateLimitPerMinute: 15,
     createIndex: true,
     verbose: true,
@@ -940,8 +954,15 @@ content based on their embeddings. This method is useful for semantic search and
 text similarity tasks, computing cosine distance and sorting results by
 similarity.
 
-To create the query embedding, omit `embeddings` to use environment variables or
-pass provider-specific options matching `getEmbedding` from journalism-ai.
+To create the query embedding, pass provider-specific options matching
+`getEmbedding` from journalism-ai or use environment variables. When the
+corresponding `embeddings` options are omitted, configuration comes from
+`AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`),
+`AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or
+`"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example,
+`"your-gemini-api-key"`) or both `AI_PROJECT` (for example,
+`"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`).
+Explicit `embeddings` options override the corresponding environment variables.
 
 Gemini, Vertex AI, and Ollama are supported. The selected provider and model
 must match those used to create the stored embedding column so the vectors share
@@ -1007,6 +1028,10 @@ The table that will contain the similarity results, so methods can be chained.
 ##### Examples
 
 ```ts
+// Set these environment variables before running:
+// AI_EMBEDDINGS_PROVIDER=gemini
+// AI_EMBEDDINGS_MODEL=gemini-embedding-001
+// AI_KEY=your-gemini-api-key
 const similarFood = await sdb
   .newTable("food")
   .loadArray([
@@ -1017,18 +1042,9 @@ const similarFood = await sdb
     { food: "salad" },
     { food: "tacos" },
   ])
-  .aiEmbeddings("food", "embeddings", {
-    embeddings: {
-      provider: "gemini",
-      model: "gemini-embedding-001",
-    },
-  })
+  .aiEmbeddings("food", "embeddings")
   .aiVectorSimilarity("italian food", "embeddings", 3, {
     createIndex: true,
-    embeddings: {
-      provider: "gemini",
-      model: "gemini-embedding-001",
-    },
     minSimilarity: 0.6,
     similarityColumn: "score",
   })
@@ -1070,9 +1086,15 @@ before replacement. This provenance survives reopening a DuckDB database.
 Remove `.journalism-cache` and `.sda-cache` to clear existing cache entries.
 Remember to add both directories to your `.gitignore`.
 
-This method supports Gemini, Vertex AI, and Ollama embeddings. Set
-`embeddings.provider` explicitly or omit it to use environment selection; all
-other fields match `getEmbedding` from journalism-ai.
+This method supports Gemini, Vertex AI, and Ollama embeddings. When the
+corresponding `embeddings` options are omitted, configuration comes from
+`AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`),
+`AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or
+`"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example,
+`"your-gemini-api-key"`) or both `AI_PROJECT` (for example,
+`"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`).
+Explicit `embeddings` options override the corresponding environment variables;
+all other fields match `getEmbedding` from journalism-ai.
 
 The selected embedding provider is used for both stored row embeddings and the
 query embedding.
@@ -1169,16 +1191,16 @@ The table that will contain the search results, so methods can be chained.
 ##### Examples
 
 ```ts
+// Set these environment variables before running:
+// AI_EMBEDDINGS_PROVIDER=gemini
+// AI_EMBEDDINGS_MODEL=gemini-embedding-001
+// AI_KEY=your-gemini-api-key
 // Load a dataset of recipes
 const sdb = new SimpleDB();
 const results = await sdb
   .newTable("recipes")
   .loadData("recipes.parquet")
   .hybridSearch("buttery pastry for breakfast", "Dish", "Recipe", 10, {
-    embeddings: {
-      provider: "gemini",
-      model: "gemini-embedding-001",
-    },
     verbose: true,
   })
   .log();
@@ -1215,13 +1237,20 @@ corresponding caches.
 Remove `.journalism-cache` and `.sda-cache` to clear existing cache entries.
 Remember to add both directories to your `.gitignore`.
 
-Generation and embeddings are independently configurable. Set either nested
-`provider` explicitly or omit it to use that provider's environment selection;
-all remaining fields match journalism-ai.
+Generation and embeddings are independently configurable. When the corresponding
+options are omitted, generation uses `AI_PROVIDER` (`"gemini"` or `"ollama"`;
+defaults to `"gemini"`) and `AI_MODEL` (for example, `"gemini-3-flash-preview"`
+or `"gemma3:4b"`), while embeddings use `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or
+`"ollama"`; defaults to `"gemini"`) and `AI_EMBEDDINGS_MODEL` (for example,
+`"gemini-embedding-001"` or `"nomic-embed-text"`). Gemini generation and
+embeddings use either `AI_KEY` (for example, `"your-gemini-api-key"`) or both
+`AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for
+example, `"us-central1"`). Explicit nested options override the corresponding
+environment variables; all remaining fields match journalism-ai.
 
 For example, `generation.provider` can be `"gemini"` while `embeddings.provider`
-is `"ollama"`. Environment-only mixed providers use `AI_PROVIDER` and
-`AI_EMBEDDINGS_PROVIDER`.
+is `"ollama"`; the same mix can be selected through `AI_PROVIDER=gemini` and
+`AI_EMBEDDINGS_PROVIDER=ollama`.
 
 Ollama temperature defaults to 0. Gemini uses the provider's default
 temperature.
@@ -1323,6 +1352,12 @@ context.
 ##### Examples
 
 ```ts
+// Set these environment variables before running:
+// AI_PROVIDER=gemini
+// AI_MODEL=gemini-3-flash-preview
+// AI_KEY=your-gemini-api-key
+// AI_EMBEDDINGS_PROVIDER=ollama
+// AI_EMBEDDINGS_MODEL=nomic-embed-text
 // Load a dataset of recipes
 const sdb = new SimpleDB();
 const answer = await sdb
@@ -1333,17 +1368,7 @@ const answer = await sdb
     "Dish", // Column with unique IDs
     "Recipe", // Column with text to search
     10, // The 10 most relevant recipes passed to the LLM
-    {
-      generation: {
-        provider: "gemini",
-        model: "gemini-3-flash-preview",
-      },
-      embeddings: {
-        provider: "ollama",
-        model: "nomic-embed-text",
-      },
-      verbose: true, // Log debugging information and timings
-    },
+    { verbose: true }, // Log debugging information and timings
   );
 
 console.log(answer);
@@ -1371,9 +1396,14 @@ Generates and executes a SQL query based on a prompt. Additional instructions,
 such as column types, are automatically added to your prompt. Set `verbose` to
 `true` to see the full prompt.
 
-This method supports Gemini, Vertex AI, and Ollama. Set `generation.provider`
-explicitly or omit it to use environment selection; all other relevant fields
-match `askGemini` or `askOllama` from journalism-ai.
+This method supports Gemini, Vertex AI, and Ollama. When the corresponding
+`generation` options are omitted, configuration comes from `AI_PROVIDER`
+(`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_MODEL` (for example,
+`"gemini-3-flash-preview"` or `"gemma3:4b"`), and, for Gemini, either `AI_KEY`
+(for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example,
+`"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`).
+Explicit `generation` options override the corresponding environment variables;
+all other relevant fields match `askGemini` or `askOllama` from journalism-ai.
 
 For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set
 `AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
@@ -1417,16 +1447,16 @@ The table that will contain the query results, so methods can be chained.
 ##### Examples
 
 ```ts
+// Set these environment variables before running:
+// AI_PROVIDER=gemini
+// AI_MODEL=gemini-3-flash-preview
+// AI_KEY=your-gemini-api-key
 // The AI will generate a query that will be executed, and
 // the result will replace the existing table.
 // If run again, it will use the previous query from the cache.
 // Don't forget to add .journalism-cache to your .gitignore file!
 const averageSalaryByDepartment = await table
   .aiQuery("Give me the average salary by department", {
-    generation: {
-      provider: "gemini",
-      model: "gemini-3-flash-preview",
-    },
     verbose: true,
   })
   .log();
@@ -1464,11 +1494,13 @@ function from the
 its documentation for more details.
 
 By default, the selected tab is overwritten and values are written without
-Google Sheets interpretation. Authentication is handled via environment
-variables (GOOGLE_PRIVATE_KEY and GOOGLE_SERVICE_ACCOUNT_EMAIL). Alternatively,
-you can use GOOGLE_APPLICATION_CREDENTIALS pointing to a service account JSON
-file. For detailed setup instructions, refer to the node-google-spreadsheet
-authentication guide:
+Google Sheets interpretation. Authentication uses `GOOGLE_SERVICE_ACCOUNT_EMAIL`
+(for example, `"service-account@example.iam.gserviceaccount.com"`) with
+`GOOGLE_PRIVATE_KEY` (for example, `"-----BEGIN PRIVATE KEY-----\n..."`).
+Alternatively, set `GOOGLE_APPLICATION_CREDENTIALS` to a service-account JSON
+path (for example, `"./service-account.json"`). Explicit `options.credentials`
+override these environment variables. For detailed setup instructions, refer to
+the node-google-spreadsheet authentication guide:
 https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
 
 ##### Signature
@@ -1506,6 +1538,9 @@ A promise that resolves when the data has been written to the sheet.
 ##### Examples
 
 ```ts
+// Set these environment variables before running:
+// GOOGLE_SERVICE_ACCOUNT_EMAIL=service-account@example.iam.gserviceaccount.com
+// GOOGLE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\n...
 // Load, transform, and write data to a Google Sheet
 await sdb
   .newTable()
@@ -1560,14 +1595,14 @@ Loads data from a Google Sheet into the table. This method uses the
 [journalism library](https://jsr.io/@nshiab/journalism). Refer to its
 documentation for more details.
 
-By default, authentication is handled via environment variables
-(GOOGLE_PRIVATE_KEY and GOOGLE_SERVICE_ACCOUNT_EMAIL). Alternatively, you can
-use GOOGLE_APPLICATION_CREDENTIALS pointing to a service account JSON file. For
-detailed setup instructions, refer to the node-google-spreadsheet authentication
-guide:
-https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
-The download is queued and runs in chain order at the next awaited observer or
-`run()` call.
+By default, authentication uses `GOOGLE_SERVICE_ACCOUNT_EMAIL` (for example,
+`"service-account@example.iam.gserviceaccount.com"`) with `GOOGLE_PRIVATE_KEY`
+(for example, `"-----BEGIN PRIVATE KEY-----\n..."`). Alternatively, set
+`GOOGLE_APPLICATION_CREDENTIALS` to a service-account JSON path (for example,
+`"./service-account.json"`). Use `options.apiEmailEnvVar` and
+`options.apiKeyEnvVar` to read the email and private key from custom variable
+names instead. The download is queued and runs in chain order at the next
+awaited observer or `run()` call.
 
 ##### Signature
 
@@ -1584,9 +1619,11 @@ loadSheet(sheetUrl: string, options?: { skip?: number; apiEmailEnvVar?: string; 
   before reading data. Useful when the sheet contains metadata or headers that
   should not be included in the data.
 - **`options.apiEmailEnvVar`**: The name of the environment variable that stores
-  your API email.
+  your Google service-account email (for example, `"MY_GOOGLE_EMAIL"`). Defaults
+  to `"GOOGLE_SERVICE_ACCOUNT_EMAIL"`.
 - **`options.apiKeyEnvVar`**: The name of the environment variable that stores
-  your API key.
+  your Google service-account private key (for example,
+  `"MY_GOOGLE_PRIVATE_KEY"`). Defaults to `"GOOGLE_PRIVATE_KEY"`.
 
 ##### Returns
 
@@ -1595,6 +1632,9 @@ The table, so methods can be chained.
 ##### Examples
 
 ```ts
+// Set these environment variables before running:
+// GOOGLE_SERVICE_ACCOUNT_EMAIL=service-account@example.iam.gserviceaccount.com
+// GOOGLE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\n...
 // Load data from a Google Sheet
 const sheetData = await sdb
   .newTable("sheetData")
@@ -1615,8 +1655,9 @@ const sheetData = await table
 
 Writes the table data as CSV to a Datawrapper chart or table.
 
-Authentication is handled via an API key stored in the environment variable
-`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`.
+Authentication uses the API key in `DATAWRAPPER_KEY` (for example,
+`"your-datawrapper-api-key"`). Set `options.apiKeyEnvVar` to read the key from a
+custom environment variable instead.
 
 ##### Signature
 
@@ -1644,6 +1685,7 @@ A promise that resolves when the data has been sent to Datawrapper.
 ##### Examples
 
 ```ts
+// Set DATAWRAPPER_KEY=your-datawrapper-api-key before running.
 // Load, transform, and send data to a Datawrapper chart
 await sdb
   .newTable()
@@ -1664,10 +1706,10 @@ await table.toDatawrapper("myChartId", {
 
 Loads data from a Datawrapper chart or table into the table.
 
-Authentication is handled via an API key stored in the environment variable
-`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`. The
-download is queued and runs in chain order at the next awaited observer or
-`run()` call.
+Authentication uses the API key in `DATAWRAPPER_KEY` (for example,
+`"your-datawrapper-api-key"`). Set `options.apiKeyEnvVar` to read the key from a
+custom environment variable instead. The download is queued and runs in chain
+order at the next awaited observer or `run()` call.
 
 ##### Signature
 
@@ -1691,6 +1733,7 @@ The table, so methods can be chained.
 ##### Examples
 
 ```ts
+// Set DATAWRAPPER_KEY=your-datawrapper-api-key before running.
 // Load data from a Datawrapper chart
 const chartData = await sdb
   .newTable("chartData")
@@ -1702,8 +1745,9 @@ const chartData = await sdb
 
 Writes the table's geospatial data as GeoJSON to a Datawrapper map.
 
-Authentication is handled via an API key stored in the environment variable
-`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`.
+Authentication uses the API key in `DATAWRAPPER_KEY` (for example,
+`"your-datawrapper-api-key"`). Set `options.apiKeyEnvVar` to read the key from a
+custom environment variable instead.
 
 ##### Signature
 
@@ -1732,6 +1776,7 @@ A promise that resolves when the data has been sent to Datawrapper.
 ##### Examples
 
 ```ts
+// Set DATAWRAPPER_KEY=your-datawrapper-api-key before running.
 // Load, transform, and send geospatial data to a Datawrapper map
 await sdb
   .newTable()
@@ -1752,8 +1797,9 @@ await table.toGeoDatawrapper("myMapId", {
 
 Loads geospatial data from a Datawrapper map into the table.
 
-Authentication is handled via an API key stored in the environment variable
-`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`.
+Authentication uses the API key in `DATAWRAPPER_KEY` (for example,
+`"your-datawrapper-api-key"`). Set `options.apiKeyEnvVar` to read the key from a
+custom environment variable instead.
 
 The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.geojson` and
 removed after loading. Remember to add `.sda-cache` to your `.gitignore`. The
@@ -1782,6 +1828,7 @@ The table, so methods can be chained.
 ##### Examples
 
 ```ts
+// Set DATAWRAPPER_KEY=your-datawrapper-api-key before running.
 // Load geo data from a Datawrapper map
 const mapData = await sdb
   .newTable("mapData")
