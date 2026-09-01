@@ -584,12 +584,6 @@ AI_EMBEDDINGS_PROVIDER=ollama
 AI_EMBEDDINGS_MODEL=nomic-embed-text
 ```
 
-`AI_PROVIDER` and `AI_MODEL` configure generation, while their `AI_EMBEDDINGS_*`
-counterparts configure embeddings, including embeddings used for vector search;
-`aiRAG()` uses both pairs. Gemini authenticates with `AI_KEY`, or with
-`AI_PROJECT` and `AI_LOCATION` for Vertex AI. Method options override the
-corresponding environment values.
-
 SDA's AI capabilities come from
 [`journalism-ai`](https://jsr.io/@nshiab/journalism-ai). By default, LLM
 responses and embeddings are cached in the hidden `.journalism-cache` folder,
