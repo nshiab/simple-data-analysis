@@ -549,7 +549,7 @@ const cities = await sdb
     "city",
     ["country", "continent"],
     "Give me the country and continent of the city.",
-    { concurrency: 5, errorColumn: "error" },
+    { concurrency: 5, errorColumn: "error", verbose: true },
   )
   .log();
 
@@ -585,7 +585,7 @@ const results = await sdb
     "Dish",
     "Recipe",
     5,
-    { outputTable: "results" },
+    { outputTable: "results", verbose: true },
   )
   .log(); // For example: "Butter Pie" (keyword) and "Croissant" (semantic).
 await sdb.close();
@@ -615,6 +615,7 @@ const answer = await sdb
     "Dish",
     "Recipe",
     10,
+    { verbose: true },
   );
 
 console.log(answer);
@@ -641,6 +642,7 @@ const averageTemperatures = await sdb
   .renameColumns({ t: "temperature", id: "station" })
   .aiQuery(
     "Compute the average temperature for each station with two decimals.",
+    { verbose: true },
   )
   .log();
 await sdb.close();
