@@ -1,7 +1,7 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@nshiab/deno-docs-to-md@*": "0.1.12",
+    "jsr:@nshiab/deno-docs-to-md@*": "0.1.13",
     "jsr:@nshiab/journalism-ai@2.0.6": "2.0.6",
     "jsr:@nshiab/journalism-dataviz@^1.0.21": "1.0.21",
     "jsr:@nshiab/journalism-format@^1.1.10": "1.1.10",
@@ -23,8 +23,8 @@
     "npm:zod@^4.4.3": "4.4.3"
   },
   "jsr": {
-    "@nshiab/deno-docs-to-md@0.1.12": {
-      "integrity": "bfd7872bc6631b071c2785f29bf1fcfd9c5d69ecd109ea45afe912379ef58292"
+    "@nshiab/deno-docs-to-md@0.1.13": {
+      "integrity": "621a1374c42d1d38fbe54c64b5394b8028782ff8102a77bd9eefef84dbee0292"
     },
     "@nshiab/journalism-ai@2.0.6": {
       "integrity": "e7ae4972b310cea0ea5039e24ea18c882dd82fbef965499682ab2bd58d0fd9cf",

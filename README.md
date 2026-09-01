@@ -101,6 +101,9 @@ SDA uses DuckDB to handle large tabular and geospatial analyses efficiently,
 often outperforming traditional dataframe tools while keeping the code simple
 and readable.
 
+These benchmarks were run on a MacBook Pro with an Apple M4 Max and 64 GB of
+memory.
+
 ### Tabular data
 
 Using 22,051,025 temperature records (`ahccd.csv`, 1.77 GB, in
