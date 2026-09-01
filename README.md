@@ -474,12 +474,6 @@ await sdb.close();
 
 ![Map showing the wildfires in Canada in 2023.](./assets/map.png)
 
-Google Sheets, Datawrapper, and AI methods can read configuration from
-environment variables: named values made available to the running program. A
-`.env` file is one way to define them, but your runtime must load the file. For
-example, with Deno, run `deno run -A --env-file=.env analysis.ts`. Do not commit
-real credentials to source control.
-
 ### Google Sheets
 
 The
