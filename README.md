@@ -494,8 +494,7 @@ GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
 ```
 
 Share the destination spreadsheet with the service-account email before running
-the example. You can also pass credentials directly through `toSheet()` options.
-The `loadSheet()` method uses the same environment variables.
+the example. The `loadSheet()` method uses the same environment variables.
 
 ```ts
 // Uses Google service-account credentials from .env.
