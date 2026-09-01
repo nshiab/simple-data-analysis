@@ -525,9 +525,7 @@ to `.env`:
 DATAWRAPPER_KEY=your-datawrapper-api-key
 ```
 
-The chart ID is the short identifier in its Datawrapper URL. Set `apiKeyEnvVar`
-in the method options if you store the key under a different
-environment-variable name. For maps, use
+The chart ID is the short identifier in its Datawrapper URL. For maps, use
 [`toGeoDatawrapper`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.toGeoDatawrapper)
 with the same API key. The `loadDatawrapper()` and `loadGeoDatawrapper()`
 methods also use it.
