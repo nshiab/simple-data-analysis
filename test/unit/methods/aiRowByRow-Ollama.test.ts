@@ -36,7 +36,7 @@ if (hasOllama) {
         {
           generation: { provider: "ollama", ollama, cache: false },
           batchSize: 1,
-          concurrent: 3,
+          concurrency: 3,
           errorColumn: "error",
           rateLimitPerMinute: 120,
         },

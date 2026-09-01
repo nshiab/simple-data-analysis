@@ -660,7 +660,7 @@ For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set
 `AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
 
 To manage rate limits, use `batchSize` to process multiple rows per request and
-`rateLimitPerMinute` to pace requests across the worker pool. The `concurrent`
+`rateLimitPerMinute` to pace requests across the worker pool. The `concurrency`
 option controls how many requests may run in parallel.
 
 Results are cached locally in `.journalism-cache` by default. Set
@@ -683,7 +683,7 @@ method (like `getData()` or `log()`) is awaited, or when `run()` is called.
 ##### Signature
 
 ```typescript
-aiRowByRow(column: string, newColumn: string | string[], prompt: string, options?: { generation?: { systemPrompt?: string; model?: string; schemaJson?: unknown; cache?: boolean; processResponse?: (response: unknown) => unknown | Promise<unknown>; temperature?: number } & ({ provider: "gemini"; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider: "ollama"; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never } | { provider?: undefined; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider?: undefined; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never }); batchSize?: number; concurrent?: number; errorColumn?: string; logProgress?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; retryCheck?: (error: unknown) => Promise<boolean> | boolean; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => unknown; extraInstructions?: string; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): this;
+aiRowByRow(column: string, newColumn: string | string[], prompt: string, options?: { generation?: { systemPrompt?: string; model?: string; schemaJson?: unknown; cache?: boolean; processResponse?: (response: unknown) => unknown | Promise<unknown>; temperature?: number } & ({ provider: "gemini"; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider: "ollama"; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never } | { provider?: undefined; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider?: undefined; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never }); batchSize?: number; concurrency?: number; errorColumn?: string; logProgress?: boolean; test?: (result: Record<string, unknown>) => void; retry?: number; retryCheck?: (error: unknown) => Promise<boolean> | boolean; verbose?: boolean; rateLimitPerMinute?: number; clean?: (response: unknown) => unknown; extraInstructions?: string; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): this;
 ```
 
 ##### Parameters
@@ -695,7 +695,7 @@ aiRowByRow(column: string, newColumn: string | string[], prompt: string, options
 - **`options`**: Configuration options for the AI request.
 - **`options.batchSize`**: The number of rows to process in each batch. Defaults
   to `1`.
-- **`options.concurrent`**: The number of concurrent requests to send. Defaults
+- **`options.concurrency`**: The number of concurrent requests to send. Defaults
   to `1`.
 - **`options.errorColumn`**: The optional column where per-row error messages
   are stored. When omitted, a failed batch throws.
@@ -750,7 +750,7 @@ const people = await sdb
         model: "gemini-3-flash-preview",
       },
       batchSize: 10, // Process 10 rows at once
-      concurrent: 5, // Process up to 5 requests concurrently
+      concurrency: 5, // Process up to 5 requests concurrently
       errorColumn: "error", // Store failed rows instead of throwing
       test: (data: { [key: string]: unknown }) => { // Validate AI's response
         if (
@@ -824,7 +824,7 @@ set `AI_EMBEDDINGS_MODEL`, or pass `{ provider: "ollama", ... }` through
 `embeddings`.
 
 To manage rate limits, use `rateLimitPerMinute` to introduce delays between
-requests. For higher rate limits (business/professional accounts), `concurrent`
+requests. For higher rate limits (business/professional accounts), `concurrency`
 allows parallel requests.
 
 Individual embedding responses are cached in `.journalism-cache` by default. Set
@@ -848,7 +848,7 @@ and runs in chain order at the next awaited observer or `run()` call.
 ##### Signature
 
 ```typescript
-aiEmbeddings(column: string, newColumn: string, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; createIndex?: boolean; overwriteIndex?: boolean; concurrent?: number; verbose?: boolean; rateLimitPerMinute?: number; efConstruction?: number; efSearch?: number; M?: number }): this;
+aiEmbeddings(column: string, newColumn: string, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; createIndex?: boolean; overwriteIndex?: boolean; concurrency?: number; verbose?: boolean; rateLimitPerMinute?: number; efConstruction?: number; efSearch?: number; M?: number }): this;
 ```
 
 ##### Parameters
@@ -872,7 +872,7 @@ aiEmbeddings(column: string, newColumn: string, options?: { embeddings?: { provi
 - **`options.M`**: The maximum number of neighbors to keep for each vertex in
   the graph. Higher values result in more accurate indexes but increase build
   time and memory usage. Defaults to 16.
-- **`options.concurrent`**: The number of concurrent requests to send. Defaults
+- **`options.concurrency`**: The number of concurrent requests to send. Defaults
   to `1`.
 - **`options.embeddings`**: Gemini or Ollama embedding configuration. Set
   `provider` explicitly or omit it to use environment selection; all other
@@ -1048,7 +1048,7 @@ When vector search is enabled, embedding responses are cached in
 `.journalism-cache`, and the table with its generated embedding column is cached
 in `.sda-cache`. Set `embeddings.cache` to `false` to disable both caches.
 
-Also, the method creates the column `{columnText}_embeddings` to store the
+Also, the method creates the column `{textColumn}_embeddings` to store the
 generated embeddings and persists its canonical embedding provenance inside
 DuckDB. A stored column is reused only when its provider/backend/model identity,
 semantic options, source mapping, and dimensions remain compatible. Legacy or
@@ -1076,15 +1076,15 @@ and runs in chain order at the next awaited observer or `run()` call.
 ##### Signature
 
 ```typescript
-hybridSearch(query: string, columnId: string, columnText: string, nbResults: number, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; verbose?: boolean; createIndex?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; outputTable?: string; efConstruction?: number; efSearch?: number; M?: number; times?: { start?: number; embeddingStart?: number; embeddingEnd?: number; vectorSearchStart?: number; vectorSearchEnd?: number; bm25Start?: number; bm25End?: number } }): this;
+hybridSearch(query: string, idColumn: string, textColumn: string, nbResults: number, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; verbose?: boolean; createIndex?: boolean; embeddingsConcurrency?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; outputTable?: string; efConstruction?: number; efSearch?: number; M?: number; times?: { start?: number; embeddingStart?: number; embeddingEnd?: number; vectorSearchStart?: number; vectorSearchEnd?: number; bm25Start?: number; bm25End?: number } }): this;
 ```
 
 ##### Parameters
 
 - **`query`**: The search query text.
-- **`columnId`**: The name of the column containing unique identifiers for each
+- **`idColumn`**: The name of the column containing unique identifiers for each
   row.
-- **`columnText`**: The name of the column containing the text content to search
+- **`textColumn`**: The name of the column containing the text content to search
   through.
 - **`nbResults`**: The number of most similar rows to retrieve.
 - **`options`**: Configuration options for the hybrid search.
@@ -1105,7 +1105,7 @@ hybridSearch(query: string, columnId: string, columnText: string, nbResults: num
 - **`options.M`**: The maximum number of neighbors to keep for each vertex in
   the graph. Higher values result in more accurate indexes but increase build
   time and memory usage. Defaults to 16.
-- **`options.embeddingsConcurrent`**: The number of concurrent requests to send
+- **`options.embeddingsConcurrency`**: The number of concurrent requests to send
   to the embeddings service. Defaults to `1`.
 - **`options.stemmer`**: The language stemmer to apply for BM25 word
   normalization. Supports multiple languages or "none" to disable stemming.
@@ -1224,15 +1224,15 @@ This method does not support tables containing geometries.
 ##### Signature
 
 ```typescript
-async aiRAG(query: string, columnId: string, columnText: string, nbResults: number, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; verbose?: boolean; createIndex?: boolean; embeddingsConcurrent?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; efConstruction?: number; efSearch?: number; M?: number; generation?: { systemPrompt?: string; model?: string; cache?: boolean; processResponse?: (response: unknown) => unknown | Promise<unknown>; temperature?: number } & ({ provider: "gemini"; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider: "ollama"; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never } | { provider?: undefined; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider?: undefined; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never }); includeThoughts?: boolean; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<string>;
+async aiRAG(query: string, idColumn: string, textColumn: string, nbResults: number, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; verbose?: boolean; createIndex?: boolean; embeddingsConcurrency?: number; stemmer?: "arabic" | "basque" | "catalan" | "danish" | "dutch" | "english" | "finnish" | "french" | "german" | "greek" | "hindi" | "hungarian" | "indonesian" | "irish" | "italian" | "lithuanian" | "nepali" | "norwegian" | "porter" | "portuguese" | "romanian" | "russian" | "serbian" | "spanish" | "swedish" | "tamil" | "turkish" | "none"; stopwords?: string; ignore?: string; stripAccents?: boolean; lower?: boolean; k?: number; b?: number; conjunctive?: boolean; bm25?: boolean; bm25MinScore?: number; bm25ScoreColumn?: string; vectorSearch?: boolean; vectorMinSimilarity?: number; vectorSimilarityColumn?: string; efConstruction?: number; efSearch?: number; M?: number; generation?: { systemPrompt?: string; model?: string; cache?: boolean; processResponse?: (response: unknown) => unknown | Promise<unknown>; temperature?: number } & ({ provider: "gemini"; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider: "ollama"; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never } | { provider?: undefined; apiKey?: string; vertex?: boolean; project?: string; location?: string; webSearch?: boolean; files?: { path: string; type: "image" | "video" | "audio" | "pdf" | "text" }[]; thinkingBudget?: number; thinkingLevel?: "minimal" | "low" | "medium" | "high"; safetyEnabled?: boolean; geminiParameters?: unknown; ollama?: never; contextWindow?: never; ollamaParameters?: never } | { provider?: undefined; ollama?: unknown; files?: { path: string; type: "image" | "text" }[]; contextWindow?: number; thinkingLevel?: boolean | "low" | "medium" | "high"; ollamaParameters?: unknown; apiKey?: never; vertex?: never; project?: never; location?: never; webSearch?: never; thinkingBudget?: never; safetyEnabled?: never; geminiParameters?: never }); includeThoughts?: boolean; metrics?: { totalCost: number; totalInputTokens: number; totalOutputTokens: number; totalRequests: number } }): Promise<string>;
 ```
 
 ##### Parameters
 
 - **`query`**: The question or query to answer using the retrieved context.
-- **`columnId`**: The name of the column containing unique identifiers for each
+- **`idColumn`**: The name of the column containing unique identifiers for each
   row.
-- **`columnText`**: The name of the column containing the text content to search
+- **`textColumn`**: The name of the column containing the text content to search
   through and use as context.
 - **`nbResults`**: The number of most similar rows to retrieve and use as
   context for the AI.
@@ -1253,7 +1253,7 @@ async aiRAG(query: string, columnId: string, columnText: string, nbResults: numb
   totalOutputTokens, and totalRequests properties (all initialized to 0). The
   function will update these values after each request. Note: totalCost is only
   calculated for Google GenAI models, not for Ollama.
-- **`options.embeddingsConcurrent`**: The number of concurrent requests to send
+- **`options.embeddingsConcurrency`**: The number of concurrent requests to send
   to the embeddings service. Defaults to `1`.
 - **`options.createIndex`**: If `true`, creates an HNSW index when vector search
   is enabled. The BM25 FTS index is managed automatically whenever BM25 search
@@ -1494,8 +1494,12 @@ A promise that resolves when the data has been written to the sheet.
 ##### Examples
 
 ```ts
-// Write the table data to a Google Sheet
-await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+// Load, transform, and write data to a Google Sheet
+await sdb
+  .newTable()
+  .loadData("sales.csv")
+  .selectColumns(["date", "revenue"])
+  .toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
 ```
 
 ```ts
@@ -1556,7 +1560,7 @@ The download is queued and runs in chain order at the next awaited observer or
 ##### Signature
 
 ```typescript
-loadSheet(sheetUrl: string, options?: { skip?: number; apiEmail?: string; apiKey?: string }): this;
+loadSheet(sheetUrl: string, options?: { skip?: number; apiEmailEnvVar?: string; apiKeyEnvVar?: string }): this;
 ```
 
 ##### Parameters
@@ -1567,10 +1571,10 @@ loadSheet(sheetUrl: string, options?: { skip?: number; apiEmail?: string; apiKey
 - **`options.skip`**: The number of rows to skip from the top of the sheet
   before reading data. Useful when the sheet contains metadata or headers that
   should not be included in the data.
-- **`options.apiEmail`**: If your API email is stored under a different
-  environment variable name, use this option to specify it.
-- **`options.apiKey`**: If your API key is stored under a different environment
-  variable name, use this option to specify it.
+- **`options.apiEmailEnvVar`**: The name of the environment variable that stores
+  your API email.
+- **`options.apiKeyEnvVar`**: The name of the environment variable that stores
+  your API key.
 
 ##### Returns
 
@@ -1595,17 +1599,17 @@ const sheetData = await table
   .log();
 ```
 
-#### `toDW`
+#### `toDatawrapper`
 
 Writes the table data as CSV to a Datawrapper chart or table.
 
 Authentication is handled via an API key stored in the environment variable
-`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`.
 
 ##### Signature
 
 ```typescript
-async toDW(chartId: string, options?: { apiKey?: string; note?: string; republish?: boolean }): Promise<void>;
+async toDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; note?: string; republish?: boolean }): Promise<void>;
 ```
 
 ##### Parameters
@@ -1613,8 +1617,8 @@ async toDW(chartId: string, options?: { apiKey?: string; note?: string; republis
 - **`chartId`**: The unique ID of the Datawrapper chart or table to update. This
   ID can be found in the Datawrapper URL or dashboard.
 - **`options`**: An optional object with configuration options:
-- **`options.apiKey`**: The name of the environment variable that stores your
-  Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
+- **`options.apiKeyEnvVar`**: The name of the environment variable that stores
+  your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
   `"DATAWRAPPER_KEY"`.
 - **`options.note`**: A string to update the chart's notes field with (e.g., a
   last-updated timestamp).
@@ -1628,30 +1632,35 @@ A promise that resolves when the data has been sent to Datawrapper.
 ##### Examples
 
 ```ts
-// Update a Datawrapper chart with the table data
-await table.toDW("myChartId");
+// Load, transform, and send data to a Datawrapper chart
+await sdb
+  .newTable()
+  .loadData("sales.csv")
+  .selectColumns(["date", "revenue"])
+  .toDatawrapper("myChartId");
 ```
 
 ```ts
 // Update data, add a note, and republish
-await table.toDW("myChartId", {
+await table.toDatawrapper("myChartId", {
   note: `Last updated: ${new Date().toLocaleString()}`,
   republish: true,
 });
 ```
 
-#### `loadDW`
+#### `loadDatawrapper`
 
 Loads data from a Datawrapper chart or table into the table.
 
 Authentication is handled via an API key stored in the environment variable
-`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`. The download
-is queued and runs in chain order at the next awaited observer or `run()` call.
+`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`. The
+download is queued and runs in chain order at the next awaited observer or
+`run()` call.
 
 ##### Signature
 
 ```typescript
-loadDW(chartId: string, options?: { apiKey?: string }): this;
+loadDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string }): this;
 ```
 
 ##### Parameters
@@ -1659,8 +1668,8 @@ loadDW(chartId: string, options?: { apiKey?: string }): this;
 - **`chartId`**: The unique ID of the Datawrapper chart or table. This ID can be
   found in the Datawrapper URL or dashboard.
 - **`options`**: An optional object with configuration options:
-- **`options.apiKey`**: The name of the environment variable that stores your
-  Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
+- **`options.apiKeyEnvVar`**: The name of the environment variable that stores
+  your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
   `"DATAWRAPPER_KEY"`.
 
 ##### Returns
@@ -1673,21 +1682,21 @@ The table, so methods can be chained.
 // Load data from a Datawrapper chart
 const chartData = await sdb
   .newTable("chartData")
-  .loadDW("myChartId")
+  .loadDatawrapper("myChartId")
   .log();
 ```
 
-#### `toGeoDW`
+#### `toGeoDatawrapper`
 
 Writes the table's geospatial data as GeoJSON to a Datawrapper map.
 
 Authentication is handled via an API key stored in the environment variable
-`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`.
 
 ##### Signature
 
 ```typescript
-async toGeoDW(chartId: string, options?: { apiKey?: string; column?: string; note?: string; republish?: boolean }): Promise<void>;
+async toGeoDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; column?: string; note?: string; republish?: boolean }): Promise<void>;
 ```
 
 ##### Parameters
@@ -1695,8 +1704,8 @@ async toGeoDW(chartId: string, options?: { apiKey?: string; column?: string; not
 - **`chartId`**: The unique ID of the Datawrapper map to update. This ID can be
   found in the Datawrapper URL or dashboard.
 - **`options`**: An optional object with configuration options:
-- **`options.apiKey`**: The name of the environment variable that stores your
-  Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
+- **`options.apiKeyEnvVar`**: The name of the environment variable that stores
+  your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
   `"DATAWRAPPER_KEY"`.
 - **`options.column`**: The name of the geometry column to use. If omitted, the
   method will automatically attempt to find a geometry column.
@@ -1711,24 +1720,28 @@ A promise that resolves when the data has been sent to Datawrapper.
 ##### Examples
 
 ```ts
-// Update a Datawrapper map with the table's geo data
-await table.toGeoDW("myMapId");
+// Load, transform, and send geospatial data to a Datawrapper map
+await sdb
+  .newTable()
+  .loadGeoData("regions.geojson")
+  .selectColumns(["name", "population", "geometry"])
+  .toGeoDatawrapper("myMapId");
 ```
 
 ```ts
 // Update data, add a note, and republish
-await table.toGeoDW("myMapId", {
+await table.toGeoDatawrapper("myMapId", {
   note: `Last updated: ${new Date().toLocaleString()}`,
   republish: true,
 });
 ```
 
-#### `loadGeoDW`
+#### `loadGeoDatawrapper`
 
 Loads geospatial data from a Datawrapper map into the table.
 
 Authentication is handled via an API key stored in the environment variable
-`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+`DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`.
 
 The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.geojson` and
 removed after loading. Remember to add `.sda-cache` to your `.gitignore`. The
@@ -1738,7 +1751,7 @@ download is queued and runs in chain order at the next awaited observer or
 ##### Signature
 
 ```typescript
-loadGeoDW(chartId: string, options?: { apiKey?: string }): this;
+loadGeoDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string }): this;
 ```
 
 ##### Parameters
@@ -1746,8 +1759,8 @@ loadGeoDW(chartId: string, options?: { apiKey?: string }): this;
 - **`chartId`**: The unique ID of the Datawrapper map. This ID can be found in
   the Datawrapper URL or dashboard.
 - **`options`**: An optional object with configuration options:
-- **`options.apiKey`**: The name of the environment variable that stores your
-  Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
+- **`options.apiKeyEnvVar`**: The name of the environment variable that stores
+  your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to
   `"DATAWRAPPER_KEY"`.
 
 ##### Returns
@@ -1760,7 +1773,7 @@ The table, so methods can be chained.
 // Load geo data from a Datawrapper map
 const mapData = await sdb
   .newTable("mapData")
-  .loadGeoDW("myMapId")
+  .loadGeoDatawrapper("myMapId")
   .log();
 ```
 

@@ -15,14 +15,25 @@ try {
       break;
     }
     case "queued": {
-      const options = { skip: 0 };
+      const options = {
+        skip: 0,
+        apiEmailEnvVar: "GOOGLE_EMAIL_ENV",
+        apiKeyEnvVar: "GOOGLE_KEY_ENV",
+      };
       assertEquals(table.loadSheet("fixture", options), table);
       options.skip = 1;
       table.filter("value > 1");
       assertEquals(loaded, [], "Queueing a method must not load integrations");
       assertEquals(await table.getData(), [{ value: 2 }]);
       assertEquals(loaded, ["google"]);
-      assertEquals(calls, [{ method: "getSheetData", value: 0 }]);
+      assertEquals(calls, [{
+        method: "getSheetData",
+        value: {
+          skip: 0,
+          apiEmail: "GOOGLE_EMAIL_ENV",
+          apiKey: "GOOGLE_KEY_ENV",
+        },
+      }]);
       await table.loadSheet("fixture", { skip: 1 }).run();
       assertEquals(loaded, ["google"], "Repeated calls reuse the module");
       break;
@@ -41,6 +52,61 @@ try {
       assertEquals(loaded.includes("ai"), true);
       assertEquals(loaded.includes("google"), false);
       assertEquals(loaded.includes("dataviz"), false);
+      break;
+    }
+    case "datawrapper": {
+      const chart = sdb.newTable("chart");
+      assertEquals(
+        chart.loadDatawrapper("chart-id", {
+          apiKeyEnvVar: "CUSTOM_DATAWRAPPER_KEY",
+        }),
+        chart,
+      );
+      assertEquals(loaded, []);
+      assertEquals(await chart.getData(), [{ value: 1 }]);
+      assertEquals(calls.at(-1), {
+        method: "getDataDW",
+        value: {
+          chartId: "chart-id",
+          options: { parse: true, apiKey: "CUSTOM_DATAWRAPPER_KEY" },
+        },
+      });
+
+      const map = sdb.newTable("map");
+      assertEquals(
+        map.loadGeoDatawrapper("map-id", {
+          apiKeyEnvVar: "CUSTOM_DATAWRAPPER_KEY",
+        }),
+        map,
+      );
+      assertEquals((await map.getGeoData()).features.length, 1);
+      assertEquals(calls.at(-1), {
+        method: "getDataDW",
+        value: {
+          chartId: "map-id",
+          options: { apiKey: "CUSTOM_DATAWRAPPER_KEY" },
+        },
+      });
+
+      await chart.toDatawrapper("chart-id", {
+        apiKeyEnvVar: "CUSTOM_DATAWRAPPER_KEY",
+      });
+      const update = calls.at(-1);
+      assertEquals(update?.method, "updateDataDW");
+      assertEquals(
+        (update?.value as { options: { apiKey?: string } }).options.apiKey,
+        "CUSTOM_DATAWRAPPER_KEY",
+      );
+
+      await map.toGeoDatawrapper("map-id", {
+        apiKeyEnvVar: "CUSTOM_DATAWRAPPER_KEY",
+      });
+      const geoUpdate = calls.at(-1);
+      assertEquals(geoUpdate?.method, "updateDataDW");
+      assertEquals(
+        (geoUpdate?.value as { options: { apiKey?: string } }).options.apiKey,
+        "CUSTOM_DATAWRAPPER_KEY",
+      );
       break;
     }
     case "observers":

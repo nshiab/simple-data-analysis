@@ -193,7 +193,7 @@ function registerRowProcessingContract(
           {
             generation: { ...fixture.generation, cache: false },
             batchSize: 2,
-            concurrent: 2,
+            concurrency: 2,
             metrics,
           },
         )
@@ -342,7 +342,7 @@ Deno.test("aiRowByRow stores failed batches and continues", async () => {
         ollama: client,
         cache: false,
       },
-      concurrent: 2,
+      concurrency: 2,
       errorColumn: "error",
     },
   ).run();
@@ -445,7 +445,7 @@ Deno.test("aiRowByRow bounds concurrent requests", async () => {
         ollama: client,
         cache: false,
       },
-      concurrent: 2,
+      concurrency: 2,
     },
   ).run();
 
@@ -479,7 +479,7 @@ Deno.test("aiRowByRow globally spaces provider request starts", async () => {
         ollama: client,
         cache: false,
       },
-      concurrent: 3,
+      concurrency: 3,
       rateLimitPerMinute: 1_200,
     },
   ).run();

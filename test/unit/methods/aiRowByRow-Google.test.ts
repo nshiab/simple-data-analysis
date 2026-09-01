@@ -49,7 +49,7 @@ if (typeof aiKey === "string" && aiKey !== "") {
           {
             generation: { ...geminiGeneration, safetyEnabled: false },
             batchSize: 1,
-            concurrent: 3,
+            concurrency: 3,
             errorColumn: "error",
             metrics,
             rateLimitPerMinute: 120,

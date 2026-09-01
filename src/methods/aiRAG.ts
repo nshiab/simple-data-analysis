@@ -33,8 +33,8 @@ export type AIRAGOptions =
 export default async function aiRAG(
   table: SimpleTable,
   query: string,
-  columnId: string,
-  columnText: string,
+  idColumn: string,
+  textColumn: string,
   nbResults: number,
   options: AIRAGOptions = {},
 ) {
@@ -55,8 +55,8 @@ export default async function aiRAG(
   const searchResultsTable = await hybridSearch(
     table,
     query,
-    columnId,
-    columnText,
+    idColumn,
+    textColumn,
     nbResults,
     {
       ...searchOptions,
@@ -65,7 +65,7 @@ export default async function aiRAG(
     },
   );
 
-  searchResultsTable.selectColumns([columnId, columnText]);
+  searchResultsTable.selectColumns([idColumn, textColumn]);
 
   // Get the retrieved data
   const retrievedData = await searchResultsTable.getData() as {
@@ -87,8 +87,8 @@ export default async function aiRAG(
 Base your answer only on the following data:\n
 ${
       retrievedData.map((entry) =>
-        `${columnId}: ${entry[columnId]}\n\n${columnText}:\n\n${
-          entry[columnText]
+        `${idColumn}: ${entry[idColumn]}\n\n${textColumn}:\n\n${
+          entry[textColumn]
         }`
       ).join("\n\n-----\n\n")
     }`,

@@ -116,7 +116,7 @@ if (hasAiKey) {
           "Recipe",
           10,
           {
-            // embeddingsConcurrent: 10,
+            // embeddingsConcurrency: 10,
             verbose: true,
           },
         );
@@ -313,7 +313,7 @@ if (hasAiKey) {
         {
           generation: { ...geminiGeneration },
           embeddings: { ...geminiEmbeddings },
-          embeddingsConcurrent: 100,
+          embeddingsConcurrency: 100,
           vectorSearch: true, // Enable only vector search
           bm25: false, // Disable BM25
           verbose: true,

@@ -1,26 +1,26 @@
 import { queueAsyncBarrier } from "@nshiab/simple-data-analysis-core/helpers";
 import type SimpleTable from "../class/SimpleTable.ts";
-import loadGeoDataFromScratchFile from "../helpers/loadGeoDataFromScratchFile.ts";
 
-type LoadGeoDWOptions = {
-  apiKey?: string;
+type LoadDatawrapperOptions = {
+  apiKeyEnvVar?: string;
 };
 
-export default function loadGeoDW(
+export default function loadDatawrapper(
   table: SimpleTable,
   chartId: string,
-  options: LoadGeoDWOptions = {},
+  options: LoadDatawrapperOptions = {},
 ): SimpleTable {
   options = { ...options };
   queueAsyncBarrier(table, {
-    method: "loadGeoDW()",
+    method: "loadDatawrapper()",
     parameters: { chartId, options },
     execute: async () => {
       const { getDataDW } = await import("@nshiab/journalism-dataviz");
-      const jsonString = await getDataDW(chartId, {
-        apiKey: options.apiKey,
-      }) as string;
-      await loadGeoDataFromScratchFile(table, jsonString);
+      const data = await getDataDW(chartId, {
+        parse: true,
+        apiKey: options.apiKeyEnvVar,
+      });
+      table.loadArray(data as Record<string, string>[]);
     },
   });
   return table;

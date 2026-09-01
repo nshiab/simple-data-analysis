@@ -6,12 +6,32 @@ export function saveChart(data: unknown, _chart: unknown, path: string) {
   return Promise.resolve();
 }
 
-export function getDataDW() {
-  return Promise.resolve([{ value: 1 }]);
+export function getDataDW(
+  chartId: string,
+  options: { parse?: boolean; apiKey?: string } = {},
+) {
+  calls.push({
+    method: "getDataDW",
+    value: { chartId, options },
+  });
+  return Promise.resolve(
+    options.parse ? [{ value: 1 }] : JSON.stringify({
+      type: "FeatureCollection",
+      features: [{
+        type: "Feature",
+        properties: { value: 1 },
+        geometry: { type: "Point", coordinates: [-73, 45] },
+      }],
+    }),
+  );
 }
 
-export function updateDataDW(_id: string, data: unknown) {
-  calls.push({ method: "updateDataDW", value: data });
+export function updateDataDW(
+  chartId: string,
+  data: unknown,
+  options: { apiKey?: string } = {},
+) {
+  calls.push({ method: "updateDataDW", value: { chartId, data, options } });
   return Promise.resolve();
 }
 

@@ -231,7 +231,7 @@ if (hasGoogleEmbeddingCredentials) {
         10,
         {
           embeddings: geminiEmbeddings,
-          embeddingsConcurrent: 100,
+          embeddingsConcurrency: 100,
           verbose: true,
         },
       ).run();
@@ -271,7 +271,7 @@ if (hasGoogleEmbeddingCredentials) {
         5,
         {
           embeddings: { ...geminiEmbeddings, cache: true },
-          embeddingsConcurrent: 100,
+          embeddingsConcurrency: 100,
         },
       ).getRowCount();
       assertEquals(nbRows <= 5, true);
@@ -297,7 +297,7 @@ if (hasGoogleEmbeddingCredentials) {
         5,
         {
           embeddings: geminiEmbeddings,
-          embeddingsConcurrent: 100,
+          embeddingsConcurrency: 100,
           outputTable: "italian_search_results",
         },
       ).run();
@@ -331,7 +331,7 @@ if (hasGoogleEmbeddingCredentials) {
         5,
         {
           embeddings: geminiEmbeddings,
-          embeddingsConcurrent: 100,
+          embeddingsConcurrency: 100,
           stemmer: "french",
           k: 1.5,
           b: 0.8,

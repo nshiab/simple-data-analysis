@@ -14,11 +14,11 @@ if (typeof apiKey === "string" && apiKey !== "") {
       { salary: "75000", hireDate: "2022-12-15" },
       { salary: "80000", hireDate: "2023-01-20" },
     ]);
-    await table.toDW("ntURh");
+    await table.toDatawrapper("ntURh");
 
     // Then load it back.
     const table2 = sdb.newTable();
-    assertEquals(await table2.loadDW("ntURh").getData(), [
+    assertEquals(await table2.loadDatawrapper("ntURh").getData(), [
       { salary: "75000", hireDate: "2022-12-15" },
       { salary: "80000", hireDate: "2023-01-20" },
     ]);

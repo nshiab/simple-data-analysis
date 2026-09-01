@@ -722,7 +722,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       // Create an index on the new column "embeddings"
       createIndex: true,
       // Use concurrent requests to speed up the process
-      concurrent: 2,
+      concurrency: 2,
       // Log details
       verbose: true,
     }).run();

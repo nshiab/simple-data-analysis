@@ -10,6 +10,7 @@ for (
     "core",
     "queued",
     "ai",
+    "datawrapper",
     "observers",
     "observers-reversed",
     "failure",

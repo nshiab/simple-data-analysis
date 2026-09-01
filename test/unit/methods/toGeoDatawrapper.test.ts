@@ -11,7 +11,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
     table.loadGeoData(
       "test/geodata/files/CanadianProvincesAndTerritories.json",
     );
-    await table.toGeoDW("lDO6F");
+    await table.toGeoDatawrapper("lDO6F");
 
     // Just making sure it doesn't crash for now.
     assertEquals(true, true);
@@ -25,7 +25,9 @@ if (typeof apiKey === "string" && apiKey !== "") {
     table.loadGeoData(
       "test/geodata/files/CanadianProvincesAndTerritories.json",
     );
-    await table.toGeoDW("lDO6F", { note: "Last updated: June 2026" });
+    await table.toGeoDatawrapper("lDO6F", {
+      note: "Last updated: June 2026",
+    });
 
     // Just making sure it doesn't crash for now.
     assertEquals(true, true);
@@ -39,7 +41,7 @@ if (typeof apiKey === "string" && apiKey !== "") {
     table.loadGeoData(
       "test/geodata/files/CanadianProvincesAndTerritories.json",
     );
-    await table.toGeoDW("lDO6F", { republish: true });
+    await table.toGeoDatawrapper("lDO6F", { republish: true });
 
     // Just making sure it doesn't crash for now.
     assertEquals(true, true);

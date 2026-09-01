@@ -3,8 +3,8 @@ import type SimpleTable from "../class/SimpleTable.ts";
 
 type LoadSheetOptions = {
   skip?: number;
-  apiEmail?: string;
-  apiKey?: string;
+  apiEmailEnvVar?: string;
+  apiKeyEnvVar?: string;
 };
 
 export default function loadSheet(
@@ -18,7 +18,14 @@ export default function loadSheet(
     parameters: { sheetUrl, options },
     execute: async () => {
       const { getSheetData } = await import("@nshiab/journalism-google");
-      table.loadArray(await getSheetData(sheetUrl, options));
+      const { apiEmailEnvVar, apiKeyEnvVar, ...sheetOptions } = options;
+      table.loadArray(
+        await getSheetData(sheetUrl, {
+          ...sheetOptions,
+          apiEmail: apiEmailEnvVar,
+          apiKey: apiKeyEnvVar,
+        }),
+      );
     },
   });
   return table;

@@ -168,13 +168,14 @@ result. This means only the final observer needs to be awaited.
 
 Methods that load or transform data—including `aiRowByRow()`, `aiEmbeddings()`,
 `aiVectorSimilarity()`, `hybridSearch()`, `aiQuery()`, `loadSheet()`,
-`loadDW()`, and `loadGeoDW()`—are also synchronous builders. Their external work
-runs when an observer executes the queue. Await a final observer or call
-`.run()` to execute a chain without reading or exporting its result.
+`loadDatawrapper()`, and `loadGeoDatawrapper()`—are also synchronous builders.
+Their external work runs when an observer executes the queue. Await a final
+observer or call `.run()` to execute a chain without reading or exporting its
+result.
 
 Methods that return an answer or export data, such as `aiRAG()`, `toSheet()`,
-`toDW()`, `toGeoDW()`, `writeChart()`, and `writeMap()`, remain asynchronous and
-must be awaited.
+`toDatawrapper()`, `toGeoDatawrapper()`, `writeChart()`, and `writeMap()`,
+remain asynchronous and must be awaited.
 
 The syntax and the available methods were inspired by
 [Pandas](https://github.com/pandas-dev/pandas) (Python) and the
@@ -504,7 +505,7 @@ const cities = await sdb
     "city",
     ["country", "continent"],
     "Give me the country and continent of the city.",
-    { concurrent: 5, errorColumn: "error" },
+    { concurrency: 5, errorColumn: "error" },
   )
   .log();
 

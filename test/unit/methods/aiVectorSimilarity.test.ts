@@ -32,7 +32,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
     // Ask the AI to generate embeddings in a new column "embeddings".
     await table.aiEmbeddings("food", "embeddings", {
       embeddings: ollamaEmbeddings,
-      concurrent: 3,
+      concurrency: 3,
     }).run();
 
     // Ask the AI to find the 3 most similar foods to "italian food" in the column "food".
@@ -67,7 +67,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       // Ask the AI to generate embeddings in a new column "embeddings".
       await table.aiEmbeddings("food", "embeddings", {
         embeddings: ollamaEmbeddings,
-        concurrent: 3,
+        concurrency: 3,
       }).run();
 
       const ollama = new Ollama({ host: "http://127.0.0.1:11434" });
@@ -101,7 +101,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
     ]);
     await table.aiEmbeddings("food", "embeddings", {
       embeddings: ollamaEmbeddings,
-      concurrent: 4,
+      concurrency: 4,
     }).run();
 
     const values = await table.aiVectorSimilarity(
@@ -132,7 +132,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       ]);
       await table.aiEmbeddings("food", "embeddings", {
         embeddings: { ...ollamaEmbeddings, cache: true },
-        concurrent: 6,
+        concurrency: 6,
       }).run();
 
       const values = await table.aiVectorSimilarity(
@@ -164,7 +164,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       ]);
       await table.aiEmbeddings("food", "embeddings", {
         embeddings: ollamaEmbeddings,
-        concurrent: 10,
+        concurrency: 10,
       }).run();
 
       const values = await table.aiVectorSimilarity(
@@ -197,7 +197,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       ]);
       await table.aiEmbeddings("food", "embeddings", {
         embeddings: ollamaEmbeddings,
-        concurrent: 100,
+        concurrency: 100,
       }).run();
 
       const americanFood = await table.aiVectorSimilarity(
@@ -251,7 +251,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
         ]);
         await table.aiEmbeddings("food", "embeddings", {
           embeddings: ollamaEmbeddings,
-          concurrent: 10,
+          concurrency: 10,
         }).run();
       });
 
@@ -306,7 +306,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
         ]);
         await table.aiEmbeddings("food", "embeddings", {
           embeddings: ollamaEmbeddings,
-          concurrent: 10,
+          concurrency: 10,
         }).run();
       });
 
@@ -359,7 +359,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
       ]);
       await table.aiEmbeddings("food", "embeddings", {
         embeddings: ollamaEmbeddings,
-        concurrent: 4,
+        concurrency: 4,
       }).run();
 
       const scores = await table.aiVectorSimilarity(
@@ -403,7 +403,7 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
 
       await table.aiEmbeddings("food", "embeddings", {
         embeddings: ollamaEmbeddings,
-        concurrent: 4,
+        concurrency: 4,
       }).run();
 
       // 1. Run a baseline search to get the actual scores for the current model

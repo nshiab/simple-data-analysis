@@ -1,10 +1,25 @@
-import { existsSync, mkdirSync } from "node:fs";
-import { assert, assertEquals } from "@std/assert";
+import { assert, assertEquals, assertRejects } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { dot, plot } from "@observablehq/plot";
-const output = "./test/output/";
-if (!existsSync(output)) {
-  mkdirSync(output);
+const output = await Deno.makeTempDir({ prefix: "sda-write-chart-" }) + "/";
+
+async function assertArtifact(path: string): Promise<void> {
+  const contents = await Deno.readFile(path);
+  assert(contents.byteLength > 8, `Expected ${path} to be non-empty`);
+  if (path.endsWith(".png")) {
+    assertEquals(Array.from(contents.slice(0, 8)), [
+      137,
+      80,
+      78,
+      71,
+      13,
+      10,
+      26,
+      10,
+    ]);
+  } else {
+    assert(new TextDecoder().decode(contents).includes("<svg"));
+  }
 }
 
 Deno.test("should write a chart as a png", async () => {
@@ -24,9 +39,27 @@ Deno.test("should write a chart as a png", async () => {
       ],
       caption: "A caption with the data source.",
     }), output + "temp.png");
-  // How to assert?
-  assertEquals(true, true);
+  await assertArtifact(output + "temp.png");
   await sdb.close();
+});
+
+Deno.test("should reject when the chart function throws", async () => {
+  const sdb = new SimpleDB();
+  try {
+    const table = sdb.newTable().loadArray([{ value: 1 }]);
+    const error = new Error("chart rendering failed");
+
+    await assertRejects(
+      () =>
+        table.writeChart(() => {
+          throw error;
+        }, output + "throwing-chart.svg"),
+      Error,
+      error.message,
+    );
+  } finally {
+    await sdb.close();
+  }
 });
 Deno.test("should write a dark chart as a png", async () => {
   const sdb = new SimpleDB();
@@ -49,8 +82,7 @@ Deno.test("should write a dark chart as a png", async () => {
     output + "temp-dark.png",
     { dark: true },
   );
-  // How to assert?
-  assertEquals(true, true);
+  await assertArtifact(output + "temp-dark.png");
   await sdb.close();
 });
 
@@ -69,8 +101,7 @@ Deno.test("should write a chart as a svg", async () => {
         dot(data, { x: "time", y: "t", fill: "t", facet: "auto" }),
       ],
     }), output + "temp.svg");
-  // How to assert?
-  assertEquals(true, true);
+  await assertArtifact(output + "temp.svg");
   await sdb.close();
 });
 
@@ -85,8 +116,7 @@ Deno.test("should write a chart (example from docs)", async () => {
         dot(data, { x: "year", y: "value" }),
       ],
     }), output + "example.png");
-  // How to assert?
-  assertEquals(true, true);
+  await assertArtifact(output + "example.png");
   await sdb.close();
 });
 
@@ -110,7 +140,7 @@ Deno.test("should use functions and values from the surrounding scope", async ()
       ],
     }), output + "surrounding-scope.png");
 
-  assert(existsSync(output + "surrounding-scope.png"));
+  await assertArtifact(output + "surrounding-scope.png");
   await sdb.close();
 });
 
@@ -129,8 +159,7 @@ Deno.test("should write a chart in a folder that doesn't exist", async () => {
         dot(data, { x: "time", y: "t", fill: "t", facet: "auto" }),
       ],
     }), output + "/test/temp.png");
-  // How to assert?
-  assertEquals(true, true);
+  await assertArtifact(output + "/test/temp.png");
   await sdb.close();
 });
 

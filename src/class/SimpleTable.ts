@@ -10,8 +10,8 @@ import hybridSearch from "../methods/hybridSearch.ts";
 import aiRAG from "../methods/aiRAG.ts";
 import aiQuery from "../methods/aiQuery.ts";
 import loadSheet from "../methods/loadSheet.ts";
-import loadDW from "../methods/loadDW.ts";
-import loadGeoDW from "../methods/loadGeoDW.ts";
+import loadDatawrapper from "../methods/loadDatawrapper.ts";
+import loadGeoDatawrapper from "../methods/loadGeoDatawrapper.ts";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
@@ -76,7 +76,7 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * For Ollama, set `AI_PROVIDER=ollama`, ensure Ollama is running, and set `AI_MODEL`, or pass `{ provider: "ollama", ... }` through `generation`.
    *
-   * To manage rate limits, use `batchSize` to process multiple rows per request and `rateLimitPerMinute` to pace requests across the worker pool. The `concurrent` option controls how many requests may run in parallel.
+   * To manage rate limits, use `batchSize` to process multiple rows per request and `rateLimitPerMinute` to pace requests across the worker pool. The `concurrency` option controls how many requests may run in parallel.
    *
    * Results are cached locally in `.journalism-cache` by default. Set `generation.cache` to `false` to disable caching, and remember to add `.journalism-cache` to your `.gitignore`.
    *
@@ -93,7 +93,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param prompt - The input string to guide the AI's response.
    * @param options - Configuration options for the AI request.
    * @param options.batchSize - The number of rows to process in each batch. Defaults to `1`.
-   * @param options.concurrent - The number of concurrent requests to send. Defaults to `1`.
+   * @param options.concurrency - The number of concurrent requests to send. Defaults to `1`.
    * @param options.errorColumn - The optional column where per-row error messages are stored. When omitted, a failed batch throws.
    * @param options.logProgress - If `true`, logs request-pool progress. Defaults to `false`.
    * @param options.generation - Gemini or Ollama generation configuration. Set `provider` explicitly or omit it to use environment selection; all other fields match the selected journalism-ai function.
@@ -127,7 +127,7 @@ export default class SimpleTable extends SimpleTableCore {
    *         model: "gemini-3-flash-preview",
    *       },
    *       batchSize: 10, // Process 10 rows at once
-   *       concurrent: 5, // Process up to 5 requests concurrently
+   *       concurrency: 5, // Process up to 5 requests concurrently
    *       errorColumn: "error", // Store failed rows instead of throwing
    *       test: (data: { [key: string]: unknown }) => { // Validate AI's response
    *         if (
@@ -277,7 +277,7 @@ export default class SimpleTable extends SimpleTableCore {
           }
         );
       batchSize?: number;
-      concurrent?: number;
+      concurrency?: number;
       errorColumn?: string;
       logProgress?: boolean;
       test?: (result: { [key: string]: unknown }) => void;
@@ -306,7 +306,7 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * For Ollama, set `AI_EMBEDDINGS_PROVIDER=ollama`, ensure Ollama is running, and set `AI_EMBEDDINGS_MODEL`, or pass `{ provider: "ollama", ... }` through `embeddings`.
    *
-   * To manage rate limits, use `rateLimitPerMinute` to introduce delays between requests. For higher rate limits (business/professional accounts), `concurrent` allows parallel requests.
+   * To manage rate limits, use `rateLimitPerMinute` to introduce delays between requests. For higher rate limits (business/professional accounts), `concurrency` allows parallel requests.
    *
    * Individual embedding responses are cached in `.journalism-cache` by default. Set `embeddings.cache` to `false` to disable this request cache, and remember to add `.journalism-cache` to your `.gitignore`.
    *
@@ -325,7 +325,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
    * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
    * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
-   * @param options.concurrent - The number of concurrent requests to send. Defaults to `1`.
+   * @param options.concurrency - The number of concurrent requests to send. Defaults to `1`.
    * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use environment selection; all other fields match `getEmbedding` from journalism-ai.
    * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
@@ -428,7 +428,7 @@ export default class SimpleTable extends SimpleTableCore {
         };
       createIndex?: boolean;
       overwriteIndex?: boolean;
-      concurrent?: number;
+      concurrency?: number;
       verbose?: boolean;
       rateLimitPerMinute?: number;
       efConstruction?: number;
@@ -602,7 +602,7 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * When vector search is enabled, embedding responses are cached in `.journalism-cache`, and the table with its generated embedding column is cached in `.sda-cache`. Set `embeddings.cache` to `false` to disable both caches.
    *
-   * Also, the method creates the column `{columnText}_embeddings` to store the generated embeddings and persists its canonical embedding provenance inside DuckDB. A stored column is reused only when its provider/backend/model identity, semantic options, source mapping, and dimensions remain compatible. Legacy or incompatible columns are regenerated, and stale vector indexes are invalidated before replacement. This provenance survives reopening a DuckDB database.
+   * Also, the method creates the column `{textColumn}_embeddings` to store the generated embeddings and persists its canonical embedding provenance inside DuckDB. A stored column is reused only when its provider/backend/model identity, semantic options, source mapping, and dimensions remain compatible. Legacy or incompatible columns are regenerated, and stale vector indexes are invalidated before replacement. This provenance survives reopening a DuckDB database.
    *
    * Remove `.journalism-cache` and `.sda-cache` to clear existing cache entries. Remember to add both directories to your `.gitignore`.
    *
@@ -616,8 +616,8 @@ export default class SimpleTable extends SimpleTableCore {
    * The work is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param query - The search query text.
-   * @param columnId - The name of the column containing unique identifiers for each row.
-   * @param columnText - The name of the column containing the text content to search through.
+   * @param idColumn - The name of the column containing unique identifiers for each row.
+   * @param textColumn - The name of the column containing the text content to search through.
    * @param nbResults - The number of most similar rows to retrieve.
    * @param options - Configuration options for the hybrid search.
    * @param options.embeddings - Gemini or Ollama embedding configuration. Set `provider` explicitly or omit it to use environment selection; all other fields match `getEmbedding` from journalism-ai.
@@ -626,7 +626,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
    * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
    * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
-   * @param options.embeddingsConcurrent - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
+   * @param options.embeddingsConcurrency - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
    * @param options.stemmer - The language stemmer to apply for BM25 word normalization. Supports multiple languages or "none" to disable stemming. Defaults to `'porter'`.
    * @param options.stopwords - The table containing the stopwords to use for the BM25 FTS index. Supports multiple languages or "none" to disable stopwords. Defaults to "english".
    * @param options.ignore - The regular expression of patterns to be ignored for the BM25 FTS index. Defaults to "(\\.|[^a-z])+".
@@ -675,8 +675,8 @@ export default class SimpleTable extends SimpleTableCore {
    */
   hybridSearch(
     query: string,
-    columnId: string,
-    columnText: string,
+    idColumn: string,
+    textColumn: string,
     nbResults: number,
     options: {
       embeddings?:
@@ -737,7 +737,7 @@ export default class SimpleTable extends SimpleTableCore {
         };
       verbose?: boolean;
       createIndex?: boolean;
-      embeddingsConcurrent?: number;
+      embeddingsConcurrency?: number;
       stemmer?:
         | "arabic"
         | "basque"
@@ -798,8 +798,8 @@ export default class SimpleTable extends SimpleTableCore {
     return hybridSearch(
       this,
       query,
-      columnId,
-      columnText,
+      idColumn,
+      textColumn,
       nbResults,
       options,
     ) as this;
@@ -825,8 +825,8 @@ export default class SimpleTable extends SimpleTableCore {
    * This method does not support tables containing geometries.
    *
    * @param query - The question or query to answer using the retrieved context.
-   * @param columnId - The name of the column containing unique identifiers for each row.
-   * @param columnText - The name of the column containing the text content to search through and use as context.
+   * @param idColumn - The name of the column containing unique identifiers for each row.
+   * @param textColumn - The name of the column containing the text content to search through and use as context.
    * @param nbResults - The number of most similar rows to retrieve and use as context for the AI.
    * @param options - Configuration options for the RAG process.
    * @param options.generation - Gemini or Ollama generation configuration. Set `provider` explicitly or omit it to use environment selection; all other relevant fields match the selected journalism-ai function.
@@ -834,7 +834,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
    * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.
    * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
-   * @param options.embeddingsConcurrent - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
+   * @param options.embeddingsConcurrency - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
    * @param options.createIndex - If `true`, creates an HNSW index when vector search is enabled. The BM25 FTS index is managed automatically whenever BM25 search is enabled. Defaults to `false`.
    * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
    * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
@@ -903,8 +903,8 @@ export default class SimpleTable extends SimpleTableCore {
    */
   async aiRAG(
     query: string,
-    columnId: string,
-    columnText: string,
+    idColumn: string,
+    textColumn: string,
     nbResults: number,
     options: {
       embeddings?:
@@ -965,7 +965,7 @@ export default class SimpleTable extends SimpleTableCore {
         };
       verbose?: boolean;
       createIndex?: boolean;
-      embeddingsConcurrent?: number;
+      embeddingsConcurrency?: number;
       stemmer?:
         | "arabic"
         | "basque"
@@ -1102,7 +1102,7 @@ export default class SimpleTable extends SimpleTableCore {
       };
     } = {},
   ): Promise<string> {
-    return await aiRAG(this, query, columnId, columnText, nbResults, options);
+    return await aiRAG(this, query, idColumn, textColumn, nbResults, options);
   }
 
   /**
@@ -1289,8 +1289,12 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * @example
    * ```ts
-   * // Write the table data to a Google Sheet
-   * await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+   * // Load, transform, and write data to a Google Sheet
+   * await sdb
+   *   .newTable()
+   *   .loadData("sales.csv")
+   *   .selectColumns(["date", "revenue"])
+   *   .toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
    * ```
    *
    * @example
@@ -1374,8 +1378,8 @@ export default class SimpleTable extends SimpleTableCore {
    * @param sheetUrl - The URL pointing to a specific Google Sheet (e.g., `"https://docs.google.com/spreadsheets/d/.../edit#gid=0"`).
    * @param options - An optional object with configuration options:
    * @param options.skip - The number of rows to skip from the top of the sheet before reading data. Useful when the sheet contains metadata or headers that should not be included in the data.
-   * @param options.apiEmail - If your API email is stored under a different environment variable name, use this option to specify it.
-   * @param options.apiKey - If your API key is stored under a different environment variable name, use this option to specify it.
+   * @param options.apiEmailEnvVar - The name of the environment variable that stores your API email.
+   * @param options.apiKeyEnvVar - The name of the environment variable that stores your API key.
    * @returns The table, so methods can be chained.
    * @category Loading Data
    *
@@ -1400,8 +1404,8 @@ export default class SimpleTable extends SimpleTableCore {
    */
   loadSheet(sheetUrl: string, options: {
     skip?: number;
-    apiEmail?: string;
-    apiKey?: string;
+    apiEmailEnvVar?: string;
+    apiKeyEnvVar?: string;
   } = {}): this {
     loadSheet(this, sheetUrl, options);
     return this;
@@ -1412,11 +1416,11 @@ export default class SimpleTable extends SimpleTableCore {
   /**
    * Writes the table data as CSV to a Datawrapper chart or table.
    *
-   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`.
    *
    * @param chartId - The unique ID of the Datawrapper chart or table to update. This ID can be found in the Datawrapper URL or dashboard.
    * @param options - An optional object with configuration options:
-   * @param options.apiKey - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
+   * @param options.apiKeyEnvVar - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
    * @param options.note - A string to update the chart's notes field with (e.g., a last-updated timestamp).
    * @param options.republish - If `true`, republishes the chart after updating the data. Defaults to `false`.
    * @returns A promise that resolves when the data has been sent to Datawrapper.
@@ -1424,23 +1428,27 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * @example
    * ```ts
-   * // Update a Datawrapper chart with the table data
-   * await table.toDW("myChartId");
+   * // Load, transform, and send data to a Datawrapper chart
+   * await sdb
+   *   .newTable()
+   *   .loadData("sales.csv")
+   *   .selectColumns(["date", "revenue"])
+   *   .toDatawrapper("myChartId");
    * ```
    *
    * @example
    * ```ts
    * // Update data, add a note, and republish
-   * await table.toDW("myChartId", {
+   * await table.toDatawrapper("myChartId", {
    *   note: `Last updated: ${new Date().toLocaleString()}`,
    *   republish: true,
    * });
    * ```
    */
-  async toDW(
+  async toDatawrapper(
     chartId: string,
     options: {
-      apiKey?: string;
+      apiKeyEnvVar?: string;
       note?: string;
       republish?: boolean;
     } = {},
@@ -1450,25 +1458,27 @@ export default class SimpleTable extends SimpleTableCore {
       "@nshiab/journalism-dataviz"
     );
     await updateDataDW(chartId, data, {
-      apiKey: options.apiKey,
+      apiKey: options.apiKeyEnvVar,
     });
     if (typeof options.note === "string") {
-      await updateNotesDW(chartId, options.note, { apiKey: options.apiKey });
+      await updateNotesDW(chartId, options.note, {
+        apiKey: options.apiKeyEnvVar,
+      });
     }
     if (options.republish === true) {
-      await publishChartDW(chartId, { apiKey: options.apiKey });
+      await publishChartDW(chartId, { apiKey: options.apiKeyEnvVar });
     }
   }
 
   /**
    * Loads data from a Datawrapper chart or table into the table.
    *
-   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`.
    * The download is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param chartId - The unique ID of the Datawrapper chart or table. This ID can be found in the Datawrapper URL or dashboard.
    * @param options - An optional object with configuration options:
-   * @param options.apiKey - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
+   * @param options.apiKeyEnvVar - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
    * @returns The table, so methods can be chained.
    * @category Loading Data
    *
@@ -1477,28 +1487,28 @@ export default class SimpleTable extends SimpleTableCore {
    * // Load data from a Datawrapper chart
    * const chartData = await sdb
    *   .newTable("chartData")
-   *   .loadDW("myChartId")
+   *   .loadDatawrapper("myChartId")
    *   .log();
    * ```
    */
-  loadDW(
+  loadDatawrapper(
     chartId: string,
     options: {
-      apiKey?: string;
+      apiKeyEnvVar?: string;
     } = {},
   ): this {
-    loadDW(this, chartId, options);
+    loadDatawrapper(this, chartId, options);
     return this;
   }
 
   /**
    * Writes the table's geospatial data as GeoJSON to a Datawrapper map.
    *
-   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`.
    *
    * @param chartId - The unique ID of the Datawrapper map to update. This ID can be found in the Datawrapper URL or dashboard.
    * @param options - An optional object with configuration options:
-   * @param options.apiKey - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
+   * @param options.apiKeyEnvVar - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
    * @param options.column - The name of the geometry column to use. If omitted, the method will automatically attempt to find a geometry column.
    * @param options.note - A string to update the map's notes field with.
    * @param options.republish - If `true`, republishes the map after updating the data. Defaults to `false`.
@@ -1507,23 +1517,27 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * @example
    * ```ts
-   * // Update a Datawrapper map with the table's geo data
-   * await table.toGeoDW("myMapId");
+   * // Load, transform, and send geospatial data to a Datawrapper map
+   * await sdb
+   *   .newTable()
+   *   .loadGeoData("regions.geojson")
+   *   .selectColumns(["name", "population", "geometry"])
+   *   .toGeoDatawrapper("myMapId");
    * ```
    *
    * @example
    * ```ts
    * // Update data, add a note, and republish
-   * await table.toGeoDW("myMapId", {
+   * await table.toGeoDatawrapper("myMapId", {
    *   note: `Last updated: ${new Date().toLocaleString()}`,
    *   republish: true,
    * });
    * ```
    */
-  async toGeoDW(
+  async toGeoDatawrapper(
     chartId: string,
     options: {
-      apiKey?: string;
+      apiKeyEnvVar?: string;
       column?: string;
       note?: string;
       republish?: boolean;
@@ -1534,27 +1548,29 @@ export default class SimpleTable extends SimpleTableCore {
       "@nshiab/journalism-dataviz"
     );
     await updateDataDW(chartId, JSON.stringify(geoData), {
-      apiKey: options.apiKey,
+      apiKey: options.apiKeyEnvVar,
     });
     if (typeof options.note === "string") {
-      await updateNotesDW(chartId, options.note, { apiKey: options.apiKey });
+      await updateNotesDW(chartId, options.note, {
+        apiKey: options.apiKeyEnvVar,
+      });
     }
     if (options.republish === true) {
-      await publishChartDW(chartId, { apiKey: options.apiKey });
+      await publishChartDW(chartId, { apiKey: options.apiKeyEnvVar });
     }
   }
 
   /**
    * Loads geospatial data from a Datawrapper map into the table.
    *
-   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKey`.
+   * Authentication is handled via an API key stored in the environment variable `DATAWRAPPER_KEY`, or a custom variable name via `options.apiKeyEnvVar`.
    *
    * The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.geojson` and removed after loading. Remember to add `.sda-cache` to your `.gitignore`.
    * The download is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @param chartId - The unique ID of the Datawrapper map. This ID can be found in the Datawrapper URL or dashboard.
    * @param options - An optional object with configuration options:
-   * @param options.apiKey - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
+   * @param options.apiKeyEnvVar - The name of the environment variable that stores your Datawrapper API key (e.g., `"DATAWRAPPER_KEY"`). Defaults to `"DATAWRAPPER_KEY"`.
    * @returns The table, so methods can be chained.
    * @category Loading Data
    *
@@ -1563,17 +1579,17 @@ export default class SimpleTable extends SimpleTableCore {
    * // Load geo data from a Datawrapper map
    * const mapData = await sdb
    *   .newTable("mapData")
-   *   .loadGeoDW("myMapId")
+   *   .loadGeoDatawrapper("myMapId")
    *   .log();
    * ```
    */
-  loadGeoDW(
+  loadGeoDatawrapper(
     chartId: string,
     options: {
-      apiKey?: string;
+      apiKeyEnvVar?: string;
     } = {},
   ): this {
-    loadGeoDW(this, chartId, options);
+    loadGeoDatawrapper(this, chartId, options);
     return this;
   }
 
@@ -1618,19 +1634,15 @@ export default class SimpleTable extends SimpleTableCore {
     path: string,
     options: { style?: string; dark?: boolean } = {},
   ): Promise<void> {
-    try {
-      createDirectory(path);
-      const data = await this.getData();
-      const { saveChart } = await import("@nshiab/journalism-dataviz");
-      await saveChart(
-        data,
-        chart as (data: Data) => SVGSVGElement | HTMLElement,
-        path,
-        options,
-      );
-    } catch (error) {
-      console.error(error);
-    }
+    createDirectory(path);
+    const data = await this.getData();
+    const { saveChart } = await import("@nshiab/journalism-dataviz");
+    await saveChart(
+      data,
+      chart as (data: Data) => SVGSVGElement | HTMLElement,
+      path,
+      options,
+    );
   }
 
   /**
@@ -1686,22 +1698,18 @@ export default class SimpleTable extends SimpleTableCore {
       dark?: boolean;
     } = {},
   ): Promise<void> {
-    try {
-      createDirectory(path);
-      options.rewind = options.rewind ?? true;
-      const geoData = await this.getGeoData(options.column, {
-        rewind: options.rewind,
-      });
-      const { saveChart } = await import("@nshiab/journalism-dataviz");
-      await saveChart(
-        geoData as unknown as Data,
-        map as unknown as (data: Data) => SVGSVGElement | HTMLElement,
-        path,
-        options,
-      );
-    } catch (error) {
-      console.error(error);
-    }
+    createDirectory(path);
+    options.rewind = options.rewind ?? true;
+    const geoData = await this.getGeoData(options.column, {
+      rewind: options.rewind,
+    });
+    const { saveChart } = await import("@nshiab/journalism-dataviz");
+    await saveChart(
+      geoData as unknown as Data,
+      map as unknown as (data: Data) => SVGSVGElement | HTMLElement,
+      path,
+      options,
+    );
   }
 
   /**

@@ -57,7 +57,7 @@ export type HybridSearchOptions = {
   /** Creates an HNSW index when vector search is enabled. BM25 manages its FTS index automatically. */
   createIndex?: boolean;
   /** Maximum number of stored-row embedding requests processed concurrently. */
-  embeddingsConcurrent?: number;
+  embeddingsConcurrency?: number;
   /** Language stemmer used by the BM25 full-text index. */
   stemmer?:
     | "arabic"
@@ -129,8 +129,8 @@ export type HybridSearchOptions = {
 export default function hybridSearch(
   table: SimpleTable,
   query: string,
-  columnId: string,
-  columnText: string,
+  idColumn: string,
+  textColumn: string,
   nbResults: number,
   options: HybridSearchOptions = {},
 ): SimpleTable {
@@ -142,8 +142,8 @@ export default function hybridSearch(
     method: "hybridSearch()",
     parameters: {
       query,
-      columnId,
-      columnText,
+      idColumn,
+      textColumn,
       nbResults,
       outputTable: options.outputTable,
     },
@@ -151,8 +151,8 @@ export default function hybridSearch(
       runHybridSearch(
         table,
         query,
-        columnId,
-        columnText,
+        idColumn,
+        textColumn,
         nbResults,
         options,
         outputTable,
@@ -164,8 +164,8 @@ export default function hybridSearch(
 async function runHybridSearch(
   table: SimpleTable,
   query: string,
-  columnId: string,
-  columnText: string,
+  idColumn: string,
+  textColumn: string,
   nbResults: number,
   options: HybridSearchOptions,
   outputTableInstance: SimpleTable,
@@ -189,7 +189,7 @@ async function runHybridSearch(
     bm25End: 0,
   };
 
-  const embeddingColumn = `${columnText}_embeddings`;
+  const embeddingColumn = `${textColumn}_embeddings`;
 
   // Only generate embeddings if vector search is enabled
   if (enableVectorSearch) {
@@ -207,12 +207,12 @@ async function runHybridSearch(
       const embeddingOptions = {
         verbose: options.verbose,
         embeddings: options.embeddings,
-        concurrent: options.embeddingsConcurrent,
+        concurrency: options.embeddingsConcurrency,
       };
       const computeEmbeddings = async () => {
         await generateEmbeddingColumn(
           table,
-          columnText,
+          textColumn,
           embeddingColumn,
           embeddingOptions,
         );
@@ -220,7 +220,7 @@ async function runHybridSearch(
       const identity = getEmbeddingIdentity(options.embeddings);
       const embeddingStatus = await ensureEmbeddingColumn(
         table,
-        columnText,
+        textColumn,
         embeddingColumn,
         identity,
         async () => {
@@ -234,7 +234,7 @@ async function runHybridSearch(
           );
           const cacheProvenance = {
             identity,
-            sourceColumn: columnText,
+            sourceColumn: textColumn,
             embeddingColumn,
           };
           Object.defineProperty(computeEmbeddings, "toString", {
@@ -309,8 +309,8 @@ async function runHybridSearch(
     }
     const bm25SearchResult = table.bm25(
       query,
-      columnId,
-      columnText,
+      idColumn,
+      textColumn,
       nbResults,
       {
         stemmer: options.stemmer,
@@ -350,19 +350,19 @@ async function runHybridSearch(
     ]);
 
     const vectorSearchResultsIds = await vectorSearchResult.getValues(
-      columnId,
+      idColumn,
     ) as string[];
     if (options.vectorSimilarityColumn) {
       vectorSearchSimilarity = await vectorSearchResult.getData({
-        columns: [columnId, options.vectorSimilarityColumn],
+        columns: [idColumn, options.vectorSimilarityColumn],
       });
     }
     const bm25SearchResultsIds = await bm25SearchResult.getValues(
-      columnId,
+      idColumn,
     ) as string[];
     if (options.bm25ScoreColumn) {
       bm25SearchScores = await bm25SearchResult.getData({
-        columns: [columnId, options.bm25ScoreColumn],
+        columns: [idColumn, options.bm25ScoreColumn],
       });
     }
 
@@ -393,10 +393,10 @@ async function runHybridSearch(
   } else if (enableVectorSearch) {
     // Only vector search enabled
     const vectorSearchResult = await vectorSearch();
-    finalIds = await vectorSearchResult.getValues(columnId) as string[];
+    finalIds = await vectorSearchResult.getValues(idColumn) as string[];
     if (options.vectorSimilarityColumn) {
       vectorSearchSimilarity = await vectorSearchResult.getData({
-        columns: [columnId, options.vectorSimilarityColumn],
+        columns: [idColumn, options.vectorSimilarityColumn],
       });
     }
     await vectorSearchResult.removeTable();
@@ -410,10 +410,10 @@ async function runHybridSearch(
   } else {
     // Only BM25 enabled
     const bm25SearchResult = await bm25Search();
-    finalIds = await bm25SearchResult.getValues(columnId) as string[];
+    finalIds = await bm25SearchResult.getValues(idColumn) as string[];
     if (options.bm25ScoreColumn) {
       bm25SearchScores = await bm25SearchResult.getData({
-        columns: [columnId, options.bm25ScoreColumn],
+        columns: [idColumn, options.bm25ScoreColumn],
       });
     }
     await bm25SearchResult.removeTable();
@@ -438,7 +438,7 @@ async function runHybridSearch(
     await table.sdb.customQuery(
       `CREATE OR REPLACE TABLE "${
         options.outputTable ?? table.name
-      }" AS SELECT * FROM "${table.name}" WHERE "${columnId}" IN (${
+      }" AS SELECT * FROM "${table.name}" WHERE "${idColumn}" IN (${
         finalIdsSliced
           .map((id) => parseValue(id))
           .join(", ")
@@ -460,7 +460,7 @@ async function runHybridSearch(
         "number",
         `CASE ${
           vectorSearchSimilarity.map((d) =>
-            `WHEN "${columnId}" = ${parseValue(d[columnId])} THEN ${
+            `WHEN "${idColumn}" = ${parseValue(d[idColumn])} THEN ${
               d[options.vectorSimilarityColumn!]
             }`
           ).join(" ")
@@ -485,7 +485,7 @@ async function runHybridSearch(
         "number",
         `CASE ${
           bm25SearchScores.map((d) =>
-            `WHEN "${columnId}" = ${parseValue(d[columnId])} THEN ${
+            `WHEN "${idColumn}" = ${parseValue(d[idColumn])} THEN ${
               d[options.bm25ScoreColumn!]
             }`
           ).join(" ")

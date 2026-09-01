@@ -16,7 +16,7 @@ type AIRow = { [key: string]: unknown };
  * const options: AIRowByRowOptions = {
  *   generation: { provider: "gemini" },
  *   batchSize: 10,
- *   concurrent: 5,
+ *   concurrency: 5,
  *   errorColumn: "error",
  * };
  * ```
@@ -27,7 +27,7 @@ export type AIRowByRowOptions = {
   /** Number of rows sent in each request. */
   batchSize?: number;
   /** Maximum number of requests processed concurrently. */
-  concurrent?: number;
+  concurrency?: number;
   /** Column used to store request errors instead of throwing them. */
   errorColumn?: string;
   /** Logs request-pool progress when enabled. */
@@ -66,7 +66,7 @@ export default function aiRowByRow(
     }
 
     const batchSize = options.batchSize ?? 1;
-    const concurrent = options.concurrent ?? 1;
+    const concurrency = options.concurrency ?? 1;
     if (!Number.isInteger(batchSize) || batchSize < 1) {
       throw new Error("batchSize must be a positive integer.");
     }
@@ -130,7 +130,7 @@ export default function aiRowByRow(
           beforeRequest,
         })
       ),
-      concurrent,
+      concurrency,
       {
         retry: options.retry,
         retryCheck: options.retryCheck,

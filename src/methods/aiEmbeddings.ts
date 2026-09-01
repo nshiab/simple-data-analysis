@@ -13,7 +13,7 @@ import { queueAsyncBarrier } from "@nshiab/simple-data-analysis-core/helpers";
  * ```ts
  * const options: AIEmbeddingsOptions = {
  *   embeddings: { provider: "ollama" },
- *   concurrent: 4,
+ *   concurrency: 4,
  * };
  * ```
  */
@@ -25,7 +25,7 @@ export type AIEmbeddingsOptions = {
   /** Replaces an existing vector-similarity index when creating one. */
   overwriteIndex?: boolean;
   /** Maximum number of embedding requests processed concurrently. */
-  concurrent?: number;
+  concurrency?: number;
   /** Logs embedding progress and index creation when enabled. */
   verbose?: boolean;
   /** Maximum request rate used to calculate delays between batches. */
@@ -123,7 +123,7 @@ export async function generateEmbeddingColumn(
       console.log("\naiEmbeddings()");
     }
 
-    const concurrent = options.concurrent ?? 1;
+    const concurrency = options.concurrency ?? 1;
 
     let requests = [];
     for (let i = 0; i < rows.length; i++) {
@@ -141,7 +141,7 @@ export async function generateEmbeddingColumn(
         );
       }
 
-      if (requests.length < concurrent) {
+      if (requests.length < concurrency) {
         const text = rows[i][column];
         if (typeof text !== "string") {
           throw new Error(
@@ -153,7 +153,7 @@ export async function generateEmbeddingColumn(
         );
       }
 
-      if (requests.length === concurrent || i + 1 >= rows.length) {
+      if (requests.length === concurrency || i + 1 >= rows.length) {
         const start = new Date();
         await Promise.all(requests);
         const end = new Date();
@@ -165,7 +165,7 @@ export async function generateEmbeddingColumn(
           duration > 10 * requests.length && i + 1 < rows.length
         ) {
           const delay = Math.round(
-            (60 / (options.rateLimitPerMinute / concurrent)) * 1000,
+            (60 / (options.rateLimitPerMinute / concurrency)) * 1000,
           );
           await sleep(delay, { start, log: options.verbose });
         }

@@ -56,8 +56,11 @@ function checkPublicMethodOptions(table: SimpleTable): void {
   );
   const sheetTable: SimpleTable = table.loadSheet("https://example.com/sheet")
     .selectColumns("*");
-  const dwTable: SimpleTable = table.loadDW("chart-id").selectColumns("*");
-  const geoDwTable: SimpleTable = table.loadGeoDW("map-id").selectColumns("*");
+  const dwTable: SimpleTable = table.loadDatawrapper("chart-id").selectColumns(
+    "*",
+  );
+  const geoDwTable: SimpleTable = table.loadGeoDatawrapper("map-id")
+    .selectColumns("*");
   void [
     embeddingsTable,
     vectorTable,
@@ -104,8 +107,8 @@ function checkPolymorphicBuilderTypes(table: _SpecializedTable): void {
   table.hybridSearch("query", "id", "text", 5).specializedMethod();
   table.aiQuery("select rows").specializedMethod();
   table.loadSheet("https://example.com/sheet").specializedMethod();
-  table.loadDW("chart-id").specializedMethod();
-  table.loadGeoDW("map-id").specializedMethod();
+  table.loadDatawrapper("chart-id").specializedMethod();
+  table.loadGeoDatawrapper("map-id").specializedMethod();
 
   table.aiVectorSimilarity(
     "query",

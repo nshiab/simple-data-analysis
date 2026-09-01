@@ -1,10 +1,26 @@
-import { existsSync, mkdirSync, unlinkSync, writeFileSync } from "node:fs";
-import { assert, assertEquals } from "@std/assert";
+import { existsSync, unlinkSync, writeFileSync } from "node:fs";
+import { assert, assertEquals, assertRejects } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { geo, plot } from "@observablehq/plot";
-const output = "./test/output/";
-if (!existsSync(output)) {
-  mkdirSync(output);
+const output = await Deno.makeTempDir({ prefix: "sda-write-map-" }) + "/";
+
+async function assertArtifact(path: string): Promise<void> {
+  const contents = await Deno.readFile(path);
+  assert(contents.byteLength > 8, `Expected ${path} to be non-empty`);
+  if (path.endsWith(".png")) {
+    assertEquals(Array.from(contents.slice(0, 8)), [
+      137,
+      80,
+      78,
+      71,
+      13,
+      10,
+      26,
+      10,
+    ]);
+  } else {
+    assert(new TextDecoder().decode(contents).includes("<svg"));
+  }
 }
 
 Deno.test("should write a map as png", async () => {
@@ -36,9 +52,28 @@ Deno.test("should write a map as png", async () => {
 
   await table.writeMap(map, path);
 
-  // How to assert?
-  assertEquals(true, true);
+  await assertArtifact(path);
   await sdb.close();
+});
+
+Deno.test("should reject when the map function throws", async () => {
+  const sdb = new SimpleDB();
+  try {
+    const table = sdb.newTable().loadArray([{ lat: 45, lon: -73 }]);
+    table.createPoints("lat", "lon", "geometry");
+    const error = new Error("map rendering failed");
+
+    await assertRejects(
+      () =>
+        table.writeMap(() => {
+          throw error;
+        }, output + "throwing-map.svg"),
+      Error,
+      error.message,
+    );
+  } finally {
+    await sdb.close();
+  }
 });
 Deno.test("should write a dark map as png", async () => {
   const sdb = new SimpleDB();
@@ -69,8 +104,7 @@ Deno.test("should write a dark map as png", async () => {
 
   await table.writeMap(map, path, { dark: true });
 
-  // How to assert?
-  assertEquals(true, true);
+  await assertArtifact(path);
   await sdb.close();
 });
 Deno.test("should write a map as svg", async () => {
@@ -99,8 +133,7 @@ Deno.test("should write a map as svg", async () => {
 
   await table.writeMap(map, path);
 
-  // How to assert?
-  assertEquals(true, true);
+  await assertArtifact(path);
   await sdb.close();
 });
 
@@ -130,8 +163,7 @@ Deno.test("should write a map in a folder that doesn't exist", async () => {
 
   await table.writeMap(map, path);
 
-  // How to assert?
-  assertEquals(true, true);
+  await assertArtifact(path);
   await sdb.close();
 });
 
@@ -208,8 +240,7 @@ Deno.test("should write a map with multiple layers as a png", async () => {
 
   await sdb.close();
 
-  // How to assert?
-  assertEquals(true, true);
+  await assertArtifact(path);
 });
 
 Deno.test(
