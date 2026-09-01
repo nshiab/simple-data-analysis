@@ -8,9 +8,10 @@
     ".": "./src/index.ts"
   },
   "tasks": {
-    "all-tests": "deno fmt --check && deno lint && deno check src/index.ts && deno doc --lint src/index.ts && deno publish --allow-dirty --dry-run && rm -rf test/output && deno test -A --env-file --fail-fast && deno task llm",
+    "all-tests": "deno fmt --check && deno lint && deno check src/index.ts && deno doc --lint src/index.ts && deno publish --allow-dirty --dry-run && rm -rf test/output && deno test -A --env-file --fail-fast && deno task npm-smoke && deno task llm",
     "benchmark": "deno run -A benchmarks/run.ts",
     "llm": "deno run -A scripts/generateLlm.ts && deno fmt llm.md",
+    "npm-smoke": "deno run -A scripts/npmSmoke.ts",
     "test-coverage": "deno test -A --env-file --fail-fast --coverage=cov_profile && deno coverage cov_profile",
     "patch-no-tests": "deno run -A jsr:@nshiab/bump-version patch",
     "patch": "deno task all-tests && deno run -A jsr:@nshiab/bump-version patch",
