@@ -6,6 +6,7 @@ const command = new Deno.Command(Deno.execPath(), {
   args: [
     "run",
     "--no-lock",
+    "--min-dep-age=0",
     "-A",
     "jsr:@nshiab/deno-docs-to-md",
     `--jsr=${core}`,

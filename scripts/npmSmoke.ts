@@ -150,7 +150,13 @@ try {
   console.log(`Building ${denoConfig.name}@${denoConfig.version} for npm...`);
   await run(
     Deno.execPath(),
-    ["run", "--no-lock", "-A", "jsr:@nshiab/deno-to-npm"],
+    [
+      "run",
+      "--no-lock",
+      "--min-dep-age=0",
+      "-A",
+      "jsr:@nshiab/deno-to-npm",
+    ],
     { cwd: rootPath, env },
   );
 
