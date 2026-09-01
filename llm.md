@@ -600,6 +600,7 @@ const employees = await sdb
   .newTable("employees")
   .loadData("./employees.csv")
   .log();
+
 // Close the database connection and clean up resources
 await sdb.close();
 ```
