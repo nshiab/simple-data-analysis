@@ -12,6 +12,8 @@ import aiQuery from "../methods/aiQuery.ts";
 import loadSheet from "../methods/loadSheet.ts";
 import loadDatawrapper from "../methods/loadDatawrapper.ts";
 import loadGeoDatawrapper from "../methods/loadGeoDatawrapper.ts";
+import toDatawrapper from "../methods/toDatawrapper.ts";
+import toGeoDatawrapper from "../methods/toGeoDatawrapper.ts";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
@@ -1453,21 +1455,7 @@ export default class SimpleTable extends SimpleTableCore {
       republish?: boolean;
     } = {},
   ): Promise<void> {
-    const data = await this.getDataAsCSV();
-    const { updateDataDW, updateNotesDW, publishChartDW } = await import(
-      "@nshiab/journalism-dataviz"
-    );
-    await updateDataDW(chartId, data, {
-      apiKey: options.apiKeyEnvVar,
-    });
-    if (typeof options.note === "string") {
-      await updateNotesDW(chartId, options.note, {
-        apiKey: options.apiKeyEnvVar,
-      });
-    }
-    if (options.republish === true) {
-      await publishChartDW(chartId, { apiKey: options.apiKeyEnvVar });
-    }
+    await toDatawrapper(this, chartId, options);
   }
 
   /**
@@ -1543,21 +1531,7 @@ export default class SimpleTable extends SimpleTableCore {
       republish?: boolean;
     } = {},
   ): Promise<void> {
-    const geoData = await this.getGeoData(options.column);
-    const { updateDataDW, updateNotesDW, publishChartDW } = await import(
-      "@nshiab/journalism-dataviz"
-    );
-    await updateDataDW(chartId, JSON.stringify(geoData), {
-      apiKey: options.apiKeyEnvVar,
-    });
-    if (typeof options.note === "string") {
-      await updateNotesDW(chartId, options.note, {
-        apiKey: options.apiKeyEnvVar,
-      });
-    }
-    if (options.republish === true) {
-      await publishChartDW(chartId, { apiKey: options.apiKeyEnvVar });
-    }
+    await toGeoDatawrapper(this, chartId, options);
   }
 
   /**

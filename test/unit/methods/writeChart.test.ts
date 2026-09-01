@@ -1,26 +1,8 @@
 import { assert, assertEquals, assertRejects } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { dot, plot } from "@observablehq/plot";
+import assertArtifact from "../helpers/assertArtifact.ts";
 const output = await Deno.makeTempDir({ prefix: "sda-write-chart-" }) + "/";
-
-async function assertArtifact(path: string): Promise<void> {
-  const contents = await Deno.readFile(path);
-  assert(contents.byteLength > 8, `Expected ${path} to be non-empty`);
-  if (path.endsWith(".png")) {
-    assertEquals(Array.from(contents.slice(0, 8)), [
-      137,
-      80,
-      78,
-      71,
-      13,
-      10,
-      26,
-      10,
-    ]);
-  } else {
-    assert(new TextDecoder().decode(contents).includes("<svg"));
-  }
-}
 
 Deno.test("should write a chart as a png", async () => {
   const sdb = new SimpleDB();

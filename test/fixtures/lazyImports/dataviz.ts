@@ -35,8 +35,22 @@ export function updateDataDW(
   return Promise.resolve();
 }
 
-export function updateNotesDW() {}
-export function publishChartDW() {}
+export function updateNotesDW(
+  chartId: string,
+  note: string,
+  options: { apiKey?: string } = {},
+) {
+  calls.push({ method: "updateNotesDW", value: { chartId, note, options } });
+  return Promise.resolve();
+}
+
+export function publishChartDW(
+  chartId: string,
+  options: { apiKey?: string } = {},
+) {
+  calls.push({ method: "publishChartDW", value: { chartId, options } });
+  return Promise.resolve();
+}
 export function logBarChart() {}
 export function logDotChart() {}
 export function logLineChart() {}

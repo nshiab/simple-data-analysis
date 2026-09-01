@@ -90,23 +90,54 @@ try {
 
       await chart.toDatawrapper("chart-id", {
         apiKeyEnvVar: "CUSTOM_DATAWRAPPER_KEY",
+        note: "Updated chart",
+        republish: true,
       });
-      const update = calls.at(-1);
-      assertEquals(update?.method, "updateDataDW");
+      const chartCalls = calls.slice(-3);
+      assertEquals(chartCalls.map(({ method }) => method), [
+        "updateDataDW",
+        "updateNotesDW",
+        "publishChartDW",
+      ]);
       assertEquals(
-        (update?.value as { options: { apiKey?: string } }).options.apiKey,
+        (chartCalls[0].value as { options: { apiKey?: string } }).options
+          .apiKey,
         "CUSTOM_DATAWRAPPER_KEY",
       );
+      assertEquals(chartCalls[1].value, {
+        chartId: "chart-id",
+        note: "Updated chart",
+        options: { apiKey: "CUSTOM_DATAWRAPPER_KEY" },
+      });
+      assertEquals(chartCalls[2].value, {
+        chartId: "chart-id",
+        options: { apiKey: "CUSTOM_DATAWRAPPER_KEY" },
+      });
 
       await map.toGeoDatawrapper("map-id", {
         apiKeyEnvVar: "CUSTOM_DATAWRAPPER_KEY",
+        note: "Updated map",
+        republish: true,
       });
-      const geoUpdate = calls.at(-1);
-      assertEquals(geoUpdate?.method, "updateDataDW");
+      const mapCalls = calls.slice(-3);
+      assertEquals(mapCalls.map(({ method }) => method), [
+        "updateDataDW",
+        "updateNotesDW",
+        "publishChartDW",
+      ]);
       assertEquals(
-        (geoUpdate?.value as { options: { apiKey?: string } }).options.apiKey,
+        (mapCalls[0].value as { options: { apiKey?: string } }).options.apiKey,
         "CUSTOM_DATAWRAPPER_KEY",
       );
+      assertEquals(mapCalls[1].value, {
+        chartId: "map-id",
+        note: "Updated map",
+        options: { apiKey: "CUSTOM_DATAWRAPPER_KEY" },
+      });
+      assertEquals(mapCalls[2].value, {
+        chartId: "map-id",
+        options: { apiKey: "CUSTOM_DATAWRAPPER_KEY" },
+      });
       break;
     }
     case "observers":
