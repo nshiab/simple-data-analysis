@@ -21,6 +21,7 @@ import SimpleTable from "./SimpleTable.ts";
  *   .newTable("employees")
  *   .loadData("./employees.csv")
  *   .log();
+ *
  * // Close the database connection and clean up resources
  * await sdb.close();
  * ```

@@ -217,6 +217,7 @@ const data = await sdb
   .log();
 
 await data.writeData("sda/output/averageTemperatures.csv");
+
 await sdb.close();
 ```
 
@@ -473,12 +474,130 @@ await sdb.close();
 
 ![Map showing the wildfires in Canada in 2023.](./assets/map.png)
 
+Google Sheets, Datawrapper, and AI methods can read configuration from
+environment variables: named values made available to the running program. A
+`.env` file is one way to define them, but your runtime must load the file. For
+example, with Deno, run `deno run -A --env-file=.env analysis.ts`. Do not commit
+real credentials to source control.
+
+### Google Sheets
+
+The
+[`toSheet`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.toSheet)
+method sends a table directly to Google Sheets. Authenticate with a service
+account by setting its email and private key in `.env`:
+
+```dotenv
+GOOGLE_SERVICE_ACCOUNT_EMAIL=service-account@example.iam.gserviceaccount.com
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+```
+
+Alternatively, point `GOOGLE_APPLICATION_CREDENTIALS` to the service-account
+JSON file:
+
+```dotenv
+GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
+```
+
+Share the destination spreadsheet with the service-account email before running
+the example. You can also pass credentials directly through `toSheet()` options.
+The `loadSheet()` method uses the same environment variables.
+
+```ts
+// Uses Google service-account credentials from .env.
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+const temperatures = sdb.newTable("temperatures");
+
+await temperatures
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/dailyTemperatures.csv",
+  )
+  .renameColumns({ t: "temperature", id: "station" })
+  .selectColumns(["station", "time", "temperature"])
+  .toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+
+await sdb.close();
+```
+
+### Datawrapper
+
+The
+[`toDatawrapper`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.toDatawrapper)
+method sends a table directly to a Datawrapper chart or table. Add your API key
+to `.env`:
+
+```dotenv
+DATAWRAPPER_KEY=your-datawrapper-api-key
+```
+
+The chart ID is the short identifier in its Datawrapper URL. Set `apiKeyEnvVar`
+in the method options if you store the key under a different
+environment-variable name. For maps, use
+[`toGeoDatawrapper`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.toGeoDatawrapper)
+with the same API key. The `loadDatawrapper()` and `loadGeoDatawrapper()`
+methods also use it.
+
+```ts
+// Uses DATAWRAPPER_KEY from .env.
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+const temperatures = sdb.newTable("temperatures");
+
+await temperatures
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/dailyTemperatures.csv",
+  )
+  .renameColumns({ t: "temperature", id: "station" })
+  .selectColumns(["station", "time", "temperature"])
+  .toDatawrapper("myChartId", { republish: true });
+
+await sdb.close();
+```
+
 ### AI
 
 SDA can use LLMs and embedding models to enrich data, search text, and answer
-questions based on the contents of a table. The examples below rely on
-environment variables to connect to an AI provider and select a model. Click the
-relevant documentation links below for more information.
+questions based on the contents of a table. Choose one of the following `.env`
+configurations.
+
+For the Gemini API:
+
+```dotenv
+AI_PROVIDER=gemini
+AI_MODEL=gemini-3-flash-preview
+AI_EMBEDDINGS_PROVIDER=gemini
+AI_EMBEDDINGS_MODEL=gemini-embedding-001
+AI_KEY=your-gemini-api-key
+```
+
+For Vertex AI, replace `AI_KEY` with your Google Cloud project and location:
+
+```dotenv
+AI_PROVIDER=gemini
+AI_MODEL=gemini-3-flash-preview
+AI_EMBEDDINGS_PROVIDER=gemini
+AI_EMBEDDINGS_MODEL=gemini-embedding-001
+AI_PROJECT=my-google-cloud-project
+AI_LOCATION=us-central1
+```
+
+For local Ollama models:
+
+```dotenv
+AI_PROVIDER=ollama
+AI_MODEL=gemma3:4b
+AI_EMBEDDINGS_PROVIDER=ollama
+AI_EMBEDDINGS_MODEL=nomic-embed-text
+```
+
+`AI_PROVIDER` and `AI_MODEL` configure generation, while their `AI_EMBEDDINGS_*`
+counterparts configure embeddings, including embeddings used for vector search;
+`aiRAG()` uses both pairs. Gemini authenticates with `AI_KEY`, or with
+`AI_PROJECT` and `AI_LOCATION` for Vertex AI. Method options override the
+corresponding environment values.
 
 SDA's AI capabilities come from
 [`journalism-ai`](https://jsr.io/@nshiab/journalism-ai). By default, LLM
@@ -495,11 +614,13 @@ record row-level errors, making it useful for cleaning, extracting, classifying,
 and enriching data at scale.
 
 ```ts
+// Uses AI_PROVIDER, AI_MODEL, and any required credentials from .env.
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
-const cities = await sdb
-  .newTable("cities")
+const cities = sdb.newTable("cities");
+
+await cities
   .loadArray([
     { city: "Marrakech" },
     { city: "Kyoto" },
@@ -509,7 +630,7 @@ const cities = await sdb
     "city",
     ["country", "continent"],
     "Give me the country and continent of the city.",
-    { concurrency: 5, errorColumn: "error" },
+    { concurrency: 5, errorColumn: "error", verbose: true },
   )
   .log();
 
@@ -529,12 +650,15 @@ and
 methods used by `hybridSearch` are also available directly.
 
 ```ts
+// Uses AI_EMBEDDINGS_PROVIDER, AI_EMBEDDINGS_MODEL, and any required credentials
+// from .env.
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
+const recipes = sdb.newTable("recipes");
+
 // We search both the meaning and the wording of each recipe.
-const results = await sdb
-  .newTable("recipes")
+await recipes
   .loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/recipesClean.parquet",
   )
@@ -543,9 +667,10 @@ const results = await sdb
     "Dish",
     "Recipe",
     5,
-    { outputTable: "results" },
+    { outputTable: "results", verbose: true },
   )
   .log(); // For example: "Butter Pie" (keyword) and "Croissant" (semantic).
+
 await sdb.close();
 ```
 
@@ -557,6 +682,7 @@ method first retrieves relevant rows with hybrid search, then asks an LLM to
 answer using only those rows.
 
 ```ts
+// Uses both AI provider/model pairs and any required credentials from .env.
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
@@ -572,9 +698,11 @@ const answer = await sdb
     "Dish",
     "Recipe",
     10,
+    { verbose: true },
   );
 
 console.log(answer);
+
 await sdb.close();
 ```
 
@@ -586,19 +714,23 @@ method turns a natural-language instruction into a SQL query and executes it on
 the table.
 
 ```ts
+// Uses AI_PROVIDER, AI_MODEL, and any required credentials from .env.
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
-const averageTemperatures = await sdb
-  .newTable("temperatures")
+const temperatures = sdb.newTable("temperatures");
+
+await temperatures
   .loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/dailyTemperatures.csv",
   )
   .renameColumns({ t: "temperature", id: "station" })
   .aiQuery(
     "Compute the average temperature for each station with two decimals.",
+    { verbose: true },
   )
   .log();
+
 await sdb.close();
 ```
 
