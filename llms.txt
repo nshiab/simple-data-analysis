@@ -1,6 +1,6 @@
 # The Simple Data Analysis Library
 
-> Fast DuckDB-powered TypeScript library for tabular, geospatial, vector, AI, Google Sheets, and data visualization workflows on Deno, Node.js, and Bun.
+> Fast DuckDB-powered TypeScript library for tabular, geospatial, vector, AI, Google Cloud Storage, Google Sheets, and data visualization workflows on Deno, Node.js, and Bun.
 
 - Package: `@nshiab/simple-data-analysis`
 - Version: `6.0.1`

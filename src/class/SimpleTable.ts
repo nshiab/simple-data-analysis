@@ -9,6 +9,8 @@ import aiVectorSimilarity from "../methods/aiVectorSimilarity.ts";
 import hybridSearch from "../methods/hybridSearch.ts";
 import aiRAG from "../methods/aiRAG.ts";
 import aiQuery from "../methods/aiQuery.ts";
+import toBucket from "../methods/toBucket.ts";
+import loadBucket from "../methods/loadBucket.ts";
 import loadSheet from "../methods/loadSheet.ts";
 import loadDatawrapper from "../methods/loadDatawrapper.ts";
 import loadGeoDatawrapper from "../methods/loadGeoDatawrapper.ts";
@@ -1264,6 +1266,116 @@ export default class SimpleTable extends SimpleTableCore {
     } = {},
   ): this {
     return aiQuery(this, prompt, options) as this;
+  }
+
+  // ===================== GOOGLE CLOUD STORAGE METHODS =====================
+
+  /**
+   * Writes the table to a file and uploads it to a Google Cloud Storage bucket.
+   * Supported destinations are `.csv`, `.csv.gz`, `.json`, `.json.gz`,
+   * `.parquet`, `.geojson`, `.geoparquet`, and `.shp.zip`.
+   *
+   * This method uses the `toBucket` function from the
+   * [journalism-google library](https://jsr.io/@nshiab/journalism-google).
+   * Set `BUCKET_PROJECT` and `BUCKET_NAME` in your `.env` file, or pass
+   * `project` and `bucket`.
+   * Authentication uses Google Application Default Credentials. To load
+   * credentials from a specific JSON file, set `GOOGLE_APPLICATION_CREDENTIALS`
+   * in your `.env` file to that file's path.
+   *
+   * @param destination - The path and filename for the object within the bucket.
+   * @param options - Upload options.
+   * @param options.project - The Google Cloud project ID. Defaults to `BUCKET_PROJECT`.
+   * @param options.bucket - The Google Cloud Storage bucket name. Defaults to `BUCKET_NAME`.
+   * @param options.overwrite - If `true`, replaces an existing object. Cannot be combined with `skip`. Defaults to `false`.
+   * @param options.skip - If `true`, skips the upload when the object already exists. Cannot be combined with `overwrite`. Defaults to `false`.
+   * @param options.metadata - Metadata passed to `journalism-google` for the uploaded object.
+   * @returns The `gs://` URI of the uploaded object.
+   * @category Exporting Data
+   *
+   * @example
+   * ```ts
+   * // Set BUCKET_PROJECT and BUCKET_NAME in .env, and configure Google Application Default Credentials.
+   * const uri = await sdb
+   *   .newTable("results")
+   *   .loadData("results.csv")
+   *   .selectColumns(["name", "value"])
+   *   .toBucket("exports/results.parquet", { overwrite: true });
+   * console.log(uri); // gs://my-bucket/exports/results.parquet
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Export a geometry table as one zipped Shapefile object.
+   * await sdb
+   *   .newTable("districts")
+   *   .loadGeoData("districts.geojson")
+   *   .toBucket("maps/districts.shp.zip", {
+   *     project: "my-project",
+   *     bucket: "my-bucket",
+   *   });
+   * ```
+   */
+  async toBucket(destination: string, options: {
+    project?: string;
+    bucket?: string;
+    overwrite?: boolean;
+    skip?: boolean;
+    metadata?: unknown;
+  } = {}): Promise<string> {
+    return await toBucket(this, destination, options);
+  }
+
+  /**
+   * Downloads a file from Google Cloud Storage and loads it into the table.
+   * Supported sources are `.csv`, `.csv.gz`, `.json`, `.json.gz`, `.parquet`,
+   * `.geojson`, `.geoparquet`, and `.shp.zip`.
+   *
+   * This method uses the `downloadFromBucket` function from the
+   * [journalism-google library](https://jsr.io/@nshiab/journalism-google).
+   * Set `BUCKET_PROJECT` and `BUCKET_NAME` in your `.env` file, or pass
+   * `project` and `bucket`.
+   * Authentication uses Google Application Default Credentials. To load
+   * credentials from a specific JSON file, set `GOOGLE_APPLICATION_CREDENTIALS`
+   * in your `.env` file to that file's path.
+   *
+   * The download and load are queued and run in chain order at the next awaited
+   * observer or `run()` call.
+   *
+   * @param source - The path and filename of the object within the bucket.
+   * @param options - Download options.
+   * @param options.project - The Google Cloud project ID. Defaults to `BUCKET_PROJECT`.
+   * @param options.bucket - The Google Cloud Storage bucket name. Defaults to `BUCKET_NAME`.
+   * @returns The table, so methods can be chained.
+   * @category Loading Data
+   *
+   * @example
+   * ```ts
+   * // Set BUCKET_PROJECT and BUCKET_NAME in .env, and configure Google Application Default Credentials.
+   * await sdb
+   *   .newTable("results")
+   *   .loadBucket("exports/results.parquet")
+   *   .filter("value > 0")
+   *   .log();
+   * ```
+   *
+   * @example
+   * ```ts
+   * await sdb
+   *   .newTable("districts")
+   *   .loadBucket("maps/districts.shp.zip", {
+   *     project: "my-project",
+   *     bucket: "my-bucket",
+   *   })
+   *   .log();
+   * ```
+   */
+  loadBucket(source: string, options: {
+    project?: string;
+    bucket?: string;
+  } = {}): this {
+    loadBucket(this, source, options);
+    return this;
   }
 
   // ===================== GOOGLE SHEETS METHODS =====================

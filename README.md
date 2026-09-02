@@ -20,23 +20,24 @@ SDA is split into two packages:
 
 - **`simple-data-analysis`** (this package) extends the core with additional
   features: AI methods (row-by-row processing, embeddings, vector similarity,
-  hybrid search, RAG, natural language queries), Google Sheets integration, and
-  charting/dataviz methods. These features are built respectively on the
-  [`journalism-ai`](https://jsr.io/@nshiab/journalism-ai),
+  hybrid search, RAG, natural language queries), Google Cloud Storage and Google
+  Sheets integrations, and charting/dataviz methods. These features are built
+  respectively on the [`journalism-ai`](https://jsr.io/@nshiab/journalism-ai),
   [`journalism-google`](https://jsr.io/@nshiab/journalism-google), and
   [`journalism-dataviz`](https://jsr.io/@nshiab/journalism-dataviz) libraries.
 
 Most users will want this package (`simple-data-analysis`), which includes all
 of the core functionality plus the extended features.
 
-AI, Google Sheets, and charting dependencies load only when those operations
-run. If you only use core methods, you don't pay their startup cost.
+AI, Google, and charting dependencies load only when those operations run. If
+you only use core methods, you don't pay their startup cost.
 
 > [!NOTE]
 > SDA's `SimpleDB` and `SimpleTable` inherit all core methods, but JSR currently
 > omits inherited methods from their documentation because of an
-> [upstream limitation](https://github.com/jsr-io/jsr/issues/747). For those
-> methods, see the core
+> [upstream limitation](https://github.com/jsr-io/jsr/issues/747). For a
+> complete reference combining Core and SDA, see [`llm.md`](./llm.md). You can
+> also consult the core
 > [`SimpleDB` reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleDB)
 > and
 > [`SimpleTable` reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable).
@@ -159,16 +160,9 @@ methods are synchronous and chainable; async observer methods such as
 `getData()`, `log()`, and `writeData()` flush the queue before producing their
 result. This means only the final observer needs to be awaited.
 
-Methods that load or transform data—including `aiRowByRow()`, `aiEmbeddings()`,
-`aiVectorSimilarity()`, `hybridSearch()`, `aiQuery()`, `loadSheet()`,
-`loadDatawrapper()`, and `loadGeoDatawrapper()`—are also synchronous builders.
-Their external work runs when an observer executes the queue. Await a final
-observer or call `.run()` to execute a chain without reading or exporting its
-result.
-
-Methods that return an answer or export data, such as `aiRAG()`, `toSheet()`,
-`toDatawrapper()`, `toGeoDatawrapper()`, `writeChart()`, and `writeMap()`,
-remain asynchronous and must be awaited.
+Methods that return an answer or export data, such as `aiRAG()`, `toBucket()`,
+`toSheet()`, `toDatawrapper()`, `toGeoDatawrapper()`, `writeChart()`, and
+`writeMap()`, remain asynchronous and must be awaited.
 
 The syntax and the available methods were inspired by
 [Pandas](https://github.com/pandas-dev/pandas) (Python) and the
@@ -470,6 +464,50 @@ await sdb.close();
 
 ![Map showing the wildfires in Canada in 2023.](./assets/map.png)
 
+### Google Cloud Storage
+
+The
+[`toBucket`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.toBucket)
+method writes a table to a temporary file and uploads it to Google Cloud
+Storage. The
+[`loadBucket`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.loadBucket)
+method downloads and loads an object in chain order.
+
+Set the project and bucket in `.env`. Authentication uses Google Application
+Default Credentials. If ADC should load credentials from a specific JSON file,
+also set `GOOGLE_APPLICATION_CREDENTIALS` to that file's path:
+
+```dotenv
+BUCKET_PROJECT=my-google-cloud-project
+BUCKET_NAME=my-storage-bucket
+# Optional: load credentials from a specific JSON file.
+GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
+```
+
+Load a table from one object, transform it, and upload the result as another
+object:
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+
+const temperatures = await sdb
+  .newTable("temperatures")
+  .loadBucket("inputs/temperatures.parquet")
+  .filter("temperature > 30")
+  .log();
+
+const uri = await temperatures.toBucket(
+  "outputs/hotTemperatures.parquet",
+  { overwrite: true },
+);
+
+console.log(uri); // gs://my-storage-bucket/outputs/hotTemperatures.parquet
+
+await sdb.close();
+```
+
 ### Google Sheets
 
 The
@@ -489,11 +527,33 @@ JSON file:
 GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
 ```
 
-Share the destination spreadsheet with the service-account email before running
-the example. The `loadSheet()` method uses the same environment variables.
+Share the spreadsheet with the service-account email before running the
+examples.
+
+#### Load from a sheet
+
+Use `loadSheet()` to load and transform data from a Google Sheet tab:
 
 ```ts
-// Uses Google service-account credentials from .env.
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+
+await sdb
+  .newTable("temperatures")
+  .loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0")
+  .filter("temperature > 30")
+  .selectColumns(["station", "time", "temperature"])
+  .log();
+
+await sdb.close();
+```
+
+#### Write to a sheet
+
+Use `toSheet()` to write a table to a Google Sheet tab:
+
+```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
