@@ -52,6 +52,15 @@ async function main() {
       /Google service account email is undefined or empty/,
     );
 
+    await assert.rejects(
+      table.toBucket("unsupported.txt"),
+      /Bucket methods do not support the file extension/,
+    );
+    assert.throws(
+      () => table.loadBucket("unsupported.txt"),
+      /Bucket methods do not support the file extension/,
+    );
+
     let requests = 0;
     globalThis.fetch = () => {
       requests++;

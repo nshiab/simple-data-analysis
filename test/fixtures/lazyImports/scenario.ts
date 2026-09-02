@@ -1,5 +1,6 @@
 import { assertArrayIncludes, assertEquals, assertRejects } from "@std/assert";
-import { calls, loaded } from "./state.ts";
+import { existsSync } from "node:fs";
+import { bucketObjects, calls, loaded } from "./state.ts";
 import { SimpleDB } from "../../../src/index.ts";
 
 assertEquals(loaded, [], "Importing SDA must not evaluate integrations");
@@ -138,6 +139,102 @@ try {
         chartId: "map-id",
         options: { apiKey: "CUSTOM_DATAWRAPPER_KEY" },
       });
+      break;
+    }
+    case "bucket": {
+      const source = sdb.newTable("bucketSource").loadArray([
+        { value: 1, label: "one" },
+        { value: 2, label: "two" },
+      ]);
+      assertEquals(loaded, []);
+
+      for (
+        const destination of [
+          "data/results.csv",
+          "data/results.csv.gz",
+          "data/results.json",
+          "data/results.json.gz",
+          "data/results.parquet",
+        ]
+      ) {
+        const uri = await source.toBucket(destination, {
+          project: "fixture-project",
+          bucket: "fixture-bucket",
+          overwrite: true,
+          metadata: { contentType: "application/octet-stream" },
+        });
+        assertEquals(uri, `gs://fixture-bucket/${destination}`);
+        const upload = calls.at(-1)!;
+        assertEquals(upload.method, "toBucket");
+        assertEquals(
+          (upload.value as { fileExists: boolean }).fileExists,
+          true,
+        );
+        assertEquals(
+          (upload.value as { options: { metadata: unknown } }).options.metadata,
+          { contentType: "application/octet-stream" },
+        );
+        assertEquals(existsSync(upload.path!), false);
+
+        const loadedTable = sdb.newTable().loadBucket(destination, {
+          project: "fixture-project",
+          bucket: "fixture-bucket",
+        });
+        assertEquals(await loadedTable.filter("value > 1").getData(), [
+          { value: 2, label: "two" },
+        ]);
+        const download = calls.at(-1)!;
+        assertEquals(download.method, "downloadFromBucket");
+        assertEquals(
+          (download.value as { fileExists: boolean }).fileExists,
+          true,
+        );
+        assertEquals(existsSync(download.path!), false);
+      }
+
+      const geoSource = sdb.newTable("geoSource").loadGeoData(
+        "test/geodata/files/CanadianProvincesAndTerritories.json",
+      );
+      for (
+        const destination of [
+          "geo/provinces.geojson",
+          "geo/provinces.geoparquet",
+          "geo/provinces.shp.zip",
+        ]
+      ) {
+        await geoSource.toBucket(destination, {
+          project: "fixture-project",
+          bucket: "fixture-bucket",
+        });
+        const loadedGeoTable = sdb.newTable().loadBucket(destination, {
+          project: "fixture-project",
+          bucket: "fixture-bucket",
+        });
+        assertEquals(await loadedGeoTable.getRowCount(), 13);
+      }
+      assertEquals(loaded, ["google"]);
+      break;
+    }
+    case "bucket-queued": {
+      bucketObjects.set(
+        "data/queued.csv",
+        new TextEncoder().encode("value\n1\n2\n"),
+      );
+      const options = {
+        project: "fixture-project",
+        bucket: "fixture-bucket",
+      };
+      assertEquals(table.loadBucket("data/queued.csv", options), table);
+      options.project = "changed-after-queueing";
+      table.filter("value > 1");
+      assertEquals(loaded, [], "Queueing must not load the Google module");
+      assertEquals(await table.getData(), [{ value: 2 }]);
+      assertEquals(loaded, ["google"]);
+      assertEquals(calls.at(-1)?.method, "downloadFromBucket");
+      assertEquals(
+        (calls.at(-1)?.value as { options: unknown }).options,
+        { project: "fixture-project", bucket: "fixture-bucket" },
+      );
       break;
     }
     case "observers":

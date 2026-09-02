@@ -11,6 +11,8 @@ for (
     "queued",
     "ai",
     "datawrapper",
+    "bucket",
+    "bucket-queued",
     "observers",
     "observers-reversed",
     "failure",
