@@ -1,44 +1,13 @@
 # Simple data analysis (SDA)
 
-SDA is an easy-to-use and high-performance TypeScript library for data analysis.
-You can use it with tabular, geospatial, and vector data. It can also
-automatically pull data from public sources such as Statistics Canada and
-OpenStreetMap when your analysis runs. See the
-[public data source examples](#public-data-sources).
-
-The library is available on [JSR](https://jsr.io/@nshiab/simple-data-analysis)
-with its [documentation](https://jsr.io/@nshiab/simple-data-analysis/doc) and on
-[NPM](https://www.npmjs.com/package/@nshiab/simple-data-analysis).
-
-> [!NOTE]
-> SDA's `SimpleDB` and `SimpleTable` inherit all core methods, but JSR currently
-> omits inherited methods from their documentation because of an
-> [upstream limitation](https://github.com/jsr-io/jsr/issues/747). For those
-> methods, see the core
-> [`SimpleDB` reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleDB)
-> and
-> [`SimpleTable` reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable).
-> You can call these methods directly on SDA instances.
-
-AI coding assistants and agents can start with the concise
-[llms.txt](https://github.com/nshiab/simple-data-analysis/blob/main/llms.txt)
-index. The complete generated API reference is available in
-[llm.md](https://github.com/nshiab/simple-data-analysis/blob/main/llm.md), which
-combines core and SDA documentation.
-
-The library is maintained by [Nael Shiab](http://naelshiab.com/), computational
-journalist and senior data producer for [CBC News](https://www.cbc.ca/news).
+SDA is a fast and easy-to-use TypeScript library for tabular, geospatial,
+vector, and AI-assisted data analysis. It runs on Deno, Node.js, and Bun and
+makes it easy to load data from files, databases, and public sources.
 
 > [!TIP]
-> To learn how to use SDA, check out
+> Learn how to use SDA with
 > [Code Like a Journalist](https://www.code-like-a-journalist.com/), a free and
-> open-source data analysis and data visualization course in TypeScript.
-
-You might also find the
-[journalism library](https://github.com/nshiab/journalism) interesting.
-
-If you wish to contribute, please check the
-[guidelines](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
+> open-source TypeScript course for data analysis and visualization.
 
 ## Library structure
 
@@ -63,6 +32,16 @@ of the core functionality plus the extended features.
 AI, Google Sheets, and charting dependencies load only when those operations
 run. If you only use core methods, you don't pay their startup cost.
 
+> [!NOTE]
+> SDA's `SimpleDB` and `SimpleTable` inherit all core methods, but JSR currently
+> omits inherited methods from their documentation because of an
+> [upstream limitation](https://github.com/jsr-io/jsr/issues/747). For those
+> methods, see the core
+> [`SimpleDB` reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleDB)
+> and
+> [`SimpleTable` reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable).
+> You can call these methods directly on SDA instances.
+
 ## Installation
 
 The library is available on [JSR](https://jsr.io/@nshiab/simple-data-analysis)
@@ -78,6 +57,16 @@ npm i @nshiab/simple-data-analysis
 # Bun
 bun add @nshiab/simple-data-analysis
 ```
+
+## Documentation
+
+The library is documented on
+[JSR](https://jsr.io/@nshiab/simple-data-analysis/doc). AI coding assistants and
+agents can start with the concise
+[llms.txt](https://github.com/nshiab/simple-data-analysis/blob/main/llms.txt)
+index or use the complete generated
+[llm.md](https://github.com/nshiab/simple-data-analysis/blob/main/llm.md) API
+reference, which combines Core and SDA documentation.
 
 ## Quick setup
 
@@ -301,27 +290,34 @@ await sdb.close();
 
 #### OpenStreetMap
 
-Use `loadOSM` with a bounding box and one or more OpenStreetMap tags:
-
-The default endpoint is a shared public service. Follow the
-[Overpass public-instance usage guidelines](https://dev.overpass-api.de/overpass-doc/en/preface/commons.html),
-and configure another endpoint or run your own instance for high-volume usage.
+Use `loadOpenStreetMap()` for both existing `.osm` or `.osm.pbf` files and
+OpenStreetMap features downloaded through Overpass. Processed OpenStreetMap data
+is cached by default.
 
 ```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
 
+// Load an existing local file.
+await sdb
+  .newTable("montreal")
+  .loadOpenStreetMap("./montreal.osm.pbf", { verbose: true })
+  .filter("tags['amenity'] = 'school'")
+  .selectColumns(["id", "tags", "geom"])
+  .log();
+
+// Download schools within a bounding box.
 await sdb
   .newTable("schools")
-  .loadOSM(
+  .loadOpenStreetMap(
     {
       west: -73.587799,
       south: 45.445078,
       east: -73.552265,
       north: 45.471086,
     },
-    { filters: ["amenity", "school"] },
+    { filters: ["amenity", "school"], verbose: true },
   )
   .log();
 
@@ -941,3 +937,11 @@ Wrote in cache in 1 ms.
 
 SimpleDB ran for 399 ms / 246 ms saved by using the cache / 4 ms spent writing the cache
 ```
+
+## Project
+
+SDA is maintained by [Nael Shiab](http://naelshiab.com/), computational
+journalist and senior data producer for [CBC News](https://www.cbc.ca/news). You
+might also find the [journalism library](https://github.com/nshiab/journalism)
+useful. Contributions are welcome; see the
+[contribution guidelines](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).

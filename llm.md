@@ -1,5 +1,9 @@
 # The Simple Data Analysis Library
 
+- Package: `@nshiab/simple-data-analysis`
+- Version: `6.0.1`
+- Includes: `@nshiab/simple-data-analysis-core@2.0.4`
+
 To install the library with Deno, use:
 
 ```bash
@@ -2478,8 +2482,9 @@ loadStatCanData(pid: string, options?: { lang?: "en" | "fr"; cache?: boolean; tt
 - **`options`**: Optional retrieval and cache settings.
 - **`options.lang`**: The language of the table data. Defaults to `"en"`.
 - **`options.cache`**: Whether to read and write the cache. Defaults to `true`.
-- **`options.ttl`**: Cache time to live in seconds. By default, cached data does
-  not expire. Use `0` to refresh and replace the cache entry.
+- **`options.ttl`**: Cache lifetime in seconds. Omit for no expiration, use `0`
+  to refresh the matching cache entry immediately, or provide a positive value
+  to refresh once the entry reaches that age.
 
 ##### Returns
 
@@ -2507,9 +2512,7 @@ await table
 
 #### `loadGeoData`
 
-Loads geospatial data from an external file or URL into the table. OpenStreetMap
-`.osm` and `.osm.pbf` files are loaded through DuckDB's Osmium community
-extension.
+Loads geospatial data from an external file or URL into the table.
 
 This method queues the operation; it runs when an async observer method (like
 `getData()` or `log()`) is awaited, or when `run()` is called.
@@ -2522,8 +2525,8 @@ loadGeoData(file: string, options?: { toEPSG4326?: boolean; columns?: string[]; 
 
 ##### Parameters
 
-- **`file`**: The URL or absolute path to the external file containing the
-  geospatial data.
+- **`file`**: The path or URL of the external file containing the geospatial
+  data.
 - **`options`**: An optional object with configuration options:
 - **`options.toEPSG4326`**: If `true`, the method will attempt to reproject the
   data to EPSG:4326 (WGS84).
@@ -2534,8 +2537,8 @@ loadGeoData(file: string, options?: { toEPSG4326?: boolean; columns?: string[]; 
   keyword, to filter source rows before materialization and reprojection. Uses
   the same syntax as `filter()`, including JavaScript operators. Can reference
   source columns excluded from `columns`. Geometry conditions use the source
-  coordinate system; OSM geometry is available as `geom` in EPSG:4326. Defaults
-  to no filtering; an empty string behaves the same as omitting this option.
+  coordinate system. Defaults to no filtering; an empty string behaves the same
+  as omitting this option.
 
 ##### Returns
 
@@ -2574,11 +2577,6 @@ await table.loadGeoData("./some-data.shp.zip", { toEPSG4326: true }).log();
 ```
 
 ```ts
-// Load OpenStreetMap XML or PBF data
-await table.loadGeoData("./montreal.osm.pbf").log();
-```
-
-```ts
 // Filter on a source property without retaining it in the table
 await table
   .loadGeoData("./boundaries.geojson", {
@@ -2588,22 +2586,29 @@ await table
   .log();
 ```
 
-#### `loadOSM`
+#### `loadOpenStreetMap`
 
-Downloads OpenStreetMap data and loads it as a geospatial table. The method
-queues the download and load; they run when an async observer method (like
-`getData()` or `log()`) is awaited, or when `run()` is called.
+Loads OpenStreetMap data into the table from a local `.osm` or `.osm.pbf` file,
+a remote file URL, or an Overpass bounding-box query. Pass a path or URL string
+to load an existing file, or pass a bounding box with `filters` to download
+matching features. The method queues the load; it runs when an async observer
+method (like `getData()` or `log()`) is awaited, or when `run()` is called.
 
 DuckDB's
 [Osmium community extension](https://duckdb.org/community_extensions/extensions/osmium)
-reconstructs the geometries, which are stored with the EPSG:4326 projection.
+materializes the complete result and reconstructs `geom` as EPSG:4326. By
+default, that canonical result is cached as GeoParquet in `.sda-cache/osm`.
+Distinct paths, local file fingerprints, normalized URLs, endpoints, queries,
+and bounding boxes retain independent entries. The cache has no expiration
+unless `ttl` is set and can be cleared by removing `.sda-cache/osm`. Immutable
+URLs can safely use the default indefinite cache; mutable URLs should set a TTL.
 
-Filters use the standard
+Bounding-box filters use the standard
 [Overpass QL filter syntax](https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL#Filters).
 Equality filters are passed as `[key, value]` tuples and serialized by the
 method. A raw filter fragment string can be used for advanced Overpass filters.
 
-The default endpoint is a shared public service. Follow the
+The default Overpass endpoint is a shared public service. Follow the
 [Overpass public-instance usage guidelines](https://dev.overpass-api.de/overpass-doc/en/preface/commons.html),
 and configure another endpoint or run your own instance for high-volume usage.
 
@@ -2617,33 +2622,48 @@ share-alike requirements.
 ##### Signature
 
 ```typescript
-loadOSM(bbox: { west: number; south: number; east: number; north: number }, options: { filters: string | [string, string] | [string, string][]; endpoint?: string; timeout?: number; cache?: boolean }): this;
+loadOpenStreetMap(source: string | { west: number; south: number; east: number; north: number }, options?: { filters?: string | [string, string] | [string, string][]; endpoint?: string; timeout?: number; cache?: boolean; ttl?: number; retries?: number; retryDelay?: number; verbose?: boolean }): this;
 ```
 
 ##### Parameters
 
-- **`bbox`**: The bounding box to query.
-- **`bbox.west`**: The western longitude, between -180 and 180 and less than
+- **`source`**: The local path or remote URL of an existing `.osm` or `.osm.pbf`
+  file, or a bounding box to query through Overpass.
+- **`source.west`**: The western longitude, between -180 and 180 and less than
   `east`.
-- **`bbox.south`**: The southern latitude, between -90 and 90 and less than
+- **`source.south`**: The southern latitude, between -90 and 90 and less than
   `north`.
-- **`bbox.east`**: The eastern longitude, between -180 and 180 and greater than
-  `west`.
-- **`bbox.north`**: The northern latitude, between -90 and 90 and greater than
+- **`source.east`**: The eastern longitude, between -180 and 180 and greater
+  than `west`.
+- **`source.north`**: The northern latitude, between -90 and 90 and greater than
   `south`.
-- **`options`**: Overpass request options.
-- **`options.filters`**: One `[key, value]` tuple or an array of tuples. Array
-  entries are combined as a union. A raw Overpass QL filter fragment string is
-  also accepted.
+- **`options`**: Loading options. When `source` is a bounding box,
+  `options.filters` must be provided.
+- **`options.filters`**: For a bounding-box query, one `[key, value]` tuple or
+  an array of tuples. Array entries are combined as a union. A raw Overpass QL
+  filter fragment string is also accepted.
 - **`options.endpoint`**: The Overpass interpreter endpoint. Defaults to
   `https://overpass-api.de/api/interpreter`.
 - **`options.timeout`**: A positive integer timeout in seconds, applied to both
   the Overpass query and HTTP request. If omitted, the endpoint's default query
   timeout applies and no HTTP request timeout is set.
-- **`options.cache`**: If `true`, reads and writes the processed GeoParquet
-  cache in `.sda-cache/osm`, which remains available until that directory is
-  removed. If `false`, always requests fresh data and does not read or write the
-  cache. Defaults to `true`.
+- **`options.cache`**: Whether to read and write the processed GeoParquet cache.
+  Defaults to `true`.
+- **`options.ttl`**: Cache lifetime in seconds. Omit for no expiration, use `0`
+  to refresh the matching cache entry immediately, or provide a positive value
+  to refresh once the processed entry reaches that age. Cannot be combined with
+  `cache: false`.
+- **`options.retries`**: Additional network retries after the initial request.
+  Defaults to `3`, for up to four attempts. Network-only; passing it for a local
+  path throws an error.
+- **`options.retryDelay`**: Base retry delay in seconds. Defaults to `5`,
+  producing deterministic delays of 5, 10, and 20 seconds. A longer valid
+  `Retry-After` value takes precedence. Network-only; passing it for a local
+  path throws an error.
+- **`options.verbose`**: Whether to log OpenStreetMap cache, network, Osmium,
+  cleanup, and timing lifecycle details. Defaults to `false`.
+  `SimpleDB({ cacheVerbose: true })` also enables these messages and is not
+  overridden by `verbose: false`.
 
 ##### Returns
 
@@ -2652,9 +2672,23 @@ The table, so methods can be chained.
 ##### Examples
 
 ```ts
-// Load features matching one equality filter
-const schools = await table
-  .loadOSM(
+// Load an existing local OpenStreetMap PBF file
+await table.loadOpenStreetMap("./montreal.osm.pbf").log();
+```
+
+```ts
+// Filter and project after the complete canonical source has loaded
+await table
+  .loadOpenStreetMap("./montreal.osm.pbf", { verbose: true })
+  .filter("tags['amenity'] = 'school'")
+  .selectColumns(["id", "tags", "geom"])
+  .log();
+```
+
+```ts
+// Download features matching one equality filter within a bounding box
+await table
+  .loadOpenStreetMap(
     { west: -73.587799, south: 45.445078, east: -73.552265, north: 45.471086 },
     { filters: ["amenity", "school"] },
   )
@@ -2662,8 +2696,8 @@ const schools = await table
 ```
 
 ```ts
-// Load features matching either equality filter
-await table.loadOSM(
+// Download features matching either equality filter
+await table.loadOpenStreetMap(
   { west: -73.587799, south: 45.445078, east: -73.552265, north: 45.471086 },
   {
     filters: [["amenity", "school"], ["amenity", "college"]],
@@ -2673,7 +2707,7 @@ await table.loadOSM(
 
 ```ts
 // Use a raw Overpass filter fragment for an advanced filter
-await table.loadOSM(
+await table.loadOpenStreetMap(
   { west: -73.587799, south: 45.445078, east: -73.552265, north: 45.471086 },
   { filters: `["amenity"~"school|college"]` },
 ).log();
@@ -9041,9 +9075,9 @@ async cache(compute: (table: this) => void | Promise<void>, options?: { inputs?:
   cache. Functions and class constructors are compared by source. `SimpleTable`
   dependencies read by `compute` are tracked automatically, and the table being
   cached is already tracked, so neither needs to be included here.
-- **`options.ttl`**: Time to live (in seconds). If the data in the cache is
-  older than this duration, the `compute` function will be executed again to
-  refresh the cache. By default, there is no TTL; the cache is invalidated when
+- **`options.ttl`**: Cache lifetime in seconds. Omit for no expiration, use `0`
+  to refresh the matching cache entry immediately, or provide a positive value
+  to refresh once the entry reaches that age. The cache is also invalidated when
   the `compute` function, the table, or an input changes.
 
 ##### Returns
