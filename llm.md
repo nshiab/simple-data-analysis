@@ -1,8 +1,8 @@
 # The Simple Data Analysis Library
 
 - Package: `@nshiab/simple-data-analysis`
-- Version: `6.0.2`
-- Includes: `@nshiab/simple-data-analysis-core@2.0.4`
+- Version: `6.0.3`
+- Includes: `@nshiab/simple-data-analysis-core@2.0.5`
 
 To install the library with Deno, use:
 
@@ -2410,8 +2410,9 @@ await table.setTypes({
 
 #### `loadArray`
 
-Loads an array of JavaScript objects into the table. This method queues the
-load; it runs when an async observer method (like `getData()` or `log()`) is
+Loads an array of JavaScript objects into the table. Types can also be specified
+for individual columns instead of inferred from their values. This method queues
+the load; it runs when an async observer method (like `getData()` or `log()`) is
 awaited, or when `run()` is called.
 
 JavaScript `Date` values are inferred as DuckDB `TIMESTAMP` values. Their
@@ -2422,13 +2423,17 @@ offset originally used to construct it. String values remain `VARCHAR`; use
 ##### Signature
 
 ```typescript
-loadArray(rows: Record<string, unknown>[]): this;
+loadArray(rows: Record<string, unknown>[], options?: { columnTypes?: Record<string, "integer" | "float" | "number" | "string" | "date" | "time" | "datetime" | "datetimeTz" | "bigint" | "double" | "varchar" | "timestamp" | "timestamp with time zone" | "boolean" | "INTEGER" | "BIGINT" | "DOUBLE" | "VARCHAR" | "BOOLEAN" | "DATE" | "TIME" | "TIMESTAMP" | "TIMESTAMP WITH TIME ZONE" | FLOAT[${number}] | float[${number}]> }): this;
 ```
 
 ##### Parameters
 
 - **`rows`**: An array of objects, where each object represents a row and its
   properties represent columns.
+- **`options`**: Options for loading the array, captured when called.
+- **`options.columnTypes`**: Types for specific columns; omitted columns are
+  inferred. Values must be compatible with the selected type without losing
+  information.
 
 ##### Returns
 
@@ -2443,6 +2448,14 @@ const data = [
   { letter: "b", number: 2 },
 ];
 await table.loadArray(data).log();
+```
+
+```ts
+// Specify a numeric type for an all-null column
+await table.loadArray(
+  [{ name: "A", value: null }, { name: "B", value: null }],
+  { columnTypes: { value: "DOUBLE" } },
+).log();
 ```
 
 ```ts
@@ -2624,6 +2637,78 @@ await table
     lang: "fr",
     ttl: 24 * 60 * 60,
   })
+  .log();
+```
+
+#### `loadYahooFinanceData`
+
+Downloads historical market data from Yahoo Finance and loads it into this table
+as `datetime`, `open`, `high`, `low`, `close`, `adjustedClose`, and `volume`
+columns. `datetime` contains Yahoo's timestamps as JavaScript `Date` values.
+Unavailable values are preserved as `null`.
+
+All range boundaries are evaluated in UTC. Use ISO date-time strings ending in
+`Z`. Yahoo trading sessions may occur on a different UTC date from their
+exchange-local date, so choose the range appropriate for the market and
+interval. Avoid numeric constructors such as `new Date(2025, 2, 15)`, which use
+the runtime's local timezone.
+
+This method uses an undocumented Yahoo Finance endpoint and is not affiliated
+with or endorsed by Yahoo. It is provided for educational, research, and
+journalistic purposes. Before using it, review Yahoo's terms and any applicable
+data-provider restrictions.
+
+The method queues the download and load; they run when an async observer method
+(like `getData()` or `log()`) is awaited, or when `run()` is called.
+
+##### Signature
+
+```typescript
+loadYahooFinanceData(symbol: string, startDate: Date, endDate: Date, interval: "1d" | "1h" | "1m"): this;
+```
+
+##### Parameters
+
+- **`symbol`**: The stock or index symbol, such as `"AAPL"` or `"^GSPTSE"`.
+- **`startDate`**: The inclusive UTC start of the requested range.
+- **`endDate`**: The inclusive UTC end of the requested range. The UTC day,
+  hour, or minute containing this instant is included, according to `interval`.
+- **`interval`**: The interval between observations: daily, hourly, or every
+  minute.
+
+##### Returns
+
+The table, so methods can be chained.
+
+##### Throws
+
+- **`RangeError`**: If either date is invalid or `endDate` is before
+  `startDate`.
+- **`Error`**: If Yahoo rejects the request or returns no data.
+
+##### Examples
+
+```ts
+// Request daily observations using explicit UTC boundaries.
+await table
+  .loadYahooFinanceData(
+    "^GSPTSE",
+    new Date("2025-03-01T00:00:00Z"),
+    new Date("2025-03-15T00:00:00Z"),
+    "1d",
+  )
+  .log();
+```
+
+```ts
+// Include the UTC hours from 13:00 through 16:00.
+await table
+  .loadYahooFinanceData(
+    "AAPL",
+    new Date("2025-03-14T13:00:00Z"),
+    new Date("2025-03-14T16:00:00Z"),
+    "1h",
+  )
   .log();
 ```
 
@@ -5536,6 +5621,54 @@ await table.round(["columnA", "columnB"], { decimals: 1, method: "ceiling" })
 await table.round("column1", 2).log();
 ```
 
+#### `addNoise`
+
+Adds independently generated uniform random noise to numeric values in one or
+more columns. Each changed value receives an offset between `-max` and `max`.
+Selected integer and decimal columns become `DOUBLE` columns so fractional noise
+is retained. This method adds random jitter; it does not provide anonymization
+or differential privacy guarantees.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
+##### Signature
+
+```typescript
+addNoise(columns: string | string[], max: number, options?: { onlyDuplicates?: boolean }): this;
+```
+
+##### Parameters
+
+- **`columns`**: The numeric column name or array of numeric column names to
+  which noise will be added. When multiple columns are provided, each value
+  receives an independent random offset.
+- **`max`**: The maximum absolute offset, expressed in each column's units. Must
+  be a finite number greater than or equal to `0`.
+- **`options`**: An optional object with configuration options:
+- **`options.onlyDuplicates`**: If `true`, adds noise only to values that occur
+  more than once in their column. Each selected column is evaluated
+  independently, and every occurrence of a duplicated value is changed. Defaults
+  to `false`.
+
+##### Returns
+
+The table, so methods can be chained.
+
+##### Examples
+
+```ts
+// Add an offset between -0.01 and 0.01 to every value
+await table.addNoise("measurement", 0.01).log();
+```
+
+```ts
+// Add noise independently to duplicated x values and duplicated y values
+await table.addNoise(["x", "y"], 0.1, {
+  onlyDuplicates: true,
+}).log();
+```
+
 #### `updateColumn`
 
 Updates values in a specified column using a SQL expression.
@@ -5737,7 +5870,7 @@ each row, adding new columns for these proportions.
 ##### Signature
 
 ```typescript
-rowProportions(columns: string[], options?: { suffix?: string; decimals?: number }): this;
+rowProportions(columns: string[], options?: { suffix?: string; base?: number; decimals?: number }): this;
 ```
 
 ##### Parameters
@@ -5747,6 +5880,8 @@ rowProportions(columns: string[], options?: { suffix?: string; decimals?: number
 - **`options`**: An optional object with configuration options:
 - **`options.suffix`**: A string suffix to append to the names of the new
   columns storing the computed proportions. Defaults to `"Perc"`.
+- **`options.base`**: A finite positive value that the proportions in each row
+  sum to before rounding. Defaults to `1`.
 - **`options.decimals`**: The number of decimal places to round the computed
   proportions. Defaults to `undefined` (no rounding).
 
@@ -5788,6 +5923,14 @@ The table will then look like this:
 | 2021 | 564 | 685   | 145       | 0.4     | 0.49      | 0.10          |
 | 2022 | 354 | 278   | 56        | 0.51    | 0.4       | 0.08          |
 | 2023 | 856 | 321   | 221       | 0.61    | 0.23      | 0.16          |
+
+```ts
+// Compute percentages that sum to 100 on each row before rounding
+await table.rowProportions(["Men", "Women", "NonBinary"], {
+  base: 100,
+  decimals: 1,
+}).log();
+```
 
 This method queues the operation; it runs when an async observer method (like
 `getData()` or `log()`) is awaited, or when `run()` is called.
@@ -5864,7 +6007,7 @@ This method queues the operation; it runs when an async observer method (like
 ##### Signature
 
 ```typescript
-columnProportions(column: string, newColumn: string, options?: { by?: string | string[]; decimals?: number }): this;
+columnProportions(column: string, newColumn: string, options?: { by?: string | string[]; base?: number; decimals?: number }): this;
 ```
 
 ##### Parameters
@@ -5877,6 +6020,8 @@ columnProportions(column: string, newColumn: string, options?: { by?: string | s
 - **`options`**: An optional object with configuration options:
 - **`options.by`**: The column name or an array of column names to partition by.
   Proportions are calculated independently within each group.
+- **`options.base`**: A finite positive value that the proportions in the column
+  or each group sum to before rounding. Defaults to `1`.
 - **`options.decimals`**: The number of decimal places to round the computed
   proportions. Defaults to `undefined` (no rounding).
 
@@ -5895,6 +6040,14 @@ await table.columnProportions("column1", "perc").log();
 // Compute proportions for 'column1' by 'column2', rounded to two decimal places
 await table.columnProportions("column1", "perc", { by: "column2", decimals: 2 })
   .log();
+```
+
+```ts
+// Compute percentages that sum to 100 before rounding
+await table.columnProportions("sales", "sales_percentage", {
+  base: 100,
+  decimals: 1,
+}).log();
 ```
 
 ```ts
@@ -6604,18 +6757,14 @@ The table, so methods can be chained.
 ##### Examples
 
 ```ts
-// Count words correctly across multilingual article text.
-const segmenter = new Intl.Segmenter(undefined, { granularity: "word" });
+// Extract hostnames with JavaScript's URL parser.
 const table = await sdb
   .newTable()
-  .loadData("articles.csv")
+  .loadData("websites.csv")
   .updateWithJS((rows) => {
     return rows.map((row) => ({
       ...row,
-      wordCount: typeof row.text === "string"
-        ? [...segmenter.segment(row.text)].filter((part) => part.isWordLike)
-          .length
-        : null,
+      hostname: typeof row.url === "string" ? new URL(row.url).hostname : null,
     }));
   })
   .log();
@@ -6803,9 +6952,81 @@ const columnCount = await table.getColumnCount();
 console.log(columnCount); // e.g., 3
 ```
 
+#### `addCharacterCount`
+
+Adds a new column containing the number of characters in each string in the
+specified column. Counts are based on Unicode code points, not grapheme
+clusters. A user-perceived character composed of multiple code points, such as
+some emoji or decomposed accented letters, counts as multiple characters. `NULL`
+input values produce `NULL` counts.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
+##### Signature
+
+```typescript
+addCharacterCount(column: string, newColumn: string): this;
+```
+
+##### Parameters
+
+- **`column`**: The name of the column containing the strings to count.
+- **`newColumn`**: The name of the new column where the character counts will be
+  stored.
+
+##### Returns
+
+The table, so methods can be chained.
+
+##### Examples
+
+```ts
+// Add a character count for each value in the 'name' column
+await table.addCharacterCount("name", "nameCharacterCount").log();
+```
+
+#### `addWordCount`
+
+Adds a new column containing the word count for each string in the specified
+column. A word is any contiguous sequence of non-whitespace characters. Spaces,
+tabs, and line breaks separate words. Punctuation is not removed, so a
+standalone punctuation sequence counts as a word. Text without whitespace counts
+as one word, regardless of language. Empty or whitespace-only strings produce
+`0`, and `NULL` input values produce `NULL` counts.
+
+This method queues the operation; it runs when an async observer method (like
+`getData()` or `log()`) is awaited, or when `run()` is called.
+
+##### Signature
+
+```typescript
+addWordCount(column: string, newColumn: string): this;
+```
+
+##### Parameters
+
+- **`column`**: The name of the column containing the strings to count.
+- **`newColumn`**: The name of the new column where the word counts will be
+  stored.
+
+##### Returns
+
+The table, so methods can be chained.
+
+##### Examples
+
+```ts
+// Add a word count for each value in the 'article' column
+await table.addWordCount("article", "wordCount").log();
+```
+
 #### `getCharacterCount`
 
-Returns the total number of characters in a column storing strings.
+Returns the total number of characters in a column storing strings. Counts are
+based on Unicode code points, not grapheme clusters. A user-perceived character
+composed of multiple code points, such as some emoji or decomposed accented
+letters, counts as multiple characters.
 
 ##### Signature
 
@@ -7964,6 +8185,62 @@ await table.flipCoordinates().log();
 ```ts
 // Flip coordinates in a specific column named 'myGeom'
 await table.flipCoordinates("myGeom").log();
+```
+
+#### `addGeoNoise`
+
+Moves EPSG:4326 point geometries to random locations within a maximum
+great-circle distance of their original positions.
+
+Points are sampled uniformly within the requested distance using the spherical
+direct geodesic (destination-point) formula and the same spherical Earth model
+as DuckDB's `ST_Distance_Sphere()`. This accounts for longitude scale changing
+with latitude. This method adds random jitter; it does not provide anonymization
+or differential privacy guarantees.
+
+This method supports only `POINT` geometries in `EPSG:4326`. Null and empty
+geometries are preserved. It queues the operation; the operation runs when an
+async observer method (like `getData()` or `log()`) is awaited, or when `run()`
+is called.
+
+##### Signature
+
+```typescript
+addGeoNoise(maxDistance: number, options?: { column?: string; unit?: "m" | "km"; onlyDuplicates?: boolean }): this;
+```
+
+##### Parameters
+
+- **`maxDistance`**: The maximum great-circle displacement in the selected unit.
+  Must be a finite number greater than or equal to `0` and no greater than half
+  Earth's circumference.
+- **`options`**: An optional object with configuration options:
+- **`options.column`**: The name of the EPSG:4326 point geometry column. If
+  omitted, the method will automatically attempt to find a geometry column.
+- **`options.unit`**: The unit of `maxDistance`: `"m"` for metres or `"km"` for
+  kilometres. Defaults to `"m"`.
+- **`options.onlyDuplicates`**: If `true`, moves only points whose complete
+  original geometry occurs more than once in the selected geometry column. Every
+  point in a duplicated group is moved. Defaults to `false`.
+
+##### Returns
+
+The table, so methods can be chained.
+
+##### Examples
+
+```ts
+// Move every point by no more than 500 metres
+await table.addGeoNoise(500).log();
+```
+
+```ts
+// Separate duplicated points by up to 0.1 kilometres
+await table.addGeoNoise(0.1, {
+  column: "geom",
+  unit: "km",
+  onlyDuplicates: true,
+}).log();
 ```
 
 #### `reducePrecision`

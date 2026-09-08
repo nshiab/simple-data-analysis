@@ -5,13 +5,13 @@
     "jsr:@nshiab/journalism-dataviz@^1.0.21": "1.0.21",
     "jsr:@nshiab/journalism-format@^1.1.10": "1.1.10",
     "jsr:@nshiab/journalism-google@^1.1.2": "1.1.2",
+    "jsr:@nshiab/simple-data-analysis-core@2.0.5": "2.0.5",
     "jsr:@std/assert@^1.0.19": "1.0.19",
     "jsr:@std/internal@^1.0.12": "1.0.14",
     "npm:@duckdb/node-api@1.5.5-r.4": "1.5.5-r.4",
     "npm:@google-cloud/storage@^8.0.1": "8.0.1",
     "npm:@google/genai@^2.19.0": "2.19.0",
     "npm:@napi-rs/canvas@^1.0.8": "1.0.8",
-    "npm:@nshiab/simple-data-analysis-core@2.0.5": "2.0.5",
     "npm:@observablehq/plot@~0.6.17": "0.6.17",
     "npm:@resvg/resvg-js@^2.6.2": "2.6.2",
     "npm:d3-dsv@^3.0.1": "3.0.1",
@@ -48,6 +48,12 @@
         "npm:@google-cloud/storage",
         "npm:google-auth-library",
         "npm:google-spreadsheet"
+      ]
+    },
+    "@nshiab/simple-data-analysis-core@2.0.5": {
+      "integrity": "830ad902221359df6b23c4842ea97ea7f6c6952b97982b2bb40589066960a02f",
+      "dependencies": [
+        "npm:@duckdb/node-api"
       ]
     },
     "@std/assert@1.0.19": {
@@ -237,12 +243,6 @@
     },
     "@nodable/entities@3.0.0": {
       "integrity": "sha512-8L9xFeTYKhm49xfIypoe2W5wV1m/3Z58kT+7kR9A8OyFxcPduI4VmxaUMQyKYrRjUoLLSXv6EKKID5Tvj9cUVw=="
-    },
-    "@nshiab/simple-data-analysis-core@2.0.5": {
-      "integrity": "sha512-n/SEEc9tn3njB3yWD3wmnQK3DWmqMLqRAd9Drl+U5DqNqhL1d8Gs4DqFJfpQiXzibqlP2RMlSej04yTNmOdc/g==",
-      "dependencies": [
-        "@duckdb/node-api"
-      ]
     },
     "@observablehq/plot@0.6.17": {
       "integrity": "sha512-/qaXP/7mc4MUS0s4cPPFASDRjtsWp85/TbfsciqDgU1HwYixbSbbytNuInD8AcTYC3xaxACgVX06agdfQy9W+g==",
@@ -1151,9 +1151,9 @@
       "jsr:@nshiab/journalism-dataviz@^1.0.21",
       "jsr:@nshiab/journalism-format@^1.1.10",
       "jsr:@nshiab/journalism-google@^1.1.2",
+      "jsr:@nshiab/simple-data-analysis-core@2.0.5",
       "jsr:@std/assert@^1.0.19",
       "npm:@duckdb/node-api@1.5.5-r.4",
-      "npm:@nshiab/simple-data-analysis-core@2.0.5",
       "npm:@observablehq/plot@~0.6.17",
       "npm:ollama@~0.6.3",
       "npm:zod@^4.4.3"
