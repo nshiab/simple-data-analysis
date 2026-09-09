@@ -1,5 +1,11 @@
 ## Development Workflow
 
+- **Naming:** Use a few descriptive words about the feature, fix, or bug for
+  branch names and PR titles; never include Codex, Claude, or other AI agent
+  names.
+- **Attribution:** Never credit AI agents as authors or co-authors in commits or
+  PRs, including `Co-authored-by` trailers.
+
 ### Phase 1: Exploration (BEFORE Modifying)
 
 - **Library Architecture:** SDA is split into two packages.
