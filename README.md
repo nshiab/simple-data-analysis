@@ -88,6 +88,8 @@ bunx @nshiab/setup-data-project
 
 ## Performance
 
+These are end-to-end workflow comparisons.
+
 SDA uses DuckDB to handle large tabular and geospatial analyses efficiently,
 often outperforming traditional dataframe tools while keeping the code simple
 and readable.
