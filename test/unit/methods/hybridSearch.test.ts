@@ -26,6 +26,41 @@ function clearEmbeddingCaches(): void {
   }
 }
 
+for (const name of ["ranking_probe", "ranking$probe", "Ranking_Épreuve"]) {
+  for (const vectorSearch of [false, true]) {
+    Deno.test(`hybridSearch preserves FTS table name ${name} (vectorSearch=${vectorSearch})`, async () => {
+      const sdb = new SimpleDB();
+      try {
+        const table = sdb.newTable(name);
+        await table.loadArray([
+          { id: "a", text: "zebra" },
+          { id: "b", text: "other" },
+        ]).run();
+
+        const result = table.hybridSearch("zebra", "id", "text", 1, {
+          bm25: true,
+          vectorSearch,
+          outputTable: "result",
+          embeddings: {
+            provider: "ollama",
+            model: "fts-table-name-test",
+            cache: false,
+            ollama: new FakeOllamaEmbeddingClient(
+              "http://fts.local:11434",
+              [1, 0],
+            ),
+          },
+        });
+
+        const rows = await result.getData();
+        assertEquals(rows.map((row) => row.id), ["a"]);
+      } finally {
+        await sdb.close();
+      }
+    });
+  }
+}
+
 Deno.test("hybridSearch preserves geometry columns with table caching", async () => {
   const directory = await Deno.makeTempDir();
   const originalDirectory = Deno.cwd();
