@@ -617,3 +617,72 @@ for (const failure of ["generation", "staging"]) {
     }
   });
 }
+
+for (const target of ["input", "output", "errorColumn"] as const) {
+  Deno.test(`aiRowByRow rejects geometry ${target} before provider requests`, async () => {
+    const { sdb, table, assertPreserved } = await createAIEnrichmentFixture(2);
+    const fixture = createOllamaFixture();
+    try {
+      await assertRejects(
+        () =>
+          table.aiRowByRow(
+            target === "input" ? "GEOMETRY" : "text",
+            target === "output" ? "PROJECTED" : "label",
+            "Label the input.",
+            {
+              generation: { ...fixture.generation, cache: false },
+              errorColumn: target === "errorColumn"
+                ? "NULL_GEOMETRY"
+                : undefined,
+            },
+          ).run(),
+        Error,
+        "cannot be an input or output",
+      );
+      assertEquals(fixture.requestCount(), 0);
+      await assertPreserved();
+    } finally {
+      await sdb.close();
+    }
+  });
+}
+
+Deno.test("aiRowByRow logs compact geometry separately from stored SQL values", async () => {
+  const { sdb, table, assertGeometry } = await createAIEnrichmentFixture(2);
+  const client = createOllamaClient((prompt) =>
+    ollamaResponse(
+      extractValues(prompt).map(() => ({ label: "place" })),
+    )
+  );
+  const logs: string[] = [];
+  const originalLog = console.log;
+  try {
+    await table.aiRowByRow("text", "label", "Label the input.", {
+      generation: {
+        provider: "ollama",
+        model: "geometry-log",
+        ollama: client,
+        cache: false,
+      },
+    }).run();
+    console.log = (...values: unknown[]) =>
+      logs.push(values.map(String).join(" "));
+    await table.selectColumns([
+      "i",
+      "label",
+      "geometry",
+      "projected",
+      "unknown_crs",
+      "null_geometry",
+    ]).log({ count: 2, types: false });
+    const output = logs.join("\n");
+    assert(output.includes("GEOM(EPSG:4326)"));
+    assert(output.includes("GEOM(EPSG:3857)"));
+    assert(!output.includes("2.123456789012345"));
+    assert(!output.includes("coordinates"));
+    await assertGeometry();
+  } finally {
+    console.log = originalLog;
+    await sdb.close();
+  }
+});
