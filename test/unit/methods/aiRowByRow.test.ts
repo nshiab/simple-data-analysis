@@ -489,3 +489,29 @@ Deno.test("aiRowByRow globally spaces provider request starts", async () => {
   assert(starts[2] - starts[1] >= 40);
   await sdb.close();
 });
+
+Deno.test("aiRowByRow preserves geometry columns", async () => {
+  const fixture = createOllamaFixture();
+  const sdb = new SimpleDB();
+  try {
+    const table = sdb.newTable("geometry_rows");
+    await table.loadArray([{
+      city: "Paris",
+      geometry: { type: "Point", coordinates: [2.25, 48.5] },
+    }], { columnTypes: { geometry: "GEOMETRY('EPSG:4326')" } })
+      .aiRowByRow("city", "country", "Give me the country of the city.", {
+        generation: { ...fixture.generation, cache: false },
+      }).run();
+    assertEquals(await table.getValues("country"), ["France"]);
+    assertEquals((await table.getTypes()).geometry, "GEOMETRY('EPSG:4326')");
+    assertEquals(
+      await sdb.customQuery(
+        `SELECT ST_AsText(geometry) AS wkt FROM "${table.name}"`,
+        { returnData: true },
+      ),
+      [{ wkt: "POINT (2.25 48.5)" }],
+    );
+  } finally {
+    await sdb.close();
+  }
+});
