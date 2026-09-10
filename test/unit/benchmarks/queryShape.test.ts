@@ -101,9 +101,9 @@ Deno.test("spatial benchmark fuses its tree scan and loads spatial once", async 
     const joinedMaterializations = observer.queries.filter((entry) =>
       entry.query.includes('CREATE OR REPLACE TABLE "joined"')
     );
-    assertEquals(joinedMaterializations.length, 2);
+    assertEquals(joinedMaterializations.length, 1);
     assert(joinedMaterializations[0].query.includes("ST_Covers"));
-    assert(joinedMaterializations[1].query.includes("COUNT(*)"));
+    assert(joinedMaterializations[0].query.includes("COUNT(*)"));
   } finally {
     observer.restore();
     await sdb.close();

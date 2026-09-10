@@ -26,6 +26,99 @@ function clearEmbeddingCaches(): void {
   }
 }
 
+Deno.test("hybridSearch preserves geometry columns with table caching", async () => {
+  const directory = await Deno.makeTempDir();
+  const originalDirectory = Deno.cwd();
+  try {
+    Deno.chdir(directory);
+    const geometry = { type: "Point", coordinates: [-73.5, 45.5] };
+    for (const cached of [false, true]) {
+      const sdb = new SimpleDB();
+      try {
+        const table = sdb.newTable("geometry_search");
+        await table.loadArray([{ id: "a", text: "alpha", geometry }], {
+          columnTypes: { geometry: "GEOMETRY('EPSG:4326')" },
+        }).run();
+        const client = new FakeOllamaEmbeddingClient(
+          "http://geometry.local:11434",
+          [1, 0],
+        );
+        const result = table.hybridSearch("query", "id", "text", 1, {
+          embeddings: {
+            provider: "ollama",
+            model: "geometry-model",
+            ollama: client,
+          },
+          outputTable: "results",
+        });
+        await result.run();
+        assertEquals(
+          (await result.getTypes()).geometry,
+          "GEOMETRY('EPSG:4326')",
+        );
+        assertEquals(
+          await sdb.customQuery(
+            `SELECT ST_AsText(geometry) AS wkt FROM "${result.name}"`,
+            { returnData: true },
+          ),
+          [{ wkt: "POINT (-73.5 45.5)" }],
+        );
+        assertEquals(client.requests, cached ? 0 : 2);
+        assertEquals(existsSync("./.sda-cache"), true);
+      } finally {
+        await sdb.close();
+      }
+    }
+  } finally {
+    Deno.chdir(originalDirectory);
+    await Deno.remove(directory, { recursive: true });
+  }
+});
+
+Deno.test("hybridSearch trusts existing embeddings after text changes and reopening", async () => {
+  const directory = await Deno.makeTempDir();
+  let sdb = new SimpleDB({ file: `${directory}/embeddings.db` });
+  try {
+    let table = sdb.newTable("texts");
+    const client = new FakeOllamaEmbeddingClient("http://trust.local:11434", [
+      1,
+      0,
+    ]);
+    const embeddings = {
+      provider: "ollama" as const,
+      model: "trust-model",
+      ollama: client,
+      cache: false,
+    };
+    await table.loadArray([{ id: "a", text: "alpha" }])
+      .aiEmbeddings("text", "text_embeddings", { embeddings }).run();
+    await table.replace("text", { alpha: "changed" }).run();
+    for (const reopen of [false, true]) {
+      if (reopen) {
+        await sdb.close();
+        sdb = new SimpleDB({ file: `${directory}/embeddings.db` });
+        table = await sdb.getTable("texts");
+      }
+      const before = client.requests;
+      await table.hybridSearch("query", "id", "text", 1, {
+        embeddings,
+        bm25: false,
+        outputTable: reopen ? "reopened_results" : "results",
+      }).run();
+      // Only the query is embedded; the existing document vector is trusted.
+      assertEquals(client.requests - before, 1);
+      assertEquals(await table.getData(), [{
+        id: "a",
+        text: "changed",
+        text_embeddings: [1, 0],
+      }]);
+    }
+  } finally {
+    await sdb.close();
+    await Deno.remove(directory, { recursive: true });
+  }
+});
+
 Deno.test(
   "hybridSearch regenerates embeddings when providers change at equal dimensions",
   async () => {

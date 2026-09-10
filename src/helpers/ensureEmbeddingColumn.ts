@@ -83,8 +83,12 @@ async function dropManagedVssIndexes(table: SimpleTable): Promise<void> {
       `DROP INDEX IF EXISTS ${quoteIdentifier(index_name)};`,
     );
   }
+  // Table replacement can remove physical indexes while leaving their
+  // registered definitions behind. Clear those definitions as well.
   const dropped = new Set(managedIndexes.map(({ index_name }) => index_name));
-  table.indexes = table.indexes.filter((index) => !dropped.has(index.name));
+  table.indexes = table.indexes.filter((index) =>
+    !dropped.has(index.name) && index.kind !== "vss"
+  );
 }
 
 async function writeMetadata(
@@ -118,6 +122,7 @@ async function writeMetadata(
  * @param embeddingColumn SDA-managed vector column.
  * @param identity Canonical upstream embedding identity for the request.
  * @param generate Regenerates the managed column when reuse is unsafe.
+ * @param options Controls whether compatible existing vectors may be reused.
  * @returns Whether the existing vectors were reused or regenerated.
  *
  * @example
@@ -135,13 +140,16 @@ export default async function ensureEmbeddingColumn(
   embeddingColumn: string,
   identity: EmbeddingIdentity,
   generate: () => Promise<void>,
+  options: { reuseExisting?: boolean } = {},
 ): Promise<"reused" | "generated"> {
   const identityJson = JSON.stringify(identity);
   await ensureMetadataTable(table);
 
   const columnExists = await table.hasColumn(embeddingColumn);
   const metadata = await readMetadata(table, embeddingColumn);
-  if (columnExists && metadata !== undefined) {
+  if (
+    options.reuseExisting !== false && columnExists && metadata !== undefined
+  ) {
     const dimensions = await getDimensions(table, embeddingColumn);
     if (
       metadata.schema_version === METADATA_SCHEMA_VERSION &&
