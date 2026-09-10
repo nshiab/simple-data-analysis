@@ -1,4 +1,4 @@
-import { assertEquals } from "@std/assert";
+import { assertEquals, assertRejects } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
 import {
@@ -853,3 +853,194 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
 } else {
   console.log("No AI key or Ollama detected, skipping hybrid search tests");
 }
+
+for (const mode of ["bm25", "vector", "fused"] as const) {
+  for (const withScores of [false, true]) {
+    for (const inPlace of [false, true]) {
+      Deno.test(`hybridSearch preserves ${mode} rank (scores=${withScores}, inPlace=${inPlace})`, async () => {
+        const sdb = new SimpleDB();
+        try {
+          const table = sdb.newTable("ranking");
+          await table.loadArray([
+            { id: "low's", text: "zebra " + "unrelated ".repeat(100) },
+            { id: "high", text: "zebra" },
+            { id: "vector", text: "semantic match" },
+            ...Array.from(
+              { length: 8 },
+              (_, i) => ({ id: `noise${i}`, text: "other topic" }),
+            ),
+          ]).run();
+          const result = table.hybridSearch("zebra", "id", "text", 3, {
+            vectorSearch: mode !== "bm25",
+            bm25: mode !== "vector",
+            vectorMinSimilarity: 0.5,
+            embeddings: {
+              provider: "ollama",
+              model: "ranking-test",
+              cache: false,
+              ollama: {
+                embeddingEndpoint: "http://ranking.local:11434",
+                embed({ input }: { input: string }) {
+                  const vector = input === "zebra"
+                    ? [1, 0]
+                    : input === "semantic match"
+                    ? [0.9, 0.1]
+                    : input.startsWith("zebra ")
+                    ? [0.8, 0.2]
+                    : [0, 1];
+                  return Promise.resolve({ embeddings: [vector] });
+                },
+              },
+            },
+            ...(inPlace ? {} : { outputTable: "ranked" }),
+            ...(withScores
+              ? {
+                bm25ScoreColumn: "bm25_score",
+                vectorSimilarityColumn: "vector_score",
+              }
+              : {}),
+          });
+          const data = await result.getData();
+          assertEquals(
+            data.map((row) => row.id),
+            mode === "bm25"
+              ? ["high", "low's"]
+              : mode === "vector"
+              ? ["high", "vector", "low's"]
+              : ["high", "low's", "vector"],
+          );
+          if (withScores) {
+            assertEquals(data[0].vector_score, mode === "bm25" ? null : 1);
+            assertEquals(data[0].bm25_score === null, mode === "vector");
+            if (mode === "fused") assertEquals(data[2].bm25_score, null);
+            if (mode !== "bm25") {
+              assertEquals(
+                data.find((row) => row.id === "low's")?.vector_score,
+                0.9701,
+              );
+            }
+          }
+          assertEquals(await table.getRowCount(), inPlace ? data.length : 11);
+        } finally {
+          await sdb.close();
+        }
+      });
+    }
+  }
+}
+
+Deno.test("hybridSearch preserves numeric IDs and empty score schemas", async () => {
+  const sdb = new SimpleDB();
+  try {
+    const table = sdb.newTable("numeric_ranking");
+    await table.loadArray([
+      { id: 1, text: "zebra " + "unrelated ".repeat(100) },
+      { id: 2, text: "zebra" },
+      ...Array.from(
+        { length: 8 },
+        (_, i) => ({ id: i + 3, text: "other topic" }),
+      ),
+    ]).run();
+    const ranked = table.hybridSearch("zebra", "id", "text", 2, {
+      vectorSearch: false,
+      outputTable: "numeric_results",
+    });
+    assertEquals(await ranked.getValues("id"), [2, 1]);
+    const empty = table.hybridSearch("nonexistent", "id", "text", 2, {
+      vectorSearch: false,
+      outputTable: "empty_results",
+      bm25ScoreColumn: "bm25_score",
+      vectorSimilarityColumn: "vector_score",
+    });
+    assertEquals(await empty.getData(), []);
+    const types = await empty.getTypes();
+    assertEquals(types.bm25_score, "DOUBLE");
+    assertEquals(types.vector_score, "DOUBLE");
+  } finally {
+    await sdb.close();
+  }
+});
+
+Deno.test("hybridSearch preserves fusion tie order independently of score columns", async () => {
+  const sdb = new SimpleDB();
+  try {
+    const table = sdb.newTable("tied_ranking");
+    await table.loadArray([
+      { id: "high", text: "zebra" },
+      { id: "low", text: "zebra " + "unrelated ".repeat(100) },
+      ...Array.from(
+        { length: 8 },
+        (_, i) => ({ id: `noise${i}`, text: "other topic" }),
+      ),
+    ]).run();
+    for (const withScores of [false, true]) {
+      const results = table.hybridSearch("zebra query", "id", "text", 2, {
+        outputTable: `ties_${withScores}`,
+        embeddings: {
+          provider: "ollama",
+          model: "ties-test",
+          cache: false,
+          ollama: {
+            embeddingEndpoint: "http://ranking.local:11434",
+            embed({ input }: { input: string }) {
+              return Promise.resolve({
+                embeddings: [
+                  input === "zebra"
+                    ? [0.8, 0.2]
+                    : input.startsWith("zebra ")
+                    ? [1, 0]
+                    : [0, 1],
+                ],
+              });
+            },
+          },
+        },
+        ...(withScores
+          ? {
+            bm25ScoreColumn: "bm25_score",
+            vectorSimilarityColumn: "vector_score",
+          }
+          : {}),
+      });
+      // The reversed search lists tie under RRF; preserve the fusion's
+      // stable vector-first tie order, rather than source or BM25 order.
+      assertEquals(await results.getValues("id"), ["low", "high"]);
+      assertEquals(await results.getColumns(), [
+        "id",
+        "text",
+        "text_embeddings",
+        ...(withScores ? ["vector_score", "bm25_score"] : []),
+      ]);
+    }
+  } finally {
+    await sdb.close();
+  }
+});
+
+Deno.test("hybridSearch rejects score column collisions", async () => {
+  for (
+    const names of [
+      { vectorSimilarityColumn: "text" },
+      { bm25ScoreColumn: "score", vectorSimilarityColumn: "score" },
+    ]
+  ) {
+    const sdb = new SimpleDB();
+    try {
+      const table = sdb.newTable("score_collision");
+      await table.loadArray([{ id: 1, text: "zebra" }]).run();
+      await assertRejects(
+        async () => {
+          await table.hybridSearch("nonexistent", "id", "text", 2, {
+            vectorSearch: false,
+            outputTable: "collision_result",
+            ...names,
+          }).run();
+        },
+        Error,
+        "already exists",
+      );
+    } finally {
+      await sdb.close();
+    }
+  }
+});

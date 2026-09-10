@@ -3,6 +3,7 @@ import getRRFRanking from "../helpers/getRRFRanking.ts";
 import {
   parseValue,
   queueAsyncBarrier,
+  quoteIdentifier,
 } from "@nshiab/simple-data-analysis-core/helpers";
 import {
   type EmbeddingOptions,
@@ -335,10 +336,10 @@ async function runHybridSearch(
   }
 
   let finalIds: string[];
-  let vectorSearchSimilarity: {
+  let vectorSearchRows: {
     [key: string]: unknown;
   }[] = [];
-  let bm25SearchScores: {
+  let bm25SearchRows: {
     [key: string]: unknown;
   }[] = [];
 
@@ -349,22 +350,26 @@ async function runHybridSearch(
       bm25Search(),
     ]);
 
-    const vectorSearchResultsIds = await vectorSearchResult.getValues(
-      idColumn,
+    vectorSearchRows = await vectorSearchResult.getData({
+      columns: [
+        idColumn,
+        ...(options.vectorSimilarityColumn
+          ? [options.vectorSimilarityColumn]
+          : []),
+      ],
+    });
+    const vectorSearchResultsIds = vectorSearchRows.map((row) =>
+      row[idColumn]
     ) as string[];
-    if (options.vectorSimilarityColumn) {
-      vectorSearchSimilarity = await vectorSearchResult.getData({
-        columns: [idColumn, options.vectorSimilarityColumn],
-      });
-    }
-    const bm25SearchResultsIds = await bm25SearchResult.getValues(
-      idColumn,
+    bm25SearchRows = await bm25SearchResult.getData({
+      columns: [
+        idColumn,
+        ...(options.bm25ScoreColumn ? [options.bm25ScoreColumn] : []),
+      ],
+    });
+    const bm25SearchResultsIds = bm25SearchRows.map((row) =>
+      row[idColumn]
     ) as string[];
-    if (options.bm25ScoreColumn) {
-      bm25SearchScores = await bm25SearchResult.getData({
-        columns: [idColumn, options.bm25ScoreColumn],
-      });
-    }
 
     await vectorSearchResult.removeTable();
     await bm25SearchResult.removeTable();
@@ -393,12 +398,15 @@ async function runHybridSearch(
   } else if (enableVectorSearch) {
     // Only vector search enabled
     const vectorSearchResult = await vectorSearch();
-    finalIds = await vectorSearchResult.getValues(idColumn) as string[];
-    if (options.vectorSimilarityColumn) {
-      vectorSearchSimilarity = await vectorSearchResult.getData({
-        columns: [idColumn, options.vectorSimilarityColumn],
-      });
-    }
+    vectorSearchRows = await vectorSearchResult.getData({
+      columns: [
+        idColumn,
+        ...(options.vectorSimilarityColumn
+          ? [options.vectorSimilarityColumn]
+          : []),
+      ],
+    });
+    finalIds = vectorSearchRows.map((row) => row[idColumn]) as string[];
     await vectorSearchResult.removeTable();
 
     if (options.verbose) {
@@ -410,12 +418,13 @@ async function runHybridSearch(
   } else {
     // Only BM25 enabled
     const bm25SearchResult = await bm25Search();
-    finalIds = await bm25SearchResult.getValues(idColumn) as string[];
-    if (options.bm25ScoreColumn) {
-      bm25SearchScores = await bm25SearchResult.getData({
-        columns: [idColumn, options.bm25ScoreColumn],
-      });
-    }
+    bm25SearchRows = await bm25SearchResult.getData({
+      columns: [
+        idColumn,
+        ...(options.bm25ScoreColumn ? [options.bm25ScoreColumn] : []),
+      ],
+    });
+    finalIds = bm25SearchRows.map((row) => row[idColumn]) as string[];
     await bm25SearchResult.removeTable();
 
     if (options.verbose) {
@@ -427,76 +436,67 @@ async function runHybridSearch(
   }
 
   const finalIdsSliced = finalIds.slice(0, nbResults);
+  const scoreColumns = [
+    { name: options.vectorSimilarityColumn, rows: vectorSearchRows },
+    { name: options.bm25ScoreColumn, rows: bm25SearchRows },
+  ].filter((
+    column,
+  ): column is { name: string; rows: Record<string, unknown>[] } =>
+    column.name !== undefined
+  );
+  if (scoreColumns.length > 0) {
+    const columns = new Set(
+      (await table.getColumns()).map((name) => name.toLowerCase()),
+    );
+    for (const { name } of scoreColumns) {
+      if (columns.has(name.toLowerCase())) {
+        throw new Error(`hybridSearch(): Column "${name}" already exists.`);
+      }
+      columns.add(name.toLowerCase());
+    }
+  }
+  const scores = scoreColumns.map(({ name, rows }) =>
+    new Map(rows.map((row) => [row[idColumn], row[name]]))
+  );
+  const scoreProjection = scoreColumns.map(({ name }, index) =>
+    `, round(ranked.score_${index}::DOUBLE, 4) AS ${quoteIdentifier(name)}`
+  ).join("");
+  const destination = quoteIdentifier(options.outputTable ?? table.name);
+  const source = quoteIdentifier(table.name);
+
   if (finalIdsSliced.length === 0) {
-    // If there are no results, create an empty table with the same structure
+    const emptyScores = scoreColumns.map(({ name }) =>
+      `, NULL::DOUBLE AS ${quoteIdentifier(name)}`
+    ).join("");
     await table.sdb.customQuery(
-      `CREATE OR REPLACE TABLE "${
-        options.outputTable ?? table.name
-      }" AS SELECT * FROM "${table.name}" WHERE 1=0`,
+      `CREATE OR REPLACE TABLE ${destination} AS SELECT *${emptyScores} FROM ${source} WHERE 1=0`,
     );
   } else {
+    // Keep the ranking alongside each ID through the join. Membership alone
+    // loses relevance order, and raw search scores cannot recover fused ranks.
+    const rankedRows = finalIdsSliced.map((id, ordinal) =>
+      `(${
+        [
+          parseValue(id),
+          ordinal,
+          ...scores.map((score) => parseValue(score.get(id) ?? null)),
+        ].join(", ")
+      })`
+    ).join(", ");
+    const rankedColumns = [
+      "id",
+      "ordinal",
+      ...scoreColumns.map((_, index) => `score_${index}`),
+    ].join(", ");
     await table.sdb.customQuery(
-      `CREATE OR REPLACE TABLE "${
-        options.outputTable ?? table.name
-      }" AS SELECT * FROM "${table.name}" WHERE "${idColumn}" IN (${
-        finalIdsSliced
-          .map((id) => parseValue(id))
-          .join(", ")
-      })`,
+      `CREATE OR REPLACE TABLE ${destination} AS
+       SELECT source.*${scoreProjection}
+       FROM ${source} AS source
+       JOIN (VALUES ${rankedRows}) AS ranked(${rankedColumns})
+         ON source.${quoteIdentifier(idColumn)} = ranked.id
+       ORDER BY ranked.ordinal`,
     );
   }
-
-  if (options.vectorSimilarityColumn) {
-    if (vectorSearchSimilarity.length === 0) {
-      // If there are no similarity scores (e.g. all results were filtered out by minSimilarity), add the column with NULL values
-      outputTableInstance.addColumn(
-        options.vectorSimilarityColumn,
-        "number",
-        `NULL`,
-      );
-    } else {
-      outputTableInstance.addColumn(
-        options.vectorSimilarityColumn,
-        "number",
-        `CASE ${
-          vectorSearchSimilarity.map((d) =>
-            `WHEN "${idColumn}" = ${parseValue(d[idColumn])} THEN ${
-              d[options.vectorSimilarityColumn!]
-            }`
-          ).join(" ")
-        } ELSE NULL END`,
-      );
-      outputTableInstance.round(options.vectorSimilarityColumn, {
-        decimals: 4,
-      });
-    }
-  }
-  if (options.bm25ScoreColumn) {
-    if (bm25SearchScores.length === 0) {
-      // If there are no BM25 scores (e.g. all results were filtered out by minScore), add the column with NULL values
-      outputTableInstance.addColumn(
-        options.bm25ScoreColumn,
-        "number",
-        `NULL`,
-      );
-    } else {
-      outputTableInstance.addColumn(
-        options.bm25ScoreColumn,
-        "number",
-        `CASE ${
-          bm25SearchScores.map((d) =>
-            `WHEN "${idColumn}" = ${parseValue(d[idColumn])} THEN ${
-              d[options.bm25ScoreColumn!]
-            }`
-          ).join(" ")
-        } ELSE NULL END`,
-      );
-      outputTableInstance.round(options.bm25ScoreColumn, {
-        decimals: 4,
-      });
-    }
-  }
-  await outputTableInstance.run();
   if (options.verbose) {
     await outputTableInstance.log("all");
     const { prettyDuration } = await import("@nshiab/journalism-format");
