@@ -919,3 +919,36 @@ for (const failure of ["generation", "staging"]) {
     }
   });
 }
+
+for (const target of ["input", "output"] as const) {
+  Deno.test(`aiEmbeddings rejects geometry ${target} before provider requests`, async () => {
+    const { sdb, table, assertPreserved } = await createAIEnrichmentFixture(2);
+    const client = new FakeOllamaEmbeddingClient(
+      "http://geometry.local:11434",
+      [1, 0],
+    );
+    try {
+      await assertRejects(
+        () =>
+          table.aiEmbeddings(
+            target === "input" ? "UNKNOWN_CRS" : "text",
+            target === "output" ? "PROJECTED" : "vectors",
+            {
+              embeddings: {
+                provider: "ollama",
+                model: "geometry-test",
+                ollama: client,
+                cache: false,
+              },
+            },
+          ).run(),
+        Error,
+        "cannot be an input or output",
+      );
+      assertEquals(client.requests, 0);
+      await assertPreserved();
+    } finally {
+      await sdb.close();
+    }
+  });
+}

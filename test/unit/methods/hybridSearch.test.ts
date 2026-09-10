@@ -1,3 +1,4 @@
+import createAIEnrichmentFixture from "../helpers/createAIEnrichmentFixture.ts";
 import { assertEquals, assertRejects } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
@@ -1170,5 +1171,91 @@ Deno.test("hybridSearch rejects score column collisions", async () => {
     } finally {
       await sdb.close();
     }
+  }
+});
+
+for (
+  const mode of ["disabled", "reused", "generated", "regenerated"] as const
+) {
+  Deno.test(
+    "hybridSearch preserves exact geometry across CRS with vector search " +
+      mode,
+    async () => {
+      const { sdb, table, assertGeometry, assertPreserved } =
+        await createAIEnrichmentFixture(12);
+      const client = new FakeOllamaEmbeddingClient(
+        "http://geometry.local:11434",
+        [1, 0],
+      );
+      const embeddings = {
+        provider: "ollama",
+        model: "geometry-search",
+        ollama: client,
+        cache: false,
+      } as const;
+      try {
+        if (mode === "reused" || mode === "regenerated") {
+          await table.aiEmbeddings("text", "text_embeddings", {
+            embeddings: {
+              ...embeddings,
+              model: mode === "reused" ? embeddings.model : "old-model",
+            },
+          }).run();
+        }
+        const before = client.requests;
+
+        const result = table.hybridSearch("row", "i", "text", 3, {
+          embeddings,
+          vectorSearch: mode !== "disabled",
+          outputTable: "geometry_results",
+        });
+        await result.run();
+        assertEquals(await result.getRowCount() > 0, true);
+        await assertGeometry(result);
+
+        assertEquals(
+          client.requests - before,
+          mode === "disabled" ? 0 : mode === "reused" ? 1 : 13,
+        );
+        await assertGeometry();
+        await assertPreserved(mode === "disabled" ? [] : ["text_embeddings"]);
+      } finally {
+        await sdb.close();
+      }
+    },
+  );
+}
+
+Deno.test("hybridSearch rejects a geometry embedding-column collision before provider requests", async () => {
+  const { sdb, table, assertPreserved } = await createAIEnrichmentFixture(2);
+  const client = new FakeOllamaEmbeddingClient("http://geometry.local:11434", [
+    1,
+    0,
+  ]);
+  const embeddings = {
+    provider: "ollama",
+    model: "geometry-search",
+    ollama: client,
+    cache: false,
+  } as const;
+  try {
+    await sdb.customQuery(
+      "ALTER TABLE enriched ADD COLUMN text_embeddings GEOMETRY('EPSG:3857')",
+    );
+
+    await assertRejects(
+      () => table.hybridSearch("row", "i", "text", 3, { embeddings }).run(),
+      Error,
+      "cannot be an input or output",
+    );
+    assertEquals(client.requests, 0);
+
+    assertEquals(
+      (await table.getTypes()).text_embeddings,
+      "GEOMETRY('EPSG:3857')",
+    );
+    await assertPreserved(["text_embeddings"]);
+  } finally {
+    await sdb.close();
   }
 });
