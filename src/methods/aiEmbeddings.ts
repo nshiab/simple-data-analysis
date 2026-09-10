@@ -4,7 +4,10 @@ import {
   snapshotAIOptions,
 } from "../helpers/aiOptions.ts";
 import ensureEmbeddingColumn from "../helpers/ensureEmbeddingColumn.ts";
-import { queueAsyncBarrier } from "@nshiab/simple-data-analysis-core/helpers";
+import {
+  queueAsyncBarrier,
+  updateColumnsWithJS,
+} from "@nshiab/simple-data-analysis-core/helpers";
 
 /**
  * Options for generating an embedding column.
@@ -107,78 +110,81 @@ export async function generateEmbeddingColumn(
   newColumn: string,
   options: AIEmbeddingsOptions = {},
 ): Promise<void> {
-  const replacing = await simpleTable.hasColumn(newColumn);
-  // Core preserves existing SQL types during JS updates. Generate into a new
-  // column so a refreshed model can return a different vector dimension.
-  const targetColumn = replacing
-    ? `__sda_embeddings_${crypto.randomUUID().replaceAll("-", "")}`
-    : newColumn;
-  await simpleTable.updateWithJS(async (rows) => {
-    const [{ formatNumber }, { default: sleep }, { default: tryEmbedding }] =
-      await Promise.all([
-        import("@nshiab/journalism-format"),
-        import("../helpers/sleep.ts"),
-        import("../helpers/tryEmbedding.ts"),
-      ]);
-    if (options.verbose) {
-      console.log("\naiEmbeddings()");
-    }
-
-    const concurrency = options.concurrency ?? 1;
-
-    let requests = [];
-    for (let i = 0; i < rows.length; i++) {
-      if (options.verbose) {
-        console.log(
-          `Processing row ${i + 1} of ${rows.length}... (${
-            formatNumber(
-              (i + 1) / rows.length * 100,
-              {
-                significantDigits: 3,
-                suffix: "%",
-              },
-            )
-          })`,
-        );
-      }
-
-      if (requests.length < concurrency) {
-        const text = rows[i][column];
-        if (typeof text !== "string") {
-          throw new Error(
-            `The column "${column}" must be a string. Found ${text} instead.`,
-          );
-        }
-        requests.push(
-          tryEmbedding(i, rows, text, targetColumn, options),
-        );
-      }
-
-      if (requests.length === concurrency || i + 1 >= rows.length) {
-        const start = new Date();
-        await Promise.all(requests);
-        const end = new Date();
-
-        const duration = end.getTime() - start.getTime();
-        // If duration is less than 10ms per request, it should means data comes from cache and we don't need to wait
-        if (
-          typeof options.rateLimitPerMinute === "number" &&
-          duration > 10 * requests.length && i + 1 < rows.length
-        ) {
-          const delay = Math.round(
-            (60 / (options.rateLimitPerMinute / concurrency)) * 1000,
-          );
-          await sleep(delay, { start, log: options.verbose });
-        }
-
-        requests = [];
-      }
-    }
-
-    return rows;
-  });
-  if (replacing && await simpleTable.hasColumn(targetColumn)) {
-    await simpleTable.removeColumns(newColumn)
-      .renameColumns({ [targetColumn]: newColumn }).run();
+  const concurrency = options.concurrency ?? 1;
+  if (!Number.isSafeInteger(concurrency) || concurrency < 1) {
+    throw new Error("concurrency must be a positive safe integer.");
   }
+  const total = await simpleTable.getRowCount();
+  let processed = 0;
+  if (options.verbose) console.log("\naiEmbeddings()");
+  await updateColumnsWithJS(
+    simpleTable,
+    [column],
+    [newColumn],
+    async (rows) => {
+      const [{ formatNumber }, { default: sleep }, { default: tryEmbedding }] =
+        await Promise.all([
+          import("@nshiab/journalism-format"),
+          import("../helpers/sleep.ts"),
+          import("../helpers/tryEmbedding.ts"),
+        ]);
+      let requests = [];
+      for (let i = 0; i < rows.length; i++) {
+        if (options.verbose) {
+          console.log(
+            `Processing row ${processed + i + 1} of ${total}... (${
+              formatNumber(
+                (processed + i + 1) / total * 100,
+                {
+                  significantDigits: 3,
+                  suffix: "%",
+                },
+              )
+            })`,
+          );
+        }
+
+        if (requests.length < concurrency) {
+          const text = rows[i][column];
+          if (typeof text !== "string") {
+            throw new Error(
+              `The column "${column}" must be a string. Found ${text} instead.`,
+            );
+          }
+          requests.push(
+            tryEmbedding(i, rows, text, newColumn, options),
+          );
+        }
+
+        if (requests.length === concurrency || i + 1 >= rows.length) {
+          const start = new Date();
+          await Promise.all(requests);
+          const end = new Date();
+
+          const duration = end.getTime() - start.getTime();
+          // If duration is less than 10ms per request, it should means data comes from cache and we don't need to wait
+          if (
+            typeof options.rateLimitPerMinute === "number" &&
+            duration > 10 * requests.length && processed + i + 1 < total
+          ) {
+            const delay = Math.round(
+              (60 / (options.rateLimitPerMinute / concurrency)) * 1000,
+            );
+            await sleep(delay, { start, log: options.verbose });
+          }
+
+          requests = [];
+        }
+      }
+
+      processed += rows.length;
+      return rows;
+    },
+    {
+      batchSize: Math.max(
+        concurrency,
+        Math.floor(1000 / concurrency) * concurrency,
+      ),
+    },
+  );
 }

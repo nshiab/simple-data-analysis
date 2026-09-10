@@ -1,3 +1,4 @@
+import createAIEnrichmentFixture from "../helpers/createAIEnrichmentFixture.ts";
 import { assert, assertEquals, assertRejects } from "@std/assert";
 import { existsSync, rmSync } from "node:fs";
 import { Ollama } from "ollama";
@@ -515,3 +516,104 @@ Deno.test("aiRowByRow preserves geometry columns", async () => {
     await sdb.close();
   }
 });
+
+Deno.test("aiRowByRow preserves SQL values and queued order across transfer batches", async () => {
+  const { sdb, table, assertPreserved } = await createAIEnrichmentFixture();
+  const sizes: number[] = [];
+  const starts: number[] = [];
+  const logs: string[] = [];
+  const originalLog = console.log;
+  console.log = (message: string) => logs.push(message);
+  const client = createOllamaClient((prompt) => {
+    const values = extractValues(prompt);
+    sizes.push(values.length);
+    starts.push(performance.now());
+    return ollamaResponse(
+      values.map((text) => ({ label: text })),
+    );
+  });
+  try {
+    const queued = table.replace("text", { "row-0": "changed" })
+      .aiRowByRow("text", "label", "Copy the text.", {
+        generation: {
+          provider: "ollama",
+          model: "lossless-test",
+          ollama: client,
+          cache: false,
+        },
+        clean: (response) =>
+          (response as { label: string }[]).map((row) => ({
+            ...row,
+            extra: "must not be stored",
+          })),
+        batchSize: 300,
+        concurrency: 2,
+        errorColumn: "error",
+        rateLimitPerMinute: 1200,
+        logProgress: true,
+      })
+      .replace("text", { changed: "row-0" });
+    assertEquals(sizes, []);
+    await queued.run();
+    assertEquals(sizes, [300, 300, 300, 103]);
+    assertEquals(
+      logs,
+      [1, 2, 3, 4].map((n) => `Processed ${n} of 4 requests.`),
+    );
+    for (let i = 1; i < starts.length; i++) {
+      assert(starts[i] - starts[i - 1] >= 40);
+    }
+    await assertPreserved(["label", "error"]);
+    assertEquals(
+      await sdb.customQuery(
+        `SELECT count(*) AS valid FROM enriched
+      WHERE label = CASE WHEN i = 0 THEN 'changed' ELSE text END AND error IS NULL`,
+        { returnData: true },
+      ),
+      [{ valid: 1003 }],
+    );
+  } finally {
+    console.log = originalLog;
+    await sdb.close();
+  }
+});
+
+for (const failure of ["generation", "staging"]) {
+  Deno.test(`aiRowByRow preserves original data after late ${failure} failure`, async () => {
+    const { sdb, table, assertPreserved } = await createAIEnrichmentFixture();
+    let requests = 0;
+    const client = createOllamaClient((prompt) => {
+      requests++;
+      if (requests > 2 && failure === "generation") {
+        throw new Error("late provider failure");
+      }
+      return ollamaResponse(
+        extractValues(prompt).map(() => ({ text: "generated" })),
+      );
+    });
+    try {
+      await assertRejects(
+        () =>
+          table.aiRowByRow("text", "text", "Replace the text.", {
+            generation: {
+              provider: "ollama",
+              model: "lossless-test",
+              ollama: client,
+              cache: false,
+            },
+            batchSize: 500,
+            clean: (response) =>
+              requests > 2 && failure === "staging"
+                ? (response as unknown[]).map(() => ({ text: 42 }))
+                : response,
+          }).run(),
+        Error,
+        failure === "generation" ? "late provider failure" : "changed type",
+      );
+      assertEquals(requests, 3);
+      await assertPreserved();
+    } finally {
+      await sdb.close();
+    }
+  });
+}
