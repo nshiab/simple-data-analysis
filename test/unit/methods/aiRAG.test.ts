@@ -2,7 +2,7 @@ import { assertEquals } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, mkdirSync, rmSync } from "node:fs";
 import createEnvironmentTest from "../helpers/createEnvironmentTest.ts";
-import { Ollama } from "ollama";
+import { type ChatRequest, Ollama } from "ollama";
 import { FakeOllamaEmbeddingClient } from "../helpers/fakeEmbeddingClients.ts";
 import {
   geminiEmbeddingOptions,
@@ -35,6 +35,103 @@ const mixedProviderTest = createEnvironmentTest({
   AI_EMBEDDINGS_PROVIDER: "ollama",
   AI_MODEL: "gemini-3-flash-preview",
 });
+
+for (const mode of ["bm25", "vector", "fused"] as const) {
+  for (const withScores of [false, true]) {
+    Deno.test(`aiRAG sends documents in ${mode} relevance order (scores=${withScores})`, async () => {
+      const sdb = new SimpleDB();
+      try {
+        const table = sdb.newTable("rag_ranking");
+        const lowText = "zebra " + "unrelated ".repeat(100);
+        await table.loadArray([
+          { id: "low", text: lowText },
+          { id: "high", text: "zebra" },
+          { id: "vector", text: "semantic match" },
+          ...Array.from({ length: 8 }, (_, i) => ({
+            id: `noise${i}`,
+            text: "other topic",
+          })),
+        ]).run();
+
+        const prompts: string[] = [];
+        const generationClient = new Ollama({
+          host: "http://unused.local:11434",
+        });
+        Object.defineProperty(generationClient, "chat", {
+          value: (request: ChatRequest) => {
+            prompts.push(
+              ...(request.messages ?? [])
+                .filter((message) => message.role === "user")
+                .map((message) => message.content),
+            );
+            return Promise.resolve({
+              message: { role: "assistant", content: "grounded answer" },
+              prompt_eval_count: 1,
+              eval_count: 1,
+            });
+          },
+        });
+
+        const response = await table.aiRAG("zebra", "id", "text", 3, {
+          vectorSearch: mode !== "bm25",
+          bm25: mode !== "vector",
+          vectorMinSimilarity: 0.5,
+          embeddings: {
+            provider: "ollama",
+            model: "ranking-test",
+            cache: false,
+            ollama: {
+              embeddingEndpoint: "http://ranking.local:11434",
+              embed({ input }: { input: string }) {
+                const vector = input === "zebra"
+                  ? [1, 0]
+                  : input === "semantic match"
+                  ? [0.9, 0.1]
+                  : input === lowText
+                  ? [0.8, 0.2]
+                  : [0, 1];
+                return Promise.resolve({ embeddings: [vector] });
+              },
+            },
+          },
+          generation: {
+            provider: "ollama",
+            model: "fake-generation",
+            ollama: generationClient,
+            cache: false,
+          },
+          ...(withScores
+            ? {
+              bm25ScoreColumn: "bm25_score",
+              vectorSimilarityColumn: "vector_score",
+            }
+            : {}),
+        });
+
+        assertEquals(response, "grounded answer");
+        assertEquals(prompts.length, 1);
+        // Inspect the actual generation request after retrieval, projection,
+        // and prompt assembly; source order differs from all three rankings.
+        const documents = [...prompts[0].matchAll(
+          /^id: (.+)\n\ntext:\n\n([^\n]*)/gm,
+        )].map((match) => ({ id: match[1], text: match[2] }));
+        const high = { id: "high", text: "zebra" };
+        const low = { id: "low", text: lowText };
+        const vector = { id: "vector", text: "semantic match" };
+        assertEquals(
+          documents,
+          mode === "bm25"
+            ? [high, low]
+            : mode === "vector"
+            ? [high, vector, low]
+            : [high, low, vector],
+        );
+      } finally {
+        await sdb.close();
+      }
+    });
+  }
+}
 
 Deno.test("aiRAG regenerates incompatible managed embeddings while preserving geometries", async () => {
   const sdb = new SimpleDB();

@@ -598,7 +598,7 @@ export default class SimpleTable extends SimpleTableCore {
    * 1. Ensures compatible embeddings exist for the text column
    * 2. Runs vector similarity search and BM25 text search in parallel
    * 3. Fuses the results using Reciprocal Rank Fusion to get the best matches
-   * 4. Returns a new table with the top results ordered by relevance
+   * 4. Returns the top results ordered by relevance, replacing the current table unless `outputTable` is specified
    *
    * When vector search is enabled, embedding responses are cached in `.journalism-cache`, and the table with its generated embedding column is cached in `.sda-cache`. Set `embeddings.cache` to `false` to disable both caches.
    *
