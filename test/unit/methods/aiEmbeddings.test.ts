@@ -1,3 +1,4 @@
+import createAIEnrichmentFixture from "../helpers/createAIEnrichmentFixture.ts";
 import { assertEquals, assertRejects } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import type SimpleTable from "../../../src/class/SimpleTable.ts";
@@ -826,4 +827,95 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
   });
 } else {
   console.log("AI_EMBEDDINGS_PROVIDER is not set to ollama");
+}
+
+Deno.test("aiEmbeddings preserves SQL values and independent vectors across transfer batches", async () => {
+  const { sdb, table, assertPreserved } = await createAIEnrichmentFixture();
+  try {
+    for (
+      const [column, dimensions] of [
+        ["first", 2],
+        ["second", 3],
+        ["first", 4],
+        ["second", 2],
+      ] as const
+    ) {
+      let requests = 0;
+      const client = {
+        embeddingEndpoint: "http://lossless.local:11434",
+        embed: (request: { input: string | string[] }) => {
+          requests++;
+          const id = Number(String(request.input).slice(4));
+          return Promise.resolve({
+            embeddings: [[id, ...Array<number>(dimensions - 1).fill(1)]],
+          });
+        },
+      };
+      await table.aiEmbeddings("text", column, {
+        embeddings: {
+          provider: "ollama",
+          model: "lossless-test",
+          ollama: client,
+          cache: false,
+        },
+        concurrency: 3,
+      }).run();
+      assertEquals(requests, 1003);
+      const outputs = column === "first" && dimensions === 2
+        ? ["first"]
+        : ["first", "second"];
+      await assertPreserved(outputs);
+      assertEquals((await table.getTypes())[column], `FLOAT[${dimensions}]`);
+      for (const output of outputs) {
+        assertEquals(
+          await sdb.customQuery(
+            `SELECT count(*) AS valid FROM enriched
+          WHERE ${output}[1] = i AND array_cosine_similarity(${output}, ${output}) > 0.999`,
+            { returnData: true },
+          ),
+          [{ valid: 1003 }],
+        );
+      }
+    }
+  } finally {
+    await sdb.close();
+  }
+});
+
+for (const failure of ["generation", "staging"]) {
+  Deno.test(`aiEmbeddings preserves original data after late ${failure} failure`, async () => {
+    const { sdb, table, assertPreserved } = await createAIEnrichmentFixture();
+    let requests = 0;
+    try {
+      const client = {
+        embeddingEndpoint: "http://failure.local:11434",
+        embed: () => {
+          requests++;
+          if (requests > 1000 && failure === "generation") {
+            throw new Error("late provider failure");
+          }
+          return Promise.resolve({
+            embeddings: [requests > 1000 ? [1, 2, 3] : [1, 2]],
+          });
+        },
+      };
+      await assertRejects(
+        () =>
+          table.aiEmbeddings("text", "existing_vector", {
+            embeddings: {
+              provider: "ollama",
+              model: "lossless-test",
+              ollama: client,
+              cache: false,
+            },
+          }).run(),
+        Error,
+        failure === "generation" ? "late provider failure" : "changed type",
+      );
+      assertEquals(requests > 1000, true);
+      await assertPreserved();
+    } finally {
+      await sdb.close();
+    }
+  });
 }

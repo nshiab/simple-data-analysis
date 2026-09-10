@@ -699,6 +699,12 @@ By default, a failed batch throws. Set `errorColumn` to store the error on every
 row in the failed batch, set its output columns to `NULL`, and continue
 processing other batches. Successful rows contain `NULL` in the error column.
 
+Only the input column and generated columns pass through JavaScript. Unrelated
+SQL values and types, including vectors and geometry, remain in DuckDB.
+Generated columns are staged in bounded batches and replace existing output
+columns with inferred types. Uncaught generation or staging failures leave the
+original table data unchanged.
+
 This method queues the AI processing; requests are sent when an async observer
 method (like `getData()` or `log()`) is awaited, or when `run()` is called.
 
@@ -867,6 +873,11 @@ using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is
 useful for speeding up the `aiVectorSimilarity` method. When refreshing an
 existing embedding column, its managed VSS index is dropped and rebuilt if
 `createIndex` is `true`.
+
+Only the input text and generated vectors pass through JavaScript. Unrelated SQL
+values and types remain in DuckDB. Vectors are staged in bounded batches before
+replacing the output column, including when dimensions change. Uncaught
+generation or staging failures leave the original table data unchanged.
 
 The work is queued and runs in chain order at the next awaited observer or
 `run()` call.
@@ -1065,7 +1076,8 @@ This method:
 1. Ensures compatible embeddings exist for the text column
 2. Runs vector similarity search and BM25 text search in parallel
 3. Fuses the results using Reciprocal Rank Fusion to get the best matches
-4. Returns a new table with the top results ordered by relevance
+4. Returns the top results ordered by relevance, replacing the current table
+   unless `outputTable` is specified
 
 When vector search is enabled, embedding responses are cached in
 `.journalism-cache`, and the table with its generated embedding column is cached

@@ -88,6 +88,8 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * By default, a failed batch throws. Set `errorColumn` to store the error on every row in the failed batch, set its output columns to `NULL`, and continue processing other batches. Successful rows contain `NULL` in the error column.
    *
+   * Only the input column and generated columns pass through JavaScript. Unrelated SQL values and types, including vectors and geometry, remain in DuckDB. Generated columns are staged in bounded batches and replace existing output columns with inferred types. Uncaught generation or staging failures leave the original table data unchanged.
+   *
    * This method queues the AI processing; requests are sent when an async observer method (like `getData()` or `log()`) is awaited, or when `run()` is called.
    *
    * @param column - The name of the column to be used as input for the AI prompt.
@@ -319,6 +321,8 @@ export default class SimpleTable extends SimpleTableCore {
    * Every call generates embeddings from the current text and replaces the output column if it already exists. Unchanged text can reuse cached embedding responses. Call this method again after changing the source text to refresh its embeddings.
    *
    * If `createIndex` is `true`, an HNSW index will be created on the new column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss). This is useful for speeding up the `aiVectorSimilarity` method. When refreshing an existing embedding column, its managed VSS index is dropped and rebuilt if `createIndex` is `true`.
+   *
+   * Only the input text and generated vectors pass through JavaScript. Unrelated SQL values and types remain in DuckDB. Vectors are staged in bounded batches before replacing the output column, including when dimensions change. Uncaught generation or staging failures leave the original table data unchanged.
    *
    * The work is queued and runs in chain order at the next awaited observer or `run()` call.
    *

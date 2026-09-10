@@ -1,3 +1,7 @@
+import {
+  queueAsyncBarrier,
+  updateColumnsWithJS,
+} from "@nshiab/simple-data-analysis-core/helpers";
 import type SimpleTable from "../class/SimpleTable.ts";
 import type {
   AIRequestMetrics,
@@ -60,24 +64,49 @@ export default function aiRowByRow(
   const newColumns = Array.isArray(newColumn) ? [...newColumn] : [newColumn];
   options = snapshotAIOptions(options);
 
-  table.updateWithJS(async (rows) => {
-    if (options.verbose) {
-      console.log("\naiRowByRow()");
-    }
+  queueAsyncBarrier(table, {
+    method: "aiRowByRow()",
+    parameters: { column, newColumn, prompt },
+    execute: () => runAIRowByRow(table, column, newColumns, prompt, options),
+  });
+}
 
-    const batchSize = options.batchSize ?? 1;
-    const concurrency = options.concurrency ?? 1;
-    if (!Number.isInteger(batchSize) || batchSize < 1) {
-      throw new Error("batchSize must be a positive integer.");
-    }
-    if (
-      options.rateLimitPerMinute !== undefined &&
-      (!Number.isFinite(options.rateLimitPerMinute) ||
-        options.rateLimitPerMinute <= 0)
-    ) {
-      throw new Error("rateLimitPerMinute must be greater than 0.");
-    }
+async function runAIRowByRow(
+  table: SimpleTable,
+  column: string,
+  newColumns: string[],
+  prompt: string,
+  options: AIRowByRowOptions,
+): Promise<void> {
+  if (options.verbose) {
+    console.log("\naiRowByRow()");
+  }
 
+  const batchSize = options.batchSize ?? 1;
+  const concurrency = options.concurrency ?? 1;
+  if (!Number.isSafeInteger(batchSize) || batchSize < 1) {
+    throw new Error("batchSize must be a positive integer.");
+  }
+  if (
+    options.rateLimitPerMinute !== undefined &&
+    (!Number.isFinite(options.rateLimitPerMinute) ||
+      options.rateLimitPerMinute <= 0)
+  ) {
+    throw new Error("rateLimitPerMinute must be greater than 0.");
+  }
+
+  if (!Number.isSafeInteger(concurrency) || concurrency < 1) {
+    throw new Error("concurrency must be a positive safe integer.");
+  }
+  const state = {
+    nextRequestStart: 0,
+    completed: 0,
+    total: Math.ceil(await table.getRowCount() / batchSize),
+  };
+  const outputColumns = options.errorColumn === undefined
+    ? newColumns
+    : [...newColumns, options.errorColumn];
+  await updateColumnsWithJS(table, [column], outputColumns, async (rows) => {
     const [
       { default: askAI },
       { default: buildAIRowsRequest },
@@ -138,6 +167,7 @@ export default function aiRowByRow(
           ? undefined
           : 60_000 / options.rateLimitPerMinute,
         logProgress: options.logProgress,
+        state,
       },
     );
 
@@ -154,7 +184,6 @@ export default function aiRowByRow(
       if (result !== undefined) {
         for (let j = 0; j < result.length; j++) {
           newRows.push({
-            ...batches[i][j],
             ...result[j],
             ...(options.errorColumn === undefined
               ? {}
@@ -171,9 +200,8 @@ export default function aiRowByRow(
       const emptyResult = Object.fromEntries(
         newColumns.map((name) => [name, null]),
       );
-      for (const row of batches[i]) {
+      for (let j = 0; j < batches[i].length; j++) {
         newRows.push({
-          ...row,
           ...emptyResult,
           [options.errorColumn as string]: errorMessage,
         });
@@ -181,5 +209,7 @@ export default function aiRowByRow(
     }
 
     return newRows;
+  }, {
+    batchSize: Math.max(batchSize, Math.floor(1000 / batchSize) * batchSize),
   });
 }
