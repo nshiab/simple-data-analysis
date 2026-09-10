@@ -61,19 +61,14 @@ async function runAIEmbeddings(
 ): Promise<void> {
   const { getEmbeddingIdentity } = await import("@nshiab/journalism-ai");
   const identity = getEmbeddingIdentity(options.embeddings);
-  const embeddingStatus = await ensureEmbeddingColumn(
+  await ensureEmbeddingColumn(
     simpleTable,
     column,
     newColumn,
     identity,
     () => generateEmbeddingColumn(simpleTable, column, newColumn, options),
+    { reuseExisting: false },
   );
-
-  if (options.verbose && embeddingStatus === "reused") {
-    console.log(
-      `${newColumn} in table ${simpleTable.name} has compatible provenance. Reusing embeddings...`,
-    );
-  }
 
   if (options.createIndex) {
     simpleTable.createVssIndex(newColumn, {
@@ -112,6 +107,12 @@ export async function generateEmbeddingColumn(
   newColumn: string,
   options: AIEmbeddingsOptions = {},
 ): Promise<void> {
+  const replacing = await simpleTable.hasColumn(newColumn);
+  // Core preserves existing SQL types during JS updates. Generate into a new
+  // column so a refreshed model can return a different vector dimension.
+  const targetColumn = replacing
+    ? `__sda_embeddings_${crypto.randomUUID().replaceAll("-", "")}`
+    : newColumn;
   await simpleTable.updateWithJS(async (rows) => {
     const [{ formatNumber }, { default: sleep }, { default: tryEmbedding }] =
       await Promise.all([
@@ -149,7 +150,7 @@ export async function generateEmbeddingColumn(
           );
         }
         requests.push(
-          tryEmbedding(i, rows, text, newColumn, options),
+          tryEmbedding(i, rows, text, targetColumn, options),
         );
       }
 
@@ -176,4 +177,8 @@ export async function generateEmbeddingColumn(
 
     return rows;
   });
+  if (replacing && await simpleTable.hasColumn(targetColumn)) {
+    await simpleTable.removeColumns(newColumn)
+      .renameColumns({ [targetColumn]: newColumn }).run();
+  }
 }

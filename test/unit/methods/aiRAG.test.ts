@@ -133,13 +133,21 @@ for (const mode of ["bm25", "vector", "fused"] as const) {
   }
 }
 
-Deno.test("aiRAG regenerates incompatible managed embeddings", async () => {
+Deno.test("aiRAG regenerates incompatible managed embeddings while preserving geometries", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable("rag_provenance");
   table.loadArray([
-    { id: "a", text: "alpha" },
-    { id: "b", text: "beta" },
-  ]);
+    {
+      id: "a",
+      text: "alpha",
+      geometry: { type: "Point", coordinates: [-73.5, 45.5] },
+    },
+    {
+      id: "b",
+      text: "beta",
+      geometry: { type: "Point", coordinates: [-73.5, 45.5] },
+    },
+  ], { columnTypes: { geometry: "GEOMETRY('EPSG:4326')" } });
   const firstClient = new FakeOllamaEmbeddingClient(
     "http://rag.local:11434",
     [1, 0],
@@ -185,6 +193,14 @@ Deno.test("aiRAG regenerates incompatible managed embeddings", async () => {
 
   assertEquals(changedClient.requests, 3);
   assertEquals(response, "grounded answer");
+  assertEquals((await table.getTypes()).geometry, "GEOMETRY('EPSG:4326')");
+  assertEquals(
+    await sdb.customQuery(
+      `SELECT ST_AsText(geometry) AS wkt FROM "${table.name}"`,
+      { returnData: true },
+    ),
+    [{ wkt: "POINT (-73.5 45.5)" }, { wkt: "POINT (-73.5 45.5)" }],
+  );
   await sdb.close();
 });
 

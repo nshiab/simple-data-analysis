@@ -71,7 +71,7 @@ Deno.test("aiEmbeddings verbose progress does not add blank lines", async () => 
   ]);
 });
 
-Deno.test("aiEmbeddings reuses only a compatible managed column", async () => {
+Deno.test("aiEmbeddings refreshes compatible columns and handles identity changes", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable("embedding_provenance");
   table.loadArray([
@@ -105,7 +105,8 @@ Deno.test("aiEmbeddings reuses only a compatible managed column", async () => {
       cache: false,
     },
   }).run();
-  assertEquals(compatibleClient.requests, 0);
+  assertEquals(compatibleClient.requests, 2);
+  assertEquals(await table.getValues("text_embeddings"), [[9, 9], [9, 9]]);
   assertEquals((await table.getTypes()).text_embeddings, "FLOAT[2]");
 
   const changedSemanticOptionsClient = new FakeOllamaEmbeddingClient(
@@ -156,13 +157,101 @@ Deno.test("aiEmbeddings reuses only a compatible managed column", async () => {
   await sdb.close();
 });
 
+for (const cache of [false, true]) {
+  Deno.test(`aiEmbeddings refreshes changed text with cache=${cache}`, async () => {
+    const directory = await Deno.makeTempDir();
+    const originalDirectory = Deno.cwd();
+    const sdb = new SimpleDB();
+    try {
+      Deno.chdir(directory);
+      const table = sdb.newTable("refresh_text");
+      const inputs: string[] = [];
+      const client = {
+        embeddingEndpoint: "http://refresh.local:11434",
+        embed: (request: { input: string | string[] }) => {
+          const text = String(request.input);
+          inputs.push(text);
+          return Promise.resolve({
+            embeddings: [text === "changed" ? [0, 1] : [1, 0]],
+          });
+        },
+      };
+      const options = {
+        embeddings: {
+          provider: "ollama" as const,
+          model: "refresh-model",
+          ollama: client,
+          cache,
+        },
+      };
+      await table.loadArray([{ text: "alpha" }, { text: "beta" }])
+        .aiEmbeddings("text", "vec", { ...options, createIndex: true }).run();
+      assertEquals(inputs, ["alpha", "beta"]);
+      await table.replace("text", { alpha: "changed" }).run();
+      inputs.length = 0;
+      await table.aiEmbeddings("text", "vec", options).run();
+      assertEquals(inputs, cache ? ["changed"] : ["changed", "beta"]);
+      assertEquals(await table.getValues("vec"), [[0, 1], [1, 0]]);
+      assertEquals(table.indexes.filter(({ kind }) => kind === "vss"), []);
+      inputs.length = 0;
+      await table.aiEmbeddings("text", "vec", { ...options, createIndex: true })
+        .run();
+      assertEquals(inputs, cache ? [] : ["changed", "beta"]);
+      assertEquals(
+        table.indexes.filter(({ kind }) => kind === "vss").length,
+        1,
+      );
+    } finally {
+      await sdb.close();
+      Deno.chdir(originalDirectory);
+      await Deno.remove(directory, { recursive: true });
+    }
+  });
+}
+
+Deno.test("aiEmbeddings preserves geometry columns when generating and refreshing", async () => {
+  const sdb = new SimpleDB();
+  try {
+    const table = sdb.newTable("geometry_embeddings");
+    const geometry = { type: "Point", coordinates: [-73.5, 45.5] };
+    await table.loadArray([{ text: "alpha", geometry }], {
+      columnTypes: { geometry: "GEOMETRY('EPSG:4326')" },
+    }).run();
+    const client = new FakeOllamaEmbeddingClient(
+      "http://geometry.local:11434",
+      [1, 0],
+    );
+    for (let i = 0; i < 2; i++) {
+      await table.aiEmbeddings("text", "vec", {
+        embeddings: {
+          provider: "ollama",
+          model: "geometry-model",
+          ollama: client,
+          cache: false,
+        },
+      }).run();
+      assertEquals((await table.getTypes()).geometry, "GEOMETRY('EPSG:4326')");
+      assertEquals(
+        await sdb.customQuery(
+          `SELECT ST_AsText(geometry) AS wkt FROM "${table.name}"`,
+          { returnData: true },
+        ),
+        [{ wkt: "POINT (-73.5 45.5)" }],
+      );
+    }
+    assertEquals(client.requests, 2);
+  } finally {
+    await sdb.close();
+  }
+});
+
 Deno.test("aiEmbeddings regenerates a legacy column without provenance", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable("legacy_embeddings");
   table.loadArray([
     { text: "alpha", text_embeddings: [9, 9] },
     { text: "beta", text_embeddings: [9, 9] },
-  ]);
+  ], { columnTypes: { text_embeddings: "FLOAT[2]" } });
 
   const client = new FakeOllamaEmbeddingClient(
     "http://legacy.local:11434",
@@ -181,7 +270,7 @@ Deno.test("aiEmbeddings regenerates a legacy column without provenance", async (
   await sdb.close();
 });
 
-Deno.test("embedding provenance survives reopening a DuckDB database", async () => {
+Deno.test("aiEmbeddings refreshes embeddings after reopening a DuckDB database", async () => {
   const directory = await Deno.makeTempDir();
   const databaseFile = `${directory}/embedding-provenance.db`;
   try {
@@ -217,7 +306,11 @@ Deno.test("embedding provenance survives reopening a DuckDB database", async () 
         cache: false,
       },
     }).run();
-    assertEquals(compatibleClient.requests, 0);
+    assertEquals(compatibleClient.requests, 2);
+    assertEquals(await reopenedTable.getValues("text_embeddings"), [[9, 9], [
+      9,
+      9,
+    ]]);
     await reopenedDb.close();
   } finally {
     await Deno.remove(directory, { recursive: true });

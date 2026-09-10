@@ -155,12 +155,12 @@ Deno.test("should write a map with multiple layers as a png", async () => {
   const provinces = sdb.newTable("provinces");
 
   provinces.loadGeoData(
-    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
+    "test/geodata/files/CanadianProvincesAndTerritories.json",
   );
 
   const fires = sdb.newTable("fires");
   fires.loadData(
-    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
+    "test/geodata/files/firesCanada2023.csv",
   );
   fires.createPoints("lat", "lon", "geom");
   fires.replace("cause", {

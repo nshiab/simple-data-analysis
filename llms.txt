@@ -4,7 +4,7 @@
 
 - Package: `@nshiab/simple-data-analysis`
 - Version: `6.0.3`
-- Includes: `@nshiab/simple-data-analysis-core@2.0.5`
+- Includes: `@nshiab/simple-data-analysis-core@2.0.6`
 
 Install with Deno: `deno add jsr:@nshiab/simple-data-analysis`
 
