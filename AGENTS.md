@@ -38,6 +38,12 @@
   implementation file at `src/methods/<methodName>.ts` and test file at
   `test/unit/methods/<methodName>.test.ts`. Shared internal logic may live in a
   separate module whose filename matches its exported function.
+- **Public Method Parameters:** For new public methods, place required inputs
+  first as positional parameters, followed by a single optional `options` object
+  defaulting to `{}` when options are needed. Keep optional configuration in
+  that object and required inputs in the preceding parameters. Match the
+  argument order of comparable existing methods. Apply this convention to
+  proposed signatures and documentation examples as well as implementations.
 - **Inline Public Types:** Define the complete type of every object-shaped
   public parameter inline in the public signature. Recursively inline nested
   object-shaped types, aliases, and interfaces within options. Public option
