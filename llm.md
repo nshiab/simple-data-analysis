@@ -1,8 +1,8 @@
 # The Simple Data Analysis Library
 
 - Package: `@nshiab/simple-data-analysis`
-- Version: `6.0.3`
-- Includes: `@nshiab/simple-data-analysis-core@2.0.6`
+- Version: `6.0.4`
+- Includes: `@nshiab/simple-data-analysis-core@2.0.7`
 
 To install the library with Deno, use:
 
@@ -5749,22 +5749,30 @@ await table.quantiles("sales", 4, "salesQuartile").log();
 
 #### `bins`
 
-Assigns bins for specified column values based on an interval size.
+Adds numeric start and end columns for bins of the specified interval size. Each
+bin includes its start and excludes its end: `start <= value < end`. A value
+exactly on an end boundary belongs to the next bin. Null source values produce
+null in both output columns.
 
 ##### Signature
 
 ```typescript
-bins(column: string, interval: number, newColumn: string, options?: { startValue?: number }): this;
+bins(column: string, interval: number, startColumn: string, endColumn: string, options?: { startValue?: number }): this;
 ```
 
 ##### Parameters
 
-- **`column`**: The column containing values from which bins will be computed.
-- **`interval`**: The interval size for binning the values.
-- **`newColumn`**: The name of the new column where the bins will be stored.
+- **`column`**: The numeric column containing values from which bins will be
+  computed.
+- **`interval`**: The finite, positive interval size for binning the values.
+- **`startColumn`**: The required name of the new numeric column containing
+  inclusive bin starts.
+- **`endColumn`**: The required name of the new numeric column containing
+  exclusive bin ends. Must differ from startColumn.
 - **`options`**: An optional object with configuration options:
-- **`options.startValue`**: The starting value for binning. Defaults to the
-  minimum value in the specified column.
+- **`options.startValue`**: The finite starting value for binning, no greater
+  than the minimum source value. Defaults to the minimum value in the specified
+  column.
 
 ##### Returns
 
@@ -5773,15 +5781,15 @@ The table, so methods can be chained.
 ##### Examples
 
 ```ts
-// Assigns a bin for each row in a new 'bins' column based on 'column1' values, with an interval of 10.
-// If the minimum value in 'column1' is 5, the bins will follow this pattern: "[5-14]", "[15-24]", etc.
-await table.bins("column1", 10, "bins").log();
+// If the minimum is 5, bins have boundaries 5 and 15, 15 and 25, etc.
+await table.bins("column1", 10, "binStart", "binEnd").log();
 ```
 
 ```ts
-// Assigns bins starting at a specific value (0) with an interval of 10.
-// The bins will follow this pattern: "[0-9]", "[10-19]", "[20-29]", etc.
-await table.bins("column1", 10, "bins", { startValue: 0 }).log();
+// Bins start at 0: a value of 10 has binStart 10 and binEnd 20.
+await table
+  .bins("column1", 10, "binStart", "binEnd", { startValue: 0 })
+  .log();
 ```
 
 #### `rowProportions`
@@ -9434,16 +9442,19 @@ await summary.log();
 
 #### `log`
 
-Logs a specified number of rows from the table to the console. By default, the
-first 10 rows are logged. You can optionally log the column types and filter the
-data based on conditions. SQL dates and timestamps retain their native precision
-for display, including temporal infinities. Lists and objects are stringified
-using the same nested representations as `getData()`, then truncated according
-to `charsToLog`. Unsafe top-level large integers throw, just as with
-`getData()`. Type annotations describe the SQL type and the JavaScript
-extraction type before display formatting; nulls do not determine the column's
-annotation. Colors reflect the SQL value's meaning, so exact decimal strings use
-numeric coloring. Column width is independent of the content truncation budget.
+Logs up to a specified number of rows from the table to the console. By default,
+the first 10 rows are logged. You can optionally log the column types and filter
+the data based on conditions. The footer reports the total number of matching
+rows and, only when some rows are omitted, the number actually shown (for
+example, `100 rows in total / showing 15 rows`). SQL dates and timestamps retain
+their native precision for display, including temporal infinities. Lists and
+objects are stringified using the same nested representations as `getData()`,
+then truncated according to `charsToLog`. Unsafe top-level large integers throw,
+just as with `getData()`. Type annotations describe the SQL type and the
+JavaScript extraction type before display formatting; nulls do not determine the
+column's annotation. Colors reflect the SQL value's meaning, so exact decimal
+strings use numeric coloring. Column width is independent of the content
+truncation budget.
 
 With the default `SimpleDB.expressionSyntax: "js"`, conditions support
 JavaScript-style operators (`&&`, `||`, `===`, `!==`). Set
@@ -9459,8 +9470,8 @@ async log(options?: "all" | number | { count?: number | "all"; types?: boolean; 
 
 - **`options`**: Either the number of rows to log (a specific number or `"all"`)
   or an object with configuration options:
-- **`options.count`**: The number of rows to log. Defaults to 10 or the value
-  set in the SimpleDB instance. Use `"all"` to log all rows.
+- **`options.count`**: The maximum number of rows to log. Defaults to 10 or the
+  value set in the SimpleDB instance. Use `"all"` to log all rows.
 - **`options.types`**: Whether to log the column types along with the data.
   Defaults to the value set in the SimpleDB instance.
 - **`options.conditions`**: A SQL `WHERE` clause condition to filter the data
