@@ -1,8 +1,8 @@
 # The Simple Data Analysis Library
 
 - Package: `@nshiab/simple-data-analysis`
-- Version: `6.0.5`
-- Includes: `@nshiab/simple-data-analysis-core@2.0.8`
+- Version: `6.0.6`
+- Includes: `@nshiab/simple-data-analysis-core@2.0.9`
 
 To install the library with Deno, use:
 
@@ -3105,6 +3105,85 @@ await table.createVssIndex("embedding_column", {
   efSearch: 128,
   M: 32,
 }).log();
+```
+
+#### `umap`
+
+Reduces numeric vectors, such as embeddings, to a two-dimensional UMAP
+projection. The resulting coordinates are added as `umapX` and `umapY`, while
+all existing columns (including the source vector column), their values and
+types, and the input row order are preserved. DuckDB computes neighbors and the
+fuzzy graph; TypeScript optimizes the coordinates without copying the input
+vectors into JavaScript. Neighbor search is selected automatically.
+
+The defaults are a starting point for exploration. To adjust the projection:
+
+- `neighbors` (default `15`): How many nearby points influence the layout.
+  Smaller values emphasize local detail but can fragment groups. Larger values
+  emphasize broader structure, can hide local detail, and generally require more
+  time and memory.
+- `metric` (default `"euclidean"`): How similarity is measured. Euclidean
+  compares distance, including differences in vector magnitude. Cosine compares
+  direction, ignoring magnitude. Choose according to what makes vectors similar
+  in your data; neither is universally better.
+- `epochs` (default `200`): How many passes refine the coordinates. Fewer passes
+  finish sooner but may leave the layout unfinished. More passes allow further
+  refinement and take longer, with diminishing returns.
+- `minDistance` (default `0.1`): How tightly points can group in the projection.
+  Smaller values allow tighter clumps; larger values spread points out. This
+  changes the layout's appearance, not an accuracy level or the number of
+  optimization passes.
+- `learningRate` (default `1`): The initial size of coordinate adjustments.
+  Smaller values make gentler adjustments and may need more epochs. Larger
+  values make bigger adjustments but can overshoot useful positions. This does
+  not change the number of passes.
+- `negativeSamples` (default `5`): How many random points are sampled for
+  repulsion per attractive update. Smaller values reduce work and repulsion;
+  larger values increase both, tending to separate unrelated points more
+  strongly. More samples do not guarantee a better projection.
+
+##### Signature
+
+```typescript
+umap(column: string, options?: { neighbors?: number; metric?: "euclidean" | "cosine"; epochs?: number; seed?: number; minDistance?: number; learningRate?: number; negativeSamples?: number }): this;
+```
+
+##### Parameters
+
+- **`column`**: The column containing numeric vector embeddings.
+- **`options`**: Optional projection settings.
+- **`options.neighbors`**: Neighborhood size, including the point itself.
+  Integer of at least 2, clamped to row count minus one. Defaults to 15.
+- **`options.metric`**: Input distance metric: "euclidean" or "cosine". Defaults
+  to "euclidean".
+- **`options.epochs`**: Integer number of refinement passes, at least 1.
+  Defaults to 200.
+- **`options.seed`**: Integer used to initialize random choices. Defaults to 42.
+- **`options.minDistance`**: Grouping distance parameter between 0 and 1.
+  Defaults to 0.1.
+- **`options.learningRate`**: Finite, positive initial learning rate. Defaults
+  to 1.
+- **`options.negativeSamples`**: Integer number of samples used to separate
+  unrelated points, at least 1. Defaults to 5.
+
+##### Returns
+
+The table, so methods can be chained.
+
+##### Examples
+
+```ts
+await table.umap("embedding", {
+  metric: "cosine",
+  seed: 42,
+}).log();
+```
+
+```ts
+await table.umap("embedding", {
+  neighbors: 30,
+  minDistance: 0.25,
+}).selectColumns(["label", "umapX", "umapY"]).log();
 ```
 
 #### `bm25`
