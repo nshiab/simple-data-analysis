@@ -55,6 +55,13 @@ export default class SimpleDB extends SimpleDBCore<SimpleTable> {
   /**
    * Creates a new SimpleDB instance.
    *
+   * @example
+   * ```ts
+   * const sdb = new SimpleDB({ file: "./archive.duckdb", readOnly: true });
+   * const table = await sdb.getTable("employees");
+   * await table.log();
+   * await sdb.close();
+   * ```
    * @param options - Configuration options for the SimpleDB instance.
    * @param options.file - The path to a persistent DuckDB file, opened or created on first use. If not provided, an in-memory database is used.
    * @param options.overwrite - Whether to replace an existing DuckDB file on first use instead of opening it. Defaults to false.
@@ -71,13 +78,6 @@ export default class SimpleDB extends SimpleDBCore<SimpleTable> {
    * @param options.memoryLimit - The maximum amount of memory DuckDB is allowed to use (for example, `"4GB"`).
    * @param options.tempDir - The path to the directory used for temporary files.
    * @category Constructor
-   * @example
-   * ```ts
-   * const sdb = new SimpleDB({ file: "./archive.duckdb", readOnly: true });
-   * const table = await sdb.getTable("employees");
-   * await table.log();
-   * await sdb.close();
-   * ```
    */
   constructor(
     options: {

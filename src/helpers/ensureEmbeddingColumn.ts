@@ -117,14 +117,6 @@ async function writeMetadata(
  * space, regenerating legacy or incompatible vectors before recording their
  * provenance.
  *
- * @param table Table that owns the source and embedding columns.
- * @param sourceColumn Text column used to generate the vectors.
- * @param embeddingColumn SDA-managed vector column.
- * @param identity Canonical upstream embedding identity for the request.
- * @param generate Regenerates the managed column when reuse is unsafe.
- * @param options Controls whether compatible existing vectors may be reused.
- * @returns Whether the existing vectors were reused or regenerated.
- *
  * @example
  * ```ts
  * await ensureEmbeddingColumn(table, "text", "text_embeddings", identity, async () => {
@@ -132,6 +124,13 @@ async function writeMetadata(
  * });
  * ```
  *
+ * @param table Table that owns the source and embedding columns.
+ * @param sourceColumn Text column used to generate the vectors.
+ * @param embeddingColumn SDA-managed vector column.
+ * @param identity Canonical upstream embedding identity for the request.
+ * @param generate Regenerates the managed column when reuse is unsafe.
+ * @param options Controls whether compatible existing vectors may be reused.
+ * @returns Whether the existing vectors were reused or regenerated.
  * @internal
  */
 export default async function ensureEmbeddingColumn(

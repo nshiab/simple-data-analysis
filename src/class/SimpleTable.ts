@@ -30,7 +30,6 @@ import toGeoDatawrapper from "../methods/toGeoDatawrapper.ts";
  * See the [core SimpleTable reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable)
  * for inherited methods such as `loadData()`, `filter()`, and `log()`.
  *
- * @category Main
  * @example
  * ```ts
  * // Create a SimpleDB instance (in-memory by default)
@@ -61,6 +60,8 @@ import toGeoDatawrapper from "../methods/toGeoDatawrapper.ts";
  * // Close the database connection
  * await sdb.close();
  * ```
+ *
+ * @category Main
  */
 export default class SimpleTable extends SimpleTableCore {
   /**
@@ -91,26 +92,6 @@ export default class SimpleTable extends SimpleTableCore {
    * Only the input column and generated columns pass through JavaScript. Unrelated SQL values and types, including vectors and geometry, remain in DuckDB. Generated columns are staged in bounded batches and replace existing output columns with inferred types. Uncaught generation or staging failures leave the original table data unchanged.
    *
    * This method queues the AI processing; requests are sent when an async observer method (like `getData()` or `log()`) is awaited, or when `run()` is called.
-   *
-   * @param column - The name of the column to be used as input for the AI prompt.
-   * @param newColumn - The name of the new column (or an array of column names) where the AI's response will be stored.
-   * @param prompt - The input string to guide the AI's response.
-   * @param options - Configuration options for the AI request.
-   * @param options.batchSize - The number of rows to process in each batch. Defaults to `1`.
-   * @param options.concurrency - The number of concurrent requests to send. Defaults to `1`.
-   * @param options.errorColumn - The optional column where per-row error messages are stored. When omitted, a failed batch throws.
-   * @param options.logProgress - If `true`, logs request-pool progress. Defaults to `false`.
-   * @param options.generation - Optional Gemini or Ollama generation configuration.
-   * @param options.test - A function to validate the returned data. If it throws an error, the request will be retried (if `retry` is set). Defaults to `undefined`.
-   * @param options.retry - The number of times to retry the request in case of failure. Defaults to `0`.
-   * @param options.retryCheck - A function that receives an error and returns whether it should be retried. Defaults to `undefined`.
-   * @param options.rateLimitPerMinute - The maximum number of provider requests started per minute. Request starts are spaced across the worker pool; cached responses bypass the limit. Defaults to `undefined` (no limit).
-   * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
-   * @param options.clean - A function to transform the parsed response before validation and caching. Defaults to `undefined`.
-   * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
-   * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
-   * @returns The table, so methods can be chained.
-   * @category AI
    *
    * @example
    * ```ts
@@ -195,6 +176,26 @@ export default class SimpleTable extends SimpleTableCore {
    *   })
    *   .log();
    * ```
+   *
+   * @param column - The name of the column to be used as input for the AI prompt.
+   * @param newColumn - The name of the new column (or an array of column names) where the AI's response will be stored.
+   * @param prompt - The input string to guide the AI's response.
+   * @param options - Configuration options for the AI request.
+   * @param options.batchSize - The number of rows to process in each batch. Defaults to `1`.
+   * @param options.concurrency - The number of concurrent requests to send. Defaults to `1`.
+   * @param options.errorColumn - The optional column where per-row error messages are stored. When omitted, a failed batch throws.
+   * @param options.logProgress - If `true`, logs request-pool progress. Defaults to `false`.
+   * @param options.generation - Optional Gemini or Ollama generation configuration.
+   * @param options.test - A function to validate the returned data. If it throws an error, the request will be retried (if `retry` is set). Defaults to `undefined`.
+   * @param options.retry - The number of times to retry the request in case of failure. Defaults to `0`.
+   * @param options.retryCheck - A function that receives an error and returns whether it should be retried. Defaults to `undefined`.
+   * @param options.rateLimitPerMinute - The maximum number of provider requests started per minute. Request starts are spaced across the worker pool; cached responses bypass the limit. Defaults to `undefined` (no limit).
+   * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
+   * @param options.clean - A function to transform the parsed response before validation and caching. Defaults to `undefined`.
+   * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
+   * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
+   * @returns The table, so methods can be chained.
+   * @category AI
    */
   aiRowByRow(
     column: string,
@@ -326,21 +327,6 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * The work is queued and runs in chain order at the next awaited observer or `run()` call.
    *
-   * @param column - The name of the column to be used as input for generating embeddings.
-   * @param newColumn - The name of the new column where the generated embeddings will be stored.
-   * @param options - Configuration options for the AI request.
-   * @param options.createIndex - If `true`, an HNSW index will be created on the new column. Useful for speeding up the `aiVectorSimilarity` method. Defaults to `false`.
-   * @param options.overwriteIndex - If `true` and `createIndex` is `true`, drops and recreates the VSS index even if it already exists. Defaults to `false`.
-   * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
-   * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
-   * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
-   * @param options.concurrency - The number of concurrent requests to send. Defaults to `1`.
-   * @param options.embeddings - Optional Gemini or Ollama embedding configuration.
-   * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
-   * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
-   * @returns The table, so methods can be chained.
-   * @category AI
-   *
    * @example
    * ```ts
    * // Set these environment variables before running:
@@ -374,6 +360,21 @@ export default class SimpleTable extends SimpleTableCore {
    *   })
    *   .log();
    * ```
+   *
+   * @param column - The name of the column to be used as input for generating embeddings.
+   * @param newColumn - The name of the new column where the generated embeddings will be stored.
+   * @param options - Configuration options for the AI request.
+   * @param options.createIndex - If `true`, an HNSW index will be created on the new column. Useful for speeding up the `aiVectorSimilarity` method. Defaults to `false`.
+   * @param options.overwriteIndex - If `true` and `createIndex` is `true`, drops and recreates the VSS index even if it already exists. Defaults to `false`.
+   * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
+   * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
+   * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
+   * @param options.concurrency - The number of concurrent requests to send. Defaults to `1`.
+   * @param options.embeddings - Optional Gemini or Ollama embedding configuration.
+   * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
+   * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
+   * @returns The table, so methods can be chained.
+   * @category AI
    */
   aiEmbeddings(
     column: string,
@@ -462,23 +463,6 @@ export default class SimpleTable extends SimpleTableCore {
    * If `createIndex` is `true`, an HNSW index will be created on the embeddings column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss) to speed up processing. If the index already exists, it will not be recreated unless `overwriteIndex` is `true`.
    * The work is queued and runs in chain order at the next awaited observer or `run()` call.
    *
-   * @param text - The text for which to generate an embedding and find similar content.
-   * @param column - The name of the column containing the embeddings to be used for the similarity search.
-   * @param nbResults - The maximum number of most similar results to return.
-   * @param options - An optional object with configuration options:
-   * @param options.minSimilarity - A threshold between 0.0 and 1.0 to filter out results that are not similar enough. For example, 0.7 ensures only results with a 70% similarity or higher are returned. Defaults to `undefined` (no threshold).
-   * @param options.similarityColumn - If provided, a new column with this name will be added to the output table containing the calculated similarity score (from 0.0 to 1.0) for each row. Defaults to `undefined`.
-   * @param options.createIndex - If `true`, an HNSW index will be created on the embeddings column. Defaults to `false`.
-   * @param options.overwriteIndex - If `true` and `createIndex` is `true`, drops and recreates the VSS index even if it already exists. Defaults to `false`.
-   * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
-   * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
-   * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
-   * @param options.outputTable - The name of the output table where the results will be stored. If not provided, the current table will be modified. Defaults to `undefined`.
-   * @param options.embeddings - Optional Gemini or Ollama embedding configuration.
-   * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
-   * @returns The table that will contain the similarity results, so methods can be chained.
-   * @category AI
-   *
    * @example
    * ```ts
    * // Set these environment variables before running:
@@ -513,6 +497,23 @@ export default class SimpleTable extends SimpleTableCore {
    *   })
    *   .log();
    * ```
+   *
+   * @param text - The text for which to generate an embedding and find similar content.
+   * @param column - The name of the column containing the embeddings to be used for the similarity search.
+   * @param nbResults - The maximum number of most similar results to return.
+   * @param options - An optional object with configuration options:
+   * @param options.minSimilarity - A threshold between 0.0 and 1.0 to filter out results that are not similar enough. For example, 0.7 ensures only results with a 70% similarity or higher are returned. Defaults to `undefined` (no threshold).
+   * @param options.similarityColumn - If provided, a new column with this name will be added to the output table containing the calculated similarity score (from 0.0 to 1.0) for each row. Defaults to `undefined`.
+   * @param options.createIndex - If `true`, an HNSW index will be created on the embeddings column. Defaults to `false`.
+   * @param options.overwriteIndex - If `true` and `createIndex` is `true`, drops and recreates the VSS index even if it already exists. Defaults to `false`.
+   * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
+   * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
+   * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
+   * @param options.outputTable - The name of the output table where the results will be stored. If not provided, the current table will be modified. Defaults to `undefined`.
+   * @param options.embeddings - Optional Gemini or Ollama embedding configuration.
+   * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
+   * @returns The table that will contain the similarity results, so methods can be chained.
+   * @category AI
    */
   aiVectorSimilarity(
     text: string,
@@ -622,6 +623,33 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * The work is queued and runs in chain order at the next awaited observer or `run()` call.
    *
+   * @example
+   * ```ts
+   * // Set these environment variables before running:
+   * // AI_EMBEDDINGS_PROVIDER=gemini
+   * // AI_EMBEDDINGS_MODEL=gemini-embedding-001
+   * // AI_KEY=your-gemini-api-key
+   * // Load a dataset of recipes
+   * const sdb = new SimpleDB();
+   * const results = await sdb
+   *   .newTable("recipes")
+   *   .loadData("recipes.parquet")
+   *   .hybridSearch("buttery pastry for breakfast", "Dish", "Recipe", 10, {
+   *     verbose: true,
+   *   })
+   *   .log();
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Run hybrid search with local Ollama embeddings.
+   * const results = await table
+   *   .hybridSearch("buttery pastry", "Dish", "Recipe", 10, {
+   *     embeddings: { provider: "ollama", model: "nomic-embed-text" },
+   *   })
+   *   .log();
+   * ```
+   *
    * @param query - The search query text.
    * @param idColumn - The name of the column containing unique identifiers for each row.
    * @param textColumn - The name of the column containing the text content to search through.
@@ -652,33 +680,6 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.times - An optional object to track timing information. If provided, it will be updated with detailed timing breakdowns (embeddingStart, embeddingEnd, vectorSearchStart, vectorSearchEnd, bm25Start, bm25End). Useful when calling from aiRAG to get combined timing information.
    * @returns The table that will contain the search results, so methods can be chained.
    * @category AI
-   *
-   * @example
-   * ```ts
-   * // Set these environment variables before running:
-   * // AI_EMBEDDINGS_PROVIDER=gemini
-   * // AI_EMBEDDINGS_MODEL=gemini-embedding-001
-   * // AI_KEY=your-gemini-api-key
-   * // Load a dataset of recipes
-   * const sdb = new SimpleDB();
-   * const results = await sdb
-   *   .newTable("recipes")
-   *   .loadData("recipes.parquet")
-   *   .hybridSearch("buttery pastry for breakfast", "Dish", "Recipe", 10, {
-   *     verbose: true,
-   *   })
-   *   .log();
-   * ```
-   *
-   * @example
-   * ```ts
-   * // Run hybrid search with local Ollama embeddings.
-   * const results = await table
-   *   .hybridSearch("buttery pastry", "Dish", "Recipe", 10, {
-   *     embeddings: { provider: "ollama", model: "nomic-embed-text" },
-   *   })
-   *   .log();
-   * ```
    */
   hybridSearch(
     query: string,
@@ -831,38 +832,6 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * When BM25 search is enabled, its required full-text search index is created or reused automatically. When vector search is enabled, set `createIndex` to `true` to also create an HNSW index using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss).
    *
-   * @param query - The question or query to answer using the retrieved context.
-   * @param idColumn - The name of the column containing unique identifiers for each row.
-   * @param textColumn - The name of the column containing the text content to search through and use as context.
-   * @param nbResults - The number of most similar rows to retrieve and use as context for the AI.
-   * @param options - Configuration options for the RAG process.
-   * @param options.generation - Optional Gemini or Ollama generation configuration.
-   * @param options.embeddings - Optional Gemini or Ollama embedding configuration.
-   * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
-   * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.
-   * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
-   * @param options.embeddingsConcurrency - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
-   * @param options.createIndex - If `true`, creates an HNSW index when vector search is enabled. The BM25 FTS index is managed automatically whenever BM25 search is enabled. Defaults to `false`.
-   * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
-   * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
-   * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
-   * @param options.stemmer - The language stemmer to apply for BM25 word normalization. Supports multiple languages or "none" to disable stemming. Defaults to `'porter'`.
-   * @param options.stopwords - The table containing the stopwords to use for the BM25 FTS index. Supports multiple languages or "none" to disable stopwords. Defaults to "english".
-   * @param options.ignore - The regular expression of patterns to be ignored for the BM25 FTS index. Defaults to "(\\.|[^a-z])+".
-   * @param options.stripAccents - A boolean indicating whether to remove accents for the BM25 FTS index. Defaults to true.
-   * @param options.lower - A boolean indicating whether to convert all text to lowercase for the BM25 FTS index. Defaults to true.
-   * @param options.k - The BM25 k parameter controlling term frequency saturation. Defaults to `1.2`.
-   * @param options.b - The BM25 b parameter controlling document length normalization (0-1 range). Defaults to `0.75`.
-   * @param options.conjunctive - If `true`, all terms in the query string must be present in order for a document to be retrieved during the BM25 search. Defaults to `false`.
-   * @param options.bm25 - If `true`, includes BM25 text search in the hybrid search. Defaults to `true`.
-   * @param options.bm25MinScore - A threshold to filter BM25 results. Only rows with a BM25 score above this value will be included in the final results. Defaults to `undefined` (no threshold).
-   * @param options.bm25ScoreColumn - If provided, a new column with this name will be added to the output table containing the BM25 score for each row.
-   * @param options.vectorSearch - If `true`, includes vector similarity search in the hybrid search. Defaults to `true`.
-   * @param options.vectorMinSimilarity - A threshold between 0.0 and 1.0 to filter out vector search results that are not similar enough. For example, 0.7 ensures only results with a 70% similarity or higher are included in the final results. Defaults to `undefined` (no threshold).
-   * @param options.vectorSimilarityColumn - If provided, a new column with this name will be added to the output table containing the vector similarity score (from 0.0 to 1.0) for each row.
-   * @returns A promise that resolves to the AI's answer to the query based on the retrieved context.
-   * @category AI
-   *
    * @example
    * ```ts
    * // Set these environment variables before running:
@@ -903,6 +872,38 @@ export default class SimpleTable extends SimpleTableCore {
    *   },
    * );
    * ```
+   *
+   * @param query - The question or query to answer using the retrieved context.
+   * @param idColumn - The name of the column containing unique identifiers for each row.
+   * @param textColumn - The name of the column containing the text content to search through and use as context.
+   * @param nbResults - The number of most similar rows to retrieve and use as context for the AI.
+   * @param options - Configuration options for the RAG process.
+   * @param options.generation - Optional Gemini or Ollama generation configuration.
+   * @param options.embeddings - Optional Gemini or Ollama embedding configuration.
+   * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
+   * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.
+   * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
+   * @param options.embeddingsConcurrency - The number of concurrent requests to send to the embeddings service. Defaults to `1`.
+   * @param options.createIndex - If `true`, creates an HNSW index when vector search is enabled. The BM25 FTS index is managed automatically whenever BM25 search is enabled. Defaults to `false`.
+   * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
+   * @param options.efSearch - The number of candidate vertices to consider during search. Higher values result in more accurate searches but increase search time. Defaults to 64.
+   * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
+   * @param options.stemmer - The language stemmer to apply for BM25 word normalization. Supports multiple languages or "none" to disable stemming. Defaults to `'porter'`.
+   * @param options.stopwords - The table containing the stopwords to use for the BM25 FTS index. Supports multiple languages or "none" to disable stopwords. Defaults to "english".
+   * @param options.ignore - The regular expression of patterns to be ignored for the BM25 FTS index. Defaults to "(\\.|[^a-z])+".
+   * @param options.stripAccents - A boolean indicating whether to remove accents for the BM25 FTS index. Defaults to true.
+   * @param options.lower - A boolean indicating whether to convert all text to lowercase for the BM25 FTS index. Defaults to true.
+   * @param options.k - The BM25 k parameter controlling term frequency saturation. Defaults to `1.2`.
+   * @param options.b - The BM25 b parameter controlling document length normalization (0-1 range). Defaults to `0.75`.
+   * @param options.conjunctive - If `true`, all terms in the query string must be present in order for a document to be retrieved during the BM25 search. Defaults to `false`.
+   * @param options.bm25 - If `true`, includes BM25 text search in the hybrid search. Defaults to `true`.
+   * @param options.bm25MinScore - A threshold to filter BM25 results. Only rows with a BM25 score above this value will be included in the final results. Defaults to `undefined` (no threshold).
+   * @param options.bm25ScoreColumn - If provided, a new column with this name will be added to the output table containing the BM25 score for each row.
+   * @param options.vectorSearch - If `true`, includes vector similarity search in the hybrid search. Defaults to `true`.
+   * @param options.vectorMinSimilarity - A threshold between 0.0 and 1.0 to filter out vector search results that are not similar enough. For example, 0.7 ensures only results with a 70% similarity or higher are included in the final results. Defaults to `undefined` (no threshold).
+   * @param options.vectorSimilarityColumn - If provided, a new column with this name will be added to the output table containing the vector similarity score (from 0.0 to 1.0) for each row.
+   * @returns A promise that resolves to the AI's answer to the query based on the retrieved context.
+   * @category AI
    */
   async aiRAG(
     query: string,
@@ -1121,16 +1122,6 @@ export default class SimpleTable extends SimpleTableCore {
    * The generated query is cached locally in `.journalism-cache` by default. Set `generation.cache` to `false` to disable caching, and remember to add `.journalism-cache` to your `.gitignore`.
    * The work is queued and runs in chain order at the next awaited observer or `run()` call.
    *
-   * @param prompt - The input string to guide the AI in generating the SQL query.
-   * @param options - Configuration options for the AI request.
-   * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
-   * @param options.generation - Optional Gemini or Ollama generation configuration.
-   * @param options.outputTable - The name of a new table where the results will be stored. If not provided, the current table will be replaced with the query results.
-   * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
-   * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.
-   * @returns The table that will contain the query results, so methods can be chained.
-   * @category AI
-   *
    * @example
    * ```ts
    * // Set these environment variables before running:
@@ -1173,6 +1164,16 @@ export default class SimpleTable extends SimpleTableCore {
    *   })
    *   .log();
    * ```
+   *
+   * @param prompt - The input string to guide the AI in generating the SQL query.
+   * @param options - Configuration options for the AI request.
+   * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
+   * @param options.generation - Optional Gemini or Ollama generation configuration.
+   * @param options.outputTable - The name of a new table where the results will be stored. If not provided, the current table will be replaced with the query results.
+   * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
+   * @param options.includeThoughts - If `true`, includes the AI model's reasoning process in the logged output when using models that support extended thinking. Only relevant when used with thinking-capable models. Defaults to `false`.
+   * @returns The table that will contain the query results, so methods can be chained.
+   * @category AI
    */
   aiQuery(
     prompt: string,
@@ -1283,16 +1284,6 @@ export default class SimpleTable extends SimpleTableCore {
    * credentials from a specific JSON file, set `GOOGLE_APPLICATION_CREDENTIALS`
    * in your `.env` file to that file's path.
    *
-   * @param destination - The path and filename for the object within the bucket.
-   * @param options - Upload options.
-   * @param options.project - The Google Cloud project ID. Defaults to `BUCKET_PROJECT`.
-   * @param options.bucket - The Google Cloud Storage bucket name. Defaults to `BUCKET_NAME`.
-   * @param options.overwrite - If `true`, replaces an existing object. Cannot be combined with `skip`. Defaults to `false`.
-   * @param options.skip - If `true`, skips the upload when the object already exists. Cannot be combined with `overwrite`. Defaults to `false`.
-   * @param options.metadata - Metadata passed to `journalism-google` for the uploaded object.
-   * @returns The `gs://` URI of the uploaded object.
-   * @category Exporting Data
-   *
    * @example
    * ```ts
    * // Set BUCKET_PROJECT and BUCKET_NAME in .env, and configure Google Application Default Credentials.
@@ -1315,6 +1306,16 @@ export default class SimpleTable extends SimpleTableCore {
    *     bucket: "my-bucket",
    *   });
    * ```
+   *
+   * @param destination - The path and filename for the object within the bucket.
+   * @param options - Upload options.
+   * @param options.project - The Google Cloud project ID. Defaults to `BUCKET_PROJECT`.
+   * @param options.bucket - The Google Cloud Storage bucket name. Defaults to `BUCKET_NAME`.
+   * @param options.overwrite - If `true`, replaces an existing object. Cannot be combined with `skip`. Defaults to `false`.
+   * @param options.skip - If `true`, skips the upload when the object already exists. Cannot be combined with `overwrite`. Defaults to `false`.
+   * @param options.metadata - Metadata passed to `journalism-google` for the uploaded object.
+   * @returns The `gs://` URI of the uploaded object.
+   * @category Exporting Data
    */
   async toBucket(destination: string, options: {
     project?: string;
@@ -1342,13 +1343,6 @@ export default class SimpleTable extends SimpleTableCore {
    * The download and load are queued and run in chain order at the next awaited
    * observer or `run()` call.
    *
-   * @param source - The path and filename of the object within the bucket.
-   * @param options - Download options.
-   * @param options.project - The Google Cloud project ID. Defaults to `BUCKET_PROJECT`.
-   * @param options.bucket - The Google Cloud Storage bucket name. Defaults to `BUCKET_NAME`.
-   * @returns The table, so methods can be chained.
-   * @category Loading Data
-   *
    * @example
    * ```ts
    * // Set BUCKET_PROJECT and BUCKET_NAME in .env, and configure Google Application Default Credentials.
@@ -1369,6 +1363,13 @@ export default class SimpleTable extends SimpleTableCore {
    *   })
    *   .log();
    * ```
+   *
+   * @param source - The path and filename of the object within the bucket.
+   * @param options - Download options.
+   * @param options.project - The Google Cloud project ID. Defaults to `BUCKET_PROJECT`.
+   * @param options.bucket - The Google Cloud Storage bucket name. Defaults to `BUCKET_NAME`.
+   * @returns The table, so methods can be chained.
+   * @category Loading Data
    */
   loadBucket(source: string, options: {
     project?: string;
@@ -1387,20 +1388,6 @@ export default class SimpleTable extends SimpleTableCore {
    * By default, the selected tab is overwritten and values are written without Google Sheets interpretation.
    *
    * Environment variables are named configuration values supplied to the running process. For authentication, this method reads `GOOGLE_SERVICE_ACCOUNT_EMAIL` (for example, `"service-account@example.iam.gserviceaccount.com"`) with `GOOGLE_PRIVATE_KEY` (for example, `"-----BEGIN PRIVATE KEY-----\n..."`). Alternatively, set `GOOGLE_APPLICATION_CREDENTIALS` to a service-account JSON path (for example, `"./service-account.json"`). Values passed through `options.credentials` override these environment values. For detailed setup instructions, refer to the node-google-spreadsheet authentication guide: https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
-   *
-   * @param sheetUrl - A Google Sheets URL. It can point to a spreadsheet or a specific tab.
-   * @param options - An optional object with configuration options:
-   * @param options.mode - Whether to overwrite the tab or append rows. Defaults to `"overwrite"`.
-   * @param options.tabTitle - Selects a tab by title instead of using the URL's `gid`.
-   * @param options.create - If `true`, creates a missing tab selected by `tabTitle`. Defaults to `false`.
-   * @param options.prepend - Text to add above the header row in overwrite mode.
-   * @param options.lastUpdate - If `true`, adds a UTC timestamp. Pass a Canadian time zone to use it for the timestamp. Available only in overwrite mode.
-   * @param options.raw - If `true`, writes values without Google Sheets interpretation. Defaults to `true`.
-   * @param options.credentials - Optional Google service-account credentials.
-   * @param options.credentials.email - The Google service-account email.
-   * @param options.credentials.privateKey - The Google service-account private key.
-   * @returns A promise that resolves when the data has been written to the sheet.
-   * @category Exporting Data
    *
    * @example
    * ```ts
@@ -1457,6 +1444,20 @@ export default class SimpleTable extends SimpleTableCore {
    *   },
    * );
    * ```
+   *
+   * @param sheetUrl - A Google Sheets URL. It can point to a spreadsheet or a specific tab.
+   * @param options - An optional object with configuration options:
+   * @param options.mode - Whether to overwrite the tab or append rows. Defaults to `"overwrite"`.
+   * @param options.tabTitle - Selects a tab by title instead of using the URL's `gid`.
+   * @param options.create - If `true`, creates a missing tab selected by `tabTitle`. Defaults to `false`.
+   * @param options.prepend - Text to add above the header row in overwrite mode.
+   * @param options.lastUpdate - If `true`, adds a UTC timestamp. Pass a Canadian time zone to use it for the timestamp. Available only in overwrite mode.
+   * @param options.raw - If `true`, writes values without Google Sheets interpretation. Defaults to `true`.
+   * @param options.credentials - Optional Google service-account credentials.
+   * @param options.credentials.email - The Google service-account email.
+   * @param options.credentials.privateKey - The Google service-account private key.
+   * @returns A promise that resolves when the data has been written to the sheet.
+   * @category Exporting Data
    */
   async toSheet(sheetUrl: string, options: {
     mode?: "overwrite" | "append";
@@ -1493,14 +1494,6 @@ export default class SimpleTable extends SimpleTableCore {
    * Environment variables are named configuration values supplied to the running process. By default, this method reads `GOOGLE_SERVICE_ACCOUNT_EMAIL` (for example, `"service-account@example.iam.gserviceaccount.com"`) with `GOOGLE_PRIVATE_KEY` (for example, `"-----BEGIN PRIVATE KEY-----\n..."`). Alternatively, set `GOOGLE_APPLICATION_CREDENTIALS` to a service-account JSON path (for example, `"./service-account.json"`).
    * The download is queued and runs in chain order at the next awaited observer or `run()` call.
    *
-   * @param sheetUrl - The URL pointing to a specific Google Sheet (e.g., `"https://docs.google.com/spreadsheets/d/.../edit#gid=0"`).
-   * @param options - An optional object with configuration options:
-   * @param options.skip - The number of rows to skip from the top of the sheet before reading data. Useful when the sheet contains metadata or headers that should not be included in the data.
-   * @param options.apiEmailEnvVar - A custom environment-variable name from which to read the Google service-account email. Defaults to `"GOOGLE_SERVICE_ACCOUNT_EMAIL"`.
-   * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Google service-account private key. Defaults to `"GOOGLE_PRIVATE_KEY"`.
-   * @returns The table, so methods can be chained.
-   * @category Loading Data
-   *
    * @example
    * ```ts
    * // Set these environment variables before running:
@@ -1522,6 +1515,14 @@ export default class SimpleTable extends SimpleTableCore {
    *   })
    *   .log();
    * ```
+   *
+   * @param sheetUrl - The URL pointing to a specific Google Sheet (e.g., `"https://docs.google.com/spreadsheets/d/.../edit#gid=0"`).
+   * @param options - An optional object with configuration options:
+   * @param options.skip - The number of rows to skip from the top of the sheet before reading data. Useful when the sheet contains metadata or headers that should not be included in the data.
+   * @param options.apiEmailEnvVar - A custom environment-variable name from which to read the Google service-account email. Defaults to `"GOOGLE_SERVICE_ACCOUNT_EMAIL"`.
+   * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Google service-account private key. Defaults to `"GOOGLE_PRIVATE_KEY"`.
+   * @returns The table, so methods can be chained.
+   * @category Loading Data
    */
   loadSheet(sheetUrl: string, options: {
     skip?: number;
@@ -1538,14 +1539,6 @@ export default class SimpleTable extends SimpleTableCore {
    * Writes the table data as CSV to a Datawrapper chart or table.
    *
    * Environment variables are named configuration values supplied to the running process. By default, this method reads the API key from `DATAWRAPPER_KEY` (for example, `"your-datawrapper-api-key"`).
-   *
-   * @param chartId - The unique ID of the Datawrapper chart or table to update. This ID can be found in the Datawrapper URL or dashboard.
-   * @param options - An optional object with configuration options:
-   * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
-   * @param options.note - A string to update the chart's notes field with (e.g., a last-updated timestamp).
-   * @param options.republish - If `true`, republishes the chart after updating the data. Defaults to `false`.
-   * @returns A promise that resolves when the data has been sent to Datawrapper.
-   * @category Exporting Data
    *
    * @example
    * ```ts
@@ -1566,6 +1559,14 @@ export default class SimpleTable extends SimpleTableCore {
    *   republish: true,
    * });
    * ```
+   *
+   * @param chartId - The unique ID of the Datawrapper chart or table to update. This ID can be found in the Datawrapper URL or dashboard.
+   * @param options - An optional object with configuration options:
+   * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
+   * @param options.note - A string to update the chart's notes field with (e.g., a last-updated timestamp).
+   * @param options.republish - If `true`, republishes the chart after updating the data. Defaults to `false`.
+   * @returns A promise that resolves when the data has been sent to Datawrapper.
+   * @category Exporting Data
    */
   async toDatawrapper(
     chartId: string,
@@ -1584,12 +1585,6 @@ export default class SimpleTable extends SimpleTableCore {
    * Environment variables are named configuration values supplied to the running process. By default, this method reads the API key from `DATAWRAPPER_KEY` (for example, `"your-datawrapper-api-key"`).
    * The download is queued and runs in chain order at the next awaited observer or `run()` call.
    *
-   * @param chartId - The unique ID of the Datawrapper chart or table. This ID can be found in the Datawrapper URL or dashboard.
-   * @param options - An optional object with configuration options:
-   * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
-   * @returns The table, so methods can be chained.
-   * @category Loading Data
-   *
    * @example
    * ```ts
    * // Set DATAWRAPPER_KEY=your-datawrapper-api-key before running.
@@ -1599,6 +1594,12 @@ export default class SimpleTable extends SimpleTableCore {
    *   .loadDatawrapper("myChartId")
    *   .log();
    * ```
+   *
+   * @param chartId - The unique ID of the Datawrapper chart or table. This ID can be found in the Datawrapper URL or dashboard.
+   * @param options - An optional object with configuration options:
+   * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
+   * @returns The table, so methods can be chained.
+   * @category Loading Data
    */
   loadDatawrapper(
     chartId: string,
@@ -1614,15 +1615,6 @@ export default class SimpleTable extends SimpleTableCore {
    * Writes the table's geospatial data as GeoJSON to a Datawrapper map.
    *
    * Environment variables are named configuration values supplied to the running process. By default, this method reads the API key from `DATAWRAPPER_KEY` (for example, `"your-datawrapper-api-key"`).
-   *
-   * @param chartId - The unique ID of the Datawrapper map to update. This ID can be found in the Datawrapper URL or dashboard.
-   * @param options - An optional object with configuration options:
-   * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
-   * @param options.column - The name of the geometry column to use. If omitted, the method will automatically attempt to find a geometry column.
-   * @param options.note - A string to update the map's notes field with.
-   * @param options.republish - If `true`, republishes the map after updating the data. Defaults to `false`.
-   * @returns A promise that resolves when the data has been sent to Datawrapper.
-   * @category Exporting Data
    *
    * @example
    * ```ts
@@ -1643,6 +1635,15 @@ export default class SimpleTable extends SimpleTableCore {
    *   republish: true,
    * });
    * ```
+   *
+   * @param chartId - The unique ID of the Datawrapper map to update. This ID can be found in the Datawrapper URL or dashboard.
+   * @param options - An optional object with configuration options:
+   * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
+   * @param options.column - The name of the geometry column to use. If omitted, the method will automatically attempt to find a geometry column.
+   * @param options.note - A string to update the map's notes field with.
+   * @param options.republish - If `true`, republishes the map after updating the data. Defaults to `false`.
+   * @returns A promise that resolves when the data has been sent to Datawrapper.
+   * @category Exporting Data
    */
   async toGeoDatawrapper(
     chartId: string,
@@ -1664,12 +1665,6 @@ export default class SimpleTable extends SimpleTableCore {
    * The data is temporarily written to `.sda-cache/tmp/dataviz/<uuid>.geojson` and removed after loading. Remember to add `.sda-cache` to your `.gitignore`.
    * The download is queued and runs in chain order at the next awaited observer or `run()` call.
    *
-   * @param chartId - The unique ID of the Datawrapper map. This ID can be found in the Datawrapper URL or dashboard.
-   * @param options - An optional object with configuration options:
-   * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
-   * @returns The table, so methods can be chained.
-   * @category Loading Data
-   *
    * @example
    * ```ts
    * // Set DATAWRAPPER_KEY=your-datawrapper-api-key before running.
@@ -1679,6 +1674,12 @@ export default class SimpleTable extends SimpleTableCore {
    *   .loadGeoDatawrapper("myMapId")
    *   .log();
    * ```
+   *
+   * @param chartId - The unique ID of the Datawrapper map. This ID can be found in the Datawrapper URL or dashboard.
+   * @param options - An optional object with configuration options:
+   * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
+   * @returns The table, so methods can be chained.
+   * @category Loading Data
    */
   loadGeoDatawrapper(
     chartId: string,
@@ -1695,14 +1696,6 @@ export default class SimpleTable extends SimpleTableCore {
   /**
    * Creates an [Observable Plot](https://github.com/observablehq/plot) chart as an image file (.png or .svg) from the table data.
    * To create maps, use the `writeMap` method.
-   *
-   * @param chart - A function that takes data (as an array of objects) and returns an Observable Plot chart (an `SVGSVGElement` or `HTMLElement`).
-   * @param path - The path where the chart will be saved. The file extension must be `.png` or `.svg` (e.g., `"./output/chart.png"`).
-   * @param options - Optional object containing additional settings:
-   * @param options.style - A CSS string inserted into the generated SVG to customize the chart's appearance. Use this if the Plot `style` option is insufficient.
-   * @param options.dark - If `true`, switches the chart to dark mode. Defaults to `false`.
-   * @returns A promise that resolves when the chart image has been saved.
-   * @category Dataviz
    *
    * @example
    * ```ts
@@ -1725,6 +1718,14 @@ export default class SimpleTable extends SimpleTableCore {
    *   .loadArray(data)
    *   .writeChart(chartFunction, outputPath);
    * ```
+   *
+   * @param chart - A function that takes data (as an array of objects) and returns an Observable Plot chart (an `SVGSVGElement` or `HTMLElement`).
+   * @param path - The path where the chart will be saved. The file extension must be `.png` or `.svg` (e.g., `"./output/chart.png"`).
+   * @param options - Optional object containing additional settings:
+   * @param options.style - A CSS string inserted into the generated SVG to customize the chart's appearance. Use this if the Plot `style` option is insufficient.
+   * @param options.dark - If `true`, switches the chart to dark mode. Defaults to `false`.
+   * @returns A promise that resolves when the chart image has been saved.
+   * @category Dataviz
    */
   async writeChart(
     chart: (data: unknown[]) => SVGSVGElement | HTMLElement,
@@ -1745,16 +1746,6 @@ export default class SimpleTable extends SimpleTableCore {
   /**
    * Creates an [Observable Plot](https://github.com/observablehq/plot) map as an image file (.png or .svg) from the table's geospatial data.
    * To create charts from non-geospatial data, use the `writeChart` method.
-   *
-   * @param map - A function that takes geospatial data (in GeoJSON format) and returns an Observable Plot map (an `SVGSVGElement` or `HTMLElement`).
-   * @param path - The path where the map will be saved. The file extension must be `.png` or `.svg` (e.g., `"./output/map.png"`).
-   * @param options - An optional object with configuration options:
-   * @param options.column - The name of the column storing geometries. If there is only one geometry column, it will be used by default.
-   * @param options.rewind - If `true`, rewinds the coordinates of polygons to follow the spherical winding order (important for D3.js). Defaults to `true`.
-   * @param options.style - A CSS string inserted into the generated SVG to customize the map's appearance. Use this if the Plot `style` option is insufficient.
-   * @param options.dark - If `true`, switches the map to dark mode. Defaults to `false`.
-   * @returns A promise that resolves when the map image has been saved.
-   * @category Dataviz
    *
    * @example
    * ```ts
@@ -1780,6 +1771,16 @@ export default class SimpleTable extends SimpleTableCore {
    *   .loadGeoData("./CanadianProvincesAndTerritories.geojson")
    *   .writeMap(mapFunction, outputPath);
    * ```
+   *
+   * @param map - A function that takes geospatial data (in GeoJSON format) and returns an Observable Plot map (an `SVGSVGElement` or `HTMLElement`).
+   * @param path - The path where the map will be saved. The file extension must be `.png` or `.svg` (e.g., `"./output/map.png"`).
+   * @param options - An optional object with configuration options:
+   * @param options.column - The name of the column storing geometries. If there is only one geometry column, it will be used by default.
+   * @param options.rewind - If `true`, rewinds the coordinates of polygons to follow the spherical winding order (important for D3.js). Defaults to `true`.
+   * @param options.style - A CSS string inserted into the generated SVG to customize the map's appearance. Use this if the Plot `style` option is insufficient.
+   * @param options.dark - If `true`, switches the map to dark mode. Defaults to `false`.
+   * @returns A promise that resolves when the map image has been saved.
+   * @category Dataviz
    */
   async writeMap(
     map: (geoData: {
@@ -1817,19 +1818,6 @@ export default class SimpleTable extends SimpleTableCore {
    * - **Y-axis values**: Must be `number` values.
    * - All values must be non-null and defined.
    *
-   * @param x - The name of the column to be used for the x-axis. Values must be numbers or Date objects.
-   * @param y - The name of the column to be used for the y-axis. Values must be numbers.
-   * @param options - An optional object with configuration options:
-   * @param options.formatX - A function to format the x-axis values for display. It receives the raw x-value as input and should return a string. If the first data point's x value is a Date, it defaults to formatting the date as "YYYY-MM-DD".
-   * @param options.formatY - A function to format the y-axis values for display. It receives the raw y-value as input and should return a string.
-   * @param options.smallMultiples - The name of a column to create small multiples (also known as facets or trellis charts). Each unique value in this column will generate a separate chart.
-   * @param options.fixedScales - If `true`, all small multiples will share the same y-axis scale. Defaults to `false`.
-   * @param options.smallMultiplesPerRow - The number of small multiples to display per row.
-   * @param options.width - The width of the chart in characters.
-   * @param options.height - The height of the chart in characters.
-   * @returns A promise that resolves when the chart has been logged to the console.
-   * @category Dataviz
-   *
    * @example
    * // Basic line chart
    * ```typescript
@@ -1865,6 +1853,19 @@ export default class SimpleTable extends SimpleTableCore {
    *     smallMultiples: "category",
    *   })
    * ```
+   *
+   * @param x - The name of the column to be used for the x-axis. Values must be numbers or Date objects.
+   * @param y - The name of the column to be used for the y-axis. Values must be numbers.
+   * @param options - An optional object with configuration options:
+   * @param options.formatX - A function to format the x-axis values for display. It receives the raw x-value as input and should return a string. If the first data point's x value is a Date, it defaults to formatting the date as "YYYY-MM-DD".
+   * @param options.formatY - A function to format the y-axis values for display. It receives the raw y-value as input and should return a string.
+   * @param options.smallMultiples - The name of a column to create small multiples (also known as facets or trellis charts). Each unique value in this column will generate a separate chart.
+   * @param options.fixedScales - If `true`, all small multiples will share the same y-axis scale. Defaults to `false`.
+   * @param options.smallMultiplesPerRow - The number of small multiples to display per row.
+   * @param options.width - The width of the chart in characters.
+   * @param options.height - The height of the chart in characters.
+   * @returns A promise that resolves when the chart has been logged to the console.
+   * @category Dataviz
    */
   async logLineChart(
     x: string,
@@ -1902,19 +1903,6 @@ export default class SimpleTable extends SimpleTableCore {
    * - **Y-axis values**: Must be `number` values.
    * - All values must be non-null and defined.
    *
-   * @param x - The name of the column to be used for the x-axis. Values must be numbers or Date objects.
-   * @param y - The name of the column to be used for the y-axis. Values must be numbers.
-   * @param options - An optional object with configuration options:
-   * @param options.formatX - A function to format the x-axis values for display. It receives the raw x-value as input and should return a string. If the first data point's x value is a Date, it defaults to formatting the date as "YYYY-MM-DD".
-   * @param options.formatY - A function to format the y-axis values for display. It receives the raw y-value as input and should return a string.
-   * @param options.smallMultiples - The name of a column to create small multiples (also known as facets). Each unique value in this column will generate a separate chart.
-   * @param options.fixedScales - If `true`, all small multiples will share the same y-axis scale. Defaults to `false`.
-   * @param options.smallMultiplesPerRow - The number of small multiples to display per row.
-   * @param options.width - The width of the chart in characters.
-   * @param options.height - The height of the chart in characters.
-   * @returns A promise that resolves when the chart has been logged to the console.
-   * @category Dataviz
-   *
    * @example
    * // Basic dot chart
    * ```typescript
@@ -1950,6 +1938,19 @@ export default class SimpleTable extends SimpleTableCore {
    *     smallMultiples: "category",
    *   })
    * ```
+   *
+   * @param x - The name of the column to be used for the x-axis. Values must be numbers or Date objects.
+   * @param y - The name of the column to be used for the y-axis. Values must be numbers.
+   * @param options - An optional object with configuration options:
+   * @param options.formatX - A function to format the x-axis values for display. It receives the raw x-value as input and should return a string. If the first data point's x value is a Date, it defaults to formatting the date as "YYYY-MM-DD".
+   * @param options.formatY - A function to format the y-axis values for display. It receives the raw y-value as input and should return a string.
+   * @param options.smallMultiples - The name of a column to create small multiples (also known as facets). Each unique value in this column will generate a separate chart.
+   * @param options.fixedScales - If `true`, all small multiples will share the same y-axis scale. Defaults to `false`.
+   * @param options.smallMultiplesPerRow - The number of small multiples to display per row.
+   * @param options.width - The width of the chart in characters.
+   * @param options.height - The height of the chart in characters.
+   * @returns A promise that resolves when the chart has been logged to the console.
+   * @category Dataviz
    */
   async logDotChart(
     x: string,
@@ -1982,6 +1983,17 @@ export default class SimpleTable extends SimpleTableCore {
   /**
    * Generates and logs a bar chart to the console.
    *
+   * @example
+   * ```typescript
+   * const data = [
+   *     { category: "A", value: 10 },
+   *     { category: "B", value: 20 },
+   * ]
+   * await table
+   *   .loadArray(data)
+   *   .logBarChart("category", "value")
+   * ```
+   *
    * @param labels - The name of the column to be used for the labels (categories).
    * @param values - The name of the column to be used for the values.
    * @param options - An optional object with configuration options:
@@ -1994,17 +2006,6 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.width - The width of the chart in characters. Defaults to 40.
    * @returns A promise that resolves when the chart has been logged to the console.
    * @category Dataviz
-   *
-   * @example
-   * ```typescript
-   * const data = [
-   *     { category: "A", value: 10 },
-   *     { category: "B", value: 20 },
-   * ]
-   * await table
-   *   .loadArray(data)
-   *   .logBarChart("category", "value")
-   * ```
    */
   async logBarChart(
     labels: string,
@@ -2029,15 +2030,6 @@ export default class SimpleTable extends SimpleTableCore {
   /**
    * Generates and logs a histogram of a numeric column to the console.
    *
-   * @param values - The name of the numeric column for which to generate the histogram.
-   * @param options - An optional object with configuration options:
-   * @param options.bins - The number of bins (intervals) to use for the histogram. Defaults to 10.
-   * @param options.formatLabels - A function to format the labels for the histogram bins. It receives the lower and upper bounds of each bin as arguments.
-   * @param options.compact - If `true`, the histogram will be displayed in a more compact format. Defaults to `false`.
-   * @param options.width - The maximum width of the histogram bars in characters.
-   * @returns A promise that resolves when the histogram has been logged to the console.
-   * @category Dataviz
-   *
    * @example
    * // Basic histogram of the 'temperature' column
    * ```typescript
@@ -2052,6 +2044,15 @@ export default class SimpleTable extends SimpleTableCore {
    *   formatLabels: (min, max) => `${min}-${max} years`,
    * });
    * ```
+   *
+   * @param values - The name of the numeric column for which to generate the histogram.
+   * @param options - An optional object with configuration options:
+   * @param options.bins - The number of bins (intervals) to use for the histogram. Defaults to 10.
+   * @param options.formatLabels - A function to format the labels for the histogram bins. It receives the lower and upper bounds of each bin as arguments.
+   * @param options.compact - If `true`, the histogram will be displayed in a more compact format. Defaults to `false`.
+   * @param options.width - The maximum width of the histogram bars in characters.
+   * @returns A promise that resolves when the histogram has been logged to the console.
+   * @category Dataviz
    */
   async logHistogram(
     values: string,

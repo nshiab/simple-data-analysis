@@ -57,6 +57,11 @@
   JSDoc block.
   - Include a clear description.
   - Include at least one `@example`.
+  - For new JSDoc and when modifying existing blocks, order content as:
+    description and explanatory prose; all `@example` blocks; all `@param` tags;
+    then `@returns`, `@category`, and other reference metadata. All examples,
+    including optional configuration examples, must appear before every
+    parameter tag.
   - In examples that produce a table, chain table operations and finish the
     chain with `.log()`. If direct chaining is unavailable, finish the example
     with `await table.log()`.

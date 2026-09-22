@@ -89,12 +89,6 @@ async function runAIEmbeddings(
  * Generates every vector in an embedding column without managing provenance.
  * Callers must wrap this operation with `ensureEmbeddingColumn`.
  *
- * @param simpleTable Table containing the source rows.
- * @param column Text column to embed.
- * @param newColumn Column that receives the generated vectors.
- * @param options Embedding generation and concurrency options.
- * @returns A promise that resolves after every row has been embedded.
- *
  * @example
  * ```ts
  * await generateEmbeddingColumn(table, "text", "text_embeddings", {
@@ -102,6 +96,11 @@ async function runAIEmbeddings(
  * });
  * ```
  *
+ * @param simpleTable Table containing the source rows.
+ * @param column Text column to embed.
+ * @param newColumn Column that receives the generated vectors.
+ * @param options Embedding generation and concurrency options.
+ * @returns A promise that resolves after every row has been embedded.
  * @internal
  */
 export async function generateEmbeddingColumn(
