@@ -1,7 +1,11 @@
 import { SimpleTable as SimpleTableCore } from "@nshiab/simple-data-analysis-core";
 import type SimpleDB from "./SimpleDB.ts";
-import type { Data } from "@observablehq/plot";
-import { createDirectory } from "@nshiab/simple-data-analysis-core/helpers";
+import logBarChart from "../methods/logBarChart.ts";
+import logDotChart from "../methods/logDotChart.ts";
+import logLineChart from "../methods/logLineChart.ts";
+import writeMap from "../methods/writeMap.ts";
+import writeChart from "../methods/writeChart.ts";
+import toSheet from "../methods/toSheet.ts";
 import logHistogram from "../methods/logHistogram.ts";
 import aiRowByRow from "../methods/aiRowByRow.ts";
 import aiEmbeddings from "../methods/aiEmbeddings.ts";
@@ -1395,11 +1399,13 @@ export default class SimpleTable extends SimpleTableCore {
    * // GOOGLE_SERVICE_ACCOUNT_EMAIL=service-account@example.iam.gserviceaccount.com
    * // GOOGLE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\n...
    * // Load, transform, and write data to a Google Sheet
-   * await sdb
+   * const table = await sdb
    *   .newTable()
    *   .loadData("sales.csv")
    *   .selectColumns(["date", "revenue"])
    *   .toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+   *
+   * await table.log();
    * ```
    *
    * @example
@@ -1409,6 +1415,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   mode: "append",
    *   tabTitle: "Election results",
    * });
+   *
+   * await table.log();
    * ```
    *
    * @example
@@ -1420,6 +1428,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   prepend: "Preliminary results",
    *   lastUpdate: "Canada/Eastern",
    * });
+   *
+   * await table.log();
    * ```
    *
    * @example
@@ -1429,6 +1439,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   "https://docs.google.com/spreadsheets/d/.../edit#gid=0",
    *   { raw: false },
    * );
+   *
+   * await table.log();
    * ```
    *
    * @example
@@ -1443,6 +1455,8 @@ export default class SimpleTable extends SimpleTableCore {
    *     },
    *   },
    * );
+   *
+   * await table.log();
    * ```
    *
    * @param sheetUrl - A Google Sheets URL. It can point to a spreadsheet or a specific tab.
@@ -1456,7 +1470,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.credentials - Optional Google service-account credentials.
    * @param options.credentials.email - The Google service-account email.
    * @param options.credentials.privateKey - The Google service-account private key.
-   * @returns A promise that resolves when the data has been written to the sheet.
+   * @returns A promise that resolves to this table after the data has been written to the sheet.
    * @category Exporting Data
    */
   async toSheet(sheetUrl: string, options: {
@@ -1479,12 +1493,9 @@ export default class SimpleTable extends SimpleTableCore {
       email: string;
       privateKey: string;
     };
-  } = {}): Promise<void> {
-    const data = await this.getData() as Parameters<
-      typeof import("@nshiab/journalism-google").pushToSheet
-    >[0];
-    const { pushToSheet } = await import("@nshiab/journalism-google");
-    await pushToSheet(data, sheetUrl, options);
+  } = {}): Promise<this> {
+    await toSheet(this, sheetUrl, options);
+    return this;
   }
 
   /**
@@ -1544,11 +1555,13 @@ export default class SimpleTable extends SimpleTableCore {
    * ```ts
    * // Set DATAWRAPPER_KEY=your-datawrapper-api-key before running.
    * // Load, transform, and send data to a Datawrapper chart
-   * await sdb
+   * const table = await sdb
    *   .newTable()
    *   .loadData("sales.csv")
    *   .selectColumns(["date", "revenue"])
    *   .toDatawrapper("myChartId");
+   *
+   * await table.log();
    * ```
    *
    * @example
@@ -1558,6 +1571,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   note: `Last updated: ${new Date().toLocaleString()}`,
    *   republish: true,
    * });
+   *
+   * await table.log();
    * ```
    *
    * @param chartId - The unique ID of the Datawrapper chart or table to update. This ID can be found in the Datawrapper URL or dashboard.
@@ -1565,7 +1580,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
    * @param options.note - A string to update the chart's notes field with (e.g., a last-updated timestamp).
    * @param options.republish - If `true`, republishes the chart after updating the data. Defaults to `false`.
-   * @returns A promise that resolves when the data has been sent to Datawrapper.
+   * @returns A promise that resolves to this table after the data has been sent to Datawrapper.
    * @category Exporting Data
    */
   async toDatawrapper(
@@ -1575,8 +1590,9 @@ export default class SimpleTable extends SimpleTableCore {
       note?: string;
       republish?: boolean;
     } = {},
-  ): Promise<void> {
+  ): Promise<this> {
     await toDatawrapper(this, chartId, options);
+    return this;
   }
 
   /**
@@ -1620,11 +1636,13 @@ export default class SimpleTable extends SimpleTableCore {
    * ```ts
    * // Set DATAWRAPPER_KEY=your-datawrapper-api-key before running.
    * // Load, transform, and send geospatial data to a Datawrapper map
-   * await sdb
+   * const table = await sdb
    *   .newTable()
    *   .loadGeoData("regions.geojson")
    *   .selectColumns(["name", "population", "geometry"])
    *   .toGeoDatawrapper("myMapId");
+   *
+   * await table.log();
    * ```
    *
    * @example
@@ -1634,6 +1652,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   note: `Last updated: ${new Date().toLocaleString()}`,
    *   republish: true,
    * });
+   *
+   * await table.log();
    * ```
    *
    * @param chartId - The unique ID of the Datawrapper map to update. This ID can be found in the Datawrapper URL or dashboard.
@@ -1642,7 +1662,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.column - The name of the geometry column to use. If omitted, the method will automatically attempt to find a geometry column.
    * @param options.note - A string to update the map's notes field with.
    * @param options.republish - If `true`, republishes the map after updating the data. Defaults to `false`.
-   * @returns A promise that resolves when the data has been sent to Datawrapper.
+   * @returns A promise that resolves to this table after the data has been sent to Datawrapper.
    * @category Exporting Data
    */
   async toGeoDatawrapper(
@@ -1653,8 +1673,9 @@ export default class SimpleTable extends SimpleTableCore {
       note?: string;
       republish?: boolean;
     } = {},
-  ): Promise<void> {
+  ): Promise<this> {
     await toGeoDatawrapper(this, chartId, options);
+    return this;
   }
 
   /**
@@ -1713,10 +1734,12 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * const outputPath = "output/chart.png";
    *
-   * await sdb
+   * const table = await sdb
    *   .newTable()
    *   .loadArray(data)
    *   .writeChart(chartFunction, outputPath);
+   *
+   * await table.log();
    * ```
    *
    * @param chart - A function that takes data (as an array of objects) and returns an Observable Plot chart (an `SVGSVGElement` or `HTMLElement`).
@@ -1724,23 +1747,16 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options - Optional object containing additional settings:
    * @param options.style - A CSS string inserted into the generated SVG to customize the chart's appearance. Use this if the Plot `style` option is insufficient.
    * @param options.dark - If `true`, switches the chart to dark mode. Defaults to `false`.
-   * @returns A promise that resolves when the chart image has been saved.
+   * @returns A promise that resolves to this table after the chart image has been saved.
    * @category Dataviz
    */
   async writeChart(
     chart: (data: unknown[]) => SVGSVGElement | HTMLElement,
     path: string,
     options: { style?: string; dark?: boolean } = {},
-  ): Promise<void> {
-    createDirectory(path);
-    const data = await this.getData();
-    const { saveChart } = await import("@nshiab/journalism-dataviz");
-    await saveChart(
-      data,
-      chart as (data: Data) => SVGSVGElement | HTMLElement,
-      path,
-      options,
-    );
+  ): Promise<this> {
+    await writeChart(this, chart, path, options);
+    return this;
   }
 
   /**
@@ -1766,10 +1782,12 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * const outputPath = "./output/map.png";
    *
-   * await sdb
+   * const table = await sdb
    *   .newTable()
    *   .loadGeoData("./CanadianProvincesAndTerritories.geojson")
    *   .writeMap(mapFunction, outputPath);
+   *
+   * await table.log();
    * ```
    *
    * @param map - A function that takes geospatial data (in GeoJSON format) and returns an Observable Plot map (an `SVGSVGElement` or `HTMLElement`).
@@ -1779,7 +1797,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.rewind - If `true`, rewinds the coordinates of polygons to follow the spherical winding order (important for D3.js). Defaults to `true`.
    * @param options.style - A CSS string inserted into the generated SVG to customize the map's appearance. Use this if the Plot `style` option is insufficient.
    * @param options.dark - If `true`, switches the map to dark mode. Defaults to `false`.
-   * @returns A promise that resolves when the map image has been saved.
+   * @returns A promise that resolves to this table after the map image has been saved.
    * @category Dataviz
    */
   async writeMap(
@@ -1795,19 +1813,9 @@ export default class SimpleTable extends SimpleTableCore {
       style?: string;
       dark?: boolean;
     } = {},
-  ): Promise<void> {
-    createDirectory(path);
-    options.rewind = options.rewind ?? true;
-    const geoData = await this.getGeoData(options.column, {
-      rewind: options.rewind,
-    });
-    const { saveChart } = await import("@nshiab/journalism-dataviz");
-    await saveChart(
-      geoData as unknown as Data,
-      map as unknown as (data: Data) => SVGSVGElement | HTMLElement,
-      path,
-      options,
-    );
+  ): Promise<this> {
+    await writeMap(this, map, path, options);
+    return this;
   }
 
   /**
@@ -1831,6 +1839,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   .loadArray(data)
    *   .convert({ date: "string" }, { datetimeFormat: "%x" })
    *   .logLineChart("date", "value")
+   *
+   * await table.log();
    * ```
    *
    * @example
@@ -1852,6 +1862,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   .logLineChart("date", "value", {
    *     smallMultiples: "category",
    *   })
+   *
+   * await table.log();
    * ```
    *
    * @param x - The name of the column to be used for the x-axis. Values must be numbers or Date objects.
@@ -1864,7 +1876,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.smallMultiplesPerRow - The number of small multiples to display per row.
    * @param options.width - The width of the chart in characters.
    * @param options.height - The height of the chart in characters.
-   * @returns A promise that resolves when the chart has been logged to the console.
+   * @returns A promise that resolves to this table after the chart has been logged to the console.
    * @category Dataviz
    */
   async logLineChart(
@@ -1879,20 +1891,9 @@ export default class SimpleTable extends SimpleTableCore {
       width?: number;
       height?: number;
     } = {},
-  ): Promise<void> {
-    const data = await this.getData({
-      columns: Array.from(
-        new Set([
-          x,
-          y,
-          ...(typeof options.smallMultiples === "string"
-            ? [options.smallMultiples]
-            : []),
-        ]),
-      ),
-    });
-    const { logLineChart } = await import("@nshiab/journalism-dataviz");
-    logLineChart(data, x, y, options);
+  ): Promise<this> {
+    await logLineChart(this, x, y, options);
+    return this;
   }
 
   /**
@@ -1916,6 +1917,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   .loadArray(data)
    *   .convert({ date: "string" }, { datetimeFormat: "%x" })
    *   .logDotChart("date", "value")
+   *
+   * await table.log();
    * ```
    *
    * @example
@@ -1937,6 +1940,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   .logDotChart("date", "value", {
    *     smallMultiples: "category",
    *   })
+   *
+   * await table.log();
    * ```
    *
    * @param x - The name of the column to be used for the x-axis. Values must be numbers or Date objects.
@@ -1949,7 +1954,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.smallMultiplesPerRow - The number of small multiples to display per row.
    * @param options.width - The width of the chart in characters.
    * @param options.height - The height of the chart in characters.
-   * @returns A promise that resolves when the chart has been logged to the console.
+   * @returns A promise that resolves to this table after the chart has been logged to the console.
    * @category Dataviz
    */
   async logDotChart(
@@ -1964,20 +1969,9 @@ export default class SimpleTable extends SimpleTableCore {
       width?: number;
       height?: number;
     } = {},
-  ): Promise<void> {
-    const data = await this.getData({
-      columns: Array.from(
-        new Set([
-          x,
-          y,
-          ...(typeof options.smallMultiples === "string"
-            ? [options.smallMultiples]
-            : []),
-        ]),
-      ),
-    });
-    const { logDotChart } = await import("@nshiab/journalism-dataviz");
-    logDotChart(data, x, y, options);
+  ): Promise<this> {
+    await logDotChart(this, x, y, options);
+    return this;
   }
 
   /**
@@ -1992,6 +1986,8 @@ export default class SimpleTable extends SimpleTableCore {
    * await table
    *   .loadArray(data)
    *   .logBarChart("category", "value")
+   *
+   * await table.log();
    * ```
    *
    * @param labels - The name of the column to be used for the labels (categories).
@@ -2004,7 +2000,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.totalLabel - Allows customizing the label used for the total row. Defaults to "Total".
    * @param options.compact - Reduces vertical space in the logged output. Defaults to `false`.
    * @param options.width - The width of the chart in characters. Defaults to 40.
-   * @returns A promise that resolves when the chart has been logged to the console.
+   * @returns A promise that resolves to this table after the chart has been logged to the console.
    * @category Dataviz
    */
   async logBarChart(
@@ -2019,12 +2015,9 @@ export default class SimpleTable extends SimpleTableCore {
       compact?: boolean;
       width?: number;
     } = {},
-  ): Promise<void> {
-    const data = await this.getData({
-      columns: Array.from(new Set([labels, values])),
-    });
-    const { logBarChart } = await import("@nshiab/journalism-dataviz");
-    logBarChart(data, labels, values, options);
+  ): Promise<this> {
+    await logBarChart(this, labels, values, options);
+    return this;
   }
 
   /**
@@ -2034,6 +2027,8 @@ export default class SimpleTable extends SimpleTableCore {
    * // Basic histogram of the 'temperature' column
    * ```typescript
    * await table.logHistogram("temperature")
+   *
+   * await table.log();
    * ```
    *
    * @example
@@ -2043,6 +2038,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   bins: 20,
    *   formatLabels: (min, max) => `${min}-${max} years`,
    * });
+   *
+   * await table.log();
    * ```
    *
    * @param values - The name of the numeric column for which to generate the histogram.
@@ -2051,7 +2048,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.formatLabels - A function to format the labels for the histogram bins. It receives the lower and upper bounds of each bin as arguments.
    * @param options.compact - If `true`, the histogram will be displayed in a more compact format. Defaults to `false`.
    * @param options.width - The maximum width of the histogram bars in characters.
-   * @returns A promise that resolves when the histogram has been logged to the console.
+   * @returns A promise that resolves to this table after the histogram has been logged to the console.
    * @category Dataviz
    */
   async logHistogram(
@@ -2062,7 +2059,8 @@ export default class SimpleTable extends SimpleTableCore {
       compact?: boolean;
       width?: number;
     } = {},
-  ): Promise<void> {
+  ): Promise<this> {
     await logHistogram(this, values, options);
+    return this;
   }
 }

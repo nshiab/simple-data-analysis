@@ -1629,7 +1629,7 @@ https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
 ##### Signature
 
 ```typescript
-async toSheet(sheetUrl: string, options?: { mode?: "overwrite" | "append"; tabTitle?: string; create?: boolean; prepend?: string; lastUpdate?: boolean | "Canada/Atlantic" | "Canada/Central" | "Canada/Eastern" | "Canada/Mountain" | "Canada/Newfoundland" | "Canada/Pacific" | "Canada/Saskatchewan" | "Canada/Yukon"; raw?: boolean; credentials?: { email: string; privateKey: string } }): Promise<void>;
+async toSheet(sheetUrl: string, options?: { mode?: "overwrite" | "append"; tabTitle?: string; create?: boolean; prepend?: string; lastUpdate?: boolean | "Canada/Atlantic" | "Canada/Central" | "Canada/Eastern" | "Canada/Mountain" | "Canada/Newfoundland" | "Canada/Pacific" | "Canada/Saskatchewan" | "Canada/Yukon"; raw?: boolean; credentials?: { email: string; privateKey: string } }): Promise<this>;
 ```
 
 ##### Parameters
@@ -1654,7 +1654,8 @@ async toSheet(sheetUrl: string, options?: { mode?: "overwrite" | "append"; tabTi
 
 ##### Returns
 
-A promise that resolves when the data has been written to the sheet.
+A promise that resolves to this table after the data has been written to the
+sheet.
 
 ##### Examples
 
@@ -1663,11 +1664,13 @@ A promise that resolves when the data has been written to the sheet.
 // GOOGLE_SERVICE_ACCOUNT_EMAIL=service-account@example.iam.gserviceaccount.com
 // GOOGLE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\n...
 // Load, transform, and write data to a Google Sheet
-await sdb
+const table = await sdb
   .newTable()
   .loadData("sales.csv")
   .selectColumns(["date", "revenue"])
   .toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+
+await table.log();
 ```
 
 ```ts
@@ -1676,6 +1679,8 @@ await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit", {
   mode: "append",
   tabTitle: "Election results",
 });
+
+await table.log();
 ```
 
 ```ts
@@ -1686,6 +1691,8 @@ await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit", {
   prepend: "Preliminary results",
   lastUpdate: "Canada/Eastern",
 });
+
+await table.log();
 ```
 
 ```ts
@@ -1694,6 +1701,8 @@ await table.toSheet(
   "https://docs.google.com/spreadsheets/d/.../edit#gid=0",
   { raw: false },
 );
+
+await table.log();
 ```
 
 ```ts
@@ -1707,6 +1716,8 @@ await table.toSheet(
     },
   },
 );
+
+await table.log();
 ```
 
 #### `loadSheet`
@@ -1782,7 +1793,7 @@ example, `"your-datawrapper-api-key"`).
 ##### Signature
 
 ```typescript
-async toDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; note?: string; republish?: boolean }): Promise<void>;
+async toDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; note?: string; republish?: boolean }): Promise<this>;
 ```
 
 ##### Parameters
@@ -1799,18 +1810,21 @@ async toDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; note?: s
 
 ##### Returns
 
-A promise that resolves when the data has been sent to Datawrapper.
+A promise that resolves to this table after the data has been sent to
+Datawrapper.
 
 ##### Examples
 
 ```ts
 // Set DATAWRAPPER_KEY=your-datawrapper-api-key before running.
 // Load, transform, and send data to a Datawrapper chart
-await sdb
+const table = await sdb
   .newTable()
   .loadData("sales.csv")
   .selectColumns(["date", "revenue"])
   .toDatawrapper("myChartId");
+
+await table.log();
 ```
 
 ```ts
@@ -1819,6 +1833,8 @@ await table.toDatawrapper("myChartId", {
   note: `Last updated: ${new Date().toLocaleString()}`,
   republish: true,
 });
+
+await table.log();
 ```
 
 #### `loadDatawrapper`
@@ -1870,7 +1886,7 @@ example, `"your-datawrapper-api-key"`).
 ##### Signature
 
 ```typescript
-async toGeoDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; column?: string; note?: string; republish?: boolean }): Promise<void>;
+async toGeoDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; column?: string; note?: string; republish?: boolean }): Promise<this>;
 ```
 
 ##### Parameters
@@ -1888,18 +1904,21 @@ async toGeoDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; colum
 
 ##### Returns
 
-A promise that resolves when the data has been sent to Datawrapper.
+A promise that resolves to this table after the data has been sent to
+Datawrapper.
 
 ##### Examples
 
 ```ts
 // Set DATAWRAPPER_KEY=your-datawrapper-api-key before running.
 // Load, transform, and send geospatial data to a Datawrapper map
-await sdb
+const table = await sdb
   .newTable()
   .loadGeoData("regions.geojson")
   .selectColumns(["name", "population", "geometry"])
   .toGeoDatawrapper("myMapId");
+
+await table.log();
 ```
 
 ```ts
@@ -1908,6 +1927,8 @@ await table.toGeoDatawrapper("myMapId", {
   note: `Last updated: ${new Date().toLocaleString()}`,
   republish: true,
 });
+
+await table.log();
 ```
 
 #### `loadGeoDatawrapper`
@@ -1961,7 +1982,7 @@ image file (.png or .svg) from the table data. To create maps, use the
 ##### Signature
 
 ```typescript
-async writeChart(chart: (data: unknown[]) => SVGSVGElement | HTMLElement, path: string, options?: { style?: string; dark?: boolean }): Promise<void>;
+async writeChart(chart: (data: unknown[]) => SVGSVGElement | HTMLElement, path: string, options?: { style?: string; dark?: boolean }): Promise<this>;
 ```
 
 ##### Parameters
@@ -1978,7 +1999,7 @@ async writeChart(chart: (data: unknown[]) => SVGSVGElement | HTMLElement, path: 
 
 ##### Returns
 
-A promise that resolves when the chart image has been saved.
+A promise that resolves to this table after the chart image has been saved.
 
 ##### Examples
 
@@ -1997,10 +2018,12 @@ const chartFunction = (plotData: unknown[]) =>
 
 const outputPath = "output/chart.png";
 
-await sdb
+const table = await sdb
   .newTable()
   .loadArray(data)
   .writeChart(chartFunction, outputPath);
+
+await table.log();
 ```
 
 #### `writeMap`
@@ -2012,7 +2035,7 @@ from non-geospatial data, use the `writeChart` method.
 ##### Signature
 
 ```typescript
-async writeMap(map: (geoData: { features: { properties: Record<string, unknown> }[] }) => SVGSVGElement | HTMLElement, path: string, options?: { column?: string; rewind?: boolean; style?: string; dark?: boolean }): Promise<void>;
+async writeMap(map: (geoData: { features: { properties: Record<string, unknown> }[] }) => SVGSVGElement | HTMLElement, path: string, options?: { column?: string; rewind?: boolean; style?: string; dark?: boolean }): Promise<this>;
 ```
 
 ##### Parameters
@@ -2033,7 +2056,7 @@ async writeMap(map: (geoData: { features: { properties: Record<string, unknown> 
 
 ##### Returns
 
-A promise that resolves when the map image has been saved.
+A promise that resolves to this table after the map image has been saved.
 
 ##### Examples
 
@@ -2055,10 +2078,12 @@ const mapFunction = (geoJsonData: { features: unknown[] }) =>
 
 const outputPath = "./output/map.png";
 
-await sdb
+const table = await sdb
   .newTable()
   .loadGeoData("./CanadianProvincesAndTerritories.geojson")
   .writeMap(mapFunction, outputPath);
+
+await table.log();
 ```
 
 #### `logLineChart`
@@ -2075,7 +2100,7 @@ x-axis values for accurate representation.
 ##### Signature
 
 ```typescript
-async logLineChart(x: string, y: string, options?: { formatX?: (d: unknown) => string; formatY?: (d: number) => string; smallMultiples?: string; fixedScales?: boolean; smallMultiplesPerRow?: number; width?: number; height?: number }): Promise<void>;
+async logLineChart(x: string, y: string, options?: { formatX?: (d: unknown) => string; formatY?: (d: number) => string; smallMultiples?: string; fixedScales?: boolean; smallMultiplesPerRow?: number; width?: number; height?: number }): Promise<this>;
 ```
 
 ##### Parameters
@@ -2103,7 +2128,8 @@ async logLineChart(x: string, y: string, options?: { formatX?: (d: unknown) => s
 
 ##### Returns
 
-A promise that resolves when the chart has been logged to the console.
+A promise that resolves to this table after the chart has been logged to the
+console.
 
 ##### Examples
 
@@ -2120,6 +2146,8 @@ await table
   .loadArray(data)
   .convert({ date: "string" }, { datetimeFormat: "%x" })
   .logLineChart("date", "value");
+
+await table.log();
 ```
 
 // Line chart with small multiples
@@ -2141,6 +2169,8 @@ await table
   .logLineChart("date", "value", {
     smallMultiples: "category",
   });
+
+await table.log();
 ```
 
 #### `logDotChart`
@@ -2157,7 +2187,7 @@ x-axis values for accurate representation.
 ##### Signature
 
 ```typescript
-async logDotChart(x: string, y: string, options?: { formatX?: (d: unknown) => string; formatY?: (d: number) => string; smallMultiples?: string; fixedScales?: boolean; smallMultiplesPerRow?: number; width?: number; height?: number }): Promise<void>;
+async logDotChart(x: string, y: string, options?: { formatX?: (d: unknown) => string; formatY?: (d: number) => string; smallMultiples?: string; fixedScales?: boolean; smallMultiplesPerRow?: number; width?: number; height?: number }): Promise<this>;
 ```
 
 ##### Parameters
@@ -2185,7 +2215,8 @@ async logDotChart(x: string, y: string, options?: { formatX?: (d: unknown) => st
 
 ##### Returns
 
-A promise that resolves when the chart has been logged to the console.
+A promise that resolves to this table after the chart has been logged to the
+console.
 
 ##### Examples
 
@@ -2202,6 +2233,8 @@ await table
   .loadArray(data)
   .convert({ date: "string" }, { datetimeFormat: "%x" })
   .logDotChart("date", "value");
+
+await table.log();
 ```
 
 // Dot chart with small multiples
@@ -2223,6 +2256,8 @@ await table
   .logDotChart("date", "value", {
     smallMultiples: "category",
   });
+
+await table.log();
 ```
 
 #### `logBarChart`
@@ -2232,7 +2267,7 @@ Generates and logs a bar chart to the console.
 ##### Signature
 
 ```typescript
-async logBarChart(labels: string, values: string, options?: { formatLabels?: (d: unknown) => string; formatValues?: (d: number) => string; showPercentages?: boolean; showTotal?: boolean; totalLabel?: string; compact?: boolean; width?: number }): Promise<void>;
+async logBarChart(labels: string, values: string, options?: { formatLabels?: (d: unknown) => string; formatValues?: (d: number) => string; showPercentages?: boolean; showTotal?: boolean; totalLabel?: string; compact?: boolean; width?: number }): Promise<this>;
 ```
 
 ##### Parameters
@@ -2256,7 +2291,8 @@ async logBarChart(labels: string, values: string, options?: { formatLabels?: (d:
 
 ##### Returns
 
-A promise that resolves when the chart has been logged to the console.
+A promise that resolves to this table after the chart has been logged to the
+console.
 
 ##### Examples
 
@@ -2268,6 +2304,8 @@ const data = [
 await table
   .loadArray(data)
   .logBarChart("category", "value");
+
+await table.log();
 ```
 
 #### `logHistogram`
@@ -2277,7 +2315,7 @@ Generates and logs a histogram of a numeric column to the console.
 ##### Signature
 
 ```typescript
-async logHistogram(values: string, options?: { bins?: number; formatLabels?: (min: number, max: number) => string; compact?: boolean; width?: number }): Promise<void>;
+async logHistogram(values: string, options?: { bins?: number; formatLabels?: (min: number, max: number) => string; compact?: boolean; width?: number }): Promise<this>;
 ```
 
 ##### Parameters
@@ -2295,7 +2333,8 @@ async logHistogram(values: string, options?: { bins?: number; formatLabels?: (mi
 
 ##### Returns
 
-A promise that resolves when the histogram has been logged to the console.
+A promise that resolves to this table after the histogram has been logged to the
+console.
 
 ##### Examples
 
@@ -2303,6 +2342,8 @@ A promise that resolves when the histogram has been logged to the console.
 
 ```typescript
 await table.logHistogram("temperature");
+
+await table.log();
 ```
 
 // Histogram with 20 bins and custom label formatting
@@ -2312,6 +2353,8 @@ await table.logHistogram("age", {
   bins: 20,
   formatLabels: (min, max) => `${min}-${max} years`,
 });
+
+await table.log();
 ```
 
 #### `name`

@@ -51,6 +51,12 @@ export function publishChartDW(
   calls.push({ method: "publishChartDW", value: { chartId, options } });
   return Promise.resolve();
 }
-export function logBarChart() {}
-export function logDotChart() {}
-export function logLineChart() {}
+export function logBarChart(data: unknown) {
+  calls.push({ method: "logBarChart", value: data });
+}
+export function logDotChart(data: unknown) {
+  calls.push({ method: "logDotChart", value: data });
+}
+export function logLineChart(data: unknown) {
+  calls.push({ method: "logLineChart", value: data });
+}

@@ -1,4 +1,9 @@
-import { assertArrayIncludes, assertEquals, assertRejects } from "@std/assert";
+import {
+  assertArrayIncludes,
+  assertEquals,
+  assertRejects,
+  assertStrictEquals,
+} from "@std/assert";
 import { existsSync } from "node:fs";
 import { bucketObjects, calls, loaded } from "./state.ts";
 import { SimpleDB } from "../../../src/index.ts";
@@ -298,6 +303,41 @@ try {
         method: "pushToSheet",
         value: [{ value: 2 }],
       });
+      break;
+    }
+    case "observer-returns": {
+      const chart = () => ({} as HTMLElement);
+      table.loadArray([{ value: 1, lat: 45, lon: -73 }, {
+        value: 2,
+        lat: 46,
+        lon: -74,
+      }]);
+      const operations = [
+        () => table.writeChart(chart, `${Deno.args[1]}/chart.svg`),
+        () => table.toSheet("fixture"),
+        () => table.toDatawrapper("chart-id"),
+        () => table.logLineChart("value", "lat"),
+        () => table.logDotChart("value", "lat"),
+        () => table.logBarChart("value", "lat"),
+        () => table.logHistogram("value"),
+        () =>
+          table.createPoints("lat", "lon", "geometry").writeMap(
+            chart,
+            `${Deno.args[1]}/map.svg`,
+          ),
+        () => table.toGeoDatawrapper("map-id"),
+      ];
+      for (const operation of operations) {
+        const before = calls.length;
+        const pending = operation();
+        assertEquals(pending instanceof Promise, true);
+        assertStrictEquals(await pending, table);
+        assertEquals(
+          calls.length,
+          before + 1,
+          "The operation finishes before its promise resolves",
+        );
+      }
       break;
     }
     case "failure": {
