@@ -1,8 +1,8 @@
 # The Simple Data Analysis Library
 
 - Package: `@nshiab/simple-data-analysis`
-- Version: `6.0.6`
-- Includes: `@nshiab/simple-data-analysis-core@2.1.1`
+- Version: `6.0.7`
+- Includes: `@nshiab/simple-data-analysis-core@2.1.2`
 
 To install the library with Deno, use:
 
@@ -11374,6 +11374,9 @@ await table.writeGeoData("./output_high_precision.geojson", {
 
 Caches the results of computations in `./.sda-cache`. You should add
 `./.sda-cache` to your `.gitignore` file.
+
+Callback code and function/class inputs ignore comments, indentation, and line
+wrapping where safe.
 
 `cache()` automatically tracks whether earlier SDA operations changed the table.
 It also records every other already registered `SimpleTable` read through
