@@ -2,7 +2,7 @@
 
 - Package: `@nshiab/simple-data-analysis`
 - Version: `6.0.6`
-- Includes: `@nshiab/simple-data-analysis-core@2.0.9`
+- Includes: `@nshiab/simple-data-analysis-core@2.1.1`
 
 To install the library with Deno, use:
 
@@ -3186,6 +3186,80 @@ await table.umap("embedding", {
 }).selectColumns(["label", "umapX", "umapY"]).log();
 ```
 
+#### `hdbscan`
+
+Groups rows with similar numeric features using HDBSCAN, without requiring a
+predefined number of clusters. Adds a VARCHAR column containing `"cluster-0"`,
+`"cluster-1"`, etc., or `"noise"` for rows outside clusters. Labels identify
+groups, not their rank.
+
+Accepts a numeric vector column or several numeric scalar columns. Features are
+used as supplied. If their scales differ, consider preparing them with
+`normalize()`, `zScore()`, or `normalizeVector()` before clustering.
+
+Exact clustering is the default and can be expensive for large datasets. Set
+`approximate: true` to use approximate clustering, which can produce different
+results, including between repeated runs.
+
+##### Signature
+
+```typescript
+hdbscan(columns: string | string[], newColumn: string, options?: { minClusterSize?: number; minSamples?: number; metric?: "euclidean" | "cosine"; allowSingleCluster?: boolean; approximate?: boolean; membershipScoreColumn?: string; outlierScoreColumn?: string }): this;
+```
+
+##### Parameters
+
+- **`columns`**: A numeric vector column, or numeric scalar columns in
+  feature-dimension order.
+- **`newColumn`**: The cluster-label column to create.
+- **`options`**: HDBSCAN clustering and output settings.
+- **`options.minClusterSize`**: Minimum cluster size, from `2` through the row
+  count. Defaults to `5`.
+- **`options.minSamples`**: Number of neighbors used to estimate local density,
+  excluding the point itself. Higher values make clustering more conservative,
+  generally labeling more rows as noise. Set this separately to adjust density
+  sensitivity independently of minimum cluster size. Defaults to
+  `minClusterSize`.
+- **`options.metric`**: Use `"euclidean"` to compare feature values, or
+  `"cosine"` to compare vector direction regardless of overall magnitude.
+  Defaults to `"euclidean"`.
+- **`options.allowSingleCluster`**: Allow a result with just one cluster,
+  possibly alongside noise. Defaults to `false`. Setting this to `true` can
+  favor one broad group, even when there is little meaningful structure.
+- **`options.approximate`**: Use approximate clustering. Defaults to `false`.
+- **`options.membershipScoreColumn`**: Optional DOUBLE column for membership
+  strength from `0` to `1`. Higher values indicate stronger membership in the
+  assigned cluster; noise scores `0`.
+- **`options.outlierScoreColumn`**: Optional DOUBLE column for outlier scores
+  from `0` to `1`. Higher values indicate more unusual rows relative to their
+  surroundings, including within clusters. This is not necessarily
+  `1 - membershipScore`.
+
+##### Returns
+
+The table, so methods can be chained.
+
+##### Examples
+
+```ts
+// Cluster numeric columns and add membership and outlier scores.
+await table
+  .hdbscan(["height", "weight"], "cluster", {
+    minClusterSize: 5,
+    membershipScoreColumn: "membership",
+    outlierScoreColumn: "outlierScore",
+  })
+  .log();
+```
+
+```ts
+// Scale vector dimensions before clustering.
+await table
+  .normalizeVector("features", "scaledFeatures")
+  .hdbscan("scaledFeatures", "cluster")
+  .log();
+```
+
 #### `bm25`
 
 Searches a text column using DuckDB's BM25 ranking function, which scores
@@ -3992,17 +4066,20 @@ await table.removeMissing({ columns: "age", missingValues: [-1] }).log();
 #### `trim`
 
 Trims specified characters from the beginning, end, or both sides of string
-values in the given columns.
+values in the given columns. Pass `"all"` to trim every string (VARCHAR) column,
+leaving other types unchanged. If there are no string columns, `"all"` leaves
+the table unchanged. Use `["all"]` to trim a column literally named `all`.
 
 ##### Signature
 
 ```typescript
-trim(columns: string | string[], options?: { character?: string; side?: "left" | "right" | "both" }): this;
+trim(columns: "all" | string | string[], options?: { character?: string; side?: "left" | "right" | "both" }): this;
 ```
 
 ##### Parameters
 
-- **`columns`**: The column name or an array of column names to trim.
+- **`columns`**: The column name, an array of column names, or `"all"` to trim
+  every string (VARCHAR) column.
 - **`options`**: An optional object with configuration options:
 - **`options.character`**: The string to trim. Defaults to whitespace
   characters.
@@ -4019,6 +4096,11 @@ The table, so methods can be chained.
 ```ts
 // Trim whitespace from 'column1'
 await table.trim("column1").log();
+```
+
+```ts
+// Trim whitespace from every string column
+await table.trim("all").log();
 ```
 
 ```ts
@@ -4584,6 +4666,1749 @@ await table.loadArray([{ count: 3 }])
   .log();
 ```
 
+#### `addId`
+
+Adds a unique, non-null ID for each row in the current table. IDs start at `0`
+and identify rows within this table, including rows with identical contents.
+Without a prefix, the new column contains numbers. When a prefix is supplied,
+the new column contains strings with the exact prefix followed by the row
+number. An empty prefix therefore creates the strings `"0"`, `"1"`, and so on.
+
+IDs are not globally unique: separate tables can generate the same IDs.
+
+##### Signature
+
+```typescript
+addId(newColumn: string, options?: { prefix?: string }): this;
+```
+
+##### Parameters
+
+- **`newColumn`**: The name of the new ID column.
+- **`options`**: An optional object with configuration options.
+- **`options.prefix`**: Text to place before each row number. Supplying this
+  option, including an empty string, creates string IDs.
+
+##### Returns
+
+The table, so methods can be chained.
+
+##### Examples
+
+```ts
+// Add numeric IDs: 0, 1, 2, ...
+await table
+  .addId("edgeId")
+  .log();
+```
+
+```ts
+// Add string IDs: "flight-0", "flight-1", "flight-2", ...
+await flights
+  .addId("edgeId", { prefix: "flight-" })
+  .log();
+```
+
+#### `neighbors`
+
+Finds the distinct nodes directly connected to one or more starting nodes. The
+`direction` option lets you find neighbors from source to target, from target to
+source, or in either direction. The result has `start` and `node` columns,
+sorted in ascending order by `start`, then `node`.
+
+Unknown starting IDs and starts with no neighbors in the selected direction
+produce no rows. A self-connection includes the starting node once. Empty start
+arrays and duplicate starting IDs throw an error.
+
+The next three examples each start with this data:
+
+| origin | destination |
+| ------ | ----------- |
+| A      | B           |
+| A      | B           |
+| C      | A           |
+
+By default, the method finds neighbors from source to target:
+
+##### Signature
+
+```typescript
+neighbors(sourceColumn: string, targetColumn: string, startNodes: string | number | bigint | (string | number | bigint)[], options?: { direction?: "outgoing" | "incoming" | "both"; outputTable?: string | boolean }): SimpleTable;
+```
+
+##### Parameters
+
+- **`sourceColumn`**: The name of the column containing each connection's source
+  node ID.
+- **`targetColumn`**: The name of the column containing each connection's target
+  node ID.
+- **`startNodes`**: One starting node ID or an array of distinct starting node
+  IDs.
+- **`options`**: An optional object with direction and result configuration.
+- **`options.direction`**: The direction in which to follow connections.
+  Defaults to `"outgoing"`.
+- **`options.outputTable`**: If `true`, stores the result in a new table with a
+  generated name. If a string, uses it as the new table's name. If `false` or
+  omitted, overwrites the current table. Defaults to `false`.
+
+##### Returns
+
+The result table, so methods can be chained.
+
+##### Examples
+
+```ts
+await table
+  .neighbors("origin", "destination", "A")
+  .log();
+```
+
+| start | node |
+| ----- | ---- |
+| A     | B    |
+
+B appears only once, even though the input has two connections from A to B.
+
+With `direction: "incoming"`, the method finds neighbors from target to source.
+Here, C connects to A:
+
+```ts
+await table
+  .neighbors("origin", "destination", "A", { direction: "incoming" })
+  .log();
+```
+
+| start | node |
+| ----- | ---- |
+| A     | C    |
+
+With `direction: "both"`, the method finds neighbors in either direction:
+
+```ts
+await table
+  .neighbors("origin", "destination", "A", { direction: "both" })
+  .log();
+```
+
+| start | node |
+| ----- | ---- |
+| A     | B    |
+| A     | C    |
+
+Multiple starts are evaluated independently. For this input:
+
+| source   | target  | cost |
+| -------- | ------- | ---: |
+| Montreal | Ottawa  |    2 |
+| Ottawa   | Toronto |    3 |
+
+```ts
+await table
+  .neighbors("source", "target", ["Montreal", "Ottawa"])
+  .log();
+```
+
+| start    | node    |
+| -------- | ------- |
+| Montreal | Ottawa  |
+| Ottawa   | Toronto |
+
+#### `degree`
+
+Counts the incoming and outgoing connections for every node found in the source
+and target columns. By default, each input row is counted separately, even when
+several rows connect the same two nodes. Set the `count` option to `"neighbors"`
+to count distinct neighboring nodes instead. Use the `weight` option to sum
+values from a numeric column instead of counting connections. The `weight`
+option cannot be combined with `count: "neighbors"`.
+
+The result has `node`, `incoming`, `outgoing`, and `total` columns. The `total`
+is the sum of `incoming` and `outgoing`. Results are sorted by highest total
+first, then by node in ascending order when totals are equal. A self-connection
+contributes once to incoming and once to outgoing, so it contributes twice to
+the total. With `count: "neighbors"`, a neighbor connected in both directions
+also contributes once in each direction. Endpoint IDs must be non-null strings
+or whole numbers in compatible columns. Supplied weights must be non-null,
+finite, and non-negative.
+
+The next three examples each start with these flights:
+
+| origin   | destination | passengers |
+| -------- | ----------- | ---------: |
+| Montreal | Toronto     |        100 |
+| Montreal | Toronto     |        200 |
+| Montreal | Vancouver   |         50 |
+| Toronto  | Montreal    |        150 |
+
+By default, the method counts connections and overwrites the input table:
+
+##### Signature
+
+```typescript
+degree(sourceColumn: string, targetColumn: string, options?: { count?: "edges" | "neighbors"; weight?: string; outputTable?: string | boolean }): SimpleTable;
+```
+
+##### Parameters
+
+- **`sourceColumn`**: The name of the column containing each connection's source
+  node ID.
+- **`targetColumn`**: The name of the column containing each connection's target
+  node ID.
+- **`options`**: An optional object with counting and result configuration.
+- **`options.count`**: Whether to count connection rows (`"edges"`) or distinct
+  adjacent nodes (`"neighbors"`). Defaults to `"edges"`.
+- **`options.weight`**: The name of the numeric edge-weight column to sum. This
+  requires edge counting.
+- **`options.outputTable`**: If `true`, stores the result in a new table with a
+  generated name. If a string, uses it as the new table's name. If `false` or
+  omitted, overwrites the current table. Defaults to `false`.
+
+##### Returns
+
+The result table, so methods can be chained.
+
+##### Examples
+
+```ts
+await flights
+  .degree("origin", "destination")
+  .log();
+```
+
+| node      | incoming | outgoing | total |
+| --------- | -------: | -------: | ----: |
+| Montreal  |        1 |        3 |     4 |
+| Toronto   |        2 |        1 |     3 |
+| Vancouver |        1 |        0 |     1 |
+
+With `count: "neighbors"`, the two Montreal-to-Toronto flights count as one
+outgoing neighbor for Montreal:
+
+```ts
+await flights
+  .degree("origin", "destination", { count: "neighbors" })
+  .log();
+```
+
+| node      | incoming | outgoing | total |
+| --------- | -------: | -------: | ----: |
+| Montreal  |        1 |        2 |     3 |
+| Toronto   |        1 |        1 |     2 |
+| Vancouver |        1 |        0 |     1 |
+
+With `weight: "passengers"`, the method adds passenger counts for each city's
+incoming and outgoing flights:
+
+```ts
+await flights
+  .degree("origin", "destination", { weight: "passengers" })
+  .log();
+```
+
+| node      | incoming | outgoing | total |
+| --------- | -------: | -------: | ----: |
+| Montreal  |      150 |      350 |   500 |
+| Toronto   |      300 |      150 |   450 |
+| Vancouver |       50 |        0 |    50 |
+
+A self-connection is counted once in each direction. For this input:
+
+| source | target |
+| ------ | ------ |
+| A      | A      |
+| A      | B      |
+
+```ts
+await connections
+  .degree("source", "target")
+  .log();
+```
+
+| node | incoming | outgoing | total |
+| ---- | -------: | -------: | ----: |
+| A    |        1 |        2 |     3 |
+| B    |        1 |        0 |     1 |
+
+#### `commonNeighbors`
+
+Finds the neighbors shared by two different nodes. The `direction` option lets
+you find neighbors from source to target, from target to source, or in either
+direction. The result has one `node` column, sorted in ascending order.
+
+If either node ID is unknown, or the nodes have no shared neighbors, the result
+has no rows. Each shared neighbor appears once, even if connections are
+repeated. A self-connection can make one of the requested nodes a shared
+neighbor. Using the same ID for both requested nodes throws an error.
+
+The next three examples each start with this data:
+
+| origin | destination |
+| ------ | ----------- |
+| A      | C           |
+| A      | C           |
+| B      | C           |
+| B      | C           |
+| D      | A           |
+| D      | B           |
+
+By default, the method finds shared neighbors from source to target. Both A and
+B connect to C:
+
+##### Signature
+
+```typescript
+commonNeighbors(sourceColumn: string, targetColumn: string, nodeA: string | number | bigint, nodeB: string | number | bigint, options?: { direction?: "outgoing" | "incoming" | "both"; outputTable?: string | boolean }): SimpleTable;
+```
+
+##### Parameters
+
+- **`sourceColumn`**: The name of the column containing each connection's source
+  node ID.
+- **`targetColumn`**: The name of the column containing each connection's target
+  node ID.
+- **`nodeA`**: The first node ID.
+- **`nodeB`**: The second node ID, which must differ from `nodeA`.
+- **`options`**: An optional object with direction and result configuration.
+- **`options.direction`**: The direction in which to follow connections.
+  Defaults to `"outgoing"`.
+- **`options.outputTable`**: If `true`, stores the result in a new table with a
+  generated name. If a string, uses it as the new table's name. If `false` or
+  omitted, overwrites the current table. Defaults to `false`.
+
+##### Returns
+
+The result table, so methods can be chained.
+
+##### Examples
+
+```ts
+await connections
+  .commonNeighbors("origin", "destination", "A", "B")
+  .log();
+```
+
+| node |
+| ---- |
+| C    |
+
+C appears only once, even though the input repeats the connections.
+
+With `direction: "incoming"`, the method follows connections from target to
+source. D connects to both A and B:
+
+```ts
+await connections
+  .commonNeighbors("origin", "destination", "A", "B", { direction: "incoming" })
+  .log();
+```
+
+| node |
+| ---- |
+| D    |
+
+With `direction: "both"`, the method finds shared neighbors in either direction:
+
+```ts
+await connections
+  .commonNeighbors("origin", "destination", "A", "B", { direction: "both" })
+  .log();
+```
+
+| node |
+| ---- |
+| C    |
+| D    |
+
+A self-connection can make a requested node a shared neighbor. For this input, A
+is a neighbor of both itself and B:
+
+| source | target |
+| ------ | ------ |
+| A      | A      |
+| B      | A      |
+
+```ts
+await connections
+  .commonNeighbors("source", "target", "A", "B")
+  .log();
+```
+
+| node |
+| ---- |
+| A    |
+
+#### `reachable`
+
+Finds all nodes you can reach from one or more starting nodes, following one or
+more connections. The `direction` option lets you follow connections from source
+to target, from target to source, or in either direction. The result has `start`
+and `node` columns, sorted by `start`, then `node`.
+
+A starting node appears in its own results only if following connections leads
+back to it, such as a self-connection or a cycle. Each reachable node appears
+only once per start. With `direction: "both"`, following the same connection out
+and back also reaches the starting node.
+
+Unknown starting IDs and starts with no connections to follow produce no rows.
+Empty start arrays and duplicate starting IDs throw an error.
+
+Use the `startTimeColumn` or `endTimeColumn` options to follow connections in
+chronological order. The `minGapMs` option sets the minimum gap between
+consecutive connections, in milliseconds. With both time columns, gaps are
+measured from one connection's end to the next connection's start; with one
+column, between their timestamps. The `strictOrdering` option defaults to
+`true`, rejecting zero-duration gaps. These options only work with
+`direction: "outgoing"` or `direction: "incoming"`.
+
+The next four examples each start with this data:
+
+| origin | destination |
+| ------ | ----------- |
+| A      | B           |
+| A      | C           |
+| B      | D           |
+| C      | D           |
+| D      | A           |
+
+By default, the method follows connections from source to target. A appears in
+its own results because A → B → D → A leads back to it:
+
+##### Signature
+
+```typescript
+reachable(sourceColumn: string, targetColumn: string, startNodes: string | number | bigint | (string | number | bigint)[], options?: { direction?: "outgoing" | "incoming" | "both"; endTimeColumn?: string; minGapMs?: number; outputTable?: string | boolean; startTimeColumn?: string; strictOrdering?: boolean }): SimpleTable;
+```
+
+##### Parameters
+
+- **`sourceColumn`**: The name of the column containing each connection's source
+  node ID.
+- **`targetColumn`**: The name of the column containing each connection's target
+  node ID.
+- **`startNodes`**: One starting node ID or an array of distinct starting node
+  IDs.
+- **`options`**: An optional object with direction, time, and result
+  configuration.
+- **`options.direction`**: The direction in which to follow connections.
+  Defaults to `"outgoing"`.
+- **`options.startTimeColumn`**: The name of the column containing each
+  connection's start time. Use this or `endTimeColumn` to follow connections in
+  chronological order.
+- **`options.endTimeColumn`**: The name of the column containing each
+  connection's end time. Use this or `startTimeColumn` to follow connections in
+  chronological order.
+- **`options.minGapMs`**: The minimum gap between consecutive connections, in
+  milliseconds. Must be a non-negative integer. Defaults to `0`. Requires a time
+  column.
+- **`options.strictOrdering`**: Whether to reject zero-duration gaps between
+  consecutive connections (equal timestamps). Defaults to `true`. Requires a
+  time column.
+- **`options.outputTable`**: If `true`, stores the result in a new table with a
+  generated name. If a string, uses it as the new table's name. If `false` or
+  omitted, overwrites the current table. Defaults to `false`.
+
+##### Returns
+
+The result table, so methods can be chained.
+
+##### Examples
+
+```ts
+await connections
+  .reachable("origin", "destination", "A")
+  .log();
+```
+
+| start | node |
+| ----- | ---- |
+| A     | A    |
+| A     | B    |
+| A     | C    |
+| A     | D    |
+
+With `direction: "incoming"`, connections are followed from target to source.
+Starting at B:
+
+```ts
+await connections
+  .reachable("origin", "destination", "B", { direction: "incoming" })
+  .log();
+```
+
+| start | node |
+| ----- | ---- |
+| B     | A    |
+| B     | B    |
+| B     | C    |
+| B     | D    |
+
+With `direction: "both"`, connections can be followed in either direction:
+
+```ts
+await connections
+  .reachable("origin", "destination", "B", { direction: "both" })
+  .log();
+```
+
+| start | node |
+| ----- | ---- |
+| B     | A    |
+| B     | B    |
+| B     | C    |
+| B     | D    |
+
+With multiple starting nodes, each has its own results:
+
+```ts
+await connections
+  .reachable("origin", "destination", ["B", "A"])
+  .log();
+```
+
+| start | node |
+| ----- | ---- |
+| A     | A    |
+| A     | B    |
+| A     | C    |
+| A     | D    |
+| B     | A    |
+| B     | B    |
+| B     | C    |
+| B     | D    |
+
+Chronological options retain only journeys with valid connection times. Here, A
+→ B arrives at 10:00, so the 09:00 connection to C is unavailable, while the
+11:00 connection to D meets the one-hour minimum gap:
+
+| origin | destination | departureTime    | arrivalTime      |
+| ------ | ----------- | ---------------- | ---------------- |
+| A      | B           | 2025-01-01 08:00 | 2025-01-01 10:00 |
+| B      | C           | 2025-01-01 09:00 | 2025-01-01 10:00 |
+| B      | D           | 2025-01-01 11:00 | 2025-01-01 12:00 |
+
+The departure and arrival columns are timestamps:
+
+```ts
+await flights
+  .reachable("origin", "destination", "A", {
+    startTimeColumn: "departureTime",
+    endTimeColumn: "arrivalTime",
+    minGapMs: 60 * 60 * 1000,
+  })
+  .log();
+```
+
+| start | node |
+| ----- | ---- |
+| A     | B    |
+| A     | D    |
+
+#### `connectedComponents`
+
+Groups nodes that are connected to one another, directly or through other nodes.
+By default, connection direction is ignored. With the `mode` option set to
+"strong", nodes belong to the same group only if each can reach all the others
+by following connections from source to target.
+
+The result has `componentId` and `node` columns. Without `startTimeColumn` or
+`endTimeColumn`, each node appears once, and rows are sorted by node. Groups are
+numbered from zero in order of their smallest node ID.
+
+Use the `startTimeColumn` or `endTimeColumn` options to follow connections in
+chronological order. The `minGapMs` option sets the minimum gap between
+consecutive connections, in milliseconds. With both time columns, gaps are
+measured from one connection's end to the next connection's start; with one
+column, between their timestamps. The `strictOrdering` option defaults to
+`true`, rejecting zero-duration gaps. These options require an explicitly
+supplied `mode: "strong"`.
+
+With these options, nodes are grouped when each can reach all the others in
+chronological order. Groups can overlap, so a node may appear in several rows
+with different `componentId` values.
+
+For the first example, we start with this data:
+
+| origin | destination |
+| ------ | ----------- |
+| A      | B           |
+| C      | D           |
+
+By default, the method groups connected nodes without considering direction. B
+and D are included even though they only appear as destinations:
+
+##### Signature
+
+```typescript
+connectedComponents(sourceColumn: string, targetColumn: string, options?: { endTimeColumn?: string; minGapMs?: number; mode?: "weak" | "strong"; outputTable?: string | boolean; startTimeColumn?: string; strictOrdering?: boolean }): SimpleTable;
+```
+
+##### Parameters
+
+- **`sourceColumn`**: The name of the column containing each connection's source
+  node ID.
+- **`targetColumn`**: The name of the column containing each connection's target
+  node ID.
+- **`options`**: An optional object with component, time, and result
+  configuration.
+- **`options.mode`**: Whether to find `"weak"` or `"strong"` components.
+  Defaults to `"weak"`. Using `startTimeColumn` or `endTimeColumn` requires
+  explicitly setting `mode: "strong"`.
+- **`options.startTimeColumn`**: The name of the column containing each
+  connection's start time. Use this or `endTimeColumn` to follow connections in
+  chronological order.
+- **`options.endTimeColumn`**: The name of the column containing each
+  connection's end time. Use this or `startTimeColumn` to follow connections in
+  chronological order.
+- **`options.minGapMs`**: The minimum gap between consecutive connections, in
+  milliseconds. Must be a non-negative integer. Defaults to `0`. Requires a time
+  column.
+- **`options.strictOrdering`**: Whether to reject zero-duration gaps between
+  consecutive connections (equal timestamps). Defaults to `true`. Requires a
+  time column.
+- **`options.outputTable`**: If `true`, stores the result in a new table with a
+  generated name. If a string, uses it as the new table's name. If `false` or
+  omitted, overwrites the current table. Defaults to `false`.
+
+##### Returns
+
+The result table, so methods can be chained.
+
+##### Examples
+
+```ts
+await table
+  .connectedComponents("origin", "destination")
+  .log();
+```
+
+| componentId | node |
+| ----------: | ---- |
+|           0 | A    |
+|           0 | B    |
+|           1 | C    |
+|           1 | D    |
+
+The next two examples each start with this chain of connections:
+
+| source | target |
+| ------ | ------ |
+| A      | B      |
+| B      | C      |
+
+By default, all three nodes belong to the same group:
+
+```ts
+await graph
+  .connectedComponents("source", "target")
+  .log();
+```
+
+| componentId | node |
+| ----------: | ---- |
+|           0 | A    |
+|           0 | B    |
+|           0 | C    |
+
+With the `mode` option set to "strong", each node forms its own group. A can
+reach B and C, but neither can get back to A:
+
+```ts
+await graph
+  .connectedComponents("source", "target", {
+    mode: "strong",
+  })
+  .log();
+```
+
+| componentId | node |
+| ----------: | ---- |
+|           0 | A    |
+|           1 | B    |
+|           2 | C    |
+
+Adding C -> A would let every node reach the others, so all three would belong
+to the same group in "strong" mode too.
+
+Chronological strong groups can overlap. The next example uses one instantaneous
+timestamp column:
+
+| time             | source | target |
+| ---------------- | ------ | ------ |
+| 2025-01-01 08:00 | B      | C      |
+| 2025-01-01 09:00 | C      | B      |
+| 2025-01-01 10:00 | A      | B      |
+| 2025-01-01 11:00 | B      | A      |
+
+A and B can reach each other, as can B and C, but A cannot reach C after its
+first event. This produces the maximal groups `{A, B}` and `{B, C}`:
+
+```ts
+await transactions
+  .connectedComponents("source", "target", {
+    mode: "strong",
+    startTimeColumn: "time",
+  })
+  .log();
+```
+
+| componentId | node |
+| ----------: | ---- |
+|           0 | A    |
+|           0 | B    |
+|           1 | B    |
+|           1 | C    |
+
+#### `topologicalSort`
+
+Orders nodes so each prerequisite comes before the nodes that depend on it. Each
+input row means the source node must come before the target node. For example, A
+→ B means A must come before B.
+
+The result has `node`, `componentId`, and `order` columns, sorted by
+`componentId`, then `order`. Nodes connected directly or through other nodes
+belong to the same group, ignoring connection direction. Groups are numbered
+from zero, with the group containing the smallest node ID first.
+
+Within each group, `order` starts at one. When several nodes are ready, the
+method chooses the smallest node ID first: numeric order for numbers and
+character order for strings. All nodes in the source and target columns are
+included.
+
+If dependencies form a loop, there is no valid order and the method throws an
+error. A node depending on itself also causes an error. An empty input produces
+no rows.
+
+For this example, we start with these connections:
+
+| source | target |
+| ------ | ------ |
+| A      | B      |
+| B      | C      |
+| D      | C      |
+
+A must come before B, and both B and D must come before C:
+
+##### Signature
+
+```typescript
+topologicalSort(sourceColumn: string, targetColumn: string, options?: { outputTable?: string | boolean }): SimpleTable;
+```
+
+##### Parameters
+
+- **`sourceColumn`**: The name of the column containing each prerequisite node
+  ID.
+- **`targetColumn`**: The name of the column containing each dependent node ID.
+- **`options`**: An optional object with result configuration.
+- **`options.outputTable`**: If `true`, stores the result in a new table with a
+  generated name. If a string, uses it as the new table's name. If `false` or
+  omitted, overwrites the current table. Defaults to `false`.
+
+##### Returns
+
+The result table, so methods can be chained.
+
+##### Examples
+
+```ts
+await table
+  .topologicalSort("source", "target")
+  .log();
+```
+
+| node | componentId | order |
+| ---- | ----------: | ----: |
+| A    |           0 |     1 |
+| B    |           0 |     2 |
+| D    |           0 |     3 |
+| C    |           0 |     4 |
+
+C comes last because it depends on both B and D. A comes before D because both
+are initially ready and A has the smaller ID. After A, B is ready and comes
+before D for the same reason.
+
+With two independent groups, each has its own order starting at one. This
+example starts with different data:
+
+| source | target |
+| ------ | ------ |
+| A      | D      |
+| B      | C      |
+
+```ts
+await table
+  .topologicalSort("source", "target")
+  .log();
+```
+
+| node | componentId | order |
+| ---- | ----------: | ----: |
+| A    |           0 |     1 |
+| D    |           0 |     2 |
+| B    |           1 |     1 |
+| C    |           1 |     2 |
+
+#### `distances`
+
+Finds the shortest distance from each starting node to every node it can reach
+by following one or more connections. By default, distance is the number of
+connections along the shortest route. Use the `weight` option to find the
+smallest sum of values from a numeric column, such as travel time.
+
+The `direction` option lets you follow connections from source to target, from
+target to source, or in either direction. The result has `start`, `node`, and
+`distance` columns, sorted by `start`, then by increasing `distance`, then by
+`node` to break ties. The closest nodes appear first for each start.
+
+Each row gives the shortest distance from `start` to `node`. Intermediate steps
+along the route are not returned. To get the steps between two different nodes,
+use `shortestPath()` for the shortest routes or `paths()` for all routes without
+repeated nodes.
+
+A starting node appears in its own results only when a self-connection or a
+route leads back to it. Its distance is the shortest actual return route, using
+at least one connection. With `direction: "both"`, this can mean following the
+same connection out and back.
+
+Unknown starting IDs and starts with no connections to follow produce no rows.
+Empty start arrays and duplicate starting IDs throw an error. Weights must be
+non-null, finite, and non-negative.
+
+Use the `startTimeColumn` or `endTimeColumn` options to follow connections in
+chronological order. The `minGapMs` option sets the minimum gap between
+consecutive connections, in milliseconds. With both time columns, gaps are
+measured from one connection's end to the next connection's start; with one
+column, between their timestamps. The `strictOrdering` option defaults to
+`true`, rejecting zero-duration gaps. These options only work with
+`direction: "outgoing"` or `direction: "incoming"`.
+
+The minimum gap applies only between consecutive connections, not before the
+first connection.
+
+The next five examples each start with this data:
+
+| origin | destination | minutes |
+| ------ | ----------- | ------: |
+| A      | B           |       4 |
+| B      | C           |       1 |
+| D      | B           |       2 |
+
+By default, the method follows connections from source to target and counts how
+many connections are needed:
+
+##### Signature
+
+```typescript
+distances(sourceColumn: string, targetColumn: string, startNodes: string | number | bigint | (string | number | bigint)[], options?: { direction?: "outgoing" | "incoming" | "both"; endTimeColumn?: string; minGapMs?: number; outputTable?: string | boolean; startTimeColumn?: string; strictOrdering?: boolean; weight?: string }): SimpleTable;
+```
+
+##### Parameters
+
+- **`sourceColumn`**: The name of the column containing each connection's source
+  node ID.
+- **`targetColumn`**: The name of the column containing each connection's target
+  node ID.
+- **`startNodes`**: One starting node ID or an array of distinct starting node
+  IDs.
+- **`options`**: An optional object with direction, time, and result
+  configuration.
+- **`options.direction`**: The direction in which to follow connections.
+  Defaults to `"outgoing"`.
+- **`options.startTimeColumn`**: The name of the column containing each
+  connection's start time. Use this or `endTimeColumn` to follow connections in
+  chronological order.
+- **`options.endTimeColumn`**: The name of the column containing each
+  connection's end time. Use this or `startTimeColumn` to follow connections in
+  chronological order.
+- **`options.minGapMs`**: The minimum gap between consecutive connections, in
+  milliseconds. Must be a non-negative integer. Defaults to `0`. Requires a time
+  column.
+- **`options.strictOrdering`**: Whether to reject zero-duration gaps between
+  consecutive connections (equal timestamps). Defaults to `true`. Requires a
+  time column.
+- **`options.weight`**: The name of the numeric column used as the cost of each
+  connection. If omitted, each connection costs one.
+- **`options.outputTable`**: If `true`, stores the result in a new table with a
+  generated name. If a string, uses it as the new table's name. If `false` or
+  omitted, overwrites the current table. Defaults to `false`.
+
+##### Returns
+
+The result table, so methods can be chained.
+
+##### Examples
+
+```ts
+await connections
+  .distances("origin", "destination", "A")
+  .log();
+```
+
+| start | node | distance |
+| ----- | ---- | -------: |
+| A     | B    |        1 |
+| A     | C    |        2 |
+
+With `weight: "minutes"`, distance is the shortest total travel time:
+
+```ts
+await connections
+  .distances("origin", "destination", "A", { weight: "minutes" })
+  .log();
+```
+
+| start | node | distance |
+| ----- | ---- | -------: |
+| A     | B    |        4 |
+| A     | C    |        5 |
+
+With `direction: "incoming"`, connections are followed from target to source.
+Starting at C:
+
+```ts
+await connections
+  .distances("origin", "destination", "C", { direction: "incoming" })
+  .log();
+```
+
+| start | node | distance |
+| ----- | ---- | -------: |
+| C     | B    |        1 |
+| C     | A    |        2 |
+| C     | D    |        2 |
+
+With `direction: "both"`, connections can be followed in either direction:
+
+```ts
+await connections
+  .distances("origin", "destination", "A", { direction: "both" })
+  .log();
+```
+
+| start | node | distance |
+| ----- | ---- | -------: |
+| A     | B    |        1 |
+| A     | A    |        2 |
+| A     | C    |        2 |
+| A     | D    |        2 |
+
+A appears at distance 2 because A → B → A follows a connection out and back.
+
+An array of starting nodes gives separate distances for each start:
+
+```ts
+await connections
+  .distances("origin", "destination", ["D", "A"], {
+    weight: "minutes",
+  })
+  .log();
+```
+
+| start | node | distance |
+| ----- | ---- | -------: |
+| A     | B    |        4 |
+| A     | C    |        5 |
+| D     | B    |        2 |
+| D     | C    |        3 |
+
+A direct self-connection and a longer return route can both lead back to the
+start. This example uses different data:
+
+| origin | destination | minutes |
+| ------ | ----------- | ------: |
+| A      | A           |      10 |
+| A      | B           |       2 |
+| B      | A           |       3 |
+
+The shortest return to A takes 5 minutes through B, compared with 10 minutes for
+the direct self-connection:
+
+```ts
+await connections
+  .distances("origin", "destination", "A", { weight: "minutes" })
+  .log();
+```
+
+| start | node | distance |
+| ----- | ---- | -------: |
+| A     | B    |        2 |
+| A     | A    |        5 |
+
+Chronological options can rule out a cheaper sequence that departs too early.
+For this example, F2 leaves before F1 arrives, while F3 meets the one-hour
+minimum exactly:
+
+| origin | destination | departureTime    | arrivalTime      | minutes |
+| ------ | ----------- | ---------------- | ---------------- | ------: |
+| A      | B           | 2025-01-01 08:00 | 2025-01-01 10:00 |       2 |
+| B      | C           | 2025-01-01 09:00 | 2025-01-01 10:00 |       1 |
+| B      | D           | 2025-01-01 11:00 | 2025-01-01 12:00 |       3 |
+
+```ts
+await scheduledFlights
+  .distances("origin", "destination", "A", {
+    startTimeColumn: "departureTime",
+    endTimeColumn: "arrivalTime",
+    minGapMs: 60 * 60 * 1000,
+    weight: "minutes",
+  })
+  .log();
+```
+
+| start | node | distance |
+| ----- | ---- | -------: |
+| A     | B    |        2 |
+| A     | D    |        5 |
+
+#### `shortestPath`
+
+Finds the shortest route between two different nodes. If several routes tie for
+shortest, all of them are returned. By default, the shortest route uses the
+fewest connections. Use the `weight` option to find the route with the smallest
+sum of values from a numeric column, such as travel time. A route cannot visit
+the same node twice, to avoid loops. Different routes can still share the same
+nodes.
+
+The `direction` option lets you follow connections from source to target, from
+target to source, or in either direction.
+
+Each connection needs a unique, non-null ID. Pass the name of the column
+containing these IDs as the `edgeId` argument. If your table is missing an ID
+column, you can easily create one with `addId()`.
+
+The result starts with the `pathId`, `step`, `weight`, and `total` columns,
+followed by all original columns. Steps start at one and follow the search
+direction. The `weight` column is the connection cost, and `total` is the sum of
+those costs up to and including the current step. Without the `weight` option,
+each connection costs one.
+
+If an input column is already named `pathId`, `step`, `weight`, or `total`
+(regardless of capitalization), the method throws an error. Rename it with
+`renameColumns()` first.
+
+Each row is one connection along a route.
+
+Use the `startTimeColumn` or `endTimeColumn` options to follow connections in
+chronological order. The `minGapMs` option sets the minimum gap between
+consecutive connections, in milliseconds. With both time columns, gaps are
+measured from one connection's end to the next connection's start; with one
+column, between their timestamps. The `strictOrdering` option defaults to
+`true`, rejecting zero-duration gaps. These options only work with
+`direction: "outgoing"` or `direction: "incoming"`.
+
+The minimum gap applies only between consecutive connections, not before the
+first connection.
+
+Routes are numbered from zero by comparing their sequences of connection IDs,
+element by element. Rows are sorted by `pathId`, then `step`.
+
+Unknown IDs or nodes with no route between them produce no rows. The start and
+end must differ. Self-connections are ignored. Weights must be non-null, finite,
+and non-negative.
+
+There is no limit on route length or the number of tied routes returned. Finding
+many tied routes can take a long time and use substantial memory.
+
+The first example uses this table:
+
+| edgeId | source | target |
+| ------ | ------ | ------ |
+| E1     | A      | B      |
+| E2     | A      | C      |
+| E3     | B      | D      |
+| E4     | C      | D      |
+| E5     | D      | E      |
+
+By default, the method finds routes from source to target with the fewest
+connections. Two routes from A to E tie at three connections each:
+
+##### Signature
+
+```typescript
+shortestPath(sourceColumn: string, targetColumn: string, edgeId: string, start: string | number | bigint, end: string | number | bigint, options?: { direction?: "outgoing" | "incoming" | "both"; endTimeColumn?: string; minGapMs?: number; outputTable?: string | boolean; startTimeColumn?: string; strictOrdering?: boolean; weight?: string }): SimpleTable;
+```
+
+##### Parameters
+
+- **`sourceColumn`**: The name of the column containing each connection's source
+  node ID.
+- **`targetColumn`**: The name of the column containing each connection's target
+  node ID.
+- **`edgeId`**: The name of the column uniquely identifying each connection
+  (edge).
+- **`start`**: The starting node ID.
+- **`end`**: The ending node ID, which must differ from `start`.
+- **`options`**: An optional object with direction, time, and result
+  configuration.
+- **`options.direction`**: The direction in which to follow connections.
+  Defaults to `"outgoing"`.
+- **`options.startTimeColumn`**: The name of the column containing each
+  connection's start time. Use this or `endTimeColumn` to follow connections in
+  chronological order.
+- **`options.endTimeColumn`**: The name of the column containing each
+  connection's end time. Use this or `startTimeColumn` to follow connections in
+  chronological order.
+- **`options.minGapMs`**: The minimum gap between consecutive connections, in
+  milliseconds. Must be a non-negative integer. Defaults to `0`. Requires a time
+  column.
+- **`options.strictOrdering`**: Whether to reject zero-duration gaps between
+  consecutive connections (equal timestamps). Defaults to `true`. Requires a
+  time column.
+- **`options.weight`**: The name of the numeric column used as the cost of each
+  connection. If omitted, each connection costs one.
+- **`options.outputTable`**: If `true`, stores the result in a new table with a
+  generated name. If a string, uses it as the new table's name. If `false` or
+  omitted, overwrites the current table. Defaults to `false`.
+
+##### Returns
+
+The result table, so methods can be chained.
+
+##### Examples
+
+```ts
+await connections
+  .shortestPath("source", "target", "edgeId", "A", "E")
+  .log();
+```
+
+| pathId | step | weight | total | edgeId | source | target |
+| -----: | ---: | -----: | ----: | ------ | ------ | ------ |
+|      0 |    1 |      1 |     1 | E1     | A      | B      |
+|      0 |    2 |      1 |     2 | E3     | B      | D      |
+|      0 |    3 |      1 |     3 | E5     | D      | E      |
+|      1 |    1 |      1 |     1 | E2     | A      | C      |
+|      1 |    2 |      1 |     2 | E4     | C      | D      |
+|      1 |    3 |      1 |     3 | E5     | D      | E      |
+
+For an input without connection IDs, use `addId()` first:
+
+| source | target |
+| ------ | ------ |
+| A      | B      |
+| B      | E      |
+
+The generated IDs identify the connections in the result:
+
+```ts
+await unnumberedConnections
+  .addId("edgeId", { prefix: "edge-" })
+  .shortestPath("source", "target", "edgeId", "A", "E")
+  .log();
+```
+
+| pathId | step | weight | total | source | target | edgeId |
+| -----: | ---: | -----: | ----: | ------ | ------ | ------ |
+|      0 |    1 |      1 |     1 | A      | B      | edge-0 |
+|      0 |    2 |      1 |     2 | B      | E      | edge-1 |
+
+The next two examples each start with these flights. The direct flight takes ten
+minutes; the route through B and D takes three:
+
+| flightId | origin | destination | minutes |
+| -------- | ------ | ----------- | ------: |
+| F1       | A      | E           |      10 |
+| F2       | A      | B           |       1 |
+| F3       | B      | D           |       1 |
+| F4       | D      | E           |       1 |
+
+With `weight: "minutes"`, the route with the shortest travel time is chosen:
+
+```ts
+await flights
+  .shortestPath("origin", "destination", "flightId", "A", "E", {
+    weight: "minutes",
+  })
+  .log();
+```
+
+| pathId | step | weight | total | flightId | origin | destination | minutes |
+| -----: | ---: | -----: | ----: | -------- | ------ | ----------- | ------: |
+|      0 |    1 |      1 |     1 | F2       | A      | B           |       1 |
+|      0 |    2 |      1 |     2 | F3       | B      | D           |       1 |
+|      0 |    3 |      1 |     3 | F4       | D      | E           |       1 |
+
+Without the `weight` option, the direct flight is shortest because it uses only
+one connection:
+
+```ts
+await flights
+  .shortestPath("origin", "destination", "flightId", "A", "E")
+  .log();
+```
+
+| pathId | step | weight | total | flightId | origin | destination | minutes |
+| -----: | ---: | -----: | ----: | -------- | ------ | ----------- | ------: |
+|      0 |    1 |      1 |     1 | F1       | A      | E           |      10 |
+
+With time options, the cheaper route through B is ruled out because F2 leaves
+before F1 arrives. The route through C meets the one-hour minimum gap:
+
+| flightId | origin | destination | departureTime    | arrivalTime      | cost |
+| -------- | ------ | ----------- | ---------------- | ---------------- | ---: |
+| F1       | A      | B           | 2025-01-01 08:00 | 2025-01-01 10:00 |    1 |
+| F2       | B      | E           | 2025-01-01 09:00 | 2025-01-01 10:00 |    1 |
+| F3       | A      | C           | 2025-01-01 08:00 | 2025-01-01 09:00 |    2 |
+| F4       | C      | E           | 2025-01-01 10:00 | 2025-01-01 11:00 |    2 |
+
+```ts
+await scheduledFlights
+  .shortestPath("origin", "destination", "flightId", "A", "E", {
+    startTimeColumn: "departureTime",
+    endTimeColumn: "arrivalTime",
+    minGapMs: 60 * 60 * 1000,
+    weight: "cost",
+  })
+  .log();
+```
+
+| pathId | step | weight | total | flightId | origin | destination | departureTime       | arrivalTime         | cost |
+| -----: | ---: | -----: | ----: | -------- | ------ | ----------- | ------------------- | ------------------- | ---: |
+|      0 |    1 |      2 |     2 | F3       | A      | C           | 2025-01-01 08:00:00 | 2025-01-01 09:00:00 |    2 |
+|      0 |    2 |      2 |     4 | F4       | C      | E           | 2025-01-01 10:00:00 | 2025-01-01 11:00:00 |    2 |
+
+With `direction: "incoming"`, connections are followed from target to source.
+The original source and target values remain unchanged. For this input:
+
+| edgeId | source | target |
+| ------ | ------ | ------ |
+| F1     | A      | B      |
+
+```ts
+await reverseExample
+  .shortestPath("source", "target", "edgeId", "B", "A", {
+    direction: "incoming",
+  })
+  .log();
+```
+
+| pathId | step | weight | total | edgeId | source | target |
+| -----: | ---: | -----: | ----: | ------ | ------ | ------ |
+|      0 |    1 |      1 |     1 | F1     | A      | B      |
+
+#### `paths`
+
+Finds all routes between two different nodes. A route cannot visit the same node
+twice, to avoid loops. Different routes can still share the same nodes.
+
+The `direction` option lets you follow connections from source to target, from
+target to source, or in either direction.
+
+Each connection needs a unique, non-null ID. Pass the name of the column
+containing these IDs as the `edgeId` argument. If your table is missing an ID
+column, you can easily create one with `addId()`.
+
+The result starts with the `pathId`, `step`, `weight`, and `total` columns,
+followed by all original columns. Steps start at one and follow the search
+direction. The `weight` column is the connection cost, and `total` is the sum of
+those costs up to and including the current step. Without the `weight` option,
+each connection costs one.
+
+If an input column is already named `pathId`, `step`, `weight`, or `total`
+(regardless of capitalization), the method throws an error. Rename it with
+`renameColumns()` first.
+
+Each row is one connection along a route.
+
+Use the `startTimeColumn` or `endTimeColumn` options to follow connections in
+chronological order. The `minGapMs` option sets the minimum gap between
+consecutive connections, in milliseconds. With both time columns, gaps are
+measured from one connection's end to the next connection's start; with one
+column, between their timestamps. The `strictOrdering` option defaults to
+`true`, rejecting zero-duration gaps. These options only work with
+`direction: "outgoing"` or `direction: "incoming"`.
+
+The minimum gap applies only between consecutive connections, not before the
+first connection.
+
+Routes are numbered from zero by comparing their sequences of connection IDs,
+element by element. Rows are sorted by `pathId`, then `step`.
+
+Unknown IDs or nodes with no route between them produce no rows. The start and
+end must differ. Self-connections are ignored. Weights must be non-null, finite,
+and non-negative.
+
+There is no limit on route length or the number of routes returned. Finding all
+routes can take a long time and use substantial memory.
+
+For the first example, we start with these connections:
+
+| edgeId | source | target |
+| ------ | ------ | ------ |
+| E1     | A      | B      |
+| E2     | A      | C      |
+| E3     | B      | D      |
+| E4     | C      | D      |
+
+By default, connections are followed from source to target. Both routes from A
+to D are returned:
+
+##### Signature
+
+```typescript
+paths(sourceColumn: string, targetColumn: string, edgeId: string, start: string | number | bigint, end: string | number | bigint, options?: { direction?: "outgoing" | "incoming" | "both"; endTimeColumn?: string; minGapMs?: number; outputTable?: string | boolean; startTimeColumn?: string; strictOrdering?: boolean; weight?: string }): SimpleTable;
+```
+
+##### Parameters
+
+- **`sourceColumn`**: The name of the column containing each connection's source
+  node ID.
+- **`targetColumn`**: The name of the column containing each connection's target
+  node ID.
+- **`edgeId`**: The name of the column uniquely identifying each connection
+  (edge).
+- **`start`**: The starting node ID.
+- **`end`**: The ending node ID, which must differ from `start`.
+- **`options`**: An optional object with direction, time, and result
+  configuration.
+- **`options.direction`**: The direction in which to follow connections.
+  Defaults to `"outgoing"`.
+- **`options.startTimeColumn`**: The name of the column containing each
+  connection's start time. Use this or `endTimeColumn` to follow connections in
+  chronological order.
+- **`options.endTimeColumn`**: The name of the column containing each
+  connection's end time. Use this or `startTimeColumn` to follow connections in
+  chronological order.
+- **`options.minGapMs`**: The minimum gap between consecutive connections, in
+  milliseconds. Must be a non-negative integer. Defaults to `0`. Requires a time
+  column.
+- **`options.strictOrdering`**: Whether to reject zero-duration gaps between
+  consecutive connections (equal timestamps). Defaults to `true`. Requires a
+  time column.
+- **`options.weight`**: The name of the numeric column used as the cost of each
+  connection. If omitted, each connection costs one.
+- **`options.outputTable`**: If `true`, stores the result in a new table with a
+  generated name. If a string, uses it as the new table's name. If `false` or
+  omitted, overwrites the current table. Defaults to `false`.
+
+##### Returns
+
+The result table, so methods can be chained.
+
+##### Examples
+
+```ts
+await connections
+  .paths("source", "target", "edgeId", "A", "D")
+  .log();
+```
+
+| pathId | step | weight | total | edgeId | source | target |
+| -----: | ---: | -----: | ----: | ------ | ------ | ------ |
+|      0 |    1 |      1 |     1 | E1     | A      | B      |
+|      0 |    2 |      1 |     2 | E3     | B      | D      |
+|      1 |    1 |      1 |     1 | E2     | A      | C      |
+|      1 |    2 |      1 |     2 | E4     | C      | D      |
+
+For an input without connection IDs, use `addId()` first:
+
+| source | target |
+| ------ | ------ |
+| A      | B      |
+| B      | D      |
+
+The generated IDs identify the connections in the result:
+
+```ts
+await unnumberedConnections
+  .addId("edgeId", { prefix: "edge-" })
+  .paths("source", "target", "edgeId", "A", "D")
+  .log();
+```
+
+| pathId | step | weight | total | source | target | edgeId |
+| -----: | ---: | -----: | ----: | ------ | ------ | ------ |
+|      0 |    1 |      1 |     1 | A      | B      | edge-0 |
+|      0 |    2 |      1 |     2 | B      | D      | edge-1 |
+
+The next three examples each start with these flights. The direct flight takes
+ten minutes; the route through B takes three:
+
+| flightId | origin | destination | minutes |
+| -------- | ------ | ----------- | ------: |
+| F1       | A      | D           |      10 |
+| F2       | A      | B           |       1 |
+| F3       | B      | D           |       2 |
+
+With `weight: "minutes"`, both routes are returned with their travel times:
+
+```ts
+await flights
+  .paths("origin", "destination", "flightId", "A", "D", {
+    weight: "minutes",
+  })
+  .log();
+```
+
+| pathId | step | weight | total | flightId | origin | destination | minutes |
+| -----: | ---: | -----: | ----: | -------- | ------ | ----------- | ------: |
+|      0 |    1 |     10 |    10 | F1       | A      | D           |      10 |
+|      1 |    1 |      1 |     1 | F2       | A      | B           |       1 |
+|      1 |    2 |      2 |     3 | F3       | B      | D           |       2 |
+
+Without the `weight` option, the same routes are returned and total counts
+connections:
+
+```ts
+await flights
+  .paths("origin", "destination", "flightId", "A", "D")
+  .log();
+```
+
+| pathId | step | weight | total | flightId | origin | destination | minutes |
+| -----: | ---: | -----: | ----: | -------- | ------ | ----------- | ------: |
+|      0 |    1 |      1 |     1 | F1       | A      | D           |      10 |
+|      1 |    1 |      1 |     1 | F2       | A      | B           |       1 |
+|      1 |    2 |      1 |     2 | F3       | B      | D           |       2 |
+
+With `direction: "incoming"`, the search runs from D to A. Steps follow that
+direction, while the original origin and destination values stay unchanged:
+
+```ts
+await flights
+  .paths("origin", "destination", "flightId", "D", "A", {
+    direction: "incoming",
+    weight: "minutes",
+  })
+  .log();
+```
+
+| pathId | step | weight | total | flightId | origin | destination | minutes |
+| -----: | ---: | -----: | ----: | -------- | ------ | ----------- | ------: |
+|      0 |    1 |     10 |    10 | F1       | A      | D           |      10 |
+|      1 |    1 |      2 |     2 | F3       | B      | D           |       2 |
+|      1 |    2 |      1 |     3 | F2       | A      | B           |       1 |
+
+Chronological routes enforce the connection time between every pair of steps.
+For the next two examples, the 09:00 flight leaves before F1 arrives, while F3
+meets the one-hour minimum exactly:
+
+| flightId | origin | destination | departureTime    | arrivalTime      | cost |
+| -------- | ------ | ----------- | ---------------- | ---------------- | ---: |
+| F1       | A      | B           | 2025-01-01 08:00 | 2025-01-01 10:00 |    2 |
+| F2       | B      | C           | 2025-01-01 09:00 | 2025-01-01 10:00 |    9 |
+| F3       | B      | D           | 2025-01-01 11:00 | 2025-01-01 12:00 |    3 |
+
+The route from A to D contains F1 and F3:
+
+```ts
+await scheduledFlights
+  .paths("origin", "destination", "flightId", "A", "D", {
+    startTimeColumn: "departureTime",
+    endTimeColumn: "arrivalTime",
+    minGapMs: 60 * 60 * 1000,
+    weight: "cost",
+  })
+  .log();
+```
+
+| pathId | step | weight | total | flightId | origin | destination | departureTime       | arrivalTime         | cost |
+| -----: | ---: | -----: | ----: | -------- | ------ | ----------- | ------------------- | ------------------- | ---: |
+|      0 |    1 |      2 |     2 | F1       | A      | B           | 2025-01-01 08:00:00 | 2025-01-01 10:00:00 |    2 |
+|      0 |    2 |      3 |     5 | F3       | B      | D           | 2025-01-01 11:00:00 | 2025-01-01 12:00:00 |    3 |
+
+Searching backward from D finds the same physical journey. The steps and
+cumulative totals follow the incoming search from D to A:
+
+```ts
+await scheduledFlights
+  .paths("origin", "destination", "flightId", "D", "A", {
+    direction: "incoming",
+    startTimeColumn: "departureTime",
+    endTimeColumn: "arrivalTime",
+    minGapMs: 60 * 60 * 1000,
+    weight: "cost",
+  })
+  .log();
+```
+
+| pathId | step | weight | total | flightId | origin | destination | departureTime       | arrivalTime         | cost |
+| -----: | ---: | -----: | ----: | -------- | ------ | ----------- | ------------------- | ------------------- | ---: |
+|      0 |    1 |      3 |     3 | F3       | B      | D           | 2025-01-01 11:00:00 | 2025-01-01 12:00:00 |    3 |
+|      0 |    2 |      2 |     5 | F1       | A      | B           | 2025-01-01 08:00:00 | 2025-01-01 10:00:00 |    2 |
+
+#### `findCycles`
+
+Finds all cycles starting and ending at each node in `startNodes`. Pass one node
+ID or an array of node IDs. A cycle cannot visit the same node twice, except to
+return to its start, or reuse a connection. Different cycles can share nodes.
+The `direction` option lets you follow connections from source to target, from
+target to source, or in either direction. By default, connections are followed
+from source to target.
+
+Each connection needs a unique, non-null ID. Pass the name of the column
+containing these IDs as the `edgeId` argument. If your table is missing an ID
+column, you can easily create one with `addId()`.
+
+The result starts with the `start`, `pathId`, `step`, `weight`, and `total`
+columns, followed by all original columns. The `start` column identifies the
+requested starting node. Steps start at one and follow the search direction. The
+`weight` column is the connection cost, and `total` is the sum of those costs up
+to and including the current step. Without the `weight` option, each connection
+costs one.
+
+If an input column is already named `start`, `pathId`, `step`, `weight`, or
+`total` (regardless of capitalization), the method throws an error. Rename it
+with `renameColumns()` first.
+
+Each row is one connection, including the final connection back to the start.
+Weights must be non-null, finite, and non-negative.
+
+If a cycle can start at several requested nodes, each starting node produces a
+separate result. The `pathId` starts at zero for each starting node; `start` and
+`pathId` together identify a cycle. Passing an empty array or duplicate IDs in
+`startNodes` throws an error. Unknown IDs or starts with no cycles produce no
+rows.
+
+With `direction: "both"`, a cycle and its reverse are returned once per starting
+node, choosing the smaller sequence of connection IDs. Within each start, cycles
+are numbered by connection-ID sequence. Rows are sorted by `start`, then
+`pathId`, then `step`.
+
+Use the `startTimeColumn` or `endTimeColumn` options to follow connections in
+chronological order. The `minGapMs` option sets the minimum gap between
+consecutive connections, in milliseconds. With both time columns, gaps are
+measured from one connection's end to the next connection's start; with one
+column, between their timestamps. The `strictOrdering` option defaults to
+`true`, rejecting zero-duration gaps. These options only work with
+`direction: "outgoing"` or `direction: "incoming"`.
+
+Time rules are checked from each requested starting node. A cycle may therefore
+work from one starting node but not another. No gap is checked from the final
+connection back to the first. Incoming searches follow connections backward in
+chronological order.
+
+A self-connection forms a one-step cycle. With `direction: "both"`, two separate
+connections between the same nodes can form a two-step cycle. A single
+connection cannot be followed out and back to create a cycle. Cycles using
+different connections remain separate, even if they visit the same nodes. If
+there are no cycles, the result has no rows.
+
+There is no limit on cycle length or the number of cycles returned. Finding all
+cycles can take a long time and use substantial memory.
+
+The next four examples each start with these connections:
+
+| edgeId | source | target |
+| ------ | ------ | ------ |
+| E1     | A      | B      |
+| E2     | B      | C      |
+| E3     | C      | A      |
+
+By default, connections are followed from source to target:
+
+##### Signature
+
+```typescript
+findCycles(sourceColumn: string, targetColumn: string, edgeId: string, startNodes: string | number | bigint | (string | number | bigint)[], options?: { direction?: "outgoing" | "incoming" | "both"; endTimeColumn?: string; minGapMs?: number; outputTable?: string | boolean; startTimeColumn?: string; strictOrdering?: boolean; weight?: string }): SimpleTable;
+```
+
+##### Parameters
+
+- **`sourceColumn`**: The name of the column containing each connection's source
+  node ID.
+- **`targetColumn`**: The name of the column containing each connection's target
+  node ID.
+- **`edgeId`**: The name of the column uniquely identifying each connection
+  (edge).
+- **`startNodes`**: One starting node ID or an array of IDs. Finds cycles that
+  start and end at each requested node.
+- **`options`**: An optional object with direction, time, cost, and result
+  configuration.
+- **`options.direction`**: The direction in which to follow connections.
+  Defaults to `"outgoing"`.
+- **`options.startTimeColumn`**: The name of the column containing each
+  connection's start time. Use this or `endTimeColumn` to follow connections in
+  chronological order.
+- **`options.endTimeColumn`**: The name of the column containing each
+  connection's end time. Use this or `startTimeColumn` to follow connections in
+  chronological order.
+- **`options.minGapMs`**: The minimum gap between consecutive connections, in
+  milliseconds. Must be a non-negative integer. Defaults to `0`. Requires a time
+  column.
+- **`options.strictOrdering`**: Whether to reject zero-duration gaps between
+  consecutive connections (equal timestamps). Defaults to `true`. Requires a
+  time column.
+- **`options.weight`**: The name of the numeric column used as the cost of each
+  connection. If omitted, each connection costs one.
+- **`options.outputTable`**: If `true`, stores the result in a new table with a
+  generated name. If a string, uses it as the new table's name. If `false` or
+  omitted, overwrites the current table. Defaults to `false`.
+
+##### Returns
+
+The result table, so methods can be chained.
+
+##### Examples
+
+```ts
+await triangle
+  .findCycles("source", "target", "edgeId", "A")
+  .log();
+```
+
+| start | pathId | step | weight | total | edgeId | source | target |
+| ----- | -----: | ---: | -----: | ----: | ------ | ------ | ------ |
+| A     |      0 |    1 |      1 |     1 | E1     | A      | B      |
+| A     |      0 |    2 |      1 |     2 | E2     | B      | C      |
+| A     |      0 |    3 |      1 |     3 | E3     | C      | A      |
+
+Requesting both A and B returns the cycle separately for each start:
+
+```ts
+await triangle
+  .findCycles("source", "target", "edgeId", ["A", "B"])
+  .log();
+```
+
+| start | pathId | step | weight | total | edgeId | source | target |
+| ----- | -----: | ---: | -----: | ----: | ------ | ------ | ------ |
+| A     |      0 |    1 |      1 |     1 | E1     | A      | B      |
+| A     |      0 |    2 |      1 |     2 | E2     | B      | C      |
+| A     |      0 |    3 |      1 |     3 | E3     | C      | A      |
+| B     |      0 |    1 |      1 |     1 | E2     | B      | C      |
+| B     |      0 |    2 |      1 |     2 | E3     | C      | A      |
+| B     |      0 |    3 |      1 |     3 | E1     | A      | B      |
+
+With `direction: "incoming"`, connections are followed from target to source:
+
+```ts
+await triangle
+  .findCycles("source", "target", "edgeId", "A", { direction: "incoming" })
+  .log();
+```
+
+| start | pathId | step | weight | total | edgeId | source | target |
+| ----- | -----: | ---: | -----: | ----: | ------ | ------ | ------ |
+| A     |      0 |    1 |      1 |     1 | E3     | C      | A      |
+| A     |      0 |    2 |      1 |     2 | E2     | B      | C      |
+| A     |      0 |    3 |      1 |     3 | E1     | A      | B      |
+
+With `direction: "both"`, either direction is allowed. This cycle appears once,
+in the direction that starts with E1:
+
+```ts
+await triangle
+  .findCycles("source", "target", "edgeId", "A", { direction: "both" })
+  .log();
+```
+
+| start | pathId | step | weight | total | edgeId | source | target |
+| ----- | -----: | ---: | -----: | ----: | ------ | ------ | ------ |
+| A     |      0 |    1 |      1 |     1 | E1     | A      | B      |
+| A     |      0 |    2 |      1 |     2 | E2     | B      | C      |
+| A     |      0 |    3 |      1 |     3 | E3     | C      | A      |
+
+Two separate connections between A and B form a cycle with `direction:
+"both"`.
+The self-connection at C forms another cycle. For this input:
+
+| edgeId | source | target | cost |
+| ------ | ------ | ------ | ---: |
+| P1     | A      | B      |    1 |
+| P2     | A      | B      |    2 |
+| L1     | C      | C      |    4 |
+
+```ts
+await parallelAndLoop
+  .findCycles("source", "target", "edgeId", ["A", "C"], {
+    direction: "both",
+    weight: "cost",
+  })
+  .log();
+```
+
+| start | pathId | step | weight | total | edgeId | source | target | cost |
+| ----- | -----: | ---: | -----: | ----: | ------ | ------ | ------ | ---: |
+| A     |      0 |    1 |      1 |     1 | P1     | A      | B      |    1 |
+| A     |      0 |    2 |      2 |     3 | P2     | A      | B      |    2 |
+| C     |      0 |    1 |      4 |     4 | L1     | C      | C      |    4 |
+
+With the `weight` option, total is a running total of the selected values. For
+these flights:
+
+| flightId | origin | destination | minutes |
+| -------- | ------ | ----------- | ------: |
+| F1       | A      | B           |       1 |
+| F2       | B      | C           |       2 |
+| F3       | C      | A           |       3 |
+
+```ts
+await flights
+  .findCycles("origin", "destination", "flightId", "A", {
+    weight: "minutes",
+  })
+  .log();
+```
+
+| start | pathId | step | weight | total | flightId | origin | destination | minutes |
+| ----- | -----: | ---: | -----: | ----: | -------- | ------ | ----------- | ------: |
+| A     |      0 |    1 |      1 |     1 | F1       | A      | B           |       1 |
+| A     |      0 |    2 |      2 |     3 | F2       | B      | C           |       2 |
+| A     |      0 |    3 |      3 |     6 | F3       | C      | A           |       3 |
+
+For an input without connection IDs, use `addId()` first:
+
+| source | target |
+| ------ | ------ |
+| A      | B      |
+| B      | C      |
+| C      | A      |
+
+```ts
+await unnumberedConnections
+  .addId("edgeId", { prefix: "edge-" })
+  .findCycles("source", "target", "edgeId", "A")
+  .log();
+```
+
+| start | pathId | step | weight | total | source | target | edgeId |
+| ----- | -----: | ---: | -----: | ----: | ------ | ------ | ------ |
+| A     |      0 |    1 |      1 |     1 | A      | B      | edge-0 |
+| A     |      0 |    2 |      1 |     2 | B      | C      | edge-1 |
+| A     |      0 |    3 |      1 |     3 | C      | A      | edge-2 |
+
+For these instantaneous events, requesting A and B as starting nodes returns
+only the cycle B → C → A → B. Starting at A would break chronological order:
+
+| flightId | origin | destination | departureTime    |
+| -------- | ------ | ----------- | ---------------- |
+| F1       | B      | C           | 2025-01-01 09:00 |
+| F2       | C      | A           | 2025-01-01 10:00 |
+| F3       | A      | B           | 2025-01-01 11:00 |
+
+```ts
+await timedFlights
+  .findCycles("origin", "destination", "flightId", ["A", "B"], {
+    startTimeColumn: "departureTime",
+  })
+  .log();
+```
+
+| start | pathId | step | weight | total | flightId | origin | destination | departureTime       |
+| ----- | -----: | ---: | -----: | ----: | -------- | ------ | ----------- | ------------------- |
+| B     |      0 |    1 |      1 |     1 | F1       | B      | C           | 2025-01-01 09:00:00 |
+| B     |      0 |    2 |      1 |     2 | F2       | C      | A           | 2025-01-01 10:00:00 |
+| B     |      0 |    3 |      1 |     3 | F3       | A      | B           | 2025-01-01 11:00:00 |
+
+Searching the same events from B in the incoming direction follows connections
+backward, from the latest to the earliest:
+
+```ts
+await timedFlights
+  .findCycles("origin", "destination", "flightId", "B", {
+    direction: "incoming",
+    startTimeColumn: "departureTime",
+  })
+  .log();
+```
+
+| start | pathId | step | weight | total | flightId | origin | destination | departureTime       |
+| ----- | -----: | ---: | -----: | ----: | -------- | ------ | ----------- | ------------------- |
+| B     |      0 |    1 |      1 |     1 | F3       | A      | B           | 2025-01-01 11:00:00 |
+| B     |      0 |    2 |      1 |     2 | F2       | C      | A           | 2025-01-01 10:00:00 |
+| B     |      0 |    3 |      1 |     3 | F1       | B      | C           | 2025-01-01 09:00:00 |
+
 #### `extractDatePart`
 
 Extracts one or more components from a temporal column into new columns. Pass a
@@ -4929,7 +6754,8 @@ await table.fuzzyClean("category", "category", 80, {
 
 #### `replace`
 
-Replaces specified strings in the selected columns.
+Replaces specified strings in the selected columns. Use `["all"]` to target a
+column literally named `all`.
 
 ##### Signature
 
@@ -5312,7 +7138,8 @@ await table.lastChars("productCode", 2).log();
 
 #### `replaceNulls`
 
-Replaces `NULL` values in the specified columns with a given value.
+Replaces `NULL` values in the specified columns with a given value. Use
+`["all"]` to target a column literally named `all`.
 
 ##### Signature
 
@@ -5450,6 +7277,152 @@ await table.rowToText(
 await table
   .convert({ age: "string", salary: "string" })
   .rowToText(["name", "age", "salary"], "profile").log();
+```
+
+#### `rowToVector`
+
+Combines numeric scalar columns into a fixed-size vector. The input column order
+determines the vector dimension order, and null values remain null vector
+elements.
+
+When all input columns have the same numeric type, that type is preserved. Mixed
+numeric types require an explicit `type` option. Casting exact decimals or large
+integers to FLOAT or DOUBLE can lose precision.
+
+##### Signature
+
+```typescript
+rowToVector(columns: string[], newColumn: string, options?: { type?: "float" | "double" }): this;
+```
+
+##### Parameters
+
+- **`columns`**: Numeric scalar columns to combine, in vector dimension order.
+- **`newColumn`**: The name of the vector column to create.
+- **`options`**: Optional vector element type settings.
+- **`options.type`**: Cast every element to `"float"` or `"double"`. Required
+  when the input column types differ.
+
+##### Returns
+
+The table, so methods can be chained.
+
+##### Examples
+
+```ts
+await table
+  .rowToVector(["height", "weight"], "measurements")
+  .log();
+```
+
+```ts
+await table
+  .rowToVector(["count", "score"], "features", { type: "double" })
+  .log();
+```
+
+#### `normalizeVector`
+
+Normalizes a numeric vector column. By default, each dimension is scaled
+independently to `[0, 1]` across rows: all first elements together, all second
+elements together, and so on. With `normalization: "rowL2"`, each row is scaled
+to Euclidean unit length while preserving its direction; zero vectors remain
+zero.
+
+The input may be a numeric LIST or fixed-size ARRAY. The output is a fixed-size
+DOUBLE ARRAY. Converting large integers and exact decimals to DOUBLE can lose
+precision. With `"dimensionMinMax"`, a dimension whose converted values are all
+equal cannot be normalized.
+
+##### Signature
+
+```typescript
+normalizeVector(column: string, newColumn: string, options?: { normalization?: "dimensionMinMax" | "rowL2" }): this;
+```
+
+##### Parameters
+
+- **`column`**: The numeric vector column to normalize.
+- **`newColumn`**: The output column. Use the source column's name to replace
+  the source column with the normalized DOUBLE vector.
+- **`options`**: Normalization settings.
+- **`options.normalization`**: `"dimensionMinMax"` scales each dimension across
+  rows; `"rowL2"` scales each row to unit length. Defaults to
+  `"dimensionMinMax"`.
+
+##### Returns
+
+The table, so methods can be chained.
+
+##### Examples
+
+```ts
+// Scale each dimension across rows to [0, 1] in a new column.
+await table
+  .normalizeVector("features", "scaledFeatures")
+  .log();
+```
+
+```ts
+// Replace each vector with its unit-length version; zero vectors stay zero.
+await table
+  .normalizeVector("features", "features", { normalization: "rowL2" })
+  .log();
+```
+
+#### `mahalanobis`
+
+Calculates each row's Mahalanobis distance from a supplied reference point and
+stores it in a new DOUBLE column. Sample covariance (`n - 1`) is estimated from
+the dataset, independently of the reference point.
+
+Pass one numeric LIST or ARRAY column, or an array of numeric scalar columns.
+Reference values follow the same dimension order. Inputs are converted privately
+to DOUBLE, which can lose precision for large integers and exact decimals;
+source columns and types remain unchanged.
+
+Requires more rows than dimensions and finite, non-null, consistent features
+with invertible, numerically stable covariance. Invalid inputs leave the source
+unchanged.
+
+##### Signature
+
+```typescript
+mahalanobis(columns: string | string[], referencePoint: number[], newColumn: string, options?: { similarityScoreColumn?: string }): this;
+```
+
+##### Parameters
+
+- **`columns`**: A numeric vector column, or numeric scalar columns in feature
+  order.
+- **`referencePoint`**: One finite number per feature dimension; may be outside
+  the dataset.
+- **`newColumn`**: The name of the new DOUBLE distance column.
+- **`options`**: Optional output settings.
+- **`options.similarityScoreColumn`**: A new DOUBLE column for the
+  dataset-relative score `1 - distance / maxDistance`. Exact matches score 1 and
+  the farthest rows score 0; if all distances are zero, every score is 1.
+
+##### Returns
+
+The table, so methods can be chained.
+
+##### Examples
+
+```ts
+// Measure distance from a reference height and weight.
+await table
+  .mahalanobis(["height", "weight"], [175, 70], "distance")
+  .log();
+```
+
+```ts
+// Compare feature vectors and add a dataset-relative similarity score.
+await table
+  .mahalanobis("features", [175, 70], "distance", {
+    similarityScoreColumn: "similarity",
+  })
+  .log();
 ```
 
 #### `unnest`
