@@ -162,9 +162,20 @@ methods are synchronous and chainable; async observer methods such as
 `getData()`, `log()`, and `writeData()` flush the queue before producing their
 result. This means only the final observer needs to be awaited.
 
-Methods that return an answer or export data, such as `aiRAG()`, `toBucket()`,
-`toSheet()`, `toDatawrapper()`, `toGeoDatawrapper()`, `writeChart()`, and
-`writeMap()`, remain asynchronous and must be awaited.
+Export and chart observers (`toSheet()`, `toDatawrapper()`,
+`toGeoDatawrapper()`, `writeChart()`, `writeMap()`, `logLineChart()`,
+`logDotChart()`, `logBarChart()`, and `logHistogram()`) remain asynchronous and
+return `Promise<this>`, like `writeData()`. Await the operation to get the same
+table back, preserving its subclass type:
+
+```ts
+const table = await sdb.newTable().loadGeoData("regions.geojson")
+  .writeMap(map, "output/map.svg");
+await table.filter("population > 100000").log();
+```
+
+`aiRAG()` and `toBucket()` remain asynchronous and return an answer or upload
+URI.
 
 The syntax and the available methods were inspired by
 [Pandas](https://github.com/pandas-dev/pandas) (Python) and the
