@@ -1,7 +1,7 @@
 # The Simple Data Analysis Library
 
 - Package: `@nshiab/simple-data-analysis`
-- Version: `6.0.7`
+- Version: `6.0.8`
 - Includes: `@nshiab/simple-data-analysis-core@2.1.2`
 
 To install the library with Deno, use:
