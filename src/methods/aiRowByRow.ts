@@ -1,3 +1,4 @@
+import validateAIRequestOptions from "../helpers/validateAIRequestOptions.ts";
 import {
   queueAsyncBarrier,
   updateColumnsWithJS,
@@ -87,17 +88,7 @@ async function runAIRowByRow(
   if (!Number.isSafeInteger(batchSize) || batchSize < 1) {
     throw new Error("batchSize must be a positive integer.");
   }
-  if (
-    options.rateLimitPerMinute !== undefined &&
-    (!Number.isFinite(options.rateLimitPerMinute) ||
-      options.rateLimitPerMinute <= 0)
-  ) {
-    throw new Error("rateLimitPerMinute must be greater than 0.");
-  }
-
-  if (!Number.isSafeInteger(concurrency) || concurrency < 1) {
-    throw new Error("concurrency must be a positive safe integer.");
-  }
+  validateAIRequestOptions(options);
   const state = {
     nextRequestStart: 0,
     completed: 0,

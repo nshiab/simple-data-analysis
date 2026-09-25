@@ -319,7 +319,7 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * Environment variables are named configuration values supplied to the running process. By default, this method reads `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Values passed through `embeddings` override the corresponding environment values. When using Ollama, ensure it is running.
    *
-   * To manage rate limits, use `rateLimitPerMinute` to introduce delays between requests. For higher rate limits (business/professional accounts), `concurrency` allows parallel requests.
+   * Use `rateLimitPerMinute` to space provider request starts across the worker pool, including across transfer batches. Cached responses bypass pacing. The `concurrency` option bounds active tasks, and free slots refill as requests finish. Embedding failures are not retried automatically; new tasks stop and active work settles before the error is thrown.
    *
    * Individual embedding responses are cached in `.journalism-cache` by default. Set `embeddings.cache` to `false` to disable this request cache, and remember to add `.journalism-cache` to your `.gitignore`.
    *
@@ -375,7 +375,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
    * @param options.concurrency - The number of concurrent requests to send. Defaults to `1`.
    * @param options.embeddings - Optional Gemini or Ollama embedding configuration.
-   * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
+   * @param options.rateLimitPerMinute - The maximum number of provider requests started per minute. Must be positive and finite. Request starts are spaced across the worker pool; cached responses bypass the limit. Defaults to `undefined` (no limit).
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
    * @returns The table, so methods can be chained.
    * @category AI

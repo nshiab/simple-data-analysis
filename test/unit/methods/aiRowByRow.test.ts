@@ -686,3 +686,39 @@ Deno.test("aiRowByRow logs compact geometry separately from stored SQL values", 
     await sdb.close();
   }
 });
+
+Deno.test("aiRowByRow infers output types after a null-only first transfer batch", async () => {
+  const { sdb, table, assertPreserved } = await createAIEnrichmentFixture();
+  let requests = 0;
+  const client = createOllamaClient((prompt) => {
+    requests++;
+    return ollamaResponse(
+      extractValues(prompt).map(() => ({ label: requests <= 2 ? null : 42 })),
+    );
+  });
+  try {
+    await table.aiRowByRow("text", "label", "Label each row.", {
+      generation: {
+        provider: "ollama",
+        model: "null-batch",
+        schemaJson: z.toJSONSchema(
+          z.array(z.object({ label: z.number().nullable() })),
+        ),
+        ollama: client,
+        cache: false,
+      },
+      batchSize: 500,
+    }).run();
+    assertEquals(requests, 3);
+    assertEquals(
+      await sdb.customQuery(
+        "SELECT count(*) FILTER (WHERE label IS NULL) AS empty, count(*) FILTER (WHERE label = 42) AS filled FROM enriched",
+        { returnData: true },
+      ),
+      [{ empty: 1000, filled: 3 }],
+    );
+    await assertPreserved(["label"]);
+  } finally {
+    await sdb.close();
+  }
+});

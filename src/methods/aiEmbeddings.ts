@@ -3,6 +3,7 @@ import {
   type EmbeddingOptions,
   snapshotAIOptions,
 } from "../helpers/aiOptions.ts";
+import validateAIRequestOptions from "../helpers/validateAIRequestOptions.ts";
 import ensureEmbeddingColumn from "../helpers/ensureEmbeddingColumn.ts";
 import {
   queueAsyncBarrier,
@@ -31,7 +32,7 @@ export type AIEmbeddingsOptions = {
   concurrency?: number;
   /** Logs embedding progress and index creation when enabled. */
   verbose?: boolean;
-  /** Maximum request rate used to calculate delays between batches. */
+  /** Maximum provider request starts per minute. Cache hits bypass pacing. */
   rateLimitPerMinute?: number;
   /** Candidate count used while constructing the vector index. */
   efConstruction?: number;
@@ -62,6 +63,7 @@ async function runAIEmbeddings(
   newColumn: string,
   options: AIEmbeddingsOptions,
 ): Promise<void> {
+  validateAIRequestOptions(options);
   const { getEmbeddingIdentity } = await import("@nshiab/journalism-ai");
   const identity = getEmbeddingIdentity(options.embeddings);
   await ensureEmbeddingColumn(
@@ -109,11 +111,10 @@ export async function generateEmbeddingColumn(
   newColumn: string,
   options: AIEmbeddingsOptions = {},
 ): Promise<void> {
+  validateAIRequestOptions(options);
   const concurrency = options.concurrency ?? 1;
-  if (!Number.isSafeInteger(concurrency) || concurrency < 1) {
-    throw new Error("concurrency must be a positive safe integer.");
-  }
   const total = await simpleTable.getRowCount();
+  const state = { nextRequestStart: 0, completed: 0, total };
   let processed = 0;
   if (options.verbose) console.log("\naiEmbeddings()");
   await updateColumnsWithJS(
@@ -121,69 +122,53 @@ export async function generateEmbeddingColumn(
     [column],
     [newColumn],
     async (rows) => {
-      const [{ formatNumber }, { default: sleep }, { default: tryEmbedding }] =
-        await Promise.all([
-          import("@nshiab/journalism-format"),
-          import("../helpers/sleep.ts"),
-          import("../helpers/tryEmbedding.ts"),
-        ]);
-      let requests = [];
-      for (let i = 0; i < rows.length; i++) {
-        if (options.verbose) {
-          console.log(
-            `Processing row ${processed + i + 1} of ${total}... (${
-              formatNumber(
-                (processed + i + 1) / total * 100,
-                {
-                  significantDigits: 3,
-                  suffix: "%",
-                },
-              )
-            })`,
-          );
-        }
-
-        if (requests.length < concurrency) {
-          const text = rows[i][column];
+      const [
+        { formatNumber },
+        { getEmbeddingForProvider },
+        { default: runAIRequestPool },
+      ] = await Promise.all([
+        import("@nshiab/journalism-format"),
+        import("../helpers/getEmbeddingForProvider.ts"),
+        import("../helpers/runAIRequestPool.ts"),
+      ]);
+      const tasks = rows.map(
+        (row, i) => async (beforeRequest: () => Promise<void>) => {
+          const text = row[column];
           if (typeof text !== "string") {
             throw new Error(
               `The column "${column}" must be a string. Found ${text} instead.`,
             );
           }
-          requests.push(
-            tryEmbedding(i, rows, text, newColumn, options),
-          );
-        }
-
-        if (requests.length === concurrency || i + 1 >= rows.length) {
-          const start = new Date();
-          await Promise.all(requests);
-          const end = new Date();
-
-          const duration = end.getTime() - start.getTime();
-          // If duration is less than 10ms per request, it should means data comes from cache and we don't need to wait
-          if (
-            typeof options.rateLimitPerMinute === "number" &&
-            duration > 10 * requests.length && processed + i + 1 < total
-          ) {
-            const delay = Math.round(
-              (60 / (options.rateLimitPerMinute / concurrency)) * 1000,
+          if (options.verbose) {
+            console.log(
+              `Processing row ${processed + i + 1} of ${total}... (${
+                formatNumber(
+                  (processed + i + 1) / total * 100,
+                  { significantDigits: 3, suffix: "%" },
+                )
+              })`,
             );
-            await sleep(delay, { start, log: options.verbose });
           }
-
-          requests = [];
-        }
-      }
-
+          return await getEmbeddingForProvider(
+            text,
+            options.embeddings,
+            beforeRequest,
+          );
+        },
+      );
+      const { results } = await runAIRequestPool(tasks, concurrency, {
+        stopOnError: true,
+        minRequestIntervalMs: options.rateLimitPerMinute === undefined
+          ? undefined
+          : 60_000 / options.rateLimitPerMinute,
+        state,
+      });
       processed += rows.length;
-      return rows;
+      return results.map((vector) => {
+        if (vector === undefined) throw new Error("Missing embedding result.");
+        return { [newColumn]: vector };
+      });
     },
-    {
-      batchSize: Math.max(
-        concurrency,
-        Math.floor(1000 / concurrency) * concurrency,
-      ),
-    },
+    { batchSize: 1000 },
   );
 }
