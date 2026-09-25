@@ -855,9 +855,11 @@ example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example,
 `"us-central1"`). Values passed through `embeddings` override the corresponding
 environment values. When using Ollama, ensure it is running.
 
-To manage rate limits, use `rateLimitPerMinute` to introduce delays between
-requests. For higher rate limits (business/professional accounts), `concurrency`
-allows parallel requests.
+Use `rateLimitPerMinute` to space provider request starts across the worker
+pool, including across transfer batches. Cached responses bypass pacing. The
+`concurrency` option bounds active tasks, and free slots refill as requests
+finish. Embedding failures are not retried automatically; new tasks stop and
+active work settles before the error is thrown.
 
 Individual embedding responses are cached in `.journalism-cache` by default. Set
 `embeddings.cache` to `false` to disable this request cache, and remember to add
@@ -912,8 +914,9 @@ aiEmbeddings(column: string, newColumn: string, options?: { embeddings?: { provi
 - **`options.concurrency`**: The number of concurrent requests to send. Defaults
   to `1`.
 - **`options.embeddings`**: Optional Gemini or Ollama embedding configuration.
-- **`options.rateLimitPerMinute`**: The rate limit for AI requests in requests
-  per minute. The method will wait between requests if necessary. Defaults to
+- **`options.rateLimitPerMinute`**: The maximum number of provider requests
+  started per minute. Must be positive and finite. Request starts are spaced
+  across the worker pool; cached responses bypass the limit. Defaults to
   `undefined` (no limit).
 - **`options.verbose`**: If `true`, logs additional debugging information.
   Defaults to `false`.

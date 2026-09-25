@@ -1,3 +1,4 @@
+import validateAIRequestOptions from "../helpers/validateAIRequestOptions.ts";
 import type SimpleTable from "../class/SimpleTable.ts";
 import getRRFRanking from "../helpers/getRRFRanking.ts";
 import {
@@ -194,6 +195,7 @@ async function runHybridSearch(
 
   // Only generate embeddings if vector search is enabled
   if (enableVectorSearch) {
+    validateAIRequestOptions({ concurrency: options.embeddingsConcurrency });
     const { getEmbeddingIdentity } = await import("@nshiab/journalism-ai");
     if (options.verbose) {
       times.embeddingStart = Date.now();
