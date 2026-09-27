@@ -858,8 +858,19 @@ environment values. When using Ollama, ensure it is running.
 Use `rateLimitPerMinute` to space provider request starts across the worker
 pool, including across transfer batches. Cached responses bypass pacing. The
 `concurrency` option bounds active tasks, and free slots refill as requests
-finish. Embedding failures are not retried automatically; new tasks stop and
-active work settles before the error is thrown.
+finish. Retries are disabled by default; set `retry` and optionally `retryCheck`
+to retry failed requests. Each dispatched retry respects the rate limit.
+
+By default, a terminal request failure stops new tasks and settles active work
+before throwing. Set `errorColumn` to continue instead: failed rows receive a
+`NULL` embedding and an error message, while successful rows receive `NULL` in
+the error column. If every request fails, the embedding column is entirely
+`NULL`. Check errors and handle null embeddings before indexing or searching.
+Errors in staging or retry-policy callbacks still throw.
+
+Set `logProgress` to log completed request tasks, including failures and cache
+hits; retries do not increment completion counts. The `verbose` option retains
+detailed row-processing and index-creation logging.
 
 Individual embedding responses are cached in `.journalism-cache` by default. Set
 `embeddings.cache` to `false` to disable this request cache, and remember to add
@@ -887,7 +898,7 @@ The work is queued and runs in chain order at the next awaited observer or
 ##### Signature
 
 ```typescript
-aiEmbeddings(column: string, newColumn: string, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; createIndex?: boolean; overwriteIndex?: boolean; concurrency?: number; verbose?: boolean; rateLimitPerMinute?: number; efConstruction?: number; efSearch?: number; M?: number }): this;
+aiEmbeddings(column: string, newColumn: string, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; createIndex?: boolean; overwriteIndex?: boolean; concurrency?: number; errorColumn?: string; retry?: number; retryCheck?: (error: unknown) => Promise<boolean> | boolean; logProgress?: boolean; verbose?: boolean; rateLimitPerMinute?: number; efConstruction?: number; efSearch?: number; M?: number }): this;
 ```
 
 ##### Parameters
@@ -918,6 +929,16 @@ aiEmbeddings(column: string, newColumn: string, options?: { embeddings?: { provi
   started per minute. Must be positive and finite. Request starts are spaced
   across the worker pool; cached responses bypass the limit. Defaults to
   `undefined` (no limit).
+- **`options.errorColumn`**: Column receiving terminal request errors instead of
+  throwing. Failed embeddings are `NULL`; successful rows have a `NULL` error.
+  Must differ from `newColumn`. Defaults to `undefined`.
+- **`options.retry`**: Number of additional attempts after a request failure.
+  Must be a non-negative safe integer. Defaults to `0`.
+- **`options.retryCheck`**: Optional synchronous or asynchronous predicate that
+  decides whether a failed request may be retried while attempts remain.
+  Defaults to `undefined`.
+- **`options.logProgress`**: If `true`, logs request-task completion counts
+  across transfer batches. Defaults to `false`.
 - **`options.verbose`**: If `true`, logs additional debugging information.
   Defaults to `false`.
 
@@ -955,6 +976,19 @@ const food = await sdb
 const food = await table
   .aiEmbeddings("food", "embeddings", {
     embeddings: { provider: "ollama", model: "nomic-embed-text" },
+  })
+  .log();
+```
+
+```ts
+// Retry requests and retain errors for inspection.
+await table
+  .aiEmbeddings("text", "embedding", {
+    embeddings: { provider: "ollama", model: "nomic-embed-text" },
+    errorColumn: "embedding_error",
+    retry: 2,
+    retryCheck: (error) => error instanceof Error,
+    logProgress: true,
   })
   .log();
 ```

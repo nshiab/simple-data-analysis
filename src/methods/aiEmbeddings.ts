@@ -30,6 +30,38 @@ export type AIEmbeddingsOptions = {
   overwriteIndex?: boolean;
   /** Maximum number of embedding requests processed concurrently. */
   concurrency?: number;
+  /**
+   * Stores terminal request errors and null embeddings instead of throwing.
+   * @example
+   * ```ts
+   * { errorColumn: "embedding_error" }
+   * ```
+   */
+  errorColumn?: string;
+  /**
+   * Number of additional attempts after a request failure. Defaults to zero.
+   * @example
+   * ```ts
+   * { retry: 2 }
+   * ```
+   */
+  retry?: number;
+  /**
+   * Decides whether a failed request should be retried while attempts remain.
+   * @example
+   * ```ts
+   * { retry: 2, retryCheck: (error) => error instanceof Error }
+   * ```
+   */
+  retryCheck?: (error: unknown) => Promise<boolean> | boolean;
+  /**
+   * Logs completed request tasks, including failures and cache hits. Defaults to false.
+   * @example
+   * ```ts
+   * { logProgress: true }
+   * ```
+   */
+  logProgress?: boolean;
   /** Logs embedding progress and index creation when enabled. */
   verbose?: boolean;
   /** Maximum provider request starts per minute. Cache hits bypass pacing. */
@@ -57,13 +89,29 @@ export default function aiEmbeddings(
   return simpleTable;
 }
 
+function validateEmbeddingOptions(
+  newColumn: string,
+  options: AIEmbeddingsOptions,
+): void {
+  validateAIRequestOptions(options);
+  if (
+    options.retry !== undefined &&
+    (!Number.isSafeInteger(options.retry) || options.retry < 0)
+  ) {
+    throw new Error("retry must be a non-negative safe integer.");
+  }
+  if (options.errorColumn?.toLowerCase() === newColumn.toLowerCase()) {
+    throw new Error("errorColumn must differ from the embedding column.");
+  }
+}
+
 async function runAIEmbeddings(
   simpleTable: SimpleTable,
   column: string,
   newColumn: string,
   options: AIEmbeddingsOptions,
 ): Promise<void> {
-  validateAIRequestOptions(options);
+  validateEmbeddingOptions(newColumn, options);
   const { getEmbeddingIdentity } = await import("@nshiab/journalism-ai");
   const identity = getEmbeddingIdentity(options.embeddings);
   await ensureEmbeddingColumn(
@@ -111,7 +159,7 @@ export async function generateEmbeddingColumn(
   newColumn: string,
   options: AIEmbeddingsOptions = {},
 ): Promise<void> {
-  validateAIRequestOptions(options);
+  validateEmbeddingOptions(newColumn, options);
   const concurrency = options.concurrency ?? 1;
   const total = await simpleTable.getRowCount();
   const state = { nextRequestStart: 0, completed: 0, total };
@@ -120,7 +168,9 @@ export async function generateEmbeddingColumn(
   await updateColumnsWithJS(
     simpleTable,
     [column],
-    [newColumn],
+    options.errorColumn === undefined
+      ? [newColumn]
+      : [newColumn, options.errorColumn],
     async (rows) => {
       const [
         { formatNumber },
@@ -156,17 +206,36 @@ export async function generateEmbeddingColumn(
           );
         },
       );
-      const { results } = await runAIRequestPool(tasks, concurrency, {
-        stopOnError: true,
+      const { results, errors } = await runAIRequestPool(tasks, concurrency, {
+        stopOnError: options.errorColumn === undefined,
+        retry: options.retry,
+        retryCheck: options.retryCheck,
+        logProgress: options.logProgress,
         minRequestIntervalMs: options.rateLimitPerMinute === undefined
           ? undefined
           : 60_000 / options.rateLimitPerMinute,
         state,
       });
       processed += rows.length;
-      return results.map((vector) => {
-        if (vector === undefined) throw new Error("Missing embedding result.");
-        return { [newColumn]: vector };
+      return results.map((vector, i) => {
+        if (vector !== undefined) {
+          return {
+            [newColumn]: vector,
+            ...(options.errorColumn === undefined
+              ? {}
+              : { [options.errorColumn]: null }),
+          };
+        }
+        if (options.errorColumn === undefined) {
+          throw new Error("Missing embedding result.");
+        }
+        const error = errors[i];
+        return {
+          [newColumn]: null,
+          [options.errorColumn]: error instanceof Error && error.message
+            ? error.message
+            : String(error),
+        };
       });
     },
     { batchSize: 1000 },
