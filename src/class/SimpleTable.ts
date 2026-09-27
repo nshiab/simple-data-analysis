@@ -319,7 +319,11 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * Environment variables are named configuration values supplied to the running process. By default, this method reads `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Values passed through `embeddings` override the corresponding environment values. When using Ollama, ensure it is running.
    *
-   * Use `rateLimitPerMinute` to space provider request starts across the worker pool, including across transfer batches. Cached responses bypass pacing. The `concurrency` option bounds active tasks, and free slots refill as requests finish. Embedding failures are not retried automatically; new tasks stop and active work settles before the error is thrown.
+   * Use `rateLimitPerMinute` to space provider request starts across the worker pool, including across transfer batches. Cached responses bypass pacing. The `concurrency` option bounds active tasks, and free slots refill as requests finish. Retries are disabled by default; set `retry` and optionally `retryCheck` to retry failed requests. Each dispatched retry respects the rate limit.
+   *
+   * By default, a terminal request failure stops new tasks and settles active work before throwing. Set `errorColumn` to continue instead: failed rows receive a `NULL` embedding and an error message, while successful rows receive `NULL` in the error column. If every request fails, the embedding column is entirely `NULL`. Check errors and handle null embeddings before indexing or searching. Errors in staging or retry-policy callbacks still throw.
+   *
+   * Set `logProgress` to log completed request tasks, including failures and cache hits; retries do not increment completion counts. The `verbose` option retains detailed row-processing and index-creation logging.
    *
    * Individual embedding responses are cached in `.journalism-cache` by default. Set `embeddings.cache` to `false` to disable this request cache, and remember to add `.journalism-cache` to your `.gitignore`.
    *
@@ -365,6 +369,20 @@ export default class SimpleTable extends SimpleTableCore {
    *   .log();
    * ```
    *
+   * @example
+   * ```ts
+   * // Retry requests and retain errors for inspection.
+   * await table
+   *   .aiEmbeddings("text", "embedding", {
+   *     embeddings: { provider: "ollama", model: "nomic-embed-text" },
+   *     errorColumn: "embedding_error",
+   *     retry: 2,
+   *     retryCheck: (error) => error instanceof Error,
+   *     logProgress: true,
+   *   })
+   *   .log();
+   * ```
+   *
    * @param column - The name of the column to be used as input for generating embeddings.
    * @param newColumn - The name of the new column where the generated embeddings will be stored.
    * @param options - Configuration options for the AI request.
@@ -376,6 +394,10 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.concurrency - The number of concurrent requests to send. Defaults to `1`.
    * @param options.embeddings - Optional Gemini or Ollama embedding configuration.
    * @param options.rateLimitPerMinute - The maximum number of provider requests started per minute. Must be positive and finite. Request starts are spaced across the worker pool; cached responses bypass the limit. Defaults to `undefined` (no limit).
+   * @param options.errorColumn - Column receiving terminal request errors instead of throwing. Failed embeddings are `NULL`; successful rows have a `NULL` error. Must differ from `newColumn`. Defaults to `undefined`.
+   * @param options.retry - Number of additional attempts after a request failure. Must be a non-negative safe integer. Defaults to `0`.
+   * @param options.retryCheck - Optional synchronous or asynchronous predicate that decides whether a failed request may be retried while attempts remain. Defaults to `undefined`.
+   * @param options.logProgress - If `true`, logs request-task completion counts across transfer batches. Defaults to `false`.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
    * @returns The table, so methods can be chained.
    * @category AI
@@ -443,6 +465,10 @@ export default class SimpleTable extends SimpleTableCore {
       createIndex?: boolean;
       overwriteIndex?: boolean;
       concurrency?: number;
+      errorColumn?: string;
+      retry?: number;
+      retryCheck?: (error: unknown) => Promise<boolean> | boolean;
+      logProgress?: boolean;
       verbose?: boolean;
       rateLimitPerMinute?: number;
       efConstruction?: number;

@@ -35,6 +35,11 @@ function checkPublicMethodOptions(table: SimpleTable): void {
     "text_embeddings",
     {
       embeddings: vertexOptions,
+      errorColumn: "embedding_error",
+      retry: 2,
+      retryCheck: (error) => Promise.resolve(error instanceof Error),
+      logProgress: true,
+      verbose: true,
     },
   ).selectColumns("*");
   const vectorTable: SimpleTable = table.aiVectorSimilarity(

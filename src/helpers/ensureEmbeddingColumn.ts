@@ -64,6 +64,9 @@ async function getDimensions(
   if (fixedSize !== undefined) {
     return Number(fixedSize);
   }
+  // An all-null generated column has no vector dimensions. Avoid reading it
+  // into JavaScript merely to discover that every request failed.
+  if (!type?.endsWith("[]")) return 0;
   const values = await table.getValues(embeddingColumn);
   const vector = values.find(Array.isArray);
   return vector?.length ?? 0;
