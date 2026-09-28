@@ -2,7 +2,7 @@
 
 - Package: `@nshiab/simple-data-analysis`
 - Version: `6.0.6`
-- Includes: `@nshiab/simple-data-analysis-core@2.1.1`
+- Includes: `@nshiab/simple-data-analysis-core@2.1.5`
 
 To install the library with Deno, use:
 
@@ -2437,7 +2437,9 @@ await table.setTypes({
 Loads an array of JavaScript objects into the table. Types are inferred for
 numbers, bigints, strings, booleans, and Date values. Array and object cells
 require an explicit supported type in columnTypes. Types can also be specified
-for scalar columns instead of inferred from their values.
+for scalar columns instead of inferred from their values. Inferred bigints use
+signed 64-bit `BIGINT`; values outside that range throw when written instead of
+wrapping.
 
 JavaScript `Date` values are inferred as DuckDB `TIMESTAMP` values. Their
 instant is preserved, but JavaScript `Date` does not retain the timezone or
@@ -7370,16 +7372,23 @@ await table
   .log();
 ```
 
-#### `mahalanobis`
+#### `similarityMahalanobis`
 
-Calculates each row's Mahalanobis distance from a supplied reference point and
-stores it in a new DOUBLE column. Sample covariance (`n - 1`) is estimated from
-the dataset, independently of the reference point.
+Measures numeric profile similarity using each row's Mahalanobis distance from a
+supplied reference point and stores it in a new DOUBLE column. Smaller distances
+indicate more similar profiles. Optionally adds a dataset-relative similarity
+score, where larger values mean more similar. Sample covariance (`n - 1`) is
+estimated from the dataset, independently of the reference point.
+
+Accounts for differences in feature scales and correlations between features,
+making it useful for comparing profiles with measurements in different units.
 
 Pass one numeric LIST or ARRAY column, or an array of numeric scalar columns.
-Reference values follow the same dimension order. Inputs are converted privately
-to DOUBLE, which can lose precision for large integers and exact decimals;
-source columns and types remain unchanged.
+Reference arrays follow the same dimension order. For scalar columns, a
+reference object supplies its own finite numeric values by column name; extra
+fields are ignored. Reference values are captured when this method is called.
+Inputs are converted privately to DOUBLE, which can lose precision for large
+integers and exact decimals; source columns and types remain unchanged.
 
 Requires more rows than dimensions and finite, non-null, consistent features
 with invertible, numerically stable covariance. Invalid inputs leave the source
@@ -7388,20 +7397,22 @@ unchanged.
 ##### Signature
 
 ```typescript
-mahalanobis(columns: string | string[], referencePoint: number[], newColumn: string, options?: { similarityScoreColumn?: string }): this;
+similarityMahalanobis(columns: string | string[], referencePoint: number[] | Record<string, unknown>, newColumn: string, options?: { similarityScoreColumn?: string | boolean }): this;
 ```
 
 ##### Parameters
 
 - **`columns`**: A numeric vector column, or numeric scalar columns in feature
   order.
-- **`referencePoint`**: One finite number per feature dimension; may be outside
-  the dataset.
+- **`referencePoint`**: An array of finite numbers in feature order, or an
+  object with an own finite numeric value for each scalar feature column; may be
+  outside the dataset.
 - **`newColumn`**: The name of the new DOUBLE distance column.
 - **`options`**: Optional output settings.
-- **`options.similarityScoreColumn`**: A new DOUBLE column for the
-  dataset-relative score `1 - distance / maxDistance`. Exact matches score 1 and
-  the farthest rows score 0; if all distances are zero, every score is 1.
+- **`options.similarityScoreColumn`**: A custom name, or true for a new DOUBLE
+  column named "similarity"; false or omitted adds no score. The
+  dataset-relative score is `1 - distance / maxDistance`. Exact matches score 1
+  and the farthest rows score 0; if all distances are zero, every score is 1.
 
 ##### Returns
 
@@ -7412,15 +7423,25 @@ The table, so methods can be chained.
 ```ts
 // Measure distance from a reference height and weight.
 await table
-  .mahalanobis(["height", "weight"], [175, 70], "distance")
+  .similarityMahalanobis(["height", "weight"], [175, 70], "distance")
   .log();
 ```
 
 ```ts
 // Compare feature vectors and add a dataset-relative similarity score.
 await table
-  .mahalanobis("features", [175, 70], "distance", {
+  .similarityMahalanobis("features", [175, 70], "distance", {
     similarityScoreColumn: "similarity",
+  })
+  .log();
+```
+
+```ts
+// Compare profiles directly with a row and use the default score column.
+const reference = await table.getRow("name === 'Alex'");
+await table
+  .similarityMahalanobis(["height", "weight"], reference, "distance", {
+    similarityScoreColumn: true,
   })
   .log();
 ```
@@ -8684,7 +8705,9 @@ array of objects. This method offers high flexibility for data manipulation but
 can be slow for large tables as it involves transferring data between DuckDB and
 JavaScript. Before writing a JavaScript callback, check for an existing SDA
 method that performs the same operation; it will usually be faster and more
-efficient.
+efficient. Existing integer and enum columns retain their types. Fractional or
+out-of-range integers and unknown enum members throw when written. The original
+table is replaced after all callback results have been converted successfully.
 
 If the table has geometry columns, the callback can read and modify their
 GeoJSON geometry objects directly. Extra properties added to these objects are
@@ -9714,35 +9737,34 @@ console.log(bottom5Books);
 
 #### `getRow`
 
-Returns a single row that matches the specified conditions. If no row matches or
-if more than one row matches, an error is thrown by default. With the default
-`SimpleDB.expressionSyntax: "js"`, conditions support JavaScript-style operators
-(`&&`, `||`, `===`, `!==`). Set `expressionSyntax: "sql"` for unchanged SQL.
-Temporal values use the same JavaScript representations as `getData()`.
+Returns a single row that matches the specified conditions. Always throws if no
+row matches. By default, also throws if more than one row matches. With the
+default `SimpleDB.expressionSyntax: "js"`, conditions support JavaScript-style
+operators (`&&`, `||`, `===`, `!==`). Set `expressionSyntax: "sql"` for
+unchanged SQL. Temporal values use the same JavaScript representations as
+`getData()`.
 
 ##### Signature
 
 ```typescript
-async getRow(conditions: string, options?: { strict?: boolean }): Promise<Record<string, unknown> | null>;
+async getRow(conditions: string, options?: { strict?: boolean }): Promise<Record<string, unknown>>;
 ```
 
 ##### Parameters
 
 - **`conditions`**: The conditions to match, specified as a SQL `WHERE` clause.
 - **`options`**: Optional settings:
-- **`options.strict`**: If `false`, no error will be thrown when no row or more
-  than one row match the condition. With no match, `null` is returned; with
-  multiple matches, the first row is returned. Defaults to `true`.
+- **`options.strict`**: If `false`, returns the first row when multiple rows
+  match. A missing match always throws. Defaults to `true`.
 
 ##### Returns
 
-A promise that resolves to an object representing the matched row, or `null` if
-`strict` is `false` and no row matches.
+A promise that resolves to an object representing the matched row.
 
 ##### Throws
 
-- **`Error`**: If `strict` is `true` and no row or more than one row matches the
-  conditions.
+- **`Error`**: If no row matches, or if `strict` is `true` and more than one row
+  matches the conditions.
 
 ##### Examples
 
@@ -9759,7 +9781,7 @@ console.log(rowById);
 ```
 
 ```ts
-// Get a row without throwing an error if multiple matches or no match
+// Get the first matching row when multiple rows may match
 const flexibleRow = await table.getRow(`status = 'pending'`, { strict: false });
 console.log(flexibleRow);
 ```
@@ -11374,6 +11396,9 @@ await table.writeGeoData("./output_high_precision.geojson", {
 
 Caches the results of computations in `./.sda-cache`. You should add
 `./.sda-cache` to your `.gitignore` file.
+
+Callback code and function/class inputs ignore comments, indentation, and line
+wrapping where safe.
 
 `cache()` automatically tracks whether earlier SDA operations changed the table.
 It also records every other already registered `SimpleTable` read through

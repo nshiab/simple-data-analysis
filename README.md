@@ -59,16 +59,6 @@ npm i @nshiab/simple-data-analysis
 bun add @nshiab/simple-data-analysis
 ```
 
-## Documentation
-
-The library is documented on
-[JSR](https://jsr.io/@nshiab/simple-data-analysis/doc). AI coding assistants and
-agents can start with the concise
-[llms.txt](https://github.com/nshiab/simple-data-analysis/blob/main/llms.txt)
-index or use the complete generated
-[llm.md](https://github.com/nshiab/simple-data-analysis/blob/main/llm.md) API
-reference, which combines Core and SDA documentation.
-
 ## Quick setup
 
 To quickly set up a data project with essential folders, configurations, and
@@ -87,8 +77,6 @@ bunx @nshiab/setup-data-project
 ```
 
 ## Performance
-
-These are end-to-end workflow comparisons.
 
 SDA uses DuckDB to handle large tabular and geospatial analyses efficiently,
 often outperforming traditional dataframe tools while keeping the code simple
@@ -324,6 +312,188 @@ Is there another reliable and broadly useful public data source you would like
 SDA to support directly?
 [Open an issue](https://github.com/nshiab/simple-data-analysis/issues/new) with
 a link to the source and an example of the data you would like to retrieve.
+
+### Similarity analysis
+
+When you want to find items that resemble a specific one, calculating a
+similarity score can be very useful, especially when you have many attributes to
+compare.
+
+Let's say we love **Louis Jadot Bourgogne Pinot Noir** and want to discover
+similar wines. We can use
+[`similarityMahalanobis`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.similarityMahalanobis),
+as demonstrated below. Mahalanobis distance is useful because it can compare
+features with different units and scales, while also accounting for correlations
+between them.
+
+The code loads the
+[Vivino Burgundy dataset](https://huggingface.co/datasets/Mr-Bridge/vivino-bourgogne-wines-2026)
+of 2,000 named wines, originally from Hugging Face, and keeps only red wines
+with tannin scores. It retrieves our favorite wine as the reference, then
+compares acidity, intensity, sweetness, and tannin to calculate a distance and
+similarity score for each wine. Finally, it logs the wines, with the closest
+matches first.
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+const wines = sdb.newTable("wines")
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/main/test/data/files/wine.csv",
+  )
+  .filter("wineType === 'Red' && tannin !== null");
+
+const reference = await wines.getRow(
+  "fullName === 'Louis Jadot Bourgogne Pinot Noir'",
+);
+
+await wines
+  .similarityMahalanobis(
+    ["acidity", "intensity", "sweetness", "tannin"],
+    reference,
+    "distance",
+    { similarityScoreColumn: true },
+  )
+  .sort({ distance: "asc" })
+  .log();
+
+await sdb.close();
+```
+
+For readability, we excluded the reference wine from the table below and show
+only the five closest matches, keeping their names, distances, and similarity
+scores rounded to three decimals. The code keeps all rows and columns, including
+the reference wine.
+
+| fullName                                                 | distance | similarity |
+| -------------------------------------------------------- | -------- | ---------- |
+| Moillard-Grivot Bourgogne Pinot Noir                     | 0.119    | 0.979      |
+| Michel Magnien Bourgogne Pinot Noir                      | 0.191    | 0.966      |
+| Louis Latour Bourgogne Pinot Noir                        | 0.192    | 0.966      |
+| Jean-Claude Boisset Pinot Noir Bourgogne 'Les Ursulines' | 0.209    | 0.963      |
+| Joseph Drouhin Laforet Bourgogne Pinot Noir              | 0.240    | 0.957      |
+
+### Network analysis
+
+How does money move between local businesses? This fictional village has 12
+businesses and 19 payments totalling CAD 19,550 for September 2025. Load its
+[payment data](https://github.com/nshiab/simple-data-analysis-core/blob/c15633789384c7629ca76108ba807909823abece/test/data/graphs/villagePayments.csv)
+and use
+[`degree`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.degree)
+to calculate each business's payments received and sent. `outputTable` preserves
+the original payments for drawing the arrows. A
+[D3 force layout](https://d3js.org/d3-force/simulation) positions connected
+businesses near one another while keeping nodes apart. The positions are for
+visualization, not geographic locations.
+
+This example also uses `d3-force`. In Deno, install the chart and layout
+packages with
+`deno add npm:@observablehq/plot npm:d3-force npm:@types/d3-force`.
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+import { arrow, dot, plot, text } from "@observablehq/plot";
+// @deno-types="@types/d3-force"
+import {
+  forceCollide,
+  forceLink,
+  forceManyBody,
+  forceSimulation,
+} from "d3-force";
+
+type Business = {
+  node: string;
+  total: number;
+  x?: number;
+  y?: number;
+};
+
+const sdb = new SimpleDB();
+try {
+  const payments = sdb.newTable("payments").loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/c15633789384c7629ca76108ba807909823abece/test/data/graphs/villagePayments.csv",
+  );
+  const activity = payments.degree("payer", "payee", {
+    weight: "amount",
+    outputTable: "activity",
+  });
+  const businesses = await activity.getData() as Business[];
+  const links = (await payments.getData()).map((d) => ({
+    source: String(d.payer),
+    target: String(d.payee),
+  }));
+
+  // D3 assigns x/y coordinates using a repeatable static simulation.
+  forceSimulation(businesses)
+    .force(
+      "link",
+      forceLink<Business, (typeof links)[number]>(links)
+        .id((d) => d.node)
+        .distance(100),
+    )
+    .force("charge", forceManyBody().strength(-600))
+    .force("collide", forceCollide(45))
+    .stop()
+    .tick(300);
+  const positions = new Map(businesses.map((d) => [d.node, d]));
+
+  await payments.writeChart(
+    (data) =>
+      plot({
+        title: "A month of payments in a fictional village",
+        subtitle: "Arrows point to payees. Wider arrows mean larger payments.",
+        caption:
+          "Synthetic September 2025 payments (CAD). Node area = payments received + sent.",
+        width: 1000,
+        height: 650,
+        margin: 65,
+        x: { axis: null },
+        y: { axis: null },
+        r: { range: [0, 24] },
+        style: { fontSize: "14px" },
+        marks: [
+          arrow(data, {
+            x1: (d) => positions.get(d.payer)!.x,
+            y1: (d) => positions.get(d.payer)!.y,
+            x2: (d) => positions.get(d.payee)!.x,
+            y2: (d) => positions.get(d.payee)!.y,
+            strokeWidth: (d) => d.amount / 500,
+            stroke: "#738794",
+            bend: 12,
+            inset: 28,
+          }),
+          dot(businesses, {
+            x: "x",
+            y: "y",
+            r: "total",
+            fill: "#216b71",
+          }),
+          text(businesses, {
+            x: "x",
+            y: "y",
+            text: "node",
+            dy: -35,
+            fill: "#153e47",
+            stroke: "white",
+            strokeWidth: 5,
+          }),
+        ],
+      }),
+    "sda/output/village-economy.png",
+  );
+} finally {
+  await sdb.close();
+}
+```
+
+![Directed network of payments between 12 fictional village businesses. Arrow widths show payment amounts and node areas show payments received plus sent.](./assets/village-economy.png)
+
+The Farm receives CAD 4,500 and sends CAD 1,000, giving it the largest total
+activity. Its CAD 700 payment to the Repair Shop is the only connection between
+the food businesses and the trades and services. Arrows follow payments, not the
+movement of goods. These are selected business-to-business transactions, so the
+totals describe activity rather than profit or complete business accounts.
 
 ### Data visualisations
 
@@ -679,6 +849,140 @@ await cities
 
 await sdb.close();
 ```
+
+#### Visualize recipe embeddings with UMAP
+
+Which recipes have similar descriptions? Generate embeddings locally with
+[`aiEmbeddings`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiEmbeddings),
+group them with
+[`hdbscan`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.hdbscan),
+then use
+[`umap`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.umap)
+to project them into two dimensions and draw a scatterplot colored by cluster.
+Clustering uses the original embeddings; UMAP supplies the chart coordinates.
+
+Install [Ollama](https://ollama.com/), make sure it is running, and download the
+embedding model:
+
+```sh
+ollama pull nomic-embed-text:latest
+```
+
+Set these variables in `.env`. This example only needs an embedding model:
+
+```dotenv
+AI_EMBEDDINGS_PROVIDER=ollama
+AI_EMBEDDINGS_MODEL=nomic-embed-text:latest
+```
+
+Save the following code as `recipes.ts`. After installing SDA and Observable
+Plot (`deno add jsr:@nshiab/simple-data-analysis npm:@observablehq/plot`), run
+it with `deno run -A --env-file recipes.ts`. The first run generates embeddings
+for all 335 recipes; subsequent runs can reuse the default `.journalism-cache`.
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+import { dot, plot, text } from "@observablehq/plot";
+
+const sdb = new SimpleDB();
+try {
+  const recipes = sdb.newTable("recipes")
+    .loadData(
+      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/recipesClean.parquet",
+    )
+    .aiEmbeddings("Recipe", "embedding")
+    .hdbscan("embedding", "cluster", {
+      metric: "cosine",
+      minClusterSize: 5,
+      minSamples: 3,
+    })
+    .umap("embedding", { metric: "cosine", seed: 42 });
+
+  // Give clusters distinct colors; keep unclustered recipes gray.
+  const clusters = (await recipes.getUniques("cluster"))
+    .filter((cluster) => cluster !== "noise");
+
+  // Label a few familiar dishes to keep the chart readable.
+  const labels = [
+    "Fried Chicken",
+    "Roast Lamb",
+    "BBQ Ribs",
+    "Ramen",
+    "Goulash Soup",
+    "Sushi",
+    "Falafel",
+    "Ceviche",
+    "Hamburger",
+    "Pizza",
+    "Tacos",
+    "Empanadas",
+    "Cornbread",
+    "Croissant",
+    "Brownies",
+    "Pineapple",
+  ];
+
+  await recipes.writeChart(
+    (data) =>
+      plot({
+        title: "A map of recipe descriptions",
+        subtitle: "Colors show HDBSCAN clusters. Gray recipes are unclustered.",
+        width: 900,
+        height: 650,
+        margin: 60,
+        x: { axis: null },
+        y: { axis: null },
+        color: {
+          type: "categorical",
+          domain: clusters,
+          scheme: "tableau10",
+          unknown: "#c5c5c5",
+          legend: true,
+        },
+        style: { fontSize: "13px" },
+        marks: [
+          dot(data, {
+            x: "umapX",
+            y: "umapY",
+            fill: "cluster",
+            r: 4,
+            title: "Dish",
+          }),
+          text(data, {
+            filter: (d) => labels.includes(d.Dish),
+            x: "umapX",
+            y: "umapY",
+            text: "Dish",
+            dy: -12,
+            fill: "#153e47",
+            stroke: "white",
+            strokeWidth: 4,
+          }),
+        ],
+      }),
+    "sda/output/recipes-umap.png",
+  );
+} finally {
+  await sdb.close();
+}
+```
+
+![UMAP scatterplot of 335 recipe descriptions, colored by HDBSCAN cluster, with unclustered recipes in gray and selected dishes labelled.](./assets/recipes-umap.png)
+
+HDBSCAN finds groups without a predefined cluster count. Here,
+`minClusterSize: 5` requires at least five recipes per group, while
+`minSamples: 3` makes clustering less conservative than the default of five for
+this minimum cluster size. Recipes labelled `"noise"` remain visible in gray;
+they are not another cluster. With the model used for this chart, these settings
+grouped 88 recipes into five clusters and left 247 unclustered. The defaults
+left all 335 unclustered. Cluster IDs identify groups, not culinary categories
+or ranks, and the result depends on the embeddings and density settings.
+
+Nearby points suggest similar recipe descriptions, but this is an exploratory
+projection: the axes have no culinary meaning, and distances in the chart are
+not exact similarity scores. `umap()` preserves the original rows and embeddings
+for further analysis. The seed makes the layout repeatable for the same inputs;
+model or dependency updates can change the result.
 
 #### Semantic search
 
