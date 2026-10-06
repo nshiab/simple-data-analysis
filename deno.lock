@@ -2,10 +2,11 @@
   "version": "5",
   "specifiers": {
     "jsr:@nshiab/journalism-ai@2.0.6": "2.0.6",
-    "jsr:@nshiab/journalism-dataviz@^1.0.21": "1.0.21",
+    "jsr:@nshiab/journalism-dataviz@1.0.22": "1.0.22",
+    "jsr:@nshiab/journalism-dataviz@^1.0.22": "1.0.22",
     "jsr:@nshiab/journalism-format@^1.1.10": "1.1.10",
     "jsr:@nshiab/journalism-google@^1.1.2": "1.1.2",
-    "jsr:@nshiab/simple-data-analysis-core@2.1.5": "2.1.5",
+    "jsr:@nshiab/simple-data-analysis-core@2.1.6": "2.1.6",
     "jsr:@std/assert@^1.0.19": "1.0.19",
     "jsr:@std/internal@^1.0.12": "1.0.14",
     "npm:@duckdb/node-api@1.5.5-r.5": "1.5.5-r.5",
@@ -32,8 +33,8 @@
         "npm:zod"
       ]
     },
-    "@nshiab/journalism-dataviz@1.0.21": {
-      "integrity": "afd6ba7f40ef242acbad1610cb6507846886447ab3f7867e66c600611bd905ca",
+    "@nshiab/journalism-dataviz@1.0.22": {
+      "integrity": "f4b82e4eb069c82e7a46318d7b2de7f0e780681527b41cd6812181f0d600b223",
       "dependencies": [
         "npm:@napi-rs/canvas",
         "npm:@resvg/resvg-js",
@@ -52,8 +53,8 @@
         "npm:google-spreadsheet"
       ]
     },
-    "@nshiab/simple-data-analysis-core@2.1.5": {
-      "integrity": "2b89b3a7c88d72cd5d7d6ebe0b4b52ced625c9010533bf3ecc5564a0b18c79ba",
+    "@nshiab/simple-data-analysis-core@2.1.6": {
+      "integrity": "fb7759303e19bd40304e6293886e7f5f85c138ef17273f2cfd53cab95b646893",
       "dependencies": [
         "npm:@duckdb/node-api"
       ]
@@ -1153,10 +1154,10 @@
   "workspace": {
     "dependencies": [
       "jsr:@nshiab/journalism-ai@2.0.6",
-      "jsr:@nshiab/journalism-dataviz@^1.0.21",
+      "jsr:@nshiab/journalism-dataviz@^1.0.22",
       "jsr:@nshiab/journalism-format@^1.1.10",
       "jsr:@nshiab/journalism-google@^1.1.2",
-      "jsr:@nshiab/simple-data-analysis-core@2.1.5",
+      "jsr:@nshiab/simple-data-analysis-core@2.1.6",
       "jsr:@std/assert@^1.0.19",
       "npm:@duckdb/node-api@1.5.5-r.5",
       "npm:@observablehq/plot@~0.6.17",

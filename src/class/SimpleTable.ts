@@ -1772,7 +1772,7 @@ export default class SimpleTable extends SimpleTableCore {
    *   .writeMap(mapFunction, outputPath);
    * ```
    *
-   * @param map - A function that takes geospatial data (in GeoJSON format) and returns an Observable Plot map (an `SVGSVGElement` or `HTMLElement`).
+   * @param map - A function that takes geospatial data (in GeoJSON format) and returns an Observable Plot map (an `SVGSVGElement` or `HTMLElement`), or a promise resolving to one.
    * @param path - The path where the map will be saved. The file extension must be `.png` or `.svg` (e.g., `"./output/map.png"`).
    * @param options - An optional object with configuration options:
    * @param options.column - The name of the column storing geometries. If there is only one geometry column, it will be used by default.
@@ -1787,7 +1787,7 @@ export default class SimpleTable extends SimpleTableCore {
       features: {
         properties: { [key: string]: unknown };
       }[];
-    }) => SVGSVGElement | HTMLElement,
+    }) => SVGSVGElement | HTMLElement | Promise<SVGSVGElement | HTMLElement>,
     path: string,
     options: {
       column?: string;
@@ -1798,13 +1798,16 @@ export default class SimpleTable extends SimpleTableCore {
   ): Promise<void> {
     createDirectory(path);
     options.rewind = options.rewind ?? true;
-    const geoData = await this.getGeoData(options.column, {
+    const geoData = await this.getGeoData({
+      column: options.column,
       rewind: options.rewind,
     });
     const { saveChart } = await import("@nshiab/journalism-dataviz");
     await saveChart(
       geoData as unknown as Data,
-      map as unknown as (data: Data) => SVGSVGElement | HTMLElement,
+      map as unknown as (
+        data: Data,
+      ) => SVGSVGElement | HTMLElement | Promise<SVGSVGElement | HTMLElement>,
       path,
       options,
     );

@@ -221,6 +221,7 @@ const provinces = await sdb
   )
   .log();
 
+// Join fires with provinces so each fire has its province's attributes attached.
 const firesInsideProvinces = await fires
   .joinGeo(provinces, "inside", {
     outputTable: "firesInsideProvinces",
@@ -229,12 +230,12 @@ const firesInsideProvinces = await fires
   .removeColumns("geomProvinces")
   .log();
 
-// Each fire now has a province value.
+// Write the joined, detailed fire data to a GeoJSON file.
 await firesInsideProvinces.writeGeoData(
   "sda/output/firesInsideProvinces.geojson",
 );
 
-// We can use any other method, such as summarize.
+// Count the fires and sum the burnt area per province.
 await firesInsideProvinces
   .summarize({
     columns: "hectares",
@@ -247,6 +248,137 @@ await firesInsideProvinces
 
 await sdb.close();
 ```
+
+### Data visualisations
+
+#### Charts
+
+You can easily display charts directly in the terminal with the
+[`logBarChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logBarChart),
+[`logDotChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logDotChart),
+[`logLineChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logLineChart)
+and
+[`logHistogram`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logHistogram)
+methods.
+
+But you can also create [Observable Plot](https://github.com/observablehq/plot)
+charts as an image file (`.png` or `.svg`) with
+[`writeChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.writeChart).
+
+Here's an example.
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+import { dodgeX, dot, plot } from "@observablehq/plot";
+
+const sdb = new SimpleDB();
+const table = await sdb
+  .newTable()
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
+  )
+  .filter(`hectares > 1`)
+  .replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" })
+  .log();
+
+// We create a beeswarm chart with a log scale, faceted by cause.
+await table.writeChart(
+  (data) =>
+    plot({
+      height: 600,
+      width: 800,
+      color: { legend: true },
+      y: { type: "log", label: "Hectares" },
+      r: { range: [1, 20] },
+      marks: [
+        dot(
+          data,
+          dodgeX("middle", {
+            fx: "cause",
+            y: "hectares",
+            fill: "cause",
+            r: "hectares",
+          }),
+        ),
+      ],
+    }),
+  "sda/output/chart.png",
+);
+
+await sdb.close();
+```
+
+![Beeswarm chart showing the size of wildfires in Canada in 2023.](./assets/beeswarm.png)
+
+#### Maps
+
+If you want to create [Observable Plot](https://github.com/observablehq/plot)
+maps, you can use
+[`writeMap`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.writeMap).
+
+Here's an example.
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+import { geo, plot } from "@observablehq/plot";
+
+const sdb = new SimpleDB();
+
+const fires = await sdb
+  .newTable("fires")
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
+  )
+  .createPoints("lat", "lon", "geom")
+  .replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" })
+  .selectColumns(["geom", "hectares", "cause"])
+  .filter(`hectares > 0`)
+  .log();
+
+const provinces = await sdb
+  .newTable("provinces")
+  .loadGeoData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
+  )
+  .log();
+
+// Create a map covering all provinces and territories.
+await provinces.writeMap(
+  // Province polygons are provided as GeoJSON, already rewound for D3.
+  async (provinces) => {
+    return plot({
+      projection: {
+        type: "conic-conformal",
+        rotate: [100, -60],
+        domain: provinces,
+      },
+      color: {
+        legend: true,
+      },
+      r: { range: [0.5, 25] },
+      marks: [
+        geo(provinces, {
+          stroke: "lightgray",
+          fill: "whitesmoke",
+        }),
+        // Retrieve the fire locations as GeoJSON for the second layer.
+        geo(await fires.getGeoData(), {
+          r: "hectares",
+          fill: "cause",
+          fillOpacity: 0.25,
+          stroke: "cause",
+          strokeOpacity: 0.5,
+        }),
+      ],
+    });
+  },
+  "sda/output/map.png",
+);
+
+await sdb.close();
+```
+
+![Map showing the wildfires in Canada in 2023.](./assets/map.png)
 
 ### Public data sources
 
@@ -263,6 +395,7 @@ import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
 
+// Fetch population estimates for Canada, provinces, and territories, then keep Canada.
 await sdb
   .newTable("population")
   .loadStatCanData("17-10-0005-01")
@@ -308,11 +441,6 @@ await sdb
 await sdb.close();
 ```
 
-Is there another reliable and broadly useful public data source you would like
-SDA to support directly?
-[Open an issue](https://github.com/nshiab/simple-data-analysis/issues/new) with
-a link to the source and an example of the data you would like to retrieve.
-
 ### Similarity analysis
 
 When you want to find items that resemble a specific one, calculating a
@@ -328,11 +456,10 @@ between them.
 
 The code loads the
 [Vivino Burgundy dataset](https://huggingface.co/datasets/Mr-Bridge/vivino-bourgogne-wines-2026)
-of 2,000 named wines, originally from Hugging Face, and keeps only red wines
-with tannin scores. It retrieves our favorite wine as the reference, then
-compares acidity, intensity, sweetness, and tannin to calculate a distance and
-similarity score for each wine. Finally, it logs the wines, with the closest
-matches first.
+of 2,000 named wines, originally from Hugging Face, and keeps only red wines. It
+retrieves our favorite wine as the reference, then compares acidity, intensity,
+sweetness, and tannin to calculate a distance and similarity score for each
+wine. Finally, it logs the wines, with the closest matches first.
 
 ```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
@@ -342,8 +469,9 @@ const wines = sdb.newTable("wines")
   .loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/main/test/data/files/wine.csv",
   )
-  .filter("wineType === 'Red' && tannin !== null");
+  .filter("wineType === 'Red'");
 
+// Retrieve our favorite wine's characteristics as an object.
 const reference = await wines.getRow(
   "fullName === 'Louis Jadot Bourgogne Pinot Noir'",
 );
@@ -355,7 +483,7 @@ await wines
     "distance",
     { similarityScoreColumn: true },
   )
-  .sort({ distance: "asc" })
+  .sort({ similarity: "desc" })
   .log();
 
 await sdb.close();
@@ -494,147 +622,6 @@ activity. Its CAD 700 payment to the Repair Shop is the only connection between
 the food businesses and the trades and services. Arrows follow payments, not the
 movement of goods. These are selected business-to-business transactions, so the
 totals describe activity rather than profit or complete business accounts.
-
-### Data visualisations
-
-#### Charts
-
-You can easily display charts directly in the terminal with the
-[`logBarChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logBarChart),
-[`logDotChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logDotChart),
-[`logLineChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logLineChart)
-and
-[`logHistogram`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logHistogram)
-methods.
-
-But you can also create [Observable Plot](https://github.com/observablehq/plot)
-charts as an image file (`.png` or `.svg`) with
-[`writeChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.writeChart).
-
-Here's an example.
-
-```ts
-import { SimpleDB } from "@nshiab/simple-data-analysis";
-import { dodgeX, dot, plot } from "@observablehq/plot";
-
-const sdb = new SimpleDB();
-const table = await sdb
-  .newTable()
-  .loadData(
-    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
-  )
-  .filter(`hectares > 1`)
-  .replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" })
-  .log();
-
-// We create a beeswarm chart with a log scale, faceted by cause.
-await table.writeChart(
-  (data) =>
-    plot({
-      height: 600,
-      width: 800,
-      color: { legend: true },
-      y: { type: "log", label: "Hectares" },
-      r: { range: [1, 20] },
-      marks: [
-        dot(
-          data,
-          dodgeX("middle", {
-            fx: "cause",
-            y: "hectares",
-            fill: "cause",
-            r: "hectares",
-          }),
-        ),
-      ],
-    }),
-  "sda/output/chart.png",
-);
-
-await sdb.close();
-```
-
-![Beeswarm chart showing the size of wildfires in Canada in 2023.](./assets/beeswarm.png)
-
-#### Maps
-
-If you want to create [Observable Plot](https://github.com/observablehq/plot)
-maps, you can use
-[`writeMap`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.writeMap).
-
-Here's an example.
-
-```ts
-import { SimpleDB } from "@nshiab/simple-data-analysis";
-import { geo, plot } from "@observablehq/plot";
-
-const sdb = new SimpleDB();
-
-const provinces = await sdb
-  .newTable("provinces")
-  .loadGeoData(
-    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/CanadianProvincesAndTerritories.json",
-  )
-  .log();
-
-const fires = await sdb
-  .newTable("fires")
-  .loadData(
-    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
-  )
-  .createPoints("lat", "lon", "geom")
-  .replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" })
-  .selectColumns(["geom", "hectares", "cause"])
-  .filter(`hectares > 0`)
-  .log();
-
-// We put the provinces and fires in the same table and add an isFire column
-// to easily distinguish between them.
-const provincesAndFires = await provinces
-  .clone({
-    name: "provincesAndFires",
-  })
-  .insertTables(fires, { unifyColumns: true })
-  .addColumn("isFire", "boolean", `hectares > 0`)
-  .log();
-
-await provincesAndFires.writeMap(
-  (geoData) => {
-    const fires = geoData.features.filter((d) => d.properties.isFire);
-    const provinces = geoData.features.filter((d) => !d.properties.isFire);
-
-    return plot({
-      projection: {
-        type: "conic-conformal",
-        rotate: [100, -60],
-        domain: geoData,
-      },
-      color: {
-        legend: true,
-      },
-      r: { range: [0.5, 25] },
-      marks: [
-        geo(provinces, {
-          stroke: "lightgray",
-          fill: "whitesmoke",
-        }),
-        geo(fires, {
-          r: "hectares",
-          fill: "cause",
-          fillOpacity: 0.25,
-          stroke: "cause",
-          strokeOpacity: 0.5,
-        }),
-      ],
-    });
-  },
-  "sda/output/map.png",
-);
-
-await sdb.close();
-```
-
-![Map showing the wildfires in Canada in 2023.](./assets/map.png)
 
 ### Google Cloud Storage
 
