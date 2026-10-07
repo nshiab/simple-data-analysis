@@ -3,6 +3,7 @@ import {
   mergeOptions,
   queryDB,
   queueAsyncBarrier,
+  quoteIdentifier,
 } from "@nshiab/simple-data-analysis-core/helpers";
 import {
   type EmbeddingOptions,
@@ -39,8 +40,8 @@ export type AIVectorSimilarityOptions = {
   M?: number;
   /** Minimum cosine similarity required for a row to be returned. */
   minSimilarity?: number;
-  /** Adds cosine similarity scores under this output column name. */
-  similarityColumn?: string;
+  /** A custom score column name, or true for "similarity"; false or omitted adds no score. */
+  similarityColumn?: string | boolean;
 };
 
 export default function aiVectorSimilarity(
@@ -77,12 +78,44 @@ export async function runAIVectorSimilarity(
   nbResults: number,
   options: AIVectorSimilarityOptions,
 ): Promise<void> {
+  const types = await simpleTable.getTypes();
+  const similarityColumn = options.similarityColumn === true
+    ? "similarity"
+    : options.similarityColumn === false
+    ? undefined
+    : options.similarityColumn;
+  if (similarityColumn !== undefined) {
+    if (
+      typeof similarityColumn !== "string" || similarityColumn.length === 0 ||
+      similarityColumn.includes("\0")
+    ) {
+      throw new Error(
+        "aiVectorSimilarity() output column names must be nonempty strings without null characters.",
+      );
+    }
+    // DuckDB folds ASCII letters only, including in quoted identifiers.
+    const folded = similarityColumn.replace(
+      /[A-Z]/g,
+      (letter) => letter.toLowerCase(),
+    );
+    if (
+      Object.keys(types).some((name) =>
+        name.replace(/[A-Z]/g, (letter) => letter.toLowerCase()) === folded
+      )
+    ) {
+      throw new Error(
+        `aiVectorSimilarity() cannot create ${
+          quoteIdentifier(similarityColumn)
+        } because that column already exists. Remove it first or choose a different name.`,
+      );
+    }
+  }
+
   const { getEmbeddingForProvider } = await import(
     "../helpers/tryEmbedding.ts"
   );
   const textEmbedding = await getEmbeddingForProvider(text, options.embeddings);
 
-  const types = await simpleTable.getTypes();
   if (types[column] !== `FLOAT[${textEmbedding.length}]`) {
     await simpleTable.sdb.customQuery(
       `ALTER TABLE "${simpleTable.name}" ADD COLUMN "${column}_fixed_floatType" FLOAT[${textEmbedding.length}];
@@ -114,8 +147,8 @@ export async function runAIVectorSimilarity(
     : "";
 
   // Conditionally build the SELECT statement to include the similarity math
-  const selectClause = options.similarityColumn
-    ? `*, (1 - ${distanceFunction}) AS "${options.similarityColumn}"`
+  const selectClause = similarityColumn !== undefined
+    ? `*, (1 - ${distanceFunction}) AS ${quoteIdentifier(similarityColumn)}`
     : `*`;
 
   await queryDB(

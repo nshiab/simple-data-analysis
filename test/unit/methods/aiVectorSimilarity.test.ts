@@ -1,8 +1,9 @@
-import { assertEquals } from "@std/assert";
+import { assertAlmostEquals, assertEquals, assertRejects } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { existsSync, rmSync } from "node:fs";
 import { Ollama } from "ollama";
 import createEnvironmentTest from "../helpers/createEnvironmentTest.ts";
+import { FakeOllamaEmbeddingClient } from "../helpers/fakeEmbeddingClients.ts";
 
 // Testing just with Ollama for now
 const Deno = {
@@ -453,3 +454,200 @@ if (Deno.env.get("AI_EMBEDDINGS_PROVIDER") === "ollama") {
 } else {
   console.log("AI_EMBEDDINGS_PROVIDER is not set to ollama");
 }
+
+for (const outputTable of [undefined, "matches"]) {
+  for (const similarityColumn of [undefined, false, true, 'match"score']) {
+    globalThis.Deno.test(
+      `aiVectorSimilarity score option ${
+        String(similarityColumn)
+      } with output ${outputTable ?? "source"}`,
+      async () => {
+        const sdb = new SimpleDB();
+        const client = new FakeOllamaEmbeddingClient(
+          "http://similarity.local:11434",
+          [1, 0],
+        );
+        try {
+          await sdb.customQuery(`CREATE TABLE source AS SELECT * FROM (VALUES
+            (1, [1, 0]::FLOAT[2]),
+            (2, [0.6, 0.8]::FLOAT[2]),
+            (3, [-1, 0]::FLOAT[2])
+          ) rows(id, embeddings)`);
+          const table = sdb.newTable("source");
+          const before = await table.getData();
+          const result = table.aiVectorSimilarity("query", "embeddings", 3, {
+            embeddings: {
+              provider: "ollama",
+              model: "test-model",
+              cache: false,
+              ollama: client,
+            },
+            similarityColumn,
+            minSimilarity: 0,
+            outputTable,
+          });
+          const rows = await result.getData();
+          const score = similarityColumn === true
+            ? "similarity"
+            : similarityColumn;
+          assertEquals(
+            await result.getColumns(),
+            score ? ["id", "embeddings", score] : ["id", "embeddings"],
+          );
+          assertEquals(rows.map((row) => row.id), [1, 2]);
+          if (score) {
+            assertAlmostEquals(Number(rows[0][score]), 1, 1e-6);
+            assertAlmostEquals(Number(rows[1][score]), 0.6, 1e-6);
+          }
+          assertEquals(client.requests, 1);
+          if (outputTable) assertEquals(await table.getData(), before);
+        } finally {
+          await sdb.close();
+        }
+      },
+    );
+  }
+}
+
+for (const similarityColumn of [true, "SCORE", "EMBEDDINGS", "", "bad\0name"]) {
+  globalThis.Deno.test(
+    `aiVectorSimilarity rejects score name ${
+      JSON.stringify(similarityColumn)
+    } before embedding or mutation`,
+    async () => {
+      const sdb = new SimpleDB();
+      const client = new FakeOllamaEmbeddingClient(
+        "http://similarity.local:11434",
+        [1, 0],
+      );
+      try {
+        await sdb.customQuery(`CREATE TABLE source AS SELECT
+          1 AS id, [1, 0]::DOUBLE[2] AS embeddings, 42 AS Similarity, 7 AS Score;
+          CREATE TABLE matches AS SELECT 'untouched' AS marker;`);
+        const table = sdb.newTable("source");
+        const before = await table.getData();
+        const typesBefore = await table.getTypes();
+        const outputBefore = await sdb.customQuery("SELECT * FROM matches", {
+          returnData: true,
+        });
+        await assertRejects(
+          () =>
+            table.aiVectorSimilarity("query", "embeddings", 1, {
+              embeddings: {
+                provider: "ollama",
+                model: "test-model",
+                cache: false,
+                ollama: client,
+              },
+              similarityColumn,
+              outputTable: "matches",
+              createIndex: true,
+            }).run(),
+          Error,
+          similarityColumn === "" ||
+            (typeof similarityColumn === "string" &&
+              similarityColumn.includes("\0"))
+            ? "nonempty strings without null characters"
+            : "column already exists",
+        );
+        assertEquals(client.requests, 0);
+        assertEquals(await table.getData(), before);
+        assertEquals(await table.getTypes(), typesBefore);
+        assertEquals(
+          await sdb.customQuery("SELECT * FROM matches", { returnData: true }),
+          outputBefore,
+        );
+      } finally {
+        await sdb.close();
+      }
+    },
+  );
+}
+
+globalThis.Deno.test(
+  "aiVectorSimilarity checks score collisions after queued schema changes",
+  async () => {
+    const sdb = new SimpleDB();
+    const client = new FakeOllamaEmbeddingClient(
+      "http://similarity.local:11434",
+      [1, 0],
+    );
+    try {
+      await sdb.customQuery(
+        "CREATE TABLE source AS SELECT [1, 0]::FLOAT[2] AS embeddings, 42 AS existing",
+      );
+      const table = sdb.newTable("source");
+      await assertRejects(
+        () =>
+          table.renameColumns({ existing: "Similarity" }).aiVectorSimilarity(
+            "query",
+            "embeddings",
+            1,
+            {
+              embeddings: {
+                provider: "ollama",
+                model: "test-model",
+                cache: false,
+                ollama: client,
+              },
+              similarityColumn: true,
+            },
+          ).run(),
+        Error,
+        "column already exists",
+      );
+      assertEquals(client.requests, 0);
+      assertEquals(await table.getColumns(), ["embeddings", "Similarity"]);
+    } finally {
+      await sdb.close();
+    }
+  },
+);
+
+globalThis.Deno.test(
+  "aiVectorSimilarity snapshots boolean score options and uses ASCII identifier folding",
+  async () => {
+    const sdb = new SimpleDB();
+    const client = new FakeOllamaEmbeddingClient(
+      "http://similarity.local:11434",
+      [1, 0],
+    );
+    try {
+      await sdb.customQuery(
+        "CREATE TABLE source AS SELECT [1, 0]::FLOAT[2] AS embeddings, 42 AS É",
+      );
+      const table = sdb.newTable("source");
+      const options = {
+        embeddings: {
+          provider: "ollama" as const,
+          model: "test-model",
+          cache: false,
+          ollama: client,
+        },
+        similarityColumn: true,
+        outputTable: "default_score",
+      };
+      const result = table.aiVectorSimilarity(
+        "query",
+        "embeddings",
+        1,
+        options,
+      );
+      options.similarityColumn = false;
+      assertEquals(await result.getColumns(), [
+        "embeddings",
+        "É",
+        "similarity",
+      ]);
+      const custom = table.aiVectorSimilarity("query", "embeddings", 1, {
+        ...options,
+        similarityColumn: "é",
+        outputTable: "custom_score",
+      });
+      assertEquals(await custom.getColumns(), ["embeddings", "É", "é"]);
+      assertEquals((await custom.getData())[0].é, 1);
+    } finally {
+      await sdb.close();
+    }
+  },
+);

@@ -481,7 +481,7 @@ await wines
     ["acidity", "intensity", "sweetness", "tannin"],
     reference,
     "distance",
-    { similarityScoreColumn: true },
+    { similarityColumn: true },
   )
   .sort({ similarity: "desc" })
   .log();
@@ -1011,12 +1011,23 @@ await recipes
     "buttery pastry for breakfast",
     "embedding",
     5,
-    { similarityColumn: "similarity" },
+    { similarityColumn: true },
   )
   .log();
 
 await sdb.close();
 ```
+
+Here are the five results with Nomic Embed Text. For readability, we show only
+the dish names and similarity scores, rounded to three decimals.
+
+| Dish                    | … | similarity |
+| ----------------------- | - | ---------- |
+| Full English Breakfast  | … | 0.652      |
+| Pancakes                | … | 0.650      |
+| Bagel with Cream Cheese | … | 0.635      |
+| Biscuits and Gravy      | … | 0.632      |
+| Kunafa                  | … | 0.629      |
 
 #### Retrieval-augmented generation (RAG)
 
