@@ -1,3 +1,5 @@
+import { FakeTime } from "@std/testing/time";
+import { stub } from "@std/testing/mock";
 import createAIEnrichmentFixture from "../helpers/createAIEnrichmentFixture.ts";
 import { assertEquals, assertRejects } from "@std/assert";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
@@ -952,3 +954,589 @@ for (const target of ["input", "output"] as const) {
     }
   });
 }
+
+Deno.test("aiEmbeddings refills slots, bounds concurrency, and matches out-of-order results", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("refill");
+  await table.loadArray([0, 1, 2, 3].map((i) => ({ text: String(i) }))).run();
+  const release = Promise.withResolvers<void>();
+  const third = Promise.withResolvers<void>();
+  let active = 0;
+  let peak = 0;
+  const starts: number[] = [];
+  const pending = table.aiEmbeddings("text", "vector", {
+    concurrency: 2,
+    embeddings: {
+      provider: "ollama",
+      model: "refill",
+      cache: false,
+      ollama: {
+        embeddingEndpoint: "http://refill.local:11434",
+        embed: async ({ input }: { input: string }) => {
+          const id = Number(input);
+          starts.push(id);
+          peak = Math.max(peak, ++active);
+          if (id === 0) await release.promise;
+          if (id === 2) third.resolve();
+          active--;
+          return { embeddings: [[id, 1]] };
+        },
+      },
+    },
+  }).run();
+  try {
+    await third.promise;
+    assertEquals(starts.slice(0, 3), [0, 1, 2]);
+    assertEquals(peak, 2);
+    release.resolve();
+    await pending;
+    assertEquals(await table.getValues("vector"), [[0, 1], [1, 1], [2, 1], [
+      3,
+      1,
+    ]]);
+  } finally {
+    release.resolve();
+    await pending;
+    await sdb.close();
+  }
+});
+
+Deno.test("aiEmbeddings drains failures without retries or new tasks and cleans staging", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("failure_drain");
+  await table.loadArray([0, 1, 2, 3].map((i) => ({ text: String(i) }))).run();
+  const fail = Promise.withResolvers<void>();
+  const release = Promise.withResolvers<void>();
+  const second = Promise.withResolvers<void>();
+  const starts: string[] = [];
+  let settled = false;
+  const pending = table.aiEmbeddings("text", "vector", {
+    concurrency: 2,
+    embeddings: {
+      provider: "ollama",
+      model: "drain",
+      cache: false,
+      ollama: {
+        embeddingEndpoint: "http://drain.local:11434",
+        embed: async ({ input }: { input: string }) => {
+          starts.push(input);
+          if (input === "0") {
+            await fail.promise;
+            throw new Error("first failure");
+          }
+          second.resolve();
+          await release.promise;
+          throw new Error("late failure");
+        },
+      },
+    },
+  }).run();
+  const observed = pending.then(() => {
+    settled = true;
+  }, (error: unknown) => {
+    settled = true;
+    return error;
+  });
+  try {
+    await second.promise;
+    fail.resolve();
+    // Yield the event loop; the sibling's explicit gate remains closed.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assertEquals(settled, false);
+    assertEquals(starts, ["0", "1"]);
+    release.resolve();
+    const error = await observed;
+    assertEquals(error instanceof Error && error.message, "first failure");
+    assertEquals(await table.getValues("text"), ["0", "1", "2", "3"]);
+    assertEquals(await table.hasColumn("vector"), false);
+    assertEquals(
+      await sdb.customQuery(
+        "SELECT count(*) AS n FROM duckdb_tables() WHERE starts_with(table_name, '__sda_source_') OR starts_with(table_name, '__sda_generated_') OR starts_with(table_name, '__sda_batch_')",
+        { returnData: true },
+      ),
+      [{ n: 0 }],
+    );
+  } finally {
+    fail.resolve();
+    release.resolve();
+    await observed;
+    await sdb.close();
+  }
+});
+
+Deno.test("aiEmbeddings validates scheduling before reading rows or invalidating provenance and indexes", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("validation");
+  const client = new FakeOllamaEmbeddingClient(
+    "http://validation.local:11434",
+    [1, 0],
+  );
+  const embeddings = {
+    provider: "ollama" as const,
+    model: "validation",
+    cache: false,
+    ollama: client,
+  };
+  try {
+    await table.loadArray([{ text: "hello" }]).aiEmbeddings("text", "vector", {
+      embeddings,
+      createIndex: true,
+    }).run();
+    const metadata = () =>
+      sdb.customQuery(
+        "SELECT * FROM __sda_embedding_column_metadata WHERE table_name = 'validation'",
+        { returnData: true },
+      );
+    const indexes = () =>
+      sdb.customQuery(
+        "SELECT index_name FROM duckdb_indexes() WHERE table_name = 'validation'",
+        { returnData: true },
+      );
+    const originalMetadata = await metadata();
+    const originalIndexes = await indexes();
+    using noReads = stub(table, "getRowCount", () => {
+      throw new Error("must not read rows");
+    });
+    for (
+      const options of [
+        ...[0, -1, 1.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1].map((
+          concurrency,
+        ) => ({ concurrency })),
+        ...[0, -1, NaN, Infinity].map((rateLimitPerMinute) => ({
+          rateLimitPerMinute,
+        })),
+        { errorColumn: "VECTOR" },
+        ...[-1, 0.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1].map((
+          retry,
+        ) => ({ retry })),
+      ]
+    ) {
+      await assertRejects(
+        () =>
+          table.aiEmbeddings("text", "vector", { embeddings, ...options })
+            .run(),
+        Error,
+        "concurrency" in options
+          ? "concurrency"
+          : "errorColumn" in options
+          ? "errorColumn"
+          : "retry" in options
+          ? "retry"
+          : "rateLimitPerMinute",
+      );
+    }
+    assertEquals(noReads.calls.length, 0);
+    assertEquals(client.requests, 1);
+    assertEquals(await metadata(), originalMetadata);
+    assertEquals(await indexes(), originalIndexes);
+  } finally {
+    await sdb.close();
+  }
+});
+
+Deno.test("aiEmbeddings bypasses cached requests and paces misses across transfer batches", async () => {
+  const directory = Deno.makeTempDirSync();
+  const originalDirectory = Deno.cwd();
+  Deno.chdir(directory);
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("pacing");
+  const starts: number[] = [];
+  const inputs: string[] = [];
+  const embeddings = {
+    provider: "ollama" as const,
+    model: "pacing",
+    cache: true,
+    ollama: {
+      embeddingEndpoint: "http://pacing.local:11434",
+      embed: ({ input }: { input: string }) => {
+        starts.push(Date.now());
+        inputs.push(input);
+        return Promise.resolve({ embeddings: [[1, 0]] });
+      },
+    },
+  };
+  try {
+    await table.loadArray(
+      Array.from({ length: 1003 }, (_, i) => ({ i, text: String(i) })),
+    )
+      .aiEmbeddings("text", "vector", { embeddings, concurrency: 3 }).run();
+    await sdb.customQuery(
+      "UPDATE pacing SET text = concat('changed-', text) WHERE i IN (0, 999, 1000, 1002)",
+    );
+    starts.length = 0;
+    inputs.length = 0;
+    using time = new FakeTime(0);
+    const logs: string[] = [];
+    using capture = stub(
+      console,
+      "log",
+      (message: unknown) => logs.push(String(message)),
+    );
+    let done = false;
+    const pending = table.aiEmbeddings("text", "vector", {
+      embeddings,
+      concurrency: 3,
+      rateLimitPerMinute: 1200,
+      logProgress: true,
+    }).run();
+    const observed = pending.finally(() => {
+      done = true;
+    });
+    while (!done) await time.nextAsync();
+    await observed;
+    assertEquals(inputs, [
+      "changed-0",
+      "changed-999",
+      "changed-1000",
+      "changed-1002",
+    ]);
+    assertEquals(starts, [0, 50, 100, 150]);
+    assertEquals(time.now, 150);
+    assertEquals(capture.calls.length, 1003);
+    assertEquals(
+      logs,
+      Array.from(
+        { length: 1003 },
+        (_, i) => `Processed ${i + 1} of 1003 requests.`,
+      ),
+    );
+  } finally {
+    await sdb.close();
+    Deno.chdir(originalDirectory);
+    Deno.removeSync(directory, { recursive: true });
+  }
+});
+
+Deno.test("aiEmbeddings preserves empty-input behavior and validates options without dispatch", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("empty_input");
+  const client = new FakeOllamaEmbeddingClient("http://empty.local:11434", [
+    1,
+    0,
+  ]);
+  const embeddings = {
+    provider: "ollama" as const,
+    model: "empty",
+    cache: false,
+    ollama: client,
+  };
+  try {
+    await table.loadArray([{ text: "hello" }]).run();
+    await sdb.customQuery("DELETE FROM empty_input");
+    await assertRejects(
+      () =>
+        table.aiEmbeddings("text", "vector", { embeddings, concurrency: 0 })
+          .run(),
+      Error,
+      "concurrency",
+    );
+    await assertRejects(
+      () =>
+        table.aiEmbeddings("text", "vector", {
+          embeddings,
+          rateLimitPerMinute: 0,
+        }).run(),
+      Error,
+      "rateLimitPerMinute",
+    );
+    await assertRejects(
+      () => table.aiEmbeddings("text", "vector", { embeddings }).run(),
+      Error,
+      "Embedding generation did not create",
+    );
+    assertEquals(client.requests, 0);
+  } finally {
+    await sdb.close();
+  }
+});
+
+Deno.test("aiEmbeddings stores per-row errors and nulls without losing successful vectors", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("embedding_errors");
+  let requests = 0;
+  try {
+    await table.loadArray([
+      { text: "good", error: "old error" },
+      { text: "bad", error: "old error" },
+      { text: "undefined", error: "old error" },
+      { text: null, error: "old error" },
+      { text: "last", error: "old error" },
+    ]).aiEmbeddings("text", "vector", {
+      errorColumn: "error",
+      concurrency: 3,
+      embeddings: {
+        provider: "ollama",
+        model: "errors",
+        cache: false,
+        ollama: {
+          embeddingEndpoint: "http://errors.local:11434",
+          embed: ({ input }: { input: string }) => {
+            requests++;
+            if (input === "bad") {
+              return Promise.reject("provider rejected input");
+            }
+            if (input === "undefined") return Promise.reject(undefined);
+            return Promise.resolve({
+              embeddings: [input === "good" ? [1, 0] : [0, 1]],
+            });
+          },
+        },
+      },
+    }).run();
+    assertEquals(requests, 4);
+    assertEquals(await table.getValues("vector"), [[1, 0], null, null, null, [
+      0,
+      1,
+    ]]);
+    assertEquals(await table.getValues("error"), [
+      null,
+      "provider rejected input",
+      "undefined",
+      'The column "text" must be a string. Found null instead.',
+      null,
+    ]);
+    assertEquals((await table.getTypes()).vector, "FLOAT[2]");
+  } finally {
+    await sdb.close();
+  }
+});
+
+for (const failures of ["first-batch", "last-batch", "all"] as const) {
+  Deno.test(`aiEmbeddings retains null vectors and errors across ${failures} failures`, async () => {
+    const { sdb, table, assertPreserved } = await createAIEnrichmentFixture();
+    let requests = 0;
+    let fail = true;
+    const logs: string[] = [];
+    using capture = stub(
+      console,
+      "log",
+      (message: unknown) => logs.push(String(message)),
+    );
+    using noFullReads = stub(table, "getValues", () => {
+      throw new Error("must not buffer the output column");
+    });
+    const embeddings = {
+      provider: "ollama" as const,
+      model: "transfer-errors",
+      cache: false,
+      ollama: {
+        embeddingEndpoint: "http://transfer-errors.local:11434",
+        embed: ({ input }: { input: string }) => {
+          requests++;
+          const id = Number(input.slice(4));
+          if (
+            fail &&
+            (failures === "all" ||
+              (failures === "first-batch" ? id < 1000 : id >= 1000))
+          ) {
+            return Promise.reject(new Error("unavailable"));
+          }
+          return Promise.resolve({ embeddings: [[id, 1]] });
+        },
+      },
+    };
+    try {
+      await table.aiEmbeddings("text", "vector", {
+        embeddings,
+        concurrency: 3,
+        errorColumn: "error",
+        logProgress: true,
+      }).run();
+      const failed = failures === "all"
+        ? 1003
+        : failures === "first-batch"
+        ? 1000
+        : 3;
+      assertEquals(requests, 1003);
+      assertEquals(
+        await sdb.customQuery(
+          "SELECT count(*) FILTER (WHERE vector IS NULL AND error = 'unavailable') AS failed, count(*) FILTER (WHERE vector IS NOT NULL AND error IS NULL) AS succeeded FROM enriched",
+          { returnData: true },
+        ),
+        [{ failed, succeeded: 1003 - failed }],
+      );
+      assertEquals(
+        logs,
+        Array.from(
+          { length: 1003 },
+          (_, i) => `Processed ${i + 1} of 1003 requests.`,
+        ),
+      );
+      assertEquals(capture.calls.length, 1003);
+      assertEquals(noFullReads.calls.length, 0);
+      await assertPreserved(["vector", "error"]);
+      if (failures === "all") {
+        assertEquals(
+          await sdb.customQuery(
+            "SELECT dimensions FROM __sda_embedding_column_metadata WHERE embedding_column = 'vector'",
+            { returnData: true },
+          ),
+          [{ dimensions: 0 }],
+        );
+        fail = false;
+        await table.aiEmbeddings("text", "vector", {
+          embeddings,
+          errorColumn: "error",
+          concurrency: 3,
+        }).run();
+        assertEquals((await table.getTypes()).vector, "FLOAT[2]");
+        assertEquals(
+          await sdb.customQuery(
+            "SELECT count(*) AS n FROM enriched WHERE vector IS NOT NULL AND error IS NULL",
+            { returnData: true },
+          ),
+          [{ n: 1003 }],
+        );
+        await assertPreserved(["vector", "error"]);
+      }
+    } finally {
+      await sdb.close();
+    }
+  });
+}
+
+Deno.test("aiEmbeddings paces retries and reports completion once per row", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable("embedding_retries");
+  await table.loadArray([{ text: "transient" }, { text: "permanent" }]).run();
+  const starts: number[] = [];
+  const checks: unknown[] = [];
+  const logs: string[] = [];
+  const transient = new Error("transient");
+  const permanent = new Error("permanent");
+  let attempts = 0;
+  try {
+    using time = new FakeTime(0);
+    using capture = stub(
+      console,
+      "log",
+      (message: unknown) => logs.push(String(message)),
+    );
+    let done = false;
+    const pending = table.aiEmbeddings("text", "vector", {
+      retry: 2,
+      errorColumn: "error",
+      logProgress: true,
+      rateLimitPerMinute: 600,
+      retryCheck: (error) => {
+        checks.push(error);
+        return Promise.resolve(error === transient);
+      },
+      embeddings: {
+        provider: "ollama",
+        model: "retry",
+        cache: false,
+        ollama: {
+          embeddingEndpoint: "http://retry.local:11434",
+          embed: ({ input }: { input: string }) => {
+            starts.push(Date.now());
+            if (input === "permanent") return Promise.reject(permanent);
+            if (++attempts === 1) return Promise.reject(transient);
+            return Promise.resolve({ embeddings: [[1, 0]] });
+          },
+        },
+      },
+    }).run().then(() => ({ error: undefined }), (error: unknown) => ({ error }))
+      .finally(() => {
+        done = true;
+      });
+    while (!done) await time.nextAsync();
+    assertEquals((await pending).error, undefined);
+    assertEquals(starts, [0, 100, 200]);
+    assertEquals(checks, [transient, permanent]);
+    assertEquals(capture.calls.length, 2);
+    assertEquals(logs, [
+      "Processed 1 of 2 requests.",
+      "Processed 2 of 2 requests.",
+    ]);
+    assertEquals(await table.getValues("vector"), [[1, 0], null]);
+    assertEquals(await table.getValues("error"), [null, "permanent"]);
+  } finally {
+    await sdb.close();
+  }
+});
+
+for (const errorColumn of [undefined, "error"]) {
+  Deno.test(`aiEmbeddings exhausts retries with errorColumn=${errorColumn}`, async () => {
+    const sdb = new SimpleDB();
+    const table = sdb.newTable("retry_exhaustion");
+    await table.loadArray([{ text: "a" }, { text: "b" }]).run();
+    let requests = 0;
+    try {
+      const pending = () =>
+        table.aiEmbeddings("text", "vector", {
+          retry: 2,
+          errorColumn,
+          embeddings: {
+            provider: "ollama",
+            model: "exhaustion",
+            cache: false,
+            ollama: {
+              embeddingEndpoint: "http://exhaustion.local:11434",
+              embed: () => {
+                requests++;
+                return Promise.reject(new Error("unavailable"));
+              },
+            },
+          },
+        }).run();
+      if (errorColumn === undefined) {
+        await assertRejects(pending, Error, "unavailable");
+        assertEquals(requests, 3);
+        assertEquals(await table.hasColumn("vector"), false);
+        assertEquals(await table.getValues("text"), ["a", "b"]);
+      } else {
+        await pending();
+        assertEquals(requests, 6);
+        assertEquals(await table.getValues("vector"), [null, null]);
+        assertEquals(await table.getValues("error"), [
+          "unavailable",
+          "unavailable",
+        ]);
+      }
+    } finally {
+      await sdb.close();
+    }
+  });
+}
+
+Deno.test("aiEmbeddings errorColumn does not swallow retry-policy or staging failures", async () => {
+  for (const failure of ["policy", "staging"] as const) {
+    const { sdb, table, assertPreserved } = await createAIEnrichmentFixture();
+    let requests = 0;
+    try {
+      await assertRejects(
+        () =>
+          table.aiEmbeddings("text", "vector", {
+            errorColumn: "error",
+            retry: 1,
+            retryCheck: () => {
+              throw new Error("policy failed");
+            },
+            embeddings: {
+              provider: "ollama",
+              model: "fatal",
+              cache: false,
+              ollama: {
+                embeddingEndpoint: "http://fatal.local:11434",
+                embed: () => {
+                  requests++;
+                  if (failure === "policy") {
+                    return Promise.reject(new Error("provider failed"));
+                  }
+                  return Promise.resolve({
+                    embeddings: [requests > 1000 ? [1, 0, 0] : [1, 0]],
+                  });
+                },
+              },
+            },
+          }).run(),
+        Error,
+        failure === "policy" ? "policy failed" : "changed type",
+      );
+      await assertPreserved();
+    } finally {
+      await sdb.close();
+    }
+  }
+});

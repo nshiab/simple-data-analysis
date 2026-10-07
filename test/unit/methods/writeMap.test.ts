@@ -297,3 +297,28 @@ Deno.test("should rewind polygon coordinates before creating a map", async () =>
     }
   }
 });
+
+Deno.test("writeMap resolves to the same table after saving the map", async () => {
+  const sdb = new SimpleDB();
+  try {
+    const table = sdb.newTable().loadArray([
+      { lat: 45, lon: -73, value: 1 },
+      { lat: 46, lon: -74, value: 2 },
+    ]).createPoints("lat", "lon", "geometry");
+    const path = output + "returned-table.svg";
+    const pending = table.writeMap((data) => {
+      assertEquals(data.features.length, 2);
+      return plot({ marks: [geo(data)] });
+    }, path);
+    assert(pending instanceof Promise);
+    const result = await pending;
+    assert(result === table);
+    await assertArtifact(path);
+    assertEquals(
+      await result.filter("value = 2").getData({ columns: ["value"] }),
+      [{ value: 2 }],
+    );
+  } finally {
+    await sdb.close();
+  }
+});

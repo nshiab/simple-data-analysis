@@ -1,7 +1,11 @@
 import { SimpleTable as SimpleTableCore } from "@nshiab/simple-data-analysis-core";
 import type SimpleDB from "./SimpleDB.ts";
-import type { Data } from "@observablehq/plot";
-import { createDirectory } from "@nshiab/simple-data-analysis-core/helpers";
+import logBarChart from "../methods/logBarChart.ts";
+import logDotChart from "../methods/logDotChart.ts";
+import logLineChart from "../methods/logLineChart.ts";
+import writeMap from "../methods/writeMap.ts";
+import writeChart from "../methods/writeChart.ts";
+import toSheet from "../methods/toSheet.ts";
 import logHistogram from "../methods/logHistogram.ts";
 import aiRowByRow from "../methods/aiRowByRow.ts";
 import aiEmbeddings from "../methods/aiEmbeddings.ts";
@@ -315,7 +319,11 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * Environment variables are named configuration values supplied to the running process. By default, this method reads `AI_EMBEDDINGS_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_EMBEDDINGS_MODEL` (for example, `"gemini-embedding-001"` or `"nomic-embed-text"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Values passed through `embeddings` override the corresponding environment values. When using Ollama, ensure it is running.
    *
-   * To manage rate limits, use `rateLimitPerMinute` to introduce delays between requests. For higher rate limits (business/professional accounts), `concurrency` allows parallel requests.
+   * Use `rateLimitPerMinute` to space provider request starts across the worker pool, including across transfer batches. Cached responses bypass pacing. The `concurrency` option bounds active tasks, and free slots refill as requests finish. Retries are disabled by default; set `retry` and optionally `retryCheck` to retry failed requests. Each dispatched retry respects the rate limit.
+   *
+   * By default, a terminal request failure stops new tasks and settles active work before throwing. Set `errorColumn` to continue instead: failed rows receive a `NULL` embedding and an error message, while successful rows receive `NULL` in the error column. If every request fails, the embedding column is entirely `NULL`. Check errors and handle null embeddings before indexing or searching. Errors in staging or retry-policy callbacks still throw.
+   *
+   * Set `logProgress` to log completed request tasks, including failures and cache hits; retries do not increment completion counts. The `verbose` option retains detailed row-processing and index-creation logging.
    *
    * Individual embedding responses are cached in `.journalism-cache` by default. Set `embeddings.cache` to `false` to disable this request cache, and remember to add `.journalism-cache` to your `.gitignore`.
    *
@@ -361,6 +369,20 @@ export default class SimpleTable extends SimpleTableCore {
    *   .log();
    * ```
    *
+   * @example
+   * ```ts
+   * // Retry requests and retain errors for inspection.
+   * await table
+   *   .aiEmbeddings("text", "embedding", {
+   *     embeddings: { provider: "ollama", model: "nomic-embed-text" },
+   *     errorColumn: "embedding_error",
+   *     retry: 2,
+   *     retryCheck: (error) => error instanceof Error,
+   *     logProgress: true,
+   *   })
+   *   .log();
+   * ```
+   *
    * @param column - The name of the column to be used as input for generating embeddings.
    * @param newColumn - The name of the new column where the generated embeddings will be stored.
    * @param options - Configuration options for the AI request.
@@ -371,7 +393,11 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.M - The maximum number of neighbors to keep for each vertex in the graph. Higher values result in more accurate indexes but increase build time and memory usage. Defaults to 16.
    * @param options.concurrency - The number of concurrent requests to send. Defaults to `1`.
    * @param options.embeddings - Optional Gemini or Ollama embedding configuration.
-   * @param options.rateLimitPerMinute - The rate limit for AI requests in requests per minute. The method will wait between requests if necessary. Defaults to `undefined` (no limit).
+   * @param options.rateLimitPerMinute - The maximum number of provider requests started per minute. Must be positive and finite. Request starts are spaced across the worker pool; cached responses bypass the limit. Defaults to `undefined` (no limit).
+   * @param options.errorColumn - Column receiving terminal request errors instead of throwing. Failed embeddings are `NULL`; successful rows have a `NULL` error. Must differ from `newColumn`. Defaults to `undefined`.
+   * @param options.retry - Number of additional attempts after a request failure. Must be a non-negative safe integer. Defaults to `0`.
+   * @param options.retryCheck - Optional synchronous or asynchronous predicate that decides whether a failed request may be retried while attempts remain. Defaults to `undefined`.
+   * @param options.logProgress - If `true`, logs request-task completion counts across transfer batches. Defaults to `false`.
    * @param options.verbose - If `true`, logs additional debugging information. Defaults to `false`.
    * @returns The table, so methods can be chained.
    * @category AI
@@ -439,6 +465,10 @@ export default class SimpleTable extends SimpleTableCore {
       createIndex?: boolean;
       overwriteIndex?: boolean;
       concurrency?: number;
+      errorColumn?: string;
+      retry?: number;
+      retryCheck?: (error: unknown) => Promise<boolean> | boolean;
+      logProgress?: boolean;
       verbose?: boolean;
       rateLimitPerMinute?: number;
       efConstruction?: number;
@@ -1405,11 +1435,13 @@ export default class SimpleTable extends SimpleTableCore {
    * // GOOGLE_SERVICE_ACCOUNT_EMAIL=service-account@example.iam.gserviceaccount.com
    * // GOOGLE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\n...
    * // Load, transform, and write data to a Google Sheet
-   * await sdb
+   * const table = await sdb
    *   .newTable()
    *   .loadData("sales.csv")
    *   .selectColumns(["date", "revenue"])
    *   .toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+   *
+   * await table.log();
    * ```
    *
    * @example
@@ -1419,6 +1451,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   mode: "append",
    *   tabTitle: "Election results",
    * });
+   *
+   * await table.log();
    * ```
    *
    * @example
@@ -1430,6 +1464,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   prepend: "Preliminary results",
    *   lastUpdate: "Canada/Eastern",
    * });
+   *
+   * await table.log();
    * ```
    *
    * @example
@@ -1439,6 +1475,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   "https://docs.google.com/spreadsheets/d/.../edit#gid=0",
    *   { raw: false },
    * );
+   *
+   * await table.log();
    * ```
    *
    * @example
@@ -1453,6 +1491,8 @@ export default class SimpleTable extends SimpleTableCore {
    *     },
    *   },
    * );
+   *
+   * await table.log();
    * ```
    *
    * @param sheetUrl - A Google Sheets URL. It can point to a spreadsheet or a specific tab.
@@ -1466,7 +1506,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.credentials - Optional Google service-account credentials.
    * @param options.credentials.email - The Google service-account email.
    * @param options.credentials.privateKey - The Google service-account private key.
-   * @returns A promise that resolves when the data has been written to the sheet.
+   * @returns A promise that resolves to this table after the data has been written to the sheet.
    * @category Exporting Data
    */
   async toSheet(sheetUrl: string, options: {
@@ -1489,12 +1529,9 @@ export default class SimpleTable extends SimpleTableCore {
       email: string;
       privateKey: string;
     };
-  } = {}): Promise<void> {
-    const data = await this.getData() as Parameters<
-      typeof import("@nshiab/journalism-google").pushToSheet
-    >[0];
-    const { pushToSheet } = await import("@nshiab/journalism-google");
-    await pushToSheet(data, sheetUrl, options);
+  } = {}): Promise<this> {
+    await toSheet(this, sheetUrl, options);
+    return this;
   }
 
   /**
@@ -1554,11 +1591,13 @@ export default class SimpleTable extends SimpleTableCore {
    * ```ts
    * // Set DATAWRAPPER_KEY=your-datawrapper-api-key before running.
    * // Load, transform, and send data to a Datawrapper chart
-   * await sdb
+   * const table = await sdb
    *   .newTable()
    *   .loadData("sales.csv")
    *   .selectColumns(["date", "revenue"])
    *   .toDatawrapper("myChartId");
+   *
+   * await table.log();
    * ```
    *
    * @example
@@ -1568,6 +1607,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   note: `Last updated: ${new Date().toLocaleString()}`,
    *   republish: true,
    * });
+   *
+   * await table.log();
    * ```
    *
    * @param chartId - The unique ID of the Datawrapper chart or table to update. This ID can be found in the Datawrapper URL or dashboard.
@@ -1575,7 +1616,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
    * @param options.note - A string to update the chart's notes field with (e.g., a last-updated timestamp).
    * @param options.republish - If `true`, republishes the chart after updating the data. Defaults to `false`.
-   * @returns A promise that resolves when the data has been sent to Datawrapper.
+   * @returns A promise that resolves to this table after the data has been sent to Datawrapper.
    * @category Exporting Data
    */
   async toDatawrapper(
@@ -1585,8 +1626,9 @@ export default class SimpleTable extends SimpleTableCore {
       note?: string;
       republish?: boolean;
     } = {},
-  ): Promise<void> {
+  ): Promise<this> {
     await toDatawrapper(this, chartId, options);
+    return this;
   }
 
   /**
@@ -1630,11 +1672,13 @@ export default class SimpleTable extends SimpleTableCore {
    * ```ts
    * // Set DATAWRAPPER_KEY=your-datawrapper-api-key before running.
    * // Load, transform, and send geospatial data to a Datawrapper map
-   * await sdb
+   * const table = await sdb
    *   .newTable()
    *   .loadGeoData("regions.geojson")
    *   .selectColumns(["name", "population", "geometry"])
    *   .toGeoDatawrapper("myMapId");
+   *
+   * await table.log();
    * ```
    *
    * @example
@@ -1644,6 +1688,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   note: `Last updated: ${new Date().toLocaleString()}`,
    *   republish: true,
    * });
+   *
+   * await table.log();
    * ```
    *
    * @param chartId - The unique ID of the Datawrapper map to update. This ID can be found in the Datawrapper URL or dashboard.
@@ -1652,7 +1698,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.column - The name of the geometry column to use. If omitted, the method will automatically attempt to find a geometry column.
    * @param options.note - A string to update the map's notes field with.
    * @param options.republish - If `true`, republishes the map after updating the data. Defaults to `false`.
-   * @returns A promise that resolves when the data has been sent to Datawrapper.
+   * @returns A promise that resolves to this table after the data has been sent to Datawrapper.
    * @category Exporting Data
    */
   async toGeoDatawrapper(
@@ -1663,8 +1709,9 @@ export default class SimpleTable extends SimpleTableCore {
       note?: string;
       republish?: boolean;
     } = {},
-  ): Promise<void> {
+  ): Promise<this> {
     await toGeoDatawrapper(this, chartId, options);
+    return this;
   }
 
   /**
@@ -1723,10 +1770,12 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * const outputPath = "output/chart.png";
    *
-   * await sdb
+   * const table = await sdb
    *   .newTable()
    *   .loadArray(data)
    *   .writeChart(chartFunction, outputPath);
+   *
+   * await table.log();
    * ```
    *
    * @param chart - A function that takes data (as an array of objects) and returns an Observable Plot chart (an `SVGSVGElement` or `HTMLElement`).
@@ -1734,23 +1783,16 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options - Optional object containing additional settings:
    * @param options.style - A CSS string inserted into the generated SVG to customize the chart's appearance. Use this if the Plot `style` option is insufficient.
    * @param options.dark - If `true`, switches the chart to dark mode. Defaults to `false`.
-   * @returns A promise that resolves when the chart image has been saved.
+   * @returns A promise that resolves to this table after the chart image has been saved.
    * @category Dataviz
    */
   async writeChart(
     chart: (data: unknown[]) => SVGSVGElement | HTMLElement,
     path: string,
     options: { style?: string; dark?: boolean } = {},
-  ): Promise<void> {
-    createDirectory(path);
-    const data = await this.getData();
-    const { saveChart } = await import("@nshiab/journalism-dataviz");
-    await saveChart(
-      data,
-      chart as (data: Data) => SVGSVGElement | HTMLElement,
-      path,
-      options,
-    );
+  ): Promise<this> {
+    await writeChart(this, chart, path, options);
+    return this;
   }
 
   /**
@@ -1776,10 +1818,12 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * const outputPath = "./output/map.png";
    *
-   * await sdb
+   * const table = await sdb
    *   .newTable()
    *   .loadGeoData("./CanadianProvincesAndTerritories.geojson")
    *   .writeMap(mapFunction, outputPath);
+   *
+   * await table.log();
    * ```
    *
    * @param map - A function that takes geospatial data (in GeoJSON format) and returns an Observable Plot map (an `SVGSVGElement` or `HTMLElement`), or a promise resolving to one.
@@ -1789,7 +1833,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.rewind - If `true`, rewinds the coordinates of polygons to follow the spherical winding order (important for D3.js). Defaults to `true`.
    * @param options.style - A CSS string inserted into the generated SVG to customize the map's appearance. Use this if the Plot `style` option is insufficient.
    * @param options.dark - If `true`, switches the map to dark mode. Defaults to `false`.
-   * @returns A promise that resolves when the map image has been saved.
+   * @returns A promise that resolves to this table after the map image has been saved.
    * @category Dataviz
    */
   async writeMap(
@@ -1805,22 +1849,9 @@ export default class SimpleTable extends SimpleTableCore {
       style?: string;
       dark?: boolean;
     } = {},
-  ): Promise<void> {
-    createDirectory(path);
-    options.rewind = options.rewind ?? true;
-    const geoData = await this.getGeoData({
-      column: options.column,
-      rewind: options.rewind,
-    });
-    const { saveChart } = await import("@nshiab/journalism-dataviz");
-    await saveChart(
-      geoData as unknown as Data,
-      map as unknown as (
-        data: Data,
-      ) => SVGSVGElement | HTMLElement | Promise<SVGSVGElement | HTMLElement>,
-      path,
-      options,
-    );
+  ): Promise<this> {
+    await writeMap(this, map, path, options);
+    return this;
   }
 
   /**
@@ -1844,6 +1875,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   .loadArray(data)
    *   .convert({ date: "string" }, { datetimeFormat: "%x" })
    *   .logLineChart("date", "value")
+   *
+   * await table.log();
    * ```
    *
    * @example
@@ -1865,6 +1898,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   .logLineChart("date", "value", {
    *     smallMultiples: "category",
    *   })
+   *
+   * await table.log();
    * ```
    *
    * @param x - The name of the column to be used for the x-axis. Values must be numbers or Date objects.
@@ -1877,7 +1912,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.smallMultiplesPerRow - The number of small multiples to display per row.
    * @param options.width - The width of the chart in characters.
    * @param options.height - The height of the chart in characters.
-   * @returns A promise that resolves when the chart has been logged to the console.
+   * @returns A promise that resolves to this table after the chart has been logged to the console.
    * @category Dataviz
    */
   async logLineChart(
@@ -1892,20 +1927,9 @@ export default class SimpleTable extends SimpleTableCore {
       width?: number;
       height?: number;
     } = {},
-  ): Promise<void> {
-    const data = await this.getData({
-      columns: Array.from(
-        new Set([
-          x,
-          y,
-          ...(typeof options.smallMultiples === "string"
-            ? [options.smallMultiples]
-            : []),
-        ]),
-      ),
-    });
-    const { logLineChart } = await import("@nshiab/journalism-dataviz");
-    logLineChart(data, x, y, options);
+  ): Promise<this> {
+    await logLineChart(this, x, y, options);
+    return this;
   }
 
   /**
@@ -1929,6 +1953,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   .loadArray(data)
    *   .convert({ date: "string" }, { datetimeFormat: "%x" })
    *   .logDotChart("date", "value")
+   *
+   * await table.log();
    * ```
    *
    * @example
@@ -1950,6 +1976,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   .logDotChart("date", "value", {
    *     smallMultiples: "category",
    *   })
+   *
+   * await table.log();
    * ```
    *
    * @param x - The name of the column to be used for the x-axis. Values must be numbers or Date objects.
@@ -1962,7 +1990,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.smallMultiplesPerRow - The number of small multiples to display per row.
    * @param options.width - The width of the chart in characters.
    * @param options.height - The height of the chart in characters.
-   * @returns A promise that resolves when the chart has been logged to the console.
+   * @returns A promise that resolves to this table after the chart has been logged to the console.
    * @category Dataviz
    */
   async logDotChart(
@@ -1977,20 +2005,9 @@ export default class SimpleTable extends SimpleTableCore {
       width?: number;
       height?: number;
     } = {},
-  ): Promise<void> {
-    const data = await this.getData({
-      columns: Array.from(
-        new Set([
-          x,
-          y,
-          ...(typeof options.smallMultiples === "string"
-            ? [options.smallMultiples]
-            : []),
-        ]),
-      ),
-    });
-    const { logDotChart } = await import("@nshiab/journalism-dataviz");
-    logDotChart(data, x, y, options);
+  ): Promise<this> {
+    await logDotChart(this, x, y, options);
+    return this;
   }
 
   /**
@@ -2005,6 +2022,8 @@ export default class SimpleTable extends SimpleTableCore {
    * await table
    *   .loadArray(data)
    *   .logBarChart("category", "value")
+   *
+   * await table.log();
    * ```
    *
    * @param labels - The name of the column to be used for the labels (categories).
@@ -2017,7 +2036,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.totalLabel - Allows customizing the label used for the total row. Defaults to "Total".
    * @param options.compact - Reduces vertical space in the logged output. Defaults to `false`.
    * @param options.width - The width of the chart in characters. Defaults to 40.
-   * @returns A promise that resolves when the chart has been logged to the console.
+   * @returns A promise that resolves to this table after the chart has been logged to the console.
    * @category Dataviz
    */
   async logBarChart(
@@ -2032,12 +2051,9 @@ export default class SimpleTable extends SimpleTableCore {
       compact?: boolean;
       width?: number;
     } = {},
-  ): Promise<void> {
-    const data = await this.getData({
-      columns: Array.from(new Set([labels, values])),
-    });
-    const { logBarChart } = await import("@nshiab/journalism-dataviz");
-    logBarChart(data, labels, values, options);
+  ): Promise<this> {
+    await logBarChart(this, labels, values, options);
+    return this;
   }
 
   /**
@@ -2047,6 +2063,8 @@ export default class SimpleTable extends SimpleTableCore {
    * // Basic histogram of the 'temperature' column
    * ```typescript
    * await table.logHistogram("temperature")
+   *
+   * await table.log();
    * ```
    *
    * @example
@@ -2056,6 +2074,8 @@ export default class SimpleTable extends SimpleTableCore {
    *   bins: 20,
    *   formatLabels: (min, max) => `${min}-${max} years`,
    * });
+   *
+   * await table.log();
    * ```
    *
    * @param values - The name of the numeric column for which to generate the histogram.
@@ -2064,7 +2084,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.formatLabels - A function to format the labels for the histogram bins. It receives the lower and upper bounds of each bin as arguments.
    * @param options.compact - If `true`, the histogram will be displayed in a more compact format. Defaults to `false`.
    * @param options.width - The maximum width of the histogram bars in characters.
-   * @returns A promise that resolves when the histogram has been logged to the console.
+   * @returns A promise that resolves to this table after the histogram has been logged to the console.
    * @category Dataviz
    */
   async logHistogram(
@@ -2075,7 +2095,8 @@ export default class SimpleTable extends SimpleTableCore {
       compact?: boolean;
       width?: number;
     } = {},
-  ): Promise<void> {
+  ): Promise<this> {
     await logHistogram(this, values, options);
+    return this;
   }
 }

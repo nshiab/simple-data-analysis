@@ -15,6 +15,7 @@ for (
     "bucket-queued",
     "observers",
     "observers-reversed",
+    "observer-returns",
     "failure",
   ]
 ) {

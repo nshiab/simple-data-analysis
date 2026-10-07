@@ -1,7 +1,7 @@
 # The Simple Data Analysis Library
 
 - Package: `@nshiab/simple-data-analysis`
-- Version: `6.0.6`
+- Version: `6.0.8`
 - Includes: `@nshiab/simple-data-analysis-core@2.1.9`
 
 To install the library with Deno, use:
@@ -855,9 +855,22 @@ example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example,
 `"us-central1"`). Values passed through `embeddings` override the corresponding
 environment values. When using Ollama, ensure it is running.
 
-To manage rate limits, use `rateLimitPerMinute` to introduce delays between
-requests. For higher rate limits (business/professional accounts), `concurrency`
-allows parallel requests.
+Use `rateLimitPerMinute` to space provider request starts across the worker
+pool, including across transfer batches. Cached responses bypass pacing. The
+`concurrency` option bounds active tasks, and free slots refill as requests
+finish. Retries are disabled by default; set `retry` and optionally `retryCheck`
+to retry failed requests. Each dispatched retry respects the rate limit.
+
+By default, a terminal request failure stops new tasks and settles active work
+before throwing. Set `errorColumn` to continue instead: failed rows receive a
+`NULL` embedding and an error message, while successful rows receive `NULL` in
+the error column. If every request fails, the embedding column is entirely
+`NULL`. Check errors and handle null embeddings before indexing or searching.
+Errors in staging or retry-policy callbacks still throw.
+
+Set `logProgress` to log completed request tasks, including failures and cache
+hits; retries do not increment completion counts. The `verbose` option retains
+detailed row-processing and index-creation logging.
 
 Individual embedding responses are cached in `.journalism-cache` by default. Set
 `embeddings.cache` to `false` to disable this request cache, and remember to add
@@ -885,7 +898,7 @@ The work is queued and runs in chain order at the next awaited observer or
 ##### Signature
 
 ```typescript
-aiEmbeddings(column: string, newColumn: string, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; createIndex?: boolean; overwriteIndex?: boolean; concurrency?: number; verbose?: boolean; rateLimitPerMinute?: number; efConstruction?: number; efSearch?: number; M?: number }): this;
+aiEmbeddings(column: string, newColumn: string, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; createIndex?: boolean; overwriteIndex?: boolean; concurrency?: number; errorColumn?: string; retry?: number; retryCheck?: (error: unknown) => Promise<boolean> | boolean; logProgress?: boolean; verbose?: boolean; rateLimitPerMinute?: number; efConstruction?: number; efSearch?: number; M?: number }): this;
 ```
 
 ##### Parameters
@@ -912,9 +925,20 @@ aiEmbeddings(column: string, newColumn: string, options?: { embeddings?: { provi
 - **`options.concurrency`**: The number of concurrent requests to send. Defaults
   to `1`.
 - **`options.embeddings`**: Optional Gemini or Ollama embedding configuration.
-- **`options.rateLimitPerMinute`**: The rate limit for AI requests in requests
-  per minute. The method will wait between requests if necessary. Defaults to
+- **`options.rateLimitPerMinute`**: The maximum number of provider requests
+  started per minute. Must be positive and finite. Request starts are spaced
+  across the worker pool; cached responses bypass the limit. Defaults to
   `undefined` (no limit).
+- **`options.errorColumn`**: Column receiving terminal request errors instead of
+  throwing. Failed embeddings are `NULL`; successful rows have a `NULL` error.
+  Must differ from `newColumn`. Defaults to `undefined`.
+- **`options.retry`**: Number of additional attempts after a request failure.
+  Must be a non-negative safe integer. Defaults to `0`.
+- **`options.retryCheck`**: Optional synchronous or asynchronous predicate that
+  decides whether a failed request may be retried while attempts remain.
+  Defaults to `undefined`.
+- **`options.logProgress`**: If `true`, logs request-task completion counts
+  across transfer batches. Defaults to `false`.
 - **`options.verbose`**: If `true`, logs additional debugging information.
   Defaults to `false`.
 
@@ -952,6 +976,19 @@ const food = await sdb
 const food = await table
   .aiEmbeddings("food", "embeddings", {
     embeddings: { provider: "ollama", model: "nomic-embed-text" },
+  })
+  .log();
+```
+
+```ts
+// Retry requests and retain errors for inspection.
+await table
+  .aiEmbeddings("text", "embedding", {
+    embeddings: { provider: "ollama", model: "nomic-embed-text" },
+    errorColumn: "embedding_error",
+    retry: 2,
+    retryCheck: (error) => error instanceof Error,
+    logProgress: true,
   })
   .log();
 ```
@@ -1640,7 +1677,7 @@ https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication.
 ##### Signature
 
 ```typescript
-async toSheet(sheetUrl: string, options?: { mode?: "overwrite" | "append"; tabTitle?: string; create?: boolean; prepend?: string; lastUpdate?: boolean | "Canada/Atlantic" | "Canada/Central" | "Canada/Eastern" | "Canada/Mountain" | "Canada/Newfoundland" | "Canada/Pacific" | "Canada/Saskatchewan" | "Canada/Yukon"; raw?: boolean; credentials?: { email: string; privateKey: string } }): Promise<void>;
+async toSheet(sheetUrl: string, options?: { mode?: "overwrite" | "append"; tabTitle?: string; create?: boolean; prepend?: string; lastUpdate?: boolean | "Canada/Atlantic" | "Canada/Central" | "Canada/Eastern" | "Canada/Mountain" | "Canada/Newfoundland" | "Canada/Pacific" | "Canada/Saskatchewan" | "Canada/Yukon"; raw?: boolean; credentials?: { email: string; privateKey: string } }): Promise<this>;
 ```
 
 ##### Parameters
@@ -1665,7 +1702,8 @@ async toSheet(sheetUrl: string, options?: { mode?: "overwrite" | "append"; tabTi
 
 ##### Returns
 
-A promise that resolves when the data has been written to the sheet.
+A promise that resolves to this table after the data has been written to the
+sheet.
 
 ##### Examples
 
@@ -1674,11 +1712,13 @@ A promise that resolves when the data has been written to the sheet.
 // GOOGLE_SERVICE_ACCOUNT_EMAIL=service-account@example.iam.gserviceaccount.com
 // GOOGLE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\n...
 // Load, transform, and write data to a Google Sheet
-await sdb
+const table = await sdb
   .newTable()
   .loadData("sales.csv")
   .selectColumns(["date", "revenue"])
   .toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+
+await table.log();
 ```
 
 ```ts
@@ -1687,6 +1727,8 @@ await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit", {
   mode: "append",
   tabTitle: "Election results",
 });
+
+await table.log();
 ```
 
 ```ts
@@ -1697,6 +1739,8 @@ await table.toSheet("https://docs.google.com/spreadsheets/d/.../edit", {
   prepend: "Preliminary results",
   lastUpdate: "Canada/Eastern",
 });
+
+await table.log();
 ```
 
 ```ts
@@ -1705,6 +1749,8 @@ await table.toSheet(
   "https://docs.google.com/spreadsheets/d/.../edit#gid=0",
   { raw: false },
 );
+
+await table.log();
 ```
 
 ```ts
@@ -1718,6 +1764,8 @@ await table.toSheet(
     },
   },
 );
+
+await table.log();
 ```
 
 #### `loadSheet`
@@ -1793,7 +1841,7 @@ example, `"your-datawrapper-api-key"`).
 ##### Signature
 
 ```typescript
-async toDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; note?: string; republish?: boolean }): Promise<void>;
+async toDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; note?: string; republish?: boolean }): Promise<this>;
 ```
 
 ##### Parameters
@@ -1810,18 +1858,21 @@ async toDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; note?: s
 
 ##### Returns
 
-A promise that resolves when the data has been sent to Datawrapper.
+A promise that resolves to this table after the data has been sent to
+Datawrapper.
 
 ##### Examples
 
 ```ts
 // Set DATAWRAPPER_KEY=your-datawrapper-api-key before running.
 // Load, transform, and send data to a Datawrapper chart
-await sdb
+const table = await sdb
   .newTable()
   .loadData("sales.csv")
   .selectColumns(["date", "revenue"])
   .toDatawrapper("myChartId");
+
+await table.log();
 ```
 
 ```ts
@@ -1830,6 +1881,8 @@ await table.toDatawrapper("myChartId", {
   note: `Last updated: ${new Date().toLocaleString()}`,
   republish: true,
 });
+
+await table.log();
 ```
 
 #### `loadDatawrapper`
@@ -1881,7 +1934,7 @@ example, `"your-datawrapper-api-key"`).
 ##### Signature
 
 ```typescript
-async toGeoDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; column?: string; note?: string; republish?: boolean }): Promise<void>;
+async toGeoDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; column?: string; note?: string; republish?: boolean }): Promise<this>;
 ```
 
 ##### Parameters
@@ -1899,18 +1952,21 @@ async toGeoDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; colum
 
 ##### Returns
 
-A promise that resolves when the data has been sent to Datawrapper.
+A promise that resolves to this table after the data has been sent to
+Datawrapper.
 
 ##### Examples
 
 ```ts
 // Set DATAWRAPPER_KEY=your-datawrapper-api-key before running.
 // Load, transform, and send geospatial data to a Datawrapper map
-await sdb
+const table = await sdb
   .newTable()
   .loadGeoData("regions.geojson")
   .selectColumns(["name", "population", "geometry"])
   .toGeoDatawrapper("myMapId");
+
+await table.log();
 ```
 
 ```ts
@@ -1919,6 +1975,8 @@ await table.toGeoDatawrapper("myMapId", {
   note: `Last updated: ${new Date().toLocaleString()}`,
   republish: true,
 });
+
+await table.log();
 ```
 
 #### `loadGeoDatawrapper`
@@ -1972,7 +2030,7 @@ image file (.png or .svg) from the table data. To create maps, use the
 ##### Signature
 
 ```typescript
-async writeChart(chart: (data: unknown[]) => SVGSVGElement | HTMLElement, path: string, options?: { style?: string; dark?: boolean }): Promise<void>;
+async writeChart(chart: (data: unknown[]) => SVGSVGElement | HTMLElement, path: string, options?: { style?: string; dark?: boolean }): Promise<this>;
 ```
 
 ##### Parameters
@@ -1989,7 +2047,7 @@ async writeChart(chart: (data: unknown[]) => SVGSVGElement | HTMLElement, path: 
 
 ##### Returns
 
-A promise that resolves when the chart image has been saved.
+A promise that resolves to this table after the chart image has been saved.
 
 ##### Examples
 
@@ -2008,10 +2066,12 @@ const chartFunction = (plotData: unknown[]) =>
 
 const outputPath = "output/chart.png";
 
-await sdb
+const table = await sdb
   .newTable()
   .loadArray(data)
   .writeChart(chartFunction, outputPath);
+
+await table.log();
 ```
 
 #### `writeMap`
@@ -2023,7 +2083,7 @@ from non-geospatial data, use the `writeChart` method.
 ##### Signature
 
 ```typescript
-async writeMap(map: (geoData: { features: { properties: Record<string, unknown> }[] }) => SVGSVGElement | HTMLElement | Promise<SVGSVGElement | HTMLElement>, path: string, options?: { column?: string; rewind?: boolean; style?: string; dark?: boolean }): Promise<void>;
+async writeMap(map: (geoData: { features: { properties: Record<string, unknown> }[] }) => SVGSVGElement | HTMLElement | Promise<SVGSVGElement | HTMLElement>, path: string, options?: { column?: string; rewind?: boolean; style?: string; dark?: boolean }): Promise<this>;
 ```
 
 ##### Parameters
@@ -2045,7 +2105,7 @@ async writeMap(map: (geoData: { features: { properties: Record<string, unknown> 
 
 ##### Returns
 
-A promise that resolves when the map image has been saved.
+A promise that resolves to this table after the map image has been saved.
 
 ##### Examples
 
@@ -2067,10 +2127,12 @@ const mapFunction = (geoJsonData: { features: unknown[] }) =>
 
 const outputPath = "./output/map.png";
 
-await sdb
+const table = await sdb
   .newTable()
   .loadGeoData("./CanadianProvincesAndTerritories.geojson")
   .writeMap(mapFunction, outputPath);
+
+await table.log();
 ```
 
 #### `logLineChart`
@@ -2087,7 +2149,7 @@ x-axis values for accurate representation.
 ##### Signature
 
 ```typescript
-async logLineChart(x: string, y: string, options?: { formatX?: (d: unknown) => string; formatY?: (d: number) => string; smallMultiples?: string; fixedScales?: boolean; smallMultiplesPerRow?: number; width?: number; height?: number }): Promise<void>;
+async logLineChart(x: string, y: string, options?: { formatX?: (d: unknown) => string; formatY?: (d: number) => string; smallMultiples?: string; fixedScales?: boolean; smallMultiplesPerRow?: number; width?: number; height?: number }): Promise<this>;
 ```
 
 ##### Parameters
@@ -2115,7 +2177,8 @@ async logLineChart(x: string, y: string, options?: { formatX?: (d: unknown) => s
 
 ##### Returns
 
-A promise that resolves when the chart has been logged to the console.
+A promise that resolves to this table after the chart has been logged to the
+console.
 
 ##### Examples
 
@@ -2132,6 +2195,8 @@ await table
   .loadArray(data)
   .convert({ date: "string" }, { datetimeFormat: "%x" })
   .logLineChart("date", "value");
+
+await table.log();
 ```
 
 // Line chart with small multiples
@@ -2153,6 +2218,8 @@ await table
   .logLineChart("date", "value", {
     smallMultiples: "category",
   });
+
+await table.log();
 ```
 
 #### `logDotChart`
@@ -2169,7 +2236,7 @@ x-axis values for accurate representation.
 ##### Signature
 
 ```typescript
-async logDotChart(x: string, y: string, options?: { formatX?: (d: unknown) => string; formatY?: (d: number) => string; smallMultiples?: string; fixedScales?: boolean; smallMultiplesPerRow?: number; width?: number; height?: number }): Promise<void>;
+async logDotChart(x: string, y: string, options?: { formatX?: (d: unknown) => string; formatY?: (d: number) => string; smallMultiples?: string; fixedScales?: boolean; smallMultiplesPerRow?: number; width?: number; height?: number }): Promise<this>;
 ```
 
 ##### Parameters
@@ -2197,7 +2264,8 @@ async logDotChart(x: string, y: string, options?: { formatX?: (d: unknown) => st
 
 ##### Returns
 
-A promise that resolves when the chart has been logged to the console.
+A promise that resolves to this table after the chart has been logged to the
+console.
 
 ##### Examples
 
@@ -2214,6 +2282,8 @@ await table
   .loadArray(data)
   .convert({ date: "string" }, { datetimeFormat: "%x" })
   .logDotChart("date", "value");
+
+await table.log();
 ```
 
 // Dot chart with small multiples
@@ -2235,6 +2305,8 @@ await table
   .logDotChart("date", "value", {
     smallMultiples: "category",
   });
+
+await table.log();
 ```
 
 #### `logBarChart`
@@ -2244,7 +2316,7 @@ Generates and logs a bar chart to the console.
 ##### Signature
 
 ```typescript
-async logBarChart(labels: string, values: string, options?: { formatLabels?: (d: unknown) => string; formatValues?: (d: number) => string; showPercentages?: boolean; showTotal?: boolean; totalLabel?: string; compact?: boolean; width?: number }): Promise<void>;
+async logBarChart(labels: string, values: string, options?: { formatLabels?: (d: unknown) => string; formatValues?: (d: number) => string; showPercentages?: boolean; showTotal?: boolean; totalLabel?: string; compact?: boolean; width?: number }): Promise<this>;
 ```
 
 ##### Parameters
@@ -2268,7 +2340,8 @@ async logBarChart(labels: string, values: string, options?: { formatLabels?: (d:
 
 ##### Returns
 
-A promise that resolves when the chart has been logged to the console.
+A promise that resolves to this table after the chart has been logged to the
+console.
 
 ##### Examples
 
@@ -2280,6 +2353,8 @@ const data = [
 await table
   .loadArray(data)
   .logBarChart("category", "value");
+
+await table.log();
 ```
 
 #### `logHistogram`
@@ -2289,7 +2364,7 @@ Generates and logs a histogram of a numeric column to the console.
 ##### Signature
 
 ```typescript
-async logHistogram(values: string, options?: { bins?: number; formatLabels?: (min: number, max: number) => string; compact?: boolean; width?: number }): Promise<void>;
+async logHistogram(values: string, options?: { bins?: number; formatLabels?: (min: number, max: number) => string; compact?: boolean; width?: number }): Promise<this>;
 ```
 
 ##### Parameters
@@ -2307,7 +2382,8 @@ async logHistogram(values: string, options?: { bins?: number; formatLabels?: (mi
 
 ##### Returns
 
-A promise that resolves when the histogram has been logged to the console.
+A promise that resolves to this table after the histogram has been logged to the
+console.
 
 ##### Examples
 
@@ -2315,6 +2391,8 @@ A promise that resolves when the histogram has been logged to the console.
 
 ```typescript
 await table.logHistogram("temperature");
+
+await table.log();
 ```
 
 // Histogram with 20 bins and custom label formatting
@@ -2324,6 +2402,8 @@ await table.logHistogram("age", {
   bins: 20,
   formatLabels: (min, max) => `${min}-${max} years`,
 });
+
+await table.log();
 ```
 
 #### `name`

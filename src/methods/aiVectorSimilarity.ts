@@ -112,7 +112,7 @@ export async function runAIVectorSimilarity(
   }
 
   const { getEmbeddingForProvider } = await import(
-    "../helpers/tryEmbedding.ts"
+    "../helpers/getEmbeddingForProvider.ts"
   );
   const textEmbedding = await getEmbeddingForProvider(text, options.embeddings);
 
