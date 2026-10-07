@@ -824,158 +824,174 @@ await cities
     "city",
     ["country", "continent"],
     "Give me the country and continent of the city.",
-    { concurrency: 5, errorColumn: "error", verbose: true },
+    { concurrency: 5, errorColumn: "error", logProgress: true },
   )
   .log();
 
 await sdb.close();
 ```
 
-#### Visualize recipe embeddings with UMAP
+The resulting table would be:
 
-Which recipes have similar descriptions? Generate embeddings locally with
-[`aiEmbeddings`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiEmbeddings),
-group them with
-[`hdbscan`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.hdbscan),
-then use
-[`umap`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.umap)
-to project them into two dimensions and draw a scatterplot colored by cluster.
-Clustering uses the original embeddings; UMAP supplies the chart coordinates.
+| city      | country     | continent | error |
+| --------- | ----------- | --------- | ----- |
+| Marrakech | Morocco     | Africa    | null  |
+| Kyoto     | Japan       | Asia      | null  |
+| Auckland  | New Zealand | Oceania   | null  |
 
-Install [Ollama](https://ollama.com/), make sure it is running, and download the
-embedding model:
+#### Create embeddings
 
-```sh
-ollama pull nomic-embed-text:latest
-```
+Embeddings represent text as lists of numbers that capture aspects of its
+meaning. Texts with similar meanings tend to have similar embeddings, so we can
+compare descriptions even when they use different words.
 
-Set these variables in `.env`. This example only needs an embedding model:
-
-```dotenv
-AI_EMBEDDINGS_PROVIDER=ollama
-AI_EMBEDDINGS_MODEL=nomic-embed-text:latest
-```
-
-Save the following code as `recipes.ts`. After installing SDA and Observable
-Plot (`deno add jsr:@nshiab/simple-data-analysis npm:@observablehq/plot`), run
-it with `deno run -A --env-file recipes.ts`. The first run generates embeddings
-for all 335 recipes; subsequent runs can reuse the default `.journalism-cache`.
+Let's use
+[`aiEmbeddings`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiEmbeddings)
+to turn recipe descriptions into vectors. Each recipe keeps its original columns
+and gets a new `embedding` column. These vectors can then be used for
+clustering, visualization, and semantic search.
 
 ```ts
+// Uses AI_EMBEDDINGS_PROVIDER, AI_EMBEDDINGS_MODEL, and any required credentials
+// from .env.
 import { SimpleDB } from "@nshiab/simple-data-analysis";
-import { dot, plot, text } from "@observablehq/plot";
 
 const sdb = new SimpleDB();
-try {
-  const recipes = sdb.newTable("recipes")
-    .loadData(
-      "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/recipesClean.parquet",
-    )
-    .aiEmbeddings("Recipe", "embedding")
-    .hdbscan("embedding", "cluster", {
-      metric: "cosine",
-      minClusterSize: 5,
-      minSamples: 3,
-    })
-    .umap("embedding", { metric: "cosine", seed: 42 });
+await sdb
+  .newTable("recipes")
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/recipesClean.parquet",
+  )
+  .aiEmbeddings("Recipe", "embedding")
+  .log();
 
-  // Give clusters distinct colors; keep unclustered recipes gray.
-  const clusters = (await recipes.getUniques("cluster"))
-    .filter((cluster) => cluster !== "noise");
-
-  // Label a few familiar dishes to keep the chart readable.
-  const labels = [
-    "Fried Chicken",
-    "Roast Lamb",
-    "BBQ Ribs",
-    "Ramen",
-    "Goulash Soup",
-    "Sushi",
-    "Falafel",
-    "Ceviche",
-    "Hamburger",
-    "Pizza",
-    "Tacos",
-    "Empanadas",
-    "Cornbread",
-    "Croissant",
-    "Brownies",
-    "Pineapple",
-  ];
-
-  await recipes.writeChart(
-    (data) =>
-      plot({
-        title: "A map of recipe descriptions",
-        subtitle: "Colors show HDBSCAN clusters. Gray recipes are unclustered.",
-        width: 900,
-        height: 650,
-        margin: 60,
-        x: { axis: null },
-        y: { axis: null },
-        color: {
-          type: "categorical",
-          domain: clusters,
-          scheme: "tableau10",
-          unknown: "#c5c5c5",
-          legend: true,
-        },
-        style: { fontSize: "13px" },
-        marks: [
-          dot(data, {
-            x: "umapX",
-            y: "umapY",
-            fill: "cluster",
-            r: 4,
-            title: "Dish",
-          }),
-          text(data, {
-            filter: (d) => labels.includes(d.Dish),
-            x: "umapX",
-            y: "umapY",
-            text: "Dish",
-            dy: -12,
-            fill: "#153e47",
-            stroke: "white",
-            strokeWidth: 4,
-          }),
-        ],
-      }),
-    "sda/output/recipes-umap.png",
-  );
-} finally {
-  await sdb.close();
-}
+await sdb.close();
 ```
 
-![UMAP scatterplot of 335 recipe descriptions, colored by HDBSCAN cluster, with unclustered recipes in gray and selected dishes labelled.](./assets/recipes-umap.png)
+Here are three rows generated with `nomic-embed-text:latest`. Recipe text and
+vectors are shortened for readability, and embedding values are rounded.
 
-HDBSCAN finds groups without a predefined cluster count. Here,
-`minClusterSize: 5` requires at least five recipes per group, while
-`minSamples: 3` makes clustering less conservative than the default of five for
-this minimum cluster size. Recipes labelled `"noise"` remain visible in gray;
-they are not another cluster. With the model used for this chart, these settings
-grouped 88 recipes into five clusters and left 247 unclustered. The defaults
-left all 335 unclustered. Cluster IDs identify groups, not culinary categories
-or ranks, and the result depends on the embeddings and density settings.
+| Dish    | Recipe                                                         | embedding                          |
+| ------- | -------------------------------------------------------------- | ---------------------------------- |
+| Pizza   | Pizza is a savory dish of Italian origin…                      | [0.045, 0.099, -0.167, 0.051, …]   |
+| Paella  | Paella is a traditional Spanish rice dish…                     | [0.038, 0.085, -0.183, -0.005, …]  |
+| Goulash | Goulash is a hearty and flavorful stew of meat and vegetables… | [-0.028, 0.090, -0.181, -0.053, …] |
 
-Nearby points suggest similar recipe descriptions, but this is an exploratory
-projection: the axes have no culinary meaning, and distances in the chart are
-not exact similarity scores. `umap()` preserves the original rows and embeddings
-for further analysis. The seed makes the layout repeatable for the same inputs;
-model or dependency updates can change the result.
+#### Cluster and visualize embeddings
+
+We can group similar recipe descriptions with
+[`hdbscan`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.hdbscan).
+It clusters the original embeddings and labels recipes it cannot confidently
+assign as `"noise"`. This example uses the same embedding settings and recipe
+data as above.
+
+```ts
+// Uses AI_EMBEDDINGS_PROVIDER, AI_EMBEDDINGS_MODEL, and any required credentials
+// from .env.
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+const recipes = await sdb
+  .newTable("recipes")
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/recipesClean.parquet",
+  )
+  .aiEmbeddings("Recipe", "embedding")
+  .hdbscan("embedding", "cluster", {
+    metric: "cosine",
+    minSamples: 3,
+  })
+  .log();
+
+await sdb.close();
+```
+
+Here are the five recipes in `cluster-0`. For readability, we show only their
+names and cluster labels. This group brings together related Middle Eastern
+dishes, including hummus, falafel, and bread-based dishes.
+
+| Dish          | cluster   |
+| ------------- | --------- |
+| Fattet Hummus | cluster-0 |
+| Falafel       | cluster-0 |
+| Baba Ghanoush | cluster-0 |
+| Fattoush      | cluster-0 |
+| Fatteh        | cluster-0 |
+
+We can also use
+[`umap`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.umap)
+to project the embeddings into two dimensions and draw them with `writeChart`.
+After inspecting the recipes in each cluster, we assign descriptive names to the
+groups below. Nearby points suggest similar descriptions, but the projection
+does not preserve every distance.
+
+```ts
+// Uses AI_EMBEDDINGS_PROVIDER, AI_EMBEDDINGS_MODEL, and any required credentials
+// from .env.
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+import { dot, plot } from "@observablehq/plot";
+
+const sdb = new SimpleDB();
+const recipes = sdb.newTable("recipes")
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/recipesClean.parquet",
+  )
+  .aiEmbeddings("Recipe", "embedding")
+  .hdbscan("embedding", "cluster", {
+    metric: "cosine",
+    minSamples: 3,
+  })
+  .replace("cluster", {
+    "cluster-0": "Middle Eastern dishes",
+    "cluster-1": "Mexican dishes",
+    "cluster-2": "Latin American dishes",
+    "cluster-3": "Meat, rice & curry dishes",
+    "cluster-4": "Soups & taro dishes",
+  })
+  .umap("embedding", { metric: "cosine" });
+
+await recipes.writeChart(
+  (data) =>
+    plot({
+      title: "A map of recipe descriptions",
+      subtitle: "Embeddings from Nomic Embed Text, clustered with HDBSCAN.",
+      x: { axis: null },
+      y: { axis: null },
+      color: {
+        domain: [
+          "Middle Eastern dishes",
+          "Mexican dishes",
+          "Latin American dishes",
+          "Meat, rice & curry dishes",
+          "Soups & taro dishes",
+        ],
+        scheme: "tableau10",
+        unknown: "#dedede",
+        legend: true,
+      },
+      marks: [
+        dot(data, {
+          x: "umapX",
+          y: "umapY",
+          fill: "cluster",
+          r: (d) => d.cluster === "noise" ? 2 : 4,
+          sort: (d: { cluster: string }) => d.cluster === "noise" ? 0 : 1,
+        }),
+      ],
+    }),
+  "sda/output/recipes-umap.png",
+);
+await sdb.close();
+```
+
+![UMAP scatterplot of 335 recipe descriptions, colored by manually named HDBSCAN clusters, with unclustered recipes in gray.](./assets/recipes-umap.png)
 
 #### Semantic search
 
-The
-[`hybridSearch`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.hybridSearch)
-method lets you find exact keyword matches and semantically similar matches
-together. SDA generates the embeddings using the provider and model configured
-through environment variables. For keyword search or vector search alone, the
-[`bm25`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.bm25)
-and
+Once we have embeddings, we can search by meaning rather than exact wording.
 [`aiVectorSimilarity`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiVectorSimilarity)
-methods used by `hybridSearch` are also available directly.
+embeds a search query using the same model and finds the closest recipe vectors.
+Here, we ask for five recipes similar to "buttery pastry for breakfast".
 
 ```ts
 // Uses AI_EMBEDDINGS_PROVIDER, AI_EMBEDDINGS_MODEL, and any required credentials
@@ -985,29 +1001,33 @@ import { SimpleDB } from "@nshiab/simple-data-analysis";
 const sdb = new SimpleDB();
 const recipes = sdb.newTable("recipes");
 
-// We search both the meaning and the wording of each recipe.
+// Compare the query embedding with each recipe embedding.
 await recipes
   .loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/recipesClean.parquet",
   )
-  .hybridSearch(
+  .aiEmbeddings("Recipe", "embedding")
+  .aiVectorSimilarity(
     "buttery pastry for breakfast",
-    "Dish",
-    "Recipe",
+    "embedding",
     5,
-    { outputTable: "results", verbose: true },
+    { similarityColumn: "similarity" },
   )
-  .log(); // For example: "Butter Pie" (keyword) and "Croissant" (semantic).
+  .log();
 
 await sdb.close();
 ```
 
 #### Retrieval-augmented generation (RAG)
 
-The
+We can take retrieval one step further and use the matching recipes to help an
+LLM answer a question.
 [`aiRAG`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiRAG)
-method first retrieves relevant rows with hybrid search, then asks an LLM to
-answer using only those rows.
+first retrieves relevant rows with
+[`hybridSearch`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.hybridSearch),
+which combines semantic matches from embeddings with
+[`bm25`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.bm25)
+keyword matches. It then asks the LLM to answer using only those rows.
 
 ```ts
 // Uses both AI provider/model pairs and any required credentials from .env.
