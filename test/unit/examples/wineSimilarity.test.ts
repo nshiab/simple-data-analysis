@@ -118,3 +118,66 @@ Deno.test("README wine similarity example retains all matches and agrees with it
     await Deno.remove(directory, { recursive: true });
   }
 });
+
+Deno.test("README wine UMAP example maps every red wine and retains reference similarity", async () => {
+  const readme = await Deno.readTextFile(join(root, "README.md"));
+  const section = readme.split("#### Similarity analysis\n")[1]
+    ?.split(/\n#{3,4} /)[0];
+  assert(section);
+  const blocks = Array.from(section.matchAll(/```ts\n([\s\S]*?)\n```/g));
+  assertEquals(blocks.length, 2);
+  const directory = await Deno.makeTempDir({ prefix: "sda-wine-umap-" });
+  try {
+    const output = join(directory, "wines.png");
+    const rowsPath = join(directory, "rows.json");
+    const script = join(directory, "wines.ts");
+    const code = blocks[1][1]
+      .replace(
+        '"@nshiab/simple-data-analysis"',
+        JSON.stringify(new URL("../../../src/index.ts", import.meta.url).href),
+      )
+      .replace('"sda/output/wines-umap.png"', JSON.stringify(output))
+      .replace(
+        "await sdb.close();",
+        `await Deno.writeTextFile(${
+          JSON.stringify(rowsPath)
+        }, JSON.stringify(await wines.getData()));\nawait sdb.close();`,
+      );
+    await Deno.writeTextFile(script, code);
+    const result = await new Deno.Command(Deno.execPath(), {
+      args: [
+        "run",
+        "-A",
+        "--check",
+        "--frozen",
+        `--config=${join(root, "deno.json")}`,
+        script,
+      ],
+      cwd: root,
+      stdout: "piped",
+      stderr: "piped",
+    }).output();
+    assertEquals(result.success, true, new TextDecoder().decode(result.stderr));
+    const rows: Record<string, unknown>[] = JSON.parse(
+      await Deno.readTextFile(rowsPath),
+    );
+    assertEquals(rows.length, 1026);
+    for (const row of rows) {
+      assertEquals(row.wineType, "Red");
+      for (const column of ["umapX", "umapY", "similarity"]) {
+        assert(typeof row[column] === "number" && Number.isFinite(row[column]));
+      }
+    }
+    const reference = rows.filter((row) =>
+      row.fullName === "Louis Jadot Bourgogne Pinot Noir"
+    );
+    assertEquals(reference.length, 1);
+    assertEquals(reference[0].similarity, 1);
+    assertEquals(reference[0].distance, 0);
+    const image = await Deno.readFile(output);
+    assertEquals([...image.slice(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+    assert(image.length > 1000);
+  } finally {
+    await Deno.remove(directory, { recursive: true });
+  }
+});

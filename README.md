@@ -912,6 +912,94 @@ the reference wine.
 | Jean-Claude Boisset Pinot Noir Bourgogne 'Les Ursulines' | 0.209    | 0.963      |
 | Joseph Drouhin Laforet Bourgogne Pinot Noir              | 0.240    | 0.957      |
 
+We can also map the wines with UMAP and color them by their similarity to our
+favorite. We standardize the four features before projecting them, so their
+scales do not dominate the layout. Color shows the Mahalanobis similarity score;
+position shows approximate relationships between wines. The outlined dot marks
+our reference wine.
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+import { dot, plot, text } from "@observablehq/plot";
+
+const sdb = new SimpleDB();
+const wines = sdb.newTable("wines")
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/main/test/data/files/wine.csv",
+  )
+  .filter("wineType === 'Red'");
+
+const reference = await wines.getRow(
+  "fullName === 'Louis Jadot Bourgogne Pinot Noir'",
+);
+
+await wines
+  .similarityMahalanobis(
+    ["acidity", "intensity", "sweetness", "tannin"],
+    reference,
+    "distance",
+    { similarityColumn: true },
+  )
+  // Standardize the features and combine them into a vector for UMAP.
+  .zScore("acidity", "acidityZ")
+  .zScore("intensity", "intensityZ")
+  .zScore("sweetness", "sweetnessZ")
+  .zScore("tannin", "tanninZ")
+  .addColumn(
+    "features",
+    "FLOAT[4]",
+    "[acidityZ, intensityZ, sweetnessZ, tanninZ]",
+  )
+  .umap("features")
+  .writeChart(
+    (data) =>
+      plot({
+        title: "Wines similar to our favorite Pinot Noir",
+        subtitle: "UMAP positions, colored by Mahalanobis similarity.",
+        x: { axis: null },
+        y: { axis: null },
+        color: {
+          scheme: "viridis",
+          domain: [0, 1],
+          legend: true,
+          label: "Similarity to Louis Jadot Bourgogne Pinot Noir",
+        },
+        marks: [
+          dot(data, {
+            x: "umapX",
+            y: "umapY",
+            fill: "similarity",
+            r: 3,
+          }),
+          dot(data, {
+            filter: (d) => d.fullName === reference.fullName,
+            x: "umapX",
+            y: "umapY",
+            fill: "similarity",
+            r: 7,
+            stroke: "black",
+            strokeWidth: 2,
+          }),
+          text(data, {
+            filter: (d) => d.fullName === reference.fullName,
+            x: "umapX",
+            y: "umapY",
+            text: "fullName",
+            dy: -16,
+            fill: "black",
+            stroke: "white",
+            strokeWidth: 4,
+          }),
+        ],
+      }),
+    "sda/output/wines-umap.png",
+  );
+
+await sdb.close();
+```
+
+![UMAP scatterplot of red wines colored by similarity, with Louis Jadot Bourgogne Pinot Noir highlighted.](./assets/wines-umap.png)
+
 #### Network analysis
 
 Network analysis focuses on connections between items, such as transactions
