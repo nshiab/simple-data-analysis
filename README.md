@@ -1065,6 +1065,27 @@ console.log(`${answer}\n`);
 await sdb.close();
 ```
 
+Here is the answer returned by `gemma4:12b-mlx`, using Nomic Embed Text for
+embeddings:
+
+> I found that you can eat Chakalaka for lunch. Chakalaka is a South African
+> vegetable stew that is typically spicy and flavorful. It includes the
+> following ingredients:
+>
+> - Vegetable oil
+> - Onions
+> - Garlic
+> - Red chilies
+> - Bell peppers
+> - Carrots
+> - Turmeric
+> - Curry powder
+> - Cumin
+> - Coriander
+> - Diced tomatoes
+> - Baked beans (or kidney/butter beans)
+> - Vegetable broth or water
+
 #### Natural language query
 
 The
