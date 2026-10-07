@@ -6,7 +6,7 @@
     "jsr:@nshiab/journalism-dataviz@^1.0.22": "1.0.22",
     "jsr:@nshiab/journalism-format@^1.1.10": "1.1.10",
     "jsr:@nshiab/journalism-google@^1.1.2": "1.1.2",
-    "jsr:@nshiab/simple-data-analysis-core@2.1.6": "2.1.6",
+    "jsr:@nshiab/simple-data-analysis-core@2.1.8": "2.1.8",
     "jsr:@std/assert@^1.0.19": "1.0.19",
     "jsr:@std/internal@^1.0.12": "1.0.14",
     "npm:@duckdb/node-api@1.5.5-r.5": "1.5.5-r.5",
@@ -15,9 +15,7 @@
     "npm:@napi-rs/canvas@^1.0.8": "1.0.8",
     "npm:@observablehq/plot@~0.6.17": "0.6.17",
     "npm:@resvg/resvg-js@^2.6.2": "2.6.2",
-    "npm:@types/d3-force@^3.0.10": "3.0.10",
     "npm:d3-dsv@^3.0.1": "3.0.1",
-    "npm:d3-force@3": "3.0.0",
     "npm:google-auth-library@^11.0.2": "11.0.2",
     "npm:google-spreadsheet@^5.3.0": "5.3.0_google-auth-library@11.0.2",
     "npm:linkedom@~0.18.13": "0.18.13",
@@ -53,8 +51,8 @@
         "npm:google-spreadsheet"
       ]
     },
-    "@nshiab/simple-data-analysis-core@2.1.6": {
-      "integrity": "fb7759303e19bd40304e6293886e7f5f85c138ef17273f2cfd53cab95b646893",
+    "@nshiab/simple-data-analysis-core@2.1.8": {
+      "integrity": "5c27a73768af52cca1efc41106a336aca0c5243e7dd96e4b24dcb0fa6c4a5a7b",
       "dependencies": [
         "npm:@duckdb/node-api"
       ]
@@ -361,9 +359,6 @@
         "@resvg/resvg-js-win32-ia32-msvc",
         "@resvg/resvg-js-win32-x64-msvc"
       ]
-    },
-    "@types/d3-force@3.0.10": {
-      "integrity": "sha512-ZYeSaCF3p73RdOKcjj+swRlZfnYpK1EbaDiYICEEp5Q6sUiqFaFQ9qgoshp5CzIyyb/yD09kD9o2zEltCexlgw=="
     },
     "@types/node@26.2.0": {
       "integrity": "sha512-5IviulTZeRNp2vAJ514cc/HUlY5nZ9fCbq9DMyC52BrhFZACo3nI0R7qBxhQmo/d27NFe96ur/b7Wwxklda+kg==",
@@ -1157,12 +1152,10 @@
       "jsr:@nshiab/journalism-dataviz@^1.0.22",
       "jsr:@nshiab/journalism-format@^1.1.10",
       "jsr:@nshiab/journalism-google@^1.1.2",
-      "jsr:@nshiab/simple-data-analysis-core@2.1.6",
+      "jsr:@nshiab/simple-data-analysis-core@2.1.8",
       "jsr:@std/assert@^1.0.19",
       "npm:@duckdb/node-api@1.5.5-r.5",
       "npm:@observablehq/plot@~0.6.17",
-      "npm:@types/d3-force@^3.0.10",
-      "npm:d3-force@3",
       "npm:ollama@~0.6.3",
       "npm:zod@^4.4.3"
     ]

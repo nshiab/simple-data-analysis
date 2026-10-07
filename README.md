@@ -504,124 +504,118 @@ the reference wine.
 
 ### Network analysis
 
-How does money move between local businesses? This fictional village has 12
-businesses and 19 payments totalling CAD 19,550 for September 2025. Load its
-[payment data](https://github.com/nshiab/simple-data-analysis-core/blob/c15633789384c7629ca76108ba807909823abece/test/data/graphs/villagePayments.csv)
-and use
-[`degree`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.degree)
-to calculate each business's payments received and sent. `outputTable` preserves
-the original payments for drawing the arrows. A
-[D3 force layout](https://d3js.org/d3-force/simulation) positions connected
-businesses near one another while keeping nodes apart. The positions are for
-visualization, not geographic locations.
+Network analysis focuses on connections between items, such as transactions
+between businesses, flights between airports, or friendships between people. SDA
+has useful methods for exploring these relationships
+([`degree`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.degree),
+[`neighbors`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.neighbors),
+[`commonNeighbors`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.commonNeighbors),
+[`reachable`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.reachable),
+[`distances`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.distances),
+[`shortestPath`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.shortestPath),
+[`paths`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.paths),
+[`findCycles`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.findCycles),
+[`topologicalSort`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.topologicalSort),
+and
+[`connectedComponents`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.connectedComponents)).
 
-This example also uses `d3-force`. In Deno, install the chart and layout
-packages with
-`deno add npm:@observablehq/plot npm:d3-force npm:@types/d3-force`.
+For this example, we use a
+[fictional flight schedule](https://github.com/nshiab/simple-data-analysis-core/blob/main/test/data/graphs/flights.csv)
+with 33 flights connecting 12 cities around the world. Each row is one flight,
+with a unique ID, origin, destination, departure and arrival times, and a price.
+Here are the first three rows:
+
+| flightId | origin   | destination | departure (UTC)  | arrival (UTC)    | price |
+| -------- | -------- | ----------- | ---------------- | ---------------- | ----- |
+| F001     | Montreal | Toronto     | 2030-01-15 08:00 | 2030-01-15 09:30 | 80    |
+| F002     | Montreal | New York    | 2030-01-15 09:00 | 2030-01-15 10:30 | 120   |
+| F003     | Montreal | Vancouver   | 2030-01-15 10:00 | 2030-01-15 15:30 | 180   |
+
+Starting in Montreal, which cities can we reach, and how many flights would it
+take? By default, `distances` counts the fewest connections to each city. This
+works for any network: the connections could also be transactions, friendships,
+or links between websites.
 
 ```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
-import { arrow, dot, plot, text } from "@observablehq/plot";
-// @deno-types="@types/d3-force"
-import {
-  forceCollide,
-  forceLink,
-  forceManyBody,
-  forceSimulation,
-} from "d3-force";
-
-type Business = {
-  node: string;
-  total: number;
-  x?: number;
-  y?: number;
-};
 
 const sdb = new SimpleDB();
-try {
-  const payments = sdb.newTable("payments").loadData(
-    "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/c15633789384c7629ca76108ba807909823abece/test/data/graphs/villagePayments.csv",
-  );
-  const activity = payments.degree("payer", "payee", {
-    weight: "amount",
-    outputTable: "activity",
-  });
-  const businesses = await activity.getData() as Business[];
-  const links = (await payments.getData()).map((d) => ({
-    source: String(d.payer),
-    target: String(d.payee),
-  }));
+await sdb
+  .newTable("flights")
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/main/test/data/graphs/flights.csv",
+  )
+  .distances("origin", "destination", "Montreal")
+  .log();
 
-  // D3 assigns x/y coordinates using a repeatable static simulation.
-  forceSimulation(businesses)
-    .force(
-      "link",
-      forceLink<Business, (typeof links)[number]>(links)
-        .id((d) => d.node)
-        .distance(100),
-    )
-    .force("charge", forceManyBody().strength(-600))
-    .force("collide", forceCollide(45))
-    .stop()
-    .tick(300);
-  const positions = new Map(businesses.map((d) => [d.node, d]));
-
-  await payments.writeChart(
-    (data) =>
-      plot({
-        title: "A month of payments in a fictional village",
-        subtitle: "Arrows point to payees. Wider arrows mean larger payments.",
-        caption:
-          "Synthetic September 2025 payments (CAD). Node area = payments received + sent.",
-        width: 1000,
-        height: 650,
-        margin: 65,
-        x: { axis: null },
-        y: { axis: null },
-        r: { range: [0, 24] },
-        style: { fontSize: "14px" },
-        marks: [
-          arrow(data, {
-            x1: (d) => positions.get(d.payer)!.x,
-            y1: (d) => positions.get(d.payer)!.y,
-            x2: (d) => positions.get(d.payee)!.x,
-            y2: (d) => positions.get(d.payee)!.y,
-            strokeWidth: (d) => d.amount / 500,
-            stroke: "#738794",
-            bend: 12,
-            inset: 28,
-          }),
-          dot(businesses, {
-            x: "x",
-            y: "y",
-            r: "total",
-            fill: "#216b71",
-          }),
-          text(businesses, {
-            x: "x",
-            y: "y",
-            text: "node",
-            dy: -35,
-            fill: "#153e47",
-            stroke: "white",
-            strokeWidth: 5,
-          }),
-        ],
-      }),
-    "sda/output/village-economy.png",
-  );
-} finally {
-  await sdb.close();
-}
+await sdb.close();
 ```
 
-![Directed network of payments between 12 fictional village businesses. Arrow widths show payment amounts and node areas show payments received plus sent.](./assets/village-economy.png)
+Here are selected destinations. One step means a direct flight; two or more
+steps mean flights with connections.
 
-The Farm receives CAD 4,500 and sends CAD 1,000, giving it the largest total
-activity. Its CAD 700 payment to the Repair Shop is the only connection between
-the food businesses and the trades and services. Arrows follow payments, not the
-movement of goods. These are selected business-to-business transactions, so the
-totals describe activity rather than profit or complete business accounts.
+| node     | steps |
+| -------- | ----: |
+| Toronto  |     1 |
+| New York |     1 |
+| London   |     1 |
+| Paris    |     1 |
+| Tokyo    |     2 |
+| Sydney   |     2 |
+
+However, with this flight dataset, we also need to account for takeoff and
+landing times and make sure we can catch connecting flights. SDA's graph
+analysis methods have convenient options to do this easily.
+
+By rewriting our example with a few more options, we can account for all of
+that. We allow at least an hour between flights with `minGapMs`. `weight` adds
+up ticket prices, while `elapsedTime` also reports the time from the first
+departure to the final arrival, including layovers. Setting `minimize: "weight"`
+tells SDA to choose by price. If equally cheap routes have different step counts
+or durations, `distances` returns each distinct summary.
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+await sdb
+  .newTable("flights")
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/main/test/data/graphs/flights.csv",
+  )
+  .distances("origin", "destination", "Montreal", {
+    startTimeColumn: "departure",
+    endTimeColumn: "arrival",
+    minGapMs: 60 * 60 * 1000,
+    elapsedTime: true,
+    weight: "price",
+    minimize: "weight",
+  })
+  .sort({ total: "asc" })
+  .log();
+
+await sdb.close();
+```
+
+For readability, here are selected destinations. `steps` counts the flights in
+the journey, and `total` is their combined ticket price. We display
+`elapsedTimeMs` as hours below.
+
+| node     | steps | total | elapsed time (hours) |
+| -------- | ----: | ----: | -------------------: |
+| Toronto  |     1 |    80 |                  1.5 |
+| New York |     1 |   120 |                  1.5 |
+| London   |     2 |   350 |                   10 |
+| Paris    |     3 |   430 |                12.25 |
+| Tokyo    |     2 |   700 |                   17 |
+| Sydney   |     5 |  1020 |                   38 |
+
+You don't need all these options for every network. Without weights or time
+options, routes are measured by their number of connections. With `distances`,
+you can also set `minimize: "steps"` while still reporting price and elapsed
+time. For transaction data, you might use `reachable` to follow connections or
+`degree` to count payments received and sent. The methods handle traversing the
+network for you.
 
 ### Google Cloud Storage
 
