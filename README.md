@@ -9,6 +9,28 @@ makes it easy to load data from files, databases, and public sources.
 > [Code Like a Journalist](https://www.code-like-a-journalist.com/), a free and
 > open-source TypeScript course for data analysis and visualization.
 
+SDA is maintained by [Nael Shiab](http://naelshiab.com/), computational
+journalist and senior data producer for [CBC News](https://www.cbc.ca/news). You
+might also find the [journalism library](https://github.com/nshiab/journalism)
+useful. Contributions are welcome; see the
+[contribution guidelines](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).
+
+## Table of contents
+
+- [Library structure](#library-structure)
+- [Installation](#installation)
+- [Performance](#performance)
+- [Core principles](#core-principles)
+- [Examples](#examples)
+  - [Tabular data](#tabular-data-1)
+  - [Geospatial data](#geospatial-data-1)
+  - [Data visualisations](#data-visualisations)
+  - [Public data sources](#public-data-sources)
+  - [AI](#ai)
+  - [Analysing relationships](#analysing-relationships)
+  - [External services](#external-services)
+  - [Caching fetched and computed data](#caching-fetched-and-computed-data)
+
 ## Library structure
 
 SDA is split into two packages:
@@ -59,9 +81,7 @@ npm i @nshiab/simple-data-analysis
 bun add @nshiab/simple-data-analysis
 ```
 
-## Quick setup
-
-To quickly set up a data project with essential folders, configurations, and
+To start a new data project with essential folders, configurations, and
 documentation for AI agents, you can use
 [@nshiab/setup-data-project](https://github.com/nshiab/setup-data-project).
 
@@ -437,322 +457,6 @@ await sdb
     { filters: ["amenity", "school"], verbose: true },
   )
   .log();
-
-await sdb.close();
-```
-
-### Similarity analysis
-
-When you want to find items that resemble a specific one, calculating a
-similarity score can be very useful, especially when you have many attributes to
-compare.
-
-Let's say we love **Louis Jadot Bourgogne Pinot Noir** and want to discover
-similar wines. We can use
-[`similarityMahalanobis`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.similarityMahalanobis),
-as demonstrated below. Mahalanobis distance is useful because it can compare
-features with different units and scales, while also accounting for correlations
-between them.
-
-The code loads the
-[Vivino Burgundy dataset](https://huggingface.co/datasets/Mr-Bridge/vivino-bourgogne-wines-2026)
-of 2,000 named wines, originally from Hugging Face, and keeps only red wines. It
-retrieves our favorite wine as the reference, then compares acidity, intensity,
-sweetness, and tannin to calculate a distance and similarity score for each
-wine. Finally, it logs the wines, with the closest matches first.
-
-```ts
-import { SimpleDB } from "@nshiab/simple-data-analysis";
-
-const sdb = new SimpleDB();
-const wines = sdb.newTable("wines")
-  .loadData(
-    "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/main/test/data/files/wine.csv",
-  )
-  .filter("wineType === 'Red'");
-
-// Retrieve our favorite wine's characteristics as an object.
-const reference = await wines.getRow(
-  "fullName === 'Louis Jadot Bourgogne Pinot Noir'",
-);
-
-await wines
-  .similarityMahalanobis(
-    ["acidity", "intensity", "sweetness", "tannin"],
-    reference,
-    "distance",
-    { similarityColumn: true },
-  )
-  .sort({ similarity: "desc" })
-  .log();
-
-await sdb.close();
-```
-
-For readability, we excluded the reference wine from the table below and show
-only the five closest matches, keeping their names, distances, and similarity
-scores rounded to three decimals. The code keeps all rows and columns, including
-the reference wine.
-
-| fullName                                                 | distance | similarity |
-| -------------------------------------------------------- | -------- | ---------- |
-| Moillard-Grivot Bourgogne Pinot Noir                     | 0.119    | 0.979      |
-| Michel Magnien Bourgogne Pinot Noir                      | 0.191    | 0.966      |
-| Louis Latour Bourgogne Pinot Noir                        | 0.192    | 0.966      |
-| Jean-Claude Boisset Pinot Noir Bourgogne 'Les Ursulines' | 0.209    | 0.963      |
-| Joseph Drouhin Laforet Bourgogne Pinot Noir              | 0.240    | 0.957      |
-
-### Network analysis
-
-Network analysis focuses on connections between items, such as transactions
-between businesses, flights between airports, or friendships between people. SDA
-has useful methods for exploring these relationships
-([`degree`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.degree),
-[`neighbors`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.neighbors),
-[`commonNeighbors`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.commonNeighbors),
-[`reachable`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.reachable),
-[`distances`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.distances),
-[`shortestPath`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.shortestPath),
-[`paths`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.paths),
-[`findCycles`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.findCycles),
-[`topologicalSort`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.topologicalSort),
-and
-[`connectedComponents`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.connectedComponents)).
-
-For this example, we use a
-[fictional flight schedule](https://github.com/nshiab/simple-data-analysis-core/blob/main/test/data/graphs/flights.csv)
-with 33 flights connecting 12 cities around the world. Each row is one flight,
-with a unique ID, origin, destination, departure and arrival times, and a price.
-Here are the first three rows:
-
-| flightId | origin   | destination | departure (UTC)  | arrival (UTC)    | price |
-| -------- | -------- | ----------- | ---------------- | ---------------- | ----- |
-| F001     | Montreal | Toronto     | 2030-01-15 08:00 | 2030-01-15 09:30 | 80    |
-| F002     | Montreal | New York    | 2030-01-15 09:00 | 2030-01-15 10:30 | 120   |
-| F003     | Montreal | Vancouver   | 2030-01-15 10:00 | 2030-01-15 15:30 | 180   |
-
-Starting in Montreal, which cities can we reach, and how many flights would it
-take? By default, `distances` counts the fewest connections to each city. This
-works for any network: the connections could also be transactions, friendships,
-or links between websites.
-
-```ts
-import { SimpleDB } from "@nshiab/simple-data-analysis";
-
-const sdb = new SimpleDB();
-await sdb
-  .newTable("flights")
-  .loadData(
-    "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/main/test/data/graphs/flights.csv",
-  )
-  .distances("origin", "destination", "Montreal")
-  .log();
-
-await sdb.close();
-```
-
-Here are selected destinations. One step means a direct flight; two or more
-steps mean flights with connections.
-
-| node     | steps |
-| -------- | ----: |
-| Toronto  |     1 |
-| New York |     1 |
-| London   |     1 |
-| Paris    |     1 |
-| Tokyo    |     2 |
-| Sydney   |     2 |
-
-However, with this flight dataset, we also need to account for takeoff and
-landing times and make sure we can catch connecting flights. SDA's graph
-analysis methods have convenient options to do this easily.
-
-By rewriting our example with a few more options, we can account for all of
-that. We allow at least an hour between flights with `minGapMs`. `weight` adds
-up ticket prices, while `elapsedTime` also reports the time from the first
-departure to the final arrival, including layovers. Setting `minimize: "weight"`
-tells SDA to choose by price. If equally cheap routes have different step counts
-or durations, `distances` returns each distinct summary.
-
-```ts
-import { SimpleDB } from "@nshiab/simple-data-analysis";
-
-const sdb = new SimpleDB();
-await sdb
-  .newTable("flights")
-  .loadData(
-    "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/main/test/data/graphs/flights.csv",
-  )
-  .distances("origin", "destination", "Montreal", {
-    startTimeColumn: "departure",
-    endTimeColumn: "arrival",
-    minGapMs: 60 * 60 * 1000,
-    elapsedTime: true,
-    weight: "price",
-    minimize: "weight",
-  })
-  .sort({ total: "asc" })
-  .log();
-
-await sdb.close();
-```
-
-For readability, here are selected destinations. `steps` counts the flights in
-the journey, and `total` is their combined ticket price. We display
-`elapsedTimeMs` as hours below.
-
-| node     | steps | total | elapsed time (hours) |
-| -------- | ----: | ----: | -------------------: |
-| Toronto  |     1 |    80 |                  1.5 |
-| New York |     1 |   120 |                  1.5 |
-| London   |     2 |   350 |                   10 |
-| Paris    |     3 |   430 |                12.25 |
-| Tokyo    |     2 |   700 |                   17 |
-| Sydney   |     5 |  1020 |                   38 |
-
-You don't need all these options for every network. Without weights or time
-options, routes are measured by their number of connections. With `distances`,
-you can also set `minimize: "steps"` while still reporting price and elapsed
-time. For transaction data, you might use `reachable` to follow connections or
-`degree` to count payments received and sent. The methods handle traversing the
-network for you.
-
-### Google Cloud Storage
-
-The
-[`toBucket`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.toBucket)
-method writes a table to a temporary file and uploads it to Google Cloud
-Storage. The
-[`loadBucket`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.loadBucket)
-method downloads and loads an object in chain order.
-
-Set the project and bucket in `.env`. Authentication uses Google Application
-Default Credentials. If ADC should load credentials from a specific JSON file,
-also set `GOOGLE_APPLICATION_CREDENTIALS` to that file's path:
-
-```dotenv
-BUCKET_PROJECT=my-google-cloud-project
-BUCKET_NAME=my-storage-bucket
-# Optional: load credentials from a specific JSON file.
-GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
-```
-
-Load a table from one object, transform it, and upload the result as another
-object:
-
-```ts
-import { SimpleDB } from "@nshiab/simple-data-analysis";
-
-const sdb = new SimpleDB();
-
-const temperatures = await sdb
-  .newTable("temperatures")
-  .loadBucket("inputs/temperatures.parquet")
-  .filter("temperature > 30")
-  .log();
-
-const uri = await temperatures.toBucket(
-  "outputs/hotTemperatures.parquet",
-  { overwrite: true },
-);
-
-console.log(uri); // gs://my-storage-bucket/outputs/hotTemperatures.parquet
-
-await sdb.close();
-```
-
-### Google Sheets
-
-The
-[`toSheet`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.toSheet)
-method sends a table directly to Google Sheets. Authenticate with a service
-account by setting its email and private key in `.env`:
-
-```dotenv
-GOOGLE_SERVICE_ACCOUNT_EMAIL=service-account@example.iam.gserviceaccount.com
-GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-```
-
-Alternatively, point `GOOGLE_APPLICATION_CREDENTIALS` to the service-account
-JSON file:
-
-```dotenv
-GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
-```
-
-Share the spreadsheet with the service-account email before running the
-examples.
-
-#### Load from a sheet
-
-Use `loadSheet()` to load and transform data from a Google Sheet tab:
-
-```ts
-import { SimpleDB } from "@nshiab/simple-data-analysis";
-
-const sdb = new SimpleDB();
-
-await sdb
-  .newTable("temperatures")
-  .loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0")
-  .filter("temperature > 30")
-  .selectColumns(["station", "time", "temperature"])
-  .log();
-
-await sdb.close();
-```
-
-#### Write to a sheet
-
-Use `toSheet()` to write a table to a Google Sheet tab:
-
-```ts
-import { SimpleDB } from "@nshiab/simple-data-analysis";
-
-const sdb = new SimpleDB();
-const temperatures = sdb.newTable("temperatures");
-
-await temperatures
-  .loadData(
-    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/dailyTemperatures.csv",
-  )
-  .renameColumns({ t: "temperature", id: "station" })
-  .selectColumns(["station", "time", "temperature"])
-  .toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
-
-await sdb.close();
-```
-
-### Datawrapper
-
-The
-[`toDatawrapper`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.toDatawrapper)
-method sends a table directly to a Datawrapper chart or table. Add your API key
-to `.env`:
-
-```dotenv
-DATAWRAPPER_KEY=your-datawrapper-api-key
-```
-
-The chart ID is the short identifier in its Datawrapper URL. For maps, use
-[`toGeoDatawrapper`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.toGeoDatawrapper)
-with the same API key. The `loadDatawrapper()` and `loadGeoDatawrapper()`
-methods also use it.
-
-```ts
-// Uses DATAWRAPPER_KEY from .env.
-import { SimpleDB } from "@nshiab/simple-data-analysis";
-
-const sdb = new SimpleDB();
-const temperatures = sdb.newTable("temperatures");
-
-await temperatures
-  .loadData(
-    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/dailyTemperatures.csv",
-  )
-  .renameColumns({ t: "temperature", id: "station" })
-  .selectColumns(["station", "time", "temperature"])
-  .toDatawrapper("myChartId", { republish: true });
 
 await sdb.close();
 ```
@@ -1134,6 +838,326 @@ The resulting table is:
 | 1108380 | 9.85                |
 | 6158355 | 8.87                |
 
+### Analysing relationships
+
+#### Similarity analysis
+
+When you want to find items that resemble a specific one, calculating a
+similarity score can be very useful, especially when you have many attributes to
+compare.
+
+Let's say we love **Louis Jadot Bourgogne Pinot Noir** and want to discover
+similar wines. We can use
+[`similarityMahalanobis`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.similarityMahalanobis),
+as demonstrated below. Mahalanobis distance is useful because it can compare
+features with different units and scales, while also accounting for correlations
+between them.
+
+The code loads the
+[Vivino Burgundy dataset](https://huggingface.co/datasets/Mr-Bridge/vivino-bourgogne-wines-2026)
+of 2,000 named wines, originally from Hugging Face, and keeps only red wines. It
+retrieves our favorite wine as the reference, then compares acidity, intensity,
+sweetness, and tannin to calculate a distance and similarity score for each
+wine. Finally, it logs the wines, with the closest matches first.
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+const wines = sdb.newTable("wines")
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/main/test/data/files/wine.csv",
+  )
+  .filter("wineType === 'Red'");
+
+// Retrieve our favorite wine's characteristics as an object.
+const reference = await wines.getRow(
+  "fullName === 'Louis Jadot Bourgogne Pinot Noir'",
+);
+
+await wines
+  .similarityMahalanobis(
+    ["acidity", "intensity", "sweetness", "tannin"],
+    reference,
+    "distance",
+    { similarityColumn: true },
+  )
+  .sort({ similarity: "desc" })
+  .log();
+
+await sdb.close();
+```
+
+For readability, we excluded the reference wine from the table below and show
+only the five closest matches, keeping their names, distances, and similarity
+scores rounded to three decimals. The code keeps all rows and columns, including
+the reference wine.
+
+| fullName                                                 | distance | similarity |
+| -------------------------------------------------------- | -------- | ---------- |
+| Moillard-Grivot Bourgogne Pinot Noir                     | 0.119    | 0.979      |
+| Michel Magnien Bourgogne Pinot Noir                      | 0.191    | 0.966      |
+| Louis Latour Bourgogne Pinot Noir                        | 0.192    | 0.966      |
+| Jean-Claude Boisset Pinot Noir Bourgogne 'Les Ursulines' | 0.209    | 0.963      |
+| Joseph Drouhin Laforet Bourgogne Pinot Noir              | 0.240    | 0.957      |
+
+#### Network analysis
+
+Network analysis focuses on connections between items, such as transactions
+between businesses, flights between airports, or friendships between people. SDA
+has useful methods for exploring these relationships
+([`degree`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.degree),
+[`neighbors`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.neighbors),
+[`commonNeighbors`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.commonNeighbors),
+[`reachable`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.reachable),
+[`distances`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.distances),
+[`shortestPath`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.shortestPath),
+[`paths`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.paths),
+[`findCycles`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.findCycles),
+[`topologicalSort`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.topologicalSort),
+and
+[`connectedComponents`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.connectedComponents)).
+
+For this example, we use a
+[fictional flight schedule](https://github.com/nshiab/simple-data-analysis-core/blob/main/test/data/graphs/flights.csv)
+with 33 flights connecting 12 cities around the world. Each row is one flight,
+with a unique ID, origin, destination, departure and arrival times, and a price.
+Here are the first three rows:
+
+| flightId | origin   | destination | departure (UTC)  | arrival (UTC)    | price |
+| -------- | -------- | ----------- | ---------------- | ---------------- | ----- |
+| F001     | Montreal | Toronto     | 2030-01-15 08:00 | 2030-01-15 09:30 | 80    |
+| F002     | Montreal | New York    | 2030-01-15 09:00 | 2030-01-15 10:30 | 120   |
+| F003     | Montreal | Vancouver   | 2030-01-15 10:00 | 2030-01-15 15:30 | 180   |
+
+Starting in Montreal, which cities can we reach, and how many flights would it
+take? By default, `distances` counts the fewest connections to each city. This
+works for any network: the connections could also be transactions, friendships,
+or links between websites.
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+await sdb
+  .newTable("flights")
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/main/test/data/graphs/flights.csv",
+  )
+  .distances("origin", "destination", "Montreal")
+  .log();
+
+await sdb.close();
+```
+
+Here are selected destinations. One step means a direct flight; two or more
+steps mean flights with connections.
+
+| node     | steps |
+| -------- | ----: |
+| Toronto  |     1 |
+| New York |     1 |
+| London   |     1 |
+| Paris    |     1 |
+| Tokyo    |     2 |
+| Sydney   |     2 |
+
+However, with this flight dataset, we also need to account for takeoff and
+landing times and make sure we can catch connecting flights. SDA's graph
+analysis methods have convenient options to do this easily.
+
+By rewriting our example with a few more options, we can account for all of
+that. We allow at least an hour between flights with `minGapMs`. `weight` adds
+up ticket prices, while `elapsedTime` also reports the time from the first
+departure to the final arrival, including layovers. Setting `minimize: "weight"`
+tells SDA to choose by price. If equally cheap routes have different step counts
+or durations, `distances` returns each distinct summary.
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+await sdb
+  .newTable("flights")
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/main/test/data/graphs/flights.csv",
+  )
+  .distances("origin", "destination", "Montreal", {
+    startTimeColumn: "departure",
+    endTimeColumn: "arrival",
+    minGapMs: 60 * 60 * 1000,
+    elapsedTime: true,
+    weight: "price",
+    minimize: "weight",
+  })
+  .sort({ total: "asc" })
+  .log();
+
+await sdb.close();
+```
+
+For readability, here are selected destinations. `steps` counts the flights in
+the journey, and `total` is their combined ticket price. We display
+`elapsedTimeMs` as hours below.
+
+| node     | steps | total | elapsed time (hours) |
+| -------- | ----: | ----: | -------------------: |
+| Toronto  |     1 |    80 |                  1.5 |
+| New York |     1 |   120 |                  1.5 |
+| London   |     2 |   350 |                   10 |
+| Paris    |     3 |   430 |                12.25 |
+| Tokyo    |     2 |   700 |                   17 |
+| Sydney   |     5 |  1020 |                   38 |
+
+You don't need all these options for every network. Without weights or time
+options, routes are measured by their number of connections. With `distances`,
+you can also set `minimize: "steps"` while still reporting price and elapsed
+time. For transaction data, you might use `reachable` to follow connections or
+`degree` to count payments received and sent. The methods handle traversing the
+network for you.
+
+### External services
+
+#### Google Cloud Storage
+
+The
+[`toBucket`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.toBucket)
+method writes a table to a temporary file and uploads it to Google Cloud
+Storage. The
+[`loadBucket`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.loadBucket)
+method downloads and loads an object in chain order.
+
+Set the project and bucket in `.env`. Authentication uses Google Application
+Default Credentials. If ADC should load credentials from a specific JSON file,
+also set `GOOGLE_APPLICATION_CREDENTIALS` to that file's path:
+
+```dotenv
+BUCKET_PROJECT=my-google-cloud-project
+BUCKET_NAME=my-storage-bucket
+# Optional: load credentials from a specific JSON file.
+GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
+```
+
+Load a table from one object, transform it, and upload the result as another
+object:
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+
+const temperatures = await sdb
+  .newTable("temperatures")
+  .loadBucket("inputs/temperatures.parquet")
+  .filter("temperature > 30")
+  .log();
+
+const uri = await temperatures.toBucket(
+  "outputs/hotTemperatures.parquet",
+  { overwrite: true },
+);
+
+console.log(uri); // gs://my-storage-bucket/outputs/hotTemperatures.parquet
+
+await sdb.close();
+```
+
+#### Google Sheets
+
+The
+[`toSheet`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.toSheet)
+method sends a table directly to Google Sheets. Authenticate with a service
+account by setting its email and private key in `.env`:
+
+```dotenv
+GOOGLE_SERVICE_ACCOUNT_EMAIL=service-account@example.iam.gserviceaccount.com
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+```
+
+Alternatively, point `GOOGLE_APPLICATION_CREDENTIALS` to the service-account
+JSON file:
+
+```dotenv
+GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
+```
+
+Share the spreadsheet with the service-account email before running the
+examples.
+
+##### Load from a sheet
+
+Use `loadSheet()` to load and transform data from a Google Sheet tab:
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+
+await sdb
+  .newTable("temperatures")
+  .loadSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0")
+  .filter("temperature > 30")
+  .selectColumns(["station", "time", "temperature"])
+  .log();
+
+await sdb.close();
+```
+
+##### Write to a sheet
+
+Use `toSheet()` to write a table to a Google Sheet tab:
+
+```ts
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+const temperatures = sdb.newTable("temperatures");
+
+await temperatures
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/dailyTemperatures.csv",
+  )
+  .renameColumns({ t: "temperature", id: "station" })
+  .selectColumns(["station", "time", "temperature"])
+  .toSheet("https://docs.google.com/spreadsheets/d/.../edit#gid=0");
+
+await sdb.close();
+```
+
+#### Datawrapper
+
+The
+[`toDatawrapper`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.toDatawrapper)
+method sends a table directly to a Datawrapper chart or table. Add your API key
+to `.env`:
+
+```dotenv
+DATAWRAPPER_KEY=your-datawrapper-api-key
+```
+
+The chart ID is the short identifier in its Datawrapper URL. For maps, use
+[`toGeoDatawrapper`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.toGeoDatawrapper)
+with the same API key. The `loadDatawrapper()` and `loadGeoDatawrapper()`
+methods also use it.
+
+```ts
+// Uses DATAWRAPPER_KEY from .env.
+import { SimpleDB } from "@nshiab/simple-data-analysis";
+
+const sdb = new SimpleDB();
+const temperatures = sdb.newTable("temperatures");
+
+await temperatures
+  .loadData(
+    "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/dailyTemperatures.csv",
+  )
+  .renameColumns({ t: "temperature", id: "station" })
+  .selectColumns(["station", "time", "temperature"])
+  .toDatawrapper("myChartId", { republish: true });
+
+await sdb.close();
+```
+
 ### Caching fetched and computed data
 
 Instead of running the same code over and over again, you can cache the results.
@@ -1356,11 +1380,3 @@ Wrote in cache in 1 ms.
 
 SimpleDB ran for 399 ms / 246 ms saved by using the cache / 4 ms spent writing the cache
 ```
-
-## Project
-
-SDA is maintained by [Nael Shiab](http://naelshiab.com/), computational
-journalist and senior data producer for [CBC News](https://www.cbc.ca/news). You
-might also find the [journalism library](https://github.com/nshiab/journalism)
-useful. Contributions are welcome; see the
-[contribution guidelines](https://github.com/nshiab/simple-data-analysis/blob/main/CONTRIBUTING.md).

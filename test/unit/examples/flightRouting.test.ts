@@ -6,7 +6,9 @@ const root = fileURLToPath(new URL("../../../", import.meta.url));
 
 Deno.test("README flight routing examples agree with their Markdown tables", async () => {
   const readme = await Deno.readTextFile(join(root, "README.md"));
-  const section = readme.split("### Network analysis\n")[1]?.split("\n### ")[0];
+  const section = readme.split("#### Network analysis\n")[1]?.split(
+    /\n#{3,4} /,
+  )[0];
   assert(section, "Expected the network analysis section");
   const blocks = Array.from(
     section.matchAll(/```ts\n([\s\S]*?)\n```/g),

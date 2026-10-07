@@ -6,8 +6,8 @@ const root = fileURLToPath(new URL("../../../", import.meta.url));
 
 Deno.test("README wine similarity example retains all matches and agrees with its table preview", async () => {
   const readme = await Deno.readTextFile(join(root, "README.md"));
-  const section = readme.split("### Similarity analysis\n")[1]
-    ?.split("\n### ")[0];
+  const section = readme.split("#### Similarity analysis\n")[1]
+    ?.split(/\n#{3,4} /)[0];
   assert(section, "Expected the similarity section in the README");
   const code = section.match(/```ts\n([\s\S]*?)\n```/)?.[1];
   assert(code, "Expected the wine similarity example in the README");
