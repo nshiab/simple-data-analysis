@@ -1065,8 +1065,8 @@ console.log(`${answer}\n`);
 await sdb.close();
 ```
 
-Here is the answer returned by `gemma4:12b-mlx`, using Nomic Embed Text for
-embeddings:
+Here is the answer returned by `gemma4:12b-mlx` via Ollama, using Nomic Embed
+Text for embeddings:
 
 > I found that you can eat Chakalaka for lunch. Chakalaka is a South African
 > vegetable stew that is typically spicy and flavorful. It includes the
@@ -1113,6 +1113,26 @@ await temperatures
 
 await sdb.close();
 ```
+
+With `gemma4:12b-mlx` via Ollama, the model generates the following SQL query,
+which SDA executes on the table:
+
+```sql
+CREATE OR REPLACE TABLE "temperatures" AS
+SELECT
+  station,
+  ROUND(AVG(temperature), 2) AS average_temperature
+FROM "temperatures"
+GROUP BY station;
+```
+
+The resulting table is:
+
+| station | average_temperature |
+| ------- | ------------------- |
+| 7024745 | 7.03                |
+| 1108380 | 9.85                |
+| 6158355 | 8.87                |
 
 ### Caching fetched and computed data
 
