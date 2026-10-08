@@ -10,13 +10,16 @@ export default async function writeMap(
 ): Promise<void> {
   createDirectory(path);
   options.rewind = options.rewind ?? true;
-  const geoData = await table.getGeoData(options.column, {
+  const geoData = await table.getGeoData({
+    column: options.column,
     rewind: options.rewind,
   });
   const { saveChart } = await import("@nshiab/journalism-dataviz");
   await saveChart(
     geoData as unknown as Data,
-    map as unknown as (data: Data) => SVGSVGElement | HTMLElement,
+    map as unknown as (
+      data: Data,
+    ) => SVGSVGElement | HTMLElement | Promise<SVGSVGElement | HTMLElement>,
     path,
     options,
   );

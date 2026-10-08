@@ -171,41 +171,23 @@ Deno.test("should write a map with multiple layers as a png", async () => {
   fires.selectColumns(["geom", "hectares", "cause"]);
   fires.filter(`hectares > 0 AND cause != 'Unknown'`);
 
-  const provincesAndFires = provinces.clone({
-    name: "provincesAndFires",
-  });
-  provincesAndFires.addColumn("hectares", "number", `0`);
-  provincesAndFires.addColumn("cause", "string", `''`);
-
-  provincesAndFires.insertTables(fires, { unifyColumns: true });
-  provincesAndFires.addColumn("isFire", "boolean", `hectares > 0`);
-
-  const map = (
-    geoData: {
-      features: {
-        properties: { [key: string]: unknown };
-      }[];
-    },
-  ) => {
-    const fires = geoData.features.filter((d) => d.properties.isFire);
-    const provinces = geoData.features.filter((d) => !d.properties.isFire);
-
+  const map = async (firesData: { features: unknown[] }) => {
     return plot({
       projection: {
         type: "conic-conformal",
         rotate: [100, -60],
-        domain: geoData,
+        domain: firesData,
       },
       color: {
         legend: true,
       },
       r: { range: [0.5, 25] },
       marks: [
-        geo(provinces, {
+        geo(await provinces.getGeoData({ rewind: true }), {
           stroke: "lightgray",
           fill: "whitesmoke",
         }),
-        geo(fires, {
+        geo(firesData, {
           r: "hectares",
           fill: "cause",
           fillOpacity: 0.25,
@@ -218,7 +200,7 @@ Deno.test("should write a map with multiple layers as a png", async () => {
 
   const path = output + "test/test/complex-map.png";
 
-  await provincesAndFires.writeMap(map, path);
+  await fires.writeMap(map, path);
 
   await sdb.close();
 

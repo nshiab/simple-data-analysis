@@ -13,6 +13,6 @@ export default async function toGeoDatawrapper(
   chartId: string,
   options: ToGeoDatawrapperOptions = {},
 ): Promise<void> {
-  const geoData = await table.getGeoData(options.column);
+  const geoData = await table.getGeoData({ column: options.column });
   await publishDatawrapper(chartId, JSON.stringify(geoData), options);
 }

@@ -2,7 +2,7 @@
 
 - Package: `@nshiab/simple-data-analysis`
 - Version: `6.0.8`
-- Includes: `@nshiab/simple-data-analysis-core@2.1.2`
+- Includes: `@nshiab/simple-data-analysis-core@2.1.10`
 
 To install the library with Deno, use:
 
@@ -1026,7 +1026,7 @@ the next awaited observer or `run()` call.
 ##### Signature
 
 ```typescript
-aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; createIndex?: boolean; overwriteIndex?: boolean; outputTable?: string; verbose?: boolean; efConstruction?: number; efSearch?: number; M?: number; minSimilarity?: number; similarityColumn?: string }): this;
+aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { embeddings?: { provider?: never; model?: string; cache?: boolean; verbose?: boolean; apiKey?: never; vertex?: never; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex?: false; apiKey?: string; project?: never; location?: never; ollama?: never; contextWindow?: never } | { provider: "gemini"; model?: string; cache?: boolean; verbose?: boolean; vertex: true; apiKey?: string; project?: string; location?: string; ollama?: never; contextWindow?: never } | { provider: "ollama"; model?: string; cache?: boolean; verbose?: boolean; ollama?: { embeddingEndpoint?: string }; contextWindow?: number; apiKey?: never; vertex?: never; project?: never; location?: never }; createIndex?: boolean; overwriteIndex?: boolean; outputTable?: string; verbose?: boolean; efConstruction?: number; efSearch?: number; M?: number; minSimilarity?: number; similarityColumn?: string | boolean }): this;
 ```
 
 ##### Parameters
@@ -1041,9 +1041,11 @@ aiVectorSimilarity(text: string, column: string, nbResults: number, options?: { 
   results that are not similar enough. For example, 0.7 ensures only results
   with a 70% similarity or higher are returned. Defaults to `undefined` (no
   threshold).
-- **`options.similarityColumn`**: If provided, a new column with this name will
-  be added to the output table containing the calculated similarity score (from
-  0.0 to 1.0) for each row. Defaults to `undefined`.
+- **`options.similarityColumn`**: A custom name, or true for a new column named
+  "similarity" containing cosine similarity scores; false or omitted adds no
+  score. Names must be nonempty and contain no null characters. Existing column
+  names conflict case-insensitively (ASCII), including when outputTable is set,
+  and are rejected before requesting embeddings or modifying the table.
 - **`options.createIndex`**: If `true`, an HNSW index will be created on the
   embeddings column. Defaults to `false`.
 - **`options.overwriteIndex`**: If `true` and `createIndex` is `true`, drops and
@@ -1099,6 +1101,15 @@ const similarFood = await sdb
 const similarFood = await table
   .aiVectorSimilarity("italian food", "embeddings", 3, {
     embeddings: { provider: "ollama", model: "nomic-embed-text" },
+  })
+  .log();
+```
+
+```ts
+// Include scores under the default "similarity" column name.
+await table
+  .aiVectorSimilarity("italian food", "embeddings", 3, {
+    similarityColumn: true,
   })
   .log();
 ```
@@ -2072,13 +2083,14 @@ from non-geospatial data, use the `writeChart` method.
 ##### Signature
 
 ```typescript
-async writeMap(map: (geoData: { features: { properties: Record<string, unknown> }[] }) => SVGSVGElement | HTMLElement, path: string, options?: { column?: string; rewind?: boolean; style?: string; dark?: boolean }): Promise<this>;
+async writeMap(map: (geoData: { features: { properties: Record<string, unknown> }[] }) => SVGSVGElement | HTMLElement | Promise<SVGSVGElement | HTMLElement>, path: string, options?: { column?: string; rewind?: boolean; style?: string; dark?: boolean }): Promise<this>;
 ```
 
 ##### Parameters
 
 - **`map`**: A function that takes geospatial data (in GeoJSON format) and
-  returns an Observable Plot map (an `SVGSVGElement` or `HTMLElement`).
+  returns an Observable Plot map (an `SVGSVGElement` or `HTMLElement`), or a
+  promise resolving to one.
 - **`path`**: The path where the map will be saved. The file extension must be
   `.png` or `.svg` (e.g., `"./output/map.png"`).
 - **`options`**: An optional object with configuration options:
@@ -2517,7 +2529,9 @@ await table.setTypes({
 Loads an array of JavaScript objects into the table. Types are inferred for
 numbers, bigints, strings, booleans, and Date values. Array and object cells
 require an explicit supported type in columnTypes. Types can also be specified
-for scalar columns instead of inferred from their values.
+for scalar columns instead of inferred from their values. Inferred bigints use
+signed 64-bit `BIGINT`; values outside that range throw when written instead of
+wrapping.
 
 JavaScript `Date` values are inferred as DuckDB `TIMESTAMP` values. Their
 instant is preserved, but JavaScript `Date` does not retain the timezone or
@@ -3189,12 +3203,19 @@ await table.createVssIndex("embedding_column", {
 
 #### `umap`
 
-Reduces numeric vectors, such as embeddings, to a two-dimensional UMAP
+Reduces numeric features, such as embeddings, to a two-dimensional UMAP
 projection. The resulting coordinates are added as `umapX` and `umapY`, while
-all existing columns (including the source vector column), their values and
+all existing columns (including the source feature columns), their values and
 types, and the input row order are preserved. DuckDB computes neighbors and the
 fuzzy graph; TypeScript optimizes the coordinates without copying the input
 vectors into JavaScript. Neighbor search is selected automatically.
+
+Accepts a numeric LIST or ARRAY column, or an array of numeric scalar column
+names combined internally into a vector in the supplied order. Features must be
+finite and non-null; vectors must be nonempty and equally sized. Features are
+converted to DOUBLE without automatic scaling. Large integers and exact decimals
+can lose precision in this conversion. If feature scales differ, consider
+`normalize()` or `zScore()` before projection.
 
 The defaults are a starting point for exploration. To adjust the projection:
 
@@ -3225,12 +3246,14 @@ The defaults are a starting point for exploration. To adjust the projection:
 ##### Signature
 
 ```typescript
-umap(column: string, options?: { neighbors?: number; metric?: "euclidean" | "cosine"; epochs?: number; seed?: number; minDistance?: number; learningRate?: number; negativeSamples?: number }): this;
+umap(columns: string | string[], options?: { neighbors?: number; metric?: "euclidean" | "cosine"; epochs?: number; seed?: number; minDistance?: number; learningRate?: number; negativeSamples?: number }): this;
 ```
 
 ##### Parameters
 
-- **`column`**: The column containing numeric vector embeddings.
+- **`columns`**: A numeric vector column name, or a nonempty array of numeric
+  scalar column names in feature order. Use a one-element array for a single
+  scalar feature.
 - **`options`**: Optional projection settings.
 - **`options.neighbors`**: Neighborhood size, including the point itself.
   Integer of at least 2, clamped to row count minus one. Defaults to 15.
@@ -3264,6 +3287,12 @@ await table.umap("embedding", {
   neighbors: 30,
   minDistance: 0.25,
 }).selectColumns(["label", "umapX", "umapY"]).log();
+```
+
+```ts
+await table
+  .umap(["height", "weight", "age"], { seed: 42 })
+  .log();
 ```
 
 #### `hdbscan`
@@ -5530,40 +5559,24 @@ await table
 
 #### `distances`
 
-Finds the shortest distance from each starting node to every node it can reach
-by following one or more connections. By default, distance is the number of
-connections along the shortest route. Use the `weight` option to find the
-smallest sum of values from a numeric column, such as travel time.
+Finds the shortest routes from each starting node to every reachable node.
+Without options, shortest means the fewest connections. Use `weight` to report
+total cost and `elapsedTime` to report duration including waiting between
+connections. Use `minimize` to choose which metric defines shortest.
 
-The `direction` option lets you follow connections from source to target, from
-target to source, or in either direction. The result has `start`, `node`, and
-`distance` columns, sorted by `start`, then by increasing `distance`, then by
-`node` to break ties. The closest nodes appear first for each start.
+Each row contains `start`, `node`, and `steps`, plus `total` when `weight` is
+supplied and `elapsedTimeMs` when enabled. Routes tied on the chosen metric
+produce separate rows only when their reported summaries differ; identical
+summaries appear once.
 
-Each row gives the shortest distance from `start` to `node`. Intermediate steps
-along the route are not returned. To get the steps between two different nodes,
-use `shortestPath()` for the shortest routes or `paths()` for all routes without
-repeated nodes.
+Routes cannot repeat nodes except for a final return to the start. A start
+appears in its own results only through an actual return or self-connection,
+never with zero steps. With `direction: "both"`, a return can follow the same
+connection out and back. Use `shortestPath()` to inspect individual connections
+between two different nodes.
 
-A starting node appears in its own results only when a self-connection or a
-route leads back to it. Its distance is the shortest actual return route, using
-at least one connection. With `direction: "both"`, this can mean following the
-same connection out and back.
-
-Unknown starting IDs and starts with no connections to follow produce no rows.
-Empty start arrays and duplicate starting IDs throw an error. Weights must be
-non-null, finite, and non-negative.
-
-Use the `startTimeColumn` or `endTimeColumn` options to follow connections in
-chronological order. The `minGapMs` option sets the minimum gap between
-consecutive connections, in milliseconds. With both time columns, gaps are
-measured from one connection's end to the next connection's start; with one
-column, between their timestamps. The `strictOrdering` option defaults to
-`true`, rejecting zero-duration gaps. These options only work with
-`direction: "outgoing"` or `direction: "incoming"`.
-
-The minimum gap applies only between consecutive connections, not before the
-first connection.
+Reporting weight or elapsed time can require substantial time and memory on
+dense networks because many routes may need to be explored.
 
 The next five examples each start with this data:
 
@@ -5579,7 +5592,7 @@ many connections are needed:
 ##### Signature
 
 ```typescript
-distances(sourceColumn: string, targetColumn: string, startNodes: string | number | bigint | (string | number | bigint)[], options?: { direction?: "outgoing" | "incoming" | "both"; endTimeColumn?: string; minGapMs?: number; outputTable?: string | boolean; startTimeColumn?: string; strictOrdering?: boolean; weight?: string }): SimpleTable;
+distances(sourceColumn: string, targetColumn: string, startNodes: string | number | bigint | (string | number | bigint)[], options?: { direction?: "outgoing" | "incoming" | "both"; elapsedTime?: boolean; endTimeColumn?: string; minGapMs?: number; minimize?: "steps" | "weight" | "elapsedTime"; outputTable?: string | boolean; startTimeColumn?: string; strictOrdering?: boolean; weight?: string }): SimpleTable;
 ```
 
 ##### Parameters
@@ -5588,12 +5601,14 @@ distances(sourceColumn: string, targetColumn: string, startNodes: string | numbe
   node ID.
 - **`targetColumn`**: The name of the column containing each connection's target
   node ID.
-- **`startNodes`**: One starting node ID or an array of distinct starting node
-  IDs.
+- **`startNodes`**: One starting node ID or a non-empty array of distinct IDs.
+  Unknown IDs and starts with no connections to follow produce no rows. Empty
+  arrays and duplicate IDs throw an error.
 - **`options`**: An optional object with direction, time, and result
   configuration.
 - **`options.direction`**: The direction in which to follow connections.
-  Defaults to `"outgoing"`.
+  Defaults to `"outgoing"`. Chronological traversal supports only `"outgoing"`
+  and `"incoming"`.
 - **`options.startTimeColumn`**: The name of the column containing each
   connection's start time. Use this or `endTimeColumn` to follow connections in
   chronological order.
@@ -5601,20 +5616,35 @@ distances(sourceColumn: string, targetColumn: string, startNodes: string | numbe
   connection's end time. Use this or `startTimeColumn` to follow connections in
   chronological order.
 - **`options.minGapMs`**: The minimum gap between consecutive connections, in
-  milliseconds. Must be a non-negative integer. Defaults to `0`. Requires a time
-  column.
+  milliseconds; does not apply before the first connection. With both time
+  columns, measured from one connection's end to the next's start; with one
+  column, between timestamps. Must be a non-negative integer. Defaults to `0`.
+  Requires a time column.
 - **`options.strictOrdering`**: Whether to reject zero-duration gaps between
   consecutive connections (equal timestamps). Defaults to `true`. Requires a
   time column.
 - **`options.weight`**: The name of the numeric column used as the cost of each
-  connection. If omitted, each connection costs one.
+  connection. Values must be non-null, finite, and non-negative. Adds `total`,
+  the cumulative sum of those costs. If omitted, no `total` column is generated.
+- **`options.elapsedTime`**: Whether to add cumulative `elapsedTimeMs` in
+  milliseconds, including connection gaps. Defaults to `false`. Requires both
+  time columns. Optimization compares native timestamp precision before
+  conversion to milliseconds.
+- **`options.minimize`**: The metric used to select optimal routes: `"steps"`,
+  `"weight"`, or `"elapsedTime"`. Defaults to `"weight"` when only `weight` is
+  enabled, `"elapsedTime"` when only elapsed-time reporting is enabled, and
+  `"steps"` when neither is enabled. Required when both are enabled. `"steps"`
+  is always available; the other metrics require their corresponding options.
 - **`options.outputTable`**: If `true`, stores the result in a new table with a
   generated name. If a string, uses it as the new table's name. If `false` or
   omitted, overwrites the current table. Defaults to `false`.
 
 ##### Returns
 
-The result table, so methods can be chained.
+The table of distinct optimal summaries with `start`, `node`, and `steps`, plus
+`total` when `weight` is supplied and `elapsedTimeMs` when enabled, so methods
+can be chained. Sorted by start, the chosen metric, node, then remaining metrics
+in the order steps, total, elapsed time.
 
 ##### Examples
 
@@ -5624,12 +5654,12 @@ await connections
   .log();
 ```
 
-| start | node | distance |
-| ----- | ---- | -------: |
-| A     | B    |        1 |
-| A     | C    |        2 |
+| start | node | steps |
+| ----- | ---- | ----: |
+| A     | B    |     1 |
+| A     | C    |     2 |
 
-With `weight: "minutes"`, distance is the shortest total travel time:
+With `weight: "minutes"`, `total` is the sum of travel times:
 
 ```ts
 await connections
@@ -5637,10 +5667,10 @@ await connections
   .log();
 ```
 
-| start | node | distance |
-| ----- | ---- | -------: |
-| A     | B    |        4 |
-| A     | C    |        5 |
+| start | node | steps | total |
+| ----- | ---- | ----: | ----: |
+| A     | B    |     1 |     4 |
+| A     | C    |     2 |     5 |
 
 With `direction: "incoming"`, connections are followed from target to source.
 Starting at C:
@@ -5651,11 +5681,11 @@ await connections
   .log();
 ```
 
-| start | node | distance |
-| ----- | ---- | -------: |
-| C     | B    |        1 |
-| C     | A    |        2 |
-| C     | D    |        2 |
+| start | node | steps |
+| ----- | ---- | ----: |
+| C     | B    |     1 |
+| C     | A    |     2 |
+| C     | D    |     2 |
 
 With `direction: "both"`, connections can be followed in either direction:
 
@@ -5665,14 +5695,14 @@ await connections
   .log();
 ```
 
-| start | node | distance |
-| ----- | ---- | -------: |
-| A     | B    |        1 |
-| A     | A    |        2 |
-| A     | C    |        2 |
-| A     | D    |        2 |
+| start | node | steps |
+| ----- | ---- | ----: |
+| A     | B    |     1 |
+| A     | A    |     2 |
+| A     | C    |     2 |
+| A     | D    |     2 |
 
-A appears at distance 2 because A → B → A follows a connection out and back.
+A appears with 2 steps because A → B → A follows a connection out and back.
 
 An array of starting nodes gives separate distances for each start:
 
@@ -5684,12 +5714,12 @@ await connections
   .log();
 ```
 
-| start | node | distance |
-| ----- | ---- | -------: |
-| A     | B    |        4 |
-| A     | C    |        5 |
-| D     | B    |        2 |
-| D     | C    |        3 |
+| start | node | steps | total |
+| ----- | ---- | ----: | ----: |
+| A     | B    |     1 |     4 |
+| A     | C    |     2 |     5 |
+| D     | B    |     1 |     2 |
+| D     | C    |     2 |     3 |
 
 A direct self-connection and a longer return route can both lead back to the
 start. This example uses different data:
@@ -5709,14 +5739,14 @@ await connections
   .log();
 ```
 
-| start | node | distance |
-| ----- | ---- | -------: |
-| A     | B    |        2 |
-| A     | A    |        5 |
+| start | node | steps | total |
+| ----- | ---- | ----: | ----: |
+| A     | B    |     1 |     2 |
+| A     | A    |     2 |     5 |
 
 Chronological options can rule out a cheaper sequence that departs too early.
-For this example, F2 leaves before F1 arrives, while F3 meets the one-hour
-minimum exactly:
+Here, B → C leaves before A → B arrives, while B → D meets the one-hour minimum
+exactly:
 
 | origin | destination | departureTime    | arrivalTime      | minutes |
 | ------ | ----------- | ---------------- | ---------------- | ------: |
@@ -5735,10 +5765,127 @@ await scheduledFlights
   .log();
 ```
 
-| start | node | distance |
-| ----- | ---- | -------: |
-| A     | B    |        2 |
-| A     | D    |        5 |
+| start | node | steps | total |
+| ----- | ---- | ----: | ----: |
+| A     | B    |     1 |     2 |
+| A     | D    |     2 |     5 |
+
+For the next four examples, `flights` contains these rows, with departure and
+arrival stored as timestamps on the same day:
+
+| flightId | origin | destination | departure        | arrival          | price |
+| -------- | ------ | ----------- | ---------------- | ---------------- | ----: |
+| F1       | A      | B           | 2025-01-01 09:00 | 2025-01-01 10:00 |    40 |
+| F2       | B      | C           | 2025-01-01 12:00 | 2025-01-01 13:00 |    40 |
+| F3       | A      | C           | 2025-01-01 09:00 | 2025-01-01 12:00 |   120 |
+
+Find the fastest journey from A to each reachable destination, including
+layovers:
+
+```ts
+await flights
+  .distances("origin", "destination", "A", {
+    startTimeColumn: "departure",
+    endTimeColumn: "arrival",
+    minGapMs: 60 * 60 * 1000,
+    elapsedTime: true,
+  })
+  .log();
+```
+
+| start | node | steps | elapsedTimeMs |
+| ----- | ---- | ----: | ------------: |
+| A     | B    |     1 |       3600000 |
+| A     | C    |     1 |      10800000 |
+
+The direct flight to C takes three hours (10,800,000 milliseconds). The route
+through B takes four hours including its layover.
+
+Find the fastest journeys from A while also adding up their prices:
+
+```ts
+await flights
+  .distances("origin", "destination", "A", {
+    startTimeColumn: "departure",
+    endTimeColumn: "arrival",
+    minGapMs: 60 * 60 * 1000,
+    elapsedTime: true,
+    weight: "price",
+    minimize: "elapsedTime",
+  })
+  .log();
+```
+
+| start | node | steps | total | elapsedTimeMs |
+| ----- | ---- | ----: | ----: | ------------: |
+| A     | B    |     1 |    40 |       3600000 |
+| A     | C    |     1 |   120 |      10800000 |
+
+Use `minimize: "weight"` to find the cheapest journeys instead. The selected
+route to C now takes two steps through B and costs 80:
+
+```ts
+await flights
+  .distances("origin", "destination", "A", {
+    startTimeColumn: "departure",
+    endTimeColumn: "arrival",
+    minGapMs: 60 * 60 * 1000,
+    elapsedTime: true,
+    weight: "price",
+    minimize: "weight",
+  })
+  .log();
+```
+
+| start | node | steps | total | elapsedTimeMs |
+| ----- | ---- | ----: | ----: | ------------: |
+| A     | B    |     1 |    40 |       3600000 |
+| A     | C    |     2 |    80 |      14400000 |
+
+Choose the fewest connections while still reporting price and elapsed time. The
+direct flight to C has one step, even though it costs more:
+
+```ts
+await flights
+  .distances("origin", "destination", "A", {
+    startTimeColumn: "departure",
+    endTimeColumn: "arrival",
+    minGapMs: 60 * 60 * 1000,
+    elapsedTime: true,
+    weight: "price",
+    minimize: "steps",
+  })
+  .log();
+```
+
+| start | node | steps | total | elapsedTimeMs |
+| ----- | ---- | ----: | ----: | ------------: |
+| A     | B    |     1 |    40 |       3600000 |
+| A     | C    |     1 |   120 |      10800000 |
+
+When two routes to C both take two steps but have different prices, minimizing
+steps while reporting price returns both summaries:
+
+```ts
+await connections
+  .loadArray([
+    { origin: "A", destination: "B", price: 20 },
+    { origin: "B", destination: "C", price: 30 },
+    { origin: "A", destination: "D", price: 40 },
+    { origin: "D", destination: "C", price: 40 },
+  ])
+  .distances("origin", "destination", "A", {
+    weight: "price",
+    minimize: "steps",
+  })
+  .filter("node = 'C'")
+  .log();
+```
+
+| start | node | steps | total |
+| ----- | ---- | ----: | ----: |
+| A     | C    |     2 |    50 |
+| A     | C    |     2 |    80 |
 
 #### `shortestPath`
 
@@ -5756,15 +5903,17 @@ Each connection needs a unique, non-null ID. Pass the name of the column
 containing these IDs as the `edgeId` argument. If your table is missing an ID
 column, you can easily create one with `addId()`.
 
-The result starts with the `pathId`, `step`, `weight`, and `total` columns,
-followed by all original columns. Steps start at one and follow the search
-direction. The `weight` column is the connection cost, and `total` is the sum of
-those costs up to and including the current step. Without the `weight` option,
-each connection costs one.
+The result starts with `pathId`, `step`, and `weight`, followed by the optional
+metric columns and all original columns. Steps start at one and follow the
+search direction. The `weight` column is the connection cost, or one when no
+`weight` option is supplied. Supplying `weight` also adds `total`, the sum of
+those costs up to and including the current step. Enabling `elapsedTime` adds
+cumulative `elapsedTimeMs`, including gaps.
 
-If an input column is already named `pathId`, `step`, `weight`, or `total`
-(regardless of capitalization), the method throws an error. Rename it with
-`renameColumns()` first.
+If an input column conflicts with a generated result column (regardless of
+capitalization), the method throws an error. Rename it with `renameColumns()`
+first. `total` is reserved only when `weight` is supplied, and `elapsedTimeMs`
+only when elapsed-time reporting is enabled.
 
 Each row is one connection along a route.
 
@@ -5778,6 +5927,16 @@ column, between their timestamps. The `strictOrdering` option defaults to
 
 The minimum gap applies only between consecutive connections, not before the
 first connection.
+
+Use `minimize: "steps"` to choose the fewest connections even when weight or
+elapsed-time reporting is enabled. Without an explicit `minimize`, the method
+minimizes weight when only `weight` is enabled, elapsed time when only
+`elapsedTime` is enabled, and steps when neither is enabled. With both enabled,
+specify `"steps"`, `"weight"`, or `"elapsedTime"` explicitly. Elapsed-time
+reporting requires both time columns.
+
+All routes tied on the selected metric are returned, even if their other metrics
+differ. Each route reports its own weights and elapsed times.
 
 Routes are numbered from zero by comparing their sequences of connection IDs,
 element by element. Rows are sorted by `pathId`, then `step`.
@@ -5805,7 +5964,7 @@ connections. Two routes from A to E tie at three connections each:
 ##### Signature
 
 ```typescript
-shortestPath(sourceColumn: string, targetColumn: string, edgeId: string, start: string | number | bigint, end: string | number | bigint, options?: { direction?: "outgoing" | "incoming" | "both"; endTimeColumn?: string; minGapMs?: number; outputTable?: string | boolean; startTimeColumn?: string; strictOrdering?: boolean; weight?: string }): SimpleTable;
+shortestPath(sourceColumn: string, targetColumn: string, edgeId: string, start: string | number | bigint, end: string | number | bigint, options?: { direction?: "outgoing" | "incoming" | "both"; elapsedTime?: boolean; endTimeColumn?: string; minGapMs?: number; minimize?: "steps" | "weight" | "elapsedTime"; outputTable?: string | boolean; startTimeColumn?: string; strictOrdering?: boolean; weight?: string }): SimpleTable;
 ```
 
 ##### Parameters
@@ -5835,14 +5994,24 @@ shortestPath(sourceColumn: string, targetColumn: string, edgeId: string, start: 
   consecutive connections (equal timestamps). Defaults to `true`. Requires a
   time column.
 - **`options.weight`**: The name of the numeric column used as the cost of each
-  connection. If omitted, each connection costs one.
+  connection. Adds `total`, the cumulative sum of those costs. If omitted, no
+  `total` column is generated.
+- **`options.elapsedTime`**: Whether to add cumulative `elapsedTimeMs` in
+  milliseconds, including connection gaps. Defaults to `false`. Requires both
+  time columns.
+- **`options.minimize`**: The metric used to select optimal routes: `"steps"`,
+  `"weight"`, or `"elapsedTime"`. Defaults to `"weight"` when only `weight` is
+  enabled, `"elapsedTime"` when only elapsed-time reporting is enabled, and
+  `"steps"` when neither is enabled. Required when both are enabled. `"steps"`
+  is always available; the other metrics require their corresponding options.
 - **`options.outputTable`**: If `true`, stores the result in a new table with a
   generated name. If a string, uses it as the new table's name. If `false` or
   omitted, overwrites the current table. Defaults to `false`.
 
 ##### Returns
 
-The result table, so methods can be chained.
+The table of route connections with optional cumulative `total` and
+`elapsedTimeMs` metrics, so methods can be chained.
 
 ##### Examples
 
@@ -5852,14 +6021,14 @@ await connections
   .log();
 ```
 
-| pathId | step | weight | total | edgeId | source | target |
-| -----: | ---: | -----: | ----: | ------ | ------ | ------ |
-|      0 |    1 |      1 |     1 | E1     | A      | B      |
-|      0 |    2 |      1 |     2 | E3     | B      | D      |
-|      0 |    3 |      1 |     3 | E5     | D      | E      |
-|      1 |    1 |      1 |     1 | E2     | A      | C      |
-|      1 |    2 |      1 |     2 | E4     | C      | D      |
-|      1 |    3 |      1 |     3 | E5     | D      | E      |
+| pathId | step | weight | edgeId | source | target |
+| -----: | ---: | -----: | ------ | ------ | ------ |
+|      0 |    1 |      1 | E1     | A      | B      |
+|      0 |    2 |      1 | E3     | B      | D      |
+|      0 |    3 |      1 | E5     | D      | E      |
+|      1 |    1 |      1 | E2     | A      | C      |
+|      1 |    2 |      1 | E4     | C      | D      |
+|      1 |    3 |      1 | E5     | D      | E      |
 
 For an input without connection IDs, use `addId()` first:
 
@@ -5877,10 +6046,10 @@ await unnumberedConnections
   .log();
 ```
 
-| pathId | step | weight | total | source | target | edgeId |
-| -----: | ---: | -----: | ----: | ------ | ------ | ------ |
-|      0 |    1 |      1 |     1 | A      | B      | edge-0 |
-|      0 |    2 |      1 |     2 | B      | E      | edge-1 |
+| pathId | step | weight | source | target | edgeId |
+| -----: | ---: | -----: | ------ | ------ | ------ |
+|      0 |    1 |      1 | A      | B      | edge-0 |
+|      0 |    2 |      1 | B      | E      | edge-1 |
 
 The next two examples each start with these flights. The direct flight takes ten
 minutes; the route through B and D takes three:
@@ -5917,9 +6086,9 @@ await flights
   .log();
 ```
 
-| pathId | step | weight | total | flightId | origin | destination | minutes |
-| -----: | ---: | -----: | ----: | -------- | ------ | ----------- | ------: |
-|      0 |    1 |      1 |     1 | F1       | A      | E           |      10 |
+| pathId | step | weight | flightId | origin | destination | minutes |
+| -----: | ---: | -----: | -------- | ------ | ----------- | ------: |
+|      0 |    1 |      1 | F1       | A      | E           |      10 |
 
 With time options, the cheaper route through B is ruled out because F2 leaves
 before F1 arrives. The route through C meets the one-hour minimum gap:
@@ -5962,9 +6131,84 @@ await reverseExample
   .log();
 ```
 
-| pathId | step | weight | total | edgeId | source | target |
-| -----: | ---: | -----: | ----: | ------ | ------ | ------ |
-|      0 |    1 |      1 |     1 | F1     | A      | B      |
+| pathId | step | weight | edgeId | source | target |
+| -----: | ---: | -----: | ------ | ------ | ------ |
+|      0 |    1 |      1 | F1     | A      | B      |
+
+For the next three examples, `flights` contains these rows, with departure and
+arrival stored as timestamps on the same day:
+
+| flightId | origin | destination | departure        | arrival          | price |
+| -------- | ------ | ----------- | ---------------- | ---------------- | ----: |
+| F1       | A      | B           | 2025-01-01 09:00 | 2025-01-01 10:00 |    40 |
+| F2       | B      | C           | 2025-01-01 12:00 | 2025-01-01 13:00 |    40 |
+| F3       | A      | C           | 2025-01-01 09:00 | 2025-01-01 12:00 |   120 |
+| F4       | A      | D           | 2025-01-01 09:00 | 2025-01-01 09:30 |    60 |
+| F5       | D      | C           | 2025-01-01 10:30 | 2025-01-01 11:00 |    80 |
+
+Find the fastest journey from A to C, including layovers:
+
+```ts
+await flights
+  .shortestPath("origin", "destination", "flightId", "A", "C", {
+    startTimeColumn: "departure",
+    endTimeColumn: "arrival",
+    minGapMs: 60 * 60 * 1000,
+    elapsedTime: true,
+  })
+  .log();
+```
+
+| pathId | step | weight | elapsedTimeMs | flightId | origin | destination | departure           | arrival             | price |
+| -----: | ---: | -----: | ------------: | -------- | ------ | ----------- | ------------------- | ------------------- | ----: |
+|      0 |    1 |      1 |       1800000 | F4       | A      | D           | 2025-01-01 09:00:00 | 2025-01-01 09:30:00 |    60 |
+|      0 |    2 |      1 |       7200000 | F5       | D      | C           | 2025-01-01 10:30:00 | 2025-01-01 11:00:00 |    80 |
+
+The route through D takes two hours (7,200,000 milliseconds), including a
+one-hour layover. The direct flight takes three hours.
+
+Find the fastest journey while also adding up its price:
+
+```ts
+await flights
+  .shortestPath("origin", "destination", "flightId", "A", "C", {
+    startTimeColumn: "departure",
+    endTimeColumn: "arrival",
+    minGapMs: 60 * 60 * 1000,
+    elapsedTime: true,
+    weight: "price",
+    minimize: "elapsedTime",
+  })
+  .log();
+```
+
+| pathId | step | weight | total | elapsedTimeMs | flightId | origin | destination | departure           | arrival             | price |
+| -----: | ---: | -----: | ----: | ------------: | -------- | ------ | ----------- | ------------------- | ------------------- | ----: |
+|      0 |    1 |     60 |    60 |       1800000 | F4       | A      | D           | 2025-01-01 09:00:00 | 2025-01-01 09:30:00 |    60 |
+|      0 |    2 |     80 |   140 |       7200000 | F5       | D      | C           | 2025-01-01 10:30:00 | 2025-01-01 11:00:00 |    80 |
+
+Use `minimize: "weight"` to find the cheapest journey instead. All ties on the
+chosen metric are returned.
+
+Choose the fewest flights while still reporting price and elapsed time. The
+direct flight takes one step, although the route through D is faster:
+
+```ts
+await flights
+  .shortestPath("origin", "destination", "flightId", "A", "C", {
+    startTimeColumn: "departure",
+    endTimeColumn: "arrival",
+    minGapMs: 60 * 60 * 1000,
+    elapsedTime: true,
+    weight: "price",
+    minimize: "steps",
+  })
+  .log();
+```
+
+| pathId | step | weight | total | elapsedTimeMs | flightId | origin | destination | departure           | arrival             | price |
+| -----: | ---: | -----: | ----: | ------------: | -------- | ------ | ----------- | ------------------- | ------------------- | ----: |
+|      0 |    1 |    120 |   120 |      10800000 | F3       | A      | C           | 2025-01-01 09:00:00 | 2025-01-01 12:00:00 |   120 |
 
 #### `paths`
 
@@ -6026,7 +6270,7 @@ to D are returned:
 ##### Signature
 
 ```typescript
-paths(sourceColumn: string, targetColumn: string, edgeId: string, start: string | number | bigint, end: string | number | bigint, options?: { direction?: "outgoing" | "incoming" | "both"; endTimeColumn?: string; minGapMs?: number; outputTable?: string | boolean; startTimeColumn?: string; strictOrdering?: boolean; weight?: string }): SimpleTable;
+paths(sourceColumn: string, targetColumn: string, edgeId: string, start: string | number | bigint, end: string | number | bigint, options?: { direction?: "outgoing" | "incoming" | "both"; elapsedTime?: boolean; endTimeColumn?: string; minGapMs?: number; outputTable?: string | boolean; startTimeColumn?: string; strictOrdering?: boolean; weight?: string }): SimpleTable;
 ```
 
 ##### Parameters
@@ -6057,6 +6301,9 @@ paths(sourceColumn: string, targetColumn: string, edgeId: string, start: string 
   time column.
 - **`options.weight`**: The name of the numeric column used as the cost of each
   connection. If omitted, each connection costs one.
+- **`options.elapsedTime`**: Whether to add cumulative `elapsedTimeMs` in
+  milliseconds, including connection gaps. Defaults to `false`. Requires both
+  time columns.
 - **`options.outputTable`**: If `true`, stores the result in a new table with a
   generated name. If a string, uses it as the new table's name. If `false` or
   omitted, overwrites the current table. Defaults to `false`.
@@ -6207,6 +6454,57 @@ await scheduledFlights
 |      0 |    1 |      3 |     3 | F3       | B      | D           | 2025-01-01 11:00:00 | 2025-01-01 12:00:00 |    3 |
 |      0 |    2 |      2 |     5 | F1       | A      | B           | 2025-01-01 08:00:00 | 2025-01-01 10:00:00 |    2 |
 
+For the next two examples, `flights` contains these rows, with departure and
+arrival stored as timestamps on the same day:
+
+| flightId | origin | destination | departure        | arrival          | price |
+| -------- | ------ | ----------- | ---------------- | ---------------- | ----: |
+| F1       | A      | B           | 2025-01-01 09:00 | 2025-01-01 10:00 |    40 |
+| F2       | B      | C           | 2025-01-01 12:00 | 2025-01-01 13:00 |    40 |
+| F3       | A      | C           | 2025-01-01 09:00 | 2025-01-01 12:00 |   120 |
+
+Report elapsed time for every path, including layovers:
+
+```ts
+await flights
+  .paths("origin", "destination", "flightId", "A", "C", {
+    startTimeColumn: "departure",
+    endTimeColumn: "arrival",
+    minGapMs: 60 * 60 * 1000,
+    elapsedTime: true,
+  })
+  .log();
+```
+
+| pathId | step | weight | total | elapsedTimeMs | flightId | origin | destination | departure           | arrival             | price |
+| -----: | ---: | -----: | ----: | ------------: | -------- | ------ | ----------- | ------------------- | ------------------- | ----: |
+|      0 |    1 |      1 |     1 |       3600000 | F1       | A      | B           | 2025-01-01 09:00:00 | 2025-01-01 10:00:00 |    40 |
+|      0 |    2 |      1 |     2 |      14400000 | F2       | B      | C           | 2025-01-01 12:00:00 | 2025-01-01 13:00:00 |    40 |
+|      1 |    1 |      1 |     1 |      10800000 | F3       | A      | C           | 2025-01-01 09:00:00 | 2025-01-01 12:00:00 |   120 |
+
+The route through B takes four hours (14,400,000 milliseconds), including its
+two-hour layover. The direct flight takes three hours.
+
+Add up prices while continuing to report elapsed time for every path:
+
+```ts
+await flights
+  .paths("origin", "destination", "flightId", "A", "C", {
+    startTimeColumn: "departure",
+    endTimeColumn: "arrival",
+    minGapMs: 60 * 60 * 1000,
+    elapsedTime: true,
+    weight: "price",
+  })
+  .log();
+```
+
+| pathId | step | weight | total | elapsedTimeMs | flightId | origin | destination | departure           | arrival             | price |
+| -----: | ---: | -----: | ----: | ------------: | -------- | ------ | ----------- | ------------------- | ------------------- | ----: |
+|      0 |    1 |     40 |    40 |       3600000 | F1       | A      | B           | 2025-01-01 09:00:00 | 2025-01-01 10:00:00 |    40 |
+|      0 |    2 |     40 |    80 |      14400000 | F2       | B      | C           | 2025-01-01 12:00:00 | 2025-01-01 13:00:00 |    40 |
+|      1 |    1 |    120 |   120 |      10800000 | F3       | A      | C           | 2025-01-01 09:00:00 | 2025-01-01 12:00:00 |   120 |
+
 #### `findCycles`
 
 Finds all cycles starting and ending at each node in `startNodes`. Pass one node
@@ -6280,7 +6578,7 @@ By default, connections are followed from source to target:
 ##### Signature
 
 ```typescript
-findCycles(sourceColumn: string, targetColumn: string, edgeId: string, startNodes: string | number | bigint | (string | number | bigint)[], options?: { direction?: "outgoing" | "incoming" | "both"; endTimeColumn?: string; minGapMs?: number; outputTable?: string | boolean; startTimeColumn?: string; strictOrdering?: boolean; weight?: string }): SimpleTable;
+findCycles(sourceColumn: string, targetColumn: string, edgeId: string, startNodes: string | number | bigint | (string | number | bigint)[], options?: { direction?: "outgoing" | "incoming" | "both"; elapsedTime?: boolean; endTimeColumn?: string; minGapMs?: number; outputTable?: string | boolean; startTimeColumn?: string; strictOrdering?: boolean; weight?: string }): SimpleTable;
 ```
 
 ##### Parameters
@@ -6311,6 +6609,9 @@ findCycles(sourceColumn: string, targetColumn: string, edgeId: string, startNode
   time column.
 - **`options.weight`**: The name of the numeric column used as the cost of each
   connection. If omitted, each connection costs one.
+- **`options.elapsedTime`**: Whether to add cumulative `elapsedTimeMs` in
+  milliseconds, including connection gaps. Defaults to `false`. Requires both
+  time columns.
 - **`options.outputTable`**: If `true`, stores the result in a new table with a
   generated name. If a string, uses it as the new table's name. If `false` or
   omitted, overwrites the current table. Defaults to `false`.
@@ -6488,6 +6789,54 @@ await timedFlights
 | B     |      0 |    1 |      1 |     1 | F3       | A      | B           | 2025-01-01 11:00:00 |
 | B     |      0 |    2 |      1 |     2 | F2       | C      | A           | 2025-01-01 10:00:00 |
 | B     |      0 |    3 |      1 |     3 | F1       | B      | C           | 2025-01-01 09:00:00 |
+
+For the next two examples, `flights` contains these rows, with departure and
+arrival stored as timestamps on the same day:
+
+| flightId | origin | destination | departure        | arrival          | price |
+| -------- | ------ | ----------- | ---------------- | ---------------- | ----: |
+| F1       | A      | B           | 2025-01-01 09:00 | 2025-01-01 10:00 |    40 |
+| F2       | B      | A           | 2025-01-01 12:00 | 2025-01-01 13:00 |    60 |
+
+Report elapsed time for every cycle, including layovers:
+
+```ts
+await flights
+  .findCycles("origin", "destination", "flightId", "A", {
+    startTimeColumn: "departure",
+    endTimeColumn: "arrival",
+    minGapMs: 60 * 60 * 1000,
+    elapsedTime: true,
+  })
+  .log();
+```
+
+| start | pathId | step | weight | total | elapsedTimeMs | flightId | origin | destination | departure           | arrival             | price |
+| ----- | -----: | ---: | -----: | ----: | ------------: | -------- | ------ | ----------- | ------------------- | ------------------- | ----: |
+| A     |      0 |    1 |      1 |     1 |       3600000 | F1       | A      | B           | 2025-01-01 09:00:00 | 2025-01-01 10:00:00 |    40 |
+| A     |      0 |    2 |      1 |     2 |      14400000 | F2       | B      | A           | 2025-01-01 12:00:00 | 2025-01-01 13:00:00 |    60 |
+
+The return journey takes four hours (14,400,000 milliseconds), including the
+two-hour layover at B.
+
+Add up prices while continuing to report elapsed time for every cycle:
+
+```ts
+await flights
+  .findCycles("origin", "destination", "flightId", "A", {
+    startTimeColumn: "departure",
+    endTimeColumn: "arrival",
+    minGapMs: 60 * 60 * 1000,
+    elapsedTime: true,
+    weight: "price",
+  })
+  .log();
+```
+
+| start | pathId | step | weight | total | elapsedTimeMs | flightId | origin | destination | departure           | arrival             | price |
+| ----- | -----: | ---: | -----: | ----: | ------------: | -------- | ------ | ----------- | ------------------- | ------------------- | ----: |
+| A     |      0 |    1 |     40 |    40 |       3600000 | F1       | A      | B           | 2025-01-01 09:00:00 | 2025-01-01 10:00:00 |    40 |
+| A     |      0 |    2 |     60 |   100 |      14400000 | F2       | B      | A           | 2025-01-01 12:00:00 | 2025-01-01 13:00:00 |    60 |
 
 #### `extractDatePart`
 
@@ -7450,16 +7799,23 @@ await table
   .log();
 ```
 
-#### `mahalanobis`
+#### `similarityMahalanobis`
 
-Calculates each row's Mahalanobis distance from a supplied reference point and
-stores it in a new DOUBLE column. Sample covariance (`n - 1`) is estimated from
-the dataset, independently of the reference point.
+Measures numeric profile similarity using each row's Mahalanobis distance from a
+supplied reference point and stores it in a new DOUBLE column. Smaller distances
+indicate more similar profiles. Optionally adds a dataset-relative similarity
+score, where larger values mean more similar. Sample covariance (`n - 1`) is
+estimated from the dataset, independently of the reference point.
+
+Accounts for differences in feature scales and correlations between features,
+making it useful for comparing profiles with measurements in different units.
 
 Pass one numeric LIST or ARRAY column, or an array of numeric scalar columns.
-Reference values follow the same dimension order. Inputs are converted privately
-to DOUBLE, which can lose precision for large integers and exact decimals;
-source columns and types remain unchanged.
+Reference arrays follow the same dimension order. For scalar columns, a
+reference object supplies its own finite numeric values by column name; extra
+fields are ignored. Reference values are captured when this method is called.
+Inputs are converted privately to DOUBLE, which can lose precision for large
+integers and exact decimals; source columns and types remain unchanged.
 
 Requires more rows than dimensions and finite, non-null, consistent features
 with invertible, numerically stable covariance. Invalid inputs leave the source
@@ -7468,20 +7824,22 @@ unchanged.
 ##### Signature
 
 ```typescript
-mahalanobis(columns: string | string[], referencePoint: number[], newColumn: string, options?: { similarityScoreColumn?: string }): this;
+similarityMahalanobis(columns: string | string[], referencePoint: number[] | Record<string, unknown>, newColumn: string, options?: { similarityColumn?: string | boolean }): this;
 ```
 
 ##### Parameters
 
 - **`columns`**: A numeric vector column, or numeric scalar columns in feature
   order.
-- **`referencePoint`**: One finite number per feature dimension; may be outside
-  the dataset.
+- **`referencePoint`**: An array of finite numbers in feature order, or an
+  object with an own finite numeric value for each scalar feature column; may be
+  outside the dataset.
 - **`newColumn`**: The name of the new DOUBLE distance column.
 - **`options`**: Optional output settings.
-- **`options.similarityScoreColumn`**: A new DOUBLE column for the
-  dataset-relative score `1 - distance / maxDistance`. Exact matches score 1 and
-  the farthest rows score 0; if all distances are zero, every score is 1.
+- **`options.similarityColumn`**: A custom name, or true for a new DOUBLE column
+  named "similarity"; false or omitted adds no score. The dataset-relative score
+  is `1 - distance / maxDistance`. Exact matches score 1 and the farthest rows
+  score 0; if all distances are zero, every score is 1.
 
 ##### Returns
 
@@ -7492,15 +7850,25 @@ The table, so methods can be chained.
 ```ts
 // Measure distance from a reference height and weight.
 await table
-  .mahalanobis(["height", "weight"], [175, 70], "distance")
+  .similarityMahalanobis(["height", "weight"], [175, 70], "distance")
   .log();
 ```
 
 ```ts
 // Compare feature vectors and add a dataset-relative similarity score.
 await table
-  .mahalanobis("features", [175, 70], "distance", {
-    similarityScoreColumn: "similarity",
+  .similarityMahalanobis("features", [175, 70], "distance", {
+    similarityColumn: "similarity",
+  })
+  .log();
+```
+
+```ts
+// Compare profiles directly with a row and use the default score column.
+const reference = await table.getRow("name === 'Alex'");
+await table
+  .similarityMahalanobis(["height", "weight"], reference, "distance", {
+    similarityColumn: true,
   })
   .log();
 ```
@@ -8764,7 +9132,9 @@ array of objects. This method offers high flexibility for data manipulation but
 can be slow for large tables as it involves transferring data between DuckDB and
 JavaScript. Before writing a JavaScript callback, check for an existing SDA
 method that performs the same operation; it will usually be faster and more
-efficient.
+efficient. Existing integer and enum columns retain their types. Fractional or
+out-of-range integers and unknown enum members throw when written. The original
+table is replaced after all callback results have been converted successfully.
 
 If the table has geometry columns, the callback can read and modify their
 GeoJSON geometry objects directly. Extra properties added to these objects are
@@ -9794,35 +10164,34 @@ console.log(bottom5Books);
 
 #### `getRow`
 
-Returns a single row that matches the specified conditions. If no row matches or
-if more than one row matches, an error is thrown by default. With the default
-`SimpleDB.expressionSyntax: "js"`, conditions support JavaScript-style operators
-(`&&`, `||`, `===`, `!==`). Set `expressionSyntax: "sql"` for unchanged SQL.
-Temporal values use the same JavaScript representations as `getData()`.
+Returns a single row that matches the specified conditions. Always throws if no
+row matches. By default, also throws if more than one row matches. With the
+default `SimpleDB.expressionSyntax: "js"`, conditions support JavaScript-style
+operators (`&&`, `||`, `===`, `!==`). Set `expressionSyntax: "sql"` for
+unchanged SQL. Temporal values use the same JavaScript representations as
+`getData()`.
 
 ##### Signature
 
 ```typescript
-async getRow(conditions: string, options?: { strict?: boolean }): Promise<Record<string, unknown> | null>;
+async getRow(conditions: string, options?: { strict?: boolean }): Promise<Record<string, unknown>>;
 ```
 
 ##### Parameters
 
 - **`conditions`**: The conditions to match, specified as a SQL `WHERE` clause.
 - **`options`**: Optional settings:
-- **`options.strict`**: If `false`, no error will be thrown when no row or more
-  than one row match the condition. With no match, `null` is returned; with
-  multiple matches, the first row is returned. Defaults to `true`.
+- **`options.strict`**: If `false`, returns the first row when multiple rows
+  match. A missing match always throws. Defaults to `true`.
 
 ##### Returns
 
-A promise that resolves to an object representing the matched row, or `null` if
-`strict` is `false` and no row matches.
+A promise that resolves to an object representing the matched row.
 
 ##### Throws
 
-- **`Error`**: If `strict` is `true` and no row or more than one row matches the
-  conditions.
+- **`Error`**: If no row matches, or if `strict` is `true` and more than one row
+  matches the conditions.
 
 ##### Examples
 
@@ -9839,7 +10208,7 @@ console.log(rowById);
 ```
 
 ```ts
-// Get a row without throwing an error if multiple matches or no match
+// Get the first matching row when multiple rows may match
 const flexibleRow = await table.getRow(`status = 'pending'`, { strict: false });
 console.log(flexibleRow);
 ```
@@ -11276,14 +11645,15 @@ columns, you must specify which one to use.
 ##### Signature
 
 ```typescript
-async getGeoData(column?: string, options?: { rewind?: boolean }): Promise<{ type: string; features: unknown[] }>;
+async getGeoData(options?: { column?: string; rewind?: boolean }): Promise<{ type: string; features: unknown[] }>;
 ```
 
 ##### Parameters
 
-- **`column`**: The name of the column storing the geometries. If omitted, the
-  method will automatically attempt to find a geometry column.
 - **`options`**: An optional object with configuration options:
+- **`options.column`**: The name of the column storing the geometries. If
+  omitted, the table must have exactly one geometry column, which will be
+  selected automatically.
 - **`options.rewind`**: If `true`, rewinds the coordinates of polygons to follow
   the spherical winding order (important for D3.js). Defaults to `false`.
 
@@ -11302,13 +11672,13 @@ console.log(geojson);
 
 ```ts
 // Get GeoJSON data from a specific geometry column named 'myGeometries'
-const myGeomJson = await table.getGeoData("myGeometries");
+const myGeomJson = await table.getGeoData({ column: "myGeometries" });
 console.log(myGeomJson);
 ```
 
 ```ts
 // Get GeoJSON data and rewind polygon coordinates for D3.js compatibility
-const rewoundGeojson = await table.getGeoData(undefined, { rewind: true });
+const rewoundGeojson = await table.getGeoData({ rewind: true });
 console.log(rewoundGeojson);
 ```
 

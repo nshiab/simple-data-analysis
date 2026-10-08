@@ -528,12 +528,22 @@ export default class SimpleTable extends SimpleTableCore {
    *   .log();
    * ```
    *
+   * @example
+   * ```ts
+   * // Include scores under the default "similarity" column name.
+   * await table
+   *   .aiVectorSimilarity("italian food", "embeddings", 3, {
+   *     similarityColumn: true,
+   *   })
+   *   .log();
+   * ```
+   *
    * @param text - The text for which to generate an embedding and find similar content.
    * @param column - The name of the column containing the embeddings to be used for the similarity search.
    * @param nbResults - The maximum number of most similar results to return.
    * @param options - An optional object with configuration options:
    * @param options.minSimilarity - A threshold between 0.0 and 1.0 to filter out results that are not similar enough. For example, 0.7 ensures only results with a 70% similarity or higher are returned. Defaults to `undefined` (no threshold).
-   * @param options.similarityColumn - If provided, a new column with this name will be added to the output table containing the calculated similarity score (from 0.0 to 1.0) for each row. Defaults to `undefined`.
+   * @param options.similarityColumn - A custom name, or true for a new column named "similarity" containing cosine similarity scores; false or omitted adds no score. Names must be nonempty and contain no null characters. Existing column names conflict case-insensitively (ASCII), including when outputTable is set, and are rejected before requesting embeddings or modifying the table.
    * @param options.createIndex - If `true`, an HNSW index will be created on the embeddings column. Defaults to `false`.
    * @param options.overwriteIndex - If `true` and `createIndex` is `true`, drops and recreates the VSS index even if it already exists. Defaults to `false`.
    * @param options.efConstruction - The number of candidate vertices to consider during index construction. Higher values result in more accurate indexes but increase build time. Defaults to 128.
@@ -614,7 +624,7 @@ export default class SimpleTable extends SimpleTableCore {
       efSearch?: number;
       M?: number;
       minSimilarity?: number;
-      similarityColumn?: string;
+      similarityColumn?: string | boolean;
     } = {},
   ): this {
     return aiVectorSimilarity(
@@ -1816,7 +1826,7 @@ export default class SimpleTable extends SimpleTableCore {
    * await table.log();
    * ```
    *
-   * @param map - A function that takes geospatial data (in GeoJSON format) and returns an Observable Plot map (an `SVGSVGElement` or `HTMLElement`).
+   * @param map - A function that takes geospatial data (in GeoJSON format) and returns an Observable Plot map (an `SVGSVGElement` or `HTMLElement`), or a promise resolving to one.
    * @param path - The path where the map will be saved. The file extension must be `.png` or `.svg` (e.g., `"./output/map.png"`).
    * @param options - An optional object with configuration options:
    * @param options.column - The name of the column storing geometries. If there is only one geometry column, it will be used by default.
@@ -1831,7 +1841,7 @@ export default class SimpleTable extends SimpleTableCore {
       features: {
         properties: { [key: string]: unknown };
       }[];
-    }) => SVGSVGElement | HTMLElement,
+    }) => SVGSVGElement | HTMLElement | Promise<SVGSVGElement | HTMLElement>,
     path: string,
     options: {
       column?: string;
