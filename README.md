@@ -916,16 +916,14 @@ including the reference wine.
 | Louis Latour Bourgogne Pinot Noir                            | 0.151    | 0.971      |
 | Albert Bichot Bourgogne Vieilles Vignes de Pinot Noir        | 0.165    | 0.968      |
 
-We can use
+In the code below, we use `similarityMahalanobis` to calculate similarity scores
+and
 [`hdbscan`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.hdbscan)
-to group wines with similar characteristics. Then
+to create clusters of wines with similar characteristics. We rename the
+identified clusters, then use
 [`umap`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.umap)
-reduces the four features to X and Y coordinates for a scatter plot.
-
-After inspecting each cluster, we give it a descriptive name. Colors identify
-clusters; wines with a similarity score above 0.95 are fully opaque with a
-subtle gray outline. Our reference wine has a stronger black outline and a
-label.
+to reduce the four features to X and Y coordinates and `writeChart` to create
+the scatter plot.
 
 ```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
