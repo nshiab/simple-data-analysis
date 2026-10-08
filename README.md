@@ -966,7 +966,7 @@ await wines
       plot({
         title: "Wines similar to our favorite Pinot Noir",
         subtitle:
-          "Colors show groups; deeper orange shows reds more similar to our Pinot Noir.",
+          "Colors show groups; fully opaque points have similarity above 0.9.",
         x: { axis: null },
         y: { axis: null },
         color: {
@@ -987,10 +987,7 @@ await wines
             x: "umapX",
             y: "umapY",
             fill: "cluster",
-            fillOpacity: (d) =>
-              d.cluster === "Higher-intensity reds"
-                ? 0.5 + 0.5 * d.similarity
-                : 1,
+            fillOpacity: (d) => d.similarity > 0.9 ? 1 : 0.5,
             r: 3,
             stroke: "black",
             strokeWidth: (d) => d.fullName === reference.fullName ? 2 : 0,
@@ -1019,12 +1016,11 @@ await wines
 await sdb.close();
 ```
 
-In this chart, opacity ranges from 0.5 to 1 for the higher-intensity reds, based
-on their similarity score. Other groups stay fully opaque; gray points are
-unclustered. Filling missing tannin values with zero contributes to the
-separation between wine types.
+In this chart, wines with a similarity score above 0.9 have opacity 1; all other
+wines have opacity 0.5. Gray points are unclustered. Filling missing tannin
+values with zero contributes to the separation between wine types.
 
-![UMAP scatterplot of wines colored by HDBSCAN group, with opacity showing similarity among higher-intensity reds, with Louis Jadot Bourgogne Pinot Noir highlighted.](./assets/wines-umap.png)
+![UMAP scatterplot of wines colored by HDBSCAN group, with opacity highlighting similarity scores above 0.9, with Louis Jadot Bourgogne Pinot Noir highlighted.](./assets/wines-umap.png)
 
 #### Network analysis
 
