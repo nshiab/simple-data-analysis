@@ -883,9 +883,7 @@ const wines = sdb.newTable("wines")
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/main/test/data/files/wine.csv",
   )
   .replaceNulls("tannin", 0)
-  .filter(
-    "acidity IS NOT NULL AND intensity IS NOT NULL AND sweetness IS NOT NULL",
-  );
+  .removeMissing({ columns: ["acidity", "intensity", "sweetness"] });
 
 // Retrieve our favorite wine's characteristics as an object.
 const reference = await wines.getRow(
@@ -918,10 +916,12 @@ including the reference wine.
 | Louis Latour Bourgogne Pinot Noir                            | 0.151    | 0.971      |
 | Albert Bichot Bourgogne Vieilles Vignes de Pinot Noir        | 0.165    | 0.968      |
 
-We can also group wines with HDBSCAN and map them with UMAP, using the same four
-features. After inspecting each group, we give it a descriptive name. Color
-shows the group; within the higher-intensity reds, more opaque points are more
-similar to our favorite Pinot Noir. The outlined dot marks our reference wine.
+We can use HDBSCAN to create clusters of wines with similar characteristics,
+then use UMAP to project the four features into X and Y coordinates for a chart.
+After inspecting each cluster, we give it a descriptive name. Colors identify
+clusters; wines with a similarity score above 0.95 are fully opaque with a
+subtle gray outline. Our reference wine has a stronger black outline and a
+label.
 
 ```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
@@ -933,9 +933,7 @@ const wines = sdb.newTable("wines")
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/main/test/data/files/wine.csv",
   )
   .replaceNulls("tannin", 0)
-  .filter(
-    "acidity IS NOT NULL AND intensity IS NOT NULL AND sweetness IS NOT NULL",
-  );
+  .removeMissing({ columns: ["acidity", "intensity", "sweetness"] });
 
 const reference = await wines.getRow(
   "fullName === 'Louis Jadot Bourgogne Pinot Noir'",
@@ -965,8 +963,6 @@ await wines
     (data) =>
       plot({
         title: "Wines similar to our favorite Pinot Noir",
-        subtitle:
-          "Colors show groups; fully opaque points have similarity above 0.95.",
         x: { axis: null },
         y: { axis: null },
         color: {
@@ -990,7 +986,13 @@ await wines
             fillOpacity: (d) => d.similarity > 0.95 ? 1 : 0.25,
             r: 3,
             stroke: "black",
-            strokeWidth: (d) => d.fullName === reference.fullName ? 2 : 0,
+            strokeWidth: (d) =>
+              d.fullName === reference.fullName
+                ? 2
+                : d.similarity > 0.95
+                ? 0.75
+                : 0,
+            strokeOpacity: (d) => d.fullName === reference.fullName ? 1 : 0.35,
             sort: (d: { fullName: string; cluster: string }) =>
               d.fullName === reference.fullName
                 ? 2
