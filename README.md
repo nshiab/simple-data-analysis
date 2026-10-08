@@ -950,7 +950,6 @@ await wines
         color: {
           type: "linear",
           scheme: "plasma",
-          reverse: true,
           legend: true,
           label: null,
         },
