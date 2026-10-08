@@ -1023,9 +1023,8 @@ await wines
 await sdb.close();
 ```
 
-In this chart, wines with a similarity score above 0.95 have opacity 1; all
-other wines have opacity 0.25. Gray points are unclustered. Filling missing
-tannin values with zero contributes to the separation between wine types.
+Clustering and UMAP reveal five groups of wines. Our reference wine is
+highlighted, with its closest matches appearing nearby.
 
 ![UMAP scatterplot of wines colored by HDBSCAN group, with opacity highlighting similarity scores above 0.95, with Louis Jadot Bourgogne Pinot Noir highlighted.](./assets/wines-umap.png)
 
