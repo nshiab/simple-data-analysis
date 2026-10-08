@@ -949,7 +949,7 @@ await wines
         y: { axis: null },
         color: {
           type: "linear",
-          scheme: "viridis",
+          scheme: "plasma",
           legend: true,
           label: null,
         },
