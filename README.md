@@ -916,6 +916,9 @@ including the reference wine.
 | Louis Latour Bourgogne Pinot Noir                            | 0.151    | 0.971      |
 | Albert Bichot Bourgogne Vieilles Vignes de Pinot Noir        | 0.165    | 0.968      |
 
+It's always useful to visualize our data, so let's update our code to create a
+chart.
+
 In the code below, we use `similarityMahalanobis` to calculate similarity scores
 and
 [`hdbscan`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.hdbscan)
