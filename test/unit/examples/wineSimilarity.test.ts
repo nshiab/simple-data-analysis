@@ -175,6 +175,20 @@ Deno.test("README wine UMAP example maps all complete wines and retains referenc
     assertEquals(reference.length, 1);
     assertEquals(reference[0].similarity, 1);
     assertEquals(reference[0].distance, 0);
+    assertEquals(reference[0].cluster, "Higher-intensity reds");
+    const clusterCounts: Record<string, number> = {};
+    for (const row of rows) {
+      const cluster = String(row.cluster);
+      clusterCounts[cluster] = (clusterCounts[cluster] ?? 0) + 1;
+    }
+    assertEquals(clusterCounts, {
+      "Higher-intensity whites": 640,
+      "Higher-intensity reds": 896,
+      noise: 233,
+      "Mostly Chablis whites": 93,
+      "Lower-acidity whites & rosés": 67,
+      "Lower-intensity reds": 59,
+    });
     assertEquals(rows.filter((row) => row.wineType === "Red").length, 1026);
     assertEquals(rows.filter((row) => row.wineType === "White").length, 941);
     assertEquals(rows.filter((row) => row.wineType === "Rosé").length, 21);

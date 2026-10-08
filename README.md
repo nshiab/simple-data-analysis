@@ -918,10 +918,10 @@ including the reference wine.
 | Louis Latour Bourgogne Pinot Noir                            | 0.151    | 0.971      |
 | Albert Bichot Bourgogne Vieilles Vignes de Pinot Noir        | 0.165    | 0.968      |
 
-We can also map the wines with UMAP and color them by their similarity to our
-favorite, using the same four features. Color shows the Mahalanobis similarity
-score; position shows approximate relationships between wines. The outlined dot
-marks our reference wine.
+We can also group wines with HDBSCAN and map them with UMAP, using the same four
+features. After inspecting each group, we give it a descriptive name. Color
+shows the group; within the higher-intensity reds, more opaque points are more
+similar to our favorite Pinot Noir. The outlined dot marks our reference wine.
 
 ```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
@@ -948,37 +948,58 @@ await wines
     "distance",
     { similarityColumn: true },
   )
+  .hdbscan(
+    ["acidity", "intensity", "sweetness", "tannin"],
+    "cluster",
+    { minClusterSize: 40, minSamples: 10 },
+  )
+  .replace("cluster", {
+    "cluster-0": "Lower-intensity reds",
+    "cluster-1": "Higher-intensity reds",
+    "cluster-2": "Mostly Chablis whites",
+    "cluster-3": "Higher-intensity whites",
+    "cluster-4": "Lower-acidity whites & rosés",
+  })
   .umap(["acidity", "intensity", "sweetness", "tannin"])
   .writeChart(
     (data) =>
       plot({
         title: "Wines similar to our favorite Pinot Noir",
-        subtitle: "UMAP positions, colored by Mahalanobis similarity.",
+        subtitle:
+          "Colors show groups; deeper orange shows reds more similar to our Pinot Noir.",
         x: { axis: null },
         y: { axis: null },
         color: {
-          type: "linear",
-          scheme: "plasma",
+          domain: [
+            "Lower-intensity reds",
+            "Higher-intensity reds",
+            "Mostly Chablis whites",
+            "Higher-intensity whites",
+            "Lower-acidity whites & rosés",
+          ],
+          scheme: "tableau10",
+          unknown: "#dedede",
           legend: true,
-          label: null,
         },
-        symbol: {
-          domain: ["Red", "White", "Rosé"],
-          range: ["circle", "triangle", "diamond"],
-          legend: true,
-          label: null,
-        },
+        opacity: { domain: [0, 1], range: [0, 1] },
         marks: [
           dot(data, {
             x: "umapX",
             y: "umapY",
-            fill: "similarity",
-            symbol: "wineType",
+            fill: "cluster",
+            fillOpacity: (d) =>
+              d.cluster === "Higher-intensity reds"
+                ? 0.5 + 0.5 * d.similarity
+                : 1,
             r: 3,
             stroke: "black",
             strokeWidth: (d) => d.fullName === reference.fullName ? 2 : 0,
-            sort: (d: { fullName: string }) =>
-              d.fullName === reference.fullName ? 1 : 0,
+            sort: (d: { fullName: string; cluster: string }) =>
+              d.fullName === reference.fullName
+                ? 2
+                : d.cluster === "noise"
+                ? 0
+                : 1,
           }),
           text(data, {
             filter: (d) => d.fullName === reference.fullName,
@@ -998,10 +1019,12 @@ await wines
 await sdb.close();
 ```
 
-In this chart, yellow marks the wines most similar to our favorite Pinot Noir.
-Circles represent red wines, triangles white wines, and diamonds rosés.
+In this chart, opacity ranges from 0.5 to 1 for the higher-intensity reds, based
+on their similarity score. Other groups stay fully opaque; gray points are
+unclustered. Filling missing tannin values with zero contributes to the
+separation between wine types.
 
-![UMAP scatterplot of wines colored by similarity, with Louis Jadot Bourgogne Pinot Noir highlighted.](./assets/wines-umap.png)
+![UMAP scatterplot of wines colored by HDBSCAN group, with opacity showing similarity among higher-intensity reds, with Louis Jadot Bourgogne Pinot Noir highlighted.](./assets/wines-umap.png)
 
 #### Network analysis
 
