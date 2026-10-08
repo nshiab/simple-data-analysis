@@ -918,13 +918,9 @@ including the reference wine.
 
 We can use
 [`hdbscan`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.hdbscan)
-to find clusters of wines with similar acidity, intensity, sweetness, and
-tannin, without choosing the number of clusters in advance. Wines that do not
-belong to a cluster are labeled as noise. We then use
+to group wines with similar characteristics. Then
 [`umap`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.umap)
-to reduce those four features to two coordinates, X and Y, so we can draw each
-wine on a scatter plot. Nearby points generally represent wines with similar
-characteristics, although the projection does not preserve every distance.
+reduces the four features to X and Y coordinates for a scatter plot.
 
 After inspecting each cluster, we give it a descriptive name. Colors identify
 clusters; wines with a similarity score above 0.95 are fully opaque with a
