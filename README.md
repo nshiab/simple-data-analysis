@@ -962,11 +962,18 @@ await wines
           legend: true,
           label: null,
         },
+        symbol: {
+          domain: ["Red", "White", "Rosé"],
+          range: ["circle", "triangle", "diamond"],
+          legend: true,
+          label: null,
+        },
         marks: [
           dot(data, {
             x: "umapX",
             y: "umapY",
             fill: "similarity",
+            symbol: "wineType",
             r: 3,
             stroke: "black",
             strokeWidth: (d) => d.fullName === reference.fullName ? 2 : 0,
@@ -992,6 +999,7 @@ await sdb.close();
 ```
 
 In this chart, yellow marks the wines most similar to our favorite Pinot Noir.
+Circles represent red wines, triangles white wines, and diamonds rosés.
 
 ![UMAP scatterplot of wines colored by similarity, with Louis Jadot Bourgogne Pinot Noir highlighted.](./assets/wines-umap.png)
 
