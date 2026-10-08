@@ -913,10 +913,9 @@ the reference wine.
 | Joseph Drouhin Laforet Bourgogne Pinot Noir              | 0.240    | 0.957      |
 
 We can also map the wines with UMAP and color them by their similarity to our
-favorite. We standardize the four features before projecting them, so their
-scales do not dominate the layout. Color shows the Mahalanobis similarity score;
-position shows approximate relationships between wines. The outlined dot marks
-our reference wine.
+favorite, using the same four features. Color shows the Mahalanobis similarity
+score; position shows approximate relationships between wines. The outlined dot
+marks our reference wine.
 
 ```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
@@ -940,17 +939,7 @@ await wines
     "distance",
     { similarityColumn: true },
   )
-  // Standardize the features and combine them into a vector for UMAP.
-  .zScore("acidity", "acidityZ")
-  .zScore("intensity", "intensityZ")
-  .zScore("sweetness", "sweetnessZ")
-  .zScore("tannin", "tanninZ")
-  .addColumn(
-    "features",
-    "FLOAT[4]",
-    "[acidityZ, intensityZ, sweetnessZ, tanninZ]",
-  )
-  .umap("features")
+  .umap(["acidity", "intensity", "sweetness", "tannin"])
   .writeChart(
     (data) =>
       plot({

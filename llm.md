@@ -2,7 +2,7 @@
 
 - Package: `@nshiab/simple-data-analysis`
 - Version: `6.0.8`
-- Includes: `@nshiab/simple-data-analysis-core@2.1.9`
+- Includes: `@nshiab/simple-data-analysis-core@2.1.10`
 
 To install the library with Deno, use:
 
@@ -3203,12 +3203,19 @@ await table.createVssIndex("embedding_column", {
 
 #### `umap`
 
-Reduces numeric vectors, such as embeddings, to a two-dimensional UMAP
+Reduces numeric features, such as embeddings, to a two-dimensional UMAP
 projection. The resulting coordinates are added as `umapX` and `umapY`, while
-all existing columns (including the source vector column), their values and
+all existing columns (including the source feature columns), their values and
 types, and the input row order are preserved. DuckDB computes neighbors and the
 fuzzy graph; TypeScript optimizes the coordinates without copying the input
 vectors into JavaScript. Neighbor search is selected automatically.
+
+Accepts a numeric LIST or ARRAY column, or an array of numeric scalar column
+names combined internally into a vector in the supplied order. Features must be
+finite and non-null; vectors must be nonempty and equally sized. Features are
+converted to DOUBLE without automatic scaling. Large integers and exact decimals
+can lose precision in this conversion. If feature scales differ, consider
+`normalize()` or `zScore()` before projection.
 
 The defaults are a starting point for exploration. To adjust the projection:
 
@@ -3239,12 +3246,14 @@ The defaults are a starting point for exploration. To adjust the projection:
 ##### Signature
 
 ```typescript
-umap(column: string, options?: { neighbors?: number; metric?: "euclidean" | "cosine"; epochs?: number; seed?: number; minDistance?: number; learningRate?: number; negativeSamples?: number }): this;
+umap(columns: string | string[], options?: { neighbors?: number; metric?: "euclidean" | "cosine"; epochs?: number; seed?: number; minDistance?: number; learningRate?: number; negativeSamples?: number }): this;
 ```
 
 ##### Parameters
 
-- **`column`**: The column containing numeric vector embeddings.
+- **`columns`**: A numeric vector column name, or a nonempty array of numeric
+  scalar column names in feature order. Use a one-element array for a single
+  scalar feature.
 - **`options`**: Optional projection settings.
 - **`options.neighbors`**: Neighborhood size, including the point itself.
   Integer of at least 2, clamped to row count minus one. Defaults to 15.
@@ -3278,6 +3287,12 @@ await table.umap("embedding", {
   neighbors: 30,
   minDistance: 0.25,
 }).selectColumns(["label", "umapX", "umapY"]).log();
+```
+
+```ts
+await table
+  .umap(["height", "weight", "age"], { seed: 42 })
+  .log();
 ```
 
 #### `hdbscan`
