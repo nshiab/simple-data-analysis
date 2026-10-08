@@ -959,15 +959,10 @@ await wines
             y: "umapY",
             fill: "similarity",
             r: 3,
-          }),
-          dot(data, {
-            filter: (d) => d.fullName === reference.fullName,
-            x: "umapX",
-            y: "umapY",
-            fill: "similarity",
-            r: 7,
             stroke: "black",
-            strokeWidth: 2,
+            strokeWidth: (d) => d.fullName === reference.fullName ? 2 : 0,
+            sort: (d: { fullName: string }) =>
+              d.fullName === reference.fullName ? 1 : 0,
           }),
           text(data, {
             filter: (d) => d.fullName === reference.fullName,
