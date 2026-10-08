@@ -948,8 +948,8 @@ await wines
         x: { axis: null },
         y: { axis: null },
         color: {
-          scheme: "viridis",
-          domain: [0, 1],
+          type: "linear",
+          scheme: "blues",
           legend: true,
           label: "Similarity to Louis Jadot Bourgogne Pinot Noir",
         },
