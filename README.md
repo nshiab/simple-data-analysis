@@ -919,7 +919,7 @@ marks our reference wine.
 
 ```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
-import { dot, plot, text } from "@observablehq/plot";
+import { arrow, dot, plot, text } from "@observablehq/plot";
 
 const sdb = new SimpleDB();
 const wines = sdb.newTable("wines")
@@ -964,6 +964,43 @@ await wines
             sort: (d: { fullName: string }) =>
               d.fullName === reference.fullName ? 1 : 0,
           }),
+          // Label two wines with low similarity to our reference.
+          text(data, {
+            filter: (d) =>
+              [
+                "Domaine Bizot Les Réas Vosne-Romanée 2005",
+                "Albert Bichot Bourgogne Pinot Noir Origines",
+              ].includes(d.fullName),
+            x: "umapX",
+            y: "umapY",
+            text: "fullName",
+            textAnchor: "start",
+            dx: 10,
+            dy: -16,
+            lineWidth: 22,
+            fill: "black",
+            stroke: "white",
+            strokeWidth: 4,
+          }),
+          // Annotate the separate group in this layout.
+          arrow([{ x1: 6, y1: -3, x2: 9.2, y2: -5.7 }], {
+            x1: "x1",
+            y1: "y1",
+            x2: "x2",
+            y2: "y2",
+            stroke: "black",
+          }),
+          text([{
+            x: 6,
+            y: -1.9,
+            label:
+              "82 Beaujolais wines\nHigher average acidity;\nlower intensity and tannin",
+          }], {
+            x: "x",
+            y: "y",
+            text: "label",
+            fill: "black",
+          }),
           text(data, {
             filter: (d) => d.fullName === reference.fullName,
             x: "umapX",
@@ -981,6 +1018,13 @@ await wines
 
 await sdb.close();
 ```
+
+In this chart, yellow marks the wines most similar to our favorite Pinot Noir.
+If you are wondering about the separate group at the bottom right, it contains
+82 wines from
+[Beaujolais appellations](https://www.beaujolais.com/decouvrir/nos-12-appellations/),
+including Moulin-à-Vent, Fleurie, and Morgon. In this dataset, they have higher
+average acidity and lower average intensity and tannin than the other red wines.
 
 ![UMAP scatterplot of red wines colored by similarity, with Louis Jadot Bourgogne Pinot Noir highlighted.](./assets/wines-umap.png)
 

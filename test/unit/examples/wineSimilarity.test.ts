@@ -174,6 +174,24 @@ Deno.test("README wine UMAP example maps every red wine and retains reference si
     assertEquals(reference.length, 1);
     assertEquals(reference[0].similarity, 1);
     assertEquals(reference[0].distance, 0);
+    const annotatedGroup = rows.filter((row) => Number(row.umapX) > 6);
+    assertEquals(annotatedGroup.length, 82);
+    const regions = new Set([
+      "Moulin-à-Vent",
+      "Fleurie",
+      "Morgon",
+      "Beaujolais",
+      "Brouilly",
+      "Saint-Amour",
+      "Côte de Brouilly",
+    ]);
+    assert(annotatedGroup.every((row) => regions.has(String(row.regionName))));
+    const rest = rows.filter((row) => Number(row.umapX) <= 6);
+    const mean = (group: Record<string, unknown>[], column: string) =>
+      group.reduce((sum, row) => sum + Number(row[column]), 0) / group.length;
+    assert(mean(annotatedGroup, "acidity") > mean(rest, "acidity"));
+    assert(mean(annotatedGroup, "intensity") < mean(rest, "intensity"));
+    assert(mean(annotatedGroup, "tannin") < mean(rest, "tannin"));
     const image = await Deno.readFile(output);
     assertEquals([...image.slice(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
     assert(image.length > 1000);
