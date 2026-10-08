@@ -866,10 +866,13 @@ between them.
 
 The code loads the
 [Vivino Burgundy dataset](https://huggingface.co/datasets/Mr-Bridge/vivino-bourgogne-wines-2026)
-of 2,000 named wines, originally from Hugging Face, and keeps only red wines. It
-retrieves our favorite wine as the reference, then compares acidity, intensity,
-sweetness, and tannin to calculate a distance and similarity score for each
-wine. Finally, it logs the wines, with the closest matches first.
+of 2,000 named wines, originally from Hugging Face. Many white wines have no
+recorded tannin value, so we replace missing tannin values with zero for this
+example. This is a simplifying assumption, not a measured value. We exclude 12
+wines missing other characteristics. The code retrieves our favorite wine as the
+reference, then compares acidity, intensity, sweetness, and tannin to calculate
+a distance and similarity score for each wine. Finally, it logs the wines, with
+the closest matches first.
 
 ```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
@@ -879,7 +882,10 @@ const wines = sdb.newTable("wines")
   .loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/main/test/data/files/wine.csv",
   )
-  .filter("wineType === 'Red'");
+  .replaceNulls("tannin", 0)
+  .filter(
+    "acidity IS NOT NULL AND intensity IS NOT NULL AND sweetness IS NOT NULL",
+  );
 
 // Retrieve our favorite wine's characteristics as an object.
 const reference = await wines.getRow(
@@ -901,16 +907,16 @@ await sdb.close();
 
 For readability, we excluded the reference wine from the table below and show
 only the five closest matches, keeping their names, distances, and similarity
-scores rounded to three decimals. The code keeps all rows and columns, including
-the reference wine.
+scores rounded to three decimals. The code keeps all matching rows and columns,
+including the reference wine.
 
-| fullName                                                 | distance | similarity |
-| -------------------------------------------------------- | -------- | ---------- |
-| Moillard-Grivot Bourgogne Pinot Noir                     | 0.119    | 0.979      |
-| Michel Magnien Bourgogne Pinot Noir                      | 0.191    | 0.966      |
-| Louis Latour Bourgogne Pinot Noir                        | 0.192    | 0.966      |
-| Jean-Claude Boisset Pinot Noir Bourgogne 'Les Ursulines' | 0.209    | 0.963      |
-| Joseph Drouhin Laforet Bourgogne Pinot Noir              | 0.240    | 0.957      |
+| fullName                                                     | distance | similarity |
+| ------------------------------------------------------------ | -------- | ---------- |
+| Maison Roche de Bellene Pinot Noir Bourgogne Vieilles Vignes | 0.094    | 0.982      |
+| Moillard-Grivot Bourgogne Pinot Noir                         | 0.117    | 0.977      |
+| Joseph Drouhin Laforet Bourgogne Pinot Noir                  | 0.119    | 0.977      |
+| Louis Latour Bourgogne Pinot Noir                            | 0.151    | 0.971      |
+| Albert Bichot Bourgogne Vieilles Vignes de Pinot Noir        | 0.165    | 0.968      |
 
 We can also map the wines with UMAP and color them by their similarity to our
 favorite, using the same four features. Color shows the Mahalanobis similarity
@@ -919,14 +925,17 @@ marks our reference wine.
 
 ```ts
 import { SimpleDB } from "@nshiab/simple-data-analysis";
-import { arrow, dot, plot, text } from "@observablehq/plot";
+import { dot, plot, text } from "@observablehq/plot";
 
 const sdb = new SimpleDB();
 const wines = sdb.newTable("wines")
   .loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/main/test/data/files/wine.csv",
   )
-  .filter("wineType === 'Red'");
+  .replaceNulls("tannin", 0)
+  .filter(
+    "acidity IS NOT NULL AND intensity IS NOT NULL AND sweetness IS NOT NULL",
+  );
 
 const reference = await wines.getRow(
   "fullName === 'Louis Jadot Bourgogne Pinot Noir'",
@@ -964,43 +973,6 @@ await wines
             sort: (d: { fullName: string }) =>
               d.fullName === reference.fullName ? 1 : 0,
           }),
-          // Label two wines with low similarity to our reference.
-          text(data, {
-            filter: (d) =>
-              [
-                "Domaine Bizot Les Réas Vosne-Romanée 2005",
-                "Albert Bichot Bourgogne Pinot Noir Origines",
-              ].includes(d.fullName),
-            x: "umapX",
-            y: "umapY",
-            text: "fullName",
-            textAnchor: "start",
-            dx: 10,
-            dy: -16,
-            lineWidth: 22,
-            fill: "black",
-            stroke: "white",
-            strokeWidth: 4,
-          }),
-          // Annotate the separate group in this layout.
-          arrow([{ x1: 6, y1: -3, x2: 9.2, y2: -5.7 }], {
-            x1: "x1",
-            y1: "y1",
-            x2: "x2",
-            y2: "y2",
-            stroke: "black",
-          }),
-          text([{
-            x: 6,
-            y: -1.9,
-            label:
-              "82 Beaujolais wines\nHigher average acidity;\nlower intensity and tannin",
-          }], {
-            x: "x",
-            y: "y",
-            text: "label",
-            fill: "black",
-          }),
           text(data, {
             filter: (d) => d.fullName === reference.fullName,
             x: "umapX",
@@ -1020,13 +992,8 @@ await sdb.close();
 ```
 
 In this chart, yellow marks the wines most similar to our favorite Pinot Noir.
-If you are wondering about the separate group at the bottom right, it contains
-82 wines from
-[Beaujolais appellations](https://www.beaujolais.com/decouvrir/nos-12-appellations/),
-including Moulin-à-Vent, Fleurie, and Morgon. In this dataset, they have higher
-average acidity and lower average intensity and tannin than the other red wines.
 
-![UMAP scatterplot of red wines colored by similarity, with Louis Jadot Bourgogne Pinot Noir highlighted.](./assets/wines-umap.png)
+![UMAP scatterplot of wines colored by similarity, with Louis Jadot Bourgogne Pinot Noir highlighted.](./assets/wines-umap.png)
 
 #### Network analysis
 

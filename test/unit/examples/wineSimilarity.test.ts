@@ -48,35 +48,36 @@ Deno.test("README wine similarity example retains all matches and agrees with it
     );
     const expected = [
       {
+        "fullName":
+          "Maison Roche de Bellene Pinot Noir Bourgogne Vieilles Vignes",
+        "distance": 0.094,
+        "similarity": 0.982,
+      },
+      {
         "fullName": "Moillard-Grivot Bourgogne Pinot Noir",
-        "distance": 0.119,
-        "similarity": 0.979,
-      },
-      {
-        "fullName": "Michel Magnien Bourgogne Pinot Noir",
-        "distance": 0.191,
-        "similarity": 0.966,
-      },
-      {
-        "fullName": "Louis Latour Bourgogne Pinot Noir",
-        "distance": 0.192,
-        "similarity": 0.966,
-      },
-      {
-        "fullName": "Jean-Claude Boisset Pinot Noir Bourgogne 'Les Ursulines'",
-        "distance": 0.209,
-        "similarity": 0.963,
+        "distance": 0.117,
+        "similarity": 0.977,
       },
       {
         "fullName": "Joseph Drouhin Laforet Bourgogne Pinot Noir",
-        "distance": 0.24,
-        "similarity": 0.957,
+        "distance": 0.119,
+        "similarity": 0.977,
+      },
+      {
+        "fullName": "Louis Latour Bourgogne Pinot Noir",
+        "distance": 0.151,
+        "similarity": 0.971,
+      },
+      {
+        "fullName": "Albert Bichot Bourgogne Vieilles Vignes de Pinot Noir",
+        "distance": 0.165,
+        "similarity": 0.968,
       },
     ];
     const rows: Record<string, unknown>[] = JSON.parse(
       await Deno.readTextFile(output),
     );
-    assertEquals(rows.length, 1026);
+    assertEquals(rows.length, 1988);
     assertEquals(rows[0].fullName, "Louis Jadot Bourgogne Pinot Noir");
     assertEquals(rows[0].distance, 0);
     assertEquals(rows[0].similarity, 1);
@@ -119,7 +120,7 @@ Deno.test("README wine similarity example retains all matches and agrees with it
   }
 });
 
-Deno.test("README wine UMAP example maps every red wine and retains reference similarity", async () => {
+Deno.test("README wine UMAP example maps all complete wines and retains reference similarity", async () => {
   const readme = await Deno.readTextFile(join(root, "README.md"));
   const section = readme.split("#### Similarity analysis\n")[1]
     ?.split(/\n#{3,4} /)[0];
@@ -161,9 +162,9 @@ Deno.test("README wine UMAP example maps every red wine and retains reference si
     const rows: Record<string, unknown>[] = JSON.parse(
       await Deno.readTextFile(rowsPath),
     );
-    assertEquals(rows.length, 1026);
+    assertEquals(rows.length, 1988);
     for (const row of rows) {
-      assertEquals(row.wineType, "Red");
+      assert(typeof row.tannin === "number");
       for (const column of ["umapX", "umapY", "similarity"]) {
         assert(typeof row[column] === "number" && Number.isFinite(row[column]));
       }
@@ -174,24 +175,10 @@ Deno.test("README wine UMAP example maps every red wine and retains reference si
     assertEquals(reference.length, 1);
     assertEquals(reference[0].similarity, 1);
     assertEquals(reference[0].distance, 0);
-    const annotatedGroup = rows.filter((row) => Number(row.umapX) > 6);
-    assertEquals(annotatedGroup.length, 82);
-    const regions = new Set([
-      "Moulin-à-Vent",
-      "Fleurie",
-      "Morgon",
-      "Beaujolais",
-      "Brouilly",
-      "Saint-Amour",
-      "Côte de Brouilly",
-    ]);
-    assert(annotatedGroup.every((row) => regions.has(String(row.regionName))));
-    const rest = rows.filter((row) => Number(row.umapX) <= 6);
-    const mean = (group: Record<string, unknown>[], column: string) =>
-      group.reduce((sum, row) => sum + Number(row[column]), 0) / group.length;
-    assert(mean(annotatedGroup, "acidity") > mean(rest, "acidity"));
-    assert(mean(annotatedGroup, "intensity") < mean(rest, "intensity"));
-    assert(mean(annotatedGroup, "tannin") < mean(rest, "tannin"));
+    assertEquals(rows.filter((row) => row.wineType === "Red").length, 1026);
+    assertEquals(rows.filter((row) => row.wineType === "White").length, 941);
+    assertEquals(rows.filter((row) => row.wineType === "Rosé").length, 21);
+    assertEquals(rows.filter((row) => row.tannin === 0).length, 962);
     const image = await Deno.readFile(output);
     assertEquals([...image.slice(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
     assert(image.length > 1000);
