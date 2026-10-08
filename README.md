@@ -951,7 +951,7 @@ await wines
           type: "linear",
           scheme: "viridis",
           legend: true,
-          label: "Similarity to Louis Jadot Bourgogne Pinot Noir",
+          label: null,
         },
         marks: [
           dot(data, {
