@@ -3,6 +3,8 @@ import type SimpleTable from "../class/SimpleTable.ts";
 
 type ToDatawrapperOptions = {
   apiKeyEnvVar?: string;
+  title?: string;
+  description?: string;
   note?: string;
   republish?: boolean;
 };

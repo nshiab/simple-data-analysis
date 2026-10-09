@@ -4,6 +4,8 @@ import type SimpleTable from "../class/SimpleTable.ts";
 type ToGeoDatawrapperOptions = {
   apiKeyEnvVar?: string;
   column?: string;
+  title?: string;
+  description?: string;
   note?: string;
   republish?: boolean;
 };

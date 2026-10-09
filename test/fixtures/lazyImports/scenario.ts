@@ -96,13 +96,15 @@ try {
 
       await chart.toDatawrapper("chart-id", {
         apiKeyEnvVar: "CUSTOM_DATAWRAPPER_KEY",
+        title: "chart title",
+        description: "chart description",
         note: "Updated chart",
         republish: true,
       });
       const chartCalls = calls.slice(-3);
       assertEquals(chartCalls.map(({ method }) => method), [
         "updateDataDW",
-        "updateNotesDW",
+        "updateInfoDW",
         "publishChartDW",
       ]);
       assertEquals(
@@ -112,7 +114,11 @@ try {
       );
       assertEquals(chartCalls[1].value, {
         chartId: "chart-id",
-        note: "Updated chart",
+        info: {
+          title: "chart title",
+          description: "chart description",
+          note: "Updated chart",
+        },
         options: { apiKey: "CUSTOM_DATAWRAPPER_KEY" },
       });
       assertEquals(chartCalls[2].value, {
@@ -122,13 +128,15 @@ try {
 
       await map.toGeoDatawrapper("map-id", {
         apiKeyEnvVar: "CUSTOM_DATAWRAPPER_KEY",
+        title: "map title",
+        description: "map description",
         note: "Updated map",
         republish: true,
       });
       const mapCalls = calls.slice(-3);
       assertEquals(mapCalls.map(({ method }) => method), [
         "updateDataDW",
-        "updateNotesDW",
+        "updateInfoDW",
         "publishChartDW",
       ]);
       assertEquals(
@@ -137,7 +145,11 @@ try {
       );
       assertEquals(mapCalls[1].value, {
         chartId: "map-id",
-        note: "Updated map",
+        info: {
+          title: "map title",
+          description: "map description",
+          note: "Updated map",
+        },
         options: { apiKey: "CUSTOM_DATAWRAPPER_KEY" },
       });
       assertEquals(mapCalls[2].value, {
