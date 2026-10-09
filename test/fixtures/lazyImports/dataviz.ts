@@ -35,12 +35,12 @@ export function updateDataDW(
   return Promise.resolve();
 }
 
-export function updateNotesDW(
+export function updateInfoDW(
   chartId: string,
-  note: string,
+  info: { title?: string; description?: string; note?: string },
   options: { apiKey?: string } = {},
 ) {
-  calls.push({ method: "updateNotesDW", value: { chartId, note, options } });
+  calls.push({ method: "updateInfoDW", value: { chartId, info, options } });
   return Promise.resolve();
 }
 

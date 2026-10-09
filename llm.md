@@ -2,7 +2,7 @@
 
 - Package: `@nshiab/simple-data-analysis`
 - Version: `6.0.9`
-- Includes: `@nshiab/simple-data-analysis-core@2.1.10`
+- Includes: `@nshiab/simple-data-analysis-core@2.1.12`
 
 To install the library with Deno, use:
 
@@ -444,7 +444,8 @@ Imports a copy of a `.db` or `.duckdb` (DuckDB) or `.sqlite` (SQLite) file into
 the current database. The source is opened read-only and detached after
 importing; subsequent transformations do not modify the source file. Imports
 work with in-memory and writable persistent databases. Existing table-name
-conflicts are rejected and a failed copy is rolled back.
+conflicts are rejected. A failed import may leave partial changes in the
+destination database.
 
 DuckDB files restore embedded SDA index definitions when present. SQLite imports
 copy data without SDA index metadata. The `__sda` schema is reserved for SDA
@@ -1841,7 +1842,7 @@ example, `"your-datawrapper-api-key"`).
 ##### Signature
 
 ```typescript
-async toDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; note?: string; republish?: boolean }): Promise<this>;
+async toDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; title?: string; description?: string; note?: string; republish?: boolean }): Promise<this>;
 ```
 
 ##### Parameters
@@ -1851,10 +1852,14 @@ async toDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; note?: s
 - **`options`**: An optional object with configuration options:
 - **`options.apiKeyEnvVar`**: A custom environment-variable name from which to
   read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
-- **`options.note`**: A string to update the chart's notes field with (e.g., a
-  last-updated timestamp).
+- **`options.title`**: The chart's title. Omit to preserve it, or pass an empty
+  string to clear it.
+- **`options.description`**: The description below the chart's title. Omit to
+  preserve it, or pass an empty string to clear it.
+- **`options.note`**: The chart's notes (e.g., a last-updated timestamp). Omit
+  to preserve them, or pass an empty string to clear them.
 - **`options.republish`**: If `true`, republishes the chart after updating the
-  data. Defaults to `false`.
+  data and any supplied title, description, or notes. Defaults to `false`.
 
 ##### Returns
 
@@ -1876,8 +1881,10 @@ await table.log();
 ```
 
 ```ts
-// Update data, add a note, and republish
+// Update data, title, description, and notes, then republish
 await table.toDatawrapper("myChartId", {
+  title: "Monthly sales",
+  description: "Revenue since January 2025.",
   note: `Last updated: ${new Date().toLocaleString()}`,
   republish: true,
 });
@@ -1934,7 +1941,7 @@ example, `"your-datawrapper-api-key"`).
 ##### Signature
 
 ```typescript
-async toGeoDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; column?: string; note?: string; republish?: boolean }): Promise<this>;
+async toGeoDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; column?: string; title?: string; description?: string; note?: string; republish?: boolean }): Promise<this>;
 ```
 
 ##### Parameters
@@ -1946,9 +1953,14 @@ async toGeoDatawrapper(chartId: string, options?: { apiKeyEnvVar?: string; colum
   read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
 - **`options.column`**: The name of the geometry column to use. If omitted, the
   method will automatically attempt to find a geometry column.
-- **`options.note`**: A string to update the map's notes field with.
+- **`options.title`**: The map's title. Omit to preserve it, or pass an empty
+  string to clear it.
+- **`options.description`**: The description below the map's title. Omit to
+  preserve it, or pass an empty string to clear it.
+- **`options.note`**: The map's notes (e.g., a last-updated timestamp). Omit to
+  preserve them, or pass an empty string to clear them.
 - **`options.republish`**: If `true`, republishes the map after updating the
-  data. Defaults to `false`.
+  data and any supplied title, description, or notes. Defaults to `false`.
 
 ##### Returns
 
@@ -1970,8 +1982,10 @@ await table.log();
 ```
 
 ```ts
-// Update data, add a note, and republish
+// Update data, title, description, and notes, then republish
 await table.toGeoDatawrapper("myMapId", {
+  title: "Population by region",
+  description: "Latest population estimates.",
   note: `Last updated: ${new Date().toLocaleString()}`,
   republish: true,
 });

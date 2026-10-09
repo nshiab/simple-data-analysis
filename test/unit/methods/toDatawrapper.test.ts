@@ -1,4 +1,5 @@
 import { assertEquals } from "@std/assert";
+import assertLiveDatawrapperExport from "../helpers/assertLiveDatawrapperExport.ts";
 import { SimpleDB } from "../../../src/index.ts";
 
 const apiKey = Deno.env.get("DATAWRAPPER_KEY");
@@ -48,3 +49,24 @@ if (typeof apiKey === "string" && apiKey !== "") {
 } else {
   console.log("No DATAWRAPPER_KEY in process.env");
 }
+
+Deno.test({
+  name: "toDatawrapper live round-trip restores data and information",
+  ignore: !apiKey,
+  async fn() {
+    const sdb = new SimpleDB();
+    try {
+      const table = sdb.newTable();
+      table.loadArray([{ salary: 75000, hireDate: "2022-12-15" }]);
+      await assertLiveDatawrapperExport(
+        "ntURh",
+        await table.getDataAsCSV(),
+        async (options) => {
+          assertEquals(await table.toDatawrapper("ntURh", options), table);
+        },
+      );
+    } finally {
+      await sdb.close();
+    }
+  },
+});

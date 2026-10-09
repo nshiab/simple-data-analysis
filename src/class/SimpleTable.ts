@@ -1602,8 +1602,10 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * @example
    * ```ts
-   * // Update data, add a note, and republish
+   * // Update data, title, description, and notes, then republish
    * await table.toDatawrapper("myChartId", {
+   *   title: "Monthly sales",
+   *   description: "Revenue since January 2025.",
    *   note: `Last updated: ${new Date().toLocaleString()}`,
    *   republish: true,
    * });
@@ -1614,8 +1616,10 @@ export default class SimpleTable extends SimpleTableCore {
    * @param chartId - The unique ID of the Datawrapper chart or table to update. This ID can be found in the Datawrapper URL or dashboard.
    * @param options - An optional object with configuration options:
    * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
-   * @param options.note - A string to update the chart's notes field with (e.g., a last-updated timestamp).
-   * @param options.republish - If `true`, republishes the chart after updating the data. Defaults to `false`.
+   * @param options.title - The chart's title. Omit to preserve it, or pass an empty string to clear it.
+   * @param options.description - The description below the chart's title. Omit to preserve it, or pass an empty string to clear it.
+   * @param options.note - The chart's notes (e.g., a last-updated timestamp). Omit to preserve them, or pass an empty string to clear them.
+   * @param options.republish - If `true`, republishes the chart after updating the data and any supplied title, description, or notes. Defaults to `false`.
    * @returns A promise that resolves to this table after the data has been sent to Datawrapper.
    * @category Exporting Data
    */
@@ -1623,6 +1627,8 @@ export default class SimpleTable extends SimpleTableCore {
     chartId: string,
     options: {
       apiKeyEnvVar?: string;
+      title?: string;
+      description?: string;
       note?: string;
       republish?: boolean;
     } = {},
@@ -1683,8 +1689,10 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * @example
    * ```ts
-   * // Update data, add a note, and republish
+   * // Update data, title, description, and notes, then republish
    * await table.toGeoDatawrapper("myMapId", {
+   *   title: "Population by region",
+   *   description: "Latest population estimates.",
    *   note: `Last updated: ${new Date().toLocaleString()}`,
    *   republish: true,
    * });
@@ -1696,8 +1704,10 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options - An optional object with configuration options:
    * @param options.apiKeyEnvVar - A custom environment-variable name from which to read the Datawrapper API key. Defaults to `"DATAWRAPPER_KEY"`.
    * @param options.column - The name of the geometry column to use. If omitted, the method will automatically attempt to find a geometry column.
-   * @param options.note - A string to update the map's notes field with.
-   * @param options.republish - If `true`, republishes the map after updating the data. Defaults to `false`.
+   * @param options.title - The map's title. Omit to preserve it, or pass an empty string to clear it.
+   * @param options.description - The description below the map's title. Omit to preserve it, or pass an empty string to clear it.
+   * @param options.note - The map's notes (e.g., a last-updated timestamp). Omit to preserve them, or pass an empty string to clear them.
+   * @param options.republish - If `true`, republishes the map after updating the data and any supplied title, description, or notes. Defaults to `false`.
    * @returns A promise that resolves to this table after the data has been sent to Datawrapper.
    * @category Exporting Data
    */
@@ -1706,6 +1716,8 @@ export default class SimpleTable extends SimpleTableCore {
     options: {
       apiKeyEnvVar?: string;
       column?: string;
+      title?: string;
+      description?: string;
       note?: string;
       republish?: boolean;
     } = {},
