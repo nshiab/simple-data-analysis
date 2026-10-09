@@ -1,4 +1,5 @@
 import { assertEquals } from "@std/assert";
+import assertLiveDatawrapperExport from "../helpers/assertLiveDatawrapperExport.ts";
 import { SimpleDB } from "../../../src/index.ts";
 
 const apiKey = Deno.env.get("DATAWRAPPER_KEY");
@@ -49,3 +50,26 @@ if (typeof apiKey === "string" && apiKey !== "") {
 } else {
   console.log("No DATAWRAPPER_KEY in process.env");
 }
+
+Deno.test({
+  name: "toGeoDatawrapper live round-trip restores data and information",
+  ignore: !apiKey,
+  async fn() {
+    const sdb = new SimpleDB();
+    try {
+      const table = sdb.newTable();
+      table.loadGeoData(
+        "test/geodata/files/CanadianProvincesAndTerritories.json",
+      );
+      await assertLiveDatawrapperExport(
+        "lDO6F",
+        JSON.stringify(await table.getGeoData()),
+        async (options) => {
+          assertEquals(await table.toGeoDatawrapper("lDO6F", options), table);
+        },
+      );
+    } finally {
+      await sdb.close();
+    }
+  },
+});
