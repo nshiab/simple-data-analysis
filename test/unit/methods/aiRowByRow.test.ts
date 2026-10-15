@@ -251,7 +251,6 @@ function registerRowProcessingContract(
     await fixture.run(async () => {
       const sdb = new SimpleDB();
       let callbacks = 0;
-      let generationCallbacks = 0;
       let rejectCached = true;
       const rawCountries: string[] = [];
       try {
@@ -260,27 +259,7 @@ function registerRowProcessingContract(
           await table
             .loadArray([{ city: "Marrakech" }])
             .aiRowByRow("city", "country", "Return the country for response processing.", {
-              generation: {
-                ...fixture.generation,
-                processResponse: async (response) => {
-                  await Promise.resolve();
-                  generationCallbacks++;
-                  if (!Array.isArray(response)) throw new Error("Expected an array.");
-                  const rows: unknown[] = response;
-                  for (const row of rows) {
-                    if (
-                      typeof row !== "object" ||
-                      row === null ||
-                      !("country" in row) ||
-                      typeof row.country !== "string"
-                    ) {
-                      throw new Error("Expected a country.");
-                    }
-                    row.country += `:generation-${suffix}`;
-                  }
-                  return rows;
-                },
-              },
+              generation: fixture.generation,
               retry: 1,
               retryCheck: (error) => error instanceof Error && error.message === "Retry processing",
               processResponse: async (response) => {
@@ -309,19 +288,11 @@ function registerRowProcessingContract(
               },
             })
             .run();
-          expect(await table.getValues("country")).toEqual([
-            `Morocco:generation-${suffix}:${suffix}`,
-          ]);
+          expect(await table.getValues("country")).toEqual([`Morocco:${suffix}`]);
           expect(fixture.requestCount()).toBe(suffix === "recovered" ? 2 : 1);
         }
         expect(callbacks).toBe(4);
-        expect(generationCallbacks).toBe(4);
-        expect(rawCountries).toEqual([
-          "Morocco:generation-first",
-          "Morocco:generation-second",
-          "Morocco:generation-recovered",
-          "Morocco:generation-recovered",
-        ]);
+        expect(rawCountries).toEqual(Array(4).fill("Morocco"));
       } finally {
         await sdb.close();
       }

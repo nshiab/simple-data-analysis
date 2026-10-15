@@ -7,7 +7,6 @@ export default async function processAIRowsResponse(
   newColumns: string[],
   options: {
     processResponse?: (response: unknown) => unknown;
-    test?: (result: AIRow) => void;
   },
 ): Promise<AIRow[]> {
   const response = options.processResponse
@@ -32,7 +31,6 @@ export default async function processAIRowsResponse(
         );
       }
     }
-    options.test?.(item as AIRow);
   }
   return response as AIRow[];
 }

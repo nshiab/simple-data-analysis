@@ -487,19 +487,10 @@ AI_EMBEDDINGS_MODEL=nomic-embed-text
 SDA's AI capabilities come from
 [`journalism-ai`](https://www.npmjs.com/package/@nshiab/journalism-ai). By default, LLM
 responses and embeddings are cached in the hidden `.journalism-cache` folder,
-avoiding repeated model calls for the same request. This caches model responses
-before user processing, not the output of your callbacks. `processResponse`
-(including `generation.processResponse`) runs on fresh and cached responses and
-can be async. Changing it reuses the model response and applies your new
-processing without another model call. Mutating its input does not change the
-stored response.
-
-Fresh model responses are saved only after response processing succeeds. If
-processing rejects a cached response, that entry is removed; a retry can then
-request a fresh response. Set `generation.cache: false` to disable generation
-caching, or delete `.journalism-cache` to clear the request cache. Add this folder
-to `.gitignore`. This request cache is separate from the table-level `cache()`
-method, which caches the result of a computation in `.sda-cache`.
+avoiding repeated model calls for the same request. Processing callbacks still
+run on cache hits; their output is not cached. Keep them lightweight for large
+workloads. This differs from table-level `cache()`, which caches computation
+results in `.sda-cache`.
 
 #### Enrich rows with AI
 
@@ -540,10 +531,7 @@ The resulting table would be:
 Use `processResponse` to transform or validate each parsed response batch before
 storing it. Return the resulting array (or a promise of it), preserving its row
 count and order and the requested columns. Throwing an error follows `retry` and
-`retryCheck`. On both fresh and cached responses, `generation.processResponse`
-runs first (if provided), then `processResponse`, then SDA checks the rows and
-runs your optional `test` callback. The original model response is cached only
-if all these steps succeed.
+`retryCheck`. The callback reruns on cache hits, and its output is never cached.
 
 #### Create embeddings
 

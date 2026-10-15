@@ -80,17 +80,15 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * This method automatically appends instructions to your prompt; set `verbose` to `true` to see the full prompt.
    *
-   * This method supports Gemini, Vertex AI, and Ollama.
+   * This method uses [journalism-ai](https://nshiab.github.io/journalism-ai/) to call Gemini, Vertex AI, or Ollama.
    *
    * Environment variables are named configuration values supplied to the running process. By default, this method reads `AI_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_MODEL` (for example, `"gemini-3-flash-preview"` or `"gemma3:4b"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Values passed through `generation` override the corresponding environment values. When using Ollama, ensure it is running.
    *
    * To manage rate limits, use `batchSize` to process multiple rows per request and `rateLimitPerMinute` to pace requests across the worker pool. The `concurrency` option controls how many requests may run in parallel.
    *
-   * Model responses are cached locally in `.journalism-cache` by default, before user processing. On both fresh responses and cache hits, SDA awaits `generation.processResponse` (if provided), then `processResponse`, then checks the rows and runs `test`. Callback outputs are never cached, so changing a callback reuses the original model response without another model call. Mutating the callback input does not change the stored response.
+   * **Caching**: model calls can be slow and costly, so original responses are cached in Journalism AI's `.journalism-cache` folder by default. `processResponse` reruns on every call, including cache hits, and its output is never cached. Keep processing lightweight and optimize heavier work, especially for large tables. Set `generation.cache: false` to disable caching.
    *
-   * A fresh model response is saved only after processing and row checks succeed. If processing or validation rejects a cached response, SDA removes that entry; retries can then request a fresh response. Set `generation.cache` to `false` to disable caching, or remove `.journalism-cache` to clear it. Add that folder to your `.gitignore`.
-   *
-   * If the AI returns fewer items than expected in a batch, or if a custom `test` function fails, the `retry` option will reattempt the request. The `retryCheck` function can restrict which errors are retried.
+   * `processResponse` can transform the response or validate it by throwing an error. The `retry` option controls retries after request or processing failures, and `retryCheck` selects which errors to retry. Rejected responses are not retained in the model cache, so retries can request fresh responses.
    *
    * By default, a failed batch throws. Set `errorColumn` to store the error on every row in the failed batch, set its output columns to `NULL`, and continue processing other batches. Successful rows contain `NULL` in the error column.
    *
@@ -119,13 +117,16 @@ export default class SimpleTable extends SimpleTableCore {
    *       batchSize: 10, // Process 10 rows at once
    *       concurrency: 5, // Process up to 5 requests concurrently
    *       errorColumn: "error", // Store failed rows instead of throwing
-   *       test: (data: { [key: string]: unknown }) => { // Validate AI's response
-   *         if (
-   *           typeof data.gender !== "string" ||
-   *           !["Man", "Woman", "Neutral"].includes(data.gender)
-   *         ) {
-   *           throw new Error(`Invalid response: ${data.gender}`);
+   *       processResponse: (response) => { // Validate the response batch
+   *         if (!Array.isArray(response)) throw new Error("Expected an array.");
+   *         for (const row of response) {
+   *           if (
+   *             typeof row !== "object" || row === null ||
+   *             !("gender" in row) || typeof row.gender !== "string" ||
+   *             !["Man", "Woman", "Neutral"].includes(row.gender)
+   *           ) throw new Error("Invalid gender response.");
    *         }
+   *         return response;
    *       },
    *       retry: 3, // Retry up to 3 times on failure
    *       rateLimitPerMinute: 15, // Limit requests to 15 per minute
@@ -212,7 +213,6 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.errorColumn - The optional column where per-row error messages are stored. When omitted, a failed batch throws.
    * @param options.logProgress - If `true`, logs request-pool progress. Defaults to `false`.
    * @param options.generation - Optional Gemini or Ollama generation configuration.
-   * @param options.test - A function to validate the returned data. If it throws an error, the request will be retried (if `retry` is set). Defaults to `undefined`.
    * @param options.retry - The number of times to retry the request in case of failure. Defaults to `0`.
    * @param options.retryCheck - A function that receives an error and returns whether it should be retried. Defaults to `undefined`.
    * @param options.rateLimitPerMinute - The maximum number of provider requests started per minute. Request starts are spaced across the worker pool; cached responses bypass the limit. Defaults to `undefined` (no limit).
@@ -234,8 +234,6 @@ export default class SimpleTable extends SimpleTableCore {
         schemaJson?: unknown;
         /** Cache the model response before user processing. Defaults to true. */
         cache?: boolean;
-        /** Runs on fresh and cached model responses; its output is never cached. Changing it reuses the model response. */
-        processResponse?: (response: unknown) => unknown;
         temperature?: number;
       } & (
         | {
@@ -313,7 +311,6 @@ export default class SimpleTable extends SimpleTableCore {
       concurrency?: number;
       errorColumn?: string;
       logProgress?: boolean;
-      test?: (result: { [key: string]: unknown }) => void;
       retry?: number;
       retryCheck?: (error: unknown) => Promise<boolean> | boolean;
       verbose?: boolean;
@@ -861,11 +858,13 @@ export default class SimpleTable extends SimpleTableCore {
   }
 
   /**
-   * Performs Retrieval-Augmented Generation (RAG) by combining semantic vector search and BM25 full-text search to retrieve the most relevant context, then passing it to an LLM for answering queries. This hybrid approach uses both `aiVectorSimilarity` (embeddings-based) and `bm25` (keyword-based) methods in parallel, fusing their results using Reciprocal Rank Fusion (RRF) before calling the `askAI` function from the journalism library.
+   * Performs Retrieval-Augmented Generation (RAG) by combining semantic vector search and BM25 full-text search to retrieve the most relevant context, then passing it to an LLM for answering queries. This hybrid approach uses both `aiVectorSimilarity` (embeddings-based) and `bm25` (keyword-based) methods in parallel, fusing their results using Reciprocal Rank Fusion (RRF) before using [journalism-ai](https://nshiab.github.io/journalism-ai/) to generate an answer.
    *
    * Internally, this method uses the `hybridSearch` method to retrieve relevant rows. If you want to perform hybrid search without the LLM step (i.e., to get the table of results directly), use `hybridSearch` instead.
    *
-   * When vector search is enabled, retrieval caches embedding responses in `.journalism-cache` and the table with its generated embedding column in `.sda-cache`. The model response for the answer is also cached in `.journalism-cache`, before user processing. `generation.processResponse` runs on fresh and cached responses; its output is never cached and changing it reuses the model response. Fresh responses are saved only after processing succeeds; rejected cached responses are removed and the error is propagated. Set `embeddings.cache` or `generation.cache` to `false` to disable the corresponding caches.
+   * When vector search is enabled, retrieval caches embedding responses in `.journalism-cache` and the table with its generated embedding column in `.sda-cache`. Set `embeddings.cache: false` to disable these retrieval caches.
+   *
+   * **Generation caching**: model calls can be slow and costly, so original responses are cached in `.journalism-cache` by default. `generation.processResponse` reruns on every call, including cache hits, and its output is never cached. Keep it lightweight and optimize heavier processing, especially for large workloads. Set `generation.cache: false` to disable generation caching.
    *
    * Remove `.journalism-cache` and `.sda-cache` to clear existing cache entries. Remember to add both directories to your `.gitignore`.
    *
@@ -1158,13 +1157,13 @@ export default class SimpleTable extends SimpleTableCore {
    * Generates and executes a SQL query based on a prompt.
    * Additional instructions, such as column types, are automatically added to your prompt. Set `verbose` to `true` to see the full prompt.
    *
-   * This method supports Gemini, Vertex AI, and Ollama.
+   * This method uses [journalism-ai](https://nshiab.github.io/journalism-ai/) to call Gemini, Vertex AI, or Ollama.
    *
    * Environment variables are named configuration values supplied to the running process. By default, this method reads `AI_PROVIDER` (`"gemini"` or `"ollama"`; defaults to `"gemini"`), `AI_MODEL` (for example, `"gemini-3-flash-preview"` or `"gemma3:4b"`), and, for Gemini, either `AI_KEY` (for example, `"your-gemini-api-key"`) or both `AI_PROJECT` (for example, `"my-google-cloud-project"`) and `AI_LOCATION` (for example, `"us-central1"`). Values passed through `generation` override the corresponding environment values. When using Ollama, ensure it is running.
    *
    * Ollama temperature defaults to 0, while Gemini uses the provider's default. Provider-specific controls live under `generation`.
    *
-   * The model response containing the generated query is cached locally in `.journalism-cache` by default, before user processing. `generation.processResponse` runs on fresh and cached responses; its output is never cached and changing it reuses the model response. A cache hit still processes and executes the query against the current table. Fresh responses are saved only after processing succeeds; rejected cached responses are removed and the error is propagated. Set `generation.cache` to `false` to disable caching, or remove `.journalism-cache` to clear it. Add that folder to your `.gitignore`.
+   * **Caching**: model calls can be slow and costly, so Journalism AI caches generated SQL responses in `.journalism-cache` by default. The SQL query still executes against the current table on every call; query results are not cached. Set `generation.cache: false` to disable caching.
    * The work is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @example
@@ -1229,8 +1228,6 @@ export default class SimpleTable extends SimpleTableCore {
         model?: string;
         /** Cache the model response before user processing. Defaults to true. */
         cache?: boolean;
-        /** Runs on fresh and cached model responses; its output is never cached. Changing it reuses the model response. */
-        processResponse?: (response: unknown) => unknown;
         temperature?: number;
       } & (
         | {

@@ -50,6 +50,27 @@ function checkPublicMethodOptions(table: SimpleTable): void {
       embeddings: ollamaOptions,
     })
     .selectColumns("*");
+  table.aiRowByRow("text", "label", "Classify", {
+    processResponse: async (response) => response,
+  });
+  table.aiRowByRow("text", "label", "Classify", {
+    // @ts-expect-error Validation now uses the single processResponse callback.
+    test: () => {},
+  });
+  table.aiRowByRow("text", "label", "Classify", {
+    generation: {
+      provider: "gemini",
+      // @ts-expect-error Row processing belongs in the top-level callback.
+      processResponse: (response: unknown) => response,
+    },
+  });
+  table.aiQuery("select rows", {
+    generation: {
+      provider: "ollama",
+      // @ts-expect-error SDA owns the SQL response processing.
+      processResponse: (response: unknown) => response,
+    },
+  });
   const queryTable: SimpleTable = table.aiQuery("select rows").selectColumns("*");
   const sheetTable: SimpleTable = table.loadSheet("https://example.com/sheet").selectColumns("*");
   const dwTable: SimpleTable = table.loadDatawrapper("chart-id").selectColumns("*");

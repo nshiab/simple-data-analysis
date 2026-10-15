@@ -1,7 +1,7 @@
 import validateAIRequestOptions from "../helpers/validateAIRequestOptions.ts";
 import { queueAsyncBarrier, updateColumnsWithJS } from "@nshiab/simple-data-analysis-core/helpers";
 import type SimpleTable from "../class/SimpleTable.ts";
-import type { AIRequestMetrics, GenerationOptions } from "../helpers/aiOptions.ts";
+import type { AIRequestMetrics } from "../helpers/aiOptions.ts";
 import { snapshotAIOptions } from "../helpers/aiOptions.ts";
 import processAIRowsResponse from "../helpers/processAIRowsResponse.ts";
 
@@ -22,7 +22,7 @@ type AIRow = { [key: string]: unknown };
  */
 export type AIRowByRowOptions = {
   /** Provider-specific generation options, or options for the environment-selected provider. */
-  generation?: GenerationOptions;
+  generation?: NonNullable<Parameters<SimpleTable["aiRowByRow"]>[3]>["generation"];
   /** Number of rows sent in each request. */
   batchSize?: number;
   /** Maximum number of requests processed concurrently. */
@@ -31,8 +31,6 @@ export type AIRowByRowOptions = {
   errorColumn?: string;
   /** Logs request-pool progress when enabled. */
   logProgress?: boolean;
-  /** Validates each processed result and throws to trigger a retry. */
-  test?: (result: { [key: string]: unknown }) => void;
   /** Number of retries after a request or validation failure. */
   retry?: number;
   /** Decides whether a failed request should be retried. */
@@ -125,7 +123,7 @@ async function runAIRowByRow(
         requests.map(
           (request) => (beforeRequest) =>
             askAI<AIRow[]>(request.prompt, {
-              generation: options.generation,
+              generation: { ...options.generation, processResponse: undefined },
               systemPrompt: request.systemPrompt,
               schemaJson: request.schemaJson,
               metrics: options.metrics,

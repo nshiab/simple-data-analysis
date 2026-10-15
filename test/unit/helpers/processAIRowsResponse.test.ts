@@ -3,7 +3,6 @@ import { assertRejects } from "../../helpers/assertions.ts";
 import processAIRowsResponse from "../../../src/helpers/processAIRowsResponse.ts";
 
 test("awaits processing before validating batched AI rows", async () => {
-  const tested: { [key: string]: unknown }[] = [];
   const result = await processAIRowsResponse({ rows: [{ category: "news" }] }, 1, ["category"], {
     processResponse: async (response) => {
       await Promise.resolve();
@@ -12,11 +11,9 @@ test("awaits processing before validating batched AI rows", async () => {
       }
       return response.rows;
     },
-    test: (row) => tested.push(row),
   });
 
   expect(result).toEqual([{ category: "news" }]);
-  expect(tested).toEqual(result);
 });
 
 test("rejects invalid batched AI rows", async () => {
